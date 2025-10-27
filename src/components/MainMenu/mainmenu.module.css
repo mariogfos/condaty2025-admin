@@ -3,14 +3,13 @@
   display: flex;
   height: 100vh;
   border-right: 1px solid rgba(191, 185, 185, 0.1);
-  padding: var(--spM);
+  padding: var(--spXl) var(--spL) 0;
   overflow: auto;
   background-color:  var(--cBlackV2);
-  
+
   & > div:nth-child(2) {
     display: flex;
     flex-direction: column;
-    gap: var(--spXs);
     margin-top: var(--spXxl);
   }
 
@@ -32,7 +31,6 @@
   & > div:nth-child(1) {
     & > svg {
       cursor: pointer;
-      /* background-color: aqua; */
       height: 80px;
     }
   }
@@ -68,22 +66,22 @@
   & > a {
     text-decoration: none;
     color: var(--cWhiteV1);
+    font-weight: var(--bMedium);
+    font-size: var(--sM);
     display: flex;
     align-items: center;
     gap: var(--spS);
-    padding: var(--spS);
+    padding: var(--spL) var(--spM);
     border-radius: var(--bRadiusS);
   }
 
   & > a:hover {
-    /* background-color: var(--cBlackV1); */
-    background-color: rgba(33, 37, 41, 0.5);
+    background-color: var(--cBlackV1);
   }
 
   & > a.active {
     background-color: var(--cHoverBigSidebar);
     border: 0.5px solid var(--cBigSidebar);
-    /* background-color: rgba(33, 37, 41, 0.5); */
     color: var(--cWhite);
   }
 
@@ -95,6 +93,8 @@
 .menuDropdown {
   position: relative;
   color: var(--cWhiteV1);
+  font-weight: var(--bMedium);
+  font-size: var(--sM);
   cursor: pointer;
   border-radius: var(--bRadiusS);
   padding: 0px;
@@ -102,7 +102,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* //border: 1px solid var(--cBlack); */
 
   &:hover {
     background-color: rgba(33, 37, 41, 0.5);
@@ -133,7 +132,7 @@
   &.isOpen {
     background-color: rgba(33, 37, 41, 0.5);
     color: var(--cWhite);
-    padding: var(--spS);
+    padding-bottom: var(--spL);
 
     &.collapsed {
       padding: 0;
@@ -141,14 +140,9 @@
   }
 
   &.isRouteActive {
-    /* background-color: rgba(33, 37, 41, 0.5); */
     background-color: var(--cHoverBigSidebar);
     color: white;
     border:0.5px solid var(--cBigSidebar);
-  }
-
-  &.isOpen > div:nth-child(1) {
-    /* background-color: var(--cBigSidebar); */
   }
 
   &.collapsed > div:nth-child(1) {
@@ -174,7 +168,7 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--spS);
-    padding: var(--spS);
+    padding: var(--spL) var(--spM);
     border-radius: var(--bRadiusS);
 
     & > div:nth-child(1) {
@@ -188,14 +182,16 @@
     display: flex;
     flex-direction: column;
     align-self: self-start;
-    gap: var(--spXs);
     width: 100%;
-    margin-top: var(--spS);
+    padding-right: 24px;
+    padding-left: 24px;
 
     & > a {
       text-decoration: none;
       color: var(--cWhiteV1);
-      padding: var(--spS);
+      padding: var(--spS) var(--spM);
+      font-weight: var(--bRegular);
+      font-size: var(--sM);
       border-radius: var(--bRadiusS);
     }
 
@@ -205,7 +201,6 @@
     }
 
     & > a:hover {
-      /* background-color: rgba(245, 149, 28, 0.2); */
       background-color: var(--cAccent);
       color: var(--cBlack);
     }
@@ -213,7 +208,12 @@
     & > a.active,
     & > a.active:hover {
       background-color: var(--cBigSidebar);
-      /* background-color: rgba(245, 149, 28, 0.2); */
     }
   }
+}
+
+.contentWithBadge{
+  display: flex;
+  align-items: center;
+  gap: var(--spS);
 }

@@ -27,6 +27,7 @@ export const SignInModal: any = ({
       buttonCancel=""
       fullScreen={true}
       onSave={handleSubmit}
+      variant={"mini"}
       disabled={!formState.password || !formState.email}
     >
       <div className={styles.signInModal}>

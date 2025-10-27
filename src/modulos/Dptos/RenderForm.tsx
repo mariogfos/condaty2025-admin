@@ -96,12 +96,12 @@ const RenderForm = ({
       key: "nro",
       errors: errs,
     });
-    errs = checkRules({
-      value: formState.description,
-      rules: ["required"],
-      key: "description",
-      errors: errs,
-    });
+    // errs = checkRules({
+    //   value: formState.description,
+    //   rules: ["required"],
+    //   key: "description",
+    //   errors: errs,
+    // });
     errs = checkRules({
       value: formState.type_id,
       rules: ["required"],
@@ -110,13 +110,13 @@ const RenderForm = ({
     });
     errs = checkRules({
       value: formState.expense_amount,
-      rules: ["required"],
+      rules: ["required", "positive"],
       key: "expense_amount",
       errors: errs,
     });
     errs = checkRules({
       value: formState.dimension,
-      rules: ["required"],
+      rules: ["required", "positive"],
       key: "dimension",
       errors: errs,
     });
@@ -139,7 +139,7 @@ const RenderForm = ({
       .filter((field: any) => enabledFields[field.id])
       .map((field: any) => ({
         field_id: field.id,
-        value: formState[`field_${field.id}`] || "",
+        value: formState[`field_${field.id}`] ?? "",
       }));
 
     const { data: response } = await execute(
@@ -151,7 +151,8 @@ const RenderForm = ({
         type_id: parseInt(formState.type_id),
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
-        homeowner_id: formState.homeowner_id,
+        homeowner_id:
+          formState.homeowner_id == "X" ? null : formState.homeowner_id,
         fields: fields,
       },
       false
@@ -178,6 +179,7 @@ const RenderForm = ({
       onClose={onClose}
       title={formState.id ? "Editar unidad" : "Nueva unidad"}
       onSave={onSave}
+      variant={"mini"}
     >
       <Input
         label="Número de Unidad"
@@ -186,6 +188,7 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
         required={true}
+        disabled={!!formState.id}
       />
 
       <Select
@@ -196,6 +199,7 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
         required={true}
+        disabled={!!formState.id}
       />
       <div style={{ display: "flex", gap: 12 }}>
         <Input
@@ -218,23 +222,23 @@ const RenderForm = ({
         />
       </div>
       <TextArea
-        label="Dirrección"
+        label="Dirección"
         name="description"
         value={formState.description}
         onChange={handleChange}
         error={errors}
-        required={true}
+        required={false}
       />
 
-      <Select
+      {/* <Select
         label="Propietario"
         name="homeowner_id"
         value={formState.homeowner_id}
         onChange={handleChange}
-        options={homeownerOptions}
+        options={[{ id: "X", name: "Sin propietario" }, ...homeownerOptions]}
         error={errors}
         required={true}
-      />
+      /> */}
 
       {/* campos extra --- para un futuro quiza
       {typeFields.map((field: any) => (
@@ -255,7 +259,7 @@ const RenderForm = ({
                 onChange={handleChange}
                 />}
               />
-            
+
 
           </div>
           {enabledFields[field.id] && (

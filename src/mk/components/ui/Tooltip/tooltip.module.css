@@ -1,13 +1,78 @@
+.container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+}
+
+.fullWidth > * {
+  flex: 1; /* el hijo (Input) se estira al ancho disponible */
+}
+
 .tooltip {
-    position: absolute;
-    background-color: var(--cWhiteV1);
-    color: var(--cBlackV2);
-    padding: 5px 10px;
-    border-radius: 4px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
-    white-space: nowrap;
-    z-index: 1000; /* Asegura que el tooltip esté por encima de otros elementos */
-    pointer-events: none; /* Evita que el tooltip interfiera con eventos del mouse */
-    transition: opacity 0.3s ease;
-  }
-  
+  visibility: hidden;
+  background-color: var(--cWhiteV3);
+  color: var(--cWhite);
+  text-align: start;
+  padding: 10px;
+  border-radius: var(--bRadiusS);
+  z-index: 9999;
+  position: absolute;
+  font-size: var(--sS);
+}
+
+.container:hover .tooltip {
+  visibility: visible;
+}
+
+/* Direcciones simples */
+.top {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bottom {
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.left {
+  top: 50%;
+  right: 100%;
+  transform: translateY(-50%);
+}
+
+.right {
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+}
+
+/* Direcciones combinadas */
+.top-left {
+  bottom: 100%;
+  left: 10;
+}
+
+.top-right {
+  bottom: 100%;
+  right: 0;
+}
+
+.bottom-left {
+  top: 100%;
+  left: 0;
+}
+
+.bottom-right {
+  top: 100%;
+  right: 0;
+}

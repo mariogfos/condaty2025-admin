@@ -40,6 +40,9 @@ const useCrudUtils = ({
 }: PropsType): ResultPropsType => {
   const [searchState, setSearchState] = useState(0);
   const [clearSearch, setClearSearch] = useState(false);
+  const capitalizeFirstLetter = (str: any) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
   useEffect(() => {
     if (searchState == 1 && searchs?.searchBy == "" && clearSearch) {
       setClearSearch(false);
@@ -53,7 +56,7 @@ const useCrudUtils = ({
         searchState == 0
           ? title
             ? title
-            : mod.plural.toUpperCase()
+            : capitalizeFirstLetter(mod.plural)
           : "Acciones",
       right,
       customTitle,

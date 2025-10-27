@@ -1,10 +1,7 @@
-import React from "react";
-import styles from "./WidgetDashCard.module.css";
-import {
-  IconAccess,
-  IconInterrogation,
-} from "@/components/layout/icons/IconsBiblioteca";
-import Tooltip from "@/components/Tooltip/Tooltip";
+import React from 'react';
+import styles from './WidgetDashCard.module.css';
+import { IconAccess, IconInterrogation } from '@/components/layout/icons/IconsBiblioteca';
+import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
 
 interface ItemProps {
   title: string;
@@ -16,44 +13,73 @@ interface ItemProps {
   icon?: any;
   tooltip?: boolean;
   tooltipTitle?: string;
+  tooltipColor?: string;
+  tooltipPosition?: 'top' | 'bottom' | 'left' | 'right';
+  tooltipWidth?: number;
   style?: React.CSSProperties;
 }
 
 export const WidgetDashCard = ({
   title,
-  subtitle = "",
+  subtitle = '',
   className = styles.flexGrow,
   color,
   data,
   icon,
   tooltip,
-  tooltipTitle = "",
+  tooltipTitle = '',
+  tooltipColor,
+  tooltipPosition = 'right',
+  tooltipWidth,
   onClick,
   style,
 }: ItemProps) => {
   return (
     <div
-      className={`${styles.container} ${
-        onClick ? styles.clickable : ""
-      } ${className}`}
+      className={`${styles.container} ${onClick ? styles.clickable : ''} ${className}`}
       onClick={onClick}
       style={style}
     >
       <div>
-        <p className={styles.title}>
-          {title}{" "}
+        <div
+          className={styles.title}
+          style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+        >
+          <span className={styles.titleText} title={title}>
+            {title}
+          </span>
           {tooltip && (
-            <Tooltip title={tooltipTitle} position="right">
-              <IconInterrogation />{" "}
+            <Tooltip
+              title={tooltipTitle}
+              position={tooltipPosition}
+              singleLine={false}
+              minWidth={tooltipWidth || 200}
+              style={{ display: 'inline-flex', alignItems: 'center' }}
+            >
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  lineHeight: 1,
+                }}
+              >
+                <IconInterrogation
+                  color={tooltipColor || 'var(--cWhiteV1)'}
+                  size={18}
+                />
+              </span>
             </Tooltip>
           )}
-        </p>
-        <p>{subtitle}</p>
+        </div>
+        {/* <p>{subtitle}</p> */}
         <p className={styles.data} style={color ? { color: color } : undefined}>
           {data}
         </p>
       </div>
-      <div> {icon}</div>
+      <div className={styles.iconWrap}>{icon}</div>
     </div>
   );
 };

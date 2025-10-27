@@ -4,12 +4,18 @@
   flex-direction: column;
   gap: var(--spM);
   width: 100%;
-
+  .allStatsRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spM);
+    width: 100%;
+    margin-bottom: var(--spL);
+  }
   .title {
-    font-size: var(--sXl);
-    font-weight: 600;
+    font-size: var(--sXxl);
+    font-weight: var(--bSemibold);
+    margin-bottom: var(--spL);
     color: var(--cWhite);
-    margin-bottom: 4px;
   }
   .subtitle {
     font-size: var(--sL);
@@ -23,7 +29,7 @@
   }
   .container {
     /* display: flex; */
-    padding: 16px; 
+    padding: 16px;
     & > div {
       display: flex;
       justify-content: center;
@@ -35,7 +41,7 @@
       background-color: var(--cBlackV1);
       border-radius: 8px;
       margin-top: 8px;
-      
+
       & > div {
         display: flex;
         margin-bottom: 8px;
@@ -44,7 +50,6 @@
         & > p:nth-child(odd) {
           flex: 1;
           color: var(--cWhiteV1);
-          
         }
         & > p:nth-child(even) {
           flex: 1;
@@ -56,31 +61,29 @@
   }
 }
 .renderView {
- & > div {  
-  /* background-color: blue;  */
-    display: flex; 
-    padding: 16px; 
-    gap:var(--spL);
+  & > div {
+    /* background-color: blue;  */
+    display: flex;
+    padding: 16px;
+    gap: var(--spL);
     align-items: center;
     @media (max-width: 750px) {
       flex-direction: column;
-    };
+    }
     & > div {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       gap: var(--spL);
-      
     }
     & > section {
       padding: var(--spM);
       background-color: var(--cBlackV1);
       border-radius: 8px;
-      
-      width:100%;
 
-      
+      width: 100%;
+
       & > div {
         display: flex;
         margin-bottom: 16px;
@@ -89,7 +92,6 @@
         & > p:nth-child(odd) {
           flex: 1;
           color: var(--cWhiteV1);
-          
         }
         & > p:nth-child(even) {
           flex: 1;
@@ -99,7 +101,6 @@
       }
     }
   }
-  
 }
 .fieldSet {
   width: 100%;
@@ -109,17 +110,16 @@
   flex-direction: column;
   border-bottom: 0.5px solid var(--cWhiteV1);
   border-top: 0.5px solid var(--cWhiteV1);
- 
+
   gap: var(--spL);
   & > div {
-    gap:var(--spL)
+    gap: var(--spL);
   }
-  & > div:nth-child(1) > div:nth-child(1){
-    color:var(--cWhite);
+  & > div:nth-child(1) > div:nth-child(1) {
+    color: var(--cWhite);
     font-size: var(--sL);
     font-weight: var(--bBold);
     margin-bottom: var(--spL);
-
   }
 }
 /* Estilo base para la etiqueta del rol */
@@ -127,13 +127,11 @@
   display: inline-flex; /* Ajusta el tamaño al contenido */
   padding: 0.375rem 0.6rem; /* Espaciado interno vertical y horizontal */
   border-radius: 0.25rem; /* Bordes redondeados */
-  font-size: 13px;        /* Tamaño de fuente */
-  font-weight: 500;       /* Peso de fuente (semi-bold) */
-  text-align: center;
-  max-width: 150px;        /* Ancho máximo opcional */
-  overflow: hidden;        /* Ocultar texto que desborde */
+  font-size: 13px; /* Tamaño de fuente */
+  font-weight: 500; /* Peso de fuente (semi-bold) */
+  text-align: center; /* Ocultar texto que desborde */
   text-overflow: ellipsis; /* Mostrar '...' si el texto se corta */
-  white-space: nowrap;     /* Evitar que el texto se parta en varias líneas */
+  white-space: nowrap; /* Evitar que el texto se parta en varias líneas */
 }
 
 .roleBadge span {
@@ -144,7 +142,7 @@
 .isDefaultRole {
   /* Fondo blanco/plomo muy transparente */
   /* Puedes jugar con el valor alfa (el último número, 0.15 = 15% opacidad) */
-  background-color: rgba(255, 255, 255, 0.15); 
+  background-color: rgba(255, 255, 255, 0.15);
   /* Alternativa más grisácea: background-color: rgba(200, 200, 200, 0.15); */
 }
 .isDefaultRole span {

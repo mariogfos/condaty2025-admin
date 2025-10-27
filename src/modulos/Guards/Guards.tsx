@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import styles from "./Guards.module.css";
 import RenderItem from "../shared/RenderItem";
@@ -8,43 +7,37 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
-  IconAccess,
-  IconAdd,
   IconGuardShield,
   IconSecurity,
 } from "@/components/layout/icons/IconsBiblioteca";
-import Input from "@/mk/components/forms/Input/Input";
-import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
-import RenderView from "./RenderView/RenderView";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
-
+import Br from "@/components/Detail/Br";
 const paramsInitial = {
   perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
+  extraData: true,
 };
 
 const Guards = () => {
   const mod: ModCrudType = {
     modulo: "guards",
-    singular: "Guardia",
+    singular: "guardia",
     plural: "Guardias",
     filter: true,
-    permiso: "",
+    permiso: "guards",
     export: true,
-    import: true,
+    titleAdd: "Nuevo",
+    //import: true,
     hideActions: {
       edit: true,
       del: true,
     },
-    // noWaiting: true,
-    // import: true,
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -52,7 +45,6 @@ const Guards = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
       reLoad?: any;
-      // noWaiting?: boolean;
     }) => {
       return (
         <ProfileModal
@@ -60,8 +52,9 @@ const Guards = () => {
           onClose={props?.onClose}
           dataID={props?.item?.id}
           type={"guard"}
-          title="Perfil de Guardia"
+          title="Perfil de guardia"
           reLoad={props?.reLoad}
+          titleBack="Volver a lista de guardias"
         />
       );
     },
@@ -83,17 +76,6 @@ const Guards = () => {
         />
       );
     },
-    // renderForm: (props: {
-    //   item: any;
-    //   setItem: any;
-    //   extraData: any;
-    //   open: boolean;
-    //   onClose: any;
-    //   user: any;
-    //   execute: any;
-    // }) => <RenderForm {...props} />,
-    // extraData: true,
-    // hideActions: { add: true },
   };
 
   const onBlurCi = useCallback(async (e: any, props: any) => {
@@ -102,85 +84,144 @@ const Guards = () => {
       "/guards",
       "GET",
       {
-        _exist: 1,
-        ci: e.target.value,
+        fullType: "EXIST",
+        type: "ci",
+        searchBy: e.target.value,
       },
       false,
       true
     );
 
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data;
+    if (data?.success && data.data?.data?.id) {
+      const filteredData = data.data.data;
+      if (filteredData.existCondo) {
+        showToast("El guardia ya existe en este condominio", "warning");
+        props.setItem({});
+        props.setError({ ci: " Ese CI ya esta en uso en este condominio." });
+        return;
+      }
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
-        ci: filteredData[0].ci,
-        name: filteredData[0].name,
-        middle_name: filteredData[0].middle_name,
-        last_name: filteredData[0].last_name,
-        mother_last_name: filteredData[0].mother_last_name,
-        email: filteredData[0].email,
-        phone: filteredData[0].phone,
+        ci: filteredData.ci,
+        name: filteredData.name,
+        password: "12345678",
+        middle_name: filteredData.middle_name,
+        last_name: filteredData.last_name,
+        mother_last_name: filteredData.mother_last_name,
+        email: filteredData.email ?? "",
+        phone: filteredData.phone,
         _disabled: true,
+        _emailDisabled: true,
       });
       showToast(
-        "El residente ya existe en Condaty, se va a vincular al Condominio",
+        "El guardia ya existe en condaty, se va a vincular al condominio",
         "warning"
       );
     } else {
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
         _disabled: false,
+        _emailDisabled: false,
       });
-      //no existe
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const onDisbled = ({ item }: any) => {
+
+  const onBlurEmail = useCallback(async (e: any, props: any) => {
+    if (
+      e.target.value.trim() == "" ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
+    )
+      return;
+
+    const { data, error } = await execute(
+      "/guards",
+      "GET",
+      {
+        fullType: "EXIST",
+        type: "email",
+        searchBy: e.target.value,
+      },
+      false,
+      true
+    );
+
+    if (data?.success && data.data?.data?.id) {
+      showToast("El email ya esta en uso", "warning");
+      props.setError({ email: "El email ya esta en uso" });
+      props.setItem({ ...props.item, email: "" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onDisbled = ({ item, field }: any) => {
+    if (field?.name === "email") {
+      return item._emailDisabled;
+    }
     return item._disabled;
   };
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-
+      avatar: {
+        api: "a*e*",
+        label: "Suba una Imagen",
+        list: false,
+        form: {
+          type: "imageUpload",
+          prefix: "GUARD",
+          style: { width: "100%" },
+        },
+      },
+      ci: {
+        rules: ["required", "ci"],
+        api: "ae",
+        label: "Carnet de Identidad",
+        form: {
+          type: "number",
+          disabled: onDisbled,
+          onBlur: onBlurCi,
+          required: true,
+        },
+        list: false,
+      },
       fullName: {
         // rules: ["required"],
         api: "ae",
-        label: "Nombre del guardia",
-        form: false,
+        label: "Nombre",
+        form: {
+          type: "fullName",
+          disabled: onDisbled,
+        },
         onRender: (item: any) => {
-          // Asegúrate que 'item.item' contiene los datos del residente
           const guardia = item?.item;
           const nombreCompleto = getFullName(guardia);
-          const cedulaIdentidad = guardia?.ci; // Obtener el CI
-
+          const cedulaIdentidad = guardia?.ci;
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 src={getUrlImages(
-                  "/GUARD-" +
-                    guardia?.id + // Usar residente?.id
-                    ".webp?d=" +
-                    guardia?.updated_at // Usar residente?.updated_at
+                  "/GUARD-" + guardia?.id + ".webp?d=" + guardia?.updated_at
                 )}
-                name={nombreCompleto} // Usar nombreCompleto
+                name={nombreCompleto}
               />
               <div>
-                {" "}
-                {/* Contenedor para Nombre, CI y Estado Admin */}
-                {/* Nombre */}
                 <p
                   style={{
                     marginBottom: "2px",
                     fontWeight: 500,
-                    color: "var(--cWhite, #fafafa)",
+                    color: "var(--cWhite)",
                   }}
                 >
                   {nombreCompleto}
                 </p>
-                {/* CI (si existe) */}
                 {cedulaIdentidad && (
                   <span
                     style={{
-                      fontSize: "11px",
+                      fontSize: "14px",
                       color: "var(--cWhiteV1, #a7a7a7)",
                       display: "block",
                       marginBottom: "4px",
@@ -196,80 +237,18 @@ const Guards = () => {
 
         list: true,
       },
-      avatar: {
-        api: "a*e*",
-        label: "Suba una Imagen",
-        list: false,
-        form: {
-          type: "imageUpload",
-          prefix: "GUARD",
-          style: { width: "100%" },
-          // onRigth: rigthAvatar,
-        },
-      },
-      password: {
-        rules: ["_disabled_", "required*add"],
-        api: "a",
-        label: "Contraseña",
-        form: false,
-        list: false,
-      },
-      ci: {
-        rules: ["required*add"],
-        api: "a",
-        label: "Cédula de identidad",
-        // form: { type: "text", disabled: true, label: "2222" },
-        form: {
-          type: "number",
-          label: "Cédula de identidad",
-          onRender: (props: any) => {
-            // console.log(props, "propsval");
-            return (
-              <fieldset className={styles.fieldSet}>
-                <div>
-                  <div>Información de acceso</div>
-                  <div>
-                    Ingrese el número de carnet y haga click fuera del campo
-                    para que el sistema busque automáticamente al guardia si el
-                    carnet no existe ,continúa con el proceso de registro
-                  </div>
-                </div>
-                <div>
-                  <Input
-                    name="ci"
-                    value={props?.item?.ci}
-                    onChange={props.onChange}
-                    label="Carnet de Identidad"
-                    error={props.error}
-                    disabled={props?.field?.action === "edit"}
-                    onBlur={(e: any) => onBlurCi(e, props)}
-                  />
-                  {props?.field?.action === "add" && !props.item._disabled && (
-                    <InputPassword
-                      name="password"
-                      value={props?.item?.password}
-                      onChange={props.onChange}
-                      label="Contraseña"
-                      error={props.error}
-                    />
-                  )}
-                </div>
-              </fieldset>
-            );
-          },
-        },
-
-        list: false,
-      },
+      // password: {
+      //   rules: ["required*add"],
+      //   api: "a",
+      //   label: "Contraseña",
+      //   form: false,
+      //   list: false,
+      // },
       name: {
-        rules: ["required"],
+        rules: ["required", "alpha", "max:20"],
         api: "ae",
         label: "Primer nombre",
-        form: {
-          type: "text",
-          style: { width: "49%" },
-          disabled: onDisbled,
-        },
+        form: false,
 
         list: false,
       },
@@ -277,127 +256,116 @@ const Guards = () => {
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text", style: { maxWidth: "49%" }, disabled: onDisbled },
+        form: false,
         list: false,
       },
       last_name: {
-        rules: ["required"],
+        rules: ["required", "alpha", "max:20"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        form: false,
         list: false,
       },
       mother_last_name: {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        form: false,
         list: false,
       },
+
       phone: {
+        rules: ["number", "max:10"],
         api: "ae",
         label: "Celular",
-        form: { type: "text", disabled: onDisbled },
-        list: false,
-      },
-      email: {
-        rules: ["required", "email"],
-        api: "ae",
-        label: "Correo electrónico",
-        form: {
-          type: "text",
-          disabled: onDisbled,
-        },
+        form: { type: "number", disabled: onDisbled },
         list: {},
       },
 
       address: {
         rules: [""],
         api: "ae",
-        label: "Domicilio",
+        label: "Dirección del domicilio",
         form: {
-          type: "text",
-          disabled: onDisbled,
+          type: "textArea",
+          // disabled: onDisbled,
         },
         list: {},
       },
+      email: {
+        rules: ["required", "email"],
+        api: "a",
+        label: "Correo electrónico",
+
+        form: {
+          type: "text",
+          disabled: onDisbled,
+          onBlur: onBlurEmail,
+          onTop: () => {
+            return (
+              <div style={{ width: "100%" }}>
+                <Br style={{ marginBottom: "12px" }} />
+                <p>
+                  La contraseña será enviada al correo que indiques en este
+                  campo
+                </p>
+              </div>
+            );
+          },
+        },
+        list: true,
+      },
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onImport = () => {
-    setOpenImport(true);
-  };
+  const { userCan, List, setStore, store, showToast, execute, reLoad, data } =
+    useCrud({
+      paramsInitial,
+      mod,
+      fields,
+    });
 
-  const {
-    userCan,
-    List,
-    setStore,
-    onSearch,
-    searchs,
-    onEdit,
-    onDel,
-    showToast,
-    execute,
-    reLoad,
-    getExtraData,
-    data,
-  } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-    _onImport: onImport,
-  });
-  const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
-    onSearch,
-    searchs,
-    setStore,
-    mod,
-    onEdit,
-    onDel,
-  });
-
-  const [openImport, setOpenImport] = useState(false);
   useEffect(() => {
-    setOpenImport(searchState == 3);
-  }, [searchState]);
-
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <ItemList
-          title={item?.name}
-          subtitle={item?.description}
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
+    setStore({ ...store, title: "" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div className={styles.users}>
+    <div className={styles.Guards}>
+      <h1 className={styles.title}>Guardias</h1>
       <div style={{ marginBottom: "20px" }}>
         <WidgetDashCard
-          title="Total de Guardias"
+          title="Guardias totales"
           data={String(data?.message?.total || 0)}
           icon={
             <IconGuardShield
-              color={"#B382D9"}
-              style={{ backgroundColor: "rgba(179, 130, 217, 0.1)" }}
+              color={
+                !data?.message?.total || data?.message?.total === 0
+                  ? "var(--cWhiteV1)"
+                  : "#B382D9"
+              }
+              style={{
+                backgroundColor:
+                  !data?.message?.total || data?.message?.total === 0
+                    ? "var(--cHover)"
+                    : "rgba(179, 130, 217, 0.1)",
+              }}
               circle
-              size={38}
+              size={18}
             />
           }
           style={{ width: "280px" }}
-          // className={styles.widgetResumeCard}
         />
       </div>
-      <List onTabletRow={renderItem} />
+      <List
+        // onTabletRow={renderItem}
+        height={"calc(100vh - 430px)"}
+        emptyMsg="Lista de guardias vacía. Aquí verás a todos los guardias"
+        emptyLine2="del condominio una vez los registres."
+        emptyIcon={<IconSecurity size={80} color="var(--cWhiteV1)" />}
+      />
     </div>
   );
 };

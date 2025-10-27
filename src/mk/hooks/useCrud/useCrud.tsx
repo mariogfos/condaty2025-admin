@@ -1,8 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import { useState, useEffect, Fragment, memo, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  Fragment,
+  memo,
+  useCallback,
+  useRef,
+} from "react";
 import useAxios from "../useAxios";
-import { getUrlImages } from "../../utils/string";
+import { capitalize, getUrlImages } from "../../utils/string";
 import { useAuth } from "../../contexts/AuthProvider";
 import {
   ActionType,
@@ -16,7 +23,7 @@ import Table, { RenderColType } from "../../components/ui/Table/Table";
 import DataModal from "../../components/ui/DataModal/DataModal";
 import Button from "../../components/forms/Button/Button";
 import Select from "../../components/forms/Select/Select";
-import useScreenSize from "../useScreenSize";
+// import useScreenSize from "../useScreenSize";
 import styles from "./useCrudStyle.module.css";
 import FloatButton from "@/mk/components/forms/FloatButton/FloatButton";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
@@ -29,11 +36,15 @@ import {
   IconTableEmpty,
   IconTrash,
   IconExport,
+  IconFilter,
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import FormElement from "./FormElement";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
+import EmptyData from "@/components/NoData/EmptyData";
+import { IconEmptySearch } from "@/components/layout/icons/IconsBiblioteca";
+import useMediaQuery from "../useMediaQuery";
 
 export type ModCrudType = {
   modulo: string;
@@ -45,6 +56,7 @@ export type ModCrudType = {
   renderForm?: Function;
   renderDel?: Function;
   export?: boolean;
+  pagination?: boolean;
   loadView?: Record<string, any>;
   import?: boolean;
   filter?: boolean;
@@ -61,6 +73,10 @@ export type ModCrudType = {
   listAndCard?: boolean;
   noWaiting?: boolean;
   search?: boolean | object;
+  titleAdd?: string;
+  titleEdit?: string;
+  titleDel?: string;
+  textSaveButtom?: string;
 };
 
 export type TypeRenderForm = {
@@ -162,28 +178,39 @@ const useCrud = ({
   const [errors, setErrors]: any = useState({});
 
   const [openImport, setOpenImport] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [openList, setOpenList] = useState(true);
   const [open, setOpen] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [openDel, setOpenDel] = useState(false);
+  let extraParams: any = localStorage.getItem(mod.modulo + "Params");
+  if (extraParams) extraParams = JSON.parse(extraParams);
+  localStorage.removeItem(mod.modulo + "Params");
   // console.log("Etradata00", mod.extraData);
   const [params, setParams] = useState({
     ...paramsInitial,
+    ...(extraParams || {}),
     ...(mod?.extraData ? { extraData: JSON.stringify(mod?.extraData) } : {}),
   });
-  const [searchs, setSearchs]: any = useState({});
+  const [searchs, setSearchs]: any = useState(extraParams || {});
   const [action, setAction] = useState<ActionType>("add");
   const [openCard, setOpenCard] = useState(false);
+  // console.log("paramsInitialCrud", extraParams);
+  if (mod) {
+    mod.titleAdd = mod.titleAdd ?? "Agregar";
+    mod.titleEdit = mod.titleEdit ?? "Editar";
+    mod.titleDel = mod.titleDel ?? "Eliminar";
+  }
 
-  // console.log("Etradata", params, mod.extraData);
+  // const [data, setData]: any = useState(null);
+  // const [loaded, setLoaded] = useState(false);
+  // const { reLoad, execute } = useAxios();
   const { data, reLoad, execute, loaded } = useAxios(
     "/" + mod.modulo,
     "GET",
     params,
     mod?.noWaiting
   );
-  // setParams({ ...paramsInitial });
-  const { isMobile } = useScreenSize();
 
   const onChange = useCallback((e: any) => {
     let value = e.target.value;
@@ -228,61 +255,65 @@ const useCrud = ({
 
   const onAdd = useCallback(() => {
     if (!userCan(mod.permiso, "C"))
-      return showToast("No tiene permisos para crear", "error");
+      return showToast("No tiene permisos para " + mod.titleAdd, "error");
     initOpen(setOpen);
   }, []);
 
   const onDel = useCallback((item: Record<string, any>) => {
     if (!userCan(mod.permiso, "D"))
-      return showToast("No tiene permisos para eliminar", "error");
+      return showToast("No tiene permisos para " + mod.titleDel, "error");
     initOpen(setOpenDel, item, "del");
   }, []);
 
   const onEdit = useCallback((item: Record<string, any>) => {
     if (!userCan(mod.permiso, "U"))
-      return showToast("No tiene permisos para editar", "error");
+      return showToast("No tiene permisos para " + mod.titleEdit, "error");
     initOpen(setOpen, item, "edit");
+  }, []);
+
+  const getItemApi = useCallback(async (item: Record<string, any>) => {
+    let searchBy = item.id;
+    if (mod.loadView.key_id) {
+      searchBy = item[mod.loadView.key_id];
+    }
+
+    const { data } = await execute(
+      "/" + mod.modulo,
+      "GET",
+      {
+        page: 1,
+        perPage: 1,
+        fullType: "DET",
+        searchBy: searchBy,
+        ...(mod.loadView !== true ? mod.loadView : {}),
+      },
+      false,
+      mod?.noWaiting
+    );
+    if (data?.success) {
+      return data?.data;
+    }
+    return item;
   }, []);
 
   const onView = useCallback(async (item: Record<string, any>) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
-    if (mod.loadView) {
-      let searchBy = item.id;
-      if (mod.loadView.key_id) {
-        searchBy = item[mod.loadView.key_id];
-        // delete mod.loadView.key_id;
-      }
 
-      const { data: view } = await execute(
-        "/" + mod.modulo,
-        "GET",
-        {
-          page: 1,
-          perPage: 1,
-          fullType: "DET",
-          searchBy: searchBy,
-          ...mod.loadView,
-        },
-        false,
-        mod?.noWaiting
-      );
-      // const { data: d, ...rest } = view?.data ?? {};
-      // initOpen(setOpenView, { ...d, ...rest }, "view");
-      initOpen(setOpenView, view?.data, "view");
-      return;
+    if (mod.loadView) {
+      item = await getItemApi(item);
     }
     initOpen(setOpenView, item, "view");
   }, []);
 
   const onImport = useCallback((e: any) => {
-    // e.stopPropagation();
     if (!userCan(mod.permiso, "C"))
       return showToast("No tiene permisos para importar", "error");
     if (_onImport) {
       _onImport();
     }
   }, []);
+
   const onExist = useCallback(
     async ({ type = "", cols = "id", modulo = "", searchBy = "" }: any) => {
       if (modulo == "") modulo = mod.modulo;
@@ -305,12 +336,18 @@ const useCrud = ({
     []
   );
 
-  const onCloseCrud = () => {
+  const onCloseCrud = (options: Record<string, any> | null = null) => {
     if (!openList) setOpenList(true);
+    if (options) {
+      if (options.beforeClose) options.beforeClose();
+    }
     setOpen(false);
   };
+
   const onCloseView = () => {
     if (!openList) setOpenList(true);
+
+    // if (scrollTo>-1)
     setOpenView(false);
   };
 
@@ -349,7 +386,7 @@ const useCrud = ({
     if (response?.success) {
       onCloseCrud();
       setOpenDel(false);
-      reLoad(null, mod?.noWaiting);
+      reLoad(params, mod?.noWaiting);
       showToast(mod.saveMsg?.[action] || response?.message, "success");
     } else {
       showToast(response?.message, "error");
@@ -362,7 +399,10 @@ const useCrud = ({
     let searchBy = { searchBy: _search };
     if (getSearch) searchBy = getSearch(_search, oldSearch);
     setSearchs(searchBy);
-    setParams({ ...params, ...searchBy });
+    // console.log("apappaa", searchBy, mod?.searchLocal);
+    if (!mod.onSearch) {
+      setParams({ ...params, ...searchBy, page: 1 });
+    }
     setOldSearch(searchBy);
   };
   const [oldFilter, setOldFilter]: any = useState({});
@@ -412,6 +452,10 @@ const useCrud = ({
   ) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
+
+    if (isExporting) return; // Evitar múltiples clics
+    setIsExporting(true);
+
     const { data: file } = await execute(
       "/" + mod.modulo,
       "GET",
@@ -427,13 +471,42 @@ const useCrud = ({
       false,
       mod?.noWaiting
     );
+
     if (file?.success) {
-      window.open(getUrlImages("/" + file.data.path)); // Abrir directamente en lugar de usar callback
-      callBack(getUrlImages("/" + file.data.path)); // Mantener callback por compatibilidad
+      const url = getUrlImages("/" + (file.data?.path || ""));
+      // Intentar derivar un nombre de archivo desde el path; si no, usar por defecto
+      const suggestedName = (() => {
+        const path = String(file.data?.path || "");
+        const base = path.split("/").pop();
+        if (base && base.trim().length > 0) return base;
+        const ext = (type ?? "pdf").toLowerCase();
+        return `listado-${mod.modulo}.${ext}`;
+      })();
+
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = suggestedName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(blobUrl);
+        callBack(url); // Mantener callback por compatibilidad
+      } catch (error) {
+        // Fallback: si falla la descarga, abrir directamente la URL
+        window.location.href = url;
+      } finally {
+        setIsExporting(false);
+      }
     } else {
       showToast("Hubo un error al exportar el archivo", "error");
-      showToast("Hubo un error al exportar el archivo", "error");
       logError("Error onExport:", file);
+      setIsExporting(false);
     }
   };
   const onExportItem = (
@@ -464,6 +537,7 @@ const useCrud = ({
       false,
       mod?.noWaiting
     );
+    // console.log('extradata get Estradata', extraData);
     setExtraData(extraData?.data);
   };
   // useEffect(() => {
@@ -604,6 +678,7 @@ const useCrud = ({
         onChange: onChangeForm,
         onBlur: onBlurForm,
         error: errorForm,
+        setError: setErrorForm,
         setItem: setFormStateForm,
         extraData: extraData,
       });
@@ -650,6 +725,7 @@ const useCrud = ({
           openTag: field.openTag || null,
           closeTag: field.closeTag || null,
           style: { ...field.form.style },
+          rules: field.form.rules || field.rules || null,
           // style: {
           //   ...field.form.style,
           //   ...(field.openTag ? { flex: "1" } : {}),
@@ -765,11 +841,20 @@ const useCrud = ({
 
     return (
       <DataModal
+        variant={'mini'}
         open={open}
         onClose={() => onClose()}
-        title={(action == "add" ? "Crear " : "Editar ") + mod.singular}
-        buttonText={action == "add" ? "Crear " + mod.singular : "Actualizar"}
-        buttonCancel=""
+        title={
+          (action == "add" ? mod.titleAdd : mod.titleEdit) + " " + mod.singular
+        }
+        // textSaveButtom por defecto "Guardar" o "Actualizar" segun action en mod.textSaveButtom
+        buttonText={
+          action == "add"
+            ? mod?.textSaveButtom
+              ? mod?.textSaveButtom
+              : "Guardar"
+            : "Actualizar"
+        }
         onSave={(e) =>
           onConfirm
             ? onConfirm(formStateForm, setErrorForm)
@@ -781,7 +866,7 @@ const useCrud = ({
             display: "flex",
             width: "100%",
             flexWrap: "wrap",
-            gap: 8,
+
             justifyContent: "space-between",
           }}
         >
@@ -862,40 +947,39 @@ const useCrud = ({
   });
   Form.displayName = "Form";
   const [filterSel, setFilterSel]: any = useState({});
-  const AddMenu = memo(
-    ({
-      filters,
-      onClick,
-      extraButtons,
-    }: {
-      filters?: any;
-      onClick?: (e?: any) => void;
-      extraButtons?: React.ReactNode[];
-    }) => {
-      if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
 
-      const onChange = (e: any) => {
-        const name = e.target.name.replace("_filter", "");
-        setFilterSel({ ...filterSel, [name]: e.target.value });
-        onFilter(name, e.target.value);
-      };
+  const FilterResponsive = ({ filters, onChange, breakPoint }: any) => {
+    const isBreak = useMediaQuery("(max-width: " + breakPoint + "px)");
 
+    const selectWidth = "auto";
+
+    const BreakFilter = () => {
+      const [open, setOpen] = useState(false);
       return (
-        <nav>
-          {mod.search && mod.search.hide ? null : (
-            <div>
-              {
-                <DataSearch
-                  value={searchs.searchBy || ""}
-                  name={mod.modulo + "Search"}
-                  setSearch={onSearch || setSearchs}
-                />
-              }
-            </div>
-          )}
-          {menuFilter || null}
-          {mod.filter && (
-            <>
+        <>
+          <IconFilter
+            title="Filtros"
+            style={{
+              ...(Object.values(filterSel).filter(
+                (e) => e !== "ALL" && e !== "" && e !== "T"
+              )?.length > 0 && { color: "var(--cPrimary)" }),
+            }}
+            className={
+              styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
+            }
+            onClick={() => setOpen(true)}
+          />
+          <DataModal
+            open={open}
+            onClose={() => setOpen(false)}
+            title="Filtros"
+            buttonText=""
+            buttonCancel=""
+            variant="mini"
+          >
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+            >
               {filters.map((f: any, i: number) => (
                 <Select
                   key={f.key + i}
@@ -904,23 +988,128 @@ const useCrud = ({
                   onChange={onChange}
                   options={f.options || []}
                   value={filterSel[f.key] || ""}
-                  style={{ width: f.width }}
+                  optionLabel={f?.optionLabel}
+                  optionValue={f?.optionValue}
+                  error={false}
+                  style={{
+                    ...(filterSel[f.key] &&
+                      filterSel[f.key] != "" &&
+                      filterSel[f.key] != "T" &&
+                      filterSel[f.key] != "ALL" && {
+                        border: "1px solid var(--cPrimary)",
+                        borderRadius: 8,
+                      }),
+                  }}
                 />
               ))}
-            </>
+            </div>
+          </DataModal>
+        </>
+      );
+    };
+    return (
+      <>
+        {isBreak ? (
+          <BreakFilter />
+        ) : (
+          <>
+            {filters.map((f: any, i: number) => (
+              <Select
+                key={f.key + i}
+                label={f.label}
+                name={f.key + "_filter"}
+                onChange={onChange}
+                options={f.options || []}
+                value={filterSel[f.key] || ""}
+                optionLabel={f?.optionLabel}
+                optionValue={f?.optionValue}
+                style={{
+                  width: selectWidth,
+                  minWidth: selectWidth,
+                  ...(filterSel[f.key] &&
+                    filterSel[f.key] != "" &&
+                    filterSel[f.key] != "T" &&
+                    filterSel[f.key] != "ALL" && {
+                      border: "1px solid var(--cPrimary)",
+                      borderRadius: 8,
+                    }),
+                }}
+              />
+            ))}
+          </>
+        )}
+      </>
+    );
+  };
+
+  const AddMenu = memo(
+    ({
+      filters,
+      onClick,
+      extraButtons,
+      data,
+      breakPoint = 1,
+    }: {
+      filters?: any;
+      onClick?: (e?: any) => void;
+      extraButtons?: React.ReactNode[];
+      data: any[];
+      breakPoint?: number;
+    }) => {
+      // if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
+
+      const onChange = (e: any) => {
+        const name = e.target.name.replace("_filter", "");
+        setFilterSel({ ...filterSel, [name]: e.target.value });
+        onFilter(name, e.target.value);
+      };
+
+      return (
+        <nav
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--spS)",
+          }}
+        >
+          {mod.search && mod.search.hide === true ? (
+            <div></div>
+          ) : (
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <DataSearch
+                value={searchs.searchBy || ""}
+                name={mod.modulo + "Search"}
+                setSearch={onSearch || setSearchs}
+                searchMsg={extraData?.searchMsg}
+              />
+            </div>
+          )}
+          {menuFilter || null}
+
+          {mod.filter && (
+            <FilterResponsive
+              filters={filters}
+              breakPoint={breakPoint}
+              onChange={onChange}
+            />
           )}
           {mod.import && (
-            <div
-              style={{ marginTop: "12px", cursor: "pointer" }}
-              onClick={onImport}
-            >
-              <IconImport />
-            </div>
+            <IconImport
+              title="Importar"
+              className={
+                styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
+              }
+              onClick={data?.length > 0 ? onImport : () => {}}
+            />
           )}
           {mod.export && (
-            <div style={{ marginTop: "12px", cursor: "pointer" }}>
-              <IconExport onClick={() => onExport("pdf")} />
-            </div>
+            <IconExport
+              title="Exportar reporte"
+              className={
+                styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
+              }
+              onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
+            />
           )}
           {mod.listAndCard && (
             <div className={styles.listAndCard}>
@@ -928,18 +1117,29 @@ const useCrud = ({
                 className={!openCard ? styles.active : ""}
                 onClick={() => setOpenCard(false)}
               >
-                <IconMenu />
+                <IconMenu
+                  className={
+                    styles.icons +
+                    " " +
+                    (data?.length == 0 ? styles.disabled : "")
+                  }
+                />
               </div>
               <div
                 className={openCard ? styles.active : ""}
                 onClick={() => setOpenCard(true)}
               >
-                <IconGrilla />
+                <IconGrilla
+                  className={
+                    styles.icons +
+                    " " +
+                    (data?.length == 0 ? styles.disabled : "")
+                  }
+                />
               </div>
             </div>
           )}
 
-          {/* Renderizar los botones extras */}
           {extraButtons && extraButtons.length > 0 && (
             <div className={styles.extraButtons}>
               {extraButtons.map((button, index) => (
@@ -953,10 +1153,10 @@ const useCrud = ({
               <Button
                 className={styles.addButton}
                 onClick={onClick || onAdd}
-                style={{ height: 48 }} // Asegurar la altura con estilo inline
-                variant="primary" // Asegurar que estamos usando el estilo correcto
+                style={{ height: 48 }}
+                variant="primary"
               >
-                {"Crear " + mod.singular}
+                {mod.titleAdd + " " + mod.singular}
               </Button>
             </div>
           )}
@@ -971,23 +1171,25 @@ const useCrud = ({
       return (
         <DataModal
           id="Eliminar"
-          title={"Eliminar " + mod.singular}
-          buttonText="Eliminar"
-          buttonCancel=""
+          title={capitalize(mod.titleDel) + " " + mod.singular}
+          buttonText={capitalize(mod.titleDel)}
+          buttonCancel="Cancelar"
           onSave={(e) => (onConfirm ? onConfirm(item) : onSave(item))}
           onClose={onClose}
           open={open}
+          variant="mini"
         >
           {message ? (
             message
           ) : (
             <>
-              ¿Estás seguro de eliminar esta información?
+              ¿Estás seguro de {mod.titleDel} esta información?
               <br />
               {/* <br />
               {item.name || item.description}
               <br /> */}
-              Recuerda que al momento de eliminar ya no podrás recuperarla.
+              Recuerda que, al momento de {mod.titleDel}, ya no podrás
+              recuperarla.
             </>
           )}
         </DataModal>
@@ -1000,7 +1202,7 @@ const useCrud = ({
     let hideEdit = mod.hideActions?.edit;
     let hideDel = mod.hideActions?.del;
     if (mod?.onHideActions) {
-      const h = mod.onHideActions(item);
+      const h = mod?.onHideActions(item);
       hideEdit = h?.hideEdit;
       hideDel = h?.hideDel;
     }
@@ -1013,7 +1215,8 @@ const useCrud = ({
                 e.stopPropagation();
                 onEdit(item);
               }}
-              size={24}
+              size={32}
+              circle
             />
           </div>
         )}
@@ -1024,7 +1227,8 @@ const useCrud = ({
                 e.stopPropagation();
                 onDel(item);
               }}
-              size={24}
+              size={32}
+              circle
             />
           </div>
         )}
@@ -1096,13 +1300,15 @@ const useCrud = ({
         if (field.filter) {
           const colF: any = {
             key,
-            label: field.filter?.label || field.list?.label || field.label,
-            width: field.filter?.width || field.list.width || "300px",
+            label: field.filter?.label ?? field.list?.label ?? field.label,
+            width: field.filter?.width ?? field.list?.width ?? "auto",
             order:
-              field.filter?.order || field?.list?.order || field?.order || 1000,
+              field.filter?.order ?? field?.list?.order ?? field?.order ?? 1000,
             options: field.filter?.extraData
               ? extraData[field.filter?.extraData]
-              : field.filter?.options(extraData) || field.form.options || [],
+              : field.filter?.options(extraData) ?? field.form.options ?? [],
+            optionLabel: field?.filter?.optionLabel,
+            optionValue: field?.filter?.optionValue,
           };
           lFilter.push(colF);
           lFilter.sort((a: any, b: any) => a.order - b.order);
@@ -1111,14 +1317,14 @@ const useCrud = ({
         const col: any = {
           key,
           responsive: "",
-          label: field.list.label || field.label,
-          className: field.list.className || "",
-          width: field.list.width,
+          label: field.list.label ?? field.label,
+          className: field.list.className ?? "",
+          width: field.list?.width,
           onRender: _onRender(field, true),
-          order: field.list.order || field.order || 1000,
-          style: field.list.style || field.style || {},
-          sumarize: field.list.sumarize || field.sumarize || false,
-          sortabled: field.list.sortabled || field.sortabled || false,
+          order: field.list.order ?? field.order ?? 1000,
+          style: field.list.style ?? field.style ?? {},
+          sumarize: field.list.sumarize ?? field.sumarize ?? false,
+          sortabled: field.list.sortabled ?? field.sortabled ?? false,
         };
         head.push(col);
       }
@@ -1129,13 +1335,66 @@ const useCrud = ({
 
     const [header, setHeader]: any = useState([]);
     const [lFilter, setLfilter]: any = useState([]);
+    const [_data, set_data]: any = useState(data?.data);
     useEffect(() => {
       setHeader(getHeader());
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fields]);
+
+    useEffect(() => {
+      if (data?.data && mod.onSearch && searchs.searchBy) {
+        const d = mod.onSearch(data.data, searchs);
+        set_data(d);
+      } else {
+        set_data(data?.data);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchs, data]);
+
+    let emptyContent;
+    if (props.onRenderEmpty) {
+      emptyContent = props.onRenderEmpty();
+    } else if (
+      (params?.filterBy && params?.filterBy.length > 0) ||
+      (searchs && searchs.searchBy)
+    ) {
+      emptyContent = (
+        <EmptyData
+          h={props?.height ?? undefined}
+          icon={<IconEmptySearch size={60} />}
+          message="No se encontraron coincidencias. Ajusta tus filtros o"
+          line2="prueba con una búsqueda diferente"
+        />
+      );
+    } else {
+      emptyContent = (
+        <EmptyData
+          h={props?.height ?? undefined}
+          message={props.emptyMsg ?? undefined}
+          line2={props.emptyLine2 ?? undefined}
+          icon={props.emptyIcon ?? undefined}
+          size={props.emptyIconSize ?? undefined}
+        />
+      );
+    }
+
     return (
       <div className={styles.useCrud}>
-        {openList && <AddMenu filters={lFilter} extraButtons={extraButtons} />}
+        {/* {JSON.stringify(data)}---
+        {JSON.stringify(_data)}--- */}
+        {store?.title && openList && !props.hideTitle && (
+          <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>
+            {store?.title}
+          </p>
+        )}
+        {openList && (
+          <AddMenu
+            filters={lFilter}
+            extraButtons={extraButtons}
+            data={_data}
+            breakPoint={props.filterBreakPoint}
+          />
+        )}
         <LoadingScreen type="TableSkeleton">
           {openList && (
             <div
@@ -1152,9 +1411,9 @@ const useCrud = ({
                   flexGrow: 1,
                 }}
               >
-                {data?.data?.length > 0 ? (
+                {_data?.length > 0 ? (
                   <Table
-                    data={data?.data}
+                    data={_data}
                     onRowClick={
                       mod.hideActions?.view ? props.onRowClick : onView
                     }
@@ -1169,33 +1428,39 @@ const useCrud = ({
                         ? undefined
                         : onButtonActions
                     }
+                    height={props?.height || undefined}
                     className="striped"
                     actionsWidth={"170px"}
                     sumarize={props.sumarize}
                     extraData={extraData}
                     onSort={onSort}
                     sortCol={sortCol}
+                    // scrollTo={scrollTo}
+                    id={mod?.modulo}
                   />
-                ) : (
-                  <section>
-                    <IconTableEmpty size={180} color="var(--cBlackV2)" />
-                    <p>No existen datos en este momento.</p>
-                  </section>
+                ) : data === null ? null : (
+                  <section>{emptyContent}</section>
                 )}
-                <div>
-                  <Pagination
-                    currentPage={params.page}
-                    onPageChange={onChangePage}
-                    setParams={setParams}
-                    params={params}
-                    totalPages={Math.ceil(
-                      (data?.message?.total || 1) / (params.perPage || 1)
-                    )}
-                    previousLabel=""
-                    nextLabel=""
-                    total={data?.message?.total || 0}
-                  />
-                </div>
+                {props?.paginationHide ? null : (
+                  <div>
+                    <Pagination
+                      currentPage={params.page}
+                      onPageChange={onChangePage}
+                      setParams={setParams}
+                      params={params}
+                      totalPages={Math.ceil(
+                        (mod.onSearch
+                          ? _data.length
+                          : data?.message?.total ?? 1) / (params.perPage ?? 1)
+                      )}
+                      previousLabel=""
+                      nextLabel=""
+                      total={
+                        mod.onSearch ? _data.length : data?.message?.total ?? 0
+                      }
+                    />
+                  </div>
+                )}
               </section>
               {props.renderRight ? props.renderRight() : null}
             </div>
@@ -1211,7 +1476,6 @@ const useCrud = ({
                   extraData,
                   execute,
                   onEdit,
-
                   onAdd,
                   openList,
                   setOpenList,
@@ -1239,6 +1503,7 @@ const useCrud = ({
               {mod.renderForm ? (
                 mod.renderForm({
                   open: open,
+                  openView: openView,
                   onClose: onCloseCrud,
                   item: formState,
                   setItem: setFormState,
@@ -1252,9 +1517,12 @@ const useCrud = ({
                   onEdit,
                   onDel,
                   onAdd,
+                  onView,
                   action,
                   openList,
                   setOpenList,
+                  showToast: showToast,
+                  getItemApi,
                 })
               ) : (
                 <Form

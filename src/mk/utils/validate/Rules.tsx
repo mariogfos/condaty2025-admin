@@ -35,7 +35,6 @@ export const validRule = (
 
   const [rule, params] = (_rule + ":").split(":");
   const param = params ? params.split(",") : [];
-  console.log(Number(value), Number(formState[param[0]]));
   const validations: Record<string, Function> = {
     validateIf: () =>
       param[1] !== formState[param[0]] ? "validar hasta aqui" : "",
@@ -45,7 +44,7 @@ export const validRule = (
         : !value
         ? "Este campo es requerido"
         : "",
-    
+
     required: () => {
       // Si el valor es 0 o "0", se considera válido (mantiene tu lógica actual para estos casos)
       if (value === 0 || value === "0") {
@@ -63,6 +62,74 @@ export const validRule = (
       return ""; // Sin error
     },
     requiredFile: () => (!value?.file ? "Este campo es requerido" : ""),
+    requiredImageMultiple: () => {
+      const _key = key ?? "avatar";
+      const val2 = formState?.images;
+      if (!val2 && !formState[_key]) {
+        return "Debe cargar al menos una imagen";
+      }
+
+      if (
+        !val2 &&
+        formState[_key] &&
+        Object?.keys(formState[_key] ?? {}).length <= 0
+      ) {
+        return "Debe cargar al menos una imagen";
+      }
+
+      if (
+        !val2 &&
+        !Object?.keys(formState[_key] ?? {}).some(
+          (a: any) => a.file != "delete" && a.file != ""
+        )
+      ) {
+        return "Debe cargar al menos una imagen";
+      }
+
+      //EDITAR
+      if (val2 && val2.length <= 0 && !formState[_key]) {
+        return "Debe cargar al menos una imagen";
+      }
+
+      if (
+        val2 &&
+        val2.length <= 0 &&
+        formState[_key] &&
+        Object?.keys(formState[_key] ?? {}).length <= 0
+      ) {
+        return "Debe cargar al menos una imagen";
+      }
+
+      if (
+        val2 &&
+        val2.length <= 0 &&
+        formState[_key] &&
+        !Object?.keys(formState[_key] ?? {}).some(
+          (a: any) =>
+            formState[_key][a].file != "delete" && formState[_key][a].file != ""
+        )
+      ) {
+        return "Debe cargar al menos una imagen";
+      }
+
+      if (
+        val2 &&
+        val2.length > 0 &&
+        formState[_key] &&
+        Object?.keys(formState[_key] ?? {}).filter((a: any) => {
+          // console.log("map", formState[_key][a]);
+          if (formState[_key][a].file === "delete" && formState[_key][a].id > 0)
+            return true;
+        }).length >= val2.length &&
+        !Object?.keys(formState[_key] ?? {}).some(
+          (a: any) =>
+            formState[_key][a].file != "delete" && formState[_key][a].file != ""
+        )
+      ) {
+        return "Debe cargar al menos una imagen";
+      }
+      return ""; // Sin errors
+    },
     onExist: async () => {
       if (!execute) return "no existe execute";
       const { data: response } = await execute(param[0], "GET", {
@@ -86,14 +153,20 @@ export const validRule = (
         : "",
     min: () => (value?.length < param[0] ? `min ${param[0]} caracteres` : ""),
     max: () => (value?.length > param[0] ? `max ${param[0]} caracteres` : ""),
-    email: () => (!/\S+@\S+\.\S+/.test(value) ? "No es un correo válido" : ""),
+    email: () =>
+      !value ? "" : !/\S+@\S+\.\S+/.test(value) ? "No es un correo válido" : "",
     textDash: () =>
       //permmitir acentos, guiones, guiones bajos, y espacios
       !/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s-]+$/.test(value)
         ? "No es un texto válido"
         : "",
     alpha: () =>
-      !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+$/.test(value) ? "No es un texto válido" : "",
+      !value
+        ? "" // si está vacío, no valida nada (lo controla required)
+        : !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+$/.test(value)
+        ? "No es un texto válido"
+        : "",
+
     noSpaces: () => (!/^\S+$/.test(value) ? "No debe tener espacios" : ""),
     date: () => {
       const [year, month, day] = value.split("-").map(Number);
@@ -104,19 +177,31 @@ export const validRule = (
       return date < now ? "Debe ser una fecha mayor a la actual" : "";
     },
     number: () =>
-      value === "" || value === null
-        ? ""
-        : !/^[0-9.,-]+$/.test(value)
-        ? "No es un número valido"
-        : "",
+      !value ? "" : !/^[0-9.,-]+$/.test(value) ? "No es un número válido" : "",
     integer: () =>
-      !/^[0-9]+$/.test(value) ? "No es un número entero valido" : "",
+      !/^[0-9]+$/.test(value) ? "No es un número entero válido" : "",
     positive: () => (value < 0 ? "Debe ser número positivo " : ""),
     greater: () => (value <= param[0] ? `Debe ser mayor` : ""),
-    less: () =>
-      Number(value) > Number(formState[param[0]])
-        ? `Debe ser menor o igual a ${formatNumber(formState[param[0]], 0)}`
-        : "",
+    less: () => {
+      // console.log("rule less:", value, param);
+      return Number(value) > Number(param[0])
+        ? `Debe ser menor o igual a ${param[0]}`
+        : "";
+    },
+    lessOrEqual: () => {
+      const compareValue = formState[param[0]];
+      if (!compareValue) return "";
+      return Number(value) > Number(compareValue)
+        ? `No puede ser mayor que ${param[1] || param[0]}`
+        : "";
+    },
+    greaterOrEqual: () => {
+      const compareValue = formState[param[0]];
+      if (!compareValue) return "";
+      return Number(value) < Number(compareValue)
+        ? `No puede ser menor que ${param[1] || param[0]}`
+        : "";
+    },
     googleMapsLink: () =>
       !/^https:\/\/(www\.)?(google\.(com|es|com\.mx|.*)\/maps\/(place|search|dir)\/|maps\.app\.goo\.gl\/)/.test(
         value
@@ -212,7 +297,7 @@ type CheckRulesType = {
   value: any;
   rules: string[];
   errors?: Record<string, string> | null;
-  key?: string | null;
+  key?: string;
   data?: Record<string, any>;
   execute?: Function;
 };
@@ -221,22 +306,25 @@ export const checkRules = ({
   value = "",
   rules = [],
   errors = null,
-  key = null,
+  key = undefined,
   data = {},
   execute,
 }: CheckRulesType): string | Record<string, string> | null => {
+  // console.error("check rule", rules, rules.length);
   if (!rules || rules.length === 0) return errors || "";
 
   for (const rule of rules) {
-    if (!rule || (rule !== "required" && !value)) continue;
-
-    const error = validRule(value, rule, data, undefined, execute);
+    if (!rule || (rule.indexOf("required") === -1 && !value)) continue;
+    // if (!rule) continue;
+    // console.log("rule:", value, rule, data, key);
+    const error = validRule(value, rule, data, key, execute);
+    // console.log("erro result", error);
     if (error) {
-      return errors ? { ...errors, [key || "error"]: error } : error;
+      return errors ? { ...errors, [key ?? "error"]: error } : error;
     }
   }
 
-  return errors || "";
+  return errors ?? "";
 };
 
 export const getParamFields = (

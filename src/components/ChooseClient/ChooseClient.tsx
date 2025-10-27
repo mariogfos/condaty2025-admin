@@ -54,6 +54,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
           <Avatar
             src={getUrlImages("/CLIENT-" + c.id + ".webp?d=")}
             name={c.name}
+            hasImage={c.has_image}
           />
         }
         right={
@@ -73,7 +74,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
               Sesión activa
             </p>
           ) : sel == c.id ? (
-            <IconCheckSquare color="var(--cSuccess)" />
+            <IconCheckSquare color="var(--cAccent)" />
           ) : (
             <IconCheckOff color="var(--cWhiteV1)" />
           )
@@ -81,22 +82,25 @@ const ChooseClient = ({ open, onClose }: Props) => {
       />
     );
   };
-
-  const activeClients = user.clients
-    .filter(
+  const activeClients = user?.clients
+    ?.filter(
       (client: any) =>
         client?.pivot?.status === "P" || client?.pivot?.status === "A"
     )
     .sort((a: any, b: any) => {
-      const isActiveA: any = a.id === user.client_id;
-      const isActiveB: any = b.id === user.client_id;
+      const isActiveA: any = a.id === user?.client_id;
+      const isActiveB: any = b.id === user?.client_id;
       return isActiveB - isActiveA;
-    });
+    }) || [];
 
-  const pendingClients = user.clients.filter(
+  const pendingClients = user?.clients?.filter(
     (client: any) =>
       client?.pivot?.status !== "P" && client?.pivot?.status !== "A"
-  );
+  ) || [];
+  
+  // No renderizar si no hay usuario, si el modal no está abierto, o si está en proceso de logout
+  if (!user || !open || user?.id === "0") return null;
+  
   return (
     <DataModal
       title="Seleccionar condominio"
@@ -105,6 +109,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
       onSave={onSave}
       buttonText="Continuar"
       buttonCancel=""
+      iconClose={user?.client_id ? undefined : false}
       // iconClose={user?.client_id ? true : false}
       fullScreen={user?.client_id ? false : true}
     >

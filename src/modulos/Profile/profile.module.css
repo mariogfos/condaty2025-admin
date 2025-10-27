@@ -99,7 +99,7 @@
 .editButton {
   display: flex;
   justify-content: center; /* Centra horizontalmente */
-  align-items: center;     /* Centra verticalmente (opcional) */
+  align-items: center; /* Centra verticalmente (opcional) */
   width: 100%;
   margin-bottom: 16px;
 }
@@ -208,9 +208,8 @@
 }
 
 .modalLogout {
-  text-align: center;
+  text-align: start;
   color: var(--lightColor);
-  margin: 1rem 0;
 }
 
 .modalAvatar {

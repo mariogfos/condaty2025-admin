@@ -1,11 +1,19 @@
 .widgetGraphResume {
-   
- /* background-color: antiquewhite; */
- display: flex;
- flex-direction: column;
- gap: var(--spL);
- width: 100%;
- height: 100%;
+  /* background-color: antiquewhite; */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+  width: 100%;
+  height: 100%;
+}
+
+/* nuevo: header en una sola fila, título/subtítulo y filtro */
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spM);
+  margin-bottom: var(--spM);
 }
 
 .title {
@@ -21,6 +29,23 @@
   margin-bottom: 1rem;
 }
 
+/* nuevo: contenedor del bloque de textos */
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* evitar overflow */
+}
+
+/* nuevo: selector compacto a la derecha */
+.chartTypeSelector {
+  display: flex;
+  align-items: center;
+}
+
+.chartTypeSelect {
+  width: 250px; /* compacto */
+}
+
 .filters {
   display: flex;
   justify-content: flex-end;
@@ -32,52 +57,52 @@
 }
 
 .widgetBase {
-   border: 0.5px solid var(--cWhiteV1);
-    background-color: var(--cBlackV2) !important;
-    width: 100%;
-    height: 100%;
-  }
+  border: 0.5px solid var(--cWhiteV1);
+  background-color: var(--cBlackV2) !important;
+  width: 100%;
+  height: 100%;
+}
 
-  .customLegend {
-    display: flex;
-    flex-wrap: wrap; /* Permite que los items pasen a la siguiente línea si no caben */
-    justify-content: center; /* Centra los items, o usa flex-start, space-around */
-    gap: 1rem; /* Espacio entre cada item de la leyenda */
-    padding-top: 1rem; /* Espacio entre el gráfico y la leyenda */
-    margin-top: 0.5rem; /* Margen adicional si es necesario */
-    /* Opcional: un borde para separar visualmente */
-    /* border-top: 1px solid #555; */
-  }
-  
-  .legendItem {
-    display: flex;
-    align-items: center; /* Alinea verticalmente el color, nombre y total */
-    gap: 0.5rem; /* Espacio entre los elementos internos del item (color, nombre, total) */
-    font-size: 0.875rem; /* Tamaño de fuente para la leyenda (ej. 14px) */
-    min-width: 200px;
-  }
-  
-  .legendColorIndicator {
-    width: 14px; /* Ancho del indicador de color */
-    height: 14px; /* Alto del indicador de color */
-    border-radius: 3px; /* Para hacerlo ligeramente redondeado, o 50% para círculo */
-    display: inline-block;
-  }
-  
-  .legendName {
-    color: var(--cWhiteV1, #a7a7a7); /* Color para el nombre de la serie */
-  }
-  
-  .legendTotal {
-    color: var(--cWhite, #fafafa); /* Color para el total */
-    font-weight: 600; /* Hacer el total un poco más destacado */
-  }
+.customLegend {
+  display: flex;
+  flex-wrap: wrap; /* Permite que los items pasen a la siguiente línea si no caben */
+  justify-content: center; /* Centra los items, o usa flex-start, space-around */
+  gap: 1rem; /* Espacio entre cada item de la leyenda */
+  padding-top: 1rem; /* Espacio entre el gráfico y la leyenda */
+  margin-top: 0.5rem; /* Margen adicional si es necesario */
+  /* Opcional: un borde para separar visualmente */
+  /* border-top: 1px solid #555; */
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 180px;
+}
+
+.legendColorIndicator {
+  width: 14px; /* Ancho del indicador de color */
+  height: 14px; /* Alto del indicador de color */
+  border-radius: 3px; /* Para hacerlo ligeramente redondeado, o 50% para círculo */
+  display: inline-block;
+}
+
+.legendName {
+  color: var(--cWhiteV1, #a7a7a7); /* Color para el nombre de la serie */
+}
+
+.legendTotal {
+  color: var(--cWhite, #fafafa); /* Color para el total */
+  font-weight: 600; /* Hacer el total un poco más destacado */
+}
 
 .legendContainer {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  padding: 1rem;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1rem 0rem;
   margin-top: 1rem;
   border-top: 1px solid var(--cBorder);
 }
@@ -85,17 +110,27 @@
 .legendColor {
   width: 12px;
   height: 12px;
-  border-radius: 3px;
+  border-radius: 50%;
 }
 
 .legendLabel {
   font-size: 0.9rem;
-  color: var(--cTextV2);
-  min-width: 100px;
+  color: var(--cWhiteV1);
 }
 
 .legendValue {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--cText);
+  color: var(--cWhite);
+  margin-left: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .legendContainer {
+    gap: 1rem;
   }
+
+  .legendItem {
+    min-width: 140px;
+  }
+}

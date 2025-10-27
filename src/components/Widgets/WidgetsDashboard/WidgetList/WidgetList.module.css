@@ -8,13 +8,13 @@
                    puedes añadirlo aquí o mediante la prop className desde el padre. */
     min-height: 177px; /* Altura mínima como en h-[177px]. Permite crecer si el contenido es mayor. */
     background-color: #333536;
-    padding: 1rem; /* Equivalente a p-4 (16px) */
+    padding: 16px; /* Equivalente a p-4 (16px) */
     border-radius: 1rem; /* Equivalente a rounded-2xl (16px) */
     border: 0.5px solid #a7a7a7;
     color: #fafafa; /* Color de texto por defecto, similar a text-neutral-50 */
     box-sizing: border-box; /* Para que padding y border no incrementen el tamaño total si se usa width/height fijo */
   }
-  
+
   .widgetListHeader {
     display: flex;
     justify-content: space-between;
@@ -24,13 +24,13 @@
        se maneja por el espaciado natural o el gap del .widgetList padre.
     */
   }
-  
+
   .widgetListTitle {
     font-weight: 600; /* font-semibold */
     font-size: 20px; /* text-[20px] */
     color: #fafafa; /* text-neutral-50. Tu CSS original usaba var(--cWhite) */
   }
-  
+
   .widgetListViewAll {
     font-weight: 500; /* font-medium */
     font-size: 12px; /* text-[12px] */
@@ -44,7 +44,7 @@
        Si en el futuro necesitas un icono junto al texto, este botón
        podría convertirse en un div con display: flex; align-items: center; gap: 0.625rem; */
   }
-  
+
   .widgetListContent {
     display: flex;
     flex-direction: column;
@@ -52,7 +52,7 @@
     flex-grow: 1; /* Permite que esta sección ocupe el espacio disponible */
     overflow-y: auto; /* Añade scroll si el contenido excede la altura del widgetList */
   }
-  
+
   .widgetListEmptyMessage {
     color: #a7a7a7; /* Un color más sutil que el 'red' original */
     font-size: 14px;
@@ -63,7 +63,18 @@
     align-items: center;
     justify-content: center;
   }
-  
+
+  /* Nuevo: contenedor para el estado vacío dentro del widget */
+  .widgetListEmptyContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;     /* Centro horizontal */
+    justify-content: center; /* Centro vertical */
+    text-align: center;      /* Centro el texto */
+    width: 100%;
+    overflow: hidden;        /* Evita que el ícono se salga del widget */
+  }
+
   /*
     ------------------------------------------------------------------------------------
     ESTILOS CONCEPTUALES PARA LOS ITEMS (generados por la función `renderItem`)
@@ -72,29 +83,29 @@
     una estructura HTML que pueda ser estilizada con clases como las siguientes.
     Estos estilos NO van en WidgetList.module.css necesariamente, sino en el módulo CSS
     del componente que renderiza cada item, o como clases globales si prefieres.
-  
+
     Ejemplo de cómo podrías estructurar el CSS para un item individual:
-  
+
     .itemRow {
       display: flex;
       align-items: center;
       gap: 0.5rem; // Tailwind gap-2 (8px)
       // self-stretch es usualmente el comportamiento por defecto
     }
-  
+
     .itemImageContainer {
       width: 40px;  // Tailwind w-10
       height: 40px; // Tailwind h-10
       flex-shrink: 0; // Para que no se encoja si el texto es largo
     }
-  
+
     .itemImage {
       width: 100%;
       height: 100%;
       object-fit: cover; // o 'contain', según necesites
       border-radius: 50%; // Si las imágenes son avatares circulares
     }
-  
+
     .itemTextInfo {
       display: flex;
       flex-direction: column;
@@ -102,7 +113,7 @@
       gap: 0.125rem; // Espacio pequeño entre nombre y subtexto si es necesario
       overflow: hidden; // Para manejar textos largos con ellipsis si se desea
     }
-  
+
     .itemPrimaryText {
       font-weight: 500; // Tailwind font-medium
       font-size: 14px;  // Tailwind text-[14px]
@@ -111,7 +122,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-  
+
     .itemSecondaryText {
       font-weight: 400; // Tailwind font-normal
       font-size: 14px;  // Tailwind text-[14px]
@@ -120,7 +131,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-  
+
     .itemActionContainer {
       // Tailwind w-10 h-3.5 (width: 2.5rem, height: 0.875rem)
       // Aplicar width: 2.5rem; podría ser demasiado restrictivo para texto.
@@ -132,7 +143,7 @@
       justify-content: center; // Para centrar el texto si se fija un ancho
       width: auto; // O un ancho fijo si es necesario, ej: 50px;
     }
-  
+
     .itemActionText {
       font-weight: 400; // Tailwind font-normal
       font-size: 12px;  // Tailwind text-[12px]

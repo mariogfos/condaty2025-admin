@@ -1,0 +1,26 @@
+.delContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.warningText {
+  color: var(--cTextSecondary);
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 0;
+
+  border-radius: 6px;
+}
+
+.error {
+  border-color: #dc3545 !important;
+}
+
+.charCount {
+  color: var(--cTextSecondary);
+  font-size: 12px;
+  text-align: right;
+  margin: -8px 0 0 0;
+}
+

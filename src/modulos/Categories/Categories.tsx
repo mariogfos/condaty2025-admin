@@ -1,236 +1,297 @@
-// src/components/Categories/Categories.js (o la ruta que corresponda)
 "use client";
-import { useMemo, useCallback, useState } from "react"; // *** Añadido useState ***
+import { useMemo, useCallback, useState } from "react";
+import { useSearchParams } from "next/navigation"; // Agregar este import
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Categories.module.css";
-import { IconArrowLeft } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconArrowLeft,
+  IconCategories,
+} from "@/components/layout/icons/IconsBiblioteca";
 import Link from "next/link";
 import { CategoryItem } from "./Type/CategoryType";
 import Button from "@/mk/components/forms/Button/Button";
 import CategoryForm from "./RenderForm/RenderForm";
 import CategoryCard from "./CategoryCard/CategoryCard";
+import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
+import NotAccess from "@/components/layout/NotAccess/NotAccess";
 
-const BackNavigation = ({ type }: { type: "I" | "E" }) => {
-  const isIncome = type === "I";
-  const routePath = isIncome ? "/payments" : "/outlays";
-  const linkText = isIncome
-    ? "Volver a sección ingresos"
-    : "Volver a sección egresos";
+const BackNavigation = ({ type }: { type: "I" | "E" | "D" }) => {
+  const getBackLink = () => {
+    switch (type) {
+      case "I":
+        return "/payments";
+      case "E":
+        return "/outlays";
+      case "D":
+        return "/debts_manager";
+      default:
+        return "/payments";
+    }
+  };
+
+  const getBackText = () => {
+    switch (type) {
+      case "I":
+        return "Volver a sección ingresos";
+      case "E":
+        return "Volver a sección egresos";
+      case "D":
+        return "Volver a sección deudas";
+      default:
+        return "Volver a sección ingresos";
+    }
+  };
 
   return (
-    <Link href={routePath} className={styles.backLink}>
+    <Link href={getBackLink()} className={styles.backLink}>
       <IconArrowLeft />
-      <span>{linkText}</span>
+      <span>{getBackText()}</span>
     </Link>
   );
 };
 
-const Categories = ({ type = "" }) => {
-  const isIncome = type === "I";
-  const categoryTypeText = isIncome ? "ingresos" : "egresos";
-  const typeToUse = isIncome ? "I" : "E";
+const Categories = ({ type: propType = "" }) => {
+  // Obtener el parámetro type de la URL
+  const searchParams = useSearchParams();
+  const urlType = searchParams?.get("type") || "";
 
-  // *** PASO 1: Añadir Estado Local ***
-  const [initialFormDataOverride, setInitialFormDataOverride] = useState<Partial<CategoryItem> | null>(null);
+  // Usar el tipo de la URL si existe, sino el prop
+  const type = urlType || propType;
 
-  const {
-    userCan,
-    List,
-    onEdit,
-    onDel,
-    onAdd,
-    getExtraData,
-  } = useCrud({
-    paramsInitial: useMemo(() => ({
-      perPage: 20,
-      page: 1,
-      fullType: "L",
-      searchBy: "",
-      type: typeToUse,
-    }), [typeToUse]),
-    mod: useMemo<ModCrudType>(() => ({
+  console.log("Type recibido:", type); // Para debug
+
+  // Corregir la lógica para incluir el tipo 'D'
+  const typeToUse = type === "E" ? "E" : "I"; // 'D' y 'I' usan datos de 'I'
+  const originalType = type; // Mantener el tipo original tal como viene
+
+  const getCategoryTypeText = () => {
+    switch (originalType) {
+      case "I":
+        return "ingresos";
+      case "E":
+        return "egresos";
+      case "D":
+        return "ingresos";
+      default:
+        return "ingresos";
+    }
+  };
+
+  const categoryTypeText = getCategoryTypeText();
+
+  const [initialFormDataOverride, setInitialFormDataOverride] =
+    useState<Partial<CategoryItem> | null>(null);
+  const [forceOpenAccordions, setForceOpenAccordions] = useState(false);
+
+  const mod = useMemo<ModCrudType>(
+    () => ({
       modulo: "categories",
       singular: "Categoría",
       plural: "Categorías",
-      permiso: "", // Dejado como en tu código
+      permiso: "categories",
       search: { hide: true },
       extraData: { params: { type: typeToUse } } as any,
       hideActions: {
-        view: false, // Dejado como en tu código
         add: true,
-        edit: false,
-        del: false,
       },
       saveMsg: {
         add: `Categoría de ${categoryTypeText} creada con éxito`,
         edit: `Categoría de ${categoryTypeText} actualizada con éxito`,
         del: `Categoría de ${categoryTypeText} eliminada con éxito`,
       },
-      // *** PASO 2: Modificar renderForm ***
-      renderForm: (propsFromCrud: any) => {
-        const itemParaForm = initialFormDataOverride
-          ? { ...propsFromCrud.item, ...initialFormDataOverride }
-          : propsFromCrud.item;
+      messageDel:
+        "¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no podrás recuperarla",
+      renderForm: (propsFromCrud: any) => (
+        <CategoryForm
+          {...propsFromCrud}
+          item={
+            initialFormDataOverride
+              ? { ...propsFromCrud.item, ...initialFormDataOverride }
+              : propsFromCrud.item
+          }
+          onClose={() => {
+            setInitialFormDataOverride(null);
+            propsFromCrud.onClose();
+          }}
+          categoryType={typeToUse}
+          getExtraData={getExtraData}
+        />
+      ),
+    }),
+    [typeToUse, categoryTypeText, initialFormDataOverride]
+  );
 
-        const handleCloseWrapper = () => {
-          setInitialFormDataOverride(null);
-          propsFromCrud.onClose();
-        };
+  const {
+    List,
+    onEdit,
+    onDel,
+    onAdd,
+    getExtraData,
+    onSearch,
+    searchs,
+    userCan,
+    extraData,
+  } = useCrud({
+    paramsInitial: useMemo(
+      () => ({
+        perPage: 20,
+        page: 1,
+        fullType: "L",
+        searchBy: "",
+        type: typeToUse,
+      }),
+      [typeToUse]
+    ),
+    mod: mod,
 
-        return (
-          <CategoryForm
-            {...propsFromCrud}
-            item={itemParaForm}
-            setItem={propsFromCrud.setItem}
-            onClose={handleCloseWrapper}
-            categoryType={typeToUse}
-            getExtraData={getExtraData} // Mantenido como lo tenías
-          />
-        );
-      },
-    }), [typeToUse, categoryTypeText, initialFormDataOverride]), // *** Dependencia añadida ***
-    fields: useMemo(() => ({
-      // Mantenido exactamente como lo tenías
-      id: { rules: [], api: "e" },
-      name: {
-        rules: ["required"],
-        api: "ae",
-        label: "Categoría",
-        form: { type: "text" },
-        list: { /* ... */ },
-      },
-      description: {
-        rules: [],
-        api: "ae",
-        label: "Descripción",
-        form: { type: "textarea" },
-        list: { /* ... */ },
-      },
-      category_id: {
-        rules: [],
-        api: "ae",
-        label: "Categoría Padre",
-        form: {
-          type: "select",
-          optionsExtra: "categories",
-          placeholder: "Seleccione una categoría",
+    fields: useMemo(
+      () => ({
+        id: { rules: [], api: "e" },
+        name: {
+          rules: ["required"],
+          api: "ae",
+          label: "Categoría",
+          form: { type: "text" },
+          list: {},
         },
-        
-      },
-      hijos: { rules: [], api: "", label: "Subcategorías" },
-      type: {
-        rules: ["required"],
-        api: "ae",
-        label: "Tipo",
-        form: { type: "hidden", precarga: typeToUse },
-      },
-    }), [typeToUse]),
+        description: {
+          rules: [],
+          api: "ae",
+          label: "Descripción",
+          form: { type: "textarea" },
+          list: {},
+        },
+        category_id: {
+          rules: [],
+          api: "ae",
+          label: "Categoría Padre",
+          form: {
+            type: "select",
+            optionsExtra: "categories",
+            placeholder: "Seleccione una categoría",
+          },
+        },
+        hijos: { rules: [], api: "", label: "Subcategorías" },
+        type: {
+          rules: ["required"],
+          api: "ae",
+          label: "Tipo",
+          form: { type: "hidden", precarga: typeToUse },
+        },
+      }),
+      [typeToUse]
+    ),
   });
 
-  // Mantenido como lo tenías
   const handleEdit = useCallback(
-    (itemToEdit: CategoryItem): void => {
-      const editableItem = { ...itemToEdit };
-      if (!editableItem.category_id) {
-        editableItem.category_id = null;
-      }
-      editableItem.type = typeToUse;
-      onEdit(editableItem);
+    (itemToEdit: CategoryItem) => {
+      onEdit({
+        ...itemToEdit,
+        type: typeToUse,
+        category_id: itemToEdit.category_id || null,
+      });
     },
     [onEdit, typeToUse]
   );
 
-  // Mantenido como lo tenías
   const handleDelete = useCallback(
-    (itemToDelete: CategoryItem): void => {
-      onDel(itemToDelete);
-    },
+    (itemToDelete: CategoryItem) => onDel(itemToDelete),
     [onDel]
   );
 
-  // *** PASO 3: Modificar handleAddSubcategory ***
   const handleAddSubcategory = useCallback(
     (parentCategoryId: string) => {
-      const initialData: Partial<CategoryItem> = {
+      setInitialFormDataOverride({
         category_id: parentCategoryId,
         type: typeToUse,
         _isAddingSubcategoryFlow: true,
-      };
-      setInitialFormDataOverride(initialData);
-      onAdd({ type: typeToUse }); // Llamar a onAdd solo para abrir el modal
+      });
+      onAdd({ type: typeToUse });
     },
-    [onAdd, typeToUse] // Dependencias originales
+    [onAdd, typeToUse]
   );
 
-  // *** PASO 4: Modificar handleAddPrincipalCategory ***
   const handleAddPrincipalCategory = useCallback(() => {
-    const initialData: Partial<CategoryItem> = {
-      type: typeToUse,
-    };
-    setInitialFormDataOverride(initialData); // Guardar datos mínimos o null si prefieres
-    onAdd({ type: typeToUse }); // Llamar a onAdd solo para abrir el modal
-  }, [onAdd, typeToUse] // Dependencias originales
-);
+    setInitialFormDataOverride({ type: typeToUse });
+    onAdd({ type: typeToUse });
+  }, [onAdd, typeToUse]);
 
-  // Mantenido como lo tenías
   const renderCardFunction = useCallback(
     (
       item: CategoryItem,
       index: number,
       baseOnRowClick: (item: CategoryItem) => void
-      
-    ) => {
-      const cardClassName = index % 2 === 0 ? styles.cardEven : styles.cardOdd;
-
-      return (
-          <CategoryCard
-            key={item.id || `category-${index}`}
-            item={item}
-            className={cardClassName}
-            onClick={(subCategoryItem) => {
-              baseOnRowClick(subCategoryItem);
-            }}
-            onEdit={handleEdit}
-            onDel={handleDelete}
-            categoryType={typeToUse}
-            onAddSubcategory={handleAddSubcategory} // Pasa la función modificada
-          />
-      );
-    },
-    [handleEdit, handleDelete, typeToUse, handleAddSubcategory] // handleAddSubcategory añadida como dependencia
+    ) => (
+      <CategoryCard
+        key={item.id ?? `category-${index}`}
+        item={item}
+        className={index % 2 === 0 ? styles.cardEven : styles.cardOdd}
+        onClick={baseOnRowClick}
+        onEdit={handleEdit}
+        onDel={handleDelete}
+        categoryType={typeToUse}
+        onAddSubcategory={handleAddSubcategory}
+        forceOpen={forceOpenAccordions}
+      />
+    ),
+    [
+      handleEdit,
+      handleDelete,
+      typeToUse,
+      handleAddSubcategory,
+      forceOpenAccordions,
+    ]
   );
 
+  const handleSearch = useCallback(
+    (value: string) => {
+      onSearch(value);
+      setForceOpenAccordions(!!value?.trim());
+    },
+    [onSearch]
+  );
 
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <div className={styles.container}>
-      <BackNavigation type={typeToUse} />
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <p className={styles.headerTitle}>Categorías de {categoryTypeText}</p>
-          <p className={styles.headerDescription}>
-            Administre, agregue y elimine las categorías y subcategorías de los{" "}
-            {categoryTypeText}
-          </p>
+      <BackNavigation type={originalType as "I" | "E" | "D"} />
+      <p className={styles.headerTitle}>Categorías de {categoryTypeText}</p>
+      <div className={styles.searchContainer}>
+        <div style={{ flex: 1 }}>
+          <DataSearch
+            value={searchs.searchBy || ""}
+            name="categoriesSearch"
+            setSearch={handleSearch}
+            textButton="Buscar"
+            className={styles.dataSearchCustom}
+            style={{ width: "100%" }}
+            searchMsg={extraData?.searchMsg || ""}
+          />
         </div>
         <Button
-          onClick={handleAddPrincipalCategory} // Llama a la función modificada
+          onClick={handleAddPrincipalCategory}
           style={{
             padding: "8px 16px",
             width: "auto",
+            height: 48,
+            display: "flex",
+            alignItems: "center",
           }}
         >
           Nueva categoría
         </Button>
       </div>
-
       <List
-        onRenderBody={renderCardFunction} // Mantenido como lo tenías
-        onRowClick={(itemClicked: CategoryItem) => { /* Mantenido como lo tenías */ }}
-        // cardGap="0px" // Mantenido comentado como lo tenías
+        onRenderBody={renderCardFunction}
+        height={"calc(100vh - 400px)"}
+        emptyMsg="Sin categorías."
+        emptyLine2="Crea categorías para organizar tus movimientos financieros."
+        emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
+        hideTitle
       />
     </div>
   );
 };
+
 export default Categories;

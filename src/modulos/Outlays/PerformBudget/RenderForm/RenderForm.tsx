@@ -3,11 +3,9 @@ import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { getUrlImages } from "@/mk/utils/string";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useEffect, useState } from "react";
 import { formatNumber } from "../../../../mk/utils/numbers";
-
 interface PropsType {
   item: any;
   setItem: any;
@@ -15,7 +13,6 @@ interface PropsType {
   open: boolean;
   onClose: () => void;
 }
-
 const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors] = useState([]);
@@ -32,8 +29,8 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
         ...itemEdit,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   const validate = () => {
     let errors: any = {};
 
@@ -64,6 +61,12 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
       key: "file",
       errors,
     });
+    errors = checkRules({
+      value: formState?.type,
+      rules: ["required"],
+      key: "type",
+      errors,
+    });
 
     setErrors(errors);
     return errors;
@@ -80,7 +83,6 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
     });
     setItem(updatedItems);
   };
-
   const handleAddItem = () => {
     setItem([
       ...item,
@@ -90,13 +92,19 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
       },
     ]);
   };
-
   const onSave = () => {
     if (hasErrors(validate())) return;
 
     data?.action === "edit" ? handleEditItem() : handleAddItem();
     onClose();
   };
+  const paymentMethods = [
+    { id: "T", name: "Transferencia" },
+    { id: "O", name: "Pago en oficina" },
+    { id: "Q", name: "QR" },
+    { id: "E", name: "Efectivo" },
+    { id: "C", name: "Cheque" },
+  ];
 
   return (
     <DataModal
@@ -121,7 +129,6 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
         disabled={true}
         error={errors}
       />
-      {/* <div style={{ display: "flex", gap: 8 }}> */}
       <Select
         name="category_id"
         label="Categoría"
@@ -133,18 +140,16 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
         optionValue="id"
         error={errors}
       />
-      {/* <Select
-        name="subcategory_id"
-        label="Subcategoría"
-        value={data?.subcategory_id}
-        error={errors}
+      <Select
+        name="type"
+        label="Forma de pago"
+        value={formState?.type}
+        required={true}
         onChange={handleChange}
-        options={[
-          { value: 1, label: "1" },
-          { value: 2, label: "2" },
-        ]}
+        options={paymentMethods}
+        error={errors}
       />
-    </div> */}
+
       <Input
         name="amount"
         label="Monto a pagar"
@@ -155,25 +160,20 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
       <UploadFile
         name="file"
         value={formState?.file}
-        // value={
-        //   data?.id
-        //     ? getUrlImages("/EXPENSE-" + data?.id + ".webp?" + data?.updated_at)
-        //     : ""
-        // }
         onChange={handleChange}
         label={"Subir una imagen"}
         error={errors}
         ext={["jpg", "png", "jpeg", "webp"]}
+        required={true}
         setError={setErrors}
         img={true}
         item={formState}
-        // editor={{ width: 720, height: 363 }}
-        // sizePreview={{ width: "720px", height: "363px" }}
       />
       <TextArea
         name="description"
         label="Concepto del pago"
         value={formState?.description}
+        required={true}
         onChange={handleChange}
         error={errors}
       />

@@ -28,7 +28,7 @@ const HeadTitle = ({
   right = null,
   customTitle = null,
   colorBack = "var(--cWhite)",
-  colorTitle = "var(--cWhite)", 
+  colorTitle = "var(--cWhite)",
 }: PropsType) => {
   const router = useRouter();
   const goBack = () => {
@@ -43,23 +43,31 @@ const HeadTitle = ({
     router.back();
   };
   return (
-    <div style={style} className={styles.headTitle + " " + className}>
+    <div style={style} className={styles.headTitle + ' ' + className}>
       {left !== false && (
-        <span>
-          {left !== null ? (
-            left
-          ) : (
-            <IconArrowLeft onClick={goBack} color={colorBack} size={32} />
-          )}
+        <span role="button" aria-label="Volver">
+          {left !== null ? left : <IconArrowLeft onClick={goBack} color={colorBack} size={24} />}
         </span>
       )}
       <div
         style={{
-          marginLeft: left === false ? undefined : "var(--spM)",
-          marginRight: left === false ? undefined : "var(--spM)",
+          marginLeft: left === false ? undefined : 'var(--spM)',
+          marginRight: left === false ? undefined : 'var(--spM)',
+          color: colorTitle,
         }}
       >
-        {customTitle ? customTitle : <h1 style={{color:colorTitle}}>{title}</h1>}
+        {customTitle ? (
+          customTitle
+        ) : (
+          <p
+            style={{ color: 'inherit', cursor: 'pointer' }}
+            onClick={goBack}
+            role="button"
+            aria-label="Volver"
+          >
+            {title}
+          </p>
+        )}
       </div>
       <span>{right}</span>
     </div>

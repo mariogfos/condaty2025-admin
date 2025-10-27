@@ -6,10 +6,10 @@ import styles from "./BudgetDir.module.css";
 import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
-import { useAuth } from "@/mk/contexts/AuthProvider"; // Probablemente no necesites importar useAuth aquí directamente
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import BudgetApprovalView from "./RenderView/BudgetDirApprovalModal";
 
-// ... (paramsInitial, formatters, options, mod - sin cambios) ...
 const paramsInitial = {
   perPage: 20,
   page: 1,
@@ -18,117 +18,271 @@ const paramsInitial = {
 };
 
 const formatPeriod = (periodCode: string): string => {
-    const map: Record<string, string> = { D: "Diario", W: "Semanal", F: "Quincenal", M: "Mensual", B: "Bimestral", Q: "Trimestral", S: "Semestral", Y: "Anual" };
-    return map[periodCode] || periodCode;
+  const map: Record<string, string> = {
+    M: "Mensual",
+    Q: "Trimestral",
+    B: "Semestral",
+    Y: "Anual",
+  };
+  return map[periodCode] || periodCode;
 };
+
 const formatType = (typeCode: string): string => {
-    const map: Record<string, string> = { F: "Fijo", V: "Variable" };
-    return map[typeCode] || "Fijo";
+  const map: Record<string, string> = { F: "Fijo", V: "Variable" };
+  return map[typeCode] || "Fijo";
 };
-const formatStatus = (statusCode: string): string => {
-    const map: Record<string, string> = { D: "Borrador", P: "Pendiente Aprobación", A: "Aprobado", R: "Rechazado", C: "Completado", X: "Cancelado" };
-    return map[statusCode] || statusCode;
+
+// Usar la misma lógica de estados que Budget.tsx
+interface StatusConfig {
+  label: string;
+  color: string;
+  bgColor: string;
+}
+
+const renderStatusCell = (props: any) => {
+  const statusConfig: Record<string, StatusConfig> = {
+    D: {
+      label: "Borrador",
+      color: "var(--cInfo)",
+      bgColor: "var(--cHoverCompl3)",
+    },
+    P: {
+      label: "Pendiente por aprobar",
+      color: "var(--cWarning)",
+      bgColor: "var(--cHoverCompl4)",
+    },
+    A: {
+      label: "Aprobado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
+    },
+    R: {
+      label: "Rechazado",
+      color: "var(--cError)",
+      bgColor: "var(--cHoverError)",
+    },
+    C: {
+      label: "Completado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
+    },
+    X: {
+      label: "Cancelado",
+      color: "var(--cWhite)",
+      bgColor: "var(--cHoverCompl1)",
+    },
+  };
+
+  const defaultConfig: StatusConfig = {
+    label: "No disponible",
+    color: "var(--cWhite)",
+    bgColor: "var(--cHoverCompl1)",
+  };
+
+  const { label, color, bgColor } =
+    statusConfig[props.item.status as keyof typeof statusConfig] ||
+    defaultConfig;
+
+  return (
+    <StatusBadge color={color} backgroundColor={bgColor}>
+      {label}
+    </StatusBadge>
+  );
 };
+
 const getPeriodOptions = (addDefault = false) => [
-    ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
-    { id: "M", name: "Mensual" }, { id: "B", name: "Bimestral" }, { id: "Q", name: "Trimestral" }, { id: "S", name: "Semestral" }, { id: "Y", name: "Anual" }
+  ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
+  { id: "M", name: "Mensual" },
+  { id: "B", name: "Semestral" },
+  { id: "Q", name: "Trimestral" },
+  { id: "Y", name: "Anual" },
 ];
+
 const getTypeOptions = (addDefault = false) => [
-    ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
-    { id: "F", name: "Fijo" }, { id: "V", name: "Variable" }
+  ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
+  { id: "F", name: "Fijo" },
+  { id: "V", name: "Variable" },
 ];
+
 const getStatusOptions = (addDefault = false) => [
-    ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
-    { id: "D", name: "Borrador" }, { id: "P", name: "Pendiente Aprobación" }, { id: "A", name: "Aprobado" }, { id: "R", name: "Rechazado" }, { id: "C", name: "Completado" }, { id: "X", name: "Cancelado" }
+  ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
+  { id: "D", name: "Borrador" },
+  { id: "P", name: "Pendiente por aprobar" },
+  { id: "A", name: "Aprobado" },
+  { id: "R", name: "Rechazado" },
+  { id: "C", name: "Completado" },
+  { id: "X", name: "Cancelado" },
 ];
+
 const getCategoryOptionsForFilter = (extraData: any) => [
-    { id: "T", name: "Todos" },
-    ...(extraData?.categories || []).map((cat: any) => ({ id: cat.id, name: cat.name }))
+  { id: "T", name: "Todos" },
+  ...(extraData?.categories || []).map((cat: any) => ({
+    id: cat.id,
+    name: cat.name,
+  })),
 ];
 
 const mod: ModCrudType = {
-    modulo: "budgets",
-    singular: "Presupuesto",
-    plural: "Presupuestos",
-    permiso: "",
-    extraData: true,
-    hideActions: {
-      add: true,
-      edit: true,
-      del: true,
-    },
-    filter: true,
-    saveMsg: { add: "Presupuesto creado con éxito", edit: "Presupuesto actualizado con éxito", del: "Presupuesto eliminado con éxito" },
-    renderView: (props: any) => <BudgetApprovalView {...props} />,
+  modulo: "budgets",
+  singular: "Presupuesto",
+  plural: "Presupuestos",
+  permiso: "budgets",
+  extraData: true,
+  hideActions: {
+    add: true,
+    edit: true,
+    del: true,
+  },
+  filter: true,
+  saveMsg: {
+    add: "Presupuesto creado con éxito",
+    edit: "Presupuesto actualizado con éxito",
+    del: "Presupuesto eliminado con éxito",
+  },
+  renderView: (props: any) => <BudgetApprovalView {...props} />,
 };
 
-
 const BudgetDir = () => {
-  // No necesitas useAuth aquí si useCrud ya te da showToast y userCan
-  // const { setStore, userCan } = useAuth();
-
-  const handleGetFilter = useCallback((opt: string, value: string, oldFilterState: any) => {
-    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
-    if (value === "" || value === null || value === undefined) {
+  const handleGetFilter = useCallback(
+    (opt: string, value: string, oldFilterState: any) => {
+      const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+      if (value === "" || value === null || value === undefined) {
         delete currentFilters[opt];
-    } else {
+      } else {
         currentFilters[opt] = value;
-    }
-    return { filterBy: currentFilters };
-  }, []);
-
-  const fields = useMemo(
-    () => ({
-        // ... tu definición de fields completa (incluyendo status y approved_id corregidos) ...
-        id: { rules: [], api: "e" },
-        name: { rules: ["required"], api: "ae", label: "Nombre", form: { type: "text" }, list: {}, },
-        start_date: { rules: ["required"], api: "ae", label: "Fecha Inicio", form: { type: "date" }, list: { onRender: (props: any) => getDateStrMes(props.item.start_date) }, },
-        end_date: { rules: ["required"], api: "ae", label: "Fecha Fin", form: { type: "date" }, list: { onRender: (props: any) => getDateStrMes(props.item.end_date) }, },
-        amount: { rules: ["required", "number"], api: "ae", label: "Monto", form: { type: "number", placeholder: "Ej: 5000.00" }, list: { onRender: (props: any) => `Bs ${formatNumber(props.item.amount)}` }, },
-        period: { rules: ["required"], api: "ae", label: "Periodo", form: { type: "select", options: getPeriodOptions() }, list: { onRender: (props: any) => formatPeriod(props.item.period) }, filter: { label: "Periodo", options: () => getPeriodOptions(true), width: "150px" }, },
-        status: { rules: [], api: "", label: "Estado", list: { onRender: (props: any) => { const statusText = formatStatus(props.item.status); return (<div className={`${styles.statusBadge} ${styles[`status${props.item.status}`] || ''}`}>{statusText}</div>); }, }, filter: { label: "Estado", options: () => getStatusOptions(true), width: "150px"}, },
-        category_id: { rules: ["required"], api: "ae", label: "Categoría", form: { type: "select", optionsExtra: "categories", placeholder: "Seleccione categoría" }, list: { onRender: (props: any) => props.item.category?.name || "N/A" }, filter: { label:"Categoría", options: getCategoryOptionsForFilter, width: "200px" } },
-        user_id: { api: "e", label: "Creado por", list: { onRender: (props: any) => getFullName(props.item.user) || 'Sistema' } },
-        approved: { api: "e", label: "Aprobado por", list: { onRender: (props: any) => getFullName(props.item.approved) || 'Pendiente' } },
-    }),
+      }
+      return { filterBy: currentFilters };
+    },
     []
   );
 
-  // --- Desestructura 'data', 'loaded' y 'showToast' de useCrud ---
-  const { List, extraData, data, loaded, showToast, userCan } =
-    useCrud({
-      paramsInitial,
-      mod,
-      fields,
-      getFilter: handleGetFilter,
-    });
-
-  // --- useEffect para detectar el mensaje específico en la respuesta ---
+  const fields = useMemo(
+    () => ({
+      id: { rules: [], api: "e" },
+      name: {
+        rules: ["required"],
+        api: "ae",
+        label: "Nombre",
+        form: { type: "text" },
+        list: { order: 1 }, // Primera columna
+      },
+      start_date: {
+        rules: ["required"],
+        api: "ae",
+        label: "Fecha Inicio",
+        form: { type: "date" },
+        list: false, // Ocultar
+      },
+      end_date: {
+        rules: ["required"],
+        api: "ae",
+        label: "Fecha Fin",
+        form: { type: "date" },
+        list: false, // Ocultar
+      },
+      amount: {
+        rules: ["required", "number"],
+        api: "ae",
+        label: "Monto",
+        form: { type: "number", placeholder: "Ej: 5000.00" },
+        list: false, // Ocultar
+      },
+      period: {
+        rules: ["required"],
+        api: "ae",
+        label: "Periodo",
+        form: { type: "select", options: getPeriodOptions() },
+        list: false, // Ocultar
+        /* filter: {
+          label: "Periodo",
+          options: () => getPeriodOptions(true),
+          width: "150px",
+        }, */
+      },
+      status: {
+        rules: [],
+        api: "ae*",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Estado
+          </span>
+        ),
+        list: {
+          onRender: renderStatusCell, // Usar la nueva lógica de estados
+          order: 4, // Cuarta columna
+        },
+        filter: {
+          label: "Estado",
+          options: () => getStatusOptions(true),
+          width: "150px",
+        },
+      },
+      category_id: {
+        rules: ["required"],
+        api: "ae",
+        label: "Subcategoría",
+        form: {
+          type: "select",
+          optionsExtra: "categories",
+          placeholder: "Seleccione Subcategoría",
+        },
+        list: {
+          onRender: (props: any) => props.item.category?.name || "N/A",
+          order: 2, // Segunda columna
+        },
+        /* filter: {
+          label: "Categoría",
+          options: getCategoryOptionsForFilter,
+          width: "200px",
+        }, */
+      },
+      user_id: {
+        api: "e",
+        label: "Creado por",
+        list: {
+          onRender: (props: any) => getFullName(props.item.user) || "Sistema",
+          order: 3, // Tercera columna
+        },
+      },
+      approved: {
+        api: "e",
+        label: "Aprobado por",
+        list: false, // Ocultar
+      },
+    }),
+    []
+  );
+  const { setStore, store } = useAuth();
   useEffect(() => {
-    // Solo actuar si la carga terminó (loaded es true) y hay datos (data existe)
+    setStore({ ...store, title: "Presupuestos" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const { List, extraData, data, loaded, showToast, userCan } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+    getFilter: handleGetFilter,
+  });
+
+  useEffect(() => {
     if (loaded && data) {
-      // Condición: La API dice success: true, PERO data.data NO es un array
-      // Y ADEMÁS, data.data es un objeto que contiene una propiedad 'msg' de tipo string.
-      if (data.success === true && data.data && !Array.isArray(data.data) && typeof data.data.msg === 'string') {
-        // Muestra el mensaje de la API como un toast de error
-        showToast(data.data.msg, 'error');
+      if (
+        data.success === true &&
+        data.data &&
+        !Array.isArray(data.data) &&
+        typeof data.data.msg === "string"
+      ) {
+        showToast(data.data.msg, "error");
       }
     }
-    // Dependencias: Ejecutar este efecto si 'data', 'loaded' o 'showToast' cambian.
   }, [data, loaded, showToast]);
-
-
-  // Este chequeo puede ser redundante si la API ya controla el acceso
-  // y devuelve el mensaje que estamos capturando en el useEffect.
-  // Puedes comentarlo o quitarlo si prefieres confiar en la respuesta de la API.
-  // if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <div className={styles.container}>
-      {/* El componente List internamente mostrará "No existen datos"
-          si data.data no es un array (como en el caso del mensaje de error).
-          El toast que añadimos explicará por qué. */}
-      <List />
+      <List height={"calc(100vh - 360px)"} filterBreakPoint={1700} />
     </div>
   );
 };

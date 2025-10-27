@@ -9,6 +9,9 @@ const StepProgressBar = ({ currentStep, totalSteps }: Props) => {
     return (currentStep / totalSteps) * 100 + "%";
   };
 
+  const progressBarColor =
+    currentStep === totalSteps ? "var(--cAccent)" : "var(--cSidebar)";
+
   return (
     <div className={styles.StepProgressBar}>
       <p>
@@ -18,6 +21,7 @@ const StepProgressBar = ({ currentStep, totalSteps }: Props) => {
         <div
           style={{
             width: getPercentaje(),
+            backgroundColor: progressBarColor,
           }}
         />
       </div>

@@ -8,8 +8,8 @@ const Splash = () => {
         <IconLogo className={styles.logo} size={156} />
         <div className={styles.spinDot}>.</div>
         <div className={styles.text}>
-          Ahorra <span className={styles.bold}>tiempo,</span> Vive{" "}
-          <span className={styles.bold}>tranquilo</span>
+         <span className={styles.bold}>Tecnología,</span> que une{" "}
+          <span className={styles.bold}>vecinos</span>
         </div>
       </div>
     </div>

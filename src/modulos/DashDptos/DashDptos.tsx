@@ -1,76 +1,63 @@
 "use client";
 import { useState } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import styles from "./DashDptos.module.css";
 import { useRouter } from "next/navigation";
-import {
-  IconArrowDown,
-  IconDelivery,
-  IconEdit,
-  IconOther,
-  IconTaxi,
-  IconTrash,
-} from "@/components/layout/icons/IconsBiblioteca";
-import Button from "@/mk/components/forms/Button/Button";
+import { IconArrowDown } from "@/components/layout/icons/IconsBiblioteca";
 import Select from "@/mk/components/forms/Select/Select";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
-import EmptyData from "@/components/NoData/EmptyData";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import HistoryAccess from "./HistoryAccess/HistoryAccess";
-import HistoryPayments from "./HistoryPayments/HistoryPayments";
 import HistoryOwnership from "./HistoryOwnership/HistoryOwnership";
-import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import RenderView from "../Payments/RenderView/RenderView";
 import OwnersRenderView from "../Owners/RenderView/RenderView";
-import Tooltip from "@/components/Tooltip/Tooltip";
-import Table from "@/mk/components/ui/Table/Table";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import Switch from "@/mk/components/forms/Switch/Switch";
+import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import WidgetBase from "@/components/Widgets/WidgetBase/WidgetBase";
-import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import RenderForm from "../Dptos/RenderForm";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
-import HistoryReservations from "./HistoryReservations/HistoryReservations";
+import UnitInfo from "./UnitInfo/UnitInfo";
+import PaymentsTable from "./PaymentsTable/PaymentsTable";
+import AccessTable from "./AccessTable/AccessTable";
+import ReservationsTable from "./ReservationsTable/ReservationsTable";
+import TitleRender from "./TitleRender/TitleRender";
+import { setParamsCrud } from "@/mk/utils/utils";
+import {
+  TableSkeleton,
+  WidgetSkeleton,
+} from "@/mk/components/ui/Skeleton/Skeleton";
+import OwnersRenderForm from "../Owners/RenderForm/RenderForm";
+
 
 interface DashDptosProps {
   id: string | number;
 }
 
-const getStatus = (status: string) => {
-  const statusMap: Record<string, string> = {
-    A: "Por Pagar",
-    E: "Por subir comprobante",
-    P: "Pagado",
-    S: "Por confirmar",
-    M: "Moroso",
-    R: "Rechazado",
-  };
-  return statusMap[status] || status;
-};
-
 const DashDptos = ({ id }: DashDptosProps) => {
-  const { user, showToast } = useAuth();
+  const { showToast } = useAuth();
   const router = useRouter();
-  // const [tipoUnidad, setTipoUnidad] = useState("");
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openComprobante, setOpenComprobante] = useState(false);
   const [formState, setFormState] = useState<any>({ isTitular: "I" });
   const [errorsT, setErrorsT] = useState<any>({});
-  const [openAccesos, setOpenAccesos] = useState(false);
-  const [openPaymentsHist, setOpenPaymentsHist] = useState(false);
-  const [openReservasHist, setOpenReservasHist] = useState(false);
   const [openTitularHist, setOpenTitularHist] = useState(false);
   const [idPago, setIdPago] = useState<string | null>(null);
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
   const [openDel, setOpenDel] = useState(false);
+  const [openDelTitular, setOpenDelTitular] = useState(false);
+  const [currentRemovalType, setCurrentRemovalType] = useState<
+    "H" | "T" | null
+  >(null);
+  const [openProfileModal, setOpenProfileModal] = useState(false);
+  const [selectedDependentId, setSelectedDependentId] = useState<string | null>(
+    null
+  );
   const {
     data: dashData,
     reLoad,
     execute,
+    loaded,
   } = useAxios("/dptos", "GET", {
     fullType: "DET",
     dpto_id: id,
@@ -79,145 +66,98 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const datas = dashData?.data || {};
 
+  const [currentChangeType, setCurrentChangeType] = useState<"H" | "T" | null>(
+    null
+  );
+
   const onSave = async () => {
-    if (!formState.owner_id) {
+    if (!formState.owner_id || !currentChangeType) {
       setErrorsT({ owner_id: "Este campo es obligatorio" });
       return;
     }
 
+    // Buscar el owner seleccionado en la lista
+    const extra = dashData?.extraData ?? {};
+    const list: any[] = currentChangeType === "H" ? extra.homeowners || [] : extra.tenants || [];
+    const selectedOwner = list.find((owner: any) => String(owner.id) === String(formState.owner_id));
+
+    // Siempre mostrar el modal de confirmación
+    setSelectedOwnerForTransfer(selectedOwner);
+    setPendingTransferType(currentChangeType);
+    setOpenTitular(false);
+    setOpenTransferModal(true);
+  };
+
+  const executeOwnerChange = async () => {
     try {
+      // Determinar current_dpto_id basado en selectedOwnerForTransfer
+      let currentDptoId = null;
+      if (selectedOwnerForTransfer && pendingTransferType === "T" && selectedOwnerForTransfer.dpto?.[0]?.id ) {
+        currentDptoId = selectedOwnerForTransfer.dpto[0].id;
+      }
+
+      const payload = {
+        owner_id: formState.owner_id,
+        dpto_id: id,
+        type: currentChangeType,
+        ...(selectedOwnerForTransfer?.dpto?.length > 0 && { current_dpto_id: currentDptoId }),
+        ...(currentChangeType === "H" ? { is_resident: "N" } : {}),
+      };
+
       const { data: response } = await execute(
-        "/dptos-change-titular",
+        "/dptos-change-owner",
         "POST",
-        {
-          owner_id: formState.owner_id,
-          dpto_id: id,
-        }
+        payload
       );
 
       if (response?.success) {
-        showToast("Titular actualizado", "success");
+        showToast(
+          `${
+            currentChangeType === "H" ? "Propietario" : "Residente"
+          } actualizado`,
+          "success"
+        );
         setOpenTitular(false);
         setErrorsT({});
-        reLoad();
+        setCurrentChangeType(null);
+        reLoad({ extraData: true });
       } else {
-        showToast(response?.message || "Error al actualizar titular", "error");
+        showToast(
+          response?.message ||
+            `Error al actualizar ${
+              currentChangeType === "H" ? "propietario" : "residente"
+            }`,
+          "error"
+        );
       }
     } catch (error) {
-      showToast("Error al actualizar titular", "error");
+      showToast(
+        `Error al actualizar ${
+          currentChangeType === "H" ? "propietario" : "residente"
+        }`,
+        error
+      );
     }
   };
 
-  const handleOpenPerfil = (owner_id: string) => {
-    setIdPerfil(owner_id);
-    setOpenPerfil(true);
+  const confirmTransfer = async () => {
+    setOpenTransferModal(false);
+    
+    if (isNewOwnerFlow) {
+      // Si viene del flujo de crear nuevo, abrir el formulario
+      setIsNewOwnerFlow(false);
+      setOpenOwnerForm(true);
+    } else {
+      // Si viene del flujo de cambiar existente, ejecutar el cambio
+      await executeOwnerChange();
+      setSelectedOwnerForTransfer(null);
+      setPendingTransferType(null);
+    }
   };
 
-  const header = [
-    {
-      key: "paid_at",
-      label: "Fecha de pago",
-      responsive: "desktop",
-      onRender: ({ item }: any) => {
-        return getDateStrMes(item?.paid_at) || "-";
-      },
-    },
-    {
-      key: "categorie",
-      label: "Categoría",
-      responsive: "desktop",
-      onRender: ({ item }: any) => {
-        return item?.payment?.categoryP?.name || "-";
-      },
-    },
-    {
-      key: "sub_categorie",
-      label: "Sub Categoría",
-      responsive: "desktop",
-      onRender: ({ item }: any) => {
-        return item?.payment?.category?.name || "-";
-      },
-    },
-    {
-      key: "amount",
-      label: "Monto",
-      responsive: "desktop",
-
-      onRender: ({ item }: any) => {
-        return item?.amount && item?.penalty_amount
-          ? `Bs ${parseFloat(item?.amount) + parseFloat(item?.penalty_amount)}`
-          : "-";
-      },
-    },
-    // {
-    //   key: "type",
-    //   label: "Tipo de pago",
-    //   responsive: "desktop",
-    //   onRender: ({ item }: any) => {
-    //     return item?.payment?.type === "Q"
-    //       ? "Qr"
-    //       : item?.payment?.type === "T"
-    //       ? "Transferencia"
-    //       : item?.payment?.type === "O"
-    //       ? "Pago en oficina"
-    //       : "Sin pago";
-    //   },
-    // },
-    {
-      key: "status",
-      label: "Estado",
-      responsive: "desktop",
-      onRender: ({ item }: any) => {
-        return (
-          <span
-            className={`${styles.status} ${styles[`status${item?.status}`]}`}
-          >
-            {getStatus(item?.status)}
-          </span>
-        );
-      },
-    },
-  ];
-
-  const Br = () => {
-    return <div className={styles.br} />;
-  };
-
-  type LabelValueProps = {
-    value: string;
-    label: string;
-    colorValue?: string;
-  };
-
-  const LabelValue = ({ value, label, colorValue }: LabelValueProps) => {
-    return (
-      <div className={styles.LabelValue}>
-        <p>{label}</p>
-        <p
-          style={{
-            color: colorValue ? colorValue : "var(--cWhite)",
-          }}
-        >
-          {value}
-        </p>
-      </div>
-    );
-  };
-  type TitleRenderProps = {
-    title: string;
-    onClick?: () => void;
-  };
-  const TitleRender = ({ title, onClick }: TitleRenderProps) => {
-    return (
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h3 className={styles.accountTitle}>{title}</h3>
-        {onClick && (
-          <span className={styles.viewMore} onClick={onClick}>
-            Ver más
-          </span>
-        )}
-      </div>
-    );
+  const handleOpenDependentProfile = (owner_id: string) => {
+    setSelectedDependentId(owner_id);
+    setOpenProfileModal(true);
   };
   const onDel = async () => {
     const { data } = await execute("/dptos/" + datas.data.id, "DELETE");
@@ -229,85 +169,85 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
   };
 
-  const getHourPeriod = (start_time: any, end_time: any) => {
-    const start =
-      typeof start_time === "string"
-        ? new Date(`1970-01-01T${start_time}`)
-        : new Date(start_time);
-    const end =
-      typeof end_time === "string"
-        ? new Date(`1970-01-01T${end_time}`)
-        : new Date(end_time);
+  const [openOwnerForm, setOpenOwnerForm] = useState(false);
+  const [newOwnerType, setNewOwnerType] = useState<'Propietario' | 'Residente'>('Propietario');
+  const [newIsResident, setNewIsResident] = useState<boolean>(false);
+  const [openTransferModal, setOpenTransferModal] = useState(false);
+  const [selectedOwnerForTransfer, setSelectedOwnerForTransfer] = useState<any>(null);
+  const [pendingTransferType, setPendingTransferType] = useState<"H" | "T" | null>(null);
+  const [isNewOwnerFlow, setIsNewOwnerFlow] = useState(false);
 
-    const diff = end.getTime() - start.getTime();
-    const hours = Math.floor(diff / 1000 / 60 / 60);
-    const minutes = Math.floor((diff / 1000 / 60) % 60);
-
-    if (hours === 0 && minutes > 0) {
-      return `${minutes}m`;
-    } else if (hours > 0 && minutes > 0) {
-      return `${hours}h ${minutes}m`;
-    } else if (hours > 0) {
-      return `${hours}h`;
-    }
-    return "0m";
-  };
-
-  const leftAccess = (item: any) => {
-    if (item?.other) {
-      let icon;
-      switch (item?.other?.other_type_id) {
-        case 1:
-          icon = <IconDelivery color="var(--cBlack)" />;
-          break;
-        case 2:
-          icon = <IconTaxi color="var(--cBlack)" />;
-          break;
-        default:
-          icon = <IconOther color="var(--cBlack)" />;
-          break;
+  const onTitular = (type: "H" | "T", action?: 'new' | 'change') => {
+    if (action === 'new') {
+      // Si ya existe un propietario/residente, mostrar modal de confirmación
+      if ((type === 'H' && datas?.homeowner) || (type === 'T' && datas?.tenant)) {
+        setCurrentChangeType(type);
+        const existingOwner = type === 'H' ? datas?.homeowner : datas?.tenant;
+        setSelectedOwnerForTransfer(existingOwner);
+        setPendingTransferType(type);
+        setIsNewOwnerFlow(true);
+        setNewOwnerType(type === 'H' ? 'Propietario' : 'Residente');
+        setNewIsResident(type === 'T');
+        setOpenTransferModal(true);
+        return;
       }
-      return (
-        <div
-          style={{
-            padding: 8,
-            backgroundColor: "var(--cWhiteV1)",
-            borderRadius: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {icon}
-        </div>
-      );
+      
+      setNewOwnerType(type === 'H' ? 'Propietario' : 'Residente');
+      setNewIsResident(type === 'T');
+      setOpenOwnerForm(true);
+      return;
     }
-    return (
-      <Avatar
-        name={getFullName(item.visit)}
-        w={40}
-        h={40}
-        className={styles.visitorAvatar}
-      />
-    );
-  };
 
-  const onTitular = () => {
-    if (!datas?.data?.homeowner) {
+    if (type === "T" && !datas?.homeowner) {
       showToast(
-        "No se puede asignar un titular a esta casa porque no existe un propietario registrado.",
+        "No se puede asignar un residente a esta unidad porque no existe un propietario registrado.",
         "error"
       );
       return;
     }
+    setCurrentChangeType(type);
     setOpenTitular(true);
   };
-  const renderSubtitle = (item: any) => {
-    let subtitle = "CI: " + item.visit?.ci;
-    if (item?.other) {
-      subtitle = item.other?.other_type?.name;
+
+  const handleRemoveTitularClick = (type: "H" | "T") => {
+    setCurrentRemovalType(type);
+    setOpenDelTitular(true);
+  };
+
+  const removeTitular = async () => {
+    try {
+      if (!currentRemovalType) return;
+
+      const isHomeowner = currentRemovalType === "H";
+      const payload = {
+        owner_id: isHomeowner ? datas?.data?.homeowner?.id : datas?.tenant?.id,
+        dpto_id: datas?.data?.id,
+        type: currentRemovalType,
+      };
+
+      const { data } = await execute("/dptos-release-owner", "POST", payload);
+
+      if (data?.success) {
+        showToast(
+          isHomeowner ? "Propietario liberado" : "Residente desvinculado",
+          "success"
+        );
+        reLoad({ extraData: true });
+        setOpenDelTitular(false);
+        setCurrentRemovalType(null);
+      } else {
+        showToast(
+          data?.message ||
+            `Error al ${
+              isHomeowner ? "liberar propietario" : "desvincular residente"
+            }`,
+          "error"
+        );
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      showToast("Error al procesar la solicitud", "error");
     }
-    return subtitle;
   };
 
   return (
@@ -318,476 +258,97 @@ const DashDptos = ({ id }: DashDptosProps) => {
       />
       <section>
         <div className={styles.firtsPanel}>
-          <div className={styles.infoCard}>
-            <div className={styles.cardHeader}>
-              <div>
-                <p className={styles.title}>
-                  {datas?.data?.type.name} {datas?.data?.nro}
-                </p>
-                <p className={styles.subtitle}> {datas?.data?.description}</p>
-              </div>
-              <div style={{ display: "flex", gap: 12 }}>
-                <div className={styles.iconActions}>
-                  <IconEdit size={30} onClick={() => setOpenEdit(true)} />
-                </div>
-                <div className={styles.iconActions}>
-                  <IconTrash size={30} onClick={() => setOpenDel(true)} />
-                </div>
-              </div>
-            </div>
-
-            <Br />
-
-            <div style={{ display: "flex", marginBottom: "var(--spS)" }}>
-              {!datas?.data?.homeowner ? (
-                <EmptyData
-                  message="No existe propietario registrado en esta casa"
-                  // centered={false}
-                  h={100}
-                />
-              ) : (
-                <ItemList
-                  title={getFullName(datas?.data?.homeowner)}
-                  subtitle={"Propietario"}
-                  left={
-                    <Avatar
-                      src={
-                        datas?.data?.id
-                          ? getUrlImages(
-                              "/DPTO" +
-                                "-" +
-                                datas?.data?.id +
-                                ".webp" +
-                                (datas?.data?.updated_at
-                                  ? "?d=" + datas?.data?.updated_at
-                                  : "")
-                            )
-                          : ""
-                      }
-                      name={getFullName(datas?.data?.homeowner)}
-                      w={48}
-                      h={48}
-                    />
-                  }
-                  right={
-                    <div className={styles.SwitchContainer}>
-                      <Switch
-                        name="isTitular"
-                        // optionValue={["P", "I"]}
-                        disabled={true}
-                        checked={formState.isTitular == "P"}
-                        onChange={() => {
-                          setFormState({
-                            ...formState,
-                            isTitular: formState.isTitular == "P" ? "I" : "P",
-                          });
-                        }}
-                        value={formState.isTitular}
-                        label="A cargo de la unidad"
-                      />
-                    </div>
-                  }
-                />
-              )}
-            </div>
-
-            <div>
-              {/* Info Grid */}
-              <div className={styles.infoGrid}>
-                <LabelValue
-                  value={datas?.titular ? "Habitada" : "Disponible"}
-                  label="Estado"
-                  colorValue={
-                    datas?.titular ? "var(--cSuccess)" : "var(--cWhite)"
-                  }
-                />
-                <LabelValue
-                  value={datas?.data?.expense_amount}
-                  label="Expensa"
-                />
-                <LabelValue
-                  value={datas?.data?.dimension + " m²"}
-                  label="Dimensiones"
-                />
-
-                <LabelValue
-                  value={datas?.data?.dimension}
-                  label="Dimensiones"
-                />
-              </div>
-
-              <Br />
-
-              <div style={{ width: "100%" }}>
-                {/* Sección Titular */}
-                {!datas?.titular ? (
-                  <div className={styles.emptyTitular}>
-                    <EmptyData
-                      message="No existe titular registrado en esta casa"
-                      centered={false}
-                    />
-                    <Button className={styles.addButton} onClick={onTitular}>
-                      Agregar Titular
-                    </Button>
-                  </div>
-                ) : (
-                  <div>
-                    <ItemList
-                      title={getFullName(datas?.titular)}
-                      subtitle={"Titular"}
-                      left={
-                        <Avatar
-                          src={
-                            datas?.titular?.id
-                              ? getUrlImages(
-                                  "/OWNER" +
-                                    "-" +
-                                    datas?.titular?.id +
-                                    ".webp" +
-                                    (datas?.titular?.updated_at
-                                      ? "?d=" + datas?.titular?.updated_at
-                                      : "")
-                                )
-                              : ""
-                          }
-                          name={getFullName(datas?.titular)}
-                          w={48}
-                          h={48}
-                        />
-                      }
-                      right={
-                        <div className={styles.SwitchContainer}>
-                          <Switch
-                            optionValue={["I", "P"]}
-                            name="isTitular"
-                            checked={formState?.isTitular == "I"}
-                            onChange={(e: any) => {
-                              setFormState({
-                                ...formState,
-                                isTitular:
-                                  formState.isTitular == "I" ? "P" : "I",
-                              });
-                            }}
-                            value={formState.isTitular}
-                            label="A cargo de la unidad"
-                          />
-                        </div>
-                      }
-                    />
-                    <Button
-                      onClick={() => setOpenTitular(true)}
-                      variant="terciary"
-                      style={{
-                        padding: 0,
-                        display: "flex",
-                        justifyContent: "flex-start",
-                        width: "fit-content",
-                      }}
-                      small
-                    >
-                      Cambiar titular
-                    </Button>
-
-                    {/* Dependientes */}
-                    {datas?.titular?.dependientes && (
-                      <div className={styles.dependentesSection}>
-                        <p>Dependientes</p>
-                        <div className={styles.dependentesGrid}>
-                          {datas.titular.dependientes.length > 0 ? (
-                            datas.titular.dependientes.map(
-                              (dependiente: any, index: number) => (
-                                <Tooltip
-                                  key={index}
-                                  title={getFullName(dependiente.owner)}
-                                  position="top"
-                                  className={styles.tooltip}
-                                >
-                                  <Avatar
-                                    key={index}
-                                    src={
-                                      dependiente.owner?.id
-                                        ? getUrlImages(
-                                            "/OWNER" +
-                                              "-" +
-                                              dependiente.owner?.id +
-                                              ".webp" +
-                                              (datas?.titular?.updated_at
-                                                ? "?d=" +
-                                                  datas?.titular?.updated_at
-                                                : "")
-                                          )
-                                        : ""
-                                    }
-                                    name={getFullName(dependiente.owner)}
-                                    w={40}
-                                    h={40}
-                                    className={styles.dependentAvatar}
-                                    onClick={() =>
-                                      handleOpenPerfil(dependiente.owner_id)
-                                    }
-                                  />
-                                </Tooltip>
-                              )
-                            )
-                          ) : (
-                            <p className={styles.emptyMessage}>
-                              No tiene dependientes
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <Button
-              variant="terciary"
-              small
-              style={{
-                padding: 0,
-                display: "flex",
-                justifyContent: "flex-start",
-                width: "fit-content",
-              }}
-              onClick={() => setOpenTitularHist(true)}
-            >
-              Ver historial de titulares
-            </Button>
-          </div>
+          {!loaded ? (
+            <WidgetSkeleton />
+          ) : (
+            <UnitInfo
+              datas={datas}
+              onEdit={() => setOpenEdit(true)}
+              onDelete={() => setOpenDel(true)}
+              onTitular={onTitular}
+              onRemoveTitular={handleRemoveTitularClick}
+              onOpenDependentProfile={handleOpenDependentProfile}
+              onOpenTitularHist={() => setOpenTitularHist(true)}
+            />
+          )}
 
           <WidgetBase
             title={
               <TitleRender
                 title="Historial de pagos"
-                onClick={() => setOpenPaymentsHist(true)}
+                onClick={() => {
+                  setParamsCrud("payments", "searchBy", datas?.data?.nro);
+                  router.push("/payments");
+                }}
               />
             }
+            subtitle={`Últimos ${datas?.payments?.length || 0} pagos`}
             variant="V1"
+            style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.accountContent}>
-              {!datas?.payments || datas.payments.length === 0 ? (
-                <EmptyData
-                  message="No existe historial de pagos para esta unidad"
-                  centered={false}
-                />
+              {!loaded ? (
+                <TableSkeleton />
               ) : (
-                <Table
-                  header={header}
-                  data={datas?.payments}
-                  className="striped"
-                />
+                <PaymentsTable payments={datas?.payments} />
               )}
             </div>
           </WidgetBase>
         </div>
 
         <div className={styles.secondPanel}>
-          {/* Historial de Visitas Mini Lista */}
+          {/* Historial de Accesos - Tabla */}
           <WidgetBase
-            subtitle={"+" + datas.accessCount + " accesos nuevos este mes"}
+            subtitle={
+              loaded
+                ? "+" + datas.accessCount + " accesos nuevos este mes"
+                : "Cargando..."
+            }
             title={
               <TitleRender
                 title="Historial de accesos"
-                onClick={() => setOpenAccesos(true)}
+                onClick={() => {
+                  setParamsCrud("accesses", "searchBy", datas?.data?.nro);
+                  router.push("/activities");
+                }}
               />
             }
             variant="V1"
-            style={{ width: "48%" }}
+            style={{ flex: 1, minWidth: "300px" }}
           >
-            <div
-              style={{
-                display: "flex",
-                overflowX: "auto",
-                width: "100%",
-                marginTop: 24,
-              }}
-            >
-              {datas?.access && datas.access.length > 0 ? (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 16,
-                  }}
-                >
-                  {datas.access.map((acc: any, index: any) => {
-                    return (
-                      <div
-                        key={index}
-                        style={{
-                          width: 468,
-                          border: "1px solid var(--cWhiteV1)",
-                          padding: 12,
-                          borderRadius: 12,
-                        }}
-                      >
-                        <ItemList
-                          title={getFullName(acc.visit)}
-                          subtitle={renderSubtitle(acc)}
-                          left={leftAccess(acc)}
-                          right={
-                            <p
-                              style={{
-                                width: 80,
-                                fontSize: 12,
-                                display: "flex",
-                                justifyContent: "end",
-                                color:
-                                  acc.in_at && acc.out_at
-                                    ? "var(--cSuccess)"
-                                    : "var(--cError)",
-                              }}
-                            >
-                              {acc.in_at && acc.out_at
-                                ? "Completado"
-                                : "Por salir"}
-                            </p>
-                          }
-                        />
-                        <KeyValue
-                          title={"Tipo de visita"}
-                          value={
-                            acc.type === "P"
-                              ? "Pedido"
-                              : acc.type == "I"
-                              ? "Individual"
-                              : "Grupal"
-                          }
-                        />
-                        <KeyValue
-                          title={"Ingreso"}
-                          value={getDateTimeStrMes(acc.in_at) || "Sin fecha"}
-                        />
-                        <KeyValue
-                          title={"Salida"}
-                          value={getDateTimeStrMes(acc.out_at) || "Sin fecha"}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
+            <div className={styles.accessContent}>
+              {!loaded ? (
+                <TableSkeleton />
               ) : (
-                <EmptyData
-                  message="No existe historial de visitas para esta unidad"
-                  centered={false}
-                />
+                <AccessTable access={datas?.access} />
               )}
             </div>
           </WidgetBase>
+
+          {/* Historial de Reservas - Tabla */}
           <WidgetBase
             title={
               <TitleRender
                 title="Historial de reservas"
-                onClick={() => setOpenReservasHist(true)}
+                onClick={() => {
+                  setParamsCrud("reservations", "searchBy", datas?.data?.nro);
+                  router.push("/reservas");
+                }}
               />
             }
             subtitle={
-              "+" + datas.reservationsCount + " reservas nuevas este mes"
+              loaded
+                ? "+" + datas.reservationsCount + " reservas nuevas este mes"
+                : "Cargando..."
             }
             variant="V1"
-            style={{ width: "48%" }}
+            style={{ flex: 1, minWidth: "300px" }}
           >
-            <div
-              style={{
-                display: "flex",
-                overflowX: "auto",
-                width: "100%",
-                marginTop: 24,
-              }}
-            >
-              {datas?.reservations && datas?.reservations?.length > 0 ? (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 16,
-                  }}
-                >
-                  {datas.reservations.map((res: any, index: any) => {
-                    return (
-                      <div
-                        key={index}
-                        style={{
-                          width: 468,
-                          border: "1px solid var(--cWhiteV1)",
-                          padding: 12,
-                          borderRadius: 12,
-                        }}
-                      >
-                        <ItemList
-                          title={res?.area?.title}
-                          subtitle={res?.area?.description}
-                          left={
-                            <Avatar
-                              name={res?.area?.title}
-                              src={getUrlImages(
-                                "/AREA-" +
-                                  res?.area?.id +
-                                  "-" +
-                                  res?.area?.images?.[0]?.id +
-                                  ".webp" +
-                                  "?" +
-                                  res?.area?.updated_at
-                              )}
-                              w={40}
-                              h={40}
-                            />
-                          }
-                          right={
-                            <p
-                              style={{
-                                color:
-                                  res.status === "A"
-                                    ? "var(--cSuccess)"
-                                    : res.status === "W"
-                                    ? "var(--cWarning)"
-                                    : res.status === "X"
-                                    ? "var(--cError)"
-                                    : "var(--cError)",
-                                fontSize: 12,
-                                display: "flex",
-                                justifyContent: "end",
-                              }}
-                            >
-                              {res.status === "A"
-                                ? "Aprovada "
-                                : res.status === "W"
-                                ? "En espera"
-                                : res.status === "X"
-                                ? "Rechazado"
-                                : "Cancelado"}
-                            </p>
-                          }
-                        />
-                        <KeyValue
-                          title={"Fecha y hora de reserva"}
-                          value={
-                            res.start_time.slice(0, 5) + " - " + res.date_at ||
-                            "Sin fecha"
-                          }
-                        />
-                        <KeyValue
-                          title={"Cantidad de personas"}
-                          value={
-                            res.people_count + " personas" || "Sin cantidad"
-                          }
-                        />
-                        <KeyValue
-                          title={"Cantidad de horas"}
-                          value={
-                            getHourPeriod(res.start_time, res?.end_time) ||
-                            "Sin fecha"
-                          }
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
+            <div className={styles.reservationsContent}>
+              {!loaded ? (
+                <TableSkeleton />
               ) : (
-                <EmptyData
-                  message="No existe historial de visitas para esta unidad"
-                  centered={false}
-                />
+                <ReservationsTable reservations={datas?.reservations} />
               )}
             </div>
           </WidgetBase>
@@ -795,15 +356,27 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
         {/* Modales */}
         <DataModal
-          title="Cambiar de titular"
+          title={`Seleccionar ${
+            currentChangeType === "H" ? "propietario" : "residente"
+          }`}
           open={openTitular}
           onSave={onSave}
-          onClose={() => setOpenTitular(false)}
+          variant={"mini"}
+          onClose={() => {
+            setOpenTitular(false);
+            setCurrentChangeType(null);
+            setFormState((prev: { owner_id?: string }) => ({
+              ...prev,
+              owner_id: "",
+            }));
+          }}
           buttonText="Guardar"
         >
           <div className={styles.modalContent}>
             <Select
-              placeholder="Selecciona al nuevo titular"
+              placeholder={`Selecciona al nuevo ${
+                currentChangeType === "H" ? "propietario" : "residente"
+              }`}
               name="owner_id"
               error={errorsT.owner_id}
               required={true}
@@ -811,12 +384,27 @@ const DashDptos = ({ id }: DashDptosProps) => {
               onChange={(e) =>
                 setFormState({ ...formState, owner_id: e.target.value })
               }
-              options={(datas?.owners || []).map((owner: any) => ({
+              options={(() => {
+                const extra = dashData?.extraData ?? {};
+                const list: any[] =
+                  currentChangeType === "H"
+                    ? extra.homeowners || []
+                    : extra.tenants || [];
+                return list.map((owner: any) => {
+              const ciLabel = owner?.ci ? ` - C.I. ${owner.ci}` : "";
+              const dptoLabel =
+                Array.isArray(owner?.dpto) && owner.dpto.length > 0
+                  ? ` - Unidad ${owner.dpto[0]?.nro ?? ""}`
+                  : "";
+              return {
                 ...owner,
-                name: `${getFullName(owner)}`,
-              }))}
+                name: `${getFullName(owner)}${ciLabel}${dptoLabel}`,
+              };
+            });
+              })()}
               optionLabel="name"
               optionValue="id"
+              filter={true}
               iconRight={<IconArrowDown />}
             />
           </div>
@@ -824,32 +412,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
         {/* Modales de Historial */}
         {openTitularHist && (
           <HistoryOwnership
-            ownershipData={datas?.titularHist || []}
+            ownershipData={datas?.titularHist || datas?.tenantHist || []}
             open={openTitularHist}
             close={() => setOpenTitularHist(false)}
-          />
-        )}
-
-        {openPaymentsHist && (
-          <HistoryPayments
-            paymentsData={datas?.payments || []}
-            open={openPaymentsHist}
-            close={() => setOpenPaymentsHist(false)}
-          />
-        )}
-
-        {openAccesos && (
-          <HistoryAccess
-            accessData={datas?.access || []}
-            open={openAccesos}
-            close={() => setOpenAccesos(false)}
-          />
-        )}
-        {openReservasHist && (
-          <HistoryReservations
-            open={openReservasHist}
-            onClose={() => setOpenReservasHist(false)}
-            id={datas?.data?.id}
           />
         )}
 
@@ -860,10 +425,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
               setOpenComprobante(false);
               setIdPago(null);
             }}
-            // item={datas.payments?.find(
-            //   (pago: any) => pago?.payment?.id === idPago
-            // )?.payment || {}}
-            // id={idPago}
             extraData={datas}
             payment_id={idPago}
           />
@@ -877,9 +438,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
               setIdPerfil(null);
             }}
             item={
-              idPerfil === datas?.titular?.id
-                ? datas?.titular
-                : datas?.titular?.dependientes?.find(
+              idPerfil === datas?.tenant?.id
+                ? datas?.tenant
+                : datas?.tenant?.dependientes?.find(
                     (dep: any) => dep.owner_id === idPerfil
                   )?.owner || {}
             }
@@ -896,11 +457,45 @@ const DashDptos = ({ id }: DashDptosProps) => {
             extraData={dashData?.extraData}
           />
         )}
+        {openOwnerForm && (
+          <OwnersRenderForm
+            open={openOwnerForm}
+            onClose={() => setOpenOwnerForm(false)}
+            item={{
+              ci: '',
+              name: '',
+              last_name: '',
+              type_owner: newOwnerType,
+              dptos: datas?.data?.id ? [{
+                dpto_id: datas.data.id,
+                dpto_nro: datas.data.nro,
+              }] : [],
+              _disabled: false,
+              _emailDisabled: false
+            }}
+            setItem={(newItem: any) => {
+            }}
+            execute={execute as (endpoint: string, method: string, data: any, showLoader?: boolean, silent?: boolean) => Promise<{ data?: any }>}
+            extraData={{
+              ...dashData?.extraData,
+              dptosForH: dashData?.extraData?.dptosForH || [],
+              dptosForT: dashData?.extraData?.dptosForT || []
+            }}
+            reLoad={() => {
+              reLoad({ extraData: true });
+              setOpenOwnerForm(false);
+            }}
+            defaultIsResident={newIsResident}
+            disableUnitEditing={true}
+            disableTypeEditing={true}
+          />
+        )}
         {openDel && (
           <DataModal
             title="Eliminar unidad"
             open={openDel}
             onSave={onDel}
+            variant={"mini"}
             onClose={() => setOpenDel(false)}
             buttonText="Eliminar"
           >
@@ -910,6 +505,78 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 no se puede deshacer.
               </p>
             </div>
+          </DataModal>
+        )}
+        {openDelTitular && (
+          <DataModal
+            title={
+              currentRemovalType === "H"
+                ? "Liberar residencia"
+                : "Desvincular residente"
+            }
+            open={openDelTitular}
+            onSave={removeTitular}
+            variant={"mini"}
+            onClose={() => {
+              setOpenDelTitular(false);
+              setCurrentRemovalType(null);
+            }}
+            buttonText={currentRemovalType === "H" ? "Liberar" : "Desvincular"}
+          >
+            <p style={{
+
+              margin: '16px 0',
+              lineHeight: '1.5',
+              padding: '0 10px'
+            }}>
+              {currentRemovalType === "H"
+                ? "¿Estás seguro de liberar la residencia del propietario? Recuerda que al realizar esta acción el usuario seguirá siendo propietario más no residente en la unidad?"
+                : "¿Estás seguro que quieres desvincular al residente? Recuerda que si realizas esta acción la unidad quedará sin residente?"}
+            </p>
+          </DataModal>
+        )}
+
+        {openProfileModal && selectedDependentId && (
+          <ProfileModal
+            open={openProfileModal}
+            onClose={() => {
+              setOpenProfileModal(false);
+              setSelectedDependentId(null);
+            }}
+            dataID={selectedDependentId}
+            title="Perfil del Dependiente"
+            titleBack="Volver a la Unidad"
+            type="owner"
+            reLoad={() => reLoad({ extraData: true })}
+          />
+        )}
+        {openTransferModal && selectedOwnerForTransfer && (
+          <DataModal
+            title="Confirmar transferencia"
+            open={openTransferModal}
+            onSave={confirmTransfer}
+            variant={"mini"}
+            onClose={() => {
+              setOpenTransferModal(false);
+              setSelectedOwnerForTransfer(null);
+              setPendingTransferType(null);
+              setIsNewOwnerFlow(false);
+            }}
+            buttonText={isNewOwnerFlow ? "Continuar" : "Transferir"}
+          >
+            <p style={{
+              textAlign: 'start',
+              margin: '16px 0',
+              lineHeight: '1.5',
+              padding: '0 10px'
+            }}>
+              {pendingTransferType === "H" 
+                ? "¿Estás seguro de realizar esta transferencia?"
+                : selectedOwnerForTransfer?.dpto && Array.isArray(selectedOwnerForTransfer.dpto) && selectedOwnerForTransfer.dpto.length > 0
+                  ? `Se quitará a este residente ${getFullName(selectedOwnerForTransfer)} de la unidad ${selectedOwnerForTransfer.dpto?.[0]?.nro || selectedOwnerForTransfer.dpto?.[0]?.description || 'N/A'} y será transferido a la unidad actual.`
+                  : "¿Estás seguro de realizar esta transferencia?"
+              }
+            </p>
           </DataModal>
         )}
       </section>

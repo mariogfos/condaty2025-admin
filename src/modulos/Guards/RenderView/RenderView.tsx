@@ -11,10 +11,6 @@ const RenderView = (props: {
   onConfirm?: Function;
   extraData?: any;
 }) => {
-
-
-
-
   return (
     <DataModal
       open={props.open}
@@ -22,18 +18,19 @@ const RenderView = (props: {
       title={"Detalle del Guardia"}
       buttonText=""
       buttonCancel=""
-      style={{width:'max-content'}}
+      style={{ width: "max-content" }}
       className={styles.renderView}
     >
-      <div >
+      <div>
         <div>
           <Avatar
+            hasImage={props.item?.has_image}
             src={getUrlImages(
               "/GUARD-" + props.item.id + ".webp?d=" + props.item.updated_at
             )}
             h={170}
             w={170}
-            style={{borderRadius:16}}
+            style={{ borderRadius: 16 }}
             name={getFullName(props.item)}
           />
           <div>
@@ -41,7 +38,6 @@ const RenderView = (props: {
           </div>
         </div>
         <section>
-
           <div>
             <p>Cédula de identidad</p>
             <p>{props.item?.ci}</p>
@@ -64,15 +60,11 @@ const RenderView = (props: {
           </div>
           <div>
             <p>Email</p>
-            <p>
-              {props.item.email}
-            </p>
+            <p>{props.item.email}</p>
           </div>
           <div>
-            <p>Domicilio</p>
-            <p>
-              {props.item.address}
-            </p>
+            <p>Dirección</p>
+            <p>{props.item.address}</p>
           </div>
         </section>
       </div>

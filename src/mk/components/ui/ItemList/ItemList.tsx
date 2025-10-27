@@ -13,6 +13,7 @@ interface PropsType {
   active?: boolean;
   icon?: any;
   onClick?: any;
+  children?: any;
 }
 const ItemList = ({
   title,
@@ -21,6 +22,7 @@ const ItemList = ({
   right,
   foot,
   // key = 0,
+  children = null,
   style = {},
   variant = "",
   active = false,
@@ -49,6 +51,7 @@ const ItemList = ({
         </div>
         {right && <span>{right}</span>}
       </div>
+      {children && children}
       {foot && <footer>{foot}</footer>}
     </div>
   );
