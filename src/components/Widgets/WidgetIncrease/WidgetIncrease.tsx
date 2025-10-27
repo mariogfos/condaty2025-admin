@@ -5,7 +5,7 @@ import {
 import WidgetBase from "../WidgetBase/WidgetBase";
 import styles from "./WidgetIncrease.module.css";
 import { formatNumber } from "../../../mk/utils/numbers";
-import Tooltip from "@/components/Tooltip/Tooltip";
+import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 
 interface PropsType {
   widget8?: any;

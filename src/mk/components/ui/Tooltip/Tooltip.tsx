@@ -1,33 +1,54 @@
-import React, { ReactNode, useEffect, useState } from "react";
-import ReactDOM from "react-dom";
+import { CSSProperties, ReactNode } from "react";
 import styles from "./tooltip.module.css";
 
-interface TooltipProps {
+export type TooltipPosition =
+  | "top"
+  | "bottom"
+  | "left"
+  | "right"
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right";
+
+type PropsType = {
+  title: string;
   children: ReactNode;
-  position: { top: number; left: number };
-}
+  position?: TooltipPosition;
+  style?: CSSProperties;
+  className?: string;
+  singleLine?: boolean;
+  maxWidth?: string | number;
+  minWidth?: string | number;
+  fullWidth?: boolean;
+};
 
-const Tooltip: React.FC<TooltipProps> = ({ children, position }) => {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
-
-  if (!mounted) return null;
-
-  return ReactDOM.createPortal(
-    <div
-      className={styles.tooltip}
-      style={{
-        top: position.top,
-        left: position.left,
-      }}
-    >
+const Tooltip = ({
+  title,
+  children,
+  position = "top",
+  style,
+  className,
+  singleLine = true,
+  maxWidth,
+  minWidth,
+  fullWidth,
+}: PropsType) => {
+  if (!title) return children;
+  return (
+    <div className={`${styles.container} ${fullWidth ? styles.fullWidth : ""} ${className || ""}`} style={style}>
+      <span
+        className={`${styles.tooltip} ${styles[position]}`}
+        style={{
+          whiteSpace: singleLine ? "nowrap" : "normal",
+          maxWidth: maxWidth || undefined,
+          minWidth: minWidth || undefined,
+        }}
+      >
+        {title}
+      </span>
       {children}
-    </div>,
-    document.getElementById("tooltip-root") as HTMLElement
+    </div>
   );
 };
 

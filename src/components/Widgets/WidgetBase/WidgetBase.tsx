@@ -24,9 +24,9 @@ const WidgetBase = ({
     <div
       style={style}
       className={
-        variant === "V1"
-          ? styles.widgetBaseV1
-          : styles.widgetBase + " " + className
+        (variant === "V1" ? styles.widgetBaseV1 : styles.widgetBase) +
+        " " +
+        className
       }
     >
       {typeof title === "string" ? (

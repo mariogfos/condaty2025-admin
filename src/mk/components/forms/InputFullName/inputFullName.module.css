@@ -2,8 +2,10 @@
   width: 100%;
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--spXs);
+  gap: var(--spM);
   @media (width > 480px) {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* InputFullName */

@@ -8,6 +8,7 @@ import { getFullName } from "@/mk/utils/string";
 import React, { useEffect, useState } from "react";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import styles from "./ActiveOwner.module.css";
+import page from "@/app/areas/page";
 
 const ActiveOwner = ({
   open,
@@ -20,7 +21,6 @@ const ActiveOwner = ({
   const { store, showToast, user } = useAuth();
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors] = useState({});
-  const [ldpto, setLdpto] = useState([]);
   const client = data?.clients?.find(
     (item: any) => item?.id === user?.client_id
   );
@@ -33,23 +33,24 @@ const ActiveOwner = ({
     "/dptos",
     "GET",
     {
-      fullType: "L",
+      page: 1,
+      perPage: -1,
+      fullType: data?.type_owner == "T" ? "PR" : "PH",
     },
     true
   );
 
-  useEffect(() => {
-    // console.log('entre')
+  const getLDptos = () => {
     const lista =
-      dptos?.data
-        ?.filter((item: any) => item?.titular === null)
-        .map((item: any) => ({
-          id: item?.id,
-          nro: store?.UnitsType + " " + item?.nro + " - " + item?.description,
-        })) || [];
+      dptos?.data?.map((item: any) => ({
+        id: item?.id,
+        nro: `${item?.type?.name} ${item?.nro} ${
+          item?.description ? "- " + item?.description : ""
+        }`,
+      })) || [];
 
-    setLdpto(lista);
-  }, [dptos]);
+    return lista;
+  };
 
   const handleChangeInput = (e: any) => {
     const { name, value } = e.target;
@@ -76,7 +77,6 @@ const ActiveOwner = ({
     setErrors(errs);
     return errs;
   };
-  console.log(errors);
 
   const activeResident = async () => {
     const errs = validate();
@@ -88,7 +88,8 @@ const ActiveOwner = ({
     } else {
       params = { id: data?.id, dpto_id: formState.dpto_id, confirm: "A" };
     }
-
+    // console.log(params);
+    // return;
     const { data: dataResident, error } = await execute(
       "/activeRegister",
       "POST",
@@ -105,45 +106,51 @@ const ActiveOwner = ({
       reLoad();
     } else {
       showToast(error?.data?.message || error?.message, "error");
-      console.log("error:", error);
     }
   };
-  console.log(client);
   return (
     <DataModal
       open={open}
       onSave={activeResident}
-      title={typeActive === "X" ? "Rechazar cuenta" : "Asignar unidad"}
+      title={typeActive === "X" ? "Rechazar solicitud" : "Asignar unidad"}
       buttonText="Guardar"
       onClose={onClose}
+      variant={"mini"}
     >
       {typeActive === "A" ? (
         <div className={styles.activeContainer}>
           <div>
             Selecciona la unidad para el residente
-            <span> {getFullName(data)}</span>
+            <span className={styles.resalted}> {getFullName(data)}</span>.
           </div>
           <p className="font-light text-md mb-6 text-lightv3">
             El residente indicó que está en la unidad:{" "}
-            <span>{client?.pivot?.preunidad || "Sin especificar"}</span>
+            <span className={styles.resalted}>
+              U: {client?.pivot?.preunidad || "Sin especificar"}
+            </span>
           </p>
           <div>
             <Select
-              label="Unidad"
-              placeholder={"Número de " + store.UnitsType}
+              label="Selecciona la unidad"
+              multiSelect={data?.type_owner == "H" ? true : false}
               name="dpto_id"
               required={true}
               value={formState.dpto_id}
-              options={ldpto}
+              options={getLDptos()}
               optionLabel="nro"
               error={errors}
               optionValue="id"
               onChange={handleChangeInput}
+              filter={true}
             />
           </div>
         </div>
       ) : (
-        <div>
+        <div className={styles.activeContainer}>
+          <p className={styles.textContent}>
+            Por favor indica el motivo del rechazo para que el residente pueda
+            comprender y realice el pre-registro de manera correcta
+          </p>
           <TextArea
             label="Motivo del rechazo de cuenta"
             name="obs"

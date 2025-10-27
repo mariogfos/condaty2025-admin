@@ -1,51 +1,52 @@
-// src/components/Categories/CategoryCard.tsx (o la ruta que corresponda)
-"use client"; 
-
-import { memo, useState, useCallback } from "react";
-import styles from "../Categories.module.css"; 
+'use client';
+import { memo, useState, useCallback, useEffect } from 'react';
+import styles from '../Categories.module.css';
 import {
   IconArrowDown,
   IconEdit,
   IconTrash,
   IconSimpleAdd,
-} from "@/components/layout/icons/IconsBiblioteca"; 
-import { CategoryCardProps, CategoryItem } from "../Type/CategoryType"; 
+} from '@/components/layout/icons/IconsBiblioteca';
+import { CategoryCardProps, CategoryItem } from '../Type/CategoryType';
 
 const CategoryCard = memo(
   ({
     item,
-    onClick, 
     onEdit,
     onDel,
-    categoryType, 
+    categoryType,
     onAddSubcategory,
-    className = "",
-    isSelected = false, 
-    onSelectCard,       
-  }: CategoryCardProps) => { 
+    className = '',
+    isSelected = false,
+    onSelectCard,
+    forceOpen = false,
+  }: CategoryCardProps & { forceOpen?: boolean }) => {
     const hasSubcategories = item.hijos && item.hijos.length > 0;
-    const [showSubcategories, setShowSubcategories] = useState<boolean>(false);
+    const [showSubcategories, setShowSubcategories] = useState<boolean>(forceOpen);
 
-    const toggleSubcategories = useCallback((e: React.MouseEvent) => {
-      e.stopPropagation();
-      setShowSubcategories((prev) => !prev);
-    }, []);
+    useEffect(() => {
+      setShowSubcategories(forceOpen);
+    }, [forceOpen]);
+
+    const toggleSubcategories = useCallback(
+      (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!forceOpen) {
+          setShowSubcategories(prev => !prev);
+        }
+      },
+      [forceOpen]
+    );
 
     const handleMainCardClick = useCallback(() => {
       if (onSelectCard) {
-        onSelectCard(); 
+        onSelectCard();
       }
     }, [onSelectCard]);
-
     const handleEditClick = useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation();
-        const editableItem = { ...item };
-        if (!editableItem.category_id) { 
-          editableItem.category_id = null;
-        }
-        editableItem.type = categoryType; 
-        onEdit(editableItem);
+        onEdit({ ...item, type: categoryType });
       },
       [item, onEdit, categoryType]
     );
@@ -57,111 +58,124 @@ const CategoryCard = memo(
       },
       [item, onDel]
     );
+    const parentBgColor = className.includes(styles.cardEven)
+      ? 'var(--cBlackV2)'
+      : className.includes(styles.cardOdd)
+      ? 'var(--cWhiteV2)'
+      : '';
 
-    const cardClasses = `${styles.categoryCard} ${className} ${isSelected ? styles.selectedCard : ''}`;
-
+    const isAccordionOpen = forceOpen || showSubcategories;
+    const cardClasses = `${styles.categoryCard} ${className} ${
+      isSelected ? styles.selectedCard : ''
+    }${isAccordionOpen ? ` ${styles.accordionOpen}` : ''}`;
     return (
-      <div className={cardClasses}>
+      <div
+        className={cardClasses}
+        onClick={toggleSubcategories}
+        style={parentBgColor ? { backgroundColor: parentBgColor } : undefined}
+      >
         <div className={styles.categoryHeader} onClick={handleMainCardClick}>
-           <div className={styles.categoryTitle}>
-            {hasSubcategories && (
-              <IconArrowDown
-                className={`${styles.arrowIcon} ${
-                  showSubcategories ? styles.expanded : ""
-                }`}
-                onClick={toggleSubcategories} 
-                size={20} 
-              />
-            )}
-            <span className={styles.categoryNameText}>{item.name || "Sin nombre"}</span>
-           </div>
-           <div className={styles.categoryDescription}>
-             {item.description || "Sin descripción"}
-           </div>
-           <div className={styles.categoryActions}>
-              <button
-                className={`${styles.actionButton} ${styles.editButton}`}
-                onClick={handleEditClick}
-                aria-label={`Editar ${item.name}`}
-              >
-                <IconEdit size={18} />
-              </button>
+          <div className={styles.categoryTitle}>
+            <IconArrowDown
+              className={`${styles.arrowIcon} ${isAccordionOpen ? styles.expanded : ''}`}
+              
+              size={20}
+            />
+            <span
+              className={`${styles.categoryNameText} ${
+                isAccordionOpen ? styles.categoryNameTextOpen : ''
+              }`}
+            >
+              {item.name || '-/-'}
+            </span>
+          </div>
+          <div className={styles.categoryDescription}>{item.description || '-/-'}</div>
+          <div className={styles.categoryActions}>
+            <button
+              className={`${styles.actionButton} ${styles.editButton}`}
+              onClick={handleEditClick}
+              aria-label={`Editar ${item.name}`}
+            >
+              <IconEdit size={24} />
+            </button>
+            {!hasSubcategories && (
               <button
                 className={`${styles.actionButton} ${styles.deleteButton}`}
                 onClick={handleDeleteClick}
                 aria-label={`Eliminar ${item.name}`}
               >
-                <IconTrash size={18} />
+                <IconTrash size={24} />
               </button>
-            </div>
+            )}
+          </div>
         </div>
-
-        {hasSubcategories && showSubcategories && (
-          <div className={styles.subcategoriesContainer}>
+        {isAccordionOpen && (
+          <div
+            className={styles.subcategoriesContainer}
+            style={parentBgColor ? { backgroundColor: parentBgColor } : {}}
+          >
             <div className={styles.subcategoriesList}>
-              {item.hijos?.map((subcat: CategoryItem) => {
-                const handleSubcatEdit = (e: React.MouseEvent) => { 
-                  e.stopPropagation();
-                  const editableSubcat = { ...subcat };
-                  editableSubcat.type = categoryType; 
-                  onEdit(editableSubcat);
-                 };
-                const handleSubcatDelete = (e: React.MouseEvent) => { 
-                  e.stopPropagation();
-                  onDel(subcat);
-                 };
-                const handleSubcatClick = (e: React.MouseEvent) => { 
-                  e.stopPropagation();
-                  if (onClick) onClick(subcat); 
-                 };
+              {hasSubcategories &&
+                item.hijos?.map((subcat: CategoryItem) => {
+                  const handleSubcatEdit = (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    onEdit({ ...subcat, type: categoryType });
+                  };
+                  const handleSubcatDelete = (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    onDel(subcat);
+                  };
 
-                return (
-                  <div
-                    key={subcat.id || `subcat-${Math.random()}`}
-                    className={styles.subcategoryItem}
-                    onClick={handleSubcatClick} 
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSubcatClick(e as any);}}
-                  >
-                    <span className={styles.subcategoryName}>
-                      {subcat.name || "Sin nombre"}
-                    </span>
-                    <span className={styles.subcategoryDesc}>
-                      {subcat.description || "Sin descripción"}
-                    </span>
-                    <div className={styles.subcategoryActions}>
-                      <button
-                        className={`${styles.actionButtonSub} ${styles.editButtonSub}`}
-                        onClick={handleSubcatEdit}
-                        aria-label={`Editar subcategoría ${subcat.name}`}
-                      >
-                        <IconEdit size={16} />
-                      </button>
-                      <button
-                        className={`${styles.actionButtonSub} ${styles.deleteButtonSub}`}
-                        onClick={handleSubcatDelete}
-                        aria-label={`Eliminar subcategoría ${subcat.name}`}
-                      >
-                        <IconTrash size={16} />
-                      </button>
+                  return (
+                    <div
+                      key={subcat.id || `subcat-${Math.random()}`}
+                      className={`${styles.subcategoryItem}`}
+                      style={parentBgColor ? { backgroundColor: parentBgColor } : undefined}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <div className={styles.subcategoryRow}>
+                        <div className={styles.subcategoryNameContainer}>
+                          <span className={styles.subcategoryName}>
+                            {subcat.name || '-/-'}
+                          </span>
+                        </div>
+                        <div className={styles.subcategoryDescContainer}>
+                          <span className={styles.subcategoryDesc}>
+                            {subcat.description || '-/-'}
+                          </span>
+                        </div>
+                        <div className={styles.subcategoryActions}>
+                          <button
+                            className={`${styles.actionButtonSub} ${styles.editButtonSub}`}
+                            onClick={handleSubcatEdit}
+                            aria-label={`Editar subcategoría ${subcat.name}`}
+                          >
+                            <IconEdit size={20} />
+                          </button>
+                          <button
+                            className={`${styles.actionButtonSub} ${styles.deleteButtonSub}`}
+                            onClick={handleSubcatDelete}
+                            aria-label={`Eliminar subcategoría ${subcat.name}`}
+                          >
+                            <IconTrash size={20} />
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
               <div className={styles.addSubcategoryContainer}>
                 <button
                   className={styles.addSubcategoryButton}
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
-                    if (item.id !== undefined) { 
-                        onAddSubcategory(item.id.toString());
-                    } else {
-                        console.error("Error: La categoría padre no tiene ID.");
+                    if (item.id) {
+                      onAddSubcategory(item.id.toString());
                     }
                   }}
                 >
-                  <IconSimpleAdd size={16} /> 
+                  <IconSimpleAdd size={16} />
                   <span>Agregar subcategoría</span>
                 </button>
               </div>
@@ -173,5 +187,5 @@ const CategoryCard = memo(
   }
 );
 
-CategoryCard.displayName = "CategoryCard";
+CategoryCard.displayName = 'CategoryCard';
 export default CategoryCard;

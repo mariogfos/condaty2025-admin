@@ -17,7 +17,7 @@ const mod = {
   modulo: "reservations",
   singular: "Reserva Pendiente", // Cambiado para claridad
   plural: "Reservas Pendientes", // Cambiado para claridad
-  permiso: "", // Asegúrate que el permiso sea correcto
+  permiso: "reservations", // Asegúrate que el permiso sea correcto
   extraData: true,
   hideActions: { edit: true, del: true, add: true }, // Ocultar acciones por defecto en esta vista
   renderView: (props: any) => <ReservationDetailModal {...props} />,
@@ -31,10 +31,9 @@ const paramsInitial = {
   fullType: "L",
   searchBy: "",
   filterBy: "status:W", // <-- ¡FILTRO APLICADO AQUÍ!
-  sortBy: 'created_at', // Ordenar por fecha de creación (más antiguas primero)
-  orderBy: 'asc',     // Orden ascendente
+  sortBy: "created_at", // Ordenar por fecha de creación (más antiguas primero)
+  orderBy: "asc", // Orden ascendente
 };
-
 
 const ReservaPending = () => {
   const router = useRouter();
@@ -45,50 +44,155 @@ const ReservaPending = () => {
   const fields = useMemo(
     () => ({
       // ... (definición de fields igual que antes) ...
-       id: { rules: [], api: "e" },
+      id: { rules: [], api: "e" },
       date_at: {
-        api: "ae", label: "Fecha Evento", list: {
+        api: "ae",
+        label: "Fecha Evento",
+        list: {
           onRender: (props: any) => {
             const timeString = props?.item?.start_time;
-            let formattedTime = '';
-            if (typeof timeString === 'string' && timeString.match(/^\d{2}:\d{2}:\d{2}$/)) {
-               try { formattedTime = format(parse(timeString, "HH:mm:ss", new Date()), "H:mm"); } catch (e) { console.error("Error parsing time:", e); }
+            let formattedTime = "";
+            if (
+              typeof timeString === "string" &&
+              timeString.match(/^\d{2}:\d{2}:\d{2}$/)
+            ) {
+              try {
+                formattedTime = format(
+                  parse(timeString, "HH:mm:ss", new Date()),
+                  "H:mm"
+                );
+              } catch (e) {
+                console.error("Error parsing time:", e);
+              }
             }
-            return ( <div> {getDateStrMes(props?.item?.date_at)}{" "} {formattedTime} </div> );
+            return (
+              <div>
+                {" "}
+                {getDateStrMes(props?.item?.date_at)} {formattedTime}{" "}
+              </div>
+            );
           },
         },
       },
       area: {
-         api: "ae", label: "Área Social", list: {
+        api: "ae",
+        label: "Área Social",
+        list: {
           onRender: (props: any) => {
             const area = props?.item?.area;
             const areaName = area?.title;
             const firstImage = area?.images?.[0];
-            const imageUrl = firstImage ? getUrlImages( `/AREA-${firstImage.area_id}-${firstImage.id}.${firstImage.ext}?d=${area.updated_at || Date.now()}` ) : undefined;
-            return ( <div style={{ display: "flex", alignItems: "center", gap: 8 }}> <Avatar src={imageUrl} /> <div> <p style={{ margin: 0 }}>{areaName || "Área no disponible"}</p> </div> </div> );
+            const imageUrl = firstImage
+              ? getUrlImages(
+                  `/AREA-${firstImage.area_id}-${firstImage.id}.${
+                    firstImage.ext
+                  }?d=${area.updated_at ?? Date.now()}`
+                )
+              : undefined;
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {" "}
+                <Avatar src={imageUrl} />{" "}
+                <div>
+                  {" "}
+                  <p style={{ margin: 0 }}>
+                    {areaName ?? "Área no disponible"}
+                  </p>{" "}
+                </div>{" "}
+              </div>
+            );
           },
         },
       },
       owner: {
-         api: "ae", label: "Residente", list: {
+        api: "ae",
+        label: "Residente",
+        list: {
           onRender: (props: any) => {
             const owner = props?.item?.owner;
             const dpto = props?.item?.dpto;
-            const ownerName = owner ? getFullName(owner) : "Residente no disponible";
+            const ownerName = owner
+              ? getFullName(owner)
+              : "Residente no disponible";
             const dptoNro = dpto?.nro ? `Dpto: ${dpto.nro}` : "Sin Dpto.";
-            const imageUrl = owner ? getUrlImages(`/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`) : undefined;
-            return ( <div style={{ display: "flex", alignItems: "center", gap: 8 }}> <Avatar src={imageUrl} name={ownerName} /> <div> <p style={{ margin: 0, lineHeight: '1.3' }}> {ownerName} </p> {dpto && ( <p style={{ margin: 0, fontSize: '0.85em', color: '#666', lineHeight: '1.3' }}> {dptoNro} </p> )} {!owner && dpto && ( <p style={{ margin: 0, fontSize: '0.85em', color: '#666', lineHeight: '1.3' }}> {dptoNro} </p> )} </div> </div> );
+            const imageUrl = owner
+              ? getUrlImages(
+                  `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`
+                )
+              : undefined;
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {" "}
+                <Avatar
+                  hasImage={owner?.has_image}
+                  src={imageUrl}
+                  name={ownerName}
+                />{" "}
+                <div>
+                  {" "}
+                  <p style={{ margin: 0, lineHeight: "1.3" }}>
+                    {" "}
+                    {ownerName}{" "}
+                  </p>{" "}
+                  {dpto && (
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "0.85em",
+                        color: "#666",
+                        lineHeight: "1.3",
+                      }}
+                    >
+                      {" "}
+                      {dptoNro}{" "}
+                    </p>
+                  )}{" "}
+                  {!owner && dpto && (
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "0.85em",
+                        color: "#666",
+                        lineHeight: "1.3",
+                      }}
+                    >
+                      {" "}
+                      {dptoNro}{" "}
+                    </p>
+                  )}{" "}
+                </div>{" "}
+              </div>
+            );
           },
         },
       },
       status: {
-         api: "ae", label: "Estado", list: {
+        api: "ae",
+        label: "Estado",
+        list: {
           onRender: (props: any) => {
             const status = props?.item?.status; // Debería ser 'W' aquí
-            const statusMap:any = { W: { label: "En espera", class: styles.statusW }, A: { label: "Aprobado", class: styles.statusA }, R: { label: "Rechazado", class: styles.statusR }, C: { label: "Cancelado", class: styles.statusC }, M: { label: "Mantenimiento", class: styles.statusM }, };
+            const statusMap: any = {
+              W: { label: "En espera", class: styles.statusW },
+              A: { label: "Aprobado", class: styles.statusA },
+              R: { label: "Rechazado", class: styles.statusR },
+              C: { label: "Cancelado", class: styles.statusC },
+              M: { label: "Mantenimiento", class: styles.statusM },
+            };
             const currentStatus = status ? statusMap[status] : null;
             // Para la lista de pendientes, siempre debería ser 'W', pero mantenemos la lógica por si acaso
-            return ( <div className={`${styles.statusBadge} ${ currentStatus ? currentStatus.class : styles.statusUnknown }`} > {currentStatus ? currentStatus.label : status || "Desconocido"} </div> );
+            return (
+              <div
+                className={`${styles.statusBadge} ${
+                  currentStatus ? currentStatus.class : styles.statusUnknown
+                }`}
+              >
+                {" "}
+                {currentStatus
+                  ? currentStatus.label
+                  : status || "Desconocido"}{" "}
+              </div>
+            );
           },
         },
         // No necesitamos el filtro de estado aquí, ya está en paramsInitial
@@ -101,7 +205,7 @@ const ReservaPending = () => {
   const {
     List,
     onSearch, // <-- Necesario para useCrudUtils
-    searchs,  // <-- Necesario para useCrudUtils
+    searchs, // <-- Necesario para useCrudUtils
     setStore, // <-- Necesario para useCrudUtils (el que devuelve useCrud)
     onEdit,
     onDel,
@@ -114,16 +218,16 @@ const ReservaPending = () => {
 
   // Llama a useCrudUtils pasando las props requeridas
   const { onLongPress, selItem } = useCrudUtils({
-      onSearch, // <-- Pasar onSearch
-      searchs,  // <-- Pasar searchs
-      setStore, // <-- Pasar setStore (de useCrud)
-      mod,
-      onEdit,
-      onDel,
-    });
+    onSearch, // <-- Pasar onSearch
+    searchs, // <-- Pasar searchs
+    setStore, // <-- Pasar setStore (de useCrud)
+    mod,
+    onEdit,
+    onDel,
+  });
 
   // Verificar permisos (usando userCan de useAuth)
- // if (!userCan(mod.permiso, "R")) return <NotAccess />;
+  // if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   // Renderizado (sin cambios)
   return (

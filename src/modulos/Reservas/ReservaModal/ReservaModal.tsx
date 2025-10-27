@@ -138,6 +138,7 @@ const ReservaModal = ({ open, onClose, reservaData, onApprove, onCancel }: any) 
         onClose={onClose}
         buttonText="" // Oculta botones por defecto
         buttonCancel="" // Oculta botones por defecto
+        variant={"mini"}
 
       >
         {/* Cabecera personalizada */}
@@ -222,7 +223,7 @@ const ReservaModal = ({ open, onClose, reservaData, onApprove, onCancel }: any) 
         {/* Botones de Acción Personalizados */}
         <div className={styles.buttonRow}>
           <button className={styles.cancelButton} onClick={handleOpenCancelReason}>
-            Cancelar solicitud
+            Rechazar solicitud
           </button>
           <button className={styles.approveButton} onClick={handleApproveClick}>
             Aprobar solicitud

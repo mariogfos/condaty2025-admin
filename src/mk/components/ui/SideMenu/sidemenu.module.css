@@ -1,38 +1,37 @@
 .sidebarContainer {
-    position: fixed;
-    min-height: 100vh;
-    z-index: 100;
-    top: 0;
+  position: fixed;
+  min-height: 100vh;
+  z-index: 100;
+  top: 0;
 
-    &>div {
-        &>svg {
-            background-color: white;
-            color: black;
-            border-radius: 100%;
-            position: absolute;
-            top: 128px;
-            right: -10px;
-            cursor: pointer;
-        }
+  & > div {
+    & > svg {
+      background-color: white;
+      color: black;
+      border-radius: 100%;
+      position: absolute;
+      top: 20px;
+      right: -20px;
+      cursor: pointer;
+      z-index: 999;
     }
+  }
 }
 
 .collapsed,
 .expanded {
-    transition: width 0.3s ease;
+  transition: width 0.3s ease;
 }
 
 .collapsed {
-    width: 80px;
+  width: 80px;
 }
 
 .expanded {
-    width: 240px;
+  width: 280px;
 }
 
-
-
 .toggleIcon {
-    background-color: blue;
-    color: white;
+  background-color: blue;
+  color: white;
 }

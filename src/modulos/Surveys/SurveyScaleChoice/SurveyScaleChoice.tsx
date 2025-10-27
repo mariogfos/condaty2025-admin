@@ -187,16 +187,18 @@ const SurveyScaleChoice = ({
                 type="text"
                 label="Escribe tu pregunta aquí"
                 value={formStateScaleChoice?.name}
+                required={true}
                 onChange={handleChange}
                 error={errors}
                 name="name"
               />
             </div>
             <div>
-              <p>Descripción (Opcional)</p>
+              <p>Descripción</p>
               <TextArea
                 value={formStateScaleChoice?.description}
                 onChange={handleChange}
+                required={false}
                 error={errors}
                 name="description"
                 label="Escribe una descripción"

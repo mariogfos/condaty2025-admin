@@ -35,9 +35,16 @@ export default function WeekdayToggleGroup({
           key={day}
           onClick={() => onClick(day)}
           style={{
+            border: selectedDays?.includes(day)
+              ? "0.5px solid var(--cSidebar)"
+              : "0.5px solid var(--cWhiteV1)",
             backgroundColor: selectedDays?.includes(day)
               ? "var(--cFillSidebar)"
               : "transparent",
+            color: selectedDays?.includes(day)
+              ? "var(--cWhite)"
+              : "var(--cWhiteV1)",
+            cursor: selectedDays?.includes(day) ? "not-allowed" : "pointer",
           }}
           //   className={}
           //   className={`border rounded-lg px-4 py-2 text-white ${

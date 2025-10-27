@@ -1,8 +1,10 @@
 .container {
   display: flex;
-  flex-direction: column;
   gap: 20px;
   padding: 16px;
+  background-color: var(--cBlackV2);
+  border-radius: var(--bRadiusS);
+  border: 0.5px solid var(--cWhiteV1);
   width: 100%;
 }
 
@@ -44,7 +46,7 @@
   .container {
     padding: 24px;
   }
-  
+
   .imageContainer {
     margin-bottom: 16px;
   }

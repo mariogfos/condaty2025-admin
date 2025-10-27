@@ -6,6 +6,11 @@
   gap: 1rem;
 }
 
+.accessList {
+  background-color: #10b981;
+  color: blue;
+}
+
 .contentContainer {
   display: flex;
   flex-direction: column;
@@ -132,25 +137,24 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  
 }
 
-.avatarText{
+.avatarText {
   display: flex;
   /* align-items: center; */
   gap: 8px;
   flex-direction: column;
-  flex:1;
-   font-size: var(--sM);
-  & > div:nth-child(1){
-   color:var(--cWhite);
-   font-size: var(--sL);
+  flex: 1;
+  font-size: 12px;
+  & > div:nth-child(1) {
+    color: var(--cWhite);
+    font-size: var(--sM);
   }
 }
-.companionsText{
+.companionsText {
   /* background-color: red; */
-  min-height: 15px;
-  font-size: var(--sS);
+
+  font-size: var(--sXs);
 }
 
 /* Corrección para el centrado vertical de iconos */
@@ -166,8 +170,6 @@
   position: relative;
   margin-right: 16px;
 }
-
-
 
 .typeIcon {
   position: absolute;

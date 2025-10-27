@@ -15,12 +15,31 @@
   font-size: 14px;
   padding: 4px 0;
 }
-.stateLabel {
-  display: flex;
-  align-items: center;
+
+.dashboardTitle {
+  font-size: var(--sXxl);
+  font-weight: var(--bSemibold);
+  margin-bottom: var(--spL);
   color: var(--cWhite);
-  gap: 8px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
+}
+
+.allStatsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spM);
+  width: 100%;
+  margin-bottom: var(--spL);
+}
+
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--spL);
+}
+
+.statusCellCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
