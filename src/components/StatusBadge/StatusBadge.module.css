@@ -1,0 +1,12 @@
+.statusBadge {
+  font-weight: 400;
+  padding: 6px var(--spM);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: fit-content;
+  min-height: 28px;
+  white-space: nowrap;
+}

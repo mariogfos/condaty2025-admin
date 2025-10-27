@@ -12,6 +12,7 @@ import { getDateStrMes } from "../../../mk/utils/date1";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { IconX } from "@/components/layout/icons/IconsBiblioteca";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
 
 interface Props {
   open: boolean;
@@ -23,6 +24,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   const [tab, setTab] = useState("P");
   const [formState, setFormState]: any = useState({});
   const [dataM, setDataM] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { execute } = useAxios();
   const [errors, setErrors] = useState({});
   const [reservas, setReservas] = useState([]);
@@ -38,25 +40,37 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   };
 
   const getReservas = async () => {
-    const { data } = await execute("/reservations", "GET", {
-      fullType: "L",
-      date_at: formState.date_at,
-      date_end: formState.date_end,
-      area_id: formState.area_id,
-    });
-    if (data?.success == true) {
-      setReservas(data?.data);
+    const { data } = await execute(
+      "/reservations",
+      "GET",
+      {
+        fullType: "L",
+        date_at: formState.date_at,
+        date_end: formState.date_end,
+        area_id: formState.area_id,
+      },
+      false,
+      true
+    );
+    if (data?.success) {
+      const orderUpdate_at = data?.data?.map((item: any) => ({
+        ...item,
+        orderUpdate_at: getDateStrMes(item?.orderUpdate_at),
+      }));
+      setReservas(orderUpdate_at);
     }
   };
   useEffect(() => {
     if (
       formState.date_at &&
       formState.date_end &&
-      formState.date_at <= formState.date_end
+      formState.date_at <= formState.date_end &&
+      formState.area_id
     ) {
       getReservas();
     }
-  }, [formState.date_at, formState.date_end]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formState.date_at, formState.date_end, formState.area_id]);
 
   const _onClose = () => {
     setFormState({});
@@ -103,35 +117,52 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       "POST",
       formState
     );
-    if (data?.success == true) {
+    if (data?.success) {
       _onClose();
       showToast("Mantenimiento creado con éxito", "success");
+    } else {
+      showToast(data?.msg || "Ocurrió un error", "error");
     }
   };
 
   const getAreasM = async () => {
-    const { data } = await execute("/reservations", "GET", {
-      fullType: "L",
-      filterBy: "status:M",
-      perPage: -1,
-      page: 1,
-    });
-    if (data?.success == true) {
+    setLoading(true);
+    const { data } = await execute(
+      "/reservations",
+      "GET",
+      {
+        fullType: "L",
+        filterBy: "status:M",
+        perPage: -1,
+        page: 1,
+      },
+      false,
+      true
+    );
+    if (data?.success) {
       setDataM(data?.data);
     }
+    setLoading(false);
   };
   useEffect(() => {
     setDataM([]);
     if (tab == "A") {
       getAreasM();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
 
   const handleCancelMaintenance = async (id: any) => {
-    const { data } = await execute("/reservations/" + id, "DELETE", {
-      is_canceled: "Y",
-    });
-    if (data?.success == true) {
+    const { data } = await execute(
+      "/reservations/" + id,
+      "DELETE",
+      {
+        is_canceled: "Y",
+      },
+      false,
+      true
+    );
+    if (data?.success) {
       getAreasM();
       showToast("Mantenimiento cancelado con éxito", "success");
       setOpenConfirm({ open: false, id: null });
@@ -153,7 +184,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
           },
           {
             value: "A",
-            text: "Areas en mantenimiento",
+            text: "Áreas en mantenimiento",
           },
         ]}
         sel={tab}
@@ -161,9 +192,9 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       />
       {tab == "P" && (
         <>
-          <TitleSubtitle title="Seleccione el área social que requiere mantenimiento" />
+          <TitleSubtitle title="Seleccione el área social que requiere mantenimiento." />
           <Select
-            label="Area"
+            label="Área social"
             name="area_id"
             value={formState?.area_id}
             error={errors}
@@ -186,10 +217,12 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                   error={errors}
                   value={formState?.date_at}
                   onChange={handleChange}
+                  min={new Date().toISOString().split("T")[0] + "T00:00"}
                 />
                 <Input
-                  label="Fecha de fin"
+                  label="Fecha de finalización"
                   type="datetime-local"
+                  min={new Date().toISOString().split("T")[0] + "T00:00"}
                   name="date_end"
                   error={errors}
                   value={formState?.date_end}
@@ -228,9 +261,6 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                     <div style={{ fontWeight: "bold", color: "var(--cWhite)" }}>
                       {getFullName(reserva?.owner)}
                     </div>
-                    {/* <div style={{ color: "var(--cWhiteV1)" }}>
-                  Unidad: {reserva?.dpto?.nro}
-                </div> */}
                     <div style={{ color: "var(--cWhiteV1)" }}>
                       Fecha: {reserva.date_at}
                       {reserva.start_time && ` - Hora: ${reserva.start_time}`}
@@ -259,118 +289,133 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
             title="Áreas en mantenimiento"
             subtitle="Las siguientes áreas están en mantenimiento."
           />
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-              gap: "16px",
-              marginTop: "16px",
-              maxHeight: "calc(100vh - 300px)",
-              overflowY: "auto",
-              padding: "4px",
-            }}
-          >
-            {dataM.map((reserva: any) => (
-              <div
-                key={reserva.id}
-                style={{
-                  padding: "20px",
-                  borderRadius: "12px",
-                  backgroundColor: "var(--cBlackV1)",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "12px",
-                  minWidth: "400px",
-                  position: "relative",
-                }}
-              >
-                <IconX
-                  onClick={() => setOpenConfirm({ open: true, id: reserva.id })}
-                  style={{
-                    position: "absolute",
-                    top: "12px",
-                    right: "12px",
-                    cursor: "pointer",
-                  }}
-                />
-
+          {loading ? (
+            <SkeletonAdapterComponent type="MaintenanceSkeleton" />
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+                gap: "16px",
+                marginTop: "16px",
+                maxHeight: "calc(100vh - 300px)",
+                overflowY: "auto",
+                padding: "4px",
+              }}
+            >
+              {dataM.map((reserva: any) => (
                 <div
+                  key={reserva.id}
                   style={{
+                    padding: "20px",
+                    borderRadius: "12px",
+                    backgroundColor: "var(--cBlackV1)",
                     display: "flex",
-                    alignItems: "center",
+                    flexDirection: "column",
                     gap: "12px",
+                    minWidth: "300px",
+                    position: "relative",
+                    overflowWrap: "break-word",
                   }}
                 >
-                  <Avatar
-                    src={getUrlImages(
-                      "/AREA-" +
-                        reserva?.area?.id +
-                        "-" +
-                        reserva?.area?.images?.[0]?.id +
-                        ".webp" +
-                        "?" +
-                        reserva?.area?.updated_at
-                    )}
+                  <IconX
+                    onClick={() =>
+                      setOpenConfirm({ open: true, id: reserva.id })
+                    }
+                    style={{
+                      position: "absolute",
+                      top: "12px",
+                      right: "12px",
+                      cursor: "pointer",
+                    }}
                   />
 
                   <div
                     style={{
-                      fontWeight: "bold",
-                      color: "var(--cWhite)",
-                      fontSize: "16px",
-                      marginBottom: "4px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
                     }}
                   >
-                    {reserva.area?.title || "Área sin nombre"}
-                  </div>
-                </div>
+                    <Avatar
+                      src={getUrlImages(
+                        "/AREA-" +
+                          reserva?.area?.id +
+                          "-" +
+                          reserva?.area?.images?.[0]?.id +
+                          ".webp" +
+                          "?" +
+                          reserva?.area?.updated_at
+                      )}
+                    />
 
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "8px",
-                    backgroundColor: "var(--cBlackV2)",
-                    padding: "12px",
-                    borderRadius: "8px",
-                  }}
-                >
-                  <div style={{ color: "var(--cWhiteV1)" }}>
-                    <span style={{ color: "var(--cWhite)" }}>
-                      Fecha de inicio:
-                    </span>{" "}
-                    {getDateStrMes(reserva.date_at) + " "}
-                    {reserva.start_time}
+                    <div
+                      style={{
+                        fontWeight: "bold",
+                        color: "var(--cWhite)",
+                        fontSize: "16px",
+                        marginBottom: "4px",
+                        overflowWrap: "break-word",
+                        minWidth: 0,
+                        paddingRight: 16,
+                      }}
+                    >
+                      {reserva.area?.title || "Área sin nombre"}
+                    </div>
                   </div>
-                  {reserva.date_end && (
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
+                      backgroundColor: "var(--cBlackV2)",
+                      padding: "12px",
+                      borderRadius: "8px",
+                    }}
+                  >
                     <div style={{ color: "var(--cWhiteV1)" }}>
                       <span style={{ color: "var(--cWhite)" }}>
-                        Fecha de fin:
+                        Fecha de inicio:
                       </span>{" "}
-                      {getDateStrMes(reserva.date_end) + " "}
-                      {reserva.end_time}
+                      {getDateStrMes(reserva.date_at) + " "}
+                      {reserva.start_time}
                     </div>
-                  )}
-                  <div style={{ color: "var(--cWhiteV1)" }}>
-                    <span style={{ color: "var(--cWhite)" }}>Motivo:</span>{" "}
-                    {reserva.reason || "No especificado"}
+                    {reserva.date_end && (
+                      <div style={{ color: "var(--cWhiteV1)" }}>
+                        <span style={{ color: "var(--cWhite)" }}>
+                          Fecha de finalización:
+                        </span>{" "}
+                        {getDateStrMes(reserva.date_end) + " "}
+                        {reserva.end_time}
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        color: "var(--cWhiteV1)",
+                        overflowWrap: "break-word",
+                      }}
+                    >
+                      <span style={{ color: "var(--cWhite)" }}>Motivo:</span>{" "}
+                      {reserva.reason || "No especificado"}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            {dataM.length === 0 && (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "40px",
-                  color: "var(--cWhiteV1)",
-                  gridColumn: "1/-1",
-                }}
-              >
-                No hay áreas en mantenimiento actualmente
-              </div>
-            )}
-          </div>
+              ))}
+              {dataM.length === 0 && loading === false && (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "40px",
+                    color: "var(--cWhiteV1)",
+                    gridColumn: "1/-1",
+                  }}
+                >
+                  No hay áreas en mantenimiento actualmente
+                </div>
+              )}
+            </div>
+          )}
         </>
       )}
       {openConfirm.open && (

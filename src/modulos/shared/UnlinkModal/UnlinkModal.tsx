@@ -19,14 +19,14 @@ const UnlinkModal = ({open, onClose, mod, item ,reLoad}:any) => {
       )
 
       if (response?.success) {
-        showToast(`${mod.singular.toLowerCase()} desvinculado exitosamente`, 'success')
+        showToast(`${mod.singular.toLowerCase()} eliminado exitosamente`, 'success')
         await reLoad()
         onClose()
       } else {
-        showToast(response?.message || `Error al desvincular ${mod.singular.toLowerCase()}`, 'error')
+        showToast(response?.message || `Error al eliminar ${mod.singular.toLowerCase()}`, 'error')
       }
     } catch (error) {
-      showToast(`Error al desvincular ${mod.singular.toLowerCase()}`, 'error')
+      showToast(`Error al eliminar ${mod.singular.toLowerCase()}`, 'error')
       console.error('Error:', error)
     }
   }
@@ -35,8 +35,8 @@ const UnlinkModal = ({open, onClose, mod, item ,reLoad}:any) => {
     <DataModal 
       open={open} 
       onClose={onClose} 
-      title={`Desvincular ${mod.singular.toLowerCase()}`} 
-      buttonText="Desvincular" 
+      title={`Eliminar ${mod.singular.toLowerCase()}`} 
+      buttonText="Eliminar" 
       buttonCancel="" 
       onSave={onSave}
     >

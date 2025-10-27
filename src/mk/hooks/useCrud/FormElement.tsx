@@ -1,5 +1,6 @@
 import { IconDownload } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
+import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
@@ -89,6 +90,7 @@ const LeftRigthElement = memo(
           display: "flex",
           flexDirection: "column",
           gap: "var(--spM)",
+          width: "100%",
         }}
       >
         {field.onTop?.(props)}
@@ -98,6 +100,7 @@ const LeftRigthElement = memo(
             gap: "var(--spM)",
             justifyContent: "space-between",
             alignItems: "center",
+            width: "100%",
           }}
         >
           {field.onLeft?.(props)}
@@ -131,10 +134,20 @@ const FormElement = memo(
     setError: Function;
     data: { user: any; action: ActionType; mod: any; extraData: any };
   }) => {
+    // console.log("field:::", field);
+
     const _field = {
       ...field,
       ...(field[data?.action] ? field[data?.action] : {}),
     };
+    if (field.required !== false && field.required !== true) {
+      if (_field.rules?.find((r: any) => r == "required")) {
+        _field.required = true;
+      } else {
+        _field.required = false;
+      }
+    }
+    // console.log("_field:::", _field);
     if (_field.onHide?.({ item, user: data?.user, key: _field.key }))
       return null;
     const options =
@@ -155,6 +168,9 @@ const FormElement = memo(
       extraData: data?.extraData,
       action: data.action,
     };
+
+    // console.log(_field);
+
     let val = item[_field.key] || "";
     switch (_field.type) {
       case "text":
@@ -232,11 +248,14 @@ const FormElement = memo(
       case "imageUpload":
         return (
           <LeftRigthElement {...props}>
+            {/* {JSON.stringify(data)} */}
             <UploadFile
               name={_field.key}
               // value={item[_field.key]}
               value={
-                item[_field.id || "id"]
+                data?.action == "add"
+                  ? undefined
+                  : item[_field.id ?? "id"]
                   ? getUrlImages(
                       "/" +
                         _field.prefix +
@@ -333,7 +352,9 @@ const FormElement = memo(
               readOnly={_field.readOnly}
               required={_field.required}
               ext={_field.ext || ["pdf", "doc", "docx", "xls", "xlsx"]}
+              item={item}
               setError={setError}
+              maxSize={_field.maxSize}
             />
           </LeftRigthElement>
         );
@@ -368,6 +389,34 @@ const FormElement = memo(
             />
           </LeftRigthElement>
         );
+      case "fullName":
+        return (
+          <LeftRigthElement {...props}>
+            <InputFullName
+              name={_field.key}
+              value={item}
+              onChange={onChange}
+              label={_field.label}
+              disabled={
+                typeof _field.disabled == "function"
+                  ? _field.disabled({ field: _field, val, item })
+                  : _field.disabled
+              }
+              onBlur={onBlur}
+              errors={error}
+              onFocus={_field.onFocus}
+              iconLeft={_field.iconLeft}
+              iconRight={_field.iconRight}
+              placeholder={_field.placeholder}
+              className={_field.className}
+              style={_field.style}
+              readOnly={_field.readOnly}
+              required={_field.required}
+              prefix={_field.prefix}
+            />
+          </LeftRigthElement>
+        );
+
       default:
         return (
           <div>

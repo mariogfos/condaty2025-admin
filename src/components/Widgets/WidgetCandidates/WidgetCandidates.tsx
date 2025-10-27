@@ -81,6 +81,7 @@ const WidgetCandidates = ({ data, params }: any) => {
                 }}
               >
                 <Avatar
+                  hasImage={candidate?.has_image}
                   className={styles.avatar}
                   name={getFullName(candidate)}
                   src={getUrlImages(

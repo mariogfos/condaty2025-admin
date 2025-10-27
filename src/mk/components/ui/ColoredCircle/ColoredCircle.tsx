@@ -82,15 +82,15 @@ const ColoredCircle: React.FC<ColoredCircleProps> = ({
   }, [hovered]);
 
   return (
-    <div
-      className={styles.circle}
-      style={{ backgroundColor: color }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      ref={circleRef}
-    >
-      {hovered && <Tooltip position={tooltipPosition}>{tooltipText}</Tooltip>}
-    </div>
+    <Tooltip title={tooltipText} position="top">
+      <div
+        className={styles.circle}
+        style={{ backgroundColor: color }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        ref={circleRef}
+      ></div>
+    </Tooltip>
   );
 };
 

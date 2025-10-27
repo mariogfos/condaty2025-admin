@@ -1,33 +1,17 @@
-
-
-
-
 .renderView {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS);
+  & > div {
     display: flex;
     flex-direction: column;
     gap: var(--spS);
-
-     & > div {
-        /* background-color: aqua; */
-        display: flex;
-        flex-direction: column;
-        gap: var(--spS);
-        & > div {
-            /* background-color: blue; */
-            display: flex;
-            justify-content: space-between;
-            & > span:nth-child(2)  {
-              color:var(--cWhite);
-            }
-        }
-     }
-  /* .loading{
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: aliceblue;
-  } */
-  
-  
+    & > div {
+      display: flex;
+      justify-content: space-between;
+      & > span:nth-child(2) {
+        color: var(--cWhite);
+      }
+    }
+  }
 }

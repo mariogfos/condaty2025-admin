@@ -182,7 +182,7 @@ export const getDateStrMes = (
   // if (date[0] != getUTCNow().substring(0, 4)) {
   //   year = ` del ${date[0]}`;
   // }
-  return `${date[2]} de ${MONTHS[parseInt(date[1])]}${year}`;
+  return `${date[2]} de ${MONTHS[parseInt(date[1])].toLowerCase()}${year}`;
 };
 export const getDateTimeStrMesShort = (
   dateStr: string | null = "",
@@ -506,7 +506,7 @@ export function getTimePMAM(
 
   let hours = date.getHours();
   const minutes = date.getMinutes().toString().padStart(2, "0");
-  const ampm = hours >= 12 ? "PM" : "AM";
+  const ampm = hours >= 12 ? "pm" : "am";
 
   hours = hours % 12;
   hours = hours ? hours : 12;

@@ -38,30 +38,30 @@ const LoginView = ({
           priority
         />
       </div>
-  
+
       {/* Logo en la esquina superior izquierda */}
       <div className={styles.topLeftLogoContainer}>
         <Image
-          src="/assets/images/Condaty-completo-1.svg" // Logo que estaba en el form
+          src="/assets/images/Logo-nuevo.png" // Logo que estaba en el form
           alt="Logo Condaty"
-          width={164} // O el tamaño que prefieras para la esquina
-          height={49}
+          width={303} // O el tamaño que prefieras para la esquina
+          height={68}
           priority
         />
       </div>
-  
+
       {/* Formulario Centrado */}
       <div className={styles.formCenter}>
         <div className={styles.formWrapper}>
           {/* Quitamos el logo de aquí */}
           {/* <div className={styles.logo}>...</div> */}
-  
+
           <div className={styles.titleSection}>
             <div className={styles.title}>
-              ¡Bienvenido Administrador!
+              ¡Te damos la bienvenida!
             </div>
           </div>
-  
+
           <form className={styles.form} onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
@@ -78,7 +78,7 @@ const LoginView = ({
                 maxLength={11}
               />
             </div>
-  
+
             <div className={styles.inputContainer}>
               <InputPassword
                 label="Contraseña"
@@ -91,14 +91,13 @@ const LoginView = ({
               />
             </div>
             <div
-            className={styles.forgotPassword}
-            onClick={() => setOpenModal(true)}
-          >
-            Olvidé mi contraseña
-          </div>
+              className={styles.forgotPassword}
+              onClick={() => setOpenModal(true)}
+            >
+              Olvidé mi contraseña
+            </div>
             <Button
               className={styles.button}
-  
             >
               Iniciar sesión
             </Button>
@@ -106,17 +105,17 @@ const LoginView = ({
             Al iniciar sesión aceptas los <a href="https://www.condaty.com/terminos">Términos y Condiciones</a> y nuestras <a href="https://www.condaty.com/politicas">Políticas de Privacidad</a>
           </div>
           </form>
-  
+
         </div>
       </div>
-  
+
       {/* Texto Inferior */}
       <div className={styles.footerTextContainer}>
         <span className={styles.footerText}>
           <b>Simplifica </b>procesos, <b>multiplica </b>resultados
         </span>
       </div>
-  
+
       {/* Modal (sin cambios) */}
       <ForgotPass open={openModal} setOpen={setOpenModal} mod="adm" />
     </div>

@@ -3,58 +3,49 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 8px 12px;
+  margin-top: var(--spL);
 }
-
-/* Texto informativo a la izquierda */
 .paginationInfo {
   color: var(--accent);
   font-size: 14px;
   display: flex;
   align-items: center;
 }
-
 .currentPageInfo {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
-
 .pageNumber {
   font-size: 18px;
   font-weight: 600;
   color: var(--cWhite);
   margin-bottom: 4px;
 }
-
 .goToPageButton {
   background: transparent;
   border: none;
-  color: var(--accent);
+  color: var(--cPrimary);
   font-size: 14px;
   padding: 4px 0;
   cursor: pointer;
   text-decoration: underline;
   transition: all 0.2s ease;
 }
-
 .goToPageButton:hover {
   opacity: 0.8;
 }
-
-/* Botones de navegación en el centro */
 .navigationButtons {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
 }
-
 .navButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--accent);
   border-radius: 8px;
   cursor: pointer;
@@ -66,21 +57,17 @@
 .navButton:enabled {
   background-color: transparent;
 }
-
 .navButton svg {
   display: block; /* Asegura que el SVG no tenga espacio fantasma */
   flex-shrink: 0; /* Previene encogimiento no deseado */
 }
-
 .navButton:hover:not(:disabled) {
   background-color: rgba(255, 255, 255, 0.1);
 }
-
 .navButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-
 .nextButton {
   display: flex;
   align-items: center;
@@ -95,85 +82,75 @@
   cursor: pointer;
   transition: all 0.2s ease;
   gap: 8px;
+  height: 40px;
 }
-
 .nextButton:hover:not(:disabled) {
   opacity: 0.9;
 }
-
 .nextButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-
-/* Selector de página a la derecha */
 .pageSelector {
   display: flex;
   align-items: center;
 }
-
 .pageForm {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .pageInfo {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 }
-
 .currentPageLabel {
   color: var(--cWhite);
   font-size: 12px;
   opacity: 0.7;
 }
-
 .totalPages {
   color: var(--cWhite);
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 400;
 }
-
 .pageInput {
-  width: 48px;
-  height: 36px;
-  background-color: var(--darkColor);
+  width: 79px;
+  height: 40px;
+  background-color: var(--cBlack);
   border: 1px solid var(--cWhite);
   border-radius: 8px;
-  color: var(--cWhiteV1, #ffffff);
+  color: var(--cWhiteV1);
   text-align: center;
   font-size: 14px;
-  padding: 0 4px;
+  padding: 0 36px 0 8px;
 }
-
 .pageInput:focus {
   outline: none;
   border-color: var(--cPrimary, #4ade80);
 }
-
 .goButton {
+  position: absolute;
+  top: 9px;
+  right: 6px;
+  width: 29px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 8px 16px;
-  background-color: transparent;
-  color: var(--accent);
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
+  background-color: var(--cPrimary);
+  color: var(--cBlack);
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  border: 0;
 }
-
 .goButton:hover {
   opacity: 0.9;
 }
-
-/* Ocultar el selector de elementos por página pero mantenerlo funcional */
 .hiddenPerPage {
   position: absolute;
   visibility: hidden;
@@ -181,28 +158,33 @@
   width: 0;
   overflow: hidden;
 }
-
-/* Responsive */
 @media (max-width: 768px) {
   .pagination {
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
     padding: 16px;
   }
-  
-  .navigationButtons, .pageSelector {
+  .navigationButtons,
+  .pageSelector {
     width: 100%;
     justify-content: center;
   }
 }
-
 @media (max-width: 576px) {
   .pageForm {
     flex-direction: column;
     align-items: flex-start;
   }
-  
-  .nextButton, .goButton {
+  .nextButton,
+  .goButton {
     width: 100%;
   }
+}
+
+.goButton:disabled,
+.goButton:hover:disabled,
+.goToPageButton:disabled,
+.goToPageButton:hover:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

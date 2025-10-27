@@ -1,23 +1,32 @@
 import React, { useEffect, useState } from "react";
 
-import { MONTHS_S, getDateStr, getDateStrMes, getNow } from "@/mk/utils/date";
+import { MONTHS_S_GRAPH, getDateStr, getDateStrMes, getNow } from "@/mk/utils/date";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import WidgetBase from "../../WidgetBase/WidgetBase";
-import styles from "./WidgetGraphResume.module.css"
+import styles from "./WidgetGraphResume.module.css";
 import { formatNumber } from "@/mk/utils/numbers";
+import EmptyData from "@/components/NoData/EmptyData";
+import Select from "@/mk/components/forms/Select/Select";
 
 
 type PropsType = {
   saldoInicial?: number;
-  ingresos: { ingresos: number; mes: number }[];
-  egresos: { egresos: number; mes: number }[];
+  ingresos: { amount: number; mes: number }[];
+  egresos: { amount: number; mes: number }[];
   chartTypes?: ChartType[];
   h?: number | string;
   title?: string;
   subtitle?: string;
   className?: string;
   periodo?: string;
+  showEmptyData?: boolean;
+  emptyDataProps?: {
+    message?: string;
+    line2?: string;
+    h?: number;
+    icon?: React.ReactNode;
+  };
 };
 const WidgetGraphResume = ({
   saldoInicial = 0,
@@ -29,6 +38,8 @@ const WidgetGraphResume = ({
   subtitle,
   className,
   periodo = "",
+  showEmptyData = false,
+  emptyDataProps,
 }: PropsType) => {
   const [balance, setBalance] = useState({
     inicial: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -38,6 +49,34 @@ const WidgetGraphResume = ({
   });
 
   const [meses, setMeses]: any = useState([]);
+
+  // nuevo: estado para controlar el tipo de gráfico desde el header
+  const [selectedChartType, setSelectedChartType] = useState<ChartType>(
+    chartTypes && chartTypes.length > 0 ? chartTypes[0] : "bar"
+  );
+  useEffect(() => {
+    // Si cambian los tipos disponibles y el seleccionado no está, ajustarlo
+    if (chartTypes && chartTypes.length > 0) {
+      if (!chartTypes.includes(selectedChartType)) {
+        setSelectedChartType(chartTypes[0]);
+      }
+    }
+  }, [chartTypes]);
+
+  const chartTypeOptions = (chartTypes || ["bar", "line"]).map((type) => ({
+    id: type,
+    name:
+      type === "bar"
+        ? "Barra"
+        : type === "line"
+        ? "Línea"
+        : type === "donut"
+        ? "Donut"
+        : type === "pie"
+        ? "Torta"
+        : "Línea",
+  }));
+
   useEffect(() => {
     const lista = {
       inicial: [saldoInicial || 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -53,25 +92,25 @@ const WidgetGraphResume = ({
     //   lista.saldos[item.mes - 1] =
     //     lista.saldos[item.mes - 1] + Number(item.expensa) + Number(item.multa);
     // });
-    let mesI = -1;
-    let mesF = 13;
-    let lmeses = MONTHS_S.slice(1, 13);
+    let mesI = 0;
+    let mesF = 12;
+    let lmeses = MONTHS_S_GRAPH.slice(0, 12);
     ingresos?.map((item) => {
       if (item.mes > mesI) mesI = item.mes;
       if (item.mes < mesF) mesF = item.mes;
       lista.ingresos[item.mes - 1] =
-        lista.ingresos[item.mes - 1] + Number(item.ingresos);
+        lista.ingresos[item.mes - 1] + Number(item.amount);
 
       lista.saldos[item.mes - 1] =
-        lista.saldos[item.mes - 1] + Number(item.ingresos);
+        lista.saldos[item.mes - 1] + Number(item.amount);
     });
 
     egresos?.map((item) => {
       lista.egresos[item.mes - 1] =
-        lista.egresos[item.mes - 1] + Number(item.egresos);
+        lista.egresos[item.mes - 1] + Number(item.amount);
 
       lista.saldos[item.mes - 1] =
-        lista.saldos[item.mes - 1] - Number(item.egresos);
+        lista.saldos[item.mes - 1] - Number(item.amount);
     });
 
     let inicial = saldoInicial || 0;
@@ -110,36 +149,112 @@ const WidgetGraphResume = ({
   }, [ingresos, egresos, saldoInicial]);
 
   // const formattedDate =`Al ${getFormattedDate(currentDate)}`
-  const today = getNow();
-  const formattedTodayDate = getDateStrMes(today);
+  const today = new Date();
+  const formattedTodayDate = today.getFullYear();
   return (
     <div className={styles.widgetGraphResume + " " + className}>
       <WidgetBase className={styles.widgetBase}>
-        <section>
-          <p className={styles.title}>
-            {title || "Resumen general"}
-          </p>
-          <p className={styles.subtitle}>
-            {subtitle ||
-              `Este es un resumen general de ${formattedTodayDate}`}
-          </p>
-        </section>
-        <GraphBase
-          data={{
-            labels: meses,
-            values: [
-              { name: "Saldo inicial", values: balance?.inicial },
-              { name: "Ingresos", values: balance?.ingresos },
-              { name: "Egresos", values: balance?.egresos },
-              { name: "Saldo Acumulado", values: balance?.saldos },
-            ],
-          }}
-          chartTypes={chartTypes}
-          options={{
-            height: h,
-            colors: ["#FFD700", "#00E38C", "#FF5B4D", "#4C98DF"],
-          }}
-        />
+        <div className={styles.headerRow}>
+          <div className={styles.titleBlock}>
+            <p className={styles.title}>
+              {title || "Resumen general"}
+            </p>
+            <p className={styles.subtitle}>
+              {subtitle ||
+                `Este es un resumen general del año ${formattedTodayDate}`}
+            </p>
+          </div>
+          {chartTypes && chartTypes.length > 1 && (
+            <div className={styles.chartTypeSelector}>
+              <Select
+                label=""
+                value={selectedChartType}
+                name="chartType"
+                className={styles.chartTypeSelect}
+                onChange={(e: any) => setSelectedChartType(e.target.value as ChartType)}
+                options={chartTypeOptions}
+              />
+            </div>
+          )}
+        </div>
+        {showEmptyData ? (
+          <EmptyData
+            message={emptyDataProps?.message || "No hay datos disponibles"}
+            line2={emptyDataProps?.line2}
+            h={emptyDataProps?.h || 300}
+            icon={emptyDataProps?.icon}
+          />
+        ) : (
+          <>
+            <GraphBase
+              data={{
+                labels: meses,
+                values: [
+                  { name: "Saldo inicial", values: balance?.inicial },
+                  { name: "Ingresos", values: balance?.ingresos },
+                  { name: "Egresos", values: balance?.egresos },
+                  { name: "Saldo Acumulado", values: balance?.saldos },
+                ],
+              }}
+              // pasar solo el tipo seleccionado para ocultar el select interno de GraphBase
+              chartTypes={[selectedChartType]}
+              options={{
+                height: h,
+                colors: [
+                  "var(--cCompl1)",
+                  "var(--cCompl7)",
+                  "var(--cCompl8)",
+                  "var(--cCompl9)",
+                ],
+              }}
+            />
+            <div className={styles.legendContainer}>
+              <div className={styles.legendItem}>
+                <div
+                  className={styles.legendColor}
+                  style={{ backgroundColor: "var(--cCompl1)" }}
+                ></div>
+                <span className={styles.legendLabel}>Saldo Inicial</span>
+                <span className={styles.legendValue}>
+                  Bs {formatNumber(saldoInicial || 0)}
+                </span>
+              </div>
+              <div className={styles.legendItem}>
+                <div
+                  className={styles.legendColor}
+                  style={{ backgroundColor: "var(--cCompl7)" }}
+                ></div>
+                <span className={styles.legendLabel}>Ingresos</span>
+                <span className={styles.legendValue}>
+                  Bs {formatNumber(balance.ingresos.reduce((a, b) => a + b, 0))}
+                </span>
+              </div>
+              <div className={styles.legendItem}>
+                <div
+                  className={styles.legendColor}
+                  style={{ backgroundColor: "var(--cCompl8)" }}
+                ></div>
+                <span className={styles.legendLabel}>Egresos</span>
+                <span className={styles.legendValue}>
+                  Bs {formatNumber(balance.egresos.reduce((a, b) => a + b, 0))}
+                </span>
+              </div>
+              <div className={styles.legendItem}>
+                <div
+                  className={styles.legendColor}
+                  style={{ backgroundColor: "var(--cCompl9)" }}
+                ></div>
+                <span className={styles.legendLabel}>Saldo Acumulado</span>
+                <span className={styles.legendValue}>
+                  Bs{" "}
+                  {formatNumber(
+                    balance.saldos.filter((val) => val !== 0).pop() || 0
+                  )}
+                </span>
+              </div>
+            </div>
+          </>
+        )}
       </WidgetBase>
     </div>
   );

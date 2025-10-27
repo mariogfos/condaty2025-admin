@@ -104,3 +104,16 @@ export function DetailSurveySkeleton() {
     </div>
   );
 }
+
+export const MaintenanceSkeleton = () => {
+  return (
+    <div className={styles.skeletonWrapper}>
+      <div className={styles.skeletonContainer}>
+        <div className={styles.skeletonRow}>
+          <div className={`${styles.skeleton} ${styles.skeletonBottom}`}></div>
+          <div className={`${styles.skeleton} ${styles.skeletonBottom}`}></div>
+        </div>
+      </div>
+    </div>
+  );
+};

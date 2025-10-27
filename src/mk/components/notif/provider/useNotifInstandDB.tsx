@@ -15,6 +15,7 @@ export const initSocket = () => {
   if (!db) {
     db = init({
       appId: process.env.NEXT_PUBLIC_INSTANTDB_APP_ID as string,
+      devtool: false,
     });
     console.log("iniciando conexion a InstantDB");
   } else {
@@ -53,18 +54,23 @@ const useNotifInstandDB = (
     notif: {
       $: {
         where: {
-          // created_at: { $gte: new Date(last).toISOString() },
-          or: [
-            { channel: channelGral },
-            { channel: channelGral + user?.client_id },
-            { channel: chiam },
-            { channel: channelGral + user?.client_id + "-admins" },
-            { channel: channelGral + user?.client_id + "-alert-2" },
-            { channel: channelGral + user?.client_id + "-alert-3" },
-            ...channels,
+          and: [
+            { client_id: user.client_id },
+            {
+              or: [
+                { channel: channelGral },
+                { channel: channelGral + user?.client_id },
+                { channel: chiam },
+                { channel: channelGral + user?.client_id + "-admins" },
+                { channel: channelGral + user?.client_id + "-alerts-2" },
+                { channel: channelGral + user?.client_id + "-alerts-3" },
+                ...channels,
+              ],
+            },
           ],
+          // created_at: { $gte: new Date(last).toISOString() },
         },
-        limit: 2,
+        limit: 1,
         order: {
           serverCreatedAt: "desc",
         },
@@ -76,16 +82,16 @@ const useNotifInstandDB = (
   const { dispatch } = useEvent("onNotif");
   useEffect(() => {
     if (data?.notif?.length > 0) {
-      console.log(
-        "notif",
-        data?.notif[0],
-        lastNotif,
-        data?.notif[0].created_at
-      );
+      // console.log(
+      //   "notif",
+      //   data?.notif[0],
+      //   lastNotif,
+      //   data?.notif[0].created_at
+      // );
       if (data?.notif[0].created_at == -1) {
         localStorage.setItem("lastNotifInstantDB", "0");
         setLastNotif(0);
-        console.log("notif reseteada");
+        // console.log("notif reseteada");
       }
 
       if (lastNotif !== null && lastNotif < data?.notif[0].created_at) {
@@ -107,6 +113,7 @@ const useNotifInstandDB = (
         channel,
         event,
         created_at: Date.now(),
+        client_id: user?.client_id,
       })
     );
   };

@@ -1,54 +1,46 @@
-/* RenderView.module.css */
-
-
-
-/* --- Estructura Principal (Contenedor Figma) --- */
 .figmaContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--spL, 16px); /* gap-4 de Tailwind (1rem = 16px) */
+  gap: var(--spM);
   align-self: stretch;
   background-color: var(--figma-main-bg, #333536);
-  padding: var(--spL, 16px); /* p-4 de Tailwind */
-  border-radius: var(--bRadiusL, 16px); /* rounded-2xl de Tailwind (1rem = 16px) */
-  border: 0.5px solid var(--figma-border-color, #a7a7a7);
+  padding: var(--spL, 16px);
+  border-radius: var(--bRadiusL, 16px);
+  border: 0.5px solid var(--cWhiteV1);
 }
 
-/* --- Estilos para Diseño de NIVEL ALTO/EMERGENCIA (prefijo hl) --- */
 .hlTopSection,
 .hlMiddleSection,
 .hlBottomSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spM, 12px); /* gap-3 de Figma */
+  gap: var(--spM, 12px);
   align-self: stretch;
 }
 
 .hlAlertTypeBox {
-  /* h-[72px] w-[164px] en Figma */
-  /* Usaremos min-height y padding para adaptabilidad */
   min-height: 72px;
-  min-width: 164px; /* O un max-width si se prefiere */
-  max-width: 200px; /* Para que no se extienda demasiado */
+  min-width: 164px;
+  max-width: 200px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--spXS, 4px); /* gap-1 de Figma */
-  padding: var(--spS, 8px); /* p-2 de Figma */
-  border-radius: var(--bRadiusS, 8px); /* rounded-lg de Figma */
-  border: 0.5px solid; /* El color se aplica con style */
-  align-self: flex-start; /* Para que no ocupe todo el ancho */
+  gap: var(--spXS, 4px);
+  padding: var(--spS, 8px);
+  border-radius: var(--bRadiusS, 8px);
+  border: 0.5px solid;
+  align-self: flex-start;
   margin-bottom: var(--spS);
 }
 
 .hlAlertTypeIconContainer {
-  width: 36px; /* w-9 de Figma (9 * 4px = 36px) */
-  height: 36px; /* h-9 de Figma */
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.hlAlertTypeIconContainer svg { /* Para asegurar que el icono dentro tome el tamaño */
+.hlAlertTypeIconContainer svg {
     width: 100%;
     height: 100%;
 }
@@ -56,50 +48,48 @@
 
 .hlAlertTypeText {
   font-weight: var(--bNormal, 400);
-  font-size: var(--sM, 14px); /* text-[14px] de Figma */
-  /* color se aplica con style */
+  font-size: var(--sM, 14px);
+
 }
 
 .hlUserInfoContainer {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center; /* Centra el UserRow si es más angosto */
-  gap: var(--spS, 10px); /* gap-2.5 de Figma (10px) */
+  align-items: center;
+  gap: var(--spS, 10px);
   align-self: stretch;
-  padding: var(--spS, 10px) 0; /* py-2.5 de Figma */
 }
 
 .hlUserRow {
   display: flex;
   align-items: center;
-  gap: var(--spS, 8px); /* gap-2 de Figma */
-  align-self: stretch; /* Ocupa el ancho disponible */
-  justify-content: flex-start; /* Alinea a la izquierda por defecto */
+  gap: var(--spS, 8px);
+  align-self: stretch;
+  justify-content: flex-start;
 }
-/* Para el diseño específico donde el user row está centrado */
+
 .hlUserInfoContainer > .hlUserRow {
     justify-content: center;
 }
 
 
 .hlAvatarContainer {
-  width: 40px; /* w-10 de Figma (10 * 4px = 40px) */
-  height: 40px; /* h-10 de Figma */
+  width: 40px;
+  height: 40px;
 }
-.hlAvatarContainer img { /* Si Avatar renderiza un img directamente */
+.hlAvatarContainer img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 50%; /* Para asegurar que sea circular si Avatar no lo hace */
+  border-radius: 50%;
 }
-
 
 .hlUserTextDetails {
   display: flex;
   flex-direction: column;
-  gap: var(--spXXS, 2px); /* gap-0.5 de Figma (2px) */
-  flex-grow: 1; /* Para que ocupe el espacio si es necesario */
+  gap: var(--spXXS, 2px);
+  flex-grow: 1;
 }
 
 .hlUserName {
@@ -116,30 +106,29 @@
 
 .hlInfoRow {
   display: flex;
-  justify-content: space-between; /* Alinea los bloques de info */
-  gap: var(--spXL, 48px); /* gap-12 de Figma (48px), ajustar si es mucho */
+  justify-content: space-between;
+  gap: 48px;
   align-self: stretch;
 }
 
 .hlInfoBlockGrow {
   display: flex;
   flex-direction: column;
-  gap: var(--spM, 24px); /* gap-6 de Figma (24px) */
+  gap: var(--spM, 24px);
   flex-grow: 1;
 }
 
 .hlInfoBlockFixed {
-  /* w-40 de Figma (10rem = 160px) */
-  width: 160px; 
+  width: 160px;
   display: flex;
   flex-direction: column;
-  gap: var(--spM, 24px); /* gap-6 de Figma */
+  gap: var(--spM, 24px);
 }
 
 .hlInfoBlockContent {
   display: flex;
   flex-direction: column;
-  gap: var(--spXS, 4px); /* gap-1 de Figma */
+  gap: var(--spXs);
   align-self: stretch;
 }
 
@@ -149,7 +138,7 @@
   color: var(--figma-text-gray, #a7a7a7);
 }
 .hlInfoLabelLarge {
-    margin-bottom: var(--spS); /* Espacio antes de la info del attendant */
+    margin-bottom: var(--spS);
 }
 
 
@@ -162,28 +151,26 @@
 .hlAlertLevelValue {
   font-weight: var(--bMedium, 500);
   font-size: var(--sL, 16px);
-  /* color se aplica con style */
 }
 
 .hlAttendedBySection {
   display: flex;
   flex-direction: column;
-  gap: var(--spS, 12px); /* gap-3 de Figma */
-  width: 100%; /* w-[474px] de Figma, aquí lo hacemos adaptable */
+  gap: var(--spS, 12px);
+  width: 100%;
 }
 
 .hlPendingSection {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spS, 8px); /* gap-2 de Figma */
+  gap: var(--spS);
   align-self: stretch;
-  padding: var(--spM) 0; /* Espaciado vertical */
 }
 
 .hlPendingIconContainer {
-  width: 32px; /* w-[31.999...] de Figma */
-  height: 32px; /* h-[31.999...] de Figma */
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -197,16 +184,15 @@
   font-weight: var(--bNormal, 400);
   font-size: var(--sL, 16px);
   text-align: center;
-  /* color se aplica con style */
+
 }
 
-/* --- Estilos para Diseño GENÉRICO (prefijo g) --- */
 .gTopSection {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end; /* justify-end */
-  align-items: center;
-  gap: var(--spM, 12px); /* gap-3 */
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: var(--spM, 12px);
   align-self: stretch;
 }
 
@@ -214,29 +200,28 @@
   font-weight: var(--bNormal, 400);
   font-size: var(--sM, 14px);
   color: var(--figma-text-gray, #a7a7a7);
-  text-align: center; /* Para que coincida con el diseño implícito */
-  padding: 0 var(--spS); /* Un poco de padding lateral si el texto es largo */
+  text-align: left;
+  padding: 0 var(--spS);
 }
 
 .gUserInfoContainer {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--spS, 10px); /* gap-2.5 */
+  gap: var(--spS, 10px);
   align-self: stretch;
-  padding: var(--spS, 10px); /* p-2.5 */
 }
 
 .gUserRow {
   display: flex;
   align-items: center;
-  gap: var(--spS, 8px); /* gap-2 */
-  align-self: stretch; /* Para que ocupe el ancho si es necesario */
+  gap: var(--spS, 8px);
+  align-self: stretch;
 }
 
 .gAvatarContainer {
-  width: 40px; /* w-10 */
-  height: 40px; /* h-10 */
+  width: 40px;
+  height: 40px;
 }
 .gAvatarContainer img {
   width: 100%;
@@ -246,10 +231,9 @@
 }
 
 .gUserTextDetails {
-  /* width: 237px; /* w-[237px] - Puede ser problemático, mejor flexible */
   display: flex;
   flex-direction: column;
-  gap: var(--spXXS, 2px); /* gap-0.5 */
+  gap: var(--spXXS, 2px);
   flex-grow: 1;
 }
 
@@ -259,7 +243,7 @@
   color: var(--figma-text-white, #fafafa);
 }
 
-.gUserCi { /* Usado para CI o Unidad en genérico */
+.gUserCi {
   font-weight: var(--bNormal, 400);
   font-size: var(--sM, 14px);
   color: var(--figma-text-gray, #a7a7a7);
@@ -268,37 +252,34 @@
 .gBottomSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spM, 24px); /* gap-6 */
+  gap: var(--spM, 24px);
   align-self: stretch;
 }
 
 .gInfoRow {
   display: flex;
-  justify-content: space-between; /* Comportamiento original: Figma usa justify-center gap-12 */
-                               /* Para replicar Figma más fielmente, sería justify-start y el gap haría el resto*/
-  /* justify-content: flex-start; */ 
-  gap: var(--spXL, 48px); /* gap-12 */
+  justify-content: space-between;
+  gap: var(--spXL, 48px);
   align-self: stretch;
 }
 
 .gInfoBlockGrow {
   display: flex;
   flex-direction: column;
-  /* gap: var(--spM, 24px); /* gap-6 */ /* El gap es entre infoBlocks, no dentro */
   flex-grow: 1;
 }
 
 .gInfoBlockFixed {
-  width: 160px; /* w-40 */
+  width: 160px;
   display: flex;
   flex-direction: column;
-  /* gap: var(--spM, 24px); */
+
 }
 
 .gInfoBlockContent {
   display: flex;
   flex-direction: column;
-  gap: var(--spXS, 4px); /* gap-1 */
+  gap: var(--spXS, 4px);
   align-self: stretch;
 }
 
@@ -317,7 +298,6 @@
 .gAlertLevelValue {
   font-weight: var(--bMedium, 500);
   font-size: var(--sL, 16px);
-  /* color se aplica con style */
 }
 
 .gAttendedSection {
@@ -328,7 +308,7 @@
 .gInfoSeparator {
   height: 0.5px;
   background-color: var(--figma-border-color, #a7a7a7);
-  opacity: 0.5; /* Para hacerlo un poco más tenue */
+  opacity: 0.5;
   margin: var(--spS) 0;
 }
 .gInfoLabelLarge {
@@ -338,25 +318,19 @@
   margin-bottom: var(--spXS);
 }
 
-
-/* --- Estilos para el Botón de Acción (común a ambos diseños si se muestra) --- */
 .actionButtonWrapper {
   display: flex;
-  justify-content: center; /* Centra el botón si no es de ancho completo */
-  margin-top: var(--spL, 16px);
+  justify-content: center;
   width: 100%;
 }
 
 .actionButtonCustom {
-  /* Aquí puedes definir estilos específicos para este botón si es necesario,
-     o confiar en los estilos por defecto de tu componente Button y solo pasar className.
-     Ejemplo: (Asegúrate que !important no sea necesario si Button está bien estructurado) */
-  background-color: var(--cPrimary) !important; /* Adapta al color primario de tu app */
+  background-color: var(--cPrimary) !important;
   color: var(--cWhite) !important;
-  padding: var(--spS) var(--spL) !important; /* Ajusta el padding */
+  padding: var(--spS) var(--spL) !important;
   border-radius: var(--bRadiusS, 8px) !important;
-  width: auto; /* O max-width si prefieres */
-  min-width: 200px; /* Para que no sea demasiado pequeño */
+  width: auto;
+  min-width: 200px;
   font-weight: var(--bMedium, 500) !important;
   text-align: center;
   border: none;
@@ -366,40 +340,36 @@
 .actionButtonCustom:hover {
   opacity: 0.85;
 }
-
-/* --- Media Queries (Opcional, si necesitas responsividad específica aquí) --- */
 @media (max-width: 750px) {
   .figmaContainer {
-    padding: var(--spM, 12px);
-    gap: var(--spM, 12px);
+    padding: var(--spM);
+    gap: var(--spM);
   }
   .hlInfoRow, .gInfoRow {
     flex-direction: column;
-    gap: var(--spM, 12px); /* Espacio entre bloques cuando están en columna */
-    align-items: flex-start; /* Alinea a la izquierda en móvil */
+    gap: var(--spM);
+    align-items: flex-start;
   }
   .hlInfoBlockFixed, .gInfoBlockFixed {
-    width: 100%; /* Ocupa todo el ancho en móvil */
+    width: 100%;
   }
   .hlAlertTypeBox {
-      width: 100%; /* Ocupa todo el ancho en móvil */
-      align-items: center; /* Centra el contenido del box */
+      width: 100%;
+      align-items: center;
   }
   .hlUserRow, .gUserRow {
-    flex-direction: column; /* Avatar encima del texto en móvil */
+    flex-direction: column;
     align-items: center;
     text-align: center;
   }
   .hlUserTextDetails, .gUserTextDetails {
     align-items: center;
   }
-
 }
-
 .divider {
   height: 1px;
   width: 100%;
   background-color: var(--cWhiteV1);
   opacity: 0.3;
-  
+
 }

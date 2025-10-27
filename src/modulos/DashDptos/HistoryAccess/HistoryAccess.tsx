@@ -8,6 +8,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useState } from "react";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import Select from "@/mk/components/forms/Select/Select";
+import { IconExitHome } from "@/components/layout/icons/IconsBiblioteca";
 
 interface HistoryAccessProps {
   accessData: any[];
@@ -51,6 +52,7 @@ const HistoryAccess = ({ accessData, open, close }: HistoryAccessProps) => {
             <div key={index} className={styles.visitRow}>
               <div className={styles.visitorInfo}>
                 <Avatar
+                  hasImage={visita.visit?.has_image}
                   name={getFullName(visita.visit)}
                   w={28}
                   h={28}
@@ -72,9 +74,12 @@ const HistoryAccess = ({ accessData, open, close }: HistoryAccessProps) => {
                 ) : visita.type === "G" ? (
                   "Grupal"
                 ) : visita.type === "C" ? (
-                  "Sin Qr"
+                  "Sin QR"
                 ) : (
-                  <EmptyData />
+                  <EmptyData
+                    message="No hay registros de visitas"
+                    icon={<IconExitHome size={40} color="var(--cWhiteV1)" />}
+                  />
                 )}
               </div>
 
@@ -90,7 +95,10 @@ const HistoryAccess = ({ accessData, open, close }: HistoryAccessProps) => {
 
           {(!accessData || accessData.length === 0) && (
             <div className={styles.emptyState}>
-              <EmptyData message="No hay registros de visitas" />
+              <EmptyData
+                message="No hay registros de visitas"
+                icon={<IconExitHome size={40} color="var(--cWhiteV1)" />}
+              />
             </div>
           )}
         </div>

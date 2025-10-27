@@ -3,8 +3,8 @@ import styles from "../RenderForm.module.css";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import Switch from "@/mk/components/forms/Switch/Switch";
 import UploadFileMultiple from "@/mk/components/forms/UploadFile/UploadFileMultiple";
+import Br from "@/components/Detail/Br";
 interface PropsType {
   handleChange: any;
   errors: any;
@@ -20,7 +20,7 @@ const FirstPart = ({
 }: PropsType) => {
   return (
     <>
-      <p className={styles.title}>Fotografía del área social</p>
+      {/* <p className={styles.title}>Fotografía del área social</p> */}
       <UploadFileMultiple
         name="avatar"
         value={formState?.avatar}
@@ -38,6 +38,7 @@ const FirstPart = ({
         // sizePreview={_field.sizePreview}
         // autoOpen={data?.action == "add"}
       />
+      <Br />
       <p className={styles.title}>Datos generales</p>
       <div style={{ display: "flex", gap: 12 }}>
         <Input
@@ -67,7 +68,7 @@ const FirstPart = ({
         options={[
           { id: "A", name: "Activa" },
           { id: "X", name: "Inactiva" },
-          { id: "M", name: "En mantenimiento" },
+          // { id: "M", name: "En mantenimiento" },
         ]}
         error={errors}
       />
@@ -81,7 +82,7 @@ const FirstPart = ({
         onChange={handleChange}
         error={errors}
       />
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+      {/* <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
         <div>
           <p className={styles.title}>¿Aprobación de administración?</p>
           <p className={styles.subtitle}>
@@ -102,7 +103,7 @@ const FirstPart = ({
           }}
           value={formState?.requires_approval}
         />
-      </div>
+      </div> */}
     </>
   );
 };
