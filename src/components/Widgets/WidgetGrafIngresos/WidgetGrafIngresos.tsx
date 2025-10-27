@@ -1,13 +1,15 @@
-"use client";
-import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
-import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
-import { MONTHS_S } from "@/mk/utils/date";
-import styles from "./WidgetGrafIngresos.module.css";
+'use client';
+import GraphBase from '@/mk/components/ui/Graphs/GraphBase';
+import { ChartType } from '@/mk/components/ui/Graphs/GraphsTypes';
+import { MONTHS_S_GRAPH } from '@/mk/utils/date';
+import styles from './WidgetGrafIngresos.module.css';
 
 interface Transaction {
   mes: number;
-  categoria: string;
-  ingresos: string;
+  name: string;
+  amount: string;
+  categ_id: string;
+  category_id: string;
 }
 
 interface FormattedValue {
@@ -15,7 +17,6 @@ interface FormattedValue {
   values: number[];
 }
 
-// Interface for pie chart data format
 interface PieChartValue {
   name: string;
   values: number[];
@@ -28,89 +29,100 @@ type PropsType = {
   title?: string;
   subtitle?: string;
   className?: string;
+  periodo?: string; // <-- 1. Se añade la prop 'periodo'
+  exportando?: boolean;
 };
 
 const WidgetGrafIngresos = ({
   ingresos,
-  chartTypes = ["bar", "pie"],
-  h = "auto",
+  chartTypes = ['bar', 'pie'],
+  h = 'auto',
   title,
   subtitle,
   className,
+  periodo, // <-- Se recibe la prop
+  exportando,
 }: PropsType) => {
-  const getMonths = (data: Transaction[] | undefined) => {
-    // Verificar que data no sea undefined antes de usar reduce
+  // 2. La función ahora considera el 'periodo' para generar los meses
+  const getMonths = (
+    data: Transaction[] | undefined,
+    currentPeriodo?: string
+  ) => {
     if (!data || data.length === 0) return [];
 
-    const uniqueMonths = data.reduce(
-      (acc: string[], curr) =>
-        acc.includes(MONTHS_S[curr.mes - 1])
-          ? acc
-          : [...acc, MONTHS_S[curr.mes - 1]],
-      []
+    // Si el filtro es año anterior, mostrar SIEMPRE los 12 meses
+    if (currentPeriodo === 'ly') {
+      return MONTHS_S_GRAPH.slice();
+    }
+    // Si el filtro es anual actual, mostrar desde el primer mes con datos hasta el último
+    if (currentPeriodo === 'y') {
+      const mesesConDatos = data.map(t => t.mes - 1);
+      if (mesesConDatos.length === 0) return [];
+      const minMes = Math.min(...mesesConDatos);
+      const maxMes = Math.max(...mesesConDatos);
+      return MONTHS_S_GRAPH.slice(minMes, maxMes + 1);
+    }
+    // Para otros filtros, deduce los meses a partir de los datos
+    const monthIndexes = Array.from(new Set(data.map(t => t.mes - 1))).sort(
+      (a, b) => a - b
     );
-
-    return uniqueMonths;
+    return monthIndexes.map(index => MONTHS_S_GRAPH[index]);
   };
 
+  // 3. La función ahora recibe los meses como parámetro para alinear los datos
   const getValuesIngresos = (
     ingresosHist: Transaction[] | undefined,
-    chartType: ChartType
+    chartType: ChartType,
+    months: string[] // <-- Recibe el listado de meses definitivo
   ): FormattedValue[] | PieChartValue[] => {
     if (!ingresosHist || ingresosHist.length === 0) return [];
 
-    // For pie charts, we need a simpler structure
-    if (chartType === "pie" || chartType === "donut") {
+    if (chartType === 'pie' || chartType === 'donut') {
       const pieData: PieChartValue[] = [];
       const categoryTotals: { [key: string]: number } = {};
 
-      // Sum the values by category
-      ingresosHist.forEach((transaction) => {
-        if (!categoryTotals[transaction.categoria]) {
-          categoryTotals[transaction.categoria] = 0;
+      ingresosHist.forEach(transaction => {
+        if (!categoryTotals[transaction.name]) {
+          categoryTotals[transaction.name] = 0;
         }
-        categoryTotals[transaction.categoria] += parseFloat(
-          transaction.ingresos || "0"
+        categoryTotals[transaction.name] += parseFloat(
+          transaction.amount || '0'
         );
       });
 
-      // Convert to array of objects with name and value
-      for (const categoria in categoryTotals) {
+      for (const name in categoryTotals) {
         pieData.push({
-          name: categoria,
-          values: [categoryTotals[categoria]], // Ahora values es un array de un elemento
+          name: name,
+          values: [categoryTotals[name]],
         });
       }
 
       return pieData;
     }
 
-    // Original logic for bar/line charts
-    let values: FormattedValue[] = [];
+    const values: FormattedValue[] = [];
     const groupedTransactions: { [key: string]: Transaction[] } = {};
 
-    ingresosHist.forEach((transaction) => {
-      if (!groupedTransactions[transaction.categoria]) {
-        groupedTransactions[transaction.categoria] = [];
+    ingresosHist.forEach(transaction => {
+      if (!groupedTransactions[transaction.name]) {
+        groupedTransactions[transaction.name] = [];
       }
-      groupedTransactions[transaction.categoria].push(transaction);
+      groupedTransactions[transaction.name].push(transaction);
     });
-
-    const uniqueMonths = Array.from(
-      new Set(ingresosHist.map((transaction) => transaction.mes))
-    );
 
     for (const categoria in groupedTransactions) {
       const transactions = groupedTransactions[categoria];
       const formattedValues: number[] = [];
 
-      uniqueMonths.forEach((month) => {
+      // Itera sobre la lista de meses definitiva para asegurar que cada mes tenga un valor
+      months.forEach(monthName => {
+        const monthNumber = MONTHS_S_GRAPH.indexOf(monthName) + 1;
         const matchingTransaction = transactions.find(
-          (transaction) => transaction.mes === month
+          transaction => transaction.mes === monthNumber
         );
         formattedValues.push(
           matchingTransaction
-            ? parseFloat(matchingTransaction.ingresos || "0")
+            ? parseFloat(matchingTransaction.amount || '0')
             : 0
         );
       });
@@ -121,29 +133,35 @@ const WidgetGrafIngresos = ({
     return values;
   };
 
-  // Determine the primary chart type (first in the array)
-  const primaryChartType = chartTypes[0] || "bar";
+  const primaryChartType = chartTypes[0] || 'bar';
+  const monthLabels = getMonths(ingresos, periodo); // Se generan los meses una sola vez
 
   return (
-    <div className={`${styles.container} ${className || ""}`}>
-      <p className={styles.title}>{title || "Resumen de Ingresos"}</p>
-      <p className={styles.subtitle}>
+    <div className={`${styles.container} ${className || ''}`}>
+      <p
+        className={`${styles.subtitle} ${exportando ? styles.exportando : ''}`}
+      >
         {subtitle ||
-          " Aquí veras un resumen de todos los ingresos distribuidos en las diferentes categorías"}
+          ' Aquí veras un resumen de todos los ingresos distribuidos en las diferentes categorías'}
       </p>
+      <p className={`${styles.title} ${exportando ? styles.exportando : ''}`}>
+        {title || 'Resumen de Ingresos'}
+      </p>
+
       <GraphBase
         data={{
-          labels: getMonths(ingresos),
-          values: getValuesIngresos(ingresos, primaryChartType),
+          labels: monthLabels, // Se usan los meses correctos
+          values: getValuesIngresos(ingresos, primaryChartType, monthLabels), // Se pasan los meses para alinear los datos
         }}
-        downloadPdf
+        // downloadPdf
         chartTypes={chartTypes}
         options={{
-          title: "",
-          subtitle: "",
-          label: "",
+          title: '',
+          subtitle: '',
+          label: '',
           height: h,
         }}
+        exportando={exportando}
       />
     </div>
   );

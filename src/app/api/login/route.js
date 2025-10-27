@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { init } from "@instantdb/admin";
 
 export async function POST(request) {
-  const db = await init({
+  const db = init({
     appId: process.env.NEXT_PUBLIC_INSTANTDB_APP_ID,
     adminToken: process.env.NEXT_PUBLIC_INSTANTDB_APP_ADMIN_TOKEN,
   });

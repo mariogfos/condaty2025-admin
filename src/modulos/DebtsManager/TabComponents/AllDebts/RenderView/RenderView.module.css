@@ -1,0 +1,592 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+background-color: var(--cWhite);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+}
+
+.modal {
+
+  border-radius: 12px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--cBlackV2);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--cWhite);
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: var(--cWhiteV1);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: var(--cBlackV2);
+  color: var(--cWhite);
+}
+
+.content {
+  padding: 32px;
+  background-color: var(--cBlackV2);
+  border: 0.5px solid var(--cWhiteV1);
+  border-radius: var(--sL);
+}
+
+.balanceSection {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.balanceLabel {
+  font-size: 16px;
+  color: var(--cWhiteV1);
+  margin-bottom: 8px;
+}
+
+.balanceAmount {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--cWhite);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.infoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.infoRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.statusRow {
+  padding-top: var(--sL);
+  padding-bottom: var(--sL);
+  border-bottom: 0.5px solid var(--cWhiteV1);
+  border-top: 0.5px solid var(--cWhiteV1);
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.statusItem {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+}
+
+.label {
+  font-size: 14px;
+  color: var(--cWhiteV1);
+  font-weight: 500;
+}
+
+.value {
+  font-size: 16px;
+  color: var(--cWhite);
+  font-weight: 600;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  max-width: fit-content;
+}
+
+
+.detailsTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cWhite);
+
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--cBlackV2);
+}
+
+.detailsContent {
+  width: 100%;
+  background: var(--cBlackV3);
+  padding: 16px;
+  border-radius: 8px;
+  color: var(--cWhiteV1);
+  line-height: 1.6;
+  margin-bottom: var(--sL);
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  border-top: 1px solid var(--cBlackV2);
+}
+
+.container {
+  background-color: var(--cBlackV2);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spXl);
+  gap: var(--spL);
+  font-family: var(--fPrimary);
+  box-sizing: border-box;
+  color: var(--cWhite);
+  border-radius: var(--bRadiusS);
+  border: 1px solid var(--cWhiteV1);
+  min-width: 600px;
+}
+
+.notFoundContainer {
+  padding: var(--spXl) var(--spL);
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+.notFoundText {
+  font-size: var(--sL);
+  color: var(--cWhite);
+  font-weight: var(--bMedium);
+  margin-bottom: var(--spS);
+}
+
+.notFoundSuggestion {
+  font-size: var(--sM);
+  color: var(--cWhiteV1);
+}
+
+.headerActionContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spM);
+  padding-bottom: var(--spL);
+  border-bottom: 1px solid var(--cWhiteV1);
+}
+
+.iconButton {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--spS);
+  border-radius: var(--bRadiusS);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.iconButton:hover {
+  background-color: var(--cAccent);
+}
+
+.iconButton:hover svg {
+  color: var(--cWhite) !important;
+}
+
+.iconButtonDanger {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--spS);
+  border-radius: var(--bRadiusS);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.iconButtonDanger:hover {
+  background-color: var(--cError);
+}
+
+.iconButtonDanger:hover svg {
+  color: var(--cWhite) !important;
+}
+
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spXs);
+  text-align: center;
+}
+
+.amountDisplay {
+  color: var(--cWhite);
+  font-size: 36px;
+  font-weight: var(--bBold);
+  line-height: 1.1;
+}
+
+.dateDisplay {
+  color: var(--cWhiteV1);
+  font-size: var(--sL);
+  line-height: 1.5;
+  font-weight: var(--bRegular);
+}
+
+.sectionDivider {
+  width: 100%;
+  border: none;
+  height: 0;
+  border-top: 0.5px solid var(--cWhiteV1);
+}
+
+.detailsSection {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: var(--spXl, 48px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.detailsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spXs);
+  text-align: left;
+  max-width: 280px;
+}
+
+.infoLabel {
+  color: var(--cWhiteV1);
+  font-size: var(--sL);
+  font-weight: var(--bRegular);
+  font-family: Roboto, sans-serif;
+  text-align: left;
+}
+
+.infoValue {
+  color: var(--cWhite);
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
+  text-align: left;
+  font-family: Roboto, sans-serif;
+}
+
+.infoValue div {
+  line-height: 1.4;
+  min-width: 0;
+  text-align: right;
+}
+
+/* Nueva sección de configuración avanzada */
+.advancedSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+}
+
+.advancedSectionTitle {
+  font-size: var(--sL);
+  font-weight: var(--bSemiBold);
+  color: var(--cAccent);
+  margin: 0;
+  padding-bottom: var(--spS);
+  border-bottom: 1px solid var(--cWhiteV2);
+  text-align: left;
+}
+
+.advancedGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: var(--spL);
+  width: 100%;
+  padding: var(--spL);
+  background-color: var(--cBlackV1);
+  border-radius: var(--bRadiusS);
+  border: 1px solid var(--cWhiteV2);
+}
+
+.advancedItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spXs);
+  padding: var(--spM);
+  background-color: var(--cBlackV2);
+  border-radius: var(--bRadiusS);
+  border: 1px solid var(--cWhiteV3);
+  transition: all 0.2s ease;
+}
+
+.advancedItem:hover {
+  border-color: var(--cWhiteV1);
+  background-color: var(--cBlackV1);
+}
+
+.advancedItem .infoLabel {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+  margin: 0;
+}
+
+.advancedItem .infoValue {
+  color: var(--cWhite);
+  font-size: var(--sL);
+  font-weight: var(--bSemiBold);
+  margin: 0;
+}
+
+.descriptionSection {
+  width: 100%;
+}
+
+.statusActive {
+  color: var(--cSuccess) !important;
+  font-weight: var(--bSemiBold) !important;
+}
+
+.statusCompleted {
+  color: var(--cInfo) !important;
+  font-weight: var(--bSemiBold) !important;
+}
+
+.statusCancelled {
+  color: var(--cError) !important;
+  font-weight: var(--bSemiBold) !important;
+}
+
+.canceledReason {
+  font-style: italic;
+  background-color: rgba(220, 53, 69, 0.1);
+  padding: 8px 12px;
+  border-radius: 4px;
+  border-left: 3px solid var(--cError);
+}
+
+.voucherButtonContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+  row-gap: 1rem;
+}
+
+.voucherButton {
+  background-color: transparent;
+  color: var(--cWhite);
+  border: 1px solid var(--cWhiteV1);
+  font-size: var(--sL);
+  padding: var(--spM) var(--spXl);
+  border-radius: var(--bRadiusS);
+  text-align: center;
+  font-weight: var(--bSemiBold);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  min-width: 220px;
+  max-width: 100%;
+  font-family: Roboto, sans-serif;
+}
+
+.voucherButton:hover {
+  background-color: var(--cWhiteV3);
+  border-color: var(--cWhite);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal {
+    margin: 10px;
+    max-width: none;
+  }
+
+  .header {
+    padding: 20px;
+  }
+
+  .content {
+    padding: 20px;
+  }
+
+  .infoRow {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .balanceAmount {
+    font-size: 36px;
+  }
+
+  .actions {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .container {
+    padding: var(--spL);
+    gap: var(--spM);
+    min-width: auto;
+  }
+
+  .detailsSection {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spL);
+    padding: var(--spM) 0;
+  }
+
+  .detailsColumn {
+    width: 100%;
+    align-items: center;
+    gap: var(--spM);
+  }
+
+  .infoBlock {
+    max-width: 90%;
+    align-items: center;
+    text-align: center;
+  }
+
+  .advancedGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 1fr);
+    gap: var(--spM);
+    padding: var(--spM);
+  }
+
+  .amountDisplay {
+    font-size: 2rem;
+  }
+
+  .headerActionContainer {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .advancedGrid {
+    gap: var(--spS);
+    padding: var(--spS);
+  }
+
+  .advancedItem {
+    padding: var(--spS);
+  }
+
+  .advancedItem .infoLabel {
+    font-size: var(--sS);
+  }
+
+  .advancedItem .infoValue {
+    font-size: var(--sM);
+  }
+}
+
+/* Agregar estos estilos para la sección de deuda compartida */
+.sharedDebtSection {
+  margin: 24px 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--cWhiteV1);
+  border-bottom: 1px solid var(--cWhiteV1);
+}
+
+.sharedDebtHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sharedDebtTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cWhite);
+  margin: 0;
+}
+
+.viewSharedDebtButton {
+  background: none;
+  border: none;
+  color: #10b981;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.viewSharedDebtButton:hover {
+  color: #0d9668;
+}
+
+.sharedDebtStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statLabel {
+  font-size: 14px;
+  color: var(--cWhiteV1);
+}
+
+.statValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cWhite);
+}

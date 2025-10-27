@@ -29,6 +29,7 @@ const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
       </div>
       {/* <div>
         <Avatar
+          hasImage={user.has_image}
           w={collapsed ? 64 : 128}
           h={collapsed ? 64 : 128}
           name={getFullName(user)}

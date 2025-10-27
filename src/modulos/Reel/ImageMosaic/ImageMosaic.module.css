@@ -1,0 +1,84 @@
+.imageMosaicContainer {
+  display: grid;
+  gap: 4px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  min-height: 300px;
+  max-height: 455px;
+}
+
+.imageMosaicContainer.twoImages {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+  aspect-ratio: 2/1;
+}
+
+.imageMosaicContainer.threeImages {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  aspect-ratio: 2/1.5;
+}
+
+.imageMosaicContainer.fourOrMoreImages {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  aspect-ratio: 2/2;
+}
+
+.mosaicImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  min-height: 0;
+}
+
+.mosaicImage:hover {
+  opacity: 0.9;
+}
+
+.mosaicImageFirst {
+  grid-row: span 2;
+}
+
+.imageMosaicContainer.fourOrMoreImages .mosaicImageFirst {
+  grid-row: span 3;
+}
+
+.imageMosaicContainer.twoImages .mosaicImageFirst {
+  grid-row: span 1;
+}
+
+.mosaicImageLast {
+  position: relative;
+}
+
+.mosaicOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.mosaicOverlay:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.imageMosaicContainer > div {
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}

@@ -8,20 +8,23 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { lStatusActive } from "@/mk/utils/utils";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import Input from "@/mk/components/forms/Input/Input";
-
-import RenderView from "./RenderView/RenderView";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import {
   IconHome,
   IconHomePerson,
+  IconHomePerson2,
+  IconOwner,
 } from "@/components/layout/icons/IconsBiblioteca";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import Select from "@/mk/components/forms/Select/Select";
+import RenderForm from "../Owners/RenderForm/RenderForm";
+import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
+import RenderView from "./RenderView/RenderView";
 
 const paramsInitial = {
   perPage: 20,
@@ -34,10 +37,12 @@ const Owners = () => {
   const [unitsModalOpen, setUnitsModalOpen] = useState(false);
   const [selectedHomeowner, setSelectedHomeowner] = useState(null);
 
-  const openUnitsModal = (homeowner: any) => {
-    setSelectedHomeowner(homeowner);
-    setUnitsModalOpen(true);
-  };
+  const getTypefilter = () => [
+    { id: "ALL", name: "Todos" },
+    { id: "D", name: "Dependientes" },
+    { id: "T", name: "Residentes" },
+    { id: "H", name: "Propietarios" },
+  ];
 
   const closeUnitsModal = () => {
     setUnitsModalOpen(false);
@@ -93,13 +98,14 @@ const Owners = () => {
     plural: "Residentes",
     filter: true,
     export: true,
-    import: true,
-    permiso: "",
+    import: false,
+    permiso: "owners",
     hideActions: {
       edit: true,
       del: true,
     },
     extraData: true,
+    renderForm: (props: any) => <RenderForm {...props} />,
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -107,24 +113,24 @@ const Owners = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
       reLoad?: any;
-    }) => (
-      <ProfileModal
-        open={props?.open}
-        onClose={props?.onClose}
-        dataID={props?.item?.id}
-        type={"owner"}
-        title="Perfil de Residente"
-        edit={false}
-        reLoad={props?.reLoad}
-      />
-    ),
+    }) =>
+      props?.item.status === "W" && props?.item.type_owner !== "Dependiente" ? (
+        <RenderView {...props} />
+      ) : (
+        <ProfileModal
+          open={props?.open}
+          onClose={props?.onClose}
+          dataID={props?.item?.id}
+          type={"owner"}
+          title="Perfil de Residente"
+          edit={false}
+          reLoad={props?.reLoad}
+        />
+      ),
     renderDel: (props: {
       open: boolean;
       onClose: any;
-      mod: ModCrudType;
       item: Record<string, any>;
-      onConfirm?: Function;
-      extraData?: Record<string, any>;
     }) => {
       return (
         <UnlinkModal
@@ -136,7 +142,6 @@ const Owners = () => {
         />
       );
     },
-    // extraData: true,
   };
   const onBlurCi = useCallback(async (e: any, props: any) => {
     if (e.target.value.trim() == "") return;
@@ -144,86 +149,91 @@ const Owners = () => {
       "/owners",
       "GET",
       {
-        _exist: 1,
-        ci: e.target.value,
+        fullType: "EXIST",
+        type: "ci",
+        searchBy: e.target.value,
       },
       false,
       true
     );
 
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data;
+    if (data?.success && data.data?.data?.id) {
+      const filteredData = data.data.data;
+      if (filteredData.existCondo) {
+        showToast("El residente ya existe en este Condominio", "warning");
+        props.setItem({});
+        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
+        return;
+      }
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
-        ci: filteredData[0].ci,
-        name: filteredData[0].name,
-        middle_name: filteredData[0].middle_name,
-        last_name: filteredData[0].last_name,
-        mother_last_name: filteredData[0].mother_last_name,
-        email: filteredData[0].email,
-        phone: filteredData[0].phone,
+        ci: filteredData.ci,
+        name: filteredData.name,
+        middle_name: filteredData.middle_name,
+        last_name: filteredData.last_name,
+        mother_last_name: filteredData.mother_last_name,
+        email: filteredData.email ?? "",
+        phone: filteredData.phone,
         _disabled: true,
+        _emailDisabled: true,
       });
       showToast(
         "El residente ya existe en Condaty, se va a vincular al Condominio",
         "warning"
       );
     } else {
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
         _disabled: false,
+        _emailDisabled: false,
       });
-      //no existe
     }
   }, []);
 
-  const onDisbled = ({ item }: any) => {
+  const onDisbled = ({ item, field }: any) => {
+    if (field?.name === "email") {
+      return item._emailDisabled;
+    }
     return item._disabled;
   };
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      dpto: { // Campo para seleccionar una única unidad (singular)
-        rules: ["required"],
+      ci: {
+        rules: ["required", "ci"],
         api: "ae",
-        label: "Unidad", // Cambiado a singular para consistencia con el nombre del campo
+        label: "Carnet de identidad",
         form: {
-          type: "select",
-          optionsExtra: "dptos",
-          optionLabel: "nro",
-          optionValue: "dpto_id",
-          
+          type: "text",
+          onBlur: onBlurCi,
+          disabled: onDisbled,
+          required: true,
         },
-        list: false, // No se muestra en la lista principal
+        list: false,
       },
 
       fullName: {
-        // rules: ["required"],
         api: "ae",
         label: "Nombre",
         form: false,
-        // list: true, // Asegúrate que esta línea esté presente o descomentada si la quitaste
         onRender: (item: any) => {
-          // Asegúrate que 'item.item' contiene los datos del residente
           const residente = item?.item;
           const nombreCompleto = getFullName(residente);
-          const cedulaIdentidad = residente?.ci; // Obtener el CI
+          const cedulaIdentidad = residente?.ci;
 
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
+                hasImage={residente?.has_image}
                 src={getUrlImages(
-                  "/OWNER-" +
-                    residente?.id + // Usar residente?.id
-                    ".webp?d=" +
-                    residente?.updated_at // Usar residente?.updated_at
+                  "/OWNER-" + residente?.id + ".webp?d=" + residente?.updated_at
                 )}
-                name={nombreCompleto} // Usar nombreCompleto
+                name={nombreCompleto}
               />
               <div>
                 {" "}
-                {/* Contenedor para Nombre, CI y Estado Admin */}
-                {/* Nombre */}
                 <p
                   style={{
                     marginBottom: "2px",
@@ -252,10 +262,10 @@ const Owners = () => {
                     style={{
                       color: "var(--cSuccess)",
                       fontSize: 10,
-                      backgroundColor: "#00af900D", // Fondo verde muy transparente
-                      padding: "2px 4px", // Ajustar padding si es necesario
+                      backgroundColor: "#00af900D",
+                      padding: "2px 4px",
                       borderRadius: 4,
-                      display: "inline-block", // Para que el padding/fondo funcione bien
+                      display: "inline-block",
                     }}
                   >
                     Administrador principal
@@ -265,26 +275,24 @@ const Owners = () => {
             </div>
           );
         },
-        list: true, // <-- Importante: Asegúrate que 'list: true' esté aquí para que se muestre en la lista
+        list: true,
       },
 
-
-      
       name: {
         openTag: { style: { display: "flex" } },
-        rules: ["required"],
+        rules: ["required", "alpha"],
         api: "ae",
         label: "Primer nombre",
         form: {
           type: "text",
           disabled: onDisbled,
+          required: true,
         },
-
         list: false,
       },
       middle_name: {
         closeTag: true,
-        rules: [""],
+        rules: [],
         api: "ae",
         label: "Segundo nombre",
         form: {
@@ -299,12 +307,13 @@ const Owners = () => {
             display: "flex",
           },
         },
-        rules: ["required"],
+        rules: ["required", "alpha"],
         api: "ae",
         label: "Apellido paterno",
         form: {
           type: "text",
           disabled: onDisbled,
+          required: true,
         },
         list: false,
       },
@@ -319,109 +328,60 @@ const Owners = () => {
         },
         list: false,
       },
-      units: {
+      type_owner: {
         rules: [""],
         api: "",
-        label: "Unidad",
-        form: false,
-        list: {
-          onRender: (props: any) => {
-            return "Unidad: " +( props?.item?.dpto[0]?.nro ? props?.item?.dpto[0]?.nro  : "Sin datos");
-          },
-        },
-      },
-      ci: {
-        rules: ["required*add"],
-        api: "ae",
-        label: "Carnet de identidad",
-        form: {
-          type: "text",
-          disabled: onDisbled,
-          
-        },
+        label: "Tipo",
         list: {},
-      },
-      // rep_email: {
+        filter: {
+          label: "Tipo",
+          width: "180px",
 
-      //   api: "",
-      //   label: "Repita el correo electrónico",
-      //   form: { type: "text" },
-      //   list: false,
-      //   style: { width: "500px" },
-      // },
-      phone: {
-        rules: ["number"],
-        api: "ae",
-        label: "Celular (Opcional)",
-        form: {
-          type: "text",
-          disabled: onDisbled,
+          options: getTypefilter,
         },
       },
-      type: {
-        // Cambiamos el propósito de este campo para mostrar Titular/Dependiente
+      status: {
         rules: [""],
-        api: "", // No se envía a la API
-        label: "Tipo", // Etiqueta de la columna
+        api: "",
+        label: "Estado",
         list: {
-          width: "110px", // Ajusta el ancho si es necesario
-          onRender: (props: any) => {
-            const dptos = props?.item?.dpto; // Accede al array de departamentos/unidades
-            let esTitular = false;
-
-            // Verifica si el array dpto existe y si en ALGUNA de las relaciones es titular
-            if (Array.isArray(dptos) && dptos.length > 0) {
-              esTitular = dptos.some((d) => d?.pivot?.is_titular === "Y");
-            }
-
-            const texto = esTitular ? "Titular" : "Dependiente";
-            // Asigna clases CSS diferentes según el tipo
-            const badgeClass = esTitular
-              ? styles.isTitular
-              : styles.isDependiente;
-
+          onRender: ({ item }: any) => {
+            const statusInfo = lStatusActive[item?.status];
             return (
-              // Aplica la clase base y la clase específica (Titular/Dependiente)
-              <div className={`${styles.residentTypeBadge} ${badgeClass}`}>
-                <span>{texto}</span>
-              </div>
+              <span
+                style={{
+                  color:
+                    item?.status === "W"
+                      ? "var(--cWarning)"
+                      : "var(--cWhiteV1)",
+                }}
+              >
+                {statusInfo?.name || "Desconocido"}
+              </span>
             );
           },
         },
-        // form: false, // Si no quieres que aparezca en el formulario
       },
+
       email: {
-        rules: ["required"],
+        rules: ["required", "email"],
         api: "a",
         label: "Correo electrónico",
-        // form: { type: "text", disabled: true, label: "2222" },
+        list: {},
+      },
+      phone: {
+        rules: ["number", "max:10"],
+        api: "ae",
+        label: "Celular",
         form: {
-          type: "number",
-          label: "Cédula de identidad",
-          onRender: (props: any) => {
-            return (
-              <div className={styles.fieldSet}>
-                <div>
-                  <div>Información de acceso</div>
-                  <div>
-                    La contraseña sera enviada al correo que indiques en este campo
-                  </div>
-                </div>
-                <div>
-                  <Input
-                    name="email"
-                    value={props?.item?.email}
-                    onChange={props.onChange}
-                    label="Correo electrónico"
-                    error={props.error}
-                  />
-                </div>
-              </div>
-            );
+          type: "text",
+          disabled: onDisbled,
+        },
+        list: {
+          onRender: ({item}: any) => {
+            return item?.phone || "-/-";
           },
         },
-
-        list: false,
       },
     };
   }, []);
@@ -437,10 +397,8 @@ const Owners = () => {
     reLoad,
     showToast,
     execute,
-    errors,
-    getExtraData,
-    extraData,
     data,
+    extraData,
   } = useCrud({
     paramsInitial,
     mod,
@@ -455,68 +413,124 @@ const Owners = () => {
     onDel,
   });
 
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <ItemList
-          title={item?.name}
-          subtitle={item?.description}
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
-
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.style}>
       <div style={{ display: "flex", gap: "12px" }}>
-        <WidgetDashCard
+        {/*         <WidgetDashCard
           title="Residentes Totales"
-          data={String(data?.extraData?.totals || 0)}
+          data={String(extraData?.totals ?? 0)}
           style={{ maxWidth: "250px" }}
           icon={
-            <IconHomePerson
-              color={"var(--cInfo"}
-              style={{ backgroundColor: "var(--cHoverInfo)" }}
+            <IconHomePerson2
+              color={
+                !extraData?.totals || extraData?.totals === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cWhite)"
+              }
+              style={{
+                backgroundColor:
+                  !extraData?.totals || extraData?.totals === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverCompl1)",
+              }}
               circle
-              size={38}
+              size={18}
             />
           }
-        />
+        /> */}
+
         <WidgetDashCard
-          title="Titulares"
-          data={String(data?.extraData?.holders || 0)}
+          title="Propietarios"
+          data={String(extraData?.homeowners ?? extraData?.owners ?? 0)}
           style={{ maxWidth: "250px" }}
           icon={
-            <IconHomePerson
-              color={"var(--cSuccess)"}
-              style={{ backgroundColor: "var(--cHoverSuccess)" }}
+            <IconOwner
+              color={
+                !extraData?.homeowners || (extraData?.homeowners ?? 0) === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cSuccess)"
+              }
+              style={{
+                backgroundColor:
+                  !extraData?.homeowners || (extraData?.homeowners ?? 0) === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverCompl2)",
+              }}
               circle
-              size={38}
+              size={18}
             />
           }
         />
+
+        <WidgetDashCard
+          title="Residentes"
+          data={String(extraData?.tenants ?? 0)}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={
+                !extraData?.tenants || extraData?.tenants === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cInfo)"
+              }
+              style={{
+                backgroundColor:
+                  !extraData?.tenants || extraData?.tenants === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverCompl3)",
+              }}
+              circle
+              size={18}
+            />
+          }
+        />
+
         <WidgetDashCard
           title="Dependientes"
-          data={String(data?.extraData?.dependents || 0)}
+          data={String(extraData?.dependents ?? 0)}
           style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson
-              color={"var(--cWarning)"}
-              style={{ backgroundColor: "var(--cHoverWarning)" }}
+              color={
+                !extraData?.dependents || extraData?.dependents === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cWarning)"
+              }
+              style={{
+                backgroundColor:
+                  !extraData?.dependents || extraData?.dependents === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverCompl4)",
+              }}
               circle
-              size={38}
+              size={18}
+            />
+          }
+        />
+
+        <WidgetDashCard
+          title="Por activar"
+          data={String(extraData?.pendingOwnersCount ?? 0)}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={"var(--cWhite)"}
+              style={{
+                backgroundColor: "var(--cHover)",
+              }}
+              circle
+              size={18}
             />
           }
         />
       </div>
-      <List />
+      <List
+        height={"calc(100vh - 465px)"}
+        emptyMsg="Lista de residentes vacía. Aquí verás a todos los residentes"
+        emptyLine2="del condominio una vez los registres."
+        emptyIcon={<IconHomePerson2 size={80} color="var(--cWhiteV1)" />}
+      />
       <UnitsModal
         open={unitsModalOpen}
         onClose={closeUnitsModal}

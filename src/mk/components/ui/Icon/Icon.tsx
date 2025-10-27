@@ -1,5 +1,7 @@
+"use client";
 import { CSSProperties } from "react";
 import styles from "./icon.module.css";
+import Tooltip, { TooltipPosition } from "@/mk/components/ui/Tooltip/Tooltip";
 
 export interface IconType {
   className?: string | undefined;
@@ -11,11 +13,13 @@ export interface IconType {
   circle?: boolean;
   reverse?: boolean;
   square?: boolean;
+  title?: string;
 }
 
 interface IconWrapType extends IconType {
   children?: any;
   fillStroke?: string;
+  position?: TooltipPosition;
   responsive?: boolean;
 }
 
@@ -32,26 +36,35 @@ export const IconWrap = ({
   circle = false,
   responsive = false,
   square = false,
+  position = "top-right",
+  title = "",
 }: IconWrapType) => {
   return (
-    <svg
-      viewBox={viewBox}
-      className={
-        styles.icon +
-        " " +
-        className +
-        (circle ? " " + styles["circle"] : "") +
-        (responsive ? " " + styles["responsive"] : "")+
-        (square? " " + styles["square"] : "") 
-      }
-      style={style}
-      fill={reverse ? fillStroke : color}
-      stroke={reverse ? color : fillStroke}
-      onClick={onClick}
-      width={size}
-      height={size}
-    >
-      {children}
-    </svg>
+    <Tooltip title={title} position={position}>
+      <svg
+        viewBox={viewBox}
+        className={
+          styles.icon +
+          " " +
+          className +
+          (circle ? " " + styles["circle"] : "") +
+          (responsive ? " " + styles["responsive"] : "") +
+          (square ? " " + styles["square"] : "") +
+          (onClick ? " " + styles["button"] : "")
+        }
+        style={{
+          overflow: "visible",
+          ...style,
+          ...(circle ? { minWidth: size + "px" } : {})
+        }}
+        fill={reverse ? fillStroke : color}
+        stroke={reverse ? color : fillStroke}
+        onClick={onClick}
+        width={size}
+        height={size}
+      >
+        {children}
+      </svg>
+    </Tooltip>
   );
 };

@@ -1,33 +1,34 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { formatNumber } from "@/mk/utils/numbers";
 
 import styles from "./TableFinance.module.css";
-import { IconArrowUp, IconArrowDown, IconTableHelp } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconArrowUp,
+  IconArrowDown,
+  IconTableHelp,
+} from "@/components/layout/icons/IconsBiblioteca";
 
 interface SubItem {
   name: string;
-  totalMeses?: (string | number)[]; // Permitir números para formato
+  totalMeses?: (string | number)[];
   amount: number;
 }
-
 interface DataItem {
   name: string;
   sub: SubItem[];
-  totalMeses?: (string | number)[]; // Permitir números para formato
+  totalMeses?: (string | number)[];
   amount: number;
 }
-
 interface PropsType {
   data: DataItem[];
-  title: string; // Ej. "Ingresos"
-  title2: string; // Ej. "Total Anual" o simplemente "Total"
-  total?: number; // Gran total para la tabla
-  color?: string; // Clase de color para el texto del total (ej. text-income)
-  titleTotal?: string; // Ej. "Total de Ingresos"
-  meses?: string[]; // Array de nombres de meses para el encabezado, ej. ["ENE", "FEB", ...]
+  title: string;
+  title2: string;
+  total?: number;
+  color?: string;
+  titleTotal?: string;
+  meses?: string[];
   tooltip?: string;
-  variant?: 'income' | 'expense' | 'summary';
+  variant?: "income" | "expense" | "summary";
 }
 
 const TableFinance = ({
@@ -35,76 +36,88 @@ const TableFinance = ({
   title,
   title2,
   total,
-  color = "text-white", // Se usará junto con la variante para el texto del total
+  color = "text-white",
   titleTotal,
-  meses = [], // ["ENE", "FEB", ...]
+  meses = [],
   tooltip,
-  variant = 'income',
+  variant = "income",
 }: PropsType) => {
   const [dropStates, setDropStates] = useState<Array<{ drop: boolean }>>([]);
+  const isTwoColumnLayout = meses.length === 0;
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setDropStates(data.map(() => ({ drop: false })));
   }, [data]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1536);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleItemClick = (index: number) => {
     setDropStates(
-      dropStates.map((state, i) => ({
-        drop: i === index ? !state.drop : false, // Colapsa otros al abrir uno
-      }))
+      dropStates.map((state, i) => {
+        if (i === index) {
+          return { ...state, drop: !state.drop };
+        }
+
+        return state;
+      })
     );
   };
 
   const getContainerClass = () => {
-    // Esta función ya la tenías y aplica clases de TableFinanceColors.module.css
     switch (variant) {
-      case 'income':
-        return `${styles.tableContainer} ${styles['tableContainer-income']}`;
-      case 'expense':
-        return `${styles.tableContainer} ${styles['tableContainer-expense']}`;
-      case 'summary':
-        return `${styles.tableContainer} ${styles['tableContainer-summary']}`;
+      case "income":
+        return `${styles.tableContainer} ${styles["tableContainer-income"]}`;
+      case "expense":
+        return `${styles.tableContainer} ${styles["tableContainer-expense"]}`;
+      case "summary":
+        return `${styles.tableContainer} ${styles["tableContainer-summary"]}`;
       default:
         return styles.tableContainer;
     }
   };
 
   const getTotalRowVariantClass = () => {
-    // Esta función ya la tenías
     switch (variant) {
-      case 'income':
-        return styles['totalRow-income'];
-      case 'expense':
-        return styles['totalRow-expense'];
-      case 'summary':
-        return styles['totalRow-summary'];
+      case "income":
+        return styles["totalRow-income"];
+      case "expense":
+        return styles["totalRow-expense"];
+      case "summary":
+        return styles["totalRow-summary"];
       default:
         return "";
     }
   };
-  
+
   const getTotalTextColorClass = () => {
-    // Esta función ya la tenías para el texto del total
-     switch (variant) {
-      case 'income':
-        return styles['text-income'];
-      case 'expense':
-        return styles['text-expense'];
-      case 'summary':
-        return styles['text-summary'];
+    switch (variant) {
+      case "income":
+        return styles["text-income"];
+      case "expense":
+        return styles["text-expense"];
+      case "summary":
+        return styles["text-summary"];
       default:
-        return ""; // O un color por defecto
+        return "";
     }
-  }
+  };
 
   const getTotalLabelCellVariantClass = () => {
     switch (variant) {
-      case 'income':
-        return styles['totalLabelCell-income'];
-      case 'expense':
-        return styles['totalLabelCell-expense'];
-      case 'summary':
-        return styles['totalLabelCell-summary'];
+      case "income":
+        return styles["totalLabelCell-income"];
+      case "expense":
+        return styles["totalLabelCell-expense"];
+      case "summary":
+        return styles["totalLabelCell-summary"];
       default:
         return "";
     }
@@ -112,99 +125,222 @@ const TableFinance = ({
 
   const getTotalAmountCellVariantClass = () => {
     switch (variant) {
-      case 'income':
-        return styles['totalAmountCell-income'];
-      case 'expense':
-        return styles['totalAmountCell-expense'];
-      case 'summary':
-        return styles['totalAmountCell-summary'];
+      case "income":
+        return styles["totalAmountCell-income"];
+      case "expense":
+        return styles["totalAmountCell-expense"];
+      case "summary":
+        return styles["totalAmountCell-summary"];
       default:
         return "";
     }
   };
 
+  const getGroupTopClass = () => {
+    if (variant === "income") return styles["groupBorder-income-top"];
+    if (variant === "expense") return styles["groupBorder-expense-top"];
+    return styles["groupBorder-summary-top"];
+  };
+
+  const getGroupMidClass = () => {
+    if (variant === "income") return styles["groupBorder-income-mid"];
+    if (variant === "expense") return styles["groupBorder-expense-mid"];
+    return styles["groupBorder-summary-mid"];
+  };
+
+  const getGroupBotClass = () => {
+    if (variant === "income") return styles["groupBorder-income-bot"];
+    if (variant === "expense") return styles["groupBorder-expense-bot"];
+    return styles["groupBorder-summary-bot"];
+  };
+
   return (
-    <div className={getContainerClass()}>
-      {/* Encabezado de la Tabla */}
-      <div className={styles.tableHeaderRow}>
-        <div className={`${styles.headerCell} ${styles.titleHeaderCell}`}>
-          <span>{title}</span>
-        </div>
-        {meses.map((mes, index) => (
-          <div key={index} className={`${styles.headerCell} ${styles.monthHeaderCell}`}>
-            <span>{mes.toUpperCase()}</span>
-          </div>
-        ))}
-        <div className={`${styles.headerCell} ${styles.totalHeaderCell}`}>
-          <span>{title2}</span>
-        </div>
+    <div className={styles.tableResponsiveWrapper}>
+      <div className={styles.scrollHint}>
+        Desliza horizontalmente para ver todos los meses →
       </div>
-
-      {/* Filas de Datos (Categorías Principales) */}
-      {data.map((item, index) => (
-        <React.Fragment key={`item-${index}`}>
-          <div className={`${styles.dataRow} ${dropStates[index]?.drop ? styles.dataRowActive : ''}`}>
-            <div 
-              className={`${styles.dataCell} ${styles.categoryNameCell}`}
-              onClick={() => item.sub && item.sub.length > 0 && handleItemClick(index)}
-            >
-              {item.sub && item.sub.length > 0 && (
-                <span className={styles.expandIcon}>
-                  {dropStates[index]?.drop ? <IconArrowUp size={24} /> : <IconArrowDown size={24} />}
-                </span>
-              )}
-              <span>{item.name}</span>
-            </div>
-            {/* Celdas de meses para el item principal */}
-            {Array.from({ length: meses.length }).map((_, mesIdx) => (
-              <div key={`item-${index}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell}`}>
-                <span>{item.totalMeses && item.totalMeses[mesIdx] ? formatNumber(item.totalMeses[mesIdx]) : "-"}</span>
-              </div>
-            ))}
-            <div className={`${styles.dataCell} ${styles.totalDataCell}`}>
-              <span>Bs {formatNumber(item.amount)}</span>
-            </div>
+      <div className={getContainerClass() + " " + styles.tableFinance}>
+        <div className={styles.tableHeaderRow}>
+          <div className={`${styles.headerCell} ${styles.titleHeaderCell}`}>
+            <span>{title}</span>
           </div>
-
-          {/* Filas de Sub-Items (si están expandidas) */}
-          {dropStates[index]?.drop && item.sub && item.sub.map((subItem, subIndex) => (
-            <div className={`${styles.dataRow} ${styles.subItemRow}`} key={`subitem-${index}-${subIndex}`}>
-              <div className={`${styles.dataCell} ${styles.subCategoryNameCell}`}>
-                <span>{subItem.name}</span>
-              </div>
-              {/* Celdas de meses para el sub-item */}
-              {Array.from({ length: meses.length }).map((_, mesIdx) => (
-                <div key={`subitem-${index}-${subIndex}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell}`}>
-                  <span>{subItem.totalMeses && subItem.totalMeses[mesIdx] ? formatNumber(subItem.totalMeses[mesIdx]) : "-"}</span>
-                </div>
-              ))}
-              <div className={`${styles.dataCell} ${styles.totalDataCell}`}>
-                <span>Bs {formatNumber(subItem.amount)}</span>
-              </div>
+          {meses.map((mes, index) => (
+            <div
+              key={"meses" + index}
+              className={`${styles.headerCell} ${styles.monthHeaderCell}`}
+            >
+              <span>{mes.toUpperCase()}</span>
             </div>
           ))}
-        </React.Fragment>
-      ))}
 
-      {/* Fila de Total General */}
-      {typeof total !== 'undefined' && (
-        <div className={`${styles.tableTotalRow} ${getTotalRowVariantClass()}`}>
-          <div className={`${styles.totalLabelCell} ${getTotalLabelCellVariantClass()} ${getTotalTextColorClass()}`}>
-            <span>{titleTotal || "Total de " + title}</span>
-            {tooltip && (
-              <div className={styles.tooltipContainer}>
-                <IconTableHelp className={styles.tooltipIcon} />
-                <span className={styles.tooltip}>
-                  {tooltip}
-                </span>
-              </div>
-            )}
+          <div
+            className={`${styles.headerCell} ${styles.totalHeaderCell} ${
+              isTwoColumnLayout ? styles.alignCellContentRight : ""
+            }`}
+          >
+            <span>{title2}</span>
           </div>
-          {/* Celdas vacías para alinear con meses si es necesario, o una celda que ocupe ese espacio */}
-          <div className={styles.totalEmptyMonthCells} style={{ flexGrow: meses.length }}></div>
-          
-          <div className={`${styles.totalAmountCell} ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()}`}>
-            <span>Bs {formatNumber(total)}</span>
+        </div>
+
+        {data.map((item, index) => {
+          const isOpen = dropStates[index]?.drop;
+          const subLength = item.sub?.length || 0;
+          return (
+            <React.Fragment key={"item" + index}>
+              <div
+                className={
+                  `${styles.dataRow} ${isOpen ? styles.dataRowActive : ""} ` +
+                  (isOpen ? getGroupTopClass() : "")
+                }
+              >
+                <div
+                  className={`${styles.dataCell} ${styles.categoryNameCell}`}
+                  onClick={() => item.sub?.length > 0 && handleItemClick(index)}
+                >
+                  {item.sub?.length > 0 && (
+                    <span className={styles.expandIcon}>
+                      {isOpen ? (
+                        <IconArrowUp size={24} />
+                      ) : (
+                        <IconArrowDown size={24} />
+                      )}
+                    </span>
+                  )}
+                  <span>{item.name}</span>
+                </div>
+                {Array.from({ length: meses.length }).map((_, mesIdx) => {
+                  const valor = item.totalMeses?.[mesIdx];
+                  return (
+                    <div
+                      key={`item-${index}-mes-${mesIdx}`}
+                      className={`${styles.dataCell} ${styles.monthDataCell} ${
+                        !valor || valor === "-" ? styles["no-value"] : ""
+                      }`}
+                    >
+                      <span>
+                        {valor && valor !== 0 ? formatNumber(valor) : "-"}
+                      </span>
+                    </div>
+                  );
+                })}
+                <div
+                  className={`${styles.dataCell} ${styles.totalDataCell} ${
+                    isTwoColumnLayout ? styles.alignCellContentRight : ""
+                  }`}
+                >
+                  <span>Bs {formatNumber(item.amount)}</span>
+                </div>
+              </div>
+              {isOpen &&
+                item.sub?.map((subItem, subIndex) => {
+                  const isLast = subIndex === subLength - 1;
+                  return (
+                    <div
+                      className={
+                        `${styles.dataRow} ${styles.subItemRow} ` +
+                        (isLast ? getGroupBotClass() : getGroupMidClass())
+                      }
+                      key={`subitem-${index}-${subIndex}`}
+                    >
+                      <div
+                        className={`${styles.dataCell} ${styles.subCategoryNameCell}`}
+                      >
+                        <span>{subItem.name}</span>
+                      </div>
+                      {Array.from({ length: meses.length }).map((_, mesIdx) => {
+                        const valor = subItem.totalMeses?.[mesIdx];
+                        return (
+                          <div
+                            key={`subitem-${index}-${subIndex}-mes-${mesIdx}`}
+                            className={`${styles.dataCell} ${
+                              styles.monthDataCell
+                            } ${
+                              !valor || valor === "-" ? styles["no-value"] : ""
+                            }`}
+                          >
+                            <span>
+                              {valor && valor !== 0 ? formatNumber(valor) : "-"}
+                            </span>
+                          </div>
+                        );
+                      })}
+                      <div
+                        className={`${styles.dataCell} ${
+                          styles.totalDataCell
+                        } ${
+                          isTwoColumnLayout ? styles.alignCellContentRight : ""
+                        }`}
+                      >
+                        <span>Bs {formatNumber(subItem.amount)}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </React.Fragment>
+          );
+        })}
+        {/* Fila de Total General SOLO en móvil */}
+        {isMobile && typeof total !== "undefined" && (
+          <div
+            className={`${styles.tableTotalRow} ${getTotalRowVariantClass()} ${
+              styles.totalRowOutside
+            }`}
+          >
+            <div
+              className={`${
+                styles.totalLabelCell
+              } ${getTotalLabelCellVariantClass()} ${getTotalTextColorClass()}`}
+            >
+              {tooltip && (
+                <div className={styles.tooltipContainer}>
+                  <IconTableHelp className={styles.tooltipIcon} />
+                  <span className={styles.tooltip}>{tooltip}</span>
+                </div>
+              )}
+              <span>{titleTotal ?? "Total de " + title}</span>
+            </div>
+            <div
+              className={`${
+                styles.totalAmountCell
+              } ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()} ${
+                isTwoColumnLayout ? styles.alignCellContentRight : ""
+              }`}
+            >
+              <span>Bs {formatNumber(total)}</span>
+            </div>
+          </div>
+        )}
+      </div>
+      {/* Fila de Total General SOLO en desktop */}
+      {!isMobile && typeof total !== "undefined" && (
+        <div className={styles.tableTotalRowContainer}>
+          <div
+            className={`${styles.tableTotalRow} ${getTotalRowVariantClass()} ${
+              styles.totalRowOutside
+            }`}
+          >
+            <div
+              className={`${
+                styles.totalLabelCell
+              } ${getTotalLabelCellVariantClass()} ${getTotalTextColorClass()}`}
+            >
+              {tooltip && (
+                <div className={styles.tooltipContainer}>
+                  <IconTableHelp className={styles.tooltipIcon} />
+                  <span className={styles.tooltip}>{tooltip}</span>
+                </div>
+              )}
+              <span>{titleTotal ?? "Total de " + title}</span>
+            </div>
+            <div
+              className={`${
+                styles.totalAmountCell
+              } ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()} ${
+                isTwoColumnLayout ? styles.alignCellContentRight : ""
+              }`}
+            >
+              <span>Bs {formatNumber(total)}</span>
+            </div>
           </div>
         </div>
       )}

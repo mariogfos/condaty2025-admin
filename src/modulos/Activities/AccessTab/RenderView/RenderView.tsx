@@ -1,27 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderView.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { getDateStr, getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
-import Button from "@/mk/components/forms/Button/Button";
-import {
-  IconArrowRight,
-  IconArrowLeft,
-  IconVehicle,
-  IconFoot,
-  IconOwner,
-} from "@/components/layout/icons/IconsBiblioteca";
+import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import useAxios from "@/mk/hooks/useAxios";
 import InvitationsDetail from "../../InvitationsDetail/InvitationsDetail";
 import PedidosDetail from "../../PedidosDetail/PedidosDetail";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import Br from "@/components/Detail/Br";
+import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import { IconExpand } from "@/components/layout/icons/IconsBiblioteca";
+import ModalAccessExpand from "../ModalAccessExpand/ModalAccessExpand";
+import { it } from "date-fns/locale";
 
 interface AccessRenderViewProps {
   open: boolean;
   onClose: () => void;
   item: Record<string, any>;
-  onConfirm?: Function;
   extraData?: any;
 }
 
@@ -29,54 +25,28 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   open,
   onClose,
   item,
-  onConfirm,
-  extraData,
 }) => {
+  const [openExpand, setOpenExpand]: any = useState({
+    open: false,
+    id: null,
+    type: "",
+    invitation: null,
+  });
+
   const { data } = useAxios(
     "/accesses",
     "GET",
     {
-      searchBy: item.id,
+      searchBy: item?.access_id || item?.id,
       fullType: "DET",
       perPage: -1,
       page: 1,
     },
     true
   );
-  const [openInvitation, setOpenInvitation] = React.useState(false);
-  const [openOrders, setOpenOrders] = React.useState(false);
+  const [openInvitation, setOpenInvitation] = useState(false);
+  const [openOrders, setOpenOrders] = useState(false);
 
-  const openDetailsModal = () => {
-    if (item?.type === "P") {
-      setOpenOrders(true);
-    }
-    if (item?.type === "I" || item?.type === "G" || item?.type === "C") {
-      setOpenInvitation(true);
-    }
-  };
-
-  const statusAccess: any = {
-    A: "En espera de confirmación",
-    Y: "Ingresado",
-    O: "Completado",
-    N: "No autorizado",
-  };
-  const getStatus = () => {
-    let status = "";
-    if (item?.out_at) {
-      status = "Completado";
-    } else if (item?.in_at) {
-      status = "Por Salir";
-    } else if (!item?.confirm_at) {
-      status = "Por confirmar";
-    } else if (item?.confirm == "Y") {
-      status = "Por entrar";
-    } else {
-      status = "Denegado";
-    }
-    return status;
-  };
-  // Desestructuración de data?.data[0]
   const accessDetail = data?.data[0] || {};
   const {
     visit,
@@ -86,62 +56,69 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     out_guard,
     obs_in,
     obs_out,
-    status,
+    confirm_at,
+    confirm,
     owner,
     accesses,
+    begin_at,
+    plate,
   } = accessDetail;
-  console.log(accessDetail, "accs");
 
-  // Manejar la entrada de un visitante
-  const handleEntrada = () => {
-    if (onConfirm) {
-      onConfirm(item, "entrada");
+  const openDetailsModal = () => {
+    if (item?.type === "P") {
+      setOpenOrders(true);
     }
-  };
-
-  // Manejar la salida de un visitante
-  const handleSalida = () => {
-    if (onConfirm) {
-      onConfirm(item, "salida");
+    if (
+      item?.type === "I" ||
+      item?.type === "G" ||
+      item?.type === "C" ||
+      item?.type === "F"
+    ) {
+      setOpenInvitation(true);
     }
-  };
-
-  // Determinar el icono a mostrar según el tipo de acceso
-  const getAccessIcon = () => {
     if (item?.type === "O") {
-      return <IconOwner className={styles.accessIcon} />;
-    } else if (item?.plate) {
-      return <IconVehicle className={styles.accessIcon} />;
+      setOpenInvitation(true);
+    }
+  };
+
+  const getStatus = () => {
+    let status = "";
+    if (out_at) {
+      status = "Completado";
+    } else if (in_at) {
+      status = "Por salir";
+    } else if (!confirm_at) {
+      status = "Por confirmar";
+    } else if (confirm == "Y") {
+      status = "Por entrar";
     } else {
-      return <IconFoot className={styles.accessIcon} />;
+      status = "Rechazado";
     }
+    return status;
   };
 
-  // Determinar el tipo de acceso como texto
-  // const getAccessType = () => {
-  //   const typeMap: Record<string, string> = {
-  //     C: "Control",
-  //     G: "Grupo",
-  //     I: "Individual",
-  //     P: "Pedido",
-  //     O: "Llave Virtual QR"
-  //   };
-
-  //   return typeMap[item?.type] || "Acceso";
-  // };
-  const getTypeAccess = (type: string, order: any) => {
-    if (type === "P") {
-      return "Pedido:" + order?.other?.other_type?.name;
-    }
-    return typeMap[type];
-  };
   const typeMap: Record<string, string> = {
-    C: "Sin Qr",
-    G: "Qr Grupal",
-    I: "Qr Individual",
+    C: "Sin QR",
+    I: "QR Individual",
+    G: "QR Grupal",
+    F: "QR Frecuente",
     P: "Pedido",
     O: "Llave QR",
   };
+
+  const getTypeAccess = (type: string, param: any) => {
+    if (type === "P") {
+      return "Pedido/" + param?.other?.other_type?.name;
+    }
+    return typeMap[type];
+  };
+  const getAcomData = () => {
+    return accesses?.filter((item: any) => item.taxi != "C");
+  };
+  const getTaxiData = () => {
+    return accesses?.filter((item: any) => item.taxi == "C");
+  };
+
   return (
     <>
       <DataModal
@@ -150,93 +127,318 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
         title="Detalle del acceso"
         buttonText=""
         buttonCancel=""
+        variant={"mini"}
       >
-        <LoadingScreen onlyLoading={Object.keys(accessDetail).length === 0} type="CardSkeleton">
-        <div className={styles.container}>
-          <section>
-            <Avatar
-              name={getFullName(visit)}
-              src={getUrlImages(
-                "/VISIT-" + visit?.id + ".webp?" + item?.visit?.updated_at
-              )}
-              style={{ marginBottom: "var(--spL)" }}
-            />
-            <div>{getFullName(visit)}</div>
-            <div>
-              C.I. : {item?.visit?.ci}{" "}
-              {item?.plate ? `- Placa: ${item?.plate}` : ""}{" "}
-            </div>
-          </section>
-            
+        <LoadingScreen
+          onlyLoading={Object.keys(accessDetail).length === 0}
+          type="CardSkeleton"
+        >
+          <div className={styles.container}>
+            <p>Visitante</p>
+            {item?.type === "O" ? (
+              <section className={styles.headerSection}>
+                <Avatar
+                  hasImage={owner?.has_image}
+                  name={getFullName(owner)}
+                  src={getUrlImages(
+                    "/OWNER-" + owner?.id + ".webp?" + owner?.updated_at
+                  )}
+                  style={{ marginBottom: "var(--spM)" }}
+                />
+                <div className={styles.amountDisplay}>{getFullName(owner)}</div>
+                <div className={styles.dateDisplay}>
+                  C.I. : {owner?.ci}{" "}
+                  {plate && getTaxiData().length == 0
+                    ? `- Placa: ${plate}`
+                    : ""}
+                </div>
+              </section>
+            ) : (
+              <section className={styles.headerSection}>
+                <Avatar
+                  hasImage={visit?.has_image}
+                  name={getFullName(visit)}
+                  src={getUrlImages(
+                    "/VISIT-" + visit?.id + ".webp?" + visit?.updated_at
+                  )}
+                  style={{ marginBottom: "var(--spM)" }}
+                />
+                <div className={styles.amountDisplay}>{getFullName(visit)}</div>
+                <div className={styles.dateDisplay}>
+                  C.I. : {visit?.ci}{" "}
+                  {plate && getTaxiData()?.length == 0
+                    ? `- Placa: ${plate}`
+                    : ""}
+                </div>
+              </section>
+            )}
 
-          <section >
-            <div>
-              <div className={styles.textsDiv}>
-                <div>Tipo de acceso</div>
-                <div>{getTypeAccess(item?.type, item)} </div>
+            <hr className={styles.sectionDivider} />
+
+            <section className={styles.detailsSection}>
+              {/* Columna Izquierda */}
+              <div className={styles.detailsColumn}>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Tipo de acceso</span>
+                  <span className={styles.infoValue}>
+                    {getTypeAccess(item?.type, item)}
+                  </span>
+                </div>
+                {item?.type == "G" && (
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>Evento</span>
+                    <span className={styles.infoValue}>
+                      {item?.invitation?.title}
+                    </span>
+                  </div>
+                )}
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>
+                    {item?.type == "C" && confirm == "N"
+                      ? "Hora y fecha de petición"
+                      : "  Hora y fecha de ingreso"}
+                  </span>
+                  <span className={styles.infoValue}>
+                    {item?.type == "C" && confirm == "N"
+                      ? getDateTimeStrMesShort(begin_at) || "-/-"
+                      : getDateTimeStrMesShort(in_at) || "-/-"}
+                  </span>
+                </div>
+                {item?.type !== "O" && (
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>
+                      {item?.type != "P" ? "Visitó a" : "Entregó a"}
+                    </span>
+                    <span className={styles.infoValue}>
+                      {getFullName(item?.owner) || "-/-"}
+                    </span>
+                  </div>
+                )}
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Guardia de ingreso</span>
+                  <span className={styles.infoValue}>
+                    {getFullName(guardia) || "-/-"}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>
+                    Observación de entrada
+                  </span>
+                  <span className={styles.infoValue}>{obs_in || "-/-"}</span>
+                </div>
+                {item?.type == "C" && (
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>
+                      {confirm == "N" ? "Rechazado por" : "Aprobado por"}{" "}
+                    </span>
+                    <span
+                      className={styles.infoValue}
+                      style={{
+                        color:
+                          confirm == "G" || item?.rejected_guard_id !== null
+                            ? "var(--cMediumAlert)"
+                            : "var(--cSuccess)",
+                      }}
+                    >
+                      {confirm == "G" || item?.rejected_guard_id !== null
+                        ? "Guardia"
+                        : "Residente"}
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className={styles.textsDiv}>
-                <div>Fecha y hora de ingreso</div>
-                <div>{getDateTimeStrMes(in_at)} </div>
+
+              <div className={styles.detailsColumn}>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Estado</span>
+                  <span
+                    className={styles.infoValue}
+                    // style={{ color: item?.out_at ? "var(--cWhite)" : "" }}
+                  >
+                    {getStatus()}
+                  </span>
+                </div>
+                {item?.type == "G" && (
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>
+                      Cantidad de invitados
+                    </span>
+                    <span className={styles.infoValue}>
+                      {accessDetail?.invitation?.guests?.length || "-/-"}
+                    </span>
+                  </div>
+                )}
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>
+                    {item?.type == "C" && confirm == "N"
+                      ? "Hora y fecha de rechazo"
+                      : "  Hora y fecha de salida"}
+                  </span>
+                  <span className={styles.infoValue}>
+                    {item?.type == "C" && confirm == "N"
+                      ? getDateTimeStrMesShort(confirm_at) || "-/-"
+                      : getDateTimeStrMesShort(out_at) || "-/-"}
+                  </span>
+                </div>
+
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Unidad</span>
+                  <span className={styles.infoValue}>
+                    {owner?.dpto[0]?.nro || "-/-"}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Guardia de salida</span>
+                  <span className={styles.infoValue}>
+                    {out_at ? getFullName(out_guard || guardia) : "-/-"}
+                  </span>
+                </div>
+
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>
+                    Observación de salida
+                  </span>
+                  <span className={styles.infoValue}>{obs_out || "-/-"}</span>
+                </div>
+                
+                {item?.rejected_guard_id !== null ? (
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>
+                      {item?.confirm !== 'N' ? 'Motivo de aprobación' : 'Motivo de rechazo'}
+                    </span>
+                    <span className={styles.infoValue}>
+                      {item?.obs_confirm}
+                    </span>
+                  </div>
+                ) : (
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>
+                      {item?.confirm === 'N' ? 'Motivo de rechazo' : null}
+                    </span>
+                    <span className={styles.infoValue}>
+                      {item?.obs_confirm}
+                    </span>
+                  </div>
+                )}
               </div>
-              {accesses?.length > 0 && (
-                <div className={styles.textsDiv}>
-                  <div>Acompañante</div>
-                  {accesses.map((access: any, i: number) => (
-                    <div key={i} style={{ color: "var(--cWhite" }}>
-                      {getFullName(access?.visit)}
-                    </div>
+            </section>
+            {getAcomData()?.length > 0 && (
+              <>
+                <Br />
+                <p>Acompañantes</p>
+                <div className={styles.listContainer}>
+                  {getAcomData()?.map((acc: any) => (
+                    <ItemList
+                      variant="V3"
+                      key={acc.id}
+                      title={getFullName(acc.visit || visit)}
+                      subtitle={"C.I: " + acc?.visit?.ci}
+                      left={
+                        <Avatar
+                          hasImage={
+                            acc.visit ? acc.visit?.has_image : visit?.has_image
+                          }
+                          src={getUrlImages(
+                            "/VISIT-" +
+                              (acc?.visit?.id || visit?.id) +
+                              ".webp?" +
+                              (acc?.visit?.updated_at || visit?.updated_at)
+                          )}
+                          name={getFullName(acc.visit || visit)}
+                        />
+                      }
+                      right={
+                        <IconExpand
+                          color="var(--cWhiteV1)"
+                          onClick={() =>
+                            setOpenExpand({
+                              open: true,
+                              id: acc.id,
+                              type: "A",
+                              invitation: null,
+                            })
+                          }
+                        />
+                      }
+                    />
                   ))}
                 </div>
-              )}
-              <div className={styles.textsDiv}>
-                <div>Visitó a</div>
-                <div>{getFullName(item?.owner) || "No especificado"}</div>
-              </div>
-              <div className={styles.textsDiv}>
-                <div>Guardia de ingreso</div>
-                <div>{getFullName(guardia) || "No especificado"}</div>
-              </div>
-              <div className={styles.textsDiv}>
-                <div>Observación de entrada</div>
-                <div>{obs_in || "Sin observaciones"}</div>
-              </div>
-            </div>
+              </>
+            )}
+            {getTaxiData()?.length > 0 && (
+              <>
+                <Br />
+                <p>Taxista</p>
+                <div className={styles.listContainer}>
+                  {getTaxiData()?.map((acc: any) => (
+                    <ItemList
+                      variant="V3"
+                      key={acc.id}
+                      title={getFullName(acc.visit || visit)}
+                      subtitle={"C.I: " + acc?.visit?.ci}
+                      left={
+                        <Avatar
+                          hasImage={
+                            acc.visit ? acc.visit?.has_image : visit?.has_image
+                          }
+                          src={getUrlImages(
+                            "/VISIT-" +
+                              (acc?.visit?.id || visit?.id) +
+                              ".webp?" +
+                              (acc?.visit?.updated_at || visit?.updated_at)
+                          )}
+                          name={getFullName(acc.visit || visit)}
+                        />
+                      }
+                      right={
+                        <IconExpand
+                          color="var(--cWhiteV1)"
+                          onClick={() =>
+                            setOpenExpand({
+                              open: true,
+                              id: acc.id,
+                              type: "T",
+                              invitation: null,
+                            })
+                          }
+                        />
+                      }
+                    />
+                  ))}
+                </div>
+              </>
+            )}
 
-            <div>
-              <div className={styles.textsDiv}>
-                <div>Estado</div>
-                {/* <div>{statusAccess[status] || "No especificado"}</div> */}
-                <div style={{color:item?.out_at ? 'var(--cAccent)':''}}>{getStatus()}</div>
-              </div>
-              <div className={styles.textsDiv}>
-                <div>Fecha y hora de salida</div>
-                <div>{getDateTimeStrMes(out_at) || "No registrada"}</div>
-              </div>
-              <div className={styles.textsDiv}>
-                <div>Carnet de identidad</div>
-                <div>{visit?.ci || "No especificado"}</div>
-              </div>
-              <div className={styles.textsDiv}>
-                <div>Unidad</div>
-                <div>{owner?.dpto[0]?.nro || "No especificada"}</div>
-              </div>
-              <div className={styles.textsDiv}>
-                <div>Guardia de salida</div>
-                <div>{getFullName(out_guard) || "No especificado"}</div>
-              </div>
-              <div className={styles.textsDiv}>
-                <div>Observación de salida</div>
-                <div>{obs_out || "Sin observaciones"}</div>
-              </div>
-            </div>
-          </section>
-          <div onClick={openDetailsModal} className="link" style={{marginTop:'var(--spS)'}}>
-            Ver detalles de la invitación
+            {/* {item.type !== "O" && item?.type !== "C" && (
+              <>
+                <Br />
+                <div
+                  onClick={openDetailsModal}
+                  className="link"
+                  style={{
+                    margin: "0 0 auto",
+                    width: "fit-content",
+                  }}
+                >
+                  Ver detalles de la invitación
+                </div>
+              </>
+            )} */}
           </div>
-        </div>
         </LoadingScreen>
       </DataModal>
+
+      {openExpand?.open && (
+        <ModalAccessExpand
+          open={openExpand?.open}
+          onClose={() =>
+            setOpenExpand({ open: false, id: null, type: "", invitation: null })
+          }
+          id={openExpand?.id}
+          type={openExpand?.type}
+        />
+      )}
+
       {openInvitation && (
         <InvitationsDetail
           open={openInvitation}
@@ -256,142 +458,3 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
 };
 
 export default RenderView;
-
-{
-  /* <div className={styles.container}>
-        <div className={styles.iconHeader}>
-          <div className={styles.iconCircle}>
-            {getAccessIcon()}
-          </div>
-        </div>
-
-        <div className={styles.accessTitle}>
-          {getAccessType()}
-        </div>
-
-        <div className={styles.divider}></div>
-
-        <div className={styles.detailsContainer}>
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Visitante:</div>
-            <div className={styles.value}>
-              {item?.type === "O"
-                ? "Uso Llave Virtual QR"
-                : getFullName(item?.visit) || "No especificado"}
-            </div>
-          </div>
-
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Documento:</div>
-            <div className={styles.value}>
-              {item?.type === "O"
-                ? item?.owner?.ci
-                : item?.visit?.ci || "No especificado"}
-            </div>
-          </div>
-
-          {item?.plate && (
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Placa:</div>
-              <div className={styles.value}>{item.plate}</div>
-            </div>
-          )}
-
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Residente:</div>
-            <div className={styles.value}>
-              {getFullName(item?.owner) || "No especificado"}
-            </div>
-          </div>
-
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Guardia:</div>
-            <div className={styles.value}>
-              {getFullName(item?.guardia) || "No especificado"}
-            </div>
-          </div>
-
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Fecha:</div>
-            <div className={styles.value}>
-              {getDateStrMes(item?.begin_at) || "No especificada"}
-            </div>
-          </div>
-
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Entrada:</div>
-            {item?.in_at ? (
-              <div className={styles.valueAccent}>
-                <IconArrowRight size={16} className={styles.ingressIcon} />
-                {getDateTimeStrMes(item.in_at, item.begin_at)}
-              </div>
-            ) : item?.confirm_at ? (
-              <div className={styles.value}>
-                {item.confirm === "Y" ? (
-                  <span className={styles.statusWaiting}>
-                    Esperando entrada
-                  </span>
-                ) : (
-                  <span className={styles.statusRejected}>No autorizado</span>
-                )}
-              </div>
-            ) : (
-              <div className={styles.statusWaiting}>Esperando confirmación</div>
-            )}
-          </div>
-
-          {item?.type !== "O" && (
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Salida:</div>
-              {item?.out_at ? (
-                <div className={styles.valueError}>
-                  <IconArrowLeft size={16} className={styles.egressIcon} />
-                  {getDateTimeStrMes(item.out_at, item.begin_at)}
-                </div>
-              ) : (
-                <div className={styles.value}>
-                  {item?.in_at ? "No registrada" : "Pendiente"}
-                </div>
-              )}
-            </div>
-          )}
-
-          {item?.obs_in && (
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Observación de entrada:</div>
-              <div className={styles.value}>{item.obs_in}</div>
-            </div>
-          )}
-
-          {item?.obs_out && (
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Observación de salida:</div>
-              <div className={styles.value}>{item.obs_out}</div>
-            </div>
-          )}
-        </div>
-
-        {/*         Botones de acción según el estado del acceso 
-        {item?.type !== "O" && (
-          <div className={styles.actionContainer}>
-            {!item?.in_at && item?.confirm === "Y" && (
-              <Button 
-                className={styles.entryButton} 
-                onClick={handleEntrada}
-              >
-                Dejar Entrar
-              </Button>
-            )}
-
-            {item?.in_at && !item?.out_at && (
-              <Button 
-                className={styles.exitButton} 
-                onClick={handleSalida}
-              >
-                Dejar Salir
-              </Button>
-            )}
-          </div>
-        )}
-        </div> */
-}

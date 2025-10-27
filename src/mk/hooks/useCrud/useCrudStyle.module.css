@@ -1,7 +1,7 @@
 .useCrud {
   gap: 1px;
   & > div > section {
-    height: calc(100vh - 280px);
+    /* height: calc(100vh - 280px); */
     overflow-y: auto;
     & > section {
       display: flex;
@@ -16,7 +16,7 @@
     }
   }
   & > section {
-    height: calc(100vh - 280px);
+    /* height: calc(100vh - 280px); */
     overflow-y: auto;
     & > section {
       display: flex;
@@ -104,13 +104,93 @@
 }
 
 .addButton {
-  /* //padding: var(--spS); */
   height: 56px;
+  padding: 0 24px;
+  font-size: 16px;
+  border-radius: var(--bRadiusS);
   cursor: pointer;
   transition: background-color 0.3s;
+  width: auto;
+  min-width: 180px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .extraButtons {
   display: flex;
   gap: var(--spM);
   align-items: center;
+  flex-wrap: wrap;
+}
+.extraButtons > div > button,
+.extraButtons > button {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 16px;
+  border-radius: var(--bRadiusS);
+  width: auto;
+  /* min-width: 180px; */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.useCrud .filters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.useCrud .filters select {
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .useCrud .filters {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .addButton {
+    width: 100%;
+    min-width: 0;
+    display: block;
+  }
+}
+
+@media (max-width: 600px) {
+  .useCrud .filters {
+    grid-template-columns: 1fr;
+  }
+  .addButton {
+    width: 100%;
+    min-width: 0;
+    display: block;
+  }
+}
+
+/* .iconsMenu {
+  background-color: var(--cWhiteV2);
+  height: 48px;
+  padding: 0px 10px;
+  border-radius: var(--bRadiusS);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+} */
+.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.icons,
+.extraButtons > div > svg {
+  cursor: pointer;
+  background-color: var(--cWhiteV2);
+  min-width: 48px;
+  padding: 8px;
+  height: 48px;
+  border-radius: var(--bRadiusS);
+  &:hover {
+    background-color: var(--cHoverTable);
+  }
 }

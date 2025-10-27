@@ -11,7 +11,7 @@
 }
 
 .section {
-  margin-top: var(--spM);
+  /* margin-top: var(--spM); */
 }
 
 .section-title {
@@ -35,26 +35,6 @@
   width: 331px;
 }
 
-.upload-section {
-  margin-top: var(--spM);
-}
-
-.file-upload-area {
-  margin-top: var(--spS);
-  display: flex;
-  justify-content: center;
-  border-radius: var(--bRadiusS);
-  border: 1px dashed rgba(255, 255, 255, 0.25);
-  padding: var(--spXl);
-}
-
-.file-upload-area.dragging {
-  border-color: var(--cInfo);
-}
-
-.file-upload-area.error {
-  border-color: var(--cError);
-}
 
 .hidden-input {
   position: absolute;
@@ -68,30 +48,7 @@
   border-width: 0;
 }
 
-.upload-instructions {
-  text-align: center;
-  color: var(--cWhiteV1);
-}
 
-.upload-text {
-  margin-top: var(--spL);
-  display: flex;
-  font-size: var(--sM);
-  line-height: 1.5;
-  color: var(--cWhiteV2);
-}
-
-.upload-link {
-  cursor: pointer;
-  border-radius: 6px;
-  font-weight: var(--bSemibold);
-  color: var(--cPrimary);
-}
-
-.upload-alternative {
-  padding-left: var(--spXs);
-  color: var(--cWhiteV1);
-}
 
 .file-types {
   font-size: var(--sS);
@@ -131,27 +88,12 @@
   color: var(--cPrimary);
 }
 
-.voucher-section {
-  margin-top: var(--spM);
-}
 
-.voucher-input {
-  margin-top: var(--spM);
-}
-
-.obs-section {
-  margin-top: var(--spM);
-}
-
-.obs-input {
-  margin-top: var(--spM);
-}
 
 .input-row {
   display: flex;
   gap: var(--spM);
   width: 100%;
-  margin-bottom: var(--spM);
 }
 
 .input-half {
@@ -210,6 +152,8 @@
   align-items: center;
   cursor: pointer;
   gap: 0.5rem;
+  background-color: inherit;
+  border: none;
 }
 
 .select-all-text {
@@ -232,15 +176,25 @@
   flex-direction: column;
   width: 100%;
   border: 0.5px solid var(--cWhiteV2, #a7a7a7);
-  border-radius: var(--bRadiusL, 1rem); 
-  overflow: hidden; 
+  border-radius: var(--bRadiusL, 1rem);
+  overflow: hidden;
 }
 
 .deudas-header,
 .deuda-row {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: 1fr 2fr 0.8fr 0.8fr 0.8fr 1fr 0.8fr;
   width: 100%;
+}
+
+.deudas-header-reservations,
+.deuda-row-reservations {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.deudas-header-reservations-simple,
+.deuda-row-reservations-simple {
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .deudas-header {
@@ -257,10 +211,6 @@
   padding: 0 1rem;
   border-bottom: 0.5px solid var(--cWhiteV2, #a7a7a7);
   text-align: left;
-}
-
-.header-item:not(:last-child) {
-  border-right: 0.5px solid var(--cWhiteV2, #a7a7a7);
 }
 
 .header-item:last-child {
@@ -307,12 +257,8 @@
   color: var(--cWhiteV1, #fbfbfb);
 }
 
-.deuda-cell:not(:last-child) {
-  border-right: 0.5px solid var(--cWhiteV2, #a7a7a7);
-}
-
-.deuda-cell:nth-child(4) { /* Subtotal cell */
-  font-weight: 500; /* font-medium */
+.deuda-cell:nth-child(4) {
+  font-weight: 500;
 }
 .deuda-item:nth-child(odd) .deuda-cell:nth-child(4) {
   color: var(--cWhiteV1, #fbfbfb);
@@ -321,16 +267,25 @@
   color: var(--cWhiteV1, #fbfbfb);
 }
 
-
 .deuda-check {
   justify-content: center;
+}
+
+.amount-cell {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.header-amount {
+  text-align: right;
+  justify-content: flex-end;
 }
 
 .total-container {
   display: flex;
   justify-content: flex-end;
   color: var(--cWhite);
-  padding: var(--spM) 0; /* Quitar padding lateral si la tabla ocupa todo el ancho */
+  padding: var(--spM) 0;
   font-weight: var(--bMedium);
   font-size: 1rem;
 }
@@ -339,7 +294,7 @@
   color: var(--cError);
   font-size: var(--sM);
   margin-top: var(--spS);
-  text-align: right; /* Para alinearlo con el total */
+  text-align: right;
 }
 
 .amount-input-disabled {

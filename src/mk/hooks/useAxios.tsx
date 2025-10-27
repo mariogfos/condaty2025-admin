@@ -44,7 +44,11 @@ const useAxios = (
     prevent = false
   ) => {
     if (prevent && countAxios == 0) return;
-    await execute(url, method, _payload || payload, true, noWaiting);
+    const pay = {
+      ...payload,
+      ...(_payload || { extraData: false }),
+    };
+    await execute(url, method, pay, true, noWaiting);
   };
   const execute: any = async (
     _url: string | null = url,
@@ -75,6 +79,7 @@ const useAxios = (
         setData(response.data);
       }
 
+      // setData(response.data);
       data = response.data;
     } catch (err) {
       logError("error useAxios", err);

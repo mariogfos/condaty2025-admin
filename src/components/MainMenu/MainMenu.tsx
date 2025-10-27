@@ -1,17 +1,12 @@
-import useScreenSize from "@/mk/hooks/useScreenSize";
+// import useScreenSize from "@/mk/hooks/useScreenSize";
 import {
-  IconComunication,
-  IconRedffiliates,
   IconLogout,
-  IconNetwork,
   IconCandidates,
   IconHome,
   IconPayments,
   IconMonitorLine,
   IconGroup,
   IconComunicationDialog,
-  IconInterrogation,
-  IconGuard,
   IconBitacora,
   IconCalendar,
   IconDepartments,
@@ -22,8 +17,10 @@ import MainmenuDropdown from "./MainmenuDropdown";
 import MainMenuHeader from "./MainMenuHeader";
 import MainmenuItem from "./MainMenuItem";
 import { UnitsType } from "@/mk/utils/utils";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { useEvent } from "@/mk/hooks/useEvents";
+import { usePathname } from "next/navigation";
 
 type PropsType = {
   user?: any;
@@ -33,7 +30,6 @@ type PropsType = {
   setSideBarOpen?: any;
   setOpenClient?: any;
 };
-// const sound = new Audio("/sound/waiting-146636.mp3"); // Crear una instancia de Audio
 const MainMenu = ({
   user,
   collapsed,
@@ -41,16 +37,65 @@ const MainMenu = ({
   setSideBarOpen,
   setOpenClient,
 }: PropsType) => {
-  const { isMobile } = useScreenSize();
-  const { setStore } = useAuth();
+  // const { isMobile } = useScreenSize();
+  const isMobile = false;
+  const { setStore, store } = useAuth();
   const client = user?.clients?.filter(
     (item: any) => item?.id === user?.client_id
   )[0];
-  // const play = () => {
-  //   sound
-  //     .play()
-  //     .catch((err) => console.error("Error al reproducir el audio:", err));
-  // };
+  // const [bage, setBage]: any = useState({});
+  // Control del menú abierto
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+
+  const handleToggle = (label: string) => {
+    setOpenMenu((prev) => (prev === label ? null : label));
+  };
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname === "/payments" && store?.paymentsBage > 0) {
+      setStore({
+        ...store,
+        paymentsBage: 0,
+      });
+    }
+    if (pathname === "/reservas" && store?.reservasBage > 0) {
+      setStore({
+        ...store,
+        reservasBage: 0,
+      });
+    }
+    if (pathname == "/alerts" && store?.alertsBage > 0) {
+      setStore({
+        ...store,
+        alertsBage: 0,
+      });
+    }
+    if (pathname == "/reels" && store?.reelsBage > 0) {
+      setStore({
+        ...store,
+        reelsBage: 0,
+      });
+    }
+  }, [pathname]);
+
+  const onNotif = useCallback((data: any) => {
+    if (data?.payload?.act == "newVoucher") {
+      setStore({ ...store, paymentsBage: (store?.paymentsBage || 0) + 1 });
+    }
+    if (data?.payload?.act == "newReservationAdm") {
+      setStore({ ...store, reservasBage: (store?.reservasBage || 0) + 1 });
+    }
+    if (data?.payload?.act == "alerts") {
+      setStore({ ...store, alertsBage: (store?.alertsBage || 0) + 1 });
+    }
+    if (data?.payload?.act == "newContent") {
+      setStore({ ...store, reelsBage: (store?.reelsBage || 0) + 1 });
+    }
+  }, []);
+
+  useEvent("onNotif", onNotif);
 
   useEffect(() => {
     setStore({ UnitsType: UnitsType[client?.type_dpto] });
@@ -77,14 +122,18 @@ const MainMenu = ({
               {
                 href: "/payments",
                 label: "Ingresos",
+                bage: store?.paymentsBage,
               },
               { href: "/outlays", label: "Egresos" },
-              { href: "/defaultersview", label: "Morosos" },
+             // { href: "/budget", label: "Presupuestos" },
               { href: "/expenses", label: "Expensas" },
-              // { href: "/budget", label: "Presupuestos" },
+              { href: "/defaulters", label: "Morosos" },
+              { href: "/debts_manager", label: "Deudas" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
+            isOpen={openMenu === "Finanzas"}
+            onToggle={() => handleToggle("Finanzas")}
           />
           <MainmenuDropdown
             label="Administración"
@@ -92,23 +141,31 @@ const MainMenu = ({
             items={[
               // { href: "/dptos", label: UnitsType[client?.type_dpto] + "s" },
               { href: "/units", label: "Unidades" },
-              { href: "/activities", label: "Historial" },
+              { href: "/areas", label: "Áreas sociales" },
+              { href: "/activities", label: "Accesos" },
               { href: "/documents", label: "Documentos" },
               { href: "/configs", label: "Configuración" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
+            isOpen={openMenu === "Administración"}
+            onToggle={() => handleToggle("Administración")}
           />
           <MainmenuDropdown
             label="Usuarios"
             icon={<IconGroup />}
             items={[
               { href: "/owners", label: "Residentes" },
-              { href: "/homeowners", label: "Propietarios" },
-              { href: "/users", label: "Administradores" },
+              { href: "/users", label: "Personal Administrativo" },
+              { href: "/roles", label: "Roles y permisos" },
+              // { href: "/rolescategories", label: "Permisos" },
+              // { href: "/rolescategories", label: "Categorías de rol" },
+              //{ href: "/homeowners", label: "Propietarios" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
+            isOpen={openMenu === "Usuarios"}
+            onToggle={() => handleToggle("Usuarios")}
           />
 
           <MainmenuDropdown
@@ -116,11 +173,14 @@ const MainMenu = ({
             icon={<IconComunicationDialog />}
             items={[
               { href: "/contents", label: "Publicaciones" },
+              { href: "/reels", label: "Muro publicaciones" },
               // { href: "/events", label: "Eventos" },
               // { href: "/surveys", label: "Encuestas" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
+            isOpen={openMenu === "Comunicación"}
+            onToggle={() => handleToggle("Comunicación")}
           />
 
           {/* <MainmenuItem
@@ -129,12 +189,13 @@ const MainMenu = ({
             icon={<IconBitacora />}
             collapsed={collapsed}
           /> */}
-          {/* <MainmenuItem
+          <MainmenuItem
             href="/reservas"
             label="Reservas"
+            bage={store?.reservasBage}
             icon={<IconCalendar />}
             collapsed={collapsed}
-          /> */}
+          />
           {user?.clients?.length > 1 && (
             <MainmenuItem
               href="#"
@@ -149,12 +210,14 @@ const MainMenu = ({
             icon={<IconSecurity />}
             items={[
               { href: "/guards", label: "Guardias" },
-              { href: "/alerts", label: "Alertas" },
+              { href: "/alerts", label: "Alertas", bage: store?.alertsBage },
               { href: "/binnacle", label: "Bitácora" },
               // { href: "/ev", label: "Soporte y ATC" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
+            isOpen={openMenu === "Vigilancia y seguridad"}
+            onToggle={() => handleToggle("Vigilancia y seguridad")}
           />
 
           {/* <MainmenuItem

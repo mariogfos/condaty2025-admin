@@ -70,6 +70,7 @@ const DetailCandidate = ({ open, close, id }: PropsDetailCandidate) => {
               />
             </div>
             <Avatar
+              hasImage={candidate?.data[0]?.has_image}
               className={styles.avatar}
               name={candidate?.data[0]?.name}
               src={getUrlImages(

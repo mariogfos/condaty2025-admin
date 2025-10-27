@@ -9,8 +9,10 @@ interface Props {
 const HeaderBack = ({ label, onClick }: Props) => {
   return (
     <div className={styles.HeaderBack}>
-      <IconArrowLeft onClick={onClick} style={{ cursor: "pointer" }} />
-      <p>{label}</p>
+      <IconArrowLeft onClick={onClick} style={{ cursor: "pointer" }} circle />
+      <p onClick={onClick} style={{ cursor: "pointer" }}>
+        {label}
+      </p>
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { createContext, useEffect, useRef, useState } from "react";
 
 export type AxiosContextType = {
   contextInstance: any;
-  waiting: number;
+  waiting: number | null;
   setWaiting: Function;
 };
 export const AxiosContext = createContext({} as AxiosContextType);

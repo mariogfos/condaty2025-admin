@@ -1,126 +1,139 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import styles from "./mainmenu.module.css";
 import { IconArrowDown, IconArrowUp } from "../layout/icons/IconsBiblioteca";
-import { usePathname, useSearchParams } from "next/navigation";
+
+interface MenuItem {
+  href: string;
+  label: string;
+  bage?: number;
+}
 
 interface MainmenuDropdownProps {
   label: string;
   icon: React.ReactNode;
-  items: { href: string; label: string }[];
+  items: MenuItem[];
   collapsed?: boolean;
-  setSideBarOpen?: (open: boolean) => void; // Asegurar que este sea una función opcional
+  isOpen?: boolean;
+  onToggle?: () => void;
+  setSideBarOpen?: (open: boolean) => void;
 }
 
-const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
-  label,
-  icon,
-  items,
-  collapsed,
-  setSideBarOpen,
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isRouteActive, setIsRouteActive] = useState(false);
+const Badge: React.FC = () => (
+  <span
+    style={{
+      height: 8,
+      width: 8,
+      backgroundColor: "var(--cError)",
+      borderRadius: "50%",
+      display: "inline-block",
+    }}
+  />
+);
+
+const MainmenuDropdown = ({
+  label, icon, items,
+  collapsed = false,
+  isOpen = false, onToggle,
+  setSideBarOpen }: MainmenuDropdownProps) => {
   const pathname = usePathname();
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const type = searchParams?.get("type");
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
 
-  // Manejo del click fuera del dropdown para cerrarlo
-  // useEffect(() => {
-  //   const handleClickOutside = (event: MouseEvent) => {
-  //     if (
-  //       dropdownRef.current &&
-  //       !dropdownRef.current.contains(event.target as Node)
-  //     ) {
-  //       setIsOpen(false);
-  //     }
-  //   };
+  const hasItemWithBadge = useMemo(
+    () => items.some((item) => Number(item.bage) > 0),
+    [items]
+  );
 
-  //   document.addEventListener("mouseup", handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener("mouseup", handleClickOutside);
-  //   };
-  // }, []);
+  // Función para validar si la ruta actual coincide con el href del item
+  const validatePathname = useCallback(
+    (item: MenuItem) => {
+      if (pathname === item.href) return true;
 
-  // Verifica si la ruta está activa para gestionar el estado del dropdown
+      if (pathname === "/categories") {
+        if (item.href === "/payments" && type === "I") return true;
+        if (item.href === "/outlays" && type === "E") return true;
+      }
+
+      if (item.href === "/units" && pathname?.startsWith("/dashDpto/")) {
+        return true;
+      }
+
+      return false;
+    },
+    [pathname, type]
+  );
+
+  // Verificar si alguna ruta del dropdown está activa
+  const isRouteActive = useMemo(
+    () => items.some((item) => validatePathname(item)),
+    [items, validatePathname]
+  );
+
+  const handleLinkClick = useCallback(() => {
+    setSideBarOpen?.(false);
+  }, [setSideBarOpen]);
+
+  // Cerrar el dropdown al hacer clic afuera
   useEffect(() => {
-    const isActive = items.some(
-      (item) =>
-        pathname === item.href ||
-        (pathname === "/categories" && item.href === "/payments") ||
-        (item.href === "/units" && pathname?.startsWith("/dashDpto/"))
-    );
-    setIsRouteActive(isActive);
+    if (!collapsed) return;
 
-    if (!isActive) {
-      setIsOpen(false); // Cierra el dropdown si la ruta no está activa
-    }
-  }, [pathname, items]);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        isOpen
+      ) {
+        onToggle?.();
+      }
+    };
 
-  // Maneja el clic en los enlaces para cerrar el dropdown y sidebar
-  const handleLinkClick = () => {
-    if (collapsed) {
-      setIsOpen(false); // Cierra el dropdown si está colapsado
-    }
-
-    if (setSideBarOpen) {
-      setSideBarOpen(false); // Cierra el sidebar
-    }
-  };
-
-  const validatePathname = (item: any) => {
-    if (pathname === item.href) {
-      return true;
-    }
-    if (
-      pathname === "/categories" &&
-      item.href === "/payments" &&
-      type === "I"
-    ) {
-      return true;
-    }
-    if (
-      pathname === "/categories" &&
-      item.href === "/outlays" &&
-      type === "E"
-    ) {
-      return true;
-    }
-    if (item.href === "/units" && pathname?.startsWith("/dashDpto/")) {
-      return true;
-    }
-    return false;
-  };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [collapsed, isOpen, onToggle]);
 
   return (
     <div
       ref={dropdownRef}
-      className={`${styles.menuDropdown} ${isOpen ? styles.isOpen : ""} ${
-        collapsed ? styles.collapsed : ""
-      } ${isRouteActive ? styles.isRouteActive : ""}`}
+      className={[
+        styles.menuDropdown,
+        isOpen && styles.isOpen,
+        collapsed && styles.collapsed,
+        isRouteActive && styles.isRouteActive,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
-      <div onClick={toggleDropdown}>
-        <div>
+      <div onClick={onToggle} className={styles.dropdownHeader}>
+        <div className={styles.dropdownLabel}>
           {icon}
           {!collapsed && <p>{label}</p>}
+          {hasItemWithBadge && <Badge />}
         </div>
-        {!collapsed && (!isOpen ? <IconArrowDown /> : <IconArrowUp />)}
+        {!collapsed && (isOpen ? <IconArrowUp /> : <IconArrowDown />)}
       </div>
 
       {isOpen && (
-        <div>
-          {items.map((item, index) => (
+        <div className={styles.dropdownContent}>
+          {items.map((item) => (
             <Link
-              key={index}
+              key={item.href}
               href={item.href}
-              className={validatePathname(item) ? styles.active : ""}
-              onClick={handleLinkClick} // Llama a handleLinkClick para cerrar
+              onClick={handleLinkClick}
+              className={[
+                validatePathname(item) && styles.active,
+                styles.dropdownItem,
+              ]
+                .filter(Boolean)
+                .join(" ")}
             >
+              <div className={styles.contentWithBadge}>
               {item.label}
+              {Number(item.bage) > 0 && <Badge />}
+              </div>
             </Link>
           ))}
         </div>
