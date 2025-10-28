@@ -43,11 +43,7 @@ const DefaulterConfig = ({
       return;
     }
 
-    if (
-      name === "penalty_data" &&
-      formState.penalty_type == 1 &&
-      numericValue > 100
-    ) {
+    if (name === "penalty_percent" && numericValue > 100) {
       const syntheticEvent = {
         ...e,
         target: {

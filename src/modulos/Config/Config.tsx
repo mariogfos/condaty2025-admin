@@ -137,57 +137,12 @@ const Config = () => {
         errors,
         data: formState,
       });
-      // errors = checkRules({
-      //   value: formState.penalty_percent,
-      //   rules: ["required"],
-      //   key: "penalty_percent",
-      //   errors,
-      // });
-
       errors = checkRules({
-        value: formState.penalty_type,
+        value: formState.penalty_percent,
         rules: ["required"],
-        key: "penalty_type",
+        key: "penalty_percent",
         errors,
-        data: formState,
       });
-      if (formState.penalty_type > 0) {
-        if (formState.penalty_type == 1) {
-          if (!formState.penalty_data?.percent) {
-            errors["penalty_data"] = "Por favor ingrese el porcentaje de multa";
-          }
-          if (!(formState.penalty_data?.percent > 0)) {
-            errors["penalty_data"] =
-              "porcentaje de la multa debe ser mayor a 0";
-          }
-        }
-        if (formState.penalty_type == 2) {
-          if (!formState.penalty_data?.amount) {
-            errors["penalty_data"] = "Por favor ingrese el monto de multa";
-          }
-          if (!(formState.penalty_data?.amount > 0)) {
-            errors["penalty_data"] = "monto de la multa debe ser mayor a 0";
-          }
-        }
-        if (formState.penalty_type == 3) {
-          if (!formState.penalty_data?.first_amount) {
-            errors["penalty_data"] =
-              "Por favor ingrese el monto del primer mes de multa";
-          }
-          if (!(formState.penalty_data?.first_amount > 0)) {
-            errors["penalty_data"] =
-              "monto del primer mes de la multa debe ser mayor a 0";
-          }
-          if (!formState.penalty_data?.second_amount) {
-            errors["penalty_data"] =
-              "Por favor ingrese el monto del segundo y siguientes meses de multa";
-          }
-          if (!(formState.penalty_data?.second_amount > 0)) {
-            errors["penalty_data"] =
-              "monto del segundo y siguientes meses de la multa debe ser mayor a 0";
-          }
-        }
-      }
     }
 
     if (typeSearch === "P") {
