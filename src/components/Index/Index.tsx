@@ -127,7 +127,7 @@ const HomePage = () => {
   const pagosList = (data: any) => {
     const imageUrl = data?.owner;
     const primaryText = getFullName(data?.owner);
-    const secondaryText = `${store.UnitsType} ${removeDuplicates(data?.dptos)}`;
+    const secondaryText = `${data?.details?.[0]?.debt_dpto?.dpto?.type?.name} ${data?.details?.[0]?.debt_dpto?.dpto?.nro}`;
     const ownerInitials = primaryText
       ?.split(" ")
       .map((n) => n[0])
@@ -139,9 +139,6 @@ const HomePage = () => {
       <div
         className={`${styles.itemRow}`}
         onClick={() => {
-          // if (userCan("payments", "C") == false) {
-          //   return showToast("No tiene permisos para aceptar pagos", "error");
-          // }
           setDataPayment(data);
           setOpenPayment(true);
         }}

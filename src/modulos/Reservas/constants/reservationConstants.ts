@@ -56,6 +56,12 @@ export const RESERVATION_STATUS_CONFIG = {
     backgroundColor: "#00E38C33",
     color: "#00E38C",
     class: "statusF"
+  },
+  X: {
+    label: "Rechazada",
+    backgroundColor: "#E4605533",
+    color: "#E46055",
+    class: "statusX"
   }
 } as const;
 
@@ -71,6 +77,7 @@ export const RESERVATION_STATUS_OPTIONS = [
   { id: "C", name: "Cancelada por usuario" },
   { id: "T", name: "Cancelada automática" },
   { id: "F", name: "Finalizada" },
+  { id: "X", name: "Rechazada" },
 ];
 
 /**
