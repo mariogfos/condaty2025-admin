@@ -495,7 +495,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                 </Button>
               )}
 
-              {actions.showRegistrarPago && (
+              {actions.showRegistrarPago && debtDetail?.status != "F" && (
                 <Button onClick={() => setShowPaymentForm(true)} className={styles.primaryButton}>
                   Registrar Pago
                 </Button>
