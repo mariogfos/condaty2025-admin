@@ -20,7 +20,7 @@ const DefaulterConfig = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    if (value === '' || value === '-') {
+    if (value === "" || value === "-") {
       onChange(e);
       return;
     }
@@ -36,20 +36,24 @@ const DefaulterConfig = ({
         ...e,
         target: {
           ...e.target,
-          value: '0'
-        }
+          value: "0",
+        },
       };
       onChange(syntheticEvent);
       return;
     }
 
-    if (name === 'penalty_percent' && numericValue > 100) {
+    if (
+      name === "penalty_data" &&
+      formState.penalty_type == 1 &&
+      numericValue > 100
+    ) {
       const syntheticEvent = {
         ...e,
         target: {
           ...e.target,
-          value: '100'
-        }
+          value: "100",
+        },
       };
       onChange(syntheticEvent);
       return;
@@ -209,10 +213,7 @@ const DefaulterConfig = ({
         </div>
 
         <div className={styles.saveButtonContainer}>
-          <button
-            className={`${styles.saveButton}`}
-            onClick={onSave}
-          >
+          <button className={`${styles.saveButton}`} onClick={onSave}>
             Guardar datos
           </button>
         </div>
