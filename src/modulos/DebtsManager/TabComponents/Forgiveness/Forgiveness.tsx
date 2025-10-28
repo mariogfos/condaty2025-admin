@@ -22,7 +22,13 @@ const paramsInitial = {
   perPage: -1,
   type: 5,
 };
-const Forgiveness = () => {
+const Forgiveness = ({
+  openView,
+  setOpenView,
+  viewItem,
+  setViewItem,
+  onExtraDataChange,
+}: any) => {
   // const onEdit = (item: any) => {
   //   let day = new Date().toISOString().split("T")[0];
   //   // console.log(item?.due_at, day);
@@ -41,6 +47,7 @@ const Forgiveness = () => {
   //   }
   //   return false;
   // };
+
   const mod = {
     modulo: "debt-dptos",
     singular: "condonación",
@@ -192,7 +199,12 @@ const Forgiveness = () => {
     mod,
     fields,
   });
-
+  useEffect(() => {
+    console.log("entro");
+    if (extraData && onExtraDataChange) {
+      onExtraDataChange(extraData);
+    }
+  }, [extraData, onExtraDataChange]);
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={`${styles.Forgiveness}`}>
