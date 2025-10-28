@@ -8,6 +8,13 @@ import MainmenuItem from "./MainMenuItem";
 import MainmenuDropdown from "./MainmenuDropdown";
 import { menuConfig } from "./mainMenuConfig";
 import { IconDepartments, IconLogout } from "../layout/icons/IconsBiblioteca";
+type PropsType = {
+  user: any;
+  collapsed: boolean;
+  setLogout: (open: boolean) => void;
+  setSideBarOpen?: (open: boolean) => void;
+  setOpenClient: (open: boolean) => void;
+};
 
 const MainMenu = ({
   user,
@@ -15,7 +22,7 @@ const MainMenu = ({
   setLogout,
   setSideBarOpen,
   setOpenClient,
-}: any) => {
+}: PropsType) => {
   const { store, setStore } = useAuth();
   const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -56,7 +63,6 @@ const MainMenu = ({
       [setStore]
     )
   );
-  console.log(store);
   const renderedMenu = useMemo(
     () =>
       menuConfig.map((item: any) => {
