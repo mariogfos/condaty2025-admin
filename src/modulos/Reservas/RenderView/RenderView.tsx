@@ -23,6 +23,11 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import {
+  RESERVATION_STATUS_CONFIG,
+  getUpdatedReservationStatus,
+  type ReservationStatus
+} from "../constants/reservationConstants";
 
 interface ReservationItem {
   id?: string | number;
@@ -47,7 +52,7 @@ interface ReservationItem {
   reason?: string;
   start_time?: string;
   end_time?: string;
-  status?: "W" | "A" | "X" | "C" | "F";
+  status?: ReservationStatus;
   created_at?: string;
   updated_at?: string;
   deleted_at?: string | null;
@@ -64,14 +69,6 @@ interface ReservationDetailModalProps {
   reservationId?: string | number | null;
   reLoad?: () => void;
 }
-
-const statusMap: any = {
-  W: { label: "Por confirmar", class: styles.statusW },
-  A: { label: "Reservado", class: styles.statusA },
-  X: { label: "Rechazado", class: styles.statusX },
-  C: { label: "Cancelado", class: styles.statusC },
-  F: { label: "Completado", class: styles.statusF },
-};
 
 const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(({
   open,
@@ -180,29 +177,15 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(({
     }
   };
 
-  const getStatusInfo = (status?: "W" | "A" | "X" | "C" | "F") => {
-    let currentStatus = status;
+  const getStatusInfo = (status?: ReservationStatus) => {
+    // Usar la función utilitaria para obtener el estado actualizado
+    const currentStatus = getUpdatedReservationStatus(
+      status,
+      reservationDetail?.date_end,
+      reservationDetail?.end_time
+    );
 
-    // Validar que tenemos los datos necesarios antes de crear la fecha
-    let dateEnd = "";
-    try {
-      if (reservationDetail?.date_end && reservationDetail?.end_time) {
-        const dateEndObj = new Date(reservationDetail.date_end + "T" + reservationDetail.end_time);
-        if (!isNaN(dateEndObj.getTime())) {
-          dateEnd = dateEndObj.toISOString().split(".")[0];
-        }
-      }
-    } catch (error) {
-      console.error("Error parsing date:", error);
-      dateEnd = "";
-    }
-
-    // Solo cambiar el status si tenemos una fecha válida
-    if (currentStatus === "A" && dateEnd && dateEnd < new Date().toISOString().split(".")[0]) {
-      currentStatus = "F";
-    }
-
-    return currentStatus ? statusMap[currentStatus] : null;
+    return currentStatus ? RESERVATION_STATUS_CONFIG[currentStatus] : null;
   };
 
   // --- Handlers de Acción ---
@@ -351,19 +334,30 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(({
             </div>
           ) : (
             <div className={styles.modalContent}>
-              {reservationDetail.status === "A" && (
-                <p
-                  onClick={() => setOpenModalCancel(true)}
-                  style={{
-                    color: "var(--cError)",
-                    textAlign: "right",
-                    textDecorationLine: "underline",
-                    cursor: "pointer",
-                  }}
-                >
-                  Cancelar reserva
-                </p>
-              )}
+              {(() => {
+                // Obtener el estado actualizado para la lógica de cancelación
+                const updatedStatus = getUpdatedReservationStatus(
+                  reservationDetail.status,
+                  reservationDetail?.date_end,
+                  reservationDetail?.end_time
+                );
+
+                // Solo mostrar cancelar si está en estado "L" (Reservado con pago) o "N" (Reservado sin pago)
+                // pero NO si ya se completó automáticamente (cambió a "F")
+                return (updatedStatus === "L" || updatedStatus === "N") && (
+                  <p
+                    onClick={() => setOpenModalCancel(true)}
+                    style={{
+                      color: "var(--cError)",
+                      textAlign: "right",
+                      textDecorationLine: "underline",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancelar reserva
+                  </p>
+                );
+              })()}
 
               <div className={styles.reservationBlock}>
                 <div className={styles.requesterSection}>
@@ -412,7 +406,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(({
                         </span>
                         <div
                           className={`${styles.statusBadge} ${
-                            currentStatus ? currentStatus.class : styles.statusUnknown
+                            currentStatus ? styles[currentStatus.class] : styles.statusUnknown
                           }`}
                         >
                           {currentStatus ? currentStatus.label : "Estado desconocido"}
