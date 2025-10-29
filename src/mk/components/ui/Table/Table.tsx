@@ -369,9 +369,11 @@ const Body = ({
   useLayoutEffect(() => {
     // setTimeout(() => {
     // console.log("Body se crea");
-    const scrollTop = store["scrollTop" + id];
-    // console.log("scrollTo Set0", id, scrollTop);
-    if (scrollTop) divRef.current.scrollTop = scrollTop;
+    if (store && id) {
+      const scrollTop = store["scrollTop" + id];
+
+      if (scrollTop && divRef.current) divRef.current.scrollTop = scrollTop;
+    }
     // }, 10);
   }, []);
 
@@ -381,7 +383,9 @@ const Body = ({
     if (onRowClick) {
       const scrollTop = divRef?.current?.scrollTop;
       // console.log("sendScroll", scrollTop);
-      setStore({ ["scrollTop" + id]: scrollTop });
+      if (scrollTop !== undefined && store && id) {
+        setStore({ ["scrollTop" + id]: scrollTop });
+      }
       onRowClick(e);
     }
   };
