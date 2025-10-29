@@ -154,7 +154,10 @@ const Layout = ({ children }: any) => {
       }
 
       if (e.event == "admins" && e.payload.act == "newVoucher") {
-        showToast("¡Revisa tus ingresos, tienes un nuevo comprobante de pago!", "info");
+        showToast(
+          "¡Revisa tus ingresos, tienes un nuevo comprobante de pago!",
+          "info"
+        );
       }
 
       if (
@@ -209,7 +212,6 @@ const Layout = ({ children }: any) => {
             <MainMenu
               collapsed={sideMenuOpen}
               user={user}
-              client={client}
               setLogout={setOnLogout}
               setOpenClient={setOpenClient}
             />
@@ -223,10 +225,10 @@ const Layout = ({ children }: any) => {
           >
             <MainMenu
               setSideBarOpen={setSideBarOpen}
-              client={client}
               user={user}
               collapsed={false}
               setLogout={setOnLogout}
+              setOpenClient={setOpenClient}
             />
           </Sidebar>
         )}

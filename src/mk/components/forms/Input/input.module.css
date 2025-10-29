@@ -16,6 +16,7 @@
   /* margin-bottom: var(--spM); */
   font-weight: var(--bRegular);
   color: var(--cWhite);
+  
   &.noerror {
     /* margin-bottom: 0; */
   }
@@ -127,6 +128,19 @@
   & input[type="date"]::-webkit-datetime-edit-month-field,
   & input[type="date"]::-webkit-datetime-edit-day-field {
     color: white; /* O var(--cWhite) si lo tienes definido */
+    
+  }
+  & input[type="date"]::-webkit-calendar-picker-indicator {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: auto;
+      color: transparent;
+      background: transparent;
+      cursor: pointer;
   }
   & input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
@@ -164,7 +178,29 @@
     }
   }
 }
-
+.labelSmall {
+  padding: 0 !important;
+  label {
+    top: -2px !important;
+    left: 5px !important;
+    font-size: var(--sS) !important;
+    z-index: 1;
+    display: inline-block !important;
+    width: auto !important;
+  }
+  input {
+    padding: 13px 9px 9px !important;
+    height: 48px !important;
+  }
+}
+.iconCalendar {
+  position: absolute;
+  right: var(--spM);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cWhiteV1);
+  pointer-events: none;
+}
 p.error {
   /* position: absolute; */
   /* bottom: calc(var(--spL) * -1); */

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./DefaulterConfig.module.css";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import { IconQuestion } from "@/components/layout/icons/IconsBiblioteca";
+import Select from "@/mk/components/forms/Select/Select";
 
 interface DefaulterConfigProps {
   formState: any;
@@ -20,7 +21,7 @@ const DefaulterConfig = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    if (value === '' || value === '-') {
+    if (value === "" || value === "-") {
       onChange(e);
       return;
     }
@@ -36,20 +37,20 @@ const DefaulterConfig = ({
         ...e,
         target: {
           ...e.target,
-          value: '0'
-        }
+          value: "0",
+        },
       };
       onChange(syntheticEvent);
       return;
     }
 
-    if (name === 'penalty_percent' && numericValue > 100) {
+    if (name === "penalty_percent" && numericValue > 100) {
       const syntheticEvent = {
         ...e,
         target: {
           ...e.target,
-          value: '100'
-        }
+          value: "100",
+        },
       };
       onChange(syntheticEvent);
       return;
@@ -186,7 +187,7 @@ const DefaulterConfig = ({
             </p>
           </div>
 
-          <div className={styles.inputField}>
+          {/* <div className={styles.inputField}>
             <div className={styles.percentInputContainer}>
               <Input
                 type="number"
@@ -205,14 +206,80 @@ const DefaulterConfig = ({
                 <span className={styles.percentSymbol}>%</span>
               )}
             </div>
-          </div>
+          </div> */}
+          <Select
+            name="penalty_type"
+            label="Tipo de multa"
+            error={errors}
+            required
+            value={formState?.penalty_type}
+            onChange={handleInputChange}
+            options={[
+              { id: 0, name: "Sin multa" },
+              { id: 1, name: "Porcentaje" },
+              { id: 2, name: "Valor Fijo" },
+              { id: 3, name: "Personalizado" },
+            ]}
+          />
+
+          {formState?.penalty_type == 1 && (
+            <Input
+              type="number"
+              label="Porcentaje"
+              name="percent"
+              error={errors}
+              required
+              value={formState?.penalty_data?.percent}
+              onChange={handleInputChange}
+              maxLength={3}
+              min={0}
+              max={100}
+              suffix="%"
+            />
+          )}
+          {formState?.penalty_type == 2 && (
+            <div className={styles.inputField}>
+              <Input
+                type="number"
+                label="Monto"
+                name="amount"
+                error={errors}
+                required
+                value={formState?.penalty_data?.amount}
+                onChange={handleInputChange}
+                maxLength={10}
+                min={0}
+              />
+            </div>
+          )}
+          {formState?.penalty_type == 3 && (
+            <div className={styles.inputField}>
+              <Input
+                type="text"
+                label="Primer monto"
+                name="first_amount"
+                error={errors}
+                required
+                value={formState?.penalty_data?.first_amount}
+                onChange={handleInputChange}
+                maxLength={100}
+              />
+              <Input
+                type="text"
+                label="Segundo monto"
+                name="second_amount"
+                error={errors}
+                required
+                value={formState?.penalty_data?.second_amount}
+                onChange={handleInputChange}
+                maxLength={100}
+              />
+            </div>
+          )}
         </div>
 
         <div className={styles.saveButtonContainer}>
-          <button
-            className={`${styles.saveButton}`}
-            onClick={onSave}
-          >
+          <button className={`${styles.saveButton}`} onClick={onSave}>
             Guardar datos
           </button>
         </div>

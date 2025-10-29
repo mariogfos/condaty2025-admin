@@ -1,35 +1,21 @@
-// import useScreenSize from "@/mk/hooks/useScreenSize";
-import {
-  IconLogout,
-  IconCandidates,
-  IconHome,
-  IconPayments,
-  IconMonitorLine,
-  IconGroup,
-  IconComunicationDialog,
-  IconBitacora,
-  IconCalendar,
-  IconDepartments,
-  IconSecurity,
-} from "../layout/icons/IconsBiblioteca";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./mainmenu.module.css";
-import MainmenuDropdown from "./MainmenuDropdown";
-import MainMenuHeader from "./MainMenuHeader";
-import MainmenuItem from "./MainMenuItem";
-import { UnitsType } from "@/mk/utils/utils";
-import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useEvent } from "@/mk/hooks/useEvents";
 import { usePathname } from "next/navigation";
-
+import MainMenuHeader from "./MainMenuHeader";
+import MainmenuItem from "./MainMenuItem";
+import MainmenuDropdown from "./MainmenuDropdown";
+import { menuConfig } from "./mainMenuConfig";
+import { IconDepartments, IconLogout } from "../layout/icons/IconsBiblioteca";
 type PropsType = {
-  user?: any;
-  client?: any;
-  setLogout: any;
+  user: any;
   collapsed: boolean;
-  setSideBarOpen?: any;
-  setOpenClient?: any;
+  setLogout: (open: boolean) => void;
+  setSideBarOpen?: (open: boolean) => void;
+  setOpenClient: (open: boolean) => void;
 };
+
 const MainMenu = ({
   user,
   collapsed,
@@ -37,221 +23,103 @@ const MainMenu = ({
   setSideBarOpen,
   setOpenClient,
 }: PropsType) => {
-  // const { isMobile } = useScreenSize();
-  const isMobile = false;
-  const { setStore, store } = useAuth();
-  const client = user?.clients?.filter(
-    (item: any) => item?.id === user?.client_id
-  )[0];
-  // const [bage, setBage]: any = useState({});
-  // Control del menú abierto
+  const { store, setStore } = useAuth();
+  const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
-  const handleToggle = (label: string) => {
+  const handleToggle = useCallback((label: string) => {
     setOpenMenu((prev) => (prev === label ? null : label));
-  };
-
-  const pathname = usePathname();
-
-  useEffect(() => {
-    if (pathname === "/payments" && store?.paymentsBage > 0) {
-      setStore({
-        ...store,
-        paymentsBage: 0,
-      });
-    }
-    if (pathname === "/reservas" && store?.reservasBage > 0) {
-      setStore({
-        ...store,
-        reservasBage: 0,
-      });
-    }
-    if (pathname == "/alerts" && store?.alertsBage > 0) {
-      setStore({
-        ...store,
-        alertsBage: 0,
-      });
-    }
-    if (pathname == "/reels" && store?.reelsBage > 0) {
-      setStore({
-        ...store,
-        reelsBage: 0,
-      });
-    }
-  }, [pathname]);
-
-  const onNotif = useCallback((data: any) => {
-    if (data?.payload?.act == "newVoucher") {
-      setStore({ ...store, paymentsBage: (store?.paymentsBage || 0) + 1 });
-    }
-    if (data?.payload?.act == "newReservationAdm") {
-      setStore({ ...store, reservasBage: (store?.reservasBage || 0) + 1 });
-    }
-    if (data?.payload?.act == "alerts") {
-      setStore({ ...store, alertsBage: (store?.alertsBage || 0) + 1 });
-    }
-    if (data?.payload?.act == "newContent") {
-      setStore({ ...store, reelsBage: (store?.reelsBage || 0) + 1 });
-    }
   }, []);
 
-  useEvent("onNotif", onNotif);
-
   useEffect(() => {
-    setStore({ UnitsType: UnitsType[client?.type_dpto] });
-  }, []);
+    const pathMap: Record<string, string> = {
+      "/payments": "paymentsBage",
+      "/reservas": "reservasBage",
+      "/alerts": "alertsBage",
+      "/reels": "reelsBage",
+    };
+
+    const key = pathMap[pathname];
+    if (key && store?.[key] > 0) {
+      setStore((prev: any) => ({ ...prev, [key]: 0 }));
+    }
+  }, [pathname, store, setStore]);
+
+  useEvent(
+    "onNotif",
+    useCallback(
+      (data: any) => {
+        const actMap: Record<string, string> = {
+          newVoucher: "paymentsBage",
+          newReservationAdm: "reservasBage",
+          alerts: "alertsBage",
+          newContent: "reelsBage",
+        };
+        const key = actMap?.[data?.payload?.act];
+        if (key) {
+          setStore((prev: any) => ({ ...prev, [key]: (prev?.[key] || 0) + 1 }));
+        }
+      },
+      [setStore]
+    )
+  );
+  const renderedMenu = useMemo(
+    () =>
+      menuConfig.map((item: any) => {
+        if (item.type === "item") {
+          return (
+            <MainmenuItem
+              key={item.label}
+              href={item.href}
+              label={item.label}
+              icon={<item.icon />}
+              bage={store?.[item.badgeKey]}
+              collapsed={collapsed}
+            />
+          );
+        }
+        if (item.type === "dropdown") {
+          return (
+            <MainmenuDropdown
+              key={item.key}
+              label={item.label}
+              icon={<item.icon />}
+              items={item.items.map((sub: any) => ({
+                ...sub,
+                bage: store?.[sub.badgeKey],
+              }))}
+              collapsed={collapsed}
+              setSideBarOpen={setSideBarOpen}
+              isOpen={openMenu === item.label}
+              onToggle={() => handleToggle(item.label)}
+            />
+          );
+        }
+      }),
+    [collapsed, openMenu, store, handleToggle, setSideBarOpen]
+  );
 
   return (
     <section className={styles.menu}>
-      <div>
-        <MainMenuHeader user={user} collapsed={collapsed} />
-      </div>
-      {!isMobile ? (
-        <div>
-          <MainmenuItem
-            href="/"
-            label="Inicio"
-            icon={<IconHome />}
-            collapsed={collapsed}
-          />
-          <MainmenuDropdown
-            label="Finanzas"
-            icon={<IconPayments />}
-            items={[
-              { href: "/balance", label: "Flujo de efectivo " },
-              {
-                href: "/payments",
-                label: "Ingresos",
-                bage: store?.paymentsBage,
-              },
-              { href: "/outlays", label: "Egresos" },
-             // { href: "/budget", label: "Presupuestos" },
-              { href: "/expenses", label: "Expensas" },
-              { href: "/defaulters", label: "Morosos" },
-              { href: "/debts_manager", label: "Deudas" },
-            ]}
-            collapsed={collapsed}
-            setSideBarOpen={setSideBarOpen}
-            isOpen={openMenu === "Finanzas"}
-            onToggle={() => handleToggle("Finanzas")}
-          />
-          <MainmenuDropdown
-            label="Administración"
-            icon={<IconMonitorLine />}
-            items={[
-              // { href: "/dptos", label: UnitsType[client?.type_dpto] + "s" },
-              { href: "/units", label: "Unidades" },
-              { href: "/areas", label: "Áreas sociales" },
-              { href: "/activities", label: "Accesos" },
-              { href: "/documents", label: "Documentos" },
-              { href: "/configs", label: "Configuración" },
-            ]}
-            collapsed={collapsed}
-            setSideBarOpen={setSideBarOpen}
-            isOpen={openMenu === "Administración"}
-            onToggle={() => handleToggle("Administración")}
-          />
-          <MainmenuDropdown
-            label="Usuarios"
-            icon={<IconGroup />}
-            items={[
-              { href: "/owners", label: "Residentes" },
-              { href: "/users", label: "Personal Administrativo" },
-              { href: "/roles", label: "Roles y permisos" },
-              // { href: "/rolescategories", label: "Permisos" },
-              // { href: "/rolescategories", label: "Categorías de rol" },
-              //{ href: "/homeowners", label: "Propietarios" },
-            ]}
-            collapsed={collapsed}
-            setSideBarOpen={setSideBarOpen}
-            isOpen={openMenu === "Usuarios"}
-            onToggle={() => handleToggle("Usuarios")}
-          />
-
-          <MainmenuDropdown
-            label="Comunicación"
-            icon={<IconComunicationDialog />}
-            items={[
-              { href: "/contents", label: "Publicaciones" },
-              { href: "/reels", label: "Muro publicaciones" },
-              // { href: "/events", label: "Eventos" },
-              // { href: "/surveys", label: "Encuestas" },
-            ]}
-            collapsed={collapsed}
-            setSideBarOpen={setSideBarOpen}
-            isOpen={openMenu === "Comunicación"}
-            onToggle={() => handleToggle("Comunicación")}
-          />
-
-          {/* <MainmenuItem
-            href="/areas"
-            label="Areas sociales"
-            icon={<IconBitacora />}
-            collapsed={collapsed}
-          /> */}
-          <MainmenuItem
-            href="/reservas"
-            label="Reservas"
-            bage={store?.reservasBage}
-            icon={<IconCalendar />}
-            collapsed={collapsed}
-          />
-          {user?.clients?.length > 1 && (
-            <MainmenuItem
-              href="#"
-              onclick={() => setOpenClient(true)}
-              label="Cambiar de condominio"
-              icon={<IconDepartments />}
-              collapsed={collapsed}
-            />
-          )}
-          <MainmenuDropdown
-            label="Vigilancia y seguridad"
-            icon={<IconSecurity />}
-            items={[
-              { href: "/guards", label: "Guardias" },
-              { href: "/alerts", label: "Alertas", bage: store?.alertsBage },
-              { href: "/binnacle", label: "Bitácora" },
-              // { href: "/ev", label: "Soporte y ATC" },
-            ]}
-            collapsed={collapsed}
-            setSideBarOpen={setSideBarOpen}
-            isOpen={openMenu === "Vigilancia y seguridad"}
-            onToggle={() => handleToggle("Vigilancia y seguridad")}
-          />
-
-          {/* <MainmenuItem
-            href="/ev"
-            label="Soporte y ATC"
-            icon={<IconInterrogation />}
-            collapsed={collapsed}
-          /> */}
-        </div>
-      ) : (
-        <div>
-          <MainmenuItem href="/" label="Eventos" icon={<IconCandidates />} />
-        </div>
+      <MainMenuHeader user={user} collapsed={collapsed} />
+      <div>{renderedMenu}</div>
+      {user?.clients?.length > 1 && (
+        <MainmenuItem
+          href="#"
+          onclick={() => setOpenClient(true)}
+          label="Cambiar de condominio"
+          icon={<IconDepartments />}
+          collapsed={collapsed}
+        />
       )}
-      {/* <div>
-        <MainmenuItem
-          href="#"
-          onclick={() => play()}
-          label="Reproducir sonido"
-          labelColor={"var(--cSuccess)"}
-          icon={<></>}
-          collapsed={collapsed}
-        />
-      </div> */}
-      <div>
-        <MainmenuItem
-          href="#"
-          onclick={() => setLogout(true)}
-          label="Cerrar sesión"
-          labelColor={"var(--cError)"}
-          icon={<IconLogout color={"var(--cError)"} />}
-          collapsed={collapsed}
-        />
-      </div>
+      <MainmenuItem
+        href="#"
+        onclick={() => setLogout(true)}
+        label="Cerrar sesión"
+        labelColor="var(--cError)"
+        icon={<IconLogout color={"var(--cError)"} />}
+        collapsed={collapsed}
+      />
     </section>
   );
 };
