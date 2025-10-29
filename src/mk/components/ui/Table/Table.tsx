@@ -76,7 +76,7 @@ const getWidth = (width: any) => {
 
 const Table = ({
   header = [],
-  id,
+  id="0",
   data,
   footer,
   sumarize = false,
