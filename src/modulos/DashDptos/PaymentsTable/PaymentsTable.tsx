@@ -52,7 +52,7 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
     },
     {
       key: 'payment_method',
-      label: 'Forma de pago',
+      label: 'Método de pago',
       responsive: 'desktop',
       onRender: paymentMethodCell,
     },

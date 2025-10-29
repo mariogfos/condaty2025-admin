@@ -256,7 +256,7 @@ const Payments = () => {
       method: {
         rules: ["required"],
         api: "ae",
-        label: "Forma de pago",
+        label: "Método de pago",
         form: {
           type: "select",
           options: [
@@ -269,7 +269,7 @@ const Payments = () => {
           onRender: renderMethodCell,
         },
         filter: {
-          label: "Forma de pago",
+          label: "Método de pago",
 
           options: getPaymentMethodOptions,
         },

@@ -269,9 +269,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     statusClass = styles.statusCanceled;
   }
 
-  let ownerDisplay = '-/-';
-  if (item.owner && typeof item.owner === 'object') {
-    ownerDisplay = getFullName(item.owner);
+  let tenantDisplay = '-/-';
+  if (typeof item.details?.[0]?.debt_dpto?.dpto?.tenant === 'object') {
+    tenantDisplay = getFullName(item.details[0].debt_dpto.dpto.tenant);
   }
 
   let propietarioDisplay = '-/-';
@@ -354,7 +354,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Titular</span>
-                <span className={styles.infoValue}>{ownerDisplay}</span>
+                <span className={styles.infoValue}>
+                  {item.details?.[0]?.debt_dpto?.dpto?.holder === 'H' ? propietarioDisplay : tenantDisplay}
+                </span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Concepto</span>
@@ -385,7 +387,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 </span>
               </div>
               <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Forma de pago</span>
+                <span className={styles.infoLabel}>Método de pago</span>
                 <span className={styles.infoValue}>{getPaymentType(item.method || '')}</span>
               </div>
               <div className={styles.infoBlock}>
