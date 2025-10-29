@@ -1014,6 +1014,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 options={lDptos}
                 error={errors}
                 filter={true}
+                filterStyle={{backgroundColor: '#323232'}}
               />
             </div>
           </div>
