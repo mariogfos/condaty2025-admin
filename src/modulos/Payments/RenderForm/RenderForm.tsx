@@ -1095,7 +1095,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   <div className={styles['input-half']}>
                     <Select
                       name="method"
-                      label="Forma de pago"
+                      label="Método de pago"
                       value={formState.method}
                       onChange={handleChangeInput}
                       options={[

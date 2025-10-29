@@ -142,7 +142,7 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
       />
       <Select
         name="type"
-        label="Forma de pago"
+        label="Método de pago"
         value={formState?.type}
         required={true}
         onChange={handleChange}
