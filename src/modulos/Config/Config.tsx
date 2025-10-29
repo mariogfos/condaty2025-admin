@@ -113,6 +113,16 @@ const Config = () => {
         key: "initial_amount",
         errors,
       });
+
+
+      if (formState.payment_time_limit) {
+        errors = checkRules({
+          value: formState.payment_time_limit,
+          rules: ["required", "integer", "positive", "less:60"],
+          key: "payment_time_limit",
+          errors,
+        });
+      }
     }
 
     if (typeSearch === "M") {
