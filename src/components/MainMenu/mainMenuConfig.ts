@@ -45,7 +45,7 @@ export const menuConfig = [
     items: [
       { href: "/owners", label: "Residentes" },
       { href: "/users", label: "Personal Administrativo" },
-      { href: "/roles", label: "Roles y permisos" },
+      { href: "/roles", label: "Roles y permisos", perm: "roles" },
     ],
   },
   {
