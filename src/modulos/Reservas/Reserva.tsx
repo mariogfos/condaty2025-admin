@@ -14,6 +14,12 @@ import CreateReserva from "../CreateReserva/CreateReserva";
 import { IconCalendar } from "@/components/layout/icons/IconsBiblioteca";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { display } from "html2canvas/dist/types/css/property-descriptors/display";
+import {
+  RESERVATION_STATUS_CONFIG,
+  RESERVATION_STATUS_OPTIONS,
+  getUpdatedReservationStatus,
+  type ReservationStatus
+} from "./constants/reservationConstants";
 
 const mod = {
   modulo: "reservations",
@@ -52,18 +58,10 @@ const paramsInitial = {
 
 const Reserva = () => {
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
-  const [customDateErrors, setCustomDateErrors]: any = useState({
-    start: "",
-    end: "",
-  });
-  const getReservaStatusOptions = () => [
-    { id: "ALL", name: "Todos" },
-    { id: "W", name: "Por confirmar" },
-    { id: "A", name: "Reservado" },
-    { id: "X", name: "Rechazado" },
-    { id: "C", name: "Cancelado" },
-    { id: "F", name: "Completado" },
-  ];
+  const [customDateErrors, setCustomDateErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
 
   const onRenderAreaList = ({ item }: any) => {
     const area = item?.area;
@@ -220,55 +218,16 @@ const Reserva = () => {
         list: {
           // width: 180,
           onRender: (props: any) => {
-            let status = props?.item?.status as
-              | "W"
-              | "A"
-              | "X"
-              | "C"
-              | "F"
-              | undefined;
+            let status = props?.item?.status as ReservationStatus | undefined;
 
-            let dateEnd = new Date(
-              props?.item?.date_end + "T" + props?.item?.end_time
-            )
-              ?.toISOString()
-              ?.split(".")[0];
+            // Usar la función utilitaria para obtener el estado actualizado
+            status = getUpdatedReservationStatus(
+              status,
+              props?.item?.date_end,
+              props?.item?.end_time
+            );
 
-            if (
-              status === "A" &&
-              dateEnd < new Date().toISOString().split(".")[0]
-            ) {
-              status = "F";
-            }
-
-            const statusMap = {
-              W: {
-                label: "Por confirmar",
-                backgroundColor: "var(--cHoverWarning)",
-                color: "var(--cWarning)",
-              },
-              A: {
-                label: "Reservado",
-                backgroundColor: "var(--cHoverSuccess)",
-                color: "var(--cSuccess)",
-              },
-              X: {
-                label: "Rechazado",
-                backgroundColor: "var(--cHoverError)",
-                color: "var(--cError)",
-              },
-              C: {
-                label: "Cancelado",
-                backgroundColor: "var(--cHoverCompl5)",
-                color: "var(--cMediumAlert)",
-              },
-              F: {
-                label: "Completado",
-                backgroundColor: "var(--cHoverCompl1)",
-                color: "var(--cWhite)",
-              },
-            };
-            const currentStatus = status ? statusMap[status] : null;
+            const currentStatus = status ? RESERVATION_STATUS_CONFIG[status] : null;
 
             return (
               <StatusBadge
@@ -289,7 +248,7 @@ const Reserva = () => {
         filter: {
           label: "Estado",
           width: "180px",
-          options: getReservaStatusOptions,
+          options: () => RESERVATION_STATUS_OPTIONS,
         },
       },
     }),

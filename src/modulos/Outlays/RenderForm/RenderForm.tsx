@@ -414,7 +414,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   <Select
                     name="type"
                     value={_formState.type || ''}
-                    label="Forma de pago"
+                    label="Método de pago"
                     onChange={handleChangeInput}
                     options={paymentMethods}
                     error={_errors}

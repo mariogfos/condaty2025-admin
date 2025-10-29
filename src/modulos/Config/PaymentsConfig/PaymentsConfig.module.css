@@ -5,6 +5,11 @@
   flex-direction: column;
   gap: 1rem;
 }
+.mainTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cWhite);
+}
 
 .headerTitle {
   font-size: 16px;
