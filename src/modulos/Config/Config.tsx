@@ -17,16 +17,11 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 const Config = () => {
   const [formState, setFormState]: any = useState({});
   const [errorImage, setErrorImage] = useState(false);
-  const [preview, setPreview]: any = useState(null);
-  const [previewQr, setPreviewQr]: any = useState(null);
   const { user, showToast, getUser, userCan }: any = useAuth();
   const [errors, setErrors]: any = useState({});
   const [typeSearch, setTypeSearch] = useState("C");
-  const [imageError, setImageError] = useState(false);
   // const router = useRouter();
-  if (!userCan('settings', 'R')) {
-    return <NotAccess />;
-  }
+
   const {
     data: client_config,
     reLoad,
@@ -41,10 +36,23 @@ const Config = () => {
   });
   const onChange = (e: any) => {
     let value = e?.target?.value;
+    let name = e.target.name;
     if (e.target.type == "checkbox") {
       value = e.target.checked ? "Y" : "N";
     }
-    setFormState({ ...formState, [e.target.name]: value });
+    if (
+      name == "percent" ||
+      name == "amount" ||
+      name == "first_amount" ||
+      name == "second_amount"
+    ) {
+      setFormState({
+        ...formState,
+        penalty_data: { ...formState?.penalty_data, [name]: value },
+      });
+      return;
+    }
+    setFormState({ ...formState, [name]: value });
   };
   useEffect(() => {
     const ci = formState.payment_transfer_ci;
@@ -137,12 +145,41 @@ const Config = () => {
         errors,
         data: formState,
       });
-      errors = checkRules({
-        value: formState.penalty_percent,
-        rules: ["required"],
-        key: "penalty_percent",
-        errors,
-      });
+
+      if (formState.penalty_type == 1) {
+        errors = checkRules({
+          value: formState.penalty_data?.percent,
+          rules: ["required"],
+          key: "percent",
+          errors,
+          data: formState.penalty_data,
+        });
+      }
+      if (formState.penalty_type == 2) {
+        errors = checkRules({
+          value: formState.penalty_data?.amount,
+          rules: ["required"],
+          key: "amount",
+          errors,
+          data: formState.penalty_data,
+        });
+      }
+      if (formState.penalty_type == 3) {
+        errors = checkRules({
+          value: formState.penalty_data?.first_amount,
+          rules: ["required"],
+          key: "first_amount",
+          errors,
+          data: formState.penalty_data,
+        });
+        errors = checkRules({
+          value: formState.penalty_data?.second_amount,
+          rules: ["required"],
+          key: "second_amount",
+          errors,
+          data: formState.penalty_data,
+        });
+      }
     }
 
     if (typeSearch === "P") {
@@ -193,21 +230,19 @@ const Config = () => {
   // Ahora, el onSave utiliza la función validate para comprobar si hay errores:
   const onSave = async () => {
     if (hasErrors(validate())) return;
-
-    const { data, error } = await execute(
-      "/client-config-actualizar",
-      "PUT",
-      formState
-    );
+    const { data, error } = await execute("/client-config-actualizar", "PUT", {
+      ...formState,
+      penalty_data: formState.penalty_data,
+    });
 
     if (data?.success === true) {
       showToast("Datos guardados", "success");
       setErrors({});
 
       // Forzar recarga completa de la página
-      window.location.reload();
+      // window.location.reload();
     } else {
-      showToast(error?.data?.message || error?.message, "error");
+      showToast(error?.data?.message || data?.message, "error");
       console.log("error:", error);
       // setErrors(error?.data?.errors);
     }
@@ -232,8 +267,30 @@ const Config = () => {
       //     : client_config?.data[0]?.client?.updated_at,
     });
   }, [client_config?.data]);
-  // console.log(formState);
 
+  useEffect(() => {
+    if (formState.penalty_type !== client_config?.data[0]?.penalty_type) {
+      setFormState({
+        ...formState,
+        penalty_data: {},
+      });
+    }
+    // setFormState({
+    //   ...formState,
+    //   // penalty_data: {
+    //   //   ...formState.penalty_data,
+    //   //   percent: formState.penalty_type == 1 ? formState.penalty_data?.percent : undefined,
+    //   //   amout: formState.penalty_type == 2 ? formState.penalty_data?.amout : undefined,
+    //   //   first_amount: formState.penalty_type == 3 ? formState.penalty_data?.first_amount : undefined,
+    //   //   second_amount: formState.penalty_type == 3 ? formState.penalty_data?.second_amount : undefined,
+    //   // }
+    //   penalty_data: {},
+    // });
+  }, [formState.penalty_type]);
+  if (!userCan("settings", "R")) {
+    return <NotAccess />;
+  }
+  console.log(formState);
   return (
     <div className={styles.Config}>
       <div>

@@ -55,9 +55,9 @@ const MainMenu = ({
           alerts: "alertsBage",
           newContent: "reelsBage",
         };
-        const key = actMap[data?.payload?.act];
+        const key = actMap?.[data?.payload?.act];
         if (key) {
-          setStore((prev: any) => ({ ...prev, [key]: (prev[key] || 0) + 1 }));
+          setStore((prev: any) => ({ ...prev, [key]: (prev?.[key] || 0) + 1 }));
         }
       },
       [setStore]
