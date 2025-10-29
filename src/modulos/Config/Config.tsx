@@ -17,7 +17,7 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 const Config = () => {
   const [formState, setFormState]: any = useState({});
   const [errorImage, setErrorImage] = useState(false);
-  const { user, showToast, getUser, userCan }: any = useAuth();
+  const { showToast, userCan }: any = useAuth();
   const [errors, setErrors]: any = useState({});
   const [typeSearch, setTypeSearch] = useState("C");
   // const router = useRouter();
@@ -58,7 +58,6 @@ const Config = () => {
     const ci = formState.payment_transfer_ci;
 
     if (ci && ci.length > 15) {
-      // Update the formState to only include the first 10 characters
       setErrors({ ...errors, payment_transfer_ci: "Máximo 15 caracteres" });
       setFormState((prevState: any) => ({
         ...prevState,
@@ -249,10 +248,6 @@ const Config = () => {
   };
 
   useEffect(() => {
-    // const client = user?.clients?.find((i: any) => i.id == user?.client_id);
-    // const client = await = execute('/clients', 'GET', {id: user?.client_id)
-    //setFormState({ ...client_config?.data[0], ...client });
-
     setFormState({
       ...client_config?.data[0],
       client: undefined,
@@ -260,11 +255,6 @@ const Config = () => {
       created_at: undefined,
       remember_token: undefined,
       ...client_config?.data[0]?.client,
-      // updated_at:
-      //   client_config?.data[0]?.updated_at >
-      //   client_config?.data[0]?.client?.updated_at
-      //     ? client_config?.data[0]?.updated_at
-      //     : client_config?.data[0]?.client?.updated_at,
     });
   }, [client_config?.data]);
 
@@ -275,22 +265,11 @@ const Config = () => {
         penalty_data: {},
       });
     }
-    // setFormState({
-    //   ...formState,
-    //   // penalty_data: {
-    //   //   ...formState.penalty_data,
-    //   //   percent: formState.penalty_type == 1 ? formState.penalty_data?.percent : undefined,
-    //   //   amout: formState.penalty_type == 2 ? formState.penalty_data?.amout : undefined,
-    //   //   first_amount: formState.penalty_type == 3 ? formState.penalty_data?.first_amount : undefined,
-    //   //   second_amount: formState.penalty_type == 3 ? formState.penalty_data?.second_amount : undefined,
-    //   // }
-    //   penalty_data: {},
-    // });
   }, [formState.penalty_type]);
   if (!userCan("settings", "R")) {
     return <NotAccess />;
   }
-  console.log(formState);
+
   return (
     <div className={styles.Config}>
       <div>
