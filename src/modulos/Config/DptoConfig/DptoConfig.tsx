@@ -20,7 +20,6 @@ const DptoConfig = ({
   onChange,
   onSave,
 }: any) => {
-
   const [existLogo, setExistLogo] = useState(false);
   const [existAvatar, setExistAvatar] = useState(false);
   const [bookingRequiresPayment, setBookingRequiresPayment] = useState(false);
@@ -65,42 +64,87 @@ const DptoConfig = ({
       <div className={styles.formContainer}>
         <div className={styles.uploadSection}>
           <p className={styles.uploadHelpText}>
-            Carga el logotipo del condominio, de preferencia un mínimo de 130px x 63px o un máximo
-            de 256px x 125px
+            Carga el logotipo del condominio, de preferencia un mínimo de 130px
+            x 63px o un máximo de 256px x 125px
           </p>
 
           <div
             className="upload-container"
             style={{
-              display: 'flex',
-              justifyContent: 'left',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "left",
+              alignItems: "center",
+              gap: "10px",
             }}
           >
-            <UploadFile
-              name="avatarLogo"
-              onChange={onChange}
-              value={
-                typeof formState?.avatarLogo === 'object'
-                  ? formState?.avatarLogo
-                  : String(formState?.has_image_l) === '1'
-                  ? getUrlImages('/LOGO-' + formState?.id + '.webp?' + formState?.updated_at)
-                  : undefined
-              }
-              setError={setErrors}
-              error={errors}
-              img={true}
-              editor={{ width: 800, height: 800 }}
-              sizePreview={{ width: '200px', height: '200px' }}
-              placeholder="Cargar una imagen"
-              ext={['jpg', 'png', 'jpeg', 'webp']}
-              item={formState}
-            />
+            <div style={{ width: "100%" }}>
+              <p className={styles.uploadHelpText} style={{ marginBottom: 8 }}>
+                Logo para pantallas
+              </p>
+              <UploadFile
+                name="avatarLogo"
+                onChange={onChange}
+                value={
+                  typeof formState?.avatarLogo === "object"
+                    ? formState?.avatarLogo
+                    : String(formState?.has_image_l) === "1"
+                    ? getUrlImages(
+                        "/LOGO-" +
+                          formState?.id +
+                          ".webp?" +
+                          formState?.updated_at
+                      )
+                    : undefined
+                }
+                setError={setErrors}
+                error={errors}
+                img={true}
+                editor={{ width: 800, height: 800 }}
+                sizePreview={{ width: "200px", height: "200px" }}
+                placeholder="Cargar una imagen"
+                ext={["jpg", "png", "jpeg", "webp"]}
+                item={formState}
+              />
+            </div>
+            <div
+              style={{
+                width: "100%",
+              }}
+            >
+              <p className={styles.uploadHelpText} style={{ marginBottom: 8 }}>
+                Logo para impresión
+              </p>
+              <UploadFile
+                name="avatarLogoP"
+                onChange={onChange}
+                value={
+                  typeof formState?.avatarLogoP === "object"
+                    ? formState?.avatarLogoP
+                    : String(formState?.has_image_lp) === "1"
+                    ? getUrlImages(
+                        "/LOGOP-" +
+                          formState?.id +
+                          ".webp?" +
+                          formState?.updated_at
+                      )
+                    : undefined
+                }
+                setError={setErrors}
+                error={errors}
+                img={true}
+                editor={{ width: 800, height: 800 }}
+                sizePreview={{ width: "200px", height: "200px" }}
+                placeholder="Cargar una imagen"
+                ext={["jpg", "png", "jpeg", "webp"]}
+                item={formState}
+              />
+            </div>
           </div>
         </div>
         <div className={styles.uploadSection}>
           <p className={styles.uploadHelpText}>
-            Carga una foto de portada del condominio, de preferencia 1350px x 568px
+            Carga una foto de portada del condominio, de preferencia 1350px x
+            568px
           </p>
 
           <div className="upload-container">
@@ -108,19 +152,24 @@ const DptoConfig = ({
               name="avatar"
               onChange={onChange}
               value={
-                typeof formState?.avatar === 'object'
+                typeof formState?.avatar === "object"
                   ? formState?.avatar
-                  : String(formState?.has_image_c) === '1'
-                  ? getUrlImages('/CLIENT-' + formState?.id + '.webp?' + formState?.updated_at)
+                  : String(formState?.has_image_c) === "1"
+                  ? getUrlImages(
+                      "/CLIENT-" +
+                        formState?.id +
+                        ".webp?" +
+                        formState?.updated_at
+                    )
                   : undefined
               }
               setError={setErrors}
               error={errors}
               img={true}
               editor={{ width: 1350, height: 568 }}
-              sizePreview={{ width: '650px', height: '284px' }}
+              sizePreview={{ width: "650px", height: "284px" }}
               placeholder="Cargar una imagen"
-              ext={['jpg', 'png', 'jpeg', 'webp']}
+              ext={["jpg", "png", "jpeg", "webp"]}
               item={formState}
             />
           </div>
@@ -129,8 +178,8 @@ const DptoConfig = ({
         <div className={styles.inputContainer}>
           <div className={styles.inputHalf}>
             <Input
-              label={'Nombre del condominio'}
-              value={formState['name']}
+              label={"Nombre del condominio"}
+              value={formState["name"]}
               type="text"
               name="name"
               error={errors}
@@ -149,9 +198,9 @@ const DptoConfig = ({
               error={errors}
               onChange={onChange}
               options={[
-                { id: 'C', name: 'Condominio' },
-                { id: 'E', name: 'Edificio' },
-                { id: 'U', name: 'Urbanización' },
+                { id: "C", name: "Condominio" },
+                { id: "E", name: "Edificio" },
+                { id: "U", name: "Urbanización" },
               ]}
               required
               className="dark-input appearance-none"
@@ -161,8 +210,8 @@ const DptoConfig = ({
         <div className={styles.inputContainer}>
           <div className={styles.inputHalf}>
             <Input
-              label={'Teléfono'}
-              value={formState['phone']}
+              label={"Teléfono"}
+              value={formState["phone"]}
               type="text"
               name="phone"
               error={errors}
@@ -174,8 +223,8 @@ const DptoConfig = ({
           </div>
           <div className={styles.inputHalf}>
             <Input
-              label={'Correo electrónico'}
-              value={formState['email']}
+              label={"Correo electrónico"}
+              value={formState["email"]}
               type="email"
               name="email"
               error={errors}
@@ -190,8 +239,8 @@ const DptoConfig = ({
         <div className={styles.inputContainer}>
           <div className={styles.inputHalf}>
             <Input
-              label={'Dirección'}
-              value={formState['address']}
+              label={"Dirección"}
+              value={formState["address"]}
               type="text"
               name="address"
               error={errors}
@@ -237,11 +286,13 @@ const DptoConfig = ({
         <div className={styles.sectionContainer}>
           <div>
             <p className={styles.textTitle}>
-              ¿Desde cuándo quieres que el sistema empiece a cobrar las expensas?
+              ¿Desde cuándo quieres que el sistema empiece a cobrar las
+              expensas?
             </p>
             <p className={styles.textSubtitle}>
-              Es importante que indiques el mes correcto para que el sistema pueda calcular
-              correctamente las cuotas adeudadas por los residentes.
+              Es importante que indiques el mes correcto para que el sistema
+              pueda calcular correctamente las cuotas adeudadas por los
+              residentes.
             </p>
           </div>
 
@@ -254,18 +305,18 @@ const DptoConfig = ({
                 error={errors}
                 onChange={onChange}
                 options={[
-                  { id: '1', name: 'Enero' },
-                  { id: '2', name: 'Febrero' },
-                  { id: '3', name: 'Marzo' },
-                  { id: '4', name: 'Abril' },
-                  { id: '5', name: 'Mayo' },
-                  { id: '6', name: 'Junio' },
-                  { id: '7', name: 'Julio' },
-                  { id: '8', name: 'Agosto' },
-                  { id: '9', name: 'Septiembre' },
-                  { id: '10', name: 'Octubre' },
-                  { id: '11', name: 'Noviembre' },
-                  { id: '12', name: 'Diciembre' },
+                  { id: "1", name: "Enero" },
+                  { id: "2", name: "Febrero" },
+                  { id: "3", name: "Marzo" },
+                  { id: "4", name: "Abril" },
+                  { id: "5", name: "Mayo" },
+                  { id: "6", name: "Junio" },
+                  { id: "7", name: "Julio" },
+                  { id: "8", name: "Agosto" },
+                  { id: "9", name: "Septiembre" },
+                  { id: "10", name: "Octubre" },
+                  { id: "11", name: "Noviembre" },
+                  { id: "12", name: "Diciembre" },
                 ]}
                 required
                 className="dark-input appearance-none"
@@ -292,8 +343,9 @@ const DptoConfig = ({
           <div>
             <p className={styles.textTitle}>Monto inicial del condominio</p>
             <p className={styles.textSubtitle}>
-              Indica el monto con el que el condominio comienza sus operaciones. Este valor
-              permitirá un seguimiento financiero exacto desde el inicio.
+              Indica el monto con el que el condominio comienza sus operaciones.
+              Este valor permitirá un seguimiento financiero exacto desde el
+              inicio.
             </p>
           </div>
 
@@ -315,17 +367,20 @@ const DptoConfig = ({
         <div className={styles.sectionContainer}>
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              marginBottom: '16px',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              marginBottom: "16px",
             }}
           >
             <div>
-              <p className={styles.textTitle}>Reservas requieren pago obligatorio</p>
+              <p className={styles.textTitle}>
+                Reservas requieren pago obligatorio
+              </p>
               <p className={styles.textSubtitle}>
-                Activa esta opción para requerir que todas las reservas incluyan un pago
-                obligatorio. Puedes configurar un tiempo límite en minutos para completar el pago.
+                Activa esta opción para requerir que todas las reservas incluyan
+                un pago obligatorio. Puedes configurar un tiempo límite en
+                minutos para completar el pago.
               </p>
             </div>
 
@@ -334,7 +389,7 @@ const DptoConfig = ({
               label=""
               value={bookingRequiresPayment ? "Y" : "N"}
               onChange={handleSwitchChange}
-              optionValue={['Y', 'N']}
+              optionValue={["Y", "N"]}
               checked={bookingRequiresPayment}
             />
           </div>
@@ -345,7 +400,7 @@ const DptoConfig = ({
               label="Tiempo límite para pago (minutos)"
               name="payment_time_limit"
               error={errors}
-              value={formState?.payment_time_limit || ''}
+              value={formState?.payment_time_limit || ""}
               onChange={handleTimeChange}
               className="dark-input"
               min="1"
