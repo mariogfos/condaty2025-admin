@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import ControlLabel, { PropsTypeInputBase } from "../ControlLabel";
 import styles from "./input.module.css";
+import { IconCalendarTwo } from "@/components/layout/icons/IconsBiblioteca";
 
 interface PropsType extends PropsTypeInputBase {
   type?:
@@ -279,7 +280,7 @@ const Input = (props: PropsType) => {
       style={props.style}
       styleInput={styleInput}
       className={`${styles.input} ${className} ${
-        disabled ? styles.disabled : ""
+        disabled ? styles.disabled : ""} ${type === "date" ? styles.labelSmall : ""}
       }`}
     >
       <input
@@ -304,6 +305,9 @@ const Input = (props: PropsType) => {
         min={min}
         max={max}
       />
+      {type === "date" && (
+        <IconCalendarTwo className={styles.iconCalendar} size={18} />
+      )}
     </ControlLabel>
   );
 };
