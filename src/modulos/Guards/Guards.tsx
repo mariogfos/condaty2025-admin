@@ -1,9 +1,6 @@
 "use client";
 import styles from "./Guards.module.css";
-import RenderItem from "../shared/RenderItem";
-import useCrudUtils from "../shared/useCrudUtils";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import { useCallback, useEffect, useMemo } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
@@ -16,6 +13,7 @@ import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import Br from "@/components/Detail/Br";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 const paramsInitial = {
   perPage: 20,
   page: 1,
@@ -25,6 +23,7 @@ const paramsInitial = {
 };
 
 const Guards = () => {
+  const { userCan } = useAuth();
   const mod: ModCrudType = {
     modulo: "guards",
     singular: "guardia",
@@ -35,6 +34,7 @@ const Guards = () => {
     titleAdd: "Nuevo",
     //import: true,
     hideActions: {
+      add: !userCan("guards", "C"),
       edit: true,
       del: true,
     },
@@ -319,7 +319,7 @@ const Guards = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { userCan, List, setStore, store, showToast, execute, reLoad, data } =
+  const { List, setStore, store, showToast, execute, reLoad, data } =
     useCrud({
       paramsInitial,
       mod,
@@ -331,7 +331,7 @@ const Guards = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!userCan(mod.permiso, "R")) return <NotAccess />;
+  if (! userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.Guards}>
       <h1 className={styles.title}>Guardias</h1>
