@@ -9,7 +9,6 @@ import {
   useState,
 } from "react";
 import styles from "./styles.module.css";
-// import useScreenSize from "@/mk/hooks/useScreenSize";
 import { formatNumber } from "@/mk/utils/numbers";
 import useScrollbarWidth from "@/mk/hooks/useScrollbarWidth";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -96,10 +95,8 @@ const Table = ({
   sortCol,
   onSort,
 }: PropsType) => {
-  // const { isMobile } = useScreenSize();
   const isMobile = false;
   const [scrollbarWidth, setScrollbarWidth] = useState();
-  // console.log("tableid", id);
   return (
     <div
       className={styles.table + " " + styles[className] + " " + className}
@@ -205,7 +202,6 @@ const Head = memo(function Head({
     );
   };
   return (
-    // <header style={{ width: `calc(100% - ${scrollbarWidth || 0}px)` }}>
     <header style={{ paddingRight: (scrollbarWidth || 0) + "px" }}>
       {header.map(
         (item: any, index: number) =>
@@ -337,7 +333,6 @@ const Body = ({
   onRenderCard?: any;
   id?: string;
 }) => {
-  // const { isMobile } = useScreenSize();
   const { store, setStore } = useAuth();
   const isMobile = false;
   const divRef: any = useRef(null);
@@ -345,44 +340,17 @@ const Body = ({
   useEffect(() => {
     if (setScrollbarWidth) setScrollbarWidth(scrollWidth);
   }, [scrollWidth]);
-
-  // useEffect(() => {
-  //   // const scrollTop = store["scrollTop" + id];
-  //   // console.log("scrollTo Set", id, scrollTop);
-  //   // if (scrollTop) divRef.current.scrollTop = scrollTop;
-
-  //   const intervalId = setInterval(() => {
-  //     if (divRef.current) {
-  //       const scrollPosition = divRef.current.scrollTop;
-  //       if (scrollPosition != oldPos.current) {
-  //         oldPos.current = scrollPosition;
-  //         console.log(`Posición actual del scroll: ${scrollPosition}px`);
-  //       }
-  //     }
-  //   }, 300);
-
-  //   return () => {
-  //     clearInterval(intervalId);
-  //   };
-  // }, [id, store["scrollTop" + id]]);
-
   useLayoutEffect(() => {
-    // setTimeout(() => {
-    // console.log("Body se crea");
     if (store && id) {
       const scrollTop = store["scrollTop" + id];
 
       if (scrollTop && divRef.current) divRef.current.scrollTop = scrollTop;
     }
-    // }, 10);
   }, []);
 
   const _onRowClick = (e: any) => {
-    // if (id) {
-    // }
     if (onRowClick) {
       const scrollTop = divRef?.current?.scrollTop;
-      // console.log("sendScroll", scrollTop);
       if (scrollTop !== undefined && store && id) {
         setStore({ ["scrollTop" + id]: scrollTop });
       }
