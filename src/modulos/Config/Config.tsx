@@ -121,7 +121,6 @@ const Config = () => {
         errors,
       });
 
-
       if (formState.payment_time_limit) {
         errors = checkRules({
           value: formState.payment_time_limit,
@@ -158,7 +157,7 @@ const Config = () => {
       if (formState.penalty_type == 1) {
         errors = checkRules({
           value: formState.penalty_data?.percent,
-          rules: ["required"],
+          rules: ["required", "number", "less:100", "greater:0"],
           key: "percent",
           errors,
           data: formState.penalty_data,
