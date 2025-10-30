@@ -23,7 +23,7 @@ const MainMenu = ({
   setSideBarOpen,
   setOpenClient,
 }: PropsType) => {
-  const { store, setStore } = useAuth();
+  const { store, setStore, userCan } = useAuth();
   const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
@@ -63,9 +63,12 @@ const MainMenu = ({
       [setStore]
     )
   );
-  const renderedMenu = useMemo(
-    () =>
-      menuConfig.map((item: any) => {
+  const renderedMenu = useMemo(() => {
+    return menuConfig
+      .map((item: any) => {
+        // If the item has a required permission and the user doesn't have it, skip it
+        if (item.perm && !userCan?.(item.perm, "R")) return null;
+
         if (item.type === "item") {
           return (
             <MainmenuItem
@@ -78,13 +81,20 @@ const MainMenu = ({
             />
           );
         }
+
         if (item.type === "dropdown") {
+          // Filter subitems by permission if they declare one
+          const visibleSubs = (item.items || []).filter((sub: any) => {
+            return !(sub.perm && !userCan?.(sub.perm, "R"));
+          });
+          if (visibleSubs.length === 0) return null;
+
           return (
             <MainmenuDropdown
               key={item.key}
               label={item.label}
               icon={<item.icon />}
-              items={item.items.map((sub: any) => ({
+              items={visibleSubs.map((sub: any) => ({
                 ...sub,
                 bage: store?.[sub.badgeKey],
               }))}
@@ -95,9 +105,11 @@ const MainMenu = ({
             />
           );
         }
-      }),
-    [collapsed, openMenu, store, handleToggle, setSideBarOpen]
-  );
+
+        return null;
+      })
+      .filter(Boolean);
+  }, [collapsed, openMenu, store, handleToggle, setSideBarOpen, userCan]);
 
   return (
     <section className={styles.menu}>
