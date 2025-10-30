@@ -1,5 +1,5 @@
 import Input from "@/mk/components/forms/Input/Input";
-import React, { useState, useEffect } from "react";
+import React, {   } from "react";
 import styles from "./DefaulterConfig.module.css";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import { IconQuestion } from "@/components/layout/icons/IconsBiblioteca";
@@ -171,19 +171,17 @@ const DefaulterConfig = ({
         <div className={styles.sectionContainer}>
           <div>
             <div style={{ display: "flex", gap: 8 }}>
-              <h2 className={styles.sectionTitle}>
-                Porcentaje de multa por morosidad
-              </h2>
+              <h2 className={styles.sectionTitle}>Multa por morosidad</h2>
               <Tooltip
                 position="right"
-                title="Esta es la tasa porcentual que se aplicará como multa sobre el monto total de las expensas adeudadas por cada mes que el pago se encuentre en mora."
+                title="Define cómo se aplicará la multa por pagos atrasados: puede ser un porcentaje, un monto fijo o un valor personalizado según el mes de mora."
               >
                 <IconQuestion size={16} />
               </Tooltip>
             </div>
             <p className={styles.sectionSubtitle}>
-              Indica el porcentaje de multa que se aplicará por cada mes de
-              retraso en el pago
+              Define el tipo de multa que se aplicará cuando haya retraso en el
+              pago
             </p>
           </div>
 
@@ -221,24 +219,38 @@ const DefaulterConfig = ({
               { id: 3, name: "Personalizado" },
             ]}
           />
+          {formState?.penalty_type == 0 && (
+            <p className={styles.sectionSubtitle}>
+              No se aplicará ningún recargo por mora
+            </p>
+          )}
 
           {formState?.penalty_type == 1 && (
-            <Input
-              type="number"
-              label="Porcentaje"
-              name="percent"
-              error={errors}
-              required
-              value={formState?.penalty_data?.percent}
-              onChange={handleInputChange}
-              maxLength={3}
-              min={0}
-              max={100}
-              suffix="%"
-            />
+            <>
+              <p className={styles.sectionSubtitle}>
+                Define un porcentaje sobre el monto pendiente al momento del
+                retraso.
+              </p>
+              <Input
+                type="number"
+                label="Porcentaje"
+                name="percent"
+                error={errors}
+                required
+                value={formState?.penalty_data?.percent}
+                onChange={handleInputChange}
+                maxLength={3}
+                min={0}
+                max={100}
+                suffix="%"
+              />
+            </>
           )}
           {formState?.penalty_type == 2 && (
-            <div className={styles.inputField}>
+            <>
+              <p className={styles.sectionSubtitle}>
+                Define un monto fijo como multa única por mora.
+              </p>
               <Input
                 type="number"
                 label="Monto"
@@ -250,10 +262,14 @@ const DefaulterConfig = ({
                 maxLength={10}
                 min={0}
               />
-            </div>
+            </>
           )}
           {formState?.penalty_type == 3 && (
-            <div className={styles.inputField}>
+            <>
+              <p className={styles.sectionSubtitle}>
+                Define el monto de multa que se aplicará después de la fecha del
+                día 10 del mes de la deuda
+              </p>
               <Input
                 type="text"
                 label="Primer monto"
@@ -264,6 +280,10 @@ const DefaulterConfig = ({
                 onChange={handleInputChange}
                 maxLength={100}
               />
+              <p className={styles.sectionSubtitle}>
+                Define el monto de multa que se aplicará por retraso en el pago
+                al finalizar el mes
+              </p>
               <Input
                 type="text"
                 label="Segundo monto"
@@ -274,7 +294,7 @@ const DefaulterConfig = ({
                 onChange={handleInputChange}
                 maxLength={100}
               />
-            </div>
+            </>
           )}
         </div>
 
