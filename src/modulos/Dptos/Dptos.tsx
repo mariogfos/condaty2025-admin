@@ -3,12 +3,11 @@
 import styles from "./Dptos.module.css";
 import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
-import { Children, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-
 import { getFullName, getUrlImages, pluralize } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useRouter } from "next/navigation";
@@ -98,18 +97,15 @@ const renderDepartmentIcon = (name: string, isEmpty: boolean) => {
 
 const Dptos = () => {
   const router = useRouter();
-  const { user } = useAuth();
-
+  const { user, setStore, store, userCan } = useAuth();
   const client = user?.clients?.filter(
     (item: any) => item?.id === user?.client_id
   )[0];
 
-  const { setStore, store } = useAuth();
-
   useEffect(() => {
     setStore({ ...store, UnitsType: UnitsType[client?.type_dpto], title: "" });
   }, []);
-
+  
   const mod: ModCrudType = {
     modulo: "dptos",
     singular: "",
@@ -122,7 +118,7 @@ const Dptos = () => {
     titleAdd: "Nueva unidad",
     hideActions: {
       view: true,
-      add: false,
+      add: !userCan("units", "C"),
       edit: true,
       del: true,
     },
@@ -366,7 +362,6 @@ const Dptos = () => {
   };
 
   const {
-    userCan,
     List,
     onSearch,
     searchs,
@@ -425,26 +420,6 @@ const Dptos = () => {
     return untis;
   };
 
-  type RoundProps = {
-    children: React.ReactNode;
-    style?: React.CSSProperties;
-  };
-  const Round = ({ children, style }: RoundProps) => {
-    return (
-      <div
-        style={{
-          ...style,
-          padding: 8,
-          borderRadius: "50%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        {children}
-      </div>
-    );
-  };
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
