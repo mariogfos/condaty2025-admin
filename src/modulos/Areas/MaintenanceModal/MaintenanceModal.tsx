@@ -338,6 +338,8 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                     }}
                   >
                     <Avatar
+                      hasImage={1}
+                      name={reserva.area?.title || "Área sin nombre"}
                       src={getUrlImages(
                         "/AREA-" +
                           reserva?.area?.id +
