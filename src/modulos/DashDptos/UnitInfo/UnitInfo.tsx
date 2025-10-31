@@ -45,7 +45,8 @@ const UnitInfo = ({
       if (
         !target.closest(`.${styles.menuDots}`) &&
         !target.closest(`.${styles.dropdownMenu}`) &&
-        !target.closest(`.${styles.tenantDropdown}`)
+        !target.closest(`.${styles.tenantDropdown}`) &&
+        !target.closest(`.${styles.titularDropdown}`)
       ) {
         setOpenOwnerMenu(false);
         setOpenTenantMenu(false);
