@@ -103,8 +103,7 @@ const RenderView = (props: any) => {
                   style={{ borderRadius: "50%" }}
                   name={getFullName(item)}
                 />
-
-                <p className={styles.ownerName}>{getFullName(item)}</p>
+                <p className={styles.ownerName}>{getFullName(item, "NSLM")}</p>
               </div>
               <section className={styles.infoSection}>
                 <div className={styles.infoSection_details}>
@@ -151,7 +150,12 @@ const RenderView = (props: any) => {
                   ) : (
                     // CASO 2: Si solo tiene una unidad solicitada (preunidad)
                     <div className={styles.infoSection_details}>
-                      <p>Unidad solicitada</p>
+                      <p>
+                        Unidad solicitada como:{" "}
+                        {client?.pivot?.type == "H"
+                          ? "Propietario"
+                          : "Residente"}
+                      </p>
                       <p>U: {client?.pivot?.preunidad || "No especificada"}</p>
                     </div>
                   )}
