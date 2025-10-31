@@ -23,38 +23,46 @@ const DptoConfig = ({
   const [existLogo, setExistLogo] = useState(false);
   const [existAvatar, setExistAvatar] = useState(false);
   const [bookingRequiresPayment, setBookingRequiresPayment] = useState(false);
-  const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const [savedPaymentTimeLimit, setSavedPaymentTimeLimit] = useState("");
 
-  // Efecto para inicializar el estado del switch basado en payment_time_limit SOLO una vez
+
   useEffect(() => {
-    // Solo ejecutar una vez cuando se cargan los datos del client-config
-    if (formState?.payment_time_limit !== undefined && !initialLoadDone) {
-      if (Number(formState.payment_time_limit) > 0) {
-        setBookingRequiresPayment(true);
-      } else {
-        setBookingRequiresPayment(false);
-      }
-      setInitialLoadDone(true);
+    const hasPaymentLimit = formState?.payment_time_limit && formState.payment_time_limit !== "";
+    setBookingRequiresPayment(hasPaymentLimit);
+    if (hasPaymentLimit) {
+      setSavedPaymentTimeLimit(formState.payment_time_limit);
     }
-  }, [formState?.payment_time_limit, initialLoadDone]);
+  }, [formState?.payment_time_limit]);
 
-  // Manejar el cambio del switch localmente
+
   const handleSwitchChange = ({ target: { name, value } }: any) => {
     if (name === "bookingRequiresPayment") {
       const isEnabled = value === "Y";
       setBookingRequiresPayment(isEnabled);
 
-      // Si se desactiva, limpiar el campo paymentTimeLimit
-      if (!isEnabled && formState?.payment_time_limit) {
+      if (isEnabled) {
+        if (savedPaymentTimeLimit) {
+          onChange({ target: { name: "payment_time_limit", value: savedPaymentTimeLimit } });
+        } else {
+          onChange({ target: { name: "payment_time_limit", value: "30" } });
+          setSavedPaymentTimeLimit("30");
+        }
+      } else {
+        if (formState?.payment_time_limit) {
+          setSavedPaymentTimeLimit(formState.payment_time_limit);
+        }
         onChange({ target: { name: "payment_time_limit", value: "" } });
       }
     }
   };
 
-  // Manejar cambios en el input de tiempo límite con validación
+
   const handleTimeChange = (e: any) => {
-    // Simplemente actualizar el formState, sin afectar el switch
     onChange(e);
+
+    if (e.target.value) {
+      setSavedPaymentTimeLimit(e.target.value);
+    }
   };
 
   return (
