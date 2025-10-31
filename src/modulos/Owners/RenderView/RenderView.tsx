@@ -104,7 +104,7 @@ const RenderView = (props: any) => {
                   name={getFullName(item)}
                 />
 
-                <p className={styles.ownerName}>{getFullName(item)}</p>
+                <p className={styles.ownerName}>{getFullName(item, "NSLM")}</p>
               </div>
               <section className={styles.infoSection}>
                 <div className={styles.infoSection_details}>
