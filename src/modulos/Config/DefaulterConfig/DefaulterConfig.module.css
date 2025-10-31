@@ -31,7 +31,6 @@
 .sectionContainer {
   display: flex;
   flex-direction: column;
-  /* gap: 0.75rem; */
   width: 100%;
 }
 
@@ -75,7 +74,6 @@
 
 .percentInputContainer {
   position: relative;
-  /* width: 100%; */
 }
 
 .percentSymbol {
