@@ -132,7 +132,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       "GET",
       {
         fullType: "L",
-        filterBy: "status:M",
+        filterBy: "status_reservation:M",
         perPage: -1,
         page: 1,
       },
