@@ -45,7 +45,8 @@ const UnitInfo = ({
       if (
         !target.closest(`.${styles.menuDots}`) &&
         !target.closest(`.${styles.dropdownMenu}`) &&
-        !target.closest(`.${styles.tenantDropdown}`)
+        !target.closest(`.${styles.tenantDropdown}`) &&
+        !target.closest(`.${styles.titularDropdown}`)
       ) {
         setOpenOwnerMenu(false);
         setOpenTenantMenu(false);
@@ -144,24 +145,26 @@ const UnitInfo = ({
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Paga las expensas:</span>
-            <button
-              type="button"
-              className={styles.titularDropdown}
-              disabled={!datas?.tenant}
-              onClick={e => {
-                e.stopPropagation();
-                if (datas?.tenant) {
-                  setOpenTitularSelector(!openTitularSelector);
-                }
-              }}
-            >
-              <span className={styles.infoValue}>{HandleTitular()}</span>
-              {datas?.tenant && (
-                <IconArrowDown
-                  size={16}
-                  className={openTitularSelector ? styles.arrowUp : styles.arrowDown}
-                />
-              )}
+            <div style={{ position: 'relative' }}>
+              <button
+                type="button"
+                className={styles.titularDropdown}
+                disabled={!datas?.tenant}
+                onClick={e => {
+                  e.stopPropagation();
+                  if (datas?.tenant) {
+                    setOpenTitularSelector(!openTitularSelector);
+                  }
+                }}
+              >
+                <span className={styles.infoValue}>{HandleTitular()}</span>
+                {datas?.tenant && (
+                  <IconArrowDown
+                    size={16}
+                    className={openTitularSelector ? styles.arrowUp : styles.arrowDown}
+                  />
+                )}
+              </button>
               {openTitularSelector && datas?.tenant && (
                 <div className={styles.dropdownMenu}>
                   <button
@@ -188,7 +191,7 @@ const UnitInfo = ({
                   </button>
                 </div>
               )}
-            </button>
+            </div>
           </div>
         </div>
 

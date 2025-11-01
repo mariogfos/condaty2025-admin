@@ -337,7 +337,7 @@ const Outlays = () => {
         api: "ae",
         label: "Usuario",
       },
-      file: {
+      avatar: {
         rules: ["required"],
         api: "ae*",
         label: "Archivo",

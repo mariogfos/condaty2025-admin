@@ -6,7 +6,7 @@ import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import Input from '@/mk/components/forms/Input/Input';
 import styles from './RenderForm.module.css';
 import Toast from '@/mk/components/ui/Toast/Toast';
-import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
+import UploadFileMultiple from '@/mk/components/forms/UploadFile/UploadFileMultiple';
 import { checkRules } from '@/mk/utils/validate/Rules';
 
 interface Category {
@@ -38,7 +38,7 @@ interface OutlayFormState {
   description?: string;
   amount?: string | number;
   type?: string;
-  file?: File | string | null;
+  avatar?: (File | string)[] | null;
   filename?: string | null;
   ext?: string | null;
 }
@@ -83,7 +83,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       ...(item || {}),
       date_at: (item && item.date_at) || formattedDate,
       type: (item && item.type) || '',
-      file: (item && item.file) || null,
+      file: (item && item.avatar) || null,
     };
   });
   const [filteredSubcategories, setFilteredSubcategories] = useState<
@@ -117,7 +117,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         ...(item || {}),
         date_at: (item && item.date_at) || formattedDate,
         type: (item && item.type) || '',
-        file: (item && item.file) || null,
+        avatar: (item && item.avatar) || null,
       });
       setIsInitialized(true);
     }
@@ -233,12 +233,12 @@ const RenderForm: React.FC<RenderFormProps> = ({
     );
     addError(
       checkRules({
-        value: _formState.file,
+        value: _formState.avatar,
         rules: ['required'],
-        key: 'file',
+        key: 'avatar',
         errors: errs,
       }),
-      'file'
+      'avatar'
     );
 
     const filteredErrs = Object.fromEntries(
@@ -302,7 +302,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description,
       amount,
       type,
-      file,
+      avatar,
     } = _formState;
     const params = {
       date_at,
@@ -311,7 +311,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description,
       amount: parseFloat(String(amount || '0')),
       type,
-      file,
+      avatar,
     };
 
     onSave?.(params);
@@ -430,17 +430,21 @@ const RenderForm: React.FC<RenderFormProps> = ({
           {/* Comprobante */}
           <div className={styles.section}>
             <div className={styles['input-container']}>
-              <UploadFile
-                name="file"
-                ext={exten}
-                value={_formState.file ? { file: _formState.file } : ''}
-                onChange={handleChangeInput}
-                img={true}
-                sizePreview={{ width: '40%', height: 'auto' }}
+              <UploadFileMultiple
+                name="avatar"
+                value={_formState.avatar}
+                onChange={e => {
+                  // e.target.value es un array de archivos
+                  _setFormState(prev => ({ ...prev, avatar: e.target.value }));
+                }}
+                label={"Subir comprobantes (imágenes o documentos)"}
                 error={_errors}
+                ext={exten}
                 setError={set_Errors}
-                required={true}
-                placeholder="Cargar un archivo o arrastrar y soltar"
+                img={true}
+                maxFiles={10}
+                prefix={"OUTLAY"}
+                item={_formState}
               />
             </div>
           </div>

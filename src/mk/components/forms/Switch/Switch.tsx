@@ -33,6 +33,23 @@ const Switch = ({
   checked = false,
 }: PropsType) => {
   const clase = classDiv || "";
+
+  const handleChange = (e: any) => {
+    const isChecked = e.target.checked;
+    const newValue = isChecked ? optionValue[0] : optionValue[1];
+
+    const syntheticEvent = {
+      target: {
+        name: name,
+        value: newValue,
+        checked: isChecked
+      }
+    };
+
+    onChange(syntheticEvent);
+  };
+
+  const isActive = value === optionValue[0] || checked;
   return (
     <div className={styles.switch}>
       <div
@@ -56,17 +73,16 @@ const Switch = ({
               required={required}
               disabled={disabled}
               readOnly={readOnly}
-              onChange={onChange}
+              onChange={handleChange}
               value={optionValue[0]}
-              checked={checked || value === optionValue[0]}
+              checked={isActive}
             />
 
             <div
               style={{
-                backgroundColor:
-                  value === optionValue[0]
-                    ? "var(--cAccent)"
-                    : "var(--cWhiteV1)",
+                backgroundColor: isActive
+                  ? "var(--cAccent)"
+                  : "var(--cWhiteV1)",
                 height: height ? `${height}px` : "24px",
                 width: width ? `${width}px` : "84px",
               }}
@@ -74,17 +90,13 @@ const Switch = ({
             >
               <div
                 style={{
-                  ...(value === optionValue[0]
+                  ...(isActive
                     ? {
                         transform: "translateX(20px)",
-                        // boxShadow:
-                        //   "0 4px 6px -1px rgb(0 0 0 / 0.1),  0 2px 4px -2px rgb(0 0 0 / 0.1)",
                         backgroundColor: "var(--cWhiteV2)",
                       }
                     : {
                         transform: "translateX(4px)",
-                        // boxShadow:
-                        //   "0 4px 6px -1px rgb(0 0 0 / 0.3),  0 2px 4px -2px rgb(0 0 0 / 0.3)",
                         backgroundColor: "var(--cWhiteV2)",
                       }),
                   height: height ? `${height}px` : "20px",
@@ -93,9 +105,7 @@ const Switch = ({
                 }}
                 className={`${styles["rounded-full"]} ${
                   styles["container-effect"]
-                } ${styles["transitioned-element"]}  ${
-                  value === (optionValue[0] ? optionValue[0] : "Y") ? "Y" : "N"
-                }`}
+                } ${styles["transitioned-element"]} ${isActive ? "Y" : "N"}`}
               ></div>
             </div>
           </div>
