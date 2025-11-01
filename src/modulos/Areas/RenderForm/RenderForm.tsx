@@ -120,18 +120,6 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   };
   const validateLevel3 = () => {
     let errors: any = {};
-    errors = checkRules({
-      value: formState?.usage_rules,
-      rules: ["required"],
-      key: "usage_rules",
-      errors,
-    });
-    errors = checkRules({
-      value: formState?.cancellation_policy,
-      rules: ["required"],
-      key: "cancellation_policy",
-      errors,
-    });
     setErrors(errors);
     return errors;
   };

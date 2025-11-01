@@ -41,7 +41,6 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
       </p>
       <TextArea
         label="Descripción"
-        required
         name="usage_rules"
         value={formState?.usage_rules}
         onChange={handleChange}
@@ -56,26 +55,10 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
       <TextArea
         label="Descripción"
         name="cancellation_policy"
-        required
         value={formState?.cancellation_policy}
         onChange={handleChange}
         error={errors}
       />
-      {/* <p className={styles.title}>Aprobación automática</p>
-      <p className={styles.subtitle}>
-        Establece el tiempo máximo (en horas) que administración tiene para
-        aprobar una reserva. Si se supera este límite, la reserva se aprobará
-        automáticamente.
-      </p>
-      <Input
-        type="number"
-        label="Horas de respuesta de aprobación"
-        required
-        name="approval_response_hours"
-        value={formState?.approval_response_hours}
-        onChange={handleChange}
-        error={errors}
-      /> */}
       <Br />
       <div
         style={{
