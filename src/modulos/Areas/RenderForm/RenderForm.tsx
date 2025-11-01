@@ -18,6 +18,8 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     ...item,
     booking_mode: item?.booking_mode || "day",
     has_price: item?.price ? "S" : "N",
+    requires_approval: item?.requires_approval || "X",
+    penalty_or_debt_restriction: item?.penalty_or_debt_restriction || "X",
   });
   const { showToast } = useAuth();
   const [level, setLevel] = useState(1);
