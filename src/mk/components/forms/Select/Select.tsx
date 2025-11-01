@@ -21,6 +21,7 @@ interface PropsType extends PropsTypeInputBase {
   inputStyle?: any;
   selectOptionsClassName?: string;
   style?: CSSProperties;
+  filterStyle?: CSSProperties;
 }
 
 const Section = ({
@@ -28,6 +29,7 @@ const Section = ({
   position,
   selectOptionsClassName,
   filter,
+  filterStyle,
   name,
   _options,
   search,
@@ -68,6 +70,7 @@ const Section = ({
           name={`search${name}`}
           placeholder={"Buscar..."}
           error={false}
+          style={{ ...filterStyle }}
         />
       </div>
       <ul>
@@ -157,6 +160,7 @@ const Select = ({
   placeholder = "",
   label = "",
   inputStyle = {},
+  filterStyle = {},
   style = {},
   onBlur = () => {},
   onChange = (e: any) => {},
@@ -244,9 +248,9 @@ const Select = ({
     let parent: any = select.getBoundingClientRect();
     let childPosition: any = child?.getBoundingClientRect();
 
-    let up = 34;
+    let up = 57;
     if (childPosition) {
-      if (parent.top + 34 + childPosition.height > window.innerHeight) {
+      if (parent.top + 57 + childPosition.height > window.innerHeight) {
         up = childPosition.height * -1;
       }
     }
@@ -375,6 +379,7 @@ const Select = ({
             position={position}
             selectOptionsClassName={selectOptionsClassName}
             filter={filter}
+            filterStyle={filterStyle}
             name={name}
             _options={filteredOptions}
             search={search}

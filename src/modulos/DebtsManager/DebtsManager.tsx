@@ -24,10 +24,6 @@ const DebtsManager = () => {
   const [currentExtraData, setCurrentExtraData] = useState<any>(null);
   const { setStore, store, userCan } = useAuth();
 
-  if (!userCan('debts', 'R')) {
-    return <NotAccess />;
-  }
-
   useEffect(() => {
     setStore({ ...store, title: "" });
   }, []);
@@ -104,11 +100,14 @@ const DebtsManager = () => {
       case "payment_plans":
         return <div>Componente de Planes de Pago (por implementar)</div>;
       case "forgiveness":
-        return <Forgiveness />;
+        return <Forgiveness {...commonProps} />;
       default:
         return <AllDebts {...commonProps} />;
     }
   };
+  if (!userCan("debts", "R")) {
+    return <NotAccess />;
+  }
 
   return (
     <div className={styles.container}>

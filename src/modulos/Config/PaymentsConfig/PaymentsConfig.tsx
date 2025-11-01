@@ -20,8 +20,8 @@ const PaymentsConfig = ({
     <div className={styles.paymentsContainer}>
       
       <div>
+        <h1 className={styles.mainTitle}>Cuentos de pago</h1>
         <p className={styles.headerSubtitle}>
-          <h1 className={styles.mainTitle}>Cuentos de pago</h1>
           Configura los métodos de pagos con los cuales los residentes podrán pagar sus cuotas,
           deudas y demás transacciones del condominio
         </p>

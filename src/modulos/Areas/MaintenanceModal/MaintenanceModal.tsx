@@ -132,7 +132,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       "GET",
       {
         fullType: "L",
-        filterBy: "status:M",
+        filterBy: "status_reservation:M",
         perPage: -1,
         page: 1,
       },
@@ -338,6 +338,8 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                     }}
                   >
                     <Avatar
+                      hasImage={1}
+                      name={reserva.area?.title || "Área sin nombre"}
                       src={getUrlImages(
                         "/AREA-" +
                           reserva?.area?.id +
