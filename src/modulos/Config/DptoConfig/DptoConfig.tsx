@@ -22,12 +22,21 @@ const DptoConfig = ({
 }: any) => {
   const [existLogo, setExistLogo] = useState(false);
   const [existAvatar, setExistAvatar] = useState(false);
-  const [bookingRequiresPayment, setBookingRequiresPayment] = useState(false);
-  const [savedPaymentTimeLimit, setSavedPaymentTimeLimit] = useState("");
+  const [bookingRequiresPayment, setBookingRequiresPayment] = useState(() => {
+    const paymentTimeLimit = formState?.payment_time_limit;
+    return Boolean(paymentTimeLimit && paymentTimeLimit !== "" && Number(paymentTimeLimit) > 0);
+  });
+  const [savedPaymentTimeLimit, setSavedPaymentTimeLimit] = useState(() => {
+    const paymentTimeLimit = formState?.payment_time_limit;
+    return (paymentTimeLimit && paymentTimeLimit !== "" && Number(paymentTimeLimit) > 0)
+      ? formState.payment_time_limit
+      : "";
+  });
 
 
   useEffect(() => {
-    const hasPaymentLimit = formState?.payment_time_limit && formState.payment_time_limit !== "";
+    const paymentTimeLimit = formState?.payment_time_limit;
+    const hasPaymentLimit = Boolean(paymentTimeLimit && paymentTimeLimit !== "" && Number(paymentTimeLimit) > 0);
     setBookingRequiresPayment(hasPaymentLimit);
     if (hasPaymentLimit) {
       setSavedPaymentTimeLimit(formState.payment_time_limit);
