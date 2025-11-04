@@ -152,13 +152,13 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         if (unidad?.defaulter == "X") {
           data.push({
             id: String(unidad.id),
-            name: `Unidad: ${unidad.nro}, ${unidad.description || ""}`,
+            name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)}`,
           });
         }
       } else {
         data.push({
           id: String(unidad.id),
-          name: `Unidad: ${unidad.nro}, ${unidad.description || ""}`,
+            name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)} `,
         });
       }
     });
