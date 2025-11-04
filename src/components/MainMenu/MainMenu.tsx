@@ -39,7 +39,7 @@ const MainMenu = ({
       "/reels": "reelsBage",
     };
 
-    const key = pathMap[pathname];
+    const key = pathMap[pathname || "/alerts"];
     if (key && store?.[key] > 0) {
       setStore((prev: any) => ({ ...prev, [key]: 0 }));
     }
