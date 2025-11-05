@@ -8,6 +8,7 @@ import useAxios from '@/mk/hooks/useAxios';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import { formatBs } from '@/mk/utils/numbers';
+import Input from '@/mk/components/forms/Input/Input';
 
 interface PaymentDetail {
   id: string | number;
@@ -42,6 +43,7 @@ interface DetailPaymentProps {
   onDel?: (item?: PaymentDetail) => void;
   style?: CSSProperties;
   noWaiting?: boolean;
+  setItem?: (next: PaymentDetail) => void;
 }
 
 const RenderView: React.FC<DetailPaymentProps> = memo(props => {
@@ -62,6 +64,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   const [item, setItem] = useState<PaymentDetail | null>(propItem || null);
   const { execute } = useAxios();
   const { showToast } = useAuth();
+  const [openVoucherModal, setOpenVoucherModal] = useState(false);
+  const [voucherValue, setVoucherValue] = useState('');
+  const [voucherErrors, setVoucherErrors] = useState<{ voucher?: string }>({});
 
   useEffect(() => {
     if (open) {
@@ -70,7 +75,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   }, [propItem, open]);
 
   useEffect(() => {
-    // A detailed item should have a `details` property. A list item won't.
     const isDetailed = !!item?.details;
 
     const fetchPaymentData = async () => {
@@ -157,6 +161,74 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       setOnRechazar(false);
     } else {
       showToast(error?.data?.message || error?.message, 'error');
+    }
+  };
+
+  const openVoucherEditor = () => {
+    setVoucherErrors({});
+    setVoucherValue(item?.voucher || '');
+    setOpenVoucherModal(true);
+  };
+
+  const refreshPayment = async () => {
+    const idToFetch = item?.id || payment_id;
+    if (!idToFetch) return null;
+    const { data } = await execute(
+      '/payments',
+      'GET',
+      {
+        fullType: 'DET',
+        searchBy: idToFetch,
+        page: 1,
+        perPage: 1,
+      },
+      false,
+      true
+    );
+    if (data?.data) {
+      setItem(data.data);
+      return data.data;
+    }
+    return null;
+  };
+  const onSaveVoucher = async () => {
+    setVoucherErrors({});
+    if (!voucherValue) {
+      setVoucherErrors({ voucher: 'Este campo es requerido' });
+      return;
+    }
+    if (!/^\d{1,10}$/.test(voucherValue)) {
+      setVoucherErrors({ voucher: 'Debe contener solo números (máximo 10 dígitos)' });
+      return;
+    }
+
+    const paymentId = item?.id || payment_id;
+    if (!paymentId) {
+      showToast('No se pudo identificar el pago', 'error');
+      return;
+    }
+
+    const { data, error } = await execute(
+      `/payments/${paymentId}`,
+      'PUT',
+      { voucher: voucherValue },
+      false,
+      true
+    );
+
+    if (data?.success === true) {
+      showToast(data?.message || 'Número de respaldo actualizado', 'success');
+      const updated = await refreshPayment(); // <-- obtenemos el detalle actualizado
+      setOpenVoucherModal(false);
+      setVoucherErrors({});
+      if (updated) {
+        props.setItem?.(updated);
+      } else if (item) {
+        props.setItem?.({ ...item, voucher: voucherValue });
+      }
+      if (reLoad) reLoad();
+    } else {
+      showToast(error?.data?.message || error?.message || 'No se pudo actualizar el comprobante', 'error');
     }
   };
 
@@ -425,10 +497,28 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 </>
               )}
 
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Número de comprobante</span>
-                <span className={styles.infoValue}>{item.voucher || '-/-'}</span>
-              </div>
+              {/* Ocultar completamente el bloque de respaldo si está rechazado */}
+              {item.status !== 'R' && (
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Nro. de respaldo de pago</span>
+                  <span className={styles.infoValue}>
+                    {item.voucher ? (
+                      <>
+                        {item.voucher}
+                        <button type="button" className={styles.textButtonAccent} onClick={openVoucherEditor}>
+                          Editar
+                        </button>
+                      </>
+                    ) : item.status === 'S' ? (
+                      <button type="button" className={styles.textButtonAccent} onClick={openVoucherEditor}>
+                        Añadir número
+                      </button>
+                    ) : (
+                      '-/-'
+                    )}
+                  </span>
+                </div>
+              )}
             </div>
           </section>
           {/* Divisor después de la sección de info y botón */}
@@ -543,6 +633,35 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         </div>
       </DataModal>
 
+      {/* Modal para añadir/editar número de respaldo de pago */}
+      <DataModal
+        open={openVoucherModal}
+        onClose={() => {
+          setOpenVoucherModal(false);
+          setVoucherErrors({});
+        }}
+        title={item?.voucher ? 'Editar número de respaldo de pago' : 'Añadir número de respaldo de pago'}
+        buttonText={'Guardar'}
+        buttonCancel={'Cancelar'}
+        onSave={onSaveVoucher}
+        style={style}
+        minWidth={720}
+        maxWidth={860}
+      >
+        <Input
+          label={'Número de respaldo de pago'}
+          name={'voucher'}
+       
+          value={voucherValue}
+          onChange={(e: any) => {
+            const digitsOnly = String(e.target.value || '').replace(/\D/g, '');
+            setVoucherValue(digitsOnly);
+          }}
+          error={voucherErrors}
+          required
+        />
+      </DataModal>
+
       <DataModal
         title="Rechazar pago"
         buttonText="Rechazar"
@@ -630,7 +749,6 @@ export default RenderView;
 
   // Función para calcular el subtotal incluyendo mantenimiento de valor
 const getSubtotal = (periodo: any) => {
-  console.log("corecto")
   const amount = parseFloat(periodo?.debt_dpto?.amount) || 0;
  const penaltyAmount = parseFloat(periodo?.debt_dpto?.penalty_amount) || 0;
   const maintenanceAmount = parseFloat(periodo?.debt_dpto?.maintenance_amount) || 0;
