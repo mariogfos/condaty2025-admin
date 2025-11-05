@@ -163,7 +163,7 @@ export const validRule = (
     alpha: () =>
       !value
         ? "" // si está vacío, no valida nada (lo controla required)
-        : !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+$/.test(value)
+        : !/^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:\s[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$/.test(value)
         ? "No es un texto válido"
         : "",
 
