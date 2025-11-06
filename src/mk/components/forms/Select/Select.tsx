@@ -175,8 +175,10 @@ const Select = ({
   const [selectedNames, setSelectedNames]: any = useState("");
   const [position, setPosition]: any = useState(null);
   const selectRef1 = useRef<HTMLDivElement>(null);
-  // const [filteredOptions, setFilteredOptions] = useState(options);
 
+  // esto se esta dejando cuando para verlo despues cuando se aplique el otro tipo de busqueda 06/11/2025
+
+  // const [filteredOptions, setFilteredOptions] = useState(options);
   // let filteredOptions = options;
 
   // useEffect(() => {
