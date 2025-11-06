@@ -48,15 +48,34 @@
   flex-grow: 1;
   /* overflow: hidden; */
 }
-.summaryWidgetEqualHeight {
-  /* height: 162px; */
-}
 
 .fourWidgetSection {
   display: flex;
   flex-direction: column;
   gap: var(--spM, 1rem);
   width: 100%;
+}
+
+.widgetsHome {
+  .widgetRow {
+    .widgetAlerts {
+      /* width: 50%; */
+      [class$="widgetListEmptyContainer"] {
+        /* width: 80%; */
+        margin: 0 auto;
+        @media (max-width: 1024px) {
+          width: 100%;
+        }
+        
+        [class$="singleLine"]{
+          max-width: 370px;
+          @media (max-width: 768px) {
+            max-width: 100%;
+          }
+        }
+      }
+    }
+  }
 }
 
 .widgetRow {
@@ -248,7 +267,7 @@
   font-weight: 500;
   font-size: 14px;
   color: #fafafa;
-  white-space: nowrap;
+  /* white-space: nowrap; */
   overflow: hidden;
   text-overflow: ellipsis;
 }
