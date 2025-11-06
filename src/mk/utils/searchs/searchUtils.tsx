@@ -150,7 +150,7 @@ export function busquedaAvanzada<T>(
     campos && (Array.isArray(campos) ? campos : [campos]).length > 0
       ? campos
       : array.length > 0
-      ? Object.keys(array[0]).filter(
+      ? Object.keys(array[0] as Record<string, any>).filter(
           (key) => typeof (array[0] as any)[key] === "string"
         )
       : [];
