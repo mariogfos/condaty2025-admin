@@ -11,6 +11,7 @@ import { PropsTypeInputBase } from "../ControlLabel";
 import { createPortal } from "react-dom";
 import { useOnClickOutside } from "@/mk/hooks/useOnClickOutside";
 import { Avatar } from "../../ui/Avatar/Avatar";
+// import { buscarCoincidencias } from "@/mk/utils/searchs";
 
 interface PropsType extends PropsTypeInputBase {
   multiSelect?: boolean;
@@ -174,6 +175,23 @@ const Select = ({
   const [selectedNames, setSelectedNames]: any = useState("");
   const [position, setPosition]: any = useState(null);
   const selectRef1 = useRef<HTMLDivElement>(null);
+  // const [filteredOptions, setFilteredOptions] = useState(options);
+
+  // let filteredOptions = options;
+
+  // useEffect(() => {
+  //   if (search) {
+  //     const filteredOptions = buscarCoincidencias(
+  //       options,
+  //       search,
+  //       optionLabel || "label",
+  //       {
+  //         umbralSimilitud: 0.5,
+  //       }
+  //     );
+  //     setFilteredOptions(filteredOptions);
+  //   }
+  // }, [search]);
 
   const findParentWithClass = (element: any, className: string) => {
     while (element && element !== document) {
@@ -206,15 +224,15 @@ const Select = ({
         if (count > 10) {
           displayString = `${count} elementos seleccionados`;
         } else {
-          const namesArray = selectedFullOptions.map(
-            (option: any) => {
-              // Si el objeto tiene campo nro y estamos en multiSelect, mostrar solo el número
-              if (multiSelect && option.nro) {
-                return String(option.nro);
-              }
-              return option[optionLabel] || option.label || String(option[optionValue]);
+          const namesArray = selectedFullOptions.map((option: any) => {
+            // Si el objeto tiene campo nro y estamos en multiSelect, mostrar solo el número
+            if (multiSelect && option.nro) {
+              return String(option.nro);
             }
-          );
+            return (
+              option[optionLabel] || option.label || String(option[optionValue])
+            );
+          });
           displayString = namesArray.join(", ");
         }
         setSelectedNames(displayString);
@@ -339,6 +357,13 @@ const Select = ({
     const label = option[optionLabel] || option.label || "";
     return normalizeText(String(label)).includes(normalizeText(search));
   });
+
+  // const filteredOptions = () =>
+  //   search
+  //     ? buscarCoincidencias(options, search, optionLabel || "label", {
+  //         umbralSimilitud: 0.5,
+  //       })
+  //     : options;
 
   return (
     <div
