@@ -14,6 +14,7 @@ interface PropsType {
   emptyListIcon?: React.ReactNode; // Ícono para cuando no hay datos
   viewAllText?: string; // Texto para el enlace "Ver todas" (opcional)
   onViewAllClick?: () => void; // Handler para el clic en "Ver todas" (opcional)
+  disabledWrapText?: boolean; // Nuevo: deshabilitar ajuste de texto en EmptyData
 }
 
 export const WidgetList = ({
@@ -27,6 +28,7 @@ export const WidgetList = ({
   emptyListIcon,
   viewAllText,
   onViewAllClick,
+  disabledWrapText
 }: PropsType) => {
   // Determinar los elementos a mostrar (máximo 2)
   const itemsToDisplay = data && data.length > 0 ? data.slice(0, 2) : [];
@@ -63,6 +65,7 @@ export const WidgetList = ({
             className={styles.widgetListEmptyContainer}
             size={48}
             singleLine={true}
+            textWrap={disabledWrapText}
           />
         )}
       </div>
