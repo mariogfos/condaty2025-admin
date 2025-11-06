@@ -233,6 +233,15 @@ const Select = ({
               option[optionLabel] || option.label || String(option[optionValue])
             );
           });
+          const namesArray = selectedFullOptions.map((option: any) => {
+            // Si el objeto tiene campo nro y estamos en multiSelect, mostrar solo el número
+            if (multiSelect && option.nro) {
+              return String(option.nro);
+            }
+            return (
+              option[optionLabel] || option.label || String(option[optionValue])
+            );
+          });
           displayString = namesArray.join(", ");
         }
         setSelectedNames(displayString);
