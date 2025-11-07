@@ -478,3 +478,31 @@
   text-decoration: none;
   background-color: transparent;
 }
+
+/* Botón de texto verde para acciones de voucher (Añadir/Editar) */
+.textButtonAccent {
+  background-color: transparent;
+  border: none;
+  color: var(--cAccent);
+  cursor: pointer;
+  font-family: var(--fPrimary);
+  font-size: var(--sL);
+  font-weight: var(--bBold);
+  text-align: left;
+  border-radius: var(--bRadiusXs, 4px);
+  transition: color 0.2s ease, background-color 0.2s ease;
+  text-decoration: underline;
+  margin-left: 12px;
+}
+.textButtonAccent:hover,
+.textButtonAccent:focus {
+  text-decoration: underline;
+  background-color: rgba(36, 211, 127, 0.08);
+  outline: none;
+}
+.textButtonAccent:disabled {
+  color: var(--cWhiteV3, #999999);
+  cursor: not-allowed;
+  text-decoration: none;
+  background-color: transparent;
+}

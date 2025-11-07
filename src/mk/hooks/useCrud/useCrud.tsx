@@ -1481,7 +1481,7 @@ const useCrud = ({
                   setOpenList,
                   reLoad: reLoad,
                   showToast: showToast,
-
+                  setItem: setFormState, 
                   onDel: (itemToDelete: any) => {
                     // Envolvemos para asegurar que se pasa el item correcto
                     onCloseView(); // Opcional: cerrar la vista actual antes de abrir el confirmador de borrado
