@@ -67,7 +67,7 @@
           width: 100%;
         }
         
-        [class$="singleLine"]{
+        [class*="singleLine"]{
           max-width: 370px;
           @media (max-width: 768px) {
             max-width: 100%;
