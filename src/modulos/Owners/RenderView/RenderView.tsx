@@ -4,7 +4,6 @@ import styles from "../Owners.module.css";
 import { getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getFullName } from "../../../mk/utils/string";
-import { lStatusActive } from "@/mk/utils/utils";
 import Button from "@/mk/components/forms/Button/Button";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import { useEffect, useState } from "react";
@@ -16,8 +15,6 @@ const RenderView = (props: any) => {
     onClose,
     item: data,
     reLoad,
-    onConfirm,
-    extraData,
     execute,
     showToast,
   } = props;
@@ -110,10 +107,7 @@ const RenderView = (props: any) => {
                   <p>Carnet de identidad</p>
                   <p>{item?.ci || "No disponible"}</p>
                 </div>
-                {/*  <div className={styles.infoSection_details}>
-                <p>Tipo de residente</p>
-                <p>{item?.ci || "No disponible"}</p>
-              </div> */}
+
                 <div className={styles.infoSection_details}>
                   <p>Correo electrónico</p>
                   <p>{item?.email || "No disponible"}</p>
@@ -126,40 +120,38 @@ const RenderView = (props: any) => {
                       (item?.phone || "No disponible")}
                   </p>
                 </div>
-                <div className={styles.infoSection_details}>
-                  <p>Estado</p>
-                  <p className={styles.statusActive}>
-                    {lStatusActive[client?.pivot?.status]?.name ||
-                      item.status ||
-                      "No disponible"}
-                  </p>
-                </div>
+               
                 {item?.dpto?.[0]?.type.name && (
                   <div className={styles.infoSection_details}>
                     <p>Tipo de unidad</p>
                     <p>{item?.dpto[0]?.type.name}</p>
                   </div>
                 )}
-                <>
-                  {item?.dpto?.length > 0 ? (
-                    // CASO 1: Si ya tiene una unidad asignada
-                    <div className={styles.infoSection_details}>
-                      <p>Número de Unidad</p>
-                      <p>{item.dpto[0].nro}</p>
-                    </div>
-                  ) : (
-                    // CASO 2: Si solo tiene una unidad solicitada (preunidad)
-                    <div className={styles.infoSection_details}>
-                      <p>
-                        Unidad solicitada como:{" "}
-                        {client?.pivot?.type == "H"
+                
+                {item?.dpto?.length > 0 ? (
+                  // CASO 1: Si ya tiene una unidad asignada
+                  <div className={styles.infoSection_details}>
+                    <p>Número de Unidad</p>
+                    <p>{item.dpto[0].nro}</p>
+                  </div>
+                ) : (
+                  // CASO 2: Si solo tiene una unidad solicitada (preunidad)
+                  <div className={styles.infoSection_details}>
+                    <p>
+                      Unidad solicitada:
+                    </p>
+                    <p>U: {client?.pivot?.preunidad || "No especificada"}</p>
+                  </div>
+                )}
+               
+                <div className={styles.infoSection_details}>
+                  <p>Rol</p>
+                  <p className={styles.statusActive}>
+                   {client?.pivot?.type === "H"
                           ? "Propietario"
-                          : "Residente"}
-                      </p>
-                      <p>U: {client?.pivot?.preunidad || "No especificada"}</p>
-                    </div>
-                  )}
-                </>
+                          : "Inquilino"}
+                  </p>
+                </div>
               </section>
             </div>
           )}
