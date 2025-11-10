@@ -39,12 +39,14 @@ interface Dpto {
 interface Category {
   id: string | number;
   name: string;
+  fixed?: string;
   hijos?: Subcategory[];
 }
 
 interface Subcategory {
   id: string | number;
   name: string;
+  fixed?: string;
 }
 
 interface ClientConfig {
@@ -347,6 +349,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
     [execute, extraData?.dptos]
   );
 
+  const filteredCategories = useMemo(() => {
+    const list = extraData?.categories || [];
+    return list.filter(cat => String(cat.fixed) !== 'Y');
+  }, [extraData?.categories]);
+
   useEffect(() => {
     if (extraData?.categories && formState.category_id && showCategoryFields) {
       const selectedCategory = extraData.categories.find(
@@ -445,7 +452,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
         );
 
         if (selectedCategory?.hijos) {
-          newSubcategories = selectedCategory.hijos || [];
+          newSubcategories = (selectedCategory.hijos || []).filter(
+            (hijo: Subcategory) => String(hijo.fixed) !== 'Y'
+          );
 
           const catExpensasChild = newSubcategories.find(
             (hijo: Subcategory) =>
@@ -1046,7 +1055,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     label="Categoría"
                     value={formState.category_id}
                     onChange={handleChangeInput}
-                    options={extraData?.categories || []}
+                    options={filteredCategories}
                     error={errors}
                     required
                     optionLabel="name"
