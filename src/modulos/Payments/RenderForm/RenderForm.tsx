@@ -39,12 +39,14 @@ interface Dpto {
 interface Category {
   id: string | number;
   name: string;
+  fixed?: string;
   hijos?: Subcategory[];
 }
 
 interface Subcategory {
   id: string | number;
   name: string;
+  fixed?: string;
 }
 
 interface ClientConfig {
@@ -347,6 +349,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
     [execute, extraData?.dptos]
   );
 
+  const filteredCategories = useMemo(() => {
+    const list = extraData?.categories || [];
+    return list.filter(cat => String(cat.fixed) !== 'Y');
+  }, [extraData?.categories]);
+
   useEffect(() => {
     if (extraData?.categories && formState.category_id && showCategoryFields) {
       const selectedCategory = extraData.categories.find(
@@ -445,7 +452,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
         );
 
         if (selectedCategory?.hijos) {
-          newSubcategories = selectedCategory.hijos || [];
+          newSubcategories = (selectedCategory.hijos || []).filter(
+            (hijo: Subcategory) => String(hijo.fixed) !== 'Y'
+          );
 
           const catExpensasChild = newSubcategories.find(
             (hijo: Subcategory) =>
@@ -728,11 +737,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     if (!formState.method) {
       err.method = 'Este campo es requerido';
     }
-    if (!formState.voucher) {
-      err.voucher = 'Este campo es requerido';
-    } else if (!/^\d{1,10}$/.test(formState.voucher)) {
-      err.voucher = 'Debe contener solo números (máximo 10 dígitos)';
-    }
+    // Campo de respaldo de pago (voucher) ahora opcional y sin validación numérica
 
     if (!isDebtBasedPayment || deudas?.length === 0) {
       if (!formState.amount) {
@@ -1046,7 +1051,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     label="Categoría"
                     value={formState.category_id}
                     onChange={handleChangeInput}
-                    options={extraData?.categories || []}
+                    options={filteredCategories}
                     error={errors}
                     required
                     optionLabel="name"
@@ -1147,26 +1152,19 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 <div className={styles['voucher-input']}>
                   <Input
                     type="text"
-                    label="Ingresar el número del comprobante"
+                    label="Número de respaldo de pago"
                     name="voucher"
                     onChange={e => {
-                      const value = e.target.value.replace(/\D/g, '').substring(0, 10);
+                      const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').substring(0, 50);
                       const newEvent = {
                         ...e,
                         target: { ...e.target, name: 'voucher', value },
                       };
                       handleChangeInput(newEvent);
-                      if (e.target.value !== value) {
-                        showToast(
-                          'El número de comprobante solo puede contener números (máximo 10 dígitos)',
-                          'warning'
-                        );
-                      }
                     }}
                     value={formState.voucher || ''}
                     error={errors}
-                    maxLength={10}
-                    required
+                    maxLength={50}
                   />
                 </div>
               </div>
