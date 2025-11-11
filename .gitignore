@@ -16,7 +16,7 @@
 /.next/
 /out/
 /nogit
-promp_aliases.json
+prompt_aliases.json
 
 *.log*
 
