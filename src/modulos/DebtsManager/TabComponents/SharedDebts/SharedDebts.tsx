@@ -245,7 +245,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
       return { filterBy: currentFilters };
     }
 
-    if (value === "" || value === null || value === undefined ) {
+    if (value === "" || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
@@ -525,7 +525,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   }, [extraData, onExtraDataChange]);
 
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => {},
+    onSearch: () => { },
     searchs: {},
     setStore,
     mod,
@@ -563,7 +563,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
     const totalBalance = debtAmount + totalPenalty;
 
     return (
-      <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
+      <RenderItem item={item} onClick={() => { }} onLongPress={onLongPress}>
         <ItemList
           title={`${item?.description || 'Sin concepto'} - ${getStatusText(finalStatus)}`}
           subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${totalPenalty.toFixed(

@@ -265,7 +265,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         onClose={props.onClose}
         item={props.item}
         extraData={props.extraData}
-        user={props.user}
+        user={user}
         onEdit={props.onEdit}
         onDel={props.onDel}
         hideSharedDebtButton={true}
@@ -476,26 +476,26 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
           {/* Botones de acción - Validar hasAction del extraData */}
           <div className={styles.actionButtons}>
-           {/*  {extraData?.hasAction && ( */}
-              <>
-                <Button
-                  onClick={handleEdit}
-                  variant="primary"
-                  className={styles.actionButton}
-                >
-                  <IconEdit size={16} />
-                  Editar
-                </Button>
-                <Button
-                  onClick={handleDelete}
-                  variant="secondary"
-                  className={styles.actionButton}
-                >
-                  <IconTrash size={16} />
-                  Eliminar
-                </Button>
-              </>
-          {/*   )} */}
+            {/*  {extraData?.hasAction && ( */}
+            <>
+              <Button
+                onClick={handleEdit}
+                variant="primary"
+                className={styles.actionButton}
+              >
+                <IconEdit size={16} />
+                Editar
+              </Button>
+              <Button
+                onClick={handleDelete}
+                variant="secondary"
+                className={styles.actionButton}
+              >
+                <IconTrash size={16} />
+                Eliminar
+              </Button>
+            </>
+            {/*   )} */}
           </div>
         </div>
 
