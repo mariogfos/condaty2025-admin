@@ -737,7 +737,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     if (!formState.method) {
       err.method = 'Este campo es requerido';
     }
-    // Campo de respaldo de pago (voucher) ahora opcional y sin validación numérica
+    
 
     if (!isDebtBasedPayment || deudas?.length === 0) {
       if (!formState.amount) {
@@ -801,12 +801,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
       paid_at: formState.paid_at,
       method: formState.method,
       file: formState.file,
-      voucher: formState.voucher,
       obs: formState.obs,
       nro_id: formState.dpto_id,
       owner_id: owner_id,
       type: formState.type,
     };
+
+    if (formState.voucher && String(formState.voucher).length > 0) {
+      params.voucher = formState.voucher;
+    }
 
     if (showCategoryFields) {
       params.subcategory_id = formState.subcategory_id;
