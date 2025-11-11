@@ -200,10 +200,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       return;
     }
 
+    const body: any = { voucher: String(voucherValue || '') };
+
     const { data, error } = await execute(
       `/payments/${paymentId}`,
       'PUT',
-      { voucher: voucherValue },
+      body,
       false,
       true
     );
@@ -501,12 +503,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                           Editar
                         </button>
                       </>
-                    ) : item.status === 'S' ? (
+                    ) : (
                       <button type="button" className={styles.textButtonAccent} onClick={openVoucherEditor}>
                         Añadir número
                       </button>
-                    ) : (
-                      '-/-'
                     )}
                   </span>
                 </div>
