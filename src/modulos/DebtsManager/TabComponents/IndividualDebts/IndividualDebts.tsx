@@ -14,8 +14,7 @@ import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import RenderView from '../AllDebts/RenderView/RenderView';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
-
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal'; import { hasMaintenanceValue } from '@/mk/utils/utils';
 interface IndividualDebtsProps {
   openView: boolean;
   setOpenView: (open: boolean) => void;
@@ -31,7 +30,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   setViewItem,
   onExtraDataChange,
 }) => {
-  const { setStore, store } = useAuth();
+  const { setStore, store, user } = useAuth();
   const router = useRouter();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
@@ -279,7 +278,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         onClose={props.onClose}
         item={props.item}
         extraData={props.extraData}
-        user={props.user}
+        user={user}
         onEdit={props.onEdit}
         onDel={props.onDel}
         hideSharedDebtButton={false}
@@ -405,10 +404,10 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       label: (
         <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>
       ),
-      list: {
+      list: hasMaintenanceValue(user) ? {
         order: 9,
-        onRender: renderMaintenanceAmountCell,
-      },
+        onRender: renderMaintenanceAmountCell
+      } : false,
     },
     balance_due: {
       rules: [''],
@@ -439,7 +438,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   }, [extraData, onExtraDataChange]);
 
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => {},
+    onSearch: () => { },
     searchs: {},
     setStore,
     mod,
@@ -476,7 +475,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     const totalBalance = debtAmount + penaltyAmount;
 
     return (
-      <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
+      <RenderItem item={item} onClick={() => { }} onLongPress={onLongPress}>
         <ItemList
           title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(finalStatus)}`}
           subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${penaltyAmount.toFixed(2)} | Total: Bs ${totalBalance.toFixed(2)}`}

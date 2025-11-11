@@ -1,20 +1,22 @@
-"use client";
-import { useMemo, useEffect, useState } from "react";
-import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import useCrudUtils from "../../../shared/useCrudUtils";
-import { getDateStrMesShort } from "@/mk/utils/date";
-import RenderForm from "./RenderForm/RenderForm";
-import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
-import FormatBsAlign from "@/mk/utils/FormatBsAlign";
-import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import RenderItem from "../../../shared/RenderItem";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import Button from "@/mk/components/forms/Button/Button";
-import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
-import React from "react";
-import { formatNumber } from "@/mk/utils/numbers";
-import { useRouter } from "next/navigation";
+'use client';
+import { useMemo, useEffect, useState } from 'react';
+import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
+import useCrudUtils from '../../../shared/useCrudUtils';
+import { getDateStrMes, getDateStrMesShort, MONTHS } from '@/mk/utils/date';
+import RenderForm from './RenderForm/RenderForm';
+import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
+import FormatBsAlign from '@/mk/utils/FormatBsAlign';
+import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
+import ItemList from '@/mk/components/ui/ItemList/ItemList';
+import RenderItem from '../../../shared/RenderItem';
+import { useAuth } from '@/mk/contexts/AuthProvider';
+import Button from '@/mk/components/forms/Button/Button';
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
+import React from 'react';
+import { formatNumber } from '@/mk/utils/numbers';
+
+import { useRouter } from 'next/navigation';
+import { hasMaintenanceValue } from '@/mk/utils/utils';
 
 interface SharedDebtsProps {
   openView: boolean;
@@ -24,8 +26,14 @@ interface SharedDebtsProps {
   onExtraDataChange?: (extraData: any) => void;
 }
 
-const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
-  const { setStore, store } = useAuth();
+const SharedDebts: React.FC<SharedDebtsProps> = ({
+  openView,
+  setOpenView,
+  viewItem,
+  setViewItem,
+  onExtraDataChange,
+}) => {
+  const { user, setStore, store } = useAuth();
   const router = useRouter();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
@@ -448,10 +456,10 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
             Mant. Valor
           </label>
         ),
-        list: {
+        list: hasMaintenanceValue(user) ? {
           order: 9,
-          onRender: renderMaintenanceAmountCell,
-        },
+          onRender: renderMaintenanceAmountCell
+        } : false,
       },
       balance_due: {
         rules: [""],
@@ -535,7 +543,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   }, [extraData, onExtraDataChange]);
 
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => {},
+    onSearch: () => { },
     searchs: {},
     setStore,
     mod,
@@ -579,7 +587,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     const totalBalance = debtAmount + totalPenalty;
 
     return (
-      <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
+      <RenderItem item={item} onClick={() => { }} onLongPress={onLongPress}>
         <ItemList
           title={`${item?.description || "Sin concepto"} - ${getStatusText(
             finalStatus

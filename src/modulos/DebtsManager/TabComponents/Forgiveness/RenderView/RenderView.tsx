@@ -4,6 +4,8 @@ import { getDateStrMesShort } from "@/mk/utils/date";
 import { formatBs } from "@/mk/utils/numbers";
 import { getFullName } from "@/mk/utils/string";
 import React from "react";
+import { hasMaintenanceValue } from "@/mk/utils/utils";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 import { colorStatusForgiveness, statusForgiveness } from "../constans";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import Button from "@/mk/components/forms/Button/Button";
@@ -36,6 +38,7 @@ const LabelValue = ({
 };
 
 const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
+  const { user } = useAuth();
   const header = [
     {
       key: "Tipo",
@@ -65,6 +68,7 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
       key: "maintenance_amount",
       label: "Mant. valor",
       responsive: "onlyDesktop",
+      onHide: () => !hasMaintenanceValue(user),
       onRender: ({ item }: any) => {
         return formatBs(item?.maintenance_amount);
       },
@@ -101,9 +105,9 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
       buttonExtra={
         <div style={{ display: "flex", gap: 16, width: "100%" }}>
           {item?.due_at < new Date().toISOString().split("T")[0] ||
-          item?.status == "P" ||
-          item?.status == "S" ||
-          item?.status == "X" ? null : (
+            item?.status == "P" ||
+            item?.status == "S" ||
+            item?.status == "X" ? null : (
             <Button
               onClick={() => onEdit(item)}
               variant="secondary"
@@ -113,8 +117,8 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
             </Button>
           )}
           {item?.status == "P" ||
-          item?.status == "S" ||
-          item?.status == "X" ? null : (
+            item?.status == "S" ||
+            item?.status == "X" ? null : (
             <Button
               onClick={() => onDel(item)}
               variant="secondary"
@@ -234,7 +238,6 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
         <Table
           data={item?.forgiven_debts}
           header={header}
-          // onRowClick={(e) => console.log("Hola")}
         />
         {item?.obs && (
           <>
