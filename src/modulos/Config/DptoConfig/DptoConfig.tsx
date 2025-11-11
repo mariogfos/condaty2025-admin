@@ -413,11 +413,10 @@ const DptoConfig = ({
           <div className={styles.switchContainer}>
             <div>
               <p className={styles.textTitle}>
-                Tiene valor de mantenimiento
+                Mantenimiento de valor en el condominio
               </p>
               <p className={styles.textSubtitle}>
-                Activa esta opción si el condominio maneja un valor de mantenimiento
-                separado de las expensas comunes.
+                Activa esta opción para aplicar mantenimiento de valor a todas las reservas, deudas y fondos del condominio
               </p>
             </div>
 
