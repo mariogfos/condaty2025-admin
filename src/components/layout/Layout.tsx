@@ -10,8 +10,6 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import {
   getDateTimeAgo,
-  getDateTimeStrMes,
-  getDateTimeStrMesShort,
   getFormattedDate,
 } from "@/mk/utils/date";
 import SideMenu from "@/mk/components/ui/SideMenu/SideMenu";
@@ -121,7 +119,7 @@ const Layout = ({ children }: any) => {
   // Manejar redimensionamiento de ventana
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1025) {
+      if (window.innerWidth < 1201) {
         setSideMenuOpen(true); // Colapsado
       } else {
         setSideMenuOpen(false); // Expandido
@@ -234,7 +232,6 @@ const Layout = ({ children }: any) => {
         )}
       </section>
       <section>{children}</section>
-      <section>{/* Footer Here!! */}</section>
 
       {store?.openProfileModal && (
         <ProfileModal
@@ -289,7 +286,6 @@ const Layout = ({ children }: any) => {
           >
             Residente
           </p>
-          {/* <p>{JSON.stringify(openAlert,null,4)}</p> */}
           <ItemList
             variant="V1"
             title={openAlert?.item?.owner_name}
