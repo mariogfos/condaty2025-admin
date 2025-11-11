@@ -14,9 +14,7 @@ import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import RenderView from '../AllDebts/RenderView/RenderView';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
-
-interface IndividualDebtsProps {
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal'; interface IndividualDebtsProps {
   openView: boolean;
   setOpenView: (open: boolean) => void;
   viewItem: any;
@@ -31,7 +29,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   setViewItem,
   onExtraDataChange,
 }) => {
-  const { setStore, store } = useAuth();
+  const { setStore, store, user } = useAuth();
   const router = useRouter();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
@@ -279,7 +277,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         onClose={props.onClose}
         item={props.item}
         extraData={props.extraData}
-        user={props.user}
+        user={user}
         onEdit={props.onEdit}
         onDel={props.onDel}
         hideSharedDebtButton={false}
@@ -439,7 +437,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   }, [extraData, onExtraDataChange]);
 
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => {},
+    onSearch: () => { },
     searchs: {},
     setStore,
     mod,
@@ -476,7 +474,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     const totalBalance = debtAmount + penaltyAmount;
 
     return (
-      <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
+      <RenderItem item={item} onClick={() => { }} onLongPress={onLongPress}>
         <ItemList
           title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(finalStatus)}`}
           subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${penaltyAmount.toFixed(2)} | Total: Bs ${totalBalance.toFixed(2)}`}

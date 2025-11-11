@@ -477,7 +477,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         onClose={props.onClose}
         item={props.item}
         extraData={props.extraData}
-        user={props.user}
+        user={user}
         onEdit={props.onEdit}
         onDel={props.onDel}
       />
@@ -490,7 +490,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         setItem={props.setItem}
         execute={props.execute}
         extraData={props.extraData}
-        user={props.user}
+        user={user}
         reLoad={props.reLoad}
         errors={props.errors}
         setErrors={props.setErrors}
