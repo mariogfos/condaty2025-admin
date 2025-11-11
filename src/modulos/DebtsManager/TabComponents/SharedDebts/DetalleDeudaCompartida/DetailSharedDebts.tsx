@@ -14,6 +14,7 @@ import { capitalize } from '@/mk/utils/string';
 import styles from './DetailSharedDebts.module.css';
 import { getDateStrMes } from '@/mk/utils/date';
 import UnifiedCard from '../../../UnifiedCard/UnifiedCard';
+import { hasMaintenanceValue } from '@/mk/utils/utils';
 
 
 interface DetailSharedDebtsProps {
@@ -223,11 +224,11 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         label: (
           <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>
         ),
-        list: {
+        list: hasMaintenanceValue(user) ? {
           onRender: renderMaintenanceAmountCell,
           order: 6,
           sumarize: true,
-        },
+        } : false,
       },
       balance_due: {
         rules: [''],

@@ -428,10 +428,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         rules: [''],
         api: '',
         label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>,
-        // list: {
-        //   order: 9,
-        //   onRender: renderMaintenanceAmountCell,
-        // },
         list: showMaintenance ? {
           order: 9,
           onRender: renderMaintenanceAmountCell

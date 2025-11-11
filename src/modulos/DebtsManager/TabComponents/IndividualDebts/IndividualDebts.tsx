@@ -14,7 +14,8 @@ import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import RenderView from '../AllDebts/RenderView/RenderView';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal'; interface IndividualDebtsProps {
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal'; import { hasMaintenanceValue } from '@/mk/utils/utils';
+interface IndividualDebtsProps {
   openView: boolean;
   setOpenView: (open: boolean) => void;
   viewItem: any;
@@ -403,10 +404,10 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       label: (
         <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>
       ),
-      list: {
+      list: hasMaintenanceValue(user) ? {
         order: 9,
-        onRender: renderMaintenanceAmountCell,
-      },
+        onRender: renderMaintenanceAmountCell
+      } : false,
     },
     balance_due: {
       rules: [''],

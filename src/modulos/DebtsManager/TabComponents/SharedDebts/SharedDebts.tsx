@@ -16,6 +16,7 @@ import React from 'react';
 import { formatNumber } from '@/mk/utils/numbers';
 
 import { useRouter } from 'next/navigation';
+import { hasMaintenanceValue } from '@/mk/utils/utils';
 
 interface SharedDebtsProps {
   openView: boolean;
@@ -32,7 +33,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   setViewItem,
   onExtraDataChange,
 }) => {
-  const { setStore, store } = useAuth();
+  const { user, setStore, store } = useAuth();
   const router = useRouter();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
@@ -435,10 +436,10 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
         label: (
           <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>
         ),
-        list: {
+        list: hasMaintenanceValue(user) ? {
           order: 9,
-          onRender: renderMaintenanceAmountCell,
-        },
+          onRender: renderMaintenanceAmountCell
+        } : false,
       },
       balance_due: {
         rules: [''],
