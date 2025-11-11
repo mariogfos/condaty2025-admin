@@ -87,12 +87,14 @@
 
 .listSection {
   background: #333536;
-  padding: 20px;
+  padding: var(--sM);
   border-radius: var(--bRadius);
+}
 
-  box-shadow:
-    6px 6px 12px var(--cBlackV3),
-    -6px -6px 12px var(--cBlack);
+@media (max-width: 1280px) {
+  .summaryCards {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 768px) {

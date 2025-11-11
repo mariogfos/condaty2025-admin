@@ -2,7 +2,7 @@
 import { useMemo, useEffect, useState } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
-import { getDateStrMes, getDateStrMesShort, MONTHS } from '@/mk/utils/date';
+import { getDateStrMesShort } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
@@ -37,9 +37,10 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     <div>{item?.dpto?.nro || item?.dpto_id}</div>
   );
 
-  const renderCategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.debt?.subcategory?.padre?.name || item?.subcategory?.padre?.name || '-/-'}</div>
-  );
+  // 11 Noviembre 2025
+  // const renderCategoryCell = ({ item }: { item: any }) => (
+  //   <div>{item?.debt?.subcategory?.padre?.name || item?.subcategory?.padre?.name || '-/-'}</div>
+  // );
 
   const renderSubcategoryCell = ({ item }: { item: any }) => (
     <div>{item?.debt?.subcategory?.name || item?.subcategory?.name || '-/-'}</div>
@@ -334,11 +335,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         rules: [''],
         api: '',
         label: 'Categoría',
-        list: false/* {
-          onRender: renderCategoryCell,
-          order: 2,
-        }, */
-          ,
+        list: false,
         filter: {
           label: 'Categoría',
           width: '100%',
@@ -563,7 +560,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   return (
     <>
       <List
-        height={'calc(100vh - 580px)'}
+        height={'calc(100vh - 530px)'}
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de todas las deudas vacía. Una vez generes las cuotas"
@@ -611,4 +608,3 @@ const AllDebts: React.FC<AllDebtsProps> = ({
 };
 
 export default AllDebts;
-
