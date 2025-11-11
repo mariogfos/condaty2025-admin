@@ -1,18 +1,26 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import Input from '@/mk/components/forms/Input/Input';
-import Select from '@/mk/components/forms/Select/Select';
-import { MONTHS } from '@/mk/utils/date';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import { checkRules, hasErrors } from '@/mk/utils/validate/Rules';
-import TextArea from '@/mk/components/forms/TextArea/TextArea';
-import { getFullName } from '@/mk/utils/string';
-import { UnitsType } from '@/mk/utils/utils';
+"use client";
+import React, { useEffect, useState } from "react";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Input from "@/mk/components/forms/Input/Input";
+import Select from "@/mk/components/forms/Select/Select";
+import { MONTHS } from "@/mk/utils/date";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import { getFullName } from "@/mk/utils/string";
 
 type yearProps = { id: string | number; name: string }[];
 
-const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, reLoad }: any) => {
+const RenderForm = ({
+  open,
+  onClose,
+  item,
+  setItem,
+  execute,
+  extraData,
+  user,
+  reLoad,
+}: any) => {
   const [formState, setFormState]: any = useState({
     ...item,
     type: 1,
@@ -20,7 +28,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
   });
   const [errors, setErrors]: any = useState({});
   const [ldpto, setLdpto] = useState([]);
-  const client = user.clients.filter((item: any) => item.id === user.client_id)[0];
+  const client = user.clients.filter(
+    (item: any) => item.id === user.client_id
+  )[0];
   const { showToast } = useAuth();
 
   const handleChange = (e: any) => {
@@ -32,48 +42,51 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     let errs: any = {};
     errs = checkRules({
       value: formState.year,
-      rules: ['required'],
-      key: 'year',
+      rules: ["required"],
+      key: "year",
       errors: errs,
     });
     errs = checkRules({
       value: formState.month,
-      rules: ['required'],
-      key: 'month',
+      rules: ["required"],
+      key: "month",
       errors: errs,
     });
     errs = checkRules({
       value: formState.due_at,
-      rules: ['required'],
-      key: 'due_at',
+      rules: ["required"],
+      key: "due_at",
       errors: errs,
     });
 
     if (formState.year && formState.month !== undefined && formState.due_at) {
       const dueDate = new Date(formState.due_at);
       const expenseYear = parseInt(formState.year);
-      const expenseMonth = parseInt(formState.month); // Del array MONTHS (1-12, con 0 = "")
-
-      // Obtener año y mes de la fecha de vencimiento
+      const expenseMonth = parseInt(formState.month);
       const dueYear = dueDate.getFullYear();
-      const dueMonth = dueDate.getMonth() + 1; // JavaScript months (0-11) convertir a (1-12)
-
-      // La fecha de vencimiento debe ser del mismo mes/año o posterior
-      if (dueYear < expenseYear || (dueYear === expenseYear && dueMonth < expenseMonth)) {
-        errs.due_at = 'La fecha de vencimiento no puede ser anterior al período de la expensa';
+      const dueMonth = dueDate.getMonth() + 1;
+      if (
+        dueYear < expenseYear ||
+        (dueYear === expenseYear && dueMonth < expenseMonth)
+      ) {
+        errs.due_at =
+          "La fecha de vencimiento no puede ser anterior al período de la expensa";
       }
     }
     errs = checkRules({
       value: formState.asignar,
-      rules: ['required'],
-      key: 'asignar',
+      rules: ["required"],
+      key: "asignar",
       errors: errs,
     });
-    if (formState.asignar === 'S') {
+    if (formState.asignar === "S") {
       errs = checkRules({
-        value: formState.dpto_id && formState.dpto_id.length > 0 ? formState.dpto_id : null,
-        rules: ['required'],
-        key: 'dpto_id',
+        value:
+          formState.dpto_id && formState.dpto_id.length > 0
+            ? formState.dpto_id
+            : null,
+        rules: ["required"],
+        key: "dpto_id",
         errors: errs,
       });
     }
@@ -81,10 +94,10 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     return errs;
   };
   const onSave = async () => {
-    let method = formState.id ? 'PUT' : 'POST';
+    let method = formState.id ? "PUT" : "POST";
     if (hasErrors(validate())) return;
     const { data: response } = await execute(
-      '/debts' + (formState.id ? '/' + formState.id : ''),
+      "/debts" + (formState.id ? "/" + formState.id : ""),
       method,
       {
         year: formState.year,
@@ -100,16 +113,16 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     if (response?.success === true) {
       reLoad();
       setItem(formState);
-      showToast(response?.message, 'success');
+      showToast(response?.message, "success");
       onClose();
     } else {
-      showToast(response?.message, 'error');
+      showToast(response?.message, "error");
     }
   };
 
   const getYearOptions = () => {
     const years: yearProps = [];
-    const lastYear = new Date().getFullYear();
+    const lastYear = new Date().getFullYear() + 2;
     for (let i = lastYear; i >= 2000; i--) {
       years.push({ id: i, name: i.toString() });
     }
@@ -119,26 +132,32 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
   const monthOptions = MONTHS.map((month, index) => ({
     id: index,
     name: month,
-  })).filter(option => option.name !== "");
+  })).filter((option) => option.name !== "");
 
   useEffect(() => {
     const lista: any = [];
     extraData?.dptos?.map((item: any, key: number) => {
       lista[key] = {
         id: item.id,
-        nro: item.nro, // Mantener el nro original
+        nro: item.nro,
         label:
-          (getFullName(item?.titular) || 'Sin titular') +
-          ' - ' +
+          (getFullName(item?.titular) || "Sin titular") +
+          " - " +
           item.nro +
-          (item.description ? ' - ' + item.description : ''),
+          (item.description ? " - " + item.description : ""),
       };
     });
     setLdpto(lista);
-  }, [client.type_dpto, extraData?.dptos]); //esto?
+  }, [client.type_dpto, extraData?.dptos]);
 
   return (
-    <DataModal open={open} onClose={onClose} title="Crear Expensa" onSave={onSave} variant={"mini"}>
+    <DataModal
+      open={open}
+      onClose={onClose}
+      title="Crear Expensa"
+      onSave={onSave}
+      variant={"mini"}
+    >
       <Select
         label="Año"
         name="year"
@@ -168,15 +187,15 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
         name="asignar"
         value={formState.asignar}
         options={[
-          { id: 'T', name: 'Todas las unidades' },
-          { id: 'O', name: 'Unidades ocupadas' },
-          { id: 'L', name: 'Unidades no ocupadas' },
-          { id: 'S', name: 'Seleccionar unidades específicas' },
+          { id: "T", name: "Todas las unidades" },
+          { id: "O", name: "Unidades ocupadas" },
+          { id: "L", name: "Unidades no ocupadas" },
+          { id: "S", name: "Seleccionar unidades específicas" },
         ]}
         onChange={handleChange}
         error={errors}
       />
-      {formState.asignar === 'S' && (
+      {formState.asignar === "S" && (
         <Select
           label="Seleccionar Unidades"
           name="dpto_id"
