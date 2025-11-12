@@ -5,9 +5,6 @@ import useCrudUtils from "../shared/useCrudUtils";
 import React, { useMemo } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
-import { IconHomePerson2 } from "@/components/layout/icons/IconsBiblioteca";
-
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 
@@ -17,18 +14,24 @@ const paramsInitial = {
   fullType: "L",
   searchBy: "",
 };
-
+const renderTitleCell = ({ item }: Record<string, any>) => {
+  return (
+    <div>
+      <p style={{ color: "var(--cWhite)" }}>{item.alias_holder}</p>
+      <p>CI/NIT: {item.ci_holder}</p>
+    </div>
+  );
+};
 const BankAccounts = () => {
-  const getTypefilter = () => [
-    { id: "ALL", name: "Todos" },
-    { id: "D", name: "Dependientes" },
-    { id: "T", name: "Residentes" },
-    { id: "H", name: "Propietarios" },
-  ];
+  // const getTypefilter = () => [
+  //   { id: "ALL", name: "Todos" },
+  //   { id: "D", name: "Dependientes" },
+  //   { id: "T", name: "Residentes" },
+  //   { id: "H", name: "Propietarios" },
+  // ];
 
   const mod: ModCrudType = {
-    // modulo: "bank_accounts",
-    modulo: "owners",
+    modulo: "bank-accounts",
     singular: "cuenta bancaria",
     plural: "cuentas bancarias",
     filter: true,
@@ -41,6 +44,7 @@ const BankAccounts = () => {
     },
     extraData: true,
     renderForm: (props: any) => <RenderForm {...props} />,
+    loadView: { fullType: "DET" },
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -50,30 +54,30 @@ const BankAccounts = () => {
       reLoad?: any;
     }) => <RenderView {...props} />,
 
-    renderDel: (props: {
-      open: boolean;
-      onClose: any;
-      item: Record<string, any>;
-    }) => {
-      return (
-        <UnlinkModal
-          open={props.open}
-          onClose={props.onClose}
-          mod={mod}
-          item={props.item}
-          reLoad={reLoad}
-        />
-      );
-    },
+    // renderDel: (props: {
+    //   open: boolean;
+    //   onClose: any;
+    //   item: Record<string, any>;
+    // }) => {
+    //   return (
+    //     <UnlinkModal
+    //       open={props.open}
+    //       onClose={props.onClose}
+    //       mod={mod}
+    //       item={props.item}
+    //       reLoad={reLoad}
+    //     />
+    //   );
+    // },
   };
 
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      alias: {
+      alias_holder: {
         rules: ["required", "ci"],
         api: "ae",
-        label: "alias",
+        label: "Alias",
         form: {
           type: "text",
           required: true,
@@ -89,26 +93,83 @@ const BankAccounts = () => {
           type: "text",
           required: true,
         },
-        list: true,
+        list: {
+          onRender: ({ item }: Record<string, any>) => {
+            return (
+              <p>
+                {item?.is_expense > 0 && "Expensa,"}
+                {item?.is_reserve > 0 && "Reserva,"}
+                {item.is_main > 0 && "Principal"}
+                {item?.is_expense === 0 &&
+                  item?.is_reserve === 0 &&
+                  item?.is_main === 0 &&
+                  "-/-"}
+              </p>
+            );
+          },
+        },
       },
       status: {
         rules: [],
         api: "ae",
         label: "Estado",
-        form: {
-          type: "text",
+        // width: "100px",
+        // style: { width: "100px" },
+
+        form: false,
+        list: {
+          width: "180px",
+          onRender: ({ item }: Record<string, any>) => {
+            return (
+              <div
+                style={{
+                  padding: "4px 8px",
+                  backgroundColor:
+                    item.status === "A"
+                      ? "var(--cHoverSuccess)"
+                      : "var(--cHoverError)",
+                  color:
+                    item.status === "A" ? "var(--cSuccess)" : "var(--cError)",
+                  borderRadius: 12,
+                  fontSize: 14,
+                }}
+              >
+                {item.status === "A" ? "Habilitada" : "Deshabilitada"}
+              </div>
+            );
+          },
         },
-        list: true,
+        filter: {
+          label: "Estados",
+          width: "180px",
+
+          options: () => [
+            { id: "ALL", name: "Todos" },
+            { id: "D", name: "Habilitada" },
+            { id: "T", name: "Deshabilitada" },
+          ],
+        },
       },
-      banking_entity: {
+      bank_entity_id: {
         rules: ["required", "alpha"],
         api: "ae",
         label: "Entidad bancaria",
         form: {
-          type: "text",
+          type: "select",
           required: true,
+          optionsExtra: "bankEntities",
         },
         list: true,
+        filter: {
+          label: "Entidades bancarias",
+          width: "340px",
+
+          options: (extraData: any) => [
+            { id: "ALL", name: "Todos" },
+            ...(extraData?.bankEntities || []),
+          ],
+          // extraData: "bankEntities",
+        },
       },
       titular: {
         closeTag: true,
@@ -118,7 +179,9 @@ const BankAccounts = () => {
         form: {
           type: "text",
         },
-        list: true,
+        list: {
+          onRender: renderTitleCell,
+        },
       },
       account_number: {
         rules: [""],
@@ -133,33 +196,28 @@ const BankAccounts = () => {
         // },
       },
 
-      currency: {
+      currency_type_id: {
         rules: ["required", "alpha"],
         api: "a",
         label: "Moneda",
-        list: {},
+        form: {
+          type: "select",
+          required: true,
+          optionsExtra: "currencyTypes",
+        },
+        list: {
+          width: "180px",
+        },
       },
     };
   }, []);
 
-  const {
-    userCan,
-    List,
-    setStore,
-    onSearch,
-    searchs,
-    onEdit,
-    onDel,
-    reLoad,
-    showToast,
-    execute,
-    data,
-    extraData,
-  } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-  });
+  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, reLoad } =
+    useCrud({
+      paramsInitial,
+      mod,
+      fields,
+    });
   const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
@@ -174,9 +232,9 @@ const BankAccounts = () => {
     <div className={styles.style}>
       <List
         height={"calc(100vh - 465px)"}
-        emptyMsg="Lista de residentes vacía. Aquí verás a todos los residentes"
+        emptyMsg="Lista de cuentas bancarias vacía. Aquí verás a todas las cuentas bancarias"
         emptyLine2="del condominio una vez los registres."
-        emptyIcon={<IconHomePerson2 size={80} color="var(--cWhiteV1)" />}
+        // emptyIcon={<IconHomePerson2 size={80} color="var(--cWhiteV1)" />}
       />
     </div>
   );
