@@ -73,15 +73,13 @@ const BalanceGeneral: React.FC = () => {
 
   const [exportando, setExportando] = useState(false);
   const { setStore, userCan } = useAuth();
-  if(!userCan('balance','R')){
-    return <NotAccess />;
-  }
+
   const {
     data: finanzas,
     reLoad: reLoadFinanzas,
     loaded,
   } = useAxios("/balances", "POST", {});
-  
+
   const [loadingLocal, setLoadingLocal] = useState(false);
   useEffect(() => {
     setStore({ title: "BALANCE" });
@@ -468,6 +466,7 @@ const BalanceGeneral: React.FC = () => {
           </h2>
           <Button
             onClick={exportar}
+            disabled={exportando}
             variant="secondary"
             style={{
               display: "inline-flex",
@@ -589,6 +588,7 @@ const BalanceGeneral: React.FC = () => {
           </h2>
           <Button
             onClick={exportar}
+            disabled={exportando}
             variant="secondary"
             style={{
               display: "inline-flex",
@@ -671,7 +671,9 @@ const BalanceGeneral: React.FC = () => {
       </div>
     );
   }
-
+  if (!userCan("balance", "R")) {
+    return <NotAccess />;
+  }
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Flujo de efectivo</h1>
@@ -846,6 +848,7 @@ const BalanceGeneral: React.FC = () => {
                       </h2>
                       <Button
                         onClick={exportar}
+                        disabled={exportando}
                         variant="secondary"
                         style={{
                           display: "inline-flex",
