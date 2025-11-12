@@ -20,6 +20,7 @@ import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { useRouter } from "next/navigation";
 import { getTitular } from "@/mk/utils/adapters";
+import { hasMaintenanceValue } from '@/mk/utils/utils';
 
 const Defaulters = () => {
   const router = useRouter();
@@ -66,7 +67,7 @@ const Defaulters = () => {
     page: 1,
     perPage: -1,
   };
-  const { setStore, store } = useAuth();
+  const { setStore, store, user } = useAuth();
   useEffect(() => {
     setStore({ ...store, title: "" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -187,11 +188,11 @@ const Defaulters = () => {
             Mant. Valor
           </span>
         ),
-        list: {
+      list: hasMaintenanceValue(user) ? {
           onRender: (props: { item: { mv: number } }) => (
             <FormatBsAlign value={props?.item?.mv} alignRight />
           ),
-        },
+      } : false,
       },
       total: {
         rules: [],
