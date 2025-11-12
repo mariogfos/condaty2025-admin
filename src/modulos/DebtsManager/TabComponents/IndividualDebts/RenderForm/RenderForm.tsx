@@ -7,7 +7,7 @@ import Check from '@/mk/components/forms/Check/Check';
 import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import { getFullName } from '@/mk/utils/string';
-import { UnitsType } from '@/mk/utils/utils';
+import { hasMaintenanceValue, UnitsType } from '@/mk/utils/utils';
 import styles from './RenderForm.module.css';
 import { IconArrowDown, IconQuestion } from '@/components/layout/icons/IconsBiblioteca';
 import { checkRules } from '@/mk/utils/validate/Rules';
@@ -48,7 +48,6 @@ interface RenderFormProps {
   setErrors?: (errors: any) => void;
   action?: string;
 }
-
 const RenderForm: React.FC<RenderFormProps> = ({
   open,
   onClose,
@@ -87,6 +86,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [_errors, set_Errors] = useState<Errors>({});
   const [ldpto, setLdpto] = useState([]);
   const client = user?.clients?.filter((clientItem: any) => clientItem.id === user.client_id)[0];
+  const canUseMaintenance = hasMaintenanceValue(user);
 
 
   const findCategoryBySubcategory = (subcategoryId: string | number) => {
@@ -488,9 +488,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
           >
             <span className={styles.advancedLabel}>Opciones avanzadas</span>
             <span
-              className={`${styles.advancedArrow} ${
-                _formState.show_advanced ? styles.advancedArrowOpen : ''
-              }`}
+              className={`${styles.advancedArrow} ${_formState.show_advanced ? styles.advancedArrowOpen : ''
+                }`}
             >
               <IconArrowDown />
             </span>
@@ -499,24 +498,28 @@ const RenderForm: React.FC<RenderFormProps> = ({
           {_formState.show_advanced && (
             <div className={styles.advancedOptions}>
               <div className={styles.checkboxGrid}>
-                <div className={styles.checkboxItem}>
-                  <Check
-                    label="Tiene Mantenimiento de Valor"
-                    name="has_mv"
-                    value={_formState.has_mv ? 'Y' : 'N'}
-                    checked={_formState.has_mv}
-                    onChange={handleChangeInput}
-                    error={_errors}
-                    reverse={true}
-                  />
-                  <Tooltip
-                    title="Ajusta automáticamente el valor de la deuda según la inflación o índices económicos"
-                    position="top"
-                  >
-                    <IconQuestion size={16} className={styles.tooltipIcon} />
-                  </Tooltip>
-                </div>
+                {canUseMaintenance &&
+                  <>
+                    <div className={styles.checkboxItem}>
 
+                      <Check
+                        label="Tiene Mantenimiento de Valor"
+                        name="has_mv"
+                        value={_formState.has_mv ? 'Y' : 'N'}
+                        checked={_formState.has_mv}
+                        onChange={handleChangeInput}
+                        error={_errors}
+                        reverse={true}
+                      />
+                      <Tooltip
+                        title="Ajusta automáticamente el valor de la deuda según la inflación o índices económicos"
+                        position="top"
+                      >
+                        <IconQuestion size={16} className={styles.tooltipIcon} />
+                      </Tooltip>
+
+                    </div>
+                  </>}
                 <div className={styles.checkboxItem}>
                   <Check
                     label="Será condonable"

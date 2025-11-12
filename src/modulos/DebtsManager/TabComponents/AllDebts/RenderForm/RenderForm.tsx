@@ -9,7 +9,7 @@ import { useAuth } from '@/mk/contexts/AuthProvider';
 import { checkRules, hasErrors } from '@/mk/utils/validate/Rules';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import { getFullName } from '@/mk/utils/string';
-import { UnitsType } from '@/mk/utils/utils';
+import { UnitsType, hasMaintenanceValue } from '@/mk/utils/utils';
 import styles from './RenderForm.module.css';
 
 type yearProps = { id: string | number; name: string }[];
@@ -38,6 +38,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
   const [ldpto, setLdpto] = useState([]);
   const client = user.clients.filter((item: any) => item.id === user.client_id)[0];
   const { showToast } = useAuth();
+  const canUseMaintenance = hasMaintenanceValue(user);
 
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
@@ -336,6 +337,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
                     value={formState.has_mv ? 'Y' : 'N'}
                     checked={formState.has_mv}
                     onChange={handleChange}
+                    disabled={!canUseMaintenance}
                     error={errors}
                   />
                 </div>
