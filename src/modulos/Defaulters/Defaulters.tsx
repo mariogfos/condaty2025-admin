@@ -20,7 +20,7 @@ import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { useRouter } from "next/navigation";
 import { getTitular } from "@/mk/utils/adapters";
-import { hasMaintenanceValue } from '@/mk/utils/utils';
+import { hasMaintenanceValue } from "@/mk/utils/utils";
 
 const Defaulters = () => {
   const router = useRouter();
@@ -188,11 +188,13 @@ const Defaulters = () => {
             Mant. Valor
           </span>
         ),
-      list: hasMaintenanceValue(user) ? {
-          onRender: (props: { item: { mv: number } }) => (
-            <FormatBsAlign value={props?.item?.mv} alignRight />
-          ),
-      } : false,
+        list: hasMaintenanceValue(user)
+          ? {
+              onRender: (props: { item: { mv: number } }) => (
+                <FormatBsAlign value={props?.item?.mv} alignRight />
+              ),
+            }
+          : false,
       },
       total: {
         rules: [],
@@ -206,9 +208,13 @@ const Defaulters = () => {
           </span>
         ),
         list: {
-          onRender: (props: { item: { expensa: number; multa: number; mv: number } }) => (
+          onRender: (props: {
+            item: { expensa: number; multa: number; mv: number };
+          }) => (
             <FormatBsAlign
-              value={props?.item?.expensa + props?.item?.multa + props?.item?.mv}
+              value={
+                props?.item?.expensa + props?.item?.multa + props?.item?.mv
+              }
               alignRight
             />
           ),
@@ -217,6 +223,7 @@ const Defaulters = () => {
     }),
     []
   );
+
   const { userCan, List, data, extraData } = useCrud({
     paramsInitial,
     mod,
@@ -258,8 +265,7 @@ const Defaulters = () => {
         extraData?.porCobrarExpensa || calculatedTotals.porCobrarExpensa,
       porCobrarMulta:
         extraData?.porCobrarMulta || calculatedTotals.porCobrarMulta,
-      porCobrarMv:
-        extraData?.porCobrarMv || calculatedTotals.porCobrarMv,
+      porCobrarMv: extraData?.porCobrarMv || calculatedTotals.porCobrarMv,
     }),
     [
       extraData?.porCobrarExpensa,
@@ -277,7 +283,25 @@ const Defaulters = () => {
     const expensaColor = "var(--cCompl5)";
     const multaColor = "var(--cCompl3)";
     const mvColor = "var(--cCompl4)";
+    const labels = ["Expensas", "Multas"];
+    const values = [
+      {
+        name: "Expensas",
+        values: [finalTotals.porCobrarExpensa],
+      },
+      {
+        name: "Multas",
+        values: [finalTotals.porCobrarMulta],
+      },
+    ];
 
+    if (hasMaintenanceValue(user)) {
+      labels.push("Mant. Valor");
+      values.push({
+        name: "Mant. Valor",
+        values: [finalTotals.porCobrarMv],
+      });
+    }
     return (
       <div className={styles.rightPanel}>
         <div className={styles.subtitle}>
@@ -312,36 +336,25 @@ const Defaulters = () => {
               textColor="white"
               style={{ width: "100%", borderColor: "var(--cCompl3)" }}
             />
-            <WidgetDefaulterResume
-              title={"Mantenimiento de valor"}
-              amount={`Bs ${formatNumber(finalTotals.porCobrarMv)}`}
-              pointColor={"var(--cCompl4)"}
-              icon={<IconMultas size={26} color={"var(--cCompl4)"} />}
-              iconBorderColor="var(--cCompl4)"
-              backgroundColor={"var(--cHoverCompl7)"}
-              textColor="white"
-              style={{ width: "100%", borderColor: "var(--cCompl4)" }}
-            />
+            {hasMaintenanceValue(user) && (
+              <WidgetDefaulterResume
+                title={"Mantenimiento de valor"}
+                amount={`Bs ${formatNumber(finalTotals.porCobrarMv)}`}
+                pointColor={"var(--cCompl4)"}
+                icon={<IconMultas size={26} color={"var(--cCompl4)"} />}
+                iconBorderColor="var(--cCompl4)"
+                backgroundColor={"var(--cHoverCompl7)"}
+                textColor="white"
+                style={{ width: "100%", borderColor: "var(--cCompl4)" }}
+              />
+            )}
           </section>
         </div>
         <div className={styles.graphPanel}>
           <GraphBase
             data={{
-              labels: ["Expensas", "Multas", "Mant. Valor"],
-              values: [
-                {
-                  name: "Expensas",
-                  values: [finalTotals.porCobrarExpensa],
-                },
-                {
-                  name: "Multas",
-                  values: [finalTotals.porCobrarMulta],
-                },
-                {
-                  name: "Mant. Valor",
-                  values: [finalTotals.porCobrarMv],
-                }
-              ],
+              labels,
+              values,
             }}
             chartTypes={["donut"]}
             background="darkv2"
