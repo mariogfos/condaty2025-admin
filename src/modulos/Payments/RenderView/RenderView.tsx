@@ -193,14 +193,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   };
   const onSaveVoucher = async () => {
     setVoucherErrors({});
-    if (!voucherValue) {
-      setVoucherErrors({ voucher: 'Este campo es requerido' });
-      return;
-    }
-    if (!/^\d{1,10}$/.test(voucherValue)) {
-      setVoucherErrors({ voucher: 'Debe contener solo números (máximo 10 dígitos)' });
-      return;
-    }
 
     const paymentId = item?.id || payment_id;
     if (!paymentId) {
@@ -208,10 +200,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       return;
     }
 
+    const body: any = { voucher: String(voucherValue || '') };
+
     const { data, error } = await execute(
       `/payments/${paymentId}`,
       'PUT',
-      { voucher: voucherValue },
+      body,
       false,
       true
     );
@@ -228,7 +222,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       }
       if (reLoad) reLoad();
     } else {
-      showToast(error?.data?.message || error?.message || 'No se pudo actualizar el comprobante', 'error');
+      showToast(error?.data?.message || error?.message || 'No se pudo actualizar el número de respaldo', 'error');
     }
   };
 
@@ -509,12 +503,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                           Editar
                         </button>
                       </>
-                    ) : item.status === 'S' ? (
+                    ) : (
                       <button type="button" className={styles.textButtonAccent} onClick={openVoucherEditor}>
                         Añadir número
                       </button>
-                    ) : (
-                      '-/-'
                     )}
                   </span>
                 </div>
@@ -651,14 +643,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         <Input
           label={'Número de respaldo de pago'}
           name={'voucher'}
-       
           value={voucherValue}
           onChange={(e: any) => {
-            const digitsOnly = String(e.target.value || '').replace(/\D/g, '');
-            setVoucherValue(digitsOnly);
+            const alnum = String(e.target.value || '').replace(/[^a-zA-Z0-9]/g, '').substring(0, 50);
+            setVoucherValue(alnum);
           }}
           error={voucherErrors}
-          required
+          maxLength={50}
         />
       </DataModal>
 
