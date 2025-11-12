@@ -12,21 +12,25 @@
   border: 1px solid var(--cWhiteV1);
   min-width: 600px;
 }
+
 .notFoundContainer {
   padding: var(--spXl) var(--spL);
   text-align: center;
   color: var(--cWhiteV1);
 }
+
 .notFoundText {
   font-size: var(--sL);
   color: var(--cWhite);
   font-weight: var(--bMedium);
   margin-bottom: var(--spS);
 }
+
 .notFoundSuggestion {
   font-size: var(--sM);
   color: var(--cWhiteV1);
 }
+
 .headerSection {
   display: flex;
   flex-direction: column;
@@ -34,24 +38,28 @@
   gap: var(--spXs);
   text-align: center;
 }
+
 .amountDisplay {
   color: var(--cWhite);
   font-size: 36px;
   font-weight: var(--bBold);
   line-height: 1.1;
 }
+
 .dateDisplay {
   color: var(--cWhiteV1);
   font-size: var(--sL);
   line-height: 1.5;
   font-weight: var(--bRegular);
 }
+
 .sectionDivider {
   width: 100%;
   border: none;
   height: 0;
   border-top: 0.5px solid var(--cWhiteV1);
 }
+
 .detailsSection {
   display: flex;
   flex-direction: row;
@@ -61,11 +69,13 @@
   width: 100%;
   box-sizing: border-box;
 }
+
 .detailsColumn {
   display: flex;
   flex-direction: column;
   gap: var(--spL);
 }
+
 .infoBlock {
   display: flex;
   flex-direction: column;
@@ -73,6 +83,7 @@
   text-align: left;
   max-width: 280px;
 }
+
 .infoLabel {
   color: var(--cWhiteV1);
   font-size: var(--sL);
@@ -80,6 +91,7 @@
   font-family: Roboto, sans-serif;
   text-align: left;
 }
+
 .infoValue {
   color: var(--cWhite);
   font-size: var(--sL);
@@ -90,32 +102,39 @@
   text-align: left;
   font-family: Roboto, sans-serif;
 }
+
 .infoValue div {
   line-height: 1.4;
   min-width: 0;
   text-align: left;
 }
+
 .statusPaid {
   color: var(--cSuccess) !important;
   font-weight: var(--bSemibold);
 }
+
 .statusPending {
   color: var(--cWarning) !important;
   font-weight: var(--bSemibold);
 }
+
 .statusRejected {
   color: var(--cError) !important;
   color: var(--cMediumAlert) !important;
   font-weight: var(--bSemibold);
 }
+
 .statusCanceled {
   color: var(--cError) !important;
   font-weight: var(--bSemibold);
 }
+
 .statusVoucher {
   color: var(--cInfo) !important;
   font-weight: var(--bSemibold);
 }
+
 .statusApproval {
   color: var(--cWarning) !important;
   font-weight: var(--bSemibold);
@@ -128,6 +147,7 @@
   border-radius: 4px;
   border-left: 3px solid var(--cError);
 }
+
 .voucherButtonContainer {
   display: flex;
   justify-content: center;
@@ -135,6 +155,7 @@
   position: relative;
   row-gap: 1rem;
 }
+
 .voucherButton {
   background-color: transparent;
   color: var(--cWhite);
@@ -144,28 +165,32 @@
   border-radius: var(--bRadiusS);
   text-align: center;
   font-weight: var(--bSemibold);
-  transition: background-color 0.2s ease, color 0.2s ease,border-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
   min-width: 220px;
   max-width: 100%;
   font-family: Roboto, sans-serif;
 }
+
 .voucherButton:hover {
   background-color: var(--cWhiteV3);
   border-color: var(--cWhite);
 }
+
 .periodsDetailsSection {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--spM);
 }
+
 .periodsDetailsHeader {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   width: 100%;
 }
+
 .periodsDetailsTitle {
   color: var(--cWhiteV1);
   font-size: var(--sM);
@@ -173,17 +198,20 @@
   margin: 0;
   padding-left: var(--spXs);
 }
+
 .periodsTableWrapper {
   width: 100%;
   border: 0.5px solid var(--cWhiteV1);
   border-radius: var(--bRadiusM);
   overflow: hidden;
 }
+
 .periodsTable {
   width: 100%;
   display: flex;
   flex-direction: column;
 }
+
 .periodsTableHeader,
 .periodsTableRow {
   display: grid;
@@ -255,6 +283,7 @@
   background-color: var(--cHoverCompl1);
   color: var(--cWhiteV1);
 }
+
 .periodsTableBody .periodsTableRow .periodsTableCell[data-label='Subtotal'],
 .periodsTableBody .periodsTableRowReservations .periodsTableCell[data-label='Total'] {
   font-weight: 500;
@@ -266,9 +295,11 @@
 .periodsTableBody .periodsTableRowReservations:nth-child(even) .periodsTableCell[data-label='Total'] {
   color: var(--cWhite);
 }
+
 .periodsTableCell:last-child {
   border-right: none;
 }
+
 .periodsTableCell[data-label='Monto'],
 .periodsTableCell[data-label='Multa'],
 .periodsTableCell[data-label='Mant. Valor'],
@@ -277,6 +308,7 @@
   justify-content: flex-end;
   text-align: right;
 }
+
 .periodsTableHeader .periodsTableCell:nth-child(3),
 .periodsTableHeader .periodsTableCell:nth-child(4),
 .periodsTableHeader .periodsTableCell:nth-child(5),
@@ -289,6 +321,7 @@
   justify-content: flex-end;
   text-align: right;
 }
+
 .periodsDetailsFooter {
   display: flex;
   justify-content: flex-end;
@@ -296,16 +329,19 @@
   width: 100%;
   padding-top: var(--spM);
 }
+
 .periodsDetailsTotal {
   color: var(--cWhiteV1);
   font-size: var(--sM);
   font-weight: var(--bRegular);
   white-space: nowrap;
 }
+
 .totalAmountValue {
   color: var(--cWhite);
   font-weight: var(--bRegular);
 }
+
 .actionButtonsContainer {
   display: flex;
   gap: var(--spM);
@@ -314,6 +350,7 @@
   padding-top: var(--spL);
   border-top: 1px solid var(--cBlackV2);
 }
+
 .actionButton {
   flex: 1;
   padding: var(--spM) var(--spL);
@@ -326,9 +363,11 @@
   border: none;
   color: var(--cWhite);
 }
+
 .actionButton:hover {
   filter: brightness(1.15);
 }
+
 .actionButton:active {
   transform: scale(0.98);
 }
@@ -346,59 +385,74 @@
     padding: var(--spL);
     gap: var(--spM);
   }
+
   .headerSection {
     padding-bottom: var(--spM);
   }
+
   .amountDisplay {
     font-size: 30px;
   }
+
   .dateDisplay {
     font-size: var(--sS);
   }
+
   .sectionDivider {
     margin: var(--spXs) 0;
   }
+
   .detailsSection {
     flex-direction: column;
     align-items: center;
     gap: var(--spL);
     padding: var(--spM) 0;
   }
+
   .detailsColumn {
     width: 100%;
     align-items: center;
     gap: var(--spM);
   }
+
   .infoBlock {
     max-width: 90%;
     align-items: center;
     text-align: center;
   }
+
   .voucherButtonContainer {
     padding: var(--spM) 0;
   }
+
   .voucherButton {
     padding: var(--spS) var(--spM);
     font-size: var(--sS);
     min-width: auto;
     width: 100%;
   }
+
   .periodsDetailsSection {
     gap: var(--spS);
     padding-top: 0;
   }
+
   .periodsDetailsHeader {
     margin-bottom: var(--spS);
   }
+
   .periodsDetailsTitle {
     font-size: var(--sM);
   }
+
   .periodsTableWrapper {
     border-radius: var(--bRadiusS);
   }
+
   .periodsTableHeader {
     display: none;
   }
+
   .periodsTableRow {
     grid-template-columns: 1fr;
     gap: 0;
@@ -406,9 +460,11 @@
     border-bottom: 1px solid var(--cBlackV3);
     background-color: var(--cBlackV1);
   }
+
   .periodsTableBody .periodsTableRow:last-child {
     border-bottom: none;
   }
+
   .periodsTableCell {
     display: flex;
     justify-content: space-between;
@@ -420,9 +476,11 @@
     background-color: transparent;
     min-height: auto;
   }
+
   .periodsTableCell:last-child {
     border-bottom: none;
   }
+
   .periodsTableCell::before {
     content: attr(data-label);
     font-weight: var(--bMedium);
@@ -431,28 +489,34 @@
     min-width: 70px;
     text-align: left;
   }
+
   .periodsDetailsFooter {
     padding-top: var(--spS);
   }
+
   .periodsDetailsTotal {
     font-size: var(--sS);
   }
+
   .actionButtonsContainer {
     flex-direction: column;
     margin-top: var(--spL);
     padding-top: var(--spM);
   }
+
   .actionButton {
     padding: var(--spM);
     font-size: var(--sS);
   }
 }
+
 .headerActionContainer {
   width: 100%;
   display: flex;
   justify-content: flex-end;
   padding-bottom: var(--spL);
 }
+
 .textButtonDanger {
   background-color: transparent;
   border: none;
@@ -466,12 +530,14 @@
   transition: color 0.2s ease, background-color 0.2s ease;
   text-decoration: underline;
 }
+
 .textButtonDanger:hover,
 .textButtonDanger:focus {
   text-decoration: underline;
   background-color: rgba(255, 0, 0, 0.05);
   outline: none;
 }
+
 .textButtonDanger:disabled {
   color: var(--cWhiteV3, #999999);
   cursor: not-allowed;
@@ -494,12 +560,14 @@
   text-decoration: underline;
   margin-left: 12px;
 }
+
 .textButtonAccent:hover,
 .textButtonAccent:focus {
   text-decoration: underline;
   background-color: rgba(36, 211, 127, 0.08);
   outline: none;
 }
+
 .textButtonAccent:disabled {
   color: var(--cWhiteV3, #999999);
   cursor: not-allowed;
