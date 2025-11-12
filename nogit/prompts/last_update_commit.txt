@@ -1,0 +1,11 @@
+LAST_COMMIT_HASH=da7aa5c60c69cb60c6d8ee687175f59e141b0dc4
+
+History:
+2025-11-01 | 54ce072 | Inicialización del archivo de seguimiento de commits para actualizaciones de documentación. Archivos de contexto ya existen y están actualizados.
+2025-11-03 | 3090470 | Updated documentation with new financial reporting features, unit management enhancements, owner dependent system, and area approval defaults
+2025-11-05 | c7492ed | Added backup system with queue processing, app version management, multi-tenancy indexes, and enhanced access notifications.
+2025-11-07 | 5302a3a | Enhanced access control with virtual columns and indexes, improved owner management with dependent registration and welcome emails, optimized database queries, and updated payment processing logic.
+2025-11-09 | 21e13f3 | Mejoras en controladores (concurrencia, validaciones), nuevas funcionalidades en versiones de app para guardias, índices de BD para rendimiento, y sistema de condonaciones de deudas.
+2025-11-10 | 566d6d0 | Sistema de códigos progresivos para pagos y egresos, nueva tabla transaction_counters, trait HasProgressiveCode, mejoras en manejo de concurrencia y detección de deadlocks en PaymentController.
+2025-11-11 | 7e0c862 | Mejoras en logging de actividad con metadatos de usuario y IP, migraciones idempotentes con verificación de existencia de índices y columnas, optimizaciones de rendimiento en BD con índices nombrados explícitamente.
+2025-11-11 | da7aa5c | Reorganización de archivos de contexto y configuración, renombrado de índices de BD para mayor claridad, adición de aliases de comandos de documentación, y mejoras en la documentación del proyecto.
