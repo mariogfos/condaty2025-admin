@@ -3,7 +3,7 @@
 export const BYTES_IN_MB = 1024 * 1024;
 
 export const DEFAULT_MAX_FILE_SIZE = 0.9 * BYTES_IN_MB; // 0.9 MB
-export const DEFAULT_CHUNK_BYTES = 0.5 * BYTES_IN_MB; // 0.5 MB
+export const DEFAULT_CHUNK_BYTES = 0.6 * BYTES_IN_MB; // 0.6 MB
 
 export const generateUUID = (): string => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAll(/[xy]/g, function (c) {
