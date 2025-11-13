@@ -9,7 +9,7 @@ import { useAuth } from '@/mk/contexts/AuthProvider';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import { formatBs } from '@/mk/utils/numbers';
 import Input from '@/mk/components/forms/Input/Input';
-
+import { hasMaintenanceValue } from '@/mk/utils/utils';
 interface PaymentDetail {
   id: string | number;
   status: string;
@@ -63,7 +63,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   const [errors, setErrors] = useState<{ confirm_obs?: string }>({});
   const [item, setItem] = useState<PaymentDetail | null>(propItem || null);
   const { execute } = useAxios();
-  const { showToast } = useAuth();
+  const { user, showToast } = useAuth();
   const [openVoucherModal, setOpenVoucherModal] = useState(false);
   const [voucherValue, setVoucherValue] = useState('');
   const [voucherErrors, setVoucherErrors] = useState<{ voucher?: string }>({});
@@ -282,8 +282,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
 
       return uniqueCategories.length > 0
         ? uniqueCategories.map((name, i) => (
-            <div key={`category-${i}`}>- {name}</div>
-          ))
+          <div key={`category-${i}`}>- {name}</div>
+        ))
         : <div>-/-</div>;
     }
 
@@ -552,14 +552,26 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
 
               <div className={styles.periodsTableWrapper}>
                 <div className={styles.periodsTable}>
-                  <div className={styles.periodsTableHeader}>
-                    <div className={styles.periodsTableCell}>Tipo</div>
-                    <div className={styles.periodsTableCell}>Concepto</div>
-                    <div className={styles.periodsTableCell}>Monto</div>
-                    <div className={styles.periodsTableCell}>Multa</div>
-                    <div className={styles.periodsTableCell}>Mant. Valor</div>
-                    <div className={styles.periodsTableCell}>Subtotal</div>
-                  </div>
+                  {
+                    // calc columns dynamically so grid layout adapts when Mant. Valor column is hidden
+                    (() => {
+                      const showMant = hasMaintenanceValue(user);
+                      const columns = showMant
+                        ? '1.2fr 2fr 0.8fr 0.8fr 0.8fr 1fr'
+                        : '1.2fr 2fr 0.8fr 0.8fr 1fr';
+
+                      return (
+                        <div className={styles.periodsTableHeader} style={{ gridTemplateColumns: columns }}>
+                          <div className={styles.periodsTableCell}>Tipo</div>
+                          <div className={styles.periodsTableCell}>Concepto</div>
+                          <div className={styles.periodsTableCell}>Monto</div>
+                          <div className={styles.periodsTableCell}>Multa</div>
+                          {showMant && <div className={styles.periodsTableCell}>Mant. Valor</div>}
+                          <div className={styles.periodsTableCell}>Subtotal</div>
+                        </div>
+                      );
+                    })()
+                  }
                   <div className={styles.periodsTableBody}>
                     {item.details?.map((periodo: any, index: number) => {
                       const debtType = periodo?.debt_dpto?.type;
@@ -568,6 +580,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                         <div
                           className={styles.periodsTableRow}
                           key={periodo?.id ?? index}
+                          style={{ gridTemplateColumns: hasMaintenanceValue(user) ? '1.2fr 2fr 0.8fr 0.8fr 0.8fr 1fr' : '1.2fr 2fr 0.8fr 0.8fr 1fr' }}
                         >
                           <div className={styles.periodsTableCell} data-label="Tipo">
                             {getDebtType(debtType)}
@@ -581,9 +594,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                           <div className={styles.periodsTableCell} data-label="Multa">
                             {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
                           </div>
-                          <div className={styles.periodsTableCell} data-label="Mant. Valor">
+
+                          {hasMaintenanceValue(user) && <div className={styles.periodsTableCell} data-label="Mant. Valor">
                             {formatBs(periodo?.debt_dpto?.maintenance_amount || 0)}
-                          </div>
+                          </div>}
                           <div className={styles.periodsTableCell} data-label="Subtotal">
                             {formatBs(getSubtotal(periodo))}
                           </div>
@@ -601,27 +615,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               </div>
             </div>
           )}
-
-          {/*           {item?.status === 'S' && (
-            <div className={styles.actionButtonsContainer}>
-              <Button
-                variant="cancel"
-                className={`${styles.actionButton} ${styles.rejectButton}`}
-                onClick={() => {
-                  setOnRechazar(true);
-                }}
-              >
-                Rechazar pago
-              </Button>
-              <Button
-                variant="accent"
-                className={`${styles.actionButton} ${styles.confirmButton}`}
-                onClick={() => onConfirm(true)}
-              >
-                Confirmar pago
-              </Button>
-            </div>
-          )} */}
         </div>
       </DataModal>
 
@@ -681,67 +674,67 @@ RenderView.displayName = 'RenderViewPayment';
 
 export default RenderView;
 
-  // Función para obtener el tipo de deuda
-  const getDebtType = (type: number) => {
-    switch (type) {
-      case 0:
-        return 'Individual';
-      case 1:
-        return 'Expensas';
-      case 2:
-        return 'Reservas';
-      case 3:
-        return 'Multa por Cancelación';
-      case 4:
-        return 'Compartida';
-      case 5:
-        return 'Condonación';
-      default:
-        return 'Desconocido';
-    }
-  };
+// Función para obtener el tipo de deuda
+const getDebtType = (type: number) => {
+  switch (type) {
+    case 0:
+      return 'Individual';
+    case 1:
+      return 'Expensas';
+    case 2:
+      return 'Reservas';
+    case 3:
+      return 'Multa por Cancelación';
+    case 4:
+      return 'Compartida';
+    case 5:
+      return 'Condonación';
+    default:
+      return 'Desconocido';
+  }
+};
 
-  // Función para obtener el concepto basado en el tipo
-  const getConceptByType = (periodo: any) => {
-    const type = periodo?.debt_dpto?.type;
+// Función para obtener el concepto basado en el tipo
+const getConceptByType = (periodo: any) => {
+  const type = periodo?.debt_dpto?.type;
 
-    switch (type) {
-      case 0: // Individual
-      case 4: // Compartida
-        return periodo?.subcategory?.name || '-/-';
-      case 1: { // Expensas: mostrar periodo (MES y AÑO)
-        const monthNumRaw = periodo?.debt_dpto?.debt?.month ?? periodo?.debt_dpto?.shared?.month;
-        const yearNumRaw = periodo?.debt_dpto?.debt?.year ?? periodo?.debt_dpto?.shared?.year;
+  switch (type) {
+    case 0: // Individual
+    case 4: // Compartida
+      return periodo?.subcategory?.name || '-/-';
+    case 1: { // Expensas: mostrar periodo (MES y AÑO)
+      const monthNumRaw = periodo?.debt_dpto?.debt?.month ?? periodo?.debt_dpto?.shared?.month;
+      const yearNumRaw = periodo?.debt_dpto?.debt?.year ?? periodo?.debt_dpto?.shared?.year;
 
-        const monthIndex = typeof monthNumRaw === 'number' ? monthNumRaw : parseInt(String(monthNumRaw), 10);
-        const yearNum = typeof yearNumRaw === 'number' ? yearNumRaw : parseInt(String(yearNumRaw), 10);
+      const monthIndex = typeof monthNumRaw === 'number' ? monthNumRaw : parseInt(String(monthNumRaw), 10);
+      const yearNum = typeof yearNumRaw === 'number' ? yearNumRaw : parseInt(String(yearNumRaw), 10);
 
-        if (Number.isFinite(monthIndex) && Number.isFinite(yearNum) && monthIndex >= 1 && monthIndex <= 12) {
-          return `${MONTHS_ES[monthIndex - 1]} ${yearNum}`;
-        }
-        return periodo?.subcategory?.name || '-/-';
+      if (Number.isFinite(monthIndex) && Number.isFinite(yearNum) && monthIndex >= 1 && monthIndex <= 12) {
+        return `${MONTHS_ES[monthIndex - 1]} ${yearNum}`;
       }
-      case 2: { // Reservas
-        const penaltyAmount = parseFloat(periodo?.debt_dpto?.penalty_amount) || 0;
-        const areaTitle = periodo?.debt_dpto?.reservation?.area?.title || '-/-';
-
-        if (penaltyAmount > 0) {
-          return `Multa: ${areaTitle}`;
-        } else {
-          return `Reserva: ${areaTitle}`;
-        }
-      }
-      case 3: // Multa por Cancelación
-        return `Multa por Cancelación: ${periodo?.debt_dpto?.debt?.reservation_penalty?.area?.title || '-/-'}`;
-      default:
-        return periodo?.subcategory?.name || '-/-';
+      return periodo?.subcategory?.name || '-/-';
     }
-  };
+    case 2: { // Reservas
+      const penaltyAmount = parseFloat(periodo?.debt_dpto?.penalty_amount) || 0;
+      const areaTitle = periodo?.debt_dpto?.reservation?.area?.title || '-/-';
 
-  // Función para calcular el subtotal incluyendo mantenimiento de valor
+      if (penaltyAmount > 0) {
+        return `Multa: ${areaTitle}`;
+      } else {
+        return `Reserva: ${areaTitle}`;
+      }
+    }
+    case 3: // Multa por Cancelación
+      return `Multa por Cancelación: ${periodo?.debt_dpto?.debt?.reservation_penalty?.area?.title || '-/-'}`;
+    default:
+      return periodo?.subcategory?.name || '-/-';
+  }
+};
+
+// Función para calcular el subtotal incluyendo mantenimiento de valor
 const getSubtotal = (periodo: any) => {
   const amount = parseFloat(periodo?.debt_dpto?.amount) || 0;
- const penaltyAmount = parseFloat(periodo?.debt_dpto?.penalty_amount) || 0;
+  const penaltyAmount = parseFloat(periodo?.debt_dpto?.penalty_amount) || 0;
   const maintenanceAmount = parseFloat(periodo?.debt_dpto?.maintenance_amount) || 0;
-    return amount + penaltyAmount + maintenanceAmount;
-  };
+  return amount + penaltyAmount + maintenanceAmount;
+};
