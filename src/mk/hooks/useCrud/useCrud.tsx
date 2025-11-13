@@ -160,6 +160,8 @@ type UseCrudType = {
   findOptions: Function;
   getExtraData: Function;
   openCard: boolean;
+  chunkUpload: any;
+  setChunkUpload: Function;
 };
 
 const useCrud = ({
@@ -194,6 +196,13 @@ const useCrud = ({
   const [searchs, setSearchs]: any = useState(extraParams || {});
   const [action, setAction] = useState<ActionType>("add");
   const [openCard, setOpenCard] = useState(false);
+  const [chunkUpload, setChunkUpload] = useState<any>({
+    active: false,
+    total: 0,
+    sent: 0,
+    pending: 0,
+    paquete: 1,
+  });
   if (mod) {
     mod.titleAdd = mod.titleAdd ?? "Agregar";
     mod.titleEdit = mod.titleEdit ?? "Editar";
@@ -409,44 +418,56 @@ const useCrud = ({
 
     let lastResponse: any = null;
 
-    // Enviar cada chunk
-    for (let i = 0; i < totalChunks; i++) {
-      const isLastChunk = i === totalChunks - 1;
-      const chunkData: Record<string, any> = {
-        uploadId,
-        chunkIndex: i,
-        totalChunks,
-        ext: fileData.ext,
-        fileContents: chunks[i],
-        metadata: isLastChunk ? metadata : {}
-      };
+    // Inicializar estado de progreso
+    try {
+      setChunkUpload({ active: true, total: totalChunks, sent: 0, pending: totalChunks, paquete: 1 });
 
-      const { data: response } = await execute(
-        url,
-        method,
-        chunkData,
-        false,
-        mod?.noWaiting
-      );
+      // Enviar cada chunk
+      for (let i = 0; i < totalChunks; i++) {
+        const isLastChunk = i === totalChunks - 1;
+        const chunkData: Record<string, any> = {
+          uploadId,
+          chunkIndex: i,
+          totalChunks,
+          ext: fileData.ext,
+          fileContents: chunks[i],
+          metadata: isLastChunk ? metadata : {}
+        };
 
-      // Verificar respuesta del chunk
+        const { data: response } = await execute(
+          url,
+          method,
+          chunkData,
+          false,
+          mod?.noWaiting
+        );
 
-      // Para chunks intermedios, esperamos success: true con status implícito 202
-      // Para el último chunk, esperamos success: true con el resultado final
-      if (!response?.success) {
-        const errorMsg = response?.msg || response?.message || `Error al enviar chunk ${i + 1}`;
-        throw new Error(errorMsg);
+        // Verificar respuesta del chunk
+        if (!response?.success) {
+          const errorMsg = response?.msg || response?.message || `Error al enviar chunk ${i + 1}`;
+          throw new Error(errorMsg);
+        }
+
+        lastResponse = { data: response };
+
+        // Actualizar progreso
+        setChunkUpload((old: any) => ({
+          ...old,
+          sent: i + 1,
+          pending: Math.max(0, totalChunks - (i + 1)),
+        }));
+
+        // Mostrar progreso solo para chunks intermedios
+        if (!isLastChunk) {
+          showToast(`Subiendo... ${Math.round(((i + 1) / totalChunks) * 100)}%`, "info");
+        }
       }
 
-      lastResponse = { data: response };
-
-      // Mostrar progreso solo para chunks intermedios
-      if (!isLastChunk) {
-        showToast(`Subiendo... ${Math.round(((i + 1) / totalChunks) * 100)}%`, "info");
-      }
+      return lastResponse;
+    } finally {
+      // limpiar el estado de progreso (si ocurrió error o terminó)
+      setChunkUpload((old: any) => ({ ...old, active: false }));
     }
-
-    return lastResponse;
   };
 
   const onSave = async (data: Record<string, any>, _setErrors?: Function) => {
@@ -1773,6 +1794,8 @@ const useCrud = ({
     findOptions,
     getExtraData,
     openCard,
+    chunkUpload,
+    setChunkUpload,
   };
 };
 

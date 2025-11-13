@@ -6,6 +6,8 @@ import styles from "./Documents.module.css";
 import { getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderView from "./RenderView/RenderView";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import ProgressBar from "@/mk/components/ui/ProgressBar/ProgressBar";
 import { IconDocs } from "@/components/layout/icons/IconsBiblioteca";
 
 const lOptions = [
@@ -64,7 +66,7 @@ const Documents = () => {
         label: "Extensión",
         list: false,
       },
-      
+
       for_to: {
         rules: ["required"],
         api: "ae*",
@@ -100,11 +102,11 @@ const Documents = () => {
               target="_blank"
               href={getUrlImages(
                 "/DOC-" +
-                  item.id +
-                  "." +
-                  (item.doc?.ext || item.ext) +
-                  "?d=" +
-                  item.updated_at
+                item.id +
+                "." +
+                (item.doc?.ext || item.ext) +
+                "?d=" +
+                item.updated_at
               )}
               rel="noopener noreferrer"
             >
@@ -121,7 +123,7 @@ const Documents = () => {
     setStore({ title: "Documentos" });
   }, []);
 
-  const { userCan, List } = useCrud({
+  const { userCan, List, chunkUpload } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -131,6 +133,25 @@ const Documents = () => {
 
   return (
     <div className={styles.style}>
+      {chunkUpload?.active && (
+        <DataModal
+          open={true}
+          onClose={() => { }}
+          title={"Subiendo archivo..."}
+          buttonText={""}
+          buttonCancel={""}
+          variant="mini"
+        >
+          <div style={{ minWidth: 320 }}>
+            <ProgressBar
+              total={chunkUpload.total}
+              sent={chunkUpload.sent}
+              pending={chunkUpload.pending}
+              paquete={chunkUpload.paquete}
+            />
+          </div>
+        </DataModal>
+      )}
       <List
         height={"calc(100vh - 330px)"}
         emptyMsg="Lista de documentos vacía. Los documentos del condominio"
