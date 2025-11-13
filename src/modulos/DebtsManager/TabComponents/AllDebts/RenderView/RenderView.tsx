@@ -15,6 +15,7 @@ import PaymentRenderForm from '@/modulos/Payments/RenderForm/RenderForm';
 import { getDateStrMesShort } from '@/mk/utils/date';
 import { getFullName } from '@/mk/utils/string';
 import { getTitular } from '@/mk/utils/adapters';
+import { hasMaintenanceValue } from '@/mk/utils/utils';
 
 interface RenderViewProps {
   open: boolean;
@@ -26,7 +27,7 @@ interface RenderViewProps {
   onDel?: (item: any) => void;
   hideSharedDebtButton?: boolean;
   hideEditAndDeleteButtons?: boolean;
-  onReload?: () => void; 
+  onReload?: () => void;
 }
 
 
@@ -61,7 +62,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       fullType: 'DET',
       perPage: -1,
       page: 1,
-      extraData:true
+      extraData: true
     },
     open && !!item?.id
   );
@@ -201,7 +202,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     switch (type) {
       case 1: return 'Ver expensa';
       case 2: return 'Ver reserva';
-      case 3: return ;
+      case 3: return;
       case 4: return hideSharedDebtButton ? null : 'Ver deuda compartida';
       default: return null;
     }
@@ -283,8 +284,8 @@ const RenderView: React.FC<RenderViewProps> = ({
     const isSharedDebt = debtType === 4; // Tipo 4 = Deudas compartidas
 
     const isForgivenessDebt = debtDetail?.description?.toLowerCase().includes('condonación') ||
-                           debtDetail?.debt?.description?.toLowerCase().includes('condonación') ||
-                           debtDetail?.subcategory?.name?.toLowerCase().includes('condonación');
+      debtDetail?.debt?.description?.toLowerCase().includes('condonación') ||
+      debtDetail?.subcategory?.name?.toLowerCase().includes('condonación');
 
     const shouldLockFields = isIndividualDebt || isExpensasDebt || isReservationsDebt || isSharedDebt;
 
@@ -450,8 +451,12 @@ const RenderView: React.FC<RenderViewProps> = ({
                 {/* Item vacío en el medio */}
                 <div className={styles.infoItem}>{/* Espacio vacío */}</div>
                 <div className={styles.infoItem}>
-                  <span className={styles.label}>Mant. de valor</span>
-                  <span className={styles.value}>Bs {formatNumber(maintenanceAmount)}</span>
+                  {hasMaintenanceValue(user) && (
+                    <>
+                      <span className={styles.label}>Mant. de valor</span>
+                      <span className={styles.value}>Bs {formatNumber(maintenanceAmount)}</span>
+                    </>
+                  )}
                 </div>
                 {/* Solo mostrar distribución para type 4 */}
                 {showDistribution && (

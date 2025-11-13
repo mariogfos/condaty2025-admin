@@ -32,6 +32,9 @@ const DptoConfig = ({
       ? formState.payment_time_limit
       : "";
   });
+  const [hasMaintenanceValue, setHasMaintenanceValue] = useState(() => {
+    return Boolean(formState?.has_maintenance_value);
+  });
 
 
   useEffect(() => {
@@ -42,6 +45,10 @@ const DptoConfig = ({
       setSavedPaymentTimeLimit(formState.payment_time_limit);
     }
   }, [formState?.payment_time_limit]);
+
+  useEffect(() => {
+    setHasMaintenanceValue(Boolean(formState?.has_maintenance_value));
+  }, [formState?.has_maintenance_value]);
 
 
   const handleSwitchChange = ({ target: { name, value } }: any) => {
@@ -62,6 +69,10 @@ const DptoConfig = ({
         }
         onChange({ target: { name: "payment_time_limit", value: "" } });
       }
+    } else if (name === "has_maintenance_value") {
+      const isEnabled = value === "Y";
+      setHasMaintenanceValue(isEnabled);
+      onChange({ target: { name: "has_maintenance_value", value: isEnabled } });
     }
   };
 
@@ -105,13 +116,13 @@ const DptoConfig = ({
                   typeof formState?.avatarLogo === "object"
                     ? formState?.avatarLogo
                     : String(formState?.has_image_l) === "1"
-                    ? getUrlImages(
+                      ? getUrlImages(
                         "/LOGO-" +
-                          formState?.id +
-                          ".webp?" +
-                          formState?.updated_at
+                        formState?.id +
+                        ".webp?" +
+                        formState?.updated_at
                       )
-                    : undefined
+                      : undefined
                 }
                 setError={setErrors}
                 error={errors}
@@ -138,13 +149,13 @@ const DptoConfig = ({
                   typeof formState?.avatarLogoP === "object"
                     ? formState?.avatarLogoP
                     : String(formState?.has_image_lp) === "1"
-                    ? getUrlImages(
+                      ? getUrlImages(
                         "/LOGOP-" +
-                          formState?.id +
-                          ".webp?" +
-                          formState?.updated_at
+                        formState?.id +
+                        ".webp?" +
+                        formState?.updated_at
                       )
-                    : undefined
+                      : undefined
                 }
                 setError={setErrors}
                 error={errors}
@@ -172,13 +183,13 @@ const DptoConfig = ({
                 typeof formState?.avatar === "object"
                   ? formState?.avatar
                   : String(formState?.has_image_c) === "1"
-                  ? getUrlImages(
+                    ? getUrlImages(
                       "/CLIENT-" +
-                        formState?.id +
-                        ".webp?" +
-                        formState?.updated_at
+                      formState?.id +
+                      ".webp?" +
+                      formState?.updated_at
                     )
-                  : undefined
+                    : undefined
               }
               setError={setErrors}
               error={errors}
@@ -205,7 +216,6 @@ const DptoConfig = ({
               className="dark-input"
               maxLength={80}
             />
-            {/* <div className={styles.fieldHint}>Máximo 80 caracteres</div> */}
           </div>
           <div className={styles.inputHalf}>
             <Select
@@ -250,7 +260,6 @@ const DptoConfig = ({
               className="dark-input"
               maxLength={100}
             />
-            {/* <div className={styles.fieldHint}>Máximo 100 caracteres</div> */}
           </div>
         </div>
         <div className={styles.inputContainer}>
@@ -267,23 +276,6 @@ const DptoConfig = ({
               maxLength={100}
             />
           </div>
-          {/* <div className={styles.inputHalf}>
-            <Select
-              label="Tipo de unidad"
-              value={formState?.type_dpto}
-              name="type_dpto"
-              error={errors}
-              onChange={handleChange}
-              options={[
-                { id: "D", name: "Departamento" },
-                { id: "O", name: "Oficina" },
-                { id: "C", name: "Casa" },
-                { id: "L", name: "Lote" },
-              ]}
-              required
-              className="dark-input appearance-none"
-            />
-          </div> */}
         </div>
 
         <div className={styles.textareaContainer}>
@@ -376,20 +368,10 @@ const DptoConfig = ({
             onChange={onChange}
             className="dark-input"
           />
-          {/* <div className={styles.fieldHint}>
-            El monto debe ser menor o igual a 10 dígitos
-          </div> */}
         </div>
         <Br />
         <div className={styles.sectionContainer}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              marginBottom: "16px",
-            }}
-          >
+          <div className={styles.switchContainer}>
             <div>
               <p className={styles.textTitle}>
                 Reservas requieren pago obligatorio
@@ -427,11 +409,32 @@ const DptoConfig = ({
           )}
         </div>
 
+        <div className={styles.sectionContainer}>
+          <div className={styles.switchContainer}>
+            <div>
+              <p className={styles.textTitle}>
+                Mantenimiento de valor en el condominio
+              </p>
+              <p className={styles.textSubtitle}>
+                Activa esta opción para aplicar mantenimiento de valor a todas las reservas, deudas y fondos del condominio
+              </p>
+            </div>
+
+            <Switch
+              name="has_maintenance_value"
+              label=""
+              value={hasMaintenanceValue ? "Y" : "N"}
+              onChange={handleSwitchChange}
+              optionValue={["Y", "N"]}
+              checked={hasMaintenanceValue}
+            />
+          </div>
+        </div>
+
         <div className={styles.saveButtonContainer}>
           <Button
             className={`${styles.saveButton} `}
             onClick={onSave}
-            // disabled={Object.keys(validationErrors).length > 0}
           >
             Guardar datos
           </Button>
