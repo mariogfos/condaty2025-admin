@@ -38,7 +38,6 @@ const BankAccounts = () => {
     },
     extraData: true,
     renderForm: (props: any) => <RenderForm {...props} />,
-    // loadView: { fullType: "DET" },
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -187,12 +186,13 @@ const BankAccounts = () => {
     };
   }, []);
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, reLoad } =
-    useCrud({
+  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
+    {
       paramsInitial,
       mod,
       fields,
-    });
+    }
+  );
   const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
@@ -209,7 +209,6 @@ const BankAccounts = () => {
         height={"calc(100vh - 345px)"}
         emptyMsg="Lista de cuentas bancarias vacía. Aquí verás a todas las cuentas bancarias"
         emptyLine2="del condominio una vez los registres."
-        // emptyIcon={<IconHomePerson2 size={80} color="var(--cWhiteV1)" />}
       />
     </div>
   );
