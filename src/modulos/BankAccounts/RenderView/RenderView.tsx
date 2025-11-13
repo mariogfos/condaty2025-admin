@@ -233,7 +233,10 @@ const RenderView = (props: any) => {
           open={openForm}
           onClose={() => setOpenForm(false)}
           item={item}
-          reLoad={reLoad}
+          reLoad={() => {
+            getDetail();
+            reLoad();
+          }}
           execute={execute}
           showToast={showToast}
           extraData={extraData}
