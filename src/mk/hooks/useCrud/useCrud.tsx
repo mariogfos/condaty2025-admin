@@ -18,7 +18,7 @@ import {
   hasErrors,
 } from "../../utils/validate/Rules";
 import { logError } from "../../utils/logs";
-import { getBase64Size, uploadFileInChunks } from "@/mk/utils/chunkUpload";
+import { getBase64Size, uploadFileInChunks, DEFAULT_MAX_FILE_SIZE } from "@/mk/utils/chunkUpload";
 import LoadingScreen from "../../components/ui/LoadingScreen/LoadingScreen";
 import Table, { RenderColType } from "../../components/ui/Table/Table";
 import DataModal from "../../components/ui/DataModal/DataModal";
@@ -388,7 +388,7 @@ const useCrud = ({
 
     // Verificar si hay archivos que necesitan ser enviados en chunks
     let fileFieldToChunk: string | null = null;
-    const MAX_FILE_SIZE = 1 * 512 * 1024; // 1MB (en bytes)
+    const MAX_FILE_SIZE = DEFAULT_MAX_FILE_SIZE; // bytes (configurable in chunkUpload utils)
 
     if (action !== "del") {
       for (const key in fields) {

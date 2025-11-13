@@ -1,7 +1,12 @@
 // Utilities to handle chunked uploads
 
+export const BYTES_IN_MB = 1024 * 1024;
+
+export const DEFAULT_MAX_FILE_SIZE = 0.9 * BYTES_IN_MB; // 0.9 MB
+export const DEFAULT_CHUNK_BYTES = 0.5 * BYTES_IN_MB; // 0.5 MB
+
 export const generateUUID = (): string => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAll(/[xy]/g, function (c) {
         const r = Math.trunc(Math.random() * 16);
         const v = c === 'x' ? r : (r & 0x3) | 0x8;
         return v.toString(16);
@@ -49,7 +54,7 @@ export const uploadFileInChunks = async ({
     }
 
     const base64Content = fileData.file.replace(/^data:.*?;base64,/, '');
-    const CHUNK_BYTES = 450 * 1024; // 450KB in bytes (approx 900KB earlier but kept conversion)
+    const CHUNK_BYTES = DEFAULT_CHUNK_BYTES; // bytes per chunk
     const CHUNK_SIZE = Math.ceil(CHUNK_BYTES / 3) * 4;
     const chunks = chunkFile(base64Content, CHUNK_SIZE);
     const uploadId = generateUUID();
