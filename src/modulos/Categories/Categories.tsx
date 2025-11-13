@@ -161,6 +161,25 @@ const Categories = ({ type: propType = "" }) => {
           form: { type: "textarea" },
           list: {},
         },
+        bank_account_id: {
+          rules: [],
+          api: "ae",
+          label: "Cuenta bancaria",
+          form: {
+            type: "select",
+            optionsExtra: "bank_accounts",
+            placeholder: "Seleccione una cuenta bancaria",
+          },
+          list: {
+            render: ({ item, extraData }: CategoryItem) => {
+              console.log(item, extraData);
+              const bankAccount = extraData?.bankAccounts?.find(
+                (bank: any) => String(bank.id) === String(item.bank_account_id)
+              );
+              return bankAccount?.alias_holder || "-/-";
+            },
+          },
+        },
         category_id: {
           rules: [],
           api: "ae",
