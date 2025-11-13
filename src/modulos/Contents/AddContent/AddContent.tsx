@@ -21,6 +21,7 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TagContents from "./TagContents";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 import Br from "@/components/Detail/Br";
+import { estimateBase64Bytes, uploadLargeFiles } from "@/mk/utils/fileUpload";
 
 const AddContent = ({
   onClose,
@@ -231,21 +232,91 @@ const AddContent = ({
     }
 
     let method = formState.id ? "PUT" : "POST";
+
+    // Build payload but detect large files in `file` and `avatar` to upload separately
+    const payload: any = {
+      destiny: "T",
+      url: formState?.url,
+      title: formState?.title,
+      description: formState?.description,
+      avatar: formState?.avatar,
+      file: formState?.file,
+      type: formState?.type,
+    };
+
+    const filesToUpload: any[] = [];
+    const uploadLimitMB = 1; // you can make this configurable
+    const uploadLimitBytes = uploadLimitMB * 1024 * 1024;
+
+    // Helper to normalize and estimate base64 bytes
+    const extractBase64 = (val: any) => {
+      if (!val || typeof val !== "object" || !val.file) return null;
+      let b64 = val.file;
+      try {
+        b64 = decodeURIComponent(b64);
+      } catch (e) { }
+      if (typeof b64 === "string" && b64.includes("base64,")) {
+        b64 = b64.split("base64,")[1];
+      }
+      return b64;
+    };
+
+    // Check `file` (single document)
+    if (payload.file && typeof payload.file === "object" && payload.file.file && payload.file.file !== "delete") {
+      const b64 = extractBase64(payload.file);
+      const est = b64 ? estimateBase64Bytes(b64) : 0;
+      if (est > uploadLimitBytes) {
+        filesToUpload.push({
+          fieldKey: "file",
+          value: payload.file,
+          ext: payload.file.ext || "pdf",
+          prefix: "CONT",
+        });
+        // ensure extension is sent in the initial payload root
+        if (!payload.ext && payload.file && payload.file.ext) payload.ext = payload.file.ext;
+        delete payload.file;
+      }
+    }
+
+    // Check `avatar` (multiple) - avatar is an object with keys like avatar0, avatar1
+    if (payload.avatar && typeof payload.avatar === "object") {
+      const avatarObj = { ...payload.avatar };
+      for (const k in avatarObj) {
+        const v = avatarObj[k];
+        if (v && typeof v === "object" && v.file && v.file !== "delete") {
+          const b64 = extractBase64(v);
+          const est = b64 ? estimateBase64Bytes(b64) : 0;
+          if (est > uploadLimitBytes) {
+            // Use prefix that includes the avatar key so filename is unique
+            filesToUpload.push({
+              fieldKey: k,
+              value: v,
+              ext: v.ext || "webp",
+              prefix: `CONT-${k}`,
+            });
+            // ensure extension is sent in the initial payload root (if not set yet)
+            if (!payload.ext && v && v.ext) payload.ext = v.ext;
+            // remove this avatar entry from payload
+            delete payload.avatar[k];
+          }
+        }
+      }
+      // if avatar object is now empty, remove it from payload
+      if (payload.avatar && Object.keys(payload.avatar).length === 0) delete payload.avatar;
+    }
+
     const { data } = await execute(
       "/contents" + (formState.id ? "/" + formState.id : ""),
       method,
-      {
-        destiny: "T",
-        url: formState?.url,
-        title: formState?.title,
-        description: formState?.description,
-        avatar: formState?.avatar,
-        file: formState?.file,
-        type: formState?.type,
-      }
+      payload
     );
 
     if (data?.success == true) {
+      // If there are large files, upload them after we have the created id
+      if (filesToUpload.length > 0 && data.data && data.data.id) {
+        await uploadLargeFiles(filesToUpload, data.data.id, execute, false, showToast);
+      }
+
       onClose();
       reLoad();
       showToast(data.message, "success");
