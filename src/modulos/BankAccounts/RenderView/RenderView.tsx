@@ -214,13 +214,16 @@ const RenderView = (props: any) => {
                       fontSize: 16,
                     }}
                   >
-                    {item?.is_expense > 0 && "Expensa,"}
-                    {item?.is_reserve > 0 && "Reserva,"}
-                    {item?.is_main > 0 && "Principal"}
-                    {item?.is_expense === 0 &&
-                      item?.is_reserve === 0 &&
-                      item?.is_main === 0 &&
-                      "-/-"}
+                    {["Expensa", "Reserva", "Principal"]
+                      .filter((label, index) => {
+                        const flags = [
+                          item?.is_expense,
+                          item?.is_reserve,
+                          item?.is_main,
+                        ];
+                        return flags[index] > 0;
+                      })
+                      .join(", ") || "-/-"}
                   </p>
                 ),
               }}
