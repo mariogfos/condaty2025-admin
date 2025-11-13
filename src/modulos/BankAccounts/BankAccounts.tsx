@@ -38,7 +38,7 @@ const BankAccounts = () => {
     },
     extraData: true,
     renderForm: (props: any) => <RenderForm {...props} />,
-    loadView: { fullType: "DET" },
+    // loadView: { fullType: "DET" },
     renderView: (props: {
       open: boolean;
       onClose: any;
