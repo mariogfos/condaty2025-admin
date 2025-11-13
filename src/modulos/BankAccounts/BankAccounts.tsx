@@ -17,7 +17,7 @@ const paramsInitial = {
 const renderTitleCell = ({ item }: Record<string, any>) => {
   return (
     <div>
-      <p style={{ color: "var(--cWhite)" }}>{item.alias_holder}</p>
+      <p style={{ color: "var(--cWhite)" }}>{item.holder}</p>
       <p>CI/NIT: {item.ci_holder}</p>
     </div>
   );
