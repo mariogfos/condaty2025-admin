@@ -18,6 +18,7 @@ import {
   hasErrors,
 } from "../../utils/validate/Rules";
 import { logError } from "../../utils/logs";
+import { getBase64Size, uploadFileInChunks } from "@/mk/utils/chunkUpload";
 import LoadingScreen from "../../components/ui/LoadingScreen/LoadingScreen";
 import Table, { RenderColType } from "../../components/ui/Table/Table";
 import DataModal from "../../components/ui/DataModal/DataModal";
@@ -358,117 +359,7 @@ const useCrud = ({
     setOpenView(false);
   };
 
-  // Función para generar UUID
-  const generateUUID = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAll(/[xy]/g, function (c) {
-      const r = Math.trunc(Math.random() * 16);
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  };
-
-  // Función para dividir archivos grandes en chunks (recibe número de caracteres base64)
-  const chunkFile = (base64String: string, chunkSize: number = 512 * 1024): string[] => {
-    const chunks: string[] = [];
-    for (let i = 0; i < base64String.length; i += chunkSize) {
-      chunks.push(base64String.slice(i, i + chunkSize));
-    }
-    return chunks;
-  };
-
-  // Función para calcular el tamaño aproximado en bytes de un string base64
-  const getBase64Size = (base64String: string): number => {
-    // Remover el prefijo data:image/...;base64, si existe
-    const cleanBase64 = base64String.replace(/^data:.*?;base64,/, '');
-    // Calcular el tamaño real (cada 4 caracteres base64 = 3 bytes)
-    const padding = (cleanBase64.match(/=/g) || []).length;
-    return (cleanBase64.length * 3) / 4 - padding;
-  };
-
-  // Función para enviar un archivo en chunks
-  const sendFileInChunks = async (
-    url: string,
-    method: string,
-    data: Record<string, any>,
-    fileField: string
-  ) => {
-    const fileData = data[fileField];
-    if (!fileData?.file) {
-      throw new Error("No se encontró el archivo para enviar");
-    }
-
-    const base64Content = fileData.file.replace(/^data:.*?;base64,/, '');
-    // Queremos chunk en bytes (900KB por defecto) pero debemos convertir a
-    // longitud de caracteres base64: longitudBase64 = 4 * ceil(bytes/3)
-    const CHUNK_BYTES = 450 * 1024; // 900 KB en bytes
-    const CHUNK_SIZE = Math.ceil(CHUNK_BYTES / 3) * 4; // tamaño en caracteres base64
-    const chunks = chunkFile(base64Content, CHUNK_SIZE);
-    const uploadId = generateUUID();
-    const totalChunks = chunks.length;
-
-    showToast(`Subiendo archivo en ${totalChunks} partes...`, "info");
-
-    // Preparar metadata una sola vez (todos los campos excepto el archivo)
-    const metadata: Record<string, any> = {};
-    for (const key in data) {
-      if (key !== fileField) {
-        metadata[key] = data[key];
-      }
-    }
-
-    let lastResponse: any = null;
-
-    // Inicializar estado de progreso
-    try {
-      setChunkUpload({ active: true, total: totalChunks, sent: 0, pending: totalChunks, paquete: 1 });
-
-      // Enviar cada chunk
-      for (let i = 0; i < totalChunks; i++) {
-        const isLastChunk = i === totalChunks - 1;
-        const chunkData: Record<string, any> = {
-          uploadId,
-          chunkIndex: i,
-          totalChunks,
-          ext: fileData.ext,
-          fileContents: chunks[i],
-          metadata: isLastChunk ? metadata : {}
-        };
-
-        const { data: response } = await execute(
-          url,
-          method,
-          chunkData,
-          false,
-          mod?.noWaiting
-        );
-
-        // Verificar respuesta del chunk
-        if (!response?.success) {
-          const errorMsg = response?.msg || response?.message || `Error al enviar chunk ${i + 1}`;
-          throw new Error(errorMsg);
-        }
-
-        lastResponse = { data: response };
-
-        // Actualizar progreso
-        setChunkUpload((old: any) => ({
-          ...old,
-          sent: i + 1,
-          pending: Math.max(0, totalChunks - (i + 1)),
-        }));
-
-        // Mostrar progreso solo para chunks intermedios
-        if (!isLastChunk) {
-          showToast(`Subiendo... ${Math.round(((i + 1) / totalChunks) * 100)}%`, "info");
-        }
-      }
-
-      return lastResponse;
-    } finally {
-      // limpiar el estado de progreso (si ocurrió error o terminó)
-      setChunkUpload((old: any) => ({ ...old, active: false }));
-    }
-  };
+  // Chunk upload helpers moved to src/mk/utils/chunkUpload.ts
 
   const onSave = async (data: Record<string, any>, _setErrors?: Function) => {
     if (!userCan(mod.permiso, action == "del" ? "D" : action))
@@ -517,12 +408,21 @@ const useCrud = ({
     // Si hay un archivo grande, enviarlo en chunks
     if (fileFieldToChunk) {
       try {
-        const result = await sendFileInChunks(url, method, param, fileFieldToChunk);
-        response = result.data;
-        err = result.error;
+        const result = await uploadFileInChunks({
+          execute,
+          url,
+          method,
+          data: param,
+          fileField: fileFieldToChunk,
+          showToast,
+          setChunkUpload,
+          modNoWaiting: mod?.noWaiting,
+        });
+        response = result?.data;
+        err = result?.error;
       } catch (error: any) {
         showToast(error.message || "Error al subir el archivo", "error");
-        logError("Error en sendFileInChunks:", error);
+        logError("Error en uploadFileInChunks:", error);
         return;
       }
     } else {
@@ -694,12 +594,6 @@ const useCrud = ({
     // console.log('extradata get Estradata', extraData);
     setExtraData(extraData?.data);
   };
-  // useEffect(() => {
-  //   if (mod.extraData) {
-  //     getExtraData();
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
 
   useEffect(() => {
     if (data?.extraData) {
