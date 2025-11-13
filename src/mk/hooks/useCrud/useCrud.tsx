@@ -351,6 +351,117 @@ const useCrud = ({
     setOpenView(false);
   };
 
+  // Función para generar UUID
+  const generateUUID = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAll(/[xy]/g, function (c) {
+      const r = Math.trunc(Math.random() * 16);
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  };
+
+  // Función para dividir archivos grandes en chunks (recibe número de caracteres base64)
+  const chunkFile = (base64String: string, chunkSize: number = 512 * 1024): string[] => {
+    const chunks: string[] = [];
+    for (let i = 0; i < base64String.length; i += chunkSize) {
+      chunks.push(base64String.slice(i, i + chunkSize));
+    }
+    return chunks;
+  };
+
+  // Función para calcular el tamaño aproximado en bytes de un string base64
+  const getBase64Size = (base64String: string): number => {
+    // Remover el prefijo data:image/...;base64, si existe
+    const cleanBase64 = base64String.replace(/^data:.*?;base64,/, '');
+    // Calcular el tamaño real (cada 4 caracteres base64 = 3 bytes)
+    const padding = (cleanBase64.match(/=/g) || []).length;
+    return (cleanBase64.length * 3) / 4 - padding;
+  };
+
+  // Función para enviar un archivo en chunks
+  const sendFileInChunks = async (
+    url: string,
+    method: string,
+    data: Record<string, any>,
+    fileField: string
+  ) => {
+    const fileData = data[fileField];
+    if (!fileData?.file) {
+      throw new Error("No se encontró el archivo para enviar");
+    }
+
+    const base64Content = fileData.file.replace(/^data:.*?;base64,/, '');
+    // Queremos chunk en bytes (900KB por defecto) pero debemos convertir a
+    // longitud de caracteres base64: longitudBase64 = 4 * ceil(bytes/3)
+    const CHUNK_BYTES = 450 * 1024; // 900 KB en bytes
+    const CHUNK_SIZE = Math.ceil(CHUNK_BYTES / 3) * 4; // tamaño en caracteres base64
+    const chunks = chunkFile(base64Content, CHUNK_SIZE);
+    const uploadId = generateUUID();
+    const totalChunks = chunks.length;
+
+    showToast(`Subiendo archivo en ${totalChunks} partes...`, "info");
+
+    // Preparar metadata una sola vez (todos los campos excepto el archivo)
+    const metadata: Record<string, any> = {};
+    for (const key in data) {
+      if (key !== fileField) {
+        metadata[key] = data[key];
+      }
+    }
+
+    let lastResponse: any = null;
+
+    // Enviar cada chunk
+    for (let i = 0; i < totalChunks; i++) {
+      const isLastChunk = i === totalChunks - 1;
+      const chunkData: Record<string, any> = {
+        uploadId,
+        chunkIndex: i,
+        totalChunks,
+        ext: fileData.ext,
+        fileContents: chunks[i],
+        metadata: isLastChunk ? metadata : {}
+      };
+
+      console.log(`📤 Enviando chunk ${i + 1}/${totalChunks}:`, {
+        uploadId,
+        chunkIndex: i,
+        totalChunks,
+        ext: fileData.ext,
+        fileContentsLength: chunks[i].length,
+        metadata: isLastChunk ? metadata : {},
+        isLastChunk
+      });
+
+      const { data: response } = await execute(
+        url,
+        method,
+        chunkData,
+        false,
+        mod?.noWaiting
+      );
+
+      // Verificar respuesta del chunk
+      console.log(`📥 Respuesta del chunk ${i + 1}:`, response);
+
+      // Para chunks intermedios, esperamos success: true con status implícito 202
+      // Para el último chunk, esperamos success: true con el resultado final
+      if (!response?.success) {
+        const errorMsg = response?.msg || response?.message || `Error al enviar chunk ${i + 1}`;
+        throw new Error(errorMsg);
+      }
+
+      lastResponse = { data: response };
+
+      // Mostrar progreso solo para chunks intermedios
+      if (!isLastChunk) {
+        showToast(`Subiendo... ${Math.round(((i + 1) / totalChunks) * 100)}%`, "info");
+      }
+    }
+
+    return lastResponse;
+  };
+
   const onSave = async (data: Record<string, any>, _setErrors?: Function) => {
     if (!userCan(mod.permiso, action == "del" ? "D" : action))
       return showToast("No tiene permisos para esta acción", "error");
@@ -376,13 +487,62 @@ const useCrud = ({
 
     const param = getParamFields(data, fields, action);
 
-    const { data: response, error: err } = await execute(
-      url,
-      method,
-      action == "del" ? { id: data.id } : param,
-      false,
-      mod?.noWaiting
-    );
+    console.log("🔍 Datos después de getParamFields:", {
+      dataOriginal: data,
+      paramProcesado: param,
+      fields: Object.keys(fields),
+      action
+    });
+
+    // Verificar si hay archivos que necesitan ser enviados en chunks
+    let fileFieldToChunk: string | null = null;
+    const MAX_FILE_SIZE = 1 * 512 * 1024; // 1MB (en bytes)
+
+    if (action !== "del") {
+      for (const key in fields) {
+        const field = fields[key];
+        if (field.form?.type === "fileUpload" && param[key]?.file) {
+          const fileSize = getBase64Size(param[key].file);
+          console.log(`📊 Archivo "${key}" detectado:`, {
+            size: fileSize,
+            sizeInMB: (fileSize / (1024 * 512)).toFixed(2) + ' MB',
+            requiresChunking: fileSize > MAX_FILE_SIZE
+          });
+          if (fileSize > MAX_FILE_SIZE) {
+            fileFieldToChunk = key;
+            break;
+          }
+        }
+      }
+    }
+
+    let response, err;
+
+    // Si hay un archivo grande, enviarlo en chunks
+    if (fileFieldToChunk) {
+      console.log(`🚀 Iniciando envío por chunks para campo: ${fileFieldToChunk}`);
+      try {
+        const result = await sendFileInChunks(url, method, param, fileFieldToChunk);
+        response = result.data;
+        err = result.error;
+      } catch (error: any) {
+        showToast(error.message || "Error al subir el archivo", "error");
+        logError("Error en sendFileInChunks:", error);
+        return;
+      }
+    } else {
+      // Envío normal para archivos pequeños o sin archivos
+      const result = await execute(
+        url,
+        method,
+        action == "del" ? { id: data.id } : param,
+        false,
+        mod?.noWaiting
+      );
+      response = result.data;
+      err = result.error;
+    }
+
     if (response?.success) {
       onCloseCrud();
       setOpenDel(false);
@@ -448,7 +608,7 @@ const useCrud = ({
 
   const onExport = async (
     type?: string, // Cambiar el tipo a string opcional
-    callBack: (url: string) => void = (url: string) => {}
+    callBack: (url: string) => void = (url: string) => { }
   ) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
@@ -619,21 +779,21 @@ const useCrud = ({
                         title={
                           col.onRenderLabel
                             ? col.onRenderLabel({
-                                value: item[col.key],
-                                key: col.key,
-                                item,
-                                i,
-                              })
+                              value: item[col.key],
+                              key: col.key,
+                              item,
+                              i,
+                            })
                             : col.label
                         }
                         value={
                           col.onRender
                             ? col.onRender({
-                                value: item[col.key],
-                                key: col.key,
-                                item,
-                                i,
-                              })
+                              value: item[col.key],
+                              key: col.key,
+                              item,
+                              i,
+                            })
                             : item[col.key]
                         }
                       />
@@ -689,11 +849,11 @@ const useCrud = ({
         item={
           field.prepareData
             ? field.prepareData(
-                formStateForm,
-                field,
-                field.key,
-                setFormStateForm
-              )
+              formStateForm,
+              field,
+              field.key,
+              setFormStateForm
+            )
             : formStateForm
         }
         i={i}
@@ -883,10 +1043,10 @@ const useCrud = ({
                     width: "100%",
                     ...(field.openTag?.border
                       ? {
-                          border: "1px solid var(--cWhiteV1)",
-                          borderRadius: "var(--bRadiusS)",
-                          padding: "var(--spM)",
-                        }
+                        border: "1px solid var(--cWhiteV1)",
+                        borderRadius: "var(--bRadiusS)",
+                        padding: "var(--spM)",
+                      }
                       : {}),
                     ...field.openTag?.style,
                   }}
@@ -996,9 +1156,9 @@ const useCrud = ({
                       filterSel[f.key] != "" &&
                       filterSel[f.key] != "T" &&
                       filterSel[f.key] != "ALL" && {
-                        border: "1px solid var(--cPrimary)",
-                        borderRadius: 8,
-                      }),
+                      border: "1px solid var(--cPrimary)",
+                      borderRadius: 8,
+                    }),
                   }}
                 />
               ))}
@@ -1030,9 +1190,9 @@ const useCrud = ({
                     filterSel[f.key] != "" &&
                     filterSel[f.key] != "T" &&
                     filterSel[f.key] != "ALL" && {
-                      border: "1px solid var(--cPrimary)",
-                      borderRadius: 8,
-                    }),
+                    border: "1px solid var(--cPrimary)",
+                    borderRadius: 8,
+                  }),
                 }}
               />
             ))}
@@ -1099,7 +1259,7 @@ const useCrud = ({
               className={
                 styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
               }
-              onClick={data?.length > 0 ? onImport : () => {}}
+              onClick={data?.length > 0 ? onImport : () => { }}
             />
           )}
           {mod.export && (
@@ -1108,7 +1268,7 @@ const useCrud = ({
               className={
                 styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
               }
-              onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
+              onClick={data?.length > 0 ? () => onExport("pdf") : () => { }}
             />
           )}
           {mod.listAndCard && (
@@ -1481,7 +1641,7 @@ const useCrud = ({
                   setOpenList,
                   reLoad: reLoad,
                   showToast: showToast,
-                  setItem: setFormState, 
+                  setItem: setFormState,
                   onDel: (itemToDelete: any) => {
                     // Envolvemos para asegurar que se pasa el item correcto
                     onCloseView(); // Opcional: cerrar la vista actual antes de abrir el confirmador de borrado
