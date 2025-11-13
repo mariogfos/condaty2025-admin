@@ -48,13 +48,13 @@ const BankAccounts = () => {
       reLoad?: any;
     }) => <RenderView {...props} />,
   };
-  // const getOptionsBankEntity = useCallback(
-  //   (extraData: any) => [
-  //     { id: "ALL", name: "Todos" },
-  //     ...(extraData?.bankEntities || []),
-  //   ],
-  //   []
-  // );
+  const getOptionsBankEntity = useCallback(
+    (extraData: any) => [
+      { id: "ALL", name: "Todos" },
+      ...(extraData?.bankEntities || []),
+    ],
+    []
+  );
   const getOptionsStatus = useCallback(
     () => [
       { id: "ALL", name: "Todos" },
@@ -146,11 +146,11 @@ const BankAccounts = () => {
           optionsExtra: "bankEntities",
         },
         list: true,
-        // filter: {
-        //   label: "Entidades bancarias",
-        //   width: "340px",
-        //   // options: getOptionsBankEntity,
-        // },
+        filter: {
+          label: "Entidades bancarias",
+          width: "340px",
+          options: getOptionsBankEntity,
+        },
       },
       titular: {
         closeTag: true,
