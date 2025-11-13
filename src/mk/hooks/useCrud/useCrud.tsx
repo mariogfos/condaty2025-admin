@@ -18,6 +18,10 @@ import {
   hasErrors,
 } from "../../utils/validate/Rules";
 import { logError } from "../../utils/logs";
+import {
+  detectLargeFilesAndStrip,
+  uploadLargeFiles,
+} from "../../utils/fileUpload";
 import LoadingScreen from "../../components/ui/LoadingScreen/LoadingScreen";
 import Table, { RenderColType } from "../../components/ui/Table/Table";
 import DataModal from "../../components/ui/DataModal/DataModal";
@@ -374,16 +378,53 @@ const useCrud = ({
       }
     }
 
+    // Build params and detect large file fields (to be uploaded separately)
     const param = getParamFields(data, fields, action);
+    const uploadLimitMB = mod?.fileUploadLimitMB ?? 1;
+    const { param: paramWithoutFiles, filesToUpload } =
+      detectLargeFilesAndStrip(data, fields, { ...param }, uploadLimitMB);
+
+    // Ensure root ext is present when a file field exists
+    if (!paramWithoutFiles.ext) {
+      if (filesToUpload.length > 0 && filesToUpload[0].ext) {
+        paramWithoutFiles.ext = filesToUpload[0].ext;
+      } else {
+        for (const key in fields) {
+          const f = fields[key];
+          if (f?.form?.type === "fileUpload") {
+            const val = data[key] || param[key];
+            if (val && typeof val === "object" && val.ext) {
+              paramWithoutFiles.ext = val.ext;
+              break;
+            }
+          }
+        }
+      }
+    }
 
     const { data: response, error: err } = await execute(
       url,
       method,
-      action == "del" ? { id: data.id } : param,
+      action == "del" ? { id: data.id } : paramWithoutFiles,
       false,
       mod?.noWaiting
     );
+
     if (response?.success) {
+      try {
+        if (filesToUpload.length > 0 && response.data?.id) {
+          await uploadLargeFiles(
+            filesToUpload,
+            response.data.id,
+            execute,
+            mod?.noWaiting,
+            showToast
+          );
+        }
+      } catch (e) {
+        logError("Error post-upload handling", e);
+      }
+
       onCloseCrud();
       setOpenDel(false);
       reLoad(params, mod?.noWaiting);
@@ -448,7 +489,7 @@ const useCrud = ({
 
   const onExport = async (
     type?: string, // Cambiar el tipo a string opcional
-    callBack: (url: string) => void = (url: string) => {}
+    callBack: (url: string) => void = (url: string) => { }
   ) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
@@ -619,21 +660,21 @@ const useCrud = ({
                         title={
                           col.onRenderLabel
                             ? col.onRenderLabel({
-                                value: item[col.key],
-                                key: col.key,
-                                item,
-                                i,
-                              })
+                              value: item[col.key],
+                              key: col.key,
+                              item,
+                              i,
+                            })
                             : col.label
                         }
                         value={
                           col.onRender
                             ? col.onRender({
-                                value: item[col.key],
-                                key: col.key,
-                                item,
-                                i,
-                              })
+                              value: item[col.key],
+                              key: col.key,
+                              item,
+                              i,
+                            })
                             : item[col.key]
                         }
                       />
@@ -689,11 +730,11 @@ const useCrud = ({
         item={
           field.prepareData
             ? field.prepareData(
-                formStateForm,
-                field,
-                field.key,
-                setFormStateForm
-              )
+              formStateForm,
+              field,
+              field.key,
+              setFormStateForm
+            )
             : formStateForm
         }
         i={i}
@@ -883,10 +924,10 @@ const useCrud = ({
                     width: "100%",
                     ...(field.openTag?.border
                       ? {
-                          border: "1px solid var(--cWhiteV1)",
-                          borderRadius: "var(--bRadiusS)",
-                          padding: "var(--spM)",
-                        }
+                        border: "1px solid var(--cWhiteV1)",
+                        borderRadius: "var(--bRadiusS)",
+                        padding: "var(--spM)",
+                      }
                       : {}),
                     ...field.openTag?.style,
                   }}
@@ -996,9 +1037,9 @@ const useCrud = ({
                       filterSel[f.key] != "" &&
                       filterSel[f.key] != "T" &&
                       filterSel[f.key] != "ALL" && {
-                        border: "1px solid var(--cPrimary)",
-                        borderRadius: 8,
-                      }),
+                      border: "1px solid var(--cPrimary)",
+                      borderRadius: 8,
+                    }),
                   }}
                 />
               ))}
@@ -1030,9 +1071,9 @@ const useCrud = ({
                     filterSel[f.key] != "" &&
                     filterSel[f.key] != "T" &&
                     filterSel[f.key] != "ALL" && {
-                      border: "1px solid var(--cPrimary)",
-                      borderRadius: 8,
-                    }),
+                    border: "1px solid var(--cPrimary)",
+                    borderRadius: 8,
+                  }),
                 }}
               />
             ))}
@@ -1099,7 +1140,7 @@ const useCrud = ({
               className={
                 styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
               }
-              onClick={data?.length > 0 ? onImport : () => {}}
+              onClick={data?.length > 0 ? onImport : () => { }}
             />
           )}
           {mod.export && (
@@ -1108,7 +1149,7 @@ const useCrud = ({
               className={
                 styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
               }
-              onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
+              onClick={data?.length > 0 ? () => onExport("pdf") : () => { }}
             />
           )}
           {mod.listAndCard && (
@@ -1481,7 +1522,7 @@ const useCrud = ({
                   setOpenList,
                   reLoad: reLoad,
                   showToast: showToast,
-                  setItem: setFormState, 
+                  setItem: setFormState,
                   onDel: (itemToDelete: any) => {
                     // Envolvemos para asegurar que se pasa el item correcto
                     onCloseView(); // Opcional: cerrar la vista actual antes de abrir el confirmador de borrado
