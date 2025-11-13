@@ -142,6 +142,7 @@ const RenderForm = ({
             options={extraData?.bankEntities || []}
             optionValue="id"
             onChange={handleChange}
+            disabled={item?.isInUse}
             error={errors}
             required
           />
@@ -149,6 +150,7 @@ const RenderForm = ({
             label="Tipo de cuenta"
             name="account_type"
             value={formState.account_type || ""}
+            disabled={item?.isInUse}
             optionLabel="name"
             options={[
               {
@@ -172,6 +174,7 @@ const RenderForm = ({
             label="Nº de cuenta"
             error={errors}
             type="number"
+            disabled={item?.isInUse}
             required
           />
           <Select
@@ -179,6 +182,7 @@ const RenderForm = ({
             name="currency_type_id"
             value={formState.currency_type_id || ""}
             optionLabel="name"
+            disabled={item?.isInUse}
             options={extraData?.currencyTypes || []}
             optionValue="id"
             onChange={handleChange}
@@ -190,6 +194,7 @@ const RenderForm = ({
             name="holder"
             value={formState.holder || ""}
             onChange={handleChange}
+            disabled={item?.isInUse}
             error={errors}
           />
           <Input
@@ -199,6 +204,7 @@ const RenderForm = ({
             value={formState.ci_holder || ""}
             onChange={handleChange}
             error={errors}
+            disabled={item?.isInUse}
             required
           />
           <Input

@@ -71,23 +71,25 @@ const RenderView = (props: any) => {
     extraData,
   } = props;
   const [openForm, setOpenForm] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
   const [item, setItem]: any = useState({});
   const [loading, setLoading] = useState(false);
   const getDetail = async () => {
     if (data?.id) {
       setLoading(true);
       const { data: res } = await execute(
-        `/bank-accounts/${data?.id}`,
+        `/bank-accounts`,
         "GET",
         {
           fullType: "DET",
+          searchBy: data?.id,
         },
         false,
         true
       );
 
       if (res?.success) {
-        setItem(res?.data);
+        setItem({ ...res?.data?.data, isInUse: res?.data?.isInUse });
       } else {
         showToast("Error al obtener los datos", "error");
       }
@@ -134,7 +136,8 @@ const RenderView = (props: any) => {
               Editar datos
             </Button>
             <Button
-              onClick={handleUpdateStatus}
+              // onClick={handleUpdateStatus}
+              onClick={() => setOpenConfirm(true)}
               style={{
                 backgroundColor:
                   item?.status === "A" ? "var(--cError)" : "var(--cAccent)",
@@ -160,10 +163,7 @@ const RenderView = (props: any) => {
             <SectionValues
               left={{
                 label: "Entidad bancaria",
-                value:
-                  extraData?.bankEntities?.find(
-                    (entity: any) => entity.id === item?.bank_entity_id
-                  )?.name || "No especificada",
+                value: item?.bank_entity?.name || "No especificada",
               }}
               right={{ label: "CI / NIT", value: item?.ci_holder }}
             />
@@ -199,10 +199,7 @@ const RenderView = (props: any) => {
             <SectionValues
               left={{
                 label: "Tipo de Moneda",
-                value:
-                  extraData?.currencyTypes?.find(
-                    (type: any) => type?.id === item?.currency_type_id
-                  )?.name || "No especificada",
+                value: item?.currency_type?.name,
               }}
               right={{
                 label: "Asignada a",
@@ -231,6 +228,42 @@ const RenderView = (props: any) => {
           </Card>
         )}
       </DataModal>
+      {openConfirm && (
+        <DataModal
+          style={{ width: 600 }}
+          title={
+            item?.status === "A" ? "Deshabilitar cuenta" : "Habilitar cuenta"
+          }
+          buttonText=""
+          buttonExtra={
+            <div style={{ display: "flex", width: "100%", gap: 8 }}>
+              <Button variant="secondary" onClick={() => setOpenConfirm(false)}>
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleUpdateStatus}
+                style={{
+                  backgroundColor:
+                    item?.status === "A" ? "var(--cError)" : "var(--cAccent)",
+                }}
+              >
+                {item?.status === "A" ? "Deshabilitar cuenta" : "Confirmar"}
+              </Button>
+            </div>
+          }
+          buttonCancel=""
+          open={openConfirm}
+          onSave={handleUpdateStatus}
+          onClose={() => setOpenConfirm(false)}
+        >
+          <p>
+            {item?.status === "A"
+              ? "¿Seguro que quieres deshabilitar esta cuenta bancaria? Ya no aparecerá en los flujos de pago."
+              : "¿Seguro que quieres habilitar esta cuenta bancaria? Volverá a aparecer en los flujos de pago."}
+          </p>
+        </DataModal>
+      )}
+
       {openForm && (
         <RenderForm
           open={openForm}
