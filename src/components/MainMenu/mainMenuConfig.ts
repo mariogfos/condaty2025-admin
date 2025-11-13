@@ -22,6 +22,7 @@ export const menuConfig = [
       { href: "/expenses", label: "Expensas" },
       { href: "/defaulters", label: "Morosos" },
       { href: "/debts_manager", label: "Deudas" },
+      { href: "/bank-accounts", label: "Cuentas Bancarias" },
     ],
   },
   {

@@ -30,6 +30,7 @@ export interface PropsTypeInputBase {
 
 interface PropsType extends PropsTypeInputBase {
   children?: any;
+  styleContainer?: CSSProperties;
 }
 
 const ControlLabel = (props: PropsType) => {
@@ -44,6 +45,7 @@ const ControlLabel = (props: PropsType) => {
         display: "flex",
         flexDirection: "column",
         width: "100%",
+        ...props.styleContainer,
       }}
     >
       <div
