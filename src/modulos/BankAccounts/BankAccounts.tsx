@@ -231,7 +231,7 @@ const BankAccounts = () => {
   return (
     <div className={styles.style}>
       <List
-        height={"calc(100vh - 465px)"}
+        height={"calc(100vh - 345px)"}
         emptyMsg="Lista de cuentas bancarias vacía. Aquí verás a todas las cuentas bancarias"
         emptyLine2="del condominio una vez los registres."
         // emptyIcon={<IconHomePerson2 size={80} color="var(--cWhiteV1)" />}
