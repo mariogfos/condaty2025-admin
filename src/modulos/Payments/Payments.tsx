@@ -14,6 +14,7 @@ import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { PaymentStatus, getPaymentStatusConfig } from "@/types/payment";
 
 const renderDptosCell = (props: any) => (
   <div>{String(props.item.dptos).replace(/,/g, "")}</div>
@@ -61,52 +62,11 @@ interface StatusConfig {
 }
 
 const renderStatusCell = (props: any) => {
-  const statusConfig: Record<string, StatusConfig> = {
-    P: {
-      label: "Cobrado",
-      color: "var(--cSuccess)",
-      bgColor: "var(--cHoverCompl2)",
-    },
-    S: {
-      label: "Por confirmar",
-      color: "var(--cWarning)",
-      bgColor: "var(--cHoverCompl4)",
-    },
-    R: {
-      label: "Rechazado",
-      color: "var(--cMediumAlert)",
-      bgColor: "var(--cHoverCompl5)",
-    },
-    A: {
-      label: "Por pagar",
-      color: "var(--cInfo)",
-      bgColor: "var(--cHoverCompl3)",
-    },
-    M: {
-      label: "Moroso",
-      color: "var(--cMediumAlert)",
-      bgColor: "var(--cMediumAlertHover)",
-    },
-    X: {
-      label: "Anulado",
-      color: "var(--cError)",
-      bgColor: "var(--cHoverError)",
-    },
-  };
-
-  const defaultConfig: StatusConfig = {
-    label: "No disponible",
-    color: "var(--cWhite)",
-    bgColor: "var(--cHoverCompl1)",
-  };
-
-  const { label, color, bgColor } =
-    statusConfig[props.item.status as keyof typeof statusConfig] ||
-    defaultConfig;
-
+  const status = props.item.status as PaymentStatus;
+  const info = getPaymentStatusConfig(status);
   return (
-    <StatusBadge color={color} backgroundColor={bgColor}>
-      {label}
+    <StatusBadge color={info.color} backgroundColor={info.backgroundColor}>
+      {info.label}
     </StatusBadge>
   );
 };
@@ -179,6 +139,7 @@ const Payments = () => {
     { id: "P", name: "Cobrado" },
     { id: "S", name: "Por confirmar" },
     { id: "R", name: "Rechazado" },
+    { id: "E", name: "Subir Comp" },
     { id: "X", name: "Anulado" },
   ];
 

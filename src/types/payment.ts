@@ -2,6 +2,7 @@ export interface PaymentStatusConfig {
   label: string;
   color: string;
   backgroundColor: string;
+  longLabel?: string;
 }
 
 export const PAYMENT_STATUS_MAP = {
@@ -34,6 +35,12 @@ export const PAYMENT_STATUS_MAP = {
     label: "Anulado",
     color: "var(--cError)",
     backgroundColor: "var(--cHoverError)",
+  },
+  E: {
+    label: "Subir Comp",
+
+    color: "var(--cWarning)",
+    backgroundColor: "var(--cHoverCompl4)",
   },
 } as const;
 

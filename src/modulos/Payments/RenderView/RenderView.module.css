@@ -131,7 +131,7 @@
 }
 
 .statusVoucher {
-  color: var(--cInfo) !important;
+  color: var(--cWarning) !important;
   font-weight: var(--bSemibold);
 }
 
