@@ -37,10 +37,10 @@ export const PAYMENT_STATUS_MAP = {
     backgroundColor: "var(--cHoverError)",
   },
   E: {
-    label: "Subir Comp",
-
-    color: "var(--cWarning)",
-    backgroundColor: "var(--cHoverCompl4)",
+    label: "Por subir comprobante",
+    longLabel: "Por subir comprobante",
+    color: "var(--cInfo)",
+    backgroundColor: "var(--cHoverCompl3)",
   },
 } as const;
 
