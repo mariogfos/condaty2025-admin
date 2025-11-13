@@ -18,6 +18,7 @@ import {
   hasErrors,
 } from "../../utils/validate/Rules";
 import { logError } from "../../utils/logs";
+import { getBase64Size, uploadFileInChunks, DEFAULT_MAX_FILE_SIZE } from "@/mk/utils/chunkUpload";
 import LoadingScreen from "../../components/ui/LoadingScreen/LoadingScreen";
 import Table, { RenderColType } from "../../components/ui/Table/Table";
 import DataModal from "../../components/ui/DataModal/DataModal";
@@ -160,6 +161,8 @@ type UseCrudType = {
   findOptions: Function;
   getExtraData: Function;
   openCard: boolean;
+  chunkUpload: any;
+  setChunkUpload: Function;
 };
 
 const useCrud = ({
@@ -186,7 +189,6 @@ const useCrud = ({
   let extraParams: any = localStorage.getItem(mod.modulo + "Params");
   if (extraParams) extraParams = JSON.parse(extraParams);
   localStorage.removeItem(mod.modulo + "Params");
-  // console.log("Etradata00", mod.extraData);
   const [params, setParams] = useState({
     ...paramsInitial,
     ...(extraParams || {}),
@@ -195,7 +197,13 @@ const useCrud = ({
   const [searchs, setSearchs]: any = useState(extraParams || {});
   const [action, setAction] = useState<ActionType>("add");
   const [openCard, setOpenCard] = useState(false);
-  // console.log("paramsInitialCrud", extraParams);
+  const [chunkUpload, setChunkUpload] = useState<any>({
+    active: false,
+    total: 0,
+    sent: 0,
+    pending: 0,
+    paquete: 1,
+  });
   if (mod) {
     mod.titleAdd = mod.titleAdd ?? "Agregar";
     mod.titleEdit = mod.titleEdit ?? "Editar";
@@ -351,6 +359,8 @@ const useCrud = ({
     setOpenView(false);
   };
 
+  // Chunk upload helpers moved to src/mk/utils/chunkUpload.ts
+
   const onSave = async (data: Record<string, any>, _setErrors?: Function) => {
     if (!userCan(mod.permiso, action == "del" ? "D" : action))
       return showToast("No tiene permisos para esta acción", "error");
@@ -376,13 +386,58 @@ const useCrud = ({
 
     const param = getParamFields(data, fields, action);
 
-    const { data: response, error: err } = await execute(
-      url,
-      method,
-      action == "del" ? { id: data.id } : param,
-      false,
-      mod?.noWaiting
-    );
+    // Verificar si hay archivos que necesitan ser enviados en chunks
+    let fileFieldToChunk: string | null = null;
+    const MAX_FILE_SIZE = DEFAULT_MAX_FILE_SIZE; // bytes (configurable in chunkUpload utils)
+
+    if (action !== "del") {
+      for (const key in fields) {
+        const field = fields[key];
+        if (field.form?.type === "fileUpload" && param[key]?.file) {
+          const fileSize = getBase64Size(param[key].file);
+          if (fileSize > MAX_FILE_SIZE) {
+            fileFieldToChunk = key;
+            break;
+          }
+        }
+      }
+    }
+
+    let response, err;
+
+    // Si hay un archivo grande, enviarlo en chunks
+    if (fileFieldToChunk) {
+      try {
+        const result = await uploadFileInChunks({
+          execute,
+          url,
+          method,
+          data: param,
+          fileField: fileFieldToChunk,
+          showToast,
+          setChunkUpload,
+          modNoWaiting: mod?.noWaiting,
+        });
+        response = result?.data;
+        err = result?.error;
+      } catch (error: any) {
+        showToast(error.message || "Error al subir el archivo", "error");
+        logError("Error en uploadFileInChunks:", error);
+        return;
+      }
+    } else {
+      // Envío normal para archivos pequeños o sin archivos
+      const result = await execute(
+        url,
+        method,
+        action == "del" ? { id: data.id } : param,
+        false,
+        mod?.noWaiting
+      );
+      response = result.data;
+      err = result.error;
+    }
+
     if (response?.success) {
       onCloseCrud();
       setOpenDel(false);
@@ -399,7 +454,6 @@ const useCrud = ({
     let searchBy = { searchBy: _search };
     if (getSearch) searchBy = getSearch(_search, oldSearch);
     setSearchs(searchBy);
-    // console.log("apappaa", searchBy, mod?.searchLocal);
     if (!mod.onSearch) {
       setParams({ ...params, ...searchBy, page: 1 });
     }
@@ -448,7 +502,7 @@ const useCrud = ({
 
   const onExport = async (
     type?: string, // Cambiar el tipo a string opcional
-    callBack: (url: string) => void = (url: string) => {}
+    callBack: (url: string) => void = (url: string) => { }
   ) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
@@ -540,12 +594,6 @@ const useCrud = ({
     // console.log('extradata get Estradata', extraData);
     setExtraData(extraData?.data);
   };
-  // useEffect(() => {
-  //   if (mod.extraData) {
-  //     getExtraData();
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
 
   useEffect(() => {
     if (data?.extraData) {
@@ -619,21 +667,21 @@ const useCrud = ({
                         title={
                           col.onRenderLabel
                             ? col.onRenderLabel({
-                                value: item[col.key],
-                                key: col.key,
-                                item,
-                                i,
-                              })
+                              value: item[col.key],
+                              key: col.key,
+                              item,
+                              i,
+                            })
                             : col.label
                         }
                         value={
                           col.onRender
                             ? col.onRender({
-                                value: item[col.key],
-                                key: col.key,
-                                item,
-                                i,
-                              })
+                              value: item[col.key],
+                              key: col.key,
+                              item,
+                              i,
+                            })
                             : item[col.key]
                         }
                       />
@@ -689,11 +737,11 @@ const useCrud = ({
         item={
           field.prepareData
             ? field.prepareData(
-                formStateForm,
-                field,
-                field.key,
-                setFormStateForm
-              )
+              formStateForm,
+              field,
+              field.key,
+              setFormStateForm
+            )
             : formStateForm
         }
         i={i}
@@ -883,10 +931,10 @@ const useCrud = ({
                     width: "100%",
                     ...(field.openTag?.border
                       ? {
-                          border: "1px solid var(--cWhiteV1)",
-                          borderRadius: "var(--bRadiusS)",
-                          padding: "var(--spM)",
-                        }
+                        border: "1px solid var(--cWhiteV1)",
+                        borderRadius: "var(--bRadiusS)",
+                        padding: "var(--spM)",
+                      }
                       : {}),
                     ...field.openTag?.style,
                   }}
@@ -996,9 +1044,9 @@ const useCrud = ({
                       filterSel[f.key] != "" &&
                       filterSel[f.key] != "T" &&
                       filterSel[f.key] != "ALL" && {
-                        border: "1px solid var(--cPrimary)",
-                        borderRadius: 8,
-                      }),
+                      border: "1px solid var(--cPrimary)",
+                      borderRadius: 8,
+                    }),
                   }}
                 />
               ))}
@@ -1030,9 +1078,9 @@ const useCrud = ({
                     filterSel[f.key] != "" &&
                     filterSel[f.key] != "T" &&
                     filterSel[f.key] != "ALL" && {
-                      border: "1px solid var(--cPrimary)",
-                      borderRadius: 8,
-                    }),
+                    border: "1px solid var(--cPrimary)",
+                    borderRadius: 8,
+                  }),
                 }}
               />
             ))}
@@ -1099,7 +1147,7 @@ const useCrud = ({
               className={
                 styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
               }
-              onClick={data?.length > 0 ? onImport : () => {}}
+              onClick={data?.length > 0 ? onImport : () => { }}
             />
           )}
           {mod.export && (
@@ -1108,7 +1156,7 @@ const useCrud = ({
               className={
                 styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
               }
-              onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
+              onClick={data?.length > 0 ? () => onExport("pdf") : () => { }}
             />
           )}
           {mod.listAndCard && (
@@ -1481,7 +1529,7 @@ const useCrud = ({
                   setOpenList,
                   reLoad: reLoad,
                   showToast: showToast,
-                  setItem: setFormState, 
+                  setItem: setFormState,
                   onDel: (itemToDelete: any) => {
                     // Envolvemos para asegurar que se pasa el item correcto
                     onCloseView(); // Opcional: cerrar la vista actual antes de abrir el confirmador de borrado
@@ -1640,6 +1688,8 @@ const useCrud = ({
     findOptions,
     getExtraData,
     openCard,
+    chunkUpload,
+    setChunkUpload,
   };
 };
 
