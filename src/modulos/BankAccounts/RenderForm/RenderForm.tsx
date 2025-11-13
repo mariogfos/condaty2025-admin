@@ -55,13 +55,72 @@ const RenderForm = ({
       [name]: value,
     }));
   };
+  const validate = () => {
+    let errors: any = {};
+
+    errors = checkRules({
+      value: formState?.avatar,
+      rules: ["requiredImageMultiple"],
+      key: "avatar",
+      errors,
+      data: formState,
+    });
+
+    errors = checkRules({
+      value: formState?.bank_entity_id,
+      rules: ["required"],
+      key: "bank_entity_id",
+      errors,
+    });
+
+    errors = checkRules({
+      value: formState?.account_type,
+      rules: ["required"],
+      key: "account_type",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.account_number,
+      rules: ["required", "number"],
+      key: "account_number",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.currency_type_id,
+      rules: ["required"],
+      key: "currency_type_id",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.currency_type_id,
+      rules: ["required"],
+      key: "currency_type_id",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.holder,
+      rules: ["required"],
+      key: "holder",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.ci_holder,
+      rules: ["required"],
+      key: "ci_holder",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.alias_holder,
+      rules: ["required"],
+      key: "alias_holder",
+      errors,
+    });
+
+    setErrors(errors);
+    return errors;
+  };
   const _onSave = async () => {
-    // const errors = checkRules(formState, extraData?.rules || {});
-    // if (hasErrors(errors)) {
-    //   setErrors(errors);
-    //   return;
-    // }
-    // await onSave(formState);
+    if (hasErrors(validate())) return;
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
       "/bank-accounts" + (formState.id ? "/" + formState.id : ""),
