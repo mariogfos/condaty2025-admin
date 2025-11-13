@@ -5,41 +5,16 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useState, useEffect } from "react";
 import styles from "./RenderForm.module.css";
-import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 import { getUrlImages } from "@/mk/utils/string";
-
-const TYPE_OWNERS = [
-  {
-    type_owner: "Propietario",
-    name: "Propietario",
-  },
-  {
-    type_owner: "Residente",
-    name: "Residente",
-  },
-];
-
-const getUnitNro = (unitsList: any[] = [], id?: string | number) => {
-  if (id === undefined || id === null) return undefined;
-  const match = unitsList.find(
-    (u) =>
-      String(u.id) === String(id) ||
-      String(u.dpto_id) === String(id) ||
-      String(u.dpto) === String(id)
-  );
-  return match?.nro ?? match?.nro_dpto ?? match?.number ?? String(id);
-};
 
 const RenderForm = ({
   open,
   onClose,
   item,
-  setItem,
   execute,
   extraData,
   reLoad,
-  onSave,
 }: any) => {
   const [formState, setFormState] = useState({ ...item });
   const [errors, setErrors] = useState({});
@@ -57,15 +32,15 @@ const RenderForm = ({
   };
   const validate = () => {
     let errors: any = {};
-
-    errors = checkRules({
-      value: formState?.avatar,
-      rules: ["requiredImageMultiple"],
-      key: "avatar",
-      errors,
-      data: formState,
-    });
-
+    if (!formState?.id) {
+      errors = checkRules({
+        value: formState?.avatar,
+        rules: ["requiredImageMultiple"],
+        key: "avatar",
+        errors,
+        data: formState,
+      });
+    }
     errors = checkRules({
       value: formState?.bank_entity_id,
       rules: ["required"],
