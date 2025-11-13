@@ -245,7 +245,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       R: 'Rechazado',
       A: 'Por pagar',
       M: 'Moroso',
-      E: 'Subir Comp',
+      E: 'Por subir comprobante',
       X: 'Anulado',
     };
     return statusMap[status] || status;

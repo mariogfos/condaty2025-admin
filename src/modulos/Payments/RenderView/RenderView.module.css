@@ -131,7 +131,7 @@
 }
 
 .statusVoucher {
-  color: var(--cWarning) !important;
+  color: var(--cInfo) !important;
   font-weight: var(--bSemibold);
 }
 
@@ -292,7 +292,9 @@
 .periodsTableBody .periodsTableRow:nth-child(odd) .periodsTableCell[data-label='Subtotal'],
 .periodsTableBody .periodsTableRow:nth-child(even) .periodsTableCell[data-label='Subtotal'],
 .periodsTableBody .periodsTableRowReservations:nth-child(odd) .periodsTableCell[data-label='Total'],
-.periodsTableBody .periodsTableRowReservations:nth-child(even) .periodsTableCell[data-label='Total'] {
+.periodsTableBody
+  .periodsTableRowReservations:nth-child(even)
+  .periodsTableCell[data-label='Total'] {
   color: var(--cWhite);
 }
 
