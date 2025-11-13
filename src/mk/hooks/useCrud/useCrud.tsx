@@ -18,6 +18,10 @@ import {
   hasErrors,
 } from "../../utils/validate/Rules";
 import { logError } from "../../utils/logs";
+import {
+  detectLargeFilesAndStrip,
+  uploadLargeFiles,
+} from "../../utils/fileUpload";
 import LoadingScreen from "../../components/ui/LoadingScreen/LoadingScreen";
 import Table, { RenderColType } from "../../components/ui/Table/Table";
 import DataModal from "../../components/ui/DataModal/DataModal";
@@ -374,93 +378,23 @@ const useCrud = ({
       }
     }
 
-    // Build params but detect fileUpload fields that may be large and
-    // need separate multipart upload to /upload-file. We only do the
-    // second upload when the encoded/base64 size exceeds a limit in MB.
+    // Build params and detect large file fields (to be uploaded separately)
     const param = getParamFields(data, fields, action);
+    const uploadLimitMB = mod?.fileUploadLimitMB ?? 1;
+    const { param: paramWithoutFiles, filesToUpload } =
+      detectLargeFilesAndStrip(data, fields, { ...param }, uploadLimitMB);
 
-    // Detect file fields and prepare list of possible uploads
-    const filesToUpload: Array<{
-      fieldKey: string;
-      value: any;
-      ext: string;
-      prefix: string;
-    }> = [];
-
-    const uploadLimitMB = mod?.fileUploadLimitMB ?? 1; // configurable per module, default 1MB
-    const uploadLimitBytes = uploadLimitMB * 1024 * 1024;
-
-    const estimateBase64Bytes = (b64: string) => {
-      // b64 must be the raw base64 string (not data:...;base64, and not URI encoded)
-      if (!b64) return 0;
-      const len = b64.length;
-      const padding = b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0;
-      return Math.ceil((len * 3) / 4) - padding;
-    };
-
-    const base64ToBlob = (b64: string, ext: string) => {
-      const byteCharacters = atob(b64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      let mime = "application/octet-stream";
-      const iext = (ext || "").toLowerCase();
-      if (iext === "pdf") mime = "application/pdf";
-      else if (["jpg", "jpeg"].includes(iext)) mime = "image/jpeg";
-      else if (iext === "png") mime = "image/png";
-      else if (iext === "webp") mime = "image/webp";
-      return new Blob([byteArray], { type: mime });
-    };
-
-    // Iterate fields to find fileUpload types
-    for (const key in fields) {
-      const f = fields[key];
-      if (f?.form?.type === "fileUpload" && data[key]) {
-        const val = data[key];
-        // only consider objects with .file (base64) and not deletion marker
-        if (val && typeof val === "object" && val.file && val.file !== "delete") {
-          // value.file may be URI encoded; decode it
-          let b64 = val.file;
-          try {
-            b64 = decodeURIComponent(b64);
-          } catch (e) {
-            // ignore, assume not encoded
-          }
-          // if the string contains a data:...;base64, prefix, strip it
-          if (b64.indexOf("base64,") > -1) {
-            b64 = b64.split("base64,")[1];
-          }
-
-          const estBytes = estimateBase64Bytes(b64);
-          if (estBytes > uploadLimitBytes) {
-            // schedule upload and remove from initial JSON payload
-            filesToUpload.push({
-              fieldKey: key,
-              value: val,
-              ext: val.ext || f?.form?.ext || "",
-              prefix: (f?.prefix || "DOC").replace(/-$/g, ""),
-            });
-            // remove from param so the initial request ignores the file
-            if (param[key]) delete param[key];
-          }
-        }
-      }
-    }
-
-    // Ensure root ext is present when a file field exists (useful for backend expecting ext at root)
-    if (!param.ext) {
+    // Ensure root ext is present when a file field exists
+    if (!paramWithoutFiles.ext) {
       if (filesToUpload.length > 0 && filesToUpload[0].ext) {
-        param.ext = filesToUpload[0].ext;
+        paramWithoutFiles.ext = filesToUpload[0].ext;
       } else {
-        // try to find any small file still in param or in data
         for (const key in fields) {
           const f = fields[key];
           if (f?.form?.type === "fileUpload") {
             const val = data[key] || param[key];
             if (val && typeof val === "object" && val.ext) {
-              param.ext = val.ext;
+              paramWithoutFiles.ext = val.ext;
               break;
             }
           }
@@ -471,70 +405,21 @@ const useCrud = ({
     const { data: response, error: err } = await execute(
       url,
       method,
-      action == "del" ? { id: data.id } : param,
+      action == "del" ? { id: data.id } : paramWithoutFiles,
       false,
       mod?.noWaiting
     );
 
     if (response?.success) {
       try {
-        // if we created/updated and there are scheduled large files, upload them
-        if (filesToUpload.length > 0 && response.data && response.data.id) {
-          const createdId = response.data.id;
-          for (const f of filesToUpload) {
-            try {
-              let b64 = f.value.file;
-              try {
-                b64 = decodeURIComponent(b64);
-              } catch (e) { }
-              if (b64.indexOf("base64,") > -1) b64 = b64.split("base64,")[1];
-
-              const blob = base64ToBlob(b64, f.ext);
-              const formData = new FormData();
-              formData.append("file", blob, `${f.prefix}-${createdId}.${f.ext}`);
-              formData.append("prefix", f.prefix);
-              formData.append("id", String(createdId));
-              formData.append("ext", f.ext);
-
-              // Debug: print FormData entries summary to help diagnose 422
-              try {
-                const entries: any[] = [];
-                // FormData.entries() is iterable
-                for (const e of (formData as any).entries()) {
-                  // e is [key, value]
-                  const key = e[0];
-                  const val = e[1];
-                  if (val instanceof Blob) {
-                    entries.push({ key, type: val.type, size: (val as any).size });
-                  } else {
-                    entries.push({ key, value: String(val).slice(0, 200) });
-                  }
-                }
-                console.info("[useCrud] Upload /upload-file FormData summary:", entries);
-              } catch (e) {
-                console.info("[useCrud] Could not enumerate FormData entries", e);
-              }
-
-              // Use execute to POST the multipart form. Axios will set headers.
-              const { data: uploadResp, error: uploadErr } = await execute(
-                "/upload-file",
-                "POST",
-                formData,
-                false,
-                mod?.noWaiting
-              );
-              if (!uploadResp?.success) {
-                showToast(
-                  "No se pudo subir el archivo " + f.fieldKey,
-                  "error"
-                );
-                logError("Upload file error", uploadErr || uploadResp);
-              }
-            } catch (e) {
-              logError("Error uploading file:", e);
-              showToast("Error subiendo archivo", "error");
-            }
-          }
+        if (filesToUpload.length > 0 && response.data?.id) {
+          await uploadLargeFiles(
+            filesToUpload,
+            response.data.id,
+            execute,
+            mod?.noWaiting,
+            showToast
+          );
         }
       } catch (e) {
         logError("Error post-upload handling", e);
