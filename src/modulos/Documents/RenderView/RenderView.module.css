@@ -1,32 +1,29 @@
 .renderView {
-  &>div {
-    &>section:nth-child(1) {
+  & > div {
+    & > section:nth-child(1) {
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
-
-      &>div:nth-child(2) {
+      & > div:nth-child(2) {
         margin-bottom: var(--spL);
         margin-top: var(--spS);
         color: var(--cWhiteV1);
       }
     }
-
-    &>section:nth-child(3) {
+    & > section:nth-child(3) {
       display: flex;
 
       justify-content: space-between;
       padding: var(--spL);
-
-      &>div {
+      & > div {
         display: flex;
         flex-direction: column;
         gap: 24px;
       }
     }
 
-    &>section:nth-child(5) {
+    & > section:nth-child(5) {
       /* background-color: antiquewhite; */
       display: flex;
       justify-content: center;
@@ -42,8 +39,7 @@
   flex-direction: column;
   max-width: 150px;
   color: var(--cWhiteV1);
-
-  &>div:nth-child(2) {
+  & > div:nth-child(2) {
     color: var(--cWhite);
   }
 }
@@ -54,26 +50,4 @@
   font-weight: 600;
   color: var(--accent);
   font-size: 1rem;
-  background: transparent;
-  background-color: transparent;
-  border: none;
-  padding: 0;
-
-  /* keep anchor-like appearance while keeping accessible disabled state */
-  transition: opacity 120ms ease;
-}
-
-.viewButton[disabled] {
-  opacity: 0.6;
-  cursor: default;
-  pointer-events: none;
-}
-
-.iconCircle {
-  background-color: var(--cWhiteV1);
-  padding: 12px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
