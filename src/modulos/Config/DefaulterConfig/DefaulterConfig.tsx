@@ -18,6 +18,7 @@ const DefaulterConfig = ({
   errors,
   onSave,
 }: DefaulterConfigProps) => {
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -185,26 +186,6 @@ const DefaulterConfig = ({
             </p>
           </div>
 
-          {/* <div className={styles.inputField}>
-            <div className={styles.percentInputContainer}>
-              <Input
-                type="number"
-                label="Porcentaje"
-                name="penalty_percent"
-                error={errors}
-                required
-                value={formState?.penalty_percent}
-                onChange={handleInputChange}
-                maxLength={3}
-                min={0}
-                max={100}
-              />
-              {(formState?.penalty_percent ||
-                formState?.penalty_percent != 0) && (
-                <span className={styles.percentSymbol}>%</span>
-              )}
-            </div>
-          </div> */}
           <Select
             name="penalty_type"
             label="Tipo de multa"
