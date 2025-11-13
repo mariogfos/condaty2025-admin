@@ -20,6 +20,8 @@ import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDash
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
+import { hasMaintenanceValue } from "@/mk/utils/utils";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const renderUnitCell = ({ item }: { item: any }) => (
   <div>{item?.dpto?.nro}</div>
@@ -89,6 +91,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     startDate?: string;
     endDate?: string;
   }>({});
+  const { user } = useAuth();
   const getDisplayStatus = (item: any) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -259,9 +262,9 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         rules: [''],
         api: '',
         label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. de valor</span>,
-        list: {
+        list: hasMaintenanceValue(user) ? {
           onRender: renderMaintenanceAmountCell,
-        },
+        } : false,
       },
       status: {
         rules: [''],

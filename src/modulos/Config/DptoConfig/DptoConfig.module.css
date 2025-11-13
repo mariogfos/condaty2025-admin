@@ -114,3 +114,10 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.switchContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}

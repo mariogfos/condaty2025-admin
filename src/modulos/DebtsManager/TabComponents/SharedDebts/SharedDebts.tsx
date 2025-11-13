@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import useCrudUtils from "../../../shared/useCrudUtils";
 import { getDateStrMesShort } from "@/mk/utils/date";
@@ -12,9 +12,9 @@ import RenderItem from "../../../shared/RenderItem";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Button from "@/mk/components/forms/Button/Button";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
-import React from "react";
 import { formatNumber } from "@/mk/utils/numbers";
 import { useRouter } from "next/navigation";
+import { hasMaintenanceValue } from '@/mk/utils/utils';
 
 interface SharedDebtsProps {
   openView: boolean;
@@ -25,7 +25,7 @@ interface SharedDebtsProps {
 }
 
 const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
-  const { setStore, store } = useAuth();
+  const { user, setStore, store } = useAuth();
   const router = useRouter();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
@@ -58,19 +58,19 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
 
   const renderStatusCell = ({ item }: { item: any }) => {
     const statusConfig: { [key: string]: { color: string; bgColor: string } } =
-      {
-        A: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl8)" },
-        P: { color: "var(--cSuccess)", bgColor: "var(--cHoverCompl2)" },
-        S: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl4)" },
-        R: {
-          color: "var(--cMediumAlert)",
-          bgColor: "var(--cMediumAlertHover)",
-        },
-        E: { color: "var(--cWhite)", bgColor: "var(--cHoverCompl1)" },
-        M: { color: "var(--cError)", bgColor: "var(--cHoverError)" },
-        C: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" },
-        X: { color: "var(--cError)", bgColor: "var(--cHoverError)" },
-      };
+    {
+      A: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl8)" },
+      P: { color: "var(--cSuccess)", bgColor: "var(--cHoverCompl2)" },
+      S: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl4)" },
+      R: {
+        color: "var(--cMediumAlert)",
+        bgColor: "var(--cMediumAlertHover)",
+      },
+      E: { color: "var(--cWhite)", bgColor: "var(--cHoverCompl1)" },
+      M: { color: "var(--cError)", bgColor: "var(--cHoverError)" },
+      C: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" },
+      X: { color: "var(--cError)", bgColor: "var(--cHoverError)" },
+    };
 
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
@@ -448,10 +448,10 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
             Mant. Valor
           </label>
         ),
-        list: {
+        list: hasMaintenanceValue(user) ? {
           order: 9,
-          onRender: renderMaintenanceAmountCell,
-        },
+          onRender: renderMaintenanceAmountCell
+        } : false,
       },
       balance_due: {
         rules: [""],
@@ -535,7 +535,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   }, [extraData, onExtraDataChange]);
 
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => {},
+    onSearch: () => { },
     searchs: {},
     setStore,
     mod,
@@ -579,7 +579,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     const totalBalance = debtAmount + totalPenalty;
 
     return (
-      <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
+      <RenderItem item={item} onClick={() => { }} onLongPress={onLongPress}>
         <ItemList
           title={`${item?.description || "Sin concepto"} - ${getStatusText(
             finalStatus
