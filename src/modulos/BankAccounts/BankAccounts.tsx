@@ -2,7 +2,7 @@
 "use client";
 import styles from "./BankAccounts.module.css";
 import useCrudUtils from "../shared/useCrudUtils";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
@@ -22,14 +22,8 @@ const renderTitleCell = ({ item }: Record<string, any>) => {
     </div>
   );
 };
-const BankAccounts = () => {
-  // const getTypefilter = () => [
-  //   { id: "ALL", name: "Todos" },
-  //   { id: "D", name: "Dependientes" },
-  //   { id: "T", name: "Residentes" },
-  //   { id: "H", name: "Propietarios" },
-  // ];
 
+const BankAccounts = () => {
   const mod: ModCrudType = {
     modulo: "bank-accounts",
     singular: "cuenta bancaria",
@@ -53,24 +47,22 @@ const BankAccounts = () => {
       extraData?: Record<string, any>;
       reLoad?: any;
     }) => <RenderView {...props} />,
-
-    // renderDel: (props: {
-    //   open: boolean;
-    //   onClose: any;
-    //   item: Record<string, any>;
-    // }) => {
-    //   return (
-    //     <UnlinkModal
-    //       open={props.open}
-    //       onClose={props.onClose}
-    //       mod={mod}
-    //       item={props.item}
-    //       reLoad={reLoad}
-    //     />
-    //   );
-    // },
   };
-
+  // const getOptionsBankEntity = useCallback(
+  //   (extraData: any) => [
+  //     { id: "ALL", name: "Todos" },
+  //     ...(extraData?.bankEntities || []),
+  //   ],
+  //   []
+  // );
+  const getOptionsStatus = useCallback(
+    (extraData: any) => [
+      { id: "ALL", name: "Todos" },
+      { id: "D", name: "Habilitada" },
+      { id: "T", name: "Deshabilitada" },
+    ],
+    []
+  );
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -112,10 +104,6 @@ const BankAccounts = () => {
       status: {
         rules: [],
         api: "ae",
-        label: "Estado",
-        // width: "100px",
-        // style: { width: "100px" },
-
         form: false,
         list: {
           width: "180px",
@@ -142,12 +130,7 @@ const BankAccounts = () => {
         filter: {
           label: "Estados",
           width: "180px",
-
-          options: () => [
-            { id: "ALL", name: "Todos" },
-            { id: "D", name: "Habilitada" },
-            { id: "T", name: "Deshabilitada" },
-          ],
+          options: getOptionsStatus,
         },
       },
       bank_entity_id: {
@@ -160,16 +143,11 @@ const BankAccounts = () => {
           optionsExtra: "bankEntities",
         },
         list: true,
-        filter: {
-          label: "Entidades bancarias",
-          width: "340px",
-
-          options: (extraData: any) => [
-            { id: "ALL", name: "Todos" },
-            ...(extraData?.bankEntities || []),
-          ],
-          // extraData: "bankEntities",
-        },
+        // filter: {
+        //   label: "Entidades bancarias",
+        //   width: "340px",
+        //   // options: getOptionsBankEntity,
+        // },
       },
       titular: {
         closeTag: true,
@@ -188,12 +166,6 @@ const BankAccounts = () => {
         api: "",
         label: "Nº de cuenta",
         list: {},
-        // filter: {
-        //   label: "Tipo",
-        //   width: "180px",
-
-        //   options: getTypefilter,
-        // },
       },
 
       currency_type_id: {
