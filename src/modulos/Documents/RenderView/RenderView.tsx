@@ -78,16 +78,7 @@ const RenderView = (props: {
     >
       <Card>
         <section>
-          <div
-            style={{
-              backgroundColor: "var(--cWhiteV1)",
-              padding: 12,
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <div className={styles.iconCircle}>
 
             {(() => {
               switch (iconNameExtension?.toLowerCase()) {
@@ -129,14 +120,6 @@ const RenderView = (props: {
             className={styles.viewButton}
             aria-disabled={downloading}
             disabled={downloading}
-            style={{
-              opacity: downloading ? 0.6 : undefined,
-              background: "transparent",
-              backgroundColor: "transparent",
-              border: "none",
-              padding: 0,
-              cursor: downloading ? "default" : "pointer",
-            }}
           >
             <p>{downloading ? "Descargando..." : "Ver documento"}</p>
           </button>
