@@ -186,7 +186,6 @@ const useCrud = ({
   let extraParams: any = localStorage.getItem(mod.modulo + "Params");
   if (extraParams) extraParams = JSON.parse(extraParams);
   localStorage.removeItem(mod.modulo + "Params");
-  // console.log("Etradata00", mod.extraData);
   const [params, setParams] = useState({
     ...paramsInitial,
     ...(extraParams || {}),
@@ -195,7 +194,6 @@ const useCrud = ({
   const [searchs, setSearchs]: any = useState(extraParams || {});
   const [action, setAction] = useState<ActionType>("add");
   const [openCard, setOpenCard] = useState(false);
-  // console.log("paramsInitialCrud", extraParams);
   if (mod) {
     mod.titleAdd = mod.titleAdd ?? "Agregar";
     mod.titleEdit = mod.titleEdit ?? "Editar";
@@ -423,16 +421,6 @@ const useCrud = ({
         metadata: isLastChunk ? metadata : {}
       };
 
-      console.log(`📤 Enviando chunk ${i + 1}/${totalChunks}:`, {
-        uploadId,
-        chunkIndex: i,
-        totalChunks,
-        ext: fileData.ext,
-        fileContentsLength: chunks[i].length,
-        metadata: isLastChunk ? metadata : {},
-        isLastChunk
-      });
-
       const { data: response } = await execute(
         url,
         method,
@@ -442,7 +430,6 @@ const useCrud = ({
       );
 
       // Verificar respuesta del chunk
-      console.log(`📥 Respuesta del chunk ${i + 1}:`, response);
 
       // Para chunks intermedios, esperamos success: true con status implícito 202
       // Para el último chunk, esperamos success: true con el resultado final
@@ -487,13 +474,6 @@ const useCrud = ({
 
     const param = getParamFields(data, fields, action);
 
-    console.log("🔍 Datos después de getParamFields:", {
-      dataOriginal: data,
-      paramProcesado: param,
-      fields: Object.keys(fields),
-      action
-    });
-
     // Verificar si hay archivos que necesitan ser enviados en chunks
     let fileFieldToChunk: string | null = null;
     const MAX_FILE_SIZE = 1 * 512 * 1024; // 1MB (en bytes)
@@ -503,11 +483,6 @@ const useCrud = ({
         const field = fields[key];
         if (field.form?.type === "fileUpload" && param[key]?.file) {
           const fileSize = getBase64Size(param[key].file);
-          console.log(`📊 Archivo "${key}" detectado:`, {
-            size: fileSize,
-            sizeInMB: (fileSize / (1024 * 512)).toFixed(2) + ' MB',
-            requiresChunking: fileSize > MAX_FILE_SIZE
-          });
           if (fileSize > MAX_FILE_SIZE) {
             fileFieldToChunk = key;
             break;
@@ -520,7 +495,6 @@ const useCrud = ({
 
     // Si hay un archivo grande, enviarlo en chunks
     if (fileFieldToChunk) {
-      console.log(`🚀 Iniciando envío por chunks para campo: ${fileFieldToChunk}`);
       try {
         const result = await sendFileInChunks(url, method, param, fileFieldToChunk);
         response = result.data;
@@ -559,7 +533,6 @@ const useCrud = ({
     let searchBy = { searchBy: _search };
     if (getSearch) searchBy = getSearch(_search, oldSearch);
     setSearchs(searchBy);
-    // console.log("apappaa", searchBy, mod?.searchLocal);
     if (!mod.onSearch) {
       setParams({ ...params, ...searchBy, page: 1 });
     }
