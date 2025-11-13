@@ -1,4 +1,5 @@
 import styles from "./RenderView.module.css";
+import { useState } from "react";
 import { getUrlImages } from "@/mk/utils/string";
 import { getFullName } from "../../../mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
@@ -22,39 +23,44 @@ const RenderView = (props: {
 
   };
 
-  const handleDownload = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (downloading) return;
+    setDownloading(true);
 
     const url = getUrlImages(
       "/DOC-" +
-        props?.item?.id +
-        "." +
-        (props?.item?.doc?.ext || props?.item?.ext) +
-        "?d=" +
-        props?.item?.updated_at
+      props?.item?.id +
+      "." +
+      (props?.item?.doc?.ext || props?.item?.ext) +
+      "?d=" +
+      props?.item?.updated_at
     );
 
-    const fileName = `documento-${props?.item?.id}.${
-      props?.item?.doc?.ext || props?.item?.ext
-    }`;
+    const fileName = `documento-${props?.item?.id}.${props?.item?.doc?.ext || props?.item?.ext
+      }`;
 
     try {
       const response = await fetch(url);
       const blob = await response.blob();
 
-      const blobUrl = window.URL.createObjectURL(blob);
+      const blobUrl = globalThis.URL.createObjectURL(blob);
 
       const link = document.createElement("a");
       link.href = blobUrl;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      link.remove();
 
-      window.URL.revokeObjectURL(blobUrl);
+      globalThis.URL.revokeObjectURL(blobUrl);
     } catch (error) {
       console.error("Error al descargar el archivo:", error);
-      window.location.href = url;
+      globalThis.location.href = url;
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -91,14 +97,14 @@ const RenderView = (props: {
                 case "docx":
                 case "xls":
                 case "xlsx":
-                  return <IconDOC color={"var(--cBlack)"}  />;
+                  return <IconDOC color={"var(--cBlack)"} />;
                 case "webp":
                   return <IconJPG color={"var(--cBlack)"} viewBox="0 0 18 24" />;
                 default:
                   return <IconDOC color={"var(--cBlack)"} />;
               }
             })()}
-            
+
           </div>
 
           <div>{props?.item?.name}</div>
@@ -107,8 +113,8 @@ const RenderView = (props: {
 
         <ContainerDetail>
 
-          <LabelValueDetail value={getFullName(props?.item?.user)} label="Subido por"/>
-          
+          <LabelValueDetail value={getFullName(props?.item?.user)} label="Subido por" />
+
           <LabelValueDetail value={DocDestiny[props?.item?.for_to]?.name} label="Segmentación" />
 
           <LabelValueDetail value={props?.item?.descrip} label="Descripción" />
@@ -117,9 +123,23 @@ const RenderView = (props: {
         <Br />
 
         <section>
-          <a href="#" onClick={handleDownload} className={styles.viewButton}>
-            <p>Ver documento</p>
-          </a>
+          <button
+            type="button"
+            onClick={handleDownload}
+            className={styles.viewButton}
+            aria-disabled={downloading}
+            disabled={downloading}
+            style={{
+              opacity: downloading ? 0.6 : undefined,
+              background: "transparent",
+              backgroundColor: "transparent",
+              border: "none",
+              padding: 0,
+              cursor: downloading ? "default" : "pointer",
+            }}
+          >
+            <p>{downloading ? "Descargando..." : "Ver documento"}</p>
+          </button>
         </section>
       </Card>
     </DataModal>
