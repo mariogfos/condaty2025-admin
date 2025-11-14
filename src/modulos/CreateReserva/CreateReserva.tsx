@@ -150,16 +150,32 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     extraData?.dptos?.map((unidad: any) => {
       if (selectedAreaDetails?.penalty_or_debt_restriction == "A") {
         if (unidad?.defaulter == "X") {
-          data.push({
-            id: String(unidad.id),
-            name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)}`,
-          });
+          if (unidad?.holder === "T") {
+            data.push({
+              id: String(unidad.id),
+              name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)}`,
+            });
+          }
+          else {
+            data.push({
+              id: String(unidad.id),
+              name: `Unidad: ${unidad.nro} - ${getFullName(unidad.homeowner)}`,
+            });
+          }
         }
       } else {
-        data.push({
-          id: String(unidad.id),
-            name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)} `,
-        });
+        if (unidad?.holder === "T") {
+            data.push({
+              id: String(unidad.id),
+              name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)}`,
+            });
+          }
+          else {
+            data.push({
+              id: String(unidad.id),
+              name: `Unidad: ${unidad.nro} - ${getFullName(unidad.homeowner)}`,
+            });
+          }
       }
     });
     return data;
