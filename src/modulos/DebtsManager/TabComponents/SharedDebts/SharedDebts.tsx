@@ -1,21 +1,20 @@
-'use client';
-import { useMemo, useEffect, useState } from 'react';
-import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
-import useCrudUtils from '../../../shared/useCrudUtils';
-import { getDateStrMes, getDateStrMesShort, MONTHS } from '@/mk/utils/date';
-import RenderForm from './RenderForm/RenderForm';
-import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
-import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
-import ItemList from '@/mk/components/ui/ItemList/ItemList';
-import RenderItem from '../../../shared/RenderItem';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import Button from '@/mk/components/forms/Button/Button';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
-import React from 'react';
-import { formatNumber } from '@/mk/utils/numbers';
-
-import { useRouter } from 'next/navigation';
+"use client";
+import React, { useMemo, useEffect, useState } from "react";
+import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
+import useCrudUtils from "../../../shared/useCrudUtils";
+import { getDateStrMesShort } from "@/mk/utils/date";
+import RenderForm from "./RenderForm/RenderForm";
+import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import RenderItem from "../../../shared/RenderItem";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import Button from "@/mk/components/forms/Button/Button";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import { formatNumber } from "@/mk/utils/numbers";
+import { useRouter } from "next/navigation";
+import { hasMaintenanceValue } from '@/mk/utils/utils';
 
 interface SharedDebtsProps {
   openView: boolean;
@@ -25,14 +24,8 @@ interface SharedDebtsProps {
   onExtraDataChange?: (extraData: any) => void;
 }
 
-const SharedDebts: React.FC<SharedDebtsProps> = ({
-  openView,
-  setOpenView,
-  viewItem,
-  setViewItem,
-  onExtraDataChange,
-}) => {
-  const { setStore, store } = useAuth();
+const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
+  const { user, setStore, store } = useAuth();
   const router = useRouter();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
@@ -41,66 +34,64 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   }>({});
 
   const renderConceptCell = ({ item }: { item: any }) => (
-    <div>{item?.description || 'Sin descripción'}</div>
-  );
-
-  const renderCategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.subcategory?.padre?.name || '-/-'}</div>
+    <div>{item?.description || "Sin descripción"}</div>
   );
 
   const renderSubcategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.subcategory?.name || '-/-'}</div>
+    <div>{item?.subcategory?.name || "-/-"}</div>
   );
 
   const renderDistributionCell = ({ item }: { item: any }) => {
     const getDistributionText = (amountType: string) => {
       const distributionMap: { [key: string]: string } = {
-        M: 'Por m²',
-        P: 'Promedio',
-        F: 'Fijo',
-        V: 'Variable',
-        A: 'Promedio',
+        M: "Por m²",
+        P: "Promedio",
+        F: "Fijo",
+        V: "Variable",
+        A: "Promedio",
       };
-      return distributionMap[amountType] || '-/-';
+      return distributionMap[amountType] || "-/-";
     };
 
     return <div>{getDistributionText(item?.amount_type)}</div>;
   };
 
   const renderStatusCell = ({ item }: { item: any }) => {
-    const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
-      A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
-      P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
-      S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
-      R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
-      E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
-      M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
-      C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
-      X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
+    const statusConfig: { [key: string]: { color: string; bgColor: string } } =
+    {
+      A: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl8)" },
+      P: { color: "var(--cSuccess)", bgColor: "var(--cHoverCompl2)" },
+      S: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl4)" },
+      R: {
+        color: "var(--cMediumAlert)",
+        bgColor: "var(--cMediumAlertHover)",
+      },
+      E: { color: "var(--cWhite)", bgColor: "var(--cHoverCompl1)" },
+      M: { color: "var(--cError)", bgColor: "var(--cHoverError)" },
+      C: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" },
+      X: { color: "var(--cError)", bgColor: "var(--cHoverError)" },
     };
 
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
-        A: 'Por cobrar',
-        P: 'Cobrado',
-        S: 'Por confirmar',
-        M: 'En mora',
-        C: 'Cancelada',
-        X: 'Anulada',
+        A: "Por cobrar",
+        P: "Cobrado",
+        S: "Por confirmar",
+        M: "En mora",
+        C: "Cancelada",
+        X: "Anulada",
       };
       return statusMap[status] || status;
     };
 
     let finalStatus = item?.status;
 
-    // Obtener fecha actual solo como string YYYY-MM-DD
     const today = new Date();
-    const todayString = today.toISOString().split('T')[0];
+    const todayString = today.toISOString().split("T")[0];
     const dueAtString = item?.due_at;
 
-    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
-    if (dueAtString && dueAtString < todayString && item?.status === 'A') {
-      finalStatus = 'M';
+    if (dueAtString && dueAtString < todayString && item?.status === "A") {
+      finalStatus = "M";
     }
 
     const statusText = getStatusText(finalStatus);
@@ -116,17 +107,20 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
     const raw = item?.maintenance_amount;
 
     const hasValue =
-      raw !== null && raw !== undefined && String(raw).trim() !== '' && !isNaN(Number(raw));
+      raw !== null &&
+      raw !== undefined &&
+      String(raw).trim() !== "" &&
+      !isNaN(Number(raw));
 
     if (!hasValue)
       return (
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            height: '100%',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: "100%",
           }}
         >
           -/-
@@ -138,11 +132,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
 
   const renderDueDateCell = ({ item }: { item: any }) => {
     if (!item?.due_at) return <div>-/-</div>;
-    return (
-      <div>
-        {getDateStrMesShort(item.due_at)}
-      </div>
-    );
+    return <div>{getDateStrMesShort(item.due_at)}</div>;
   };
 
   const renderDebtAmountCell = ({ item }: { item: any }) => (
@@ -170,32 +160,32 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   };
 
   const getStatusOptions = () => [
-    { id: 'ALL', name: 'Todos los estados' },
-    { id: 'A', name: 'Por cobrar' },
-    { id: 'P', name: 'Cobrado' },
-    { id: 'S', name: 'Por confirmar' },
-    { id: 'M', name: 'En mora' },
-    { id: 'C', name: 'Cancelada' },
-    { id: 'X', name: 'Anulada' },
+    { id: "ALL", name: "Todos los estados" },
+    { id: "A", name: "Por cobrar" },
+    { id: "P", name: "Cobrado" },
+    { id: "S", name: "Por confirmar" },
+    { id: "M", name: "En mora" },
+    { id: "C", name: "Cancelada" },
+    { id: "X", name: "Anulada" },
   ];
 
   const getDistributionOptions = () => [
-    { id: 'ALL', name: 'Todas los tipos' },
-    { id: 'F', name: 'Fijo' },
-    { id: 'V', name: 'Variable' },
-    { id: 'P', name: 'Porcentual' },
-    { id: 'M', name: 'Por m²' },
-    { id: 'A', name: 'Promedio' }
+    { id: "ALL", name: "Todas los tipos" },
+    { id: "F", name: "Fijo" },
+    { id: "V", name: "Variable" },
+    { id: "P", name: "Porcentual" },
+    { id: "M", name: "Por m²" },
+    { id: "A", name: "Promedio" },
   ];
 
   const getCategoryOptions = (extraData?: any) => {
-    const options = [{ id: 'ALL', name: 'Todas las categorías' }];
+    const options = [{ id: "ALL", name: "Todas las categorías" }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
         options.push({
           id: category.id.toString(),
-          name: category.name
+          name: category.name,
         });
       });
     }
@@ -204,7 +194,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   };
 
   const getSubcategoryOptions = (extraData?: any) => {
-    const options = [{ id: 'ALL', name: 'Todas las subcategorías' }];
+    const options = [{ id: "ALL", name: "Todas las subcategorías" }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
@@ -212,7 +202,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
           category.hijos.forEach((subcategory: any) => {
             options.push({
               id: subcategory.id.toString(),
-              name: subcategory.name
+              name: subcategory.name,
             });
           });
         }
@@ -223,16 +213,16 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   };
 
   const getPeriodOptions = () => [
-    { id: 'ALL', name: 'Todos los periodos' },
-    { id: 'd', name: 'Hoy' },
-    { id: 'ld', name: 'Ayer' },
-    { id: 'w', name: 'Esta semana' },
-    { id: 'lw', name: 'Semana anterior' },
-    { id: 'm', name: 'Este mes' },
-    { id: 'lm', name: 'Mes anterior' },
-    { id: 'y', name: 'Este año' },
-    { id: 'ly', name: 'Año anterior' },
-    { id: 'custom', name: 'Personalizado' }
+    { id: "ALL", name: "Todos los periodos" },
+    { id: "d", name: "Hoy" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana anterior" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
+    { id: "custom", name: "Personalizado" },
   ];
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
@@ -245,7 +235,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
       return { filterBy: currentFilters };
     }
 
-    if (value === "" || value === null || value === undefined ) {
+    if (value === "" || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
@@ -254,24 +244,28 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   };
 
   const renderTotalWithGreenBorder = (value: number, isHighlighted = false) => (
-    <div style={{
-      fontWeight: 'bold',
-      fontSize: '14px',
-      color: isHighlighted ? '#10b981' : 'var(--cWhite)',
-      textAlign: 'right',
-      backgroundColor: isHighlighted ? 'rgba(16, 185, 129, 0.1)' : 'var(--cBlackV2)',
-      padding: '8px 12px',
-      borderRadius: '6px',
-      border: '2px solid #10b981',
-      minWidth: '80px',
-      margin: '4px 0'
-    }}>
+    <div
+      style={{
+        fontWeight: "bold",
+        fontSize: "14px",
+        color: isHighlighted ? "#10b981" : "var(--cWhite)",
+        textAlign: "right",
+        backgroundColor: isHighlighted
+          ? "rgba(16, 185, 129, 0.1)"
+          : "var(--cBlackV2)",
+        padding: "8px 12px",
+        borderRadius: "6px",
+        border: "2px solid #10b981",
+        minWidth: "80px",
+        margin: "4px 0",
+      }}
+    >
       Bs {formatNumber(value || 0, 2)}
     </div>
   );
 
   const paramsInitial = {
-    fullType: 'L',
+    fullType: "L",
     page: 1,
     perPage: 20,
     type: 4,
@@ -279,136 +273,145 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
 
   const fields = useMemo(() => {
     return {
-      id: { rules: [], api: 'e' },
-      begin_at: { rules: ['required'], api: 'ae', label: 'Fecha de inicio' },
-      type: { rules: [], api: 'ae', label: 'Tipo' },
-      description: { rules: [], api: 'ae', label: 'Descripción' },
+      id: { rules: [], api: "e" },
+      begin_at: { rules: ["required"], api: "ae", label: "Fecha de inicio" },
+      type: { rules: [], api: "ae", label: "Tipo" },
+      description: { rules: [], api: "ae", label: "Descripción" },
       category_id: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Categoría',
+        rules: ["required"],
+        api: "ae",
+        label: "Categoría",
         filter: {
-          label: 'Categoría',
-          width: '100%',
+          label: "Categoría",
+          width: "100%",
           options: getCategoryOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
+          optionLabel: "name",
+          optionValue: "id",
         },
       },
       subcategory_id: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Subcategoría',
+        rules: ["required"],
+        api: "ae",
+        label: "Subcategoría",
         filter: {
-          label: 'Subcategoría',
-          width: '100%',
+          label: "Subcategoría",
+          width: "100%",
           options: getSubcategoryOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
+          optionLabel: "name",
+          optionValue: "id",
         },
       },
-      asignar: { rules: ['required'], api: 'ae', label: 'Asignación' },
-      dpto_id: { rules: [], api: 'ae', label: 'Departamentos' },
+      asignar: { rules: ["required"], api: "ae", label: "Asignación" },
+      dpto_id: { rules: [], api: "ae", label: "Departamentos" },
       amount_type: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Tipo de monto',
+        rules: ["required"],
+        api: "ae",
+        label: "Tipo de monto",
         filter: {
-          key: 'amount_type',
-          label: 'Tipo',
-          width: '100%',
+          key: "amount_type",
+          label: "Tipo",
+          width: "100%",
           options: getDistributionOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
+          optionLabel: "name",
+          optionValue: "id",
         },
       },
-      amount: { rules: ['required'], api: 'ae', label: 'Monto' },
-      is_advance: { rules: [], api: 'ae', label: 'Es adelanto' },
-      interest: { rules: [], api: 'ae', label: 'Interés' },
-      has_mv: { rules: [], api: 'ae', label: 'Tiene Mant. Valor' },
-      is_forgivable: { rules: [], api: 'ae', label: 'Es condonable' },
-      has_pp: { rules: [], api: 'ae', label: 'Tiene plan de pago' },
-      is_blocking: { rules: [], api: 'ae', label: 'Es bloqueante' },
+      amount: { rules: ["required"], api: "ae", label: "Monto" },
+      is_advance: { rules: [], api: "ae", label: "Es adelanto" },
+      interest: { rules: [], api: "ae", label: "Interés" },
+      has_mv: { rules: [], api: "ae", label: "Tiene Mant. Valor" },
+      is_forgivable: { rules: [], api: "ae", label: "Es condonable" },
+      has_pp: { rules: [], api: "ae", label: "Tiene plan de pago" },
+      is_blocking: { rules: [], api: "ae", label: "Es bloqueante" },
 
       concept: {
-        rules: [''],
-        api: '',
-        label: 'Concepto',
+        rules: [""],
+        api: "",
+        label: "Concepto",
         list: {
           onRender: renderConceptCell,
           order: 1,
         },
       },
       category: {
-        rules: [''],
-        api: '',
-        label: 'Categoría',
-        list: false/* {
-          onRender: renderCategoryCell,
-          order: 2,
-        }, */
+        rules: [""],
+        api: "",
+        label: "Categoría",
+        list: false,
       },
       subcategory: {
-        rules: [''],
-        api: '',
-        label: 'Subcategoría',
+        rules: [""],
+        api: "",
+        label: "Subcategoría",
         list: {
           onRender: renderSubcategoryCell,
           order: 3,
         },
       },
       distribution: {
-        rules: [''],
-        api: '',
-        label: 'Distribución',
+        rules: [""],
+        api: "",
+        label: "Distribución",
         list: {
           onRender: renderDistributionCell,
           order: 4,
         },
       },
       status: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
+        rules: [""],
+        api: "",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Estado
+          </span>
+        ),
         list: {
           onRender: renderStatusCell,
           order: 5,
         },
       },
       status_filter: {
-        rules: [''],
-        api: '',
-        label: 'Estado',
+        rules: [""],
+        api: "",
+        label: "Estado",
         list: false,
         filter: {
           order: 1,
-          key: 'status',
-          label: 'Estado',
-          width: '100%',
+          key: "status",
+          label: "Estado",
+          width: "100%",
           options: getStatusOptions,
         },
       },
       due_at: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Vencimiento',
+        rules: ["required"],
+        api: "ae",
+        label: "Vencimiento",
         list: {
           onRender: renderDueDateCell,
           order: 6,
         },
         filter: {
-          key: 'due_at',
-          label: 'Periodo',
-          width: '100%',
+          key: "due_at",
+          label: "Periodo",
+          width: "100%",
           options: getPeriodOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
+          optionLabel: "name",
+          optionValue: "id",
         },
       },
       debt_amount: {
-        rules: [''],
-        api: '',
-        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</label>,
+        rules: [""],
+        api: "",
+        label: (
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            Deuda
+          </label>
+        ),
         list: {
           onRender: renderDebtAmountCell,
           order: 7,
@@ -418,9 +421,15 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
         },
       },
       penalty_amount: {
-        rules: [''],
-        api: '',
-        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>,
+        rules: [""],
+        api: "",
+        label: (
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            Multa
+          </label>
+        ),
         list: {
           onRender: renderPenaltyAmountCell,
           order: 8,
@@ -430,28 +439,37 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
         },
       },
       maintenance_amount: {
-        rules: [''],
-        api: '',
+        rules: [""],
+        api: "",
         label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            Mant. Valor
+          </label>
         ),
-        list: {
+        list: hasMaintenanceValue(user) ? {
           order: 9,
-          onRender: renderMaintenanceAmountCell,
-        },
+          onRender: renderMaintenanceAmountCell
+        } : false,
       },
       balance_due: {
-        rules: [''],
-        api: '',
+        rules: [""],
+        api: "",
         label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto total</label>
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            Monto total
+          </label>
         ),
         list: {
           onRender: renderBalanceDueCell,
           order: 9,
           sumarize: false,
           onRenderFoot: (item: any, index: number, sumas: any) => {
-            const totalBalance = (sumas.debt_amount || 0) + (sumas.penalty_amount || 0);
+            const totalBalance =
+              (sumas.debt_amount || 0) + (sumas.penalty_amount || 0);
             return renderTotalWithGreenBorder(totalBalance, true);
           },
         },
@@ -460,50 +478,42 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   }, []);
 
   const mod: ModCrudType = {
-    modulo: 'debts',
-    singular: 'Deuda Compartida',
-    plural: '',
+    modulo: "debts",
+    singular: "Deuda Compartida",
+    plural: "",
     export: true,
     filter: true,
-    permiso: 'expense',
+    permiso: "expense",
     extraData: true,
     sumarize: false,
     hideActions: {
-      view: false,
+      view: true,
       edit: true,
       del: true,
     },
-    renderView: (props: any) => {
-      const debtId = props.item?.id;
-      if (debtId) {
-        router.push(`/debts_manager/shared-debt-detail/${debtId}`);
-      }
-      props.onClose();
-      return null;
-    },
-    titleAdd: 'Crear',
+    titleAdd: "Crear",
     renderForm: (props: any) => <RenderForm {...props} />,
   };
 
-  const goToCategories = (type = '') => {
+  const goToCategories = (type = "") => {
     if (type) {
       router.push(`/categories?type=${type}`);
     } else {
-      router.push('/categories');
+      router.push("/categories");
     }
   };
 
   const extraButtons = [
     <Button
       key="categories-button"
-      variant='secondary'
-      onClick={() => goToCategories('D')}
+      variant="secondary"
+      onClick={() => goToCategories("D")}
       style={{
-        padding: '8px 16px',
-        width: 'auto',
+        padding: "8px 16px",
+        width: "auto",
         height: 48,
-        display: 'flex',
-        alignItems: 'center',
+        display: "flex",
+        alignItems: "center",
       }}
     >
       Categorías
@@ -525,7 +535,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   }, [extraData, onExtraDataChange]);
 
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => {},
+    onSearch: () => { },
     searchs: {},
     setStore,
     mod,
@@ -536,23 +546,29 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   const renderItem = (item: Record<string, any>) => {
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
-        A: 'Por cobrar',
-        P: 'Pagada',
-        C: 'Cancelada',
-        X: 'Anulada',
-        M: 'En mora'
+        A: "Por cobrar",
+        P: "Pagada",
+        C: "Cancelada",
+        X: "Anulada",
+        M: "En mora",
       };
       return statusMap[status] || status;
     };
 
     let finalStatus = item?.status;
     const today = new Date();
-    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const todayDateOnly = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
     const dueDate = item?.due_at ? new Date(item.due_at) : null;
-    const dueDateOnly = dueDate ? new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate()) : null;
+    const dueDateOnly = dueDate
+      ? new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate())
+      : null;
 
-    if (dueDateOnly && dueDateOnly < todayDateOnly && item?.status === 'A') {
-      finalStatus = 'M';
+    if (dueDateOnly && dueDateOnly < todayDateOnly && item?.status === "A") {
+      finalStatus = "M";
     }
 
     const debtAmount = parseFloat(item?.amount) || 0;
@@ -563,10 +579,14 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
     const totalBalance = debtAmount + totalPenalty;
 
     return (
-      <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
+      <RenderItem item={item} onClick={() => { }} onLongPress={onLongPress}>
         <ItemList
-          title={`${item?.description || 'Sin concepto'} - ${getStatusText(finalStatus)}`}
-          subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${totalPenalty.toFixed(
+          title={`${item?.description || "Sin concepto"} - ${getStatusText(
+            finalStatus
+          )}`}
+          subtitle={`Deuda: Bs ${debtAmount.toFixed(
+            2
+          )} | Multa: Bs ${totalPenalty.toFixed(
             2
           )} | Total: Bs ${totalBalance.toFixed(2)}`}
           variant="V1"
@@ -577,12 +597,15 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   };
 
   const onClickDetail = (row: any) => {
+    if (row?.id) {
+      router.push(`/debts_manager/shared-debt-detail/${row.id}`);
+    }
   };
 
   return (
     <>
       <List
-        height={'calc(100vh - 580px)'}
+        height={"calc(100vh - 580px)"}
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de deudas grupales vacía. Una vez generes las cuotas"
@@ -599,20 +622,26 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
         }}
         onSave={({ startDate, endDate }) => {
           let err: { startDate?: string; endDate?: string } = {};
-          if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
-          if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
+          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
           if (startDate && endDate && startDate > endDate)
-            err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
-          if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
-            err.startDate = 'El periodo personalizado debe estar dentro del mismo año';
-            err.endDate = 'El periodo personalizado debe estar dentro del mismo año';
+            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
           }
           if (Object.keys(err).length > 0) {
             setCustomDateErrors(err);
             return;
           }
           const customDateFilterString = `${startDate},${endDate}`;
-          onFilter('due_at', customDateFilterString);
+          onFilter("due_at", customDateFilterString);
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}

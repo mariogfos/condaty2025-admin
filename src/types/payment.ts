@@ -2,6 +2,7 @@ export interface PaymentStatusConfig {
   label: string;
   color: string;
   backgroundColor: string;
+  longLabel?: string;
 }
 
 export const PAYMENT_STATUS_MAP = {
@@ -34,6 +35,12 @@ export const PAYMENT_STATUS_MAP = {
     label: "Anulado",
     color: "var(--cError)",
     backgroundColor: "var(--cHoverError)",
+  },
+  E: {
+    label: "Por subir comprobante",
+    longLabel: "Por subir comprobante",
+    color: "var(--cInfo)",
+    backgroundColor: "var(--cHoverCompl3)",
   },
 } as const;
 
