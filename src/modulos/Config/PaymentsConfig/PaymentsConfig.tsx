@@ -11,16 +11,6 @@ const PaymentsConfig = ({
   bankAccounts,
   onSave,
 }: any) => {
-  
-  const [_mainAccountID, setMainAccountID] = useState<number>(0)
-  const [_expenseAccountID, setExpenseAccountID] = useState<number>(0)
-  const [_reserveAccountID, setReserveAccountID] = useState<number>(0)
-
-  useEffect(() => {
-    setMainAccountID(formState?.main_account_id)
-    setExpenseAccountID(formState?.expense_account_id)
-    setReserveAccountID(formState?.reserve_account_id)
-  }, [formState?.expense_account_id, formState?.main_account_id, formState?.reserve_account_id]);
 
   const getBankAccounts = useMemo(() =>
     bankAccounts?.map((bacc: { id: number; alias_holder: string; bank_entity: { name: string; }; account_number: number; }) => {
