@@ -384,46 +384,24 @@ const useCrud = ({
     const { param: paramWithoutFiles, filesToUpload } =
       detectLargeFilesAndStrip(data, fields, { ...param }, uploadLimitMB);
 
-    // For updates (edit), force the same behavior as create: remove file fields
-    // from the first request and always upload them via FormData afterwards.
-    let filesToUploadFinal = Array.isArray(filesToUpload)
-      ? [...filesToUpload]
-      : [];
-    if (action === "edit") {
+    // Use the same detection result as creation: filesToUpload contains only
+    // files that exceeded the upload limit and were stripped from the params.
+    // We won't force additional behavior for edits here; rely on detectLargeFilesAndStrip.
+
+    // Ensure root ext is present when a file field exists.
+    // If we detected filesToUpload (i.e. files stripped because they're large),
+    // prefer the extension from the file to override any previous value —
+    // otherwise fall back to ext found in the form data.
+    if (filesToUpload.length > 0 && filesToUpload[0].ext) {
+      paramWithoutFiles.ext = filesToUpload[0].ext;
+    } else {
       for (const key in fields) {
         const f = fields[key];
         if (f?.form?.type === "fileUpload") {
           const val = data[key] || param[key];
-          if (val && typeof val === "object" && val.file && val.file !== "delete") {
-            const already = filesToUploadFinal.find((x) => x.fieldKey === key);
-            if (!already) {
-              console.log("Uploading file field on edit:", val.ext, "El otro valor es:", f?.form?.ext);
-              filesToUploadFinal.push({
-                fieldKey: key,
-                value: val,
-                ext: val.ext || "",
-                prefix: (f?.prefix || "DOC").replace(/-$/g, ""),
-              });
-            }
-            if (paramWithoutFiles[key]) delete paramWithoutFiles[key];
-          }
-        }
-      }
-    }
-
-    // Ensure root ext is present when a file field exists
-    if (!paramWithoutFiles.ext) {
-      if (filesToUploadFinal.length > 0 && filesToUploadFinal[0].ext) {
-        paramWithoutFiles.ext = filesToUploadFinal[0].ext;
-      } else {
-        for (const key in fields) {
-          const f = fields[key];
-          if (f?.form?.type === "fileUpload") {
-            const val = data[key] || param[key];
-            if (val && typeof val === "object" && val.ext) {
-              paramWithoutFiles.ext = val.ext;
-              break;
-            }
+          if (val && typeof val === "object" && val.ext) {
+            paramWithoutFiles.ext = val.ext;
+            break;
           }
         }
       }
@@ -441,9 +419,9 @@ const useCrud = ({
       try {
         const uploadId =
           response?.data?.id ?? response?.data?.data?.id ?? data?.id ?? response?.id ?? null;
-        if (filesToUploadFinal.length > 0 && uploadId) {
+        if (filesToUpload.length > 0 && uploadId) {
           await uploadLargeFiles(
-            filesToUploadFinal,
+            filesToUpload,
             uploadId,
             execute,
             mod?.noWaiting,
