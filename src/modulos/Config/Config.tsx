@@ -32,6 +32,7 @@ const Config = () => {
     sortBy: "",
     relations: "client",
     page: 1,
+    extraData: true
     // searchBy: "client_id,=," + user?.client_id,
   });
   const onChange = (e: any) => {
@@ -191,44 +192,13 @@ const Config = () => {
     }
 
     if (typeSearch === "P") {
-      if (errorImage) {
-        errors = checkRules({
-          value: formState.avatarQr,
-          rules: ["required"],
-          key: "avatarQr",
-          errors,
-        });
-      }
       errors = checkRules({
-        value: formState.payment_transfer_bank,
+        value: formState.main_account_id,
         rules: ["required"],
-        key: "payment_transfer_bank",
+        key: "main_account_id",
         errors,
       });
-      errors = checkRules({
-        value: formState.payment_transfer_account,
-        rules: ["required"],
-        key: "payment_transfer_account",
-        errors,
-      });
-      errors = checkRules({
-        value: formState.payment_transfer_name,
-        rules: ["required"],
-        key: "payment_transfer_name",
-        errors,
-      });
-      errors = checkRules({
-        value: formState.payment_office_obs,
-        rules: ["required"],
-        key: "payment_office_obs",
-        errors,
-      });
-      errors = checkRules({
-        value: formState.payment_transfer_ci,
-        rules: ["required", "min:5", "max:15"],
-        key: "payment_transfer_ci",
-        errors,
-      });
+
     }
 
     setErrors(errors);
@@ -240,7 +210,7 @@ const Config = () => {
     if (hasErrors(validate())) return;
     const { data, error } = await execute("/client-config-actualizar", "PUT", {
       ...formState,
-      penalty_data: formState.penalty_data,
+      penalty_data: formState.penalty_data
     });
 
     if (data?.success === true) {
@@ -314,6 +284,7 @@ const Config = () => {
               formState={formState}
               onChange={onChange}
               errors={errors}
+              bankAccounts={client_config?.extraData?.bankAccounts}
               setErrors={setErrors}
               onSave={onSave}
             />
