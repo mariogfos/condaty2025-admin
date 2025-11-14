@@ -12,9 +12,9 @@ const PaymentsConfig = ({
   onSave,
 }: any) => {
   
-  const [mainAccountID, setMainAccountID] = useState<number>(0)
-  const [expenseAccountID, setExpenseAccountID] = useState<number>(0)
-  const [reserveAccountID, setReserveAccountID] = useState<number>(0)
+  const [_mainAccountID, setMainAccountID] = useState<number>(0)
+  const [_expenseAccountID, setExpenseAccountID] = useState<number>(0)
+  const [_reserveAccountID, setReserveAccountID] = useState<number>(0)
 
   useEffect(() => {
     setMainAccountID(formState?.main_account_id)
@@ -22,35 +22,15 @@ const PaymentsConfig = ({
     setReserveAccountID(formState?.reserve_account_id)
   }, [formState?.expense_account_id, formState?.main_account_id, formState?.reserve_account_id]);
 
-  console.log(mainAccountID + ' ' + expenseAccountID + ' ' + reserveAccountID)
-  console.log(JSON.stringify(bankAccounts))
-
-  const getBankAccounts = useMemo(
-      () =>
-        bankAccounts.map((bacc: { id: number; alias_holder: string; bank_entity: { name: string; }; account_number: number; }) => {
-          return {
-            id: bacc.id,
-            name:
-              bacc?.alias_holder +
-              ' (' +
-              bacc?.bank_entity?.name +
-              ' - ' +
-              bacc?.account_number + ')'
-          };
-        }),
-      [bankAccounts]
-    );
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    if (value === "" || value === "-") {
-      onChange(e);
-      return;
-    }
-
-    onChange(e);
-  };
+  const getBankAccounts = useMemo(() =>
+    bankAccounts.map((bacc: { id: number; alias_holder: string; bank_entity: { name: string; }; account_number: number; }) => {
+        return {
+          id: bacc?.id ?? null,
+          name: `${bacc?.alias_holder ?? ''} (${bacc?.bank_entity?.name ?? 'N/A'} - ${bacc?.account_number ?? ''})`
+        };
+      }),
+    [bankAccounts]
+  );
   
   return (
     <div className={styles.paymentsContainer}>
