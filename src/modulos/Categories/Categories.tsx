@@ -58,9 +58,6 @@ const Categories = ({ type: propType = "" }) => {
   // Usar el tipo de la URL si existe, sino el prop
   const type = urlType || propType;
 
-  console.log("Type recibido:", type); // Para debug
-
-  // Corregir la lógica para incluir el tipo 'D'
   const typeToUse = type === "E" ? "E" : "I"; // 'D' y 'I' usan datos de 'I'
   const originalType = type; // Mantener el tipo original tal como viene
 
