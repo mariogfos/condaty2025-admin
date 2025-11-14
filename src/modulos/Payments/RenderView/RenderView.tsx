@@ -259,13 +259,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
 
   const getStatus = (status: string) => {
     const statusMap: Record<string, string> = {
-      P: "Cobrado",
-      S: "Por confirmar",
-      R: "Rechazado",
-      A: "Por pagar",
-      M: "Moroso",
-      E: "Por subir comprobante",
-      X: "Anulado",
+      P: 'Cobrado',
+      S: 'Por confirmar',
+      R: 'Rechazado',
+      A: 'Por pagar',
+      M: 'Moroso',
+      E: 'Por subir comprobante',
+      X: 'Anulado',
     };
     return statusMap[status] || status;
   };
@@ -359,7 +359,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     statusClass = styles.statusRejected;
   } else if (item.status === "X") {
     statusClass = styles.statusCanceled;
-  } else if (item.status === "E") {
+  } else if (item.status === 'E') {
     statusClass = styles.statusVoucher;
   }
 

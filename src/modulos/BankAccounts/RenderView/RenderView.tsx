@@ -78,17 +78,18 @@ const RenderView = (props: any) => {
     if (data?.id) {
       setLoading(true);
       const { data: res } = await execute(
-        `/bank-accounts/${data?.id}`,
+        `/bank-accounts`,
         "GET",
         {
           fullType: "DET",
+          searchBy: data?.id,
         },
         false,
         true
       );
 
       if (res?.success) {
-        setItem(res?.data);
+        setItem({ ...res?.data?.data, isInUse: res?.data?.isInUse });
       } else {
         showToast("Error al obtener los datos", "error");
       }
@@ -162,10 +163,7 @@ const RenderView = (props: any) => {
             <SectionValues
               left={{
                 label: "Entidad bancaria",
-                value:
-                  extraData?.bankEntities?.find(
-                    (entity: any) => entity.id === item?.bank_entity_id
-                  )?.name || "No especificada",
+                value: item?.bank_entity?.name || "No especificada",
               }}
               right={{ label: "CI / NIT", value: item?.ci_holder }}
             />
@@ -201,10 +199,7 @@ const RenderView = (props: any) => {
             <SectionValues
               left={{
                 label: "Tipo de Moneda",
-                value:
-                  extraData?.currencyTypes?.find(
-                    (type: any) => type?.id === item?.currency_type_id
-                  )?.name || "No especificada",
+                value: item?.currency_type?.name,
               }}
               right={{
                 label: "Asignada a",
