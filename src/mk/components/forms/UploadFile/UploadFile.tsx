@@ -13,8 +13,6 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { resizeImage } from "@/mk/utils/images";
 import ImageEditor from "./ImageEditor";
 import { getUrlImages } from "@/mk/utils/string";
-import { number } from "motion";
-
 interface PropsType extends PropsTypeInputBase {
   ext: string[];
   setError: Function;
@@ -42,15 +40,26 @@ export const UploadFile = ({
   // Función para verificar si hay un documento existente
   const hasExistingDocument = () => {
     // Verificar si es un documento existente
-    if (item?.type === 'D' && item?.url) {
+    if (item?.type === "D" && item?.url) {
       return true;
     }
     // Verificar si value tiene información de documento
-    if (value && typeof value === 'object') {
-      if (value.existing && (value.ext === 'pdf' || value.ext === 'doc' || value.ext === 'docx' || value.ext === 'xls' || value.ext === 'xlsx')) {
+    if (value && typeof value === "object") {
+      if (
+        value.existing &&
+        (value.ext === "pdf" ||
+          value.ext === "doc" ||
+          value.ext === "docx" ||
+          value.ext === "xls" ||
+          value.ext === "xlsx")
+      ) {
         return true;
       }
-      if (value.ext && ['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(value.ext) && value.file !== "delete") {
+      if (
+        value.ext &&
+        ["pdf", "doc", "docx", "xls", "xlsx"].includes(value.ext) &&
+        value.file !== "delete"
+      ) {
         return true;
       }
     }
@@ -63,14 +72,14 @@ export const UploadFile = ({
       return item.title;
     }
     if (item?.description) {
-      return item.description.substring(0, 30) + '...';
+      return item.description.substring(0, 30) + "...";
     }
-    return 'Documento existente';
+    return "Documento existente";
   };
 
   // Función para obtener la URL del documento existente
   const getExistingDocumentUrl = () => {
-    if (item?.id && item?.type === 'D') {
+    if (item?.id && item?.type === "D") {
       return getUrlImages(`/CONT-${item.id}.pdf?d=${item.updated_at}`);
     }
     return null;
@@ -92,7 +101,9 @@ export const UploadFile = ({
   };
 
   const resetFileInput = () => {
-    const input = document.getElementById(props.name) as HTMLInputElement | null;
+    const input = document.getElementById(
+      props.name
+    ) as HTMLInputElement | null;
     if (input) input.value = "";
   };
 
@@ -123,7 +134,10 @@ export const UploadFile = ({
 
       // validar extensión
       if (!props.ext.includes(fileExt)) {
-        props.setError({ ...props.error, [props.name]: "Extensión no permitida" });
+        props.setError({
+          ...props.error,
+          [props.name]: "Extensión no permitida",
+        });
         setSelectedFiles({});
         resetFileInput();
         showToast("Solo se permiten archivos " + props.ext.join(", "), "error");
@@ -136,7 +150,10 @@ export const UploadFile = ({
 
       if (typeof file.size === "number") {
         if (file.size > maxSizeBytes) {
-          props.setError({ ...props.error, [props.name]: `El archivo supera ${maxSizeMB} MB` });
+          props.setError({
+            ...props.error,
+            [props.name]: `El archivo supera ${maxSizeMB} MB`,
+          });
           setSelectedFiles({});
           resetFileInput();
           showToast(`El archivo supera el límite de ${maxSizeMB} MB`, "error");
@@ -146,7 +163,6 @@ export const UploadFile = ({
 
       // Si es imagen: procesar/resize (pero la validación ya se hizo sobre file.size)
       if (["jpg", "png", "webp", "jpeg", "gif"].includes(fileExt)) {
-
         const image: any = await resizeImage(file, 720, 1024, 0.7);
         let base64String = image.replace("data:", "").replace(/^.+,/, "");
         base64String = encodeURIComponent(base64String);
@@ -167,12 +183,23 @@ export const UploadFile = ({
         // extraer base64 pura
         const base64Only = result.replace(/^data:[^;]+;base64,/, "");
         // estimación bytes desde base64
-        const padding = (base64Only.endsWith("==") ? 2 : base64Only.endsWith("=") ? 1 : 0);
+        const padding = base64Only.endsWith("==")
+          ? 2
+          : base64Only.endsWith("=")
+          ? 1
+          : 0;
         const estBytes = Math.ceil((base64Only.length * 3) / 4) - padding;
 
         // si file.size no estaba definido, usamos la estimación
-        if (typeof file.size !== "number" && props.maxSize && estBytes > maxSizeBytes) {
-          props.setError({ ...props.error, [props.name]: `El archivo supera ${maxSizeMB} MB` });
+        if (
+          typeof file.size !== "number" &&
+          props.maxSize &&
+          estBytes > maxSizeBytes
+        ) {
+          props.setError({
+            ...props.error,
+            [props.name]: `El archivo supera ${maxSizeMB} MB`,
+          });
           setSelectedFiles({});
           resetFileInput();
           showToast(`El archivo supera el límite de ${maxSizeMB} MB`, "error");
@@ -229,7 +256,7 @@ export const UploadFile = ({
     onChange({
       target: {
         name: props.name,
-        value: { ext: value?.ext || 'pdf', file: "delete" }, // Formato correcto
+        value: { ext: value?.ext || "pdf", file: "delete" }, // Formato correcto
       },
     });
   };
@@ -244,7 +271,7 @@ export const UploadFile = ({
   // Verificar si hay contenido para mostrar (corregido)
   const hasContent = () => {
     // Si value.file es "delete", no mostrar contenido
-    if (value && typeof value === 'object' && value.file === "delete") {
+    if (value && typeof value === "object" && value.file === "delete") {
       return false;
     }
 
@@ -258,7 +285,7 @@ export const UploadFile = ({
 
   // useEffect para manejar cuando value.file cambia a "delete"
   useEffect(() => {
-    if (value && typeof value === 'object' && value.file === "delete") {
+    if (value && typeof value === "object" && value.file === "delete") {
       setSelectedFiles({});
       setEditedImage(null);
     }
@@ -269,6 +296,7 @@ export const UploadFile = ({
       {...props}
       value={value}
       className={styles.uploadFile + " " + className}
+      styleContainer={{ height: "100%" }}
     >
       <section
         style={{
@@ -319,19 +347,22 @@ export const UploadFile = ({
             {(editedImage ||
               selectedFiles?.type?.startsWith("image/") ||
               (value &&
-                typeof value === 'object' &&
+                typeof value === "object" &&
                 (value.ext == "webp" ||
                   (value.indexOf && value.indexOf(".webp") > -1))) ||
               (value &&
-                typeof value === 'string' &&
-                (value.includes('.webp') || value.includes('.jpg') || value.includes('.jpeg') || value.includes('.png')))) &&
+                typeof value === "string" &&
+                (value.includes(".webp") ||
+                  value.includes(".jpg") ||
+                  value.includes(".jpeg") ||
+                  value.includes(".png")))) &&
             img ? (
               <img
                 src={
                   editedImage ||
                   (selectedFiles?.name
                     ? URL.createObjectURL(selectedFiles)
-                    : (typeof value === 'object' && value.url) || value || "")
+                    : (typeof value === "object" && value.url) || value || "")
                 }
                 alt={selectedFiles?.name}
                 style={{
@@ -345,21 +376,26 @@ export const UploadFile = ({
                 <IconDocs size={80} color={"var(--cWhite)"} />
                 <span>{selectedFiles.name}</span>
               </>
-            ) : hasExistingDocument() && !(value && typeof value === 'object' && value.file === "delete") ? (
+            ) : hasExistingDocument() &&
+              !(
+                value &&
+                typeof value === "object" &&
+                value.file === "delete"
+              ) ? (
               /* Mostrar documento existente solo si no está marcado para eliminar */
               <>
                 <IconDocs size={80} color={"var(--cWhite)"} />
                 <span>{getExistingDocumentName()}</span>
                 {getExistingDocumentUrl() && (
-                  <div style={{ marginTop: '8px' }}>
+                  <div style={{ marginTop: "8px" }}>
                     <a
                       href={getExistingDocumentUrl() || undefined}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{
-                        color: 'var(--cAccent)',
-                        textDecoration: 'none',
-                        fontSize: '12px'
+                        color: "var(--cAccent)",
+                        textDecoration: "none",
+                        fontSize: "12px",
                       }}
                     >
                       Ver documento
@@ -367,7 +403,9 @@ export const UploadFile = ({
                   </div>
                 )}
               </>
-            ) : value && typeof value === 'object' && ["pdf", "doc", "docx", "xls", "xlsx",].includes(value.ext) ? (
+            ) : value &&
+              typeof value === "object" &&
+              ["pdf", "doc", "docx", "xls", "xlsx"].includes(value.ext) ? (
               /* Mostrar documento cargado */
               <>
                 <IconDocs size={80} color={"var(--cWhite)"} />
