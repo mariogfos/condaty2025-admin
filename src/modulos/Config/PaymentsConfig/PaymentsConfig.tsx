@@ -23,7 +23,7 @@ const PaymentsConfig = ({
   }, [formState?.expense_account_id, formState?.main_account_id, formState?.reserve_account_id]);
 
   const getBankAccounts = useMemo(() =>
-    bankAccounts.map((bacc: { id: number; alias_holder: string; bank_entity: { name: string; }; account_number: number; }) => {
+    bankAccounts?.map((bacc: { id: number; alias_holder: string; bank_entity: { name: string; }; account_number: number; }) => {
         return {
           id: bacc?.id ?? null,
           name: `${bacc?.alias_holder ?? ''} (${bacc?.bank_entity?.name ?? 'N/A'} - ${bacc?.account_number ?? ''})`
