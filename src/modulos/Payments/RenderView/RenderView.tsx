@@ -487,7 +487,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Cuenta bancaria</span>
                   <span className={styles.infoValue}>
-                    {item.bank_account?.bank_entity?.name || "-/-"}
+                    {`${item.bank_account?.alias_holder ?? ''} (${item.bank_account?.bank_entity?.name ?? 'N/A'})` || "-/-"}
                   </span>
                 </div>
               )}
