@@ -11,8 +11,8 @@ import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
+import { hasMaintenanceValue } from '@/mk/utils/utils';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
-import React from 'react';
 import { formatBs, formatNumber } from '@/mk/utils/numbers';
 
 interface AllDebtsProps {
@@ -26,7 +26,7 @@ interface AllDebtsProps {
 const AllDebts: React.FC<AllDebtsProps> = ({
   onExtraDataChange
 }) => {
-  const { setStore, store } = useAuth();
+  const { setStore, store, user } = useAuth();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
     startDate?: string;
@@ -158,11 +158,13 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       String(raw).trim() !== '' &&
       !isNaN(Number(raw));
 
-    if (!hasValue) return <div style={{ display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    height: '100%', }}>-/-</div>;
+    if (!hasValue) return <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      height: '100%',
+    }}>-/-</div>;
 
     return <FormatBsAlign value={parseFloat(raw)} alignRight />;
   };
@@ -303,6 +305,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   );
 
   const fields = useMemo(() => {
+    const showMaintenance = hasMaintenanceValue(user);
+
     return {
       id: { rules: [], api: 'e' },
       unit: {
@@ -394,7 +398,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           optionValue: 'id',
         },
       },
-
       amount: {
         rules: [''],
         api: '',
@@ -419,15 +422,18 @@ const AllDebts: React.FC<AllDebtsProps> = ({
             renderTotalWithGreenBorder(sumas[item.key]),
         },
       },
+      // incluir maintenance_amount solo si corresponde
+
       maintenance_amount: {
         rules: [''],
         api: '',
         label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>,
-        list: {
+        list: showMaintenance ? {
           order: 9,
-          onRender: renderMaintenanceAmountCell,
-        },
+          onRender: renderMaintenanceAmountCell
+        } : false
       },
+
       balance_due: {
         rules: [''],
         api: '',
@@ -468,7 +474,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         onClose={props.onClose}
         item={props.item}
         extraData={props.extraData}
-        user={props.user}
+        user={user}
         onEdit={props.onEdit}
         onDel={props.onDel}
       />
@@ -481,7 +487,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         setItem={props.setItem}
         execute={props.execute}
         extraData={props.extraData}
-        user={props.user}
+        user={user}
         reLoad={props.reLoad}
         errors={props.errors}
         setErrors={props.setErrors}
@@ -505,7 +511,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   }, [extraData, onExtraDataChange]);
 
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => {},
+    onSearch: () => { },
     searchs: {},
     setStore,
     mod,
@@ -543,7 +549,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     const totalBalance = debtAmount + penaltyAmount;
 
     return (
-      <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
+      <RenderItem item={item} onClick={() => { }} onLongPress={onLongPress}>
         <ItemList
           title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(finalStatus)}`}
           subtitle={`Deuda: ${formatBs(debtAmount)} | Multa: ${formatBs(penaltyAmount)} | Total: ${formatBs(totalBalance)}`}
