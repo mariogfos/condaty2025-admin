@@ -11,12 +11,18 @@
 
 .header {
   margin-bottom: 16px;
+  @media (width <= 1280px) { 
+    margin-bottom: 12px;
+  }
+  @media (width <= 1024px) { 
+    margin-bottom: 4px;
+  }
 }
 
 .title {
   font-size: 12px;
   font-weight: 600;
-  color: var(--cSuccess);
+  color: var(--cAccent);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0;

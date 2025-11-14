@@ -9,20 +9,20 @@ import {
 } from "../layout/icons/IconsBiblioteca";
 
 export const menuConfig = [
-  { type: "item", href: "/", label: "Inicio", icon: IconHome },
+  { type: "item", href: "/", label: "Inicio", perm: "home", icon: IconHome },
   {
     type: "dropdown",
     label: "Finanzas",
     icon: IconPayments,
     key: "Finanzas",
     items: [
-      { href: "/balance", label: "Flujo de efectivo" },
-      { href: "/payments", label: "Ingresos", badgeKey: "paymentsBage" },
-      { href: "/outlays", label: "Egresos" },
-      { href: "/expenses", label: "Expensas" },
-      { href: "/defaulters", label: "Morosos" },
-      { href: "/debts_manager", label: "Deudas" },
-      { href: "/bank-accounts", label: "Cuentas Bancarias" },
+      { href: "/balance", label: "Flujo de efectivo", perm: "balance" },
+      { href: "/payments", label: "Ingresos", perm: "payments", badgeKey: "paymentsBage" },
+      { href: "/outlays", label: "Egresos", perm: "outlays" },
+      { href: "/expenses", label: "Expensas", perm: "expenses" },
+      { href: "/defaulters", label: "Morosos", perm: "defaulters" },
+      { href: "/debts_manager", label: "Deudas", perm: "debts_manager" },
+      { href: "/bank-accounts", label: "Cuentas Bancarias", perm: "bank_accounts" },
     ],
   },
   {
@@ -31,11 +31,11 @@ export const menuConfig = [
     icon: IconMonitorLine,
     key: "Administración",
     items: [
-      { href: "/units", label: "Unidades" },
-      { href: "/areas", label: "Áreas sociales" },
-      { href: "/activities", label: "Accesos" },
-      { href: "/documents", label: "Documentos" },
-      { href: "/configs", label: "Configuración" },
+      { href: "/units", perm: "units", label: "Unidades" },
+      { href: "/areas", perm: "areas", label: "Áreas sociales" },
+      { href: "/activities", perm: "accesses", label: "Accesos" },
+      { href: "/documents", perm: "documents", label: "Documentos" },
+      { href: "/configs", perm: "settings", label: "Configuración" },
     ],
   },
   {
@@ -44,9 +44,9 @@ export const menuConfig = [
     icon: IconGroup,
     key: "Usuarios",
     items: [
-      { href: "/owners", label: "Residentes" },
-      { href: "/users", label: "Personal Administrativo" },
-      { href: "/roles", label: "Roles y permisos", perm: "roles" },
+      { href: "/owners", perm: "owners", label: "Residentes" },
+      { href: "/users", perm: "users", label: "Personal Administrativo" },
+      { href: "/roles", perm: "roles", label: "Roles y permisos" },
     ],
   },
   {
@@ -55,14 +55,15 @@ export const menuConfig = [
     icon: IconComunicationDialog,
     key: "Comunicación",
     items: [
-      { href: "/contents", label: "Publicaciones" },
-      { href: "/reels", label: "Muro publicaciones", badgeKey: "reelsBage" },
+      { href: "/contents", perm: "contents", label: "Publicaciones" },
+      { href: "/reels", perm: "contents", label: "Muro publicaciones", badgeKey: "reelsBage" },
     ],
   },
   {
     type: "item",
     href: "/reservas",
     label: "Reservas",
+    perm: "reservations",
     icon: IconCalendar,
     badgeKey: "reservasBage",
   },
@@ -72,9 +73,9 @@ export const menuConfig = [
     icon: IconSecurity,
     key: "Vigilancia y seguridad",
     items: [
-      { href: "/guards", label: "Guardias" },
-      { href: "/alerts", label: "Alertas", badgeKey: "alertsBage" },
-      { href: "/binnacle", label: "Bitácora" },
+      { href: "/guards", perm: "guards", label: "Guardias" },
+      { href: "/alerts", perm: "alerts", label: "Alertas", badgeKey: "alertsBage" },
+      { href: "/binnacle", perm: "guardlogs", label: "Bitácora" },
     ],
   },
 ];
