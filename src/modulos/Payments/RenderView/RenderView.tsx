@@ -41,6 +41,8 @@ interface PaymentDetail {
   voucher?: string;
   ext?: string;
   updated_at?: string;
+  bank_account_id?: string | number;
+  bank_account?: object | any;
 }
 
 interface DetailPaymentProps {
@@ -259,13 +261,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
 
   const getStatus = (status: string) => {
     const statusMap: Record<string, string> = {
-      P: 'Cobrado',
-      S: 'Por confirmar',
-      R: 'Rechazado',
-      A: 'Por pagar',
-      M: 'Moroso',
-      E: 'Por subir comprobante',
-      X: 'Anulado',
+      P: "Cobrado",
+      S: "Por confirmar",
+      R: "Rechazado",
+      A: "Por pagar",
+      M: "Moroso",
+      E: "Por subir comprobante",
+      X: "Anulado",
     };
     return statusMap[status] || status;
   };
@@ -359,7 +361,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     statusClass = styles.statusRejected;
   } else if (item.status === "X") {
     statusClass = styles.statusCanceled;
-  } else if (item.status === 'E') {
+  } else if (item.status === "E") {
     statusClass = styles.statusVoucher;
   }
 
@@ -478,6 +480,14 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     className={`${styles.infoValue} ${styles.canceledReason}`}
                   >
                     {item.canceled_obs}
+                  </span>
+                </div>
+              )}
+              {item?.bank_account_id && (
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Cuenta bancaria</span>
+                  <span className={styles.infoValue}>
+                    {item.bank_account?.bank_entity?.name || "-/-"}
                   </span>
                 </div>
               )}
