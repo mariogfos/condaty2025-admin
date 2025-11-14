@@ -38,7 +38,6 @@ const BankAccounts = () => {
     },
     extraData: true,
     renderForm: (props: any) => <RenderForm {...props} />,
-    loadView: { fullType: "DET" },
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -56,10 +55,10 @@ const BankAccounts = () => {
     []
   );
   const getOptionsStatus = useCallback(
-    (extraData: any) => [
+    () => [
       { id: "ALL", name: "Todos" },
-      { id: "D", name: "Habilitada" },
-      { id: "T", name: "Deshabilitada" },
+      { id: "A", name: "Habilitada" },
+      { id: "X", name: "Deshabilitada" },
     ],
     []
   );
@@ -89,13 +88,16 @@ const BankAccounts = () => {
           onRender: ({ item }: Record<string, any>) => {
             return (
               <p>
-                {item?.is_expense > 0 && "Expensa,"}
-                {item?.is_reserve > 0 && "Reserva,"}
-                {item.is_main > 0 && "Principal"}
-                {item?.is_expense === 0 &&
-                  item?.is_reserve === 0 &&
-                  item?.is_main === 0 &&
-                  "-/-"}
+                {["Expensa", "Reserva", "Principal"]
+                  .filter((label, index) => {
+                    const flags = [
+                      item?.is_expense,
+                      item?.is_reserve,
+                      item?.is_main,
+                    ];
+                    return flags[index] > 0;
+                  })
+                  .join(", ") || "-/-"}
               </p>
             );
           },
@@ -184,12 +186,13 @@ const BankAccounts = () => {
     };
   }, []);
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, reLoad } =
-    useCrud({
+  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
+    {
       paramsInitial,
       mod,
       fields,
-    });
+    }
+  );
   const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
@@ -206,7 +209,6 @@ const BankAccounts = () => {
         height={"calc(100vh - 345px)"}
         emptyMsg="Lista de cuentas bancarias vacía. Aquí verás a todas las cuentas bancarias"
         emptyLine2="del condominio una vez los registres."
-        // emptyIcon={<IconHomePerson2 size={80} color="var(--cWhiteV1)" />}
       />
     </div>
   );

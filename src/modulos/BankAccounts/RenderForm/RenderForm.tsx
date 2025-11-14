@@ -5,41 +5,16 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useState, useEffect } from "react";
 import styles from "./RenderForm.module.css";
-import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 import { getUrlImages } from "@/mk/utils/string";
-
-const TYPE_OWNERS = [
-  {
-    type_owner: "Propietario",
-    name: "Propietario",
-  },
-  {
-    type_owner: "Residente",
-    name: "Residente",
-  },
-];
-
-const getUnitNro = (unitsList: any[] = [], id?: string | number) => {
-  if (id === undefined || id === null) return undefined;
-  const match = unitsList.find(
-    (u) =>
-      String(u.id) === String(id) ||
-      String(u.dpto_id) === String(id) ||
-      String(u.dpto) === String(id)
-  );
-  return match?.nro ?? match?.nro_dpto ?? match?.number ?? String(id);
-};
 
 const RenderForm = ({
   open,
   onClose,
   item,
-  setItem,
   execute,
   extraData,
   reLoad,
-  onSave,
 }: any) => {
   const [formState, setFormState] = useState({ ...item });
   const [errors, setErrors] = useState({});
@@ -55,13 +30,72 @@ const RenderForm = ({
       [name]: value,
     }));
   };
+  const validate = () => {
+    let errors: any = {};
+    if (!formState?.id) {
+      errors = checkRules({
+        value: formState?.avatar,
+        rules: ["requiredImageMultiple"],
+        key: "avatar",
+        errors,
+        data: formState,
+      });
+    }
+    errors = checkRules({
+      value: formState?.bank_entity_id,
+      rules: ["required"],
+      key: "bank_entity_id",
+      errors,
+    });
+
+    errors = checkRules({
+      value: formState?.account_type,
+      rules: ["required"],
+      key: "account_type",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.account_number,
+      rules: ["required", "number"],
+      key: "account_number",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.currency_type_id,
+      rules: ["required"],
+      key: "currency_type_id",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.currency_type_id,
+      rules: ["required"],
+      key: "currency_type_id",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.holder,
+      rules: ["required"],
+      key: "holder",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.ci_holder,
+      rules: ["required"],
+      key: "ci_holder",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.alias_holder,
+      rules: ["required"],
+      key: "alias_holder",
+      errors,
+    });
+
+    setErrors(errors);
+    return errors;
+  };
   const _onSave = async () => {
-    // const errors = checkRules(formState, extraData?.rules || {});
-    // if (hasErrors(errors)) {
-    //   setErrors(errors);
-    //   return;
-    // }
-    // await onSave(formState);
+    if (hasErrors(validate())) return;
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
       "/bank-accounts" + (formState.id ? "/" + formState.id : ""),
@@ -108,6 +142,7 @@ const RenderForm = ({
             options={extraData?.bankEntities || []}
             optionValue="id"
             onChange={handleChange}
+            disabled={item?.isInUse}
             error={errors}
             required
           />
@@ -115,6 +150,7 @@ const RenderForm = ({
             label="Tipo de cuenta"
             name="account_type"
             value={formState.account_type || ""}
+            disabled={item?.isInUse}
             optionLabel="name"
             options={[
               {
@@ -138,6 +174,7 @@ const RenderForm = ({
             label="Nº de cuenta"
             error={errors}
             type="number"
+            disabled={item?.isInUse}
             required
           />
           <Select
@@ -145,6 +182,7 @@ const RenderForm = ({
             name="currency_type_id"
             value={formState.currency_type_id || ""}
             optionLabel="name"
+            disabled={item?.isInUse}
             options={extraData?.currencyTypes || []}
             optionValue="id"
             onChange={handleChange}
@@ -156,6 +194,7 @@ const RenderForm = ({
             name="holder"
             value={formState.holder || ""}
             onChange={handleChange}
+            disabled={item?.isInUse}
             error={errors}
           />
           <Input
@@ -165,6 +204,7 @@ const RenderForm = ({
             value={formState.ci_holder || ""}
             onChange={handleChange}
             error={errors}
+            disabled={item?.isInUse}
             required
           />
           <Input
