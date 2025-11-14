@@ -384,19 +384,24 @@ const useCrud = ({
     const { param: paramWithoutFiles, filesToUpload } =
       detectLargeFilesAndStrip(data, fields, { ...param }, uploadLimitMB);
 
-    // Ensure root ext is present when a file field exists
-    if (!paramWithoutFiles.ext) {
-      if (filesToUpload.length > 0 && filesToUpload[0].ext) {
-        paramWithoutFiles.ext = filesToUpload[0].ext;
-      } else {
-        for (const key in fields) {
-          const f = fields[key];
-          if (f?.form?.type === "fileUpload") {
-            const val = data[key] || param[key];
-            if (val && typeof val === "object" && val.ext) {
-              paramWithoutFiles.ext = val.ext;
-              break;
-            }
+    // Use the same detection result as creation: filesToUpload contains only
+    // files that exceeded the upload limit and were stripped from the params.
+    // We won't force additional behavior for edits here; rely on detectLargeFilesAndStrip.
+
+    // Ensure root ext is present when a file field exists.
+    // If we detected filesToUpload (i.e. files stripped because they're large),
+    // prefer the extension from the file to override any previous value —
+    // otherwise fall back to ext found in the form data.
+    if (filesToUpload.length > 0 && filesToUpload[0].ext) {
+      paramWithoutFiles.ext = filesToUpload[0].ext;
+    } else {
+      for (const key in fields) {
+        const f = fields[key];
+        if (f?.form?.type === "fileUpload") {
+          const val = data[key] || param[key];
+          if (val && typeof val === "object" && val.ext) {
+            paramWithoutFiles.ext = val.ext;
+            break;
           }
         }
       }
@@ -412,10 +417,12 @@ const useCrud = ({
 
     if (response?.success) {
       try {
-        if (filesToUpload.length > 0 && response.data?.id) {
+        const uploadId =
+          response?.data?.id ?? response?.data?.data?.id ?? data?.id ?? response?.id ?? null;
+        if (filesToUpload.length > 0 && uploadId) {
           await uploadLargeFiles(
             filesToUpload,
-            response.data.id,
+            uploadId,
             execute,
             mod?.noWaiting,
             showToast
