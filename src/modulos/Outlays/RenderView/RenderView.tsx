@@ -49,6 +49,10 @@ interface DetailOutlayProps {
   extraData?: ExtraData;
   onDel?: (item: OutlayItem) => void;
 }
+const typeAccountMap: Record<string, string> = {
+  C: "Cuenta corriente",
+  S: "Caja de ahorro",
+};
 const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   const { open, onClose, extraData, item, onDel } = props;
   const { execute } = useAxios();
@@ -240,9 +244,10 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Cuenta bancaria</span>
                 <span className={styles.infoValue}>
-                  {item.bank_account?.bank_entity?.name +
-                    " - " +
-                    item.bank_account?.account_number || "-/-"}
+                  {item.bank_account?.alias_holder +
+                    " - (" +
+                    item.bank_account?.bank_entity?.name +
+                    ")" || "-/-"}
                 </span>
               </div>
             )}
@@ -301,6 +306,16 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
                 )}
               </span>
             </div>
+            {item?.bank_account_id && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Número de cuenta</span>
+                <span className={styles.infoValue}>
+                  {typeAccountMap[item.bank_account?.account_type || ""] +
+                    " - " +
+                    item.bank_account?.account_number || "-/-"}
+                </span>
+              </div>
+            )}
           </div>
         </section>
 
