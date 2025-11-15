@@ -1,15 +1,13 @@
-'use client';
-import React, { memo } from 'react';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import { getFullName, getUrlImages } from '@/mk/utils/string';
-import Button from '@/mk/components/forms/Button/Button';
-import { formatToDayDDMMYYYYHHMM } from '@/mk/utils/date';
-import styles from './RenderView.module.css';
-import useAxios from '@/mk/hooks/useAxios';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import { formatBs } from '@/mk/utils/numbers';
-import { da } from 'date-fns/locale';
-import { data } from 'motion/react-client';
+"use client";
+import React, { memo } from "react";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import Button from "@/mk/components/forms/Button/Button";
+import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
+import styles from "./RenderView.module.css";
+import useAxios from "@/mk/hooks/useAxios";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import { formatBs } from "@/mk/utils/numbers";
 interface Category {
   id: number | string;
   name: string;
@@ -28,10 +26,12 @@ interface OutlayItem {
   id: number | string;
   amount: number;
   date_at: string;
+  bank_account?: object | any;
+  bank_account_id?: number | string | null;
   description?: string;
   category?: Category;
   category_id?: number | string;
-  status: 'A' | 'X' | string;
+  status: "A" | "X" | string;
   type?: string;
   ext?: string;
   updated_at?: string;
@@ -49,55 +49,55 @@ interface DetailOutlayProps {
   extraData?: ExtraData;
   onDel?: (item: OutlayItem) => void;
 }
-const RenderView: React.FC<DetailOutlayProps> = memo(props => {
+const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   const { open, onClose, extraData, item, onDel } = props;
   const { execute } = useAxios();
   const { showToast } = useAuth();
 
   const paymentMethodMap: Record<string, string> = {
-    T: 'Transferencia bancaria',
-    O: 'Pago en oficina',
-    Q: 'Pago QR',
-    E: 'Efectivo',
-    C: 'Cheque',
+    T: "Transferencia bancaria",
+    O: "Pago en oficina",
+    Q: "Pago QR",
+    E: "Efectivo",
+    C: "Cheque",
   };
-  
+
   const getPaymentMethodText = (type: string): string => {
     return paymentMethodMap[type] || type;
   };
 
   const getCategoryNames = () => {
-    let categoryName = '-/-';
-    let subCategoryName = '-/-';
+    let categoryName = "-/-";
+    let subCategoryName = "-/-";
 
     if (item?.category) {
       const subCategoryData = item.category;
-      subCategoryName = subCategoryData.name || '-/-';
-      if (subCategoryData.padre && typeof subCategoryData.padre === 'object') {
-        categoryName = subCategoryData.padre.name || '-/-';
+      subCategoryName = subCategoryData.name || "-/-";
+      if (subCategoryData.padre && typeof subCategoryData.padre === "object") {
+        categoryName = subCategoryData.padre.name || "-/-";
       } else if (subCategoryData.category_id && extraData?.categories) {
         const parentCategory = extraData.categories.find(
-          c => c.id === subCategoryData.category_id
+          (c) => c.id === subCategoryData.category_id
         );
-        categoryName = parentCategory ? parentCategory.name : '-/-';
+        categoryName = parentCategory ? parentCategory.name : "-/-";
       } else {
         categoryName = subCategoryData.name;
-        subCategoryName = '-/-';
+        subCategoryName = "-/-";
       }
     } else if (item?.category_id && extraData?.categories) {
       const foundCategory = extraData.categories.find(
-        c => c.id === item.category_id
+        (c) => c.id === item.category_id
       );
       if (foundCategory) {
         if (foundCategory.category_id) {
           const parentCategory = extraData.categories.find(
-            c => c.id === foundCategory.category_id
+            (c) => c.id === foundCategory.category_id
           );
-          categoryName = parentCategory ? parentCategory.name : '-/-';
+          categoryName = parentCategory ? parentCategory.name : "-/-";
           subCategoryName = foundCategory.name;
         } else {
           categoryName = foundCategory.name;
-          subCategoryName = '-/-';
+          subCategoryName = "-/-";
         }
       }
     }
@@ -106,20 +106,20 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
 
   const getStatusText = (status: string) => {
     const statusMap: Record<string, string> = {
-      A: 'Pagado',
-      X: 'Anulado',
+      A: "Pagado",
+      X: "Anulado",
     };
     return statusMap[status] || status;
   };
-  
+
   const { categoryName, subCategoryName } = item
     ? getCategoryNames()
-    : { categoryName: '', subCategoryName: '' };
+    : { categoryName: "", subCategoryName: "" };
 
   const getStatusStyle = (status: string) => {
-    if (status === 'A') return styles.statusPaid;
-    if (status === 'X') return styles.statusCancelled;
-    return '';
+    if (status === "A") return styles.statusPaid;
+    if (status === "X") return styles.statusCancelled;
+    return "";
   };
 
   const handleAnularClick = () => {
@@ -130,25 +130,28 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
 
   const openFileInNewTab = (path: string) => {
     const fileUrl = getUrlImages(path);
-    window.open(fileUrl, '_blank');
+    window.open(fileUrl, "_blank");
   };
 
   const handleGenerateReceipt = async () => {
-    showToast('Generando nota de egreso...', 'info');
+    showToast("Generando nota de egreso...", "info");
 
     const { data: file, error } = await execute(
-      '/payment-nota',
-      'POST',
+      "/payment-nota",
+      "POST",
       { id: item?.id },
       false,
       true
     );
-    
+
     if (file?.success === true && file?.data?.path) {
-      openFileInNewTab('/' + file.data.path);
-      showToast('Nota de egreso generado con éxito.', 'success');
+      openFileInNewTab("/" + file.data.path);
+      showToast("Nota de egreso generado con éxito.", "success");
     } else {
-      showToast(error?.data?.message || 'No se pudo generar la nota de egreso.', 'error');
+      showToast(
+        error?.data?.message || "No se pudo generar la nota de egreso.",
+        "error"
+      );
     }
   };
 
@@ -176,7 +179,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
       </DataModal>
     );
   }
-
+  console.log(item);
   return (
     <DataModal
       open={open}
@@ -187,7 +190,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
       minWidth={860}
       maxWidth={980}
     >
-      {item && onDel && item.status !== 'X' && (
+      {item && onDel && item.status !== "X" && (
         <div className={styles.headerActionContainer}>
           <button
             type="button"
@@ -225,16 +228,25 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
               <span className={styles.infoValue}>
                 {item.user
                   ? getFullName({
-                    ...item.user,
-                    middle_name: item.user.middle_name || undefined,
-                    last_name: item.user.last_name || undefined,
-                    mother_last_name: item.user.mother_last_name || undefined,
-                  })
-                  : '-/-'}
+                      ...item.user,
+                      middle_name: item.user.middle_name || undefined,
+                      last_name: item.user.last_name || undefined,
+                      mother_last_name: item.user.mother_last_name || undefined,
+                    })
+                  : "-/-"}
               </span>
             </div>
-            
-            {item.status === 'X' && item.canceled_by && (
+            {item?.bank_account_id && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Cuenta bancaria</span>
+                <span className={styles.infoValue}>
+                  {item.bank_account?.bank_entity?.name +
+                    " - " +
+                    item.bank_account?.account_number || "-/-"}
+                </span>
+              </div>
+            )}
+            {item.status === "X" && item.canceled_by && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Anulado por</span>
                 <span className={styles.infoValue}>
@@ -242,16 +254,19 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
                     ...item.canceled_by,
                     middle_name: item.canceled_by.middle_name || undefined,
                     last_name: item.canceled_by.last_name || undefined,
-                    mother_last_name: item.canceled_by.mother_last_name || undefined,
+                    mother_last_name:
+                      item.canceled_by.mother_last_name || undefined,
                   })}
                 </span>
               </div>
             )}
-            
-            {item.status === 'X' && item.canceled_obs && (
+
+            {item.status === "X" && item.canceled_obs && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Motivo de anulación</span>
-                <span className={`${styles.infoValue} ${styles.canceledReason}`}>
+                <span
+                  className={`${styles.infoValue} ${styles.canceledReason}`}
+                >
                   {item.canceled_obs}
                 </span>
               </div>
@@ -279,32 +294,38 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Concepto</span>
               <span className={styles.infoValue}>
-                {((item.description || '-/-').match(/.{1,20}/g) || []).map((line, idx) => (
-                  <span key={idx}>{line}</span>
-                ))}
+                {((item.description || "-/-").match(/.{1,20}/g) || []).map(
+                  (line, idx) => (
+                    <span key={idx}>{line}</span>
+                  )
+                )}
               </span>
             </div>
           </div>
         </section>
 
         <hr className={styles.sectionDivider} />
-       
+
         <div className={styles.voucherButtonContainer}>
           <Button
             variant="secondary"
             className={styles.voucherButton}
-            style={{ marginRight : item.ext ? 8 : 0 }}
+            style={{ marginRight: item.ext ? 8 : 0 }}
             onClick={handleGenerateReceipt}
           >
             Descargar nota de egreso
           </Button>
-        
+
           {item.ext && (
             <Button
               variant="secondary"
               className={styles.voucherButton}
-              onClick={
-                ()=> openFileInNewTab(`/EXPENSE-${item.id}.${item.ext}?d=${item.updated_at || Date.now()}`)
+              onClick={() =>
+                openFileInNewTab(
+                  `/EXPENSE-${item.id}.${item.ext}?d=${
+                    item.updated_at || Date.now()
+                  }`
+                )
               }
             >
               Ver comprobante
@@ -316,6 +337,6 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
   );
 });
 
-RenderView.displayName = 'RenderViewOutlays';
+RenderView.displayName = "RenderViewOutlays";
 
 export default RenderView;
