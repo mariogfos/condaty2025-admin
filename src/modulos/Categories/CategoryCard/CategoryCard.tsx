@@ -1,13 +1,13 @@
-'use client';
-import { memo, useState, useCallback, useEffect } from 'react';
-import styles from '../Categories.module.css';
+"use client";
+import { memo, useState, useCallback, useEffect } from "react";
+import styles from "../Categories.module.css";
 import {
   IconArrowDown,
   IconEdit,
   IconTrash,
   IconSimpleAdd,
-} from '@/components/layout/icons/IconsBiblioteca';
-import { CategoryCardProps, CategoryItem } from '../Type/CategoryType';
+} from "@/components/layout/icons/IconsBiblioteca";
+import { CategoryCardProps, CategoryItem } from "../Type/CategoryType";
 
 const CategoryCard = memo(
   ({
@@ -16,13 +16,14 @@ const CategoryCard = memo(
     onDel,
     categoryType,
     onAddSubcategory,
-    className = '',
+    className = "",
     isSelected = false,
     onSelectCard,
     forceOpen = false,
   }: CategoryCardProps & { forceOpen?: boolean }) => {
     const hasSubcategories = item.hijos && item.hijos.length > 0;
-    const [showSubcategories, setShowSubcategories] = useState<boolean>(forceOpen);
+    const [showSubcategories, setShowSubcategories] =
+      useState<boolean>(forceOpen);
 
     useEffect(() => {
       setShowSubcategories(forceOpen);
@@ -32,7 +33,7 @@ const CategoryCard = memo(
       (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!forceOpen) {
-          setShowSubcategories(prev => !prev);
+          setShowSubcategories((prev) => !prev);
         }
       },
       [forceOpen]
@@ -59,15 +60,15 @@ const CategoryCard = memo(
       [item, onDel]
     );
     const parentBgColor = className.includes(styles.cardEven)
-      ? 'var(--cBlackV2)'
+      ? "var(--cBlackV2)"
       : className.includes(styles.cardOdd)
-      ? 'var(--cWhiteV2)'
-      : '';
+      ? "var(--cWhiteV2)"
+      : "";
 
     const isAccordionOpen = forceOpen || showSubcategories;
     const cardClasses = `${styles.categoryCard} ${className} ${
-      isSelected ? styles.selectedCard : ''
-    }${isAccordionOpen ? ` ${styles.accordionOpen}` : ''}`;
+      isSelected ? styles.selectedCard : ""
+    }${isAccordionOpen ? ` ${styles.accordionOpen}` : ""}`;
     return (
       <div
         className={cardClasses}
@@ -77,19 +78,25 @@ const CategoryCard = memo(
         <div className={styles.categoryHeader} onClick={handleMainCardClick}>
           <div className={styles.categoryTitle}>
             <IconArrowDown
-              className={`${styles.arrowIcon} ${isAccordionOpen ? styles.expanded : ''}`}
-              
+              className={`${styles.arrowIcon} ${
+                isAccordionOpen ? styles.expanded : ""
+              }`}
               size={20}
             />
             <span
               className={`${styles.categoryNameText} ${
-                isAccordionOpen ? styles.categoryNameTextOpen : ''
+                isAccordionOpen ? styles.categoryNameTextOpen : ""
               }`}
             >
-              {item.name || '-/-'}
+              {item.name || "-/-"}
             </span>
           </div>
-          <div className={styles.categoryDescription}>{item.description || '-/-'}</div>
+          <div className={styles.categoryDescription}>
+            {item.description || "-/-"}
+          </div>
+          <div className={styles.categoryDescription}>
+            {item?.bank_account?.account_number || "-/-"}
+          </div>
           <div className={styles.categoryActions}>
             <button
               className={`${styles.actionButton} ${styles.editButton}`}
@@ -130,19 +137,28 @@ const CategoryCard = memo(
                     <div
                       key={subcat.id || `subcat-${Math.random()}`}
                       className={`${styles.subcategoryItem}`}
-                      style={parentBgColor ? { backgroundColor: parentBgColor } : undefined}
+                      style={
+                        parentBgColor
+                          ? { backgroundColor: parentBgColor }
+                          : undefined
+                      }
                       role="button"
                       tabIndex={0}
                     >
                       <div className={styles.subcategoryRow}>
                         <div className={styles.subcategoryNameContainer}>
                           <span className={styles.subcategoryName}>
-                            {subcat.name || '-/-'}
+                            {subcat.name || "-/-"}
                           </span>
                         </div>
                         <div className={styles.subcategoryDescContainer}>
                           <span className={styles.subcategoryDesc}>
-                            {subcat.description || '-/-'}
+                            {subcat.description || "-/-"}
+                          </span>
+                        </div>
+                        <div className={styles.subcategoryDescContainer}>
+                          <span className={styles.subcategoryDesc}>
+                            {subcat?.bank_account?.account_number || "-/-"}
                           </span>
                         </div>
                         <div className={styles.subcategoryActions}>
@@ -168,7 +184,7 @@ const CategoryCard = memo(
               <div className={styles.addSubcategoryContainer}>
                 <button
                   className={styles.addSubcategoryButton}
-                  onClick={e => {
+                  onClick={(e) => {
                     e.stopPropagation();
                     if (item.id) {
                       onAddSubcategory(item.id.toString());
@@ -187,5 +203,5 @@ const CategoryCard = memo(
   }
 );
 
-CategoryCard.displayName = 'CategoryCard';
+CategoryCard.displayName = "CategoryCard";
 export default CategoryCard;

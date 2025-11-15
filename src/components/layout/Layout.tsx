@@ -232,7 +232,7 @@ const Layout = ({ children }: any) => {
         )}
       </section>
       <section>{children}</section>
-
+      <section>{/* Footer Here!! */}</section>
       {store?.openProfileModal && (
         <ProfileModal
           open={store?.openProfileModal}
