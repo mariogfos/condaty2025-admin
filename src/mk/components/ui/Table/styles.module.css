@@ -41,6 +41,7 @@
       border-left: 0;
     }
   }
+
   & summary {
     width: 100%;
     display: flex;
@@ -101,13 +102,29 @@
       color: var(--cWhite);
     }
   } */
+  & > div {
+    min-height: 400px;
+    @media (width <= 1280px) { 
+      min-height: 500px;
+    }
+    @media (width <= 1024px) { 
+      min-height: 360px;
+    }
+  }
   & main {
     display: flex;
     flex-direction: column;
     gap: 0px;
     border-bottom-left-radius: var(--bRadius);
     border-bottom-right-radius: var(--bRadius);
+    min-height: 300px;
     /* border: 1px solid var(--cWhiteV3); */
+    @media (width <= 1280px) { 
+      min-height: 500px;
+    }
+    @media (width <= 1024px) { 
+      min-height: 360px;
+    }
     & > div {
       display: flex;
       align-items: stretch; /* Hace que todas las celdas tengan la misma altura */
@@ -139,6 +156,7 @@
       }
     }
   }
+
   & header > div.onlyDesktop,
   & main > div > span.onlyDesktop {
     @media (width <= 768px) {

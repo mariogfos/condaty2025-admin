@@ -30,6 +30,6 @@
   color: var(--cWhiteV1);
 }
 .singleLine {
-  white-space: nowrap;
+  /* white-space: nowrap; */
   overflow: hidden;
 }

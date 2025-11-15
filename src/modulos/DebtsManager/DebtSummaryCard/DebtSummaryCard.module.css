@@ -1,5 +1,4 @@
 .card {
-
   border-radius: var(--bRadius);
   padding: var(--spL);
   cursor: pointer;
@@ -7,8 +6,6 @@
   background-color: var(--cBlackV1);
   border: 1px solid var(--cWhiteV2);
 }
-
-
 
 .header {
   margin-bottom: var(--spM);

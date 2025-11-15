@@ -276,3 +276,25 @@ export const sumPenalty = (unidades: AssignedList) => {
   });
   return sum;
 };
+
+/**
+ * Obtiene el valor de has_maintenance_value del condominio actualmente seleccionado
+ * @param iamData - Datos del usuario autenticado (respuesta del endpoint /iam)
+ * @returns boolean - true si el condominio tiene valor de mantenimiento, false en caso contrario
+ */
+export const hasMaintenanceValue = (iamData: any): boolean => {
+
+  const currentClientId = iamData?.client_id;
+  const clients = iamData?.clients;
+
+  if (!currentClientId || !Array.isArray(clients)) {
+    return false;
+  }
+
+  // Buscar el condominio actual en la lista de clients
+  const currentClient = clients.find(
+    (client: any) => client.id === currentClientId
+  );
+  // Retornar el valor de has_maintenance_value, por defecto false
+  return currentClient?.config?.has_maintenance_value;
+};

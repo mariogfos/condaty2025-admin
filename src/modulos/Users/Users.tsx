@@ -286,7 +286,7 @@ const Users = () => {
       },
 
       name: {
-        rules: ["required", "max:50", "alpha", "noSpaces"],
+        rules: ["required", "max:50", "alpha"],
         api: "ae",
         label: "Primer nombre",
         form: false,

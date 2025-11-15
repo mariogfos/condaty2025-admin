@@ -2,6 +2,7 @@
 import styles from "./EmptyData.module.css";
 import { IconTableEmpty } from "../layout/icons/IconsBiblioteca";
 import { FC, ReactNode, useEffect, useRef } from "react";
+import { wrap } from "module";
 
 interface EmptyDataProps {
   icon?: ReactNode;
@@ -15,6 +16,7 @@ interface EmptyDataProps {
   // Nuevo: forzar una sola línea y auto-shrink
   singleLine?: boolean;
   minFontSize?: number; // px mínimo al reducir la fuente (por defecto 12px)
+  textWrap?: boolean; // Nuevo: permitir ajuste de texto (wrap) o no
 }
 
 const EmptyData: FC<EmptyDataProps> = ({
@@ -28,6 +30,7 @@ const EmptyData: FC<EmptyDataProps> = ({
   fontSize,
   singleLine = false,
   minFontSize = 12,
+  textWrap
 }) => {
   const containerStyle = {
     height: h,
@@ -42,10 +45,13 @@ const EmptyData: FC<EmptyDataProps> = ({
   useEffect(() => {
     if (!singleLine) return;
 
-    const fitElement = (el: HTMLElement | null) => {
+    const fitElement = (el: HTMLElement | null, wrap = false) => {
+      
       if (!el) return;
       // Asegurar no wrap y ocultar overflow
-      el.style.whiteSpace = "nowrap";
+      if (!wrap) {
+        el.style.whiteSpace = "nowrap";
+      }
       el.style.overflow = "hidden";
 
       // font-size inicial: el computado del CSS, o el provisto por prop
@@ -66,19 +72,19 @@ const EmptyData: FC<EmptyDataProps> = ({
     };
 
     // Ajuste inicial
-    fitElement(msgRef.current);
-    fitElement(line2Ref.current);
+    fitElement(msgRef.current, textWrap);
+    fitElement(line2Ref.current, textWrap);
 
     // Reajustar al redimensionar la ventana
     const onResize = () => {
       if (msgRef.current) msgRef.current.style.fontSize = "";
       if (line2Ref.current) line2Ref.current.style.fontSize = "";
-      fitElement(msgRef.current);
-      fitElement(line2Ref.current);
+      fitElement(msgRef.current, textWrap);
+      fitElement(line2Ref.current, textWrap);
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [message, line2, singleLine, minFontSize, fontSize]);
+  }, [message, line2, singleLine, minFontSize, fontSize, textWrap]);
 
   return (
     <div className={containerClass} style={containerStyle}>

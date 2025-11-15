@@ -127,7 +127,7 @@ const HomePage = () => {
   const pagosList = (data: any) => {
     const imageUrl = data?.owner;
     const primaryText = getFullName(data?.owner);
-    const secondaryText = `${store.UnitsType} ${removeDuplicates(data?.dptos)}`;
+    const secondaryText = `${data?.details?.[0]?.debt_dpto?.dpto?.type?.name} ${data?.details?.[0]?.debt_dpto?.dpto?.nro}`;
     const ownerInitials = primaryText
       ?.split(" ")
       .map((n) => n[0])
@@ -139,9 +139,6 @@ const HomePage = () => {
       <div
         className={`${styles.itemRow}`}
         onClick={() => {
-          // if (userCan("payments", "C") == false) {
-          //   return showToast("No tiene permisos para aceptar pagos", "error");
-          // }
           setDataPayment(data);
           setOpenPayment(true);
         }}
@@ -565,29 +562,31 @@ const HomePage = () => {
                   />
                 </div>
               </div>
-              <section className={styles.fourWidgetSection}>
+              <section className={`${styles.fourWidgetSection} ${styles.widgetsHome}`}>
                 <div className={styles.widgetRow}>
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Revisiones de pago"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/payments")}
-                    emptyListMessage="No hay pagos por revisar. Una vez los residentes"
-                    emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí."
+                    emptyListMessage="No hay pagos por revisar. Una vez los residentes comiencen a pagar sus deudas se mostrarán aquí." 
+                    //emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí."
                     emptyListIcon={<IconPagos size={32} />}
                     data={dashboard?.data?.porConfirmar}
                     renderItem={pagosList}
+                    disabledWrapText={true}
                   />
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Alertas"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/alerts")}
-                    emptyListMessage="No existe ningún tipo de alerta. Cuando un guardia o"
-                    emptyListLine2="residente registre una se mostrará aquí."
+                    emptyListMessage="No existe ningún tipo de alerta. Cuando un guardia o residente registre una se mostrará aquí."
+                    //emptyListLine2="residente registre una se mostrará aquí."
                     emptyListIcon={<IconAlerts size={32} />}
                     data={dashboard?.data?.alertas}
                     renderItem={alertasList}
+                    disabledWrapText={true}
                   />
                 </div>
                 <div className={styles.widgetRow}>
@@ -596,22 +595,24 @@ const HomePage = () => {
                     title="Solicitudes de Reservas"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/reservas")}
-                    emptyListMessage="Sin solicitudes de reserva. Una vez los residentes"
-                    emptyListLine2="comiencen a reservar las áreas se mostrarán aquí."
+                    emptyListMessage="Sin solicitudes de reserva. Una vez los residentes comiencen a reservar las áreas se mostrarán aquí."
+                    //emptyListLine2="comiencen a reservar las áreas se mostrarán aquí."
                     emptyListIcon={<IconReservedAreas size={32} />}
                     data={dashboard?.data?.porReservar}
                     renderItem={reservasList}
+                    disabledWrapText={true}
                   />
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Pre-registro"
                     viewAllText="Ver todos"
                     onViewAllClick={() => setOpenPreRegistroModal(true)}
-                    emptyListMessage="No se encontró ninguna cuenta de pre-registro,"
-                    emptyListLine2="cuando un usuario se auto-registre se mostrará aquí."
+                    emptyListMessage="No se encontró ninguna cuenta de pre-registro, cuando un usuario se auto-registre se mostrará aquí."
+                    //emptyListLine2="cuando un usuario se auto-registre se mostrará aquí."
                     emptyListIcon={<IconGroup2 size={32} />}
                     data={dashboard?.data?.porActivar}
                     renderItem={registroList}
+                    disabledWrapText={true}
                   />
                 </div>
               </section>

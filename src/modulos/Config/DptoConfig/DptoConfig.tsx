@@ -3,11 +3,13 @@ import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
+import Switch from "@/mk/components/forms/Switch/Switch";
 import { getUrlImages } from "@/mk/utils/string";
 import React, { useState, useEffect } from "react";
 import styles from "./DptoConfig.module.css";
 import Button from "@/mk/components/forms/Button/Button";
 import useAxios from "@/mk/hooks/useAxios";
+import Br from "@/components/Detail/Br";
 
 const DptoConfig = ({
   formState,
@@ -18,10 +20,70 @@ const DptoConfig = ({
   onChange,
   onSave,
 }: any) => {
-
-
   const [existLogo, setExistLogo] = useState(false);
   const [existAvatar, setExistAvatar] = useState(false);
+  const [bookingRequiresPayment, setBookingRequiresPayment] = useState(() => {
+    const paymentTimeLimit = formState?.payment_time_limit;
+    return Boolean(paymentTimeLimit && paymentTimeLimit !== "" && Number(paymentTimeLimit) > 0);
+  });
+  const [savedPaymentTimeLimit, setSavedPaymentTimeLimit] = useState(() => {
+    const paymentTimeLimit = formState?.payment_time_limit;
+    return (paymentTimeLimit && paymentTimeLimit !== "" && Number(paymentTimeLimit) > 0)
+      ? formState.payment_time_limit
+      : "";
+  });
+  const [hasMaintenanceValue, setHasMaintenanceValue] = useState(() => {
+    return Boolean(formState?.has_maintenance_value);
+  });
+
+
+  useEffect(() => {
+    const paymentTimeLimit = formState?.payment_time_limit;
+    const hasPaymentLimit = Boolean(paymentTimeLimit && paymentTimeLimit !== "" && Number(paymentTimeLimit) > 0);
+    setBookingRequiresPayment(hasPaymentLimit);
+    if (hasPaymentLimit) {
+      setSavedPaymentTimeLimit(formState.payment_time_limit);
+    }
+  }, [formState?.payment_time_limit]);
+
+  useEffect(() => {
+    setHasMaintenanceValue(Boolean(formState?.has_maintenance_value));
+  }, [formState?.has_maintenance_value]);
+
+
+  const handleSwitchChange = ({ target: { name, value } }: any) => {
+    if (name === "bookingRequiresPayment") {
+      const isEnabled = value === "Y";
+      setBookingRequiresPayment(isEnabled);
+
+      if (isEnabled) {
+        if (savedPaymentTimeLimit) {
+          onChange({ target: { name: "payment_time_limit", value: savedPaymentTimeLimit } });
+        } else {
+          onChange({ target: { name: "payment_time_limit", value: "30" } });
+          setSavedPaymentTimeLimit("30");
+        }
+      } else {
+        if (formState?.payment_time_limit) {
+          setSavedPaymentTimeLimit(formState.payment_time_limit);
+        }
+        onChange({ target: { name: "payment_time_limit", value: "" } });
+      }
+    } else if (name === "has_maintenance_value") {
+      const isEnabled = value === "Y";
+      setHasMaintenanceValue(isEnabled);
+      onChange({ target: { name: "has_maintenance_value", value: isEnabled } });
+    }
+  };
+
+
+  const handleTimeChange = (e: any) => {
+    onChange(e);
+
+    if (e.target.value) {
+      setSavedPaymentTimeLimit(e.target.value);
+    }
+  };
 
   return (
     <div className={styles.Config}>
@@ -30,7 +92,8 @@ const DptoConfig = ({
       <div className={styles.formContainer}>
         <div className={styles.uploadSection}>
           <p className={styles.uploadHelpText}>
-            Carga el logotipo del condominio, de preferencia un mínimo de 130px x 63px o un máximo de 256px x 125px
+            Carga el logotipo del condominio, de preferencia un mínimo de 130px
+            x 63px o un máximo de 256px x 125px
           </p>
 
           <div
@@ -39,29 +102,71 @@ const DptoConfig = ({
               display: "flex",
               justifyContent: "left",
               alignItems: "center",
+              gap: "10px",
             }}
           >
-            <UploadFile
-              name="avatarLogo"
-              onChange={onChange}
-              value={
-                typeof formState?.avatarLogo === "object"
-                  ? formState?.avatarLogo
-                  : String(formState?.has_image_l) === "1"
-                    ? getUrlImages(
-                        "/LOGO-" + formState?.id + ".webp?" + formState?.updated_at
+            <div style={{ width: "100%" }}>
+              <p className={styles.uploadHelpText} style={{ marginBottom: 8 }}>
+                Logo para pantallas
+              </p>
+              <UploadFile
+                name="avatarLogo"
+                onChange={onChange}
+                value={
+                  typeof formState?.avatarLogo === "object"
+                    ? formState?.avatarLogo
+                    : String(formState?.has_image_l) === "1"
+                      ? getUrlImages(
+                        "/LOGO-" +
+                        formState?.id +
+                        ".webp?" +
+                        formState?.updated_at
                       )
-                    : undefined
-              }
-              setError={setErrors}
-              error={errors}
-              img={true}
-              editor={{ width: 800, height: 800 }}
-              sizePreview={{ width: "200px", height: "200px" }}
-              placeholder="Cargar una imagen"
-              ext={["jpg", "png", "jpeg", "webp"]}
-              item={formState}
-            />
+                      : undefined
+                }
+                setError={setErrors}
+                error={errors}
+                img={true}
+                editor={{ width: 800, height: 800 }}
+                sizePreview={{ width: "200px", height: "200px" }}
+                placeholder="Cargar una imagen"
+                ext={["jpg", "png", "jpeg", "webp"]}
+                item={formState}
+              />
+            </div>
+            <div
+              style={{
+                width: "100%",
+              }}
+            >
+              <p className={styles.uploadHelpText} style={{ marginBottom: 8 }}>
+                Logo para impresión
+              </p>
+              <UploadFile
+                name="avatarLogoP"
+                onChange={onChange}
+                value={
+                  typeof formState?.avatarLogoP === "object"
+                    ? formState?.avatarLogoP
+                    : String(formState?.has_image_lp) === "1"
+                      ? getUrlImages(
+                        "/LOGOP-" +
+                        formState?.id +
+                        ".webp?" +
+                        formState?.updated_at
+                      )
+                      : undefined
+                }
+                setError={setErrors}
+                error={errors}
+                img={true}
+                editor={{ width: 800, height: 800 }}
+                sizePreview={{ width: "200px", height: "200px" }}
+                placeholder="Cargar una imagen"
+                ext={["jpg", "png", "jpeg", "webp"]}
+                item={formState}
+              />
+            </div>
           </div>
         </div>
         <div className={styles.uploadSection}>
@@ -79,11 +184,11 @@ const DptoConfig = ({
                   ? formState?.avatar
                   : String(formState?.has_image_c) === "1"
                     ? getUrlImages(
-                        "/CLIENT-" +
-                          formState?.id +
-                          ".webp?" +
-                          formState?.updated_at
-                      )
+                      "/CLIENT-" +
+                      formState?.id +
+                      ".webp?" +
+                      formState?.updated_at
+                    )
                     : undefined
               }
               setError={setErrors}
@@ -111,7 +216,6 @@ const DptoConfig = ({
               className="dark-input"
               maxLength={80}
             />
-            {/* <div className={styles.fieldHint}>Máximo 80 caracteres</div> */}
           </div>
           <div className={styles.inputHalf}>
             <Select
@@ -156,7 +260,6 @@ const DptoConfig = ({
               className="dark-input"
               maxLength={100}
             />
-            {/* <div className={styles.fieldHint}>Máximo 100 caracteres</div> */}
           </div>
         </div>
         <div className={styles.inputContainer}>
@@ -173,23 +276,6 @@ const DptoConfig = ({
               maxLength={100}
             />
           </div>
-          {/* <div className={styles.inputHalf}>
-            <Select
-              label="Tipo de unidad"
-              value={formState?.type_dpto}
-              name="type_dpto"
-              error={errors}
-              onChange={handleChange}
-              options={[
-                { id: "D", name: "Departamento" },
-                { id: "O", name: "Oficina" },
-                { id: "C", name: "Casa" },
-                { id: "L", name: "Lote" },
-              ]}
-              required
-              className="dark-input appearance-none"
-            />
-          </div> */}
         </div>
 
         <div className={styles.textareaContainer}>
@@ -205,7 +291,7 @@ const DptoConfig = ({
           />
           {/* <div className={styles.fieldHint}>Máximo 500 caracteres</div> */}
         </div>
-
+        <Br />
         <div className={styles.sectionContainer}>
           <div>
             <p className={styles.textTitle}>
@@ -282,16 +368,73 @@ const DptoConfig = ({
             onChange={onChange}
             className="dark-input"
           />
-          {/* <div className={styles.fieldHint}>
-            El monto debe ser menor o igual a 10 dígitos
-          </div> */}
+        </div>
+        <Br />
+        <div className={styles.sectionContainer}>
+          <div className={styles.switchContainer}>
+            <div>
+              <p className={styles.textTitle}>
+                Reservas requieren pago obligatorio
+              </p>
+              <p className={styles.textSubtitle}>
+                Activa esta opción para requerir que todas las reservas incluyan
+                un pago obligatorio. Puedes configurar un tiempo límite en
+                minutos para completar el pago.
+              </p>
+            </div>
+
+            <Switch
+              name="bookingRequiresPayment"
+              label=""
+              value={bookingRequiresPayment ? "Y" : "N"}
+              onChange={handleSwitchChange}
+              optionValue={["Y", "N"]}
+              checked={bookingRequiresPayment}
+            />
+          </div>
+
+          {bookingRequiresPayment && (
+            <Input
+              type="number"
+              label="Tiempo límite para pago (minutos)"
+              name="payment_time_limit"
+              error={errors}
+              value={formState?.payment_time_limit || ""}
+              onChange={handleTimeChange}
+              className="dark-input"
+              min="1"
+              max="60"
+              placeholder="Máximo 60 minutos"
+            />
+          )}
+        </div>
+
+        <div className={styles.sectionContainer}>
+          <div className={styles.switchContainer}>
+            <div>
+              <p className={styles.textTitle}>
+                Mantenimiento de valor en el condominio
+              </p>
+              <p className={styles.textSubtitle}>
+                Activa esta opción para aplicar mantenimiento de valor a todas las reservas, deudas y fondos del condominio
+              </p>
+            </div>
+
+            <Switch
+              name="has_maintenance_value"
+              label=""
+              value={hasMaintenanceValue ? "Y" : "N"}
+              onChange={handleSwitchChange}
+              optionValue={["Y", "N"]}
+              checked={hasMaintenanceValue}
+            />
+          </div>
         </div>
 
         <div className={styles.saveButtonContainer}>
           <Button
             className={`${styles.saveButton} `}
             onClick={onSave}
-            // disabled={Object.keys(validationErrors).length > 0}
           >
             Guardar datos
           </Button>

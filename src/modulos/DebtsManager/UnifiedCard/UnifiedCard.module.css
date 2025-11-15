@@ -1,32 +1,33 @@
 .card {
   background-color: var(--cBlackV1);
   border-radius: 12px;
-  padding: 24px;
+  padding: var(--spXl);
   border: 1px solid var(--cWhiteV1);
-
   transition: all 0.3s ease;
-  min-height: 120px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-
 .header {
   margin-bottom: 16px;
+  @media (width <= 1280px) { 
+    margin-bottom: 12px;
+  }
+  @media (width <= 1024px) { 
+    margin-bottom: 4px;
+  }
 }
 
-/* Estilos para variant="summary" */
 .title {
   font-size: 12px;
   font-weight: 600;
-  color: var(--cSuccess);
+  color: var(--cAccent);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0;
 }
 
-/* Estilos para variant="detail" */
 .label {
   font-size: 12px;
   font-weight: 600;
@@ -41,8 +42,6 @@
   gap: 12px;
   flex: 1;
 }
-
-/* Contenedor específico para summary que muestra amount y count en fila */
 .summaryContent {
   display: flex;
   flex-direction: row;
@@ -50,7 +49,6 @@
   gap: 8px;
 }
 
-/* Para variant="summary" */
 .amount {
   font-size: 24px;
   font-weight: 700;
@@ -65,7 +63,6 @@
   text-shadow: 1px 1px 2px var(--cBlackV3);
 }
 
-/* Para variant="detail" */
 .mainContent {
   font-size: 20px;
   font-weight: 600;
@@ -80,7 +77,6 @@
   line-height: 1.4;
 }
 
-/* Estilos para la barra de progreso */
 .progressBarContainer {
   display: flex;
   flex-direction: column;
@@ -133,6 +129,12 @@
 }
 
 /* Responsive */
+@media (max-width: 1280px) {
+  .card {
+    padding: var(--spM);
+  }
+}
+
 @media (max-width: 768px) {
   .card {
     padding: 20px;
@@ -155,13 +157,11 @@
     min-height: 90px;
   }
 
-  .amount,
-  .mainContent {
+  .amount, .mainContent {
     font-size: 18px;
   }
 
-  .title,
-  .label {
+  .title, .label {
     font-size: 11px;
   }
 

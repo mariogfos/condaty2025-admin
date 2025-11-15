@@ -26,6 +26,7 @@ import StepProgressBar from "@/components/StepProgressBar/StepProgressBar";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
+import RenderView from "../DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
 
 const initialState: FormState = {
   unidad: "",
@@ -76,6 +77,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const { execute } = useAxios();
   const [loadingCalendar, setLoadingCalendar] = useState(false);
   const { showToast } = useAuth();
+  const [openDebt, setOpenDebt] = useState({ open: false, item: null });
 
   useEffect(() => {
     setOpenList(false);
@@ -150,13 +152,13 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         if (unidad?.defaulter == "X") {
           data.push({
             id: String(unidad.id),
-            name: `Unidad: ${unidad.nro}, ${unidad.description || ""}`,
+            name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)}`,
           });
         }
       } else {
         data.push({
           id: String(unidad.id),
-          name: `Unidad: ${unidad.nro}, ${unidad.description || ""}`,
+            name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)} `,
         });
       }
     });
@@ -356,15 +358,16 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         "POST",
         payload,
         false,
-        false
+        true
       );
       if (response?.data?.success) {
         showToast(
           response?.data?.message || "Reserva creada exitosamente",
           "success"
         );
-        if (reLoad) reLoad();
-        if (onClose) onClose();
+        setOpenDebt({ open: true, item: response?.data?.data?.debtDpto });
+        // if (reLoad) reLoad();
+        // if (onClose) onClose();
       } else {
         showToast(
           response?.data?.message || "Error al crear la reserva.",
@@ -1045,6 +1048,16 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
               los cambios que has cargado en todos los pasos se eliminarán.
             </p>
           </DataModal>
+        )}
+        {openDebt?.open && (
+          <RenderView
+            open={openDebt.open}
+            onClose={() => {
+              setOpenDebt({ open: false, item: null });
+              onClose();
+            }}
+            item={openDebt?.item}
+          />
         )}
       </div>
     </div>

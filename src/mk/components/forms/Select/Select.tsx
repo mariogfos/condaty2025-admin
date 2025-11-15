@@ -11,6 +11,7 @@ import { PropsTypeInputBase } from "../ControlLabel";
 import { createPortal } from "react-dom";
 import { useOnClickOutside } from "@/mk/hooks/useOnClickOutside";
 import { Avatar } from "../../ui/Avatar/Avatar";
+// import { buscarCoincidencias } from "@/mk/utils/searchs";
 
 interface PropsType extends PropsTypeInputBase {
   multiSelect?: boolean;
@@ -21,6 +22,7 @@ interface PropsType extends PropsTypeInputBase {
   inputStyle?: any;
   selectOptionsClassName?: string;
   style?: CSSProperties;
+  filterStyle?: CSSProperties;
 }
 
 const Section = ({
@@ -28,6 +30,7 @@ const Section = ({
   position,
   selectOptionsClassName,
   filter,
+  filterStyle,
   name,
   _options,
   search,
@@ -68,6 +71,7 @@ const Section = ({
           name={`search${name}`}
           placeholder={"Buscar..."}
           error={false}
+          style={{ ...filterStyle }}
         />
       </div>
       <ul>
@@ -157,6 +161,7 @@ const Select = ({
   placeholder = "",
   label = "",
   inputStyle = {},
+  filterStyle = {},
   style = {},
   onBlur = () => {},
   onChange = (e: any) => {},
@@ -170,6 +175,25 @@ const Select = ({
   const [selectedNames, setSelectedNames]: any = useState("");
   const [position, setPosition]: any = useState(null);
   const selectRef1 = useRef<HTMLDivElement>(null);
+
+  // esto se esta dejando cuando para verlo despues cuando se aplique el otro tipo de busqueda 06/11/2025
+
+  // const [filteredOptions, setFilteredOptions] = useState(options);
+  // let filteredOptions = options;
+
+  // useEffect(() => {
+  //   if (search) {
+  //     const filteredOptions = buscarCoincidencias(
+  //       options,
+  //       search,
+  //       optionLabel || "label",
+  //       {
+  //         umbralSimilitud: 0.5,
+  //       }
+  //     );
+  //     setFilteredOptions(filteredOptions);
+  //   }
+  // }, [search]);
 
   const findParentWithClass = (element: any, className: string) => {
     while (element && element !== document) {
@@ -202,15 +226,15 @@ const Select = ({
         if (count > 10) {
           displayString = `${count} elementos seleccionados`;
         } else {
-          const namesArray = selectedFullOptions.map(
-            (option: any) => {
-              // Si el objeto tiene campo nro y estamos en multiSelect, mostrar solo el número
-              if (multiSelect && option.nro) {
-                return String(option.nro);
-              }
-              return option[optionLabel] || option.label || String(option[optionValue]);
+          const namesArray = selectedFullOptions.map((option: any) => {
+            // Si el objeto tiene campo nro y estamos en multiSelect, mostrar solo el número
+            if (multiSelect && option.nro) {
+              return String(option.nro);
             }
-          );
+            return (
+              option[optionLabel] || option.label || String(option[optionValue])
+            );
+          });
           displayString = namesArray.join(", ");
         }
         setSelectedNames(displayString);
@@ -244,9 +268,9 @@ const Select = ({
     let parent: any = select.getBoundingClientRect();
     let childPosition: any = child?.getBoundingClientRect();
 
-    let up = 34;
+    let up = 57;
     if (childPosition) {
-      if (parent.top + 34 + childPosition.height > window.innerHeight) {
+      if (parent.top + 57 + childPosition.height > window.innerHeight) {
         up = childPosition.height * -1;
       }
     }
@@ -336,6 +360,13 @@ const Select = ({
     return normalizeText(String(label)).includes(normalizeText(search));
   });
 
+  // const filteredOptions = () =>
+  //   search
+  //     ? buscarCoincidencias(options, search, optionLabel || "label", {
+  //         umbralSimilitud: 0.5,
+  //       })
+  //     : options;
+
   return (
     <div
       ref={selectRef}
@@ -375,6 +406,7 @@ const Select = ({
             position={position}
             selectOptionsClassName={selectOptionsClassName}
             filter={filter}
+            filterStyle={filterStyle}
             name={name}
             _options={filteredOptions}
             search={search}

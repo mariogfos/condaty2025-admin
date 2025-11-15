@@ -17,16 +17,11 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 const Config = () => {
   const [formState, setFormState]: any = useState({});
   const [errorImage, setErrorImage] = useState(false);
-  const [preview, setPreview]: any = useState(null);
-  const [previewQr, setPreviewQr]: any = useState(null);
-  const { user, showToast, getUser, userCan }: any = useAuth();
+  const { showToast, userCan }: any = useAuth();
   const [errors, setErrors]: any = useState({});
   const [typeSearch, setTypeSearch] = useState("C");
-  const [imageError, setImageError] = useState(false);
   // const router = useRouter();
-  if (!userCan('settings', 'R')) {
-    return <NotAccess />;
-  }
+
   const {
     data: client_config,
     reLoad,
@@ -37,20 +32,33 @@ const Config = () => {
     sortBy: "",
     relations: "client",
     page: 1,
+    extraData: true
     // searchBy: "client_id,=," + user?.client_id,
   });
   const onChange = (e: any) => {
     let value = e?.target?.value;
+    let name = e.target.name;
     if (e.target.type == "checkbox") {
       value = e.target.checked ? "Y" : "N";
     }
-    setFormState({ ...formState, [e.target.name]: value });
+    if (
+      name == "percent" ||
+      name == "amount" ||
+      name == "first_amount" ||
+      name == "second_amount"
+    ) {
+      setFormState({
+        ...formState,
+        penalty_data: { ...formState?.penalty_data, [name]: value },
+      });
+      return;
+    }
+    setFormState({ ...formState, [name]: value });
   };
   useEffect(() => {
     const ci = formState.payment_transfer_ci;
 
     if (ci && ci.length > 15) {
-      // Update the formState to only include the first 10 characters
       setErrors({ ...errors, payment_transfer_ci: "Máximo 15 caracteres" });
       setFormState((prevState: any) => ({
         ...prevState,
@@ -113,6 +121,15 @@ const Config = () => {
         key: "initial_amount",
         errors,
       });
+
+      if (formState.payment_time_limit) {
+        errors = checkRules({
+          value: formState.payment_time_limit,
+          rules: ["required", "integer", "positive", "less:60"],
+          key: "payment_time_limit",
+          errors,
+        });
+      }
     }
 
     if (typeSearch === "M") {
@@ -137,53 +154,51 @@ const Config = () => {
         errors,
         data: formState,
       });
-      errors = checkRules({
-        value: formState.penalty_percent,
-        rules: ["required"],
-        key: "penalty_percent",
-        errors,
-      });
+
+      if (formState.penalty_type == 1) {
+        errors = checkRules({
+          value: formState.penalty_data?.percent,
+          rules: ["required", "number", "less:100", "greater:0"],
+          key: "percent",
+          errors,
+          data: formState.penalty_data,
+        });
+      }
+      if (formState.penalty_type == 2) {
+        errors = checkRules({
+          value: formState.penalty_data?.amount,
+          rules: ["required"],
+          key: "amount",
+          errors,
+          data: formState.penalty_data,
+        });
+      }
+      if (formState.penalty_type == 3) {
+        errors = checkRules({
+          value: formState.penalty_data?.first_amount,
+          rules: ["required"],
+          key: "first_amount",
+          errors,
+          data: formState.penalty_data,
+        });
+        errors = checkRules({
+          value: formState.penalty_data?.second_amount,
+          rules: ["required"],
+          key: "second_amount",
+          errors,
+          data: formState.penalty_data,
+        });
+      }
     }
 
     if (typeSearch === "P") {
-      if (errorImage) {
-        errors = checkRules({
-          value: formState.avatarQr,
-          rules: ["required"],
-          key: "avatarQr",
-          errors,
-        });
-      }
       errors = checkRules({
-        value: formState.payment_transfer_bank,
+        value: formState.main_account_id,
         rules: ["required"],
-        key: "payment_transfer_bank",
+        key: "main_account_id",
         errors,
       });
-      errors = checkRules({
-        value: formState.payment_transfer_account,
-        rules: ["required"],
-        key: "payment_transfer_account",
-        errors,
-      });
-      errors = checkRules({
-        value: formState.payment_transfer_name,
-        rules: ["required"],
-        key: "payment_transfer_name",
-        errors,
-      });
-      errors = checkRules({
-        value: formState.payment_office_obs,
-        rules: ["required"],
-        key: "payment_office_obs",
-        errors,
-      });
-      errors = checkRules({
-        value: formState.payment_transfer_ci,
-        rules: ["required", "min:5", "max:15"],
-        key: "payment_transfer_ci",
-        errors,
-      });
+
     }
 
     setErrors(errors);
@@ -193,31 +208,27 @@ const Config = () => {
   // Ahora, el onSave utiliza la función validate para comprobar si hay errores:
   const onSave = async () => {
     if (hasErrors(validate())) return;
-
-    const { data, error } = await execute(
-      "/client-config-actualizar",
-      "PUT",
-      formState
-    );
+    const { data, error } = await execute("/client-config-actualizar", "PUT", {
+      ...formState,
+      penalty_data: formState.penalty_data
+    });
 
     if (data?.success === true) {
       showToast("Datos guardados", "success");
       setErrors({});
 
       // Forzar recarga completa de la página
-      window.location.reload();
+      if (typeSearch === "C") {
+        window.location.reload();
+      }
     } else {
-      showToast(error?.data?.message || error?.message, "error");
+      showToast(error?.data?.message || data?.message, "error");
       console.log("error:", error);
       // setErrors(error?.data?.errors);
     }
   };
 
   useEffect(() => {
-    // const client = user?.clients?.find((i: any) => i.id == user?.client_id);
-    // const client = await = execute('/clients', 'GET', {id: user?.client_id)
-    //setFormState({ ...client_config?.data[0], ...client });
-
     setFormState({
       ...client_config?.data[0],
       client: undefined,
@@ -225,14 +236,20 @@ const Config = () => {
       created_at: undefined,
       remember_token: undefined,
       ...client_config?.data[0]?.client,
-      // updated_at:
-      //   client_config?.data[0]?.updated_at >
-      //   client_config?.data[0]?.client?.updated_at
-      //     ? client_config?.data[0]?.updated_at
-      //     : client_config?.data[0]?.client?.updated_at,
     });
   }, [client_config?.data]);
-  // console.log(formState);
+
+  useEffect(() => {
+    if (formState.penalty_type !== client_config?.data[0]?.penalty_type) {
+      setFormState({
+        ...formState,
+        penalty_data: {},
+      });
+    }
+  }, [formState.penalty_type]);
+  if (!userCan("settings", "R")) {
+    return <NotAccess />;
+  }
 
   return (
     <div className={styles.Config}>
@@ -267,6 +284,7 @@ const Config = () => {
               formState={formState}
               onChange={onChange}
               errors={errors}
+              bankAccounts={client_config?.extraData?.bankAccounts}
               setErrors={setErrors}
               onSave={onSave}
             />

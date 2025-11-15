@@ -280,44 +280,65 @@
   border-radius: 4px;
   font-size: 14px;
 }
+
+/* W: Esperando confirmación (Amarillo) */
 .statusW {
-  background-color: var(--cHoverWarning); /* Fondo amarillo suave */
-  color: var(--cWarning); /* Texto amarillo */
+  background-color: #E9B01E33;
+  color: #E9B01E;
 }
 
-/* N: Rechazado (Rojo) */
-.statusN {
-  /* Asume que tienes variables para error/danger */
-  background-color: var(--cHoverError); /* Fondo rojo suave */
-  color: var(--cError); /* Texto rojo */
-}
-
-/* X: Cancelado (Gris Oscuro o Rojo suave) */
-.statusX {
-  background-color: var(--cHoverCompl5);
-  color: var(--cMediumAlert);
-}
-.statusC {
-  background-color: var(--cHoverError);
-  color: var(--cError);
-}
-.statusUnknown {
-  background-color: var(
-    --cHoverLight,
-    rgba(248, 249, 250, 0.5)
-  ); /* Fondo gris muy suave */
-  color: var(--cLightDark, rgb(108, 117, 125)); /* Texto gris oscuro */
-  border: 1px solid var(--cLightDark, rgb(200, 200, 200)); /* Borde opcional */
-}
-.statusF {
-  background-color: var(--cHoverCompl1);
-  color: var(--cWhite);
-}
-
-/* A: Disponible (Azul) */
+/* A: Pago pendiente (Amarillo) */
 .statusA {
-  background-color: var(--cHoverSuccess); /* Fondo azul suave */
-  color: var(--cSuccess); /* Texto azul */
+  background-color: #E9B01E33;
+  color: #E9B01E;
+}
+
+/* Q: Pago por confirmar (Amarillo) */
+.statusQ {
+  background-color: #E9B01E33;
+  color: #E9B01E;
+}
+
+/* N: Reservado (sin pago) (Verde) */
+.statusN {
+  background-color: #00E38C33;
+  color: #00E38C;
+}
+
+/* L: Reservado (pagado) (Verde) */
+.statusL {
+  background-color: #00E38C33;
+  color: #00E38C;
+}
+
+/* R: Reserva rechazada (Rojo) */
+.statusR {
+  background-color: #E4605533;
+  color: #E46055;
+}
+
+/* C: Cancelada por usuario (Rojo) */
+.statusC {
+  background-color: #E4605533;
+  color: #E46055;
+}
+
+/* T: Cancelada automática (Rojo) */
+.statusT {
+  background-color: #E4605533;
+  color: #E46055;
+}
+
+/* F: Finalizada (Verde) */
+.statusF {
+  background-color: #00E38C33;
+  color: #00E38C;
+}
+
+.statusUnknown {
+  background-color: var(--cHoverLight, rgba(248, 249, 250, 0.5));
+  color: var(--cLightDark, rgb(108, 117, 125));
+  border: 1px solid var(--cLightDark, rgb(200, 200, 200));
 }
 
 .areaSeparator {

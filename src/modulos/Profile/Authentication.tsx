@@ -76,10 +76,6 @@ const Authentication = ({
   };
 
   const validateEmail = () => {
-    // await _onExist();
-    //   if (!formState.newEmail)
-    //     err = {...err, newEmail: 'Ingrese el nuevo correo electrónico'};
-    //   param = {...param, email: formState.newEmail};
     let errors: any = {};
     errors = checkRules({
       value: formState.newEmail,
@@ -113,9 +109,6 @@ const Authentication = ({
   const onChangeData = async () => {
     let err = {};
     let url = "/adm-setemail";
-    if (hasErrors(validateCode())) {
-      return;
-    }
     let param: any = { code: formState.code };
     if (type == "M") {
       if (hasErrors(validateEmail())) {
@@ -147,7 +140,24 @@ const Authentication = ({
       setErrors(data?.errors);
     }
   };
-  // console.log(type,'tyyype')
+  const onValidCode = async () => {
+    let url = "/adm-setemail";
+    let param: any = { code: formState.code };
+    if (type == "P") {
+      url = "/adm-setpass";
+    }
+
+    const { data } = await execute(url, "POST", param);
+
+    if (data?.success == true) {
+      showToast(data.message + " - Operación exitosa", "success");
+      setFormState({ ...formState, pinned: 2 });
+      setErrors({});
+    } else {
+      showToast(data.message, "error");
+      setErrors(data?.errors);
+    }
+  };
 
   const onGetCode = async () => {
     const { data, error } = await execute("/adm-getpin", "POST", {
@@ -221,7 +231,7 @@ const Authentication = ({
           code: "El código de verificación debe tener 4 dígitos",
         };
       } else {
-        setFormState({ ...formState, pinned: 2 });
+        onValidCode();
       }
       if (Object.keys(err).length > 0) {
         setErrors(err);
@@ -236,6 +246,7 @@ const Authentication = ({
     }
     if (formState.pinned === 1) {
       inputCodeValidation();
+      return;
     }
     if (formState.pinned === 2) {
       // onChangePass();
@@ -251,63 +262,88 @@ const Authentication = ({
       buttonText={modalButtonText}
       buttonCancel=""
       disabled={isDisabled}
-      minWidth={480}
-      maxWidth={600}
+      minWidth={780}
+      maxWidth={800}
     >
       {formState?.pinned === 0 ? (
         <div>Se enviará un código de verificación a tu correo electrónico.</div>
       ) : formState?.pinned === 1 ? (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: '20px 0',
-          gap: '24px'
-        }}>
-          <div style={{
-            textAlign: 'center',
-            maxWidth: '400px',
-            lineHeight: '1.5',
-            fontSize: '16px',
-            color: 'var(--cWhite)'
-          }}>
-            <h3 style={{
-              margin: '0 0 16px 0',
-              fontSize: '18px',
-              fontWeight: '600',
-              color: 'var(--cWhite)'
-            }}>
-              Código de verificación
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: "20px 0",
+            gap: "24px",
+          }}
+        >
+          <div
+            style={{
+              textAlign: "center",
+              // maxWidth: "400px",
+              lineHeight: "1.5",
+              fontSize: "16px",
+              color: "var(--cWhite)",
+            }}
+          >
+            <h3
+              style={{
+                margin: "0 0 16px 0",
+                fontSize: "18px",
+                fontWeight: "600",
+                color: "var(--cWhite)",
+              }}
+            >
+              Se ha enviado un código al correo{" "}
+              <span style={{ color: "var(--cAccent)" }}>
+                {user?.email.split("@")[0].substring(0, 4) +
+                  "*******" +
+                  "@" +
+                  user?.email.split("@")[1]}
+              </span>
             </h3>
-            <p style={{ margin: 0, color: 'var(--cWhiteV1)' }}>
+            <p
+              style={{
+                margin: 0,
+                color: "var(--cWhite)",
+                fontSize: 14,
+                fontWeight: "400",
+              }}
+            >
               Ingresa el código de 4 dígitos que te enviamos a tu correo
               electrónico. Una vez validado, se actualizará tu{" "}
               {type == "M" ? "correo" : "contraseña"}
             </p>
           </div>
 
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            width: '100%'
-          }}>
-            <div style={{
-              background: 'var(--cBlackV1)',
-              padding: '24px',
-              borderRadius: '12px',
-              border: '1px solid var(--cWhiteV2)',
-              minWidth: '280px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '16px'
-            }}>
-              <div style={{
-                fontSize: '14px',
-                color: 'var(--cWhiteV1)',
-                textAlign: 'center',
-                marginBottom: '8px'
-              }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+            }}
+          >
+            <div
+              style={{
+                background: "var(--cBlackV1)",
+                padding: "24px",
+                borderRadius: "12px",
+                border: "1px solid var(--cWhiteV1)",
+                minWidth: "380px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                // gap: "16px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "14px",
+                  color: "var(--cWhiteV1)",
+                  textAlign: "center",
+                  marginBottom: "8px",
+                }}
+              >
                 Código de verificación
               </div>
 
@@ -321,25 +357,26 @@ const Authentication = ({
                 setCode={setCode}
               />
 
-
-
-              {errors?.code && (
-                <div style={{
-                  color: 'var(--cError)',
-                  fontSize: '14px',
-                  textAlign: 'center',
-                  marginTop: '8px'
-                }}>
+              {/* {errors?.code && (
+                <div
+                  style={{
+                    color: "var(--cError)",
+                    fontSize: "14px",
+                    textAlign: "center",
+                    marginTop: "8px",
+                  }}
+                >
                   {errors.code}
                 </div>
-              )}
+              )} */}
 
-              <div style={{
-                fontSize: '12px',
-                color: 'var(--cWhiteV1)',
-                textAlign: 'center',
-                marginTop: '8px'
-              }}>
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "var(--cWhiteV1)",
+                  textAlign: "center",
+                }}
+              >
                 ¿No recibiste el código? Revisa tu bandeja de spam
               </div>
             </div>

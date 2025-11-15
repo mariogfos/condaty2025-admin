@@ -15,6 +15,7 @@ import PaymentRenderForm from '@/modulos/Payments/RenderForm/RenderForm';
 import { getDateStrMesShort } from '@/mk/utils/date';
 import { getFullName } from '@/mk/utils/string';
 import { getTitular } from '@/mk/utils/adapters';
+import { hasMaintenanceValue } from '@/mk/utils/utils';
 
 interface RenderViewProps {
   open: boolean;
@@ -26,7 +27,7 @@ interface RenderViewProps {
   onDel?: (item: any) => void;
   hideSharedDebtButton?: boolean;
   hideEditAndDeleteButtons?: boolean;
-  onReload?: () => void; // Nueva prop para reload de la lista padre
+  onReload?: () => void;
 }
 
 
@@ -61,6 +62,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       fullType: 'DET',
       perPage: -1,
       page: 1,
+      extraData: true
     },
     open && !!item?.id
   );
@@ -200,7 +202,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     switch (type) {
       case 1: return 'Ver expensa';
       case 2: return 'Ver reserva';
-      case 3: return ;
+      case 3: return;
       case 4: return hideSharedDebtButton ? null : 'Ver deuda compartida';
       default: return null;
     }
@@ -247,7 +249,6 @@ const RenderView: React.FC<RenderViewProps> = ({
         setCurrentItem(response.data.data[0] || currentItem);
       }
 
-      // Llamar al reload de la lista padre si está disponible
       if (onReload) {
         onReload();
       }
@@ -256,7 +257,6 @@ const RenderView: React.FC<RenderViewProps> = ({
     }
   };
 
-  // Función para manejar el cierre del modal con reload
   const handleClose = () => {
     if (onReload) {
       onReload();
@@ -265,12 +265,14 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   const getPaymentFormData = () => {
+    const currentExtraData = data?.extraData || extraData;
+
     const calculatedTotalBalance = debtAmount + penaltyAmount + maintenanceAmount;
     const subcategoryId = debtDetail?.subcategory_id || debtDetail?.subcategory?.id;
     const categoryId = debtDetail?.subcategory?.padre?.id || debtDetail?.subcategory?.category_id;
     let finalCategoryId = categoryId;
-    if (!finalCategoryId && subcategoryId && extraData?.categories) {
-      const foundCategory = extraData.categories.find((cat: any) =>
+    if (!finalCategoryId && subcategoryId && currentExtraData?.categories) {
+      const foundCategory = currentExtraData.categories.find((cat: any) =>
         cat.hijos?.some((hijo: any) => hijo.id === subcategoryId)
       );
       finalCategoryId = foundCategory?.id;
@@ -282,8 +284,8 @@ const RenderView: React.FC<RenderViewProps> = ({
     const isSharedDebt = debtType === 4; // Tipo 4 = Deudas compartidas
 
     const isForgivenessDebt = debtDetail?.description?.toLowerCase().includes('condonación') ||
-                           debtDetail?.debt?.description?.toLowerCase().includes('condonación') ||
-                           debtDetail?.subcategory?.name?.toLowerCase().includes('condonación');
+      debtDetail?.debt?.description?.toLowerCase().includes('condonación') ||
+      debtDetail?.subcategory?.name?.toLowerCase().includes('condonación');
 
     const shouldLockFields = isIndividualDebt || isExpensasDebt || isReservationsDebt || isSharedDebt;
 
@@ -299,7 +301,6 @@ const RenderView: React.FC<RenderViewProps> = ({
       paymentType = 'O'; // Otras deudas
     }
 
-    // Obtener el titular correctamente usando getTitular
     const titular = getTitular(debtDetail?.dpto);
     const owner_id = titular?.id;
 
@@ -310,7 +311,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       subcategory_id: subcategoryId,
       isCategoryLocked: shouldLockFields,
       isSubcategoryLocked: shouldLockFields,
-      isAmountLocked: shouldLockFields, // Nuevo campo para bloquear el monto
+      isAmountLocked: shouldLockFields,
       amount: calculatedTotalBalance,
       type: paymentType,
       debt_dpto_id: debtDetail?.id,
@@ -319,7 +320,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         `Pago de ${debtDetail?.subcategory?.name || 'deuda'} - Unidad ${debtDetail?.dpto?.nro}`
       ],
       owner: debtDetail?.dpto?.homeowner,
-      owner_id: owner_id, // Agregar el owner_id calculado correctamente
+      owner_id: owner_id,
       status: 'S'
     };
   };
@@ -345,7 +346,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     <>
       <DataModal
         open={open}
-        onClose={handleClose} // Usar la nueva función de cierre
+        onClose={handleClose}
         title="Detalle de deuda"
         buttonText=""
         buttonCancel=""
@@ -450,8 +451,12 @@ const RenderView: React.FC<RenderViewProps> = ({
                 {/* Item vacío en el medio */}
                 <div className={styles.infoItem}>{/* Espacio vacío */}</div>
                 <div className={styles.infoItem}>
-                  <span className={styles.label}>Mant. de valor</span>
-                  <span className={styles.value}>Bs {formatNumber(maintenanceAmount)}</span>
+                  {hasMaintenanceValue(user) && (
+                    <>
+                      <span className={styles.label}>Mant. de valor</span>
+                      <span className={styles.value}>Bs {formatNumber(maintenanceAmount)}</span>
+                    </>
+                  )}
                 </div>
                 {/* Solo mostrar distribución para type 4 */}
                 {showDistribution && (
@@ -495,7 +500,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                 </Button>
               )}
 
-              {actions.showRegistrarPago && (
+              {actions.showRegistrarPago && debtDetail?.status != "F" && (
                 <Button onClick={() => setShowPaymentForm(true)} className={styles.primaryButton}>
                   Registrar Pago
                 </Button>
@@ -539,7 +544,6 @@ const RenderView: React.FC<RenderViewProps> = ({
           open={showReservationDetail}
           onClose={() => setShowReservationDetail(false)}
           reservationId={debtDetail?.reservation?.id}
-          // No pasar reservationId ya que tenemos el item completo
         />
       )}
 
@@ -565,7 +569,7 @@ const RenderView: React.FC<RenderViewProps> = ({
             setShowPaymentForm(false);
           }}
           item={getPaymentFormData()}
-          extraData={extraData}
+          extraData={data?.extraData || extraData}
           execute={execute as (...args: any[]) => Promise<any>}
           showToast={handleShowToast}
           reLoad={() => {
