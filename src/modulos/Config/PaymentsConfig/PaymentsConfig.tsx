@@ -1,26 +1,32 @@
-import Input from "@/mk/components/forms/Input/Input";
-import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
-import { getUrlImages } from "@/mk/utils/string";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styles from "./PaymentsConfig.module.css";
-import { IconCamera } from "@/components/layout/icons/IconsBiblioteca";
 import Button from "@/mk/components/forms/Button/Button";
 import Br from "@/components/Detail/Br";
+import Select from "@/mk/components/forms/Select/Select";
 
 const PaymentsConfig = ({
   formState,
   onChange,
-  setErrors,
   errors,
+  bankAccounts,
   onSave,
 }: any) => {
 
+  const getBankAccounts = useMemo(() =>
+    bankAccounts?.map((bacc: { id: number; alias_holder: string; bank_entity: { name: string; }; account_number: number; }) => {
+        return {
+          id: bacc?.id ?? null,
+          name: `${bacc?.alias_holder ?? ''} (${bacc?.bank_entity?.name ?? 'N/A'} - ${bacc?.account_number ?? ''})`
+        };
+      }),
+    [bankAccounts]
+  );
+  
   return (
     <div className={styles.paymentsContainer}>
       
       <div>
-        <h1 className={styles.mainTitle}>Cuentos de pago</h1>
+        <h1 className={styles.mainTitle}>Cuentas de pago</h1>
         <p className={styles.headerSubtitle}>
           Configura los métodos de pagos con los cuales los residentes podrán pagar sus cuotas,
           deudas y demás transacciones del condominio
@@ -28,141 +34,66 @@ const PaymentsConfig = ({
       </div>
 
       <div className={styles.formContainer}>
+      
         <div className={styles.sectionContainer}>
-          <div>
-            <h2 className={styles.sectionTitle}>Subir código QR</h2>
+          <div style={{gap: 8}}>
+            <h2 className={styles.sectionTitle}>Cuenta principal</h2>
             <p className={styles.sectionSubtitle}>
-              Te recomendamos subir un código QR sin monto, esto facilitará la gestión de pagos y
-              garantizará un proceso más eficiente
+              Asigna la cuenta bancaria que recibirá los pagos principales en tu administración para tu condominio.
             </p>
           </div>
-
-          <div className={styles.uploadContainer}>
-            <div className={styles.qrPreviewContainer}>
-              <UploadFile
-                name="avatarQr"
-                onChange={onChange}
-                value={(() => {
-                  const isObj =
-                    typeof formState?.avatarQr === 'object' && formState?.avatarQr !== null;
-                  if (isObj) return formState?.avatarQr;
-
-                  const normalizeHasImage = (v: any) => v === 1 || v === '1' || v === true;
-                  const hasFlag =
-                    'has_image_qr' in (formState || {}) ||
-                    'has_image_q' in (formState || {}) ||
-                    'qr_has_image' in (formState || {});
-                  const hasQrImage = normalizeHasImage(
-                    (formState as any)?.has_image_qr ??
-                      (formState as any)?.has_image_q ??
-                      (formState as any)?.qr_has_image
-                  );
-
-                  if (hasFlag && !hasQrImage) return undefined;
-
-                  return formState?.id
-                    ? getUrlImages('/PAYMENTQR-' + formState?.id + '.webp?' + formState?.updated_at)
-                    : undefined;
-                })()}
-                setError={setErrors}
-                error={errors}
-                img={true}
-                sizePreview={{ width: '200px', height: '200px' }}
-                placeholder="Cargar una imagen"
-                ext={['jpg', 'png', 'jpeg', 'webp']}
-                item={formState}
-              />
-            </div>
-          </div>
-          <Br />
-        </div>
-
-        <div className={styles.sectionContainer}>
-          <div>
-            <h2 className={styles.sectionTitle}>Datos de transferencia bancaria</h2>
-            <p className={styles.sectionSubtitle}>
-              Ingresa los datos bancarios donde los residentes realizarán las transferencias
-            </p>
-          </div>
-
-          <div className={styles.inputContainer}>
-            <div className={styles.inputHalf}>
-              <Input
-                type="text"
-                label="Entidad bancaria"
-                name="payment_transfer_bank"
-                error={errors}
-                required
-                value={formState?.payment_transfer_bank}
-                onChange={onChange}
-                maxLength={50}
-              />
-            </div>
-            <div className={styles.inputHalf}>
-              <Input
-                type="text"
-                label="Número de cuenta"
-                name="payment_transfer_account"
-                error={errors}
-                required
-                value={formState?.payment_transfer_account}
-                onChange={onChange}
-                maxLength={25}
-              />
-            </div>
-          </div>
-
-          <div className={styles.inputContainer}>
-            <div className={styles.inputHalf}>
-              <Input
-                type="text"
-                label="Nombre de destinatario"
-                name="payment_transfer_name"
-                error={errors}
-                value={formState?.payment_transfer_name}
-                onChange={onChange}
-                required
-                maxLength={50}
-              />
-            </div>
-            <div className={styles.inputHalf}>
-              <Input
-                type="text"
-                label="Carnet de identidad/NIT"
-                name="payment_transfer_ci"
-                error={errors}
-                required={true}
-                value={formState?.payment_transfer_ci}
-                onChange={onChange}
-                maxLength={15}
-              />
-            </div>
-          </div>
+          <Select
+            name="main_account_id"
+            label="Asignar cuenta bancaria"
+            error={errors}
+            required
+            value={formState?.main_account_id}
+            onChange={onChange}
+            options={getBankAccounts}
+          />
         </div>
 
         <div className={styles.sectionContainer}>
           <Br />
+          <div style={{gap: 8}}>
+            <h2 className={styles.sectionTitle}>Pagos de reservas</h2>
+            <p className={styles.sectionSubtitle}>
+              Asigna la cuenta bancaria que recibirá los pagos principales en tu administración para tu condominio.
+            </p>
+          </div>
+          <Select
+            name="reserve_account_id"
+            label="Asignar cuenta bancaria"
+            error={errors}
+            value={formState?.reserve_account_id}
+            onChange={onChange}
+            options={getBankAccounts}
+          />
+        </div>
 
-          <div>
-            <h2 className={styles.sectionTitle}>Datos de pago en oficina</h2>
+        <div className={styles.sectionContainer}>
+          <Br />
+          
+          <div style={{gap: 8}}>
+            <h2 className={styles.sectionTitle}>Pagos de expensas</h2>
+            <p className={styles.sectionSubtitle}>
+              Asigna la cuenta bancaria que recibirá los pagos principales en tu administración para tu condominio.
+            </p>
           </div>
 
-          <div className={styles.textareaContainer}>
-            <TextArea
-              label="Detalles o requisitos"
-              required
-              name="payment_office_obs"
-              onChange={onChange}
-              value={formState?.payment_office_obs}
-              error={errors}
-              maxLength={500}
-            />
-          </div>
+          <Select
+            name="expense_account_id"
+            label="Asignar cuenta bancaria"
+            error={errors}
+            value={formState?.expense_account_id}
+            onChange={onChange}
+            options={getBankAccounts}
+          />
         </div>
 
         <div className={styles.saveButtonContainer}>
           <Button className={`${styles.saveButton} `} onClick={onSave}>
-            Guardar datos
+            Guardar
           </Button>
         </div>
       </div>
