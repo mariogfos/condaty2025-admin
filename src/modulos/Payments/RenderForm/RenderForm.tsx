@@ -227,7 +227,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const isCategoryLocked = item?.isCategoryLocked || false;
     const isSubcategoryLocked = item?.isSubcategoryLocked || false;
     const isAmountLocked = item?.isAmountLocked || false;
-    console.log("item", item?.amount);
 
     return {
       paid_at: item?.paid_at || new Date().toISOString().split("T")[0],
@@ -353,7 +352,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
           }
         }
       } catch (err) {
-        console.error(err);
       } finally {
         setIsLoadingDeudas(false);
       }
@@ -861,9 +859,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           setErrors(data.errors);
         }
       }
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
   }, [
     formState,
     extraData?.dptos,
@@ -1047,7 +1043,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
         maxWidth={860}
       >
         <div className={styles["income-form-container"]}>
-          {/* Fecha de pago */}
           <div className={styles.section}>
             <div className={styles["input-container"]}>
               <Input
@@ -1060,7 +1055,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 error={errors}
                 max={new Date().toISOString().split("T")[0]}
                 min={
-                  new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+                  new Date(new Date().getFullYear(), 0, 1)
                     .toISOString()
                     .split("T")[0]
                 }
@@ -1084,7 +1079,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
             </div>
           </div>
 
-          {/* Nuevo select de tipo de pago */}
           <div className={styles.section}>
             <div className={styles["input-container"]}>
               <Select
@@ -1101,7 +1095,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
             </div>
           </div>
 
-          {/* Mostrar categoría y subcategoría solo para pago directo */}
           {showCategoryFields && (
             <div className={styles.section}>
               <div className={styles["input-row"]}>
@@ -1182,7 +1175,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               </div>
 
-              {/* Mostrar deudas solo para tipos basados en deudas */}
               {isDebtBasedPayment && (
                 <div>
                   {deudasContent}
@@ -1197,7 +1189,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               )}
 
-              {/* Sección de subir comprobante */}
               <div className={styles["upload-section"]}>
                 <UploadFile
                   name="file"
