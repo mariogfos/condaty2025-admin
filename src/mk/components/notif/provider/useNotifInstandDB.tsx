@@ -29,6 +29,7 @@ export const initSocket = async () => {
         where: {
           created_at: { $lt: unDiaAtras },
         },
+        limit: 10000,
       },
     },
   };
