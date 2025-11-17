@@ -1,13 +1,13 @@
-'use client';
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import Select from '@/mk/components/forms/Select/Select';
-import TextArea from '@/mk/components/forms/TextArea/TextArea';
-import Input from '@/mk/components/forms/Input/Input';
-import styles from './RenderForm.module.css';
-import Toast from '@/mk/components/ui/Toast/Toast';
-import UploadFileMultiple from '@/mk/components/forms/UploadFile/UploadFileMultiple';
-import { checkRules } from '@/mk/utils/validate/Rules';
+"use client";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Select from "@/mk/components/forms/Select/Select";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import Input from "@/mk/components/forms/Input/Input";
+import styles from "./RenderForm.module.css";
+import Toast from "@/mk/components/ui/Toast/Toast";
+import UploadFileMultiple from "@/mk/components/forms/UploadFile/UploadFileMultiple";
+import { checkRules } from "@/mk/utils/validate/Rules";
 
 interface Category {
   id: number | string;
@@ -20,6 +20,8 @@ interface Subcategory {
   id: number | string;
   name: string;
   category_id: number | string;
+  bank_account_id?: number | string | null;
+  bank_account?: object | any;
 }
 
 interface User {
@@ -41,11 +43,13 @@ interface OutlayFormState {
   avatar?: (File | string)[] | null;
   filename?: string | null;
   ext?: string | null;
+  bank_account_id?: number | null;
 }
 
 interface ExtraData {
   categories?: Category[];
   subcategories?: Subcategory[];
+  bankAccounts?: object[];
 }
 
 interface Errors {
@@ -61,7 +65,7 @@ interface RenderFormProps {
   execute: (url: string, method: string, params: any) => Promise<any>;
   showToast: (
     msg: string,
-    type?: 'info' | 'success' | 'error' | 'warning'
+    type?: "info" | "success" | "error" | "warning"
   ) => void;
   reLoad: () => void;
   user?: User;
@@ -82,41 +86,41 @@ const RenderForm: React.FC<RenderFormProps> = ({
       ...(item || {}),
       ...(item || {}),
       date_at: (item && item.date_at) || formattedDate,
-      type: (item && item.type) || '',
+      type: (item && item.type) || "",
       file: (item && item.avatar) || null,
     };
   });
   const [filteredSubcategories, setFilteredSubcategories] = useState<
     Subcategory[]
   >([]);
-
+  const [showBank, setShowBank] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [toast] = useState<{
     msg: string;
-    type: 'info' | 'success' | 'error' | 'warning';
-  }>({ msg: '', type: 'info' });
+    type: "info" | "success" | "error" | "warning";
+  }>({ msg: "", type: "info" });
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [_errors, set_Errors] = useState<Errors>({});
-  const exten = ['jpg', 'pdf', 'png', 'jpeg', 'doc', 'docx', 'xls', 'xlsx'];
+  const exten = ["jpg", "pdf", "png", "jpeg", "doc", "docx", "xls", "xlsx"];
 
   useEffect(() => {
     if (!open) {
       setIsInitialized(false);
-      _setFormState(prev => ({
+      _setFormState((prev) => ({
         ...prev,
         file: null,
       }));
 
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
     if (!isInitialized && open) {
       const today = new Date();
-      const formattedDate = today.toISOString().split('T')[0];
+      const formattedDate = today.toISOString().split("T")[0];
       _setFormState({
         ...(item || {}),
         date_at: (item && item.date_at) || formattedDate,
-        type: (item && item.type) || '',
+        type: (item && item.type) || "",
         avatar: (item && item.avatar) || null,
       });
       setIsInitialized(true);
@@ -138,25 +142,25 @@ const RenderForm: React.FC<RenderFormProps> = ({
     ) => {
       const { name, value, type } = e.target;
       let newValue = value;
-      if (type === 'checkbox' && 'checked' in e.target) {
-        newValue = (e.target as HTMLInputElement).checked ? 'Y' : 'N';
+      if (type === "checkbox" && "checked" in e.target) {
+        newValue = (e.target as HTMLInputElement).checked ? "Y" : "N";
       }
-      if (name === 'category_id') {
-        _setFormState(prev => ({
+      if (name === "category_id") {
+        _setFormState((prev) => ({
           ...prev,
           [name]: newValue,
-          subcategory_id: '',
+          subcategory_id: "",
         }));
         if (newValue && extraData?.subcategories) {
           const filtered = extraData.subcategories.filter(
-            subcat => subcat.category_id === Number(String(newValue))
+            (subcat) => subcat.category_id === Number(String(newValue))
           );
           setFilteredSubcategories(filtered || []);
         } else {
           setFilteredSubcategories([]);
         }
       } else {
-        _setFormState(prev => ({ ...prev, [name]: newValue }));
+        _setFormState((prev) => ({ ...prev, [name]: newValue }));
       }
     },
     [extraData?.subcategories]
@@ -168,9 +172,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       result: string | Record<string, string> | null,
       key: string
     ) => {
-      if (typeof result === 'string' && result) {
+      if (typeof result === "string" && result) {
         errs[key] = result;
-      } else if (result && typeof result === 'object') {
+      } else if (result && typeof result === "object") {
         Object.entries(result).forEach(([k, v]) => {
           if (v) errs[k] = v;
         });
@@ -180,70 +184,70 @@ const RenderForm: React.FC<RenderFormProps> = ({
     addError(
       checkRules({
         value: _formState.date_at,
-        rules: ['required'],
-        key: 'date_at',
+        rules: ["required"],
+        key: "date_at",
         errors: errs,
       }),
-      'date_at'
+      "date_at"
     );
     addError(
       checkRules({
         value: _formState.category_id,
-        rules: ['required'],
-        key: 'category_id',
+        rules: ["required"],
+        key: "category_id",
         errors: errs,
       }),
-      'category_id'
+      "category_id"
     );
     addError(
       checkRules({
         value: _formState.subcategory_id,
-        rules: ['required'],
-        key: 'subcategory_id',
+        rules: ["required"],
+        key: "subcategory_id",
         errors: errs,
       }),
-      'subcategory_id'
+      "subcategory_id"
     );
     addError(
       checkRules({
         value: _formState.description,
-        rules: ['required', 'max:500'],
-        key: 'description',
+        rules: ["required", "max:500"],
+        key: "description",
         errors: errs,
       }),
-      'description'
+      "description"
     );
     addError(
       checkRules({
         value: _formState.amount,
-        rules: ['required', 'max:10'],
-        key: 'amount',
+        rules: ["required", "max:10"],
+        key: "amount",
         errors: errs,
       }),
-      'amount'
+      "amount"
     );
     addError(
       checkRules({
         value: _formState.type,
-        rules: ['required'],
-        key: 'type',
+        rules: ["required"],
+        key: "type",
         errors: errs,
       }),
-      'type'
+      "type"
     );
     addError(
       checkRules({
         value: _formState.avatar,
-        rules: ['required'],
-        key: 'avatar',
+        rules: ["required"],
+        key: "avatar",
         errors: errs,
       }),
-      'avatar'
+      "avatar"
     );
 
     const filteredErrs = Object.fromEntries(
       Object.entries(errs).filter(
-        ([_, v]) => typeof v === 'string' && v !== undefined
+        ([_, v]) => typeof v === "string" && v !== undefined
       )
     );
     set_Errors(filteredErrs);
@@ -252,14 +256,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
       setTimeout(() => {
         const firstErrorElement =
           document.querySelector(`.${styles.error}`) ||
-          document.querySelector('.error');
+          document.querySelector(".error");
         if (firstErrorElement) {
           (firstErrorElement as HTMLElement).scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
+            behavior: "smooth",
+            block: "center",
           });
         } else {
-          const modalBody = document.querySelector('.data-modal-body');
+          const modalBody = document.querySelector(".data-modal-body");
           if (modalBody) (modalBody as HTMLElement).scrollTop = 0;
         }
       }, 100);
@@ -269,27 +273,27 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
   const onCloseModal = useCallback(() => {
     setIsInitialized(false);
-    _setFormState(prev => ({
-      date_at: new Date().toISOString().split('T')[0],
-      type: '',
-      category_id: '',
-      subcategory_id: '',
-      description: '',
-      amount: '',
+    _setFormState((prev) => ({
+      date_at: new Date().toISOString().split("T")[0],
+      type: "",
+      category_id: "",
+      subcategory_id: "",
+      description: "",
+      amount: "",
       file: null,
     }));
     setFilteredSubcategories([]);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
     set_Errors({});
     onClose();
   }, [onClose, set_Errors]);
 
   const paymentMethods = [
-    { id: 'T', name: 'Transferencia bancaria' },
-    { id: 'O', name: 'Pago en oficina' },
-    { id: 'Q', name: 'Pago QR' },
-    { id: 'E', name: 'Efectivo' },
-    { id: 'C', name: 'Cheque' },
+    { id: "T", name: "Transferencia bancaria" },
+    { id: "O", name: "Pago en oficina" },
+    { id: "Q", name: "Pago QR" },
+    { id: "E", name: "Efectivo" },
+    { id: "C", name: "Cheque" },
   ];
 
   const handleSave = useCallback(() => {
@@ -304,19 +308,62 @@ const RenderForm: React.FC<RenderFormProps> = ({
       type,
       avatar,
     } = _formState;
+
+    let bank_account_id = _formState.bank_account_id;
+
+    const searchSubcategory: any = extraData?.subcategories?.find(
+      (subcat) => subcat.id === _formState.subcategory_id
+    );
+    const mainAccount: any = extraData?.bankAccounts?.find(
+      (bank: any) => bank.is_main == 1
+    );
+
+    if (searchSubcategory?.bank_account_id) {
+      bank_account_id = searchSubcategory.bank_account_id;
+    } else if (searchSubcategory?.padre?.bank_account_id) {
+      bank_account_id = searchSubcategory.padre.bank_account_id;
+    } else if (mainAccount) {
+      bank_account_id = mainAccount.id;
+    }
+
     const params = {
       date_at,
       category_id,
       subcategory_id: subcategory_id || null,
       description,
-      amount: parseFloat(String(amount || '0')),
+      amount: parseFloat(String(amount || "0")),
       type,
       avatar,
+      bank_account_id: bank_account_id || null,
     };
 
     onSave?.(params);
   }, [_formState, validar, onSave]);
 
+  useEffect(() => {
+    if (_formState.subcategory_id) {
+      const searchSubcategory: any = extraData?.subcategories?.find(
+        (subcat) => subcat.id === _formState.subcategory_id
+      );
+
+      if (
+        !searchSubcategory?.bank_account_id &&
+        !searchSubcategory?.padre?.bank_account_id
+      ) {
+        setShowBank(true);
+      } else {
+        setShowBank(false);
+        _setFormState((prev) => ({ ...prev, bank_account_id: null }));
+      }
+    }
+  }, [_formState.subcategory_id]);
+  const getOptionsBankAccounts = useCallback(() => {
+    return extraData?.bankAccounts?.map((bank: any) => ({
+      id: bank.id,
+      name:
+        bank.holder + " - " + bank.alias_holder + " - " + bank.account_number,
+    }));
+  }, [extraData?.bankAccounts]);
   return (
     <>
       <Toast toast={toast} showToast={showToast} />
@@ -325,40 +372,40 @@ const RenderForm: React.FC<RenderFormProps> = ({
         onClose={onCloseModal}
         onSave={handleSave}
         buttonCancel="Cancelar"
-        buttonText={'Crear egreso'}
-        title={'Crear egreso'}
+        buttonText={"Crear egreso"}
+        title={"Crear egreso"}
         variant={"mini"}
       >
-        <div className={styles['outlays-form-container']}>
+        <div className={styles["outlays-form-container"]}>
           {/* Fecha de pago */}
           <div className={styles.section}>
-            <div className={styles['input-container']}>
+            <div className={styles["input-container"]}>
               <Input
                 type="date"
                 name="date_at"
                 label="Fecha de pago"
                 required={true}
-                value={_formState.date_at || ''}
+                value={_formState.date_at || ""}
                 onChange={handleChangeInput}
                 error={_errors}
-                className={_errors.date_at ? styles.error : ''}
-                max={new Date().toISOString().split('T')[0]}
+                className={_errors.date_at ? styles.error : ""}
+                max={new Date().toISOString().split("T")[0]}
                 min={
                   new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
                     .toISOString()
-                    .split('T')[0]
+                    .split("T")[0]
                 }
               />
             </div>
           </div>
           {/* Categoría y Subcategoría */}
           <div className={styles.section}>
-            <div className={styles['two-column-container']}>
+            <div className={styles["two-column-container"]}>
               <div className={styles.column}>
-                <div className={styles['input-container']}>
+                <div className={styles["input-container"]}>
                   <Select
                     name="category_id"
-                    value={_formState.category_id || ''}
+                    value={_formState.category_id || ""}
                     label="Categoría"
                     onChange={handleChangeInput}
                     options={extraData?.categories || []}
@@ -366,15 +413,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     required
                     optionLabel="name"
                     optionValue="id"
-                    className={_errors.category_id ? styles.error : ''}
+                    className={_errors.category_id ? styles.error : ""}
                   />
                 </div>
               </div>
               <div className={styles.column}>
-                <div className={styles['input-container']}>
+                <div className={styles["input-container"]}>
                   <Select
                     name="subcategory_id"
-                    value={_formState.subcategory_id || ''}
+                    value={_formState.subcategory_id || ""}
                     label="Subcategoría"
                     onChange={handleChangeInput}
                     options={filteredSubcategories}
@@ -383,37 +430,51 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     optionLabel="name"
                     optionValue="id"
                     disabled={!_formState.category_id}
-                    className={_errors.subcategory_id ? styles.error : ''}
+                    className={_errors.subcategory_id ? styles.error : ""}
                   />
                 </div>
               </div>
             </div>
           </div>
+          {showBank && (
+            <Select
+              name="bank_account_id"
+              value={_formState.bank_account_id || ""}
+              label="Cuenta bancaria"
+              onChange={handleChangeInput}
+              options={getOptionsBankAccounts() || []}
+              error={_errors}
+              required
+              optionLabel="name"
+              optionValue="id"
+              className={_errors.bank_account_id ? styles.error : ""}
+            />
+          )}
           {/* Monto y Método de pago */}
-          <div className={styles['two-column-container']}>
+          <div className={styles["two-column-container"]}>
             <div className={styles.column}>
               <div className={styles.section}>
-                <div className={styles['input-container']}>
+                <div className={styles["input-container"]}>
                   <Input
                     type="currency"
                     name="amount"
                     label="Monto del pago"
-                    value={_formState.amount || ''}
+                    value={_formState.amount || ""}
                     onChange={handleChangeInput}
                     error={_errors}
                     required
                     maxLength={10}
-                    className={_errors.amount ? styles.error : ''}
+                    className={_errors.amount ? styles.error : ""}
                   />
                 </div>
               </div>
             </div>
             <div className={styles.column}>
               <div className={styles.section}>
-                <div className={styles['input-container']}>
+                <div className={styles["input-container"]}>
                   <Select
                     name="type"
-                    value={_formState.type || ''}
+                    value={_formState.type || ""}
                     label="Método de pago"
                     onChange={handleChangeInput}
                     options={paymentMethods}
@@ -421,7 +482,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     required
                     optionLabel="name"
                     optionValue="id"
-                    className={_errors.type ? styles.error : ''}
+                    className={_errors.type ? styles.error : ""}
                   />
                 </div>
               </div>
@@ -429,13 +490,16 @@ const RenderForm: React.FC<RenderFormProps> = ({
           </div>
           {/* Comprobante */}
           <div className={styles.section}>
-            <div className={styles['input-container']}>
+            <div className={styles["input-container"]}>
               <UploadFileMultiple
                 name="avatar"
                 value={_formState.avatar}
-                onChange={e => {
+                onChange={(e) => {
                   // e.target.value es un array de archivos
-                  _setFormState(prev => ({ ...prev, avatar: e.target.value }));
+                  _setFormState((prev) => ({
+                    ...prev,
+                    avatar: e.target.value,
+                  }));
                 }}
                 label={"Subir comprobantes (imágenes o documentos)"}
                 error={_errors}
@@ -450,28 +514,26 @@ const RenderForm: React.FC<RenderFormProps> = ({
           </div>
           {/* Concepto del pago */}
           <div className={styles.section}>
-
-              <TextArea
-                name="description"
-                label="Concepto"
-                value={_formState.description || ''}
-                onChange={handleChangeInput}
-                error={_errors}
-                required
-                maxLength={500}
-                className={_errors.description ? styles.error : ''}
-              />
-              {_formState.description && _formState.description.length > 0 && (
-                <p className={styles['char-count']}>
-                  {_formState.description.length}/500 caracteres
-                </p>
-              )}
-
+            <TextArea
+              name="description"
+              label="Concepto"
+              value={_formState.description || ""}
+              onChange={handleChangeInput}
+              error={_errors}
+              required
+              maxLength={500}
+              className={_errors.description ? styles.error : ""}
+            />
+            {_formState.description && _formState.description.length > 0 && (
+              <p className={styles["char-count"]}>
+                {_formState.description.length}/500 caracteres
+              </p>
+            )}
           </div>
           {/* Mostrar errores generales si existen */}
           {_errors.general && (
-            <div className={`${styles.section} ${styles['error-general']}`}>
-              <p className={styles['error-message']}>{_errors.general}</p>
+            <div className={`${styles.section} ${styles["error-general"]}`}>
+              <p className={styles["error-message"]}>{_errors.general}</p>
             </div>
           )}
         </div>
@@ -481,4 +543,3 @@ const RenderForm: React.FC<RenderFormProps> = ({
 };
 
 export default RenderForm;
-
