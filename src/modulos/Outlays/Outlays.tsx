@@ -347,6 +347,11 @@ const Outlays = () => {
           style: { width: "100%" },
         },
       },
+      bank_account_id: {
+        rules: ["required"],
+        api: "ae",
+        label: "Cuenta bancaria",
+      },
       ext: {
         rules: [""],
         api: "ae",
@@ -362,7 +367,7 @@ const Outlays = () => {
     >
       Categorías
     </Button>,
-    
+
     // <Button
     //   key="budget-button"
     //   onClick={() => setOpenModal(true)}
@@ -370,7 +375,6 @@ const Outlays = () => {
     // >
     //   Ejecutar
     // </Button>,
-
   ];
   const {
     userCan,
