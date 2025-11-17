@@ -11,7 +11,7 @@ try {
 }
 
 let db: any = null;
-export const initSocket = () => {
+export const initSocket = async () => {
   if (!db) {
     db = init({
       appId: process.env.NEXT_PUBLIC_INSTANTDB_APP_ID as string,
@@ -21,6 +21,23 @@ export const initSocket = () => {
   } else {
     console.log("recuperando conexion a InstantDB");
   }
+  const unDiaAtras = Date.now() - 24 * 60 * 60 * 1000;
+  const del: any[] = [];
+  const query = {
+    notif: {
+      $: {
+        where: {
+          created_at: { $lt: unDiaAtras },
+        },
+      },
+    },
+  };
+  const { data: _notif } = await db.queryOnce(query);
+  _notif.notif.forEach((e: any) => {
+    del.push(db.tx.notif[e.id].delete());
+  });
+  console.log("notif", del.length);
+  if (del.length > 0) db.transact(del);
   return db;
 };
 
