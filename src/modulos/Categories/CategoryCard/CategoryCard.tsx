@@ -95,7 +95,11 @@ const CategoryCard = memo(
             {item.description || "-/-"}
           </div>
           <div className={styles.categoryDescription}>
-            {item?.bank_account?.account_number || "-/-"}
+            {(item?.bank_account?.account_number &&
+              item?.bank_account?.account_number +
+                " - " +
+                item?.bank_account?.bank_entity?.name) ||
+              "-/-"}
           </div>
           <div className={styles.categoryActions}>
             <button
@@ -158,7 +162,11 @@ const CategoryCard = memo(
                         </div>
                         <div className={styles.subcategoryDescContainer}>
                           <span className={styles.subcategoryDesc}>
-                            {subcat?.bank_account?.account_number || "-/-"}
+                            {(subcat?.bank_account?.account_number &&
+                              subcat?.bank_account?.account_number +
+                                " - " +
+                                subcat?.bank_account?.bank_entity?.name) ||
+                              "-/-"}
                           </span>
                         </div>
                         <div className={styles.subcategoryActions}>
