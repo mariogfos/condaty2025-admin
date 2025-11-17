@@ -61,12 +61,15 @@ interface Subcategory {
 interface ClientConfig {
   cat_expensas: string | number;
   cat_reservations: string | number;
+  cat_forgiveness: string | number;
 }
 
 interface ExtraData {
   dptos: Dpto[];
   categories: Category[];
   client_config: ClientConfig;
+  bankAccounts: any[];
+  subcategories: any[];
 }
 interface Deuda {
   id: string | number;
@@ -82,6 +85,7 @@ interface Deuda {
   begin_at?: string;
   due_at?: string;
   description?: string;
+  subcategory?: object | any;
   penalty_reservation?: {
     id?: string;
     debt_id?: string;
@@ -161,6 +165,7 @@ interface Deuda {
 interface SelectedPeriodo {
   id: string | number;
   amount: number;
+  bank_account_id?: string | number;
 }
 
 interface FormState {
@@ -227,7 +232,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const isCategoryLocked = item?.isCategoryLocked || false;
     const isSubcategoryLocked = item?.isSubcategoryLocked || false;
     const isAmountLocked = item?.isAmountLocked || false;
-    console.log("item", item?.amount);
 
     return {
       paid_at: item?.paid_at || new Date().toISOString().split("T")[0],
@@ -264,7 +268,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
     method: "info",
   });
   const { store } = useAuth();
-
   const typeOptions = [
     // { id: 'T', name: 'Todas las deudas' },
     { id: "E", name: "Expensas" },
@@ -700,7 +703,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
       if (exists) {
         newSelectedPeriodos = prev.filter((item) => item.id !== periodo.id);
       } else {
-        newSelectedPeriodos = [...prev, { id: periodo.id, amount: subtotal }];
+        newSelectedPeriodos = [
+          ...prev,
+          {
+            id: periodo.id,
+            amount: subtotal,
+            bank_account_id: periodo?.subcategory?.bank_account_id,
+          },
+        ];
       }
 
       const newTotal = newSelectedPeriodos.reduce(
@@ -760,9 +770,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
     }
 
-    if (!formState.file) {
-      err.file = "El comprobante es requerido";
-    }
+    // if (!formState.file) {
+    //   err.file = "El comprobante es requerido";
+    // }
 
     if (!formState.paid_at) {
       err.paid_at = "Este campo es requerido";
@@ -802,13 +812,66 @@ const RenderForm: React.FC<RenderFormProps> = ({
     }
 
     let owner_id = formState.owner_id;
-
     if (!owner_id) {
       const selectedDpto = extraData?.dptos.find(
         (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
       );
       const titular = getTitular(selectedDpto);
       owner_id = titular?.id;
+    }
+    let bank_account_id;
+    const existBankAccount = extraData?.bankAccounts.find(
+      (item: any) => item.is_main == 1
+    )?.id;
+
+    switch (formState.type) {
+      case "E": {
+        const id =
+          extraData?.bankAccounts.find((i: any) => i.is_expense == 1)?.id ||
+          existBankAccount;
+        bank_account_id = id;
+        break;
+      }
+      case "R": {
+        const id =
+          extraData?.bankAccounts.find((i: any) => i.is_reserve == 1)?.id ||
+          existBankAccount;
+        bank_account_id = id;
+        break;
+      }
+      case "F": {
+        const sub = extraData?.subcategories.find(
+          (i: any) => i.id == extraData?.client_config?.cat_forgiveness
+        );
+
+        const id =
+          sub?.bank_account_id ||
+          sub?.padre?.bank_account_id ||
+          existBankAccount;
+
+        bank_account_id = id;
+        break;
+      }
+      case "I": {
+        const category: any = extraData?.categories.find(
+          (i: any) => i.id == formState.category_id
+        );
+
+        const id =
+          category?.hijos.find((i: any) => i.id == formState.subcategory_id)
+            ?.bank_account_id ||
+          category?.bank_account_id ||
+          existBankAccount;
+
+        bank_account_id = id;
+        break;
+      }
+      case "O": {
+        const id = selectedPeriodo?.[0]?.bank_account_id || existBankAccount;
+
+        bank_account_id = id;
+        break;
+      }
     }
 
     let params: any = {
@@ -819,6 +882,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       nro_id: formState.dpto_id,
       owner_id: owner_id,
       type: formState.type,
+      bank_account_id: bank_account_id,
     };
 
     if (formState.voucher && String(formState.voucher).length > 0) {
@@ -841,7 +905,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
         amount: parseFloat(String(formState.amount || "0")),
       };
     }
-
     try {
       const { data, error } = await execute("/payments", "POST", params);
 
@@ -886,6 +949,17 @@ const RenderForm: React.FC<RenderFormProps> = ({
     onClose();
   }, [onClose]);
 
+  const isBankAccountSame = (periodo: any) => {
+    if (
+      periodo?.subcategory?.bank_account_id !==
+        selectedPeriodo?.[0]?.bank_account_id &&
+      selectedPeriodo.length > 0
+    ) {
+      return true;
+    }
+    return false;
+  };
+
   const deudasContent = useMemo(() => {
     if (!formState.dpto_id) {
       return (
@@ -916,20 +990,22 @@ const RenderForm: React.FC<RenderFormProps> = ({
             <p className={styles["deudas-title"]}>
               Seleccione las deudas a pagar:
             </p>
-            <button
-              type="button"
-              className={styles["select-all-container"]}
-              onClick={handleSelectAllPeriodos}
-            >
-              <span className={styles["select-all-text"]}>Pagar todo</span>
-              {selectedPeriodo.length === deudas.length ? (
-                <IconCheckSquare
-                  className={`${styles["check-icon"]} ${styles.selected}`}
-                />
-              ) : (
-                <IconCheckOff className={styles["check-icon"]} />
-              )}
-            </button>
+            {formState?.type !== "O" && (
+              <button
+                type="button"
+                className={styles["select-all-container"]}
+                onClick={handleSelectAllPeriodos}
+              >
+                <span className={styles["select-all-text"]}>Pagar todo</span>
+                {selectedPeriodo.length === deudas.length ? (
+                  <IconCheckSquare
+                    className={`${styles["check-icon"]} ${styles.selected}`}
+                  />
+                ) : (
+                  <IconCheckOff className={styles["check-icon"]} />
+                )}
+              </button>
+            )}
           </div>
 
           <div className={styles["deudas-table"]}>
@@ -963,7 +1039,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
               <button
                 type="button"
                 key={String(periodo.id)}
-                onClick={() => handleSelectPeriodo(periodo)}
+                onClick={() => {
+                  handleSelectPeriodo(periodo);
+                }}
+                disabled={isBankAccountSame(periodo)}
                 className={styles["deuda-item"]}
                 style={{
                   background: "none",
@@ -971,6 +1050,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   padding: 0,
                   width: "100%",
                   textAlign: "inherit",
+                  opacity: isBankAccountSame(periodo) ? 0.2 : 1,
                 }}
               >
                 <div className={styles["deuda-row"]}>
