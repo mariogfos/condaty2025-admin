@@ -769,9 +769,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
     }
 
-    if (!formState.file) {
-      err.file = "El comprobante es requerido";
-    }
+    // if (!formState.file) {
+    //   err.file = "El comprobante es requerido";
+    // }
 
     if (!formState.paid_at) {
       err.paid_at = "Este campo es requerido";
@@ -842,8 +842,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
         const sub = extraData?.subcategories.find(
           (i: any) => i.id == extraData?.client_config?.cat_forgiveness
         );
-        console.log(sub);
-        console.log(formState);
 
         const id =
           sub?.bank_account_id ||
