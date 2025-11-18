@@ -4,7 +4,6 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import { useEffect, useMemo, useState } from "react";
 import styles from "./pagination.module.css";
-import Select from "../../forms/Select/Select";
 
 type PropsType = {
   className?: string;
@@ -22,7 +21,7 @@ const Pagination = ({
   className = "",
   currentPage = 1,
   nextLabel = "Siguiente",
-  onPageChange = (page: number) => {},
+  onPageChange = (page: number) => { },
   previousLabel = "Anterior",
   totalPages,
   setParams,
@@ -32,7 +31,13 @@ const Pagination = ({
   const [pageInput, setPageInput] = useState<string>(currentPage.toString());
 
   // Asegurar que totalPages sea siempre al menos 1
-  const safeTotal = useMemo(() => Math.max(1, totalPages || 1), [totalPages]);
+  const safeTotal = useMemo(() => {
+    if (total !== -1) {
+      return Math.max(1, totalPages || 1);
+    } else {
+      return totalPages + 1;
+    }
+  }, [total, totalPages]);
 
   // Actualizar el input cuando cambia la página actual
   useEffect(() => {
@@ -51,7 +56,12 @@ const Pagination = ({
     const lastPage = safeTotal > 1 ? Math.min(currentPage + 3, safeTotal) : 1;
 
     const goToNextPage = (): void => {
-      onPageChange(Math.min(currentPage + 1, safeTotal));
+      const nextPage =
+        total !== -1
+          ? Math.min(currentPage + 1, safeTotal)
+          : currentPage + 1;
+
+      onPageChange(nextPage);
     };
 
     const goToPreviousPage = (): void => {
@@ -59,7 +69,7 @@ const Pagination = ({
     };
 
     const goToPage = (page: number): void => {
-      if (page >= 1 && page <= safeTotal) {
+      if (page >= 1 && (page <= safeTotal || total === -1)) {
         onPageChange(page);
       }
     };
@@ -140,12 +150,12 @@ const Pagination = ({
           <button
             className={styles.nextButton}
             onClick={goToNextPage}
-            disabled={currentPage >= safeTotal}
+            disabled={currentPage >= safeTotal && total !== -1}
           >
             Pág. siguiente <IconArrowNext size={18} color="var(--cWhiteV1)" />
           </button>
           <span className={styles.totalPages}>
-            {currentPage}/{safeTotal}
+            {total !== -1 ? `` : 'Pagina'} {currentPage} {total !== -1 ? `/${safeTotal}` : ''}
           </span>
         </div>
       </>
@@ -170,13 +180,13 @@ const Pagination = ({
               onKeyDown={handleKeyDown}
               className={styles.pageInput}
               aria-label="Ir a página"
-              disabled={totalPages <= 1}
+              disabled={totalPages <= 1 && total !== -1}
             />
 
             <button
               type="submit"
               className={styles.goButton}
-              disabled={totalPages <= 1}
+              disabled={totalPages <= 1 && total !== -1}
             >
               Ir
             </button>
