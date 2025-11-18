@@ -41,6 +41,15 @@ const Config = () => {
     if (e.target.type == "checkbox") {
       value = e.target.checked ? "Y" : "N";
     }
+    // Normalizar campos específicos que deben ser numéricos
+    if (name === "has_financial_data") {
+      if (typeof value === "string" && (value === "1" || value === "0")) {
+        value = Number(value);
+      }
+      if (typeof value === "boolean") {
+        value = value ? 1 : 0;
+      }
+    }
     if (
       name == "percent" ||
       name == "amount" ||
@@ -219,7 +228,7 @@ const Config = () => {
 
       // Forzar recarga completa de la página
       if (typeSearch === "C") {
-        window.location.reload();
+        //window.location.reload();
       }
     } else {
       showToast(error?.data?.message || data?.message, "error");
