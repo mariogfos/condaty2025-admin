@@ -35,6 +35,9 @@ const DptoConfig = ({
   const [hasMaintenanceValue, setHasMaintenanceValue] = useState(() => {
     return Boolean(formState?.has_maintenance_value);
   });
+  const [hasFinancialData, setHasFinancialData] = useState(() => {
+    return Number(formState?.has_financial_data) === 1;
+  });
 
 
   useEffect(() => {
@@ -49,6 +52,10 @@ const DptoConfig = ({
   useEffect(() => {
     setHasMaintenanceValue(Boolean(formState?.has_maintenance_value));
   }, [formState?.has_maintenance_value]);
+
+  useEffect(() => {
+    setHasFinancialData(Number(formState?.has_financial_data) === 1);
+  }, [formState?.has_financial_data]);
 
 
   const handleSwitchChange = ({ target: { name, value } }: any) => {
@@ -73,6 +80,13 @@ const DptoConfig = ({
       const isEnabled = value === "Y";
       setHasMaintenanceValue(isEnabled);
       onChange({ target: { name: "has_maintenance_value", value: isEnabled } });
+    } else if (name === "has_financial_data") {
+      const isEnabled = value === "1" || value === 1 || value === true;
+      setHasFinancialData(isEnabled);
+      onChange({ target: { name: "has_financial_data", value: isEnabled ? 1 : 0 } });
+      if (typeof setFormState === "function") {
+        setFormState((prev: any) => ({ ...prev, has_financial_data: isEnabled ? 1 : 0 }));
+      }
     }
   };
 
@@ -427,6 +441,26 @@ const DptoConfig = ({
               onChange={handleSwitchChange}
               optionValue={["Y", "N"]}
               checked={hasMaintenanceValue}
+            />
+          </div>
+        </div>
+
+        <div className={styles.sectionContainer}>
+          <div className={styles.switchContainer}>
+            <div>
+              <p className={styles.textTitle}>Mostrar resumen financiero</p>
+              <p className={styles.textSubtitle}>
+                Activa esta opción para habilitar el resumen financiero en la vista del condominio.
+              </p>
+            </div>
+
+            <Switch
+              name="has_financial_data"
+              label=""
+              value={hasFinancialData ? "1" : "0"}
+              onChange={handleSwitchChange}
+              optionValue={["1", "0"]}
+              checked={hasFinancialData}
             />
           </div>
         </div>
