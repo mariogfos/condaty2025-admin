@@ -75,6 +75,43 @@ const renderAmountCell = (props: any) => (
   <FormatBsAlign value={props.item.amount} alignRight />
 );
 
+const renderConceptCell = (props: any) => {
+  const item = props.item ?? {};
+  const details = Array.isArray(item.details) ? (item.details as any[]) : [];
+  const namesFromDetails: string[] = Array.from(
+    new Set(
+      details
+        .map((d: any) => d?.subcategory?.padre?.name as string | undefined)
+        .filter((n): n is string => typeof n === "string" && n.length > 0)
+    )
+  );
+  if (namesFromDetails.length > 0) {
+    return (
+      <div>
+        {namesFromDetails.map((n: string, i: number) => (
+          <div key={`c-${i}`}> {n}</div>
+        ))}
+      </div>
+    );
+  }
+  const concepts: string[] = Array.isArray(item.concept)
+    ? (item.concept as string[])
+    : [];
+  if (concepts.length > 0) {
+    return (
+      <div>
+        {concepts.map((n: string, i: number) => (
+          <div key={`cx-${i}`}> {n}</div>
+        ))}
+      </div>
+    );
+  }
+  if (item.concepto) {
+    return <div>{String(item.concepto)}</div>;
+  }
+  return <div>-/-</div>;
+};
+
 const Payments = () => {
   // IMPORTANTE: Todos los hooks deben llamarse ANTES de cualquier return condicional
   const router = useRouter();
@@ -152,28 +189,28 @@ const Payments = () => {
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: "e" },
+      id: { rules: [], api: 'e' },
       paid_at: {
         rules: [],
-        api: "ae",
-        label: "Fecha de cobro",
+        api: 'ae',
+        label: 'Fecha de cobro',
         form: {
-          type: "date",
+          type: 'date',
         },
         list: {
           onRender: renderPaidAtCell,
         },
         filter: {
-          key: "paid_at",
-          label: "Periodo",
+          key: 'paid_at',
+          label: 'Periodo',
 
           options: getPeriodOptions,
         },
       },
 
       dptos: {
-        api: "ae",
-        label: "Unidad",
+        api: 'ae',
+        label: 'Unidad',
         list: {
           onRender: renderDptosCell,
         },
@@ -215,56 +252,61 @@ const Payments = () => {
       //   },
       // },
       method: {
-        rules: ["required"],
-        api: "ae",
-        label: "Método de pago",
+        rules: ['required'],
+        api: 'ae',
+        label: 'Método de pago',
         form: {
-          type: "select",
+          type: 'select',
           options: [
-            { id: "T", name: "Transferencia" },
-            { id: "E", name: "Efectivo" },
-            { id: "C", name: "Cheque" },
+            { id: 'T', name: 'Transferencia' },
+            { id: 'E', name: 'Efectivo' },
+            { id: 'C', name: 'Cheque' },
           ],
         },
         list: {
           onRender: renderMethodCell,
         },
         filter: {
-          label: "Método de pago",
+          label: 'Método de pago',
 
           options: getPaymentMethodOptions,
+        },
+      },
+      concepto: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Concepto',
+        form: {
+          type: 'text',
+          placeholder: 'Ej: Pago de servicios',
+        },
+        list: {
+          onRender: renderConceptCell,
         },
       },
 
       status: {
         rules: [],
-        api: "ae",
-        label: (
-          <span
-            style={{ display: "block", textAlign: "center", width: "100%" }}
-          >
-            Estado
-          </span>
-        ),
+        api: 'ae',
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
           onRender: renderStatusCell,
         },
         filter: {
-          label: "Estado",
+          label: 'Estado',
           options: getStatusOptions,
         },
       },
+
       amount: {
-        rules: ["required", "number"],
-        api: "ae",
+        rules: ['required', 'number'],
+        api: 'ae',
         label: (
-          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
-            Monto total
-          </span>
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto total</span>
         ),
         form: {
-          type: "number",
-          placeholder: "Ej: 100.00",
+          type: 'number',
+          placeholder: 'Ej: 100.00',
         },
         list: {
           onRender: renderAmountCell,
