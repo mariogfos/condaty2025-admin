@@ -19,12 +19,13 @@ const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
       <div>
         <Avatar
           src={getUrlImages(
-            "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at
+            "/CLIENT-" + user?.client_id + ".webp?d=" + client?.updated_at
           )}
           name={getFullName(user)}
           w={collapsed ? 48 : 210}
           h={collapsed ? 48 : 128}
           style={{ borderRadius: 8 }}
+          hasImage={1}
         />
       </div>
       {/* <div>

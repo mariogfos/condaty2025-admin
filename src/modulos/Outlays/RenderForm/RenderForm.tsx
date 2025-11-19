@@ -235,15 +235,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }),
       "type"
     );
-    addError(
-      checkRules({
-        value: _formState.avatar,
-        rules: ["required"],
-        key: "avatar",
-        errors: errs,
-      }),
-      "avatar"
-    );
+
 
     const filteredErrs = Object.fromEntries(
       Object.entries(errs).filter(
@@ -389,12 +381,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 onChange={handleChangeInput}
                 error={_errors}
                 className={_errors.date_at ? styles.error : ""}
-                max={new Date().toISOString().split("T")[0]}
-                min={
-                  new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
-                    .toISOString()
-                    .split("T")[0]
-                }
               />
             </div>
           </div>
