@@ -775,14 +775,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     if (!formState.paid_at) {
       err.paid_at = "Este campo es requerido";
-    } else {
-      const selectedDate = new Date(formState.paid_at + "T00:00:00");
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (selectedDate > today) {
-        err.paid_at = "No se permiten fechas futuras";
-      }
     }
 
     setErrors(err);
@@ -1134,12 +1126,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 value={formState.paid_at || ""}
                 onChange={handleChangeInput}
                 error={errors}
-                max={new Date().toISOString().split("T")[0]}
-                min={
-                  new Date(new Date().getFullYear(), 0, 1)
-                    .toISOString()
-                    .split("T")[0]
-                }
               />
             </div>
           </div>
@@ -1228,7 +1214,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                           ? periodoTotal.toFixed(2)
                           : formState.amount
                       }
-                      required={true}
+                      required={false}
                       error={errors}
                       disabled={isDebtBasedPayment || formState.isAmountLocked}
                       maxLength={20}
