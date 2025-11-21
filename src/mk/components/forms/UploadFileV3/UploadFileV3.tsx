@@ -299,16 +299,25 @@ export const UploadFileV3: React.FC<IUploadFileProps> = ({
       className={className}
       styleContainer={style}
     >
-      <div className={styles.container}>
+      <div
+        className={`${styles.container} ${
+          files.length < maxFiles ? styles.droppable : ""
+        }`}
+        onDragOver={files.length < maxFiles ? handleDragOver : undefined}
+        onDragLeave={files.length < maxFiles ? handleDragLeave : undefined}
+        onDrop={files.length < maxFiles ? handleDrop : undefined}
+        onClick={
+          files.length < maxFiles
+            ? () => !disabled && fileInputRef.current?.click()
+            : undefined
+        }
+        aria-label="Zona de subida de archivos"
+      >
         {files.length < maxFiles && (
           <div
             className={`${styles.dropzone} ${isDragging ? styles.active : ""} ${
               error ? styles.error : ""
             } ${disabled ? styles.disabled : ""}`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onClick={() => !disabled && fileInputRef.current?.click()}
           >
             <input
               type="file"
@@ -329,7 +338,8 @@ export const UploadFileV3: React.FC<IUploadFileProps> = ({
                     "Arrastra archivos aquí o haz clic para subir"}
                 </p>
                 <small className={styles.placeholderSmallText}>
-                  {accept.join(", ")} (Max {maxSize}MB)
+                  Extensiones: {accept.join(", ")} | Tamaño máximo: {maxSize}MB
+                  | Máximo archivos: {maxFiles}
                 </small>
               </>
             )}
@@ -338,6 +348,16 @@ export const UploadFileV3: React.FC<IUploadFileProps> = ({
 
         {showPreview && files.length > 0 && (
           <div className={styles.previewList}>
+            {files.length < maxFiles && (
+              <div
+                className={styles.previewItem}
+                onClick={() => fileInputRef.current?.click()}
+                style={{ cursor: "pointer" }}
+                aria-label="Agregar archivo"
+              >
+                <IconPlus size={32} color="var(--cTextSecondary)" />
+              </div>
+            )}
             {files.map((url, index) => (
               <div key={index} className={styles.previewItem}>
                 {isImage(url) ? (

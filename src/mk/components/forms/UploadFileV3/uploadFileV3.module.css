@@ -3,15 +3,24 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
+  border: 2px solid var(--cBorder);
+  border-radius: 8px;
+  padding: 8px;
+  transition: border-color 0.3s, border-style 0.3s;
+}
+
+.container.droppable:hover {
+  border-style: dashed;
+  border-color: var(--cPrimary);
 }
 
 .dropzone {
-  border: 2px dotted var(--cTextSecondary);
+  border: none;
   border-radius: 8px;
   padding: 20px;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.3s, background-color 0.3s;
+  transition: background-color 0.3s;
   background-color: var(--cBackground);
   color: var(--cText);
   display: flex;
@@ -22,9 +31,7 @@
   width: 100%;
 }
 
-.dropzone:hover,
 .dropzone.active {
-  border-color: var(--cPrimary);
   background-color: rgba(var(--cPrimaryRGB), 0.05);
 }
 
