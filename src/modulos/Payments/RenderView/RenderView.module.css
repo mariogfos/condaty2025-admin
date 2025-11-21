@@ -3,14 +3,18 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  padding: var(--spXl);
+  padding: var(--spL);
   gap: var(--spL);
   font-family: var(--fPrimary);
   box-sizing: border-box;
   color: var(--cWhite);
-  border-radius: var(--bRadiusS);
-  border: 1px solid var(--cWhiteV1);
+  border-radius: var(--bRadiusM);
+  border: 1px solid var(--cWhiteV5);
   min-width: 600px;
+  margin-bottom: var(--spM);
+  &:last-of-type {
+    margin-bottom: 0;
+  }
 }
 
 .notFoundContainer {
@@ -57,13 +61,13 @@
   width: 100%;
   border: none;
   height: 0;
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-top: 0.5px solid var(--cWhiteV5);
 }
 
 .detailsSection {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   align-items: flex-start;
   gap: var(--spXl, 48px);
   width: 100%;
@@ -148,6 +152,14 @@
   border-left: 3px solid var(--cError);
 }
 
+.rechazedReason {
+  font-style: italic;
+  background-color: rgba(243, 127, 61, 0.15);
+  padding: 8px 12px;
+  border-radius: 4px;
+  border-left: 3px solid var(--cRandom16);
+}
+
 .voucherButtonContainer {
   display: flex;
   justify-content: center;
@@ -159,7 +171,7 @@
 .voucherButton {
   background-color: transparent;
   color: var(--cWhite);
-  border: 1px solid var(--cWhiteV1);
+  border: 1px solid var(--cWhiteV5);
   font-size: var(--sL);
   padding: var(--spM) var(--spXl);
   border-radius: var(--bRadiusS);
@@ -192,7 +204,7 @@
 }
 
 .periodsDetailsTitle {
-  color: var(--cWhiteV1);
+  color: var(--cWhite);
   font-size: var(--sM);
   font-weight: var(--bRegular);
   margin: 0;
@@ -201,7 +213,7 @@
 
 .periodsTableWrapper {
   width: 100%;
-  border: 0.5px solid var(--cWhiteV1);
+  border: 0.5px solid var(--cWhiteV5);
   border-radius: var(--bRadiusM);
   overflow: hidden;
 }
@@ -239,7 +251,7 @@
 
 .periodsTableBody .periodsTableRow:not(:last-child),
 .periodsTableBody .periodsTableRowReservations:not(:last-child) {
-  border-bottom: 0.5px solid var(--cWhiteV2);
+  border-bottom: 0.5px solid var(--cWhiteV5);
 }
 
 .periodsTableCell {
@@ -249,7 +261,7 @@
   padding: 0 1rem;
   text-align: left;
   box-sizing: border-box;
-  border-bottom: 0.5px solid var(--cWhiteV2);
+  border-bottom: 0.5px solid var(--cWhiteV5);
 }
 
 .periodsTableBody .periodsTableCell {
@@ -262,14 +274,14 @@
   color: var(--cWhite);
   font-family: Roboto, sans-serif;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   background-color: var(--cBlackV2);
-  height: 55px;
+  height: 48px;
 }
 
 .periodsTableBody .periodsTableRow,
 .periodsTableBody .periodsTableRowReservations {
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-top: 0.5px solid var(--cWhiteV5);
 }
 
 .periodsTableBody .periodsTableRow:nth-child(odd) .periodsTableCell,
@@ -350,7 +362,7 @@
   width: 100%;
   margin-top: var(--spXl);
   padding-top: var(--spL);
-  border-top: 1px solid var(--cBlackV2);
+  border-top: 1px solid var(--cBlackV5);
 }
 
 .actionButton {
@@ -459,7 +471,7 @@
     grid-template-columns: 1fr;
     gap: 0;
     padding: var(--spM);
-    border-bottom: 1px solid var(--cBlackV3);
+    border-bottom: 1px solid var(--cBlackV5);
     background-color: var(--cBlackV1);
   }
 
@@ -473,7 +485,7 @@
     text-align: left !important;
     padding: var(--spS) 0;
     border-right: none;
-    border-bottom: 1px dashed var(--cBlackV3);
+    border-bottom: 1px dashed var(--cBlackV5);
     font-size: var(--sS);
     background-color: transparent;
     min-height: auto;
@@ -519,34 +531,6 @@
   padding-bottom: var(--spL);
 }
 
-.textButtonDanger {
-  background-color: transparent;
-  border: none;
-  color: var(--cError);
-  cursor: pointer;
-  font-family: var(--fPrimary);
-  font-size: var(--sM);
-  font-weight: var(--bMedium);
-  text-align: center;
-  border-radius: var(--bRadiusXs, 4px);
-  transition: color 0.2s ease, background-color 0.2s ease;
-  text-decoration: underline;
-}
-
-.textButtonDanger:hover,
-.textButtonDanger:focus {
-  text-decoration: underline;
-  background-color: rgba(255, 0, 0, 0.05);
-  outline: none;
-}
-
-.textButtonDanger:disabled {
-  color: var(--cWhiteV3, #999999);
-  cursor: not-allowed;
-  text-decoration: none;
-  background-color: transparent;
-}
-
 /* Botón de texto verde para acciones de voucher (Añadir/Editar) */
 .textButtonAccent {
   background-color: transparent;
@@ -555,12 +539,10 @@
   cursor: pointer;
   font-family: var(--fPrimary);
   font-size: var(--sL);
-  font-weight: var(--bBold);
   text-align: left;
   border-radius: var(--bRadiusXs, 4px);
   transition: color 0.2s ease, background-color 0.2s ease;
   text-decoration: underline;
-  margin-left: 12px;
 }
 
 .textButtonAccent:hover,
