@@ -6,7 +6,7 @@
 }
 
 .dropzone {
-  border: 2px dashed var(--cTextSecondary);
+  border: 2px dotted var(--cTextSecondary);
   border-radius: 8px;
   padding: 20px;
   text-align: center;
@@ -19,6 +19,7 @@
   align-items: center;
   justify-content: center;
   min-height: 120px;
+  width: 100%;
 }
 
 .dropzone:hover,
@@ -151,4 +152,24 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.placeholderText {
+  margin: 8px 0 4px 0;
+  font-size: 14px;
+  color: var(--cTextSecondary);
+  text-align: center;
+}
+
+.placeholderSmallText {
+  font-size: 12px;
+  color: var(--cTextSecondary);
+  text-align: center;
+  margin: 0;
+}
+
+.zoomedImage {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
 }

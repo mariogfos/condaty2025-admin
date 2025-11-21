@@ -12,9 +12,11 @@ import {
   IconImage,
   IconTrash,
   IconAttachFile,
-  IconEdit, // Import IconEdit
+  IconEdit,
+  IconPlus,
 } from "@/components/layout/icons/IconsBiblioteca";
 import ControlLabel from "../ControlLabel";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
 
 const getAdapter = (): IUploadAdapter => {
   const strategy = process.env.NEXT_PUBLIC_UPLOAD_STRATEGY || "cloudinary";
@@ -45,9 +47,10 @@ export const UploadFileV3: React.FC<IUploadFileProps> = ({
   const [files, setFiles] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [zoomImage, setZoomImage] = useState<string | null>(null);
   const { showToast } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const fileInputRefForEdit = useRef<HTMLInputElement>(null); // New ref for edit functionality
+  const fileInputRefForEdit = useRef<HTMLInputElement>(null);
   const adapter = useRef<IUploadAdapter>(getAdapter());
 
   useEffect(() => {
@@ -278,6 +281,14 @@ export const UploadFileV3: React.FC<IUploadFileProps> = ({
     return url.split("/").pop()?.split("?")[0] || "Archivo";
   };
 
+  const handleImageClick = (url: string) => {
+    setZoomImage(url);
+  };
+
+  const handleCloseZoom = () => {
+    setZoomImage(null);
+  };
+
   return (
     <ControlLabel
       label={label}
@@ -289,38 +300,41 @@ export const UploadFileV3: React.FC<IUploadFileProps> = ({
       styleContainer={style}
     >
       <div className={styles.container}>
-        <div
-          className={`${styles.dropzone} ${isDragging ? styles.active : ""} ${
-            error ? styles.error : ""
-          } ${disabled ? styles.disabled : ""}`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={() => !disabled && fileInputRef.current?.click()}
-        >
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-            multiple={maxFiles > 1}
-            accept={accept.map((e) => "." + e).join(",")}
-            disabled={disabled}
-          />
-          {isLoading ? (
-            <div className={styles.spinner}></div>
-          ) : (
-            <>
-              <IconAttachFile size={40} color="var(--cTextSecondary)" />
-              <p>
-                {placeholder || "Arrastra archivos aquí o haz clic para subir"}
-              </p>
-              <small style={{ color: "var(--cTextTertiary)" }}>
-                {accept.join(", ")} (Max {maxSize}MB)
-              </small>
-            </>
-          )}
-        </div>
+        {files.length < maxFiles && (
+          <div
+            className={`${styles.dropzone} ${isDragging ? styles.active : ""} ${
+              error ? styles.error : ""
+            } ${disabled ? styles.disabled : ""}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => !disabled && fileInputRef.current?.click()}
+          >
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+              multiple={maxFiles > 1}
+              accept={accept.map((e) => "." + e).join(",")}
+              disabled={disabled}
+            />
+            {isLoading ? (
+              <div className={styles.spinner}></div>
+            ) : (
+              <>
+                <IconPlus size={40} color="var(--cTextSecondary)" />
+                <p className={styles.placeholderText}>
+                  {placeholder ||
+                    "Arrastra archivos aquí o haz clic para subir"}
+                </p>
+                <small className={styles.placeholderSmallText}>
+                  {accept.join(", ")} (Max {maxSize}MB)
+                </small>
+              </>
+            )}
+          </div>
+        )}
 
         {showPreview && files.length > 0 && (
           <div className={styles.previewList}>
@@ -331,6 +345,7 @@ export const UploadFileV3: React.FC<IUploadFileProps> = ({
                     src={url}
                     alt={`Preview ${index}`}
                     className={styles.previewImage}
+                    onClick={() => handleImageClick(url)} // Add onClick for zoom
                   />
                 ) : (
                   <div className={styles.previewIcon}>
@@ -378,6 +393,16 @@ export const UploadFileV3: React.FC<IUploadFileProps> = ({
         )}
         {error && <div className={styles.errorMessage}>{error}</div>}
       </div>
+
+      {zoomImage && (
+        <DataModal open={!!zoomImage} onClose={handleCloseZoom} fullScreen>
+          <img
+            src={zoomImage}
+            alt="Zoomed Image"
+            className={styles.zoomedImage}
+          />
+        </DataModal>
+      )}
     </ControlLabel>
   );
 };
