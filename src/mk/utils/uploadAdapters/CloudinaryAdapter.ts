@@ -24,8 +24,8 @@ export class CloudinaryAdapter implements IUploadAdapter {
       formData
     );
 
-    if (response.data && response.data.publicIdWithExtension) {
-      return response.data.publicIdWithExtension;
+    if (response.data && response.data.secure_url) {
+      return response.data.secure_url;
     } else {
       throw new Error("Cloudinary upload failed");
     }
