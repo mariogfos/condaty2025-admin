@@ -24,10 +24,44 @@ export class CloudinaryAdapter implements IUploadAdapter {
       formData
     );
 
-    if (response.data && response.data.secure_url) {
-      return response.data.secure_url;
+    if (response.data && response.data.publicIdWithExtension) {
+      return response.data.publicIdWithExtension;
     } else {
       throw new Error("Cloudinary upload failed");
+    }
+  }
+
+  async delete(url: string): Promise<boolean> {
+    try {
+      // Extract public_id from the Cloudinary URL
+      const parts = url.split("/");
+      const uploadIndex = parts.indexOf("upload");
+      if (uploadIndex === -1 || uploadIndex + 2 >= parts.length) {
+        console.error("Invalid Cloudinary URL for deletion:", url);
+        return false;
+      }
+      const publicIdWithExtension = parts.slice(uploadIndex + 2).join("/");
+      const public_id = publicIdWithExtension.split(".")[0]; // Remove extension
+
+      if (!public_id) {
+        console.error("Could not extract public ID from the URL:", url);
+        return false;
+      }
+
+      const response = await axios.delete("/api/cloudinary-upload", {
+        data: { public_id }, // Send public_id in the request body for DELETE
+      });
+
+      if (response.status === 200) {
+        console.log(`Successfully deleted ${url} from Cloudinary.`);
+        return true;
+      } else {
+        console.error("Cloudinary deletion failed:", response.data);
+        return false;
+      }
+    } catch (error) {
+      console.error("Error deleting file from Cloudinary:", error);
+      return false;
     }
   }
 }

@@ -60,4 +60,51 @@ export class LocalApiAdapter implements IUploadAdapter {
       throw new Error(response.data?.message || "Upload failed");
     }
   }
+
+  async delete(url: string): Promise<boolean> {
+    console.log("Attempting to delete file from Local API:", url);
+    let apiToken = null;
+    try {
+      const tokenKey = (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token";
+      const stored = localStorage.getItem(tokenKey);
+      if (stored) {
+        apiToken = JSON.parse(stored).token;
+      }
+    } catch (e) {
+      console.error("Error retrieving token for delete", e);
+    }
+
+    const headers: any = {};
+    if (apiToken) {
+      headers["Authorization"] = "Bearer " + apiToken;
+    }
+
+    try {
+      // Assuming a DELETE endpoint exists, or a POST with a delete action
+      // For now, let's assume a DELETE request to a generic delete endpoint
+      // and pass the URL in the body or as a query parameter.
+      // A more robust solution would involve knowing the exact backend API.
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/upload-file`,
+        {
+          headers,
+          data: { url }, // Send the URL in the request body for DELETE
+        }
+      );
+
+      if (response.data && response.data.success) {
+        console.log("File deleted successfully from Local API:", url);
+        return true;
+      } else {
+        console.error(
+          "Local API delete failed:",
+          response.data?.message || "Unknown error"
+        );
+        return false;
+      }
+    } catch (err: any) {
+      console.error("Error deleting file from Local API:", err);
+      return false;
+    }
+  }
 }

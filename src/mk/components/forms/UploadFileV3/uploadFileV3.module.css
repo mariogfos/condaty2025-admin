@@ -103,6 +103,28 @@
   margin-top: 4px;
 }
 
+.editButton {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.editButton:hover {
+  background-color: var(--cPrimary);
+}
+
 .loadingOverlay {
   position: absolute;
   top: 0;

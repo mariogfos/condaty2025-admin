@@ -1,36 +1,37 @@
-import styles from './Alerts.module.css';
-import useCrudUtils from '../shared/useCrudUtils';
-import { useMemo, useState } from 'react';
-import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
-import NotAccess from '@/components/layout/NotAccess/NotAccess';
-import useCrud from '@/mk/hooks/useCrud/useCrud';
-import { getFullName, getUrlImages } from '@/mk/utils/string';
-import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
+import styles from "./Alerts.module.css";
+import useCrudUtils from "../shared/useCrudUtils";
+import { useMemo, useState } from "react";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import NotAccess from "@/components/layout/NotAccess/NotAccess";
+import useCrud from "@/mk/hooks/useCrud/useCrud";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
   IconAdmin,
   IconAlert2,
   IconAlert3,
   IconGroup,
   IconGuard,
-} from '@/components/layout/icons/IconsBiblioteca';
-import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
-import { getDateTimeStrMesShort } from '@/mk/utils/date';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import RenderView from './RenderView/RenderView';
+} from "@/components/layout/icons/IconsBiblioteca";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import { getDateTimeStrMesShort } from "@/mk/utils/date";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import RenderView from "./RenderView/RenderView";
 import {
   getAlertLevelText,
   ALERT_LEVELS,
   getAlertLevelInfo,
   ALERT_LEVEL_OPTIONS,
   ALERT_LEVEL_LABELS,
-} from './alertConstants';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
+} from "./alertConstants";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import { UploadFileV3 } from "@/mk/components/forms/UploadFileV3";
 
 const paramsInitial = {
   perPage: 20,
   page: 1,
-  fullType: 'L',
-  searchBy: '',
+  fullType: "L",
+  searchBy: "",
 };
 
 export { getAlertLevelText };
@@ -40,11 +41,11 @@ const DescriptionCell = ({ description }: { description: string }) => {
     <div
       title={description}
       style={{
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        maxWidth: '100%',
-        width: '100%',
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        maxWidth: "100%",
+        width: "100%",
       }}
     >
       {description}
@@ -60,10 +61,10 @@ const Alerts = () => {
   }>({});
 
   const mod = {
-    modulo: 'alerts',
-    singular: 'alerta',
-    plural: '',
-    permiso: 'alerts',
+    modulo: "alerts",
+    singular: "alerta",
+    plural: "",
+    permiso: "alerts",
     extraData: true,
     hideActions: { edit: true, del: true, add: true },
     export: true,
@@ -77,32 +78,30 @@ const Alerts = () => {
   };
   const { setStore } = useAuth();
 
-
-
   const getPeriodOptions = () => [
-    { id: 'ALL', name: 'Todos' },
-    { id: 'd', name: 'Hoy' },
-    { id: 'ld', name: 'Ayer' },
-    { id: 'w', name: 'Esta semana' },
-    { id: 'lw', name: 'Semana anterior' },
-    { id: 'm', name: 'Este mes' },
-    { id: 'lm', name: 'Mes anterior' },
-    { id: 'y', name: 'Este año' },
-    { id: 'ly', name: 'Año anterior' },
-    { id: 'custom', name: 'Personalizado' },
+    { id: "ALL", name: "Todos" },
+    { id: "d", name: "Hoy" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana anterior" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
+    { id: "custom", name: "Personalizado" },
   ];
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === 'created_at' && value === 'custom') {
+    if (opt === "created_at" && value === "custom") {
       setCustomDateErrors({});
       setOpenCustomFilter(true);
       delete currentFilters[opt];
       return { filterBy: currentFilters };
     }
 
-    if (value === '' || value === null || value === undefined) {
+    if (value === "" || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
@@ -110,33 +109,34 @@ const Alerts = () => {
     return { filterBy: currentFilters };
   };
   const renderDescriptionCell = (props: any) => {
-    const description = props?.item?.descrip || '';
+    const description = props?.item?.descrip || "";
     return <DescriptionCell description={description} />;
   };
 
-
   const renderGuardInfo = ({ item }: { item: any }) => {
     let entityToDisplay = null;
-    let avatarTypePrefix = '';
+    let avatarTypePrefix = "";
     const isPanic = item?.level === ALERT_LEVELS.PANIC;
 
     if (isPanic) {
       if (item.owner) {
         entityToDisplay = item.owner;
-        avatarTypePrefix = 'OWNER-';
+        avatarTypePrefix = "OWNER-";
       } else if (item.guardia) {
         entityToDisplay = item.guardia;
-        avatarTypePrefix = 'GUARD-';
+        avatarTypePrefix = "GUARD-";
       }
     } else if (item.guardia) {
       entityToDisplay = item.guardia;
-      avatarTypePrefix = 'GUARD-';
+      avatarTypePrefix = "GUARD-";
     } else if (item.owner) {
       entityToDisplay = item.owner;
-      avatarTypePrefix = 'OWNER-';
+      avatarTypePrefix = "OWNER-";
     }
 
-    const fullName = entityToDisplay ? getFullName(entityToDisplay) : 'Información no disponible';
+    const fullName = entityToDisplay
+      ? getFullName(entityToDisplay)
+      : "Información no disponible";
     const ci = entityToDisplay?.ci;
     const entityId = entityToDisplay?.id;
     const updatedAt = entityToDisplay?.updated_at;
@@ -147,20 +147,34 @@ const Alerts = () => {
         : null;
 
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {avatarSrc ? (
           <Avatar hasImage={1} src={avatarSrc} name={fullName} />
         ) : (
           <Avatar
             name={
-              fullName && fullName !== 'Información no disponible' ? fullName.substring(0, 1) : '?'
+              fullName && fullName !== "Información no disponible"
+                ? fullName.substring(0, 1)
+                : "?"
             }
           />
         )}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <p style={{ margin: 0, fontWeight: 500, color: 'var(--cWhite, #fafafa)' }}>{fullName}</p>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <p
+            style={{
+              margin: 0,
+              fontWeight: 500,
+              color: "var(--cWhite, #fafafa)",
+            }}
+          >
+            {fullName}
+          </p>
           {ci && (
-            <span style={{ fontSize: '11px', color: 'var(--cWhiteV1, #a7a7a7)' }}>CI: {ci}</span>
+            <span
+              style={{ fontSize: "11px", color: "var(--cWhiteV1, #a7a7a7)" }}
+            >
+              CI: {ci}
+            </span>
           )}
         </div>
       </div>
@@ -184,37 +198,39 @@ const Alerts = () => {
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       created_at: {
-        rules: [''],
-        api: '',
-        label: 'Fecha de creación',
+        rules: [""],
+        api: "",
+        label: "Fecha de creación",
         list: {
           width: 300,
           onRender: formatCreatedAt,
         },
         filter: {
-          key: 'created_at',
-          label: 'Periodo',
+          key: "created_at",
+          label: "Periodo",
           options: getPeriodOptions,
         },
       },
       guard_id: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Informador',
+        rules: ["required"],
+        api: "ae",
+        label: "Informador",
         list: {
           width: 330,
           onRender: renderGuardInfo,
         },
-        form: { type: 'text' },
+        form: { type: "text" },
       },
 
       level: {
-        rules: ['required'],
-        api: 'ae',
+        rules: ["required"],
+        api: "ae",
         label: (
-          <span style={{ display: 'block', width: '100%', textAlign: 'center' }}>
+          <span
+            style={{ display: "block", width: "100%", textAlign: "center" }}
+          >
             Grupo de alerta
           </span>
         ),
@@ -222,29 +238,39 @@ const Alerts = () => {
           width: 250,
           onRender: renderAlertLevel,
         },
-        form: { type: 'select', options: ALERT_LEVEL_OPTIONS },
+        form: { type: "select", options: ALERT_LEVEL_OPTIONS },
         filter: {
-          label: 'Nivel de alerta',
-          width: '100%',
+          label: "Nivel de alerta",
+          width: "100%",
           options: () => [...ALERT_LEVEL_OPTIONS],
-          optionLabel: 'name',
-          optionValue: 'id',
+          optionLabel: "name",
+          optionValue: "id",
         },
       },
       descrip: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Descripción',
+        rules: ["required"],
+        api: "ae",
+        label: "Descripción",
         list: {
           onRender: renderDescriptionCell,
         },
-        form: { type: 'text' },
+        form: { type: "text" },
       },
     }),
     []
   );
 
-  const { userCan, List, onSearch, searchs, onEdit, onDel, reLoad, data, onFilter } = useCrud({
+  const {
+    userCan,
+    List,
+    onSearch,
+    searchs,
+    onEdit,
+    onDel,
+    reLoad,
+    data,
+    onFilter,
+  } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -259,10 +285,18 @@ const Alerts = () => {
     onDel,
   });
 
-  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
       <h1 className={styles.dashboardTitle}>Alertas</h1>
+      <UploadFileV3
+        name="file"
+        label="Subir archivo"
+        accept={["jpg", "jpeg", "png", "webp", "gif", "bmp", "svg"]}
+        maxSize={10}
+        maxFiles={4}
+        onChange={(files) => console.log(files)}
+      />
       <div className={styles.dashboardContainer}>
         <div className={styles.allStatsRow}>
           <WidgetDashCard
@@ -271,22 +305,24 @@ const Alerts = () => {
             icon={
               <IconAlert2
                 color={
-                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cWhite)'
+                  !data?.extraData?.total_alerts ||
+                  data?.extraData?.total_alerts === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cWhite)"
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverCompl1)',
+                    !data?.extraData?.total_alerts ||
+                    data?.extraData?.total_alerts === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl1)",
                 }}
                 circle
                 size={18}
               />
             }
             className={styles.widgetResumeCard}
-            style={{ maxWidth: '16%', width: '100%' }}
+            style={{ maxWidth: "16%", width: "100%" }}
           />
           <WidgetDashCard
             title={`Para ${ALERT_LEVEL_LABELS[ALERT_LEVELS.LOW]}`}
@@ -294,22 +330,24 @@ const Alerts = () => {
             icon={
               <IconGuard
                 color={
-                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cInfo)'
+                  !data?.extraData?.total_alerts ||
+                  data?.extraData?.total_alerts === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cInfo)"
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverCompl3)',
+                    !data?.extraData?.total_alerts ||
+                    data?.extraData?.total_alerts === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl3)",
                 }}
                 circle
                 size={18}
               />
             }
             className={styles.widgetResumeCard}
-            style={{ maxWidth: '16%', width: '100%' }}
+            style={{ maxWidth: "16%", width: "100%" }}
           />
           <WidgetDashCard
             title={`Para ${ALERT_LEVEL_LABELS[ALERT_LEVELS.MEDIUM]}`}
@@ -317,22 +355,24 @@ const Alerts = () => {
             icon={
               <IconAdmin
                 color={
-                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cWarning)'
+                  !data?.extraData?.total_alerts ||
+                  data?.extraData?.total_alerts === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cWarning)"
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverCompl4)',
+                    !data?.extraData?.total_alerts ||
+                    data?.extraData?.total_alerts === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl4)",
                 }}
                 circle
                 size={18}
               />
             }
             className={styles.widgetResumeCard}
-            style={{ maxWidth: '16%', width: '100%' }}
+            style={{ maxWidth: "16%", width: "100%" }}
           />
           <WidgetDashCard
             title={`Para ${ALERT_LEVEL_LABELS[ALERT_LEVELS.HIGH]}`}
@@ -340,22 +380,24 @@ const Alerts = () => {
             icon={
               <IconGroup
                 color={
-                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cError)'
+                  !data?.extraData?.total_alerts ||
+                  data?.extraData?.total_alerts === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cError)"
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverError)',
+                    !data?.extraData?.total_alerts ||
+                    data?.extraData?.total_alerts === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverError)",
                 }}
                 circle
                 size={18}
               />
             }
             className={styles.widgetResumeCard}
-            style={{ maxWidth: '16%', width: '100%' }}
+            style={{ maxWidth: "16%", width: "100%" }}
           />
           <WidgetDashCard
             title="Emergencias"
@@ -363,28 +405,30 @@ const Alerts = () => {
             icon={
               <IconAlert2
                 color={
-                  !data?.extraData?.emergency_buttons || data?.extraData?.emergency_buttons === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cError)'
+                  !data?.extraData?.emergency_buttons ||
+                  data?.extraData?.emergency_buttons === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cError)"
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.emergency_buttons || data?.extraData?.emergency_buttons === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverError)',
+                    !data?.extraData?.emergency_buttons ||
+                    data?.extraData?.emergency_buttons === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverError)",
                 }}
                 circle
                 size={18}
               />
             }
             className={styles.widgetResumeCard}
-            style={{ maxWidth: '16%', width: '100%' }}
+            style={{ maxWidth: "16%", width: "100%" }}
           />
         </div>
       </div>
 
       <List
-        height={'calc(100vh - 460px)'}
+        height={"calc(100vh - 460px)"}
         emptyMsg="No existe ningún tipo de alerta. Cuando un guardia o residente"
         emptyLine2="registre una, se mostrará aquí."
         emptyIcon={<IconAlert3 size={80} color="var(--cWhiteV1)" />}
@@ -399,20 +443,26 @@ const Alerts = () => {
         }}
         onSave={({ startDate, endDate }) => {
           let err: { startDate?: string; endDate?: string } = {};
-          if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
-          if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
+          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
           if (startDate && endDate && startDate > endDate)
-            err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
-          if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
-            err.startDate = 'El periodo personalizado debe estar dentro del mismo año';
-            err.endDate = 'El periodo personalizado debe estar dentro del mismo año';
+            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
           }
           if (Object.keys(err).length > 0) {
             setCustomDateErrors(err);
             return;
           }
           const customDateFilterString = `${startDate},${endDate}`;
-          onFilter('created_at', customDateFilterString);
+          onFilter("created_at", customDateFilterString);
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}

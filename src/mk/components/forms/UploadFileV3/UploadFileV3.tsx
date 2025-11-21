@@ -12,11 +12,12 @@ import {
   IconImage,
   IconTrash,
   IconAttachFile,
+  IconEdit, // Import IconEdit
 } from "@/components/layout/icons/IconsBiblioteca";
 import ControlLabel from "../ControlLabel";
 
 const getAdapter = (): IUploadAdapter => {
-  const strategy = process.env.NEXT_PUBLIC_UPLOAD_STRATEGY || "local";
+  const strategy = process.env.NEXT_PUBLIC_UPLOAD_STRATEGY || "cloudinary";
   if (strategy === "cloudinary") {
     return new CloudinaryAdapter();
   }
@@ -46,6 +47,7 @@ export const UploadFileV3: React.FC<IUploadFileProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const { showToast } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRefForEdit = useRef<HTMLInputElement>(null); // New ref for edit functionality
   const adapter = useRef<IUploadAdapter>(getAdapter());
 
   useEffect(() => {
@@ -80,14 +82,24 @@ export const UploadFileV3: React.FC<IUploadFileProps> = ({
     await processFiles(droppedFiles);
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    indexToReplace?: number
+  ) => {
     if (e.target.files && !disabled) {
       const selectedFiles = Array.from(e.target.files);
-      await processFiles(selectedFiles);
+      if (indexToReplace !== undefined) {
+        await replaceFile(selectedFiles[0], indexToReplace);
+      } else {
+        await processFiles(selectedFiles);
+      }
     }
     // Reset input so same file can be selected again if needed
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+    if (fileInputRefForEdit.current) {
+      fileInputRefForEdit.current.value = "";
     }
   };
 
@@ -139,8 +151,93 @@ export const UploadFileV3: React.FC<IUploadFileProps> = ({
     setIsLoading(false);
   };
 
-  const removeFile = (index: number) => {
+  const replaceFile = async (newFile: File, indexToReplace: number) => {
     if (disabled) return;
+
+    // Validate new file
+    const ext = newFile.name.split(".").pop()?.toLowerCase() || "";
+    if (!accept.includes(ext)) {
+      showToast(
+        `Archivo ${newFile.name} no permitido. Extensiones: ${accept.join(
+          ", "
+        )}`,
+        "error"
+      );
+      return;
+    }
+    if (newFile.size > maxSize * 1024 * 1024) {
+      showToast(
+        `Archivo ${newFile.name} excede el tamaño máximo de ${maxSize}MB`,
+        "error"
+      );
+      return;
+    }
+
+    setIsLoading(true);
+    const oldFileUrl = files[indexToReplace];
+    let newFileUrl = "";
+
+    try {
+      // 1. Upload the new file
+      newFileUrl = await adapter.current.upload(newFile, { prefix, global });
+
+      // 2. If successful, call adapter.delete(oldUrl) for the old file
+      if (oldFileUrl) {
+        const deleteSuccess = await adapter.current.delete(oldFileUrl);
+        if (!deleteSuccess) {
+          showToast(
+            "Error al eliminar el archivo antiguo del servidor",
+            "error"
+          );
+          // Decide whether to proceed or revert if old file deletion fails
+          // For now, we'll log and proceed with the new file.
+          console.warn("Failed to delete old file, but new file uploaded.");
+        } else {
+          showToast("Archivo antiguo eliminado correctamente", "success");
+        }
+      }
+
+      // 3. Update the state to replace the old URL with the new URL at the correct index
+      const newFileList = [...files];
+      newFileList[indexToReplace] = newFileUrl;
+      setFiles(newFileList);
+
+      // 4. Trigger onChange
+      updateParent(newFileList);
+      showToast("Archivo reemplazado correctamente", "success");
+    } catch (err: any) {
+      console.error("Replace file error:", err);
+      showToast(`Error reemplazando ${newFile.name}: ${err.message}`, "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const removeFile = async (index: number) => {
+    if (disabled) return;
+    const fileToRemove = files[index];
+
+    if (fileToRemove) {
+      // If the file has a URL, it means it was already uploaded, so attempt to delete it from the server
+      try {
+        setIsLoading(true);
+        const success = await adapter.current.delete(fileToRemove);
+        if (!success) {
+          showToast("Error al eliminar el archivo del servidor", "error");
+          setIsLoading(false);
+          return;
+        }
+        showToast("Archivo eliminado correctamente", "success");
+      } catch (err: any) {
+        console.error("Error deleting file:", err);
+        showToast(`Error eliminando ${fileToRemove}: ${err.message}`, "error");
+        setIsLoading(false);
+        return;
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
     const newFileList = [...files];
     newFileList.splice(index, 1);
     setFiles(newFileList);
@@ -244,16 +341,36 @@ export const UploadFileV3: React.FC<IUploadFileProps> = ({
                   </div>
                 )}
                 {!disabled && (
-                  <button
-                    type="button"
-                    className={styles.removeButton}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeFile(index);
-                    }}
-                  >
-                    <IconTrash size={12} />
-                  </button>
+                  <>
+                    <input
+                      type="file"
+                      ref={fileInputRefForEdit}
+                      style={{ display: "none" }}
+                      onChange={(e) => handleFileChange(e, index)}
+                      accept={accept.map((e) => "." + e).join(",")}
+                      disabled={disabled}
+                    />
+                    <button
+                      type="button"
+                      className={styles.editButton} // New edit button style
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fileInputRefForEdit.current?.click();
+                      }}
+                    >
+                      <IconEdit size={12} />
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.removeButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFile(index);
+                      }}
+                    >
+                      <IconTrash size={12} />
+                    </button>
+                  </>
                 )}
               </div>
             ))}
