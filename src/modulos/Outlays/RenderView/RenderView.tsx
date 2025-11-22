@@ -3,7 +3,7 @@ import React, { memo } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
-import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
+import { formatToDayFdMYH } from "@/mk/utils/date";
 import styles from "./RenderView.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -193,28 +193,19 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
       buttonCancel=""
       minWidth={860}
       maxWidth={980}
+      headerDivider={false}
     >
-      {item && onDel && item.status !== "X" && (
-        <div className={styles.headerActionContainer}>
-          <button
-            type="button"
-            onClick={handleAnularClick}
-            className={styles.textButtonDanger}
-          >
-            Anular egreso
-          </button>
-        </div>
-      )}
+      
       <div className={styles.container}>
         <div className={styles.headerSection}>
           <div className={styles.amountDisplay}>{formatBs(item.amount)}</div>
           <div className={styles.dateDisplay}>
-            {formatToDayDDMMYYYYHHMM(item.date_at)}
+            {formatToDayFdMYH(item.date_at)}
           </div>
         </div>
 
-        <hr className={styles.sectionDivider} />
-
+      </div>
+      <div className={styles.container}>
         {/* Contenedor de la sección de detalles, usará flex para centrar las columnas */}
         <section className={styles.detailsSection}>
           {/* Columna Izquierda */}
@@ -240,17 +231,6 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
                   : "-/-"}
               </span>
             </div>
-            {item?.bank_account_id && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Cuenta bancaria</span>
-                <span className={styles.infoValue}>
-                  {item.bank_account?.alias_holder +
-                    " - (" +
-                    item.bank_account?.bank_entity?.name +
-                    ")" || "-/-"}
-                </span>
-              </div>
-            )}
             {item.status === "X" && item.canceled_by && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Anulado por</span>
@@ -265,37 +245,10 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
                 </span>
               </div>
             )}
-
-            {item.status === "X" && item.canceled_obs && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Motivo de anulación</span>
-                <span
-                  className={`${styles.infoValue} ${styles.canceledReason}`}
-                >
-                  {item.canceled_obs}
-                </span>
-              </div>
-            )}
+            
           </div>
-
-          {/* Columna Derecha */}
+          {/* Columna Central */}
           <div className={styles.detailsColumn}>
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Estado</span>
-              <span
-                className={`${styles.infoValue} ${getStatusStyle(item.status)}`}
-              >
-                {getStatusText(item.status)}
-              </span>
-            </div>
-            {item.type && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Método de Pago</span>
-                <span className={styles.infoValue}>
-                  {getPaymentMethodText(item.type)}
-                </span>
-              </div>
-            )}
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Concepto</span>
               <span className={styles.infoValue}>
@@ -306,6 +259,48 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
                 )}
               </span>
             </div>
+            {item.type && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Método de Pago</span>
+                <span className={styles.infoValue}>
+                  {getPaymentMethodText(item.type)}
+                </span>
+              </div>
+            )}
+            {item?.bank_account_id && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Cuenta bancaria</span>
+                <span className={styles.infoValue}>
+                  {item.bank_account?.alias_holder +
+                    " - (" +
+                    item.bank_account?.bank_entity?.name +
+                    ")" || "-/-"}
+                </span>
+              </div>
+            )}
+          </div>
+          {/* Columna Derecha */}
+          <div className={styles.detailsColumn}>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Estado</span>
+              <span
+                className={`${styles.infoValue} ${getStatusStyle(item.status)}`}
+              >
+                {getStatusText(item.status)}
+              </span>
+            </div>
+            
+            {item.status === "X" && item.canceled_obs && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Motivo de anulación</span>
+                <span
+                  className={`${styles.infoValue} ${styles.canceledReason}`}
+                >
+                  {item.canceled_obs}
+                </span>
+              </div>
+            )}
+            
             {item?.bank_account_id && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Número de cuenta</span>
@@ -319,34 +314,45 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
           </div>
         </section>
 
-        <hr className={styles.sectionDivider} />
+      </div>
 
-        <div className={styles.voucherButtonContainer}>
+      <div className={styles.voucherButtonContainer}>
+
+        {item && onDel && item.status !== "X" && (
+          <Button
+            variant="danger"
+            onClick={handleAnularClick}
+            className={styles.textButtonDanger}
+            style={{ marginRight: 8 }}
+          >
+            Anular egreso
+          </Button>
+        )}
+
+        <Button
+          variant="secondary"
+          className={styles.voucherButton}
+          style={{ marginRight: item.ext ? 8 : 0 }}
+          onClick={handleGenerateReceipt}
+          >
+          Descargar nota de egreso
+        </Button>
+
+        {item.ext && (
           <Button
             variant="secondary"
             className={styles.voucherButton}
-            style={{ marginRight: item.ext ? 8 : 0 }}
-            onClick={handleGenerateReceipt}
-          >
-            Descargar nota de egreso
-          </Button>
-
-          {item.ext && (
-            <Button
-              variant="secondary"
-              className={styles.voucherButton}
-              onClick={() =>
-                openFileInNewTab(
-                  `/EXPENSE-${item.id}.${item.ext}?d=${
-                    item.updated_at || Date.now()
-                  }`
-                )
-              }
+            onClick={() =>
+              openFileInNewTab(
+                `/EXPENSE-${item.id}.${item.ext}?d=${
+                  item.updated_at || Date.now()
+                }`
+              )
+            }
             >
-              Ver comprobante
-            </Button>
-          )}
-        </div>
+            Ver comprobante
+          </Button>
+        )}
       </div>
     </DataModal>
   );
