@@ -155,7 +155,7 @@ const Pagination = ({
             Pág. siguiente <IconArrowNext size={18} color="var(--cWhiteV1)" />
           </button>
           <span className={styles.totalPages}>
-            {total !== -1 ? `` : 'Pagina'} {currentPage} {total !== -1 ? `/${safeTotal}` : ''}
+            {total !== -1 ? `` : 'Pagina'} {currentPage}{total !== -1 ?`/${safeTotal}` : ''}
           </span>
         </div>
       </>
