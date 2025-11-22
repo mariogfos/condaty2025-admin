@@ -23,6 +23,7 @@ type PropsType = {
   style?: CSSProperties;
   colorTitle?: string;
   variant?: string | null;
+  headerDivider?: boolean;
   zIndex?: number;
   minWidth?: string | number | null;
   maxWidth?: string | number | null;
@@ -48,6 +49,7 @@ const DataModal = ({
   colorTitle = "var(--cWhite)",
   variant = null,
   zIndex = 200,
+  headerDivider = true,
   minWidth = null,
   maxWidth = null,
 }: PropsType) => {
@@ -115,7 +117,7 @@ const DataModal = ({
           colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
           colorTitle={!fullScreen ? colorTitle : "var(--cAccent)"}
         />
-        {!fullScreen && <div className={styles.headerDivider} />}
+        {!fullScreen && headerDivider && <div className={styles.headerDivider} />}
         <section className={className}>{children}</section>
         {(buttonText != "" || buttonCancel != "" || buttonExtra) && (
           <footer>
