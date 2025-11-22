@@ -24,7 +24,7 @@
     background-color: var(--cPrimary);
   }
   &.secondary {
-    border: var(--bWidth) solid var(--cWhiteV1);
+    border: var(--bWidth) solid var(--cWhiteV5);
     color: var(--cWhite);
   }
 
@@ -38,6 +38,21 @@
   }
   &.cancel {
     background-color: var(--cError);
+  }
+
+  &.danger {
+    background-color: var(--dangerBg);
+    color: var(--cWhite);
+    &:hover,
+    &:focus {
+      background-color: rgba(255, 0, 0, 0.05);
+      outline: none;
+    }
+
+    &:disabled {
+      color: var(--cWhiteV3, #999999);
+      background-color: transparent;
+    }
   }
 
   &:hover {
