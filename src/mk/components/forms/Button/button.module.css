@@ -42,10 +42,10 @@
 
   &.danger {
     background-color: var(--dangerBg);
+    border-radius: var(--bRadiusS);
     color: var(--cWhite);
     &:hover,
     &:focus {
-      background-color: rgba(255, 0, 0, 0.05);
       outline: none;
     }
 
