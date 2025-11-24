@@ -372,7 +372,7 @@ const ProfileModal = ({
                   >
                     {IconType}
                     <div style={{ color: 'var(--cPrimary)' }}>
-                      <strong>Propietario de : </strong>
+                      <strong>Propietario de: </strong>
                       {data?.data[0]?.dptos
                         ?.map((dpto: any) => (
                           <span
