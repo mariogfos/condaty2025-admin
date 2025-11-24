@@ -372,7 +372,7 @@ const ProfileModal = ({
                   >
                     {IconType}
                     <div style={{ color: 'var(--cPrimary)' }}>
-                      <strong>Propietario de:</strong>
+                      <strong>Propietario de : </strong>
                       {data?.data[0]?.dptos
                         ?.map((dpto: any) => (
                           <span
@@ -384,7 +384,7 @@ const ProfileModal = ({
                               marginRight: '4px',
                             }}
                           >
-                            {` ${dpto?.type?.name || 'Unidad'} ${dpto?.nro}`}
+                            {`${dpto?.type?.name || 'Unidad'} ${dpto?.nro}`}
                           </span>
                         ))
                         .reduce((prev: any, curr: any) => [prev, ',', curr])}
