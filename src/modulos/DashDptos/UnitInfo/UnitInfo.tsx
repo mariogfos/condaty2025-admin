@@ -24,6 +24,8 @@ interface UnitInfoProps {
   onRemoveTitular: (type: "H" | "T") => void;
   onOpenDependentProfile: (ownerId: string) => void;
   onOpenTitularHist: () => void;
+  onOpenOwnerProfile: () => void;
+  onOpenTenantProfile: () => void;
 }
 
 const UnitInfo = ({
@@ -34,6 +36,8 @@ const UnitInfo = ({
   onRemoveTitular,
   onOpenDependentProfile,
   onOpenTitularHist,
+  onOpenOwnerProfile,
+  onOpenTenantProfile,
 }: UnitInfoProps) => {
   const [openOwnerMenu, setOpenOwnerMenu] = useState(false);
   const [openTenantMenu, setOpenTenantMenu] = useState(false);
@@ -132,7 +136,7 @@ const UnitInfo = ({
 
       <Br style={{ marginTop: 16, marginBottom: 16 }} />
 
-      {/* Sección de información de la unidad */}
+
       <div className={styles.unitInfoSection}>
         <div className={styles.unitInfoGrid}>
           <div className={styles.infoItem}>
@@ -197,7 +201,7 @@ const UnitInfo = ({
 
         <Br style={{ marginTop: 16, marginBottom: 16 }} />
 
-        {/* Sección Propietario */}
+
         <div className={styles.ownerSection}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>Propietario</h3>
@@ -248,16 +252,18 @@ const UnitInfo = ({
           {datas?.homeowner ? (
             <>
               <div className={styles.personCard}>
-                <Avatar
-                  hasImage={owner?.has_image}
-                  src={ownerAvatarSrc}
-                  name={getFullName(owner)}
-                  w={48}
-                  h={48}
-                />
-                <div className={styles.personInfo}>
-                  <h4 className={styles.personName}>{getFullName(owner)}</h4>
-                  <p className={styles.personId}>C.I. {owner?.ci || 'Sin registro'}</p>
+                <div onClick={onOpenOwnerProfile} className={styles.personCardClickable}>
+                  <Avatar
+                    hasImage={owner?.has_image}
+                    src={ownerAvatarSrc}
+                    name={getFullName(owner)}
+                    w={48}
+                    h={48}
+                  />
+                  <div className={styles.personInfo}>
+                    <h4 className={styles.personName}>{getFullName(owner)}</h4>
+                    <p className={styles.personId}>C.I. {owner?.ci || 'Sin registro'}</p>
+                  </div>
                 </div>
               </div>
 
@@ -285,7 +291,7 @@ const UnitInfo = ({
           )}
         </div>
         <Br style={{ marginTop: 16, marginBottom: 16 }} />
-        {/* Sección Residente/Titular */}
+
         <div className={styles.residentSection}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>Residente</h3>
@@ -355,16 +361,18 @@ const UnitInfo = ({
           {datas?.tenant ? (
             <>
               <div className={styles.personCard}>
-                <Avatar
-                  hasImage={tenant?.has_image}
-                  src={tenantAvatarSrc}
-                  name={getFullName(tenant)}
-                  w={48}
-                  h={48}
-                />
-                <div className={styles.personInfo}>
-                  <h4 className={styles.personName}>{getFullName(tenant)}</h4>
-                  <p className={styles.personId}>C.I. {tenant?.ci || 'Sin registro'}</p>
+                <div onClick={onOpenTenantProfile} className={styles.personCardClickable}>
+                  <Avatar
+                    hasImage={tenant?.has_image}
+                    src={tenantAvatarSrc}
+                    name={getFullName(tenant)}
+                    w={48}
+                    h={48}
+                  />
+                  <div className={styles.personInfo}>
+                    <h4 className={styles.personName}>{getFullName(tenant)}</h4>
+                    <p className={styles.personId}>C.I. {tenant?.ci || 'Sin registro'}</p>
+                  </div>
                 </div>
               </div>
 
@@ -379,7 +387,7 @@ const UnitInfo = ({
                 </div>
               </div>
 
-              {/* Dependientes */}
+
               {datas?.tenant?.dependientes && datas.tenant.dependientes.length > 0 && (
                 <div className={styles.dependentsSection}>
                   <div className={styles.dependentsHeader}>
