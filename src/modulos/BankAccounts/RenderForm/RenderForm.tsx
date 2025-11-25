@@ -150,7 +150,7 @@ const RenderForm = ({
             options={[
               {
                 id: "S",
-                name: "Caja de ahorro",
+                name: "Cuenta ahorro",
               },
               {
                 id: "C",
