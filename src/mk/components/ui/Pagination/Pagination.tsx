@@ -159,20 +159,19 @@ const Pagination = ({
           </span>
         </div>
       </>
-      {/* ) : (
-        <div style={{ flexGrow: 1 }}></div>
-      )} */}
+      
       {/* Selector de página a la derecha */}
-      <div className={styles.pageSelector}>
+       <div style={{width: '92px'}}> </div>
+      {/*<div className={styles.pageSelector}>
         <form onSubmit={handleSubmit} className={styles.pageForm}>
           <span className={styles.pageInfo}>
             <span className={styles.currentPageLabel}>Ir a la página</span>
-            {/* <span className={styles.totalPages}>
+            <span className={styles.totalPages}>
               {currentPage}/{safeTotal}
-            </span> */}
-          </span>
+            </span> 
+          </span> */}
           {/* {totalPages > 1 && ( */}
-          <div style={{ position: "relative" }}>
+          {/* <div style={{ position: "relative" }}>
             <input
               type="text"
               value={pageInput}
@@ -191,9 +190,8 @@ const Pagination = ({
               Ir
             </button>
           </div>
-          {/* )} */}
         </form>
-      </div>
+      </div> */}
 
       {/* Select para elementos por página - oculto pero funcional */}
       {/* <div className={styles.hiddenPerPage}>
