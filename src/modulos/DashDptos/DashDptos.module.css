@@ -573,10 +573,23 @@
   font-weight: var(--bMedium);
 }
 
+.personCardClickable {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.personCardClickable:hover .personName,
+.personCardClickable:hover .personId {
+  color: var(--cSuccess);
+}
+
 .personId {
   color: var(--cWhiteV1);
   font-size: var(--sM);
-  margin: 0;
+  margin: 4px 0 0 0;
 }
 
 .contactGrid {

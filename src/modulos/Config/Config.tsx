@@ -228,7 +228,7 @@ const Config = () => {
 
       // Forzar recarga completa de la página
       if (typeSearch === "C") {
-        //window.location.reload();
+        window.location.reload();
       }
     } else {
       showToast(error?.data?.message || data?.message, "error");
