@@ -295,7 +295,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
   const lDptos = useMemo(
     () =>
-      extraData?.dptos.map((dpto: Dpto) => {
+      (extraData?.dptos?.map((dpto: Dpto) => {
         const titular = getTitular(dpto);
         return {
           id: dpto.nro,
@@ -309,7 +309,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
             getFullName(titular ?? {}),
           dpto_id: dpto.id,
         };
-      }),
+      }) || []),
     [extraData?.dptos, store.Unitstype]
   );
 
@@ -320,7 +320,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     async (nroDpto: string | number, paymentmethod: string) => {
       if (!nroDpto || !paymentmethod || paymentmethod === "I") return;
 
-      const selectedDpto = extraData?.dptos.find(
+      const selectedDpto = extraData?.dptos?.find(
         (dpto) => dpto.nro === nroDpto
       );
       const realDptoId = selectedDpto?.id;
@@ -370,7 +370,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
   useEffect(() => {
     if (extraData?.categories && formState.category_id && showCategoryFields) {
-      const selectedCategory = extraData.categories.find(
+      const selectedCategory = extraData.categories?.find(
         (cat: Category) => String(cat.id) === String(formState.category_id)
       );
 
@@ -392,7 +392,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       extraData?.categories &&
       showCategoryFields
     ) {
-      const selectedCategory = extraData.categories.find(
+      const selectedCategory = extraData.categories?.find(
         (cat: Category) => String(cat.id) === String(item.category_id)
       );
 
@@ -460,7 +460,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       let lockSubcategory = false;
 
       if (formState.category_id && extraData?.categories) {
-        const selectedCategory = extraData.categories.find(
+        const selectedCategory = extraData.categories?.find(
           (category: Category) =>
             String(category.id) === String(formState.category_id)
         );
@@ -804,34 +804,34 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     let owner_id = formState.owner_id;
     if (!owner_id) {
-      const selectedDpto = extraData?.dptos.find(
+      const selectedDpto = extraData?.dptos?.find(
         (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
       );
       const titular = getTitular(selectedDpto);
       owner_id = titular?.id;
     }
     let bank_account_id;
-    const existBankAccount = extraData?.bankAccounts.find(
+    const existBankAccount = extraData?.bankAccounts?.find(
       (item: any) => item.is_main == 1
     )?.id;
 
     switch (formState.type) {
       case "E": {
         const id =
-          extraData?.bankAccounts.find((i: any) => i.is_expense == 1)?.id ||
+          extraData?.bankAccounts?.find((i: any) => i.is_expense == 1)?.id ||
           existBankAccount;
         bank_account_id = id;
         break;
       }
       case "R": {
         const id =
-          extraData?.bankAccounts.find((i: any) => i.is_reserve == 1)?.id ||
+          extraData?.bankAccounts?.find((i: any) => i.is_reserve == 1)?.id ||
           existBankAccount;
         bank_account_id = id;
         break;
       }
       case "F": {
-        const sub = extraData?.subcategories.find(
+        const sub = extraData?.subcategories?.find(
           (i: any) => i.id == extraData?.client_config?.cat_forgiveness
         );
 
@@ -844,12 +844,12 @@ const RenderForm: React.FC<RenderFormProps> = ({
         break;
       }
       case "I": {
-        const category: any = extraData?.categories.find(
+        const category: any = extraData?.categories?.find(
           (i: any) => i.id == formState.category_id
         );
 
         const id =
-          category?.hijos.find((i: any) => i.id == formState.subcategory_id)
+          category?.hijos?.find((i: any) => i.id == formState.subcategory_id)
             ?.bank_account_id ||
           category?.bank_account_id ||
           existBankAccount;

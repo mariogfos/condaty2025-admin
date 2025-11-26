@@ -352,13 +352,6 @@ const ProfileModal = ({
                   </div>
                 )}
 
-                {/* {data?.data[0]?.dpto?.[0]?.nro && (
-                  <div>
-                    {IconType}
-                    {`${data?.data[0]?.dpto?.[0]?.type?.name || 'Unidad'} ${data?.data[0]?.dpto?.[0]?.nro}`}
-                  </div>
-                )} */}
-
                 {data?.data[0]?.dptos && data?.data[0]?.dptos?.length > 0 && (
                   <div
                     style={{
