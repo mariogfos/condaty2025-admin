@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "cloudinary": "^2.8.0",
     "@instantdb/admin": "^0.17.12",
     "@instantdb/react": "^0.21.22",
     "@mlc-ai/web-llm": "^0.2.78",
