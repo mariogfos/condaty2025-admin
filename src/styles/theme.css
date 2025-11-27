@@ -15,6 +15,7 @@
   --success: #00e38c;
   --warning: #ffcd3d;
   --danger: #ff0000;
+  --dangerBg: #DA5D5D;
 
   /* Accents */
   --accentColor: #00e38c;
@@ -59,6 +60,7 @@
   --cWhiteV2: #414141;
   --cWhiteV3: #818181;
   --cWhiteV4: #d9d9d9;
+  --cWhiteV5: #505050;
   --cBlack: #212121;
   --cBlackV1: #292929;
   --cBlackV2: #333536;

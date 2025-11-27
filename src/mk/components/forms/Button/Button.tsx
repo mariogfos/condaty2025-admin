@@ -7,6 +7,7 @@ type PropsType = {
     | "primary"
     | "secondary"
     | "terciary"
+    | "danger"
     | "accent"
     | "small"
     | "cancel";

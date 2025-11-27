@@ -1,6 +1,7 @@
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import React, { useEffect, useState } from "react";
+import DataModal from '@/mk/components/ui/DataModal/DataModal';
+import { useAuth } from '@/mk/contexts/AuthProvider';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   IconAdmin,
   IconArrowRight,
@@ -13,16 +14,16 @@ import {
   IconPhone,
   IconTrash,
   IconUser,
-} from "../layout/icons/IconsBiblioteca";
-import styles from "./ProfileModal.module.css";
-import WidgetBase from "../Widgets/WidgetBase/WidgetBase";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import Authentication from "@/modulos/Profile/Authentication";
-import useAxios from "@/mk/hooks/useAxios";
-import EditProfile from "./EditProfile/EditProfile";
-import GuardEditForm from "./GuardEditForm/GuardEditForm";
-import Button from "@/mk/components/forms/Button/Button";
+} from '../layout/icons/IconsBiblioteca';
+import styles from './ProfileModal.module.css';
+import WidgetBase from '../Widgets/WidgetBase/WidgetBase';
+import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
+import { getFullName, getUrlImages } from '@/mk/utils/string';
+import Authentication from '@/modulos/Profile/Authentication';
+import useAxios from '@/mk/hooks/useAxios';
+import EditProfile from './EditProfile/EditProfile';
+import GuardEditForm from './GuardEditForm/GuardEditForm';
+import Button from '@/mk/components/forms/Button/Button';
 import Image from 'next/image';
 
 interface ProfileModalProps {
@@ -52,7 +53,7 @@ interface FormState {
   password?: string;
   pinned?: number;
   code?: string;
-  has_image?: number; // Agregar has_image
+  has_image?: number;
 }
 interface ErrorState {
   [key: string]: string;
@@ -89,8 +90,8 @@ const ProfileModal = ({
   open,
   onClose,
   dataID,
-  titleBack = "Volver",
-  title = "Mi Perfil",
+  titleBack = 'Volver',
+  title = 'Mi Perfil',
   reLoad,
   edit = true,
   del = true,
@@ -99,32 +100,31 @@ const ProfileModal = ({
   setOnLogout,
 }: ProfileModalProps) => {
   const { user, getUser, showToast, userCan, logout } = useAuth();
+  const router = useRouter();
   const { execute } = useAxios();
   const [formState, setFormState] = useState<FormState>({});
   const [errors, setErrors] = useState<ErrorState>({});
   const [openAuthModal, setOpenAuthModal] = useState(false);
-  const [authType, setAuthType] = useState("");
+  const [authType, setAuthType] = useState('');
   const [openEdit, setOpenEdit] = useState(false);
   const [openDel, setOpenDel] = useState(false);
-  const client = user?.clients?.filter(
-    (item: ClientItem) => item?.id === user?.client_id
-  )?.[0];
+  const client = user?.clients?.filter((item: ClientItem) => item?.id === user?.client_id)?.[0];
   const getIconType = () => {
-    if (type === "admin") {
-      return <IconAdmin color={"var(--cSuccess)"} size={16} />;
+    if (type === 'admin') {
+      return <IconAdmin color={'var(--cPrimary)'} size={16} />;
     }
-    if (type === "owner" || type === "homeOwner") {
-      return <IconUser color={"var(--cSuccess)"} size={18} />;
+    if (type === 'owner' || type === 'homeOwner') {
+      return <IconUser color={'var(--cPrimary)'} size={18} />;
     }
-    return <IconGuardShield color={"var(--cSuccess)"} size={20} />;
+    return <IconGuardShield color={'var(--cPrimary)'} size={20} />;
   };
 
   const IconType = getIconType();
 
   const getUrl = () => {
-    if (type === "admin") return `/users`;
-    if (type === "owner") return `/owners`;
-    if (type === "homeOwner") return `/homeowners`;
+    if (type === 'admin') return `/users`;
+    if (type === 'owner') return `/owners`;
+    if (type === 'homeOwner') return `/homeowners`;
     return `/guards`;
   };
 
@@ -132,18 +132,18 @@ const ProfileModal = ({
 
   const { data, reLoad: reLoadDet } = useAxios(
     url,
-    "GET",
+    'GET',
     {
       searchBy: dataID,
-      fullType: "DET",
+      fullType: 'DET',
     },
     true
   );
   const getProfileRole = () => {
-    if (type === "admin") return data?.data[0]?.role[0]?.name;
-    if (type === "owner") return data?.data[0].type_owner;
-    if (type === "homeOwner") return data?.data[0].type_owner;
-    return "Guardia";
+    if (type === 'admin') return data?.data[0]?.role[0]?.name;
+    if (type === 'owner') return data?.data[0].type_owner;
+    if (type === 'homeOwner') return data?.data[0].type_owner;
+    return 'Guardia';
   };
 
   const profileRole = getProfileRole();
@@ -152,11 +152,11 @@ const ProfileModal = ({
     const timestamp = data?.data[0]?.updated_at;
 
     switch (type) {
-      case "admin":
+      case 'admin':
         return `/ADM-${userId}.webp?d=${timestamp}`;
-      case "owner":
+      case 'owner':
         return `/OWNER-${userId}.webp?d=${timestamp}`;
-      case "homeOwner":
+      case 'homeOwner':
         return `/HOMEOWNER-${userId}.webp?d=${timestamp}`;
       default:
         return `/GUARD-${userId}.webp?d=${timestamp}`;
@@ -190,62 +190,61 @@ const ProfileModal = ({
   };
 
   const onChangeEmail = () => {
-    setAuthType("M");
+    setAuthType('M');
     setOpenAuthModal(true);
   };
 
   const onChangePassword = () => {
-    setAuthType("P");
+    setAuthType('P');
     setOpenAuthModal(true);
   };
   const onDel = async () => {
-    const { data } = await execute(url + "/" + formState.id, "DELETE", {
-      is_canceled: "Y",
+    const { data } = await execute(url + '/' + formState.id, 'DELETE', {
+      is_canceled: 'Y',
     });
     if (data?.success == true) {
-      showToast(profileRole + " eliminado con éxito", "success");
+      showToast(profileRole + ' eliminado con éxito', 'success');
       onClose();
       if (reLoad) reLoad();
       reLoadDet();
     } else if (data?.success == false) {
-      showToast(data?.message || "Error al eliminar " + profileRole, "error");
+      showToast(data?.message || 'Error al eliminar ' + profileRole, 'error');
     }
   };
 
   const [portadaError, setPortadaError] = useState(false);
   const getPortadaCliente = () => {
     if (!portadaError) {
-      return getUrlImages(
-        "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at
-      );
+      return getUrlImages('/CLIENT-' + client?.id + '.webp?d=' + client?.updated_at);
     }
-    return "/assets/images/PortadaEmpty.png";
+    return '/assets/images/PortadaEmpty.png';
   };
 
   const clientUsers = data?.data[0]?.clients?.filter(
     (item: ClientItem) => item?.id === user?.client_id
   );
-  const deletePerm = userCan("users", "D");
-  const editPerm = userCan("users", "U");
+  const deletePerm = userCan('users', 'D');
+  const editPerm = userCan('users', 'U');
 
-  // Verificar si el usuario puede editar este perfil específico
   const canEditThisProfile = () => {
-    if (type === "admin") {
-      // Para administradores, solo pueden editar su propio perfil
+    if (type === 'admin') {
       return editPerm && user?.id === data?.data[0]?.id;
     }
-    // Para otros tipos de usuarios, usar el permiso general
+
     return editPerm;
   };
 
-  // Verificar si el usuario puede eliminar este perfil específico
   const canDeleteThisProfile = () => {
-    if (type === "admin") {
-      // Para administradores, solo pueden eliminar su propio perfil
+    if (type === 'admin') {
       return deletePerm && user?.id === data?.data[0]?.id;
     }
-    // Para otros tipos de usuarios, usar el permiso general
+
     return deletePerm;
+  };
+
+  const navigateToUnitDetail = (unitId: string | number) => {
+    router.push(`/units/${unitId}?returnTo=owners&userType=${type}`);
+    onClose();
   };
 
   return (
@@ -346,7 +345,6 @@ const ProfileModal = ({
               </div>
 
               <div>
-                {/* Mostrar solo el rol para admin y guardia */}
                 {(type === 'admin' || type === 'guard') && (
                   <div>
                     {IconType}
@@ -354,23 +352,37 @@ const ProfileModal = ({
                   </div>
                 )}
 
-                {/* Para owner y homeOwner mostrar departamento donde vive */}
-                {/* {data?.data[0]?.dpto?.[0]?.nro && (
-                  <div>
-                    {IconType}
-                    {`${data?.data[0]?.dpto?.[0]?.type?.name || 'Unidad'} ${data?.data[0]?.dpto?.[0]?.nro}`} 
-                  </div>
-                )} */}
-
-                {/* Para owner y homeOwner mostrar lista de departamentos que posee en UNA sola línea */}
                 {data?.data[0]?.dptos && data?.data[0]?.dptos?.length > 0 && (
-                  <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
-                   {/* <IconHousing size={20} color={'var(--cWhiteV1)'} /> */}
+                  <div
+                    style={{
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
                     {IconType}
-                    <div>
-                      <strong>Propietario de:</strong>
-                      {data?.data[0]?.dptos?.map((dpto: any) => ` ${dpto?.type?.name || 'Unidad'} ${dpto?.nro}`).join(', ')}</div>
+                    <div style={{ color: 'var(--cPrimary)' }}>
+                      <strong>Propietario de : </strong>
+                      {data?.data[0]?.dptos
+                        ?.map((dpto: any) => (
+                          <span
+                            key={dpto.id}
+                            onClick={() => navigateToUnitDetail(dpto.id)}
+                            style={{
+                              cursor: 'pointer',
+                              textDecoration: 'underline',
+                              marginRight: '4px',
+                            }}
+                          >
+                            {`${dpto?.type?.name || 'Unidad'} ${dpto?.nro}`}
+                          </span>
+                        ))
+                        .reduce((prev: any, curr: any) => [prev, ',', curr])}
                     </div>
+                  </div>
                 )}
 
                 <div>
@@ -415,8 +427,12 @@ const ProfileModal = ({
                       if (!hasDescription && !hasNro) {
                         return '-/-';
                       }
-                      return data?.data[0]?.dpto[0]?.type?.name + ' ' + data?.data[0]?.dpto[0]?.nro + 
-                      (hasDescription ? ' - ' + data?.data[0]?.dpto[0]?.description : '');
+                      return (
+                        data?.data[0]?.dpto[0]?.type?.name +
+                        ' ' +
+                        data?.data[0]?.dpto[0]?.nro +
+                        (hasDescription ? ' - ' + data?.data[0]?.dpto[0]?.description : '')
+                      );
                     }
                     return data?.data[0]?.address || '-/-';
                   })()}
@@ -564,7 +580,7 @@ const ProfileModal = ({
             buttonText="Eliminar"
             buttonCancel="Cancelar"
             onSave={onDel}
-            variant={"mini"}
+            variant={'mini'}
           >
             <div>
               <p style={{ fontSize: 'var(--sL)' }}>

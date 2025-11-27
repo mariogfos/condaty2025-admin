@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { getFullName } from "@/mk/utils/string";
 import styles from "./DashDptos.module.css";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { IconArrowDown } from "@/components/layout/icons/IconsBiblioteca";
 import Select from "@/mk/components/forms/Select/Select";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
@@ -35,6 +35,8 @@ interface DashDptosProps {
 const DashDptos = ({ id }: DashDptosProps) => {
   const { showToast } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo');
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -53,6 +55,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [selectedDependentId, setSelectedDependentId] = useState<string | null>(
     null
   );
+  const [openOwnerProfileModal, setOpenOwnerProfileModal] = useState(false);
+  const [openTenantProfileModal, setOpenTenantProfileModal] = useState(false);
   const {
     data: dashData,
     reLoad,
@@ -76,12 +80,12 @@ const DashDptos = ({ id }: DashDptosProps) => {
       return;
     }
 
-    // Buscar el owner seleccionado en la lista
+
     const extra = dashData?.extraData ?? {};
     const list: any[] = currentChangeType === "H" ? extra.homeowners || [] : extra.tenants || [];
     const selectedOwner = list.find((owner: any) => String(owner.id) === String(formState.owner_id));
 
-    // Siempre mostrar el modal de confirmación
+
     setSelectedOwnerForTransfer(selectedOwner);
     setPendingTransferType(currentChangeType);
     setOpenTitular(false);
@@ -90,7 +94,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const executeOwnerChange = async () => {
     try {
-      // Determinar current_dpto_id basado en selectedOwnerForTransfer
+
       let currentDptoId = null;
       if (selectedOwnerForTransfer && pendingTransferType === "T" && selectedOwnerForTransfer.dpto?.[0]?.id ) {
         currentDptoId = selectedOwnerForTransfer.dpto[0].id;
@@ -144,11 +148,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
     setOpenTransferModal(false);
     
     if (isNewOwnerFlow) {
-      // Si viene del flujo de crear nuevo, abrir el formulario
+
       setIsNewOwnerFlow(false);
       setOpenOwnerForm(true);
     } else {
-      // Si viene del flujo de cambiar existente, ejecutar el cambio
+
       await executeOwnerChange();
       setSelectedOwnerForTransfer(null);
       setPendingTransferType(null);
@@ -158,6 +162,20 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const handleOpenDependentProfile = (owner_id: string) => {
     setSelectedDependentId(owner_id);
     setOpenProfileModal(true);
+  };
+
+  const handleOpenOwnerProfile = () => {
+    if (datas?.homeowner?.id) {
+      setSelectedDependentId(datas.homeowner.id);
+      setOpenOwnerProfileModal(true);
+    }
+  };
+
+  const handleOpenTenantProfile = () => {
+    if (datas?.tenant?.id) {
+      setSelectedDependentId(datas.tenant.id);
+      setOpenTenantProfileModal(true);
+    }
   };
   const onDel = async () => {
     const { data } = await execute("/dptos/" + datas.data.id, "DELETE");
@@ -179,7 +197,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const onTitular = (type: "H" | "T", action?: 'new' | 'change') => {
     if (action === 'new') {
-      // Si ya existe un propietario/residente, mostrar modal de confirmación
+
       if ((type === 'H' && datas?.homeowner) || (type === 'T' && datas?.tenant)) {
         setCurrentChangeType(type);
         const existingOwner = type === 'H' ? datas?.homeowner : datas?.tenant;
@@ -250,11 +268,26 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
   };
 
+  const handleBackNavigation = () => {
+    if (returnTo === 'owners') {
+      router.push("/owners");
+    } else {
+      router.push("/units");
+    }
+  };
+
+  const getBackLabel = () => {
+    if (returnTo === 'owners') {
+      return "Volver a residentes";
+    }
+    return "Volver a lista de unidades";
+  };
+
   return (
     <div className={styles.container}>
       <HeaderBack
-        label="Volver a lista de unidades"
-        onClick={() => router.push("/units")}
+        label={getBackLabel()}
+        onClick={handleBackNavigation}
       />
       <section>
         <div className={styles.firtsPanel}>
@@ -269,6 +302,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
               onRemoveTitular={handleRemoveTitularClick}
               onOpenDependentProfile={handleOpenDependentProfile}
               onOpenTitularHist={() => setOpenTitularHist(true)}
+              onOpenOwnerProfile={handleOpenOwnerProfile}
+              onOpenTenantProfile={handleOpenTenantProfile}
             />
           )}
 
@@ -297,7 +332,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         </div>
 
         <div className={styles.secondPanel}>
-          {/* Historial de Accesos - Tabla */}
+
           <WidgetBase
             subtitle={
               loaded
@@ -325,7 +360,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             </div>
           </WidgetBase>
 
-          {/* Historial de Reservas - Tabla */}
+
           <WidgetBase
             title={
               <TitleRender
@@ -354,7 +389,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
           </WidgetBase>
         </div>
 
-        {/* Modales */}
+
         <DataModal
           title={`Seleccionar ${
             currentChangeType === "H" ? "propietario" : "residente"
@@ -409,7 +444,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             />
           </div>
         </DataModal>
-        {/* Modales de Historial */}
+
         {openTitularHist && (
           <HistoryOwnership
             ownershipData={datas?.titularHist || datas?.tenantHist || []}
@@ -580,6 +615,34 @@ const DashDptos = ({ id }: DashDptosProps) => {
           </DataModal>
         )}
       </section>
+
+      {openOwnerProfileModal && datas?.homeowner?.id && (
+        <ProfileModal
+          open={openOwnerProfileModal}
+          onClose={() => {
+            setOpenOwnerProfileModal(false);
+          }}
+          dataID={datas.homeowner.id}
+          title="Perfil del Propietario"
+          titleBack="Volver a la Unidad"
+          type="owner"
+          reLoad={() => reLoad({ extraData: true })}
+        />
+      )}
+
+      {openTenantProfileModal && datas?.tenant?.id && (
+        <ProfileModal
+          open={openTenantProfileModal}
+          onClose={() => {
+            setOpenTenantProfileModal(false);
+          }}
+          dataID={datas.tenant.id}
+          title="Perfil del Residente"
+          titleBack="Volver a la Unidad"
+          type="owner"
+          reLoad={() => reLoad({ extraData: true })}
+        />
+      )}
     </div>
   );
 };

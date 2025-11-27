@@ -92,7 +92,8 @@
   cursor: not-allowed;
 }
 .pageSelector {
-  display: flex;
+  /* display: flex; */
+  display: none;
   align-items: center;
 }
 .pageForm {
