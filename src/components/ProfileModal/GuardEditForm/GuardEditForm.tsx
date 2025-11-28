@@ -9,6 +9,7 @@ import { useAuth } from '@/mk/contexts/AuthProvider';
 import Br from '@/components/Detail/Br';
 import styles from './GuardEditForm.module.css';
 import { getUrlImages } from '@/mk/utils/string';
+import { checkRules, hasErrors } from '@/mk/utils/validate/Rules';
 
 interface GuardEditFormProps {
   open: boolean;
@@ -154,56 +155,72 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
     }
   }, [execute, showToast, formState, setFormState]);
 
-  const validar = useCallback(() => {
-    const err: Errors = {};
+  const validate = useCallback(() => {
+    let errs: any = {};
+    
+    // CI validations
+    errs = checkRules({
+      value: formState.ci,
+      rules: ['required', 'integer', 'min:4'],
+      key: 'ci',
+      errors: errs,
+    });
 
-    if (!formState.ci) {
-      err.ci = 'Este campo es requerido';
-    } else if (!/^\d{7,8}$/.test(formState.ci)) {
-      err.ci = 'El CI debe tener entre 7 y 8 dígitos';
-    }
+    // Name validations
+    errs = checkRules({
+      value: formState.name,
+      rules: ['required', 'alpha', 'noSpaces', 'max:20'],
+      key: 'name',
+      errors: errs,
+    });
 
-    if (!formState.name) {
-      err.name = 'Este campo es requerido';
-    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(formState.name)) {
-      err.name = 'Solo se permiten letras';
-    } else if (formState.name.length > 20) {
-      err.name = 'Máximo 20 caracteres';
-    }
+    // Middle name validations (optional)
+    errs = checkRules({
+      value: formState.middle_name,
+      rules: ['alpha', 'noSpaces', 'max:20'],
+      key: 'middle_name',
+      errors: errs,
+    });
 
-    if (!formState.last_name) {
-      err.last_name = 'Este campo es requerido';
-    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(formState.last_name)) {
-      err.last_name = 'Solo se permiten letras';
-    } else if (formState.last_name.length > 20) {
-      err.last_name = 'Máximo 20 caracteres';
-    }
+    // Last name validations
+    errs = checkRules({
+      value: formState.last_name,
+      rules: ['required', 'alpha', 'noSpaces', 'max:20'],
+      key: 'last_name',
+      errors: errs,
+    });
 
-    if (formState.middle_name && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(formState.middle_name)) {
-      err.middle_name = 'Solo se permiten letras';
-    }
+    // Mother last name validations (optional)
+    errs = checkRules({
+      value: formState.mother_last_name,
+      rules: ['alpha', 'noSpaces', 'max:20'],
+      key: 'mother_last_name',
+      errors: errs,
+    });
 
-    if (formState.mother_last_name && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(formState.mother_last_name)) {
-      err.mother_last_name = 'Solo se permiten letras';
-    }
+    // Phone validations (optional)
+    errs = checkRules({
+      value: formState.phone,
+      rules: ['integer', 'min:8', 'max:10'],
+      key: 'phone',
+      errors: errs,
+    });
 
-    if (formState.phone && (!/^\d+$/.test(formState.phone) || formState.phone.length > 10)) {
-      err.phone = 'Solo números, máximo 10 dígitos';
-    }
+    // Email validations
+    errs = checkRules({
+      value: formState.email,
+      rules: ['required', 'email'],
+      key: 'email',
+      errors: errs,
+    });
 
-    if (!formState.email) {
-      err.email = 'Este campo es requerido';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formState.email)) {
-      err.email = 'Formato de email inválido';
-    }
-
-    setLocalErrors(err);
-    setErrors(err);
-    return Object.keys(err).length === 0;
+    setLocalErrors(errs);
+    setErrors(errs);
+    return errs;
   }, [formState, setErrors]);
 
   const onSave = async () => {
-    if (!validar()) {
+    if (hasErrors(validate())) {
       showToast('Por favor revise los campos marcados', 'warning');
       return;
     }
