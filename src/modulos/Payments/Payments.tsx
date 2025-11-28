@@ -114,28 +114,19 @@ const renderConceptCell = (props: any) => {
   });
 
   if (linesFromDetails.length > 0) {
-    return (
-      <div>
-        {linesFromDetails.map((n: string, i: number) => (
-          <div key={`c-${i}`}> {n}</div>
-        ))}
-      </div>
-    );
+    const text = linesFromDetails.join(' | ');
+    return <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</div>;
   }
 
   const concepts: string[] = Array.isArray(item.concept) ? (item.concept as string[]) : [];
   if (concepts.length > 0) {
-    return (
-      <div>
-        {concepts.map((n: string, i: number) => (
-          <div key={`cx-${i}`}> {n}</div>
-        ))}
-      </div>
-    );
+    const text = concepts.join(' | ');
+    return <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</div>;
   }
 
   if (item.concepto) {
-    return <div>{String(item.concepto)}</div>;
+    const text = String(item.concepto);
+    return <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</div>;
   }
 
   return <div>-/-</div>;
@@ -226,6 +217,7 @@ const Payments = () => {
           type: 'date',
         },
         list: {
+          width: 260,
           onRender: renderPaidAtCell,
         },
         filter: {
@@ -240,7 +232,7 @@ const Payments = () => {
         api: 'ae',
         label: 'Unidad',
         list: {
-          width: 90,
+          width: 140,
           onRender: renderDptosCell,
         },
       },
@@ -275,6 +267,7 @@ const Payments = () => {
           placeholder: 'Ej: Pago de servicios',
         },
         list: {
+          width: 300,
           onRender: renderConceptCell,
         },
       },
@@ -284,6 +277,7 @@ const Payments = () => {
         api: 'ae',
         label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
+          width: 160,
           onRender: renderStatusCell,
         },
         filter: {
