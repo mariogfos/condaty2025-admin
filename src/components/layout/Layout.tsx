@@ -99,15 +99,25 @@ const Layout = ({ children }: any) => {
   // Habilitar audio después de la primera interacción del usuario
   useEffect(() => {
     const enableAudio = () => {
-      soundBell
-        ?.play()
-        .then(() => {
-          soundBell?.pause();
-          soundBell?.load();
-          setAudioEnabled(true);
-          document.removeEventListener("click", enableAudio);
-        })
-        .catch((error) => console.log("Error al habilitar el audio:", error));
+      if (soundBell) {
+        // Configurar el volumen a 0 temporalmente para no hacer ruido
+        const originalVolume = soundBell.volume;
+        soundBell.volume = 0;
+        
+        soundBell
+          .play()
+          .then(() => {
+            soundBell.pause();
+            soundBell.currentTime = 0;
+            soundBell.volume = originalVolume; // Restaurar el volumen
+            setAudioEnabled(true);
+            document.removeEventListener("click", enableAudio);
+          })
+          .catch((error) => {
+            soundBell.volume = originalVolume; // Restaurar incluso si falla
+            console.log("Error al habilitar el audio:", error);
+          });
+      }
     };
 
     document.addEventListener("click", enableAudio);
