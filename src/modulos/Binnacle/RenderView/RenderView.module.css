@@ -12,6 +12,45 @@
   display: flex;
   justify-content: center;
   margin-bottom: 10px;
+  flex-basis: 380px;
+  flex-shrink: 0;
+}
+
+.imageWrapper {
+  width: 380px;
+  height: 300px;
+  background-color: var(--cWhiteV2);
+  border-radius: var(--bRadiusS);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.containerButton {
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.button {
+  background-color: transparent;
+  padding: 6px;
+  border: 0.5px solid var(--cWhiteV1);
+  border-radius: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.button:hover {
+  background-color: var(--cWhiteV2);
 }
 
 .detailsContainer {
@@ -19,6 +58,8 @@
   flex-direction: column;
   gap: 16px;
   width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 
 .detailRow {
