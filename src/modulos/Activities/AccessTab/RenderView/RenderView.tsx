@@ -1,18 +1,23 @@
-import React, { useState } from "react";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import styles from "./RenderView.module.css";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { getDateTimeStrMesShort } from "@/mk/utils/date";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import useAxios from "@/mk/hooks/useAxios";
-import InvitationsDetail from "../../InvitationsDetail/InvitationsDetail";
-import PedidosDetail from "../../PedidosDetail/PedidosDetail";
-import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
-import Br from "@/components/Detail/Br";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import { IconExpand } from "@/components/layout/icons/IconsBiblioteca";
-import ModalAccessExpand from "../ModalAccessExpand/ModalAccessExpand";
-import { it } from "date-fns/locale";
+import React, { useState, useEffect } from 'react';
+import DataModal from '@/mk/components/ui/DataModal/DataModal';
+import styles from './RenderView.module.css';
+import { getFullName, getUrlImages } from '@/mk/utils/string';
+import { getDateTimeStrMesShort } from '@/mk/utils/date';
+import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
+import { Image } from '@/mk/components/ui/Image/Image';
+import useAxios from '@/mk/hooks/useAxios';
+import InvitationsDetail from '../../InvitationsDetail/InvitationsDetail';
+import PedidosDetail from '../../PedidosDetail/PedidosDetail';
+import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
+import Br from '@/components/Detail/Br';
+import ItemList from '@/mk/components/ui/ItemList/ItemList';
+import {
+  IconExpand,
+  IconArrowLeft,
+  IconArrowRight,
+} from '@/components/layout/icons/IconsBiblioteca';
+import ModalAccessExpand from '../ModalAccessExpand/ModalAccessExpand';
+import { it } from 'date-fns/locale';
 
 interface AccessRenderViewProps {
   open: boolean;
@@ -21,24 +26,20 @@ interface AccessRenderViewProps {
   extraData?: any;
 }
 
-const RenderView: React.FC<AccessRenderViewProps> = ({
-  open,
-  onClose,
-  item,
-}) => {
+const RenderView: React.FC<AccessRenderViewProps> = ({ open, onClose, item }) => {
   const [openExpand, setOpenExpand]: any = useState({
     open: false,
     id: null,
-    type: "",
+    type: '',
     invitation: null,
   });
 
   const { data } = useAxios(
-    "/accesses",
-    "GET",
+    '/accesses',
+    'GET',
     {
       searchBy: item?.access_id || item?.id,
-      fullType: "DET",
+      fullType: 'DET',
       perPage: -1,
       page: 1,
     },
@@ -65,59 +66,87 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   } = accessDetail;
 
   const openDetailsModal = () => {
-    if (item?.type === "P") {
+    if (item?.type === 'P') {
       setOpenOrders(true);
     }
-    if (
-      item?.type === "I" ||
-      item?.type === "G" ||
-      item?.type === "C" ||
-      item?.type === "F"
-    ) {
+    if (item?.type === 'I' || item?.type === 'G' || item?.type === 'C' || item?.type === 'F') {
       setOpenInvitation(true);
     }
-    if (item?.type === "O") {
+    if (item?.type === 'O') {
       setOpenInvitation(true);
     }
   };
 
   const getStatus = () => {
-    let status = "";
+    let status = '';
     if (out_at) {
-      status = "Completado";
+      status = 'Completado';
     } else if (in_at) {
-      status = "Por salir";
+      status = 'Por salir';
     } else if (!confirm_at) {
-      status = "Por confirmar";
-    } else if (confirm == "Y") {
-      status = "Por entrar";
+      status = 'Por confirmar';
+    } else if (confirm == 'Y') {
+      status = 'Por entrar';
     } else {
-      status = "Rechazado";
+      status = 'Rechazado';
     }
     return status;
   };
 
   const typeMap: Record<string, string> = {
-    C: "Sin QR",
-    I: "QR Individual",
-    G: "QR Grupal",
-    F: "QR Frecuente",
-    P: "Pedido",
-    O: "Llave QR",
+    C: 'Sin QR',
+    I: 'QR Individual',
+    G: 'QR Grupal',
+    F: 'QR Frecuente',
+    P: 'Pedido',
+    O: 'Llave QR',
   };
 
   const getTypeAccess = (type: string, param: any) => {
-    if (type === "P") {
-      return "Pedido/" + param?.other?.other_type?.name;
+    if (type === 'P') {
+      return 'Pedido/' + param?.other?.other_type?.name;
     }
     return typeMap[type];
   };
   const getAcomData = () => {
-    return accesses?.filter((item: any) => item.taxi != "C");
+    return accesses?.filter((item: any) => item.taxi != 'C');
   };
   const getTaxiData = () => {
-    return accesses?.filter((item: any) => item.taxi == "C");
+    return accesses?.filter((item: any) => item.taxi == 'C');
   };
+  const normalizeImageUrls = (arr: any) => {
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .map((s: any) => String(s))
+      .map((s: string) => s.replace(/[`"']/g, '').trim())
+      .filter((s: string) => s && s.indexOf('undefined') === -1);
+  };
+  const accessImages = [
+    ...normalizeImageUrls((accessDetail as any)?.url_image_p),
+    ...normalizeImageUrls((accessDetail as any)?.url_image),
+  ];
+  const entityImages =
+    item?.type === 'O'
+      ? [
+          ...normalizeImageUrls((owner as any)?.url_image_a),
+          ...normalizeImageUrls((owner as any)?.url_image_r),
+        ]
+      : [
+          ...normalizeImageUrls((visit as any)?.url_image_a),
+          ...normalizeImageUrls((visit as any)?.url_image_r),
+        ];
+  const images = Array.from(new Set([...(entityImages || []), ...(accessImages || [])]));
+  const rowRef = React.useRef<HTMLDivElement>(null);
+  const [showControls, setShowControls] = useState(false);
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el) return;
+    const check = () => setShowControls(el.scrollWidth > el.clientWidth + 2);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [images]);
 
   return (
     <>
@@ -127,30 +156,22 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
         title="Detalle del acceso"
         buttonText=""
         buttonCancel=""
-        variant={"mini"}
+        variant={'mini'}
       >
-        <LoadingScreen
-          onlyLoading={Object.keys(accessDetail).length === 0}
-          type="CardSkeleton"
-        >
+        <LoadingScreen onlyLoading={Object.keys(accessDetail).length === 0} type="CardSkeleton">
           <div className={styles.container}>
             <p>Visitante</p>
-            {item?.type === "O" ? (
+            {item?.type === 'O' ? (
               <section className={styles.headerSection}>
                 <Avatar
                   hasImage={owner?.has_image}
                   name={getFullName(owner)}
-                  src={getUrlImages(
-                    "/OWNER-" + owner?.id + ".webp?" + owner?.updated_at
-                  )}
-                  style={{ marginBottom: "var(--spM)" }}
+                  src={getUrlImages('/OWNER-' + owner?.id + '.webp?' + owner?.updated_at)}
+                  style={{ marginBottom: 'var(--spM)' }}
                 />
                 <div className={styles.amountDisplay}>{getFullName(owner)}</div>
                 <div className={styles.dateDisplay}>
-                  C.I. : {owner?.ci}{" "}
-                  {plate && getTaxiData().length == 0
-                    ? `- Placa: ${plate}`
-                    : ""}
+                  C.I. : {owner?.ci} {plate && getTaxiData().length == 0 ? `- Placa: ${plate}` : ''}
                 </div>
               </section>
             ) : (
@@ -158,17 +179,13 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 <Avatar
                   hasImage={visit?.has_image}
                   name={getFullName(visit)}
-                  src={getUrlImages(
-                    "/VISIT-" + visit?.id + ".webp?" + visit?.updated_at
-                  )}
-                  style={{ marginBottom: "var(--spM)" }}
+                  src={getUrlImages('/VISIT-' + visit?.id + '.webp?' + visit?.updated_at)}
+                  style={{ marginBottom: 'var(--spM)' }}
                 />
                 <div className={styles.amountDisplay}>{getFullName(visit)}</div>
                 <div className={styles.dateDisplay}>
-                  C.I. : {visit?.ci}{" "}
-                  {plate && getTaxiData()?.length == 0
-                    ? `- Placa: ${plate}`
-                    : ""}
+                  C.I. : {visit?.ci}{' '}
+                  {plate && getTaxiData()?.length == 0 ? `- Placa: ${plate}` : ''}
                 </div>
               </section>
             )}
@@ -180,69 +197,57 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               <div className={styles.detailsColumn}>
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Tipo de acceso</span>
-                  <span className={styles.infoValue}>
-                    {getTypeAccess(item?.type, item)}
-                  </span>
+                  <span className={styles.infoValue}>{getTypeAccess(item?.type, item)}</span>
                 </div>
-                {item?.type == "G" && (
+                {item?.type == 'G' && (
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>Evento</span>
-                    <span className={styles.infoValue}>
-                      {item?.invitation?.title}
-                    </span>
+                    <span className={styles.infoValue}>{item?.invitation?.title}</span>
                   </div>
                 )}
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>
-                    {item?.type == "C" && confirm == "N"
-                      ? "Hora y fecha de petición"
-                      : "  Hora y fecha de ingreso"}
+                    {item?.type == 'C' && confirm == 'N'
+                      ? 'Hora y fecha de petición'
+                      : '  Hora y fecha de ingreso'}
                   </span>
                   <span className={styles.infoValue}>
-                    {item?.type == "C" && confirm == "N"
-                      ? getDateTimeStrMesShort(begin_at) || "-/-"
-                      : getDateTimeStrMesShort(in_at) || "-/-"}
+                    {item?.type == 'C' && confirm == 'N'
+                      ? getDateTimeStrMesShort(begin_at) || '-/-'
+                      : getDateTimeStrMesShort(in_at) || '-/-'}
                   </span>
                 </div>
-                {item?.type !== "O" && (
+                {item?.type !== 'O' && (
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>
-                      {item?.type != "P" ? "Visitó a" : "Entregó a"}
+                      {item?.type != 'P' ? 'Visitó a' : 'Entregó a'}
                     </span>
-                    <span className={styles.infoValue}>
-                      {getFullName(item?.owner) || "-/-"}
-                    </span>
+                    <span className={styles.infoValue}>{getFullName(item?.owner) || '-/-'}</span>
                   </div>
                 )}
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Guardia de ingreso</span>
-                  <span className={styles.infoValue}>
-                    {getFullName(guardia) || "-/-"}
-                  </span>
+                  <span className={styles.infoValue}>{getFullName(guardia) || '-/-'}</span>
                 </div>
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>
-                    Observación de entrada
-                  </span>
-                  <span className={styles.infoValue}>{obs_in || "-/-"}</span>
+                  <span className={styles.infoLabel}>Observación de entrada</span>
+                  <span className={styles.infoValue}>{obs_in || '-/-'}</span>
                 </div>
-                {item?.type == "C" && (
+                {item?.type == 'C' && (
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>
-                      {confirm == "N" ? "Rechazado por" : "Aprobado por"}{" "}
+                      {confirm == 'N' ? 'Rechazado por' : 'Aprobado por'}{' '}
                     </span>
                     <span
                       className={styles.infoValue}
                       style={{
                         color:
-                          confirm == "G" || item?.rejected_guard_id !== null
-                            ? "var(--cMediumAlert)"
-                            : "var(--cSuccess)",
+                          confirm == 'G' || item?.rejected_guard_id !== null
+                            ? 'var(--cMediumAlert)'
+                            : 'var(--cSuccess)',
                       }}
                     >
-                      {confirm == "G" || item?.rejected_guard_id !== null
-                        ? "Guardia"
-                        : "Residente"}
+                      {confirm == 'G' || item?.rejected_guard_id !== null ? 'Guardia' : 'Residente'}
                     </span>
                   </div>
                 )}
@@ -258,70 +263,86 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                     {getStatus()}
                   </span>
                 </div>
-                {item?.type == "G" && (
+                {item?.type == 'G' && (
                   <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>
-                      Cantidad de invitados
-                    </span>
+                    <span className={styles.infoLabel}>Cantidad de invitados</span>
                     <span className={styles.infoValue}>
-                      {accessDetail?.invitation?.guests?.length || "-/-"}
+                      {accessDetail?.invitation?.guests?.length || '-/-'}
                     </span>
                   </div>
                 )}
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>
-                    {item?.type == "C" && confirm == "N"
-                      ? "Hora y fecha de rechazo"
-                      : "  Hora y fecha de salida"}
+                    {item?.type == 'C' && confirm == 'N'
+                      ? 'Hora y fecha de rechazo'
+                      : '  Hora y fecha de salida'}
                   </span>
                   <span className={styles.infoValue}>
-                    {item?.type == "C" && confirm == "N"
-                      ? getDateTimeStrMesShort(confirm_at) || "-/-"
-                      : getDateTimeStrMesShort(out_at) || "-/-"}
+                    {item?.type == 'C' && confirm == 'N'
+                      ? getDateTimeStrMesShort(confirm_at) || '-/-'
+                      : getDateTimeStrMesShort(out_at) || '-/-'}
                   </span>
                 </div>
 
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Unidad</span>
-                  <span className={styles.infoValue}>
-                    {owner?.dpto[0]?.nro || "-/-"}
-                  </span>
+                  <span className={styles.infoValue}>{owner?.dpto[0]?.nro || '-/-'}</span>
                 </div>
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Guardia de salida</span>
                   <span className={styles.infoValue}>
-                    {out_at ? getFullName(out_guard || guardia) : "-/-"}
+                    {out_at ? getFullName(out_guard || guardia) : '-/-'}
                   </span>
                 </div>
 
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>
-                    Observación de salida
-                  </span>
-                  <span className={styles.infoValue}>{obs_out || "-/-"}</span>
+                  <span className={styles.infoLabel}>Observación de salida</span>
+                  <span className={styles.infoValue}>{obs_out || '-/-'}</span>
                 </div>
-                
+
                 {item?.rejected_guard_id !== null ? (
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>
                       {item?.confirm !== 'N' ? 'Motivo de aprobación' : 'Motivo de rechazo'}
                     </span>
-                    <span className={styles.infoValue}>
-                      {item?.obs_confirm}
-                    </span>
+                    <span className={styles.infoValue}>{item?.obs_confirm}</span>
                   </div>
                 ) : (
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>
                       {item?.confirm === 'N' ? 'Motivo de rechazo' : null}
                     </span>
-                    <span className={styles.infoValue}>
-                      {item?.obs_confirm}
-                    </span>
+                    <span className={styles.infoValue}>{item?.obs_confirm}</span>
                   </div>
                 )}
               </div>
             </section>
+            <hr className={styles.sectionDivider} />
+            {images.length > 0 && (
+              <div className={styles.imagesCarousel}>
+                {showControls && (
+                  <button
+                    className={styles.carouselBtn}
+                    onClick={() => rowRef.current?.scrollBy({ left: -200, behavior: 'smooth' })}
+                  >
+                    <IconArrowLeft color="var(--cWhite)" />
+                  </button>
+                )}
+                <div className={styles.imagesRow} ref={rowRef}>
+                  {images.map((src, i) => (
+                    <Image key={src + i} src={src} alt="img" h={90} w={120} expandable square />
+                  ))}
+                </div>
+                {showControls && (
+                  <button
+                    className={styles.carouselBtn}
+                    onClick={() => rowRef.current?.scrollBy({ left: 200, behavior: 'smooth' })}
+                  >
+                    <IconArrowRight color="var(--cWhite)" />
+                  </button>
+                )}
+              </div>
+            )}
             {getAcomData()?.length > 0 && (
               <>
                 <Br />
@@ -332,16 +353,14 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                       variant="V3"
                       key={acc.id}
                       title={getFullName(acc.visit || visit)}
-                      subtitle={"C.I: " + acc?.visit?.ci}
+                      subtitle={'C.I: ' + acc?.visit?.ci}
                       left={
                         <Avatar
-                          hasImage={
-                            acc.visit ? acc.visit?.has_image : visit?.has_image
-                          }
+                          hasImage={acc.visit ? acc.visit?.has_image : visit?.has_image}
                           src={getUrlImages(
-                            "/VISIT-" +
+                            '/VISIT-' +
                               (acc?.visit?.id || visit?.id) +
-                              ".webp?" +
+                              '.webp?' +
                               (acc?.visit?.updated_at || visit?.updated_at)
                           )}
                           name={getFullName(acc.visit || visit)}
@@ -354,7 +373,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                             setOpenExpand({
                               open: true,
                               id: acc.id,
-                              type: "A",
+                              type: 'A',
                               invitation: null,
                             })
                           }
@@ -375,16 +394,14 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                       variant="V3"
                       key={acc.id}
                       title={getFullName(acc.visit || visit)}
-                      subtitle={"C.I: " + acc?.visit?.ci}
+                      subtitle={'C.I: ' + acc?.visit?.ci}
                       left={
                         <Avatar
-                          hasImage={
-                            acc.visit ? acc.visit?.has_image : visit?.has_image
-                          }
+                          hasImage={acc.visit ? acc.visit?.has_image : visit?.has_image}
                           src={getUrlImages(
-                            "/VISIT-" +
+                            '/VISIT-' +
                               (acc?.visit?.id || visit?.id) +
-                              ".webp?" +
+                              '.webp?' +
                               (acc?.visit?.updated_at || visit?.updated_at)
                           )}
                           name={getFullName(acc.visit || visit)}
@@ -397,7 +414,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                             setOpenExpand({
                               open: true,
                               id: acc.id,
-                              type: "T",
+                              type: 'T',
                               invitation: null,
                             })
                           }
@@ -431,9 +448,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
       {openExpand?.open && (
         <ModalAccessExpand
           open={openExpand?.open}
-          onClose={() =>
-            setOpenExpand({ open: false, id: null, type: "", invitation: null })
-          }
+          onClose={() => setOpenExpand({ open: false, id: null, type: '', invitation: null })}
           id={openExpand?.id}
           type={openExpand?.type}
         />
@@ -447,11 +462,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
         />
       )}
       {openOrders && (
-        <PedidosDetail
-          open={openOrders}
-          onClose={() => setOpenOrders(false)}
-          item={accessDetail}
-        />
+        <PedidosDetail open={openOrders} onClose={() => setOpenOrders(false)} item={accessDetail} />
       )}
     </>
   );
