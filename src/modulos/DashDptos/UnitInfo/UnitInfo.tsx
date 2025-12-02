@@ -1,27 +1,28 @@
-"use client";
-import { useState, useEffect } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import EmptyData from "@/components/NoData/EmptyData";
-import Button from "@/mk/components/forms/Button/Button";
-import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
+'use client';
+import { useState, useEffect } from 'react';
+import { getFullName, getUrlImages } from '@/mk/utils/string';
+import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
+import EmptyData from '@/components/NoData/EmptyData';
+import Button from '@/mk/components/forms/Button/Button';
+import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
 import {
   IconArrowDown,
   IconEdit,
   IconTrash,
   IconHomePerson2,
-} from "@/components/layout/icons/IconsBiblioteca";
-import styles from "../DashDptos.module.css";
-import Br from "@/components/Detail/Br";
-import useAxios from "@/mk/hooks/useAxios";
-import { formatBs } from "@/mk/utils/numbers";
+} from '@/components/layout/icons/IconsBiblioteca';
+import styles from '../DashDptos.module.css';
+import Br from '@/components/Detail/Br';
+import useAxios from '@/mk/hooks/useAxios';
+import { formatBs } from '@/mk/utils/numbers';
+import { generateWhatsAppLink } from '@/mk/utils/phone';
 
 interface UnitInfoProps {
   datas: any;
   onEdit: () => void;
   onDelete: () => void;
-  onTitular: (type: "H" | "T", action?: 'new' | 'change') => void;
-  onRemoveTitular: (type: "H" | "T") => void;
+  onTitular: (type: 'H' | 'T', action?: 'new' | 'change') => void;
+  onRemoveTitular: (type: 'H' | 'T') => void;
   onOpenDependentProfile: (ownerId: string) => void;
   onOpenTitularHist: () => void;
   onOpenOwnerProfile: () => void;
@@ -59,58 +60,58 @@ const UnitInfo = ({
     };
 
     if (openOwnerMenu || openTenantMenu || openTitularSelector) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [openOwnerMenu, openTenantMenu, openTitularSelector]);
 
   const owner = datas?.homeowner;
-  const ownerUpdatedAtQuery = owner?.updated_at ? `?d=${owner.updated_at}` : "";
+  const ownerUpdatedAtQuery = owner?.updated_at ? `?d=${owner.updated_at}` : '';
   const ownerAvatarSrc = owner?.id
     ? getUrlImages(`/OWNER-${owner.id}.webp${ownerUpdatedAtQuery}`)
-    : "";
+    : '';
   const tenant = datas?.tenant;
-  const tenantUpdatedAtQuery = tenant?.updated_at
-    ? `?d=${tenant.updated_at}`
-    : "";
+  const tenantUpdatedAtQuery = tenant?.updated_at ? `?d=${tenant.updated_at}` : '';
   const tenantAvatarSrc = tenant?.id
     ? getUrlImages(`/OWNER-${tenant.id}.webp${tenantUpdatedAtQuery}`)
-    : "";
+    : '';
+  const ownerWhatsAppLink = generateWhatsAppLink(owner?.phone || '');
+  const tenantWhatsAppLink = generateWhatsAppLink(tenant?.phone || '');
 
   const currentHolder = datas?.data?.holder;
   const HandleTitular = () => {
-    if (currentHolder === "H") return "Propietario";
-    if (currentHolder === "T") return "Residente";
-    if (datas?.tenant) return "Residente";
-    if (datas?.data?.homeowner) return "Propietario";
-    return "Sin asignar";
+    if (currentHolder === 'H') return 'Propietario';
+    if (currentHolder === 'T') return 'Residente';
+    if (datas?.tenant) return 'Residente';
+    if (datas?.data?.homeowner) return 'Propietario';
+    return 'Sin asignar';
   };
 
   const { execute } = useAxios();
 
-  const changeTitular = async (holder: "H" | "T") => {
+  const changeTitular = async (holder: 'H' | 'T') => {
     setOpenTitularSelector(false);
     const dptoId = datas?.data?.id || datas?.data?.dpto_id || null;
     if (!dptoId) {
-      console.error("Falta dpto_id para cambiar titular", { dptoId });
+      console.error('Falta dpto_id para cambiar titular', { dptoId });
       return;
     }
 
     try {
-      const { data } = await execute("/dptos-change-titular", "POST", {
+      const { data } = await execute('/dptos-change-titular', 'POST', {
         dpto_id: dptoId,
         holder,
       });
       if (data?.success) {
         window.location.reload();
       } else {
-        console.error("Error al cambiar titular", data?.message || data);
+        console.error('Error al cambiar titular', data?.message || data);
       }
     } catch (error) {
-      console.error("Error al llamar a /dptos-change-titular", error);
+      console.error('Error al llamar a /dptos-change-titular', error);
     }
   };
   return (
@@ -135,7 +136,6 @@ const UnitInfo = ({
       </div>
 
       <Br style={{ marginTop: 16, marginBottom: 16 }} />
-
 
       <div className={styles.unitInfoSection}>
         <div className={styles.unitInfoGrid}>
@@ -200,7 +200,6 @@ const UnitInfo = ({
         </div>
 
         <Br style={{ marginTop: 16, marginBottom: 16 }} />
-
 
         <div className={styles.ownerSection}>
           <div className={styles.sectionHeader}>
@@ -274,7 +273,18 @@ const UnitInfo = ({
                 </div>
                 <div className={styles.contactItem}>
                   <span className={styles.contactLabel}>Celular</span>
-                  <span className={styles.contactValue}>{owner?.phone || 'Sin teléfono'}</span>
+                  {ownerWhatsAppLink ? (
+                    <a
+                      href={ownerWhatsAppLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.contactValue}
+                    >
+                      {owner?.phone}
+                    </a>
+                  ) : (
+                    <span className={styles.contactValue}>{owner?.phone || 'Sin teléfono'}</span>
+                  )}
                 </div>
               </div>
             </>
@@ -321,7 +331,7 @@ const UnitInfo = ({
                       onClick={e => {
                         e.stopPropagation();
                         setOpenTenantMenu(false);
-                        onTitular('T',"new");
+                        onTitular('T', 'new');
                       }}
                     >
                       Nuevo
@@ -334,7 +344,7 @@ const UnitInfo = ({
                       onClick={e => {
                         e.stopPropagation();
                         setOpenTenantMenu(false);
-                        onTitular('T',"change");
+                        onTitular('T', 'change');
                       }}
                     >
                       Asignar
@@ -379,14 +389,24 @@ const UnitInfo = ({
               <div className={styles.contactGrid}>
                 <div className={styles.contactItem}>
                   <span className={styles.contactLabel}>E-mail</span>
-                  <span className={styles.infoValue}>{tenant?.email || 'Sin email'}</span>
+                  <span className={styles.contactValue}>{tenant?.email || 'Sin email'}</span>
                 </div>
                 <div className={styles.contactItem}>
                   <span className={styles.contactLabel}>Celular</span>
-                  <span className={styles.infoValue}>{tenant?.phone || 'Sin teléfono'}</span>
+                  {tenantWhatsAppLink ? (
+                    <a
+                      href={tenantWhatsAppLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.contactValue}
+                    >
+                      {tenant?.phone}
+                    </a>
+                  ) : (
+                    <span className={styles.contactValue}>{tenant?.phone || 'Sin teléfono'}</span>
+                  )}
                 </div>
               </div>
-
 
               {datas?.tenant?.dependientes && datas.tenant.dependientes.length > 0 && (
                 <div className={styles.dependentsSection}>
