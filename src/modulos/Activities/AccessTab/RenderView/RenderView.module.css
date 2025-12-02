@@ -147,3 +147,27 @@
   gap: var(--spM);
   width: 100%;
 }
+.mainImageWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spS) 0;
+}
+.imagesCarousel {
+  display: flex;
+  align-items: center;
+  gap: var(--spS);
+  margin-top: var(--spM);
+}
+.imagesRow {
+  display: flex;
+  gap: var(--spS);
+  overflow-x: auto;
+  padding: var(--spS) 0;
+}
+.carouselBtn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+}
