@@ -15,6 +15,7 @@ import styles from '../DashDptos.module.css';
 import Br from '@/components/Detail/Br';
 import useAxios from '@/mk/hooks/useAxios';
 import { formatBs } from '@/mk/utils/numbers';
+import { generateWhatsAppLink } from '@/mk/utils/phone';
 
 interface UnitInfoProps {
   datas: any;
@@ -77,13 +78,8 @@ const UnitInfo = ({
   const tenantAvatarSrc = tenant?.id
     ? getUrlImages(`/OWNER-${tenant.id}.webp${tenantUpdatedAtQuery}`)
     : '';
-  const samePerson = !!owner?.id && !!tenant?.id && owner.id === tenant.id;
-  const ownerDependentsToShow = samePerson ? [] : owner?.dependientes || [];
-  const tenantDependentsToShow = samePerson
-    ? tenant?.dependientes && tenant.dependientes.length > 0
-      ? tenant.dependientes
-      : owner?.dependientes || []
-    : tenant?.dependientes || [];
+  const ownerWhatsAppLink = generateWhatsAppLink(owner?.phone || '');
+  const tenantWhatsAppLink = generateWhatsAppLink(tenant?.phone || '');
 
   const currentHolder = datas?.data?.holder;
   const HandleTitular = () => {
@@ -203,6 +199,8 @@ const UnitInfo = ({
           </div>
         </div>
 
+        <Br style={{ marginTop: 16, marginBottom: 16 }} />
+
         <div className={styles.ownerSection}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>Propietario</h3>
@@ -275,45 +273,20 @@ const UnitInfo = ({
                 </div>
                 <div className={styles.contactItem}>
                   <span className={styles.contactLabel}>Celular</span>
-                  <span className={styles.contactValue}>{owner?.phone || 'Sin teléfono'}</span>
+                  {ownerWhatsAppLink ? (
+                    <a
+                      href={ownerWhatsAppLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.contactValue}
+                    >
+                      {owner?.phone}
+                    </a>
+                  ) : (
+                    <span className={styles.contactValue}>{owner?.phone || 'Sin teléfono'}</span>
+                  )}
                 </div>
               </div>
-
-              {ownerDependentsToShow && ownerDependentsToShow.length > 0 && (
-                <div className={styles.dependentsSection}>
-                  <div className={styles.dependentsHeader}>
-                    <h4 className={styles.dependentsTitle}>Dependientes</h4>
-                  </div>
-                  <div className={styles.dependentsGrid}>
-                    {ownerDependentsToShow.slice(0, 3).map((dependiente: any) => {
-                      const dependentOwner = dependiente.owner;
-                      const dependentUpdatedAtQuery = dependentOwner?.updated_at
-                        ? `?d=${dependentOwner.updated_at}`
-                        : '';
-                      const dependentAvatarSrc = dependentOwner?.id
-                        ? getUrlImages(`/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`)
-                        : '';
-                      return (
-                        <Tooltip
-                          key={dependiente.owner_id || dependiente.id}
-                          title={getFullName(dependentOwner)}
-                          position="top-left"
-                        >
-                          <Avatar
-                            hasImage={dependentOwner?.has_image}
-                            className={styles.dependentAvatar}
-                            src={dependentAvatarSrc}
-                            name={getFullName(dependentOwner)}
-                            w={40}
-                            h={40}
-                            onClick={() => onOpenDependentProfile(dependiente.owner_id)}
-                          />
-                        </Tooltip>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
             </>
           ) : (
             <div className={styles.emptyState}>
@@ -416,21 +389,32 @@ const UnitInfo = ({
               <div className={styles.contactGrid}>
                 <div className={styles.contactItem}>
                   <span className={styles.contactLabel}>E-mail</span>
-                  <span className={styles.infoValue}>{tenant?.email || 'Sin email'}</span>
+                  <span className={styles.contactValue}>{tenant?.email || 'Sin email'}</span>
                 </div>
                 <div className={styles.contactItem}>
                   <span className={styles.contactLabel}>Celular</span>
-                  <span className={styles.infoValue}>{tenant?.phone || 'Sin teléfono'}</span>
+                  {tenantWhatsAppLink ? (
+                    <a
+                      href={tenantWhatsAppLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.contactValue}
+                    >
+                      {tenant?.phone}
+                    </a>
+                  ) : (
+                    <span className={styles.contactValue}>{tenant?.phone || 'Sin teléfono'}</span>
+                  )}
                 </div>
               </div>
 
-              {tenantDependentsToShow && tenantDependentsToShow.length > 0 && (
+              {datas?.tenant?.dependientes && datas.tenant.dependientes.length > 0 && (
                 <div className={styles.dependentsSection}>
                   <div className={styles.dependentsHeader}>
                     <h4 className={styles.dependentsTitle}>Dependientes</h4>
                   </div>
                   <div className={styles.dependentsGrid}>
-                    {tenantDependentsToShow.slice(0, 3).map((dependiente: any) => {
+                    {datas.tenant.dependientes.slice(0, 3).map((dependiente: any) => {
                       const dependentOwner = dependiente.owner;
                       const dependentUpdatedAtQuery = dependentOwner?.updated_at
                         ? `?d=${dependentOwner.updated_at}`
