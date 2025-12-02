@@ -117,7 +117,6 @@ export const convertirFechaUTCaLocal = (fechaUTCString: string | null) => {
 
   const offsetUTC = fechaUTC.getTimezoneOffset();
   const fechaLocal = new Date(fechaUTC.getTime() - offsetUTC * 60000);
-  // console.log("fechaLocal", fechaLocal);
   // if (process.env.NODE_ENV == "development")
   if (offsetUTC == 0) fechaLocal.setHours(fechaLocal.getHours() + GMT);
   return fechaLocal;
@@ -129,8 +128,6 @@ const _getDateTimeStrMes = (
   utc: boolean = false,
   utcBase: boolean = false
 ): string => {
-  // console.log(dateStr);
-  // console.log(esFormatoISO8601(dateStr), utc);
   if (esFormatoISO8601(dateStr) || utc) {
     const fechaLocal: any = convertirFechaUTCaLocal(dateStr);
     dateStr = fechaLocal
@@ -447,22 +444,11 @@ export const compareDate = (
   let d1: any = new Date(date1);
   let d2: any = new Date(date2);
 
-  // if (typeof date1 == "string") {
-  //   let d: any = date1.split(" ")[0].split("-");
-  //   console.log("d", d, typeof d);
-  //   d1 = new Date(d[0], d[1] - 1, d[2]);
-  //   console.log("d1", d1);
-  // }
-
   if (typeof date1 != "string") d1 = date1;
   if (typeof date2 != "string") d2 = date2;
 
   if (typeof date1 == null) d1 = new Date();
   if (typeof date2 == null) d2 = new Date();
-
-  // d1.setHours(d1.getHours() - GMT);
-  // d2.setHours(d2.getHours() - GMT);
-  // console.log("date1:", date1);
 
   d1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
   d2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
@@ -694,20 +680,13 @@ export const formatToDayFdMYH = (
   if (!dateStr || dateStr === "") return "";
 
   let dateForFormatting: Date;
-
+  
   // 1. Obtener un objeto Date base
   if (esFormatoISO8601(dateStr) || utc) {
-    // Para cadenas ISO o marcadas como UTC, usamos convertirFechaUTCaLocal
-    // para intentar obtener un objeto Date que represente el tiempo local (GMT-4)
     const convertedDate = convertirFechaUTCaLocal(dateStr);
     if (!convertedDate) return "Fecha inválida";
     dateForFormatting = convertedDate;
   } else {
-    // Para otras cadenas, intentamos parsearlas. new Date() las toma como locales del navegador.
-    // Si estas cadenas ya representan tiempo en GMT-4, esto es correcto.
-    // Si son locales del navegador y el navegador no está en GMT-4, esto podría no ser GMT-4.
-    // Por consistencia con tus otras funciones, asumimos que las no-ISO/no-UTC ya están en la zona deseada
-    // o que el comportamiento de new Date() es aceptable para ellas.
     let tempDate = new Date(dateStr.replace(" ", "T"));
     if (isNaN(tempDate.getTime())) {
       const parts = dateStr.split(/[- :\/]/);
@@ -733,34 +712,25 @@ export const formatToDayFdMYH = (
     }
     dateForFormatting = tempDate;
   }
-
   // 2. Extraer componentes de fecha del objeto Date
   const diaSemana = DAYS[dateForFormatting.getDay()];
   const dia = String(dateForFormatting.getDate()).padStart(2, "0");
-  const mes = MONTHS_ES[dateForFormatting.getMonth() + 1];
+  const mes = MONTHS_ES[dateForFormatting.getMonth()];
   const año = dateForFormatting.getFullYear();
 
   // 3. Extraer y ajustar componentes de hora, replicando la lógica de getDateTimeStrMes para la hora
   let hora = dateForFormatting.getHours();
   let minutos = dateForFormatting.getMinutes();
 
-  // El ajuste de hora "- GMT" en tu getDateTimeStrMes se aplica si la CADENA ORIGINAL era ISO.
-  // Esto es un poco específico, pero lo replicamos para consistencia.
   if (esFormatoISO8601(dateStr)) {
-    hora = dateForFormatting.getHours() - GMT; // Si GMT es -4, esto suma 4.
-    // Esto implica que `convertirFechaUTCaLocal` para ISO
-    // podría devolver un Date cuyas horas son UTC,
-    // y este es el ajuste final para mostrar en GMT-4.
+    hora = dateForFormatting.getHours() - GMT; 
     if (hora < 0) {
       hora += 24;
-      // Aquí podría ser necesario ajustar el día, pero tus otras funciones no lo hacen explícitamente en este punto.
     }
     if (hora >= 24) {
-      // Por si acaso GMT es positivo y la suma da >= 24
       hora -= 24;
     }
   }
-  // Si la hora es exactamente 24:00, se ajusta a 23:59 (lógica de getDateTimeStrMes)
   if (hora === 24 && minutos === 0) {
     hora = 23;
     minutos = 59;
@@ -770,18 +740,16 @@ export const formatToDayFdMYH = (
   const minutosStr = String(minutos).padStart(2, "0");
 
   return `${diaSemana}, ${dia} de ${mes} del ${año} - ${horaStr}:${minutosStr}`;
+
 };
 
 export const formatDateRange = (
   startDateStr: string | null,
   endDateStr: string | null
 ): string => {
-  // Función auxiliar interna para no repetir código.
-  // Formatea una sola fecha en el formato "Día, dd/MM/yyyy".
   const formatSingleDate = (dateStr: string | null): string => {
     if (!dateStr) return "";
 
-    // Reutilizamos tu función para manejar fechas UTC y locales de forma consistente.
     const date = convertirFechaUTCaLocal(dateStr);
 
     if (!date) return ""; // Si la fecha no es válida, retorna vacío.
