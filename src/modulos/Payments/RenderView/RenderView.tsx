@@ -21,6 +21,7 @@ import { formatBs } from "@/mk/utils/numbers";
 import Input from "@/mk/components/forms/Input/Input";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import { it } from "date-fns/locale";
+import { generateWhatsAppLink } from "@/mk/utils/phone";
   interface PaymentDetail {
     id: string | number;
     status: string;
@@ -137,6 +138,31 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         error?.data?.message || "No se pudo generar el recibo.",
         "error"
       );
+    }
+  };
+
+  const handleShareReceiptWhatsApp = async () => {
+    const phone = String(item?.owner?.phone || "");
+    const waLinkBase = generateWhatsAppLink(phone);
+    if (!waLinkBase) {
+      showToast("Número de teléfono no disponible", "error");
+      return;
+    }
+    showToast("Generando recibo...", "info");
+    const { data: file, error } = await execute(
+      "/payment-recibo",
+      "POST",
+      { id: item?.id },
+      false,
+      true
+    );
+    if (file?.success === true && file?.data?.path) {
+      const receiptUrl = getUrlImages("/" + file.data.path);
+      const waLink = generateWhatsAppLink(phone, `Recibo de pago: ${receiptUrl}`);
+      window.open(waLink, "_blank");
+      showToast("Recibo generado con éxito.", "success");
+    } else {
+      showToast(error?.data?.message || "No se pudo generar el recibo.", "error");
     }
   };
 
@@ -805,6 +831,16 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                 onClick={handleGenerateReceipt}
                 >
                 Ver Recibo
+              </Button>
+            )}
+            {item.status === "P" && (
+              <Button
+                variant="secondary"
+                className={styles.voucherButton}
+                style={{ marginRight: 8 }}
+                onClick={handleShareReceiptWhatsApp}
+                >
+                Compartir por WhatsApp
               </Button>
             )}
             {hasVoucherUrls && (
