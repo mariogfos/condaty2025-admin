@@ -80,6 +80,15 @@ const UnitInfo = ({
     : '';
   const ownerWhatsAppLink = generateWhatsAppLink(owner?.phone || '');
   const tenantWhatsAppLink = generateWhatsAppLink(tenant?.phone || '');
+  const samePerson = !!owner?.id && !!tenant?.id && owner.id === tenant.id;
+  const ownerDependentsToShow = Array.isArray(owner?.dependientes) ? owner.dependientes : [];
+  const tenantDependentsToShow = Array.isArray(tenant?.dependientes)
+    ? tenant.dependientes
+    : samePerson
+    ? Array.isArray(owner?.dependientes)
+      ? owner.dependientes
+      : []
+    : [];
 
   const currentHolder = datas?.data?.holder;
   const HandleTitular = () => {
@@ -287,6 +296,42 @@ const UnitInfo = ({
                   )}
                 </div>
               </div>
+
+              {ownerDependentsToShow && ownerDependentsToShow.length > 0 && (
+                <div className={styles.dependentsSection}>
+                  <div className={styles.dependentsHeader}>
+                    <h4 className={styles.dependentsTitle}>Dependientes</h4>
+                  </div>
+                  <div className={styles.dependentsGrid}>
+                    {ownerDependentsToShow.slice(0, 3).map((dependiente: any) => {
+                      const dependentOwner = dependiente.owner;
+                      const dependentUpdatedAtQuery = dependentOwner?.updated_at
+                        ? `?d=${dependentOwner.updated_at}`
+                        : '';
+                      const dependentAvatarSrc = dependentOwner?.id
+                        ? getUrlImages(`/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`)
+                        : '';
+                      return (
+                        <Tooltip
+                          key={dependiente.owner_id || dependiente.id}
+                          title={getFullName(dependentOwner)}
+                          position="top-left"
+                        >
+                          <Avatar
+                            hasImage={dependentOwner?.has_image}
+                            className={styles.dependentAvatar}
+                            src={dependentAvatarSrc}
+                            name={getFullName(dependentOwner)}
+                            w={40}
+                            h={40}
+                            onClick={() => onOpenDependentProfile(dependiente.owner_id)}
+                          />
+                        </Tooltip>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <div className={styles.emptyState}>
@@ -408,13 +453,13 @@ const UnitInfo = ({
                 </div>
               </div>
 
-              {datas?.tenant?.dependientes && datas.tenant.dependientes.length > 0 && (
+              {tenantDependentsToShow && tenantDependentsToShow.length > 0 && (
                 <div className={styles.dependentsSection}>
                   <div className={styles.dependentsHeader}>
                     <h4 className={styles.dependentsTitle}>Dependientes</h4>
                   </div>
                   <div className={styles.dependentsGrid}>
-                    {datas.tenant.dependientes.slice(0, 3).map((dependiente: any) => {
+                    {tenantDependentsToShow.slice(0, 3).map((dependiente: any) => {
                       const dependentOwner = dependiente.owner;
                       const dependentUpdatedAtQuery = dependentOwner?.updated_at
                         ? `?d=${dependentOwner.updated_at}`
