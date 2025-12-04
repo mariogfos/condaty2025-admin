@@ -5,6 +5,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import { ReactNode, useEffect, useState } from "react";
 import { Card } from "@/mk/components/ui/Card/Card";
 import RenderForm from "../RenderForm/RenderForm";
+import RenderFormAccount from "../RenderFormAccount/RenderFormAccount";
 import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
 interface SectionValuesProps {
   left: { label: string; value: string | ReactNode };
@@ -71,6 +72,7 @@ const RenderView = (props: any) => {
     extraData,
   } = props;
   const [openForm, setOpenForm] = useState(false);
+  const [openFormAccount, setOpenFormAccount] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
   const [item, setItem]: any = useState({});
   const [loading, setLoading] = useState(false);
@@ -132,8 +134,8 @@ const RenderView = (props: any) => {
         buttonCancel=""
         buttonExtra={
           <div style={{ display: "flex", width: "100%", gap: 8 }}>
-            <Button variant="secondary" onClick={() => setOpenForm(true)}>
-              Editar datos
+            <Button variant="secondary" onClick={() => setOpenFormAccount(true)}>
+              Registrar pago a cuenta
             </Button>
             <Button
               // onClick={handleUpdateStatus}
@@ -264,11 +266,11 @@ const RenderView = (props: any) => {
         </DataModal>
       )}
 
-      {openForm && (
-        <RenderForm
-          open={openForm}
-          onClose={() => setOpenForm(false)}
-          item={item}
+      {openFormAccount && (
+        <RenderFormAccount
+          open={openFormAccount}
+          onClose={() => setOpenFormAccount(false)}
+          item={{}}
           reLoad={() => {
             getDetail();
             reLoad();
