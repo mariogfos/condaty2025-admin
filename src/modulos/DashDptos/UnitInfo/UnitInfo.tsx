@@ -15,6 +15,7 @@ import styles from '../DashDptos.module.css';
 import Br from '@/components/Detail/Br';
 import useAxios from '@/mk/hooks/useAxios';
 import { formatBs } from '@/mk/utils/numbers';
+import { generateWhatsAppLink } from '@/mk/utils/phone';
 
 interface UnitInfoProps {
   datas: any;
@@ -77,13 +78,17 @@ const UnitInfo = ({
   const tenantAvatarSrc = tenant?.id
     ? getUrlImages(`/OWNER-${tenant.id}.webp${tenantUpdatedAtQuery}`)
     : '';
+  const ownerWhatsAppLink = generateWhatsAppLink(owner?.phone || '');
+  const tenantWhatsAppLink = generateWhatsAppLink(tenant?.phone || '');
   const samePerson = !!owner?.id && !!tenant?.id && owner.id === tenant.id;
-  const ownerDependentsToShow = samePerson ? [] : owner?.dependientes || [];
-  const tenantDependentsToShow = samePerson
-    ? tenant?.dependientes && tenant.dependientes.length > 0
-      ? tenant.dependientes
-      : owner?.dependientes || []
-    : tenant?.dependientes || [];
+  const ownerDependentsToShow = Array.isArray(owner?.dependientes) ? owner.dependientes : [];
+  const tenantDependentsToShow = Array.isArray(tenant?.dependientes)
+    ? tenant.dependientes
+    : samePerson
+    ? Array.isArray(owner?.dependientes)
+      ? owner.dependientes
+      : []
+    : [];
 
   const currentHolder = datas?.data?.holder;
   const HandleTitular = () => {
@@ -203,6 +208,8 @@ const UnitInfo = ({
           </div>
         </div>
 
+        <Br style={{ marginTop: 16, marginBottom: 16 }} />
+
         <div className={styles.ownerSection}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>Propietario</h3>
@@ -275,7 +282,18 @@ const UnitInfo = ({
                 </div>
                 <div className={styles.contactItem}>
                   <span className={styles.contactLabel}>Celular</span>
-                  <span className={styles.contactValue}>{owner?.phone || 'Sin teléfono'}</span>
+                  {ownerWhatsAppLink ? (
+                    <a
+                      href={ownerWhatsAppLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.contactValue}
+                    >
+                      {owner?.phone}
+                    </a>
+                  ) : (
+                    <span className={styles.contactValue}>{owner?.phone || 'Sin teléfono'}</span>
+                  )}
                 </div>
               </div>
 
@@ -416,11 +434,22 @@ const UnitInfo = ({
               <div className={styles.contactGrid}>
                 <div className={styles.contactItem}>
                   <span className={styles.contactLabel}>E-mail</span>
-                  <span className={styles.infoValue}>{tenant?.email || 'Sin email'}</span>
+                  <span className={styles.contactValue}>{tenant?.email || 'Sin email'}</span>
                 </div>
                 <div className={styles.contactItem}>
                   <span className={styles.contactLabel}>Celular</span>
-                  <span className={styles.infoValue}>{tenant?.phone || 'Sin teléfono'}</span>
+                  {tenantWhatsAppLink ? (
+                    <a
+                      href={tenantWhatsAppLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.contactValue}
+                    >
+                      {tenant?.phone}
+                    </a>
+                  ) : (
+                    <span className={styles.contactValue}>{tenant?.phone || 'Sin teléfono'}</span>
+                  )}
                 </div>
               </div>
 
