@@ -16,6 +16,7 @@ import Br from '@/components/Detail/Br';
 import useAxios from '@/mk/hooks/useAxios';
 import { formatBs } from '@/mk/utils/numbers';
 import { generateWhatsAppLink } from '@/mk/utils/phone';
+import { useAuth } from '@/mk/contexts/AuthProvider';
 
 interface UnitInfoProps {
   datas: any;
@@ -40,6 +41,7 @@ const UnitInfo = ({
   onOpenOwnerProfile,
   onOpenTenantProfile,
 }: UnitInfoProps) => {
+  const { showToast } = useAuth();
   const [openOwnerMenu, setOpenOwnerMenu] = useState(false);
   const [openTenantMenu, setOpenTenantMenu] = useState(false);
   const [openTitularSelector, setOpenTitularSelector] = useState(false);
@@ -117,10 +119,13 @@ const UnitInfo = ({
       if (data?.success) {
         window.location.reload();
       } else {
-        console.error('Error al cambiar titular', data?.message || data);
+        showToast(data?.message || 'Error al cambiar titular', 'error');
       }
-    } catch (error) {
-      console.error('Error al llamar a /dptos-change-titular', error);
+    } catch (error: any) {
+      showToast(
+        error?.message || 'Error al cambiar de titular comunicate con tu administrador',
+        'error'
+      );
     }
   };
   return (
