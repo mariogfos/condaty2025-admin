@@ -122,7 +122,10 @@ const UnitInfo = ({
         showToast(data?.message || 'Error al cambiar titular', 'error');
       }
     } catch (error: any) {
-      showToast(error?.message || 'Error al llamar a /dptos-change-titular', 'error');
+      showToast(
+        error?.message || 'Error al cambiar de titular comunicate con tu administrador',
+        'error'
+      );
     }
   };
   return (
