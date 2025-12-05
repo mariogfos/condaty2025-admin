@@ -80,6 +80,15 @@ const UnitInfo = ({
     : '';
   const ownerWhatsAppLink = generateWhatsAppLink(owner?.phone || '');
   const tenantWhatsAppLink = generateWhatsAppLink(tenant?.phone || '');
+  const samePerson = !!owner?.id && !!tenant?.id && owner.id === tenant.id;
+  const ownerDependentsToShow = Array.isArray(owner?.dependientes) ? owner.dependientes : [];
+  const tenantDependentsToShow = Array.isArray(tenant?.dependientes)
+    ? tenant.dependientes
+    : samePerson
+    ? Array.isArray(owner?.dependientes)
+      ? owner.dependientes
+      : []
+    : [];
 
   const currentHolder = datas?.data?.holder;
   const HandleTitular = () => {
@@ -408,7 +417,7 @@ const UnitInfo = ({
                 </div>
               </div>
 
-              {datas?.tenant?.dependientes && datas.tenant.dependientes.length > 0 && (
+              {tenantDependentsToShow && tenantDependentsToShow.length > 0 && (
                 <div className={styles.dependentsSection}>
                   <div className={styles.dependentsHeader}>
                     <h4 className={styles.dependentsTitle}>Dependientes</h4>
