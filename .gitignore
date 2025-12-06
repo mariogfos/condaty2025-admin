@@ -18,6 +18,7 @@
 /.next/
 /out/
 /nogit
+nogit/
 prompt_aliases.json
 
 *.log*
