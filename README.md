@@ -9,7 +9,7 @@ npm run devssaa equpo a login prueba 1 reject resuelta
 # or
 yarn dev
 # orsaaa
-pnpm devaaaaaa
+pnpm devaaaaaaasas
 # orsaaa
 
 bun devaas
