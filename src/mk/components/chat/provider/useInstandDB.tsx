@@ -70,12 +70,14 @@ const useInstandDB = (): useInstantDbType => {
             },
           },
         };
-        const { data: _chats } = await db.queryOnce(query);
-        _chats.messages.forEach((e: any) => {
-          del.push(db.tx.messages[e.id].delete());
-        });
+        if (typeof window !== "undefined") {
+          const { data: _chats } = await db.queryOnce(query);
+          _chats.messages.forEach((e: any) => {
+            del.push(db.tx.messages[e.id].delete());
+          });
 
-        if (del.length > 0) db.transact(del);
+          if (del.length > 0) db.transact(del);
+        }
       }
     },
     [user.client_id]

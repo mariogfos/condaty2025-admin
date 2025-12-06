@@ -34,12 +34,14 @@ export const initSocket = async () => {
       },
     },
   };
-  const { data: _notif } = await db.queryOnce(query);
-  _notif.notif.forEach((e: any) => {
-    del.push(db.tx.notif[e.id].delete());
-  });
-  console.log("notif", del.length);
-  if (del.length > 0) db.transact(del);
+  if (typeof window !== "undefined") {
+    const { data: _notif } = await db.queryOnce(query);
+    _notif.notif.forEach((e: any) => {
+      del.push(db.tx.notif[e.id].delete());
+    });
+    console.log("notif", del.length);
+    if (del.length > 0) db.transact(del);
+  }
   return db;
 };
 
