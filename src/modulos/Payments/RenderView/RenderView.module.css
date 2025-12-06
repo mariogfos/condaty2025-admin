@@ -165,7 +165,8 @@
   justify-content: center;
   width: 100%;
   position: relative;
-  row-gap: 1rem;
+  /* row-gap: 1rem; */
+  gap: var(--spM);
 }
 
 .voucherButton {
@@ -177,7 +178,8 @@
   border-radius: var(--bRadiusS);
   text-align: center;
   font-weight: var(--bSemibold);
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease,
+    border-color 0.2s ease;
   cursor: pointer;
   min-width: 220px;
   max-width: 100%;
@@ -285,28 +287,40 @@
 }
 
 .periodsTableBody .periodsTableRow:nth-child(odd) .periodsTableCell,
-.periodsTableBody .periodsTableRowReservations:nth-child(odd) .periodsTableCell {
+.periodsTableBody
+  .periodsTableRowReservations:nth-child(odd)
+  .periodsTableCell {
   background-color: var(--cWhiteV2);
   color: var(--cWhiteV1);
 }
 
 .periodsTableBody .periodsTableRow:nth-child(even) .periodsTableCell,
-.periodsTableBody .periodsTableRowReservations:nth-child(even) .periodsTableCell {
+.periodsTableBody
+  .periodsTableRowReservations:nth-child(even)
+  .periodsTableCell {
   background-color: var(--cHoverCompl1);
   color: var(--cWhiteV1);
 }
 
-.periodsTableBody .periodsTableRow .periodsTableCell[data-label='Subtotal'],
-.periodsTableBody .periodsTableRowReservations .periodsTableCell[data-label='Total'] {
+.periodsTableBody .periodsTableRow .periodsTableCell[data-label="Subtotal"],
+.periodsTableBody
+  .periodsTableRowReservations
+  .periodsTableCell[data-label="Total"] {
   font-weight: 500;
 }
 
-.periodsTableBody .periodsTableRow:nth-child(odd) .periodsTableCell[data-label='Subtotal'],
-.periodsTableBody .periodsTableRow:nth-child(even) .periodsTableCell[data-label='Subtotal'],
-.periodsTableBody .periodsTableRowReservations:nth-child(odd) .periodsTableCell[data-label='Total'],
+.periodsTableBody
+  .periodsTableRow:nth-child(odd)
+  .periodsTableCell[data-label="Subtotal"],
+.periodsTableBody
+  .periodsTableRow:nth-child(even)
+  .periodsTableCell[data-label="Subtotal"],
+.periodsTableBody
+  .periodsTableRowReservations:nth-child(odd)
+  .periodsTableCell[data-label="Total"],
 .periodsTableBody
   .periodsTableRowReservations:nth-child(even)
-  .periodsTableCell[data-label='Total'] {
+  .periodsTableCell[data-label="Total"] {
   color: var(--cWhite);
 }
 
@@ -314,11 +328,11 @@
   border-right: none;
 }
 
-.periodsTableCell[data-label='Monto'],
-.periodsTableCell[data-label='Multa'],
-.periodsTableCell[data-label='Mant. Valor'],
-.periodsTableCell[data-label='Subtotal'],
-.periodsTableCell[data-label='Total'] {
+.periodsTableCell[data-label="Monto"],
+.periodsTableCell[data-label="Multa"],
+.periodsTableCell[data-label="Mant. Valor"],
+.periodsTableCell[data-label="Subtotal"],
+.periodsTableCell[data-label="Total"] {
   justify-content: flex-end;
   text-align: right;
 }

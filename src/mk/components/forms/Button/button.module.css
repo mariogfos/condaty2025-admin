@@ -38,6 +38,7 @@
   }
   &.cancel {
     background-color: var(--cError);
+    color: var(--cWhite);
   }
 
   &.danger {

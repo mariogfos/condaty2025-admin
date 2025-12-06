@@ -75,7 +75,7 @@ const getWidth = (width: any) => {
 
 const Table = ({
   header = [],
-  id="0",
+  id = "0",
   data,
   footer,
   sumarize = false,
@@ -350,10 +350,10 @@ const Body = ({
 
   const _onRowClick = (e: any) => {
     if (onRowClick) {
-      const scrollTop = divRef?.current?.scrollTop;
-      if (scrollTop !== undefined && store && id) {
-        setStore({ ["scrollTop" + id]: scrollTop });
-      }
+      // const scrollTop = divRef?.current?.scrollTop;
+      // if (scrollTop !== undefined && store && id) {
+      //   setStore({ ["scrollTop" + id]: scrollTop });
+      // }
       onRowClick(e);
     }
   };

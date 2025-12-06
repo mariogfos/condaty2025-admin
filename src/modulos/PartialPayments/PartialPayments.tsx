@@ -14,15 +14,6 @@ const paramsInitial = {
   fullType: "L",
   searchBy: "",
 };
-const renderTitleCell = ({ item }: Record<string, any>) => {
-  return (
-    <div>
-      <p style={{ color: "var(--cWhite)" }}>{item.holder}</p>
-      <p>CI/NIT: {item.ci_holder}</p>
-    </div>
-  );
-};
-
 const PartialPayments = () => {
   const mod: ModCrudType = {
     modulo: "bank-accounts",
@@ -37,6 +28,8 @@ const PartialPayments = () => {
       del: true,
     },
     extraData: true,
+
+    titleAdd: "Nuevo",
     renderForm: (props: any) => <RenderForm {...props} />,
     renderView: (props: {
       open: boolean;
@@ -65,47 +58,39 @@ const PartialPayments = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      alias_holder: {
+      dpto_id: {
         rules: ["required", "ci"],
         api: "ae",
-        label: "Alias",
-        form: {
-          type: "text",
-          required: true,
-        },
-        list: true,
-      },
-
-      assigned_to: {
-        rules: ["required", "alpha"],
-        api: "ae",
-        label: "Asignado a",
+        label: "Unidad",
         form: {
           type: "text",
           required: true,
         },
         list: {
           onRender: ({ item }: Record<string, any>) => {
-            return (
-              <p>
-                {["Expensa", "Reserva", "Principal"]
-                  .filter((label, index) => {
-                    const flags = [
-                      item?.is_expense,
-                      item?.is_reserve,
-                      item?.is_main,
-                    ];
-                    return flags[index] > 0;
-                  })
-                  .join(", ") || "-/-"}
-              </p>
-            );
+            return <p>A - 21</p>;
+          },
+        },
+      },
+
+      concept: {
+        rules: ["required", "alpha"],
+        api: "ae",
+        label: "Concepto",
+        form: {
+          type: "text",
+          required: true,
+        },
+        list: {
+          onRender: ({ item }: Record<string, any>) => {
+            return <p>Pago Expensas - Enero 2025</p>;
           },
         },
       },
       status: {
         rules: [],
         api: "ae",
+        label: "Estado",
         form: false,
         list: {
           width: "180px",
@@ -114,17 +99,13 @@ const PartialPayments = () => {
               <div
                 style={{
                   padding: "4px 8px",
-                  backgroundColor:
-                    item.status === "A"
-                      ? "var(--cHoverSuccess)"
-                      : "var(--cHoverError)",
-                  color:
-                    item.status === "A" ? "var(--cSuccess)" : "var(--cError)",
+                  backgroundColor: "var(--cHoverCompl5)",
+                  color: "var(--cMediumAlert)",
                   borderRadius: 12,
                   fontSize: 14,
                 }}
               >
-                {item.status === "A" ? "Habilitada" : "Deshabilitada"}
+                Por pagar
               </div>
             );
           },
@@ -135,52 +116,67 @@ const PartialPayments = () => {
           options: getOptionsStatus,
         },
       },
-      bank_entity_id: {
+      initial_debt: {
         rules: ["required", "alpha"],
         api: "ae",
-        label: "Entidad bancaria",
+        label: "Deuda inicial",
         form: {
-          type: "select",
+          type: "number",
           required: true,
-          optionsExtra: "bankEntities",
         },
-        list: true,
-        filter: {
-          label: "Entidades bancarias",
-          width: "340px",
-          options: getOptionsBankEntity,
+        list: {
+          onRender: ({ item }: Record<string, any>) => {
+            return <p>Bs 2,000.00</p>;
+          },
         },
+        // filter: {
+        //   label: "Deuda inicial",
+        //   width: "340px",
+        //   options: getOptionsBankEntity,
+        // },
       },
-      titular: {
+      paid_amount: {
         closeTag: true,
         rules: [""],
         api: "ae",
-        label: "Titular",
+        label: "Monto pagado",
         form: {
-          type: "text",
+          type: "number",
+          required: true,
         },
         list: {
-          onRender: renderTitleCell,
+          onRender: ({ item }: Record<string, any>) => {
+            return <p>Bs 300.00</p>;
+          },
         },
       },
-      account_number: {
+      penalty_amount: {
         rules: [""],
         api: "",
-        label: "Nº de cuenta",
-        list: {},
-      },
-
-      currency_type_id: {
-        rules: ["required", "alpha"],
-        api: "a",
-        label: "Moneda",
+        label: "Multa",
         form: {
-          type: "select",
+          type: "number",
           required: true,
-          optionsExtra: "currencyTypes",
         },
         list: {
-          width: "180px",
+          onRender: ({ item }: Record<string, any>) => {
+            return <p>Bs 0.00</p>;
+          },
+        },
+      },
+
+      pending_payment: {
+        rules: ["required", "alpha"],
+        api: "a",
+        label: "Pendiente de pago",
+        form: {
+          type: "number",
+          required: true,
+        },
+        list: {
+          onRender: ({ item }: Record<string, any>) => {
+            return <p>Bs 1,700.00</p>;
+          },
         },
       },
     };
