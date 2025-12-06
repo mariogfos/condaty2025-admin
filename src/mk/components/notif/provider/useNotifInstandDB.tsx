@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useMemo, useState } from "react";
 import { id, init } from "@instantdb/react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
