@@ -48,7 +48,6 @@ export default function RootLayout({
         <AxiosInstanceProvider interceptors={axiosInterceptors}>
           <AuthProvider>
             <ImageModalProvider>
-              <NotifInstantDb />
               <div
                 id="portal-root"
                 style={{
@@ -59,7 +58,6 @@ export default function RootLayout({
                 }}
               ></div>
               <Layout>{children}</Layout>
-              <ChatInstantDb />
             </ImageModalProvider>
           </AuthProvider>
         </AxiosInstanceProvider>
