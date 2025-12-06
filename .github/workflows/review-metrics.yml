@@ -1,0 +1,28 @@
+# .github/workflows/review-metrics.yml
+name: Code Review Metrics
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  collect-metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Review Data
+        id: review-data
+        run: |
+          # Script simple para métricas básicas
+          echo "REVIEWER=${{ github.event.review.user.login }}" >> $GITHUB_ENV
+          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+      
+      - name: Post Summary Comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Resumen automático en comentario
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `📊 **Métricas automáticas de review**\n\n✅ Issues reportados: ${{ github.event.review.state }}\n👤 Revisor: @${{ github.event.review.user.login }}\n📅 Fecha: ${new Date().toLocaleDateString()}`
+            })

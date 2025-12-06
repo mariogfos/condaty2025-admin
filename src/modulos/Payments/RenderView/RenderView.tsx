@@ -8,7 +8,7 @@ import React, {
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
-import {
+import { formatToDayFdMYH,
   formatToDayDDMMYYYYHHMM,
   MONTHS_ES,
   formatToDayDDMMYYYY,
@@ -20,30 +20,33 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { formatBs } from "@/mk/utils/numbers";
 import Input from "@/mk/components/forms/Input/Input";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
-interface PaymentDetail {
-  id: string | number;
-  status: string;
-  user?: any;
-  confirmed_by?: any;
-  canceled_by?: any;
-  canceled_obs?: string;
-  owner?: any;
-  details?: any[];
-  dptos?: string;
-  dpto_id?: string | number;
-  amount?: number;
-  paid_at?: string;
-  concept?: string[];
-  category?: { padre?: { name?: string } };
-  obs?: string;
-  type?: string;
-  method?: string;
-  voucher?: string;
-  ext?: string;
-  updated_at?: string;
-  bank_account_id?: string | number;
-  bank_account?: object | any;
-}
+import { it } from "date-fns/locale";
+import { generateWhatsAppLink } from "@/mk/utils/phone";
+  interface PaymentDetail {
+    id: string | number;
+    status: string;
+    user?: any;
+    confirm_obs?: string;
+    confirmed_by?: any;
+    canceled_by?: any;
+    canceled_obs?: string;
+    owner?: any;
+    details?: any[];
+    dptos?: string;
+    dpto_id?: string | number;
+    amount?: number;
+    paid_at?: string;
+    concept?: string[];
+    category?: { padre?: { name?: string } };
+    obs?: string;
+    type?: string;
+    method?: string;
+    voucher?: string;
+    ext?: string;
+    url_file?: (string | null)[];
+    bank_account?: any;
+    updated_at?: string;
+  }
 
 interface DetailPaymentProps {
   open: boolean;
@@ -135,6 +138,31 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         error?.data?.message || "No se pudo generar el recibo.",
         "error"
       );
+    }
+  };
+
+  const handleShareReceiptWhatsApp = async () => {
+    const phone = String(item?.owner?.phone || "");
+    const waLinkBase = generateWhatsAppLink(phone);
+    if (!waLinkBase) {
+      showToast("Número de teléfono no disponible", "error");
+      return;
+    }
+    showToast("Generando recibo...", "info");
+    const { data: file, error } = await execute(
+      "/payment-recibo",
+      "POST",
+      { id: item?.id },
+      false,
+      true
+    );
+    if (file?.success === true && file?.data?.path) {
+      const receiptUrl = getUrlImages("/" + file.data.path);
+      const waLink = generateWhatsAppLink(phone, `Recibo de pago: ${receiptUrl}`);
+      window.open(waLink, "_blank");
+      showToast("Recibo generado con éxito.", "success");
+    } else {
+      showToast(error?.data?.message || "No se pudo generar el recibo.", "error");
     }
   };
 
@@ -261,13 +289,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
 
   const getStatus = (status: string) => {
     const statusMap: Record<string, string> = {
-      P: "Cobrado",
-      S: "Por confirmar",
-      R: "Rechazado",
-      A: "Por pagar",
-      M: "Moroso",
-      E: "Por subir comprobante",
-      X: "Anulado",
+      P: 'Cobrado',
+      S: 'Por confirmar',
+      R: 'Rechazado',
+      A: 'Por pagar',
+      M: 'Moroso',
+      E: 'Por subir comprobante',
+      X: 'Anulado',
     };
     return statusMap[status] || status;
   };
@@ -294,29 +322,30 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     return item.amount;
   };
 
-  const getUniqueConcepts = () => {
-    if (!item) return <div>-/-</div>;
+  // Nov 20, 2025: Comentado para eliminar el campo concepto del detalle de pago
+  // const getUniqueConcepts = () => {
+  //   if (!item) return <div>-/-</div>;
 
-    if (item.details?.length) {
-      const uniqueCategories = Array.from(
-        new Set(
-          item.details
-            .map((detail) => detail?.subcategory?.padre?.name)
-            .filter(Boolean)
-        )
-      );
+  //   if (item.details?.length) {
+  //     const uniqueCategories = Array.from(
+  //       new Set(
+  //         item.details
+  //           .map((detail) => detail?.subcategory?.padre?.name)
+  //           .filter(Boolean)
+  //       )
+  //     );
 
-      return uniqueCategories.length > 0 ? (
-        uniqueCategories.map((name, i) => (
-          <div key={`category-${i}`}>- {name}</div>
-        ))
-      ) : (
-        <div>-/-</div>
-      );
-    }
+  //     return uniqueCategories.length > 0 ? (
+  //       uniqueCategories.map((name, i) => (
+  //         <div key={`category-${i}`}>- {name}</div>
+  //       ))
+  //     ) : (
+  //       <div>-/-</div>
+  //     );
+  //   }
 
-    return <div>-/-</div>;
-  };
+  //   return <div>-/-</div>;
+  // };
 
   const handleAnularClick = () => {
     if (item && onDel) {
@@ -361,7 +390,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     statusClass = styles.statusRejected;
   } else if (item.status === "X") {
     statusClass = styles.statusCanceled;
-  } else if (item.status === "E") {
+  } else if (item.status === 'E') {
     statusClass = styles.statusVoucher;
   }
 
@@ -392,6 +421,72 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
 
   let infoBlockContent = null;
 
+  const voucherUrls = Array.isArray(item.url_file)
+    ? item.url_file
+        .map((u: any) => String(u || "").replace(/[`'"\s]/g, "").trim())
+        .filter((u: string) => !!u)
+    : [];
+  const hasVoucherUrls = voucherUrls.length > 0;
+  const showBankAccount = !!(item.status === "P" && item.bank_account);
+
+  const handleDownloadVouchers = async () => {
+    if (!hasVoucherUrls) return;
+    try {
+      showToast("Descargando comprobantes...", "info");
+      const container = document.createElement("div");
+      container.style.display = "none";
+      document.body.appendChild(container);
+      for (let i = 0; i < voucherUrls.length; i++) {
+        const url = voucherUrls[i];
+        try {
+          const res = await fetch(url, { mode: "cors" });
+          if (!res.ok) continue;
+          const blob = await res.blob();
+          const blobUrl = window.URL.createObjectURL(blob);
+          let name = "voucher-" + (i + 1);
+          try {
+            const u = new URL(url);
+            const last = u.pathname.split("/").pop() || "";
+            if (last) name = last;
+          } catch {}
+          if (!/\.[a-zA-Z0-9]+$/.test(name)) {
+            const ext = (blob.type.split("/")[1] || "file").replace(/[^a-zA-Z0-9]/g, "");
+            name = name + "." + ext;
+          }
+          const a = document.createElement("a");
+          a.href = blobUrl;
+          a.download = name;
+          container.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(blobUrl);
+          a.remove();
+        } catch {}
+      }
+      setTimeout(() => {
+        container.remove();
+      }, 500);
+      showToast("Descarga finalizada", "success");
+    } catch (e: any) {
+      showToast("No se pudieron descargar los comprobantes", "error");
+    }
+  };
+
+  const handleViewOrDownloadVouchers = () => {
+    if (!hasVoucherUrls) return;
+    if (voucherUrls.length === 1) {
+      const u = voucherUrls[0];
+      const a = document.createElement("a");
+      a.href = u;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } else {
+      handleDownloadVouchers();
+    }
+  };
+
   return (
     <>
       <DataModal
@@ -419,34 +514,26 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         }
         variant={"mini"}
         style={style}
+        headerDivider={false}
         minWidth={860}
         maxWidth={980}
       >
-        {item && onDel && item.status === "P" && item.user && (
-          <div className={styles.headerActionContainer}>
-            <button
-              type="button"
-              onClick={handleAnularClick}
-              className={styles.textButtonDanger}
-            >
-              Anular ingreso
-            </button>
-          </div>
-        )}
+        
         <div className={styles.container}>
           <div className={styles.headerSection}>
             <div className={styles.amountDisplay}>
               {formatBs(item.amount ?? 0)}
             </div>
             <div className={styles.dateDisplay}>
-              {formatToDayDDMMYYYYHHMM(item.paid_at)}
+              {formatToDayFdMYH(item.paid_at)}
             </div>
           </div>
+        </div>
 
-          {/* Divisor antes de la sección de info y botón */}
-          <hr className={styles.sectionDivider} />
-
+        <div className={styles.container}>
+          
           <section className={styles.detailsSection}>
+            {/* Columna Izquierda */}
             <div className={styles.detailsColumn}>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Unidad</span>
@@ -464,58 +551,54 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     : tenantDisplay}
                 </span>
               </div>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Concepto</span>
-                <span className={styles.infoValue}>{getUniqueConcepts()}</span>
-              </div>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Observación</span>
-                <span className={styles.infoValue}>{item.obs || "-/-"}</span>
-              </div>
-
-              {item.status === "X" && item.canceled_obs && (
+              {showBankAccount && item.status !== "R" && item.status !== "X" && (
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Motivo de anulación</span>
-                  <span
-                    className={`${styles.infoValue} ${styles.canceledReason}`}
-                  >
-                    {item.canceled_obs}
-                  </span>
-                </div>
-              )}
-              {item?.bank_account_id && (
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Cuenta bancaria</span>
-                  <span className={styles.infoValue}>
-                    {`${item.bank_account?.alias_holder ?? ""} (${
-                      item.bank_account?.bank_entity?.name ?? "N/A"
-                    })` || "-/-"}
-                  </span>
+                  <span className={styles.infoLabel}>Observación</span>
+                  <span className={styles.infoValue}>{item.obs || "-/-"}</span>
                 </div>
               )}
             </div>
-            {/* Columna Derecha */}
+            {/* Columna Central */}
             <div className={styles.detailsColumn}>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Estado</span>
-                <span className={`${styles.infoValue} ${statusClass}`}>
-                  {getStatus(item.status)}
-                </span>
-              </div>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Método de pago</span>
-                <span className={styles.infoValue}>
-                  {getPaymentType(item.method || "")}
-                </span>
-              </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Pagado por</span>
                 <span className={styles.infoValue}>
                   {getFullName(item.owner) || "-/-"}
                 </span>
               </div>
+               <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Método de pago</span>
+                <span className={styles.infoValue}>
+                  {getPaymentType(item.method || "")}
+                </span>
+              </div>
 
-              {item.status === "X" ? (
+              {showBankAccount && (
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Cuenta bancaria</span>
+                  <span className={styles.infoValue}>
+                    {(item.bank_account?.bank_entity?.name || "-/-") +
+                      " - " +
+                      (item.bank_account?.account_number || "-/-")}
+                  </span>
+                </div>
+              )}
+
+              {item.confirmed_by && item.status === "R" && (
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>{aprobadoLabel}</span>
+                  <span className={styles.infoValue}>
+                    {aprobadoPorDisplay}
+                  </span>
+                </div>
+              )}
+              {!showBankAccount && item.status !== "R" && item.status !== "X" && (
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Observación</span>
+                  <span className={styles.infoValue}>{item.obs || "-/-"}</span>
+                </div>
+              )}
+              {item.status === "X" && (
                 <>
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>Anulado por</span>
@@ -532,9 +615,38 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     </div>
                   )}
                 </>
+              )}
+            </div>
+            {/* Columna Derecha */}
+            <div className={styles.detailsColumn}>
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Estado</span>
+                <span className={`${styles.infoValue} ${statusClass}`}>
+                  {getStatus(item.status)}
+                </span>
+              </div>
+              
+              
+              {item.status === "R" && (
+                <>
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>Motivo de rechazo</span>
+                    <span className={`${styles.infoValue} ${styles.rechazedReason}`}>{item.confirm_obs || "-/-"}</span>
+                  </div>
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>Observación</span>
+                    <span className={styles.infoValue}>{item.obs || "-/-"}</span>
+                  </div>
+                </>
+              )}
+              {item.status === "X" ? (
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Motivo de rechazo</span>
+                  <span className={`${styles.infoValue} ${styles.canceledReason}`}>{item.canceled_obs || "-/-"}</span>
+                </div>
               ) : (
                 <>
-                  {item.confirmed_by && (
+                  {item.confirmed_by && item.status !== "R" && (
                     <div className={styles.infoBlock}>
                       <span className={styles.infoLabel}>{aprobadoLabel}</span>
                       <span className={styles.infoValue}>
@@ -562,7 +674,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   <span className={styles.infoValue}>
                     {item.voucher ? (
                       <>
-                        {item.voucher}
+                        {item.voucher + " "}
                         <button
                           type="button"
                           className={styles.textButtonAccent}
@@ -585,45 +697,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               )}
             </div>
           </section>
-          {/* Divisor después de la sección de info y botón */}
-          <hr className={styles.sectionDivider} />
-          <div className={styles.voucherButtonContainer}>
-            {item.status === "P" && (
-              <Button
-                variant="secondary"
-                className={styles.voucherButton}
-                style={item.ext ? { marginRight: 8 } : {}}
-                onClick={handleGenerateReceipt}
-              >
-                Ver Recibo
-              </Button>
-            )}
-            {item.ext && (
-              <Button
-                variant="secondary"
-                className={styles.voucherButton}
-                onClick={() => {
-                  window.open(
-                    getUrlImages(
-                      "/PAYMENT-" +
-                        item.id +
-                        "." +
-                        item.ext +
-                        "?d=" +
-                        item.updated_at
-                    ),
-                    "_blank"
-                  );
-                }}
-              >
-                Ver comprobante
-              </Button>
-            )}
-          </div>
-
-          {Array.isArray(item.details) &&
-            item.details.length > 0 &&
-            item.details.some((detail: any) => detail?.debt_dpto) && (
+        </div>
+        
+        {Array.isArray(item.details) &&
+          item.details.length > 0 &&
+          item.details.some((detail: any) => detail?.debt_dpto) && (
+            <div className={styles.container}>
               <div className={styles.periodsDetailsSection}>
                 <div className={styles.periodsDetailsHeader}>
                   <h3 className={styles.periodsDetailsTitle}>
@@ -727,17 +806,54 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     </div>
                   </div>
                 </div>
-                <div className={styles.periodsDetailsFooter}>
-                  <div className={styles.periodsDetailsTotal}>
-                    Total pagado:{" "}
-                    <span className={styles.totalAmountValue}>
-                      {formatBs(item.amount ?? 0)}
-                    </span>
-                  </div>
-                </div>
+
               </div>
+            </div>
+        )}
+
+        <div className={styles.voucherButtonContainer}>
+            {item && onDel && item.status === "P" && item.user && (
+              <Button
+                onClick={handleAnularClick}
+                className={styles.textButtonDanger}
+                style={{ marginRight: 8 }}
+                variant="danger"
+                >
+                Anular ingreso
+              </Button>
+            )}
+
+            {item.status === "P" && (
+              <Button
+                variant="secondary"
+                className={styles.voucherButton}
+                style={hasVoucherUrls ? { marginRight: 8 } : {}}
+                onClick={handleGenerateReceipt}
+                >
+                Ver Recibo
+              </Button>
+            )}
+            {item.status === "P" && (
+              <Button
+                variant="secondary"
+                className={styles.voucherButton}
+                style={{ marginRight: 8 }}
+                onClick={handleShareReceiptWhatsApp}
+                >
+                Compartir por WhatsApp
+              </Button>
+            )}
+            {hasVoucherUrls && (
+              <Button
+                variant="secondary"
+                className={styles.voucherButton}
+                onClick={handleViewOrDownloadVouchers}
+                >
+                Ver comprobante
+              </Button>
             )}
         </div>
+        
       </DataModal>
 
       {/* Modal para añadir/editar número de respaldo de pago */}
@@ -758,7 +874,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         style={style}
         minWidth={720}
         maxWidth={860}
-      >
+        >
         <Input
           label={"Número de respaldo de pago"}
           name={"voucher"}
@@ -771,7 +887,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
           }}
           error={voucherErrors}
           maxLength={50}
-        />
+          />
       </DataModal>
 
       <DataModal
@@ -784,7 +900,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         style={style}
         minWidth={720}
         maxWidth={860}
-      >
+        >
         <TextArea
           label="Observaciones"
           required
@@ -792,7 +908,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
           name="confirm_obs"
           onChange={handleChangeInput}
           value={formState?.confirm_obs || ""}
-        />
+          />
       </DataModal>
     </>
   );

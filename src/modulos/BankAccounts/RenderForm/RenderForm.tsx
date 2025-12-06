@@ -78,12 +78,7 @@ const RenderForm = ({
       key: "holder",
       errors,
     });
-    errors = checkRules({
-      value: formState?.ci_holder,
-      rules: ["required"],
-      key: "ci_holder",
-      errors,
-    });
+    
     errors = checkRules({
       value: formState?.alias_holder,
       rules: ["required"],
@@ -155,7 +150,7 @@ const RenderForm = ({
             options={[
               {
                 id: "S",
-                name: "Caja de ahorro",
+                name: "Cuenta ahorro",
               },
               {
                 id: "C",
@@ -203,9 +198,8 @@ const RenderForm = ({
             type="number"
             value={formState.ci_holder || ""}
             onChange={handleChange}
-            error={errors}
             disabled={item?.isInUse}
-            required
+            error={errors}
           />
           <Input
             label="Alias"
