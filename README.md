@@ -9,13 +9,13 @@ npm run devssaa equpo a login prueba 1 reject resuelta
 # or
 yarn dev
 # orsaaa
-pnpm devaaaaaa
+pnpm devaaaaaapapap
 # orsaaa
 
 bun devaas
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. lero lero
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
