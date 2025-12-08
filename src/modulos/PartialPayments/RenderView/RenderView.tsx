@@ -8,6 +8,7 @@ import { IconGallery } from "@/components/layout/icons/IconsBiblioteca";
 import RenderViewPayment from "@/modulos/Payments/RenderView/RenderView";
 import { getPaymentStatusConfig } from "@/types/payment";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import RenderFormAccount from "../RenderFormAccount/RenderFormAccount";
 
 const LabelValue = ({
   label,
@@ -58,6 +59,7 @@ const RenderView = ({ open, onClose, item: propItem, onDel, onEdit }: any) => {
     open: false,
     item: undefined,
   });
+  const [openFormAccount, setOpenFormAccount] = useState(false);
   const item = {
     id: "exp-2025-11-00124",
     amount: 1850.0, // Monto original de la expensa
@@ -342,6 +344,20 @@ const RenderView = ({ open, onClose, item: propItem, onDel, onEdit }: any) => {
           onClose={() => setOpenDetail({ open: false, item: undefined })}
           item={openDetail?.item}
           onDel={onDel}
+        />
+      )}
+      {openFormAccount && (
+        <RenderFormAccount
+          open={openFormAccount}
+          onClose={() => setOpenFormAccount(false)}
+          item={{}}
+          // reLoad={() => {
+          //   getDetail();
+          //   reLoad();
+          // }}
+          // execute={execute}
+          // showToast={showToast}
+          // extraData={extraData}
         />
       )}
     </>
