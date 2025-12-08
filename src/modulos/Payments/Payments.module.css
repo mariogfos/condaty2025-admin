@@ -48,7 +48,85 @@
   border-radius: var(--bRadiusS);
   background-color: var(--cBlackV1);
 }
-/* Estilos para responsive */
+
+/* Columnas Responsivas */
+.colPaidAt,
+.colDptos,
+.colMethod,
+.colConcepto,
+.colStatus,
+.colAmount {
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+/* Escritorio (Base) */
+.colPaidAt {
+  flex: 0 0 12% !important;
+  width: 12% !important;
+  min-width: 110px;
+}
+
+.colDptos {
+  flex: 0 0 8% !important;
+  width: 8% !important;
+  min-width: 70px;
+}
+
+.colMethod {
+  flex: 0 0 12% !important;
+  width: 12% !important;
+  min-width: 120px;
+}
+
+.colConcepto {
+  flex: 1 1 auto !important;
+  /* El resto del espacio disponible */
+  min-width: 200px;
+}
+
+.colStatus {
+  flex: 0 0 12% !important;
+  width: 12% !important;
+  min-width: 130px;
+}
+
+.colAmount {
+  flex: 0 0 10% !important;
+  width: 10% !important;
+  min-width: 100px;
+  text-align: right;
+  justify-content: flex-end;
+}
+
+/* Tablet / Pantallas Medianas (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .colPaidAt {
+    flex: 0 0 15% !important;
+    width: 15% !important;
+  }
+  .colDptos {
+    flex: 0 0 10% !important;
+    width: 10% !important;
+  }
+  .colMethod {
+    flex: 0 0 15% !important;
+    width: 15% !important;
+  }
+  .colConcepto {
+    min-width: 180px;
+  }
+  .colStatus {
+    flex: 0 0 15% !important;
+    width: 15% !important;
+  }
+  .colAmount {
+    flex: 0 0 12% !important;
+    width: 12% !important;
+  }
+}
+
+/* Móvil / Pantallas Pequeñas (max-width: 768px) */
 @media (max-width: 768px) {
   .container {
     padding: 10px;
@@ -66,7 +144,34 @@
     margin-bottom: 10px;
     font-size: clamp(11px, 4vw, 13px);
   }
+
+  /* Ajustes de columnas para móvil: Forzar min-widths para scroll horizontal */
+  .colPaidAt {
+    flex: 0 0 120px !important;
+    width: 120px !important;
+  }
+  .colDptos {
+    flex: 0 0 80px !important;
+    width: 80px !important;
+  }
+  .colMethod {
+    flex: 0 0 120px !important;
+    width: 120px !important;
+  }
+  .colConcepto {
+    flex: 0 0 200px !important;
+    width: 200px !important;
+  }
+  .colStatus {
+    flex: 0 0 120px !important;
+    width: 120px !important;
+  }
+  .colAmount {
+    flex: 0 0 100px !important;
+    width: 100px !important;
+  }
 }
+
 .statusBadge {
   font-weight: 400;
   padding: 6px var(--spM);

@@ -115,18 +115,30 @@ const renderConceptCell = (props: any) => {
 
   if (linesFromDetails.length > 0) {
     const text = linesFromDetails.join(' | ');
-    return <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</div>;
+    return (
+      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {text}
+      </div>
+    );
   }
 
   const concepts: string[] = Array.isArray(item.concept) ? (item.concept as string[]) : [];
   if (concepts.length > 0) {
     const text = concepts.join(' | ');
-    return <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</div>;
+    return (
+      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {text}
+      </div>
+    );
   }
 
   if (item.concepto) {
     const text = String(item.concepto);
-    return <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</div>;
+    return (
+      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {text}
+      </div>
+    );
   }
 
   return <div>-/-</div>;
@@ -217,7 +229,7 @@ const Payments = () => {
           type: 'date',
         },
         list: {
-          width: 260,
+          className: styles.colPaidAt,
           onRender: renderPaidAtCell,
         },
         filter: {
@@ -232,7 +244,7 @@ const Payments = () => {
         api: 'ae',
         label: 'Unidad',
         list: {
-          width: 140,
+          className: styles.colDptos,
           onRender: renderDptosCell,
         },
       },
@@ -249,7 +261,7 @@ const Payments = () => {
           ],
         },
         list: {
-          width: 200,
+          className: styles.colMethod,
           onRender: renderMethodCell,
         },
         filter: {
@@ -267,7 +279,7 @@ const Payments = () => {
           placeholder: 'Ej: Pago de servicios',
         },
         list: {
-          width: 300,
+          className: styles.colConcepto,
           onRender: renderConceptCell,
         },
       },
@@ -277,7 +289,7 @@ const Payments = () => {
         api: 'ae',
         label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
-          width: 160,
+          className: styles.colStatus,
           onRender: renderStatusCell,
         },
         filter: {
@@ -297,6 +309,7 @@ const Payments = () => {
           placeholder: 'Ej: 100.00',
         },
         list: {
+          className: styles.colAmount,
           onRender: renderAmountCell,
         },
       },
