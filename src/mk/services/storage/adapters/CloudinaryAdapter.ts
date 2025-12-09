@@ -37,6 +37,8 @@ export class CloudinaryAdapter implements IStorageAdapter {
       formData.append('upload_preset', this.uploadPreset);
       formData.append('folder', this.folder);
       formData.append('public_id', publicId);
+      const resourceType = file.type.startsWith('image/') ? 'image' : 'raw';
+      formData.append('resource_type', resourceType);
 
       console.log('📤 Subiendo a Cloudinary:', { publicId, filename });
 
