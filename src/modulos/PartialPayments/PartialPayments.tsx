@@ -7,6 +7,7 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
+import { formatBs } from "../../mk/utils/numbers";
 
 const paramsInitial = {
   perPage: 20,
@@ -14,9 +15,14 @@ const paramsInitial = {
   fullType: "L",
   searchBy: "",
 };
+const statusPartialPayment: any = {
+  I: "Pago parcial",
+  P: "Cobrado",
+  X: "Anulado",
+};
 const PartialPayments = () => {
   const mod: ModCrudType = {
-    modulo: "bank-accounts",
+    modulo: "partialpayments",
     singular: "pago parcial",
     plural: "pagos parciales",
     filter: true,
@@ -68,7 +74,7 @@ const PartialPayments = () => {
         },
         list: {
           onRender: ({ item }: Record<string, any>) => {
-            return <p>A - 21</p>;
+            return <p>{item?.dpto?.nro}</p>;
           },
         },
       },
@@ -83,7 +89,7 @@ const PartialPayments = () => {
         },
         list: {
           onRender: ({ item }: Record<string, any>) => {
-            return <p>Pago Expensas - Enero 2025</p>;
+            return <p>{item?.subcategory?.name}</p>;
           },
         },
       },
@@ -105,7 +111,7 @@ const PartialPayments = () => {
                   fontSize: 14,
                 }}
               >
-                Por pagar
+                {statusPartialPayment[item?.status || ""]}
               </div>
             );
           },
@@ -126,7 +132,7 @@ const PartialPayments = () => {
         },
         list: {
           onRender: ({ item }: Record<string, any>) => {
-            return <p>Bs 2,000.00</p>;
+            return <p>{formatBs(item?.amount)}</p>;
           },
         },
         // filter: {
@@ -146,7 +152,7 @@ const PartialPayments = () => {
         },
         list: {
           onRender: ({ item }: Record<string, any>) => {
-            return <p>Bs 300.00</p>;
+            return <p>{formatBs(item?.paid_amount)}</p>;
           },
         },
       },
@@ -160,12 +166,12 @@ const PartialPayments = () => {
         },
         list: {
           onRender: ({ item }: Record<string, any>) => {
-            return <p>Bs 0.00</p>;
+            return <p>{formatBs(item?.penalty_amount)}</p>;
           },
         },
       },
 
-      pending_payment: {
+      remaining_amount: {
         rules: ["required", "alpha"],
         api: "a",
         label: "Pendiente de pago",
@@ -175,7 +181,7 @@ const PartialPayments = () => {
         },
         list: {
           onRender: ({ item }: Record<string, any>) => {
-            return <p>Bs 1,700.00</p>;
+            return <p>{formatBs(item?.remaining_amount)}</p>;
           },
         },
       },
@@ -203,7 +209,7 @@ const PartialPayments = () => {
     <div className={styles.style}>
       <List
         height={"calc(100vh - 345px)"}
-        emptyMsg="Lista de cuentas bancarias vacía. Aquí verás a todas las cuentas bancarias"
+        emptyMsg="Lista de pagos parciales vacía. Aquí verás a todos los pagos parciales"
         emptyLine2="del condominio una vez los registres."
       />
     </div>
