@@ -8,6 +8,7 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import { formatBs } from "../../mk/utils/numbers";
+import { MONTHS } from "../../mk/utils/date";
 
 const paramsInitial = {
   perPage: 20,
@@ -61,8 +62,9 @@ const PartialPayments = () => {
   const getOptionsStatus = useCallback(
     () => [
       { id: "ALL", name: "Todos" },
-      { id: "A", name: "Habilitada" },
-      { id: "X", name: "Deshabilitada" },
+      { id: "P", name: "Cobrado" },
+      { id: "I", name: "Pago parcial" },
+      { id: "X", name: "Anulado" },
     ],
     []
   );
@@ -94,7 +96,12 @@ const PartialPayments = () => {
         },
         list: {
           onRender: ({ item }: Record<string, any>) => {
-            return <p>{item?.subcategory?.name}</p>;
+            return (
+              <p>
+                {item?.subcategory?.name} - {MONTHS[item?.debt?.month]}{" "}
+                {item?.debt?.year}
+              </p>
+            );
           },
         },
       },
