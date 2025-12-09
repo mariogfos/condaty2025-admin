@@ -350,12 +350,14 @@ const RenderView = ({
                   textAlign: "center",
                 }}
               >
-                {item.type === 1
-                  ? "Pago de expensa - " +
+                {item.type === 1 &&
+                  "Pago de expensa - " +
                     MONTHS[item.debt.month] +
                     ", " +
-                    item.debt.year
-                  : item.description}
+                    item.debt.year}
+
+                {item.type === 2 && item.description}
+                {item.type === 0 && item.subcategory?.name}
               </p>
             </div>
             <div
