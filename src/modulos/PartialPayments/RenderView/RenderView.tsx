@@ -1,15 +1,17 @@
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import Table from '@/mk/components/ui/Table/Table';
-import { formatBs } from '@/mk/utils/numbers';
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import Button from '@/mk/components/forms/Button/Button';
-import { IconGallery } from '@/components/layout/icons/IconsBiblioteca';
-import RenderViewPayment from '@/modulos/Payments/RenderView/RenderView';
-import { getPaymentStatusConfig } from '@/types/payment';
-import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
-import RenderFormAccount from '../RenderFormAccount/RenderFormAccount';
-import useAxios from '@/mk/hooks/useAxios';
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Table from "@/mk/components/ui/Table/Table";
+import { formatBs } from "@/mk/utils/numbers";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import Button from "@/mk/components/forms/Button/Button";
+import { IconGallery } from "@/components/layout/icons/IconsBiblioteca";
+import RenderViewPayment from "@/modulos/Payments/RenderView/RenderView";
+import { getPaymentStatusConfig } from "@/types/payment";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import RenderFormAccount from "../RenderFormAccount/RenderFormAccount";
+import useAxios from "@/mk/hooks/useAxios";
+import { getDateStrMes, getDateTimeStrMes } from "../../../mk/utils/date";
+import { getFullName } from "../../../mk/utils/string";
 
 const LabelValue = ({
   label,
@@ -72,72 +74,72 @@ const RenderView = ({
   });
   const [openFormAccount, setOpenFormAccount] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [detailDebt, setDetailDebt] = useState<any>(undefined);
+  const [item, setItem]: any = useState({});
 
-  const item = {
-    id: 'exp-2025-11-00124',
-    amount: 1850.0, // Monto original de la expensa
-    penalty_amount: 370.0, // Multa por mora (20%)
-    forgiveness_amount: 277.5, // Condonación del 15% de la multa
-    forgiveness_percent: '15.00',
-    status: 'W', // P = Parcialmente pagado
-    due_at: '2025-11-10', // Fecha límite original
-    paid_amount: 1200.0, // Ya pagado
-    remaining_amount: 1020.0, // Saldo pendiente (amount + penalty - forgiveness - paid)
-    maintenance_amount: 277.5, // Mantenimiento del 15% de la multa
-    unit: 'Departamento 24-B',
-    owner: 'Carlos Delgadillo Flores',
-    holder: 'Marcelo Peña Galvarro',
-    note: 'Pagó la hermana del propietario',
-    authorized_by: 'Scarlett Guzmán V.',
-    debts: [
-      {
-        id: 'a085ae50-2449-434a-b9db-7102c76a0761',
-        paid_by: 'Scarlett Guzmán V.',
-        paid_at: '2025-11-15',
-        receipt: 'REC-2025-0891',
-        status: 'A', // Aprobado
-        amount: 800.0,
-      },
-      {
-        id: 'a085ae50-2449-434a-b9db-7102c76a0761',
-        paid_by: 'Marcelo Peña Galvarro',
-        paid_at: '2025-11-28',
-        receipt: 'REC-2025-1124',
-        status: 'A',
-        amount: 400.0,
-      },
-      {
-        id: 'a085ae50-2449-434a-b9db-7102c76a0761',
-        paid_by: 'Carlos Delgadillo Flores',
-        paid_at: '2025-12-02',
-        receipt: 'REC-2025-1340',
-        status: 'P', // Pendiente de revisión
-        amount: 200.0,
-      },
-      {
-        id: 'a085ae50-2449-434a-b9db-7102c76a0761',
-        paid_by: 'Scarlett Guzmán V.',
-        paid_at: '2025-12-02',
-        receipt: 'REC-2025-1340',
-        status: 'P', // Pendiente de revisión
-        amount: 200.0,
-      },
-    ],
-  };
+  // const item = {
+  //   id: "exp-2025-11-00124",
+  //   amount: 1850.0, // Monto original de la expensa
+  //   penalty_amount: 370.0, // Multa por mora (20%)
+  //   forgiveness_amount: 277.5, // Condonación del 15% de la multa
+  //   forgiveness_percent: "15.00",
+  //   status: "W", // P = Parcialmente pagado
+  //   due_at: "2025-11-10", // Fecha límite original
+  //   paid_amount: 1200.0, // Ya pagado
+  //   remaining_amount: 1020.0, // Saldo pendiente (amount + penalty - forgiveness - paid)
+  //   maintenance_amount: 277.5, // Mantenimiento del 15% de la multa
+  //   unit: "Departamento 24-B",
+  //   owner: "Carlos Delgadillo Flores",
+  //   holder: "Marcelo Peña Galvarro",
+  //   note: "Pagó la hermana del propietario",
+  //   authorized_by: "Scarlett Guzmán V.",
+  //   debts: [
+  //     {
+  //       id: "a085ae50-2449-434a-b9db-7102c76a0761",
+  //       paid_by: "Scarlett Guzmán V.",
+  //       paid_at: "2025-11-15",
+  //       receipt: "REC-2025-0891",
+  //       status: "A", // Aprobado
+  //       amount: 800.0,
+  //     },
+  //     {
+  //       id: "a085ae50-2449-434a-b9db-7102c76a0761",
+  //       paid_by: "Marcelo Peña Galvarro",
+  //       paid_at: "2025-11-28",
+  //       receipt: "REC-2025-1124",
+  //       status: "A",
+  //       amount: 400.0,
+  //     },
+  //     {
+  //       id: "a085ae50-2449-434a-b9db-7102c76a0761",
+  //       paid_by: "Carlos Delgadillo Flores",
+  //       paid_at: "2025-12-02",
+  //       receipt: "REC-2025-1340",
+  //       status: "P", // Pendiente de revisión
+  //       amount: 200.0,
+  //     },
+  //     {
+  //       id: "a085ae50-2449-434a-b9db-7102c76a0761",
+  //       paid_by: "Scarlett Guzmán V.",
+  //       paid_at: "2025-12-02",
+  //       receipt: "REC-2025-1340",
+  //       status: "P", // Pendiente de revisión
+  //       amount: 200.0,
+  //     },
+  //   ],
+  // };
 
   const header = [
     {
-      key: 'paid_by',
-      label: 'Pagado por',
-      responsive: 'onlyDesktop',
-      onRender: ({ item }: any) => item?.paid_by,
+      key: "paid_by",
+      label: "Pagado por",
+      responsive: "onlyDesktop",
+      onRender: ({ item }: any) => getFullName(item?.user),
     },
     {
-      key: 'paid_at',
-      label: 'Fecha de pago',
-      responsive: 'onlyDesktop',
-      onRender: ({ item }: any) => item?.paid_at,
+      key: "paid_at",
+      label: "Fecha de pago",
+      responsive: "onlyDesktop",
+      onRender: ({ item }: any) => getDateTimeStrMes(item?.paid_at),
     },
     {
       key: 'receipt',
@@ -158,8 +160,8 @@ const RenderView = ({
             <IconGallery color="var(--cWhite)" />
           </div>
           <div>
-            <p style={{ color: 'var(--cWhite)' }}>{item?.receipt}</p>
-            <a style={{ color: 'var(--cAccent)', fontSize: 12 }} href="">
+            <p style={{ color: "var(--cWhite)" }}>{item?.code}</p>
+            <a style={{ color: "var(--cAccent)", fontSize: 12 }} href="">
               Ver imagen
             </a>
           </div>
@@ -209,9 +211,12 @@ const RenderView = ({
       );
 
       if (res?.success) {
-        setDetailDebt(res?.data?.debt);
+        // setItem({ ...res?.data?.data, isInUse: res?.data?.isInUse });
+        console.log(res);
+        setItem({ ...res?.data?.debt, history: res?.data?.history });
       } else {
-        showToast('Error al obtener los datos', 'error');
+        setItem({ ...res?.data?.debt, history: res?.data?.history });
+        showToast("Error al obtener los datos", "error");
       }
       setLoading(false);
     }
@@ -219,13 +224,17 @@ const RenderView = ({
   useEffect(() => {
     getDetail();
   }, [propItem?.id]);
-  const totalPagado = item.debts.reduce((acc: number, d: any) => acc + d.amount, 0);
-  const totalDeuda = item.amount + item.penalty_amount + item.maintenance_amount;
-  const saldoRestante = totalDeuda - totalPagado;
+  // const totalPagado = item.debts.reduce(
+  //   (acc: number, d: any) => acc + d.amount,
+  //   0
+  // );
+  // const totalDeuda =
+  //   item.amount + item.penalty_amount + item.maintenance_amount;
+  // const saldoRestante = totalDeuda - totalPagado;
   return (
     <>
       <DataModal
-        title="Detalle de condonación"
+        title="Detalle de pago parcial"
         open={open}
         onClose={() => {
           onClose();
@@ -328,7 +337,7 @@ const RenderView = ({
               onRowClick={(item: any) => {
                 setOpenDetail({ open: true, item });
               }}
-              data={item.debts}
+              data={item?.history}
               header={header}
             />
             <div
@@ -348,10 +357,14 @@ const RenderView = ({
                 <p>Total pagado</p>
                 <p>Saldo restante</p>
               </div>
-              <div>
-                <p style={{ color: 'var(--cWhite)' }}>{formatBs(totalPagado)}</p>
-                <p style={{ color: 'var(--cWhite)' }}>{formatBs(saldoRestante)}</p>
-              </div>
+              {/* <div>
+                <p style={{ color: "var(--cWhite)" }}>
+                  {formatBs(totalPagado)}
+                </p>
+                <p style={{ color: "var(--cWhite)" }}>
+                  {formatBs(saldoRestante)}
+                </p>
+              </div> */}
             </div>
           </div>
         </div>
