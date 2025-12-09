@@ -178,11 +178,14 @@ const UploadFile: React.FC<UploadFileProps> = ({
       if (!url || typeof url !== 'string') return;
 
       // Optimistically remove from UI
-      const filtered = currentValues.filter((u: string) => u !== url);
-      setFormState((prev: any) => ({
-        ...prev,
-        [name]: isSingle ? [] : filtered,
-      }));
+      setFormState((prev: any) => {
+        const current = prev[name] || [];
+        const filtered = current.filter((u: string) => u !== url);
+        return {
+          ...prev,
+          [name]: isSingle ? [] : filtered,
+        };
+      });
 
       // Delete in background
       (async () => {
@@ -206,7 +209,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
         }
       })();
     },
-    [currentValues, isSingle, setFormState]
+    [isSingle, setFormState, name]
   );
 
   const openFileInput = () => {
