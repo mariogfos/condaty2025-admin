@@ -10,14 +10,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const RenderView = (props: any) => {
-  const {
-    open,
-    onClose,
-    item: data,
-    reLoad,
-    execute,
-    showToast,
-  } = props;
+  const { open, onClose, item: data, reLoad, execute, showToast } = props;
   const { user } = useAuth();
   const [item, setItem]: any = useState({});
   const client = item?.clients?.find(
@@ -120,14 +113,14 @@ const RenderView = (props: any) => {
                       (item?.phone || "No disponible")}
                   </p>
                 </div>
-               
+
                 {item?.dpto?.[0]?.type.name && (
                   <div className={styles.infoSection_details}>
                     <p>Tipo de unidad</p>
                     <p>{item?.dpto[0]?.type.name}</p>
                   </div>
                 )}
-                
+
                 {item?.dpto?.length > 0 ? (
                   // CASO 1: Si ya tiene una unidad asignada
                   <div className={styles.infoSection_details}>
@@ -137,19 +130,15 @@ const RenderView = (props: any) => {
                 ) : (
                   // CASO 2: Si solo tiene una unidad solicitada (preunidad)
                   <div className={styles.infoSection_details}>
-                    <p>
-                      Unidad solicitada:
-                    </p>
+                    <p>Unidad solicitada:</p>
                     <p>U: {client?.pivot?.preunidad || "No especificada"}</p>
                   </div>
                 )}
-               
+
                 <div className={styles.infoSection_details}>
                   <p>Rol</p>
                   <p className={styles.statusActive}>
-                   {client?.pivot?.type === "H"
-                          ? "Propietario"
-                          : "Inquilino"}
+                    {client?.pivot?.type === "H" ? "Propietario" : "Inquilino"}
                   </p>
                 </div>
               </section>

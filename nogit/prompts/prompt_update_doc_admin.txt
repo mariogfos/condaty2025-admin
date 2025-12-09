@@ -1,0 +1,26 @@
+Analiza los cambios en el proyecto Condaty ADMIN desde el último commit actualizado registrado en nogit/prompts/last_update_commit.txt.
+
+Primero, lee el archivo nogit/prompts/last_update_commit.txt para obtener el LAST_COMMIT_HASH.
+
+Ejecuta comandos Git para:
+- Obtener el hash del commit actual: `git rev-parse HEAD`
+- Ver commits recientes desde el último hash: `git log --oneline LAST_COMMIT_HASH..HEAD`
+- Obtener archivos cambiados: `git diff --name-only LAST_COMMIT_HASH..HEAD`
+- Obtener diff detallado: `git diff LAST_COMMIT_HASH..HEAD` (enfócate en archivos relevantes)
+
+Archivos relevantes a analizar: componentes, hooks, css, codigo, modulos, libreria Mk (src/mk) y otros como configuraciones.
+
+Lee los archivos modificados y analiza:
+- Nuevas funcionalidades, rutas, métodos o hooks, css  agregados.
+- Cambios en estructura en recepcion o manejo de modulos y lo quer se espera recibir de las api.
+- Modificaciones en comonentes, hooks, utils, css,  (nuevos métodos, lógica de negocio).
+- Cambios en rutas o configuraciones.
+
+Actualiza los archivos de contexto manteniendo su estructura existente:ß
+- En `context/condaty_admin_context.md`: Agrega/modifica todas las secciones que tuvieron algun cambio o se les adiciono funcionalidades, o si se adicionaron nuevos modulos o secciones, etc.
+
+Proporciona un resumen detallado de los cambios realizados.
+
+Finalmente, actualiza nogit/prompts/last_update_commit.txt:
+- Cambia LAST_COMMIT_HASH al nuevo hash actual.
+- Agrega una nueva línea al historial con formato: Fecha (YYYY-MM-DD) | Hash | Resumen de cambios (breve descripción de qué se actualizó en la documentación).
