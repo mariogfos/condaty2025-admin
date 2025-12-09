@@ -4,7 +4,7 @@ import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Input from '@/mk/components/forms/Input/Input';
 import Select from '@/mk/components/forms/Select/Select';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
-import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
+import UploadFile2 from '@/mk/components/forms/UploadFile2';
 import Toast from '@/mk/components/ui/Toast/Toast';
 import styles from './RenderFormAccount.module.css';
 
@@ -28,6 +28,7 @@ interface RenderFormAccountProps {
     debt_dpto_id?: string | number;
     bank_account_id?: string | number;
     type?: string;
+    url_file?: string[];
   };
 }
 
@@ -61,6 +62,7 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
     debt_dpto_id: item?.debt_dpto_id,
     bank_account_id: item?.bank_account_id,
     type: item?.type ?? 'O',
+    url_file: item?.url_file ?? [],
   });
   const [errors, setErrors] = useState<Errors>({});
   const [toast] = useState<{ msg: string; method: 'info' | 'success' | 'error' | 'warning' }>({
@@ -115,7 +117,7 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
       paid_at: formState.paid_at,
       method: formState.method,
       voucher: formState.voucher,
-      url_file: formState.file ? [formState.file] : [],
+      url_file: formState.url_file || [],
       bank_account_id: existBankAccount,
       obs: formState.obs,
       type: formState.type,
@@ -210,18 +212,16 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
             </div>
           </div>
 
-          <div className={styles.section}>
-            <UploadFile
-              name="file"
-              ext={exten}
-              value={formState.file ? { file: formState.file } : ''}
-              onChange={handleChange}
-              img={true}
-              sizePreview={{ width: '40%', height: 'auto' }}
-              error={errors}
-              setError={setErrors}
+          <div className={styles['upload-section']}>
+            <UploadFile2
+              setFormState={setFormState}
+              formState={formState}
+              name="url_file"
+              label="Cargar un archivo o arrastrar y soltar"
+              type="I"
+              cant={1}
               required={false}
-              placeholder="Cargar un archivo o arrastrar y soltar"
+              ext={exten.join(',')}
             />
           </div>
 

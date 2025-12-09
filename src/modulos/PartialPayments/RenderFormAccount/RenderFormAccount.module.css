@@ -13,6 +13,11 @@
   margin-top: var(--spS);
 }
 
+.upload-section {
+  margin-top: var(--spM);
+  margin-bottom: var(--spM);
+}
+
 .input-row {
   display: flex;
   gap: var(--spM);

@@ -12,7 +12,7 @@ import { IconCheckOff, IconCheckSquare } from '@/components/layout/icons/IconsBi
 import Toast from '@/mk/components/ui/Toast/Toast';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import styles from './RenderForm.module.css';
-import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
+import UploadFile2 from '@/mk/components/forms/UploadFile2';
 import { formatBs, formatNumber } from '@/mk/utils/numbers';
 import { getTitular } from '@/mk/utils/adapters';
 
@@ -177,6 +177,7 @@ interface FormState {
   amount?: number | string;
   type?: string;
   owner_id?: string | number;
+  url_file?: string[];
 }
 
 interface Errors {
@@ -239,6 +240,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       obs: item?.obs || '',
       amount: item?.amount || '',
       owner_id: item?.owner_id || '',
+      url_file: (item as any)?.url_file || [],
     };
   });
   const [errors, setErrors] = useState<Errors>({});
@@ -298,7 +300,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   );
 
   const lastLoadedDeudas = useRef<string>('');
-  const exten = ['jpg', 'pdf', 'png', 'jpeg', 'doc', 'docx'];
+  const exten = ['jpg', 'jpeg', 'png', 'webp'];
 
   const getDeudas = useCallback(
     async (nroDpto: string | number, paymentmethod: string) => {
@@ -824,7 +826,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       paid_at: formState.paid_at,
       method: formState.method,
       voucher: formState.voucher,
-      url_file: formState.file ? [formState.file] : [],
+      url_file: formState.url_file || [],
       bank_account_id: bank_account_id,
       obs: formState.obs,
       type: formState.type,
@@ -1133,17 +1135,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
               )}
 
               <div className={styles['upload-section']}>
-                <UploadFile
-                  name="file"
-                  ext={exten}
-                  value={formState.file ? { file: formState.file } : ''}
-                  onChange={handleChangeInput}
-                  img={true}
-                  sizePreview={{ width: '40%', height: 'auto' }}
-                  error={errors}
-                  setError={setErrors}
+                <UploadFile2
+                  setFormState={setFormState}
+                  formState={formState}
+                  name="url_file"
+                  label="Cargar un archivo o arrastrar y soltar"
+                  type="I"
+                  cant={1}
                   required={true}
-                  placeholder="Cargar un archivo o arrastrar y soltar"
+                  ext={exten.join(',')}
                 />
               </div>
 
