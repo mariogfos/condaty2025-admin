@@ -102,24 +102,21 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
 
     const existBankAccount = extraData?.bankAccounts?.find((i: any) => i.is_main == 1)?.id;
 
+    const roundedAmount = Math.round(parseFloat(String(formState.amount)) * 100) / 100;
+
     const params: any = {
       paid_at: formState.paid_at,
       method: formState.method,
-      file: formState.file,
-      obs: formState.obs,
-      type: 'I',
+      voucher: formState.voucher,
+      url_file: formState.file ? [formState.file] : [],
       bank_account_id: existBankAccount,
-      amount: Math.round(parseFloat(String(formState.amount)) * 100) / 100,
+      obs: formState.obs,
+      type: 'O',
+      amount: roundedAmount,
+      debt_dpto_id: formState.dpto_id,
     };
 
-    if (formState.voucher && String(formState.voucher).length > 0) {
-      params.voucher = formState.voucher;
-    }
-    if (formState.dpto_id) {
-      params.nro_id = formState.dpto_id;
-    }
-
-    const { data, error } = await execute('/payments', 'POST', params);
+    const { data, error } = await execute('/partialpayments', 'POST', params);
     if (data?.success) {
       showToast('Pago a cuenta registrado', 'success');
       reLoad();
