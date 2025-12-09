@@ -1,7 +1,7 @@
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Table from "@/mk/components/ui/Table/Table";
 import { formatBs } from "@/mk/utils/numbers";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Button from "@/mk/components/forms/Button/Button";
 import { IconGallery } from "@/components/layout/icons/IconsBiblioteca";
@@ -72,6 +72,7 @@ const RenderView = ({
   });
   const [openFormAccount, setOpenFormAccount] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const item = {
     id: "exp-2025-11-00124",
     amount: 1850.0, // Monto original de la expensa
@@ -196,14 +197,14 @@ const RenderView = ({
     },
   ];
   const getDetail = async () => {
-    if (item?.id) {
+    if (propItem?.id) {
       setLoading(true);
       const { data: res } = await execute(
-        `/bank-accounts`,
+        `/partialpayments`,
         "GET",
         {
           fullType: "DET",
-          searchBy: item?.id,
+          debtDptoId: propItem?.id,
         },
         false,
         true
@@ -211,12 +212,16 @@ const RenderView = ({
 
       if (res?.success) {
         // setItem({ ...res?.data?.data, isInUse: res?.data?.isInUse });
+        console.log(res);
       } else {
         showToast("Error al obtener los datos", "error");
       }
       setLoading(false);
     }
   };
+  useEffect(() => {
+    getDetail();
+  }, [propItem?.id]);
   const totalPagado = item.debts.reduce(
     (acc: number, d: any) => acc + d.amount,
     0
