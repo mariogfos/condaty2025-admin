@@ -9,6 +9,7 @@ import RenderViewPayment from "@/modulos/Payments/RenderView/RenderView";
 import { getPaymentStatusConfig } from "@/types/payment";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import RenderFormAccount from "../RenderFormAccount/RenderFormAccount";
+import useAxios from "@/mk/hooks/useAxios";
 
 const LabelValue = ({
   label,
@@ -53,13 +54,24 @@ const statusText: any = {
   W: "Pago parcial",
   P: "Cobrado",
 };
-const RenderView = ({ open, onClose, item: propItem, onDel, onEdit }: any) => {
-  const { user } = useAuth();
+const RenderView = ({
+  open,
+  onClose,
+  item: propItem,
+  onDel,
+  onEdit,
+  reLoad,
+  execute,
+  extraData,
+  showToast,
+}: any) => {
+  // const { user, showToast } = useAuth();
   const [openDetail, setOpenDetail] = useState({
     open: false,
     item: undefined,
   });
   const [openFormAccount, setOpenFormAccount] = useState(false);
+  const [loading, setLoading] = useState(false);
   const item = {
     id: "exp-2025-11-00124",
     amount: 1850.0, // Monto original de la expensa
@@ -183,7 +195,28 @@ const RenderView = ({ open, onClose, item: propItem, onDel, onEdit }: any) => {
       onRender: ({ item }: any) => formatBs(item?.amount),
     },
   ];
+  const getDetail = async () => {
+    if (item?.id) {
+      setLoading(true);
+      const { data: res } = await execute(
+        `/bank-accounts`,
+        "GET",
+        {
+          fullType: "DET",
+          searchBy: item?.id,
+        },
+        false,
+        true
+      );
 
+      if (res?.success) {
+        // setItem({ ...res?.data?.data, isInUse: res?.data?.isInUse });
+      } else {
+        showToast("Error al obtener los datos", "error");
+      }
+      setLoading(false);
+    }
+  };
   const totalPagado = item.debts.reduce(
     (acc: number, d: any) => acc + d.amount,
     0
@@ -204,14 +237,17 @@ const RenderView = ({ open, onClose, item: propItem, onDel, onEdit }: any) => {
         buttonExtra={
           <div style={{ display: "flex", gap: 16, width: "100%" }}>
             <Button
-              onClick={() => onEdit(item)}
+              // onClick={() => onEdit(item)}
               variant="secondary"
               style={{ flex: 1 }}
             >
               Ver recibo
             </Button>
 
-            <Button onClick={() => onDel(item)} style={{ flex: 1 }}>
+            <Button
+              onClick={() => setOpenFormAccount(true)}
+              style={{ flex: 1 }}
+            >
               Registrar pago a cuenta
             </Button>
           </div>
@@ -343,7 +379,7 @@ const RenderView = ({ open, onClose, item: propItem, onDel, onEdit }: any) => {
           open={openDetail.open}
           onClose={() => setOpenDetail({ open: false, item: undefined })}
           item={openDetail?.item}
-          onDel={onDel}
+          // onDel={onDel}
         />
       )}
       {openFormAccount && (
@@ -351,13 +387,12 @@ const RenderView = ({ open, onClose, item: propItem, onDel, onEdit }: any) => {
           open={openFormAccount}
           onClose={() => setOpenFormAccount(false)}
           item={{}}
-          // reLoad={() => {
-          //   getDetail();
-          //   reLoad();
-          // }}
-          // execute={execute}
-          // showToast={showToast}
-          // extraData={extraData}
+          reLoad={() => {
+            getDetail();
+          }}
+          execute={execute}
+          showToast={showToast}
+          extraData={extraData}
         />
       )}
     </>
