@@ -11,7 +11,9 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import RenderFormAccount from "../RenderFormAccount/RenderFormAccount";
 import useAxios from "@/mk/hooks/useAxios";
 import { getDateStrMes, getDateTimeStrMes } from "../../../mk/utils/date";
-import { getFullName } from "../../../mk/utils/string";
+import { getFullName, getUrlImages } from "../../../mk/utils/string";
+import { hasMaintenanceValue } from "@/mk/utils/utils";
+import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 
 const LabelValue = ({
   label,
@@ -28,13 +30,13 @@ const LabelValue = ({
 }) => {
   return (
     <div style={{ ...style, flex: 1 }}>
-      <p style={{ color: 'var(--cWhiteV1)', ...styleLabel }}>{label}</p>
-      {typeof value == 'string' ? (
+      <p style={{ color: "var(--cWhiteV1)", ...styleLabel }}>{label}</p>
+      {typeof value == "string" ? (
         <p
           style={{
-            color: 'var(--cWhite)',
+            color: "var(--cWhite)",
             marginTop: 8,
-            fontWeight: '500',
+            fontWeight: "500",
             fontSize: 16,
             ...styleValue,
           }}
@@ -49,12 +51,12 @@ const LabelValue = ({
 };
 
 const statusColor: any = {
-  P: 'var(--cSuccess)',
-  W: 'var(--cCompl5)',
+  P: "var(--cSuccess)",
+  I: "var(--cMediumAlert)",
 };
 const statusText: any = {
-  W: 'Pago parcial',
-  P: 'Cobrado',
+  I: "Pago parcial",
+  P: "Cobrado",
 };
 const RenderView = ({
   open,
@@ -67,7 +69,7 @@ const RenderView = ({
   extraData,
   showToast,
 }: any) => {
-  // const { user, showToast } = useAuth();
+  const { user } = useAuth();
   const [openDetail, setOpenDetail] = useState({
     open: false,
     item: undefined,
@@ -142,57 +144,67 @@ const RenderView = ({
       onRender: ({ item }: any) => getDateTimeStrMes(item?.paid_at),
     },
     {
-      key: 'receipt',
-      label: 'Comprobante',
-      responsive: 'onlyDesktop',
+      key: "receipt",
+      label: "Comprobante",
+      responsive: "onlyDesktop",
       onRender: ({ item }: any) => (
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <div
             style={{
-              backgroundColor: '#4F5659',
+              backgroundColor: "#4F5659",
               padding: 8,
-              borderRadius: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              borderRadius: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <IconGallery color="var(--cWhite)" />
           </div>
           <div>
             <p style={{ color: "var(--cWhite)" }}>{item?.code}</p>
-            <a style={{ color: "var(--cAccent)", fontSize: 12 }} href="">
+            <div
+              style={{ color: "var(--cAccent)", fontSize: 12 }}
+              onClick={(e: any) => {
+                e.preventDefault();
+                e.stopPropagation();
+                downloadAllVouchers(item.files);
+              }}
+            >
               Ver imagen
-            </a>
+            </div>
           </div>
         </div>
       ),
     },
     {
-      key: 'status',
-      label: 'Estado',
-      width: '180px',
+      key: "status",
+      label: "Estado",
+      width: "180px",
       style: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       },
-      responsive: 'onlyDesktop',
+      responsive: "onlyDesktop",
       onRender: ({ item }: any) => {
         const info = getPaymentStatusConfig(item?.status);
 
         return (
-          <StatusBadge color={info.color} backgroundColor={info.backgroundColor}>
+          <StatusBadge
+            color={info.color}
+            backgroundColor={info.backgroundColor}
+          >
             {info.label}
           </StatusBadge>
         );
       },
     },
     {
-      key: 'amount',
-      width: '120px',
-      label: 'Subtotal',
-      responsive: 'onlyDesktop',
+      key: "amount",
+      width: "120px",
+      label: "Subtotal",
+      responsive: "onlyDesktop",
       onRender: ({ item }: any) => formatBs(item?.amount),
     },
   ];
@@ -201,9 +213,9 @@ const RenderView = ({
       setLoading(true);
       const { data: res } = await execute(
         `/partialpayments`,
-        'GET',
+        "GET",
         {
-          fullType: 'DET',
+          fullType: "DET",
           debtDptoId: propItem?.id,
         },
         false,
@@ -211,12 +223,10 @@ const RenderView = ({
       );
 
       if (res?.success) {
-        // setItem({ ...res?.data?.data, isInUse: res?.data?.isInUse });
-        console.log(res);
         setItem({ ...res?.data?.debt, history: res?.data?.history });
       } else {
-        setItem({ ...res?.data?.debt, history: res?.data?.history });
         showToast("Error al obtener los datos", "error");
+        onClose();
       }
       setLoading(false);
     }
@@ -224,13 +234,58 @@ const RenderView = ({
   useEffect(() => {
     getDetail();
   }, [propItem?.id]);
-  // const totalPagado = item.debts.reduce(
-  //   (acc: number, d: any) => acc + d.amount,
-  //   0
-  // );
-  // const totalDeuda =
-  //   item.amount + item.penalty_amount + item.maintenance_amount;
-  // const saldoRestante = totalDeuda - totalPagado;
+  const totalPagado = item?.history?.reduce(
+    (acc: number, d: any) => Number(acc) + Number(d.amount),
+    0
+  );
+
+  const totalAmount =
+    Number(item?.amount) +
+    Number(item?.penalty_amount) +
+    Number(item?.maintenance_amount);
+  const saldoRestante = Number(totalAmount) - Number(totalPagado);
+
+  const downloadAllVouchers = (files: any) => {
+    let urls = [];
+
+    if (Array.isArray(files) && typeof files[0] === "string") {
+      urls = files;
+    } else if (Array.isArray(files)) {
+      urls = files.flatMap((f) => f.files || []);
+    }
+    urls.forEach((url) => {
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.download = url.split("/").pop();
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
+  };
+
+  const getExport = async () => {
+    const { data: file, error } = await execute(
+      `/payment-recibo-parcial`,
+      "POST",
+      {
+        id: propItem?.id,
+      },
+      false,
+      true
+    );
+    if (file?.success === true && file?.data?.path) {
+      const receiptUrl = getUrlImages("/" + file.data.path);
+      window.open(receiptUrl, "_blank");
+      showToast("Recibo generado con éxito.", "success");
+    } else {
+      showToast(
+        error?.data?.message || "No se pudo generar el recibo.",
+        "error"
+      );
+    }
+  };
+
   return (
     <>
       <DataModal
@@ -242,132 +297,170 @@ const RenderView = ({
         buttonText=""
         buttonCancel=""
         buttonExtra={
-          <div style={{ display: 'flex', gap: 16, width: '100%' }}>
+          <div style={{ display: "flex", gap: 16, width: "100%" }}>
             <Button
               // onClick={() => onEdit(item)}
+              onClick={() => getExport()}
               variant="secondary"
               style={{ flex: 1 }}
             >
               Ver recibo
             </Button>
-
-            <Button onClick={() => setOpenFormAccount(true)} style={{ flex: 1 }}>
-              Registrar pago a cuenta
-            </Button>
+            {item?.status === "I" && (
+              <Button
+                onClick={() => setOpenFormAccount(true)}
+                style={{ flex: 1 }}
+              >
+                Registrar pago a cuenta
+              </Button>
+            )}
           </div>
         }
-        variant={'mini'}
+        variant={"mini"}
       >
-        <div style={{ display: 'flex', gap: 12, flexDirection: 'column' }}>
-          <div
-            style={{
-              backgroundColor: '#323232',
-              padding: 16,
-              borderRadius: 16,
-              border: '1px solid var(--cWhiteV5)',
-            }}
-          >
-            <p
-              style={{
-                color: 'var(--cWhite)',
-                marginTop: 8,
-                fontSize: 36,
-                fontWeight: 600,
-                textAlign: 'center',
-              }}
-            >
-              {formatBs(item?.amount)}
-            </p>
-            <p
-              style={{
-                color: 'var(--cWhiteV1)',
-                fontSize: 16,
-                textAlign: 'center',
-              }}
-            >
-              Pago de expensa - Noviembre, 2025
-            </p>
-          </div>
-          <div
-            style={{
-              backgroundColor: '#323232',
-              padding: 16,
-              borderRadius: 16,
-              border: '1px solid var(--cWhiteV5)',
-              display: 'flex',
-              gap: 16,
-            }}
-          >
-            <LabelValue label="Deuda" value={formatBs(item?.amount)} />
-            <LabelValue label="Multa" value={formatBs(item?.penalty_amount)} />
-            <LabelValue label="Mant. de Valor" value={formatBs(item?.maintenance_amount)} />
-          </div>
-
-          <div
-            style={{
-              backgroundColor: '#323232',
-              padding: 16,
-              borderRadius: 16,
-              border: '1px solid var(--cWhiteV5)',
-              gap: 16,
-            }}
-          >
-            <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
-              <LabelValue
-                label="Estado"
-                value={statusText[item?.status]}
-                styleValue={{ color: statusColor[item?.status] }}
-              />
-              <LabelValue label="Autorizado por:" value="Scarlett Guzmán V." />
-              <LabelValue label="Nota:" value="Pagó la hermana del propietario" />
-            </div>
-            <div style={{ display: 'flex', gap: 16 }}>
-              <LabelValue label="Unidad" value="Departamento 24-B" />
-              <LabelValue label="Propietario:" value="Carlos Delgadillo Flores" />
-              <LabelValue label="Titular:" value="Marcelo Peña Galvarro" />
-            </div>
-          </div>
-          <div>
-            <Table
-              style={{
-                borderBottomLeftRadius: 0,
-                borderBottomRightRadius: 0,
-              }}
-              height="calc(100vh - 700px)"
-              onRowClick={(item: any) => {
-                setOpenDetail({ open: true, item });
-              }}
-              data={item?.history}
-              header={header}
-            />
+        {loading ? (
+          <Loading />
+        ) : (
+          <div style={{ display: "flex", gap: 12, flexDirection: "column" }}>
             <div
               style={{
+                backgroundColor: "#323232",
                 padding: 16,
-                borderBottomLeftRadius: 12,
-                borderBottomRightRadius: 12,
-                border: '0.5px solid var(--cWhiteV1)',
-                borderTop: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                gap: 80,
+                borderRadius: 16,
+                border: "1px solid var(--cWhiteV5)",
               }}
             >
-              <div style={{ textAlign: 'right' }}>
-                <p>Total pagado</p>
-                <p>Saldo restante</p>
+              <p
+                style={{
+                  color: "var(--cWhite)",
+                  marginTop: 8,
+                  fontSize: 36,
+                  fontWeight: 600,
+                  textAlign: "center",
+                }}
+              >
+                {formatBs(totalAmount)}
+              </p>
+              {}
+              {/* <p
+                style={{
+                  color: "var(--cWhiteV1)",
+                  fontSize: 16,
+                  textAlign: "center",
+                }}
+              >
+                Pago de expensa - Noviembre, 2025
+              </p> */}
+            </div>
+            <div
+              style={{
+                backgroundColor: "#323232",
+                padding: 16,
+                borderRadius: 16,
+                border: "1px solid var(--cWhiteV5)",
+                display: "flex",
+                gap: 16,
+              }}
+            >
+              <LabelValue label="Deuda" value={formatBs(item?.amount)} />
+              <LabelValue
+                label="Multa"
+                value={formatBs(item?.penalty_amount)}
+              />
+              {hasMaintenanceValue(user) && (
+                <LabelValue
+                  label={"Mant. de Valor"}
+                  value={formatBs(item?.maintenance_amount)}
+                />
+              )}
+            </div>
+
+            <div
+              style={{
+                backgroundColor: "#323232",
+                padding: 16,
+                borderRadius: 16,
+                border: "1px solid var(--cWhiteV5)",
+                gap: 16,
+              }}
+            >
+              <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+                <LabelValue
+                  label="Estado"
+                  value={statusText[item?.status]}
+                  styleValue={{ color: statusColor[item?.status] }}
+                />
+                <LabelValue
+                  label="Autorizado por:"
+                  value={getFullName(item?.history?.[0]?.user)}
+                />
+                {/* <LabelValue
+                label="Nota:"
+                value="Pagó la hermana del propietario"
+              /> */}
+                <LabelValue
+                  label="Propietario:"
+                  value={getFullName(item?.dpto?.homeowner)}
+                />
               </div>
-              {/* <div>
-                <p style={{ color: "var(--cWhite)" }}>
-                  {formatBs(totalPagado)}
-                </p>
-                <p style={{ color: "var(--cWhite)" }}>
-                  {formatBs(saldoRestante)}
-                </p>
-              </div> */}
+              <div style={{ display: "flex", gap: 16 }}>
+                <LabelValue
+                  label="Unidad"
+                  value={item?.dpto?.type?.name + " " + item?.dpto?.nro}
+                />
+                {/* <LabelValue
+                label="Propietario:"
+                value={getFullName(item?.dpto?.homeowner)}
+              /> */}
+                <LabelValue
+                  label="Titular:"
+                  value={getFullName(item?.dpto?.tenant)}
+                />
+                <LabelValue label="" value={""} />
+              </div>
+            </div>
+            <div>
+              <Table
+                style={{
+                  borderBottomLeftRadius: 0,
+                  borderBottomRightRadius: 0,
+                }}
+                height="calc(100vh - 700px)"
+                onRowClick={(item: any) => {
+                  setOpenDetail({ open: true, item });
+                }}
+                data={item?.history}
+                header={header}
+              />
+              <div
+                style={{
+                  padding: 16,
+                  borderBottomLeftRadius: 12,
+                  borderBottomRightRadius: 12,
+                  border: "0.5px solid var(--cWhiteV1)",
+                  borderTop: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  gap: 80,
+                }}
+              >
+                <div style={{ textAlign: "right" }}>
+                  <p>Total pagado</p>
+                  <p>Saldo restante</p>
+                </div>
+                <div>
+                  <p style={{ color: "var(--cWhite)" }}>
+                    {formatBs(totalPagado)}
+                  </p>
+                  <p style={{ color: "var(--cWhite)" }}>
+                    {formatBs(saldoRestante)}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </DataModal>
       {openDetail.open && (
         <RenderViewPayment
@@ -386,7 +479,7 @@ const RenderView = ({
             amount: item?.remaining_amount,
             debt_dpto_id: item?.id ?? propItem?.id,
             bank_account_id: item?.subcategory?.bank_account_id,
-            type: 'O',
+            type: "O",
           }}
           reLoad={() => {
             getDetail();
