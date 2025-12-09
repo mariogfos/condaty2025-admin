@@ -70,9 +70,9 @@ const RenderView = ({
   showToast,
 }: any) => {
   const { user } = useAuth();
-  const [openDetail, setOpenDetail] = useState({
+  const [openDetail, setOpenDetail]: any = useState({
     open: false,
-    item: undefined,
+    item: null,
   });
   const [openFormAccount, setOpenFormAccount] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -141,7 +141,7 @@ const RenderView = ({
       key: "paid_at",
       label: "Fecha de pago",
       responsive: "onlyDesktop",
-      onRender: ({ item }: any) => getDateTimeStrMes(item?.paid_at),
+      onRender: ({ item }: any) => getDateStrMes(item?.paid_at),
     },
     {
       key: "receipt",
@@ -424,9 +424,12 @@ const RenderView = ({
                 style={{
                   borderBottomLeftRadius: 0,
                   borderBottomRightRadius: 0,
+                  height: "auto",
+                  // backgroundColor: "red",
                 }}
-                height="calc(100vh - 700px)"
+                height="150"
                 onRowClick={(item: any) => {
+                  console.log(item);
                   setOpenDetail({ open: true, item });
                 }}
                 data={item?.history}
@@ -466,7 +469,8 @@ const RenderView = ({
         <RenderViewPayment
           open={openDetail.open}
           onClose={() => setOpenDetail({ open: false, item: undefined })}
-          item={openDetail?.item}
+          payment_id={openDetail.item?.payment_id as string}
+          // item={openDetail?.item}
           // onDel={onDel}
         />
       )}

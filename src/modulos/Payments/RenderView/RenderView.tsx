@@ -123,7 +123,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     if (open && !isDetailed) {
       fetchPaymentData();
     }
-  }, [open, item, payment_id, execute]);
+  }, [open, item, payment_id]);
 
   const handleGenerateReceipt = async () => {
     showToast("Generando recibo...", "info");
