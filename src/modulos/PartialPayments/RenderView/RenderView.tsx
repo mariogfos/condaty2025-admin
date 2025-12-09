@@ -11,7 +11,7 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import RenderFormAccount from "../RenderFormAccount/RenderFormAccount";
 import useAxios from "@/mk/hooks/useAxios";
 import { getDateStrMes, getDateTimeStrMes } from "../../../mk/utils/date";
-import { getFullName } from "../../../mk/utils/string";
+import { getFullName, getUrlImages } from "../../../mk/utils/string";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 
@@ -264,6 +264,28 @@ const RenderView = ({
     });
   };
 
+  const getExport = async () => {
+    const { data: file, error } = await execute(
+      `/payment-recibo-parcial`,
+      "POST",
+      {
+        id: propItem?.id,
+      },
+      false,
+      true
+    );
+    if (file?.success === true && file?.data?.path) {
+      const receiptUrl = getUrlImages("/" + file.data.path);
+      window.open(receiptUrl, "_blank");
+      showToast("Recibo generado con éxito.", "success");
+    } else {
+      showToast(
+        error?.data?.message || "No se pudo generar el recibo.",
+        "error"
+      );
+    }
+  };
+
   return (
     <>
       <DataModal
@@ -278,6 +300,7 @@ const RenderView = ({
           <div style={{ display: "flex", gap: 16, width: "100%" }}>
             <Button
               // onClick={() => onEdit(item)}
+              onClick={() => getExport()}
               variant="secondary"
               style={{ flex: 1 }}
             >
