@@ -14,6 +14,7 @@ import { getDateStrMes, getDateTimeStrMes } from "../../../mk/utils/date";
 import { getFullName, getUrlImages } from "../../../mk/utils/string";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
+import { MONTHS, MONTHS_S } from "@/mk/utils/date1";
 
 const LabelValue = ({
   label,
@@ -342,15 +343,20 @@ const RenderView = ({
                 {formatBs(totalAmount)}
               </p>
               {}
-              {/* <p
+              <p
                 style={{
                   color: "var(--cWhiteV1)",
                   fontSize: 16,
                   textAlign: "center",
                 }}
               >
-                Pago de expensa - Noviembre, 2025
-              </p> */}
+                {item.type === 1 &&
+                  "Pago de expensa - " +
+                    MONTHS[item.debt.month] +
+                    ", " +
+                    item.debt.year}
+                {item.type === 2 && item.description}
+              </p>
             </div>
             <div
               style={{
