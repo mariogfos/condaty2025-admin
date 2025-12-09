@@ -20,6 +20,11 @@ const statusPartialPayment: any = {
   P: "Cobrado",
   X: "Anulado",
 };
+const statusColorPartialPayment: any = {
+  I: { color: "var(--cMediumAlert)", bg: "var(--cHoverCompl5)" },
+  P: { color: "var(--cSuccess)", bg: "var(--cHoverSuccess)" },
+  X: { color: "var(--cError)", bg: "var(--cHoverError)" },
+};
 const PartialPayments = () => {
   const mod: ModCrudType = {
     modulo: "partialpayments",
@@ -104,10 +109,11 @@ const PartialPayments = () => {
             return (
               <div
                 style={{
-                  padding: "4px 8px",
-                  backgroundColor: "var(--cHoverCompl5)",
-                  color: "var(--cMediumAlert)",
-                  borderRadius: 12,
+                  padding: "6px 8px",
+                  backgroundColor:
+                    statusColorPartialPayment[item?.status || ""]?.bg,
+                  color: statusColorPartialPayment[item?.status || ""]?.color,
+                  borderRadius: 20,
                   fontSize: 14,
                 }}
               >
