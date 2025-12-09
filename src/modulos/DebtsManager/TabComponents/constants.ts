@@ -5,6 +5,7 @@ export const DEBT_STATUS_MAP: { [key: string]: string } = {
   'S': 'Por confirmar',
   'M': 'En mora',
   'C': 'Cancelada',
+  'F': 'Condonada',
   'X': 'Anulada'
 };
 
@@ -16,6 +17,7 @@ export const DEBT_STATUS_CONFIG: { [key: string]: { color: string; bgColor: stri
   E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
   M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
   C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
+  F: { color: '#1E8AE9', bgColor: '#517FE133' },
   X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
 };
 
@@ -75,6 +77,7 @@ export const STATUS_FILTER_OPTIONS = [
   { id: 'S', name: 'Por confirmar' },
   { id: 'M', name: 'En mora' },
   { id: 'C', name: 'Cancelada' },
+  { id: 'F', name: 'Condonada' },
   { id: 'X', name: 'Anulada' }
 ];
 
@@ -146,8 +149,8 @@ export const getAvailableActions = (status: string, type: number) => {
     return {
       showAnular: false,
       showEditar: false,
-      showRegistrarPago: status !== 'P',
-      showVerPago: status === 'P'
+      showRegistrarPago: !(status === 'P' || status === 'S' || status === 'F'),
+      showVerPago: status === 'P' || status === 'S'
     };
   }
 
@@ -158,6 +161,13 @@ export const getAvailableActions = (status: string, type: number) => {
         showEditar: false,
         showRegistrarPago: false,
         showVerPago: true
+      };
+    case 'F':
+      return {
+        showAnular: false,
+        showEditar: false,
+        showRegistrarPago: false,
+        showVerPago: false
       };
     case 'M':
     case 'A':
