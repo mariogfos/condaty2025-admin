@@ -446,7 +446,13 @@ const RenderView = ({
         <RenderFormAccount
           open={openFormAccount}
           onClose={() => setOpenFormAccount(false)}
-          item={{}}
+          item={{
+            dpto_id: item?.dpto?.nro,
+            amount: item?.remaining_amount,
+            debt_dpto_id: item?.id ?? propItem?.id,
+            bank_account_id: item?.subcategory?.bank_account_id,
+            type: "O",
+          }}
           reLoad={() => {
             getDetail();
           }}

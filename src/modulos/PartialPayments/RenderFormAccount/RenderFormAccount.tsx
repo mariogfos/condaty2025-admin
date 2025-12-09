@@ -25,6 +25,9 @@ interface RenderFormAccountProps {
     file?: any;
     obs?: string;
     dpto_id?: string | number;
+    debt_dpto_id?: string | number;
+    bank_account_id?: string | number;
+    type?: string;
   };
 }
 
@@ -55,6 +58,9 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
     file: item?.file ?? '',
     obs: item?.obs ?? '',
     dpto_id: item?.dpto_id,
+    debt_dpto_id: item?.debt_dpto_id,
+    bank_account_id: item?.bank_account_id,
+    type: item?.type ?? 'O',
   });
   const [errors, setErrors] = useState<Errors>({});
   const [toast] = useState<{ msg: string; method: 'info' | 'success' | 'error' | 'warning' }>({
@@ -100,26 +106,24 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
       return;
     }
 
-    const existBankAccount = extraData?.bankAccounts?.find((i: any) => i.is_main == 1)?.id;
+    const existBankAccount =
+      formState.bank_account_id ?? extraData?.bankAccounts?.find((i: any) => i.is_main == 1)?.id;
+
+    const roundedAmount = Math.round(parseFloat(String(formState.amount)) * 100) / 100;
 
     const params: any = {
       paid_at: formState.paid_at,
       method: formState.method,
-      file: formState.file,
-      obs: formState.obs,
-      type: 'I',
+      voucher: formState.voucher,
+      url_file: formState.file ? [formState.file] : [],
       bank_account_id: existBankAccount,
-      amount: Math.round(parseFloat(String(formState.amount)) * 100) / 100,
+      obs: formState.obs,
+      type: formState.type,
+      amount: roundedAmount,
+      debt_dpto_id: formState.debt_dpto_id ?? formState.dpto_id,
     };
 
-    if (formState.voucher && String(formState.voucher).length > 0) {
-      params.voucher = formState.voucher;
-    }
-    if (formState.dpto_id) {
-      params.nro_id = formState.dpto_id;
-    }
-
-    const { data, error } = await execute('/payments', 'POST', params);
+    const { data, error } = await execute('/partialpayments', 'POST', params);
     if (data?.success) {
       showToast('Pago a cuenta registrado', 'success');
       reLoad();
@@ -207,20 +211,18 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
           </div>
 
           <div className={styles.section}>
-            
-              <UploadFile
-                name="file"
-                ext={exten}
-                value={formState.file ? { file: formState.file } : ''}
-                onChange={handleChange}
-                img={true}
-                sizePreview={{ width: '40%', height: 'auto' }}
-                error={errors}
-                setError={setErrors}
-                required={false}
-                placeholder="Cargar un archivo o arrastrar y soltar"
-              />
-          
+            <UploadFile
+              name="file"
+              ext={exten}
+              value={formState.file ? { file: formState.file } : ''}
+              onChange={handleChange}
+              img={true}
+              sizePreview={{ width: '40%', height: 'auto' }}
+              error={errors}
+              setError={setErrors}
+              required={false}
+              placeholder="Cargar un archivo o arrastrar y soltar"
+            />
           </div>
 
           <div className={styles.section}>
