@@ -808,46 +808,36 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
     }
 
+    const enteredAmount = parseFloat(String(formState.amount || '0'));
+    const roundedAmount = Math.round(enteredAmount * 100) / 100;
+
     let params: any = {
       paid_at: formState.paid_at,
       method: formState.method,
-      file: formState.file,
-      obs: formState.obs,
-      nro_id: formState.dpto_id,
-      owner_id: owner_id,
-      type: formState.type,
+      voucher: formState.voucher,
+      url_file: formState.file ? [formState.file] : [],
       bank_account_id: bank_account_id,
+      obs: formState.obs,
+      type: formState.type,
+      amount: roundedAmount,
     };
 
-    if (formState.voucher && String(formState.voucher).length > 0) {
-      params.voucher = formState.voucher;
-    }
-
-    if (showCategoryFields) {
-      params.subcategory_id = formState.subcategory_id;
-    }
+    let endpoint = '/payments';
 
     if (isDebtBasedPayment && selectedPeriodo.length > 0) {
-      const enteredAmount = parseFloat(String(formState.amount || '0'));
-      const asignados = [
-        {
-          ...selectedPeriodo[0],
-          amount: Math.round(enteredAmount * 100) / 100,
-        },
-      ];
-      params = {
-        ...params,
-        asignados,
-        amount: Math.round(enteredAmount * 100) / 100,
-      };
-    } else {
-      params = {
-        ...params,
-        amount: parseFloat(String(formState.amount || '0')),
-      };
+      params.debt_dpto_id = selectedPeriodo[0].id;
+      endpoint = '/partialpayments';
+    } else if (!isDebtBasedPayment) {
+      endpoint = '/payments';
+      params.nro_id = formState.dpto_id;
+      params.owner_id = owner_id;
+      if (showCategoryFields) {
+        params.subcategory_id = formState.subcategory_id;
+      }
     }
+
     try {
-      const { data, error } = await execute('/payments', 'POST', params);
+      const { data, error } = await execute(endpoint, 'POST', params);
 
       if (data?.success) {
         showToast('Pago agregado con éxito', 'success');
@@ -994,7 +984,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         onClose={onCloseModal}
         onSave={_onSavePago}
         buttonCancel={'Cancelar'}
-        buttonText={'Crear ingreso'}
+        buttonText={'Crear Pago Parcial'}
         title={'Crear ingreso'}
         minWidth={680}
         maxWidth={860}
