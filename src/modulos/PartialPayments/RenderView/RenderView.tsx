@@ -283,13 +283,14 @@ const RenderView = ({
             >
               Ver recibo
             </Button>
-
-            <Button
-              onClick={() => setOpenFormAccount(true)}
-              style={{ flex: 1 }}
-            >
-              Registrar pago a cuenta
-            </Button>
+            {item?.status === "I" && (
+              <Button
+                onClick={() => setOpenFormAccount(true)}
+                style={{ flex: 1 }}
+              >
+                Registrar pago a cuenta
+              </Button>
+            )}
           </div>
         }
         variant={"mini"}
@@ -317,7 +318,8 @@ const RenderView = ({
               >
                 {formatBs(totalAmount)}
               </p>
-              <p
+              {}
+              {/* <p
                 style={{
                   color: "var(--cWhiteV1)",
                   fontSize: 16,
@@ -325,7 +327,7 @@ const RenderView = ({
                 }}
               >
                 Pago de expensa - Noviembre, 2025
-              </p>
+              </p> */}
             </div>
             <div
               style={{
@@ -379,7 +381,10 @@ const RenderView = ({
                 />
               </div>
               <div style={{ display: "flex", gap: 16 }}>
-                <LabelValue label="Unidad" value={item?.dpto?.nro} />
+                <LabelValue
+                  label="Unidad"
+                  value={item?.dpto?.type?.name + " " + item?.dpto?.nro}
+                />
                 {/* <LabelValue
                 label="Propietario:"
                 value={getFullName(item?.dpto?.homeowner)}

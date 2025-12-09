@@ -2,13 +2,14 @@
 "use client";
 import styles from "./PartialPayments.module.css";
 import useCrudUtils from "../shared/useCrudUtils";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import { formatBs } from "../../mk/utils/numbers";
 import { MONTHS } from "../../mk/utils/date";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -26,7 +27,63 @@ const statusColorPartialPayment: any = {
   P: { color: "var(--cSuccess)", bg: "var(--cHoverSuccess)" },
   X: { color: "var(--cError)", bg: "var(--cHoverError)" },
 };
+const periodOptions = [
+  { id: "ALL", name: "Todos" },
+  { id: "d", name: "Hoy" },
+  { id: "ld", name: "Ayer" },
+  { id: "w", name: "Esta semana" },
+  { id: "lw", name: "Semana anterior" },
+  { id: "m", name: "Este mes" },
+  { id: "lm", name: "Mes anterior" },
+  { id: "y", name: "Este año" },
+  { id: "ly", name: "Año anterior" },
+  { id: "custom", name: "Personalizado" },
+];
 const PartialPayments = () => {
+  const [openCustomFilterModal, setOpenCustomFilterModal] = useState(false);
+  const [customDateErrors, setCustomDateErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+
+  const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+
+    if (opt === "in_at" && value === "custom") {
+      setCustomDateErrors({});
+      setOpenCustomFilterModal(true);
+      delete currentFilters[opt];
+      return { filterBy: currentFilters };
+    }
+
+    if (value === "" || value === null || value === undefined) {
+      delete currentFilters[opt];
+    } else {
+      currentFilters[opt] = value;
+    }
+    return { filterBy: currentFilters };
+  };
+
+  const onSaveFilterModal = ({ startDate, endDate }: any) => {
+    let err: { startDate?: string; endDate?: string } = {};
+    if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+    if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+    if (startDate && endDate && startDate > endDate)
+      err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+    if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
+      err.startDate =
+        "El periodo personalizado debe estar dentro del mismo año";
+      err.endDate = "El periodo personalizado debe estar dentro del mismo año";
+    }
+    if (Object.keys(err).length > 0) {
+      setCustomDateErrors(err);
+      return;
+    }
+    const customDateFilterString = `${startDate},${endDate}`;
+    onFilter("in_at", customDateFilterString);
+    setOpenCustomFilterModal(false);
+    setCustomDateErrors({});
+  };
   const mod: ModCrudType = {
     modulo: "partialpayments",
     singular: "pago parcial",
@@ -198,16 +255,36 @@ const PartialPayments = () => {
           },
         },
       },
+      updated_at: {
+        rules: [],
+        api: "a",
+        label: "Actualizado",
+        form: false,
+        list: false,
+        filter: {
+          label: "Periodo",
+          width: "180px",
+          options: () => periodOptions,
+        },
+      },
     };
   }, []);
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
-    {
-      paramsInitial,
-      mod,
-      fields,
-    }
-  );
+  const {
+    userCan,
+    List,
+    setStore,
+    onSearch,
+    searchs,
+    onEdit,
+    onDel,
+    onFilter,
+  } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+    getFilter: handleGetFilter,
+  });
   const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
@@ -224,6 +301,16 @@ const PartialPayments = () => {
         height={"calc(100vh - 345px)"}
         emptyMsg="Lista de pagos parciales vacía. Aquí verás a todos los pagos parciales"
         emptyLine2="del condominio una vez los registres."
+      />
+      <DateRangeFilterModal
+        open={openCustomFilterModal}
+        onClose={() => {
+          setOpenCustomFilterModal(false);
+          setCustomDateErrors({});
+        }}
+        onSave={onSaveFilterModal}
+        errorStart={customDateErrors.startDate}
+        errorEnd={customDateErrors.endDate}
       />
     </div>
   );
