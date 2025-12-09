@@ -723,6 +723,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
       if (!formState.amount || isNaN(amt) || amt <= 0) {
         err.amount = 'Este campo es requerido';
       }
+      if (selectedPeriodo.length === 1) {
+        const deudaSel = deudas.find(d => String(d.id) === String(selectedPeriodo[0].id));
+        if (deudaSel) {
+          const subtotal = getSubtotal(deudaSel);
+          if (!isNaN(amt) && amt >= subtotal) {
+            err.amount = 'El monto debe ser menor al subtotal de la deuda seleccionada';
+          }
+        }
+      }
     } else if (!isDebtBasedPayment || deudas?.length === 0) {
       if (!formState.amount) {
         err.amount = 'Este campo es requerido';
@@ -1084,7 +1093,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                         handleChangeInput(e);
                       }}
                       value={formState.amount}
-                      required={false}
+                      required={true}
                       error={errors}
                       disabled={formState.isAmountLocked}
                       maxLength={20}
