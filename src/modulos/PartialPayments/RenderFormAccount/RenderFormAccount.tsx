@@ -93,8 +93,13 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
 
   const validar = useCallback(() => {
     const err: Errors = {};
+    
     const amt = parseFloat(String(formState.amount || '0'));
-    if (!formState.amount || isNaN(amt) || amt <= 0) err.amount = 'Este campo es requerido';
+    if (!formState.amount || isNaN(amt) || amt <= 0) {
+      err.amount = 'Este campo es requerido';
+    }else {
+      if (formState.amount > item?.amount!) err.amount = 'El valor no puede ser mayor al adeudado';
+    }
     if (!formState.method) err.method = 'Este campo es requerido';
     if (!formState.paid_at) err.paid_at = 'Este campo es requerido';
     setErrors(err);
