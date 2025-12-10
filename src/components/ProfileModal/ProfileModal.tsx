@@ -25,6 +25,7 @@ import EditProfile from './EditProfile/EditProfile';
 import GuardEditForm from './GuardEditForm/GuardEditForm';
 import Button from '@/mk/components/forms/Button/Button';
 import Image from 'next/image';
+import { generateWhatsAppLink } from '@/mk/utils/phone';
 
 interface ProfileModalProps {
   open: boolean;
@@ -387,7 +388,22 @@ const ProfileModal = ({
 
                 <div>
                   <IconPhone size={20} color={'var(--cWhiteV1)'} />
-                  {data?.data[0]?.phone || '-/-'}
+                  {(() => {
+                    const link = generateWhatsAppLink(data?.data[0]?.phone || '');
+                    if (link) {
+                      return (
+                        <a
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.phoneLink}
+                        >
+                          {data?.data[0]?.phone}
+                        </a>
+                      );
+                    }
+                    return data?.data[0]?.phone || '-/-';
+                  })()}
                 </div>
                 <div>
                   <IconEmail size={20} color={'var(--cWhiteV1)'} />

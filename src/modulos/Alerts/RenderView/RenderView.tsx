@@ -1,56 +1,56 @@
-import React, { useState, useEffect } from "react";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import styles from "./RenderView.module.css";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getDateTimeStrMesShort } from "@/mk/utils/date";
-import Button from "@/mk/components/forms/Button/Button";
-import useAxios from "@/mk/hooks/useAxios";
+import React, { useState, useEffect } from 'react';
+import DataModal from '@/mk/components/ui/DataModal/DataModal';
+import styles from './RenderView.module.css';
+import { getFullName, getUrlImages } from '@/mk/utils/string';
+import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
+import { getDateTimeStrMesShort } from '@/mk/utils/date';
+import Button from '@/mk/components/forms/Button/Button';
+import useAxios from '@/mk/hooks/useAxios';
 import {
   getAlertLevelText,
   getAlertLevelFigmaColor,
   ALERT_LEVELS,
   ALERT_LEVEL_LABELS,
-} from "../alertConstants";
+} from '../alertConstants';
 import {
   IconAlert,
   IconAmbulance,
   IconFlame,
   IconTheft,
   IconClock,
-} from "@/components/layout/icons/IconsBiblioteca";
+} from '@/components/layout/icons/IconsBiblioteca';
 
 const getAlertTypeBoxDetails = (item: any) => {
   const details = {
-    boxBgColor: "var(--cGrayMd, #55595c)",
-    borderColor: "var(--cGrayDark, #404244)",
-    textColor: "var(--cWhite, #fafafa)",
-    icon: <IconAlert size={36} color={"var(--cWhite, #fafafa)"} />,
+    boxBgColor: 'var(--cGrayMd, #55595c)',
+    borderColor: 'var(--cGrayDark, #404244)',
+    textColor: 'var(--cWhite, #fafafa)',
+    icon: <IconAlert size={36} color={'var(--cWhite, #fafafa)'} />,
     title: item.descrip || `Alerta de ${ALERT_LEVEL_LABELS[ALERT_LEVELS.HIGH]}`,
   };
 
   switch (item.type) {
-    case "E":
+    case 'E':
       return {
         ...details,
-        boxBgColor: "rgba(218, 94, 85, 0.55)",
-        borderColor: "rgb(228, 96, 85)",
+        boxBgColor: 'rgba(218, 94, 85, 0.55)',
+        borderColor: 'rgb(228, 96, 85)',
         icon: <IconAmbulance size={36} color={details.textColor} />,
         title: getEmergencyTitle(item.descrip),
       };
-    case "F":
+    case 'F':
       return {
         ...details,
-        boxBgColor: "rgba(218, 93, 93, 0.2)",
-        borderColor: "rgb(228, 96, 85)",
+        boxBgColor: 'rgba(218, 93, 93, 0.2)',
+        borderColor: 'rgb(228, 96, 85)',
         icon: <IconFlame size={36} color={details.textColor} />,
         title: getFireTitle(item.descrip),
       };
-    case "T":
+    case 'T':
       return {
         ...details,
-        boxBgColor: "rgba(112, 66, 112, 0.2)",
-        borderColor: "rgb(167, 22, 167)",
+        boxBgColor: 'rgba(112, 66, 112, 0.2)',
+        borderColor: 'rgb(167, 22, 167)',
         icon: <IconTheft size={36} color={details.textColor} />,
         title: getTheftTitle(item.descrip),
       };
@@ -64,20 +64,19 @@ const getAlertTypeBoxDetails = (item: any) => {
 
 const getEmergencyTitle = (descrip: string) => {
   const isEmergency =
-    descrip?.toLowerCase().includes("emergencia medica") ||
-    descrip?.toLowerCase().includes("emergencia médica");
-  return isEmergency ? descrip : "Emergencia Médica";
+    descrip?.toLowerCase().includes('emergencia medica') ||
+    descrip?.toLowerCase().includes('emergencia médica');
+  return isEmergency ? descrip : 'Emergencia Médica';
 };
 
 const getFireTitle = (descrip: string) => {
-  return descrip?.toLowerCase().includes("incendio") ? descrip : "Incendio";
+  return descrip?.toLowerCase().includes('incendio') ? descrip : 'Incendio';
 };
 
 const getTheftTitle = (descrip: string) => {
   const isTheft =
-    descrip?.toLowerCase().includes("robo") ||
-    descrip?.toLowerCase().includes("intrusi");
-  return isTheft ? descrip : "Robo o Intrusión";
+    descrip?.toLowerCase().includes('robo') || descrip?.toLowerCase().includes('intrusi');
+  return isTheft ? descrip : 'Robo o Intrusión';
 };
 
 const UserInfoDisplay = ({
@@ -93,16 +92,10 @@ const UserInfoDisplay = ({
 }) => {
   if (!user) {
     return (
-      <div
-        className={
-          isHighLevel ? styles.hlUserInfoContainer : styles.gUserInfoContainer
-        }
-      >
+      <div className={isHighLevel ? styles.hlUserInfoContainer : styles.gUserInfoContainer}>
         <div className={isHighLevel ? styles.hlUserRow : styles.gUserRow}>
           <div className={styles.hlUserTextDetails}>
-            <span
-              className={isHighLevel ? styles.hlUserName : styles.gUserName}
-            >
+            <span className={isHighLevel ? styles.hlUserName : styles.gUserName}>
               Informador no disponible
             </span>
           </div>
@@ -112,37 +105,23 @@ const UserInfoDisplay = ({
   }
 
   return (
-    <div
-      className={
-        isHighLevel ? styles.hlUserInfoContainer : styles.gUserInfoContainer
-      }
-    >
+    <div className={isHighLevel ? styles.hlUserInfoContainer : styles.gUserInfoContainer}>
       <div className={isHighLevel ? styles.hlUserRow : styles.gUserRow}>
-        <div
-          className={
-            isHighLevel ? styles.hlAvatarContainer : styles.gAvatarContainer
-          }
-        >
+        <div className={isHighLevel ? styles.hlAvatarContainer : styles.gAvatarContainer}>
           <Avatar
             hasImage={1}
-            src={getUrlImages(prefix + user.id + ".webp?d=" + user.updated_at)}
+            src={getUrlImages(prefix + user.id + '.webp?d=' + user.updated_at)}
             name={getFullName(user)}
             w={40}
             h={40}
           />
         </div>
-        <div
-          className={
-            isHighLevel ? styles.hlUserTextDetails : styles.gUserTextDetails
-          }
-        >
+        <div className={isHighLevel ? styles.hlUserTextDetails : styles.gUserTextDetails}>
           <span className={isHighLevel ? styles.hlUserName : styles.gUserName}>
             {getFullName(user)}
           </span>
           {detailText && (
-            <span
-              className={isHighLevel ? styles.hlUserUnitOrCi : styles.gUserCi}
-            >
+            <span className={isHighLevel ? styles.hlUserUnitOrCi : styles.gUserCi}>
               {detailText}
             </span>
           )}
@@ -163,18 +142,9 @@ const InfoBlock = ({
   valueStyle?: React.CSSProperties;
   isHighLevel?: boolean;
 }) => (
-  <div
-    className={
-      isHighLevel ? styles.hlInfoBlockContent : styles.gInfoBlockContent
-    }
-  >
-    <span className={isHighLevel ? styles.hlInfoLabel : styles.gInfoLabel}>
-      {label}
-    </span>
-    <span
-      className={isHighLevel ? styles.hlInfoValue : styles.gInfoValue}
-      style={valueStyle}
-    >
+  <div className={isHighLevel ? styles.hlInfoBlockContent : styles.gInfoBlockContent}>
+    <span className={isHighLevel ? styles.hlInfoLabel : styles.gInfoLabel}>{label}</span>
+    <span className={isHighLevel ? styles.hlInfoValue : styles.gInfoValue} style={valueStyle}>
       {value}
     </span>
   </div>
@@ -191,8 +161,8 @@ const AttendedSection = ({
   item: any;
   isHighLevel: boolean;
 }) => {
-  const attendantDetailText = attendant?.ci ? `C.I: ${attendant.ci}` : "";
-  const dateValue = item.date_at ? getDateTimeStrMesShort(item.date_at) : "N/A";
+  const attendantDetailText = attendant?.ci ? `C.I: ${attendant.ci}` : '';
+  const dateValue = item.date_at ? getDateTimeStrMesShort(item.date_at) : 'N/A';
 
   if (isHighLevel) {
     return (
@@ -206,7 +176,7 @@ const AttendedSection = ({
         />
         <div
           className={styles.hlInfoBlockContent}
-          style={{ alignItems: "flex-start", marginTop: "var(--spS)" }}
+          style={{ alignItems: 'flex-start', marginTop: 'var(--spS)' }}
         >
           <span className={styles.hlInfoLabel}>Fecha de atención:</span>
           <span className={styles.hlInfoValue}>{dateValue}</span>
@@ -225,11 +195,7 @@ const AttendedSection = ({
         detailText={attendantDetailText}
         isHighLevel={false}
       />
-      <InfoBlock
-        label="Fecha de atención:"
-        value={dateValue}
-        isHighLevel={false}
-      />
+      <InfoBlock label="Fecha de atención:" value={dateValue} isHighLevel={false} />
     </div>
   );
 };
@@ -262,9 +228,9 @@ const RenderView = (props: RenderViewProps) => {
   const getItemApi = async () => {
     setIsLoading(true);
     const { data } = await execute(
-      "/alerts",
-      "GET",
-      { fullType: "DET", searchBy: props.item.id },
+      '/alerts',
+      'GET',
+      { fullType: 'DET', searchBy: props.item.id },
       false,
       true
     );
@@ -281,13 +247,7 @@ const RenderView = (props: RenderViewProps) => {
   }, [item?.id]);
 
   const onSaveAttend = async () => {
-    const { data } = await execute(
-      "/attend",
-      "POST",
-      { id: item.id },
-      false,
-      true
-    );
+    const { data } = await execute('/attend', 'POST', { id: item.id }, false, true);
     if (data?.success === true) {
       props.onClose();
       props.reLoad?.();
@@ -295,31 +255,27 @@ const RenderView = (props: RenderViewProps) => {
   };
 
   // Computed values
-  const isHighLevelAlert =
-    item.level === ALERT_LEVELS.PANIC || item.level === ALERT_LEVELS.HIGH;
+  const isHighLevelAlert = item.level === ALERT_LEVELS.PANIC || item.level === ALERT_LEVELS.HIGH;
   const isAttended = Boolean(item.date_at);
   const isPanicLevel = item.level === 4;
   const showActionButton = !isLoading && !isAttended && isPanicLevel;
 
   // User data
-  const informer =
-    item.level === 4 && item.owner ? item.owner : item.guardia || item.owner;
+  const informer = item.level === 4 && item.owner ? item.owner : item.guardia || item.owner;
 
   const informerPrefix =
-    item.level === 4 && item.owner
-      ? "/OWNER-"
-      : getInformerPrefix(item.guardia);
+    item.level === 4 && item.owner ? '/OWNER-' : getInformerPrefix(item.guardia);
 
   // Helper function to determine informer prefix
   function getInformerPrefix(hasGuardia: boolean) {
     if (hasGuardia) {
-      return "/GUARD-";
+      return '/GUARD-';
     }
-    return "/OWNER-";
+    return '/OWNER-';
   }
 
   const informerDetailText = informer?.dpto
-    ? `Unidad: ${informer.dpto[0]?.nro}`
+    ? getInformerUnitText(informer)
     : getInformerCiText(informer);
 
   // Helper function to get CI text
@@ -327,29 +283,31 @@ const RenderView = (props: RenderViewProps) => {
     if (informer?.ci) {
       return `C.I: ${informer.ci}`;
     }
-    return "";
+    return '';
+  }
+
+  function getInformerUnitText(informer: any) {
+    const d = informer?.dpto?.[0];
+    const typeName = d?.type?.name;
+    const nro = d?.nro;
+    if (!d) return getInformerCiText(informer);
+    return `Unidad: ${typeName ? `${typeName} ` : ''}${nro ?? ''}`.trim();
   }
 
   const attendant = item.gua_attend || item.adm_attend;
-  const attendantPrefix = item.gua_attend
-    ? "/GUARD-"
-    : getAttendantPrefix(item.adm_attend);
+  const attendantPrefix = item.gua_attend ? '/GUARD-' : getAttendantPrefix(item.adm_attend);
 
   function getAttendantPrefix(hasAdminAttend: boolean) {
     if (hasAdminAttend) {
-      return "/ADM-";
+      return '/ADM-';
     }
-    return "/USER-";
+    return '/USER-';
   }
 
-  const alertTypeBoxDetails = isHighLevelAlert
-    ? getAlertTypeBoxDetails(item)
-    : null;
+  const alertTypeBoxDetails = isHighLevelAlert ? getAlertTypeBoxDetails(item) : null;
   const alertLevelColor = getAlertLevelFigmaColor(item.level);
-  const createdAtValue = item.created_at
-    ? getDateTimeStrMesShort(item.created_at)
-    : "N/A";
-  const alertLevelValue = getAlertLevelText(item.level) || "N/A";
+  const createdAtValue = item.created_at ? getDateTimeStrMesShort(item.created_at) : 'N/A';
+  const alertLevelValue = getAlertLevelText(item.level) || 'N/A';
 
   const renderHighLevelAlert = () => (
     <>
@@ -361,49 +319,44 @@ const RenderView = (props: RenderViewProps) => {
             borderColor: alertTypeBoxDetails?.borderColor,
           }}
         >
-          <div className={styles.hlAlertTypeIconContainer}>
-            {alertTypeBoxDetails?.icon}
-          </div>
+          <div className={styles.hlAlertTypeIconContainer}>{alertTypeBoxDetails?.icon}</div>
           <span
             className={styles.hlAlertTypeText}
             style={{
               // asegurar que el texto no se desborde del contenedor
-              overflowWrap: "anywhere",
-              wordBreak: "break-word",
-              whiteSpace: "normal",
-              display: "block",
+              overflowWrap: 'anywhere',
+              wordBreak: 'break-word',
+              whiteSpace: 'normal',
+              display: 'block',
               color: alertTypeBoxDetails?.textColor,
             }}
           >
             {(() => {
-              const fullTitle = alertTypeBoxDetails?.title || "";
+              const fullTitle = alertTypeBoxDetails?.title || '';
               const isLong = fullTitle.length > 150;
-              return !isDescExpanded && isLong
-                ? fullTitle.slice(0, 150) + "…"
-                : fullTitle;
+              return !isDescExpanded && isLong ? fullTitle.slice(0, 150) + '…' : fullTitle;
             })()}
           </span>
           {(() => {
-            const fullTitle = alertTypeBoxDetails?.title || "";
+            const fullTitle = alertTypeBoxDetails?.title || '';
             const isLong = fullTitle.length > 150;
             if (!isLong) return null;
             return (
               <button
-                onClick={() => setIsDescExpanded((v) => !v)}
+                onClick={() => setIsDescExpanded(v => !v)}
                 style={{
-                  marginTop: "8px",
-                  background: "transparent",
-                  border: "none",
-                  color:
-                    alertTypeBoxDetails?.textColor || "var(--cWhite, #fafafa)",
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                  fontSize: "12px",
+                  marginTop: '8px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: alertTypeBoxDetails?.textColor || 'var(--cWhite, #fafafa)',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  fontSize: '12px',
                   padding: 0,
-                  alignSelf: "flex-start",
+                  alignSelf: 'flex-start',
                 }}
               >
-                {isDescExpanded ? "Ver menos" : "Ver más"}
+                {isDescExpanded ? 'Ver menos' : 'Ver más'}
               </button>
             );
           })()}
@@ -420,19 +373,12 @@ const RenderView = (props: RenderViewProps) => {
       <div className={styles.hlMiddleSection}>
         <div className={styles.hlInfoRow}>
           <div className={styles.hlInfoBlockGrow}>
-            <InfoBlock
-              label="Fecha y hora de creación"
-              value={createdAtValue}
-              isHighLevel={true}
-            />
+            <InfoBlock label="Fecha y hora de creación" value={createdAtValue} isHighLevel={true} />
           </div>
           <div className={styles.hlInfoBlockFixed}>
             <div className={styles.hlInfoBlockContent}>
               <span className={styles.hlInfoLabel}>Categoría de alerta</span>
-              <span
-                className={styles.hlAlertLevelValue}
-                style={{ color: alertLevelColor }}
-              >
+              <span className={styles.hlAlertLevelValue} style={{ color: alertLevelColor }}>
                 {alertLevelValue}
               </span>
             </div>
@@ -454,10 +400,7 @@ const RenderView = (props: RenderViewProps) => {
             <div className={styles.hlPendingIconContainer}>
               <IconClock size={32} color={alertLevelColor} />
             </div>
-            <span
-              className={styles.hlPendingText}
-              style={{ color: alertLevelColor }}
-            >
+            <span className={styles.hlPendingText} style={{ color: alertLevelColor }}>
               Pendiente de atención
             </span>
           </div>
@@ -473,40 +416,38 @@ const RenderView = (props: RenderViewProps) => {
           className={styles.gAlertDescriptionText}
           style={{
             // impedir desbordes horizontales; que "baje" en vez de salirse a la derecha
-            overflowWrap: "anywhere",
-            wordBreak: "break-word",
-            whiteSpace: "normal",
-            display: "block",
+            overflowWrap: 'anywhere',
+            wordBreak: 'break-word',
+            whiteSpace: 'normal',
+            display: 'block',
           }}
         >
           {(() => {
-            const fullDesc = item.descrip || "Descripción no disponible.";
+            const fullDesc = item.descrip || 'Descripción no disponible.';
             const isLong = fullDesc.length > 150;
-            return !isDescExpanded && isLong
-              ? fullDesc.slice(0, 150) + "…"
-              : fullDesc;
+            return !isDescExpanded && isLong ? fullDesc.slice(0, 150) + '…' : fullDesc;
           })()}
         </span>
         {(() => {
-          const fullDesc = item.descrip || "Descripción no disponible.";
+          const fullDesc = item.descrip || 'Descripción no disponible.';
           const isLong = fullDesc.length > 150;
           if (!isLong) return null;
           return (
             <button
-              onClick={() => setIsDescExpanded((v) => !v)}
+              onClick={() => setIsDescExpanded(v => !v)}
               style={{
-                marginTop: "8px",
-                background: "transparent",
-                border: "none",
-                color: "var(--cAccent, #62ab8b)",
-                cursor: "pointer",
-                textDecoration: "underline",
-                fontSize: "12px",
+                marginTop: '8px',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--cAccent, #62ab8b)',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                fontSize: '12px',
                 padding: 0,
-                alignSelf: "flex-start",
+                alignSelf: 'flex-start',
               }}
             >
-              {isDescExpanded ? "Ver menos" : "Ver más"}
+              {isDescExpanded ? 'Ver menos' : 'Ver más'}
             </button>
           );
         })()}
@@ -533,11 +474,8 @@ const RenderView = (props: RenderViewProps) => {
           <div className={styles.gInfoBlockFixed}>
             <div className={styles.gInfoBlockContent}>
               <span className={styles.gInfoLabel}>Grupo de alerta</span>
-              <span
-                className={styles.gAlertLevelValue}
-                style={{ color: alertLevelColor }}
-              >
-                {getAlertLevelText(item.level) || "-/-"}
+              <span className={styles.gAlertLevelValue} style={{ color: alertLevelColor }}>
+                {getAlertLevelText(item.level) || '-/-'}
               </span>
             </div>
           </div>
@@ -562,7 +500,7 @@ const RenderView = (props: RenderViewProps) => {
       title="Detalle de alerta"
       buttonText=""
       buttonCancel=""
-      style={{ width: "600px" }}
+      style={{ width: '600px' }}
     >
       <div className={styles.figmaContainer}>
         {isHighLevelAlert ? renderHighLevelAlert() : renderGeneralAlert()}

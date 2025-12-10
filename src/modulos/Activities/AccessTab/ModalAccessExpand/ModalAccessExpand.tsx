@@ -8,6 +8,9 @@ import useAxios from '@/mk/hooks/useAxios';
 import { getDateStrMes, getDateTimeStrMes } from '@/mk/utils/date';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import React, { useEffect, useState } from 'react';
+import { Image } from '@/mk/components/ui/Image/Image';
+import styles from './ModalAccessExpand.module.css';
+import { IconArrowLeft, IconArrowRight } from '@/components/layout/icons/IconsBiblioteca';
 
 interface PropsType {
   id: string | number | null;
@@ -33,6 +36,9 @@ const ModalAccessExpand = ({ id, open, onClose, type, invitation }: PropsType) =
   const [data, setData]: any = useState([]);
   const { execute } = useAxios();
   const [loading, setLoading] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const rowRef = React.useRef<HTMLDivElement>(null);
+  const [showControls, setShowControls] = useState(false);
 
   const getAccess = async () => {
     setLoading(true);
@@ -60,6 +66,33 @@ const ModalAccessExpand = ({ id, open, onClose, type, invitation }: PropsType) =
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type]);
+
+  useEffect(() => {
+    const norm = (arr: any) => {
+      if (!Array.isArray(arr)) return [];
+      return arr
+        .map((s: any) => String(s))
+        .map((s: string) => s.replace(/[`"']/g, '').trim())
+        .filter((s: string) => s && s.indexOf('undefined') === -1);
+    };
+    const imgs = [
+      ...norm((data as any)?.url_image_p),
+      ...norm((data as any)?.url_image),
+      ...norm((data as any)?.visit?.url_image_a),
+      ...norm((data as any)?.visit?.url_image_r),
+    ];
+    setImages(imgs);
+  }, [data]);
+
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el) return;
+    const check = () => setShowControls(el.scrollWidth > el.clientWidth + 2);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [images]);
 
   const getStatus = () => {
     if (!data?.in_at) {
@@ -258,7 +291,30 @@ const ModalAccessExpand = ({ id, open, onClose, type, invitation }: PropsType) =
       open={open}
       onClose={onClose}
     >
-      {loading ? <LoadingScreen onlyLoading /> : renderData()}
+      {loading ? <LoadingScreen onlyLoading /> : (
+        <>
+          {renderData()}
+          {images.length > 0 && (
+            <div className={styles.imagesCarousel}>
+              {showControls && (
+                <button className={styles.carouselBtn} onClick={() => rowRef.current?.scrollBy({ left: -200, behavior: 'smooth' })}>
+                  <IconArrowLeft color="var(--cWhite)" />
+                </button>
+              )}
+              <div className={styles.imagesRow} ref={rowRef}>
+                {images.map((src, i) => (
+                  <Image key={src + i} src={src} alt="img" h={90} w={120} expandable square />
+                ))}
+              </div>
+              {showControls && (
+                <button className={styles.carouselBtn} onClick={() => rowRef.current?.scrollBy({ left: 200, behavior: 'smooth' })}>
+                  <IconArrowRight color="var(--cWhite)" />
+                </button>
+              )}
+            </div>
+          )}
+        </>
+      )}
     </DataModal>
   );
 };

@@ -16,6 +16,7 @@ import { getDateStrMesShort } from '@/mk/utils/date';
 import { getFullName } from '@/mk/utils/string';
 import { getTitular } from '@/mk/utils/adapters';
 import { hasMaintenanceValue } from '@/mk/utils/utils';
+import { getStatusText, getStatusConfig, getDetailButtonText as getDetailButtonTextFromConstants, getAvailableActions as getAvailableActionsFromConstants } from '../../constants';
 
 interface RenderViewProps {
   open: boolean;
@@ -77,29 +78,15 @@ const RenderView: React.FC<RenderViewProps> = ({
   const hasApiData = data?.data?.[0];
 
 
-  const getStatusText = (status: string, dueDate?: string) => {
+  const resolveStatus = (status: string, dueDate?: string) => {
     let finalStatus = status;
-
-    // Obtener fecha actual solo como string YYYY-MM-DD
     const today = new Date();
     const todayString = today.toISOString().split('T')[0];
     const dueAtString = dueDate;
-
-    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
     if (dueAtString && dueAtString < todayString && status === 'A') {
       finalStatus = 'M';
     }
-
-    const statusMap: { [key: string]: string } = {
-      'A': 'Por cobrar',
-      'P': 'Cobrada',
-      'S': 'Por confirmar',
-      'M': 'En mora',
-      'C': 'Cancelada',
-      'F': 'Condonada',
-      'X': 'Anulada'
-    };
-    return statusMap[finalStatus] || finalStatus;
+    return finalStatus;
   };
 
   const getPaymentTypeText = (type: string) => {
@@ -113,31 +100,8 @@ const RenderView: React.FC<RenderViewProps> = ({
     return paymentTypeMap[type] || type;
   };
 
-  const getStatusConfig = (status: string, dueDate?: string) => {
-    let finalStatus = status;
-
-    // Obtener fecha actual solo como string YYYY-MM-DD
-    const today = new Date();
-    const todayString = today.toISOString().split('T')[0];
-    const dueAtString = dueDate;
-
-    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
-    if (dueAtString && dueAtString < todayString && status === 'A') {
-      finalStatus = 'M';
-    }
-
-    const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
-      A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
-      P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
-      S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
-      R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
-      E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
-      M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
-      C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
-      F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
-      X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
-    };
-    return statusConfig[finalStatus] || statusConfig.E;
+  const getStatusStyle = (status: string, dueDate?: string) => {
+    return getStatusConfig(status, dueDate);
   };
 
   const getBalanceTitle = (status: string) => {
@@ -150,62 +114,11 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   const getAvailableActions = (status: string, type: number) => {
-    if (type !== 0) {
-      return {
-        showAnular: false,
-        showEditar: false,
-        showRegistrarPago: status !== 'P' && status !== 'S',
-        showVerPago: status === 'P' || status === 'S'
-      };
-    }
-
-    switch (status) {
-      case 'P':
-        return {
-          showAnular: false,
-          showEditar: false,
-          showRegistrarPago: false,
-          showVerPago: true
-        };
-      case 'S': // Por confirmar debe mostrar "Ver pago"
-        return {
-          showAnular: false,
-          showEditar: false,
-          showRegistrarPago: false,
-          showVerPago: true
-        };
-      case 'A':
-        return {
-          showAnular: true,
-          showEditar: true,
-          showRegistrarPago: true,
-          showVerPago: false
-        };
-      case 'M': // En mora solo se puede registrar pago, no editar ni anular
-        return {
-          showAnular: false,
-          showEditar: false,
-          showRegistrarPago: true,
-          showVerPago: false
-        };
-      default: // Otros estados no permiten editar ni anular
-        return {
-          showAnular: false,
-          showEditar: false,
-          showRegistrarPago: status !== 'P' && status !== 'S',
-          showVerPago: false
-        };
-    }
+    return getAvailableActionsFromConstants(status, type);
   };
 
   const getDetailButtonText = (type: number) => {
-    switch (type) {
-      case 1: return 'Ver expensa';
-      case 2: return 'Ver reserva';
-      case 3: return;
-      case 4: return hideSharedDebtButton ? null : 'Ver deuda compartida';
-      default: return null;
-    }
+    return getDetailButtonTextFromConstants(type, hideSharedDebtButton);
   };
 
   const handleDetailButtonClick = (type: number) => {
@@ -335,8 +248,9 @@ const RenderView: React.FC<RenderViewProps> = ({
     return getDateStrMesShort(dateString);
   };
 
-  const statusText = getStatusText(debtDetail?.status, debtDetail?.due_at);
-  const { color, bgColor } = getStatusConfig(debtDetail?.status, debtDetail?.due_at);
+  const finalStatus = resolveStatus(debtDetail?.status, debtDetail?.due_at);
+  const statusText = getStatusText(finalStatus);
+  const { color, bgColor } = getStatusStyle(finalStatus, debtDetail?.due_at);
   const balanceTitle = getBalanceTitle(debtDetail?.status);
   const actions = getAvailableActions(debtDetail?.status, debtType);
   const detailButtonText = getDetailButtonText(debtType);
