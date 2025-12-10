@@ -47,8 +47,6 @@ export class CloudinaryAdapter implements IStorageAdapter {
       }
       // PDFs y documentos quedan como 'raw'
 
-      console.log('📤 Subiendo a Cloudinary:', { publicId, filename, resourceType, mimeType: file.type });
-
       // IMPORTANTE: Usar el endpoint específico del tipo de recurso
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${this.cloudName}/${resourceType}/upload`,
@@ -61,11 +59,9 @@ export class CloudinaryAdapter implements IStorageAdapter {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('❌ Cloudinary error:', data);
         throw new Error(data.error?.message || 'Error al subir archivo a Cloudinary');
       }
 
-      console.log('✅ Cloudinary upload exitoso:', data.secure_url, 'resource_type:', data.resource_type);
 
       // Retornamos el formato esperado
       return {
@@ -75,7 +71,6 @@ export class CloudinaryAdapter implements IStorageAdapter {
         resource_type: data.resource_type || resourceType,
       };
     } catch (error) {
-      console.error('💥 CloudinaryAdapter upload error:', error);
       throw error;
     }
   }
@@ -84,9 +79,6 @@ export class CloudinaryAdapter implements IStorageAdapter {
     try {
       // El path ya contiene el public_id de Cloudinary
       const publicId = file.path;
-
-      console.log('🗑️ Eliminando de Cloudinary:', publicId);
-
       // Llamar al endpoint de Next.js para borrar (asumiendo que existe)
       const response = await fetch('/api/cloudinary-upload', {
         method: 'DELETE',
