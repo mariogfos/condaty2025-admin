@@ -151,7 +151,7 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
         onSave={_onSave}
         buttonCancel={'Cancelar'}
         buttonText={'Registrar pago a cuenta'}
-        title={'Registrar pago a cuenta 1'}
+        title={'Registrar pago a cuenta'}
         minWidth={680}
         maxWidth={860}
       >
