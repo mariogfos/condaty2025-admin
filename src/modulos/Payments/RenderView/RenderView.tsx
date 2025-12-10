@@ -125,11 +125,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     }
   }, [open, item, payment_id]);
 
-  const handleGenerateReceipt = async () => {
+  const handleGenerateReceipt = async (item: any) => {
     showToast("Generando recibo...", "info");
 
     const { data: file, error } = await execute(
-      "/payment-recibo",
+      item?.is_partial
+        ? "/payment-recibo-parcial-individual"
+        : "/payment-recibo",
       "POST",
       { id: item?.id },
       false,
@@ -885,7 +887,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   variant="secondary"
                   className={styles.voucherButton}
                   // style={hasVoucherUrls ? { marginRight: 8 } : {}}
-                  onClick={handleGenerateReceipt}
+                  onClick={() => handleGenerateReceipt(item)}
                 >
                   Ver Recibo
                 </Button>
