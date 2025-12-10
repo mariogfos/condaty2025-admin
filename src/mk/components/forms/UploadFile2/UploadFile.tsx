@@ -64,6 +64,26 @@ const UploadFile: React.FC<UploadFileProps> = ({
     ? ['*']
     : defaultExts.split(',').map(e => e.trim().replace('.', ''));
 
+  // Determinar si hay extensiones de imagen y/o documento
+  const imageExts = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'];
+  const docExts = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt'];
+  const hasImageExt = allowedExts.some(e => imageExts.includes(e) || e === '*');
+  const hasDocExt = allowedExts.some(e => docExts.includes(e) || e === '*');
+
+  // Construir el accept dinámicamente
+  let accept = '';
+  if (allowedExts.includes('*')) {
+    accept = '*';
+  } else {
+    const acceptArr: string[] = [];
+    if (hasImageExt) acceptArr.push('image/*');
+    if (hasDocExt) acceptArr.push('.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt');
+    // Agregar otras extensiones personalizadas
+    const otherExts = allowedExts.filter(e => !imageExts.includes(e) && !docExts.includes(e) && e !== '*');
+    if (otherExts.length > 0) acceptArr.push(...otherExts.map(e => '.' + e));
+    accept = acceptArr.join(',');
+  }
+
   const folder = global ? 'global' : clientId || 'unknown';
   const pref = prefix ? `${prefix}/` : '';
 
@@ -87,52 +107,79 @@ const UploadFile: React.FC<UploadFileProps> = ({
         return;
       }
 
-      setUploading(true);
-      setError(null);
-      onUploadStateChange?.(true);
-
-      const newValues = [...currentValues];
+      const validFiles: { file: File; path: string }[] = [];
+      let validationErrors: string[] = [];
 
       for (const file of Array.from(files)) {
         const fileExt = file.name.split('.').pop()?.toLowerCase();
 
         // Validar extensión
         if (!allowedExts.includes('*') && (!fileExt || !allowedExts.includes(fileExt))) {
-          setError(`Formato no permitido: .${fileExt}`);
+          validationErrors.push(`Formato no permitido: .${fileExt} para ${file.name}`);
           continue;
         }
 
         const path = getPath(file.name);
+        validFiles.push({ file, path });
+      }
 
+      if (validationErrors.length > 0) {
+        setError(validationErrors.join('; '));
+        return;
+      }
+
+      setUploading(true);
+      setError(null);
+      onUploadStateChange?.(true);
+
+      const uploadPromises = validFiles.map(async ({ file, path }) => {
         try {
-          // Si es modo single y ya hay un archivo, eliminar el anterior
-          if (isSingle && currentValues.length > 0 && currentValues[0]) {
-            const oldUrl = currentValues[0];
-            let path = oldUrl;
-            if (oldUrl.includes('cloudinary.com')) {
-              const match = oldUrl.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/);
-              if (match && match[1]) {
-                path = match[1];
-              }
-            }
-            try {
-              await storage.delete({ path, url: oldUrl, name: '' });
-            } catch (e) {
-              console.error('Error deleting old file:', e);
-            }
-          }
-
           const uploaded: StorageFile = await storage.upload(file, path);
-          newValues.push(uploaded.url);
+          return { success: true, url: uploaded.url };
         } catch (e) {
-          console.error(e);
-          setError('No se pudo subir el archivo');
+          return { success: false, error: e, fileName: file.name };
+        }
+      });
+
+      const results = await Promise.allSettled(uploadPromises);
+
+      const successfulUrls: string[] = [];
+      const uploadErrors: string[] = [];
+
+      results.forEach((result) => {
+        if (result.status === 'fulfilled' && result.value.success && result.value.url) {
+          successfulUrls.push(result.value.url);
+        } else {
+          const errorMsg = result.status === 'rejected' ? String(result.reason) : String(result.value?.error || 'Unknown error');
+          const fileName = result.status === 'rejected' ? 'unknown' : result.value?.fileName || 'unknown';
+          uploadErrors.push(`Error subiendo ${fileName}: ${errorMsg}`);
+        }
+      });
+
+      if (uploadErrors.length > 0) {
+        setError(uploadErrors.join('; '));
+      }
+
+      // For single mode, delete old file if new upload succeeded
+      if (isSingle && successfulUrls.length > 0 && currentValues.length > 0 && currentValues[0]) {
+        const oldUrl = currentValues[0];
+        let path = oldUrl;
+        if (oldUrl.includes('cloudinary.com')) {
+          const match = oldUrl.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/);
+          if (match && match[1]) {
+            path = match[1];
+          }
+        }
+        try {
+          await storage.delete({ path, url: oldUrl, name: '' });
+        } catch (e) {
+          console.error('Error deleting old file:', e);
         }
       }
 
       setFormState((prev: any) => ({
         ...prev,
-        [name]: isSingle ? [newValues[newValues.length - 1] || ''] : newValues,
+        [name]: isSingle ? [successfulUrls[0] || ''] : [...currentValues, ...successfulUrls],
       }));
 
       setUploading(false);
@@ -147,31 +194,42 @@ const UploadFile: React.FC<UploadFileProps> = ({
   );
 
   const removeFile = useCallback(
-    async (url: string) => {
+    (url: string) => {
       if (!url || typeof url !== 'string') return;
 
-      // Extraer path de la URL
-      let path = url;
-      if (url.includes('cloudinary.com')) {
-        const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/);
-        if (match && match[1]) {
-          path = match[1];
+      // Optimistically remove from UI
+      setFormState((prev: any) => {
+        const current = prev[name] || [];
+        const filtered = current.filter((u: string) => u !== url);
+        return {
+          ...prev,
+          [name]: isSingle ? [] : filtered,
+        };
+      });
+
+      // Delete in background
+      (async () => {
+        let path = url;
+        if (url.includes('cloudinary.com')) {
+          const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/);
+          if (match && match[1]) {
+            path = match[1];
+          }
         }
-      }
-
-      try {
-        await storage.delete({ path, url, name: '' });
-      } catch (e) {
-        console.error('Error deleting file:', e);
-      }
-
-      const filtered = currentValues.filter((u: string) => u !== url);
-      setFormState((prev: any) => ({
-        ...prev,
-        [name]: isSingle ? [] : filtered,
-      }));
+        try {
+          await storage.delete({ path, url, name: '' });
+        } catch (e) {
+          console.error('Error deleting file:', e);
+          // Re-add the file to UI if delete failed
+          setFormState((prev: any) => ({
+            ...prev,
+            [name]: isSingle ? [url] : [...(prev[name] || []), url],
+          }));
+          setError('Error al eliminar el archivo');
+        }
+      })();
     },
-    [currentValues, isSingle, setFormState]
+    [isSingle, setFormState, name]
   );
 
   const openFileInput = () => {
@@ -204,6 +262,16 @@ const UploadFile: React.FC<UploadFileProps> = ({
   if (isSingle) {
     const singleValue = currentValues[0] || '';
 
+    // Detectar si es imagen o documento
+    const getFileType = (url: string) => {
+      if (!url) return 'none';
+      const ext = url.split('.').pop()?.toLowerCase() || '';
+      if (imageExts.includes(ext)) return 'image';
+      if (docExts.includes(ext)) return 'doc';
+      return 'other';
+    };
+    const fileType = getFileType(singleValue);
+
     return (
       <div className={styles.uploadFile} style={{ height: '100%' }}>
         <div style={{ height: '100%' }}>
@@ -224,7 +292,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
             <input
               ref={fileInputRef}
               type="file"
-              accept={type === 'I' ? 'image/*' : type === 'D' ? '.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt' : '*'}
+              accept={accept}
               onChange={handleFileSelect}
               style={{ display: 'none' }}
               multiple={false}
@@ -232,7 +300,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
 
             {!hasContent() ? (
               <div onClick={openFileInput}>
-                {type === 'I' ? (
+                {hasImageExt ? (
                   <div className={styles.placeholderIcon}><IconImage size={40} color={"var(--cWhite)"} /></div>
                 ) : (
                   <div className={styles.placeholderIcon}><IconDocs size={40} color={"var(--cWhite)"} /></div>
@@ -241,13 +309,19 @@ const UploadFile: React.FC<UploadFileProps> = ({
                 <span>{allowedExts.join(', ')}</span>
               </div>
             ) : (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                {type === 'I' ? (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                {fileType === 'image' ? (
                   <img
                     src={singleValue}
                     alt="Uploaded"
                     className={styles.image}
                   />
+                ) : fileType === 'doc' ? (
+                  <>
+                    <div className={styles.placeholderIcon}><IconDocs size={40} color={"var(--cWhite)"} /></div>
+                    <span style={{ marginTop: 8 }}>{singleValue.split('/').pop()}</span>
+                    <a href={singleValue} target="_blank" rel="noopener noreferrer" style={{ color: '#fff', marginTop: 4, textDecoration: 'underline', fontSize: 13 }}>Ver documento</a>
+                  </>
                 ) : (
                   <>
                     <div className={styles.placeholderIcon}><IconDocs size={40} color={"var(--cWhite)"} /></div>
@@ -261,33 +335,13 @@ const UploadFile: React.FC<UploadFileProps> = ({
               <div className={styles.actionButtons}>
                 <button
                   onClick={openFileInput}
-                  style={{
-                    backgroundColor: 'var(--cPrimary)',
-                    borderRadius: '50%',
-                    width: '30px',
-                    height: '30px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    border: 'none',
-                  }}
+                  className={styles.editButton}
                 >
                   <IconEdit size={16} color="white" />
                 </button>
                 <button
                   onClick={() => removeFile(currentValues[0])}
-                  style={{
-                    backgroundColor: 'var(--cError)',
-                    borderRadius: '50%',
-                    width: '30px',
-                    height: '30px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    border: 'none',
-                  }}
+                  className={styles.deleteButton}
                 >
                   <IconTrash size={16} color="white" />
                 </button>
@@ -302,34 +356,73 @@ const UploadFile: React.FC<UploadFileProps> = ({
     );
   }
 
-  // Modo múltiple - simplificado
+  // Modo múltiple
+  const getFileType = (url: string) => {
+    if (!url) return 'none';
+    const ext = url.split('.').pop()?.toLowerCase() || '';
+    if (imageExts.includes(ext)) return 'image';
+    if (docExts.includes(ext)) return 'doc';
+    return 'other';
+  };
+
   return (
     <div>
       <input
         ref={fileInputRef}
         type="file"
-        accept={type === 'I' ? 'image/*' : type === 'D' ? '.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt' : '*'}
+        accept={accept}
         onChange={handleFileSelect}
         style={{ display: 'none' }}
         multiple={cant > 1}
       />
-      <div className={styles.multipleContainer}>
-        {currentValues.map((url: string, i: number) => (
-          <div key={i} className={styles.fileItem}>
-            <button
-              className={styles.removeButton}
-              onClick={() => removeFile(url)}
-            >
-              ✕
-            </button>
-            <img src={url} alt={`File ${i}`} className={styles.fileImage} />
-          </div>
-        ))}
-        {currentValues.length < cant && (
-          <div className={styles.addButton} onClick={openFileInput}>
-            {uploading ? 'Subiendo...' : '➕'}
-          </div>
-        )}
+      <div
+        className={`${styles.dropZone} ${isDraggingFile ? styles.dragging : ''}`}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onDragEnter={() => setIsDraggingFile(true)}
+        onDragLeave={() => setIsDraggingFile(false)}
+      >
+        <div className={styles.multipleContainer}>
+          {currentValues.length < cant && (
+            <div className={styles.addButton} onClick={openFileInput}>
+              {uploading ? (
+                <span className={styles.uploadingText}>Subiendo...</span>
+              ) : (
+                <>
+                  {hasImageExt ? <IconImage size={40} color={"var(--cWhite)"} /> : <IconDocs size={40} color={"var(--cWhite)"} />}
+                  <span>{label}</span>
+                </>
+              )}
+            </div>
+          )}
+          {currentValues.map((url: string, i: number) => {
+            const fileType = getFileType(url);
+            return (
+              <div key={i} className={styles.fileItem}>
+                <button
+                  className={styles.removeButton}
+                  onClick={() => removeFile(url)}
+                >
+                  ✕
+                </button>
+                {fileType === 'image' ? (
+                  <img src={url} alt={`File ${i}`} className={styles.fileImage} />
+                ) : fileType === 'doc' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <IconDocs size={32} color={"var(--cWhite)"} />
+                    <span style={{ fontSize: 12, marginTop: 4 }}>{url.split('/').pop()}</span>
+                    <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: '#fff', marginTop: 2, textDecoration: 'underline', fontSize: 11 }}>Ver documento</a>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <IconDocs size={32} color={"var(--cWhite)"} />
+                    <span style={{ fontSize: 12, marginTop: 4 }}>Archivo</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
       {error && <div className={styles.error}>{error}</div>}
       {required && currentValues.length === 0 && <div className={styles.required}>Campo obligatorio</div>}

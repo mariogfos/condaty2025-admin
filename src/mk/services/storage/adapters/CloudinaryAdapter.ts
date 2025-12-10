@@ -37,11 +37,19 @@ export class CloudinaryAdapter implements IStorageAdapter {
       formData.append('upload_preset', this.uploadPreset);
       formData.append('folder', this.folder);
       formData.append('public_id', publicId);
+      
+      // Determinar el resource_type correcto
+      let resourceType = 'raw'; // Por defecto para documentos, PDFs, etc.
+      if (file.type.startsWith('image/')) {
+        resourceType = 'image';
+      } else if (file.type.startsWith('video/')) {
+        resourceType = 'video';
+      }
+      // PDFs y documentos quedan como 'raw'
 
-      console.log('📤 Subiendo a Cloudinary:', { publicId, filename });
-
+      // IMPORTANTE: Usar el endpoint específico del tipo de recurso
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${this.cloudName}/upload`,
+        `https://api.cloudinary.com/v1_1/${this.cloudName}/${resourceType}/upload`,
         {
           method: 'POST',
           body: formData,
@@ -51,20 +59,18 @@ export class CloudinaryAdapter implements IStorageAdapter {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('❌ Cloudinary error:', data);
         throw new Error(data.error?.message || 'Error al subir archivo a Cloudinary');
       }
 
-      console.log('✅ Cloudinary upload exitoso:', data.secure_url);
 
       // Retornamos el formato esperado
       return {
         path: data.public_id,
         url: data.secure_url,
         name: data.original_filename || filename,
+        resource_type: data.resource_type || resourceType,
       };
     } catch (error) {
-      console.error('💥 CloudinaryAdapter upload error:', error);
       throw error;
     }
   }
@@ -73,9 +79,6 @@ export class CloudinaryAdapter implements IStorageAdapter {
     try {
       // El path ya contiene el public_id de Cloudinary
       const publicId = file.path;
-
-      console.log('🗑️ Eliminando de Cloudinary:', publicId);
-
       // Llamar al endpoint de Next.js para borrar (asumiendo que existe)
       const response = await fetch('/api/cloudinary-upload', {
         method: 'DELETE',
@@ -98,8 +101,21 @@ export class CloudinaryAdapter implements IStorageAdapter {
       return pathOrUrl;
     }
 
-    // Si es un path relativo, construir la URL
+    // Detectar el tipo de recurso por la extensión del archivo
+    const ext = pathOrUrl.split('.').pop()?.toLowerCase();
+    let resourceType = 'raw';
+    
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+    const videoExts = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
+    
+    if (ext && imageExts.includes(ext)) {
+      resourceType = 'image';
+    } else if (ext && videoExts.includes(ext)) {
+      resourceType = 'video';
+    }
+    // PDFs, docs, etc. quedan como 'raw'
+
     const publicId = pathOrUrl.replace(/\.[^/.]+$/, ''); // sin extensión
-    return `https://res.cloudinary.com/${this.cloudName}/image/upload/${publicId}`;
+    return `https://res.cloudinary.com/${this.cloudName}/${resourceType}/upload/${publicId}`;
   }
 }

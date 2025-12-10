@@ -14,6 +14,8 @@ import { getDateStrMes, getDateTimeStrMes } from "../../../mk/utils/date";
 import { getFullName, getUrlImages } from "../../../mk/utils/string";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
+import { MONTHS, MONTHS_S } from "@/mk/utils/date1";
+import RenderDel from "@/modulos/Payments/RenderDel/RenderDel";
 
 const LabelValue = ({
   label,
@@ -62,7 +64,7 @@ const RenderView = ({
   open,
   onClose,
   item: propItem,
-  onDel,
+  // onDel,
   onEdit,
   reLoad,
   execute,
@@ -70,66 +72,15 @@ const RenderView = ({
   showToast,
 }: any) => {
   const { user } = useAuth();
-  const [openDetail, setOpenDetail] = useState({
+  const [openDetail, setOpenDetail]: any = useState({
     open: false,
-    item: undefined,
+    item: null,
   });
   const [openFormAccount, setOpenFormAccount] = useState(false);
   const [loading, setLoading] = useState(false);
   const [item, setItem]: any = useState({});
-
-  // const item = {
-  //   id: "exp-2025-11-00124",
-  //   amount: 1850.0, // Monto original de la expensa
-  //   penalty_amount: 370.0, // Multa por mora (20%)
-  //   forgiveness_amount: 277.5, // Condonación del 15% de la multa
-  //   forgiveness_percent: "15.00",
-  //   status: "W", // P = Parcialmente pagado
-  //   due_at: "2025-11-10", // Fecha límite original
-  //   paid_amount: 1200.0, // Ya pagado
-  //   remaining_amount: 1020.0, // Saldo pendiente (amount + penalty - forgiveness - paid)
-  //   maintenance_amount: 277.5, // Mantenimiento del 15% de la multa
-  //   unit: "Departamento 24-B",
-  //   owner: "Carlos Delgadillo Flores",
-  //   holder: "Marcelo Peña Galvarro",
-  //   note: "Pagó la hermana del propietario",
-  //   authorized_by: "Scarlett Guzmán V.",
-  //   debts: [
-  //     {
-  //       id: "a085ae50-2449-434a-b9db-7102c76a0761",
-  //       paid_by: "Scarlett Guzmán V.",
-  //       paid_at: "2025-11-15",
-  //       receipt: "REC-2025-0891",
-  //       status: "A", // Aprobado
-  //       amount: 800.0,
-  //     },
-  //     {
-  //       id: "a085ae50-2449-434a-b9db-7102c76a0761",
-  //       paid_by: "Marcelo Peña Galvarro",
-  //       paid_at: "2025-11-28",
-  //       receipt: "REC-2025-1124",
-  //       status: "A",
-  //       amount: 400.0,
-  //     },
-  //     {
-  //       id: "a085ae50-2449-434a-b9db-7102c76a0761",
-  //       paid_by: "Carlos Delgadillo Flores",
-  //       paid_at: "2025-12-02",
-  //       receipt: "REC-2025-1340",
-  //       status: "P", // Pendiente de revisión
-  //       amount: 200.0,
-  //     },
-  //     {
-  //       id: "a085ae50-2449-434a-b9db-7102c76a0761",
-  //       paid_by: "Scarlett Guzmán V.",
-  //       paid_at: "2025-12-02",
-  //       receipt: "REC-2025-1340",
-  //       status: "P", // Pendiente de revisión
-  //       amount: 200.0,
-  //     },
-  //   ],
-  // };
-
+  const [openConfimDel, setOpenConfimDel] = useState(false);
+  const [loadingExport, setLoadingExport] = useState(false);
   const header = [
     {
       key: "paid_by",
@@ -141,41 +92,44 @@ const RenderView = ({
       key: "paid_at",
       label: "Fecha de pago",
       responsive: "onlyDesktop",
-      onRender: ({ item }: any) => getDateTimeStrMes(item?.paid_at),
+      onRender: ({ item }: any) => getDateStrMes(item?.paid_at),
     },
     {
       key: "receipt",
       label: "Comprobante",
       responsive: "onlyDesktop",
-      onRender: ({ item }: any) => (
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <div
-            style={{
-              backgroundColor: "#4F5659",
-              padding: 8,
-              borderRadius: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <IconGallery color="var(--cWhite)" />
-          </div>
-          <div>
-            <p style={{ color: "var(--cWhite)" }}>{item?.code}</p>
+      onRender: ({ item }: any) =>
+        item?.files?.length > 0 ? (
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <div
-              style={{ color: "var(--cAccent)", fontSize: 12 }}
-              onClick={(e: any) => {
-                e.preventDefault();
-                e.stopPropagation();
-                downloadAllVouchers(item.files);
+              style={{
+                backgroundColor: "#4F5659",
+                padding: 8,
+                borderRadius: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              Ver imagen
+              <IconGallery color="var(--cWhite)" />
+            </div>
+            <div>
+              <p style={{ color: "var(--cWhite)" }}>{item?.code}</p>
+              <div
+                style={{ color: "var(--cAccent)", fontSize: 12 }}
+                onClick={(e: any) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  downloadAllVouchers(item.files);
+                }}
+              >
+                Ver imagen
+              </div>
             </div>
           </div>
-        </div>
-      ),
+        ) : (
+          <p style={{ color: "var(--cWhite)" }}>-/-</p>
+        ),
     },
     {
       key: "status",
@@ -234,10 +188,9 @@ const RenderView = ({
   useEffect(() => {
     getDetail();
   }, [propItem?.id]);
-  const totalPagado = item?.history?.reduce(
-    (acc: number, d: any) => Number(acc) + Number(d.amount),
-    0
-  );
+  const totalPagado = item?.history
+    ?.filter((d: any) => d.status !== "X")
+    ?.reduce((acc: number, d: any) => acc + Number(d.amount), 0);
 
   const totalAmount =
     Number(item?.amount) +
@@ -265,6 +218,7 @@ const RenderView = ({
   };
 
   const getExport = async () => {
+    setLoadingExport(true);
     const { data: file, error } = await execute(
       `/payment-recibo-parcial`,
       "POST",
@@ -284,8 +238,13 @@ const RenderView = ({
         "error"
       );
     }
+    setLoadingExport(false);
   };
 
+  const onDelPayment = () => {
+    setOpenConfimDel(true);
+  };
+  console.log(item);
   return (
     <>
       <DataModal
@@ -299,7 +258,7 @@ const RenderView = ({
         buttonExtra={
           <div style={{ display: "flex", gap: 16, width: "100%" }}>
             <Button
-              // onClick={() => onEdit(item)}
+              disabled={loadingExport}
               onClick={() => getExport()}
               variant="secondary"
               style={{ flex: 1 }}
@@ -341,16 +300,22 @@ const RenderView = ({
               >
                 {formatBs(totalAmount)}
               </p>
-              {}
-              {/* <p
+              <p
                 style={{
                   color: "var(--cWhiteV1)",
                   fontSize: 16,
                   textAlign: "center",
                 }}
               >
-                Pago de expensa - Noviembre, 2025
-              </p> */}
+                {item.type === 1 &&
+                  "Pago de expensa - " +
+                    MONTHS[item.debt.month] +
+                    ", " +
+                    item.debt.year}
+
+                {item.type === 2 && item.description}
+                {item.type === 0 && item.subcategory?.name}
+              </p>
             </div>
             <div
               style={{
@@ -392,7 +357,7 @@ const RenderView = ({
                 />
                 <LabelValue
                   label="Autorizado por:"
-                  value={getFullName(item?.history?.[0]?.user)}
+                  value={getFullName(item?.history?.[0]?.user) || "-/-"}
                 />
                 {/* <LabelValue
                 label="Nota:"
@@ -400,7 +365,7 @@ const RenderView = ({
               /> */}
                 <LabelValue
                   label="Propietario:"
-                  value={getFullName(item?.dpto?.homeowner)}
+                  value={getFullName(item?.dpto?.homeowner) || "-/-"}
                 />
               </div>
               <div style={{ display: "flex", gap: 16 }}>
@@ -414,7 +379,7 @@ const RenderView = ({
               /> */}
                 <LabelValue
                   label="Titular:"
-                  value={getFullName(item?.dpto?.tenant)}
+                  value={getFullName(item?.dpto?.tenant) || "-/-"}
                 />
                 <LabelValue label="" value={""} />
               </div>
@@ -424,8 +389,10 @@ const RenderView = ({
                 style={{
                   borderBottomLeftRadius: 0,
                   borderBottomRightRadius: 0,
+                  height: "auto",
+                  // backgroundColor: "red",
                 }}
-                height="calc(100vh - 700px)"
+                height="150"
                 onRowClick={(item: any) => {
                   setOpenDetail({ open: true, item });
                 }}
@@ -466,8 +433,9 @@ const RenderView = ({
         <RenderViewPayment
           open={openDetail.open}
           onClose={() => setOpenDetail({ open: false, item: undefined })}
-          item={openDetail?.item}
-          // onDel={onDel}
+          payment_id={openDetail.item?.payment_id as string}
+          // item={openDetail?.item}
+          onDel={onDelPayment}
         />
       )}
       {openFormAccount && (
@@ -487,6 +455,17 @@ const RenderView = ({
           execute={execute}
           showToast={showToast}
           extraData={extraData}
+        />
+      )}
+      {openConfimDel && (
+        <RenderDel
+          open={openConfimDel}
+          onClose={() => setOpenConfimDel(false)}
+          execute={execute}
+          item={{ ...openDetail?.item, id: openDetail?.item?.payment_id }}
+          reLoad={() => {
+            getDetail();
+          }}
         />
       )}
     </>

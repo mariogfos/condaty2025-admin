@@ -49,7 +49,7 @@ const PartialPayments = () => {
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === "in_at" && value === "custom") {
+    if (opt === "updated_at" && value === "custom") {
       setCustomDateErrors({});
       setOpenCustomFilterModal(true);
       delete currentFilters[opt];
@@ -80,7 +80,7 @@ const PartialPayments = () => {
       return;
     }
     const customDateFilterString = `${startDate},${endDate}`;
-    onFilter("in_at", customDateFilterString);
+    onFilter("updated_at", customDateFilterString);
     setOpenCustomFilterModal(false);
     setCustomDateErrors({});
   };
@@ -109,13 +109,7 @@ const PartialPayments = () => {
       reLoad?: any;
     }) => <RenderView {...props} />,
   };
-  const getOptionsBankEntity = useCallback(
-    (extraData: any) => [
-      { id: "ALL", name: "Todos" },
-      ...(extraData?.bankEntities || []),
-    ],
-    []
-  );
+
   const getOptionsStatus = useCallback(
     () => [
       { id: "ALL", name: "Todos" },
@@ -155,8 +149,13 @@ const PartialPayments = () => {
           onRender: ({ item }: Record<string, any>) => {
             return (
               <p>
-                {item?.subcategory?.name} - {MONTHS[item?.debt?.month]}{" "}
-                {item?.debt?.year}
+                {item?.debt?.month
+                  ? item?.subcategory?.name +
+                    " - " +
+                    MONTHS[item?.debt?.month] +
+                    " " +
+                    item?.debt?.year
+                  : item?.description.replace("Deuda de reserva ", "Reserva ")}
               </p>
             );
           },
@@ -302,16 +301,18 @@ const PartialPayments = () => {
         emptyMsg="Lista de pagos parciales vacía. Aquí verás a todos los pagos parciales"
         emptyLine2="del condominio una vez los registres."
       />
-      <DateRangeFilterModal
-        open={openCustomFilterModal}
-        onClose={() => {
-          setOpenCustomFilterModal(false);
-          setCustomDateErrors({});
-        }}
-        onSave={onSaveFilterModal}
-        errorStart={customDateErrors.startDate}
-        errorEnd={customDateErrors.endDate}
-      />
+      {openCustomFilterModal && (
+        <DateRangeFilterModal
+          open={openCustomFilterModal}
+          onClose={() => {
+            setOpenCustomFilterModal(false);
+            setCustomDateErrors({});
+          }}
+          onSave={onSaveFilterModal}
+          errorStart={customDateErrors.startDate}
+          errorEnd={customDateErrors.endDate}
+        />
+      )}
     </div>
   );
 };
