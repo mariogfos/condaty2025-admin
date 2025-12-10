@@ -81,7 +81,7 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
     []
   );
 
-  const exten = ['jpg', 'pdf', 'png', 'jpeg', 'doc', 'docx'];
+  const exten = ['jpg', 'pdf', 'png', 'jpeg', 'doc', 'docx', 'webp'];
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
