@@ -179,8 +179,11 @@ const RenderView = ({
       if (res?.success) {
         setItem({ ...res?.data?.debt, history: res?.data?.history });
       } else {
-        showToast("Error al obtener los datos", "error");
         onClose();
+        if (res.success !== false) {
+          showToast(res?.message || "Error al obtener los datos", "error");
+        }
+        reLoad();
       }
       setLoading(false);
     }
@@ -373,10 +376,7 @@ const RenderView = ({
                   label="Unidad"
                   value={item?.dpto?.type?.name + " " + item?.dpto?.nro}
                 />
-                {/* <LabelValue
-                label="Propietario:"
-                value={getFullName(item?.dpto?.homeowner)}
-              /> */}
+
                 <LabelValue
                   label="Titular:"
                   value={getFullName(item?.dpto?.tenant) || "-/-"}
