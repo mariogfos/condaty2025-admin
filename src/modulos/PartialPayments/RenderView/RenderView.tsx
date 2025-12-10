@@ -15,6 +15,7 @@ import { getFullName, getUrlImages } from "../../../mk/utils/string";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 import { MONTHS, MONTHS_S } from "@/mk/utils/date1";
+import RenderDel from "@/modulos/Payments/RenderDel/RenderDel";
 
 const LabelValue = ({
   label,
@@ -63,7 +64,7 @@ const RenderView = ({
   open,
   onClose,
   item: propItem,
-  onDel,
+  // onDel,
   onEdit,
   reLoad,
   execute,
@@ -78,6 +79,7 @@ const RenderView = ({
   const [openFormAccount, setOpenFormAccount] = useState(false);
   const [loading, setLoading] = useState(false);
   const [item, setItem]: any = useState({});
+  const [openConfimDel, setOpenConfimDel] = useState(false);
   const [loadingExport, setLoadingExport] = useState(false);
   const header = [
     {
@@ -96,35 +98,38 @@ const RenderView = ({
       key: "receipt",
       label: "Comprobante",
       responsive: "onlyDesktop",
-      onRender: ({ item }: any) => (
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <div
-            style={{
-              backgroundColor: "#4F5659",
-              padding: 8,
-              borderRadius: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <IconGallery color="var(--cWhite)" />
-          </div>
-          <div>
-            <p style={{ color: "var(--cWhite)" }}>{item?.code}</p>
+      onRender: ({ item }: any) =>
+        item?.files?.length > 0 ? (
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <div
-              style={{ color: "var(--cAccent)", fontSize: 12 }}
-              onClick={(e: any) => {
-                e.preventDefault();
-                e.stopPropagation();
-                downloadAllVouchers(item.files);
+              style={{
+                backgroundColor: "#4F5659",
+                padding: 8,
+                borderRadius: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              Ver imagen
+              <IconGallery color="var(--cWhite)" />
+            </div>
+            <div>
+              <p style={{ color: "var(--cWhite)" }}>{item?.code}</p>
+              <div
+                style={{ color: "var(--cAccent)", fontSize: 12 }}
+                onClick={(e: any) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  downloadAllVouchers(item.files);
+                }}
+              >
+                Ver imagen
+              </div>
             </div>
           </div>
-        </div>
-      ),
+        ) : (
+          <p style={{ color: "var(--cWhite)" }}>-/-</p>
+        ),
     },
     {
       key: "status",
@@ -235,6 +240,10 @@ const RenderView = ({
       );
     }
     setLoadingExport(false);
+  };
+
+  const onDelPayment = () => {
+    setOpenConfimDel(true);
   };
 
   return (
@@ -386,7 +395,6 @@ const RenderView = ({
                 }}
                 height="150"
                 onRowClick={(item: any) => {
-                  console.log(item);
                   setOpenDetail({ open: true, item });
                 }}
                 data={item?.history}
@@ -428,7 +436,7 @@ const RenderView = ({
           onClose={() => setOpenDetail({ open: false, item: undefined })}
           payment_id={openDetail.item?.payment_id as string}
           // item={openDetail?.item}
-          // onDel={onDel}
+          onDel={onDelPayment}
         />
       )}
       {openFormAccount && (
@@ -448,6 +456,17 @@ const RenderView = ({
           execute={execute}
           showToast={showToast}
           extraData={extraData}
+        />
+      )}
+      {openConfimDel && (
+        <RenderDel
+          open={openConfimDel}
+          onClose={() => setOpenConfimDel(false)}
+          execute={execute}
+          item={{ ...openDetail?.item, id: openDetail?.item?.payment_id }}
+          reLoad={() => {
+            getDetail();
+          }}
         />
       )}
     </>
