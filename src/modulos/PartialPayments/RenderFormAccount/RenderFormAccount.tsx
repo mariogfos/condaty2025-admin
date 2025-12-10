@@ -29,6 +29,7 @@ interface RenderFormAccountProps {
     bank_account_id?: string | number;
     type?: string;
     url_file?: string[];
+    max_amount?: number | string;
   };
 }
 
@@ -63,6 +64,10 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
     bank_account_id: item?.bank_account_id,
     type: item?.type ?? 'O',
     url_file: item?.url_file ?? [],
+    max_amount:
+      item?.max_amount !== undefined
+        ? item?.max_amount
+        : item?.amount ?? '',
   });
   const [errors, setErrors] = useState<Errors>({});
   const [toast] = useState<{ msg: string; method: 'info' | 'success' | 'error' | 'warning' }>({
@@ -93,12 +98,12 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
 
   const validar = useCallback(() => {
     const err: Errors = {};
-    
-    const amt = parseFloat(String(formState.amount || '0'));
+    const amt = Math.round(parseFloat(String(formState.amount || '0')) * 100) / 100;
+    const maxAmt = Math.round(parseFloat(String(formState.max_amount || '0')) * 100) / 100;
     if (!formState.amount || isNaN(amt) || amt <= 0) {
       err.amount = 'Este campo es requerido';
-    }else {
-      if (formState.amount > item?.amount!) err.amount = 'El valor no puede ser mayor al adeudado';
+    } else if (!isNaN(maxAmt) && maxAmt > 0 && amt > maxAmt) {
+      err.amount = 'El monto no debe superar el saldo pendiente';
     }
     if (!formState.method) err.method = 'Este campo es requerido';
     if (!formState.paid_at) err.paid_at = 'Este campo es requerido';
