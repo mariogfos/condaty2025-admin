@@ -21,7 +21,7 @@ import {
 import Toast from "@/mk/components/ui/Toast/Toast";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css";
-import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
+import UploadFile from "@/mk/components/forms/UploadFile2";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
 
@@ -314,7 +314,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   );
 
   const lastLoadedDeudas = useRef<string>("");
-  const exten = ["jpg", "pdf", "png", "jpeg", "doc", "docx"];
+  const exten = ["jpg", "pdf", "png", "jpeg", "doc", "docx", "webp"];
 
   const getDeudas = useCallback(
     async (nroDpto: string | number, paymentmethod: string) => {
@@ -1257,17 +1257,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
               )}
 
               <div className={styles["upload-section"]}>
-                <UploadFile
-                  name="file"
-                  ext={exten}
-                  value={formState.file ? { file: formState.file } : ""}
-                  onChange={handleChangeInput}
-                  img={true}
-                  sizePreview={{ width: "40%", height: "auto" }}
-                  error={errors}
-                  setError={setErrors}
+                <UploadFile // Esteban
+                  name="url_file"
+                  ext={exten.join(',')}
+                  type="I"
+                  setFormState={setFormState}
+                  formState={formState}
                   required={true}
-                  placeholder="Cargar un archivo o arrastrar y soltar"
+                  label="Cargar un archivo o arrastrar y soltar"
                 />
               </div>
 
