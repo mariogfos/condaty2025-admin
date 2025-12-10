@@ -445,6 +445,16 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         )
         .filter((u: string) => !!u)
     : [];
+  
+  // Si no hay url_file pero existe ext, agregar la URL legacy
+  if (voucherUrls.length === 0 && item.ext) {
+    const ext = item.ext || "webp";
+    const legacyUrl = getUrlImages(
+      "/PAYMENT-" + item.id + "." + ext + "?d=" + item.updated_at
+    );
+    voucherUrls.push(legacyUrl);
+  }
+  
   const hasVoucherUrls = voucherUrls.length > 0;
   const showBankAccount = !!(item.status === "P" && item.bank_account);
 
