@@ -115,7 +115,7 @@ const PartialPayments = () => {
       { id: "ALL", name: "Todos" },
       { id: "P", name: "Cobrado" },
       { id: "I", name: "Pago parcial" },
-      { id: "X", name: "Anulado" },
+      // { id: "X", name: "Anulado" },
     ],
     []
   );
