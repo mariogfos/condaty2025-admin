@@ -93,8 +93,13 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
 
   const validar = useCallback(() => {
     const err: Errors = {};
+    console.log('Validando formState amoumt:', item?.amount);
     const amt = parseFloat(String(formState.amount || '0'));
-    if (!formState.amount || isNaN(amt) || amt <= 0) err.amount = 'Este campo es requerido';
+    if (!formState.amount || isNaN(amt) || amt <= 0) {
+      err.amount = 'Este campo es requerido';
+    }else {
+      if (formState.amount > item?.amount!) err.amount = 'El valor no puede ser mayor al adeudado';
+    }
     if (!formState.method) err.method = 'Este campo es requerido';
     if (!formState.paid_at) err.paid_at = 'Este campo es requerido';
     setErrors(err);
@@ -125,16 +130,16 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
       debt_dpto_id: formState.debt_dpto_id ?? formState.dpto_id,
     };
 
-    const { data, error } = await execute('/partialpayments', 'POST', params);
-    if (data?.success) {
-      showToast('Pago a cuenta registrado', 'success');
-      reLoad();
-      onClose();
-    } else {
-      showToast(error?.message || data?.message || 'Error al registrar', 'error');
-      if (error?.data?.errors) setErrors(error.data.errors);
-      else if (data?.errors) setErrors(data.errors);
-    }
+    // const { data, error } = await execute('/partialpayments', 'POST', params);
+    // if (data?.success) {
+    //   showToast('Pago a cuenta registrado', 'success');
+    //   reLoad();
+    //   onClose();
+    // } else {
+    //   showToast(error?.message || data?.message || 'Error al registrar', 'error');
+    //   if (error?.data?.errors) setErrors(error.data.errors);
+    //   else if (data?.errors) setErrors(data.errors);
+    // }
   }, [execute, extraData?.bankAccounts, formState, onClose, reLoad, showToast, validar]);
 
   return (
@@ -146,7 +151,7 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
         onSave={_onSave}
         buttonCancel={'Cancelar'}
         buttonText={'Registrar pago a cuenta'}
-        title={'Registrar pago a cuenta'}
+        title={'Registrar pago a cuenta 1'}
         minWidth={680}
         maxWidth={860}
       >
