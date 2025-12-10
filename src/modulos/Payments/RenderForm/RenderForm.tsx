@@ -1256,7 +1256,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               )}
 
-              <div className={styles["upload-section"]}>
+              <div className={styles["upload-section"]} style={{ marginBottom: 16 }}>
                 <UploadFile // Esteban
                   name="url_file"
                   ext={exten.join(',')}
