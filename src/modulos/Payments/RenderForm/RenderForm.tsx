@@ -171,6 +171,7 @@ interface SelectedPeriodo {
 interface FormState {
   paid_at?: string;
   file?: string | null;
+  url_file?: string | null;
   filename?: string | null;
   ext?: string | null;
   dpto_id?: string | number;
@@ -868,7 +869,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     let params: any = {
       paid_at: formState.paid_at,
       method: formState.method,
-      file: formState.file,
+      url_file: formState.url_file,
       obs: formState.obs,
       nro_id: formState.dpto_id,
       owner_id: owner_id,
