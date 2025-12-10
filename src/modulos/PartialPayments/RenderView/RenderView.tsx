@@ -188,10 +188,9 @@ const RenderView = ({
   useEffect(() => {
     getDetail();
   }, [propItem?.id]);
-  const totalPagado = item?.history?.reduce(
-    (acc: number, d: any) => Number(acc) + Number(d.amount),
-    0
-  );
+  const totalPagado = item?.history
+    ?.filter((d: any) => d.status !== "X")
+    ?.reduce((acc: number, d: any) => acc + Number(d.amount), 0);
 
   const totalAmount =
     Number(item?.amount) +
@@ -245,7 +244,7 @@ const RenderView = ({
   const onDelPayment = () => {
     setOpenConfimDel(true);
   };
-
+  console.log(item);
   return (
     <>
       <DataModal
