@@ -128,6 +128,7 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
       P: "Pagada",
       C: "Cancelada",
       X: "Anulada",
+      I: "Pago parcial",
     };
     return statusMap[status || ""] || status || "Activa";
   };
@@ -164,6 +165,7 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
     if (status === "P") return styles.statusCompleted;
     if (status === "C") return styles.statusCancelled;
     if (status === "X") return styles.statusCancelled;
+    if (status === "I") return styles.statusPartial;
     return "";
   };
 
