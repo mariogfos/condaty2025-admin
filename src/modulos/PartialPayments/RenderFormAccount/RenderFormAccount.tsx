@@ -93,7 +93,7 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
 
   const validar = useCallback(() => {
     const err: Errors = {};
-    console.log('Validando formState amoumt:', item?.amount);
+    
     const amt = parseFloat(String(formState.amount || '0'));
     if (!formState.amount || isNaN(amt) || amt <= 0) {
       err.amount = 'Este campo es requerido';
@@ -130,16 +130,16 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
       debt_dpto_id: formState.debt_dpto_id ?? formState.dpto_id,
     };
 
-    // const { data, error } = await execute('/partialpayments', 'POST', params);
-    // if (data?.success) {
-    //   showToast('Pago a cuenta registrado', 'success');
-    //   reLoad();
-    //   onClose();
-    // } else {
-    //   showToast(error?.message || data?.message || 'Error al registrar', 'error');
-    //   if (error?.data?.errors) setErrors(error.data.errors);
-    //   else if (data?.errors) setErrors(data.errors);
-    // }
+    const { data, error } = await execute('/partialpayments', 'POST', params);
+    if (data?.success) {
+      showToast('Pago a cuenta registrado', 'success');
+      reLoad();
+      onClose();
+    } else {
+      showToast(error?.message || data?.message || 'Error al registrar', 'error');
+      if (error?.data?.errors) setErrors(error.data.errors);
+      else if (data?.errors) setErrors(data.errors);
+    }
   }, [execute, extraData?.bankAccounts, formState, onClose, reLoad, showToast, validar]);
 
   return (
