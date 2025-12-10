@@ -78,59 +78,7 @@ const RenderView = ({
   const [openFormAccount, setOpenFormAccount] = useState(false);
   const [loading, setLoading] = useState(false);
   const [item, setItem]: any = useState({});
-
-  // const item = {
-  //   id: "exp-2025-11-00124",
-  //   amount: 1850.0, // Monto original de la expensa
-  //   penalty_amount: 370.0, // Multa por mora (20%)
-  //   forgiveness_amount: 277.5, // Condonación del 15% de la multa
-  //   forgiveness_percent: "15.00",
-  //   status: "W", // P = Parcialmente pagado
-  //   due_at: "2025-11-10", // Fecha límite original
-  //   paid_amount: 1200.0, // Ya pagado
-  //   remaining_amount: 1020.0, // Saldo pendiente (amount + penalty - forgiveness - paid)
-  //   maintenance_amount: 277.5, // Mantenimiento del 15% de la multa
-  //   unit: "Departamento 24-B",
-  //   owner: "Carlos Delgadillo Flores",
-  //   holder: "Marcelo Peña Galvarro",
-  //   note: "Pagó la hermana del propietario",
-  //   authorized_by: "Scarlett Guzmán V.",
-  //   debts: [
-  //     {
-  //       id: "a085ae50-2449-434a-b9db-7102c76a0761",
-  //       paid_by: "Scarlett Guzmán V.",
-  //       paid_at: "2025-11-15",
-  //       receipt: "REC-2025-0891",
-  //       status: "A", // Aprobado
-  //       amount: 800.0,
-  //     },
-  //     {
-  //       id: "a085ae50-2449-434a-b9db-7102c76a0761",
-  //       paid_by: "Marcelo Peña Galvarro",
-  //       paid_at: "2025-11-28",
-  //       receipt: "REC-2025-1124",
-  //       status: "A",
-  //       amount: 400.0,
-  //     },
-  //     {
-  //       id: "a085ae50-2449-434a-b9db-7102c76a0761",
-  //       paid_by: "Carlos Delgadillo Flores",
-  //       paid_at: "2025-12-02",
-  //       receipt: "REC-2025-1340",
-  //       status: "P", // Pendiente de revisión
-  //       amount: 200.0,
-  //     },
-  //     {
-  //       id: "a085ae50-2449-434a-b9db-7102c76a0761",
-  //       paid_by: "Scarlett Guzmán V.",
-  //       paid_at: "2025-12-02",
-  //       receipt: "REC-2025-1340",
-  //       status: "P", // Pendiente de revisión
-  //       amount: 200.0,
-  //     },
-  //   ],
-  // };
-
+  const [loadingExport, setLoadingExport] = useState(false);
   const header = [
     {
       key: "paid_by",
@@ -266,6 +214,7 @@ const RenderView = ({
   };
 
   const getExport = async () => {
+    setLoadingExport(true);
     const { data: file, error } = await execute(
       `/payment-recibo-parcial`,
       "POST",
@@ -285,6 +234,7 @@ const RenderView = ({
         "error"
       );
     }
+    setLoadingExport(false);
   };
 
   return (
@@ -300,7 +250,7 @@ const RenderView = ({
         buttonExtra={
           <div style={{ display: "flex", gap: 16, width: "100%" }}>
             <Button
-              // onClick={() => onEdit(item)}
+              disabled={loadingExport}
               onClick={() => getExport()}
               variant="secondary"
               style={{ flex: 1 }}
@@ -342,7 +292,6 @@ const RenderView = ({
               >
                 {formatBs(totalAmount)}
               </p>
-              {}
               <p
                 style={{
                   color: "var(--cWhiteV1)",
@@ -400,7 +349,7 @@ const RenderView = ({
                 />
                 <LabelValue
                   label="Autorizado por:"
-                  value={getFullName(item?.history?.[0]?.user)}
+                  value={getFullName(item?.history?.[0]?.user) || "-/-"}
                 />
                 {/* <LabelValue
                 label="Nota:"
@@ -408,7 +357,7 @@ const RenderView = ({
               /> */}
                 <LabelValue
                   label="Propietario:"
-                  value={getFullName(item?.dpto?.homeowner)}
+                  value={getFullName(item?.dpto?.homeowner) || "-/-"}
                 />
               </div>
               <div style={{ display: "flex", gap: 16 }}>
@@ -422,7 +371,7 @@ const RenderView = ({
               /> */}
                 <LabelValue
                   label="Titular:"
-                  value={getFullName(item?.dpto?.tenant)}
+                  value={getFullName(item?.dpto?.tenant) || "-/-"}
                 />
                 <LabelValue label="" value={""} />
               </div>

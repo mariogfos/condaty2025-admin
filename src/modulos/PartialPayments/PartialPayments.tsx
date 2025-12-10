@@ -109,13 +109,7 @@ const PartialPayments = () => {
       reLoad?: any;
     }) => <RenderView {...props} />,
   };
-  const getOptionsBankEntity = useCallback(
-    (extraData: any) => [
-      { id: "ALL", name: "Todos" },
-      ...(extraData?.bankEntities || []),
-    ],
-    []
-  );
+
   const getOptionsStatus = useCallback(
     () => [
       { id: "ALL", name: "Todos" },
