@@ -155,8 +155,13 @@ const PartialPayments = () => {
           onRender: ({ item }: Record<string, any>) => {
             return (
               <p>
-                {item?.subcategory?.name} - {MONTHS[item?.debt?.month]}{" "}
-                {item?.debt?.year}
+                {item?.debt?.month
+                  ? item?.subcategory?.name +
+                    " - " +
+                    MONTHS[item?.debt?.month] +
+                    " " +
+                    item?.debt?.year
+                  : item?.description.replace("Deuda de reserva ", "Reserva ")}
               </p>
             );
           },

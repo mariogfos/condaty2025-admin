@@ -14,6 +14,7 @@ import { getDateStrMes, getDateTimeStrMes } from "../../../mk/utils/date";
 import { getFullName, getUrlImages } from "../../../mk/utils/string";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
+import { MONTHS, MONTHS_S } from "@/mk/utils/date1";
 
 const LabelValue = ({
   label,
@@ -70,9 +71,9 @@ const RenderView = ({
   showToast,
 }: any) => {
   const { user } = useAuth();
-  const [openDetail, setOpenDetail] = useState({
+  const [openDetail, setOpenDetail]: any = useState({
     open: false,
-    item: undefined,
+    item: null,
   });
   const [openFormAccount, setOpenFormAccount] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -141,7 +142,7 @@ const RenderView = ({
       key: "paid_at",
       label: "Fecha de pago",
       responsive: "onlyDesktop",
-      onRender: ({ item }: any) => getDateTimeStrMes(item?.paid_at),
+      onRender: ({ item }: any) => getDateStrMes(item?.paid_at),
     },
     {
       key: "receipt",
@@ -342,15 +343,22 @@ const RenderView = ({
                 {formatBs(totalAmount)}
               </p>
               {}
-              {/* <p
+              <p
                 style={{
                   color: "var(--cWhiteV1)",
                   fontSize: 16,
                   textAlign: "center",
                 }}
               >
-                Pago de expensa - Noviembre, 2025
-              </p> */}
+                {item.type === 1 &&
+                  "Pago de expensa - " +
+                    MONTHS[item.debt.month] +
+                    ", " +
+                    item.debt.year}
+
+                {item.type === 2 && item.description}
+                {item.type === 0 && item.subcategory?.name}
+              </p>
             </div>
             <div
               style={{
@@ -424,9 +432,12 @@ const RenderView = ({
                 style={{
                   borderBottomLeftRadius: 0,
                   borderBottomRightRadius: 0,
+                  height: "auto",
+                  // backgroundColor: "red",
                 }}
-                height="calc(100vh - 700px)"
+                height="150"
                 onRowClick={(item: any) => {
+                  console.log(item);
                   setOpenDetail({ open: true, item });
                 }}
                 data={item?.history}
@@ -466,7 +477,8 @@ const RenderView = ({
         <RenderViewPayment
           open={openDetail.open}
           onClose={() => setOpenDetail({ open: false, item: undefined })}
-          item={openDetail?.item}
+          payment_id={openDetail.item?.payment_id as string}
+          // item={openDetail?.item}
           // onDel={onDel}
         />
       )}
