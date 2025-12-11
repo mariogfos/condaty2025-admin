@@ -5,6 +5,7 @@ import useCrudUtils from '../../../shared/useCrudUtils';
 import { getDateStrMesShort } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
+import PartialPaymentsRenderView from '@/modulos/PartialPayments/RenderView/RenderView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
@@ -433,17 +434,35 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       edit: true,
       del: true,
     },
-    renderView: (props: any) => (
-      <RenderView
-        open={props.open}
-        onClose={props.onClose}
-        item={props.item}
-        extraData={props.extraData}
-        user={user}
-        onEdit={props.onEdit}
-        onDel={props.onDel}
-      />
-    ),
+    renderView: (props: any) => {
+      if (props.item?.status === 'I') {
+        return (
+          <PartialPaymentsRenderView
+            open={props.open}
+            onClose={props.onClose}
+            item={props.item}
+            extraData={props.extraData}
+            user={user}
+            onEdit={props.onEdit}
+            onDel={props.onDel}
+            execute={props.execute}
+            reLoad={props.reLoad}
+            showToast={props.showToast}
+          />
+        );
+      }
+      return (
+        <RenderView
+          open={props.open}
+          onClose={props.onClose}
+          item={props.item}
+          extraData={props.extraData}
+          user={user}
+          onEdit={props.onEdit}
+          onDel={props.onDel}
+        />
+      );
+    },
     renderForm: (props: any) => (
       <RenderForm
         open={props.open}
