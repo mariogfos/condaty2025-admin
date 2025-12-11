@@ -15,6 +15,8 @@ import { useRouter } from 'next/navigation';
 import React from 'react';
 import RenderView from '../AllDebts/RenderView/RenderView';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal'; import { hasMaintenanceValue } from '@/mk/utils/utils';
+import { getStatusText, getStatusConfig, STATUS_FILTER_OPTIONS } from '../constants';
+
 interface IndividualDebtsProps {
   openView: boolean;
   setOpenView: (open: boolean) => void;
@@ -74,31 +76,6 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   };
 
   const renderStatusCell = ({ item }: { item: any }) => {
-    const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
-      A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
-      P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
-      S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
-      R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
-      E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
-      M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
-      C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
-      F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
-      X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
-    };
-
-    const getStatusText = (status: string) => {
-      const statusMap: { [key: string]: string } = {
-        'A': 'Por cobrar',
-        'P': 'Cobrado',
-        'S': 'Por confirmar',
-        'M': 'En mora',
-        'F': 'Condonada',
-        'C': 'Cancelada',
-        'X': 'Anulada'
-      };
-      return statusMap[status] || status;
-    };
-
     let finalStatus = item?.status;
 
     // Obtener fecha actual solo como string YYYY-MM-DD
@@ -113,7 +90,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     }
 
     const statusText = getStatusText(finalStatus);
-    const { color, bgColor } = statusConfig[finalStatus] || statusConfig.E;
+    const { color, bgColor } = getStatusConfig(finalStatus);
 
     return (
       <StatusBadge
@@ -153,13 +130,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
 
   const getStatusOptions = () => [
     { id: 'ALL', name: 'Todos los estados' },
-    { id: 'A', name: 'Por cobrar' },
-    { id: 'P', name: 'Cobrado' },
-    { id: 'S', name: 'Por confirmar' },
-    { id: 'M', name: 'En mora' },
-    { id: 'F', name: 'Condonada' },
-    { id: 'C', name: 'Cancelada' },
-    { id: 'X', name: 'Anulada' }
+    ...STATUS_FILTER_OPTIONS
   ];
 
   const getCategoryOptions = (extraData?: any) => {
@@ -447,17 +418,6 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   });
 
   const renderItem = (item: Record<string, any>) => {
-    const getStatusText = (status: string) => {
-      const statusMap: { [key: string]: string } = {
-        'A': 'Por cobrar',
-        'P': 'Pagada',
-        'C': 'Cancelada',
-        'X': 'Anulada',
-        'M': 'En mora'
-      };
-      return statusMap[status] || status;
-    };
-
     let finalStatus = item?.status;
 
     // Obtener fecha actual solo como string YYYY-MM-DD
