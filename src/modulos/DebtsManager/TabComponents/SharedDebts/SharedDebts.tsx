@@ -15,6 +15,7 @@ import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFil
 import { formatNumber } from "@/mk/utils/numbers";
 import { useRouter } from "next/navigation";
 import { hasMaintenanceValue } from '@/mk/utils/utils';
+import PartialPaymentsRenderView from '@/modulos/PartialPayments/RenderView/RenderView';
 
 interface SharedDebtsProps {
   openView: boolean;
@@ -28,6 +29,8 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   const { user, setStore, store } = useAuth();
   const router = useRouter();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [openPartialView, setOpenPartialView] = useState(false);
+  const [partialViewItem, setPartialViewItem] = useState<any>(null);
   const [customDateErrors, setCustomDateErrors] = useState<{
     startDate?: string;
     endDate?: string;
@@ -520,7 +523,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     </Button>,
   ];
 
-  const { userCan, List, onEdit, onDel, extraData, onFilter } = useCrud({
+  const { userCan, List, onEdit, onDel, extraData, onFilter, execute, reLoad, showToast } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -597,6 +600,11 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   };
 
   const onClickDetail = (row: any) => {
+    if (row?.status === 'I') {
+      setPartialViewItem(row);
+      setOpenPartialView(true);
+      return;
+    }
     if (row?.id) {
       router.push(`/debts_manager/shared-debt-detail/${row.id}`);
     }
@@ -614,6 +622,23 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
         filterBreakPoint={2500}
         sumarize={false}
       />
+      {openPartialView && (
+        <PartialPaymentsRenderView
+          open={openPartialView}
+          onClose={() => {
+            setOpenPartialView(false);
+            setPartialViewItem(null);
+          }}
+          item={partialViewItem}
+          extraData={extraData}
+          user={user}
+          onEdit={onEdit}
+          onDel={onDel}
+          execute={execute}
+          reLoad={reLoad}
+          showToast={showToast}
+        />
+      )}
       <DateRangeFilterModal
         open={openCustomFilter}
         onClose={() => {

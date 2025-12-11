@@ -14,6 +14,7 @@ import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import RenderView from '../AllDebts/RenderView/RenderView';
+import PartialPaymentsRenderView from '@/modulos/PartialPayments/RenderView/RenderView';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal'; import { hasMaintenanceValue } from '@/mk/utils/utils';
 interface IndividualDebtsProps {
   openView: boolean;
@@ -272,19 +273,37 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       edit: true,
       del: true,
     },
-    renderView: (props: any) => (
-      <RenderView
-        open={props.open}
-        onClose={props.onClose}
-        item={props.item}
-        extraData={props.extraData}
-        user={user}
-        onEdit={props.onEdit}
-        onDel={props.onDel}
-        hideSharedDebtButton={false}
-        hideEditAndDeleteButtons={false}
-      />
-    ),
+    renderView: (props: any) => {
+      if (props.item?.status === 'I') {
+        return (
+          <PartialPaymentsRenderView
+            open={props.open}
+            onClose={props.onClose}
+            item={props.item}
+            extraData={props.extraData}
+            user={user}
+            onEdit={props.onEdit}
+            onDel={props.onDel}
+            execute={props.execute}
+            reLoad={props.reLoad}
+            showToast={props.showToast}
+          />
+        );
+      }
+      return (
+        <RenderView
+          open={props.open}
+          onClose={props.onClose}
+          item={props.item}
+          extraData={props.extraData}
+          user={user}
+          onEdit={props.onEdit}
+          onDel={props.onDel}
+          hideSharedDebtButton={false}
+          hideEditAndDeleteButtons={false}
+        />
+      );
+    },
     titleAdd: 'Crear',
     renderForm: (props: any) => <RenderForm {...props} />,
   };
