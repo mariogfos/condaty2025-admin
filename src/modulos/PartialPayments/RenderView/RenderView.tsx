@@ -252,6 +252,7 @@ const RenderView = ({
     <>
       <DataModal
         title="Detalle de pago parcial"
+        minWidth={"980px"}
         open={open}
         onClose={() => {
           onClose();
