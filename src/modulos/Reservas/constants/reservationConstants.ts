@@ -1,5 +1,14 @@
 // Tipos de estado de reserva
-export type ReservationStatus = "W" | "A" | "Q" | "N" | "L" | "R" | "C" | "T" | "F";
+export type ReservationStatus =
+  | "W"
+  | "A"
+  | "Q"
+  | "N"
+  | "L"
+  | "R"
+  | "C"
+  | "T"
+  | "F";
 
 // Configuración de estados de reserva con colores y etiquetas
 export const RESERVATION_STATUS_CONFIG = {
@@ -7,62 +16,62 @@ export const RESERVATION_STATUS_CONFIG = {
     label: "Esperando confirmación",
     backgroundColor: "#E9B01E33",
     color: "#E9B01E",
-    class: "statusW"
+    class: "statusW",
   },
   A: {
     label: "Pago pendiente",
     backgroundColor: "#E9B01E33",
     color: "#E9B01E",
-    class: "statusA"
+    class: "statusA",
   },
   Q: {
     label: "Pago por confirmar",
     backgroundColor: "#E9B01E33",
     color: "#E9B01E",
-    class: "statusQ"
+    class: "statusQ",
   },
   N: {
     label: "Reservado (sin pago)",
     backgroundColor: "#00E38C33",
     color: "#00E38C",
-    class: "statusN"
+    class: "statusN",
   },
   L: {
     label: "Reservado (pagado)",
     backgroundColor: "#00E38C33",
     color: "#00E38C",
-    class: "statusL"
+    class: "statusL",
   },
   R: {
     label: "Reserva rechazada",
     backgroundColor: "#E4605533",
     color: "#E46055",
-    class: "statusR"
+    class: "statusR",
   },
   C: {
     label: "Cancelada manualmente",
     backgroundColor: "#E4605533",
     color: "#E46055",
-    class: "statusC"
+    class: "statusC",
   },
   T: {
     label: "Cancelada automática",
     backgroundColor: "#E4605533",
     color: "#E46055",
-    class: "statusT"
+    class: "statusT",
   },
   F: {
     label: "Finalizada",
     backgroundColor: "#00E38C33",
     color: "#00E38C",
-    class: "statusF"
+    class: "statusF",
   },
   X: {
     label: "Rechazada",
     backgroundColor: "#E4605533",
     color: "#E46055",
-    class: "statusX"
-  }
+    class: "statusX",
+  },
 } as const;
 
 // Opciones para filtros de estado
@@ -77,7 +86,7 @@ export const RESERVATION_STATUS_OPTIONS = [
   { id: "C", name: "Cancelada manualmente" },
   { id: "T", name: "Cancelada automática" },
   { id: "F", name: "Finalizada" },
-  { id: "X", name: "Rechazada" },
+  // { id: "X", name: "Rechazada" },
 ];
 
 /**
