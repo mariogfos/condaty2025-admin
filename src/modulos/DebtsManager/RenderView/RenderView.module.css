@@ -241,6 +241,11 @@
   font-weight: var(--bSemiBold) !important;
 }
 
+.statusPartial {
+  color: var(--cWhiteV1) !important;
+  font-weight: var(--bSemiBold) !important;
+}
+
 .canceledReason {
   font-style: italic;
   background-color: rgba(220, 53, 69, 0.1);

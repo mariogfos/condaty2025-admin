@@ -36,7 +36,37 @@ const LOCAL_PHONE_LENGTHS: Record<string, number[]> = {
   '49': [10, 11],
   '593': [9],
   '595': [9],
-  '598': [8, 9]
+  '598': [8, 9],
+  '60': [8, 9, 10],
+  '61': [9],
+  '62': [9, 10, 11, 12],
+  '63': [10],
+  '64': [8, 9, 10],
+  '65': [8],
+  '66': [9],
+  '7': [10],
+  // Pacific / small island nations often misidentified with Bolivian mobile numbers
+  '670': [7], // Timor-Leste
+  '672': [6], // Australian External Territories (Norfolk)
+  '673': [7], // Brunei
+  '674': [7], // Nauru
+  '675': [8], // Papua New Guinea
+  '676': [5, 7], // Tonga
+  '677': [5, 7], // Solomon Islands
+  '678': [5, 7], // Vanuatu
+  '679': [7], // Fiji
+  '680': [7], // Palau
+  '681': [6], // Wallis and Futuna
+  '682': [5], // Cook Islands
+  '683': [4], // Niue
+  '685': [5, 6, 7], // Samoa
+  '686': [5, 8], // Kiribati
+  '687': [6], // New Caledonia
+  '688': [5, 6], // Tuvalu
+  '689': [8], // French Polynesia
+  '690': [4], // Tokelau
+  '691': [7], // Micronesia
+  '692': [7] // Marshall Islands
 };
 
 interface PhoneParseResult {

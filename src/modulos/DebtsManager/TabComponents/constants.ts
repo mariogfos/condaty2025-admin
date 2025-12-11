@@ -5,7 +5,9 @@ export const DEBT_STATUS_MAP: { [key: string]: string } = {
   'S': 'Por confirmar',
   'M': 'En mora',
   'C': 'Cancelada',
-  'X': 'Anulada'
+  'F': 'Condonada',
+  'X': 'Anulada',
+  'I': 'Pago parcial'
 };
 
 export const DEBT_STATUS_CONFIG: { [key: string]: { color: string; bgColor: string } } = {
@@ -16,7 +18,10 @@ export const DEBT_STATUS_CONFIG: { [key: string]: { color: string; bgColor: stri
   E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
   M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
   C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
+  F: { color: '#1E8AE9', bgColor: '#517FE133' },
   X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
+  I: { color: 'var(--cWhiteV1)', bgColor: 'color-mix(in srgb, var(--cWhiteV1) 25%, transparent)' },
+
 };
 
 
@@ -75,7 +80,9 @@ export const STATUS_FILTER_OPTIONS = [
   { id: 'S', name: 'Por confirmar' },
   { id: 'M', name: 'En mora' },
   { id: 'C', name: 'Cancelada' },
-  { id: 'X', name: 'Anulada' }
+  { id: 'F', name: 'Condonada' },
+  { id: 'X', name: 'Anulada' },
+  { id: 'I', name: 'Pago parcial' }
 ];
 
 export const DISTRIBUTION_FILTER_OPTIONS = [
@@ -146,8 +153,8 @@ export const getAvailableActions = (status: string, type: number) => {
     return {
       showAnular: false,
       showEditar: false,
-      showRegistrarPago: status !== 'P',
-      showVerPago: status === 'P'
+      showRegistrarPago: !(status === 'P' || status === 'S' || status === 'F'),
+      showVerPago: status === 'P' || status === 'S'
     };
   }
 
@@ -158,6 +165,13 @@ export const getAvailableActions = (status: string, type: number) => {
         showEditar: false,
         showRegistrarPago: false,
         showVerPago: true
+      };
+    case 'F':
+      return {
+        showAnular: false,
+        showEditar: false,
+        showRegistrarPago: false,
+        showVerPago: false
       };
     case 'M':
     case 'A':
