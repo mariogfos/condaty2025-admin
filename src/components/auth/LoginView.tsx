@@ -112,7 +112,7 @@ const LoginView = ({
       {/* Texto Inferior */}
       <div className={styles.footerTextContainer}>
         <span className={styles.footerText}>
-          <b>Simplifica </b>procesos, <b>multiplica </b>resultados
+          <b>Tecnología, </b>que une <b>vecinos</b>
         </span>
       </div>
 

@@ -338,10 +338,12 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                     reservationDetail?.end_time
                   );
 
-                  // Solo mostrar cancelar si está en estado "L" (Reservado con pago) o "N" (Reservado sin pago)
-                  // pero NO si ya se completó automáticamente (cambió a "F")
+                  const canCancel =
+                    updatedStatus &&
+                    ["R", "C", "T", "F", "X"].includes(updatedStatus) ===
+                      false;
                   return (
-                    (updatedStatus === "L" || updatedStatus === "N") && (
+                    canCancel && (
                       <p
                         onClick={() => setOpenModalCancel(true)}
                         style={{

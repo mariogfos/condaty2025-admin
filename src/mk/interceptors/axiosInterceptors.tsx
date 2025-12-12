@@ -17,6 +17,7 @@ const axiosInterceptors = (instance: any) => {
 
       if (apiToken) {
         config.headers = {
+          ...(config.headers || {}),
           Authorization: "Bearer " + apiToken,
           accept: "application/json",
         };

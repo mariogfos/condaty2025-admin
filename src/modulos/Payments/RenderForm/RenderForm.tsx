@@ -21,7 +21,7 @@ import {
 import Toast from "@/mk/components/ui/Toast/Toast";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css";
-import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
+import UploadFile from "@/mk/components/forms/UploadFile2";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
 
@@ -61,12 +61,15 @@ interface Subcategory {
 interface ClientConfig {
   cat_expensas: string | number;
   cat_reservations: string | number;
+  cat_forgiveness: string | number;
 }
 
 interface ExtraData {
   dptos: Dpto[];
   categories: Category[];
   client_config: ClientConfig;
+  bankAccounts: any[];
+  subcategories: any[];
 }
 interface Deuda {
   id: string | number;
@@ -82,6 +85,7 @@ interface Deuda {
   begin_at?: string;
   due_at?: string;
   description?: string;
+  subcategory?: object | any;
   penalty_reservation?: {
     id?: string;
     debt_id?: string;
@@ -161,11 +165,13 @@ interface Deuda {
 interface SelectedPeriodo {
   id: string | number;
   amount: number;
+  bank_account_id?: string | number;
 }
 
 interface FormState {
   paid_at?: string;
   file?: string | null;
+  url_file?: string | null;
   filename?: string | null;
   ext?: string | null;
   dpto_id?: string | number;
@@ -227,7 +233,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const isCategoryLocked = item?.isCategoryLocked || false;
     const isSubcategoryLocked = item?.isSubcategoryLocked || false;
     const isAmountLocked = item?.isAmountLocked || false;
-    console.log("item", item?.amount);
 
     return {
       paid_at: item?.paid_at || new Date().toISOString().split("T")[0],
@@ -264,7 +269,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
     method: "info",
   });
   const { store } = useAuth();
-
   const typeOptions = [
     // { id: 'T', name: 'Todas las deudas' },
     { id: "E", name: "Expensas" },
@@ -292,7 +296,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
   const lDptos = useMemo(
     () =>
-      extraData?.dptos.map((dpto: Dpto) => {
+      (extraData?.dptos?.map((dpto: Dpto) => {
         const titular = getTitular(dpto);
         return {
           id: dpto.nro,
@@ -306,18 +310,18 @@ const RenderForm: React.FC<RenderFormProps> = ({
             getFullName(titular ?? {}),
           dpto_id: dpto.id,
         };
-      }),
+      }) || []),
     [extraData?.dptos, store.Unitstype]
   );
 
   const lastLoadedDeudas = useRef<string>("");
-  const exten = ["jpg", "pdf", "png", "jpeg", "doc", "docx"];
+  const exten = ["jpg", "pdf", "png", "jpeg", "doc", "docx", "webp"];
 
   const getDeudas = useCallback(
     async (nroDpto: string | number, paymentmethod: string) => {
       if (!nroDpto || !paymentmethod || paymentmethod === "I") return;
 
-      const selectedDpto = extraData?.dptos.find(
+      const selectedDpto = extraData?.dptos?.find(
         (dpto) => dpto.nro === nroDpto
       );
       const realDptoId = selectedDpto?.id;
@@ -353,7 +357,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
           }
         }
       } catch (err) {
-        console.error(err);
       } finally {
         setIsLoadingDeudas(false);
       }
@@ -368,7 +371,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
   useEffect(() => {
     if (extraData?.categories && formState.category_id && showCategoryFields) {
-      const selectedCategory = extraData.categories.find(
+      const selectedCategory = extraData.categories?.find(
         (cat: Category) => String(cat.id) === String(formState.category_id)
       );
 
@@ -390,7 +393,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       extraData?.categories &&
       showCategoryFields
     ) {
-      const selectedCategory = extraData.categories.find(
+      const selectedCategory = extraData.categories?.find(
         (cat: Category) => String(cat.id) === String(item.category_id)
       );
 
@@ -458,7 +461,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       let lockSubcategory = false;
 
       if (formState.category_id && extraData?.categories) {
-        const selectedCategory = extraData.categories.find(
+        const selectedCategory = extraData.categories?.find(
           (category: Category) =>
             String(category.id) === String(formState.category_id)
         );
@@ -700,7 +703,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
       if (exists) {
         newSelectedPeriodos = prev.filter((item) => item.id !== periodo.id);
       } else {
-        newSelectedPeriodos = [...prev, { id: periodo.id, amount: subtotal }];
+        newSelectedPeriodos = [
+          ...prev,
+          {
+            id: periodo.id,
+            amount: subtotal,
+            bank_account_id: periodo?.subcategory?.bank_account_id,
+          },
+        ];
       }
 
       const newTotal = newSelectedPeriodos.reduce(
@@ -760,20 +770,12 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
     }
 
-    if (!formState.file) {
-      err.file = "El comprobante es requerido";
-    }
+    // if (!formState.file) {
+    //   err.file = "El comprobante es requerido";
+    // }
 
     if (!formState.paid_at) {
       err.paid_at = "Este campo es requerido";
-    } else {
-      const selectedDate = new Date(formState.paid_at + "T00:00:00");
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (selectedDate > today) {
-        err.paid_at = "No se permiten fechas futuras";
-      }
     }
 
     setErrors(err);
@@ -802,23 +804,77 @@ const RenderForm: React.FC<RenderFormProps> = ({
     }
 
     let owner_id = formState.owner_id;
-
     if (!owner_id) {
-      const selectedDpto = extraData?.dptos.find(
+      const selectedDpto = extraData?.dptos?.find(
         (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
       );
       const titular = getTitular(selectedDpto);
       owner_id = titular?.id;
     }
+    let bank_account_id;
+    const existBankAccount = extraData?.bankAccounts?.find(
+      (item: any) => item.is_main == 1
+    )?.id;
+
+    switch (formState.type) {
+      case "E": {
+        const id =
+          extraData?.bankAccounts?.find((i: any) => i.is_expense == 1)?.id ||
+          existBankAccount;
+        bank_account_id = id;
+        break;
+      }
+      case "R": {
+        const id =
+          extraData?.bankAccounts?.find((i: any) => i.is_reserve == 1)?.id ||
+          existBankAccount;
+        bank_account_id = id;
+        break;
+      }
+      case "F": {
+        const sub = extraData?.subcategories?.find(
+          (i: any) => i.id == extraData?.client_config?.cat_forgiveness
+        );
+
+        const id =
+          sub?.bank_account_id ||
+          sub?.padre?.bank_account_id ||
+          existBankAccount;
+
+        bank_account_id = id;
+        break;
+      }
+      case "I": {
+        const category: any = extraData?.categories?.find(
+          (i: any) => i.id == formState.category_id
+        );
+
+        const id =
+          category?.hijos?.find((i: any) => i.id == formState.subcategory_id)
+            ?.bank_account_id ||
+          category?.bank_account_id ||
+          existBankAccount;
+
+        bank_account_id = id;
+        break;
+      }
+      case "O": {
+        const id = selectedPeriodo?.[0]?.bank_account_id || existBankAccount;
+
+        bank_account_id = id;
+        break;
+      }
+    }
 
     let params: any = {
       paid_at: formState.paid_at,
       method: formState.method,
-      file: formState.file,
+      url_file: formState.url_file,
       obs: formState.obs,
       nro_id: formState.dpto_id,
       owner_id: owner_id,
       type: formState.type,
+      bank_account_id: bank_account_id,
     };
 
     if (formState.voucher && String(formState.voucher).length > 0) {
@@ -841,7 +897,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
         amount: parseFloat(String(formState.amount || "0")),
       };
     }
-
     try {
       const { data, error } = await execute("/payments", "POST", params);
 
@@ -861,9 +916,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           setErrors(data.errors);
         }
       }
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
   }, [
     formState,
     extraData?.dptos,
@@ -885,6 +938,17 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const onCloseModal = useCallback(() => {
     onClose();
   }, [onClose]);
+
+  const isBankAccountSame = (periodo: any) => {
+    if (
+      periodo?.subcategory?.bank_account_id !==
+        selectedPeriodo?.[0]?.bank_account_id &&
+      selectedPeriodo.length > 0
+    ) {
+      return true;
+    }
+    return false;
+  };
 
   const deudasContent = useMemo(() => {
     if (!formState.dpto_id) {
@@ -916,20 +980,22 @@ const RenderForm: React.FC<RenderFormProps> = ({
             <p className={styles["deudas-title"]}>
               Seleccione las deudas a pagar:
             </p>
-            <button
-              type="button"
-              className={styles["select-all-container"]}
-              onClick={handleSelectAllPeriodos}
-            >
-              <span className={styles["select-all-text"]}>Pagar todo</span>
-              {selectedPeriodo.length === deudas.length ? (
-                <IconCheckSquare
-                  className={`${styles["check-icon"]} ${styles.selected}`}
-                />
-              ) : (
-                <IconCheckOff className={styles["check-icon"]} />
-              )}
-            </button>
+            {formState?.type !== "O" && (
+              <button
+                type="button"
+                className={styles["select-all-container"]}
+                onClick={handleSelectAllPeriodos}
+              >
+                <span className={styles["select-all-text"]}>Pagar todo</span>
+                {selectedPeriodo.length === deudas.length ? (
+                  <IconCheckSquare
+                    className={`${styles["check-icon"]} ${styles.selected}`}
+                  />
+                ) : (
+                  <IconCheckOff className={styles["check-icon"]} />
+                )}
+              </button>
+            )}
           </div>
 
           <div className={styles["deudas-table"]}>
@@ -963,7 +1029,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
               <button
                 type="button"
                 key={String(periodo.id)}
-                onClick={() => handleSelectPeriodo(periodo)}
+                onClick={() => {
+                  handleSelectPeriodo(periodo);
+                }}
+                disabled={isBankAccountSame(periodo)}
                 className={styles["deuda-item"]}
                 style={{
                   background: "none",
@@ -971,6 +1040,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   padding: 0,
                   width: "100%",
                   textAlign: "inherit",
+                  opacity: isBankAccountSame(periodo) ? 0.2 : 1,
                 }}
               >
                 <div className={styles["deuda-row"]}>
@@ -1047,7 +1117,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
         maxWidth={860}
       >
         <div className={styles["income-form-container"]}>
-          {/* Fecha de pago */}
           <div className={styles.section}>
             <div className={styles["input-container"]}>
               <Input
@@ -1058,12 +1127,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 value={formState.paid_at || ""}
                 onChange={handleChangeInput}
                 error={errors}
-                max={new Date().toISOString().split("T")[0]}
-                min={
-                  new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
-                    .toISOString()
-                    .split("T")[0]
-                }
               />
             </div>
           </div>
@@ -1084,7 +1147,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
             </div>
           </div>
 
-          {/* Nuevo select de tipo de pago */}
           <div className={styles.section}>
             <div className={styles["input-container"]}>
               <Select
@@ -1101,7 +1163,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
             </div>
           </div>
 
-          {/* Mostrar categoría y subcategoría solo para pago directo */}
           {showCategoryFields && (
             <div className={styles.section}>
               <div className={styles["input-row"]}>
@@ -1154,7 +1215,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                           ? periodoTotal.toFixed(2)
                           : formState.amount
                       }
-                      required={true}
+                      required={false}
                       error={errors}
                       disabled={isDebtBasedPayment || formState.isAmountLocked}
                       maxLength={20}
@@ -1182,7 +1243,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               </div>
 
-              {/* Mostrar deudas solo para tipos basados en deudas */}
               {isDebtBasedPayment && (
                 <div>
                   {deudasContent}
@@ -1197,19 +1257,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               )}
 
-              {/* Sección de subir comprobante */}
-              <div className={styles["upload-section"]}>
-                <UploadFile
-                  name="file"
-                  ext={exten}
-                  value={formState.file ? { file: formState.file } : ""}
-                  onChange={handleChangeInput}
-                  img={true}
-                  sizePreview={{ width: "40%", height: "auto" }}
-                  error={errors}
-                  setError={setErrors}
+              <div className={styles["upload-section"]} style={{ marginBottom: 16 }}>
+                <UploadFile // Esteban
+                  name="url_file"
+                  ext={exten.join(',')}
+                  type="I"
+                  setFormState={setFormState}
+                  formState={formState}
                   required={true}
-                  placeholder="Cargar un archivo o arrastrar y soltar"
+                  label="Cargar un archivo o arrastrar y soltar"
                 />
               </div>
 

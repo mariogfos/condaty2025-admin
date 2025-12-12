@@ -37,6 +37,7 @@ export interface CategoryCardProps {
   onEdit: (item: CategoryItem) => void;
   onDel: (item: CategoryItem) => void;
   categoryType: "I" | "E";
+
   onAddSubcategory: (parentCategoryId: string) => void;
   className?: string;
   isSelected?: boolean;

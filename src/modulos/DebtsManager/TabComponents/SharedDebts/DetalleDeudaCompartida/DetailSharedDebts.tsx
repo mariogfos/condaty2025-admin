@@ -2,7 +2,12 @@
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
-import { IconCategories, IconArrowLeft, IconEdit, IconTrash } from '@/components/layout/icons/IconsBiblioteca';
+import {
+  IconCategories,
+  IconArrowLeft,
+  IconEdit,
+  IconTrash,
+} from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import Button from '@/mk/components/forms/Button/Button';
@@ -15,7 +20,10 @@ import styles from './DetailSharedDebts.module.css';
 import { getDateStrMes } from '@/mk/utils/date';
 import UnifiedCard from '../../../UnifiedCard/UnifiedCard';
 import { hasMaintenanceValue } from '@/mk/utils/utils';
-
+import {
+  getStatusText as getStatusTextConst,
+  getStatusConfig as getStatusConfigConst,
+} from '../../constants';
 
 interface DetailSharedDebtsProps {
   debtId: string;
@@ -44,7 +52,7 @@ interface DebtData {
 
 const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   debtId,
-  debtTitle = "Deuda Compartida",
+  debtTitle = 'Deuda Compartida',
 }) => {
   const router = useRouter();
   const { user, showToast } = useAuth();
@@ -55,19 +63,19 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const getAmountTypeText = (amountType: string) => {
     const amountTypeMap: { [key: string]: string } = {
-      'F': 'Fijo',
-      'M': 'Por m²',
-      'A': 'Promedio',
+      F: 'Fijo',
+      M: 'Por m²',
+      A: 'Promedio',
     };
     return amountTypeMap[amountType] || amountType;
   };
 
   const getSegmentationText = (segmentation: string) => {
     const segmentationMap: { [key: string]: string } = {
-      'T': 'Todas las unidades',
-      'O': 'Unidades ocupadas',
-      'L': 'Unidades libres',
-      'S': 'Seleccionar Unidades',
+      T: 'Todas las unidades',
+      O: 'Unidades ocupadas',
+      L: 'Unidades libres',
+      S: 'Seleccionar Unidades',
     };
     return segmentationMap[segmentation] || segmentation;
   };
@@ -82,47 +90,17 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   };
 
   const renderStatusCell = ({ item }: { item: any }) => {
-    const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
-      A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
-      P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
-      S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
-      M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
-      C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
-      X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
-    };
-
-    const getStatusText = (status: string) => {
-      const statusMap: { [key: string]: string } = {
-        'A': 'Por cobrar',
-        'P': 'Cobrado',
-        'S': 'Por confirmar',
-        'M': 'En mora',
-        'C': 'Cancelada',
-        'X': 'Anulada'
-      };
-      return statusMap[status] || status;
-    };
-
     let finalStatus = item?.status;
-
-    // Obtener fecha actual solo como string YYYY-MM-DD
     const today = new Date();
     const todayString = today.toISOString().split('T')[0];
     const dueAtString = item?.debt?.due_at || item?.due_at;
-
-    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
     if (dueAtString && dueAtString < todayString && item?.status === 'A') {
       finalStatus = 'M';
     }
-
-    const statusText = getStatusText(finalStatus);
-    const { color, bgColor } = statusConfig[finalStatus] || statusConfig.A;
-
+    const statusText = getStatusTextConst(finalStatus);
+    const { color, bgColor } = getStatusConfigConst(finalStatus, dueAtString);
     return (
-      <StatusBadge
-        color={color}
-        backgroundColor={bgColor}
-      >
+      <StatusBadge color={color} backgroundColor={bgColor}>
         {statusText}
       </StatusBadge>
     );
@@ -130,9 +108,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const renderDueDateCell = ({ item }: { item: any }) => {
     if (!item?.due_at) return <div>-</div>;
-    return (
-      getDateStrMes(item?.due_at) || '-/-'
-    );
+    return getDateStrMes(item?.due_at) || '-/-';
   };
 
   const renderDebtAmountCell = ({ item }: { item: any }) => (
@@ -159,7 +135,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     page: 1,
     perPage: 20,
     debt_id: debtId,
-    type: 4
+    type: 4,
   };
 
   const fields = useMemo(() => {
@@ -170,9 +146,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         api: '',
         label: 'Unidad',
         list: {
-          onRender: ({ item }: { item: any }) => (
-            <div>{item?.unit_number || item?.dpto?.nro}</div>
-          ),
+          onRender: ({ item }: { item: any }) => <div>{item?.unit_number || item?.dpto?.nro}</div>,
           order: 1,
         },
       },
@@ -197,9 +171,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       amount: {
         rules: [''],
         api: '',
-        label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</label>
-        ),
+        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</label>,
         list: {
           onRender: renderDebtAmountCell,
           order: 4,
@@ -209,9 +181,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       penalty_amount: {
         rules: [''],
         api: '',
-        label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>
-        ),
+        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>,
         list: {
           onRender: renderPenaltyAmountCell,
           order: 5,
@@ -224,17 +194,21 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         label: (
           <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>
         ),
-        list: hasMaintenanceValue(user) ? {
-          onRender: renderMaintenanceAmountCell,
-          order: 6,
-          sumarize: true,
-        } : false,
+        list: hasMaintenanceValue(user)
+          ? {
+              onRender: renderMaintenanceAmountCell,
+              order: 6,
+              sumarize: true,
+            }
+          : false,
       },
       balance_due: {
         rules: [''],
         api: '',
         label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Saldo a cobrar</label>
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Saldo a cobrar
+          </label>
         ),
         list: {
           onRender: renderBalanceDueCell,
@@ -305,7 +279,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       return {
         cobradas: { amount: 0, count: 0, total: 0 },
         porCobrar: { amount: 0, count: 0, total: 0 },
-        enMora: { amount: 0, count: 0, total: 0 }
+        enMora: { amount: 0, count: 0, total: 0 },
       };
     }
 
@@ -313,18 +287,18 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       cobradas: {
         amount: parseFloat(extraData.collected || '0'),
         count: extraData.totalCollected || 0,
-        total: extraData.totalReceivable || 0
+        total: extraData.totalReceivable || 0,
       },
       porCobrar: {
         amount: parseFloat(extraData.receivable || '0'),
         count: extraData.totalReceivable || 0,
-        total: extraData.totalReceivable || 0
+        total: extraData.totalReceivable || 0,
       },
       enMora: {
         amount: parseFloat(extraData.arrears || '0'),
         count: extraData.totalArrears || 0,
-        total: extraData.totalReceivable || 0
-      }
+        total: extraData.totalReceivable || 0,
+      },
     };
   }, [extraData]);
 
@@ -391,14 +365,14 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     }
   };
 
-  const FormDelete = ({ open, onClose, item, onConfirm, message = "" }: any) => {
+  const FormDelete = ({ open, onClose, item, onConfirm, message = '' }: any) => {
     return (
       <DataModal
         id="Eliminar"
-        title={capitalize('eliminar') + " deuda compartida"}
+        title={capitalize('eliminar') + ' deuda compartida'}
         buttonText={capitalize('eliminar')}
         buttonCancel="Cancelar"
-        onSave={(e) => onConfirm ? onConfirm(item) : confirmDelete()}
+        onSave={e => (onConfirm ? onConfirm(item) : confirmDelete())}
         onClose={onClose}
         open={open}
         variant="mini"
@@ -409,8 +383,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           <p>
             ¿Estás seguro de eliminar esta información?
             <br />
-            Recuerda que, al momento de eliminar, ya no podrás
-            recuperarla.
+            Recuerda que, al momento de eliminar, ya no podrás recuperarla.
           </p>
         )}
       </DataModal>
@@ -427,10 +400,9 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
             Volver
           </button>
           <h1 className={styles.title}>
-            {extraData?.debt ?
-              (extraData.debt.subcategory?.name + " - " + extraData.debt.description) || debtTitle
-              : debtTitle
-            }
+            {extraData?.debt
+              ? extraData.debt.subcategory?.name + ' - ' + extraData.debt.description || debtTitle
+              : debtTitle}
           </h1>
         </div>
 
@@ -451,17 +423,29 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               subtitle={`${summaryData.cobradas.count} En total`}
               total={extraData?.totalReceivable || 0}
               current={summaryData.cobradas.count}
-
             />
 
             <UnifiedCard
               variant="detail"
               label="POR COBRAR"
               mainContent={<FormatBsAlign value={summaryData.porCobrar.amount} />}
-              subtitle={`${parseFloat(extraData?.receivable || '0') > 0 ? Math.ceil(parseFloat(extraData?.receivable || '0') / parseFloat(extraData?.totalAmountDebt || '1')) : 0} En total`}
+              subtitle={`${
+                parseFloat(extraData?.receivable || '0') > 0
+                  ? Math.ceil(
+                      parseFloat(extraData?.receivable || '0') /
+                        parseFloat(extraData?.totalAmountDebt || '1')
+                    )
+                  : 0
+              } En total`}
               total={extraData?.totalReceivable || 0}
-              current={parseFloat(extraData?.receivable || '0') > 0 ? Math.ceil(parseFloat(extraData?.receivable || '0') / parseFloat(extraData?.totalAmountDebt || '1')) : 0}
-
+              current={
+                parseFloat(extraData?.receivable || '0') > 0
+                  ? Math.ceil(
+                      parseFloat(extraData?.receivable || '0') /
+                        parseFloat(extraData?.totalAmountDebt || '1')
+                    )
+                  : 0
+              }
             />
 
             <UnifiedCard
@@ -471,7 +455,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               subtitle={`${extraData?.totalArrears || 0} En total`}
               total={extraData?.totalReceivable || 0}
               current={extraData?.totalArrears || 0}
-
             />
           </div>
 
@@ -479,19 +462,11 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           <div className={styles.actionButtons}>
             {/*  {extraData?.hasAction && ( */}
             <>
-              <Button
-                onClick={handleEdit}
-                variant="primary"
-                className={styles.actionButton}
-              >
+              <Button onClick={handleEdit} variant="primary" className={styles.actionButton}>
                 <IconEdit size={16} />
                 Editar
               </Button>
-              <Button
-                onClick={handleDelete}
-                variant="secondary"
-                className={styles.actionButton}
-              >
+              <Button onClick={handleDelete} variant="secondary" className={styles.actionButton}>
                 <IconTrash size={16} />
                 Eliminar
               </Button>
@@ -522,7 +497,9 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           onSave={handleFormSave}
           extraData={extraData}
           execute={execute as (url: string, method: string, params: any) => Promise<any>}
-          showToast={showToast as (msg: string, type?: 'info' | 'success' | 'error' | 'warning') => void}
+          showToast={
+            showToast as (msg: string, type?: 'info' | 'success' | 'error' | 'warning') => void
+          }
           reLoad={reLoad as () => void}
           user={user}
         />

@@ -284,8 +284,8 @@ export const sumPenalty = (unidades: AssignedList) => {
  */
 export const hasMaintenanceValue = (iamData: any): boolean => {
 
-  const currentClientId = iamData.client_id;
-  const clients = iamData.clients;
+  const currentClientId = iamData?.client_id;
+  const clients = iamData?.clients;
 
   if (!currentClientId || !Array.isArray(clients)) {
     return false;

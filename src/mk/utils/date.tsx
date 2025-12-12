@@ -117,7 +117,6 @@ export const convertirFechaUTCaLocal = (fechaUTCString: string | null) => {
 
   const offsetUTC = fechaUTC.getTimezoneOffset();
   const fechaLocal = new Date(fechaUTC.getTime() - offsetUTC * 60000);
-  // console.log("fechaLocal", fechaLocal);
   // if (process.env.NODE_ENV == "development")
   if (offsetUTC == 0) fechaLocal.setHours(fechaLocal.getHours() + GMT);
   return fechaLocal;
@@ -129,8 +128,6 @@ const _getDateTimeStrMes = (
   utc: boolean = false,
   utcBase: boolean = false
 ): string => {
-  // console.log(dateStr);
-  // console.log(esFormatoISO8601(dateStr), utc);
   if (esFormatoISO8601(dateStr) || utc) {
     const fechaLocal: any = convertirFechaUTCaLocal(dateStr);
     dateStr = fechaLocal
@@ -447,22 +444,11 @@ export const compareDate = (
   let d1: any = new Date(date1);
   let d2: any = new Date(date2);
 
-  // if (typeof date1 == "string") {
-  //   let d: any = date1.split(" ")[0].split("-");
-  //   console.log("d", d, typeof d);
-  //   d1 = new Date(d[0], d[1] - 1, d[2]);
-  //   console.log("d1", d1);
-  // }
-
   if (typeof date1 != "string") d1 = date1;
   if (typeof date2 != "string") d2 = date2;
 
   if (typeof date1 == null) d1 = new Date();
   if (typeof date2 == null) d2 = new Date();
-
-  // d1.setHours(d1.getHours() - GMT);
-  // d2.setHours(d2.getHours() - GMT);
-  // console.log("date1:", date1);
 
   d1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
   d2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
@@ -686,16 +672,84 @@ export const formatToDayDDMMYYYYHHMM = (
 
   return `${diaSemana}, ${dia}/${mesNum}/${año} - ${horaStr}:${minutosStr}`;
 };
+
+export const formatToDayFdMYH = (
+  dateStr: string | null = "",
+  utc: boolean = true
+): string => {
+  if (!dateStr || dateStr === "") return "";
+
+  let dateForFormatting: Date;
+  
+  // 1. Obtener un objeto Date base
+  if (esFormatoISO8601(dateStr) || utc) {
+    const convertedDate = convertirFechaUTCaLocal(dateStr);
+    if (!convertedDate) return "Fecha inválida";
+    dateForFormatting = convertedDate;
+  } else {
+    let tempDate = new Date(dateStr.replace(" ", "T"));
+    if (isNaN(tempDate.getTime())) {
+      const parts = dateStr.split(/[- :\/]/);
+      if (parts.length >= 6) {
+        // YYYY, MM, DD, HH, MM, SS
+        tempDate = new Date(
+          Number(parts[0]),
+          Number(parts[1]) - 1,
+          Number(parts[2]),
+          Number(parts[3]),
+          Number(parts[4]),
+          Number(parts[5])
+        );
+      } else if (parts.length >= 3) {
+        // YYYY, MM, DD
+        tempDate = new Date(
+          Number(parts[0]),
+          Number(parts[1]) - 1,
+          Number(parts[2])
+        );
+      }
+      if (isNaN(tempDate.getTime())) return "Fecha inválida";
+    }
+    dateForFormatting = tempDate;
+  }
+  // 2. Extraer componentes de fecha del objeto Date
+  const diaSemana = DAYS[dateForFormatting.getDay()];
+  const dia = String(dateForFormatting.getDate()).padStart(2, "0");
+  const mes = MONTHS_ES[dateForFormatting.getMonth()];
+  const año = dateForFormatting.getFullYear();
+
+  // 3. Extraer y ajustar componentes de hora, replicando la lógica de getDateTimeStrMes para la hora
+  let hora = dateForFormatting.getHours();
+  let minutos = dateForFormatting.getMinutes();
+
+  if (esFormatoISO8601(dateStr)) {
+    hora = dateForFormatting.getHours() - GMT; 
+    if (hora < 0) {
+      hora += 24;
+    }
+    if (hora >= 24) {
+      hora -= 24;
+    }
+  }
+  if (hora === 24 && minutos === 0) {
+    hora = 23;
+    minutos = 59;
+  }
+
+  const horaStr = String(hora).padStart(2, "0");
+  const minutosStr = String(minutos).padStart(2, "0");
+
+  return `${diaSemana}, ${dia} de ${mes} del ${año} - ${horaStr}:${minutosStr}`;
+
+};
+
 export const formatDateRange = (
   startDateStr: string | null,
   endDateStr: string | null
 ): string => {
-  // Función auxiliar interna para no repetir código.
-  // Formatea una sola fecha en el formato "Día, dd/MM/yyyy".
   const formatSingleDate = (dateStr: string | null): string => {
     if (!dateStr) return "";
 
-    // Reutilizamos tu función para manejar fechas UTC y locales de forma consistente.
     const date = convertirFechaUTCaLocal(dateStr);
 
     if (!date) return ""; // Si la fecha no es válida, retorna vacío.

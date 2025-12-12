@@ -40,7 +40,7 @@ export const RESERVATION_STATUS_CONFIG = {
     class: "statusR"
   },
   C: {
-    label: "Cancelada por usuario",
+    label: "Cancelada manualmente",
     backgroundColor: "#E4605533",
     color: "#E46055",
     class: "statusC"
@@ -74,7 +74,7 @@ export const RESERVATION_STATUS_OPTIONS = [
   { id: "N", name: "Reservado (sin pago)" },
   { id: "L", name: "Reservado (pagado)" },
   { id: "R", name: "Reserva rechazada" },
-  { id: "C", name: "Cancelada por usuario" },
+  { id: "C", name: "Cancelada manualmente" },
   { id: "T", name: "Cancelada automática" },
   { id: "F", name: "Finalizada" },
   { id: "X", name: "Rechazada" },

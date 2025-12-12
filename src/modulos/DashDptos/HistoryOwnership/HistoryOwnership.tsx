@@ -67,10 +67,10 @@ const HistoryOwnership = ({
           ) : (
             filteredData.map((titular, index) => (
               <button
-                key={titular?.owner_id}
+                key={titular?.id || index}
                 className={styles.titularCard}
                 onClick={() => {
-                  setDataOw({});
+                  // setDataOw({});
                 }}
               >
                 <div className={styles.titularInfo}>

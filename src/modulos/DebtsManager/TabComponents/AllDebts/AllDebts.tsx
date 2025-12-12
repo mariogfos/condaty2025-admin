@@ -14,6 +14,7 @@ import { useAuth } from '@/mk/contexts/AuthProvider';
 import { hasMaintenanceValue } from '@/mk/utils/utils';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 import { formatBs, formatNumber } from '@/mk/utils/numbers';
+import { getStatusText as getStatusTextConst, getStatusConfig as getStatusConfigConst } from '../constants';
 
 interface AllDebtsProps {
   openView: boolean;
@@ -80,51 +81,15 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   };
 
   const renderStatusCell = ({ item }: { item: any }) => {
-    const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
-      A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
-      P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
-      S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
-      R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
-      E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
-      M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
-      C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
-      X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
-      F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
-      UNKNOWN: { color: 'var(--cGray)', bgColor: 'var(--cGrayLight)' },
-    };
-
-    const getStatusText = (status: string) => {
-      const statusMap: { [key: string]: string } = {
-        A: 'Por cobrar',
-        P: 'Cobrada',
-        S: 'Por confirmar',
-        M: 'En mora',
-        C: 'Cancelada',
-        F: 'Condonada',
-        X: 'Anulada',
-      };
-      return statusMap[status] || 'Estado desconocido';
-    };
-
     let finalStatus = item?.status;
-
-    // Obtener fecha actual solo como string YYYY-MM-DD
     const today = new Date();
     const todayString = today.toISOString().split('T')[0];
     const dueAtString = item?.debt?.due_at || item?.due_at;
-
-
-    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
     if (dueAtString && dueAtString < todayString && item?.status === 'A') {
       finalStatus = 'M';
-
-    } else {
-
     }
-
-    const statusText = getStatusText(finalStatus);
-    const { color, bgColor } = statusConfig[finalStatus] || statusConfig.UNKNOWN;
-
+    const statusText = getStatusTextConst(finalStatus);
+    const { color, bgColor } = getStatusConfigConst(finalStatus, dueAtString);
     return (
       <StatusBadge color={color} backgroundColor={bgColor}>
         {statusText}
@@ -521,15 +486,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
 
   const renderItem = (item: Record<string, any>) => {
     const getStatusText = (status: string) => {
-      const statusMap: { [key: string]: string } = {
-        'A': 'Por cobrar',
-        'P': 'Pagada',
-        'C': 'Cancelada',
-        'X': 'Anulada',
-        'M': 'En mora',
-        'F': 'Condonada'
-      };
-      return statusMap[status] || status;
+      return getStatusTextConst(status);
     };
 
     let finalStatus = item?.status;
@@ -538,8 +495,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     const today = new Date();
     const todayString = today.toISOString().split('T')[0];
     const dueAtString = item?.debt?.due_at || item?.due_at;
-
-    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
     if (dueAtString && dueAtString < todayString && item?.status === 'A') {
       finalStatus = 'M';
     }
@@ -566,7 +521,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   return (
     <>
       <List
-        height={'calc(100vh - 530px)'}
+        height={'calc(100vh - 560px)'}
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de todas las deudas vacía. Una vez generes las cuotas"

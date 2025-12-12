@@ -1,11 +1,16 @@
-'use client';
-import { memo, useState, useEffect, useCallback, useMemo } from 'react';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import Input from '@/mk/components/forms/Input/Input';
-import TextArea from '@/mk/components/forms/TextArea/TextArea';
-import styles from './RenderForm.module.css';
-import { checkRules } from '@/mk/utils/validate/Rules';
-import { CategoryFormProps, InputEvent, CategoryItem } from '../Type/CategoryType';
+"use client";
+import { memo, useState, useEffect, useCallback, useMemo } from "react";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Input from "@/mk/components/forms/Input/Input";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import styles from "./RenderForm.module.css";
+import { checkRules } from "@/mk/utils/validate/Rules";
+import {
+  CategoryFormProps,
+  InputEvent,
+  CategoryItem,
+} from "../Type/CategoryType";
+import Select from "@/mk/components/forms/Select/Select";
 
 const CategoryForm = memo(
   ({
@@ -34,16 +39,16 @@ const CategoryForm = memo(
     const handleChange = useCallback(
       (e: InputEvent) => {
         const { name, value, type, checked } = e.target;
-        set_Item(prev => ({
+        set_Item((prev) => ({
           ...prev,
-          [name]: type === 'checkbox' ? checked : value,
+          [name]: type === "checkbox" ? checked : value,
         }));
 
         // Clear error for this field when user starts typing
         if (_errors[name]) {
-          set_Errors(prev => ({
+          set_Errors((prev) => ({
             ...prev,
-            [name]: '',
+            [name]: "",
           }));
         }
       },
@@ -53,10 +58,13 @@ const CategoryForm = memo(
     const validar = useCallback(() => {
       let errs: { [key: string]: string } = {};
 
-      const addError = (result: string | Record<string, string> | null, key: string) => {
-        if (typeof result === 'string' && result) {
+      const addError = (
+        result: string | Record<string, string> | null,
+        key: string
+      ) => {
+        if (typeof result === "string" && result) {
           errs[key] = result;
-        } else if (result && typeof result === 'object') {
+        } else if (result && typeof result === "object") {
           Object.entries(result).forEach(([k, v]) => {
             if (v) errs[k] = v;
           });
@@ -66,29 +74,32 @@ const CategoryForm = memo(
       addError(
         checkRules({
           value: _Item.name,
-          rules: ['required'],
-          key: 'name',
+          rules: ["required"],
+          key: "name",
           errors: errs,
         }),
-        'name'
+        "name"
       );
 
       const filteredErrs = Object.fromEntries(
-        Object.entries(errs).filter(([_, v]) => typeof v === 'string' && v !== undefined)
+        Object.entries(errs).filter(
+          ([_, v]) => typeof v === "string" && v !== undefined
+        )
       );
       set_Errors(filteredErrs);
 
       if (Object.keys(errs).length > 0) {
         setTimeout(() => {
           const firstErrorElement =
-            document.querySelector(`.${styles.error}`) || document.querySelector('.error');
+            document.querySelector(`.${styles.error}`) ||
+            document.querySelector(".error");
           if (firstErrorElement) {
             (firstErrorElement as HTMLElement).scrollIntoView({
-              behavior: 'smooth',
-              block: 'center',
+              behavior: "smooth",
+              block: "center",
             });
           } else {
-            const modalBody = document.querySelector('.data-modal-body');
+            const modalBody = document.querySelector(".data-modal-body");
             if (modalBody) (modalBody as HTMLElement).scrollTop = 0;
           }
         }, 100);
@@ -101,34 +112,49 @@ const CategoryForm = memo(
 
       const cleanItem = {
         ..._Item,
-        type: categoryType === 'I' ? 'I' : 'E',
+        type: categoryType === "I" ? "I" : "E",
         category_id: isSubcategoryMode ? _Item.category_id : null,
+        bank_account_id: _Item.bank_account_id || null,
       };
 
       // Remove unnecessary properties
       const propsToDelete = [
-        'hijos',
-        '_initItem',
-        'category',
-        ...(action === 'edit' ? ['fixed'] : []),
+        "hijos",
+        "_initItem",
+        "category",
+        ...(action === "edit" ? ["fixed"] : []),
       ];
-      propsToDelete.forEach(prop => delete cleanItem[prop as keyof typeof cleanItem]);
 
+      propsToDelete.forEach(
+        (prop) => delete cleanItem[prop as keyof typeof cleanItem]
+      );
       setItem?.(cleanItem);
       onSave(cleanItem);
       getExtraData?.();
-    }, [_Item, onSave, setItem, action, categoryType, getExtraData, isSubcategoryMode, validar]);
+    }, [
+      _Item,
+      onSave,
+      setItem,
+      action,
+      categoryType,
+      getExtraData,
+      isSubcategoryMode,
+      validar,
+    ]);
     const { modalTitle, buttonText } = useMemo(() => {
-      const itemType = isSubcategoryMode ? 'subcategoría' : 'categoría';
-      const actionText = action === 'edit' ? 'Editar' : 'Crear';
+      const itemType = isSubcategoryMode ? "subcategoría" : "categoría";
+      const actionText = action === "edit" ? "Editar" : "Crear";
 
       return {
         modalTitle: `${actionText} ${itemType}`,
-        buttonText: 'Guardar',
+        buttonText: "Guardar",
       };
     }, [action, isSubcategoryMode]);
     const parentCategory = useMemo(
-      () => extraData?.categories?.find((cat: any) => String(cat.id) === String(_Item.category_id)),
+      () =>
+        extraData?.categories?.find(
+          (cat: any) => String(cat.id) === String(_Item.category_id)
+        ),
       [extraData?.categories, _Item.category_id]
     );
 
@@ -136,6 +162,14 @@ const CategoryForm = memo(
       set_Errors({});
       onClose();
     }, [onClose]);
+
+    const getOptionsBankAccounts = useCallback(() => {
+      return extraData?.bankAccounts?.map((bank: any) => ({
+        id: bank.id,
+        name:
+          bank.holder + " - " + bank.alias_holder + " - " + bank.account_number,
+      }));
+    }, [extraData?.bankAccounts]);
 
     if (!open) return null;
 
@@ -157,39 +191,59 @@ const CategoryForm = memo(
               <Input
                 name="category_id_name"
                 label="Categoría padre"
-                value={parentCategory?.name || ''}
+                value={parentCategory?.name || ""}
                 onChange={() => {}}
                 required
                 className={styles.customSelect}
                 disabled
+                error={_errors}
               />
-              <input type="hidden" name="category_id" value={_Item.category_id || ''} />
+              <input
+                type="hidden"
+                name="category_id"
+                value={_Item.category_id || ""}
+              />
             </>
           )}
+
           <Input
             type="text"
             name="name"
-            value={_Item.name || ''}
+            value={_Item.name || ""}
             onChange={handleChange}
             label={`Nombre`}
             error={_errors}
             required
-            className={_errors.name ? styles.error : ''}
+            // className={_errors.name ? styles.error : ""}
+          />
+          <Select
+            name="bank_account_id"
+            label="Asignar cuenta bancaria"
+            value={_Item.bank_account_id || ""}
+            onChange={handleChange}
+            options={getOptionsBankAccounts()}
+            error={_errors}
+            required
+            // className={_errors.bank_account_id ? styles.error : ""}
           />
           <TextArea
             name="description"
-            value={_Item.description || ''}
+            value={_Item.description || ""}
             onChange={handleChange}
             label={`Descripción`}
             error={_errors}
-            className={_errors.description ? styles.error : ''}
+            // className={_errors.description ? styles.error : ""}
           />
-          <input type="hidden" name="type" value={categoryType === 'I' ? 'I' : 'E'} />
+          <input
+            type="hidden"
+            name="type"
+            value={categoryType === "I" ? "I" : "E"}
+          />
         </div>
       </DataModal>
     );
   }
 );
 
-CategoryForm.displayName = 'CategoryForm';
+CategoryForm.displayName = "CategoryForm";
 export default CategoryForm;

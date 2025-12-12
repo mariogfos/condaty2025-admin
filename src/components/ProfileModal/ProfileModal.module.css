@@ -127,3 +127,9 @@
   }
 }
 
+.phoneLink {
+  color: var(--cWhite);
+}
+.phoneLink:visited {
+  color: var(--cWhite);
+}

@@ -9,6 +9,8 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+.kilocode
+.kilocode/
 
 # testing
 /coverage
@@ -16,6 +18,7 @@
 /.next/
 /out/
 /nogit
+nogit/
 prompt_aliases.json
 
 *.log*
