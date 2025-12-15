@@ -1,54 +1,51 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-"use client";
+'use client';
 import {
   useState,
   useEffect,
   Fragment,
   memo,
   useCallback,
-  useRef,
-} from "react";
-import useAxios from "../useAxios";
-import { capitalize, getUrlImages } from "../../utils/string";
-import { useAuth } from "../../contexts/AuthProvider";
+  // useRef,
+} from 'react';
+import useAxios from '../useAxios';
+import { capitalize, getUrlImages } from '../../utils/string';
+import { useAuth } from '../../contexts/AuthProvider';
 import {
   ActionType,
   checkRulesFields,
   getParamFields,
   hasErrors,
-} from "../../utils/validate/Rules";
-import { logError } from "../../utils/logs";
-import {
-  detectLargeFilesAndStrip,
-  uploadLargeFiles,
-} from "../../utils/fileUpload";
-import LoadingScreen from "../../components/ui/LoadingScreen/LoadingScreen";
-import Table, { RenderColType } from "../../components/ui/Table/Table";
-import DataModal from "../../components/ui/DataModal/DataModal";
-import Button from "../../components/forms/Button/Button";
-import Select from "../../components/forms/Select/Select";
+} from '../../utils/validate/Rules';
+import { logError } from '../../utils/logs';
+import { detectLargeFilesAndStrip, uploadLargeFiles } from '../../utils/fileUpload';
+import LoadingScreen from '../../components/ui/LoadingScreen/LoadingScreen';
+import Table, { RenderColType } from '../../components/ui/Table/Table';
+import DataModal from '../../components/ui/DataModal/DataModal';
+import Button from '../../components/forms/Button/Button';
+import Select from '../../components/forms/Select/Select';
 // import useScreenSize from "../useScreenSize";
-import styles from "./useCrudStyle.module.css";
-import FloatButton from "@/mk/components/forms/FloatButton/FloatButton";
-import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
+import styles from './useCrudStyle.module.css';
+// import FloatButton from '@/mk/components/forms/FloatButton/FloatButton';
+import KeyValue from '@/mk/components/ui/KeyValue/KeyValue';
 import {
-  IconAdmin,
+  // IconAdmin,
   IconEdit,
   IconGrilla,
   IconImport,
   IconMenu,
-  IconTableEmpty,
+  // IconTableEmpty,
   IconTrash,
   IconExport,
   IconFilter,
-} from "@/components/layout/icons/IconsBiblioteca";
-import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
-import FormElement from "./FormElement";
-import Pagination from "@/mk/components/ui/Pagination/Pagination";
-import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
-import EmptyData from "@/components/NoData/EmptyData";
-import { IconEmptySearch } from "@/components/layout/icons/IconsBiblioteca";
-import useMediaQuery from "../useMediaQuery";
+} from '@/components/layout/icons/IconsBiblioteca';
+import DataSearch from '@/mk/components/forms/DataSearch/DataSearch';
+import FormElement from './FormElement';
+import Pagination from '@/mk/components/ui/Pagination/Pagination';
+import ImportDataModal from '@/mk/components/data/ImportDataModal/ImportDataModal';
+import EmptyData from '@/components/NoData/EmptyData';
+// import { IconEmptySearch } from '@/components/layout/icons/IconsBiblioteca';
+import useMediaQuery from '../useMediaQuery';
 
 export type ModCrudType = {
   modulo: string;
@@ -187,9 +184,9 @@ const useCrud = ({
   const [open, setOpen] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [openDel, setOpenDel] = useState(false);
-  let extraParams: any = localStorage.getItem(mod.modulo + "Params");
+  let extraParams: any = localStorage.getItem(mod.modulo + 'Params');
   if (extraParams) extraParams = JSON.parse(extraParams);
-  localStorage.removeItem(mod.modulo + "Params");
+  localStorage.removeItem(mod.modulo + 'Params');
   // console.log("Etradata00", mod.extraData);
   const [params, setParams] = useState({
     ...paramsInitial,
@@ -197,21 +194,21 @@ const useCrud = ({
     ...(mod?.extraData ? { extraData: JSON.stringify(mod?.extraData) } : {}),
   });
   const [searchs, setSearchs]: any = useState(extraParams || {});
-  const [action, setAction] = useState<ActionType>("add");
+  const [action, setAction] = useState<ActionType>('add');
   const [openCard, setOpenCard] = useState(false);
   // console.log("paramsInitialCrud", extraParams);
   if (mod) {
-    mod.titleAdd = mod.titleAdd ?? "Agregar";
-    mod.titleEdit = mod.titleEdit ?? "Editar";
-    mod.titleDel = mod.titleDel ?? "Eliminar";
+    mod.titleAdd = mod.titleAdd ?? 'Agregar';
+    mod.titleEdit = mod.titleEdit ?? 'Editar';
+    mod.titleDel = mod.titleDel ?? 'Eliminar';
   }
 
   // const [data, setData]: any = useState(null);
   // const [loaded, setLoaded] = useState(false);
   // const { reLoad, execute } = useAxios();
   const { data, reLoad, execute, loaded } = useAxios(
-    "/" + mod.modulo,
-    "GET",
+    '/' + mod.modulo,
+    'GET',
     params,
     mod?.noWaiting
   );
@@ -227,15 +224,15 @@ const useCrud = ({
   const initOpen = (
     setOpen: Function,
     data: Record<string, any> = {},
-    action: ActionType = "add"
+    action: ActionType = 'add'
   ) => {
     setAction(action);
     let dataNew: any = {};
-    if (action == "add") {
+    if (action == 'add') {
       for (const key in fields) {
         if (fields[key].form?.precarga) {
           dataNew[key] =
-            typeof fields[key].form?.precarga == "function"
+            typeof fields[key].form?.precarga == 'function'
               ? fields[key].form?.precarga({ key, data })
               : fields[key].form?.precarga;
         }
@@ -246,7 +243,7 @@ const useCrud = ({
       for (const key in fields) {
         if (fields[key].form?.edit?.precarga) {
           dataNew[key] =
-            typeof fields[key].form?.edit?.precarga == "function"
+            typeof fields[key].form?.edit?.precarga == 'function'
               ? fields[key].form?.edit.precarga({ key, data })
               : fields[key].form?.edit.precarga;
         }
@@ -258,21 +255,21 @@ const useCrud = ({
   };
 
   const onAdd = useCallback(() => {
-    if (!userCan(mod.permiso, "C"))
-      return showToast("No tiene permisos para " + mod.titleAdd, "error");
+    if (!userCan(mod.permiso, 'C'))
+      return showToast('No tiene permisos para ' + mod.titleAdd, 'error');
     initOpen(setOpen);
   }, []);
 
   const onDel = useCallback((item: Record<string, any>) => {
-    if (!userCan(mod.permiso, "D"))
-      return showToast("No tiene permisos para " + mod.titleDel, "error");
-    initOpen(setOpenDel, item, "del");
+    if (!userCan(mod.permiso, 'D'))
+      return showToast('No tiene permisos para ' + mod.titleDel, 'error');
+    initOpen(setOpenDel, item, 'del');
   }, []);
 
   const onEdit = useCallback((item: Record<string, any>) => {
-    if (!userCan(mod.permiso, "U"))
-      return showToast("No tiene permisos para " + mod.titleEdit, "error");
-    initOpen(setOpen, item, "edit");
+    if (!userCan(mod.permiso, 'U'))
+      return showToast('No tiene permisos para ' + mod.titleEdit, 'error');
+    initOpen(setOpen, item, 'edit');
   }, []);
 
   const getItemApi = useCallback(async (item: Record<string, any>) => {
@@ -282,12 +279,12 @@ const useCrud = ({
     }
 
     const { data } = await execute(
-      "/" + mod.modulo,
-      "GET",
+      '/' + mod.modulo,
+      'GET',
       {
         page: 1,
         perPage: 1,
-        fullType: "DET",
+        fullType: 'DET',
         searchBy: searchBy,
         ...(mod.loadView !== true ? mod.loadView : {}),
       },
@@ -301,29 +298,27 @@ const useCrud = ({
   }, []);
 
   const onView = useCallback(async (item: Record<string, any>) => {
-    if (!userCan(mod.permiso, "R"))
-      return showToast("No tiene permisos para visualizar", "error");
+    if (!userCan(mod.permiso, 'R')) return showToast('No tiene permisos para visualizar', 'error');
 
     if (mod.loadView) {
       item = await getItemApi(item);
     }
-    initOpen(setOpenView, item, "view");
+    initOpen(setOpenView, item, 'view');
   }, []);
 
   const onImport = useCallback((e: any) => {
-    if (!userCan(mod.permiso, "C"))
-      return showToast("No tiene permisos para importar", "error");
+    if (!userCan(mod.permiso, 'C')) return showToast('No tiene permisos para importar', 'error');
     if (_onImport) {
       _onImport();
     }
   }, []);
 
   const onExist = useCallback(
-    async ({ type = "", cols = "id", modulo = "", searchBy = "" }: any) => {
-      if (modulo == "") modulo = mod.modulo;
+    async ({ type = '', cols = 'id', modulo = '', searchBy = '' }: any) => {
+      if (modulo == '') modulo = mod.modulo;
       const { data: row } = await execute(
-        "/" + modulo,
-        "GET",
+        '/' + modulo,
+        'GET',
         {
           type,
           searchBy,
@@ -356,10 +351,10 @@ const useCrud = ({
   };
 
   const onSave = async (data: Record<string, any>, _setErrors?: Function) => {
-    if (!userCan(mod.permiso, action == "del" ? "D" : action))
-      return showToast("No tiene permisos para esta acción", "error");
+    if (!userCan(mod.permiso, action == 'del' ? 'D' : action))
+      return showToast('No tiene permisos para esta acción', 'error');
 
-    if (action != "del") {
+    if (action != 'del') {
       const errors = checkRulesFields(fields, data, action, execute);
       if (_setErrors) {
         _setErrors(errors);
@@ -369,20 +364,24 @@ const useCrud = ({
       if (hasErrors(errors)) return;
     }
 
-    const url = "/" + mod.modulo + (data.id ? "/" + data.id : "");
-    let method = "POST";
+    const url = '/' + mod.modulo + (data.id ? '/' + data.id : '');
+    let method = 'POST';
     if (data.id) {
-      method = "PUT";
-      if (action == "del") {
-        method = "DELETE";
+      method = 'PUT';
+      if (action == 'del') {
+        method = 'DELETE';
       }
     }
 
     // Build params and detect large file fields (to be uploaded separately)
     const param = getParamFields(data, fields, action);
     const uploadLimitMB = mod?.fileUploadLimitMB ?? 1;
-    const { param: paramWithoutFiles, filesToUpload } =
-      detectLargeFilesAndStrip(data, fields, { ...param }, uploadLimitMB);
+    const { param: paramWithoutFiles, filesToUpload } = detectLargeFilesAndStrip(
+      data,
+      fields,
+      { ...param },
+      uploadLimitMB
+    );
 
     // Use the same detection result as creation: filesToUpload contains only
     // files that exceeded the upload limit and were stripped from the params.
@@ -397,9 +396,9 @@ const useCrud = ({
     } else {
       for (const key in fields) {
         const f = fields[key];
-        if (f?.form?.type === "fileUpload") {
+        if (f?.form?.type === 'fileUpload') {
           const val = data[key] || param[key];
-          if (val && typeof val === "object" && val.ext) {
+          if (val && typeof val === 'object' && val.ext) {
             paramWithoutFiles.ext = val.ext;
             break;
           }
@@ -410,7 +409,7 @@ const useCrud = ({
     const { data: response, error: err } = await execute(
       url,
       method,
-      action == "del" ? { id: data.id } : paramWithoutFiles,
+      action == 'del' ? { id: data.id } : paramWithoutFiles,
       false,
       mod?.noWaiting
     );
@@ -420,25 +419,21 @@ const useCrud = ({
         const uploadId =
           response?.data?.id ?? response?.data?.data?.id ?? data?.id ?? response?.id ?? null;
         if (filesToUpload.length > 0 && uploadId) {
-          await uploadLargeFiles(
-            filesToUpload,
-            uploadId,
-            execute,
-            mod?.noWaiting,
-            showToast
-          );
+          await uploadLargeFiles(filesToUpload, uploadId, execute, mod?.noWaiting, showToast);
         }
       } catch (e) {
-        logError("Error post-upload handling", e);
+        logError('Error post-upload handling', e);
       }
 
       onCloseCrud();
       setOpenDel(false);
+      // Wait for reLoad to complete? No, reLoad is usually just a state update trigger or fetch.
+      // But we want to ensure the list updates.
       reLoad(params, mod?.noWaiting);
-      showToast(mod.saveMsg?.[action] || response?.message, "success");
+      showToast(mod.saveMsg?.[action] || response?.message, 'success');
     } else {
-      showToast(response?.message, "error");
-      logError("Error onSave:", err);
+      showToast(response?.message, 'error');
+      logError('Error onSave:', err);
     }
   };
 
@@ -455,16 +450,16 @@ const useCrud = ({
   };
   const [oldFilter, setOldFilter]: any = useState({});
   const onFilter = (_opt: string, value: string) => {
-    let opt = _opt.replace("_filter", "");
+    let opt = _opt.replace('_filter', '');
     // console.log("onFilter", opt, value);
     let filterBy = { filterBy: { ...oldFilter.filterBy, [opt]: value } };
     if (getFilter) filterBy = getFilter(opt, value, oldFilter);
     //iterar filterBy para quitar los vacios
     let fil: any = [];
     for (const key in filterBy.filterBy) {
-      if (filterBy.filterBy[key]) fil.push(key + ":" + filterBy.filterBy[key]);
+      if (filterBy.filterBy[key]) fil.push(key + ':' + filterBy.filterBy[key]);
     }
-    fil = fil.join("|");
+    fil = fil.join('|');
     //setParams({ ...params, ...(fil ? { filterBy: fil } : {}) });
     setParams({ ...params, ...(fil ? { filterBy: fil, page: 1 } : {}) });
     setOldFilter(filterBy);
@@ -492,42 +487,41 @@ const useCrud = ({
     setOpenDel(false);
   };
 
-  type ExportType = "pdf" | "xls" | "csv";
+  type ExportType = 'pdf' | 'xls' | 'csv';
 
   const onExport = async (
     type?: string, // Cambiar el tipo a string opcional
-    callBack: (url: string) => void = (url: string) => { }
+    callBack: (url: string) => void = (url: string) => {}
   ) => {
-    if (!userCan(mod.permiso, "R"))
-      return showToast("No tiene permisos para visualizar", "error");
+    if (!userCan(mod.permiso, 'R')) return showToast('No tiene permisos para visualizar', 'error');
 
     if (isExporting) return; // Evitar múltiples clics
     setIsExporting(true);
 
     const { data: file } = await execute(
-      "/" + mod.modulo,
-      "GET",
+      '/' + mod.modulo,
+      'GET',
       {
         ...params,
-        fullType: "L", // Agregar fullType: "L"
-        _export: type ?? "pdf", // Usar ?? para valor por defecto
-        exportCols: mod?.exportCols || params.cols || "",
-        exportTitulo: mod?.exportTitulo || "Listado de " + mod.plural,
-        exportTitulos: mod?.exportTitulos || "",
-        exportAnchos: mod?.exportAnchos || "",
+        fullType: 'L', // Agregar fullType: "L"
+        _export: type ?? 'pdf', // Usar ?? para valor por defecto
+        exportCols: mod?.exportCols || params.cols || '',
+        exportTitulo: mod?.exportTitulo || 'Listado de ' + mod.plural,
+        exportTitulos: mod?.exportTitulos || '',
+        exportAnchos: mod?.exportAnchos || '',
       },
       false,
       mod?.noWaiting
     );
 
     if (file?.success) {
-      const url = getUrlImages("/" + (file.data?.path || ""));
+      const url = getUrlImages('/' + (file.data?.path || ''));
       // Intentar derivar un nombre de archivo desde el path; si no, usar por defecto
       const suggestedName = (() => {
-        const path = String(file.data?.path || "");
-        const base = path.split("/").pop();
+        const path = String(file.data?.path || '');
+        const base = path.split('/').pop();
         if (base && base.trim().length > 0) return base;
-        const ext = (type ?? "pdf").toLowerCase();
+        const ext = (type ?? 'pdf').toLowerCase();
         return `listado-${mod.modulo}.${ext}`;
       })();
 
@@ -536,7 +530,7 @@ const useCrud = ({
         const blob = await response.blob();
         const blobUrl = window.URL.createObjectURL(blob);
 
-        const link = document.createElement("a");
+        const link = document.createElement('a');
         link.href = blobUrl;
         link.download = suggestedName;
         document.body.appendChild(link);
@@ -552,34 +546,29 @@ const useCrud = ({
         setIsExporting(false);
       }
     } else {
-      showToast("Hubo un error al exportar el archivo", "error");
-      logError("Error onExport:", file);
+      showToast('Hubo un error al exportar el archivo', 'error');
+      logError('Error onExport:', file);
       setIsExporting(false);
     }
   };
-  const onExportItem = (
-    item: Record<string, any>,
-    type: ExportType = "pdf"
-  ) => {
-    if (!userCan(mod.permiso, "R"))
-      return showToast("No tiene permisos para visualizar", "error");
-    initOpen(setOpenView, item, "export");
+  const onExportItem = (item: Record<string, any>, type: ExportType = 'pdf') => {
+    if (!userCan(mod.permiso, 'R')) return showToast('No tiene permisos para visualizar', 'error');
+    initOpen(setOpenView, item, 'export');
   };
 
   useEffect(() => {
     reLoad(params, mod?.noWaiting, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
   const [extraData, setExtraData]: any = useState({});
   const getExtraData = async () => {
     const { data: extraData } = await execute(
-      "/" + mod.modulo,
-      "GET",
+      '/' + mod.modulo,
+      'GET',
       {
         perPage: -1,
         page: 1,
-        fullType: "EXTRA",
+        fullType: 'EXTRA',
         ...(mod.extraData?.params || {}),
       },
       false,
@@ -599,7 +588,6 @@ const useCrud = ({
     if (data?.extraData) {
       setExtraData(data?.extraData);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.extraData]);
 
   const Detail = memo(({ open, onClose, item, i }: PropsDetail) => {
@@ -610,7 +598,7 @@ const useCrud = ({
         if (!field.label) continue;
         const col: any = {
           key,
-          responsive: "onlyDesktop",
+          responsive: 'onlyDesktop',
           label: field.label,
           onRenderView: field.onRenderView || null,
           onRender: _onRender(field),
@@ -634,11 +622,11 @@ const useCrud = ({
       <DataModal
         open={open}
         onClose={() => onClose()}
-        title={"Detalle de " + mod.singular}
+        title={'Detalle de ' + mod.singular}
         buttonText=""
         buttonCancel=""
       >
-        <div className={""}>
+        <div className={''}>
           {header.map((col: any, index: number) => (
             <Fragment key={col.key + index}>
               {col.onRenderView ? (
@@ -667,21 +655,21 @@ const useCrud = ({
                         title={
                           col.onRenderLabel
                             ? col.onRenderLabel({
-                              value: item[col.key],
-                              key: col.key,
-                              item,
-                              i,
-                            })
+                                value: item[col.key],
+                                key: col.key,
+                                item,
+                                i,
+                              })
                             : col.label
                         }
                         value={
                           col.onRender
                             ? col.onRender({
-                              value: item[col.key],
-                              key: col.key,
-                              item,
-                              i,
-                            })
+                                value: item[col.key],
+                                key: col.key,
+                                item,
+                                i,
+                              })
                             : item[col.key]
                         }
                       />
@@ -705,7 +693,7 @@ const useCrud = ({
       </DataModal>
     );
   });
-  Detail.displayName = "Detail";
+  Detail.displayName = 'Detail';
 
   const RenderField = ({
     field,
@@ -736,12 +724,7 @@ const useCrud = ({
         field={field}
         item={
           field.prepareData
-            ? field.prepareData(
-              formStateForm,
-              field,
-              field.key,
-              setFormStateForm
-            )
+            ? field.prepareData(formStateForm, field, field.key, setFormStateForm)
             : formStateForm
         }
         i={i}
@@ -785,9 +768,9 @@ const useCrud = ({
         //   col.disabled = col.disabled(item);
         // }
         if (
-          field.form.type == "select" &&
+          field.form.type == 'select' &&
           field.form.options &&
-          typeof field.form.options == "function"
+          typeof field.form.options == 'function'
         )
           col.options = field.form.options({ item, user, key, extraData });
         head.push(col);
@@ -801,7 +784,7 @@ const useCrud = ({
         // console.log("col", col, i);
         if (col.openTag && openTag == -1) {
           headF.push({
-            key: "openTag" + i,
+            key: 'openTag' + i,
             openTag: col.openTag,
             // style: col.tagStyle,
             // className: col.tagClass,
@@ -851,22 +834,10 @@ const useCrud = ({
         let value = e.target.value;
 
         if (_onChange) {
-          if (
-            _onChange(
-              e,
-              formStateForm,
-              setFormStateForm,
-              setShowExtraModal,
-              action
-            )
-          )
-            return;
+          if (_onChange(e, formStateForm, setFormStateForm, setShowExtraModal, action)) return;
         }
         if (item.onChange) {
-          if (
-            item.onChange(e, formStateForm, setFormStateForm, setShowExtraModal)
-          )
-            return;
+          if (item.onChange(e, formStateForm, setFormStateForm, setShowExtraModal)) return;
         }
         setFormStateForm((old: any) => ({ ...old, [e.target.name]: value }));
       },
@@ -892,30 +863,22 @@ const useCrud = ({
         variant={'mini'}
         open={open}
         onClose={() => onClose()}
-        title={
-          (action == "add" ? mod.titleAdd : mod.titleEdit) + " " + mod.singular
-        }
+        title={(action == 'add' ? mod.titleAdd : mod.titleEdit) + ' ' + mod.singular}
         // textSaveButtom por defecto "Guardar" o "Actualizar" segun action en mod.textSaveButtom
         buttonText={
-          action == "add"
-            ? mod?.textSaveButtom
-              ? mod?.textSaveButtom
-              : "Guardar"
-            : "Actualizar"
+          action == 'add' ? (mod?.textSaveButtom ? mod?.textSaveButtom : 'Guardar') : 'Actualizar'
         }
-        onSave={(e) =>
-          onConfirm
-            ? onConfirm(formStateForm, setErrorForm)
-            : onSave(formStateForm, setErrorForm)
+        onSave={e =>
+          onConfirm ? onConfirm(formStateForm, setErrorForm) : onSave(formStateForm, setErrorForm)
         }
       >
         <div
           style={{
-            display: "flex",
-            width: "100%",
-            flexWrap: "wrap",
+            display: 'flex',
+            width: '100%',
+            flexWrap: 'wrap',
 
-            justifyContent: "space-between",
+            justifyContent: 'space-between',
           }}
         >
           {header.map((field: any, index: number) => (
@@ -924,17 +887,17 @@ const useCrud = ({
                 <div
                   className={field.openTag?.className}
                   style={{
-                    display: "block",
-                    justifyContent: "space-around",
-                    flexWrap: "wrap",
-                    gap: "var(--spS)",
-                    width: "100%",
+                    display: 'block',
+                    justifyContent: 'space-around',
+                    flexWrap: 'wrap',
+                    gap: 'var(--spS)',
+                    width: '100%',
                     ...(field.openTag?.border
                       ? {
-                        border: "1px solid var(--cWhiteV1)",
-                        borderRadius: "var(--bRadiusS)",
-                        padding: "var(--spM)",
-                      }
+                          border: '1px solid var(--cWhiteV1)',
+                          borderRadius: 'var(--bRadiusS)',
+                          padding: 'var(--spM)',
+                        }
                       : {}),
                     ...field.openTag?.style,
                   }}
@@ -943,9 +906,9 @@ const useCrud = ({
                   {field.openTag?.onTop && (
                     <div
                       style={{
-                        width: "100%",
-                        flex: "100%",
-                        marginBottom: "var(--spS)",
+                        width: '100%',
+                        flex: '100%',
+                        marginBottom: 'var(--spS)',
                       }}
                     >
                       {field.openTag.onTop({
@@ -960,7 +923,7 @@ const useCrud = ({
                       <RenderField
                         field={{
                           ...field,
-                          style: { ...field.style, flex: "1" },
+                          style: { ...field.style, flex: '1' },
                         }}
                         i={index}
                         formStateForm={formStateForm}
@@ -993,28 +956,25 @@ const useCrud = ({
       </DataModal>
     );
   });
-  Form.displayName = "Form";
+  Form.displayName = 'Form';
   const [filterSel, setFilterSel]: any = useState({});
 
   const FilterResponsive = ({ filters, onChange, breakPoint }: any) => {
-    const isBreak = useMediaQuery("(max-width: " + breakPoint + "px)");
+    const isBreak = useMediaQuery('(max-width: ' + breakPoint + 'px)');
 
-    const selectWidth = "auto";
+    const selectWidth = 'auto';
 
     const BreakFilter = () => {
       const [open, setOpen] = useState(false);
       return (
         <>
           <IconFilter
-            title="Filtros"
+            // title="Filtros"
             style={{
-              ...(Object.values(filterSel).filter(
-                (e) => e !== "ALL" && e !== "" && e !== "T"
-              )?.length > 0 && { color: "var(--cPrimary)" }),
+              ...(Object.values(filterSel).filter(e => e !== 'ALL' && e !== '' && e !== 'T')
+                ?.length > 0 && { color: 'var(--cPrimary)' }),
             }}
-            className={
-              styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
-            }
+            className={styles.icons + ' ' + (data?.length == 0 ? styles.disabled : '')}
             onClick={() => setOpen(true)}
           />
           <DataModal
@@ -1025,28 +985,26 @@ const useCrud = ({
             buttonCancel=""
             variant="mini"
           >
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
-            >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {filters.map((f: any, i: number) => (
                 <Select
                   key={f.key + i}
                   label={f.label}
-                  name={f.key + "_filter"}
+                  name={f.key + '_filter'}
                   onChange={onChange}
                   options={f.options || []}
-                  value={filterSel[f.key] || ""}
+                  value={filterSel[f.key] || ''}
                   optionLabel={f?.optionLabel}
                   optionValue={f?.optionValue}
                   error={false}
                   style={{
                     ...(filterSel[f.key] &&
-                      filterSel[f.key] != "" &&
-                      filterSel[f.key] != "T" &&
-                      filterSel[f.key] != "ALL" && {
-                      border: "1px solid var(--cPrimary)",
-                      borderRadius: 8,
-                    }),
+                      filterSel[f.key] != '' &&
+                      filterSel[f.key] != 'T' &&
+                      filterSel[f.key] != 'ALL' && {
+                        border: '1px solid var(--cPrimary)',
+                        borderRadius: 8,
+                      }),
                   }}
                 />
               ))}
@@ -1065,22 +1023,22 @@ const useCrud = ({
               <Select
                 key={f.key + i}
                 label={f.label}
-                name={f.key + "_filter"}
+                name={f.key + '_filter'}
                 onChange={onChange}
                 options={f.options || []}
-                value={filterSel[f.key] || ""}
+                value={filterSel[f.key] || ''}
                 optionLabel={f?.optionLabel}
                 optionValue={f?.optionValue}
                 style={{
                   width: selectWidth,
                   minWidth: selectWidth,
                   ...(filterSel[f.key] &&
-                    filterSel[f.key] != "" &&
-                    filterSel[f.key] != "T" &&
-                    filterSel[f.key] != "ALL" && {
-                    border: "1px solid var(--cPrimary)",
-                    borderRadius: 8,
-                  }),
+                    filterSel[f.key] != '' &&
+                    filterSel[f.key] != 'T' &&
+                    filterSel[f.key] != 'ALL' && {
+                      border: '1px solid var(--cPrimary)',
+                      borderRadius: 8,
+                    }),
                 }}
               />
             ))}
@@ -1107,7 +1065,7 @@ const useCrud = ({
       // if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
 
       const onChange = (e: any) => {
-        const name = e.target.name.replace("_filter", "");
+        const name = e.target.name.replace('_filter', '');
         setFilterSel({ ...filterSel, [name]: e.target.value });
         onFilter(name, e.target.value);
       };
@@ -1115,9 +1073,9 @@ const useCrud = ({
       return (
         <nav
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "var(--spS)",
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--spS)',
           }}
         >
           {mod.search && mod.search.hide === true ? (
@@ -1125,64 +1083,42 @@ const useCrud = ({
           ) : (
             <div style={{ flex: 1, minWidth: 200 }}>
               <DataSearch
-                value={searchs.searchBy || ""}
-                name={mod.modulo + "Search"}
+                value={searchs.searchBy || ''}
+                name={mod.modulo + 'Search'}
                 setSearch={onSearch || setSearchs}
-                searchMsg={extraData?.searchMsg}
+                // searchMsg={extraData?.searchMsg}
               />
             </div>
           )}
           {menuFilter || null}
 
           {mod.filter && (
-            <FilterResponsive
-              filters={filters}
-              breakPoint={breakPoint}
-              onChange={onChange}
-            />
+            <FilterResponsive filters={filters} breakPoint={breakPoint} onChange={onChange} />
           )}
           {mod.import && (
             <IconImport
-              title="Importar"
-              className={
-                styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
-              }
-              onClick={data?.length > 0 ? onImport : () => { }}
+              // title="Importar"
+              className={styles.icons + ' ' + (data?.length == 0 ? styles.disabled : '')}
+              onClick={data?.length > 0 ? onImport : () => {}}
             />
           )}
           {mod.export && (
             <IconExport
-              title="Exportar reporte"
-              className={
-                styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
-              }
-              onClick={data?.length > 0 ? () => onExport("pdf") : () => { }}
+              // title="Exportar reporte"
+              className={styles.icons + ' ' + (data?.length == 0 ? styles.disabled : '')}
+              onClick={data?.length > 0 ? () => onExport('pdf') : () => {}}
             />
           )}
           {mod.listAndCard && (
             <div className={styles.listAndCard}>
-              <div
-                className={!openCard ? styles.active : ""}
-                onClick={() => setOpenCard(false)}
-              >
+              <div className={!openCard ? styles.active : ''} onClick={() => setOpenCard(false)}>
                 <IconMenu
-                  className={
-                    styles.icons +
-                    " " +
-                    (data?.length == 0 ? styles.disabled : "")
-                  }
+                  className={styles.icons + ' ' + (data?.length == 0 ? styles.disabled : '')}
                 />
               </div>
-              <div
-                className={openCard ? styles.active : ""}
-                onClick={() => setOpenCard(true)}
-              >
+              <div className={openCard ? styles.active : ''} onClick={() => setOpenCard(true)}>
                 <IconGrilla
-                  className={
-                    styles.icons +
-                    " " +
-                    (data?.length == 0 ? styles.disabled : "")
-                  }
+                  className={styles.icons + ' ' + (data?.length == 0 ? styles.disabled : '')}
                 />
               </div>
             </div>
@@ -1204,7 +1140,7 @@ const useCrud = ({
                 style={{ height: 48 }}
                 variant="primary"
               >
-                {mod.titleAdd + " " + mod.singular}
+                {mod.titleAdd + ' ' + mod.singular}
               </Button>
             </div>
           )}
@@ -1212,39 +1148,36 @@ const useCrud = ({
       );
     }
   );
-  AddMenu.displayName = "AddMenu";
+  AddMenu.displayName = 'AddMenu';
 
-  const FormDelete = memo(
-    ({ open, onClose, item, onConfirm, message = "" }: PropsDetail) => {
-      return (
-        <DataModal
-          id="Eliminar"
-          title={capitalize(mod.titleDel) + " " + mod.singular}
-          buttonText={capitalize(mod.titleDel)}
-          buttonCancel="Cancelar"
-          onSave={(e) => (onConfirm ? onConfirm(item) : onSave(item))}
-          onClose={onClose}
-          open={open}
-          variant="mini"
-        >
-          {message ? (
-            message
-          ) : (
-            <>
-              ¿Estás seguro de {mod.titleDel} esta información?
-              <br />
-              {/* <br />
+  const FormDelete = memo(({ open, onClose, item, onConfirm, message = '' }: PropsDetail) => {
+    return (
+      <DataModal
+        id="Eliminar"
+        title={capitalize(mod.titleDel) + ' ' + mod.singular}
+        buttonText={capitalize(mod.titleDel)}
+        buttonCancel="Cancelar"
+        onSave={e => (onConfirm ? onConfirm(item) : onSave(item))}
+        onClose={onClose}
+        open={open}
+        variant="mini"
+      >
+        {message ? (
+          message
+        ) : (
+          <>
+            ¿Estás seguro de {mod.titleDel} esta información?
+            <br />
+            {/* <br />
               {item.name || item.description}
               <br /> */}
-              Recuerda que, al momento de {mod.titleDel}, ya no podrás
-              recuperarla.
-            </>
-          )}
-        </DataModal>
-      );
-    }
-  );
-  FormDelete.displayName = "FormDelete";
+            Recuerda que, al momento de {mod.titleDel}, ya no podrás recuperarla.
+          </>
+        )}
+      </DataModal>
+    );
+  });
+  FormDelete.displayName = 'FormDelete';
 
   const onButtonActions = (item: Record<string, any>) => {
     let hideEdit = mod.hideActions?.edit;
@@ -1287,13 +1220,13 @@ const useCrud = ({
   const findOptions = (
     value: any,
     options: Record<string, any>[],
-    key: string = "id",
-    label: string = "name"
+    key: string = 'id',
+    label: string = 'name'
   ) => {
-    if (!Array.isArray(options) || options.length == 0) return "";
+    if (!Array.isArray(options) || options.length == 0) return '';
     const r = options?.find((s: any) => s[key] == value);
     if (r) return r[label];
-    return "";
+    return '';
   };
   const _onRender = (field: any, lista = false) => {
     const render = lista
@@ -1308,7 +1241,7 @@ const useCrud = ({
         optionValue: field.list?.optionValue ?? field.form?.optionValue,
         optionLabel: field.list?.optionLabel ?? field.form?.optionLabel,
       };
-      if (opt.type === "select" && opt.optionsExtra)
+      if (opt.type === 'select' && opt.optionsExtra)
         return (item: RenderColType) => {
           return findOptions(
             item.value,
@@ -1317,11 +1250,11 @@ const useCrud = ({
             opt.optionLabel
           );
         };
-      if (opt.type === "select" && !opt.optionsExtra)
+      if (opt.type === 'select' && !opt.optionsExtra)
         return (item: RenderColType) => {
           return findOptions(
             item.value,
-            typeof opt.options == "function"
+            typeof opt.options == 'function'
               ? opt.options({ key: opt.optionValue, item, user, extraData })
               : opt.options,
             opt.optionValue,
@@ -1332,11 +1265,11 @@ const useCrud = ({
     return render;
   };
 
-  const [sortCol, setSortCol] = useState({ col: "", asc: true });
+  const [sortCol, setSortCol] = useState({ col: '', asc: true });
   const onSort = (col: string, asc: boolean) => {
     const nAsc: boolean = sortCol.col === col ? !sortCol.asc : asc;
     setSortCol({ col, asc: nAsc });
-    setParams({ ...params, sortBy: col, orderBy: nAsc ? "asc" : "desc" });
+    setParams({ ...params, sortBy: col, orderBy: nAsc ? 'asc' : 'desc' });
   };
   const List = memo((props: any) => {
     const getHeader = () => {
@@ -1349,9 +1282,8 @@ const useCrud = ({
           const colF: any = {
             key,
             label: field.filter?.label ?? field.list?.label ?? field.label,
-            width: field.filter?.width ?? field.list?.width ?? "auto",
-            order:
-              field.filter?.order ?? field?.list?.order ?? field?.order ?? 1000,
+            width: field.filter?.width ?? field.list?.width ?? 'auto',
+            order: field.filter?.order ?? field?.list?.order ?? field?.order ?? 1000,
             options: field.filter?.extraData
               ? extraData[field.filter?.extraData]
               : field.filter?.options(extraData) ?? field.form.options ?? [],
@@ -1364,9 +1296,9 @@ const useCrud = ({
         if (!field.list) continue;
         const col: any = {
           key,
-          responsive: "",
+          responsive: '',
           label: field.list.label ?? field.label,
-          className: field.list.className ?? "",
+          className: field.list.className ?? '',
           width: field.list?.width,
           onRender: _onRender(field, true),
           order: field.list.order ?? field.order ?? 1000,
@@ -1386,7 +1318,6 @@ const useCrud = ({
     const [_data, set_data]: any = useState(data?.data);
     useEffect(() => {
       setHeader(getHeader());
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fields]);
 
     useEffect(() => {
@@ -1396,32 +1327,28 @@ const useCrud = ({
       } else {
         set_data(data?.data);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchs, data]);
 
     let emptyContent;
     if (props.onRenderEmpty) {
       emptyContent = props.onRenderEmpty();
-    } else if (
-      (params?.filterBy && params?.filterBy.length > 0) ||
-      (searchs && searchs.searchBy)
-    ) {
+    } else if ((params?.filterBy && params?.filterBy.length > 0) || (searchs && searchs.searchBy)) {
       emptyContent = (
         <EmptyData
           h={props?.height ?? undefined}
-          icon={<IconEmptySearch size={60} />}
-          message="No se encontraron coincidencias. Ajusta tus filtros o"
-          line2="prueba con una búsqueda diferente"
+          // icon={<IconEmptySearch size={60} />}
+          message="No se encontraron coincidencias. Ajusta tus filtros o prueba con una búsqueda diferente"
+          // line2="prueba con una búsqueda diferente"
         />
       );
     } else {
       emptyContent = (
         <EmptyData
           h={props?.height ?? undefined}
-          message={props.emptyMsg ?? undefined}
-          line2={props.emptyLine2 ?? undefined}
-          icon={props.emptyIcon ?? undefined}
-          size={props.emptyIconSize ?? undefined}
+          message={(props.emptyMsg || '') + (props.emptyLine2 ? ' ' + props.emptyLine2 : '')}
+          // line2={props.emptyLine2 ?? undefined}
+          // icon={props.emptyIcon ?? undefined}
+          // size={props.emptyIconSize ?? undefined}
         />
       );
     }
@@ -1431,9 +1358,7 @@ const useCrud = ({
         {/* {JSON.stringify(data)}---
         {JSON.stringify(_data)}--- */}
         {store?.title && openList && !props.hideTitle && (
-          <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>
-            {store?.title}
-          </p>
+          <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>{store?.title}</p>
         )}
         {openList && (
           <AddMenu
@@ -1447,24 +1372,22 @@ const useCrud = ({
           {openList && (
             <div
               style={{
-                display: "flex",
-                flexDirection: "row",
-                gap: "var(--spM)",
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 'var(--spM)',
               }}
             >
               <section
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
+                  display: 'flex',
+                  flexDirection: 'column',
                   flexGrow: 1,
                 }}
               >
                 {_data?.length > 0 ? (
                   <Table
                     data={_data}
-                    onRowClick={
-                      mod.hideActions?.view ? props.onRowClick : onView
-                    }
+                    onRowClick={mod.hideActions?.view ? props.onRowClick : onView}
                     header={header}
                     onTabletRow={props.onTabletRow}
                     onRenderBody={props.onRenderBody}
@@ -1472,19 +1395,17 @@ const useCrud = ({
                     onRenderHead={props.onRenderHead}
                     onRenderCard={props.onRenderCard}
                     onButtonActions={
-                      mod.hideActions?.edit && mod.hideActions?.del
-                        ? undefined
-                        : onButtonActions
+                      mod.hideActions?.edit && mod.hideActions?.del ? undefined : onButtonActions
                     }
                     height={props?.height || undefined}
                     className="striped"
-                    actionsWidth={"170px"}
+                    actionsWidth={'170px'}
                     sumarize={props.sumarize}
                     extraData={extraData}
                     onSort={onSort}
                     sortCol={sortCol}
                     // scrollTo={scrollTo}
-                    id={mod?.modulo}
+                    // id={mod?.modulo}
                   />
                 ) : data === null ? null : (
                   <section>{emptyContent}</section>
@@ -1497,15 +1418,12 @@ const useCrud = ({
                       setParams={setParams}
                       params={params}
                       totalPages={Math.ceil(
-                        (mod.onSearch
-                          ? _data.length
-                          : data?.message?.total ?? 1) / (params.perPage ?? 1)
+                        (mod.onSearch ? _data.length : data?.message?.total ?? 1) /
+                          (params.perPage ?? 1)
                       )}
                       previousLabel=""
                       nextLabel=""
-                      total={
-                        mod.onSearch ? _data.length : data?.message?.total ?? 0
-                      }
+                      total={mod.onSearch ? _data.length : data?.message?.total ?? 0}
                     />
                   </div>
                 )}
@@ -1537,12 +1455,7 @@ const useCrud = ({
                   },
                 })
               ) : (
-                <Detail
-                  open={openView}
-                  onClose={onCloseView}
-                  item={formState}
-                  onConfirm={onSave}
-                />
+                <Detail open={openView} onClose={onCloseView} item={formState} onConfirm={onSave} />
               )}
             </>
           )}
@@ -1573,12 +1486,7 @@ const useCrud = ({
                   getItemApi,
                 })
               ) : (
-                <Form
-                  open={open}
-                  onClose={onCloseCrud}
-                  item={formState}
-                  onConfirm={onSave}
-                />
+                <Form open={open} onClose={onCloseCrud} item={formState} onConfirm={onSave} />
               )}
             </>
           )}
@@ -1635,7 +1543,7 @@ const useCrud = ({
       </div>
     );
   });
-  List.displayName = "List";
+  List.displayName = 'List';
   return {
     user,
     showToast,
