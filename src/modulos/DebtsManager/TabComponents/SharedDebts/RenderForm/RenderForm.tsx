@@ -325,8 +325,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       ? { ...baseData, dpto_id: _formState.dpto_id }
       : baseData;
 
-    console.log('RenderForm - Datos a enviar:', dataToSave);
-
     try {
       await onSave?.(dataToSave);
     } catch (error) {

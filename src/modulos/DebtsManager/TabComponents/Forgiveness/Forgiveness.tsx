@@ -200,7 +200,6 @@ const Forgiveness = ({
     fields,
   });
   useEffect(() => {
-    console.log("entro");
     if (extraData && onExtraDataChange) {
       onExtraDataChange(extraData);
     }

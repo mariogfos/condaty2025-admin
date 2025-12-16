@@ -385,7 +385,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const handleFormSave = async (data: any) => {
     try {
-      console.log("Datos a enviar:", data);
       const response = await execute(`/debts/${debtId}`, "PUT", data);
 
       if (response?.data?.success) {
