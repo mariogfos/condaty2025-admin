@@ -588,9 +588,16 @@ export const formatToDayDDMMYYYY = (
   return `${diaSemana}, ${dia}/${mesNum}/${año}`;
 };
 
+/**
+ * Formatea una fecha a "DíaSemana, DD/MM/AAAA - HH:MM" o "DíaSemana, DD/MM/AAAA"
+ * @param dateStr La cadena de fecha
+ * @param utc Si es true, trata la fecha como UTC
+ * @param mostrarHora Si es false, omite la hora (HH:MM). Por defecto es true.
+ */
 export const formatToDayDDMMYYYYHHMM = (
   dateStr: string | null = "",
-  utc: boolean = true
+  utc: boolean = true,
+  mostrarHora: boolean = true
 ): string => {
   if (!dateStr || dateStr === "") return "";
 
@@ -641,6 +648,10 @@ export const formatToDayDDMMYYYYHHMM = (
   const mesNum = String(dateForFormatting.getMonth() + 1).padStart(2, "0");
   const año = dateForFormatting.getFullYear();
 
+  if (!mostrarHora) {
+    return `${diaSemana}, ${dia}/${mesNum}/${año}`;
+  }
+
   // 3. Extraer y ajustar componentes de hora, replicando la lógica de getDateTimeStrMes para la hora
   let hora = dateForFormatting.getHours();
   let minutos = dateForFormatting.getMinutes();
@@ -675,12 +686,13 @@ export const formatToDayDDMMYYYYHHMM = (
 
 export const formatToDayFdMYH = (
   dateStr: string | null = "",
-  utc: boolean = true
+  utc: boolean = true,
+  mostrarHora: boolean = true
 ): string => {
   if (!dateStr || dateStr === "") return "";
 
   let dateForFormatting: Date;
-  
+
   // 1. Obtener un objeto Date base
   if (esFormatoISO8601(dateStr) || utc) {
     const convertedDate = convertirFechaUTCaLocal(dateStr);
@@ -718,12 +730,16 @@ export const formatToDayFdMYH = (
   const mes = MONTHS_ES[dateForFormatting.getMonth()];
   const año = dateForFormatting.getFullYear();
 
+  if (!mostrarHora) {
+    return `${diaSemana}, ${dia} de ${mes} del ${año}`;
+  }
+
   // 3. Extraer y ajustar componentes de hora, replicando la lógica de getDateTimeStrMes para la hora
   let hora = dateForFormatting.getHours();
   let minutos = dateForFormatting.getMinutes();
 
   if (esFormatoISO8601(dateStr)) {
-    hora = dateForFormatting.getHours() - GMT; 
+    hora = dateForFormatting.getHours() - GMT;
     if (hora < 0) {
       hora += 24;
     }
@@ -740,7 +756,6 @@ export const formatToDayFdMYH = (
   const minutosStr = String(minutos).padStart(2, "0");
 
   return `${diaSemana}, ${dia} de ${mes} del ${año} - ${horaStr}:${minutosStr}`;
-
 };
 
 export const formatDateRange = (
