@@ -136,23 +136,23 @@ const Guards = () => {
     )
       return;
 
-    const { data, error } = await execute(
-      "/guards",
-      "GET",
-      {
-        fullType: "EXIST",
-        type: "email",
-        searchBy: e.target.value,
-      },
-      false,
-      true
-    );
+    // const { data, error } = await execute(
+    //   "/guards",
+    //   "GET",
+    //   {
+    //     fullType: "EXIST",
+    //     type: "email",
+    //     searchBy: e.target.value,
+    //   },
+    //   false,
+    //   true
+    // );
 
-    if (data?.success && data.data?.data?.id) {
-      showToast("El email ya esta en uso", "warning");
-      props.setError({ email: "El email ya esta en uso" });
-      props.setItem({ ...props.item, email: "" });
-    }
+    // if (data?.success && data.data?.data?.id) {
+    //   showToast("El email ya esta en uso", "warning");
+    //   props.setError({ email: "El email ya esta en uso" });
+    //   props.setItem({ ...props.item, email: "" });
+    // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -319,19 +319,18 @@ const Guards = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { List, setStore, store, showToast, execute, reLoad, data } =
-    useCrud({
-      paramsInitial,
-      mod,
-      fields,
-    });
+  const { List, setStore, store, showToast, execute, reLoad, data } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+  });
 
   useEffect(() => {
     setStore({ ...store, title: "" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (! userCan(mod.permiso, "R")) return <NotAccess />;
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.Guards}>
       <h1 className={styles.title}>Guardias</h1>
