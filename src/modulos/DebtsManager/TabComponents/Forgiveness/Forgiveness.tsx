@@ -1,34 +1,24 @@
-import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import useCrud from "@/mk/hooks/useCrud/useCrud";
-import { getFullName } from "@/mk/utils/string";
-import React, { useEffect, useMemo } from "react";
-import styles from "./Forgiveness.module.css";
-import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
-import { getDateStrMesShort } from "@/mk/utils/date";
-import RenderForm from "./RenderForm/RenderForm";
-import { formatBs } from "@/mk/utils/numbers";
-import {
-  colorStatusForgiveness,
-  statusForgiveness,
-  statusForgivenessFilter,
-} from "./constans";
-import RenderView from "./RenderView/RenderView";
-import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import NotAccess from '@/components/auth/NotAccess/NotAccess';
+import { useAuth } from '@/mk/contexts/AuthProvider';
+import useCrud from '@/mk/hooks/useCrud/useCrud';
+import { getFullName } from '@/mk/utils/string';
+import React, { useEffect, useMemo } from 'react';
+import styles from './Forgiveness.module.css';
+import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
+import { getDateStrMesShort } from '@/mk/utils/date';
+import RenderForm from './RenderForm/RenderForm';
+import { formatBs } from '@/mk/utils/numbers';
+import { colorStatusForgiveness, statusForgiveness, statusForgivenessFilter } from './constants';
+import RenderView from './RenderView/RenderView';
+import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 
 const paramsInitial = {
-  fullType: "FG",
+  fullType: 'FG',
   page: 1,
   perPage: -1,
   type: 5,
 };
-const Forgiveness = ({
-  openView,
-  setOpenView,
-  viewItem,
-  setViewItem,
-  onExtraDataChange,
-}: any) => {
+const Forgiveness = ({ openView, setOpenView, viewItem, setViewItem, onExtraDataChange }: any) => {
   // const onEdit = (item: any) => {
   //   let day = new Date().toISOString().split("T")[0];
   //   // console.log(item?.due_at, day);
@@ -49,13 +39,13 @@ const Forgiveness = ({
   // };
 
   const mod = {
-    modulo: "debt-dptos",
-    singular: "condonación",
-    plural: "",
-    permiso: "defaulters",
+    modulo: 'debt-dptos',
+    singular: 'condonación',
+    plural: '',
+    permiso: 'defaulters',
     sumarize: true,
     extraData: true,
-    loadView: { fullType: "DET", type: 5 },
+    loadView: { fullType: 'DET', type: 5 },
     export: true,
     // onHideActions: (item: any) => {
     //   return {
@@ -63,31 +53,31 @@ const Forgiveness = ({
     //     hideDel: onDel(item),
     //   };
     // },
-    titleDel: "Anular",
+    titleDel: 'Anular',
 
     hideActions: { add: false, edit: true, del: true },
-    titleAdd: "Crear",
+    titleAdd: 'Crear',
     renderForm: RenderForm,
     renderView: RenderView,
     filter: true,
     saveMsg: {
-      add: "Condonación creada con éxito",
-      edit: "Condonación actualizada con éxito",
-      del: "Condonación eliminada con éxito",
+      add: 'Condonación creada con éxito',
+      edit: 'Condonación actualizada con éxito',
+      del: 'Condonación eliminada con éxito',
     },
   };
   const { setStore, store } = useAuth();
 
   useEffect(() => {
-    setStore({ ...store, title: "" });
+    setStore({ ...store, title: '' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const fields = useMemo(
     () => ({
       nro: {
-        label: "Unidad",
+        label: 'Unidad',
 
-        form: { type: "text" },
+        form: { type: 'text' },
         list: {
           onRender: ({ item }: any) => {
             return item?.dpto?.nro;
@@ -95,22 +85,19 @@ const Forgiveness = ({
         },
       },
       titular: {
-        label: "Titular",
-        form: { type: "text" },
+        label: 'Titular',
+        form: { type: 'text' },
         list: {
           onRender: ({ item }: any) => {
-            let titular =
-              item?.dpto?.holder == "H"
-                ? item?.dpto?.homeowner
-                : item?.dpto?.tenant;
+            let titular = item?.dpto?.holder == 'H' ? item?.dpto?.homeowner : item?.dpto?.tenant;
             return getFullName(titular);
           },
         },
       },
       due_at: {
-        label: "Vencimiento",
+        label: 'Vencimiento',
 
-        form: { type: "date" },
+        form: { type: 'date' },
         list: {
           onRender: ({ item }: any) => {
             return getDateStrMesShort(item?.due_at);
@@ -118,22 +105,13 @@ const Forgiveness = ({
         },
       },
       status: {
-        label: (
-          <span
-            style={{ display: "block", width: "100%", textAlign: "center" }}
-          >
-            Estado
-          </span>
-        ),
-        form: { type: "text" },
+        label: <span style={{ display: 'block', width: '100%', textAlign: 'center' }}>Estado</span>,
+        form: { type: 'text' },
         list: {
           onRender: ({ item }: any) => {
             let status = item?.status;
-            if (
-              item?.due_at < new Date().toISOString().split("T")[0] &&
-              item?.status == "A"
-            ) {
-              status = "M";
+            if (item?.due_at < new Date().toISOString().split('T')[0] && item?.status == 'A') {
+              status = 'M';
             }
             return (
               <StatusBadge
@@ -146,13 +124,13 @@ const Forgiveness = ({
           },
         },
         filter: {
-          label: "Estado",
+          label: 'Estado',
           options: () => statusForgivenessFilter,
         },
       },
       category: {
-        label: "Categoría",
-        form: { type: "text" },
+        label: 'Categoría',
+        form: { type: 'text' },
         list: {
           onRender: ({ item }: any) => {
             return item?.subcategory?.padre?.name;
@@ -160,21 +138,19 @@ const Forgiveness = ({
         },
       },
       total_amount: {
-        label: "Deuda total",
-        form: { type: "text" },
+        label: 'Deuda total',
+        form: { type: 'text' },
         list: {
           onRender: ({ item }: any) => {
-            return formatBs(
-              Number(item?.forgiveness_amount) + Number(item?.amount)
-            );
+            return formatBs(Number(item?.forgiveness_amount) + Number(item?.amount));
           },
         },
       },
 
       forgiveness_amount: {
         sumarize: true,
-        label: "Condonado",
-        form: { type: "text" },
+        label: 'Condonado',
+        form: { type: 'text' },
         list: {
           onRender: ({ item }: any) => {
             return formatBs(item?.forgiveness_amount);
@@ -182,8 +158,8 @@ const Forgiveness = ({
         },
       },
       amount: {
-        label: "Total a cobrar",
-        form: { type: "text" },
+        label: 'Total a cobrar',
+        form: { type: 'text' },
         sumarize: true,
         list: {
           onRender: ({ item }: any) => {
@@ -200,17 +176,17 @@ const Forgiveness = ({
     fields,
   });
   useEffect(() => {
-    console.log("entro");
+    console.log('entro');
     if (extraData && onExtraDataChange) {
       onExtraDataChange(extraData);
     }
   }, [extraData, onExtraDataChange]);
-  if (!userCan(mod.permiso, "R")) return <NotAccess />;
+  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
   return (
     <div className={`${styles.Forgiveness}`}>
       <div className={styles.listContainer}>
         <List
-          height={"calc(100vh - 580px)"}
+          height={'calc(100vh - 580px)'}
           emptyMsg="Lista de morosos vacía. Una vez las cuotas corran, los"
           emptyLine2="residentes con pagos atrasados los verás aquí."
           emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
