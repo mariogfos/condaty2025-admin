@@ -313,7 +313,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         return response.data.data;
       }
     } catch (error) {
-      console.error('Error fetching debt data:', error);
+
     }
     return null;
   };
@@ -349,7 +349,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const handleFormSave = async (data: any) => {
     try {
-      console.log('Datos a enviar:', data);
+
       const response = await execute(`/debts/${debtId}`, 'PUT', data);
 
       if (response?.data?.success) {
@@ -360,7 +360,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         showToast(response?.data?.message || 'Error al actualizar la deuda', 'error');
       }
     } catch (error) {
-      console.error('Error updating debt:', error);
       showToast('Error al actualizar la deuda', 'error');
     }
   };
