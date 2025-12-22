@@ -80,7 +80,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     return segmentationMap[segmentation] || segmentation;
   };
 
-  // Función para ir a categorías
   const goToCategories = (type = "") => {
     if (type) {
       router.push(`/categories?type=${type}`);
@@ -278,7 +277,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     ),
   };
 
-  // Botones extra para incluir el botón de categorías
   const extraButtons = [
     <Button
       key="categories-button"
@@ -347,7 +345,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         return response.data.data;
       }
     } catch (error) {
-      console.error("Error fetching debt data:", error);
     }
     return null;
   };
@@ -398,7 +395,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         );
       }
     } catch (error) {
-      console.error("Error updating debt:", error);
       showToast("Error al actualizar la deuda", "error");
     }
   };
@@ -437,7 +433,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   return (
     <>
       <div className={styles.container}>
-        {/* Header con botón volver y título */}
         <div className={styles.header}>
           <button onClick={handleVolver} className={styles.backButton}>
             <IconArrowLeft size={20} />
@@ -452,7 +447,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           </h1>
         </div>
 
-        {/* Cards de resumen con botones de acción */}
         <div className={styles.summarySection}>
           <div className={styles.summaryCards}>
             <UnifiedCard
@@ -498,9 +492,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
             />
           </div>
 
-          {/* Botones de acción - Validar hasAction del extraData */}
           <div className={styles.actionButtons}>
-            {/*  {extraData?.hasAction && ( */}
             <>
               <Button
                 onClick={handleEdit}
@@ -519,11 +511,9 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
                 Eliminar
               </Button>
             </>
-            {/*   )} */}
           </div>
         </div>
 
-        {/* Lista con useCrud - aquí aparecerá el botón de categorías automáticamente */}
         <div className={styles.listContainer}>
           <List
             height={"calc(100vh - 560px)"}
@@ -536,7 +526,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         </div>
       </div>
 
-      {/* Modal de edición */}
       {showEditForm && debtData && (
         <RenderForm
           open={showEditForm}
@@ -562,7 +551,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         />
       )}
 
-      {/* Modal de confirmación de eliminación - usando el mismo estilo que useCrud */}
       {showDeleteConfirm && (
         <FormDelete
           open={showDeleteConfirm}
