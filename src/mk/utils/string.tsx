@@ -143,7 +143,7 @@ export const getFullName = (
     last_name?: string;
     mother_last_name?: string;
   },
-  format: string = "NSLM"
+  format: string = "NsLm"
 ): string => {
   if (!data) {
     return "";
