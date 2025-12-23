@@ -1,14 +1,14 @@
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import Table from "@/mk/components/ui/Table/Table";
-import { getDateStrMesShort } from "@/mk/utils/date";
-import { formatBs } from "@/mk/utils/numbers";
-import { getFullName } from "@/mk/utils/string";
-import React from "react";
-import { hasMaintenanceValue } from "@/mk/utils/utils";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import { colorStatusForgiveness, statusForgiveness } from "../constans";
-import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import Button from "@/mk/components/forms/Button/Button";
+import DataModal from '@/mk/components/ui/DataModal/DataModal';
+import Table from '@/mk/components/ui/Table/Table';
+import { getDateStrMesShort } from '@/mk/utils/date';
+import { formatBs } from '@/mk/utils/numbers';
+import { getFullName } from '@/mk/utils/string';
+import React from 'react';
+import { hasMaintenanceValue } from '@/mk/utils/utils';
+import { useAuth } from '@/mk/contexts/AuthProvider';
+import { colorStatusForgiveness, statusForgiveness } from '../constants';
+import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
+import Button from '@/mk/components/forms/Button/Button';
 
 const LabelValue = ({
   label,
@@ -25,11 +25,9 @@ const LabelValue = ({
 }) => {
   return (
     <div style={{ ...style, flex: 1 }}>
-      <p style={{ color: "var(--cWhiteV1)", ...styleLabel }}>{label}</p>
-      {typeof value == "string" ? (
-        <p style={{ color: "var(--cWhite)", marginTop: 8, ...styleValue }}>
-          {value}
-        </p>
+      <p style={{ color: 'var(--cWhiteV1)', ...styleLabel }}>{label}</p>
+      {typeof value == 'string' ? (
+        <p style={{ color: 'var(--cWhite)', marginTop: 8, ...styleValue }}>{value}</p>
       ) : (
         value
       )}
@@ -41,42 +39,42 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
   const { user } = useAuth();
   const header = [
     {
-      key: "Tipo",
-      label: "Descripción",
-      responsive: "onlyDesktop",
+      key: 'Tipo',
+      label: 'Descripción',
+      responsive: 'onlyDesktop',
       onRender: ({ item }: any) => {
         return item?.description;
       },
     },
     {
-      key: "subcategory",
-      label: "Categoría",
-      responsive: "onlyDesktop",
+      key: 'subcategory',
+      label: 'Categoría',
+      responsive: 'onlyDesktop',
       onRender: ({ item }: any) => {
         return item?.subcategory?.name;
       },
     },
     {
-      key: "penalty_amount",
-      label: "Multa",
-      responsive: "onlyDesktop",
+      key: 'penalty_amount',
+      label: 'Multa',
+      responsive: 'onlyDesktop',
       onRender: ({ item }: any) => {
         return formatBs(item?.penalty_amount);
       },
     },
     {
-      key: "maintenance_amount",
-      label: "Mant. valor",
-      responsive: "onlyDesktop",
+      key: 'maintenance_amount',
+      label: 'Mant. valor',
+      responsive: 'onlyDesktop',
       onHide: () => !hasMaintenanceValue(user),
       onRender: ({ item }: any) => {
         return formatBs(item?.maintenance_amount);
       },
     },
     {
-      key: "amount",
-      label: "Total",
-      responsive: "onlyDesktop",
+      key: 'amount',
+      label: 'Total',
+      responsive: 'onlyDesktop',
       onRender: ({ item }: any) => {
         return formatBs(item?.amount);
       },
@@ -85,11 +83,8 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
 
   const getStatus = (item: any) => {
     let status = item?.status;
-    if (
-      item?.due_at < new Date().toISOString().split("T")[0] &&
-      item?.status == "A"
-    ) {
-      status = "M";
+    if (item?.due_at < new Date().toISOString().split('T')[0] && item?.status == 'A') {
+      status = 'M';
     }
     return status;
   };
@@ -103,51 +98,41 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
       buttonText=""
       buttonCancel=""
       buttonExtra={
-        <div style={{ display: "flex", gap: 16, width: "100%" }}>
-          {item?.due_at < new Date().toISOString().split("T")[0] ||
-            item?.status == "P" ||
-            item?.status == "S" ||
-            item?.status == "X" ? null : (
-            <Button
-              onClick={() => onEdit(item)}
-              variant="secondary"
-              style={{ flex: 1 }}
-            >
+        <div style={{ display: 'flex', gap: 16, width: '100%' }}>
+          {item?.due_at < new Date().toISOString().split('T')[0] ||
+          item?.status == 'P' ||
+          item?.status == 'S' ||
+          item?.status == 'X' ? null : (
+            <Button onClick={() => onEdit(item)} variant="secondary" style={{ flex: 1 }}>
               Editar
             </Button>
           )}
-          {item?.status == "P" ||
-            item?.status == "S" ||
-            item?.status == "X" ? null : (
-            <Button
-              onClick={() => onDel(item)}
-              variant="secondary"
-              style={{ flex: 1 }}
-            >
+          {item?.status == 'P' || item?.status == 'S' || item?.status == 'X' ? null : (
+            <Button onClick={() => onDel(item)} variant="secondary" style={{ flex: 1 }}>
               Anular
             </Button>
           )}
         </div>
       }
-      variant={"mini"}
+      variant={'mini'}
     >
-      <div style={{ display: "flex", gap: 12, flexDirection: "column" }}>
+      <div style={{ display: 'flex', gap: 12, flexDirection: 'column' }}>
         <p
           style={{
-            color: "var(--cWhiteV1)",
+            color: 'var(--cWhiteV1)',
             fontSize: 16,
-            textAlign: "center",
+            textAlign: 'center',
           }}
         >
           Total a cobrar
         </p>
         <p
           style={{
-            color: "var(--cWhite)",
+            color: 'var(--cWhite)',
             marginTop: 8,
             fontSize: 36,
             fontWeight: 600,
-            textAlign: "center",
+            textAlign: 'center',
             marginBottom: 16,
           }}
         >
@@ -155,10 +140,10 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
         </p>
         <div
           style={{
-            border: "1px solid #494949",
+            border: '1px solid #494949',
             borderRadius: 12,
             padding: 16,
-            display: "flex",
+            display: 'flex',
             gap: 16,
           }}
         >
@@ -168,30 +153,27 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
             label="Condonado"
             value={
               formatBs(item?.forgiveness_amount) +
-              " (" +
+              ' (' +
               parseFloat(item?.forgiveness_percent) +
-              "%)"
+              '%)'
             }
           />
         </div>
         <div
           style={{
-            border: "1px solid #494949",
+            border: '1px solid #494949',
             borderRadius: 12,
             padding: 16,
-            display: "flex",
+            display: 'flex',
             gap: 16,
           }}
         >
           <LabelValue label="Unidad" value={item?.dpto?.nro} />
-          <LabelValue
-            label="Propietario"
-            value={getFullName(item?.dpto?.homeowner)}
-          />
+          <LabelValue label="Propietario" value={getFullName(item?.dpto?.homeowner)} />
           <LabelValue
             label="Titular"
             value={
-              item?.dpto?.holder == "H"
+              item?.dpto?.holder == 'H'
                 ? getFullName(item?.dpto?.homeowner)
                 : getFullName(item?.dpto?.tenant)
             }
@@ -199,18 +181,18 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
         </div>
         <div
           style={{
-            border: "1px solid #494949",
+            border: '1px solid #494949',
             borderRadius: 12,
             padding: 16,
           }}
         >
-          <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+          <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
             <LabelValue
               label="Estado"
               value={
                 <StatusBadge
                   containerStyle={{
-                    justifyContent: "flex-start",
+                    justifyContent: 'flex-start',
                   }}
                   color={colorStatusForgiveness[getStatus(item)]?.color}
                   backgroundColor={colorStatusForgiveness[getStatus(item)]?.bg}
@@ -219,14 +201,8 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
                 </StatusBadge>
               }
             />
-            <LabelValue
-              label="Vencimiento:"
-              value={getDateStrMesShort(item?.due_at)}
-            />
-            <LabelValue
-              label="Fecha de creación:"
-              value={getDateStrMesShort(item?.created_at)}
-            />
+            <LabelValue label="Vencimiento:" value={getDateStrMesShort(item?.due_at)} />
+            <LabelValue label="Fecha de creación:" value={getDateStrMesShort(item?.created_at)} />
           </div>
 
           <LabelValue
@@ -235,34 +211,31 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
             value={getFullName(item?.confirmed_by)}
           />
         </div>
-        <Table
-          data={item?.forgiven_debts}
-          header={header}
-        />
+        <Table data={item?.forgiven_debts} header={header} />
         {item?.obs && (
           <>
             <p
               style={{
-                color: "var(--cWhite)",
+                color: 'var(--cWhite)',
                 fontSize: 16,
-                fontWeight: "500",
+                fontWeight: '500',
               }}
             >
               Detalles
             </p>
             <div
               style={{
-                backgroundColor: "#353839",
-                padding: "12px 16px",
+                backgroundColor: '#353839',
+                padding: '12px 16px',
                 borderRadius: 8,
               }}
             >
               <p
                 style={{
-                  color: "var(--cWhite)",
+                  color: 'var(--cWhite)',
                   fontSize: 14,
-                  fontWeight: "400",
-                  whiteSpace: "pre-wrap",
+                  fontWeight: '400',
+                  whiteSpace: 'pre-wrap',
                 }}
               >
                 {item?.obs}
