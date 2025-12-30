@@ -268,7 +268,17 @@ const PartialPayments = () => {
         },
         list: {
           onRender: ({ item }: Record<string, any>) => {
-            return <p>{formatBs(item?.remaining_amount)}</p>;
+            return (
+              <p>
+                {formatBs(
+                  parseFloat(item?.remaining_amount) +
+                    parseFloat(item?.penalty_amount) +
+                    parseFloat(
+                      hasMaintenanceValue(user) ? item?.maintenance_amount : "0"
+                    )
+                )}
+              </p>
+            );
           },
         },
       },
