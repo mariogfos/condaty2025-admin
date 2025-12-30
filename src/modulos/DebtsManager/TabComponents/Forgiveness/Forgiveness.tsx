@@ -18,25 +18,13 @@ const paramsInitial = {
   perPage: -1,
   type: 5,
 };
-const Forgiveness = ({ openView, setOpenView, viewItem, setViewItem, onExtraDataChange }: any) => {
-  // const onEdit = (item: any) => {
-  //   let day = new Date().toISOString().split("T")[0];
-  //   // console.log(item?.due_at, day);
-  //   if (item?.due_at < day) {
-  //     return true;
-  //   }
-  //   if (item?.status == "P" || item?.status == "S") {
-  //     return true;
-  //   }
-  //   return false;
-  // };
-
-  // const onDel = (item: any) => {
-  //   if (item?.status == "P" || item?.status == "S") {
-  //     return true;
-  //   }
-  //   return false;
-  // };
+const Forgiveness = ({
+  openView,
+  setOpenView,
+  viewItem,
+  setViewItem,
+  onExtraDataChange,
+}: any) => {
 
   const mod = {
     modulo: 'debt-dptos',
@@ -47,13 +35,7 @@ const Forgiveness = ({ openView, setOpenView, viewItem, setViewItem, onExtraData
     extraData: true,
     loadView: { fullType: 'DET', type: 5 },
     export: true,
-    // onHideActions: (item: any) => {
-    //   return {
-    //     hideEdit: onEdit(item),
-    //     hideDel: onDel(item),
-    //   };
-    // },
-    titleDel: 'Anular',
+    titleDel: "Anular",
 
     hideActions: { add: false, edit: true, del: true },
     titleAdd: 'Crear',
@@ -69,8 +51,7 @@ const Forgiveness = ({ openView, setOpenView, viewItem, setViewItem, onExtraData
   const { setStore, store } = useAuth();
 
   useEffect(() => {
-    setStore({ ...store, title: '' });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setStore({ ...store, title: "" });
   }, []);
   const fields = useMemo(
     () => ({
@@ -176,7 +157,6 @@ const Forgiveness = ({ openView, setOpenView, viewItem, setViewItem, onExtraData
     fields,
   });
   useEffect(() => {
-    console.log('entro');
     if (extraData && onExtraDataChange) {
       onExtraDataChange(extraData);
     }

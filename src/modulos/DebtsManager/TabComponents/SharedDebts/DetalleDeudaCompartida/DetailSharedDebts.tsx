@@ -1,29 +1,29 @@
-'use client';
-import React, { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
+"use client";
+import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import {
   IconCategories,
   IconArrowLeft,
   IconEdit,
   IconTrash,
-} from '@/components/layout/icons/IconsBiblioteca';
-import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
-import Button from '@/mk/components/forms/Button/Button';
-import RenderForm from '../RenderForm/RenderForm';
-import RenderView from '../../AllDebts/RenderView/RenderView';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import { capitalize } from '@/mk/utils/string';
-import styles from './DetailSharedDebts.module.css';
-import { getDateStrMes } from '@/mk/utils/date';
-import UnifiedCard from '../../../UnifiedCard/UnifiedCard';
-import { hasMaintenanceValue } from '@/mk/utils/utils';
+} from "@/components/layout/icons/IconsBiblioteca";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import Button from "@/mk/components/forms/Button/Button";
+import RenderForm from "../RenderForm/RenderForm";
+import RenderView from "../../AllDebts/RenderView/RenderView";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import { capitalize } from "@/mk/utils/string";
+import styles from "./DetailSharedDebts.module.css";
+import { getDateStrMes } from "@/mk/utils/date";
+import UnifiedCard from "../../../UnifiedCard/UnifiedCard";
+import { hasMaintenanceValue } from "@/mk/utils/utils";
 import {
   getStatusText as getStatusTextConst,
   getStatusConfig as getStatusConfigConst,
-} from '../../constants';
+} from "../../constants";
 
 interface DetailSharedDebtsProps {
   debtId: string;
@@ -52,7 +52,7 @@ interface DebtData {
 
 const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   debtId,
-  debtTitle = 'Deuda Compartida',
+  debtTitle = "Deuda Compartida",
 }) => {
   const router = useRouter();
   const { user, showToast } = useAuth();
@@ -63,39 +63,38 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const getAmountTypeText = (amountType: string) => {
     const amountTypeMap: { [key: string]: string } = {
-      F: 'Fijo',
-      M: 'Por m²',
-      A: 'Promedio',
+      F: "Fijo",
+      M: "Por m²",
+      A: "Promedio",
     };
     return amountTypeMap[amountType] || amountType;
   };
 
   const getSegmentationText = (segmentation: string) => {
     const segmentationMap: { [key: string]: string } = {
-      T: 'Todas las unidades',
-      O: 'Unidades ocupadas',
-      L: 'Unidades libres',
-      S: 'Seleccionar Unidades',
+      T: "Todas las unidades",
+      O: "Unidades ocupadas",
+      L: "Unidades libres",
+      S: "Seleccionar Unidades",
     };
     return segmentationMap[segmentation] || segmentation;
   };
 
-  // Función para ir a categorías
-  const goToCategories = (type = '') => {
+  const goToCategories = (type = "") => {
     if (type) {
       router.push(`/categories?type=${type}`);
     } else {
-      router.push('/categories');
+      router.push("/categories");
     }
   };
 
   const renderStatusCell = ({ item }: { item: any }) => {
     let finalStatus = item?.status;
     const today = new Date();
-    const todayString = today.toISOString().split('T')[0];
+    const todayString = today.toISOString().split("T")[0];
     const dueAtString = item?.debt?.due_at || item?.due_at;
-    if (dueAtString && dueAtString < todayString && item?.status === 'A') {
-      finalStatus = 'M';
+    if (dueAtString && dueAtString < todayString && item?.status === "A") {
+      finalStatus = "M";
     }
     const statusText = getStatusTextConst(finalStatus);
     const { color, bgColor } = getStatusConfigConst(finalStatus, dueAtString);
@@ -108,7 +107,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const renderDueDateCell = ({ item }: { item: any }) => {
     if (!item?.due_at) return <div>-</div>;
-    return getDateStrMes(item?.due_at) || '-/-';
+    return getDateStrMes(item?.due_at) || "-/-";
   };
 
   const renderDebtAmountCell = ({ item }: { item: any }) => (
@@ -120,7 +119,10 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   );
 
   const renderMaintenanceAmountCell = ({ item }: { item: any }) => (
-    <FormatBsAlign value={parseFloat(item?.maintenance_amount) || 0} alignRight />
+    <FormatBsAlign
+      value={parseFloat(item?.maintenance_amount) || 0}
+      alignRight
+    />
   );
 
   const renderBalanceDueCell = ({ item }: { item: any }) => {
@@ -131,7 +133,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   };
 
   const paramsInitial = {
-    fullType: 'L',
+    fullType: "L",
     page: 1,
     perPage: 20,
     debt_id: debtId,
@@ -140,38 +142,52 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const fields = useMemo(() => {
     return {
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       unit: {
-        rules: [''],
-        api: '',
-        label: 'Unidad',
+        rules: [""],
+        api: "",
+        label: "Unidad",
         list: {
-          onRender: ({ item }: { item: any }) => <div>{item?.unit_number || item?.dpto?.nro}</div>,
+          onRender: ({ item }: { item: any }) => (
+            <div>{item?.unit_number || item?.dpto?.nro}</div>
+          ),
           order: 1,
         },
       },
       status: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
+        rules: [""],
+        api: "",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Estado
+          </span>
+        ),
         list: {
           onRender: renderStatusCell,
           order: 2,
         },
       },
       due_date: {
-        rules: [''],
-        api: '',
-        label: 'Vencimiento',
+        rules: [""],
+        api: "",
+        label: "Vencimiento",
         list: {
           onRender: renderDueDateCell,
           order: 3,
         },
       },
       amount: {
-        rules: [''],
-        api: '',
-        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</label>,
+        rules: [""],
+        api: "",
+        label: (
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            Deuda
+          </label>
+        ),
         list: {
           onRender: renderDebtAmountCell,
           order: 4,
@@ -179,9 +195,15 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         },
       },
       penalty_amount: {
-        rules: [''],
-        api: '',
-        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>,
+        rules: [""],
+        api: "",
+        label: (
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            Multa
+          </label>
+        ),
         list: {
           onRender: renderPenaltyAmountCell,
           order: 5,
@@ -189,10 +211,14 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         },
       },
       maintenance_amount: {
-        rules: [''],
-        api: '',
+        rules: [""],
+        api: "",
         label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            Mant. Valor
+          </label>
         ),
         list: hasMaintenanceValue(user)
           ? {
@@ -203,10 +229,12 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           : false,
       },
       balance_due: {
-        rules: [''],
-        api: '',
+        rules: [""],
+        api: "",
         label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
             Saldo a cobrar
           </label>
         ),
@@ -220,12 +248,12 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   }, []);
 
   const mod: ModCrudType = {
-    modulo: 'debt-dptos',
-    singular: 'Detalle',
-    plural: 'Detalles',
+    modulo: "debt-dptos",
+    singular: "Detalle",
+    plural: "Detalles",
     export: true,
     filter: false,
-    permiso: 'expense',
+    permiso: "expense",
     extraData: true,
     sumarize: false,
     hideActions: {
@@ -249,18 +277,17 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     ),
   };
 
-  // Botones extra para incluir el botón de categorías
   const extraButtons = [
     <Button
       key="categories-button"
       variant="secondary"
-      onClick={() => goToCategories('D')}
+      onClick={() => goToCategories("D")}
       style={{
-        padding: '8px 16px',
-        width: 'auto',
+        padding: "8px 16px",
+        width: "auto",
         height: 48,
-        display: 'flex',
-        alignItems: 'center',
+        display: "flex",
+        alignItems: "center",
       }}
     >
       Categorías
@@ -283,21 +310,26 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       };
     }
 
+    const total = extraData.totalReceivable || 0;
+    const collected = extraData.totalCollected || 0;
+    const arrears = extraData.totalArrears || 0;
+    const pending = total - collected - arrears;
+
     return {
       cobradas: {
-        amount: parseFloat(extraData.collected || '0'),
-        count: extraData.totalCollected || 0,
-        total: extraData.totalReceivable || 0,
+        amount: parseFloat(extraData.collected || "0"),
+        count: collected,
+        total: total,
       },
       porCobrar: {
-        amount: parseFloat(extraData.receivable || '0'),
-        count: extraData.totalReceivable || 0,
-        total: extraData.totalReceivable || 0,
+        amount: parseFloat(extraData.receivable || "0"),
+        count: pending,
+        total: total,
       },
       enMora: {
-        amount: parseFloat(extraData.arrears || '0'),
-        count: extraData.totalArrears || 0,
-        total: extraData.totalReceivable || 0,
+        amount: parseFloat(extraData.arrears || "0"),
+        count: arrears,
+        total: total,
       },
     };
   }, [extraData]);
@@ -308,12 +340,11 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const fetchDebtData = async () => {
     try {
-      const response = await execute(`/debts/${debtId}`, 'GET', { id: debtId });
+      const response = await execute(`/debts/${debtId}`, "GET", { id: debtId });
       if (response?.data?.success) {
         return response.data.data;
       }
     } catch (error) {
-      console.error('Error fetching debt data:', error);
     }
     return null;
   };
@@ -334,45 +365,54 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const confirmDelete = async () => {
     try {
-      const response = await execute(`/debts/${debtId}`, 'DELETE', { id: debtId });
+      const response = await execute(`/debts/${debtId}`, "DELETE", {
+        id: debtId,
+      });
       if (response?.data?.success) {
-        showToast('Deuda eliminada exitosamente', 'success');
+        showToast("Deuda eliminada exitosamente", "success");
         router.back();
       } else {
-        showToast('Error al eliminar la deuda', 'error');
+        showToast("Error al eliminar la deuda", "error");
       }
     } catch (error) {
-      showToast('Error al eliminar la deuda', 'error');
+      showToast("Error al eliminar la deuda", "error");
     }
     setShowDeleteConfirm(false);
   };
 
   const handleFormSave = async (data: any) => {
     try {
-      console.log('Datos a enviar:', data);
-      const response = await execute(`/debts/${debtId}`, 'PUT', data);
+      const response = await execute(`/debts/${debtId}`, "PUT", data);
 
       if (response?.data?.success) {
         setShowEditForm(false);
         reLoad();
-        showToast('Deuda actualizada exitosamente', 'success');
+        showToast("Deuda actualizada exitosamente", "success");
       } else {
-        showToast(response?.data?.message || 'Error al actualizar la deuda', 'error');
+        showToast(
+          response?.data?.message || "Error al actualizar la deuda",
+          "error"
+        );
       }
     } catch (error) {
-      console.error('Error updating debt:', error);
-      showToast('Error al actualizar la deuda', 'error');
+      showToast("Error al actualizar la deuda", "error");
     }
   };
 
-  const FormDelete = ({ open, onClose, item, onConfirm, message = '' }: any) => {
+  const FormDelete = ({
+    open,
+    onClose,
+    item,
+    onConfirm,
+    message = "",
+  }: any) => {
     return (
       <DataModal
         id="Eliminar"
-        title={capitalize('eliminar') + ' deuda compartida'}
-        buttonText={capitalize('eliminar')}
+        title={capitalize("eliminar") + " deuda compartida"}
+        buttonText={capitalize("eliminar")}
         buttonCancel="Cancelar"
-        onSave={e => (onConfirm ? onConfirm(item) : confirmDelete())}
+        onSave={(e) => (onConfirm ? onConfirm(item) : confirmDelete())}
         onClose={onClose}
         open={open}
         variant="mini"
@@ -393,7 +433,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   return (
     <>
       <div className={styles.container}>
-        {/* Header con botón volver y título */}
         <div className={styles.header}>
           <button onClick={handleVolver} className={styles.backButton}>
             <IconArrowLeft size={20} />
@@ -401,84 +440,83 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           </button>
           <h1 className={styles.title}>
             {extraData?.debt
-              ? extraData.debt.subcategory?.name + ' - ' + extraData.debt.description || debtTitle
+              ? extraData.debt.subcategory?.name +
+                  " - " +
+                  extraData.debt.description || debtTitle
               : debtTitle}
           </h1>
         </div>
 
-        {/* Cards de resumen con botones de acción */}
         <div className={styles.summarySection}>
           <div className={styles.summaryCards}>
             <UnifiedCard
               variant="detail"
               label="DISTRIBUCIÓN & ASIGNACIÓN"
-              mainContent={getAmountTypeText(extraData?.debt?.amount_type || 'F')}
-              subtitle={getSegmentationText(extraData?.debt?.segmentation || 'T')}
+              mainContent={getAmountTypeText(
+                extraData?.debt?.amount_type || "F"
+              )}
+              subtitle={getSegmentationText(
+                extraData?.debt?.segmentation || "T"
+              )}
             />
 
             <UnifiedCard
               variant="detail"
               label="COBRADAS"
-              mainContent={<FormatBsAlign value={summaryData.cobradas.amount} />}
+              mainContent={
+                <FormatBsAlign value={summaryData.cobradas.amount} />
+              }
               subtitle={`${summaryData.cobradas.count} En total`}
-              total={extraData?.totalReceivable || 0}
+              total={summaryData.cobradas.total}
               current={summaryData.cobradas.count}
             />
 
             <UnifiedCard
               variant="detail"
               label="POR COBRAR"
-              mainContent={<FormatBsAlign value={summaryData.porCobrar.amount} />}
-              subtitle={`${
-                parseFloat(extraData?.receivable || '0') > 0
-                  ? Math.ceil(
-                      parseFloat(extraData?.receivable || '0') /
-                        parseFloat(extraData?.totalAmountDebt || '1')
-                    )
-                  : 0
-              } En total`}
-              total={extraData?.totalReceivable || 0}
-              current={
-                parseFloat(extraData?.receivable || '0') > 0
-                  ? Math.ceil(
-                      parseFloat(extraData?.receivable || '0') /
-                        parseFloat(extraData?.totalAmountDebt || '1')
-                    )
-                  : 0
+              mainContent={
+                <FormatBsAlign value={summaryData.porCobrar.amount} />
               }
+              subtitle={`${summaryData.porCobrar.count} En total`}
+              total={summaryData.porCobrar.total}
+              current={summaryData.porCobrar.count}
             />
 
             <UnifiedCard
               variant="detail"
               label="EN MORA"
               mainContent={<FormatBsAlign value={summaryData.enMora.amount} />}
-              subtitle={`${extraData?.totalArrears || 0} En total`}
-              total={extraData?.totalReceivable || 0}
-              current={extraData?.totalArrears || 0}
+              subtitle={`${summaryData.enMora.count} En total`}
+              total={summaryData.enMora.total}
+              current={summaryData.enMora.count}
             />
           </div>
 
-          {/* Botones de acción - Validar hasAction del extraData */}
           <div className={styles.actionButtons}>
-            {/*  {extraData?.hasAction && ( */}
             <>
-              <Button onClick={handleEdit} variant="primary" className={styles.actionButton}>
+              <Button
+                onClick={handleEdit}
+                variant="primary"
+                className={styles.actionButton}
+              >
                 <IconEdit size={16} />
                 Editar
               </Button>
-              <Button onClick={handleDelete} variant="secondary" className={styles.actionButton}>
+              <Button
+                onClick={handleDelete}
+                variant="secondary"
+                className={styles.actionButton}
+              >
                 <IconTrash size={16} />
                 Eliminar
               </Button>
             </>
-            {/*   )} */}
           </div>
         </div>
 
-        {/* Lista con useCrud - aquí aparecerá el botón de categorías automáticamente */}
         <div className={styles.listContainer}>
           <List
-            height={'calc(100vh - 560px)'}
+            height={"calc(100vh - 560px)"}
             emptyMsg="No hay detalles de deuda compartida disponibles"
             emptyLine2="Los detalles aparecerán aquí cuando estén disponibles."
             emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
@@ -488,7 +526,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         </div>
       </div>
 
-      {/* Modal de edición */}
       {showEditForm && debtData && (
         <RenderForm
           open={showEditForm}
@@ -496,16 +533,24 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           item={debtData}
           onSave={handleFormSave}
           extraData={extraData}
-          execute={execute as (url: string, method: string, params: any) => Promise<any>}
+          execute={
+            execute as (
+              url: string,
+              method: string,
+              params: any
+            ) => Promise<any>
+          }
           showToast={
-            showToast as (msg: string, type?: 'info' | 'success' | 'error' | 'warning') => void
+            showToast as (
+              msg: string,
+              type?: "info" | "success" | "error" | "warning"
+            ) => void
           }
           reLoad={reLoad as () => void}
           user={user}
         />
       )}
 
-      {/* Modal de confirmación de eliminación - usando el mismo estilo que useCrud */}
       {showDeleteConfirm && (
         <FormDelete
           open={showDeleteConfirm}
