@@ -198,7 +198,7 @@ const RenderView = ({
   const totalAmount =
     Number(item?.amount) +
     Number(item?.penalty_amount) +
-    Number(item?.maintenance_amount);
+    Number(hasMaintenanceValue(user) ? item?.maintenance_amount : "0");
   const saldoRestante = Number(totalAmount) - Number(totalPagado);
 
   const downloadAllVouchers = (files: any) => {
@@ -445,7 +445,13 @@ const RenderView = ({
           onClose={() => setOpenFormAccount(false)}
           item={{
             dpto_id: item?.dpto?.nro,
-            amount: item?.remaining_amount,
+            // amount: item?.remaining_amount,
+            amount:
+              parseFloat(item?.remaining_amount) +
+              parseFloat(item?.penalty_amount) +
+              parseFloat(
+                hasMaintenanceValue(user) ? item?.maintenance_amount : "0"
+              ),
             debt_dpto_id: item?.id ?? propItem?.id,
             bank_account_id: item?.subcategory?.bank_account_id,
             type: "O",
