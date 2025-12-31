@@ -19,8 +19,9 @@
 }
 
 .widgetBaseV1 {
-  background-color: var(--cBlackV2);
-  border: 0.5px solid var(--cWhiteV1);
+  /* background-color: var(--cBlackV2); */
+  background-color: var(--cBackground);
+  border: 1px solid var(--cBorder);
   border-radius: var(--bRadius);
   padding: var(--spL);
   flex-grow: 1;

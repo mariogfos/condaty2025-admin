@@ -22,10 +22,12 @@
   }
   &.primary {
     background-color: var(--cPrimary);
+    font-weight: 500;
   }
   &.secondary {
-    border: var(--bWidth) solid var(--cWhiteV5);
+    border: var(--bWidth) solid var(--cBorder);
     color: var(--cWhite);
+    background-color: var(--cBackground);
   }
 
   &.terciary {

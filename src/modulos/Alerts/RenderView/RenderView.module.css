@@ -3,10 +3,11 @@
   flex-direction: column;
   gap: var(--spM);
   align-self: stretch;
-  background-color: var(--figma-main-bg, #333536);
+  /* background-color: var(--figma-main-bg, #333536); */
+  background-color: var(--cBackground-foreground);
   padding: var(--spL, 16px);
   border-radius: var(--bRadiusL, 16px);
-  border: 0.5px solid var(--cWhiteV1);
+  border: 1px solid var(--cBorder);
 }
 
 .hlTopSection,
@@ -41,15 +42,13 @@
   justify-content: center;
 }
 .hlAlertTypeIconContainer svg {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
-
 
 .hlAlertTypeText {
   font-weight: var(--bNormal, 400);
   font-size: var(--sM, 14px);
-
 }
 
 .hlUserInfoContainer {
@@ -70,9 +69,8 @@
 }
 
 .hlUserInfoContainer > .hlUserRow {
-    justify-content: center;
+  justify-content: center;
 }
-
 
 .hlAvatarContainer {
   width: 40px;
@@ -132,15 +130,15 @@
   align-self: stretch;
 }
 
-.hlInfoLabel, .hlInfoLabelLarge {
+.hlInfoLabel,
+.hlInfoLabelLarge {
   font-weight: var(--bNormal, 400);
   font-size: var(--sL, 16px);
   color: var(--figma-text-gray, #a7a7a7);
 }
 .hlInfoLabelLarge {
-    margin-bottom: var(--spS);
+  margin-bottom: var(--spS);
 }
-
 
 .hlInfoValue {
   font-weight: var(--bNormal, 400);
@@ -176,15 +174,14 @@
   justify-content: center;
 }
 .hlPendingIconContainer svg {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .hlPendingText {
   font-weight: var(--bNormal, 400);
   font-size: var(--sL, 16px);
   text-align: center;
-
 }
 
 .gTopSection {
@@ -273,7 +270,6 @@
   width: 160px;
   display: flex;
   flex-direction: column;
-
 }
 
 .gInfoBlockContent {
@@ -345,24 +341,28 @@
     padding: var(--spM);
     gap: var(--spM);
   }
-  .hlInfoRow, .gInfoRow {
+  .hlInfoRow,
+  .gInfoRow {
     flex-direction: column;
     gap: var(--spM);
     align-items: flex-start;
   }
-  .hlInfoBlockFixed, .gInfoBlockFixed {
+  .hlInfoBlockFixed,
+  .gInfoBlockFixed {
     width: 100%;
   }
   .hlAlertTypeBox {
-      width: 100%;
-      align-items: center;
+    width: 100%;
+    align-items: center;
   }
-  .hlUserRow, .gUserRow {
+  .hlUserRow,
+  .gUserRow {
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
-  .hlUserTextDetails, .gUserTextDetails {
+  .hlUserTextDetails,
+  .gUserTextDetails {
     align-items: center;
   }
 }
@@ -371,5 +371,4 @@
   width: 100%;
   background-color: var(--cWhiteV1);
   opacity: 0.3;
-
 }

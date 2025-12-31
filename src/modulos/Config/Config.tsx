@@ -32,7 +32,7 @@ const Config = () => {
     sortBy: "",
     relations: "client",
     page: 1,
-    extraData: true
+    extraData: true,
     // searchBy: "client_id,=," + user?.client_id,
   });
   const onChange = (e: any) => {
@@ -207,7 +207,6 @@ const Config = () => {
         key: "main_account_id",
         errors,
       });
-
     }
 
     setErrors(errors);
@@ -219,7 +218,7 @@ const Config = () => {
     if (hasErrors(validate())) return;
     const { data, error } = await execute("/client-config-actualizar", "PUT", {
       ...formState,
-      penalty_data: formState.penalty_data
+      penalty_data: formState.penalty_data,
     });
 
     if (data?.success === true) {

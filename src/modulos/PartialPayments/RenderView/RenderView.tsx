@@ -287,10 +287,10 @@ const RenderView = ({
           <div style={{ display: "flex", gap: 12, flexDirection: "column" }}>
             <div
               style={{
-                backgroundColor: "#323232",
+                backgroundColor: "var(--cBackground)",
                 padding: 16,
                 borderRadius: 16,
-                border: "1px solid var(--cWhiteV5)",
+                border: "1px solid var(--cBorder)",
               }}
             >
               <p
@@ -323,10 +323,10 @@ const RenderView = ({
             </div>
             <div
               style={{
-                backgroundColor: "#323232",
+                backgroundColor: "var(--cBackground)",
                 padding: 16,
                 borderRadius: 16,
-                border: "1px solid var(--cWhiteV5)",
+                border: "1px solid var(--cBorder)",
                 display: "flex",
                 gap: 16,
               }}
@@ -346,10 +346,10 @@ const RenderView = ({
 
             <div
               style={{
-                backgroundColor: "#323232",
+                backgroundColor: "var(--cBackground)",
                 padding: 16,
                 borderRadius: 16,
-                border: "1px solid var(--cWhiteV5)",
+                border: "1px solid var(--cBorder)",
                 gap: 16,
               }}
             >
@@ -393,6 +393,7 @@ const RenderView = ({
                   height: "auto",
                   // backgroundColor: "red",
                 }}
+                className="striped"
                 height="150"
                 onRowClick={(item: any) => {
                   setOpenDetail({ open: true, item });
@@ -405,7 +406,7 @@ const RenderView = ({
                   padding: 16,
                   borderBottomLeftRadius: 12,
                   borderBottomRightRadius: 12,
-                  border: "0.5px solid var(--cWhiteV1)",
+                  border: "1px solid var(--cBorder)",
                   borderTop: "none",
                   display: "flex",
                   alignItems: "center",

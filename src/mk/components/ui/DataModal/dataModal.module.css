@@ -16,8 +16,8 @@
     flex-direction: column;
     color: var(--cWhite);
     background-color: var(--cBlack);
-    border-radius: var(--bRadius);
-    /* box-shadow: 2px 6px 20px 4px rgba(0, 0, 0, 0.15); */
+    border-radius: var(--bRadiusL);
+    border: 1px solid var(--cBorder);
     overflow: hidden;
     opacity: 0;
     transform: translateY(100%);

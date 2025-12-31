@@ -32,7 +32,9 @@ const MainmenuItem: React.FC<MainmenuItemProps> = ({
         onClick={onclick}
         href={href}
       >
-        <p>{icon}</p>
+        <p style={{ color: pathname === href ? "var(--cAccent)" : undefined }}>
+          {icon}
+        </p>
         {!collapsed && <p style={{ color: labelColor }}>{label}</p>}
         {bage > 0 && (
           <p
