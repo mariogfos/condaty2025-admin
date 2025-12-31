@@ -468,8 +468,8 @@ const DptoConfig = ({
               onChange={handleTimeChange}
               className="dark-input"
               min="1"
-              max="48"
-              placeholder="Máximo 48 horas"
+              max="400"
+              placeholder="Máximo 400 horas"
             />
           )}
         </div>
