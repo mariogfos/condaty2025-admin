@@ -22,10 +22,10 @@
   display: flex;
   flex-direction: column;
 
-  background-color: #333536;
+  background-color: var(--cBackground);
   padding: 1rem;
   border-radius: 1rem;
-  border: 0.5px solid #a7a7a7;
+  border: 1px solid var(--cBorder);
 }
 
 .sectionContainer {

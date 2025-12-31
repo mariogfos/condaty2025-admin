@@ -3,7 +3,7 @@
 .dataSearch {
   padding-right: 0;
   width: 100%;
-  background-color: var(--cWhiteV2);
+  background-color: var(--cBackground-foreground);
   & > div > input::placeholder {
     color: var(--cWhiteV1);
     font-size: var(--sM);

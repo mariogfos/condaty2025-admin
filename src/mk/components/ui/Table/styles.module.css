@@ -4,7 +4,7 @@
   overflow: auto;
 
   border-radius: var(--bRadius);
-  border: 0.5px solid var(--cWhiteV1);
+  border: 1px solid var(--cBorder);
   @media (width <= 1024px) {
     background-color: transparent;
     border: none;
@@ -13,12 +13,13 @@
   & header {
     width: 100%;
     display: flex;
-    align-items: stretch; /* Asegura que todas las celdas tengan la misma altura */
+    align-items: stretch;
     flex-direction: row;
     color: var(--cWhite);
     font-weight: var(--bSemiBold);
     overflow: auto;
-    background-color: var(--cBlackV2);
+    /* background-color: var(--cBlackV2); */
+    background-color: var(--cBackground);
     border-top-left-radius: var(--bRadius);
     border-top-right-radius: var(--bRadius);
     overflow: hidden;
@@ -130,7 +131,6 @@
       align-items: stretch; /* Hace que todas las celdas tengan la misma altura */
       gap: 0px;
       background-color: var(--cBlackV1);
-      /* background-color: red; */
       color: var(--cWhiteV2);
       /* overflow: hidden; */
       /* height: 48px; */
@@ -151,7 +151,7 @@
         display: flex; /* Permite la alineación del contenido interno */
         align-items: center; /* Centra verticalmente el contenido */
         box-sizing: border-box; /* Asegura que padding y border se incluyan en el tamaño total */
-        border-top: 0.5px solid var(--cWhiteV1);
+        border-top: 1px solid var(--cBorder);
         /* border-bottom: 0.5px solid var(--cWhiteV1); */
       }
     }
@@ -182,14 +182,14 @@
 .table.striped {
   & main {
     & > div:nth-child(even) {
-      background-color: var(--cWhiteV2);
+      background-color: var(--cBackground);
       color: var(--cWhiteV1);
       &:hover {
         background-color: var(--cBlack);
       }
     }
     & > div:nth-child(odd) {
-      background-color: var(--cHoverCompl1);
+      background-color: var(--cBackground-muted);
       color: var(--cWhiteV1);
       &:hover {
         background-color: var(--cBlack);

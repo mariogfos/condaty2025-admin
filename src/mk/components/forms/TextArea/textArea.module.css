@@ -3,7 +3,7 @@
   width: 100%;
 }
 .textArea {
-  background-color: var(--cWhiteV2);
+  background-color: var(--cBackground-foreground);
   display: block;
   outline: none;
   width: 100%;
@@ -11,7 +11,7 @@
   padding-left: var(--spM);
   padding-right: var(--spM);
   padding-top: var(--spL);
-  border: var(--bWidth) solid var(--cBlackV2);
+  border: var(--bWidth) solid var(--cBorder);
   font-size: var(--sM);
   resize: none;
   /* margin-top: calc(var(--spM)); */
