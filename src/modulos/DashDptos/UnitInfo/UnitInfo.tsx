@@ -374,7 +374,7 @@ const UnitInfo = ({
               </button>
               {openTenantMenu && (
                 <div className={styles.dropdownMenu}>
-                  {!datas?.tenant && !!datas?.homeowner && (
+                  {!!datas?.homeowner && (
                     <button
                       type="button"
                       className={styles.menuItem}
