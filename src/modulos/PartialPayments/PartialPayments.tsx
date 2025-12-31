@@ -48,6 +48,7 @@ const PartialPayments = () => {
     endDate?: string;
   }>({});
   const { user } = useAuth();
+
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
@@ -240,22 +241,6 @@ const PartialPayments = () => {
             return <p>{formatBs(item?.penalty_amount)}</p>;
           },
         },
-      },
-      maintenance_amount: {
-        rules: [""],
-        api: "",
-        label: "Mantenimiento",
-        form: {
-          type: "number",
-          required: true,
-        },
-        list: hasMaintenanceValue(user)
-          ? {
-              onRender: ({ item }: Record<string, any>) => {
-                return <p>{formatBs(item?.maintenance_amount)}</p>;
-              },
-            }
-          : false,
       },
 
       remaining_amount: {
