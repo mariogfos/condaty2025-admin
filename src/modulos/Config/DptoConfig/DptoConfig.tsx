@@ -50,6 +50,8 @@ const DptoConfig = ({
 
   useEffect(() => {
     const paymentTimeLimit = formState?.payment_time_limit;
+    if (bookingRequiresPayment) return; // Si ya está activo, no actualizar basado en formState para evitar cierre automático
+
     const hasPaymentLimit = Boolean(
       paymentTimeLimit &&
         paymentTimeLimit !== "" &&
