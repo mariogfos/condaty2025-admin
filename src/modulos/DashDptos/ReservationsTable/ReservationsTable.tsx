@@ -14,29 +14,65 @@ interface ReservationsTableProps {
 }
 const getReservationStatus = (status: string) => {
   switch (status) {
-    case 'A':
-      return {
-        label: 'Aprobada',
-        backgroundColor: 'var(--cHoverSuccess)',
-        color: 'var(--cSuccess)',
-      };
     case 'W':
       return {
-        label: 'En espera',
-        backgroundColor: 'var(--cHoverWarning)',
-        color: 'var(--cWarning)',
+        label: 'Esperando confirmación',
+        backgroundColor: '#E9B01E33',
+        color: '#E9B01E',
+      };
+    case 'A':
+      return {
+        label: 'Pago pendiente',
+        backgroundColor: '#E9B01E33',
+        color: '#E9B01E',
+      };
+    case 'Q':
+      return {
+        label: 'Pago por confirmar',
+        backgroundColor: '#E9B01E33',
+        color: '#E9B01E',
+      };
+    case 'N':
+      return {
+        label: 'Reservado (sin pago)',
+        backgroundColor: '#00E38C33',
+        color: '#00E38C',
+      };
+    case 'L':
+      return {
+        label: 'Reservado (pagado)',
+        backgroundColor: '#00E38C33',
+        color: '#00E38C',
+      };
+    case 'R':
+      return {
+        label: 'Reserva rechazada',
+        backgroundColor: '#E4605533',
+        color: '#E46055',
+      };
+    case 'C':
+      return {
+        label: 'Cancelada manualmente',
+        backgroundColor: '#E4605533',
+        color: '#E46055',
+      };
+    case 'T':
+      return {
+        label: 'Cancelada automática',
+        backgroundColor: '#E4605533',
+        color: '#E46055',
+      };
+    case 'F':
+      return {
+        label: 'Finalizada',
+        backgroundColor: '#00E38C33',
+        color: '#00E38C',
       };
     case 'X':
       return {
         label: 'Rechazada',
-        backgroundColor: 'var(--cHoverError)',
-        color: 'var(--cError)',
-      };
-    case 'C':
-      return {
-        label: 'Cancelada',
-        backgroundColor: 'var(--cHoverError)',
-        color: 'var(--cError)',
+        backgroundColor: '#E4605533',
+        color: '#E46055',
       };
     default:
       return {
