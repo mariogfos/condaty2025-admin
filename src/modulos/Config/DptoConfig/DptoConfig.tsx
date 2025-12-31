@@ -126,10 +126,10 @@ const DptoConfig = ({
     onChange(e);
 
     if (value) {
-      if (Number(value) > 400) {
+      if (Number(value) > 48) {
         setErrors({
           ...errors,
-          payment_time_limit: "El tiempo máximo es 400 horas",
+          payment_time_limit: "El tiempo máximo es 48 horas",
         });
       } else {
         const newErrors = { ...errors };
@@ -468,8 +468,8 @@ const DptoConfig = ({
               onChange={handleTimeChange}
               className="dark-input"
               min="1"
-              max="400"
-              placeholder="Máximo 400 horas"
+              max="48"
+              placeholder="Máximo 48 horas"
             />
           )}
         </div>
