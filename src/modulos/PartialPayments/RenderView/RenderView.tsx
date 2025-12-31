@@ -85,7 +85,8 @@ const RenderView = ({
       key: "paid_by",
       label: "Pagado por",
       responsive: "onlyDesktop",
-      onRender: ({ item }: any) => getFullName(item?.user),
+      onRender: ({ item }: any) =>
+        getFullName(item?.user) || getFullName(item?.owner),
     },
     {
       key: "paid_at",
