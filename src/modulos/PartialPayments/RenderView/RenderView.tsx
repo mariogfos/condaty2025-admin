@@ -9,8 +9,7 @@ import RenderViewPayment from "@/modulos/Payments/RenderView/RenderView";
 import { getPaymentStatusConfig } from "@/types/payment";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import RenderFormAccount from "../RenderFormAccount/RenderFormAccount";
-import useAxios from "@/mk/hooks/useAxios";
-import { getDateStrMes, getDateTimeStrMes } from "../../../mk/utils/date";
+import { getDateStrMes } from "../../../mk/utils/date";
 import { getFullName, getUrlImages } from "../../../mk/utils/string";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
@@ -198,7 +197,7 @@ const RenderView = ({
   const totalAmount =
     Number(item?.amount) +
     Number(item?.penalty_amount) +
-    Number(hasMaintenanceValue(user) ? item?.maintenance_amount : "0");
+    Number(hasMaintenanceValue(user) ? item?.maintenance_amount || "0" : "0");
   const saldoRestante = Number(totalAmount) - Number(totalPagado);
 
   const downloadAllVouchers = (files: any) => {
@@ -247,7 +246,7 @@ const RenderView = ({
   const onDelPayment = () => {
     setOpenConfimDel(true);
   };
-  console.log(item);
+
   return (
     <>
       <DataModal
@@ -450,7 +449,9 @@ const RenderView = ({
               parseFloat(item?.remaining_amount) +
               parseFloat(item?.penalty_amount) +
               parseFloat(
-                hasMaintenanceValue(user) ? item?.maintenance_amount : "0"
+                hasMaintenanceValue(user)
+                  ? item?.maintenance_amount || "0"
+                  : "0"
               ),
             debt_dpto_id: item?.id ?? propItem?.id,
             bank_account_id: item?.subcategory?.bank_account_id,
