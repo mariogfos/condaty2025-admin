@@ -1,81 +1,80 @@
 /* WidgetList.module.css */
 
 .widgetList {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem; /* Equivalente a gap-4 (16px) */
-    /* flex-grow: 1; Si necesitas que el widget crezca para llenar espacio,
-                   puedes añadirlo aquí o mediante la prop className desde el padre. */
-    min-height: 177px; /* Altura mínima como en h-[177px]. Permite crecer si el contenido es mayor. */
-    background-color: #333536;
-    padding: 16px; /* Equivalente a p-4 (16px) */
-    border-radius: 1rem; /* Equivalente a rounded-2xl (16px) */
-    border: 0.5px solid #a7a7a7;
-    color: #fafafa; /* Color de texto por defecto, similar a text-neutral-50 */
-    box-sizing: border-box; /* Para que padding y border no incrementen el tamaño total si se usa width/height fijo */
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Equivalente a gap-4 (16px) */
 
-  .widgetListHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    /* self-stretch es generalmente el comportamiento por defecto para elementos directos de un contenedor flex.
+  min-height: 177px;
+  background-color: var(--cBackground);
+  padding: 16px; /* Equivalente a p-4 (16px) */
+  border-radius: 1rem; /* Equivalente a rounded-2xl (16px) */
+  border: 1px solid var(--cBorder);
+  color: #fafafa; /* Color de texto por defecto, similar a text-neutral-50 */
+  box-sizing: border-box; /* Para que padding y border no incrementen el tamaño total si se usa width/height fijo */
+}
+
+.widgetListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* self-stretch es generalmente el comportamiento por defecto para elementos directos de un contenedor flex.
        El gap-2 del Figma (flex flex-col gap-2 self-stretch) para el header
        se maneja por el espaciado natural o el gap del .widgetList padre.
     */
-  }
+}
 
-  .widgetListTitle {
-    font-weight: 600; /* font-semibold */
-    font-size: 20px; /* text-[20px] */
-    color: #fafafa; /* text-neutral-50. Tu CSS original usaba var(--cWhite) */
-  }
+.widgetListTitle {
+  font-weight: 600; /* font-semibold */
+  font-size: 20px; /* text-[20px] */
+  color: #fafafa; /* text-neutral-50. Tu CSS original usaba var(--cWhite) */
+}
 
-  .widgetListViewAll {
-    font-weight: 500; /* font-medium */
-    font-size: 12px; /* text-[12px] */
-    text-decoration: underline;
-    color: #00e38c;
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    /* El Figma tenía un "flex items-center gap-2.5" alrededor de esto.
+.widgetListViewAll {
+  font-weight: 500; /* font-medium */
+  font-size: 12px; /* text-[12px] */
+  text-decoration: underline;
+  color: #00e38c;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  /* El Figma tenía un "flex items-center gap-2.5" alrededor de esto.
        Si en el futuro necesitas un icono junto al texto, este botón
        podría convertirse en un div con display: flex; align-items: center; gap: 0.625rem; */
-  }
+}
 
-  .widgetListContent {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem; /* Equivalente a gap-3 (12px), para el espacio entre items */
-    flex-grow: 1; /* Permite que esta sección ocupe el espacio disponible */
-    overflow-y: auto; /* Añade scroll si el contenido excede la altura del widgetList */
-  }
+.widgetListContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* Equivalente a gap-3 (12px), para el espacio entre items */
+  flex-grow: 1; /* Permite que esta sección ocupe el espacio disponible */
+  overflow-y: auto; /* Añade scroll si el contenido excede la altura del widgetList */
+}
 
-  .widgetListEmptyMessage {
-    color: #a7a7a7; /* Un color más sutil que el 'red' original */
-    font-size: 14px;
-    text-align: center;
-    padding: 1rem 0; /* Espaciado para el mensaje */
-    flex-grow: 1; /* Para centrarlo si el contenido está vacío y hay espacio */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.widgetListEmptyMessage {
+  color: #a7a7a7; /* Un color más sutil que el 'red' original */
+  font-size: 14px;
+  text-align: center;
+  padding: 1rem 0; /* Espaciado para el mensaje */
+  flex-grow: 1; /* Para centrarlo si el contenido está vacío y hay espacio */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  /* Nuevo: contenedor para el estado vacío dentro del widget */
-  .widgetListEmptyContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;     /* Centro horizontal */
-    justify-content: center; /* Centro vertical */
-    text-align: center;      /* Centro el texto */
-    width: 100%;
-    overflow: hidden;        /* Evita que el ícono se salga del widget */
-  }
+/* Nuevo: contenedor para el estado vacío dentro del widget */
+.widgetListEmptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centro horizontal */
+  justify-content: center; /* Centro vertical */
+  text-align: center; /* Centro el texto */
+  width: 100%;
+  overflow: hidden; /* Evita que el ícono se salga del widget */
+}
 
-  /*
+/*
     ------------------------------------------------------------------------------------
     ESTILOS CONCEPTUALES PARA LOS ITEMS (generados por la función `renderItem`)
     ------------------------------------------------------------------------------------

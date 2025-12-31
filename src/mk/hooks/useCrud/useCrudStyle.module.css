@@ -185,7 +185,8 @@
 .icons,
 .extraButtons > div > svg {
   cursor: pointer;
-  background-color: var(--cWhiteV2);
+  background-color: var(--cBackground-foreground);
+  border: 1px solid var(--cBorder);
   min-width: 48px;
   padding: 8px;
   height: 48px;

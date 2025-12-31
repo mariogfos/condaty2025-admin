@@ -765,7 +765,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
             {Array.isArray(item.details) &&
               item.details.length > 0 &&
               item.details.some((detail: any) => detail?.debt_dpto) && (
-                <div className={styles.container}>
+                <div
+                  style={{ marginBottom: 12 }}
+                  // className={styles.container}
+                >
                   <div className={styles.periodsDetailsSection}>
                     <div className={styles.periodsDetailsHeader}>
                       <h3 className={styles.periodsDetailsTitle}>

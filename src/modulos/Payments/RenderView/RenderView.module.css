@@ -1,5 +1,5 @@
 .container {
-  background-color: var(--cBlackV2);
+  background-color: var(--cBackground);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -9,7 +9,7 @@
   box-sizing: border-box;
   color: var(--cWhite);
   border-radius: var(--bRadiusM);
-  border: 1px solid var(--cWhiteV5);
+  border: 1px solid var(--cBorder);
   min-width: 600px;
   margin-bottom: var(--spM);
   &:last-of-type {
