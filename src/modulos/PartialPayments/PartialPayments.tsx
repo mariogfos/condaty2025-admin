@@ -274,7 +274,9 @@ const PartialPayments = () => {
                   parseFloat(item?.remaining_amount) +
                     parseFloat(item?.penalty_amount) +
                     parseFloat(
-                      hasMaintenanceValue(user) ? item?.maintenance_amount : "0"
+                      hasMaintenanceValue(user)
+                        ? item?.maintenance_amount || "0"
+                        : "0"
                     )
                 )}
               </p>
