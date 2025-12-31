@@ -1,15 +1,15 @@
-import { IconCamera } from '@/components/layout/icons/IconsBiblioteca';
-import Input from '@/mk/components/forms/Input/Input';
-import Select from '@/mk/components/forms/Select/Select';
-import TextArea from '@/mk/components/forms/TextArea/TextArea';
-import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
-import Switch from '@/mk/components/forms/Switch/Switch';
-import { getUrlImages } from '@/mk/utils/string';
-import React, { useState, useEffect } from 'react';
-import styles from './DptoConfig.module.css';
-import Button from '@/mk/components/forms/Button/Button';
-import useAxios from '@/mk/hooks/useAxios';
-import Br from '@/components/Detail/Br';
+import { IconCamera } from "@/components/layout/icons/IconsBiblioteca";
+import Input from "@/mk/components/forms/Input/Input";
+import Select from "@/mk/components/forms/Select/Select";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
+import Switch from "@/mk/components/forms/Switch/Switch";
+import { getUrlImages } from "@/mk/utils/string";
+import React, { useState, useEffect } from "react";
+import styles from "./DptoConfig.module.css";
+import Button from "@/mk/components/forms/Button/Button";
+import useAxios from "@/mk/hooks/useAxios";
+import Br from "@/components/Detail/Br";
 
 const DptoConfig = ({
   formState,
@@ -24,13 +24,19 @@ const DptoConfig = ({
   const [existAvatar, setExistAvatar] = useState(false);
   const [bookingRequiresPayment, setBookingRequiresPayment] = useState(() => {
     const paymentTimeLimit = formState?.payment_time_limit;
-    return Boolean(paymentTimeLimit && paymentTimeLimit !== '' && Number(paymentTimeLimit) > 0);
+    return Boolean(
+      paymentTimeLimit &&
+        paymentTimeLimit !== "" &&
+        Number(paymentTimeLimit) > 0
+    );
   });
   const [savedPaymentTimeLimit, setSavedPaymentTimeLimit] = useState(() => {
     const paymentTimeLimit = formState?.payment_time_limit;
-    return paymentTimeLimit && paymentTimeLimit !== '' && Number(paymentTimeLimit) > 0
+    return paymentTimeLimit &&
+      paymentTimeLimit !== "" &&
+      Number(paymentTimeLimit) > 0
       ? formState.payment_time_limit
-      : '';
+      : "";
   });
   const [hasMaintenanceValue, setHasMaintenanceValue] = useState(() => {
     return Boolean(formState?.has_maintenance_value);
@@ -44,8 +50,12 @@ const DptoConfig = ({
 
   useEffect(() => {
     const paymentTimeLimit = formState?.payment_time_limit;
+    if (bookingRequiresPayment) return; // Si ya está activo, no actualizar basado en formState para evitar cierre automático
+
     const hasPaymentLimit = Boolean(
-      paymentTimeLimit && paymentTimeLimit !== '' && Number(paymentTimeLimit) > 0
+      paymentTimeLimit &&
+        paymentTimeLimit !== "" &&
+        Number(paymentTimeLimit) > 0
     );
     setBookingRequiresPayment(hasPaymentLimit);
     if (hasPaymentLimit) {
@@ -66,46 +76,77 @@ const DptoConfig = ({
   }, [formState?.has_soft_reservation]);
 
   const handleSwitchChange = ({ target: { name, value } }: any) => {
-    if (name === 'bookingRequiresPayment') {
-      const isEnabled = value === 'Y';
+    if (name === "bookingRequiresPayment") {
+      const isEnabled = value === "Y";
       setBookingRequiresPayment(isEnabled);
 
       if (isEnabled) {
         if (savedPaymentTimeLimit) {
-          onChange({ target: { name: 'payment_time_limit', value: savedPaymentTimeLimit } });
+          onChange({
+            target: {
+              name: "payment_time_limit",
+              value: savedPaymentTimeLimit,
+            },
+          });
         } else {
-          onChange({ target: { name: 'payment_time_limit', value: '30' } });
-          setSavedPaymentTimeLimit('30');
+          onChange({ target: { name: "payment_time_limit", value: "1" } });
+          setSavedPaymentTimeLimit("1");
         }
       } else {
         if (formState?.payment_time_limit) {
           setSavedPaymentTimeLimit(formState.payment_time_limit);
         }
-        onChange({ target: { name: 'payment_time_limit', value: '' } });
+        onChange({ target: { name: "payment_time_limit", value: "" } });
       }
-    } else if (name === 'has_maintenance_value') {
-      const isEnabled = value === 'Y';
+    } else if (name === "has_maintenance_value") {
+      const isEnabled = value === "Y";
       setHasMaintenanceValue(isEnabled);
-      onChange({ target: { name: 'has_maintenance_value', value: isEnabled } });
-    } else if (name === 'has_financial_data') {
-      const isEnabled = value === '1' || value === 1 || value === true;
+      onChange({ target: { name: "has_maintenance_value", value: isEnabled } });
+    } else if (name === "has_financial_data") {
+      const isEnabled = value === "1" || value === 1 || value === true;
       setHasFinancialData(isEnabled);
-      onChange({ target: { name: 'has_financial_data', value: isEnabled ? 1 : 0 } });
-      if (typeof setFormState === 'function') {
-        setFormState((prev: any) => ({ ...prev, has_financial_data: isEnabled ? 1 : 0 }));
+      onChange({
+        target: { name: "has_financial_data", value: isEnabled ? 1 : 0 },
+      });
+      if (typeof setFormState === "function") {
+        setFormState((prev: any) => ({
+          ...prev,
+          has_financial_data: isEnabled ? 1 : 0,
+        }));
       }
-    } else if (name === 'has_soft_reservation') {
-      const isEnabled = value === 'Y';
+    } else if (name === "has_soft_reservation") {
+      const isEnabled = value === "Y";
       setHasSoftReservation(isEnabled);
-      onChange({ target: { name: 'has_soft_reservation', value: isEnabled } });
+      onChange({ target: { name: "has_soft_reservation", value: isEnabled } });
     }
   };
 
   const handleTimeChange = (e: any) => {
+    const value = e.target.value;
     onChange(e);
 
-    if (e.target.value) {
-      setSavedPaymentTimeLimit(e.target.value);
+    if (value) {
+      if (Number(value) > 400) {
+        setErrors({
+          ...errors,
+          payment_time_limit: "El tiempo máximo es 400 horas",
+        });
+      } else {
+        const newErrors = { ...errors };
+        delete newErrors.payment_time_limit;
+        setErrors(newErrors);
+        setSavedPaymentTimeLimit(value);
+      }
+    }
+  };
+
+  const handleSave = () => {
+    // Si se requiere pago, transformar horas a minutos antes de enviar
+    if (bookingRequiresPayment && formState.payment_time_limit) {
+      const minutes = Number(formState.payment_time_limit) * 60;
+      onSave({ ...formState, payment_time_limit: minutes });
+    } else {
+      onSave(formState);
     }
   };
 
@@ -116,20 +157,20 @@ const DptoConfig = ({
       <div className={styles.formContainer}>
         <div className={styles.uploadSection}>
           <p className={styles.uploadHelpText}>
-            Carga el logotipo del condominio, de preferencia un mínimo de 130px x 63px o un máximo
-            de 256px x 125px
+            Carga el logotipo del condominio, de preferencia un mínimo de 130px
+            x 63px o un máximo de 256px x 125px
           </p>
 
           <div
             className="upload-container"
             style={{
-              display: 'flex',
-              justifyContent: 'left',
-              alignItems: 'center',
-              gap: '10px',
+              display: "flex",
+              justifyContent: "left",
+              alignItems: "center",
+              gap: "10px",
             }}
           >
-            <div style={{ width: '100%' }}>
+            <div style={{ width: "100%" }}>
               <p className={styles.uploadHelpText} style={{ marginBottom: 8 }}>
                 Logo para pantallas
               </p>
@@ -137,25 +178,30 @@ const DptoConfig = ({
                 name="avatarLogo"
                 onChange={onChange}
                 value={
-                  typeof formState?.avatarLogo === 'object'
+                  typeof formState?.avatarLogo === "object"
                     ? formState?.avatarLogo
-                    : String(formState?.has_image_l) === '1'
-                    ? getUrlImages('/LOGO-' + formState?.id + '.webp?' + formState?.updated_at)
+                    : String(formState?.has_image_l) === "1"
+                    ? getUrlImages(
+                        "/LOGO-" +
+                          formState?.id +
+                          ".webp?" +
+                          formState?.updated_at
+                      )
                     : undefined
                 }
                 setError={setErrors}
                 error={errors}
                 img={true}
                 editor={{ width: 800, height: 800 }}
-                sizePreview={{ width: '200px', height: '200px' }}
+                sizePreview={{ width: "200px", height: "200px" }}
                 placeholder="Cargar una imagen"
-                ext={['jpg', 'png', 'jpeg', 'webp']}
+                ext={["jpg", "png", "jpeg", "webp"]}
                 item={formState}
               />
             </div>
             <div
               style={{
-                width: '100%',
+                width: "100%",
               }}
             >
               <p className={styles.uploadHelpText} style={{ marginBottom: 8 }}>
@@ -165,19 +211,24 @@ const DptoConfig = ({
                 name="avatarLogoP"
                 onChange={onChange}
                 value={
-                  typeof formState?.avatarLogoP === 'object'
+                  typeof formState?.avatarLogoP === "object"
                     ? formState?.avatarLogoP
-                    : String(formState?.has_image_lp) === '1'
-                    ? getUrlImages('/LOGOP-' + formState?.id + '.webp?' + formState?.updated_at)
+                    : String(formState?.has_image_lp) === "1"
+                    ? getUrlImages(
+                        "/LOGOP-" +
+                          formState?.id +
+                          ".webp?" +
+                          formState?.updated_at
+                      )
                     : undefined
                 }
                 setError={setErrors}
                 error={errors}
                 img={true}
                 editor={{ width: 800, height: 800 }}
-                sizePreview={{ width: '200px', height: '200px' }}
+                sizePreview={{ width: "200px", height: "200px" }}
                 placeholder="Cargar una imagen"
-                ext={['jpg', 'png', 'jpeg', 'webp']}
+                ext={["jpg", "png", "jpeg", "webp"]}
                 item={formState}
               />
             </div>
@@ -185,7 +236,8 @@ const DptoConfig = ({
         </div>
         <div className={styles.uploadSection}>
           <p className={styles.uploadHelpText}>
-            Carga una foto de portada del condominio, de preferencia 1350px x 568px
+            Carga una foto de portada del condominio, de preferencia 1350px x
+            568px
           </p>
 
           <div className="upload-container">
@@ -193,19 +245,24 @@ const DptoConfig = ({
               name="avatar"
               onChange={onChange}
               value={
-                typeof formState?.avatar === 'object'
+                typeof formState?.avatar === "object"
                   ? formState?.avatar
-                  : String(formState?.has_image_c) === '1'
-                  ? getUrlImages('/CLIENT-' + formState?.id + '.webp?' + formState?.updated_at)
+                  : String(formState?.has_image_c) === "1"
+                  ? getUrlImages(
+                      "/CLIENT-" +
+                        formState?.id +
+                        ".webp?" +
+                        formState?.updated_at
+                    )
                   : undefined
               }
               setError={setErrors}
               error={errors}
               img={true}
               editor={{ width: 1350, height: 568 }}
-              sizePreview={{ width: '650px', height: '284px' }}
+              sizePreview={{ width: "650px", height: "284px" }}
               placeholder="Cargar una imagen"
-              ext={['jpg', 'png', 'jpeg', 'webp']}
+              ext={["jpg", "png", "jpeg", "webp"]}
               item={formState}
             />
           </div>
@@ -214,8 +271,8 @@ const DptoConfig = ({
         <div className={styles.inputContainer}>
           <div className={styles.inputHalf}>
             <Input
-              label={'Nombre del condominio'}
-              value={formState['name']}
+              label={"Nombre del condominio"}
+              value={formState["name"]}
               type="text"
               name="name"
               error={errors}
@@ -233,9 +290,9 @@ const DptoConfig = ({
               error={errors}
               onChange={onChange}
               options={[
-                { id: 'C', name: 'Condominio' },
-                { id: 'E', name: 'Edificio' },
-                { id: 'U', name: 'Urbanización' },
+                { id: "C", name: "Condominio" },
+                { id: "E", name: "Edificio" },
+                { id: "U", name: "Urbanización" },
               ]}
               required
               className="dark-input appearance-none"
@@ -245,8 +302,8 @@ const DptoConfig = ({
         <div className={styles.inputContainer}>
           <div className={styles.inputHalf}>
             <Input
-              label={'Teléfono'}
-              value={formState['phone']}
+              label={"Teléfono"}
+              value={formState["phone"]}
               type="text"
               name="phone"
               error={errors}
@@ -258,8 +315,8 @@ const DptoConfig = ({
           </div>
           <div className={styles.inputHalf}>
             <Input
-              label={'Correo electrónico'}
-              value={formState['email']}
+              label={"Correo electrónico"}
+              value={formState["email"]}
               type="email"
               name="email"
               error={errors}
@@ -273,8 +330,8 @@ const DptoConfig = ({
         <div className={styles.inputContainer}>
           <div className={styles.inputHalf}>
             <Input
-              label={'Dirección'}
-              value={formState['address']}
+              label={"Dirección"}
+              value={formState["address"]}
               type="text"
               name="address"
               error={errors}
@@ -303,11 +360,13 @@ const DptoConfig = ({
         <div className={styles.sectionContainer}>
           <div>
             <p className={styles.textTitle}>
-              ¿Desde cuándo quieres que el sistema empiece a cobrar las expensas?
+              ¿Desde cuándo quieres que el sistema empiece a cobrar las
+              expensas?
             </p>
             <p className={styles.textSubtitle}>
-              Es importante que indiques el mes correcto para que el sistema pueda calcular
-              correctamente las cuotas adeudadas por los residentes.
+              Es importante que indiques el mes correcto para que el sistema
+              pueda calcular correctamente las cuotas adeudadas por los
+              residentes.
             </p>
           </div>
 
@@ -320,18 +379,18 @@ const DptoConfig = ({
                 error={errors}
                 onChange={onChange}
                 options={[
-                  { id: '1', name: 'Enero' },
-                  { id: '2', name: 'Febrero' },
-                  { id: '3', name: 'Marzo' },
-                  { id: '4', name: 'Abril' },
-                  { id: '5', name: 'Mayo' },
-                  { id: '6', name: 'Junio' },
-                  { id: '7', name: 'Julio' },
-                  { id: '8', name: 'Agosto' },
-                  { id: '9', name: 'Septiembre' },
-                  { id: '10', name: 'Octubre' },
-                  { id: '11', name: 'Noviembre' },
-                  { id: '12', name: 'Diciembre' },
+                  { id: "1", name: "Enero" },
+                  { id: "2", name: "Febrero" },
+                  { id: "3", name: "Marzo" },
+                  { id: "4", name: "Abril" },
+                  { id: "5", name: "Mayo" },
+                  { id: "6", name: "Junio" },
+                  { id: "7", name: "Julio" },
+                  { id: "8", name: "Agosto" },
+                  { id: "9", name: "Septiembre" },
+                  { id: "10", name: "Octubre" },
+                  { id: "11", name: "Noviembre" },
+                  { id: "12", name: "Diciembre" },
                 ]}
                 required
                 className="dark-input appearance-none"
@@ -358,8 +417,9 @@ const DptoConfig = ({
           <div>
             <p className={styles.textTitle}>Monto inicial del condominio</p>
             <p className={styles.textSubtitle}>
-              Indica el monto con el que el condominio comienza sus operaciones. Este valor
-              permitirá un seguimiento financiero exacto desde el inicio.
+              Indica el monto con el que el condominio comienza sus operaciones.
+              Este valor permitirá un seguimiento financiero exacto desde el
+              inicio.
             </p>
           </div>
 
@@ -378,19 +438,22 @@ const DptoConfig = ({
         <div className={styles.sectionContainer}>
           <div className={styles.switchContainer}>
             <div>
-              <p className={styles.textTitle}>Reservas requieren pago obligatorio</p>
+              <p className={styles.textTitle}>
+                Reservas requieren pago obligatorio
+              </p>
               <p className={styles.textSubtitle}>
-                Activa esta opción para requerir que todas las reservas incluyan un pago
-                obligatorio. Puedes configurar un tiempo límite en minutos para completar el pago.
+                Activa esta opción para requerir que todas las reservas incluyan
+                un pago obligatorio. Puedes configurar un tiempo límite en horas
+                para completar el pago.
               </p>
             </div>
 
             <Switch
               name="bookingRequiresPayment"
               label=""
-              value={bookingRequiresPayment ? 'Y' : 'N'}
+              value={bookingRequiresPayment ? "Y" : "N"}
               onChange={handleSwitchChange}
-              optionValue={['Y', 'N']}
+              optionValue={["Y", "N"]}
               checked={bookingRequiresPayment}
             />
           </div>
@@ -398,15 +461,15 @@ const DptoConfig = ({
           {bookingRequiresPayment && (
             <Input
               type="number"
-              label="Tiempo límite para pago (minutos)"
+              label="Tiempo límite para pago (horas)"
               name="payment_time_limit"
               error={errors}
-              value={formState?.payment_time_limit || ''}
+              value={formState?.payment_time_limit || ""}
               onChange={handleTimeChange}
               className="dark-input"
               min="1"
-              max="60"
-              placeholder="Máximo 60 minutos"
+              max="400"
+              placeholder="Máximo 400 horas"
             />
           )}
         </div>
@@ -414,19 +477,21 @@ const DptoConfig = ({
         <div className={styles.sectionContainer}>
           <div className={styles.switchContainer}>
             <div>
-              <p className={styles.textTitle}>Mantenimiento de valor en el condominio</p>
+              <p className={styles.textTitle}>
+                Mantenimiento de valor en el condominio
+              </p>
               <p className={styles.textSubtitle}>
-                Activa esta opción para aplicar mantenimiento de valor a todas las reservas, deudas
-                y fondos del condominio
+                Activa esta opción para aplicar mantenimiento de valor a todas
+                las reservas, deudas y fondos del condominio
               </p>
             </div>
 
             <Switch
               name="has_maintenance_value"
               label=""
-              value={hasMaintenanceValue ? 'Y' : 'N'}
+              value={hasMaintenanceValue ? "Y" : "N"}
               onChange={handleSwitchChange}
-              optionValue={['Y', 'N']}
+              optionValue={["Y", "N"]}
               checked={hasMaintenanceValue}
             />
           </div>
@@ -437,16 +502,17 @@ const DptoConfig = ({
             <div>
               <p className={styles.textTitle}>Mostrar resumen financiero</p>
               <p className={styles.textSubtitle}>
-                Activa esta opción para habilitar el resumen financiero en la vista del condominio.
+                Activa esta opción para habilitar el resumen financiero en la
+                vista del condominio.
               </p>
             </div>
 
             <Switch
               name="has_financial_data"
               label=""
-              value={hasFinancialData ? '1' : '0'}
+              value={hasFinancialData ? "1" : "0"}
               onChange={handleSwitchChange}
-              optionValue={['1', '0']}
+              optionValue={["1", "0"]}
               checked={hasFinancialData}
             />
           </div>
@@ -457,23 +523,28 @@ const DptoConfig = ({
             <div>
               <p className={styles.textTitle}>Bloquear reservas en soft ban</p>
               <p className={styles.textSubtitle}>
-                Activa esta opcion, que impide que residentes en soft ban realicen reservas
+                Activa esta opcion, que impide que residentes en soft ban
+                realicen reservas
               </p>
             </div>
 
             <Switch
               name="has_soft_reservation"
               label=""
-              value={hasSoftReservation ? 'Y' : 'N'}
+              value={hasSoftReservation ? "Y" : "N"}
               onChange={handleSwitchChange}
-              optionValue={['Y', 'N']}
+              optionValue={["Y", "N"]}
               checked={hasSoftReservation}
             />
           </div>
         </div>
 
         <div className={styles.saveButtonContainer}>
-          <Button className={`${styles.saveButton} `} onClick={onSave}>
+          <Button
+            className={`${styles.saveButton} `}
+            onClick={handleSave}
+            disabled={Object.keys(errors).length > 0}
+          >
             Guardar datos
           </Button>
         </div>
