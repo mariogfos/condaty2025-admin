@@ -1,26 +1,35 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-'use client';
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import { getFullName } from '@/mk/utils/string';
-import { MONTHS_S, formatToDayDDMMYYYY } from '@/mk/utils/date';
-import EmptyData from '@/components/NoData/EmptyData';
-import Select from '@/mk/components/forms/Select/Select';
-import TextArea from '@/mk/components/forms/TextArea/TextArea';
-import Input from '@/mk/components/forms/Input/Input';
-import { IconCheckOff, IconCheckSquare } from '@/components/layout/icons/IconsBiblioteca';
-import Toast from '@/mk/components/ui/Toast/Toast';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import styles from './RenderForm.module.css';
-import UploadFile2 from '@/mk/components/forms/UploadFile2';
-import { formatBs, formatNumber } from '@/mk/utils/numbers';
-import { getTitular } from '@/mk/utils/adapters';
+"use client";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import { getFullName } from "@/mk/utils/string";
+import { MONTHS_S, formatToDayDDMMYYYY } from "@/mk/utils/date";
+import EmptyData from "@/components/NoData/EmptyData";
+import Select from "@/mk/components/forms/Select/Select";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import Input from "@/mk/components/forms/Input/Input";
+import {
+  IconCheckOff,
+  IconCheckSquare,
+} from "@/components/layout/icons/IconsBiblioteca";
+import Toast from "@/mk/components/ui/Toast/Toast";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import styles from "./RenderForm.module.css";
+import UploadFile2 from "@/mk/components/forms/UploadFile2";
+import { formatBs, formatNumber } from "@/mk/utils/numbers";
+import { getTitular } from "@/mk/utils/adapters";
 
 interface Dpto {
   id: string | number;
   nro: string;
   description: string;
-  holder?: 'H' | 'T';
+  holder?: "H" | "T";
   homeowner?: any;
   tenant?: any;
   type?: {
@@ -202,7 +211,10 @@ interface RenderFormProps {
   onSave?: () => void;
   extraData: ExtraData;
   execute: (...args: any[]) => Promise<any>;
-  showToast: (msg: string, type: 'info' | 'success' | 'error' | 'warning') => void;
+  showToast: (
+    msg: string,
+    type: "info" | "success" | "error" | "warning"
+  ) => void;
   reLoad: () => void;
   debtId?: string | number;
 }
@@ -223,23 +235,23 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const isAmountLocked = item?.isAmountLocked || false;
 
     return {
-      paid_at: item?.paid_at || new Date().toISOString().split('T')[0],
-      type: item?.type || '',
+      paid_at: item?.paid_at || new Date().toISOString().split("T")[0],
+      type: item?.type || "",
       file: item?.file || null,
       filename: item?.filename || null,
       ext: item?.ext || null,
-      dpto_id: item?.dpto_id || '',
-      category_id: item?.category_id || '',
-      subcategory_id: item?.subcategory_id || '',
+      dpto_id: item?.dpto_id || "",
+      category_id: item?.category_id || "",
+      subcategory_id: item?.subcategory_id || "",
       subcategories: [],
       isCategoryLocked,
       isSubcategoryLocked,
       isAmountLocked,
-      method: item?.method || '',
-      voucher: item?.voucher || '',
-      obs: item?.obs || '',
-      amount: item?.amount || '',
-      owner_id: item?.owner_id || '',
+      method: item?.method || "",
+      voucher: item?.voucher || "",
+      obs: item?.obs || "",
+      amount: item?.amount || "",
+      owner_id: item?.owner_id || "",
       url_file: (item as any)?.url_file || [],
     };
   });
@@ -252,28 +264,29 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [isLoadingDeudas, setIsLoadingDeudas] = useState(false);
   const [toast] = useState<{
     msg: string;
-    method: 'info' | 'success' | 'error' | 'warning';
+    method: "info" | "success" | "error" | "warning";
   }>({
-    msg: '',
-    method: 'info',
+    msg: "",
+    method: "info",
   });
   const { store } = useAuth();
   const typeOptions = [
-    { id: 'E', name: 'Expensas' },
-    { id: 'R', name: 'Reservas' },
-    { id: 'F', name: 'Condonación' },
-    { id: 'O', name: 'Otras deudas' },
-    { id: 'I', name: 'Pago directo' },
+    { id: "E", name: "Expensas" },
+    { id: "R", name: "Reservas" },
+    { id: "F", name: "Condonación" },
+    { id: "O", name: "Otras deudas" },
+    { id: "I", name: "Pago directo" },
   ];
 
-  const showCategoryFields = formState.type === 'I';
+  const showCategoryFields = formState.type === "I";
 
-  const isDebtBasedPayment = Boolean(formState.type && formState.type !== 'I');
+  const isDebtBasedPayment = Boolean(formState.type && formState.type !== "I");
 
-  const isExpensasWithoutDebt = formState.type === 'E' && deudas.length === 0 && !isLoadingDeudas;
+  const isExpensasWithoutDebt =
+    formState.type === "E" && deudas.length === 0 && !isLoadingDeudas;
 
   const isReservationsWithoutDebt =
-    formState.type === 'R' && deudas.length === 0 && !isLoadingDeudas;
+    formState.type === "R" && deudas.length === 0 && !isLoadingDeudas;
 
   const isDebtBasedCategory =
     formState.subcategory_id === extraData?.client_config?.cat_expensas ||
@@ -283,30 +296,32 @@ const RenderForm: React.FC<RenderFormProps> = ({
     () =>
       extraData?.dptos?.map((dpto: Dpto) => {
         const titular = getTitular(dpto);
+
+        const unidad = [dpto?.type?.name, dpto?.nro].filter(Boolean).join(" ");
+
+        const name = [unidad, dpto?.description, getFullName(titular ?? {})]
+          .filter(Boolean)
+          .join(" - ");
+
         return {
           id: dpto.nro,
-          name:
-            dpto?.type?.name +
-            ' ' +
-            dpto.nro +
-            ' - ' +
-            dpto.description +
-            ' - ' +
-            getFullName(titular ?? {}),
+          name,
           dpto_id: dpto.id,
         };
       }) || [],
     [extraData?.dptos, store.Unitstype]
   );
 
-  const lastLoadedDeudas = useRef<string>('');
-  const exten = ['jpg', 'jpeg', 'png', 'webp'];
+  const lastLoadedDeudas = useRef<string>("");
+  const exten = ["jpg", "jpeg", "png", "webp"];
 
   const getDeudas = useCallback(
     async (nroDpto: string | number, paymentmethod: string) => {
-      if (!nroDpto || !paymentmethod || paymentmethod === 'I') return;
+      if (!nroDpto || !paymentmethod || paymentmethod === "I") return;
 
-      const selectedDpto = extraData?.dptos?.find(dpto => dpto.nro === nroDpto);
+      const selectedDpto = extraData?.dptos?.find(
+        (dpto) => dpto.nro === nroDpto
+      );
       const realDptoId = selectedDpto?.id;
 
       if (!realDptoId) return;
@@ -314,10 +329,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
       setIsLoadingDeudas(true);
       try {
         const { data } = await execute(
-          '/payments',
-          'GET',
+          "/payments",
+          "GET",
           {
-            fullType: 'DEBT',
+            fullType: "DEBT",
             dptoId: realDptoId,
             type: paymentmethod,
           },
@@ -349,7 +364,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
   const filteredCategories = useMemo(() => {
     const list = extraData?.categories || [];
-    return list.filter(cat => String(cat.fixed) !== 'Y');
+    return list.filter((cat) => String(cat.fixed) !== "Y");
   }, [extraData?.categories]);
 
   useEffect(() => {
@@ -398,7 +413,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     if (!isInitialized && open) {
       setIsInitialized(true);
 
-      if (item && item.dpto_id && item.type && item.type !== 'I') {
+      if (item && item.dpto_id && item.type && item.type !== "I") {
         const deudasKey = `${item.dpto_id}_${item.type}`;
         lastLoadedDeudas.current = deudasKey;
         getDeudas(item.dpto_id, item.type);
@@ -416,7 +431,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   }, [open, item, getDeudas]);
 
   useEffect(() => {
-    if (formState.dpto_id && formState.type && formState.type !== 'I') {
+    if (formState.dpto_id && formState.type && formState.type !== "I") {
       const deudasKey = `${formState.dpto_id}_${formState.type}`;
       if (deudasKey !== lastLoadedDeudas.current || deudas.length === 0) {
         lastLoadedDeudas.current = deudasKey;
@@ -429,7 +444,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         setDeudas([]);
         setSelectedPeriodo([]);
         setPeriodoTotal(0);
-        lastLoadedDeudas.current = '';
+        lastLoadedDeudas.current = "";
       }
     }
   }, [formState.dpto_id, formState.type, getDeudas, deudas.length]);
@@ -440,17 +455,18 @@ const RenderForm: React.FC<RenderFormProps> = ({
       (!item || (!formState.isCategoryLocked && !formState.isSubcategoryLocked))
     ) {
       let newSubcategories: Subcategory[] = [];
-      let newSubcategoryId: string | number = '';
+      let newSubcategoryId: string | number = "";
       let lockSubcategory = false;
 
       if (formState.category_id && extraData?.categories) {
         const selectedCategory = extraData.categories?.find(
-          (category: Category) => String(category.id) === String(formState.category_id)
+          (category: Category) =>
+            String(category.id) === String(formState.category_id)
         );
 
         if (selectedCategory?.hijos) {
           newSubcategories = (selectedCategory.hijos || []).filter(
-            (hijo: Subcategory) => String(hijo.fixed) !== 'Y'
+            (hijo: Subcategory) => String(hijo.fixed) !== "Y"
           );
 
           const catExpensasChild = newSubcategories.find(
@@ -459,7 +475,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
           );
           const catReservationsChild = newSubcategories.find(
             (hijo: Subcategory) =>
-              String(hijo.id) === String(extraData?.client_config?.cat_reservations)
+              String(hijo.id) ===
+              String(extraData?.client_config?.cat_reservations)
           );
 
           if (catExpensasChild) {
@@ -484,7 +501,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           setDeudas([]);
           setSelectedPeriodo([]);
           setPeriodoTotal(0);
-          lastLoadedDeudas.current = '';
+          lastLoadedDeudas.current = "";
         }
 
         return {
@@ -510,7 +527,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
   useEffect(() => {
     if (debtId && deudas.length > 0) {
-      const targetDebt = deudas.find(deuda => String(deuda.id) === String(debtId));
+      const targetDebt = deudas.find(
+        (deuda) => String(deuda.id) === String(debtId)
+      );
       if (targetDebt) {
         const calculatedAmount = getSubtotal(targetDebt);
 
@@ -522,7 +541,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         setSelectedPeriodo([newSelectedPeriodo]);
         setPeriodoTotal(calculatedAmount);
 
-        setFormState(prev => ({
+        setFormState((prev) => ({
           ...prev,
           amount: calculatedAmount.toFixed(2),
         }));
@@ -534,23 +553,23 @@ const RenderForm: React.FC<RenderFormProps> = ({
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value, type } = e.target;
       let newValue: string | number | boolean = value;
-      if (type === 'checkbox' && e.target instanceof HTMLInputElement) {
-        newValue = e.target.checked ? 'Y' : 'N';
+      if (type === "checkbox" && e.target instanceof HTMLInputElement) {
+        newValue = e.target.checked ? "Y" : "N";
       }
 
-      if (name === 'type') {
+      if (name === "type") {
         setFormState((prev: FormState) => ({
           ...prev,
           [name]: newValue,
-          category_id: '',
-          subcategory_id: '',
+          category_id: "",
+          subcategory_id: "",
           subcategories: [],
         }));
         setDeudas([]);
         setSelectedPeriodo([]);
         setPeriodoTotal(0);
-        lastLoadedDeudas.current = '';
-        if (newValue && newValue !== 'I' && formState.dpto_id) {
+        lastLoadedDeudas.current = "";
+        if (newValue && newValue !== "I" && formState.dpto_id) {
           setTimeout(() => {
             const deudasKey = `${formState.dpto_id}_${newValue}`;
             lastLoadedDeudas.current = deudasKey;
@@ -559,14 +578,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
             }
           }, 0);
         }
-      } else if (name === 'amount') {
+      } else if (name === "amount") {
         setFormState((prev: FormState) => ({
           ...prev,
           amount: newValue,
         }));
         if (isDebtBasedPayment && selectedPeriodo.length === 1) {
-          const parsed = parseFloat(String(newValue || '0'));
-          setSelectedPeriodo(prev =>
+          const parsed = parseFloat(String(newValue || "0"));
+          setSelectedPeriodo((prev) =>
             prev.length === 1
               ? [
                   {
@@ -590,19 +609,19 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const getDebtType = (type: number) => {
     switch (type) {
       case 0:
-        return 'Individual';
+        return "Individual";
       case 1:
-        return 'Expensas';
+        return "Expensas";
       case 2:
-        return 'Reservas';
+        return "Reservas";
       case 3:
-        return 'Multa por Cancelación';
+        return "Multa por Cancelación";
       case 4:
-        return 'Compartida';
+        return "Compartida";
       case 5:
-        return 'Condonación';
+        return "Condonación";
       default:
-        return 'Desconocido';
+        return "Desconocido";
     }
   };
 
@@ -618,27 +637,29 @@ const RenderForm: React.FC<RenderFormProps> = ({
           const monthName = MONTHS_S[monthIndex] || String(monthNum);
           return `${monthName} ${yearNum}`;
         }
-        return '-/-';
+        return "-/-";
       }
       case 2:
         return `Reserva: ${
-          periodo?.debt?.reservation?.area?.title || periodo?.reservation?.area?.title || '-/-'
+          periodo?.debt?.reservation?.area?.title ||
+          periodo?.reservation?.area?.title ||
+          "-/-"
         }`;
       case 3:
         return `Multa por Cancelación: ${
           periodo?.debt?.penalty_reservation?.area?.title ||
           periodo?.penalty_reservation?.area?.title ||
-          '-/-'
+          "-/-"
         }`;
       case 0:
       case 4:
-        return periodo?.description || '-/-';
+        return periodo?.description || "-/-";
       default:
         return (
           periodo?.description ||
           periodo?.shared?.description ||
           periodo?.debt?.description ||
-          '-/-'
+          "-/-"
         );
     }
   };
@@ -646,7 +667,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const getSubtotal = (periodo: Deuda) => {
     const amount = parseFloat(String(periodo?.amount)) || 0;
     const penaltyAmount = parseFloat(String(periodo?.penalty_amount)) || 0;
-    const maintenanceAmount = parseFloat(String(periodo?.maintenance_amount)) || 0;
+    const maintenanceAmount =
+      parseFloat(String(periodo?.maintenance_amount)) || 0;
 
     let total;
 
@@ -662,16 +684,16 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const handleSelectPeriodo = useCallback((periodo: Deuda) => {
     const subtotal = getSubtotal(periodo);
 
-    setSelectedPeriodo(prev => {
+    setSelectedPeriodo((prev) => {
       const isSameSelected = prev.length === 1 && prev[0].id === periodo.id;
       if (isSameSelected) {
         setPeriodoTotal(0);
-        setFormState(ps => ({ ...ps, amount: '' }));
+        setFormState((ps) => ({ ...ps, amount: "" }));
         return [];
       }
 
       setPeriodoTotal(subtotal);
-      setFormState(ps => ({ ...ps, amount: subtotal.toFixed(2) }));
+      setFormState((ps) => ({ ...ps, amount: subtotal.toFixed(2) }));
 
       return [
         {
@@ -686,57 +708,66 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const validar = useCallback(() => {
     const err: Errors = {};
     if (!formState.type) {
-      err.type = 'Este campo es requerido';
+      err.type = "Este campo es requerido";
     }
 
     if (isExpensasWithoutDebt) {
-      err.general = 'No se puede registrar un pago de expensas cuando no hay deudas pendientes';
+      err.general =
+        "No se puede registrar un pago de expensas cuando no hay deudas pendientes";
     }
     if (isReservationsWithoutDebt) {
-      err.general = 'No se puede registrar un pago de reservas cuando no hay deudas pendientes';
+      err.general =
+        "No se puede registrar un pago de reservas cuando no hay deudas pendientes";
     }
-    if (isDebtBasedPayment && deudas?.length > 0 && selectedPeriodo.length !== 1) {
-      err.selectedPeriodo = 'Debe seleccionar una sola deuda para pagar';
+    if (
+      isDebtBasedPayment &&
+      deudas?.length > 0 &&
+      selectedPeriodo.length !== 1
+    ) {
+      err.selectedPeriodo = "Debe seleccionar una sola deuda para pagar";
     }
 
     if (!formState.dpto_id) {
-      err.dpto_id = 'Este campo es requerido';
+      err.dpto_id = "Este campo es requerido";
     }
 
     if (showCategoryFields) {
       if (!formState.category_id) {
-        err.category_id = 'Este campo es requerido';
+        err.category_id = "Este campo es requerido";
       }
       if (!formState.subcategory_id) {
-        err.subcategory_id = 'Este campo es requerido';
+        err.subcategory_id = "Este campo es requerido";
       }
     }
 
     if (!formState.method) {
-      err.method = 'Este campo es requerido';
+      err.method = "Este campo es requerido";
     }
 
     if (!formState.paid_at) {
-      err.paid_at = 'Este campo es requerido';
+      err.paid_at = "Este campo es requerido";
     }
 
     if (isDebtBasedPayment) {
-      const amt = parseFloat(String(formState.amount || '0'));
+      const amt = parseFloat(String(formState.amount || "0"));
       if (!formState.amount || isNaN(amt) || amt <= 0) {
-        err.amount = 'Este campo es requerido';
+        err.amount = "Este campo es requerido";
       }
       if (selectedPeriodo.length === 1) {
-        const deudaSel = deudas.find(d => String(d.id) === String(selectedPeriodo[0].id));
+        const deudaSel = deudas.find(
+          (d) => String(d.id) === String(selectedPeriodo[0].id)
+        );
         if (deudaSel) {
           const subtotal = getSubtotal(deudaSel);
           if (!isNaN(amt) && amt >= subtotal) {
-            err.amount = 'El monto debe ser menor al subtotal de la deuda seleccionada';
+            err.amount =
+              "El monto debe ser menor al subtotal de la deuda seleccionada";
           }
         }
       }
     } else if (!isDebtBasedPayment || deudas?.length === 0) {
       if (!formState.amount) {
-        err.amount = 'Este campo es requerido';
+        err.amount = "Este campo es requerido";
       }
     }
 
@@ -757,9 +788,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const isValid = validar();
     if (!isValid) {
       if (errors.general) {
-        showToast(errors.general, 'error');
+        showToast(errors.general, "error");
       } else {
-        showToast('Por favor revise los campos marcados', 'warning');
+        showToast("Por favor revise los campos marcados", "warning");
       }
       return;
     }
@@ -773,45 +804,53 @@ const RenderForm: React.FC<RenderFormProps> = ({
       owner_id = titular?.id;
     }
     let bank_account_id;
-    const existBankAccount = extraData?.bankAccounts?.find((item: any) => item.is_main == 1)?.id;
+    const existBankAccount = extraData?.bankAccounts?.find(
+      (item: any) => item.is_main == 1
+    )?.id;
 
     switch (formState.type) {
-      case 'E': {
+      case "E": {
         const id =
-          extraData?.bankAccounts?.find((i: any) => i.is_expense == 1)?.id || existBankAccount;
+          extraData?.bankAccounts?.find((i: any) => i.is_expense == 1)?.id ||
+          existBankAccount;
         bank_account_id = id;
         break;
       }
-      case 'R': {
+      case "R": {
         const id =
-          extraData?.bankAccounts?.find((i: any) => i.is_reserve == 1)?.id || existBankAccount;
+          extraData?.bankAccounts?.find((i: any) => i.is_reserve == 1)?.id ||
+          existBankAccount;
         bank_account_id = id;
         break;
       }
-      case 'F': {
+      case "F": {
         const sub = extraData?.subcategories?.find(
           (i: any) => i.id == extraData?.client_config?.cat_forgiveness
         );
 
-        const id = sub?.bank_account_id || sub?.padre?.bank_account_id || existBankAccount;
+        const id =
+          sub?.bank_account_id ||
+          sub?.padre?.bank_account_id ||
+          existBankAccount;
 
         bank_account_id = id;
         break;
       }
-      case 'I': {
+      case "I": {
         const category: any = extraData?.categories?.find(
           (i: any) => i.id == formState.category_id
         );
 
         const id =
-          category?.hijos?.find((i: any) => i.id == formState.subcategory_id)?.bank_account_id ||
+          category?.hijos?.find((i: any) => i.id == formState.subcategory_id)
+            ?.bank_account_id ||
           category?.bank_account_id ||
           existBankAccount;
 
         bank_account_id = id;
         break;
       }
-      case 'O': {
+      case "O": {
         const id = selectedPeriodo?.[0]?.bank_account_id || existBankAccount;
 
         bank_account_id = id;
@@ -819,7 +858,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
     }
 
-    const enteredAmount = parseFloat(String(formState.amount || '0'));
+    const enteredAmount = parseFloat(String(formState.amount || "0"));
     const roundedAmount = Math.round(enteredAmount * 100) / 100;
 
     let params: any = {
@@ -833,13 +872,13 @@ const RenderForm: React.FC<RenderFormProps> = ({
       amount: roundedAmount,
     };
 
-    let endpoint = '/payments';
+    let endpoint = "/payments";
 
     if (isDebtBasedPayment && selectedPeriodo.length > 0) {
       params.debt_dpto_id = selectedPeriodo[0].id;
-      endpoint = '/partialpayments';
+      endpoint = "/partialpayments";
     } else if (!isDebtBasedPayment) {
-      endpoint = '/payments';
+      endpoint = "/payments";
       params.nro_id = formState.dpto_id;
       params.owner_id = owner_id;
       if (showCategoryFields) {
@@ -848,14 +887,17 @@ const RenderForm: React.FC<RenderFormProps> = ({
     }
 
     try {
-      const { data, error } = await execute(endpoint, 'POST', params);
+      const { data, error } = await execute(endpoint, "POST", params);
 
       if (data?.success) {
-        showToast('Pago agregado con éxito', 'success');
+        showToast("Pago agregado con éxito", "success");
         reLoad();
         onClose();
       } else {
-        showToast(error?.message || data?.message || 'Error al guardar el pago', 'error');
+        showToast(
+          error?.message || data?.message || "Error al guardar el pago",
+          "error"
+        );
 
         if (error?.data?.errors) {
           setErrors(error.data.errors);
@@ -888,90 +930,124 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
   const deudasContent = useMemo(() => {
     if (!formState.dpto_id) {
-      return <EmptyData message="Seleccione una unidad para ver deudas" h={200} />;
+      return (
+        <EmptyData message="Seleccione una unidad para ver deudas" h={200} />
+      );
     } else if (isLoadingDeudas) {
       return <EmptyData message="Cargando deudas..." h={200} />;
     } else if (deudas.length === 0) {
       return (
-        <div className={styles['no-deudas-container']}>
+        <div className={styles["no-deudas-container"]}>
           <EmptyData message="Esta unidad no tiene deudas pendientes" h={200} />
-          <p className={styles['no-deudas-message']}>
-            No se encontraron deudas pendientes para esta unidad. No se puede registrar un pago de
-            {formState.type === 'E'
-              ? ' expensas'
-              : formState.type === 'R'
-              ? ' reservas'
-              : ' este tipo'}
+          <p className={styles["no-deudas-message"]}>
+            No se encontraron deudas pendientes para esta unidad. No se puede
+            registrar un pago de
+            {formState.type === "E"
+              ? " expensas"
+              : formState.type === "R"
+              ? " reservas"
+              : " este tipo"}
             .
           </p>
         </div>
       );
     } else {
       return (
-        <div className={styles['deudas-container']}>
-          <div className={styles['deudas-title-row']}>
-            <p className={styles['deudas-title']}>Seleccione la deuda a pagar:</p>
+        <div className={styles["deudas-container"]}>
+          <div className={styles["deudas-title-row"]}>
+            <p className={styles["deudas-title"]}>
+              Seleccione la deuda a pagar:
+            </p>
           </div>
 
-          <div className={styles['deudas-table']}>
-            <div className={styles['deudas-header']}>
-              <span className={styles['header-item']}>Tipo</span>
-              <span className={styles['header-item']}>Concepto</span>
-              <span className={`${styles['header-item']} ${styles['header-amount']}`}>Monto</span>
-              <span className={`${styles['header-item']} ${styles['header-amount']}`}>Multa</span>
-              <span className={`${styles['header-item']} ${styles['header-amount']}`}>
+          <div className={styles["deudas-table"]}>
+            <div className={styles["deudas-header"]}>
+              <span className={styles["header-item"]}>Tipo</span>
+              <span className={styles["header-item"]}>Concepto</span>
+              <span
+                className={`${styles["header-item"]} ${styles["header-amount"]}`}
+              >
+                Monto
+              </span>
+              <span
+                className={`${styles["header-item"]} ${styles["header-amount"]}`}
+              >
+                Multa
+              </span>
+              <span
+                className={`${styles["header-item"]} ${styles["header-amount"]}`}
+              >
                 Mant. Valor
               </span>
-              <span className={`${styles['header-item']} ${styles['header-amount']}`}>
+              <span
+                className={`${styles["header-item"]} ${styles["header-amount"]}`}
+              >
                 Subtotal
               </span>
-              <span className={styles['header-item']}>Seleccionar</span>
+              <span className={styles["header-item"]}>Seleccionar</span>
             </div>
 
-            {deudas.map(periodo => (
+            {deudas.map((periodo) => (
               <button
                 type="button"
                 key={String(periodo.id)}
                 onClick={() => {
                   handleSelectPeriodo(periodo);
                 }}
-                className={styles['deuda-item']}
+                className={styles["deuda-item"]}
                 style={{
-                  background: 'none',
-                  border: 'none',
+                  background: "none",
+                  border: "none",
                   padding: 0,
-                  width: '100%',
-                  textAlign: 'inherit',
+                  width: "100%",
+                  textAlign: "inherit",
                 }}
               >
-                <div className={styles['deuda-row']}>
-                  <div className={styles['deuda-cell']}>{getDebtType(periodo.type || 0)}</div>
-                  <div className={styles['deuda-cell']}>{getConceptByType(periodo)}</div>
-                  <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
-                    {'Bs ' + formatNumber(Number(periodo.amount ?? 0))}
+                <div className={styles["deuda-row"]}>
+                  <div className={styles["deuda-cell"]}>
+                    {getDebtType(periodo.type || 0)}
                   </div>
-                  <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
-                    {'Bs ' + formatNumber(Number(periodo.penalty_amount ?? 0))}
+                  <div className={styles["deuda-cell"]}>
+                    {getConceptByType(periodo)}
                   </div>
-                  <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
-                    {'Bs ' + formatNumber(Number(periodo.maintenance_amount ?? 0))}
+                  <div
+                    className={`${styles["deuda-cell"]} ${styles["amount-cell"]}`}
+                  >
+                    {"Bs " + formatNumber(Number(periodo.amount ?? 0))}
                   </div>
-                  <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
-                    {'Bs ' + formatNumber(getSubtotal(periodo))}
+                  <div
+                    className={`${styles["deuda-cell"]} ${styles["amount-cell"]}`}
+                  >
+                    {"Bs " + formatNumber(Number(periodo.penalty_amount ?? 0))}
+                  </div>
+                  <div
+                    className={`${styles["deuda-cell"]} ${styles["amount-cell"]}`}
+                  >
+                    {"Bs " +
+                      formatNumber(Number(periodo.maintenance_amount ?? 0))}
+                  </div>
+                  <div
+                    className={`${styles["deuda-cell"]} ${styles["amount-cell"]}`}
+                  >
+                    {"Bs " + formatNumber(getSubtotal(periodo))}
                   </div>
 
-                  <div className={`${styles['deuda-cell']} ${styles['deuda-check']}`}>
-                    {selectedPeriodo.some(item => item.id === periodo.id) ? (
-                      <IconCheckSquare className={`${styles['check-icon']} ${styles.selected}`} />
+                  <div
+                    className={`${styles["deuda-cell"]} ${styles["deuda-check"]}`}
+                  >
+                    {selectedPeriodo.some((item) => item.id === periodo.id) ? (
+                      <IconCheckSquare
+                        className={`${styles["check-icon"]} ${styles.selected}`}
+                      />
                     ) : (
-                      <IconCheckOff className={styles['check-icon']} />
+                      <IconCheckOff className={styles["check-icon"]} />
                     )}
                   </div>
                 </div>
               </button>
             ))}
           </div>
-          <div className={styles['total-container']}>
+          <div className={styles["total-container"]}>
             <p>Subtotal de la deuda seleccionada: {formatBs(periodoTotal)}</p>
           </div>
         </div>
@@ -994,21 +1070,21 @@ const RenderForm: React.FC<RenderFormProps> = ({
         open={open}
         onClose={onCloseModal}
         onSave={_onSavePago}
-        buttonCancel={'Cancelar'}
-        buttonText={'Crear Pago Parcial'}
-        title={'Crear ingreso'}
+        buttonCancel={"Cancelar"}
+        buttonText={"Registrar ingreso"}
+        title={"Nuevo pago parcial"}
         minWidth={680}
         maxWidth={860}
       >
-        <div className={styles['income-form-container']}>
+        <div className={styles["income-form-container"]}>
           <div className={styles.section}>
-            <div className={styles['input-container']}>
+            <div className={styles["input-container"]}>
               <Input
                 type="date"
                 name="paid_at"
                 label="Seleccionar fecha"
                 required={true}
-                value={formState.paid_at || ''}
+                value={formState.paid_at || ""}
                 onChange={handleChangeInput}
                 error={errors}
               />
@@ -1016,7 +1092,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           </div>
 
           <div className={styles.section}>
-            <div className={styles['input-container']}>
+            <div className={styles["input-container"]}>
               <Select
                 name="dpto_id"
                 label="Seleccionar Unidad"
@@ -1026,13 +1102,13 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 options={lDptos}
                 error={errors}
                 filter={true}
-                filterStyle={{ backgroundColor: '#323232' }}
+                filterStyle={{ backgroundColor: "#323232" }}
               />
             </div>
           </div>
 
           <div className={styles.section}>
-            <div className={styles['input-container']}>
+            <div className={styles["input-container"]}>
               <Select
                 name="type"
                 label="Tipo"
@@ -1049,8 +1125,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
           {showCategoryFields && (
             <div className={styles.section}>
-              <div className={styles['input-row']}>
-                <div className={styles['input-half']}>
+              <div className={styles["input-row"]}>
+                <div className={styles["input-half"]}>
                   <Select
                     name="category_id"
                     label="Categoría"
@@ -1064,7 +1140,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     disabled={formState.isCategoryLocked}
                   />
                 </div>
-                <div className={styles['input-half']}>
+                <div className={styles["input-half"]}>
                   <Select
                     name="subcategory_id"
                     label="Subcategoría"
@@ -1084,14 +1160,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
           <div className={styles.section}>
             <div>
-              <div className={styles['payment-section']}>
-                <div className={styles['input-row']}>
-                  <div className={styles['input-half']}>
+              <div className={styles["payment-section"]}>
+                <div className={styles["input-row"]}>
+                  <div className={styles["input-half"]}>
                     <Input
                       type="currency"
                       name="amount"
                       label="Monto del ingreso"
-                      onChange={e => {
+                      onChange={(e) => {
                         handleChangeInput(e);
                       }}
                       value={formState.amount}
@@ -1101,18 +1177,18 @@ const RenderForm: React.FC<RenderFormProps> = ({
                       maxLength={20}
                     />
                   </div>
-                  <div className={styles['input-half']}>
+                  <div className={styles["input-half"]}>
                     <Select
                       name="method"
                       label="Método de pago"
                       value={formState.method}
                       onChange={handleChangeInput}
                       options={[
-                        { id: 'Q', name: 'Pago QR' },
-                        { id: 'T', name: 'Transferencia bancaria' },
-                        { id: 'E', name: 'Efectivo' },
-                        { id: 'C', name: 'Cheque' },
-                        { id: 'O', name: 'Pago en oficina' },
+                        { id: "Q", name: "Pago QR" },
+                        { id: "T", name: "Transferencia bancaria" },
+                        { id: "E", name: "Efectivo" },
+                        { id: "C", name: "Cheque" },
+                        { id: "O", name: "Pago en oficina" },
                       ]}
                       error={errors}
                       required
@@ -1127,14 +1203,17 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 <div>
                   {deudasContent}
                   {errors.selectedPeriodo && (
-                    <div className={styles['error-message']} style={{ color: 'red', marginTop: 8 }}>
+                    <div
+                      className={styles["error-message"]}
+                      style={{ color: "red", marginTop: 8 }}
+                    >
                       {errors.selectedPeriodo}
                     </div>
                   )}
                 </div>
               )}
 
-              <div className={styles['upload-section']}>
+              <div className={styles["upload-section"]}>
                 <UploadFile2
                   setFormState={setFormState}
                   formState={formState}
@@ -1143,41 +1222,43 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   type="I"
                   cant={1}
                   required={true}
-                  ext={exten.join(',')}
+                  ext={exten.join(",")}
                 />
               </div>
 
-              <div className={styles['voucher-section']}>
-                <div className={styles['voucher-input']}>
+              <div className={styles["voucher-section"]}>
+                <div className={styles["voucher-input"]}>
                   <Input
                     type="text"
                     label="Número de respaldo de pago"
                     name="voucher"
-                    onChange={e => {
-                      const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').substring(0, 50);
+                    onChange={(e) => {
+                      const value = e.target.value
+                        .replace(/[^a-zA-Z0-9]/g, "")
+                        .substring(0, 50);
                       const newEvent = {
                         ...e,
-                        target: { ...e.target, name: 'voucher', value },
+                        target: { ...e.target, name: "voucher", value },
                       } as any;
                       handleChangeInput(newEvent);
                     }}
-                    value={formState.voucher || ''}
+                    value={formState.voucher || ""}
                     error={errors}
                     maxLength={50}
                   />
                 </div>
               </div>
 
-              <div className={styles['obs-section']}>
-                <div className={styles['obs-input']}>
+              <div className={styles["obs-section"]}>
+                <div className={styles["obs-input"]}>
                   <TextArea
                     label="Observaciones"
                     name="obs"
-                    onChange={e => {
+                    onChange={(e) => {
                       const value = e.target.value.substring(0, 250);
                       const newEvent = {
                         ...e,
-                        target: { ...e.target, name: 'obs', value },
+                        target: { ...e.target, name: "obs", value },
                       } as any;
                       handleChangeInput(newEvent);
                     }}
