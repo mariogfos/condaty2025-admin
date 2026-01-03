@@ -295,12 +295,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       extraData?.dptos?.map((dpto: Dpto) => {
         const titular = getTitular(dpto);
 
-        const name = [
-          dpto?.type?.name,
-          dpto?.nro,
-          dpto?.description,
-          getFullName(titular ?? {}),
-        ]
+        const unidad = [dpto?.type?.name, dpto?.nro].filter(Boolean).join(" ");
+
+        const name = [unidad, dpto?.description, getFullName(titular ?? {})]
           .filter(Boolean)
           .join(" - ");
 
