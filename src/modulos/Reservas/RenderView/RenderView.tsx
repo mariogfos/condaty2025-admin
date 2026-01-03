@@ -155,8 +155,8 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       const price = parseFloat(area.price);
       const total = parseFloat(String(safeTotalAmount));
 
-      if (isNaN(price)) return "Precio base inválido";
-      if (isNaN(total)) return "Monto total inválido";
+      // if (isNaN(price)) return "Precio base inválido";
+      // if (isNaN(total)) return "Monto total inválido";
 
       const isFreeExplicit = area.is_free === "A";
       const isPriceZero = price <= 0;
@@ -173,7 +173,6 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     };
 
     const getStatusInfo = (status?: ReservationStatus) => {
-      // Usar la función utilitaria para obtener el estado actualizado
       const currentStatus = getUpdatedReservationStatus(
         status,
         reservationDetail?.date_end,
@@ -340,8 +339,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
 
                   const canCancel =
                     updatedStatus &&
-                    ["R", "C", "T", "F", "X"].includes(updatedStatus) ===
-                      false;
+                    ["R", "C", "T", "F", "X"].includes(updatedStatus) === false;
                   return (
                     canCancel && (
                       <p
