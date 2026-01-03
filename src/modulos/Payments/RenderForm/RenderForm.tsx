@@ -290,27 +290,23 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const isReservationsWithoutDebt =
     formState.type === "R" && deudas.length === 0 && !isLoadingDeudas;
 
-  const isDebtBasedCategory =
-    formState.subcategory_id === extraData?.client_config?.cat_expensas ||
-    formState.subcategory_id === extraData?.client_config?.cat_reservations;
-
   const lDptos = useMemo(
     () =>
-      (extraData?.dptos?.map((dpto: Dpto) => {
+      extraData?.dptos?.map((dpto: Dpto) => {
         const titular = getTitular(dpto);
+
+        const unidad = [dpto?.type?.name, dpto?.nro].filter(Boolean).join(" ");
+
+        const name = [unidad, dpto?.description, getFullName(titular ?? {})]
+          .filter(Boolean)
+          .join(" - ");
+
         return {
           id: dpto.nro,
-          name:
-            dpto?.type?.name +
-            " " +
-            dpto.nro +
-            " - " +
-            dpto.description +
-            " - " +
-            getFullName(titular ?? {}),
+          name,
           dpto_id: dpto.id,
         };
-      }) || []),
+      }) || [],
     [extraData?.dptos, store.Unitstype]
   );
 
@@ -1257,10 +1253,13 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               )}
 
-              <div className={styles["upload-section"]} style={{ marginBottom: 16 }}>
+              <div
+                className={styles["upload-section"]}
+                style={{ marginBottom: 16 }}
+              >
                 <UploadFile // Esteban
                   name="url_file"
-                  ext={exten.join(',')}
+                  ext={exten.join(",")}
                   type="I"
                   setFormState={setFormState}
                   formState={formState}
