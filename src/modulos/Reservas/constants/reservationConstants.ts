@@ -101,16 +101,25 @@ export const getUpdatedReservationStatus = (
 ): ReservationStatus | undefined => {
   if (!status) return undefined;
 
-  // Solo cambiar a completado si está en estado "L" (Reservado con pago)
-  if (status === "L" && dateEnd && endTime) {
-    const now = new Date();
-    const endDateTime = new Date(`${dateEnd}T${endTime}`);
+  // // Solo cambiar a completado si está en estado "L" (Reservado con pago)
+  // if (status === "L" && dateEnd && endTime) {
+  //   const now = new Date();
+  //   const endDateTime = new Date(`${dateEnd}T${endTime}Z`);
 
-    // Si la fecha/hora de fin ya pasó, cambiar a completado
-    if (now > endDateTime) {
-      return "F";
-    }
-  }
+  //   // Si la fecha/hora de fin ya pasó, cambiar a completado
+  //   if (now > endDateTime) {
+  //     return "F";
+  //   }
+  // }
+  // if (status === "N" && dateEnd && endTime) {
+  //   const now = new Date();
+  //   const endDateTime = new Date(`${dateEnd}T${endTime}Z`);
+
+  //   // Si la fecha/hora de fin ya pasó, cambiar a completado
+  //   if (now > endDateTime) {
+  //     return "F";
+  //   }
+  // }
 
   return status;
 };
