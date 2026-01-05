@@ -687,19 +687,40 @@ export const formatToDayDDMMYYYYHHMM = (
 export const formatToDayFdMYH = (
   dateStr: string | null = "",
   utc: boolean = true,
-  mostrarHora: boolean = true
+  mostrarHora: boolean = true,
+  fixDay: boolean = false
 ): string => {
   if (!dateStr || dateStr === "") return "";
 
   let dateForFormatting: Date;
 
   // 1. Obtener un objeto Date base
-  if (esFormatoISO8601(dateStr) || utc) {
+  if ((esFormatoISO8601(dateStr) || utc) && !fixDay) {
     const convertedDate = convertirFechaUTCaLocal(dateStr);
     if (!convertedDate) return "Fecha inválida";
     dateForFormatting = convertedDate;
   } else {
-    let tempDate = new Date(dateStr.replace(" ", "T"));
+    let tempDate: Date | null = null;
+    // Si fixDay es true, intenta par parsear manualmente primero para ignorar zona horaria
+    if (fixDay) {
+      const cleanStr = dateStr.replace("T", " ").replace("Z", "");
+      const parts = cleanStr.split(/[- :\/]/);
+      if (parts.length >= 3) {
+        tempDate = new Date(
+          Number(parts[0]),
+          Number(parts[1]) - 1,
+          Number(parts[2]),
+          parts.length >= 4 ? Number(parts[3]) : 0,
+          parts.length >= 5 ? Number(parts[4]) : 0,
+          parts.length >= 6 ? Number(parts[5]) : 0
+        );
+      }
+    }
+
+    if (!tempDate || isNaN(tempDate.getTime())) {
+      tempDate = new Date(dateStr.replace(" ", "T"));
+    }
+
     if (isNaN(tempDate.getTime())) {
       const parts = dateStr.split(/[- :\/]/);
       if (parts.length >= 6) {
