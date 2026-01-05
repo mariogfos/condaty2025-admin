@@ -560,7 +560,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   {formatBs(item.amount ?? 0)}
                 </div>
                 <div className={styles.dateDisplay}>
-                  {formatToDayFdMYH(item.paid_at, true, false)}
+                  {formatToDayFdMYH(item.paid_at, true, false, true)}
                 </div>
               </div>
             </div>
