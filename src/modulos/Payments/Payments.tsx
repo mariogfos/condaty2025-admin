@@ -19,7 +19,7 @@ import { PaymentStatus, getPaymentStatusConfig } from '@/types/payment';
 const renderDptosCell = (props: any) => <div>{String(props.item.dptos).replace(/,/g, '')}</div>;
 
 const renderPaidAtCell = (props: any) => (
-  <div>{getDateStrMes(props.item.paid_at) || 'No pagado'}</div>
+  <div>{getDateStrMes(props.item.paid_at, false, true) || 'No pagado'}</div>
 );
 
 const renderCategoryCell = (props: any) => (

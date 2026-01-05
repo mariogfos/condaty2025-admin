@@ -190,9 +190,10 @@ export const getDateTimeStrMesShort = (
 
 const _getDateStrMes = (
   dateStr: string | null = "",
-  utc: boolean = false
+  utc: boolean = false,
+  fixDay: boolean = false
 ): Array<string> => {
-  if (esFormatoISO8601(dateStr) || utc) {
+  if ((esFormatoISO8601(dateStr) || utc) && !fixDay) {
     const fechaLocal: any = convertirFechaUTCaLocal(dateStr);
     dateStr = fechaLocal
       .toISOString()
@@ -212,6 +213,7 @@ const _getDateStrMes = (
   //   return "Ayer";
 
   dateStr = (dateStr + "").replace("T", " ");
+  dateStr = dateStr.replace("Z", "");
   dateStr = dateStr.replace("/", "-");
   const datetime = dateStr.split(" ");
   const date = datetime[0].split("-");
@@ -220,10 +222,11 @@ const _getDateStrMes = (
 
 export const getDateStrMes = (
   dateStr: string | null = "",
-  utc: boolean = false
+  utc: boolean = false,
+  fixDay: boolean = false
 ): string => {
   if (!dateStr || dateStr == "") return "";
-  const date = _getDateStrMes(dateStr, utc);
+  const date = _getDateStrMes(dateStr, utc, fixDay);
   let year = ` del ${date[0]}`;
   return `${date[2]} de ${MONTHS[parseInt(date[1])]}${year}`;
 };
