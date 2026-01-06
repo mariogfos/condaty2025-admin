@@ -73,6 +73,7 @@
     gap: var(--spS);
     padding: var(--spL) var(--spM);
     border-radius: var(--bRadiusS);
+    border: 1px solid var(--cBackground-muted);
   }
 
   & > a:hover {

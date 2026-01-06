@@ -110,15 +110,15 @@
 }
 .chartContainerOuter {
   width: 100%;
-  border: 0.5px solid var(--cWhiteV1);
+  border: 0.5px solid var(--cBorder);
   border-radius: 0.75rem;
   padding: 1rem;
-  background-color: var(--cBlackV2);
+  background-color: var(--cBackground);
 }
 
 .chartContainer {
   width: 100%;
-  background-color: var(--cBlackV2);
+  background-color: var(--cBackground);
   /* Sin borde aquí para evitar doble borde */
   border-radius: 0.75rem;
   padding: 0;

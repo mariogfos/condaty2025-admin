@@ -83,10 +83,15 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     if (formState?.booking_mode === "hour") {
       errors = checkRules({
         value: formState?.max_reservations_per_day,
-        rules: ["required", "integer", "less:20", `less:${formState?.max_reservations_per_week}`],
+        rules: [
+          "required",
+          "integer",
+          "less:20",
+          `less:${formState?.max_reservations_per_week}`,
+        ],
         key: "max_reservations_per_day",
         errors,
-        data: formState
+        data: formState,
       });
     }
     errors = checkRules({
@@ -247,7 +252,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
                 style={{
                   padding: 10,
                   borderRadius: 10,
-                  border: "1px solid var(--cWhiteV1)",
+                  border: "1px solid var(--cBorder)",
                 }}
                 onClick={() => {
                   setLevel(level - 1);
