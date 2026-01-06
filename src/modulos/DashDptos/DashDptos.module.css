@@ -46,11 +46,11 @@
 }
 
 .infoCard {
-  background-color: var(--darkv2);
+  background-color: var(--cBackground);
   border-radius: 1rem;
   padding: 16px;
   width: 600px;
-  border: 1px solid var(--cWhiteV1);
+  border: 1px solid var(--cBorder);
   height: fit-content;
   max-height: 800px;
   overflow-y: auto;
@@ -748,9 +748,8 @@
   background-color: var(--cFillSidebar);
   color: var(--cWhite);
 }
-.text-center-del{
+.text-center-del {
   margin-top: 12px;
   text-align: center;
   margin-bottom: 12px;
-  
 }

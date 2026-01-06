@@ -43,7 +43,7 @@
 /* ----- Calendar Container ----- */
 .calendarGridContainer {
   padding: var(--spL);
-  background-color: var(--cBlackV2);
+  background-color: var(--cBackground);
   border-radius: var(--bRadiusS);
   display: flex;
   flex-direction: column;
@@ -86,10 +86,10 @@
   height: 18px;
 }
 
-.calendarNavButton:hover {
+/* .calendarNavButton:hover {
   background-color: var(--cBlackV3);
   border-color: var(--cWhiteV1);
-}
+} */
 
 /* ----- Weekday Labels ----- */
 .calendarWeekdays {

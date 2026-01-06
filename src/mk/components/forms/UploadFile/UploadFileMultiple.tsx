@@ -154,8 +154,8 @@ const UploadFileMultiple = ({
           gap: "var(--sM)",
           width: "100%",
           flexWrap: "wrap",
-          border: "1px solid var(--cWhiteV2)",
-          backgroundColor: "var(--cWhiteV2)",
+          border: "1px solid var(--cBorder)",
+          backgroundColor: "var(--cBackground-foreground)",
           padding: "var(--sM)",
           paddingTop: "24px", // Agregar padding-top para el label
           borderRadius: "var(--bRadius)",
