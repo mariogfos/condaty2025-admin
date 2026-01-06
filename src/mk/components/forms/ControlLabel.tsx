@@ -16,7 +16,7 @@ export interface PropsTypeInputBase {
   styleInput?: CSSProperties;
   onChange?: (e: any) => void;
   onBlur?: (() => void) | ((e: any) => void);
-  onFocus?: () => void;
+  onFocus?: (e: any) => void;
   iconLeft?: any;
   iconRight?: any;
   checked?: boolean;
