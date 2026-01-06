@@ -36,8 +36,8 @@ export default function WeekdayToggleGroup({
           onClick={() => onClick(day)}
           style={{
             border: selectedDays?.includes(day)
-              ? "0.5px solid var(--cSidebar)"
-              : "0.5px solid var(--cWhiteV1)",
+              ? "1px solid var(--cSidebar)"
+              : "1px solid var(--cBorder)",
             backgroundColor: selectedDays?.includes(day)
               ? "var(--cFillSidebar)"
               : "transparent",
