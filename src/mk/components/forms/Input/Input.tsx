@@ -280,7 +280,8 @@ const Input = (props: PropsType) => {
       style={props.style}
       styleInput={styleInput}
       className={`${styles.input} ${className} ${
-        disabled ? styles.disabled : ""} ${type === "date" ? styles.labelSmall : ""}
+        disabled ? styles.disabled : ""
+      } ${type === "date" ? styles.labelSmall : ""}
       }`}
     >
       <input
