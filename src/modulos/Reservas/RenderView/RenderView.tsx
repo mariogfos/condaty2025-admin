@@ -28,6 +28,7 @@ import {
   getUpdatedReservationStatus,
   type ReservationStatus,
 } from "../constants/reservationConstants";
+import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
 
 interface ReservationItem {
   id?: string | number;
@@ -100,6 +101,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     const [openModalCancel, setOpenModalCancel] = React.useState(false);
     const [formState, setFormState] = React.useState<any>({});
     const [errors, setErrors] = React.useState({});
+    const [showPaymentModal, setShowPaymentModal] = React.useState(false);
 
     const getFormattedRequestTime = (isoDate: string): string => {
       if (!isoDate) return "Fecha inválida";
@@ -503,10 +505,35 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                     </Button>
                   </div>
                 )}
+
+                {reservationDetail.status === "Q" &&
+                  reservationDetail?.debt_dpto?.payment_id && (
+                    <div className={styles.actionButtonsContainer}>
+                      <Button
+                        onClick={() => setShowPaymentModal(true)}
+                        variant="primary"
+                        className={styles.approveButtonProportional}
+                      >
+                        Ver pago
+                      </Button>
+                    </div>
+                  )}
               </div>
             )}
           </LoadingScreen>
         </DataModal>
+
+        {showPaymentModal && (
+          <PaymentRenderView
+            open={showPaymentModal}
+            onClose={() => {
+              if (reLoad) reLoad();
+              setShowPaymentModal(false);
+            }}
+            payment_id={reservationDetail?.debt_dpto?.payment_id}
+            noWaiting={true}
+          />
+        )}
 
         {openModalCancel && (
           <DataModal
