@@ -1257,7 +1257,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 className={styles["upload-section"]}
                 style={{ marginBottom: 16 }}
               >
-                <UploadFile // Esteban
+                <UploadFile 
+                  cant={8}
                   name="url_file"
                   ext={exten.join(",")}
                   type="I"
