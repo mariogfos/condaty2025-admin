@@ -192,7 +192,7 @@ const RenderView = ({
     getDetail();
   }, [propItem?.id]);
   const totalPagado = item?.history
-    ?.filter((d: any) => d.status !== "X")
+    ?.filter((d: any) => d.status == "P")
     ?.reduce((acc: number, d: any) => acc + Number(d.amount), 0);
 
   const totalAmount =
