@@ -12,7 +12,8 @@ import ControlLabel, { PropsTypeInputBase } from "../ControlLabel";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { resizeImage } from "@/mk/utils/images";
 import ImageEditor from "./ImageEditor";
-import { getUrlImages } from "@/mk/utils/string";
+import { getUrlImages, initialsName } from "@/mk/utils/string";
+
 interface PropsType extends PropsTypeInputBase {
   ext: string[];
   setError: Function;
@@ -20,7 +21,11 @@ interface PropsType extends PropsTypeInputBase {
   item?: any;
   editor?: boolean | { width: number; height: number };
   sizePreview?: { width: string; height: string };
+  avatar?: boolean;
+  userName?: string;
+  name: string;
 }
+
 export const UploadFile = ({
   className = "",
   onChange = (e: any) => {},
@@ -29,6 +34,8 @@ export const UploadFile = ({
   img = false,
   editor = false,
   sizePreview = { width: "100px", height: "100px" },
+  avatar = false,
+  userName = "",
   ...props
 }: PropsType) => {
   const [selectedFiles, setSelectedFiles]: any = useState({});
@@ -283,12 +290,16 @@ export const UploadFile = ({
     );
   };
 
+  const [imgError, setImgError] = useState(false);
+
   // useEffect para manejar cuando value.file cambia a "delete"
   useEffect(() => {
     if (value && typeof value === "object" && value.file === "delete") {
       setSelectedFiles({});
       setEditedImage(null);
     }
+    // Reset imgError when value changes
+    setImgError(false);
   }, [value]);
 
   return (
@@ -305,6 +316,11 @@ export const UploadFile = ({
             : value?.file || isDraggingFile
             ? "var(--cPrimary)"
             : "var(--cWhiteV3)",
+          borderRadius: avatar ? "50%" : "var(--borderRadius)",
+          width: avatar ? sizePreview.width : "100%",
+          height: avatar ? sizePreview.height : "100%",
+          overflow: "hidden",
+          padding: avatar ? 0 : undefined,
         }}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
@@ -330,19 +346,55 @@ export const UploadFile = ({
                 fileUpload.click();
               }
             }}
+            style={
+              avatar
+                ? {
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "var(--cWhiteV1)",
+                    cursor: "pointer",
+                    textAlign: "center",
+                  }
+                : undefined
+            }
           >
             {img ? (
-              <IconImage size={40} color={"var(--cWhite)"} />
+              <IconImage
+                size={avatar ? 32 : 40}
+                color={avatar ? "var(--cBlack)" : "var(--cWhite)"}
+              />
             ) : (
               <IconDocs size={40} color={"var(--cWhite)"} />
             )}
-            <span>
+            <span
+              style={
+                avatar
+                  ? {
+                      fontSize: "12px",
+                      color: "var(--cBlack)",
+                      marginTop: "8px",
+                      padding: "0 10px",
+                    }
+                  : undefined
+              }
+            >
               {props.placeholder || "Cargar un archivo o arrastrar y soltar "}
             </span>
-            <span>{props.ext.join(", ")}</span>
+            {!avatar && <span>{props.ext.join(", ")}</span>}
           </div>
         ) : (
-          <div style={{ position: "relative", minWidth: "250px" }}>
+          <div
+            style={{
+              position: "relative",
+              minWidth: avatar ? "auto" : "250px",
+              width: "100%",
+              height: "100%",
+            }}
+          >
             {/* Mostrar imagen editada o seleccionada */}
             {(editedImage ||
               selectedFiles?.type?.startsWith("image/") ||
@@ -422,10 +474,13 @@ export const UploadFile = ({
             <div
               style={{
                 position: "absolute",
-                top: "5px",
-                right: "5px",
+                top: avatar ? "50%" : "5px",
+                left: avatar ? "50%" : "auto",
+                right: avatar ? "auto" : "5px",
+                transform: avatar ? "translate(-50%, -50%)" : "none",
                 display: "flex",
                 gap: "5px",
+                // opacity: avatar ? 0 : 1, // Keep visible for now to avoid issues
               }}
             >
               <div
