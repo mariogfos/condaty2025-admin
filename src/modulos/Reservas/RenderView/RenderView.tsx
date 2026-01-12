@@ -82,7 +82,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       {
         fullType: "DET",
         searchBy: reservationId || item?.id,
-        page: 15,
+        page: 1,
         perPage: 1,
       },
       open && (!!reservationId || !!item?.id) // Solo ejecutar si el modal está abierto y tenemos un ID
