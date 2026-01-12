@@ -1,16 +1,14 @@
 import Input from "@/mk/components/forms/Input/Input";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import React, { useState } from "react";
+import React from "react";
 import styles from "./EditProfile.module.css";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import {
-  IconImage,
-} from "@/components/layout/icons/IconsBiblioteca";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
+import { getUrlImages, getFullName } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import useAxios from "@/mk/hooks/useAxios";
+
 const EditProfile = ({
   open,
   onClose,
@@ -25,51 +23,8 @@ const EditProfile = ({
   reLoadList,
   type,
 }: any) => {
-  const [preview, setPreview] = useState<string | null>(null);
   const { showToast } = useAuth();
   const { execute } = useAxios();
-
-  const getAvatarUrl = () => {
-    if (preview) {
-      return preview;
-    }
-    return getUrlImages(urlImages);
-  };
-  const onChangeFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      if (
-        !["png", "jpg", "jpeg"].includes(
-          file.name.split(".").pop()?.toLowerCase() || ""
-        )
-      ) {
-        showToast("Solo se permiten imágenes png, jpg, jpeg", "error");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        let base64String = result.replace("data:", "").replace(/^.+,/, "");
-        base64String = encodeURIComponent(base64String);
-        setPreview(result);
-        setFormState({
-          ...formState,
-          avatar: { file: base64String, ext: "webp" },
-        });
-      };
-      reader.readAsDataURL(file);
-    } catch (error) {
-      console.error(error);
-      setPreview(null);
-      setFormState({
-        ...formState,
-        avatar: { file: "", ext: "" },
-      });
-    }
-  };
 
   const validate = () => {
     let errs: any = {};
@@ -150,39 +105,34 @@ const EditProfile = ({
     >
       <div className={styles.EditProfile}>
         <section>
-          <Avatar
-            // hasImage={formState.has_image}
-            name={getFullName(formState)}
-            src={getAvatarUrl()}
-            w={320}
-            h={320}
-            className={styles.modalAvatar}
+          <div
+            style={{
+              width: "260px",
+              height: "260px",
+              margin: "0 auto 20px auto",
+            }}
           >
-            <label htmlFor="imagePerfil" className={styles.imageButton}>
-              <IconImage
-                className={styles.imageIcon}
-                color={"var(--cWhite)"}
-                size={72}
-              />
-              <p
-                style={{
-                  overflow: "visible",
-                  color: "var(--cAccent)",
-                  borderBottom: "1px solid var(--cAccent)",
-                  fontWeight: "Bold",
-                }}
-              >
-                Cambiar foto
-              </p>
-            </label>
-          </Avatar>
-          <input
-            type="file"
-            id="imagePerfil"
-            className={styles.hiddenInput}
-            onChange={onChangeFile}
-            accept="image/*"
-          />
+            <UploadFile
+              name="avatar"
+              value={
+                formState.has_image === 1 ||
+                formState.has_image === "1" ||
+                formState.avatar
+                  ? formState.avatar || getUrlImages(urlImages)
+                  : ""
+              }
+              onChange={(e: any) => {
+                setFormState({ ...formState, avatar: e.target.value });
+              }}
+              ext={["jpg", "png", "jpeg", "webp"]}
+              img
+              error={errors}
+              setError={setErrors}
+              sizePreview={{ width: "100%", height: "100%" }}
+              avatar={true}
+              userName={getFullName(formState)}
+            />
+          </div>
         </section>
         <section>
           <div>
