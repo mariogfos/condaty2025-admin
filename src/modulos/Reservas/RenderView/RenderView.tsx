@@ -89,7 +89,31 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     );
 
     // Usar los datos de la consulta DET si están disponibles, sino usar el item original
-    const reservationDetail = data?.data || item || {};
+    const reservationDetail = data?.data?.reservation || item || {};
+    const timeLimit = data?.data?.timeLimit;
+
+    const renderTimeLimit = (text: string) => {
+      if (!text) return null;
+      const parts = text.split("-");
+      if (parts.length < 3) return text;
+
+      return (
+        <span>
+          {parts.map((part, index) => {
+            // El texto entre guiones estará en los índices impares (1, 3, 5...)
+            // Ejemplo: "Texto normal -rojo- normal" -> ["Texto normal ", "rojo", " normal"]
+            if (index % 2 === 1) {
+              return (
+                <span key={index} style={{ color: "var(--cError)" }}>
+                  {part}
+                </span>
+              );
+            }
+            return <span key={index}>{part}</span>;
+          })}
+        </span>
+      );
+    };
 
     const { execute: executeAction } = useAxios();
 
@@ -393,6 +417,11 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                     </span>
                   </div>
                   <hr className={styles.areaSeparator} />
+                  {timeLimit && (
+                    <div className={styles.timeLimitAlert}>
+                      {renderTimeLimit(timeLimit)}
+                    </div>
+                  )}
 
                   <div className={styles.mainDetailsContainer}>
                     <div className={styles.detailsColumn}>
