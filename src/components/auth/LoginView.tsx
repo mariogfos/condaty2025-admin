@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -31,7 +30,7 @@ const LoginView = ({
       {/* Imagen de fondo */}
       <div className={styles.imageBackground}>
         <Image
-          src="/assets/images/portadaLogin.webp" // Asegúrate que esta es la ruta correcta
+          src="/assets/images/LoginPortada.png" // Asegúrate que esta es la ruta correcta
           alt="Fondo de Login"
           fill
           style={{ objectFit: "cover" }}
@@ -39,33 +38,30 @@ const LoginView = ({
         />
       </div>
 
-      {/* Logo en la esquina superior izquierda */}
-      <div className={styles.topLeftLogoContainer}>
-        <Image
-          src="/assets/images/Logo-nuevo.png" // Logo que estaba en el form
-          alt="Logo Condaty"
-          width={303} // O el tamaño que prefieras para la esquina
-          height={68}
-          priority
-        />
-      </div>
-
       {/* Formulario Centrado */}
       <div className={styles.formCenter}>
         <div className={styles.formWrapper}>
-          {/* Quitamos el logo de aquí */}
-          {/* <div className={styles.logo}>...</div> */}
-
+          <div className={styles.logoContainerFloating}>
+            <Image
+              src="/assets/images/logologin.png"
+              alt="Logo Login"
+              width={360}
+              height={117}
+              className={styles.logoImageFloating}
+              priority
+            />
+          </div>
           <div className={styles.titleSection}>
-            <div className={styles.title}>
-              ¡Te damos la bienvenida!
-            </div>
+            <div className={styles.title}>¡Te damos la bienvenida!</div>
           </div>
 
-          <form className={styles.form} onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit();
-          }}>
+          <form
+            className={styles.form}
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+          >
             <div className={styles.inputContainer}>
               <Input
                 required
@@ -96,26 +92,20 @@ const LoginView = ({
             >
               Olvidé mi contraseña
             </div>
-            <Button
-              className={styles.button}
-            >
-              Iniciar sesión
-            </Button>
-          <div className={styles.termsContainer}>
-            Al iniciar sesión aceptas los <a href="https://www.condaty.com/terminos">Términos y Condiciones</a> y nuestras <a href="https://www.condaty.com/politicas">Políticas de Privacidad</a>
-          </div>
+            <Button className={styles.button}>Iniciar sesión</Button>
+            <div className={styles.termsContainer}>
+              Al iniciar sesión aceptas los{" "}
+              <a href="https://www.condaty.com/terminos">
+                Términos y Condiciones
+              </a>{" "}
+              y nuestras{" "}
+              <a href="https://www.condaty.com/politicas">
+                Políticas de Privacidad
+              </a>
+            </div>
           </form>
-
         </div>
       </div>
-
-      {/* Texto Inferior */}
-      <div className={styles.footerTextContainer}>
-        <span className={styles.footerText}>
-          <b>Tecnología, </b>que une <b>vecinos</b>
-        </span>
-      </div>
-
       {/* Modal (sin cambios) */}
       <ForgotPass open={openModal} setOpen={setOpenModal} mod="adm" />
     </div>
