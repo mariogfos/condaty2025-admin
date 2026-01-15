@@ -24,20 +24,29 @@ const Login = () => {
         const fpPromise = FingerprintJS.load();
         const fp = await fpPromise;
         const result = await fp.get();
+        const visitorId = result.visitorId;
+        const storedFp = localStorage.getItem("device_fingerprint");
 
-        const parser = new UAParser();
-        const resultUA = parser.getResult();
+        if (storedFp && storedFp === visitorId) {
+          setDeviceInfo({
+            fingerprint: visitorId,
+          });
+        } else {
+          const parser = new UAParser();
+          const resultUA = parser.getResult();
 
-        setDeviceInfo({
-          fingerprint: result.visitorId,
-          os: resultUA.os.name,
-          os_version: resultUA.os.version,
-          browser: resultUA.browser.name,
-          browser_version: resultUA.browser.version,
-          device: resultUA.device.model || "Desktop",
-          device_type: resultUA.device.type || "desktop",
-          cpu: resultUA.cpu.architecture,
-        });
+          setDeviceInfo({
+            fingerprint: visitorId,
+            os: resultUA.os.name,
+            os_version: resultUA.os.version,
+            browser: resultUA.browser.name,
+            browser_version: resultUA.browser.version,
+            device: resultUA.device.model || "Desktop",
+            device_type: resultUA.device.type || "desktop",
+            cpu: resultUA.cpu.architecture,
+          });
+          // localStorage.setItem("device_fingerprint", visitorId);
+        }
       } catch (error) {
         console.error(error);
       }
