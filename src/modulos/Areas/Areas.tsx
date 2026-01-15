@@ -287,7 +287,7 @@ const Areas = () => {
       status: {
         rules: [""],
         api: "",
-        label: <span style={{ display: 'block', textAlign: 'center', width: '100%'}}>Estado</span>,
+        label: "Estado",
         list: {
           width: "120px",
         },

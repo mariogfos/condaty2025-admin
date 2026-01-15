@@ -337,7 +337,8 @@ const SecondPart = ({
               overflowX: "scroll",
               gap: 8,
               marginTop: 12,
-              scrollbarColor: "var(--cBlackV1) var(--cBlackV2)",
+              // scrollbarWidth: "thin",
+              scrollbarColor: "var(--cBackground-muted) var(--cBackground)",
             }}
           >
             {sortedDays().map((day: any, index: any) => (
@@ -346,10 +347,10 @@ const SecondPart = ({
                 style={{
                   maxWidth: 210,
                   minWidth: 210,
-                  border: "0.5px solid var(--cWhiteV1)",
+                  border: "1px solid var(--cBorder)",
                   borderRadius: 8,
                   padding: 12,
-                  backgroundColor: "var(--cWhiteV2)",
+                  backgroundColor: "var(--cBackground)",
                   position: "relative",
                 }}
               >
@@ -425,7 +426,8 @@ const SecondPart = ({
                     overflowX: "auto",
                     width: "100%",
                     scrollbarWidth: "thin",
-                    scrollbarColor: "var(--cBlackV2) var(--cWhiteV2)",
+                    scrollbarColor:
+                      "var(--cBackground-muted) var(--cBackground)",
                   }}
                 >
                   {formState?.available_hours[day]?.map(
@@ -433,7 +435,7 @@ const SecondPart = ({
                       <div
                         key={index}
                         style={{
-                          border: "0.5px solid var(--cWhiteV1)",
+                          border: "1px solid var(--cBorder)",
                           flex: "0 0 auto",
                           padding: "8px",
                           borderRadius: 8,

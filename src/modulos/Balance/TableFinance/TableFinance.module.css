@@ -14,7 +14,7 @@
 
 .tableHeaderRow {
   display: flex;
-  background-color: var(--cBlackV2);
+  background-color: var(--cBackground);
   height: 55px;
   color: var(--cWhite);
   font-weight: 600;
@@ -68,11 +68,11 @@
 }
 
 .dataRow:nth-child(odd) {
-  background-color: var(--cHoverCompl1);
+  background-color: var(--cBackground);
 }
 
 .dataRow:nth-child(even) {
-  background-color: var(--cWhitV2);
+  background-color: var(--cBackground-muted);
 }
 
 .dataRow:hover {

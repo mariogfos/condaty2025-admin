@@ -28,6 +28,7 @@ import {
   getUpdatedReservationStatus,
   type ReservationStatus,
 } from "../constants/reservationConstants";
+import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
 
 interface ReservationItem {
   id?: string | number;
@@ -88,7 +89,31 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     );
 
     // Usar los datos de la consulta DET si están disponibles, sino usar el item original
-    const reservationDetail = data?.data || item || {};
+    const reservationDetail = data?.data?.reservation || item || {};
+    const timeLimit = data?.data?.timeLimit;
+
+    const renderTimeLimit = (text: string) => {
+      if (!text) return null;
+      const parts = text.split("-");
+      if (parts.length < 3) return text;
+
+      return (
+        <span>
+          {parts.map((part, index) => {
+            // El texto entre guiones estará en los índices impares (1, 3, 5...)
+            // Ejemplo: "Texto normal -rojo- normal" -> ["Texto normal ", "rojo", " normal"]
+            if (index % 2 === 1) {
+              return (
+                <span key={index} style={{ color: "var(--cError)" }}>
+                  {part}
+                </span>
+              );
+            }
+            return <span key={index}>{part}</span>;
+          })}
+        </span>
+      );
+    };
 
     const { execute: executeAction } = useAxios();
 
@@ -100,6 +125,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     const [openModalCancel, setOpenModalCancel] = React.useState(false);
     const [formState, setFormState] = React.useState<any>({});
     const [errors, setErrors] = React.useState({});
+    const [showPaymentModal, setShowPaymentModal] = React.useState(false);
 
     const getFormattedRequestTime = (isoDate: string): string => {
       if (!isoDate) return "Fecha inválida";
@@ -155,8 +181,8 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       const price = parseFloat(area.price);
       const total = parseFloat(String(safeTotalAmount));
 
-      if (isNaN(price)) return "Precio base inválido";
-      if (isNaN(total)) return "Monto total inválido";
+      // if (isNaN(price)) return "Precio base inválido";
+      // if (isNaN(total)) return "Monto total inválido";
 
       const isFreeExplicit = area.is_free === "A";
       const isPriceZero = price <= 0;
@@ -173,7 +199,6 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     };
 
     const getStatusInfo = (status?: ReservationStatus) => {
-      // Usar la función utilitaria para obtener el estado actualizado
       const currentStatus = getUpdatedReservationStatus(
         status,
         reservationDetail?.date_end,
@@ -340,8 +365,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
 
                   const canCancel =
                     updatedStatus &&
-                    ["R", "C", "T", "F", "X"].includes(updatedStatus) ===
-                      false;
+                    ["R", "C", "T", "F", "X"].includes(updatedStatus) === false;
                   return (
                     canCancel && (
                       <p
@@ -393,6 +417,11 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                     </span>
                   </div>
                   <hr className={styles.areaSeparator} />
+                  {timeLimit && (
+                    <div className={styles.timeLimitAlert}>
+                      {renderTimeLimit(timeLimit)}
+                    </div>
+                  )}
 
                   <div className={styles.mainDetailsContainer}>
                     <div className={styles.detailsColumn}>
@@ -505,10 +534,35 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                     </Button>
                   </div>
                 )}
+
+                {reservationDetail.status === "Q" &&
+                  reservationDetail?.debt_dpto?.payment_id && (
+                    <div className={styles.actionButtonsContainer}>
+                      <Button
+                        onClick={() => setShowPaymentModal(true)}
+                        variant="primary"
+                        className={styles.approveButtonProportional}
+                      >
+                        Ver pago
+                      </Button>
+                    </div>
+                  )}
               </div>
             )}
           </LoadingScreen>
         </DataModal>
+
+        {showPaymentModal && (
+          <PaymentRenderView
+            open={showPaymentModal}
+            onClose={() => {
+              if (reLoad) reLoad();
+              setShowPaymentModal(false);
+            }}
+            payment_id={reservationDetail?.debt_dpto?.payment_id}
+            noWaiting={true}
+          />
+        )}
 
         {openModalCancel && (
           <DataModal

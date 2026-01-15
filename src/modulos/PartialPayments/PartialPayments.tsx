@@ -10,6 +10,8 @@ import RenderView from "./RenderView/RenderView";
 import { formatBs } from "../../mk/utils/numbers";
 import { MONTHS } from "../../mk/utils/date";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import { hasMaintenanceValue } from "@/mk/utils/utils";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const paramsInitial = {
   perPage: 20,
@@ -45,7 +47,7 @@ const PartialPayments = () => {
     startDate?: string;
     endDate?: string;
   }>({});
-
+  const { user } = useAuth();
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
@@ -239,6 +241,22 @@ const PartialPayments = () => {
           },
         },
       },
+      maintenance_amount: {
+        rules: [""],
+        api: "",
+        label: "Mantenimiento",
+        form: {
+          type: "number",
+          required: true,
+        },
+        list: hasMaintenanceValue(user)
+          ? {
+              onRender: ({ item }: Record<string, any>) => {
+                return <p>{formatBs(item?.maintenance_amount)}</p>;
+              },
+            }
+          : false,
+      },
 
       remaining_amount: {
         rules: ["required", "alpha"],
@@ -250,7 +268,19 @@ const PartialPayments = () => {
         },
         list: {
           onRender: ({ item }: Record<string, any>) => {
-            return <p>{formatBs(item?.remaining_amount)}</p>;
+            return (
+              <p>
+                {formatBs(
+                  parseFloat(item?.remaining_amount) +
+                    parseFloat(item?.penalty_amount) +
+                    parseFloat(
+                      hasMaintenanceValue(user)
+                        ? item?.maintenance_amount || "0"
+                        : "0"
+                    )
+                )}
+              </p>
+            );
           },
         },
       },

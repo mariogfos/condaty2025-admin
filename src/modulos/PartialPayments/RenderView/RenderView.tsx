@@ -9,8 +9,7 @@ import RenderViewPayment from "@/modulos/Payments/RenderView/RenderView";
 import { getPaymentStatusConfig } from "@/types/payment";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import RenderFormAccount from "../RenderFormAccount/RenderFormAccount";
-import useAxios from "@/mk/hooks/useAxios";
-import { getDateStrMes, getDateTimeStrMes } from "../../../mk/utils/date";
+import { getDateStrMes } from "../../../mk/utils/date";
 import { getFullName, getUrlImages } from "../../../mk/utils/string";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
@@ -86,7 +85,8 @@ const RenderView = ({
       key: "paid_by",
       label: "Pagado por",
       responsive: "onlyDesktop",
-      onRender: ({ item }: any) => getFullName(item?.user),
+      onRender: ({ item }: any) =>
+        getFullName(item?.user) || getFullName(item?.owner),
     },
     {
       key: "paid_at",
@@ -192,13 +192,13 @@ const RenderView = ({
     getDetail();
   }, [propItem?.id]);
   const totalPagado = item?.history
-    ?.filter((d: any) => d.status !== "X")
+    ?.filter((d: any) => d.status == "P")
     ?.reduce((acc: number, d: any) => acc + Number(d.amount), 0);
 
   const totalAmount =
     Number(item?.amount) +
     Number(item?.penalty_amount) +
-    Number(item?.maintenance_amount);
+    Number(hasMaintenanceValue(user) ? item?.maintenance_amount || "0" : "0");
   const saldoRestante = Number(totalAmount) - Number(totalPagado);
 
   const downloadAllVouchers = (files: any) => {
@@ -247,11 +247,12 @@ const RenderView = ({
   const onDelPayment = () => {
     setOpenConfimDel(true);
   };
-  console.log(item);
+
   return (
     <>
       <DataModal
         title="Detalle de pago parcial"
+        minWidth={"980px"}
         open={open}
         onClose={() => {
           onClose();
@@ -286,10 +287,10 @@ const RenderView = ({
           <div style={{ display: "flex", gap: 12, flexDirection: "column" }}>
             <div
               style={{
-                backgroundColor: "#323232",
+                backgroundColor: "var(--cBackground)",
                 padding: 16,
                 borderRadius: 16,
-                border: "1px solid var(--cWhiteV5)",
+                border: "1px solid var(--cBorder)",
               }}
             >
               <p
@@ -322,10 +323,10 @@ const RenderView = ({
             </div>
             <div
               style={{
-                backgroundColor: "#323232",
+                backgroundColor: "var(--cBackground)",
                 padding: 16,
                 borderRadius: 16,
-                border: "1px solid var(--cWhiteV5)",
+                border: "1px solid var(--cBorder)",
                 display: "flex",
                 gap: 16,
               }}
@@ -345,10 +346,10 @@ const RenderView = ({
 
             <div
               style={{
-                backgroundColor: "#323232",
+                backgroundColor: "var(--cBackground)",
                 padding: 16,
                 borderRadius: 16,
-                border: "1px solid var(--cWhiteV5)",
+                border: "1px solid var(--cBorder)",
                 gap: 16,
               }}
             >
@@ -392,6 +393,7 @@ const RenderView = ({
                   height: "auto",
                   // backgroundColor: "red",
                 }}
+                className="striped"
                 height="150"
                 onRowClick={(item: any) => {
                   setOpenDetail({ open: true, item });
@@ -404,7 +406,7 @@ const RenderView = ({
                   padding: 16,
                   borderBottomLeftRadius: 12,
                   borderBottomRightRadius: 12,
-                  border: "0.5px solid var(--cWhiteV1)",
+                  border: "1px solid var(--cBorder)",
                   borderTop: "none",
                   display: "flex",
                   alignItems: "center",
@@ -444,7 +446,15 @@ const RenderView = ({
           onClose={() => setOpenFormAccount(false)}
           item={{
             dpto_id: item?.dpto?.nro,
-            amount: item?.remaining_amount,
+            // amount: item?.remaining_amount,
+            amount:
+              parseFloat(item?.remaining_amount) +
+              parseFloat(item?.penalty_amount) +
+              parseFloat(
+                hasMaintenanceValue(user)
+                  ? item?.maintenance_amount || "0"
+                  : "0"
+              ),
             debt_dpto_id: item?.id ?? propItem?.id,
             bank_account_id: item?.subcategory?.bank_account_id,
             type: "O",

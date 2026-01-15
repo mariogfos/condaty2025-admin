@@ -232,7 +232,7 @@ const FourPart = ({ item }: { item: any }) => {
               display: "flex",
               flexDirection: "row",
               overflowX: "scroll",
-              scrollbarColor: "var(--cWhiteV2) var(--cBlackV2)",
+              scrollbarColor: "var(--cBackground-muted) var(--cBackground)",
               gap: 12,
               marginTop: 12,
             }}
@@ -241,10 +241,10 @@ const FourPart = ({ item }: { item: any }) => {
               <div
                 key={day}
                 style={{
-                  backgroundColor: "var(--cWhiteV2)",
+                  backgroundColor: "var(--cBackground)",
                   padding: 12,
                   borderRadius: 8,
-                  border: "0.5px solid var(--cWhiteV1)",
+                  border: "1px solid var(--cBorder)",
                   maxWidth: 210,
                   minWidth: 210,
                 }}
@@ -268,7 +268,8 @@ const FourPart = ({ item }: { item: any }) => {
                     overflowX: "auto",
                     width: "100%",
                     scrollbarWidth: "thin",
-                    scrollbarColor: "var(--cBlackV2) var(--cWhiteV2) ",
+                    scrollbarColor:
+                      "var(--cBackground-muted) var(--cBackground)",
                   }}
                 >
                   {item?.available_hours?.[day]?.map((hour: any) => (

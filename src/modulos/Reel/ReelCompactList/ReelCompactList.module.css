@@ -7,11 +7,12 @@
 
 .contentCardCompact {
   box-sizing: border-box;
-  background: var(--cBlackV3);
+  /* background: var(--cBlackV3); */
+  background-color: var(--cBackground-foreground);
   border-radius: var(--bRadiusL);
   padding: var(--spM);
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--cBlackV3);
+  border: 1px solid var(--cBorder);
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
