@@ -1,5 +1,4 @@
 "use client";
-import { redirect } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthProvider";
 import { logError } from "../../utils/logs";
@@ -7,9 +6,11 @@ import LoginView from "@/components/auth/LoginView";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { UAParser } from "ua-parser-js";
+import useAxios from "../../hooks/useAxios";
 
 const Login = () => {
-  const { user, login } = useAuth();
+  const { user, getUser } = useAuth();
+  const { execute } = useAxios();
   // const router = useRouter();
   const [errors, setErrors] = useState({});
   const [formState, setFormState] = useState({
@@ -17,6 +18,8 @@ const Login = () => {
     password: "",
   });
   const [deviceInfo, setDeviceInfo] = useState({});
+  const [isNewDevice, setIsNewDevice] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
 
   useEffect(() => {
     const getDeviceData = async () => {
@@ -87,23 +90,35 @@ const Login = () => {
   const onSubmit = async () => {
     if (hasErrors(validaciones())) return;
 
-    login({ ...formState, deviceInfo }).then((data: any) => {
-      if (user || data?.user) {
-        redirect(process.env.NEXT_PUBLIC_AUTH_SUCCESS as string);
+    const { data, error }: any = await execute(
+      process.env.NEXT_PUBLIC_AUTH_LOGIN,
+      "POST",
+      { ...formState, deviceInfo }
+    );
+
+    if (data?.success && !error) {
+      localStorage.setItem(
+        (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+        JSON.stringify({ token: data?.data?.token, user: data?.data?.user })
+      );
+
+      setIsNewDevice(true);
+    } else {
+      if (data?.errors?.status == 500) {
+        setErrors({
+          email: "Problemas de conexión con el servidor. Intente más tarde!",
+        });
       } else {
-        if (data?.errors?.status == 500) {
-          setErrors({
-            email: "Problemas de conexión con el servidor. Intente más tarde!",
-          });
-        } else {
-          setErrors({
-            /* ...data?.errors, */
-            email: "Datos incorrectos",
-          });
-        }
+        setErrors({
+          email: "Datos incorrectos",
+        });
       }
-      return;
-    });
+    }
+  };
+
+  const onVerify = () => {
+    // Aquí iría la lógica de verificación del código
+    getUser();
   };
 
   return (
@@ -112,6 +127,11 @@ const Login = () => {
       formState={formState}
       handleChange={onChange}
       handleSubmit={onSubmit}
+      showVerification={isNewDevice}
+      verificationCode={verificationCode}
+      setVerificationCode={setVerificationCode}
+      onVerify={onVerify}
+      onBack={() => setIsNewDevice(false)}
     />
   );
 };

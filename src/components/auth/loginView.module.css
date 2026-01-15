@@ -52,9 +52,7 @@
   display: flex;
   justify-content: center;
   padding-bottom: 0;
-  transform: translateY(
-    50px
-  ); 
+  transform: translateY(50px);
   z-index: 2;
 }
 
@@ -62,6 +60,73 @@
   object-fit: contain;
   height: auto;
   max-width: 100%;
+}
+
+.verificationContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.verificationText {
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.codeWrapper {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.resendText {
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  opacity: 0.6;
+  margin: 0;
+}
+
+.resendTextGreen {
+  color: #00e38c;
+  font-size: 14px;
+  text-align: center;
+  margin: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.errorText {
+  color: var(--cError);
+  font-size: 14px;
+  text-align: center;
+  margin: 5px 0 15px 0;
+}
+
+.verificationButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.buttonSecondary {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  height: 44px;
+  font-size: 14px;
+}
+
+.inputCodeCustom {
+  color: #ffffff !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
 }
 
 .formWrapper {
