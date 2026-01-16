@@ -445,7 +445,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         )
         .filter((u: string) => !!u)
     : [];
-  
+
   // Si no hay url_file pero existe ext, agregar la URL legacy
   if (voucherUrls.length === 0 && item.ext) {
     const ext = item.ext || "webp";
@@ -454,7 +454,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     );
     voucherUrls.push(legacyUrl);
   }
-  
+
   const hasVoucherUrls = voucherUrls.length > 0;
   const showBankAccount = !!(item.status === "P" && item.bank_account);
 
@@ -560,7 +560,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   {formatBs(item.amount ?? 0)}
                 </div>
                 <div className={styles.dateDisplay}>
-                  {formatToDayFdMYH(item.paid_at)}
+                  {formatToDayFdMYH(item.paid_at, true, false, true)}
                 </div>
               </div>
             </div>
@@ -765,7 +765,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
             {Array.isArray(item.details) &&
               item.details.length > 0 &&
               item.details.some((detail: any) => detail?.debt_dpto) && (
-                <div className={styles.container}>
+                <div
+                  style={{ marginBottom: 12 }}
+                  // className={styles.container}
+                >
                   <div className={styles.periodsDetailsSection}>
                     <div className={styles.periodsDetailsHeader}>
                       <h3 className={styles.periodsDetailsTitle}>

@@ -36,7 +36,7 @@
   } */
 }
 
-.select input[type='text'] {
+.select input[type="text"] {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -44,8 +44,8 @@
 
 .selectOptions {
   cursor: pointer;
-  background-color: var(--cWhiteV2);
-  border: var(--bWidth) solid var(--cWhiteV1);
+  background-color: var(--cBackground);
+  border: var(--bWidth) solid var(--cBorder);
   border-radius: var(--bRadius);
   position: fixed;
   top: 20px;

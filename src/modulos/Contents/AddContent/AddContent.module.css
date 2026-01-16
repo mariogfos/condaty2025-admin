@@ -3,7 +3,6 @@
   flex-direction: column;
   width: 100%;
   height: calc(100vh - 160px);
-  background-color: var(--cBlack);
 }
 
 .header {
@@ -37,8 +36,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: var(--cBlackV2);
-  border: 0.5px solid var(--cWhiteV1);
+  background-color: var(--cBackground);
+  border: 0.5px solid var(--cBorder);
   border-radius: var(--bRadiusM);
   padding: 24px;
   overflow: hidden;
@@ -215,4 +214,3 @@
   margin: 0;
   padding: 0;
 }
-

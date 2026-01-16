@@ -15,6 +15,8 @@ import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFil
 import { formatNumber } from "@/mk/utils/numbers";
 import { useRouter } from "next/navigation";
 import { hasMaintenanceValue } from '@/mk/utils/utils';
+import PartialPaymentsRenderView from '@/modulos/PartialPayments/RenderView/RenderView';
+import { getStatusText, getStatusConfig, STATUS_FILTER_OPTIONS } from '../constants';
 
 interface SharedDebtsProps {
   openView: boolean;
@@ -28,6 +30,8 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   const { user, setStore, store } = useAuth();
   const router = useRouter();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [openPartialView, setOpenPartialView] = useState(false);
+  const [partialViewItem, setPartialViewItem] = useState<any>(null);
   const [customDateErrors, setCustomDateErrors] = useState<{
     startDate?: string;
     endDate?: string;
@@ -57,33 +61,6 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   };
 
   const renderStatusCell = ({ item }: { item: any }) => {
-    const statusConfig: { [key: string]: { color: string; bgColor: string } } =
-    {
-      A: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl8)" },
-      P: { color: "var(--cSuccess)", bgColor: "var(--cHoverCompl2)" },
-      S: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl4)" },
-      R: {
-        color: "var(--cMediumAlert)",
-        bgColor: "var(--cMediumAlertHover)",
-      },
-      E: { color: "var(--cWhite)", bgColor: "var(--cHoverCompl1)" },
-      M: { color: "var(--cError)", bgColor: "var(--cHoverError)" },
-      C: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" },
-      X: { color: "var(--cError)", bgColor: "var(--cHoverError)" },
-    };
-
-    const getStatusText = (status: string) => {
-      const statusMap: { [key: string]: string } = {
-        A: "Por cobrar",
-        P: "Cobrado",
-        S: "Por confirmar",
-        M: "En mora",
-        C: "Cancelada",
-        X: "Anulada",
-      };
-      return statusMap[status] || status;
-    };
-
     let finalStatus = item?.status;
 
     const today = new Date();
@@ -95,7 +72,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     }
 
     const statusText = getStatusText(finalStatus);
-    const { color, bgColor } = statusConfig[finalStatus] || statusConfig.E;
+    const { color, bgColor } = getStatusConfig(finalStatus);
 
     return (
       <StatusBadge color={color} backgroundColor={bgColor}>
@@ -161,12 +138,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
 
   const getStatusOptions = () => [
     { id: "ALL", name: "Todos los estados" },
-    { id: "A", name: "Por cobrar" },
-    { id: "P", name: "Cobrado" },
-    { id: "S", name: "Por confirmar" },
-    { id: "M", name: "En mora" },
-    { id: "C", name: "Cancelada" },
-    { id: "X", name: "Anulada" },
+    ...STATUS_FILTER_OPTIONS
   ];
 
   const getDistributionOptions = () => [
@@ -520,7 +492,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     </Button>,
   ];
 
-  const { userCan, List, onEdit, onDel, extraData, onFilter } = useCrud({
+  const { userCan, List, onEdit, onDel, extraData, onFilter, execute, reLoad, showToast } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -544,17 +516,6 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   });
 
   const renderItem = (item: Record<string, any>) => {
-    const getStatusText = (status: string) => {
-      const statusMap: { [key: string]: string } = {
-        A: "Por cobrar",
-        P: "Pagada",
-        C: "Cancelada",
-        X: "Anulada",
-        M: "En mora",
-      };
-      return statusMap[status] || status;
-    };
-
     let finalStatus = item?.status;
     const today = new Date();
     const todayDateOnly = new Date(
@@ -597,6 +558,11 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   };
 
   const onClickDetail = (row: any) => {
+    if (row?.status === 'I') {
+      setPartialViewItem(row);
+      setOpenPartialView(true);
+      return;
+    }
     if (row?.id) {
       router.push(`/debts_manager/shared-debt-detail/${row.id}`);
     }
@@ -614,6 +580,23 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
         filterBreakPoint={2500}
         sumarize={false}
       />
+      {openPartialView && (
+        <PartialPaymentsRenderView
+          open={openPartialView}
+          onClose={() => {
+            setOpenPartialView(false);
+            setPartialViewItem(null);
+          }}
+          item={partialViewItem}
+          extraData={extraData}
+          user={user}
+          onEdit={onEdit}
+          onDel={onDel}
+          execute={execute}
+          reLoad={reLoad}
+          showToast={showToast}
+        />
+      )}
       <DateRangeFilterModal
         open={openCustomFilter}
         onClose={() => {

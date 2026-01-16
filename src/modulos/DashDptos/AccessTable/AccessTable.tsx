@@ -135,6 +135,9 @@ const typeCell = ({ item }: { item: any }) => {
   if (item.type === 'O') {
     return 'Llave QR';
   }
+  if (item.type === 'C') {
+    return 'Sin QR';
+  }
   return '-/-';
 };
 
@@ -157,7 +160,7 @@ const AccessTable = ({ access }: AccessTableProps) => {
     },
     {
       key: 'type',
-      label: 'Tipo de visita',
+      label: 'Tipo de Acceso',
       responsive: 'desktop',
       onRender: typeCell,
     },

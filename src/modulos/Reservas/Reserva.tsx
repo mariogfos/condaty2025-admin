@@ -30,7 +30,7 @@ const mod = {
   hideActions: { edit: true, del: true },
   renderForm: (props: any) => <CreateReserva {...props} />,
   renderView: (props: any) => <ReservationDetailModal {...props} />,
-  loadView: { fullType: "DET" },
+  //loadView: { fullType: "DET" },
   filter: true,
   export: true,
   titleAdd: "Nueva",

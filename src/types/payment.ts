@@ -12,7 +12,7 @@ export const PAYMENT_STATUS_MAP = {
     backgroundColor: "var(--cHoverCompl3)",
   },
   P: {
-    label: "Pagado",
+    label: "Cobrado",
     color: "var(--cSuccess)",
     backgroundColor: "var(--cHoverCompl2)",
   },

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wdth,wght@75..100,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 
 :root {
   --accent: #00e38c;
@@ -15,7 +15,7 @@
   --success: #00e38c;
   --warning: #ffcd3d;
   --danger: #ff0000;
-  --dangerBg: #DA5D5D;
+  --dangerBg: #da5d5d;
 
   /* Accents */
   --accentColor: #00e38c;
@@ -193,6 +193,28 @@
 
   --figma-warning-text-color: #e9b01e;
   --figma-success-text-color: #34a853;
+
+  /* Paleta de colores nueva neutral base */
+
+  --cNeutral-50: #fffff;
+  --cNeutral-100: #fffff;
+  --cNeutral-200: #fffff;
+  --cNeutral-300: #fffff;
+  --cNeutral-400: #fffff;
+  --cNeutral-500: #585858;
+  --cNeutral-600: #383838;
+  --cNeutral-700: #303030;
+  --cNeutral-800: #242424;
+  --cNeutral-900: #191919;
+
+  /* Paleta de colores nueva semantic */
+
+  --cBackground-muted: var(--cNeutral-900);
+  --cBackground: var(--cNeutral-800);
+  --cBackground-foreground: var(--cNeutral-700);
+  --cBorder: var(--cNeutral-600);
+  --cDivider: var(--cNeutral-500);
+  --cBrand-primary: #00e38c;
 }
 
 /* Reset */
