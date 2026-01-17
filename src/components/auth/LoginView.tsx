@@ -19,8 +19,14 @@ export interface PropsLogin {
   showVerification?: boolean;
   verificationCode?: string;
   setVerificationCode?: (code: string) => void;
+  verificationMessage?: string;
   onVerify?: () => void;
   onBack?: () => void;
+  showTrustDevice?: boolean;
+  onTrustDevice?: (trust: boolean) => void;
+  attempts?: number;
+  isBlocked?: boolean;
+  onResendCode?: () => void;
 }
 
 const LoginView = ({
@@ -32,41 +38,26 @@ const LoginView = ({
   showVerification = false,
   verificationCode = "",
   setVerificationCode = () => {},
+  verificationMessage = "",
   onVerify = () => {},
   onBack = () => {},
+  showTrustDevice = false,
+  onTrustDevice = () => {},
+  attempts = 0,
+  isBlocked = false,
+  onResendCode = () => {},
 }: PropsLogin) => {
   const [openModal, setOpenModal] = useState(false);
   const [timer, setTimer] = useState(59);
   const [canResend, setCanResend] = useState(false);
-  // Mock states for demonstration as requested
-  const [attempts, setAttempts] = useState(0);
-  const [isBlocked, setIsBlocked] = useState(false);
-  const [mockErrors, setMockErrors] = useState<any>({});
+  // Removed internal mock states (attempts, isBlocked, mockErrors) as they are now managed by parent
 
   useEffect(() => {
     if (showVerification) {
       setTimer(59);
       setCanResend(false);
-      // Reset mocks when showing verification
-      setAttempts(0);
-      setIsBlocked(false);
-      setMockErrors({});
     }
   }, [showVerification]);
-
-  // Mock function to simulate verification failure
-  const handleVerifyMock = () => {
-    if (attempts < 2) {
-      setAttempts((prev) => prev + 1);
-      // Simulate error in inputs
-      setMockErrors({ code: "Código incorrecto" });
-    } else {
-      setAttempts((prev) => prev + 1);
-      setIsBlocked(true);
-      setMockErrors({ code: "Código incorrecto" });
-    }
-    // If we wanted to call real verify: onVerify();
-  };
 
   useEffect(() => {
     let interval: any;
@@ -83,6 +74,7 @@ const LoginView = ({
   const handleResend = () => {
     setTimer(59);
     setCanResend(false);
+    if (onResendCode) onResendCode();
   };
 
   return (
@@ -113,19 +105,50 @@ const LoginView = ({
           </div>
           <div className={styles.titleSection}>
             <div className={styles.title}>
-              {showVerification
+              {showTrustDevice
+                ? "¿Confiar en este dispositivo?"
+                : showVerification
                 ? "Ingresa el código de verificación"
                 : "¡Te damos la bienvenida!"}
             </div>
           </div>
 
-          {showVerification ? (
+          {showTrustDevice ? (
             <div className={styles.verificationContainer}>
               <p className={styles.verificationText}>
-                Parece que estás ingresando desde un dispositivo nuevo. Para tu
-                seguridad, te enviamos un código a <b>al****do@gmail.com</b>{" "}
-                para confirmar tu identidad.
+                Estás iniciando sesión desde un dispositivo nuevo. Si confías en
+                él, no volveremos a pedirte verificación en futuros accesos.
               </p>
+
+              <div className={styles.verificationButtons}>
+                <Button
+                  className={styles.buttonSecondary}
+                  onClick={() => onTrustDevice && onTrustDevice(false)}
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                    color: "white",
+                  }}
+                >
+                  No confiar
+                </Button>
+                <Button
+                  className={styles.button}
+                  onClick={() => onTrustDevice && onTrustDevice(true)}
+                >
+                  Confiar
+                </Button>
+              </div>
+            </div>
+          ) : showVerification ? (
+            <div className={styles.verificationContainer}>
+              <p
+                className={styles.verificationText}
+                dangerouslySetInnerHTML={{
+                  __html:
+                    verificationMessage ||
+                    "Parece que estás ingresando desde un dispositivo nuevo. Para tu seguridad, te enviamos un código a <b>tu correo</b> para confirmar tu identidad.",
+                }}
+              />
 
               <div className={styles.codeWrapper}>
                 <InputCode
@@ -133,12 +156,12 @@ const LoginView = ({
                   label=""
                   setCode={setVerificationCode}
                   value={verificationCode}
-                  error={{ ...errors, ...mockErrors }}
+                  error={errors}
                   className={styles.inputCodeCustom}
                 />
               </div>
 
-              {(errors["code"] || mockErrors["code"]) && !isBlocked && (
+              {errors["code"] && !isBlocked && (
                 <p className={styles.errorText}>
                   Pin incorrecto, tienes {3 - attempts} intentos restantes.
                 </p>
@@ -178,7 +201,7 @@ const LoginView = ({
                   Volver
                 </Button>
                 {!isBlocked && (
-                  <Button className={styles.button} onClick={handleVerifyMock}>
+                  <Button className={styles.button} onClick={onVerify}>
                     Verificar
                   </Button>
                 )}
