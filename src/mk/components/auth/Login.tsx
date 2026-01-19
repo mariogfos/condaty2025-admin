@@ -96,13 +96,13 @@ const Login = () => {
     const { data, error }: any = await execute(
       process.env.NEXT_PUBLIC_AUTH_LOGIN,
       "POST",
-      { ...formState, deviceInfo }
+      { ...formState, deviceInfo },
     );
 
-    if (data?.success && !error) {
+    if (data?.success && !error && data?.data?.token) {
       localStorage.setItem(
         (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
-        JSON.stringify({ token: data?.data?.token, user: data?.data?.user })
+        JSON.stringify({ token: data?.data?.token, user: data?.data?.user }),
       );
       // Actualizar estado global del usuario para redirigir
       getUser();
@@ -132,7 +132,7 @@ const Login = () => {
         pin: verificationCode,
         ci: formState.email,
         type: "FOS",
-      }
+      },
     );
 
     if (data?.success) {
@@ -147,10 +147,13 @@ const Login = () => {
       if (newAttempts >= 3) {
         setIsBlocked(true);
         // Bloquear por 30 minutos (simulado por ahora)
-        setTimeout(() => {
-          setIsBlocked(false);
-          setAttempts(0);
-        }, 30 * 60 * 1000);
+        setTimeout(
+          () => {
+            setIsBlocked(false);
+            setAttempts(0);
+          },
+          30 * 60 * 1000,
+        );
       }
 
       setErrors({
@@ -168,7 +171,7 @@ const Login = () => {
         email: formState.email,
         password: formState.password,
         deviceInfo: deviceInfo,
-      }
+      },
     );
 
     if (data?.success && !error) {
@@ -180,7 +183,7 @@ const Login = () => {
 
       localStorage.setItem(
         (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
-        JSON.stringify({ token: data?.data?.token, user: data?.data?.user })
+        JSON.stringify({ token: data?.data?.token, user: data?.data?.user }),
       );
       // Redirigir al sistema
       getUser();
@@ -196,7 +199,7 @@ const Login = () => {
         deviceInfo: {
           fingerprint: deviceInfo.fingerprint,
         },
-      }
+      },
     );
 
     if (data?.success) {

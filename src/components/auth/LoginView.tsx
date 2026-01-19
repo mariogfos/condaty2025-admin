@@ -77,6 +77,15 @@ const LoginView = ({
     if (onResendCode) onResendCode();
   };
 
+  const formatMessage = (msg: string) => {
+    if (!msg)
+      return "Parece que estás ingresando desde un dispositivo nuevo. Para tu seguridad, te enviamos un código a <b>tu correo</b> para confirmar tu identidad.";
+    return msg.replace(
+      /-+(.*?)-+/g,
+      '<span style="font-weight: 800; color: #fff;">$1</span>',
+    );
+  };
+
   return (
     <div className={styles.container}>
       {/* Imagen de fondo */}
@@ -108,8 +117,8 @@ const LoginView = ({
               {showTrustDevice
                 ? "¿Confiar en este dispositivo?"
                 : showVerification
-                ? "Ingresa el código de verificación"
-                : "¡Te damos la bienvenida!"}
+                  ? "Ingresa el código de verificación"
+                  : "¡Te damos la bienvenida!"}
             </div>
           </div>
 
@@ -144,9 +153,7 @@ const LoginView = ({
               <p
                 className={styles.verificationText}
                 dangerouslySetInnerHTML={{
-                  __html:
-                    verificationMessage ||
-                    "Parece que estás ingresando desde un dispositivo nuevo. Para tu seguridad, te enviamos un código a <b>tu correo</b> para confirmar tu identidad.",
+                  __html: formatMessage(verificationMessage),
                 }}
               />
 

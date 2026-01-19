@@ -70,12 +70,11 @@
 }
 
 .verificationText {
-  color: #fff;
+  color: #a6a6a6;
   font-size: 14px;
   line-height: 1.5;
   text-align: center;
   margin: 0;
-  opacity: 0.8;
 }
 
 .codeWrapper {

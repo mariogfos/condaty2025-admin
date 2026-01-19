@@ -102,7 +102,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
           setUser(false);
           setWaiting(-1, "-getUser");
           setSplash(false);
-          router.reload();
+          // router.reload();
           return;
         }
       }
