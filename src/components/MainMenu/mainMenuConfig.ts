@@ -6,6 +6,11 @@ import {
   IconComunicationDialog,
   IconCalendar,
   IconSecurity,
+  IconBackOffice,
+  IconFinance,
+  IconAdministracion,
+  IconCommunication,
+  IconSecurityV2,
 } from "../layout/icons/IconsBiblioteca";
 
 export const menuConfig = [
@@ -13,7 +18,7 @@ export const menuConfig = [
   {
     type: "dropdown",
     label: "Backoffice",
-    icon: IconMonitorLine,
+    icon: IconBackOffice,
     key: "Backoffice",
     items: [
       { href: "/superadmins", perm: "units", label: "Superadmins" },
@@ -25,7 +30,7 @@ export const menuConfig = [
   {
     type: "dropdown",
     label: "Finanzas",
-    icon: IconPayments,
+    icon: IconFinance,
     key: "Finanzas",
     items: [
       { href: "/balance", label: "Flujo de efectivo", perm: "balance" },
@@ -54,7 +59,7 @@ export const menuConfig = [
   {
     type: "dropdown",
     label: "Administración",
-    icon: IconMonitorLine,
+    icon: IconAdministracion,
     key: "Administración",
     items: [
       { href: "/units", perm: "units", label: "Unidades" },
@@ -78,7 +83,7 @@ export const menuConfig = [
   {
     type: "dropdown",
     label: "Comunicación",
-    icon: IconComunicationDialog,
+    icon: IconCommunication,
     key: "Comunicación",
     items: [
       { href: "/contents", perm: "contents", label: "Publicaciones" },
@@ -101,7 +106,7 @@ export const menuConfig = [
   {
     type: "dropdown",
     label: "Vigilancia y seguridad",
-    icon: IconSecurity,
+    icon: IconSecurityV2,
     key: "Vigilancia y seguridad",
     items: [
       { href: "/guards", perm: "guards", label: "Guardias" },
