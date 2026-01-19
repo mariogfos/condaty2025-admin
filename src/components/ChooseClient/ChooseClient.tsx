@@ -4,15 +4,16 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import {
-  IconCheckOff,
-  IconCheckSquare,
+  IconArrowRight,
   IconLogo,
+  IconSearch,
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./ChooseClient.module.css";
 import List from "@/mk/components/ui/List/List";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
+import Input from "@/mk/components/forms/Input/Input";
 
 interface Props {
   open: boolean;
@@ -20,111 +21,99 @@ interface Props {
 }
 const ChooseClient = ({ open, onClose }: Props) => {
   const { user, getUser } = useAuth();
-
-  const [sel, setSel] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
-  const onSave = () => {
-    if (!sel) return;
-    getUser(sel);
+
+  const onClick = async (id: any) => {
+    await getUser(id);
     router.push("/");
   };
-  const onClick = (id: any) => {
-    if (sel == id) {
-      setSel(null);
-      return;
-    }
-    setSel(id);
-  };
+
   const renderClient = (c: any) => {
-    let isClient = user?.client_id == c.id;
     return (
-      <ItemList
+      <div
         key={c.id}
-        onClick={() => (isClient ? {} : onClick(c.id))}
-        variant="V1"
-        title={c.name}
-        subtitle={
-          c.type == "C"
-            ? "Condominio"
-            : c.type == "U"
-            ? "Urbanización"
-            : "Edificio"
-        }
-        left={
+        className={styles.clientItem}
+        onClick={() => onClick(c.id)}
+      >
+        <div className={styles.clientInfo}>
           <Avatar
             src={getUrlImages("/CLIENT-" + c.id + ".webp?d=")}
             name={c.name}
             hasImage={c.has_image}
+            style={{ width: 40, height: 40, borderRadius: "50%" }}
           />
-        }
-        right={
-          isClient ? (
-            <p
-              style={{
-                backgroundColor: "var(--cHoverSuccess)",
-                fontSize: 12,
-                border: "1px solid var(--cSuccess)",
-                borderRadius: 4,
-                color: "var(--cSuccess)",
-                width: "100%",
-                padding: "4px 8px",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Sesión activa
-            </p>
-          ) : sel == c.id ? (
-            <IconCheckSquare color="var(--cAccent)" />
-          ) : (
-            <IconCheckOff color="var(--cWhiteV1)" />
-          )
-        }
-      />
+          <div className={styles.clientText}>
+            <span className={styles.clientType}>
+              {c.type == "C"
+                ? "Condominio"
+                : c.type == "U"
+                  ? "Urbanización"
+                  : "Edificio"}
+            </span>
+            <span className={styles.clientName}>{c.name}</span>
+          </div>
+        </div>
+        <div className={styles.arrowIcon}>
+          <IconArrowRight size={16} color="var(--cWhiteV1)" />
+        </div>
+      </div>
     );
   };
-  const activeClients = user?.clients
-    ?.filter(
-      (client: any) =>
-        client?.pivot?.status === "P" || client?.pivot?.status === "A"
-    )
-    .sort((a: any, b: any) => {
-      const isActiveA: any = a.id === user?.client_id;
-      const isActiveB: any = b.id === user?.client_id;
-      return isActiveB - isActiveA;
-    }) || [];
 
-  const pendingClients = user?.clients?.filter(
-    (client: any) =>
-      client?.pivot?.status !== "P" && client?.pivot?.status !== "A"
-  ) || [];
-  
+  // Filter clients as per user requirement
+  const allClients = user?.clients || [];
+
+  const filteredClients = allClients.filter((client: any) =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  const showSearch = allClients.length > 6;
+
   // No renderizar si no hay usuario, si el modal no está abierto, o si está en proceso de logout
   if (!user || !open || user?.id === "0") return null;
-  
+
   return (
     <DataModal
-      title="Seleccionar condominio"
+      title=""
       open={open}
       onClose={onClose}
-      onSave={onSave}
-      buttonText="Continuar"
+      buttonText=""
       buttonCancel=""
       iconClose={user?.client_id ? undefined : false}
-      // iconClose={user?.client_id ? true : false}
       fullScreen={user?.client_id ? false : true}
+      className={styles.modalFullScreen}
     >
       <div className={styles.container}>
-        <div className={styles.logoContainer}>
-          <IconLogo size={98} />
+        <div className={styles.leftPanel}>
+          <div className={styles.logoContainer}>
+            <IconLogo size={98} />
+          </div>
+          <h1 className={styles.title}>¡Bienvenido a Condaty!</h1>
+          <p className={styles.subtitle}>
+            ¿Qué condominio quieres administrar hoy?
+          </p>
         </div>
-        <h1 className={styles.title}>Bienvenido a Condaty</h1>
-        <p className={styles.subtitle}>
-          Para acceder a la información y las funciones de tu comunidad,
-          selecciona en el condominio que trabajarás hoy
-        </p>
-        <p className={styles.selectText}>Selecciona el condominio</p>
-        <div className={styles.clientList}>
-          <List data={user?.clients} renderItem={renderClient} />
+        <div className={styles.rightPanel}>
+          <div className={styles.listContainer}>
+            {showSearch && (
+              <div className={styles.searchContainer}>
+                <Input
+                  name="search"
+                  value={searchTerm}
+                  onChange={(e: any) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar por nombre..."
+                  className={styles.searchInput}
+                  iconRight={<IconSearch size={20} color="var(--cWhiteV1)" />}
+                />
+              </div>
+            )}
+            <div
+              className={`${styles.clientList} ${filteredClients.length > 6 ? styles.clientListMasked : ""}`}
+            >
+              <List data={filteredClients} renderItem={renderClient} />
+            </div>
+          </div>
         </div>
       </div>
     </DataModal>
