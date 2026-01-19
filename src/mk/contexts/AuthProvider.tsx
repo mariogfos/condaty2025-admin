@@ -77,9 +77,10 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
 
         if (data?.success && !error) {
           currentUser = data?.data?.user;
+          if (client_id) currentUser.client_id = client_id;
           localStorage.setItem(
             (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
-            JSON.stringify({ token: token.token, user: data?.data?.user })
+            JSON.stringify({ token: token.token, user: currentUser })
           );
         } else {
           
