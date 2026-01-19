@@ -33,6 +33,9 @@
 
 # vercel
 .vercel
+.kilocode
+nogit
+nogit/
 
 
 .prettierrc
