@@ -82,7 +82,7 @@ const LoginView = ({
       return "Parece que estás ingresando desde un dispositivo nuevo. Para tu seguridad, te enviamos un código a <b>tu correo</b> para confirmar tu identidad.";
     return msg.replace(
       /-+(.*?)-+/g,
-      '<span style="font-weight: 800;">$1</span>'
+      '<span style="font-weight: 800; color: #fff;">$1</span>',
     );
   };
 

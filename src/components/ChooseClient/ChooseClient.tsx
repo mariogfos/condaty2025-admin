@@ -10,10 +10,10 @@ import {
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./ChooseClient.module.css";
 import List from "@/mk/components/ui/List/List";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
 import Input from "@/mk/components/forms/Input/Input";
+import Button from "@/mk/components/forms/Button/Button";
 
 interface Props {
   open: boolean;
@@ -83,6 +83,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
       iconClose={user?.client_id ? undefined : false}
       fullScreen={user?.client_id ? false : true}
       className={styles.modalFullScreen}
+      style={{ backgroundColor: "#1a1a1a" }}
     >
       <div className={styles.container}>
         <div className={styles.leftPanel}>
@@ -108,11 +109,33 @@ const ChooseClient = ({ open, onClose }: Props) => {
                 />
               </div>
             )}
-            <div
-              className={`${styles.clientList} ${filteredClients.length > 6 ? styles.clientListMasked : ""}`}
-            >
-              <List data={filteredClients} renderItem={renderClient} />
-            </div>
+            <List
+              data={filteredClients}
+              renderItem={renderClient}
+              className={`${styles.clientList} ${
+                filteredClients.length > 6 ? styles.clientListMasked : ""
+              }`}
+            />
+            {user?.client_id && (
+              <div
+                style={{
+                  marginTop: 16,
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <Button
+                  onClick={onClose}
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                    color: "white",
+                    width: "100%",
+                  }}
+                >
+                  Volver
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
