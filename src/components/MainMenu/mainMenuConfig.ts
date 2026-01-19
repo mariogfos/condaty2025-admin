@@ -12,6 +12,18 @@ export const menuConfig = [
   { type: "item", href: "/", label: "Inicio", perm: "home", icon: IconHome },
   {
     type: "dropdown",
+    label: "Backoffice",
+    icon: IconMonitorLine,
+    key: "Backoffice",
+    items: [
+      { href: "/superadmins", perm: "units", label: "Superadmins" },
+      { href: "/condominios", perm: "areas", label: "Condominios" },
+      { href: "/invitations", perm: "accesses", label: "Invitaciones QR" },
+      { href: "/uploads", perm: "documents", label: "Carga masiva" },
+    ],
+  },
+  {
+    type: "dropdown",
     label: "Finanzas",
     icon: IconPayments,
     key: "Finanzas",
