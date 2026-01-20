@@ -67,7 +67,11 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
       );
       currentUser = user || token.user;
       const credentials: any = {};
-      if (client_id) credentials.client_id = client_id;
+      if (client_id) {
+        credentials.client_id = client_id;
+      } else if (currentUser?.client_id) {
+        credentials.client_id = currentUser.client_id;
+      }
       if (currentUser) {
         const { data, error }: any = await execute(
           process.env.NEXT_PUBLIC_AUTH_IAM,
@@ -77,16 +81,25 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
 
         if (data?.success && !error) {
           currentUser = data?.data?.user;
-          if (client_id) currentUser.client_id = client_id;
+          if (client_id) {
+            currentUser.client_id = client_id;
+          } else if (credentials.client_id) {
+            currentUser.client_id = credentials.client_id;
+          }
+
+          if (currentUser.client_id) {
+            localStorage.setItem("condaty_client_id", currentUser.client_id);
+          }
+
           localStorage.setItem(
             (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
             JSON.stringify({ token: token.token, user: currentUser })
           );
         } else {
-          
+
 
           if (error.status == 500) {
-          
+
             setTimeout(async () => {
               localStorage.removeItem(
                 (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
@@ -99,6 +112,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
           localStorage.removeItem(
             (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
           );
+          localStorage.removeItem("condaty_client_id");
           setUser(false);
           setWaiting(-1, "-getUser");
           setSplash(false);
@@ -189,7 +203,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     if (data?.success) {
       setWaiting(-1, "-logout");
     } else {
-      
+
       setWaiting(-1, "-logout2");
       return { user, errors: data?.errors || data?.message || error };
     }

@@ -23,32 +23,32 @@ const EditProfile = ({
   reLoadList,
   type,
 }: any) => {
-  const { showToast } = useAuth();
+  const { showToast, user } = useAuth();
   const { execute } = useAxios();
 
   const validate = () => {
     let errs: any = {};
     errs = checkRules({
       value: formState.name,
-      rules: ["required", "alpha", "noSpaces"],
+      rules: ["required", "alpha"],
       key: "name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.middle_name,
-      rules: ["alpha", "noSpaces"],
+      rules: ["alpha"],
       key: "middle_name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.last_name,
-      rules: ["required", "alpha", "noSpaces"],
+      rules: ["required", "alpha"],
       key: "last_name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.mother_last_name,
-      rules: ["alpha", "noSpaces"],
+      rules: ["alpha"],
       key: "mother_last_name",
       errors: errs,
     });
@@ -58,6 +58,14 @@ const EditProfile = ({
       key: "phone",
       errors: errs,
     });
+    if (user?.type === "FOS") {
+      errs = checkRules({
+        value: formState.email,
+        rules: ["required", "email"],
+        key: "email",
+        errors: errs,
+      });
+    }
     setErrors(errs);
     return errs;
   };
@@ -75,11 +83,12 @@ const EditProfile = ({
       ...(type !== "homeOwner" && type !== "owner"
         ? { address: formState.address }
         : {}),
+      ...(user?.type === "FOS" ? { email: formState.email } : {}),
     };
     const { data, error: err } = await execute(
       url + "/" + formState.id,
       "PUT",
-      newUser
+      newUser,
     );
 
     if (data?.success) {
@@ -188,6 +197,16 @@ const EditProfile = ({
               onChange={onChange}
               error={errors}
             />
+            {user?.type === "FOS" && (
+              <Input
+                label="Correo electrónico"
+                name="email"
+                type="email"
+                value={formState.email}
+                onChange={onChange}
+                error={errors}
+              />
+            )}
           </div>
           {type !== "homeOwner" && type !== "owner" && (
             <Input
