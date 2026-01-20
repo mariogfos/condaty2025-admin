@@ -30,25 +30,25 @@ const EditProfile = ({
     let errs: any = {};
     errs = checkRules({
       value: formState.name,
-      rules: ["required", "alpha", "noSpaces"],
+      rules: ["required", "alpha"],
       key: "name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.middle_name,
-      rules: ["alpha", "noSpaces"],
+      rules: ["alpha"],
       key: "middle_name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.last_name,
-      rules: ["required", "alpha", "noSpaces"],
+      rules: ["required", "alpha"],
       key: "last_name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.mother_last_name,
-      rules: ["alpha", "noSpaces"],
+      rules: ["alpha"],
       key: "mother_last_name",
       errors: errs,
     });
@@ -83,6 +83,7 @@ const EditProfile = ({
       ...(type !== "homeOwner" && type !== "owner"
         ? { address: formState.address }
         : {}),
+      ...(user?.type === "FOS" ? { email: formState.email } : {}),
     };
     const { data, error: err } = await execute(
       url + "/" + formState.id,

@@ -142,10 +142,16 @@ const ProfileModal = ({
     },
     true,
   );
+
+  // useEffect(() => {
+  //   if (dataID) {
+  //     reLoadDet({ searchBy: dataID });
+  //   }
+  // }, [dataID]);
   const getProfileRole = () => {
-    if (type === "admin") return data?.data[0]?.role[0]?.name;
-    if (type === "owner") return data?.data[0].type_owner;
-    if (type === "homeOwner") return data?.data[0].type_owner;
+    if (type === "admin") return data?.data[0]?.role?.[0]?.name;
+    if (type === "owner") return data?.data[0]?.type_owner;
+    if (type === "homeOwner") return data?.data[0]?.type_owner;
     return "Guardia";
   };
 
