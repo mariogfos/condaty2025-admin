@@ -34,20 +34,20 @@ const Condominios = () => {
       name: {
         rules: ["required"],
         api: "ae",
-        label: "Rol",
+        label: "Nombre",
         list: { width: "250" },
         form: { type: "text", label: "Nombre del rol" },
         hide: true,
       },
-      code: {
+      status: {
         rules: ["required"],
         api: "ae",
-        label: "Código",
+        label: "Estado",
         list: { width: "250" },
         form: { type: "text", label: "Código del rol" },
         hide: true,
       },
-      description: {
+      privacidad: {
         rules: [""],
         api: "ae",
         label: "Descripción",
@@ -78,7 +78,7 @@ const Condominios = () => {
       paramsInitial,
       mod,
       fields,
-    }
+    },
   );
   const { onLongPress, selItem } = useCrudUtils({
     onSearch,
@@ -91,7 +91,7 @@ const Condominios = () => {
   const renderItem = (
     item: Record<string, any>,
     i: number,
-    onClick: Function
+    onClick: Function,
   ) => {
     return (
       <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
