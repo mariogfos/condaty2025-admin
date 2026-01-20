@@ -46,7 +46,7 @@ type PropsType = {
   onTabletRow?: (
     item: Record<string, any>,
     i: number,
-    onClick: Function
+    onClick: Function,
   ) => any;
   onButtonActions?: Function;
   actionsWidth?: string;
@@ -60,7 +60,7 @@ type PropsType = {
   onRenderCard?: (
     item: Record<string, any>,
     i: number,
-    onClick: Function
+    onClick: Function,
   ) => any;
 };
 
@@ -171,7 +171,7 @@ const Head = memo(function Head({
     item: any,
     index: number,
     onSort: any,
-    sortCol: any
+    sortCol: any,
   ) => {
     if (!item.sortabled) return item.label;
 
@@ -194,7 +194,9 @@ const Head = memo(function Head({
         )}
         {item.sortabled && sortCol?.col !== item.key && (
           <>
-            <span style={{ opacity: 0.1 }}>{sortCol?.asc ? "▲" : "▼"}</span>{" "}
+            <span style={{ opacity: 0.1 }}>
+              {sortCol?.asc ? "▲" : "▼"}
+            </span>{" "}
           </>
         )}
         {item.label}
@@ -218,19 +220,22 @@ const Head = memo(function Head({
                 onRenderHead
                   ? onRenderHead(item, index, onSort, sortCol, true)
                   : typeof item.label === "string"
-                  ? item.label
-                  : undefined
+                    ? item.label
+                    : undefined
               }
             >
               {onRenderHead
                 ? onRenderHead(item, index, onSort, sortCol)
                 : renderLabelTitle(item, index, onSort, sortCol)}
             </div>
-          )
+          ),
       )}
 
       {onButtonActions && (
-        <div className={styles.onlyDesktop} style={{ ...getWidth("100") }}>
+        <div
+          className={styles.onlyDesktop}
+          style={{ ...getWidth(actionsWidth || "100") }}
+        >
           Acciones
         </div>
       )}
@@ -404,12 +409,12 @@ const Body = ({
                         })}
                       {!item.onRender && row[item.key]}
                     </span>
-                  )
+                  ),
               )}
               {onButtonActions && (
                 <span
                   className={styles.onlyDesktop}
-                  style={{ ...getWidth("100") }}
+                  style={{ ...getWidth(actionsWidth || "100") }}
                 >
                   {onButtonActions(row)}
                 </span>

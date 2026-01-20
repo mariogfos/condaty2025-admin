@@ -7,6 +7,7 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import RenderItem from "../shared/RenderItem";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import styles from "./Condominios.module.css";
+import RenderForm from "./RenderForm/RenderForm";
 const paramsInitial = {
   perPage: 20,
   page: 1,
@@ -19,13 +20,17 @@ const mod: ModCrudType = {
   plural: "condominios",
   permiso: "owner",
   extraData: true,
-  onHideActions: (item: any) => {
-    return {
-      hideEdit: item.is_fixed == "1",
+  // onHideActions: (item: any) => {
+  //   return {
+  //     hideEdit: item.is_fixed == "1",
 
-      hideDel: item.is_fixed == "1" || item.is_assigned == "1",
-    };
+  //     hideDel: item.is_fixed == "1" || item.is_assigned == "1",
+  //   };
+  // },
+  hideActions: {
+    view: true,
   },
+  renderForm: (props: any) => <RenderForm {...props} />,
 };
 const Condominios = () => {
   const fields = useMemo(() => {
@@ -47,30 +52,28 @@ const Condominios = () => {
         form: { type: "text", label: "Código del rol" },
         hide: true,
       },
-      privacidad: {
+      privacy: {
         rules: [""],
         api: "ae",
-        label: "Descripción",
+        label: "Privacidad",
         list: true,
         form: { type: "text" },
       },
 
-      // area_id:{
-      //   rules: [],
-      //   api: "ae",
-      //   label: "Áreas",
-      //   list: {
-      //     onRender:(props:any)=>{
-      //       // console.log(props.extraData.role_categories[props.item.rolecategory_id].name,'propsssssdasdadds')
-      //       return props.extraData.role_categories[props.item.rolecategory_id].name
-      //     }
-      //   },
-      //   form: {
-      //          type: "select",
-      //          optionsExtra: "role_categories",
-      //        },
-
-      //   },
+      created_at: {
+        rules: [""],
+        api: "ae",
+        label: "Creado el",
+        list: true,
+        form: { type: "text" },
+      },
+      updated_at: {
+        rules: [""],
+        api: "ae",
+        label: "Actualizado el",
+        list: true,
+        form: { type: "text" },
+      },
     };
   }, []);
   const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
@@ -88,32 +91,11 @@ const Condominios = () => {
     onEdit,
     onDel,
   });
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function,
-  ) => {
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        {/* <ItemList
-          title={item?.description}
-          subtitle={
-            "Cod: " +
-            item?.name +
-            " - Nivel: " +
-            levelRender({ value: item?.level })
-          }
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        /> */}
-        <></>
-      </RenderItem>
-    );
-  };
+
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.Roles}>
-      <List onTabletRow={renderItem} actionsWidth="300px" />
+      <List />
     </div>
   );
 };
