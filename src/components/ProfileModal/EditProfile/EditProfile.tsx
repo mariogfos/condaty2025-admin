@@ -23,7 +23,7 @@ const EditProfile = ({
   reLoadList,
   type,
 }: any) => {
-  const { showToast } = useAuth();
+  const { showToast, user } = useAuth();
   const { execute } = useAxios();
 
   const validate = () => {
@@ -58,6 +58,14 @@ const EditProfile = ({
       key: "phone",
       errors: errs,
     });
+    if (user?.type === "FOS") {
+      errs = checkRules({
+        value: formState.email,
+        rules: ["required", "email"],
+        key: "email",
+        errors: errs,
+      });
+    }
     setErrors(errs);
     return errs;
   };
@@ -79,7 +87,7 @@ const EditProfile = ({
     const { data, error: err } = await execute(
       url + "/" + formState.id,
       "PUT",
-      newUser
+      newUser,
     );
 
     if (data?.success) {
@@ -188,6 +196,16 @@ const EditProfile = ({
               onChange={onChange}
               error={errors}
             />
+            {user?.type === "FOS" && (
+              <Input
+                label="Correo electrónico"
+                name="email"
+                type="email"
+                value={formState.email}
+                onChange={onChange}
+                error={errors}
+              />
+            )}
           </div>
           {type !== "homeOwner" && type !== "owner" && (
             <Input
