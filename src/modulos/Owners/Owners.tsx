@@ -154,7 +154,7 @@ const Owners = () => {
         searchBy: e.target.value,
       },
       false,
-      true
+      true,
     );
 
     if (data?.success && data.data?.data?.id) {
@@ -180,7 +180,7 @@ const Owners = () => {
       });
       showToast(
         "El residente ya existe en Condaty, se va a vincular al Condominio",
-        "warning"
+        "warning",
       );
     } else {
       props.setError({ ci: "" });
@@ -222,14 +222,20 @@ const Owners = () => {
           const residente = item?.item;
           const nombreCompleto = getFullName(residente);
           const cedulaIdentidad = residente?.ci;
-
+          console.log(residente);
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
-                hasImage={residente?.has_image}
-                src={getUrlImages(
-                  "/OWNER-" + residente?.id + ".webp?d=" + residente?.updated_at
-                )}
+                hasImage={residente?.url_avatar && residente?.has_image}
+                src={
+                  residente?.url_avatar ||
+                  getUrlImages(
+                    "/OWNER-" +
+                      residente?.id +
+                      ".webp?d=" +
+                      residente?.updated_at,
+                  )
+                }
                 name={nombreCompleto}
               />
               <div>
@@ -378,7 +384,7 @@ const Owners = () => {
           disabled: onDisbled,
         },
         list: {
-          onRender: ({item}: any) => {
+          onRender: ({ item }: any) => {
             return item?.phone || "-/-";
           },
         },
