@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import DataModalV2 from "@/mk/components/ui/DataModalV2/DataModalV2";
 import { IconDepartment2 } from "@/components/layout/icons/IconsBiblioteca";
 import Br from "@/components/Detail/Br";
+import styles from "./RenderForm.module.css";
 
 const RenderForm = ({
   open,
@@ -92,24 +93,8 @@ const RenderForm = ({
       variant={"mini"}
       maxWidth={560}
     >
-      <p
-        style={{
-          fontSize: 16,
-          fontWeight: 600,
-          color: "var(--cWhite)",
-          marginBottom: 4,
-        }}
-      >
-        Información básica
-      </p>
-      <p
-        style={{
-          fontSize: 12,
-          fontWeight: 400,
-          color: "var(--cWhiteV1)",
-          marginBottom: 12,
-        }}
-      >
+      <p className={styles.title}>Información básica</p>
+      <p className={styles.subtitle}>
         Datos visibles para todos los propietarios y residentes.
       </p>
       <Input
@@ -150,24 +135,8 @@ const RenderForm = ({
           height: 1,
         }}
       />
-      <p
-        style={{
-          fontSize: 16,
-          fontWeight: 600,
-          color: "var(--cWhite)",
-          marginBottom: 4,
-        }}
-      >
-        Privacidad
-      </p>
-      <p
-        style={{
-          fontSize: 12,
-          fontWeight: 400,
-          color: "var(--cWhiteV1)",
-          marginBottom: 12,
-        }}
-      >
+      <p className={styles.title}>Privacidad</p>
+      <p className={styles.subtitle}>
         Determina si el condominio será público o interno.
       </p>
       <Select
