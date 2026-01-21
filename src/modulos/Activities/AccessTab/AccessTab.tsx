@@ -184,7 +184,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
               <div style={{ display: "flex", gap: 8 }}>
                 <div>
                   <Avatar
-                    hasImage={props.item.owner.has_image}
+                    hasImage={props?.item?.owner?.has_image}
                     name={getFullName(props.item.owner)}
                     src={getUrlImages(
                       "/OWNER-" +
@@ -209,7 +209,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         label: "Entrada",
         list: {
           onRender: (props: any) => {
-            return <div>{props.item.confirm === 'N' ? "-/-" : 
+            return <div>{props.item.confirm === 'N' ? "-/-" :
               getDateTimeStrMesShort(props?.item?.in_at)
               }</div>;
           },
