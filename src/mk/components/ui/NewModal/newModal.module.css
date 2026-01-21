@@ -94,24 +94,62 @@
 
         & > button:nth-child(1) {
           /* Este será el botón "Guardar" (buttonText) debido al row-reverse */
-          flex-basis: calc(
-            65% - 4px
-          ); /* 70% menos la mitad del gap para el espaciado */
-          /* Opcional: para asegurar que pueda crecer/encogerse si es necesario */
-          flex-grow: 1;
-          flex-shrink: 1;
+          flex: 1; /* Ocupa espacio igual */
         }
 
         & > button:nth-child(2) {
           /* Este será el botón "Cancelar" (buttonCancel) */
-          flex-basis: calc(
-            35% - 4px
-          ); /* 30% menos la mitad del gap para el espaciado */
-          /* Opcional: para asegurar que pueda crecer/encogerse si es necesario */
-          flex-grow: 1;
-          flex-shrink: 1;
+          flex: 1; /* Ocupa espacio igual */
         }
       }
     }
   }
+}
+
+.headerContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.iconContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--cWhiteV2);
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 4px;
+}
+
+.modalTitle {
+  color: #fafafa;
+  font-family: Roboto, sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  margin: 0;
+}
+
+.modalSubtitle {
+  color: #a7a7a7;
+  font-family: Roboto, sans-serif;
+  font-size: 12.6px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin: 0;
 }

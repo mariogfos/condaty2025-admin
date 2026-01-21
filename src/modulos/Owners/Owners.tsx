@@ -25,6 +25,7 @@ import Select from "@/mk/components/forms/Select/Select";
 import RenderForm from "../Owners/RenderForm/RenderForm";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import RenderView from "./RenderView/RenderView";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const paramsInitial = {
   perPage: 20,
@@ -32,8 +33,8 @@ const paramsInitial = {
   fullType: "L",
   searchBy: "",
 };
-
 const Owners = () => {
+  const { user } = useAuth();
   const [unitsModalOpen, setUnitsModalOpen] = useState(false);
   const [selectedHomeowner, setSelectedHomeowner] = useState(null);
 
@@ -123,7 +124,7 @@ const Owners = () => {
           dataID={props?.item?.id}
           type={"owner"}
           title="Perfil de Residente"
-          edit={false}
+          edit={user?.type === "FOS" ? true : false}
           reLoad={props?.reLoad}
         />
       ),

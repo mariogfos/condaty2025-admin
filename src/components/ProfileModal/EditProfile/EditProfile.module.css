@@ -1,69 +1,62 @@
 .EditProfile {
   display: flex;
+  flex-direction: column;
 
   & > section:nth-child(1) {
-      padding: 24px;
+    padding: 24px;
+    /* Remove centered margin/width for UploadFile wrapper if we use flex layout */
   }
 
   .hiddenInput {
-      display: none;
+    display: none;
   }
 
-  .modalAvatar {
-      position: relative;
-      border-radius: 50%;
-      background-color: var(--darkColor);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 1rem;
-      z-index: 100;
-
-      & > div > img {
-          opacity: 0.3;
-      }
+  .avatarSection {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
   }
 
-  .imageButton {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      padding: 8px;
-      z-index: 99999999;
-      opacity: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+  .avatarWrapper {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .avatarActions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .avatarButtons {
+    display: flex;
+    gap: 12px;
+  }
+
+  .avatarInfo {
+    color: var(--cWhiteV1);
+    font-size: 12px;
   }
 
   & > section:nth-child(2) {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spS);
+    padding: 24px;
+
+    & > div:first-of-type {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: var(--spS);
-      padding: 24px;
-
-      & > div:first-of-type {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: var(--spS);
-      }
-
-      & > div:last-of-type {
-          display: flex;
-          justify-content: flex-end;
-          align-items: center;
-          margin-top: auto;
-          padding-top: var(--spS);
-
-          & > div {
-              display: flex;
-              flex-direction: row;
-              align-items: center;
-              gap: var(--spS);
-          }
-      }
+    }
   }
+}
+
+.fullWidth {
+  grid-column: span 2;
 }

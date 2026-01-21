@@ -1,5 +1,28 @@
 .container {
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.leftPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.rightPanel {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  max-height: 100vh;
 }
 
 .logoContainer {
@@ -12,34 +35,126 @@
 .title {
   color: #ffffff;
   text-align: center;
-  font-size: 1.5rem;
-  font-weight: 900;
-  margin-bottom: 1rem;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
 .subtitle {
   text-align: center;
-  color: var(--light-v3);
-  font-size: 0.875rem;
-  margin: 1.25rem 0;
+  color: var(--cWhiteV1);
+  font-size: 1rem;
+  margin: 0;
 }
 
-@media (min-width: 768px) {
-  .subtitle {
-    font-size: 1rem;
-  }
-}
-
-.selectText {
-  margin-bottom: 1rem;
-  color: var(--light-v3);
-}
-
-/* .clientList {
+.listContainer {
+  width: 100%;
+  max-width: 600px;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-} */
+  gap: 1rem;
+}
+
+.searchContainer {
+  margin-bottom: 0.5rem;
+}
+
+.searchInput {
+  background-color: var(--cBlackV1) !important;
+  border: 1px solid var(--cWhiteV2) !important;
+  border-radius: 8px !important;
+  color: var(--cWhite) !important;
+}
+
+.clientList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 550px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+
+  /* Custom Scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--cWhiteV2) transparent;
+}
+
+.clientListMasked {
+  /* Fade effect at top and bottom */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0px,
+    black 40px,
+    black calc(100% - 40px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0px,
+    black 40px,
+    black calc(100% - 40px),
+    transparent 100%
+  );
+}
+
+.clientList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.clientList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.clientList::-webkit-scrollbar-thumb {
+  background-color: var(--cWhiteV2);
+  border-radius: 10px;
+}
+
+.clientItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--cBlackV1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clientItem:hover {
+  background-color: var(--cBlackV2);
+}
+
+.clientInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.clientText {
+  display: flex;
+  flex-direction: column;
+}
+
+.clientType {
+  font-size: 0.75rem;
+  color: var(--cWhiteV1);
+}
+
+.clientName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--cWhite);
+}
+
+.arrowIcon {
+  display: flex;
+  align-items: center;
+}
+
+.modalFullScreen {
+  background-color: #1a1a1a !important;
+}
 
 .clientCard {
   display: grid;
