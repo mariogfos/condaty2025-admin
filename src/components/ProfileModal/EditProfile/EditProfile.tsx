@@ -1,13 +1,14 @@
 import Input from "@/mk/components/forms/Input/Input";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import NewModal from "@/mk/components/ui/NewModal/NewModal";
 import React from "react";
 import styles from "./EditProfile.module.css";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 import { getUrlImages, getFullName } from "@/mk/utils/string";
-import Button from "@/mk/components/forms/Button/Button";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import useAxios from "@/mk/hooks/useAxios";
+import { IconDepartments } from "@/components/layout/icons/IconsBiblioteca";
+import Button from "@/mk/components/forms/Button/Button";
 
 const EditProfile = ({
   open,
@@ -103,48 +104,89 @@ const EditProfile = ({
   };
 
   return (
-    <DataModal
-      title={"Editar"}
+    <NewModal
+      title="Información personal"
+      subtitle="Ingresa los datos personales del usuario."
+      icon={<IconDepartments size={24} />}
       open={open}
       onClose={onClose}
-      buttonText=""
-      buttonCancel=""
+      buttonText="Guardar cambios"
+      buttonCancel="Cancelar"
+      onSave={onSave}
       minWidth={480}
       maxWidth={960}
     >
       <div className={styles.EditProfile}>
         <section>
-          <div
-            style={{
-              width: "260px",
-              height: "260px",
-              margin: "0 auto 20px auto",
-            }}
-          >
-            <UploadFile
-              name="avatar"
-              value={
-                formState.has_image === 1 ||
-                formState.has_image === "1" ||
-                formState.avatar
-                  ? formState.avatar || getUrlImages(urlImages)
-                  : ""
-              }
-              onChange={(e: any) => {
-                setFormState({ ...formState, avatar: e.target.value });
-              }}
-              ext={["jpg", "png", "jpeg", "webp"]}
-              img
-              error={errors}
-              setError={setErrors}
-              sizePreview={{ width: "100%", height: "100%" }}
-              avatar={true}
-              userName={getFullName(formState)}
-            />
+          <div className={styles.avatarSection}>
+            <div className={styles.avatarWrapper}>
+              <UploadFile
+                name="avatar"
+                value={
+                  formState.has_image === 1 ||
+                  formState.has_image === "1" ||
+                  formState.avatar
+                    ? formState.avatar || getUrlImages(urlImages)
+                    : ""
+                }
+                onChange={(e: any) => {
+                  setFormState({ ...formState, avatar: e.target.value });
+                }}
+                ext={["jpg", "png", "jpeg", "webp"]}
+                img
+                error={errors}
+                setError={setErrors}
+                sizePreview={{ width: "100%", height: "100%" }}
+                avatar={true}
+                userName={getFullName(formState)}
+                hideActions={true}
+              />
+            </div>
+            <div className={styles.avatarActions}>
+              <div className={styles.avatarButtons}>
+                <Button
+                  variant="primary"
+                  onClick={() => document.getElementById("avatar")?.click()}
+                  style={{ width: "auto", padding: "0 16px" }}
+                >
+                  Subir foto
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setFormState({ ...formState, avatar: { file: "delete" } });
+                  }}
+                  style={{ width: "auto", padding: "0 16px" }}
+                >
+                  Eliminar
+                </Button>
+              </div>
+              <span className={styles.avatarInfo}>
+                El tamaño de la imagen no debe ser mayor a 2MB.
+              </span>
+            </div>
           </div>
         </section>
         <section>
           <div>
+            <Input
+              label="Carnet de identidad"
+              name="ci"
+              type="text"
+              value={formState.ci}
+              disabled
+              onChange={onChange}
+              error={errors}
+            />
+            <Input
+              label="Teléfono"
+              name="phone"
+              type="number"
+              required={false}
+              value={formState.phone}
+              onChange={onChange}
+              error={errors}
+            />
             <Input
               label="Nombre"
               name="name"
@@ -179,24 +221,6 @@ const EditProfile = ({
               onChange={onChange}
               error={errors}
             />
-            <Input
-              label="Carnet de identidad"
-              name="ci"
-              type="text"
-              value={formState.ci}
-              disabled
-              onChange={onChange}
-              error={errors}
-            />
-            <Input
-              label="Teléfono"
-              name="phone"
-              type="number"
-              required={false}
-              value={formState.phone}
-              onChange={onChange}
-              error={errors}
-            />
             {user?.type === "FOS" && (
               <Input
                 label="Correo electrónico"
@@ -205,6 +229,7 @@ const EditProfile = ({
                 value={formState.email}
                 onChange={onChange}
                 error={errors}
+                className={styles.fullWidth}
               />
             )}
           </div>
@@ -219,28 +244,9 @@ const EditProfile = ({
               error={errors}
             />
           )}
-          <div>
-            <div>
-              <Button
-                onClick={onClose}
-                style={{ width: 100 }}
-                variant="secondary"
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={() => {
-                  onSave();
-                }}
-                variant="primary"
-              >
-                Guardar Cambios
-              </Button>
-            </div>
-          </div>
         </section>
       </div>
-    </DataModal>
+    </NewModal>
   );
 };
 

@@ -1,4 +1,5 @@
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import NewModal from "@/mk/components/ui/NewModal/NewModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";

@@ -1,0 +1,155 @@
+.dataModal {
+  backdrop-filter: blur(5px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  & > main {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    color: var(--cWhite);
+    background-color: var(--cBlack);
+    border-radius: var(--bRadiusL);
+    border: 1px solid var(--cBorder);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: all 0.3s;
+    width: 85%;
+    max-height: calc(100% - 50px);
+    padding: var(--spL);
+    gap: var(--spS);
+    /* @media (width>768px) {
+      width: 50%;
+    } */
+    &.open {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    &.full {
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      border-radius: 0;
+      max-height: 100%;
+      border: none;
+    }
+    &.V2 {
+      padding-left: 20%;
+      padding-right: 20%;
+    }
+
+    &.mini {
+      width: 50%;
+      /* @media (width>768px) {
+        width: 30%;
+      } */
+    }
+    & > .head-title > span {
+      cursor: pointer;
+      color: var(--cWhite);
+      &:active {
+        transform: scale(0.9);
+      }
+    }
+    .headerDivider {
+      height: 0.5px; /* Grosor de la línea, similar a borderWidth */
+      background-color: var(--cWhiteV1); /* Color del borde (#a7a7a7) */
+      width: 100%;
+    }
+    & > section {
+      overflow-y: auto;
+      flex-grow: 1;
+      color: var(--cWhiteV1);
+      margin-top: var(--spS);
+      margin-bottom: var(--spS);
+    }
+    & > footer {
+      display: flex;
+      /* flex-direction: column;  Mantenemos esto para el móvil inicialmente */
+      gap: 8px; /* Espacio entre botones si están en columna o si hay más de dos */
+
+      /* Para pantallas móviles (botones en columna, ocupan todo el ancho por defecto) */
+      & > button {
+        /* Estilo general para los botones en el footer si es necesario */
+        width: 100%; /* Hacemos que ocupen todo el ancho en vista de columna */
+      }
+
+      @media (width > 768px) {
+        flex-direction: row-reverse; /* Botones en fila, Cancelar a la izquierda, Guardar a la derecha */
+        justify-content: space-between; /* Mantenemos esto si solo hay dos botones y quieres que el espacio sobrante se distribuya */
+
+        /* Seleccionamos los botones por su orden o props.
+           Dado que usas row-reverse, el primer hijo en el DOM (buttonText)
+           será el último visualmente (a la derecha).
+           Y el segundo hijo en el DOM (buttonCancel) será el primero visualmente (a la izquierda).
+        */
+
+        & > button:nth-child(1) {
+          /* Este será el botón "Guardar" (buttonText) debido al row-reverse */
+          flex: 1; /* Ocupa espacio igual */
+        }
+
+        & > button:nth-child(2) {
+          /* Este será el botón "Cancelar" (buttonCancel) */
+          flex: 1; /* Ocupa espacio igual */
+        }
+      }
+    }
+  }
+}
+
+.headerContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.iconContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--cWhiteV2);
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 4px;
+}
+
+.modalTitle {
+  color: #fafafa;
+  font-family: Roboto, sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  margin: 0;
+}
+
+.modalSubtitle {
+  color: #a7a7a7;
+  font-family: Roboto, sans-serif;
+  font-size: 12.6px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin: 0;
+}
