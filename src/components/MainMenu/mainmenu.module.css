@@ -71,20 +71,21 @@
     display: flex;
     align-items: center;
     gap: var(--spS);
-    padding: var(--spL) var(--spM);
-    border-radius: var(--bRadiusS);
+    /* padding: var(--spL) var(--spM); */
+    padding: 10px;
+    border-radius: var(--bRadius);
     border: 1px solid var(--cBackground-muted);
   }
 
   & > a:hover {
     background-color: var(--cBlackV1);
-    border: 1px solid var(--cBigSidebar);
+    border: 1px solid var(--cBorderSidebar);
     color: var(--cWhite);
   }
 
   & > a.active {
-    background-color: var(--cHoverBigSidebar);
-    border: 1px solid var(--cBigSidebar);
+    background-color: var(--cFillSidebarV2);
+    border: 1px solid var(--cBorderSidebar);
     color: var(--cWhite);
   }
 
@@ -99,9 +100,12 @@
   font-weight: var(--bMedium);
   font-size: var(--sM);
   cursor: pointer;
-  border-radius: var(--bRadiusS);
+  border-radius: var(--bRadius);
   padding: 0px;
-  transition: background-color 0.3s ease, color 0.3s ease, padding 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    padding 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -113,7 +117,7 @@
     border: 1px solid var(--cBigSidebar);
   }
 
-  &:hover::before,
+  /* &:hover::before,
   &:hover::after {
     content: "";
     position: absolute;
@@ -123,7 +127,7 @@
     background-color: var(--cAccent);
     transform: translateY(-50%);
     border-radius: 25%;
-  }
+  } */
 
   &:hover::before {
     left: -2px;
@@ -134,7 +138,7 @@
   }
 
   &.isOpen {
-    background-color: var(--cBackground);
+    background-color: var(--cBackground-muted);
     color: var(--cWhite);
     padding-bottom: var(--spL);
     border: 1px solid var(--cBorder);
@@ -145,9 +149,10 @@
   }
 
   &.isRouteActive {
-    background-color: var(--cHoverBigSidebar);
+    background-color: var(--cFillSidebarV2);
+    /* background-color: var(--cHoverBigSidebar); */
     color: white;
-    border: 1px solid var(--cBigSidebar);
+    border: 1px solid var(--cBorderSidebar);
   }
 
   &.collapsed > div:nth-child(1) {
@@ -161,7 +166,7 @@
     left: 92px;
     background-color: #181a1c;
     width: 200px;
-    border-radius: var(--bRadiusS);
+    /* border-radius: var(--bRadiusS); */
     padding: var(--spS);
     margin-top: 0;
     border: 1px solid rgba(191, 185, 185, 0.1);
@@ -173,8 +178,8 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--spS);
-    padding: var(--spL) var(--spM);
-    border-radius: var(--bRadiusS);
+    padding: 10px;
+    border-radius: var(--bRadius);
 
     & > div:nth-child(1) {
       display: flex;
@@ -206,13 +211,13 @@
     }
 
     & > a:hover {
-      background-color: var(--cAccent);
-      color: var(--cBlack);
+      background-color: var(--cSidebarV2);
+      color: var(--cWhite);
     }
 
     & > a.active,
     & > a.active:hover {
-      background-color: var(--cBigSidebar);
+      background-color: var(--cSidebarV2);
     }
   }
 }
