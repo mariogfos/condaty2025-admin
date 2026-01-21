@@ -21,10 +21,10 @@ export const menuConfig = [
     icon: IconBackOffice,
     key: "Backoffice",
     items: [
-      { href: "/superadmins", perm: "units", label: "Superadmins" },
-      { href: "/condominios", perm: "areas", label: "Condominios" },
-      { href: "/invitations", perm: "accesses", label: "Invitaciones QR" },
-      { href: "/uploads", perm: "documents", label: "Carga masiva" },
+      { href: "/superadmins", perm: "superadmins", label: "Superadmins" },
+      { href: "/condominios", perm: "condominios", label: "Condominios" },
+      { href: "/invitations", perm: "campanas", label: "Invitaciones QR" },
+      { href: "/uploads", perm: "cargamasiva", label: "Carga masiva" },
     ],
   },
   {
