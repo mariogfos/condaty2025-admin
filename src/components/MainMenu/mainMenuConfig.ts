@@ -6,6 +6,11 @@ import {
   IconComunicationDialog,
   IconCalendar,
   IconSecurity,
+  IconBackOffice,
+  IconFinance,
+  IconAdministracion,
+  IconCommunication,
+  IconSecurityV2,
 } from "../layout/icons/IconsBiblioteca";
 
 export const menuConfig = [
@@ -13,19 +18,19 @@ export const menuConfig = [
   {
     type: "dropdown",
     label: "Backoffice",
-    icon: IconMonitorLine,
+    icon: IconBackOffice,
     key: "Backoffice",
     items: [
-      { href: "/superadmins", perm: "units", label: "Superadmins" },
-      { href: "/condominios", perm: "areas", label: "Condominios" },
-      { href: "/invitations", perm: "accesses", label: "Invitaciones QR" },
-      { href: "/uploads", perm: "documents", label: "Carga masiva" },
+      { href: "/superadmins", perm: "superadmins", label: "Superadmins" },
+      { href: "/condominios", perm: "condominios", label: "Condominios" },
+      { href: "/invitations", perm: "campanas", label: "Invitaciones QR" },
+      { href: "/uploads", perm: "cargamasiva", label: "Carga masiva" },
     ],
   },
   {
     type: "dropdown",
     label: "Finanzas",
-    icon: IconPayments,
+    icon: IconFinance,
     key: "Finanzas",
     items: [
       { href: "/balance", label: "Flujo de efectivo", perm: "balance" },
@@ -54,7 +59,7 @@ export const menuConfig = [
   {
     type: "dropdown",
     label: "Administración",
-    icon: IconMonitorLine,
+    icon: IconAdministracion,
     key: "Administración",
     items: [
       { href: "/units", perm: "units", label: "Unidades" },
@@ -78,7 +83,7 @@ export const menuConfig = [
   {
     type: "dropdown",
     label: "Comunicación",
-    icon: IconComunicationDialog,
+    icon: IconCommunication,
     key: "Comunicación",
     items: [
       { href: "/contents", perm: "contents", label: "Publicaciones" },
@@ -101,7 +106,7 @@ export const menuConfig = [
   {
     type: "dropdown",
     label: "Vigilancia y seguridad",
-    icon: IconSecurity,
+    icon: IconSecurityV2,
     key: "Vigilancia y seguridad",
     items: [
       { href: "/guards", perm: "guards", label: "Guardias" },
