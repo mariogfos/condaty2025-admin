@@ -3,7 +3,6 @@
   flex-direction: column;
   gap: var(--spL);
 
-
   & > section {
     display: flex;
     flex-direction: column;
@@ -28,7 +27,6 @@
       display: flex;
       gap: var(--spS);
       border-radius: 0px 0px var(--bRadiusM) var(--bRadiusM);
-;
       border-top: none;
       padding-bottom: 36px;
     }
@@ -95,6 +93,21 @@
       flex-direction: column;
     }
   }
+
+  .headerTitle {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+  }
+
+  .headerSubtitle {
+    color: var(--cWhiteV1);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+  }
 }
 
 .infoColumn {
@@ -107,13 +120,15 @@
 
 .infoTitle {
   overflow: hidden;
-  color: var(--cWhites-Whites-cWhite, #FAFAFA);
+  color: var(--cWhites-Whites-cWhite, #fafafa);
+  text-overflow: ellipsis;
 
-;
   font-size: 18px;
-
+  font-style: normal;
   font-weight: 500;
-
+  line-height: 1.5;
+  white-space: nowrap;
+  padding-bottom: 4px;
 }
 
 .infoCard {

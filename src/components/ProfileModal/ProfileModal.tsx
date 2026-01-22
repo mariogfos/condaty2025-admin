@@ -279,7 +279,12 @@ const ProfileModal = ({
       >
         <div className={styles.ProfileModal}>
           <section>
-            <h1>{title}</h1>
+            <div className={styles.headerTitle}>
+              <h1>{title}</h1>
+              <span className={styles.headerSubtitle}>
+                Gestiona tu información personal, rol y seguridad
+              </span>
+            </div>
             <div>
               {edit && canEditThisProfile() && (
                 <button
