@@ -60,8 +60,8 @@ const MainMenu = ({
           setStore((prev: any) => ({ ...prev, [key]: (prev?.[key] || 0) + 1 }));
         }
       },
-      [setStore]
-    )
+      [setStore],
+    ),
   );
   const renderedMenu = useMemo(() => {
     return menuConfig
