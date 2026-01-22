@@ -1260,30 +1260,32 @@ const useCrud = ({
     }
     return (
       <nav className={styles.actions}>
-        {hideEdit ? null : (
-          <div>
-            <IconEdit
-              onClick={(e: MouseEvent) => {
-                e.stopPropagation();
-                onEdit(item);
-              }}
-              size={32}
-              circle
-            />
-          </div>
-        )}
-        {hideDel ? null : (
-          <div>
-            <IconTrash
-              onClick={(e: MouseEvent) => {
-                e.stopPropagation();
-                onDel(item);
-              }}
-              size={32}
-              circle
-            />
-          </div>
-        )}
+        {/* {hideEdit ? null : ( */}
+        <div style={{ opacity: hideEdit ? 0.3 : 1 }}>
+          <IconEdit
+            onClick={(e: MouseEvent) => {
+              if (hideEdit) return;
+              e.stopPropagation();
+              onEdit(item);
+            }}
+            size={32}
+            circle
+          />
+        </div>
+        {/* )} */}
+        {/* {hideDel ? null : ( */}
+        <div style={{ opacity: hideDel ? 0.3 : 1 }}>
+          <IconTrash
+            onClick={(e: MouseEvent) => {
+              if (hideDel) return;
+              e.stopPropagation();
+              onDel(item);
+            }}
+            size={32}
+            circle
+          />
+        </div>
+        {/* )} */}
       </nav>
     );
   };

@@ -59,17 +59,12 @@ const RenderForm = ({
     if (hasErrors(validate())) return;
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
-      "/bank-accounts" + (formState.id ? "/" + formState.id : ""),
+      "/clients" + (formState.id ? "/" + formState.id : ""),
       method,
       {
-        avatar: formState.avatar || "",
-        bank_entity_id: formState.bank_entity_id || "",
-        account_type: formState.account_type || "",
-        account_number: formState.account_number || "",
-        currency_type_id: formState.currency_type_id || "",
-        holder: formState.holder || "",
-        ci_holder: formState.ci_holder || "",
-        alias_holder: formState.alias_holder || "",
+        name: formState?.name || "",
+        type: formState?.type || "",
+        privacy: formState?.privacy || "",
       },
     );
 
@@ -113,16 +108,17 @@ const RenderForm = ({
         value={formState.type || ""}
         disabled={item?.isInUse}
         optionLabel="name"
-        options={[
-          {
-            id: "S",
-            name: "Cuenta ahorro",
-          },
-          {
-            id: "C",
-            name: "Cuenta corriente",
-          },
-        ]}
+        // options={[
+        //   {
+        //     id: "S",
+        //     name: "Cuenta ahorro",
+        //   },
+        //   {
+        //     id: "C",
+        //     name: "Cuenta corriente",
+        //   },
+        // ]}
+        options={extraData?.types || []}
         optionValue="id"
         onChange={handleChange}
         error={errors}
@@ -144,17 +140,18 @@ const RenderForm = ({
         name="privacy"
         value={formState.privacy || ""}
         optionLabel="name"
-        disabled={item?.isInUse}
-        options={[
-          {
-            id: "public",
-            name: "Público",
-          },
-          {
-            id: "private",
-            name: "Privado",
-          },
-        ]}
+        disabled={item?.id}
+        // options={[
+        //   {
+        //     id: "P",
+        //     name: "Público",
+        //   },
+        //   {
+        //     id: "T",
+        //     name: "Prueba",
+        //   },
+        // ]}
+        options={extraData?.privacy || []}
         optionValue="id"
         onChange={handleChange}
         error={errors}
