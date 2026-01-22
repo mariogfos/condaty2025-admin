@@ -1,0 +1,12 @@
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cWhite);
+  margin-bottom: 4px;
+}
+.subtitle {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--cWhiteV1);
+  margin-bottom: 12px;
+}
