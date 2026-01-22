@@ -161,6 +161,10 @@ const ProfileModal = ({
     const userId = data?.data[0]?.id;
     const timestamp = data?.data[0]?.updated_at;
 
+    if (data?.data[0]?.type === "FOS") {
+      return `/FOS-${userId}.webp?d=${timestamp}`;
+    }
+
     switch (type) {
       case "admin":
         return `/ADM-${userId}.webp?d=${timestamp}`;
@@ -271,10 +275,16 @@ const ProfileModal = ({
         buttonText=""
         buttonCancel=""
         zIndex={zIndex}
+        style={{ backgroundColor: "#191919" }}
       >
         <div className={styles.ProfileModal}>
           <section>
-            <h1>{title}</h1>
+            <div className={styles.headerTitle}>
+              <h1>{title}</h1>
+              <span className={styles.headerSubtitle}>
+                Gestiona tu información personal, rol y seguridad
+              </span>
+            </div>
             <div>
               {edit && canEditThisProfile() && (
                 <button
@@ -427,121 +437,138 @@ const ProfileModal = ({
             </div>
           </section>
           <section>
-            <WidgetBase
-              title={"Datos Personales"}
-              variant={"V1"}
-              titleStyle={{ fontSize: 16 }}
-            >
-              <div className="bottomLine" />
-              <div>
-                <div>Carnet de identidad</div>
-                <div>{data?.data[0]?.ci}</div>
-              </div>
-              {type !== "homeOwner" && (
-                <>
-                  <div className="bottomLine" />
-                  <div>
-                    <div>Condominio</div>
-                    {clientUsers?.map((item: ClientItem) => (
-                      <div key={item.id}>{item.name}</div>
-                    ))}
+            {/* Column 1: Información personal */}
+            <div className={styles.infoColumn}>
+              <h3 className={styles.infoTitle}>Información personal</h3>
+              <div className={styles.infoCard}>
+                {data?.data[0]?.ci && (
+                  <div className={styles.fieldGroup}>
+                    <span className={styles.fieldLabel}>
+                      Carnet de identidad
+                    </span>
+                    <span className={styles.fieldValue}>
+                      {data?.data[0]?.ci}
+                    </span>
                   </div>
-                </>
-              )}
-
-              <div className="bottomLine" />
-
-              <div>
-                <div>Dirección</div>
-                <div>
-                  {(() => {
-                    if (type == "owner") {
-                      const hasDescription =
-                        data?.data[0]?.dpto[0]?.description;
-                      const hasNro = data?.data[0]?.dpto[0]?.nro;
-                      if (!hasDescription && !hasNro) {
-                        return "-/-";
-                      }
-                      return (
-                        data?.data[0]?.dpto[0]?.type?.name +
+                )}
+                {data?.data[0]?.phone && (
+                  <div className={styles.fieldGroup}>
+                    <span className={styles.fieldLabel}>Número de celular</span>
+                    <span className={styles.fieldValue}>
+                      {data?.data[0]?.phone}
+                    </span>
+                  </div>
+                )}
+                {(() => {
+                  let address = "";
+                  if (type === "owner") {
+                    const hasDescription = data?.data[0]?.dpto[0]?.description;
+                    const hasNro = data?.data[0]?.dpto[0]?.nro;
+                    if (hasDescription || hasNro) {
+                      address =
+                        (data?.data[0]?.dpto[0]?.type?.name || "") +
                         " " +
-                        data?.data[0]?.dpto[0]?.nro +
+                        (data?.data[0]?.dpto[0]?.nro || "") +
                         (hasDescription
                           ? " - " + data?.data[0]?.dpto[0]?.description
-                          : "")
-                      );
+                          : "");
                     }
-                    return data?.data[0]?.address || "-/-";
-                  })()}
+                  } else {
+                    address = data?.data[0]?.address;
+                  }
+
+                  if (address) {
+                    return (
+                      <div className={styles.fieldGroup}>
+                        <span className={styles.fieldLabel}>Domicilio</span>
+                        <span className={styles.fieldValue}>{address}</span>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            </div>
+
+            {/* Column 2: Rol y acceso */}
+            <div className={styles.infoColumn}>
+              <h3 className={styles.infoTitle}>Rol y acceso</h3>
+              <div className={styles.infoCard}>
+                <div className={styles.fieldGroup}>
+                  <span className={styles.fieldLabel}>Rol</span>
+                  <span className={styles.fieldValue}>{profileRole}</span>
+                </div>
+                {data?.data[0]?.email && (
+                  <div className={styles.fieldGroup}>
+                    <span className={styles.fieldLabel}>Email</span>
+                    <span className={styles.fieldValue}>
+                      {data?.data[0]?.email}
+                    </span>
+                  </div>
+                )}
+                {type !== "homeOwner" &&
+                  clientUsers &&
+                  clientUsers.length > 0 && (
+                    <div className={styles.fieldGroup}>
+                      <span className={styles.fieldLabel}>Condominio</span>
+                      <div className={styles.fieldValue}>
+                        {clientUsers.map((item: ClientItem) => (
+                          <div key={item.id}>{item.name}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+              </div>
+            </div>
+
+            {/* Column 3: Seguridad de la cuenta (Only if it's the user's own profile) */}
+            {user?.id === data?.data[0]?.id && (
+              <div className={styles.infoColumn}>
+                <h3 className={styles.infoTitle}>Seguridad de la cuenta</h3>
+                <div className={styles.infoCard}>
+                  <div className={styles.securityItem}>
+                    <div className={styles.securityHeader}>
+                      <div style={{ display: "flex", flexDirection: "column" }}>
+                        <span className={styles.fieldLabel}>Email</span>
+                        <span className={styles.fieldValue}>
+                          {data?.data[0]?.email || "-"}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className={styles.securityButton}
+                        onClick={onChangeEmail}
+                      >
+                        Cambiar correo
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.securityItem}>
+                    <div className={styles.securityHeader}>
+                      <div style={{ display: "flex", flexDirection: "column" }}>
+                        <span className={styles.fieldLabel}>Contraseña</span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                          }}
+                        >
+                          <span className={styles.fieldValue}>*********</span>
+                          <IconLook size={16} color="var(--cWhiteV1)" />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        className={styles.securityButton}
+                        onClick={onChangePassword}
+                      >
+                        Restablecer contraseña
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              <div className="bottomLine" />
-            </WidgetBase>
-            <WidgetBase
-              title={"Documentos Personales"}
-              variant={"V1"}
-              titleStyle={{ fontSize: 16 }}
-            >
-              <div style={{ marginTop: 10 }} className="bottomLine" />
-              <div style={{ marginTop: 16 }}>Sin datos para mostrar</div>
-            </WidgetBase>
-
-            {user?.id === data?.data[0]?.id && (
-              <WidgetBase
-                title={"Datos de acceso"}
-                variant={"V1"}
-                titleStyle={{ fontSize: 16 }}
-              >
-                <div style={{ marginTop: 10 }} className="bottomLine" />
-
-                <button
-                  type="button"
-                  className={styles.buttonChange}
-                  onClick={onChangeEmail}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    padding: 0,
-                    width: "100%",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    color: "inherit",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <IconLockEmail reverse />
-                  <div className={styles.accessChange}>
-                    <p>Cambiar correo electrónico</p>
-                    <IconArrowRight className={styles.iconArrow} />
-                  </div>
-                </button>
-                <div className="bottomLine" />
-                <button
-                  type="button"
-                  className={styles.buttonChange}
-                  onClick={onChangePassword}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    padding: 0,
-                    width: "100%",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    color: "inherit",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <IconLook reverse />
-                  <div className={styles.accessChange}>
-                    <p>Cambiar contraseña</p>
-                    <IconArrowRight className={styles.iconArrow} />
-                  </div>
-                </button>
-                <div className="bottomLine" />
-              </WidgetBase>
             )}
           </section>
           {user?.id === data?.data[0]?.id && setOnLogout && (

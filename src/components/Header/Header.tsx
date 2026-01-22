@@ -174,7 +174,10 @@ const Header = ({
             h={40}
             w={40}
             src={getUrlImages(
-              "/ADM-" + user?.id + ".webp?d=" + user?.updated_at
+              (user?.type === "FOS" ? "/FOS-" : "/ADM-") +
+                user?.id +
+                ".webp?d=" +
+                user?.updated_at
             )}
             onClick={() => {
               setStore({ ...store, openProfileModal: true });
