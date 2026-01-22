@@ -213,7 +213,7 @@ const useCrud = ({
     "/" + mod.modulo,
     "GET",
     params,
-    mod?.noWaiting
+    mod?.noWaiting,
   );
 
   const onChange = useCallback((e: any) => {
@@ -227,7 +227,7 @@ const useCrud = ({
   const initOpen = (
     setOpen: Function,
     data: Record<string, any> = {},
-    action: ActionType = "add"
+    action: ActionType = "add",
   ) => {
     setAction(action);
     let dataNew: any = {};
@@ -292,7 +292,7 @@ const useCrud = ({
         ...(mod.loadView !== true ? mod.loadView : {}),
       },
       false,
-      mod?.noWaiting
+      mod?.noWaiting,
     );
     if (data?.success) {
       return data?.data;
@@ -333,11 +333,11 @@ const useCrud = ({
           _exist: 1,
         },
         false,
-        mod?.noWaiting
+        mod?.noWaiting,
       );
       return row?.success ? row.data : false;
     },
-    []
+    [],
   );
 
   const onCloseCrud = (options: Record<string, any> | null = null) => {
@@ -412,20 +412,24 @@ const useCrud = ({
       method,
       action == "del" ? { id: data.id } : paramWithoutFiles,
       false,
-      mod?.noWaiting
+      mod?.noWaiting,
     );
 
     if (response?.success) {
       try {
         const uploadId =
-          response?.data?.id ?? response?.data?.data?.id ?? data?.id ?? response?.id ?? null;
+          response?.data?.id ??
+          response?.data?.data?.id ??
+          data?.id ??
+          response?.id ??
+          null;
         if (filesToUpload.length > 0 && uploadId) {
           await uploadLargeFiles(
             filesToUpload,
             uploadId,
             execute,
             mod?.noWaiting,
-            showToast
+            showToast,
           );
         }
       } catch (e) {
@@ -496,7 +500,7 @@ const useCrud = ({
 
   const onExport = async (
     type?: string, // Cambiar el tipo a string opcional
-    callBack: (url: string) => void = (url: string) => { }
+    callBack: (url: string) => void = (url: string) => {},
   ) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
@@ -517,7 +521,7 @@ const useCrud = ({
         exportAnchos: mod?.exportAnchos || "",
       },
       false,
-      mod?.noWaiting
+      mod?.noWaiting,
     );
 
     if (file?.success) {
@@ -559,7 +563,7 @@ const useCrud = ({
   };
   const onExportItem = (
     item: Record<string, any>,
-    type: ExportType = "pdf"
+    type: ExportType = "pdf",
   ) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
@@ -583,7 +587,7 @@ const useCrud = ({
         ...(mod.extraData?.params || {}),
       },
       false,
-      mod?.noWaiting
+      mod?.noWaiting,
     );
     // console.log('extradata get Estradata', extraData);
     setExtraData(extraData?.data);
@@ -667,21 +671,21 @@ const useCrud = ({
                         title={
                           col.onRenderLabel
                             ? col.onRenderLabel({
-                              value: item[col.key],
-                              key: col.key,
-                              item,
-                              i,
-                            })
+                                value: item[col.key],
+                                key: col.key,
+                                item,
+                                i,
+                              })
                             : col.label
                         }
                         value={
                           col.onRender
                             ? col.onRender({
-                              value: item[col.key],
-                              key: col.key,
-                              item,
-                              i,
-                            })
+                                value: item[col.key],
+                                key: col.key,
+                                item,
+                                i,
+                              })
                             : item[col.key]
                         }
                       />
@@ -737,11 +741,11 @@ const useCrud = ({
         item={
           field.prepareData
             ? field.prepareData(
-              formStateForm,
-              field,
-              field.key,
-              setFormStateForm
-            )
+                formStateForm,
+                field,
+                field.key,
+                setFormStateForm,
+              )
             : formStateForm
         }
         i={i}
@@ -857,7 +861,7 @@ const useCrud = ({
               formStateForm,
               setFormStateForm,
               setShowExtraModal,
-              action
+              action,
             )
           )
             return;
@@ -870,7 +874,7 @@ const useCrud = ({
         }
         setFormStateForm((old: any) => ({ ...old, [e.target.name]: value }));
       },
-      [formStateForm]
+      [formStateForm],
     );
 
     const onBlurForm = useCallback(
@@ -884,12 +888,12 @@ const useCrud = ({
           });
         }
       },
-      [formStateForm]
+      [formStateForm],
     );
 
     return (
       <DataModal
-        variant={'mini'}
+        variant={"mini"}
         open={open}
         onClose={() => onClose()}
         title={
@@ -931,10 +935,10 @@ const useCrud = ({
                     width: "100%",
                     ...(field.openTag?.border
                       ? {
-                        border: "1px solid var(--cWhiteV1)",
-                        borderRadius: "var(--bRadiusS)",
-                        padding: "var(--spM)",
-                      }
+                          border: "1px solid var(--cWhiteV1)",
+                          borderRadius: "var(--bRadiusS)",
+                          padding: "var(--spM)",
+                        }
                       : {}),
                     ...field.openTag?.style,
                   }}
@@ -1009,7 +1013,7 @@ const useCrud = ({
             title="Filtros"
             style={{
               ...(Object.values(filterSel).filter(
-                (e) => e !== "ALL" && e !== "" && e !== "T"
+                (e) => e !== "ALL" && e !== "" && e !== "T",
               )?.length > 0 && { color: "var(--cPrimary)" }),
             }}
             className={
@@ -1044,9 +1048,9 @@ const useCrud = ({
                       filterSel[f.key] != "" &&
                       filterSel[f.key] != "T" &&
                       filterSel[f.key] != "ALL" && {
-                      border: "1px solid var(--cPrimary)",
-                      borderRadius: 8,
-                    }),
+                        border: "1px solid var(--cPrimary)",
+                        borderRadius: 8,
+                      }),
                   }}
                 />
               ))}
@@ -1078,9 +1082,9 @@ const useCrud = ({
                     filterSel[f.key] != "" &&
                     filterSel[f.key] != "T" &&
                     filterSel[f.key] != "ALL" && {
-                    border: "1px solid var(--cPrimary)",
-                    borderRadius: 8,
-                  }),
+                      border: "1px solid var(--cPrimary)",
+                      borderRadius: 8,
+                    }),
                 }}
               />
             ))}
@@ -1147,7 +1151,7 @@ const useCrud = ({
               className={
                 styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
               }
-              onClick={data?.length > 0 ? onImport : () => { }}
+              onClick={data?.length > 0 ? onImport : () => {}}
             />
           )}
           {mod.export && (
@@ -1156,7 +1160,7 @@ const useCrud = ({
               className={
                 styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
               }
-              onClick={data?.length > 0 ? () => onExport("pdf") : () => { }}
+              onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
             />
           )}
           {mod.listAndCard && (
@@ -1210,7 +1214,7 @@ const useCrud = ({
           )}
         </nav>
       );
-    }
+    },
   );
   AddMenu.displayName = "AddMenu";
 
@@ -1242,7 +1246,7 @@ const useCrud = ({
           )}
         </DataModal>
       );
-    }
+    },
   );
   FormDelete.displayName = "FormDelete";
 
@@ -1256,30 +1260,32 @@ const useCrud = ({
     }
     return (
       <nav className={styles.actions}>
-        {hideEdit ? null : (
-          <div>
-            <IconEdit
-              onClick={(e: MouseEvent) => {
-                e.stopPropagation();
-                onEdit(item);
-              }}
-              size={32}
-              circle
-            />
-          </div>
-        )}
-        {hideDel ? null : (
-          <div>
-            <IconTrash
-              onClick={(e: MouseEvent) => {
-                e.stopPropagation();
-                onDel(item);
-              }}
-              size={32}
-              circle
-            />
-          </div>
-        )}
+        {/* {hideEdit ? null : ( */}
+        <div style={{ opacity: hideEdit ? 0.3 : 1 }}>
+          <IconEdit
+            onClick={(e: MouseEvent) => {
+              if (hideEdit) return;
+              e.stopPropagation();
+              onEdit(item);
+            }}
+            size={32}
+            circle
+          />
+        </div>
+        {/* )} */}
+        {/* {hideDel ? null : ( */}
+        <div style={{ opacity: hideDel ? 0.3 : 1 }}>
+          <IconTrash
+            onClick={(e: MouseEvent) => {
+              if (hideDel) return;
+              e.stopPropagation();
+              onDel(item);
+            }}
+            size={32}
+            circle
+          />
+        </div>
+        {/* )} */}
       </nav>
     );
   };
@@ -1288,7 +1294,7 @@ const useCrud = ({
     value: any,
     options: Record<string, any>[],
     key: string = "id",
-    label: string = "name"
+    label: string = "name",
   ) => {
     if (!Array.isArray(options) || options.length == 0) return "";
     const r = options?.find((s: any) => s[key] == value);
@@ -1314,7 +1320,7 @@ const useCrud = ({
             item.value,
             extraData[opt.optionsExtra],
             opt.optionValue,
-            opt.optionLabel
+            opt.optionLabel,
           );
         };
       if (opt.type === "select" && !opt.optionsExtra)
@@ -1325,7 +1331,7 @@ const useCrud = ({
               ? opt.options({ key: opt.optionValue, item, user, extraData })
               : opt.options,
             opt.optionValue,
-            opt.optionLabel
+            opt.optionLabel,
           );
         };
     }
@@ -1354,7 +1360,7 @@ const useCrud = ({
               field.filter?.order ?? field?.list?.order ?? field?.order ?? 1000,
             options: field.filter?.extraData
               ? extraData[field.filter?.extraData]
-              : field.filter?.options(extraData) ?? field.form.options ?? [],
+              : (field.filter?.options(extraData) ?? field.form.options ?? []),
             optionLabel: field?.filter?.optionLabel,
             optionValue: field?.filter?.optionValue,
           };
@@ -1478,7 +1484,7 @@ const useCrud = ({
                     }
                     height={props?.height || undefined}
                     className="striped"
-                    actionsWidth={"170px"}
+                    actionsWidth={"120px"}
                     sumarize={props.sumarize}
                     extraData={extraData}
                     onSort={onSort}
@@ -1499,12 +1505,15 @@ const useCrud = ({
                       totalPages={Math.ceil(
                         (mod.onSearch
                           ? _data.length
-                          : data?.message?.total ?? 1) / (params.perPage ?? 1)
+                          : (data?.message?.total ?? 1)) /
+                          (params.perPage ?? 1),
                       )}
                       previousLabel=""
                       nextLabel=""
                       total={
-                        mod.onSearch ? _data.length : data?.message?.total ?? 0
+                        mod.onSearch
+                          ? _data.length
+                          : (data?.message?.total ?? 0)
                       }
                     />
                   </div>

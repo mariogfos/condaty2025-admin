@@ -158,7 +158,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
                       prefix +
                         user?.id +
                         ".webp?" +
-                        (user?.updated_at || new Date().toISOString())
+                        (user?.updated_at || new Date().toISOString()),
                     )}
                   />
                   {/* </div> */}
@@ -188,14 +188,14 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
                     name={getFullName(props.item.owner)}
                     src={getUrlImages(
                       "/OWNER-" +
-                        props.item.owner.id +
+                        props.item?.owner?.id +
                         ".webp?" +
-                        props.item.owner.updated_at
+                        props.item?.owner?.updated_at,
                     )}
                   />
                 </div>
                 <div className={styles.avatarText}>
-                  <div>{getFullName(props.item.owner)}</div>
+                  <div>{getFullName(props.item?.owner)}</div>
                   <div>Unidad: {props?.item?.owner?.dpto[0]?.nro || "-/-"}</div>
                 </div>
               </div>

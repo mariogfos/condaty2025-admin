@@ -48,7 +48,10 @@
 
   /* sidebar */
   --cSidebar: #246950;
+  --cSidebarV2: #00e38c1f;
   --cFillSidebar: #1f2d27;
+  --cFillSidebarV2: #00e38c0a;
+  --cBorderSidebar: #00e38c66;
 
   /* Paleta de colores principales */
   --cPrimary: #00e38c;
@@ -287,7 +290,9 @@ button {
   background: var(--cAccent);
   aspect-ratio: 1;
   border-radius: 50%;
-  mask: conic-gradient(#0000, #000), linear-gradient(#000 0 0) content-box;
+  mask:
+    conic-gradient(#0000, #000),
+    linear-gradient(#000 0 0) content-box;
   mask-composite: subtract;
   box-sizing: border-box;
   animation: load 1s linear infinite;
