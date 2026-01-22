@@ -222,15 +222,16 @@ const EditProfile = ({
               error={errors}
             />
             {user?.type === "FOS" && (
-              <Input
-                label="Correo electrónico"
-                name="email"
-                type="email"
-                value={formState.email}
-                onChange={onChange}
-                error={errors}
-                className={styles.fullWidth}
-              />
+              <div className={styles.fullWidth}>
+                <Input
+                  label="Correo electrónico"
+                  name="email"
+                  type="email"
+                  value={formState.email}
+                  onChange={onChange}
+                  error={errors}
+                />
+              </div>
             )}
           </div>
           {type !== "homeOwner" && type !== "owner" && (
