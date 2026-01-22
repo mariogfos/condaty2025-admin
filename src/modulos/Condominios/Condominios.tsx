@@ -25,7 +25,7 @@ const mod: ModCrudType = {
   extraData: true,
   onHideActions: (item: any) => {
     return {
-      hideDel: item.privacy == "P",
+      hideDel: item.privacy == "P" || item.status == "I",
     };
   },
   hideActions: {
