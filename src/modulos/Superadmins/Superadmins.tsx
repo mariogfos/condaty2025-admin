@@ -6,6 +6,7 @@ import { getDateTimeStrMes } from "@/mk/utils/date";
 import React, { useMemo } from "react";
 import useCrudUtils from "../shared/useCrudUtils";
 import styles from "./Superadmins.module.css";
+import RenderForm from "./RenderForm/RenderForm";
 
 const paramsInitial = {
   perPage: 20,
@@ -29,7 +30,7 @@ const mod: ModCrudType = {
   hideActions: {
     view: true,
   },
-  // renderForm: (props: any) => <RenderForm {...props} />,
+  renderForm: (props: any) => <RenderForm {...props} />,
 };
 const statusSuperadmins: Record<
   string,
