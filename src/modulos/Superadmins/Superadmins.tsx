@@ -15,9 +15,9 @@ const paramsInitial = {
 };
 const mod: ModCrudType = {
   modulo: "clients",
-  singular: "condominios",
-  plural: "condominios",
-  permiso: "condominios",
+  singular: "superadmin",
+  plural: "superadmins",
+  permiso: "superadmins",
   // renderDel: (props: any) => <RenderDel {...props} />,
   filter: true,
   extraData: true,
@@ -31,7 +31,7 @@ const mod: ModCrudType = {
   },
   // renderForm: (props: any) => <RenderForm {...props} />,
 };
-const statusCondominios: Record<
+const statusSuperadmins: Record<
   string,
   { text: string; bgColor: string; color: string }
 > = {
@@ -39,7 +39,7 @@ const statusCondominios: Record<
   I: { text: "Inactivo", bgColor: "#3A2121", color: "var(--cError)" },
   // S: { text: "Suspendido", bgColor: "#3B351E", color: "var(--cWarning)" },
 };
-const privacyCondominios: Record<string, string> = {
+const privacySuperadmins: Record<string, string> = {
   T: "Prueba",
   P: "Público",
 };
@@ -67,11 +67,11 @@ const Superadmins = () => {
         list: {
           onRender: ({ item }: any) => (
             <StatusBadge
-              backgroundColor={statusCondominios[item?.status]?.bgColor}
-              color={statusCondominios[item?.status]?.color}
+              backgroundColor={statusSuperadmins[item?.status]?.bgColor}
+              color={statusSuperadmins[item?.status]?.color}
               style={{ fontSize: "12px" }}
             >
-              {statusCondominios[item?.status]?.text || item?.status}
+              {statusSuperadmins[item?.status]?.text || item?.status}
             </StatusBadge>
           ),
           // ,
@@ -82,9 +82,9 @@ const Superadmins = () => {
           width: "180px",
           options: () => [
             { id: "ALL", name: "Todos" },
-            ...Object.keys(statusCondominios).map((key) => ({
+            ...Object.keys(statusSuperadmins).map((key) => ({
               id: key,
-              name: statusCondominios[key]?.text || key,
+              name: statusSuperadmins[key]?.text || key,
             })),
           ],
         },
@@ -95,7 +95,7 @@ const Superadmins = () => {
         label: "Privacidad",
         list: {
           onRender: ({ item }: any) =>
-            privacyCondominios[item?.privacy] || item?.privacy,
+            privacySuperadmins[item?.privacy] || item?.privacy,
         },
         form: { type: "text" },
         filter: {
@@ -103,9 +103,9 @@ const Superadmins = () => {
           width: "280px",
           options: () => [
             { id: "ALL", name: "Todos" },
-            ...Object.keys(privacyCondominios).map((key) => ({
+            ...Object.keys(privacySuperadmins).map((key) => ({
               id: key,
-              name: privacyCondominios[key] || key,
+              name: privacySuperadmins[key] || key,
             })),
           ],
         },
