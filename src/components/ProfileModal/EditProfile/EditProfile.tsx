@@ -123,7 +123,6 @@ const EditProfile = ({
               <UploadFile
                 name="avatar"
                 value={
-                  formState.has_image === 1 ||
                   formState.has_image === "1" ||
                   formState.avatar
                     ? formState.avatar || getUrlImages(urlImages)
