@@ -78,7 +78,7 @@ const Header = ({
     (e: any) => {
       setCountChat((old) => old + 1);
     },
-    [user?.id]
+    [user?.id],
   );
 
   useEvent("onChatNewMsg", onChat);
@@ -174,10 +174,7 @@ const Header = ({
             h={40}
             w={40}
             src={getUrlImages(
-              (user?.type === "FOS" ? "/FOS-" : "/ADM-") +
-                user?.id +
-                ".webp?d=" +
-                user?.updated_at
+              "/ADM-" + user?.id + ".webp?d=" + user?.updated_at,
             )}
             onClick={() => {
               setStore({ ...store, openProfileModal: true });

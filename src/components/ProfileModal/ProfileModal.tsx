@@ -162,7 +162,7 @@ const ProfileModal = ({
     const timestamp = data?.data[0]?.updated_at;
 
     if (data?.data[0]?.type === "FOS") {
-      return `/FOS-${userId}.webp?d=${timestamp}`;
+      return `/ADM-${userId}.webp?d=${timestamp}`;
     }
 
     switch (type) {
