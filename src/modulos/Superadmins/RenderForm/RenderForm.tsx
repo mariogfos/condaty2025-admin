@@ -148,6 +148,7 @@ const RenderForm = ({
       subtitle="Completa el formulario para crear un nuevo superadmin"
       onSave={_onSave}
       variant={"mini"}
+      buttonText={formState.id ? "Actualizar superadmin" : "Crear superadmin"}
       maxWidth={560}
     >
       <p className={styles.title}>Información personal</p>
@@ -195,9 +196,9 @@ const RenderForm = ({
           height: 1,
         }}
       />
-      <p className={styles.title}>Privacidad</p>
+      <p className={styles.title}>Roles</p>
       <p className={styles.subtitle}>
-        Determina si el condominio será público o interno.
+        Selecciona el tipo de permisos que tendrá este administrador.
       </p>
       <Select
         label="Selecciona el rol"
