@@ -59,7 +59,7 @@ const EditProfile = ({
       key: "phone",
       errors: errs,
     });
-    if (user?.type === "FOS") {
+    if (user?.fosrole_id) {
       errs = checkRules({
         value: formState.email,
         rules: ["required", "email"],

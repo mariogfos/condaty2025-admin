@@ -124,7 +124,7 @@ const Owners = () => {
           dataID={props?.item?.id}
           type={"owner"}
           title="Perfil de Residente"
-          edit={user?.type === "FOS" ? true : false}
+          edit={user?.fosrole_id ? true : false}
           reLoad={props?.reLoad}
         />
       ),

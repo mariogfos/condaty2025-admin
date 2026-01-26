@@ -161,7 +161,7 @@ const ProfileModal = ({
     const userId = data?.data[0]?.id;
     const timestamp = data?.data[0]?.updated_at;
 
-    if (data?.data[0]?.type === "FOS") {
+    if (data?.data[0]?.fosrole_id) {
       return `/ADM-${userId}.webp?d=${timestamp}`;
     }
 
@@ -243,7 +243,7 @@ const ProfileModal = ({
   const editPerm = userCan("users", "U");
 
   const canEditThisProfile = () => {
-    if (user?.type === "FOS") return true;
+    if (user?.fosrole_id) return true;
     if (type === "admin") {
       return editPerm && user?.id === data?.data[0]?.id;
     }
