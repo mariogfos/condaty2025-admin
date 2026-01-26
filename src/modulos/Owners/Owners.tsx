@@ -25,6 +25,7 @@ import Select from "@/mk/components/forms/Select/Select";
 import RenderForm from "../Owners/RenderForm/RenderForm";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import RenderView from "./RenderView/RenderView";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const paramsInitial = {
   perPage: 20,
@@ -32,8 +33,8 @@ const paramsInitial = {
   fullType: "L",
   searchBy: "",
 };
-
 const Owners = () => {
+  const { user } = useAuth();
   const [unitsModalOpen, setUnitsModalOpen] = useState(false);
   const [selectedHomeowner, setSelectedHomeowner] = useState(null);
 
@@ -123,7 +124,7 @@ const Owners = () => {
           dataID={props?.item?.id}
           type={"owner"}
           title="Perfil de Residente"
-          edit={false}
+          edit={user?.fosrole_id ? true : false}
           reLoad={props?.reLoad}
         />
       ),
@@ -154,7 +155,7 @@ const Owners = () => {
         searchBy: e.target.value,
       },
       false,
-      true
+      true,
     );
 
     if (data?.success && data.data?.data?.id) {
@@ -180,7 +181,7 @@ const Owners = () => {
       });
       showToast(
         "El residente ya existe en Condaty, se va a vincular al Condominio",
-        "warning"
+        "warning",
       );
     } else {
       props.setError({ ci: "" });
@@ -228,7 +229,10 @@ const Owners = () => {
               <Avatar
                 hasImage={residente?.has_image}
                 src={getUrlImages(
-                  "/OWNER-" + residente?.id + ".webp?d=" + residente?.updated_at
+                  "/OWNER-" +
+                    residente?.id +
+                    ".webp?d=" +
+                    residente?.updated_at,
                 )}
                 name={nombreCompleto}
               />
@@ -378,7 +382,7 @@ const Owners = () => {
           disabled: onDisbled,
         },
         list: {
-          onRender: ({item}: any) => {
+          onRender: ({ item }: any) => {
             return item?.phone || "-/-";
           },
         },
