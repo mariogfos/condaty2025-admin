@@ -47,7 +47,7 @@ const RenderForm = ({
     });
     errors = checkRules({
       value: formState?.phone,
-      rules: ["required"],
+      rules: ["phone"],
       key: "phone",
       errors,
     });
@@ -172,7 +172,7 @@ const RenderForm = ({
           value={formState.phone || ""}
           onChange={handleChange}
           error={errors}
-          required
+          required={false}
         />
       </div>
       <InputFullName
