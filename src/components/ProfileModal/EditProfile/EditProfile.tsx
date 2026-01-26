@@ -84,7 +84,7 @@ const EditProfile = ({
       ...(type !== "homeOwner" && type !== "owner"
         ? { address: formState.address }
         : {}),
-      ...(user?.type === "FOS" ? { email: formState.email } : {}),
+      ...(user?.fosrole_id ? { email: formState.email } : {}),
     };
     const { data, error: err } = await execute(
       url + "/" + formState.id,
@@ -123,8 +123,7 @@ const EditProfile = ({
               <UploadFile
                 name="avatar"
                 value={
-                  formState.has_image === "1" ||
-                  formState.avatar
+                  formState.has_image === "1" || formState.avatar
                     ? formState.avatar || getUrlImages(urlImages)
                     : ""
                 }
@@ -220,7 +219,7 @@ const EditProfile = ({
               onChange={onChange}
               error={errors}
             />
-            {user?.type === "FOS" && (
+            {user?.fosrole_id && (
               <div className={styles.fullWidth}>
                 <Input
                   label="Correo electrónico"
