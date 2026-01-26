@@ -60,11 +60,7 @@ const Users = () => {
         reLoad={reLoad}
         del={user.id === props?.item?.id ? false : true}
         edit={
-          user?.fosrole_id
-            ? true
-            : user.id === props?.item?.id
-              ? false
-              : true
+          user?.fosrole_id ? true : user.id === props?.item?.id ? false : true
         }
       />
     ),

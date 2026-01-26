@@ -105,13 +105,10 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
 
           localStorage.setItem(
             (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
-            JSON.stringify({ token: token.token, user: currentUser })
+            JSON.stringify({ token: token.token, user: currentUser }),
           );
         } else {
-
-
           if (error.status == 500) {
-
             setTimeout(async () => {
               localStorage.removeItem(
                 (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
@@ -219,7 +216,6 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     if (data?.success) {
       setWaiting(-1, "-logout");
     } else {
-
       setWaiting(-1, "-logout2");
       return { user, errors: data?.errors || data?.message || error };
     }
