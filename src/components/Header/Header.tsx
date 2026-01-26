@@ -174,7 +174,7 @@ const Header = ({
             h={40}
             w={40}
             src={getUrlImages(
-              (user?.type === "FOS" ? "/FOS-" : "/ADM-") +
+              "/ADM-" +
                 user?.id +
                 ".webp?d=" +
                 user?.updated_at

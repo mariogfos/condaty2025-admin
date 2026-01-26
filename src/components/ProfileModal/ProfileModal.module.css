@@ -45,14 +45,14 @@
         top: -50px;
         left: 36px;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
 
         & > div {
           display: flex;
           flex-direction: column;
           gap: var(--spS);
           font-size: var(--sS);
-          text-align: center;
+          text-align: left;
         }
         & > div > span:nth-child(1) {
           color: var(--cWhite);
