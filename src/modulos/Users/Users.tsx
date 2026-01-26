@@ -53,12 +53,19 @@ const Users = () => {
         open={props?.open}
         onClose={props?.onClose}
         dataID={props?.item?.id}
+        key={props?.item?.id}
         type={"admin"}
         title="Perfil de personal"
         titleBack="Volver a lista de personal administrativo"
         reLoad={reLoad}
         del={user.id === props?.item?.id ? false : true}
-        edit={user.id === props?.item?.id ? false : true}
+        edit={
+          user?.fosrole_id
+            ? true
+            : user.id === props?.item?.id
+              ? false
+              : true
+        }
       />
     ),
     renderDel: (props: {
@@ -99,7 +106,7 @@ const Users = () => {
         searchBy: e.target.value,
       },
       false,
-      true
+      true,
     );
 
     if (data?.success && data.data?.data?.id) {
@@ -122,7 +129,7 @@ const Users = () => {
         searchBy: e.target.value,
       },
       false,
-      true
+      true,
     );
 
     if (data?.success && data.data?.data?.id) {
@@ -148,7 +155,7 @@ const Users = () => {
       });
       showToast(
         "El administrador ya existe en Condaty, se va a vincular al Condominio",
-        "warning"
+        "warning",
       );
     } else {
       props.setError({ ci: "" });
@@ -252,7 +259,7 @@ const Users = () => {
                     "/ADM-" +
                       administrador?.id +
                       ".webp?d=" +
-                      administrador?.updated_at
+                      administrador?.updated_at,
                   )}
                   name={nombreCompleto}
                 />
@@ -323,7 +330,7 @@ const Users = () => {
         list: {
           onRender: (props: any) => {
             const role = props?.extraData?.roles?.find(
-              (r: any) => r.id === props?.item?.role_id
+              (r: any) => r.id === props?.item?.role_id,
             );
 
             const roleName = role?.name || "Sin rol";

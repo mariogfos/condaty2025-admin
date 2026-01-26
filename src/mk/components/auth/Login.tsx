@@ -131,7 +131,7 @@ const Login = () => {
       {
         pin: verificationCode,
         ci: formState.email,
-        type: "FOS",
+        type: "ADM",
       },
     );
 
