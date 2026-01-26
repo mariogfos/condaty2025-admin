@@ -4,9 +4,9 @@ import React, { useMemo } from "react";
 import useCrudUtils from "../shared/useCrudUtils";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import styles from "./Invitations.module.css";
-// import RenderForm from "./RenderForm/RenderForm";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { getDateTimeStrMes } from "@/mk/utils/date";
+import RenderForm from "./RenderForm/RenderForm";
 // import RenderDel from "./RenderDel/RenderDel";
 
 const paramsInitial = {
@@ -31,7 +31,7 @@ const mod: ModCrudType = {
   hideActions: {
     view: true,
   },
-  // renderForm: (props: any) => <RenderForm {...props} />,
+  renderForm: (props: any) => <RenderForm {...props} />,
 };
 const statusCondominios: Record<
   string,
@@ -41,10 +41,7 @@ const statusCondominios: Record<
   I: { text: "Inactivo", bgColor: "#3A2121", color: "var(--cError)" },
   // S: { text: "Suspendido", bgColor: "#3B351E", color: "var(--cWarning)" },
 };
-const privacyCondominios: Record<string, string> = {
-  T: "Prueba",
-  P: "Público",
-};
+
 const Invitations = () => {
   const fields = useMemo(() => {
     return {
