@@ -108,16 +108,6 @@ const RenderForm = ({
         value={formState.type || ""}
         disabled={item?.isInUse}
         optionLabel="name"
-        // options={[
-        //   {
-        //     id: "S",
-        //     name: "Cuenta ahorro",
-        //   },
-        //   {
-        //     id: "C",
-        //     name: "Cuenta corriente",
-        //   },
-        // ]}
         options={extraData?.types || []}
         optionValue="id"
         onChange={handleChange}
@@ -141,16 +131,6 @@ const RenderForm = ({
         value={formState.privacy || ""}
         optionLabel="name"
         disabled={item?.id}
-        // options={[
-        //   {
-        //     id: "P",
-        //     name: "Público",
-        //   },
-        //   {
-        //     id: "T",
-        //     name: "Prueba",
-        //   },
-        // ]}
         options={extraData?.privacy || []}
         optionValue="id"
         onChange={handleChange}
