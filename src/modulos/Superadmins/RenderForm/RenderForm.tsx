@@ -39,17 +39,48 @@ const RenderForm = ({
       key: "name",
       errors,
     });
-
     errors = checkRules({
-      value: formState?.type,
+      value: formState?.ci,
       rules: ["required"],
-      key: "type",
+      key: "ci",
       errors,
     });
     errors = checkRules({
-      value: formState?.privacy,
+      value: formState?.phone,
       rules: ["required"],
-      key: "privacy",
+      key: "phone",
+      errors,
+    });
+
+    errors = checkRules({
+      value: formState?.last_name,
+      rules: ["required"],
+      key: "last_name",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.middle_name,
+      rules: ["alpha"],
+      key: "middle_name",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.mother_last_name,
+      rules: ["alpha"],
+      key: "mother_last_name",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.email,
+      rules: ["required", "email"],
+      key: "email",
+      errors,
+    });
+
+    errors = checkRules({
+      value: formState?.fosrole_id,
+      rules: ["required"],
+      key: "fosrole_id",
       errors,
     });
 
@@ -58,14 +89,23 @@ const RenderForm = ({
   };
   const _onSave = async () => {
     if (hasErrors(validate())) return;
+    if (await onExistEmail()) {
+      setErrors({ email: "El correo electrónico ya existe" });
+      return;
+    }
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
-      "/clients" + (formState.id ? "/" + formState.id : ""),
+      "/users" + (formState.id ? "/" + formState.id : ""),
       method,
       {
         name: formState?.name || "",
-        type: formState?.type || "",
-        privacy: formState?.privacy || "",
+        ci: formState?.ci || "",
+        phone: formState?.phone || "",
+        last_name: formState?.last_name || "",
+        middle_name: formState?.middle_name || "",
+        mother_last_name: formState?.mother_last_name || "",
+        email: formState?.email || "",
+        fosrole_id: formState?.fosrole_id || "",
       },
     );
 
@@ -77,7 +117,28 @@ const RenderForm = ({
       showToast(data.message, "error");
     }
   };
-
+  const onExistEmail = async () => {
+    if (formState.email === item.email) {
+      return false;
+    }
+    const { data: response } = await execute(
+      "/users",
+      "GET",
+      {
+        searchBy: formState.email,
+        type: "email",
+        fullType: "EXIST",
+        cols: "id",
+      },
+      false,
+      true,
+    );
+    if (response?.data != null) {
+      // setErrors({ ...errors, email: "El correo electrónico ya existe" });
+      return true;
+    }
+    return false;
+  };
   return (
     <DataModalV2
       open={open}
@@ -97,14 +158,17 @@ const RenderForm = ({
         <Input
           label="Carnet de identidad"
           name="ci"
+          type="number"
           value={formState.ci || ""}
           onChange={handleChange}
+          disabled={item?.id}
           error={errors}
           required
         />
         <Input
           label="Celular"
           name="phone"
+          type="number"
           value={formState.phone || ""}
           onChange={handleChange}
           error={errors}
@@ -138,11 +202,11 @@ const RenderForm = ({
       </p>
       <Select
         label="Selecciona el rol"
-        name="role"
-        value={formState.role || ""}
+        name="fosrole_id"
+        value={formState.fosrole_id || ""}
         optionLabel="name"
         disabled={item?.id}
-        options={extraData?.roles || []}
+        options={extraData?.fosRoles || []}
         optionValue="id"
         onChange={handleChange}
         error={errors}

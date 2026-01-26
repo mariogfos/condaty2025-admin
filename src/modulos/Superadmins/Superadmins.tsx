@@ -7,15 +7,17 @@ import React, { useMemo } from "react";
 import useCrudUtils from "../shared/useCrudUtils";
 import styles from "./Superadmins.module.css";
 import RenderForm from "./RenderForm/RenderForm";
+import { getFullName } from "@/mk/utils/string";
 
 const paramsInitial = {
   perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
+  type: "FOS",
 };
 const mod: ModCrudType = {
-  modulo: "clients",
+  modulo: "users",
   singular: "superadmin",
   plural: "superadmins",
   permiso: "superadmins",
@@ -52,31 +54,55 @@ const Superadmins = () => {
         rules: ["required"],
         api: "ae",
         label: "Nombre",
-        list: {},
-        form: { type: "text", label: "Nombre del rol" },
-        hide: true,
-      },
-      status: {
-        rules: ["required"],
-        api: "ae",
-        label: "Estado",
-        style: {
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        },
         list: {
           onRender: ({ item }: any) => (
-            <StatusBadge
-              backgroundColor={statusSuperadmins[item?.status]?.bgColor}
-              color={statusSuperadmins[item?.status]?.color}
-              style={{ fontSize: "12px" }}
-            >
-              {statusSuperadmins[item?.status]?.text || item?.status}
-            </StatusBadge>
+            <p style={{ color: "var(--cWhite)", fontWeight: "500" }}>
+              {getFullName(item)}
+            </p>
           ),
-          // ,
         },
+        form: { type: "text" },
+      },
+      last_name: {
+        rules: ["required"],
+        api: "ae",
+        label: "Apellido",
+        list: false,
+        form: { type: "text" },
+      },
+      middle_name: {
+        rules: ["alpha"],
+        api: "ae",
+        label: "Segundo nombre",
+        list: false,
+        form: { type: "text" },
+      },
+      mother_last_name: {
+        rules: ["alpha"],
+        api: "ae",
+        label: "Apellido de la madre",
+        list: false,
+        form: { type: "text" },
+      },
+      phone: {
+        rules: ["required"],
+        api: "ae",
+        label: "Celular",
+        list: false,
+        form: { type: "text" },
+      },
+      email: {
+        rules: ["required", "email"],
+        api: "ae",
+        label: "Email",
+        list: false,
+        form: { type: "text" },
+      },
+      ci: {
+        rules: ["required"],
+        api: "ae",
+        label: "Carnet",
+        list: {},
         form: { type: "text", label: "Código del rol" },
         filter: {
           label: "Filtrar por estado",
@@ -90,48 +116,36 @@ const Superadmins = () => {
           ],
         },
       },
-      privacy: {
+      devices_count: {
         rules: [""],
         api: "ae",
-        label: "Privacidad",
+        label: "Dispositivos",
         list: {
-          onRender: ({ item }: any) =>
-            privacySuperadmins[item?.privacy] || item?.privacy,
+          onRender: ({ item }: any) => item?.devices_count + " Dispositivos",
         },
-        form: { type: "text" },
-        filter: {
-          label: "Privacidad",
-          width: "280px",
-          options: () => [
-            { id: "ALL", name: "Todos" },
-            ...Object.keys(privacySuperadmins).map((key) => ({
-              id: key,
-              name: privacySuperadmins[key] || key,
-            })),
-          ],
-        },
+        form: false,
       },
 
-      created_at: {
-        rules: [""],
-        api: "ae",
-        label: "Creado el",
-        list: {
-          onRender: ({ item }: any) =>
-            getDateTimeStrMes(item?.created_at) || "",
-        },
-        form: { type: "text" },
-      },
-      updated_at: {
-        rules: [""],
-        api: "ae",
-        label: "Actualizado el",
-        list: {
-          onRender: ({ item }: any) =>
-            getDateTimeStrMes(item?.updated_at) || "",
-        },
-        form: { type: "text" },
-      },
+      // last_login_at: {
+      //   rules: [""],
+      //   api: "ae",
+      //   label: "Última conexión",
+      //   list: {
+      //     onRender: ({ item }: any) =>
+      //       getDateTimeStrMes(item?.last_login_at) || "",
+      //   },
+      //   form: { type: "text" },
+      // },
+      // updated_at: {
+      //   rules: [""],
+      //   api: "ae",
+      //   label: "Actualizado el",
+      //   list: {
+      //     onRender: ({ item }: any) =>
+      //       getDateTimeStrMes(item?.updated_at) || "",
+      //   },
+      //   form: { type: "text" },
+      // },
     };
   }, []);
   const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
