@@ -133,7 +133,7 @@ const RenderForm = ({
       false,
       true,
     );
-    if (response?.data != null) {
+    if (response?.data?.data?.id != null) {
       // setErrors({ ...errors, email: "El correo electrónico ya existe" });
       return true;
     }
@@ -161,7 +161,6 @@ const RenderForm = ({
           type="number"
           value={formState.ci || ""}
           onChange={handleChange}
-          disabled={item?.id}
           error={errors}
           required
         />
@@ -205,7 +204,6 @@ const RenderForm = ({
         name="fosrole_id"
         value={formState.fosrole_id || ""}
         optionLabel="name"
-        disabled={item?.id}
         options={extraData?.fosRoles || []}
         optionValue="id"
         onChange={handleChange}
