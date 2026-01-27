@@ -40,9 +40,21 @@ const Invitations = () => {
         rules: ["required"],
         api: "ae",
         label: "Nombre",
-        list: {},
+        list: {
+          onRender: ({ item }: any) => {
+            return (
+              <div className={styles.containerName}>
+                <p>{item?.name}</p>
+                {item.clients_count > 0 && (
+                  <div className={styles.statusBadge}>
+                    <p>En uso</p>
+                  </div>
+                )}
+              </div>
+            );
+          },
+        },
         form: { type: "text", label: "Nombre del rol" },
-        hide: true,
       },
       clients_count: {
         rules: ["required"],

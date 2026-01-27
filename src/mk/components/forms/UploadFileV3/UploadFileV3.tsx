@@ -167,19 +167,16 @@ const UploadFileV3 = ({
         // alert(
         //   `Ningún archivo válido. Solo se permiten ${itemText} de hasta ${maxMB} MB.`
         // );
-        showToast({
-          message: `Ningún archivo válido. Solo se permiten ${itemText} de hasta ${maxMB} MB.`,
-          type: "error",
-        });
+        showToast(
+          `Ningún archivo válido. Solo se permiten ${itemText} de hasta ${maxMB} MB.`,
+          "error",
+        );
         return;
       }
 
       if (!isSingle && currentValues.length + validFiles.length > cant) {
         // alert(`Máximo ${cant} archivos permitidos`);
-        showToast({
-          message: `Máximo ${cant} archivos permitidos`,
-          type: "error",
-        });
+        showToast(`Máximo ${cant} archivos permitidos`, "error");
         return;
       }
 
