@@ -15,8 +15,8 @@
     display: flex;
     flex-direction: column;
     color: var(--cWhite);
-    background-color: var(--cBlack);
-    border-radius: var(--bRadiusL);
+    background-color: var(--cBackground-muted);
+    border-radius: 24px;
     border: 1px solid var(--cBorder);
     overflow: hidden;
     opacity: 0;
@@ -39,7 +39,6 @@
       margin: 0;
       border-radius: 0;
       max-height: 100%;
-      border: none;
     }
     &.V2 {
       padding-left: 20%;
@@ -113,5 +112,31 @@
         }
       }
     }
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .headerIcon {
+    padding: 12px;
+    background-color: var(--cBackground);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    border: 1px solid var(--cBackground-foreground);
+  }
+  .headerTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--cWhite);
+  }
+  .headerSubtitle {
+    font-size: 12px;
+    font-weight: 400;
+    margin-top: 4px;
+    color: var(--cWhiteV1);
   }
 }

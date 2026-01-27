@@ -24,6 +24,7 @@ interface PropsType extends PropsTypeInputBase {
   avatar?: boolean;
   userName?: string;
   name: string;
+  hideActions?: boolean;
 }
 
 export const UploadFile = ({
@@ -36,6 +37,7 @@ export const UploadFile = ({
   sizePreview = { width: "100px", height: "100px" },
   avatar = false,
   userName = "",
+  hideActions = false,
   ...props
 }: PropsType) => {
   const [selectedFiles, setSelectedFiles]: any = useState({});
@@ -109,7 +111,7 @@ export const UploadFile = ({
 
   const resetFileInput = () => {
     const input = document.getElementById(
-      props.name
+      props.name,
     ) as HTMLInputElement | null;
     if (input) input.value = "";
   };
@@ -193,8 +195,8 @@ export const UploadFile = ({
         const padding = base64Only.endsWith("==")
           ? 2
           : base64Only.endsWith("=")
-          ? 1
-          : 0;
+            ? 1
+            : 0;
         const estBytes = Math.ceil((base64Only.length * 3) / 4) - padding;
 
         // si file.size no estaba definido, usamos la estimación
@@ -314,8 +316,8 @@ export const UploadFile = ({
           borderColor: props.error[props.name]
             ? "var(--cError)"
             : value?.file || isDraggingFile
-            ? "var(--cPrimary)"
-            : "var(--cWhiteV3)",
+              ? "var(--cPrimary)"
+              : "var(--cWhiteV3)",
           borderRadius: avatar ? "50%" : "var(--borderRadius)",
           width: avatar ? sizePreview.width : "100%",
           height: avatar ? sizePreview.height : "100%",
@@ -407,14 +409,26 @@ export const UploadFile = ({
                 (value.includes(".webp") ||
                   value.includes(".jpg") ||
                   value.includes(".jpeg") ||
-                  value.includes(".png")))) &&
+                  value.includes(".png") ||
+                  (value.startsWith("http") &&
+                    (value.includes("webp") ||
+                      value.includes("jpg") ||
+                      value.includes("jpeg") ||
+                      value.includes("png")))))) &&
             img ? (
               <img
                 src={
                   editedImage ||
                   (selectedFiles?.name
                     ? URL.createObjectURL(selectedFiles)
-                    : (typeof value === "object" && value.url) || value || "")
+                    : (typeof value === "object" && value.url) ||
+                      (typeof value === "string" &&
+                      !value.startsWith("http") &&
+                      !value.startsWith("data:") &&
+                      !value.startsWith("blob:")
+                        ? getUrlImages(value)
+                        : value) ||
+                      "")
                 }
                 alt={selectedFiles?.name}
                 style={{
@@ -471,49 +485,51 @@ export const UploadFile = ({
             )}
 
             {/* Botones de acción */}
-            <div
-              style={{
-                position: "absolute",
-                top: avatar ? "50%" : "5px",
-                left: avatar ? "50%" : "auto",
-                right: avatar ? "auto" : "5px",
-                transform: avatar ? "translate(-50%, -50%)" : "none",
-                display: "flex",
-                gap: "5px",
-                // opacity: avatar ? 0 : 1, // Keep visible for now to avoid issues
-              }}
-            >
+            {!hideActions && (
               <div
-                onClick={editFile}
                 style={{
-                  backgroundColor: "var(--cPrimary)",
-                  borderRadius: "50%",
-                  width: "30px",
-                  height: "30px",
+                  position: "absolute",
+                  top: avatar ? "50%" : "5px",
+                  left: avatar ? "50%" : "auto",
+                  right: avatar ? "auto" : "5px",
+                  transform: avatar ? "translate(-50%, -50%)" : "none",
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
+                  gap: "5px",
+                  // opacity: avatar ? 0 : 1, // Keep visible for now to avoid issues
                 }}
               >
-                <IconEdit size={16} color="white" />
+                <div
+                  onClick={editFile}
+                  style={{
+                    backgroundColor: "var(--cPrimary)",
+                    borderRadius: "50%",
+                    width: "30px",
+                    height: "30px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                  }}
+                >
+                  <IconEdit size={16} color="white" />
+                </div>
+                <div
+                  onClick={deleteFile}
+                  style={{
+                    backgroundColor: "var(--cError)",
+                    borderRadius: "50%",
+                    width: "30px",
+                    height: "30px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                  }}
+                >
+                  <IconTrash size={16} color="white" />
+                </div>
               </div>
-              <div
-                onClick={deleteFile}
-                style={{
-                  backgroundColor: "var(--cError)",
-                  borderRadius: "50%",
-                  width: "30px",
-                  height: "30px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                }}
-              >
-                <IconTrash size={16} color="white" />
-              </div>
-            </div>
+            )}
           </div>
         )}
 

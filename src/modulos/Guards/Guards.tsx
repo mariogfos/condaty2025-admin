@@ -23,7 +23,7 @@ const paramsInitial = {
 };
 
 const Guards = () => {
-  const { userCan } = useAuth();
+  const { userCan, user } = useAuth();
   const mod: ModCrudType = {
     modulo: "guards",
     singular: "guardia",
