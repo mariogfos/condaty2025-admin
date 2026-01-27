@@ -10,6 +10,7 @@ import {
 import { storage } from "@/mk/services/storage/storage.service";
 import { StorageFile } from "@/mk/services/storage/types";
 import DataModal from "../../ui/DataModal/DataModal";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 interface PreviewItem {
   url: string | null;
@@ -29,7 +30,7 @@ interface UploadFileV3Props {
   onUploadStateChange?: (v: boolean) => void;
   maxMB?: number;
   mode?: "documents" | "images" | "all";
-  error?: object;
+  error?: Record<string, string>;
   title?: string;
   subtitle?: string;
 }
@@ -46,7 +47,7 @@ const extractPublicId = (url: string): string | null => {
 const extDocuments = ["pdf", "docx", "doc", "xlsx", "xls", "txt", "csv"];
 const extImages = ["jpg", "jpeg", "png", "webp", "heic"];
 
-const UploadFileV3: React.FC<UploadFileV3Props> = ({
+const UploadFileV3 = ({
   name,
   formState,
   setFormState,
@@ -57,16 +58,17 @@ const UploadFileV3: React.FC<UploadFileV3Props> = ({
   title,
   subtitle,
   error,
-}) => {
+}: UploadFileV3Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [filePreviews, setFilePreviews] = useState<PreviewItem[]>([]);
+
+  const { showToast } = useAuth();
   const [openPreview, setOpenPreview] = useState({
     open: false,
     item: null,
   } as { open: boolean; item: PreviewItem | null });
-  const [errors, setErrors]: any = useState(error || {});
 
   const isSingle = cant === 1;
 
@@ -76,16 +78,16 @@ const UploadFileV3: React.FC<UploadFileV3Props> = ({
     mode === "images"
       ? extImages
       : mode === "documents"
-      ? extDocuments
-      : [...extDocuments, ...extImages]
+        ? extDocuments
+        : [...extDocuments, ...extImages],
   );
 
   const itemText =
     mode === "images"
       ? "imágenes"
       : mode === "documents"
-      ? "documentos"
-      : "imágenes o documentos";
+        ? "documentos"
+        : "imágenes o documentos";
 
   const itemTextCapitalized =
     itemText.charAt(0).toUpperCase() + itemText.slice(1);
@@ -94,8 +96,8 @@ const UploadFileV3: React.FC<UploadFileV3Props> = ({
     mode === "images"
       ? "image/*"
       : mode === "documents"
-      ? extDocuments.map((ext) => `.${ext}`).join(",")
-      : `image/*,${extDocuments.map((ext) => `.${ext}`).join(",")}`;
+        ? extDocuments.map((ext) => `.${ext}`).join(",")
+        : `image/*,${extDocuments.map((ext) => `.${ext}`).join(",")}`;
 
   const getFileType = (filename: string): "image" | "document" => {
     const ext = filename.toLowerCase().split(".").pop() || "";
@@ -114,7 +116,7 @@ const UploadFileV3: React.FC<UploadFileV3Props> = ({
     if (initialUrls.length > 0) {
       const existingPreviews: PreviewItem[] = initialUrls.map((url: string) => {
         const originalName = decodeURIComponent(
-          url.split("/").pop()?.split("?")[0] || "archivo"
+          url.split("/").pop()?.split("?")[0] || "archivo",
         );
         const type = getFileType(originalName);
         return {
@@ -165,19 +167,19 @@ const UploadFileV3: React.FC<UploadFileV3Props> = ({
         // alert(
         //   `Ningún archivo válido. Solo se permiten ${itemText} de hasta ${maxMB} MB.`
         // );
-        setErrors((prev: any) => ({
-          ...prev,
-          [name]: `Ningún archivo válido. Solo se permiten ${itemText} de hasta ${maxMB} MB.`,
-        }));
+        showToast({
+          message: `Ningún archivo válido. Solo se permiten ${itemText} de hasta ${maxMB} MB.`,
+          type: "error",
+        });
         return;
       }
 
       if (!isSingle && currentValues.length + validFiles.length > cant) {
         // alert(`Máximo ${cant} archivos permitidos`);
-        setErrors((prev: any) => ({
-          ...prev,
-          [name]: `Máximo ${cant} archivos permitidos`,
-        }));
+        showToast({
+          message: `Máximo ${cant} archivos permitidos`,
+          type: "error",
+        });
         return;
       }
 
@@ -211,7 +213,7 @@ const UploadFileV3: React.FC<UploadFileV3Props> = ({
 
       const paths = validFiles.map((file) => getPath(file.name));
       const uploadPromises = validFiles.map((file, index) =>
-        storage.upload(file, paths[index])
+        storage.upload(file, paths[index]),
       );
 
       let results: any;
@@ -262,7 +264,7 @@ const UploadFileV3: React.FC<UploadFileV3Props> = ({
               URL.revokeObjectURL(p.url);
             }
             return !p.isUploading;
-          })
+          }),
         );
       } finally {
         setUploading(false);
@@ -282,7 +284,7 @@ const UploadFileV3: React.FC<UploadFileV3Props> = ({
       onUploadStateChange,
       mode,
       itemText,
-    ]
+    ],
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -369,13 +371,13 @@ const UploadFileV3: React.FC<UploadFileV3Props> = ({
           {mode === "images"
             ? extImages.join(", ")
             : mode === "documents"
-            ? extDocuments.join(", ")
-            : extImages.concat(extDocuments).join(", ")}
+              ? extDocuments.join(", ")
+              : extImages.concat(extDocuments).join(", ")}
         </p>
         <p>Máx: {maxMB} MB</p>
       </div>
 
-      <p className={styles.error}>{errors?.[name]}</p>
+      <p className={styles.error}>{error?.[name]}</p>
       {filePreviews?.length > 0 && (
         <>
           <p className={styles.titlePreviews}>{itemTextCapitalized}:</p>

@@ -4,10 +4,8 @@ import React, { useMemo } from "react";
 import useCrudUtils from "../shared/useCrudUtils";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import styles from "./Invitations.module.css";
-import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { getDateTimeStrMes } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
-// import RenderDel from "./RenderDel/RenderDel";
 
 const paramsInitial = {
   perPage: 20,
@@ -19,27 +17,19 @@ const mod: ModCrudType = {
   modulo: "campaigns",
   singular: "campaña",
   plural: "campañas",
-  permiso: "condominios",
-  // renderDel: (props: any) => <RenderDel {...props} />,
+  permiso: "campanas",
+  titleAdd: "Crear",
   filter: true,
   extraData: true,
   onHideActions: (item: any) => {
     return {
-      hideDel: item.privacy == "P" || item.status == "I",
+      hideDel: item.clients_count > 0,
     };
   },
   hideActions: {
     view: true,
   },
   renderForm: (props: any) => <RenderForm {...props} />,
-};
-const statusCondominios: Record<
-  string,
-  { text: string; bgColor: string; color: string }
-> = {
-  A: { text: "Activo", bgColor: "#15392B", color: "var(--cAccent)" },
-  I: { text: "Inactivo", bgColor: "#3A2121", color: "var(--cError)" },
-  // S: { text: "Suspendido", bgColor: "#3B351E", color: "var(--cWarning)" },
 };
 
 const Invitations = () => {
@@ -54,7 +44,7 @@ const Invitations = () => {
         form: { type: "text", label: "Nombre del rol" },
         hide: true,
       },
-      current_use: {
+      clients_count: {
         rules: ["required"],
         api: "ae",
         label: "Uso actual",
@@ -64,25 +54,30 @@ const Invitations = () => {
           justifyContent: "center",
         },
         list: {
-          // ,
+          onRender: ({ item }: any) =>
+            item?.clients_count +
+            (item?.clients_count > 1 ? " Condominios" : " Condominio"),
         },
         form: { type: "text", label: "Código del rol" },
       },
-      amount: {
+      images_count: {
         rules: [""],
         api: "ae",
         label: "Cantidad",
-        list: {},
+        list: {
+          onRender: ({ item }: any) =>
+            item?.images_count + (item?.images_count > 1 ? " Fotos" : " Foto"),
+        },
         form: { type: "text" },
       },
 
-      upload_date: {
+      updated_at: {
         rules: [""],
         api: "ae",
         label: "Fecha de subida",
         list: {
           onRender: ({ item }: any) =>
-            getDateTimeStrMes(item?.upload_date) || "",
+            getDateTimeStrMes(item?.updated_at) || "",
         },
         form: { type: "text" },
       },

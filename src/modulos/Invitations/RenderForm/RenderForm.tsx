@@ -2,11 +2,12 @@ import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DataModalV2 from "@/mk/components/ui/DataModalV2/DataModalV2";
 import { IconDepartment2 } from "@/components/layout/icons/IconsBiblioteca";
 import Br from "@/components/Detail/Br";
 import styles from "./RenderForm.module.css";
+import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 
 const RenderForm = ({
   open,
@@ -39,47 +40,25 @@ const RenderForm = ({
       errors,
     });
     errors = checkRules({
-      value: formState?.ci,
+      value: formState?.selectCondominium,
       rules: ["required"],
-      key: "ci",
-      errors,
-    });
-    errors = checkRules({
-      value: formState?.phone,
-      rules: ["required"],
-      key: "phone",
+      key: "selectCondominium",
       errors,
     });
 
-    errors = checkRules({
-      value: formState?.last_name,
-      rules: ["required"],
-      key: "last_name",
-      errors,
-    });
-    errors = checkRules({
-      value: formState?.middle_name,
-      rules: ["alpha"],
-      key: "middle_name",
-      errors,
-    });
-    errors = checkRules({
-      value: formState?.mother_last_name,
-      rules: ["alpha"],
-      key: "mother_last_name",
-      errors,
-    });
-    errors = checkRules({
-      value: formState?.email,
-      rules: ["required", "email"],
-      key: "email",
-      errors,
-    });
+    if (formState.selectCondominium === "S") {
+      errors = checkRules({
+        value: formState?.clientIds,
+        rules: ["required"],
+        key: "clientIds",
+        errors,
+      });
+    }
 
     errors = checkRules({
-      value: formState?.fosrole_id,
+      value: formState?.images,
       rules: ["required"],
-      key: "fosrole_id",
+      key: "images",
       errors,
     });
 
@@ -88,23 +67,20 @@ const RenderForm = ({
   };
   const _onSave = async () => {
     if (hasErrors(validate())) return;
-    if (await onExistEmail()) {
-      setErrors({ email: "El correo electrónico ya existe" });
-      return;
-    }
     let method = formState.id ? "PUT" : "POST";
+    const allClientIds = extraData.clients.map((c: any) => c.id);
+    const clientIdsToSend =
+      formState.selectCondominium === "ALL"
+        ? allClientIds
+        : formState.clientIds;
+
     const { data } = await execute(
-      "/users" + (formState.id ? "/" + formState.id : ""),
+      "/campaigns" + (formState.id ? "/" + formState.id : ""),
       method,
       {
         name: formState?.name || "",
-        ci: formState?.ci || "",
-        phone: formState?.phone || "",
-        last_name: formState?.last_name || "",
-        middle_name: formState?.middle_name || "",
-        mother_last_name: formState?.mother_last_name || "",
-        email: formState?.email || "",
-        fosrole_id: formState?.fosrole_id || "",
+        clientIds: clientIdsToSend || [],
+        images: formState?.images || [],
       },
     );
 
@@ -116,28 +92,16 @@ const RenderForm = ({
       showToast(data.message, "error");
     }
   };
-  const onExistEmail = async () => {
-    if (formState.email === item.email) {
-      return false;
+  useEffect(() => {
+    if (item?.id) {
+      setFormState({
+        ...item,
+        selectCondominium:
+          item?.clients_count !== extraData.clients.length ? "S" : "ALL",
+        clientIds: item?.clients.map((c: any) => c.client_id) || [],
+      });
     }
-    const { data: response } = await execute(
-      "/users",
-      "GET",
-      {
-        searchBy: formState.email,
-        type: "email",
-        fullType: "EXIST",
-        cols: "id",
-      },
-      false,
-      true,
-    );
-    if (response?.data?.data?.id != null) {
-      // setErrors({ ...errors, email: "El correo electrónico ya existe" });
-      return true;
-    }
-    return false;
-  };
+  }, []);
   return (
     <DataModalV2
       open={open}
@@ -148,7 +112,7 @@ const RenderForm = ({
       onSave={_onSave}
       variant={"mini"}
       buttonText={formState.id ? "Actualizar campaña" : "Crear campaña"}
-      maxWidth={560}
+      maxWidth={600}
     >
       <p className={styles.title}>Información de la campaña</p>
       <p className={styles.subtitle}>Ingresa los datos de la campaña</p>
@@ -162,19 +126,35 @@ const RenderForm = ({
         error={errors}
         required
       />
-
       <Select
         label="¿A qué condominio quieres aplicarla?"
-        name="condominium_id"
-        value={formState.condominium_id || ""}
+        name="selectCondominium"
+        value={formState.selectCondominium || ""}
         optionLabel="name"
-        options={extraData?.condominiums || []}
+        options={[
+          { id: "ALL", name: "Todos los condominios" },
+          { id: "S", name: "Condominios específicos" },
+        ]}
         optionValue="id"
         onChange={handleChange}
         error={errors}
         required
       />
-
+      {formState.selectCondominium === "S" && (
+        <Select
+          label="Selecciona los condominios"
+          name="clientIds"
+          value={formState.clientIds || ""}
+          optionLabel="name"
+          options={extraData.clients}
+          multiSelect
+          filter
+          optionValue="id"
+          onChange={handleChange}
+          error={errors}
+          required
+        />
+      )}
       <Br
         style={{
           margin: "20px 0px",
@@ -186,6 +166,12 @@ const RenderForm = ({
       <p className={styles.subtitle}>
         Sube las imágenes que usará esta campaña para generar las invitaciones.
       </p>
+      <UploadFileV3
+        formState={formState}
+        setFormState={setFormState}
+        name="images"
+        error={errors}
+      />
     </DataModalV2>
   );
 };
