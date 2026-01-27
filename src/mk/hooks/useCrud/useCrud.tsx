@@ -380,7 +380,7 @@ const useCrud = ({
 
     // Build params and detect large file fields (to be uploaded separately)
     const param = getParamFields(data, fields, action);
-    const uploadLimitMB = mod?.fileUploadLimitMB ?? 1;
+    const uploadLimitMB = mod?.fileUploadLimitMB ?? 0.5;
     const { param: paramWithoutFiles, filesToUpload } =
       detectLargeFilesAndStrip(data, fields, { ...param }, uploadLimitMB);
 
