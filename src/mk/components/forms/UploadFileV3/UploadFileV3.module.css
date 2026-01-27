@@ -1,0 +1,123 @@
+.container {
+  width: 100%;
+}
+.background {
+  width: 100%;
+  background-color: var(--cBackground);
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.box {
+  height: 160px;
+  border: 2px dashed var(--cBackground-foreground);
+  /* hacer que los dashed sean mas separados */
+  border-radius: 12px;
+  background-color: var(--cBackground-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease;
+}
+
+.containerIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.subtitle {
+  color: #a0a0a0;
+  font-size: 14px;
+  margin-top: 4px;
+}
+.info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+}
+.titlePreviews {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cWhite);
+  margin-bottom: 12px;
+  margin-top: 4px;
+}
+.previews {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.preview {
+  background-color: var(--cBackground);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px;
+  border-radius: 8px;
+  justify-content: flex-start;
+}
+
+.containerImage {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--cBackground-foreground);
+  background-color: var(--cBackground-muted);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--cWhite);
+  font-size: 13px;
+}
+.previewImg {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.fileName {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status {
+  flex-shrink: 0;
+  color: var(--cWhiteV1);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.error {
+  padding-left: var(--spM);
+  display: block;
+  font-size: var(--sXs);
+  color: var(--cError);
+  margin: 0;
+  margin-top: 4px;
+  height: 14px;
+}
+.previewContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

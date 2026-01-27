@@ -18,7 +18,7 @@ import {
   RESERVATION_STATUS_CONFIG,
   RESERVATION_STATUS_OPTIONS,
   getUpdatedReservationStatus,
-  type ReservationStatus
+  type ReservationStatus,
 } from "./constants/reservationConstants";
 
 const mod = {
@@ -70,7 +70,7 @@ const Reserva = () => {
       ? getUrlImages(
           `/AREA-${area.images[0].entity_id}-${
             area.images[0].id
-          }.webp?d=${new Date().toISOString()}`
+          }.webp?d=${new Date().toISOString()}`,
         )
       : undefined;
     return (
@@ -97,13 +97,12 @@ const Reserva = () => {
 
     const imageUrl = owner
       ? getUrlImages(
-          `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`
+          `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`,
         )
       : undefined;
-
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Avatar src={imageUrl} name={ownerName} />
+        <Avatar src={owner?.url_avatar || imageUrl} name={ownerName} />
         <div>
           <p
             style={{
@@ -184,7 +183,7 @@ const Reserva = () => {
                 {getDateStrMes(props?.item?.date_at)}{" "}
                 {format(
                   parse(props?.item?.start_time, "HH:mm:ss", new Date()),
-                  "H:mm"
+                  "H:mm",
                 )}
               </div>
             );
@@ -224,10 +223,12 @@ const Reserva = () => {
             status = getUpdatedReservationStatus(
               status,
               props?.item?.date_end,
-              props?.item?.end_time
+              props?.item?.end_time,
             );
 
-            const currentStatus = status ? RESERVATION_STATUS_CONFIG[status] : null;
+            const currentStatus = status
+              ? RESERVATION_STATUS_CONFIG[status]
+              : null;
 
             return (
               <StatusBadge
@@ -252,7 +253,7 @@ const Reserva = () => {
         },
       },
     }),
-    []
+    [],
   );
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
