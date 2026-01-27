@@ -12,6 +12,7 @@
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@instantdb/admin": "^0.17.12",
     "@instantdb/react": "^0.21.22",
+    "cloudinary": "^2.8.0",
     "@mlc-ai/web-llm": "^0.2.78",
     "@types/ua-parser-js": "^0.7.39",
     "axios": "^1.12.0",

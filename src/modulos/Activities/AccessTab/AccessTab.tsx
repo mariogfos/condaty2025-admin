@@ -158,7 +158,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
                       prefix +
                         user?.id +
                         ".webp?" +
-                        (user?.updated_at || new Date().toISOString()),
+                        (user?.updated_at || new Date().toISOString())
                     )}
                   />
                   {/* </div> */}
