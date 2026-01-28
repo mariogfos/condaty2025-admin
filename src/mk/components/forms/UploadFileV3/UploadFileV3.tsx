@@ -180,8 +180,33 @@ const UploadFileV3 = ({
         return;
       }
 
-      if (isSingle && currentValues.length > 0) {
-        setFilePreviews((prev) => prev.slice(1)); // o simplemente []
+      // if (isSingle && currentValues.length > 0) {
+      //   setFilePreviews((prev) => prev.slice(1)); // o simplemente []
+      // }
+      if (isSingle && filePreviews.length > 0) {
+        const oldFile = filePreviews[0];
+
+        if (!oldFile.isUploading && oldFile.publicId) {
+          const fileToDelete: StorageFile = {
+            path: oldFile.publicId,
+            url: oldFile.url || "",
+            name: oldFile.originalName,
+            resource_type: oldFile.resourceType,
+          };
+
+          try {
+            await storage.delete(fileToDelete);
+          } catch (error) {
+            console.error("Error eliminando archivo anterior:", error);
+            showToast("No se pudo eliminar el archivo anterior", "error");
+          }
+        }
+
+        if (oldFile.type === "image" && oldFile.url?.startsWith("blob:")) {
+          URL.revokeObjectURL(oldFile.url);
+        }
+
+        setFilePreviews([]);
       }
 
       // Crear previews locales (se añadirán arriba → último agregado al principio)

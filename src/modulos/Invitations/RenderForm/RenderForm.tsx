@@ -68,7 +68,7 @@ const RenderForm = ({
   const _onSave = async () => {
     if (hasErrors(validate())) return;
     let method = formState.id ? "PUT" : "POST";
-    const allClientIds = extraData.clients.map((c: any) => c.id);
+    const allClientIds = extraData.clients?.map((c: any) => c.id) ?? [];
     const clientIdsToSend =
       formState.selectCondominium === "ALL"
         ? allClientIds
