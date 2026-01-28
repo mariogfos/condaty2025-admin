@@ -83,7 +83,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   <span className={styles.userName}>
                     {getFullName(item.user) || 'Usuario Desconocido'}
                   </span>
-                  <span className={styles.userRole}>{item.user?.role1?.[0].name}</span>
+                  <span className={styles.userRole}>{item.user?.role1?.[0]?.name}</span>
                 </div>
               </div>
               <time dateTime={item.created_at} className={styles.postDate}>
