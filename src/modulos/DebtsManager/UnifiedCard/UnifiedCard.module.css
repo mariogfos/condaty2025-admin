@@ -1,8 +1,8 @@
 .card {
-  background-color: var(--cBlackV1);
-  border-radius: 12px;
+  background-color: var(--cBackground);
+  border-radius: var(--bRadius);
   padding: var(--spXl);
-  border: 1px solid var(--cWhiteV1);
+  border: 1px solid var(--cBorder);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -11,10 +11,10 @@
 
 .header {
   margin-bottom: 16px;
-  @media (width <= 1280px) { 
+  @media (width <= 1280px) {
     margin-bottom: 12px;
   }
-  @media (width <= 1024px) { 
+  @media (width <= 1024px) {
     margin-bottom: 4px;
   }
 }
@@ -102,13 +102,18 @@
 }
 
 .progressFill::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
   animation: shimmer 2s infinite;
 }
 
@@ -157,11 +162,13 @@
     min-height: 90px;
   }
 
-  .amount, .mainContent {
+  .amount,
+  .mainContent {
     font-size: 18px;
   }
 
-  .title, .label {
+  .title,
+  .label {
     font-size: 11px;
   }
 

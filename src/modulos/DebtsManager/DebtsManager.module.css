@@ -35,9 +35,7 @@
 }
 
 .summarySection {
-
   border-radius: var(--bRadius);
-
 }
 .categoriesButton {
   border: 1px solid var(--cWhiteV1) !important;
@@ -86,7 +84,7 @@
 }
 
 .listSection {
-  background: #333536;
+  background: var(--cBackground);
   padding: var(--sM);
   border-radius: var(--bRadius);
 }
