@@ -38,7 +38,7 @@ export const normalizeDateToUTC = (dateString: string) => {
   // console.log("fafafafafa", dateString, date);
   // Normalizar la fecha a solo año, mes y día en UTC
   return new Date(
-    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
   );
 };
 export const normalizeDateTimeToUTC = (dateString: string) => {
@@ -70,15 +70,15 @@ export const normalizeDateTimeToUTC = (dateString: string) => {
       date.getUTCDate(),
       date.getUTCHours(),
       date.getUTCMinutes(),
-      date.getUTCSeconds()
-    )
+      date.getUTCSeconds(),
+    ),
   );
 };
 
 export const validDateGreater: ValidFunctionType = (
   value: string,
   param: any,
-  field: any = {}
+  field: any = {},
 ) => {
   if (!value) {
     console.log("La fecha no es válida");
@@ -108,7 +108,7 @@ export const validDateGreater: ValidFunctionType = (
     : "La fecha no debe ser menor a " + compareDate.toISOString().split("T")[0];
 };
 export const validDateFuture: ValidFunctionType = (
-  value: string
+  value: string,
   // param: any,
   // field: any = {}
 ) => {
@@ -139,7 +139,7 @@ export const validDateFuture: ValidFunctionType = (
 export const validDateLess: ValidFunctionType = (
   value: string,
   param: any,
-  field: any = {}
+  field: any = {},
 ) => {
   if (!value) return "La fecha no es válida";
 
@@ -169,8 +169,8 @@ export const validPassword: ValidFunctionType = (value, param) => {
 
 export const validCi: ValidFunctionType = (value, param) => {
   let [min, max]: any = param;
-  if (!min) min = 5;
-  if (!max) max = 13;
+  if (!min) min = 3;
+  if (!max) max = 20;
   const error = "El CI debe tener entre " + min + " y " + max + " numeros";
   return value.length < min || value.length > max || isNaN(value) ? error : "";
 };
@@ -212,7 +212,7 @@ export const validOptionsSurvey: ValidFunctionType = (value, param, field) => {
 export const validDateTimeGreater: ValidFunctionType = (
   value: string,
   param: any,
-  field: any = {}
+  field: any = {},
 ) => {
   if (!value) {
     console.log("La fecha no es válida");
