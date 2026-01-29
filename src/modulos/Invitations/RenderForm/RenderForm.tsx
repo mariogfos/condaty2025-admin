@@ -171,6 +171,7 @@ const RenderForm = ({
         setFormState={setFormState}
         name="images"
         error={errors}
+        cant={1}
         maxMB={2}
       />
     </DataModalV2>

@@ -251,12 +251,15 @@ const Users = () => {
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
                   hasImage={1}
-                  src={getUrlImages(
-                    "/ADM-" +
-                      administrador?.id +
-                      ".webp?d=" +
-                      administrador?.updated_at,
-                  )}
+                  src={
+                    administrador?.url_avatar ||
+                    getUrlImages(
+                      "/ADM-" +
+                        administrador?.id +
+                        ".webp?d=" +
+                        administrador?.updated_at,
+                    )
+                  }
                   name={nombreCompleto}
                 />
                 <div>

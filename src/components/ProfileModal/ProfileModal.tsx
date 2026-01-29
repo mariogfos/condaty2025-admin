@@ -1,23 +1,18 @@
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import NewModal from "@/mk/components/ui/NewModal/NewModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   IconAdmin,
-  IconArrowRight,
   IconEdit,
   IconEmail,
   IconGuardShield,
-  IconHousing,
-  IconLockEmail,
   IconLook,
   IconPhone,
   IconTrash,
   IconUser,
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./ProfileModal.module.css";
-import WidgetBase from "../Widgets/WidgetBase/WidgetBase";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Authentication from "@/modulos/Profile/Authentication";
@@ -87,6 +82,7 @@ interface FormState {
   password?: string;
   pinned?: number;
   code?: string;
+  url_avatar?: string;
 }
 const ProfileModal = ({
   open,
@@ -178,7 +174,6 @@ const ProfileModal = ({
   };
 
   const urlImages = imageUrl();
-
   useEffect(() => {
     if (data?.data[0]) {
       setFormState({
@@ -192,6 +187,7 @@ const ProfileModal = ({
         address: data?.data[0]?.address,
         email: data?.data[0]?.email,
         has_image: parseInt(data?.data[0]?.has_image) || 0,
+        url_avatar: data?.data[0]?.url_avatar,
       });
     }
   }, [openEdit, data]);
@@ -263,13 +259,17 @@ const ProfileModal = ({
     router.push(`/units/${unitId}?returnTo=owners&userType=${type}`);
     onClose();
   };
+  const _onClose = () => {
+    onClose();
+    getUser();
+  };
 
   return (
     open && (
       <DataModal
         title={titleBack}
         open={open}
-        onClose={onClose}
+        onClose={_onClose}
         fullScreen
         variant="V2"
         buttonText=""
@@ -355,7 +355,7 @@ const ProfileModal = ({
                     expandableZIndex={10002}
                     expandableIcon={false}
                     hasImage={1}
-                    src={getUrlImages(urlImages)}
+                    src={data?.data[0]?.url_avatar || getUrlImages(urlImages)}
                     name={getFullName(data?.data[0], "NSLM")}
                     w={191}
                     h={191}
