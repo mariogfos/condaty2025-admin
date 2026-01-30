@@ -24,6 +24,7 @@ import {
   IconLocal,
   IconGarage,
 } from "@/components/layout/icons/IconsBiblioteca";
+import Button from "@/mk/components/forms/Button/Button";
 
 const paramsInitial = {
   fullType: "L",
@@ -99,13 +100,13 @@ const Dptos = () => {
   const router = useRouter();
   const { user, setStore, store, userCan } = useAuth();
   const client = user?.clients?.filter(
-    (item: any) => item?.id === user?.client_id
+    (item: any) => item?.id === user?.client_id,
   )[0];
 
   useEffect(() => {
     setStore({ ...store, UnitsType: UnitsType[client?.type_dpto], title: "" });
   }, []);
-  
+
   const mod: ModCrudType = {
     modulo: "dptos",
     singular: "",
@@ -136,6 +137,19 @@ const Dptos = () => {
       user: any;
       execute: any;
     }) => <RenderForm {...props} />,
+  };
+
+  const ButtonReportDeudas = () => {
+    return (
+      <Button
+        onClick={() => {
+          console.log(process.env.NEXT_PUBLIC_API_URL + "/dptos-export-deudas");
+          onReport();
+        }}
+      >
+        deudas{" "}
+      </Button>
+    );
   };
 
   const fields = useMemo(() => {
@@ -240,7 +254,7 @@ const Dptos = () => {
                     "/OWNER-" +
                       props?.item?.homeowner?.id +
                       ".webp?d=" +
-                      props?.item?.homeowner?.updated_at
+                      props?.item?.homeowner?.updated_at,
                   )}
                   name={getFullName(props?.item?.homeowner)}
                 />
@@ -280,7 +294,7 @@ const Dptos = () => {
                 <Avatar
                   hasImage={tenant?.has_image}
                   src={getUrlImages(
-                    "/OWNER-" + personId + ".webp?d=" + updatedAt
+                    "/OWNER-" + personId + ".webp?d=" + updatedAt,
                   )}
                   name={getFullName(tenant)}
                 />
@@ -395,7 +409,7 @@ const Dptos = () => {
   const renderItem = (
     item: Record<string, any>,
     i: number,
-    onClick: Function
+    onClick: Function,
   ) => {
     return (
       <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
@@ -419,7 +433,6 @@ const Dptos = () => {
 
     return untis;
   };
-
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
