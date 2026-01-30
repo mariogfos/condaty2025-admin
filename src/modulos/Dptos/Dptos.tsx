@@ -147,7 +147,7 @@ const Dptos = () => {
           onReport();
         }}
       >
-        deudas{" "}
+        Deudas{" "}
       </Button>
     );
   };
