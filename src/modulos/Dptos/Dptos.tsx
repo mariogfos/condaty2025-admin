@@ -24,6 +24,7 @@ import {
   IconLocal,
   IconGarage,
 } from "@/components/layout/icons/IconsBiblioteca";
+import Button from "@/mk/components/forms/Button/Button";
 
 const paramsInitial = {
   fullType: "L",
@@ -99,13 +100,13 @@ const Dptos = () => {
   const router = useRouter();
   const { user, setStore, store, userCan } = useAuth();
   const client = user?.clients?.filter(
-    (item: any) => item?.id === user?.client_id
+    (item: any) => item?.id === user?.client_id,
   )[0];
 
   useEffect(() => {
     setStore({ ...store, UnitsType: UnitsType[client?.type_dpto], title: "" });
   }, []);
-  
+
   const mod: ModCrudType = {
     modulo: "dptos",
     singular: "",
@@ -136,6 +137,19 @@ const Dptos = () => {
       user: any;
       execute: any;
     }) => <RenderForm {...props} />,
+  };
+
+  const ButtonReportDeudas = () => {
+    return (
+      <Button
+        onClick={() => {
+          console.log(process.env.NEXT_PUBLIC_API_URL + "/dptos-export-deudas");
+          onReport();
+        }}
+      >
+        deudas{" "}
+      </Button>
+    );
   };
 
   const fields = useMemo(() => {
@@ -240,7 +254,7 @@ const Dptos = () => {
                     "/OWNER-" +
                       props?.item?.homeowner?.id +
                       ".webp?d=" +
-                      props?.item?.homeowner?.updated_at
+                      props?.item?.homeowner?.updated_at,
                   )}
                   name={getFullName(props?.item?.homeowner)}
                 />
@@ -280,7 +294,7 @@ const Dptos = () => {
                 <Avatar
                   hasImage={tenant?.has_image}
                   src={getUrlImages(
-                    "/OWNER-" + personId + ".webp?d=" + updatedAt
+                    "/OWNER-" + personId + ".webp?d=" + updatedAt,
                   )}
                   name={getFullName(tenant)}
                 />
@@ -378,6 +392,7 @@ const Dptos = () => {
     fields,
     getFilter,
     _onImport: onImport,
+    extraButtons: [<ButtonReportDeudas />],
   });
 
   const { onLongPress, selItem } = useCrudUtils({
@@ -392,10 +407,52 @@ const Dptos = () => {
     router.push(`/units/${item.id}`);
   };
 
+  const onReport = async () => {
+    const { data: file } = await execute(
+      "/dptos-export-deudas",
+      "GET",
+      {},
+      false,
+      mod?.noWaiting,
+    );
+
+    if (file?.status) {
+      const url = getUrlImages("/report" + (file.url || ""));
+      // Intentar derivar un nombre de archivo desde el path; si no, usar por defecto
+      const suggestedName = (() => {
+        const path = String(file.data?.path || "");
+        const base = path.split("/").pop();
+        if (base && base.trim().length > 0) return base;
+        const ext = "xlsx".toLowerCase();
+        return `listado-${mod.modulo}.${ext}`;
+      })();
+
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = suggestedName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        // Fallback: si falla la descarga, abrir directamente la URL
+        window.location.href = url;
+      }
+    } else {
+      showToast("Hubo un error al exportar el archivo", "error");
+    }
+  };
+
   const renderItem = (
     item: Record<string, any>,
     i: number,
-    onClick: Function
+    onClick: Function,
   ) => {
     return (
       <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
@@ -419,7 +476,6 @@ const Dptos = () => {
 
     return untis;
   };
-
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
