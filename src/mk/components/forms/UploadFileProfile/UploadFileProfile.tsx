@@ -40,7 +40,6 @@ const UploadFileProfile: React.FC<UploadFileProfileProps> = ({
     mode: "images",
     showToast,
     resetInput,
-    deleteOldOnReplace: false,
   });
 
   const preview = filePreviews[0] || null;
