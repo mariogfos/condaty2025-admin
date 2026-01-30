@@ -1,21 +1,24 @@
-'use client';
-import { useMemo, useEffect, useState } from 'react';
-import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
-import useCrudUtils from '../../../shared/useCrudUtils';
-import { getDateStrMesShort } from '@/mk/utils/date';
-import RenderForm from './RenderForm/RenderForm';
-import RenderView from './RenderView/RenderView';
-import PartialPaymentsRenderView from '@/modulos/PartialPayments/RenderView/RenderView';
-import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
-import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
-import ItemList from '@/mk/components/ui/ItemList/ItemList';
-import RenderItem from '../../../shared/RenderItem';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import { hasMaintenanceValue } from '@/mk/utils/utils';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
-import { formatBs, formatNumber } from '@/mk/utils/numbers';
-import { getStatusText as getStatusTextConst, getStatusConfig as getStatusConfigConst } from '../constants';
+"use client";
+import { useMemo, useEffect, useState } from "react";
+import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
+import useCrudUtils from "../../../shared/useCrudUtils";
+import { getDateStrMesShort } from "@/mk/utils/date";
+import RenderForm from "./RenderForm/RenderForm";
+import RenderView from "./RenderView/RenderView";
+import PartialPaymentsRenderView from "@/modulos/PartialPayments/RenderView/RenderView";
+import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import RenderItem from "../../../shared/RenderItem";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import { hasMaintenanceValue } from "@/mk/utils/utils";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import { formatBs, formatNumber } from "@/mk/utils/numbers";
+import {
+  getStatusText as getStatusTextConst,
+  getStatusConfig as getStatusConfigConst,
+} from "../constants";
 
 interface AllDebtsProps {
   openView: boolean;
@@ -25,9 +28,7 @@ interface AllDebtsProps {
   onExtraDataChange?: (extraData: any) => void;
 }
 
-const AllDebts: React.FC<AllDebtsProps> = ({
-  onExtraDataChange
-}) => {
+const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
   const { setStore, store, user } = useAuth();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
@@ -45,13 +46,15 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   // );
 
   const renderSubcategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.debt?.subcategory?.name || item?.subcategory?.name || '-/-'}</div>
+    <div>
+      {item?.debt?.subcategory?.name || item?.subcategory?.name || "-/-"}
+    </div>
   );
 
   const renderDebtTypeCell = ({ item }: { item: any }) => {
     switch (item?.type) {
       case 0: {
-        return <div>Individual</div>
+        return <div>Individual</div>;
         break;
       }
       case 1: {
@@ -59,23 +62,23 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         break;
       }
       case 2: {
-        return <div>Reservas</div>
+        return <div>Reservas</div>;
         break;
       }
       case 3: {
-        return <div>Multa por Cancelación</div>
+        return <div>Multa por Cancelación</div>;
         break;
       }
       case 4: {
-        return <div>Compartida</div>
+        return <div>Compartida</div>;
         break;
       }
       case 5: {
-        return <div>Condonación</div>
+        return <div>Condonación</div>;
         break;
       }
       default: {
-        return <div>-/-</div>
+        return <div>-/-</div>;
         break;
       }
     }
@@ -84,10 +87,10 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   const renderStatusCell = ({ item }: { item: any }) => {
     let finalStatus = item?.status;
     const today = new Date();
-    const todayString = today.toISOString().split('T')[0];
+    const todayString = today.toISOString().split("T")[0];
     const dueAtString = item?.debt?.due_at || item?.due_at;
-    if (dueAtString && dueAtString < todayString && item?.status === 'A') {
-      finalStatus = 'M';
+    if (dueAtString && dueAtString < todayString && item?.status === "A") {
+      finalStatus = "M";
     }
     const statusText = getStatusTextConst(finalStatus);
     const { color, bgColor } = getStatusConfigConst(finalStatus, dueAtString);
@@ -100,11 +103,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
 
   const renderDueDateCell = ({ item }: { item: any }) => {
     if (!item?.due_at) return <div>-/-</div>;
-    return (
-      <div>
-        {getDateStrMesShort(item.due_at)}
-      </div>
-    );
+    return <div>{getDateStrMesShort(item.due_at)}</div>;
   };
 
   const renderDebtAmountCell = ({ item }: { item: any }) => (
@@ -121,16 +120,23 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     const hasValue =
       raw !== null &&
       raw !== undefined &&
-      String(raw).trim() !== '' &&
+      String(raw).trim() !== "" &&
       !isNaN(Number(raw));
 
-    if (!hasValue) return <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '100%',
-      height: '100%',
-    }}>-/-</div>;
+    if (!hasValue)
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          -/-
+        </div>
+      );
 
     return <FormatBsAlign value={parseFloat(raw)} alignRight />;
   };
@@ -145,34 +151,34 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   };
 
   const getStatusOptions = () => [
-    { id: 'ALL', name: 'Todos los estados' },
-    { id: 'A', name: 'Por cobrar' },
-    { id: 'P', name: 'Cobrada' },
-    { id: 'F', name: 'Condonada' },
-    { id: 'S', name: 'Por confirmar' },
-    { id: 'M', name: 'En mora' },
-    { id: 'C', name: 'Cancelada' },
-    { id: 'X', name: 'Anulada' },
+    { id: "ALL", name: "Todos los estados" },
+    { id: "A", name: "Por cobrar" },
+    { id: "P", name: "Cobrada" },
+    { id: "F", name: "Condonada" },
+    { id: "S", name: "Por confirmar" },
+    { id: "M", name: "En mora" },
+    { id: "C", name: "Cancelada" },
+    { id: "X", name: "Anulada" },
   ];
 
   const getDebtTypeOptions = () => [
-    { id: 'ALL', name: 'Todas las deudas' },
-    { id: "0", name: 'Individual' },
-    { id: "1", name: 'Expensas' },
-    { id: "2", name: 'Reservas' },
-    { id: "3", name: 'Cancelación' },
-    { id: "4", name: 'Compartida' },
-    { id: "5", name: 'Condonación' },
+    { id: "ALL", name: "Todas las deudas" },
+    { id: "0", name: "Individual" },
+    { id: "1", name: "Expensas" },
+    { id: "2", name: "Reservas" },
+    { id: "3", name: "Cancelación" },
+    { id: "4", name: "Compartida" },
+    { id: "5", name: "Condonación" },
   ];
 
   const getCategoryOptions = (extraData?: any) => {
-    const options = [{ id: 'ALL', name: 'Todas las categorías' }];
+    const options = [{ id: "ALL", name: "Todas las categorías" }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
         options.push({
           id: category.id.toString(),
-          name: category.name
+          name: category.name,
         });
       });
     }
@@ -181,7 +187,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   };
 
   const getSubcategoryOptions = (extraData?: any) => {
-    const options = [{ id: 'ALL', name: 'Todas las subcategorías' }];
+    const options = [{ id: "ALL", name: "Todas las subcategorías" }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
@@ -189,7 +195,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           category.hijos.forEach((subcategory: any) => {
             options.push({
               id: subcategory.id.toString(),
-              name: subcategory.name
+              name: subcategory.name,
             });
           });
         }
@@ -200,16 +206,16 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   };
 
   const getPeriodOptions = () => [
-    { id: 'ALL', name: 'Todos los periodos' },
-    { id: 'd', name: 'Hoy' },
-    { id: 'ld', name: 'Ayer' },
-    { id: 'w', name: 'Esta semana' },
-    { id: 'lw', name: 'Semana anterior' },
-    { id: 'm', name: 'Este mes' },
-    { id: 'lm', name: 'Mes anterior' },
-    { id: 'y', name: 'Este año' },
-    { id: 'ly', name: 'Año anterior' },
-    { id: 'custom', name: 'Personalizado' }
+    { id: "ALL", name: "Todos los periodos" },
+    { id: "d", name: "Hoy" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana anterior" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
+    { id: "custom", name: "Personalizado" },
   ];
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
@@ -231,41 +237,49 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   };
 
   const calculateTotals = (data: any[]) => {
-    if (!data || data.length === 0) return { totalDebt: 0, totalPenalty: 0, totalBalance: 0 };
+    if (!data || data.length === 0)
+      return { totalDebt: 0, totalPenalty: 0, totalBalance: 0 };
 
-    return data.reduce((acc, item) => {
-      const debtAmount = parseFloat(item?.amount) || 0;
-      const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
-      const maintenanceAmount = parseFloat(item?.maintenance_amount) || 0;
-      const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
+    return data.reduce(
+      (acc, item) => {
+        const debtAmount = parseFloat(item?.amount) || 0;
+        const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
+        const maintenanceAmount = parseFloat(item?.maintenance_amount) || 0;
+        const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
 
-      return {
-        totalDebt: acc.totalDebt + debtAmount,
-        totalPenalty: acc.totalPenalty + penaltyAmount,
-        totalBalance: acc.totalBalance + totalBalance
-      };
-    }, { totalDebt: 0, totalPenalty: 0, totalBalance: 0 });
+        return {
+          totalDebt: acc.totalDebt + debtAmount,
+          totalPenalty: acc.totalPenalty + penaltyAmount,
+          totalBalance: acc.totalBalance + totalBalance,
+        };
+      },
+      { totalDebt: 0, totalPenalty: 0, totalBalance: 0 },
+    );
   };
 
   const paramsInitial = {
-    fullType: 'L',
+    fullType: "L",
     page: 1,
     perPage: 20,
   };
 
   const renderTotalWithGreenBorder = (value: number, isHighlighted = false) => (
-    <div style={{
-      fontWeight: 'bold',
-      fontSize: '14px',
-      color: isHighlighted ? '#10b981' : 'var(--cWhite)',
-      textAlign: 'right',
-      backgroundColor: isHighlighted ? 'rgba(16, 185, 129, 0.1)' : 'var(--cBlackV2)',
-      padding: '8px 12px',
-      borderRadius: '6px',
-      border: '2px solid #10b981',
-      minWidth: '80px',
-      margin: '4px 0'
-    }}>
+    <div
+      style={{
+        fontWeight: "bold",
+        fontSize: "14px",
+        color: isHighlighted ? "#10b981" : "var(--cWhite)",
+        textAlign: "right",
+        backgroundColor: isHighlighted
+          ? "rgba(16, 185, 129, 0.1)"
+          : "var(--cBlackV2)",
+        padding: "8px 12px",
+        borderRadius: "6px",
+        border: "2px solid #10b981",
+        minWidth: "80px",
+        margin: "4px 0",
+      }}
+    >
       Bs {formatNumber(value || 0, 2)}
     </div>
   );
@@ -274,100 +288,112 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     const showMaintenance = hasMaintenanceValue(user);
 
     return {
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       unit: {
-        rules: [''],
-        api: '',
-        label: 'Unidad',
+        rules: [""],
+        api: "",
+        label: "Unidad",
         list: {
           onRender: renderUnitCell,
           order: 1,
         },
       },
       due_at: {
-        rules: [''],
-        api: '',
-        label: 'Vencimiento',
+        rules: [""],
+        api: "",
+        label: "Vencimiento",
         list: {
           onRender: renderDueDateCell,
           order: 6,
         },
         filter: {
-          key: 'due_at',
-          label: 'Periodo',
-          width: '100%',
+          key: "due_at",
+          label: "Periodo",
+          width: "100%",
           options: getPeriodOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
+          optionLabel: "name",
+          optionValue: "id",
         },
       },
       category_id: {
-        rules: [''],
-        api: '',
-        label: 'Categoría',
+        rules: [""],
+        api: "",
+        label: "Categoría",
         list: false,
         filter: {
-          label: 'Categoría',
-          width: '100%',
+          label: "Categoría",
+          width: "100%",
           options: getCategoryOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
+          optionLabel: "name",
+          optionValue: "id",
         },
       },
       subcategory_id: {
-        rules: [''],
-        api: '',
-        label: 'Subcategoría',
+        rules: [""],
+        api: "",
+        label: "Subcategoría",
         list: {
           onRender: renderSubcategoryCell,
           order: 3,
         },
         filter: {
-          label: 'Subcategoría',
-          width: '100%',
+          label: "Subcategoría",
+          width: "100%",
           options: getSubcategoryOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
+          optionLabel: "name",
+          optionValue: "id",
         },
       },
       type: {
-        rules: [''],
-        api: '',
-        label: 'Tipo',
+        rules: [""],
+        api: "",
+        label: "Tipo",
         list: {
           onRender: renderDebtTypeCell,
           order: 4,
         },
         filter: {
-          key: 'type',
-          label: 'Tipo',
-          width: '100%',
+          key: "type",
+          label: "Tipo",
+          width: "100%",
           options: getDebtTypeOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
+          optionLabel: "name",
+          optionValue: "id",
         },
       },
       status: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
+        rules: [""],
+        api: "",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Estado
+          </span>
+        ),
         list: {
           onRender: renderStatusCell,
           order: 5,
         },
         filter: {
-          key: 'status',
-          label: 'Estado',
-          width: '100%',
+          key: "status",
+          label: "Estado",
+          width: "100%",
           options: getStatusOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
+          optionLabel: "name",
+          optionValue: "id",
         },
       },
       amount: {
-        rules: [''],
-        api: '',
-        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</label>,
+        rules: [""],
+        api: "",
+        label: (
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            Deuda
+          </label>
+        ),
         list: {
           onRender: renderDebtAmountCell,
           order: 7,
@@ -377,9 +403,15 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         },
       },
       penalty_amount: {
-        rules: [''],
-        api: '',
-        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>,
+        rules: [""],
+        api: "",
+        label: (
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            Multa
+          </label>
+        ),
         list: {
           onRender: renderPenaltyAmountCell,
           order: 8,
@@ -391,27 +423,40 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       // incluir maintenance_amount solo si corresponde
 
       maintenance_amount: {
-        rules: [''],
-        api: '',
-        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>,
-        list: showMaintenance ? {
-          order: 9,
-          onRender: renderMaintenanceAmountCell
-        } : false
+        rules: [""],
+        api: "",
+        label: (
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            Mant. Valor
+          </label>
+        ),
+        list: showMaintenance
+          ? {
+              order: 9,
+              onRender: renderMaintenanceAmountCell,
+            }
+          : false,
       },
 
       balance_due: {
-        rules: [''],
-        api: '',
+        rules: [""],
+        api: "",
         label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto total</label>
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            Monto total
+          </label>
         ),
         list: {
           onRender: renderBalanceDueCell,
           order: 9,
           sumarize: false,
           onRenderFoot: (item: any, index: number, sumas: any) => {
-            const totalBalance = (sumas.amount || 0) + (sumas.penalty_amount || 0);
+            const totalBalance =
+              (sumas.amount || 0) + (sumas.penalty_amount || 0);
             return renderTotalWithGreenBorder(totalBalance, true);
           },
         },
@@ -420,12 +465,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   }, []);
 
   const mod: ModCrudType = {
-    modulo: 'debt-dptos',
-    singular: 'Deuda',
-    plural: '',
+    modulo: "debt-dptos",
+    singular: "Deuda",
+    plural: "",
     export: true,
     filter: true,
-    permiso: 'expense',
+    permiso: "expense",
     extraData: true,
     sumarize: false,
     hideActions: {
@@ -435,7 +480,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       del: true,
     },
     renderView: (props: any) => {
-      if (props.item?.status === 'I') {
+      if (props.item?.status === "I") {
         return (
           <PartialPaymentsRenderView
             open={props.open}
@@ -481,12 +526,14 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     ),
   };
 
-  const { userCan, List, onEdit, onDel, extraData, onFilter, reLoad } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-    getFilter: handleGetFilter,
-  });
+  const { userCan, List, onEdit, onDel, extraData, onFilter, reLoad } = useCrud(
+    {
+      paramsInitial,
+      mod,
+      fields,
+      getFilter: handleGetFilter,
+    },
+  );
 
   useEffect(() => {
     if (extraData && onExtraDataChange) {
@@ -495,7 +542,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   }, [extraData, onExtraDataChange]);
 
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => { },
+    onSearch: () => {},
     searchs: {},
     setStore,
     mod,
@@ -512,10 +559,10 @@ const AllDebts: React.FC<AllDebtsProps> = ({
 
     // Obtener fecha actual solo como string YYYY-MM-DD
     const today = new Date();
-    const todayString = today.toISOString().split('T')[0];
+    const todayString = today.toISOString().split("T")[0];
     const dueAtString = item?.debt?.due_at || item?.due_at;
-    if (dueAtString && dueAtString < todayString && item?.status === 'A') {
-      finalStatus = 'M';
+    if (dueAtString && dueAtString < todayString && item?.status === "A") {
+      finalStatus = "M";
     }
 
     const debtAmount = parseFloat(item?.amount) || 0;
@@ -523,7 +570,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     const totalBalance = debtAmount + penaltyAmount;
 
     return (
-      <RenderItem item={item} onClick={() => { }} onLongPress={onLongPress}>
+      <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
         <ItemList
           title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(finalStatus)}`}
           subtitle={`Deuda: ${formatBs(debtAmount)} | Multa: ${formatBs(penaltyAmount)} | Total: ${formatBs(totalBalance)}`}
@@ -534,13 +581,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     );
   };
 
-  const onClickDetail = (row: any) => {
-  };
+  const onClickDetail = (row: any) => {};
 
   return (
     <>
       <List
-        height={'calc(100vh - 560px)'}
+        height={"calc(100vh - 560px)"}
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de todas las deudas vacía. Una vez generes las cuotas"
@@ -549,40 +595,43 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         filterBreakPoint={2500}
         sumarize={false}
       />
-      <DateRangeFilterModal
-        open={openCustomFilter}
-        onClose={() => {
-          setOpenCustomFilter(false);
-          setCustomDateErrors({});
-        }}
-        onSave={({ startDate, endDate }) => {
-          let err: { startDate?: string; endDate?: string } = {};
-          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
-          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
-          if (startDate && endDate && startDate > endDate)
-            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
-          if (
-            startDate &&
-            endDate &&
-            startDate.slice(0, 4) !== endDate.slice(0, 4)
-          ) {
-            err.startDate =
-              "El periodo personalizado debe estar dentro del mismo año";
-            err.endDate =
-              "El periodo personalizado debe estar dentro del mismo año";
-          }
-          if (Object.keys(err).length > 0) {
-            setCustomDateErrors(err);
-            return;
-          }
-          const customDateFilterString = `${startDate},${endDate}`;
-          onFilter("due_at", customDateFilterString);
-          setOpenCustomFilter(false);
-          setCustomDateErrors({});
-        }}
-        errorStart={customDateErrors.startDate}
-        errorEnd={customDateErrors.endDate}
-      />
+      {openCustomFilter && (
+        <DateRangeFilterModal
+          open={openCustomFilter}
+          onClose={() => {
+            setOpenCustomFilter(false);
+            setCustomDateErrors({});
+          }}
+          onSave={({ startDate, endDate }) => {
+            let err: { startDate?: string; endDate?: string } = {};
+            if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+            if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+            if (startDate && endDate && startDate > endDate)
+              err.startDate =
+                "La fecha de inicio no puede ser mayor a la de fin";
+            if (
+              startDate &&
+              endDate &&
+              startDate.slice(0, 4) !== endDate.slice(0, 4)
+            ) {
+              err.startDate =
+                "El periodo personalizado debe estar dentro del mismo año";
+              err.endDate =
+                "El periodo personalizado debe estar dentro del mismo año";
+            }
+            if (Object.keys(err).length > 0) {
+              setCustomDateErrors(err);
+              return;
+            }
+            const customDateFilterString = `${startDate},${endDate}`;
+            onFilter("due_at", customDateFilterString);
+            setOpenCustomFilter(false);
+            setCustomDateErrors({});
+          }}
+          errorStart={customDateErrors.startDate}
+          errorEnd={customDateErrors.endDate}
+        />
+      )}
     </>
   );
 };

@@ -83,8 +83,8 @@
   aspect-ratio: 1;
   border-radius: 50%;
   background: var(--cPrimary);
-  --_m: conic-gradient(#0000 10%, #00e38c),
-    linear-gradient(#00e38c 0 0) content-box;
+  --_m:
+    conic-gradient(#0000 10%, #00e38c), linear-gradient(#00e38c 0 0) content-box;
   -webkit-mask: var(--_m);
   mask: var(--_m);
   -webkit-mask-composite: source-out;
@@ -113,10 +113,10 @@
   flex-grow: 1;
   flex-direction: column;
   justify-content: space-between;
-  border-radius: var(--spS);
-  /* padding: var(--sL); */
+  border-radius: var(--bRadius);
 
   & > div {
+    border-radius: var(--bRadius);
     background-color: var(--darkv1);
     padding-left: var(--spXl);
     padding-right: var(--spXl);
@@ -128,7 +128,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--cBorder);
   padding: var(--sL);
   animation: pulse-animation 1.5s infinite ease-in-out;
 
@@ -141,7 +141,7 @@
       height: var(--spXxl);
       width: var(--spXxl);
       border-radius: 100%;
-      background-color: #e5e7eb;
+      background-color: #e5e7eb4d;
       animation-name: pulse-animation;
       animation-duration: 1.5s;
       animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
@@ -155,7 +155,7 @@
         height: var(--sL);
         width: 10rem;
         border-radius: var(--bRadius);
-        background-color: #d1d5db;
+        background-color: #d1d5db4d;
         animation: pulse-animation 1.5s infinite;
       }
 
@@ -164,7 +164,7 @@
         height: var(--sL);
         width: 3rem;
         border-radius: var(--bRadius);
-        background-color: #d1d5db;
+        background-color: #d1d5db4d;
         animation: pulse-animation 1.5s infinite;
       }
     }
@@ -176,7 +176,7 @@
     width: 3rem;
     /* w-12 */
     border-radius: var(--bRadius);
-    background-color: #d1d5db;
+    background-color: #d1d5db4d;
     animation: pulse-animation 1.5s infinite;
   }
 }
