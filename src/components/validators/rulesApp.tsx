@@ -180,7 +180,7 @@ export const validPhone: ValidFunctionType = (value, param) => {
 
   let [min, max]: any = param;
   if (!min) min = 7;
-  if (!max) max = 10;
+  if (!max) max = 15;
 
   // Verificar que solo contenga dígitos
   if (!/^\d+$/.test(value)) {

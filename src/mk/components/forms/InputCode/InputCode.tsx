@@ -89,7 +89,7 @@ const InputCode = ({
       <ControlLabel
         name={name}
         value={value}
-        label={!error ? label : error[name]}
+        label={label}
         style={{ color: color, marginBottom: 16 }}
       >
         <div>
@@ -100,8 +100,17 @@ const InputCode = ({
                 ref={(el: any) => (inputRefs.current[i] = el!)}
                 name={`code${i + 1}`}
                 id={`code${i + 1}`}
-                className={styles["inputCode"]}
-                style={{ color: color, borderColor: color }}
+                className={`${styles["inputCode"]} ${className}`}
+                style={{
+                  color:
+                    error && error[name]
+                      ? "var(--cError) !important"
+                      : "#ffffff",
+                  borderColor:
+                    error && error[name]
+                      ? "var(--cError) !important"
+                      : "rgba(255, 255, 255, 0.5)",
+                }}
                 required={required}
                 placeholder={placeholder}
                 autoComplete="off"
