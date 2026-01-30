@@ -25,6 +25,9 @@ const Login = () => {
   const [attempts, setAttempts] = useState(0);
   const [isBlocked, setIsBlocked] = useState(false);
   const [blockTime, setBlockTime] = useState(0);
+  const getUserKey = () => (formState.email || "").trim();
+  const getAttemptsKey = (userKey: string) => `login_attempts_${userKey}`;
+  const getBlockKey = (userKey: string) => `login_block_until_${userKey}`;
 
   useEffect(() => {
     const getDeviceData = async () => {
@@ -93,6 +96,26 @@ const Login = () => {
   const onSubmit = async () => {
     if (hasErrors(validaciones())) return;
 
+    const userKey = getUserKey();
+    if (userKey) {
+      const storedBlockUntil = localStorage.getItem(getBlockKey(userKey));
+      if (storedBlockUntil) {
+        const blockUntil = parseInt(storedBlockUntil, 10);
+        if (blockUntil > Date.now()) {
+          setIsBlocked(true);
+          setErrors({
+            email: "Cuenta bloqueada temporalmente. Intente más tarde.",
+          });
+          return;
+        } else {
+          localStorage.removeItem(getBlockKey(userKey));
+          localStorage.removeItem(getAttemptsKey(userKey));
+          setIsBlocked(false);
+          setAttempts(0);
+        }
+      }
+    }
+
     const { data, error }: any = await execute(
       process.env.NEXT_PUBLIC_AUTH_LOGIN,
       "POST",
@@ -110,6 +133,24 @@ const Login = () => {
       if (data?.errors?.device === "untrusted") {
         setVerificationMessage(data?.message);
         setIsNewDevice(true);
+        if (userKey) {
+          const storedAttempts = localStorage.getItem(getAttemptsKey(userKey));
+          const storedBlockUntil = localStorage.getItem(getBlockKey(userKey));
+          if (storedBlockUntil) {
+            const blockUntil = parseInt(storedBlockUntil, 10);
+            if (blockUntil > Date.now()) {
+              setIsBlocked(true);
+            } else {
+              localStorage.removeItem(getBlockKey(userKey));
+              setIsBlocked(false);
+            }
+          } else if (storedAttempts) {
+            setAttempts(parseInt(storedAttempts, 10));
+          } else {
+            setAttempts(0);
+            setIsBlocked(false);
+          }
+        }
       } else if (data?.errors?.status == 500) {
         setErrors({
           email: "Problemas de conexión con el servidor. Intente más tarde!",
@@ -139,18 +180,35 @@ const Login = () => {
       // PIN Correcto
       setIsNewDevice(false);
       setShowTrustDevice(true);
+      const userKey = getUserKey();
+      if (userKey) {
+        localStorage.removeItem(getAttemptsKey(userKey));
+        localStorage.removeItem(getBlockKey(userKey));
+      }
     } else {
       // PIN Incorrecto
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
+      const userKey = getUserKey();
+      if (userKey) {
+        localStorage.setItem(getAttemptsKey(userKey), newAttempts.toString());
+      }
 
       if (newAttempts >= 3) {
         setIsBlocked(true);
+        const blockUntil = Date.now() + 30 * 60 * 1000;
+        if (userKey) {
+          localStorage.setItem(getBlockKey(userKey), blockUntil.toString());
+        }
         // Bloquear por 30 minutos (simulado por ahora)
         setTimeout(
           () => {
             setIsBlocked(false);
             setAttempts(0);
+            if (userKey) {
+              localStorage.removeItem(getBlockKey(userKey));
+              localStorage.removeItem(getAttemptsKey(userKey));
+            }
           },
           30 * 60 * 1000,
         );
