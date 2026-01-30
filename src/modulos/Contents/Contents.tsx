@@ -264,12 +264,10 @@ const Contents = () => {
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
                   hasImage={1}
-                  src={
-                    user?.url_avatar ||
-                    getUrlImages(
-                      "/ADM-" + user?.id + ".webp?d=" + user?.updated_at,
-                    )
-                  }
+                  src={getUrlImages(
+                    "/ADM-" + user?.id + ".webp?d=" + user?.updated_at,
+                    user?.url_avatar,
+                  )}
                   name={nombreCompleto}
                 />
                 <div>

@@ -7,6 +7,7 @@ export type User = {
   mother_last_name?: string;
   updated_at: string;
   role1: Role[];
+  url_avatar?: string | null;
 };
 
 export type Role = {
