@@ -406,6 +406,48 @@ const Dptos = () => {
     router.push(`/units/${item.id}`);
   };
 
+  const onReport = async () => {
+    const { data: file } = await execute(
+      "/dptos-export-deudas",
+      "GET",
+      {},
+      false,
+      mod?.noWaiting,
+    );
+
+    if (file?.status) {
+      const url = getUrlImages("/report" + (file.url || ""));
+      // Intentar derivar un nombre de archivo desde el path; si no, usar por defecto
+      const suggestedName = (() => {
+        const path = String(file.data?.path || "");
+        const base = path.split("/").pop();
+        if (base && base.trim().length > 0) return base;
+        const ext = "xlsx".toLowerCase();
+        return `listado-${mod.modulo}.${ext}`;
+      })();
+
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = suggestedName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        // Fallback: si falla la descarga, abrir directamente la URL
+        window.location.href = url;
+      }
+    } else {
+      showToast("Hubo un error al exportar el archivo", "error");
+    }
+  };
+
   const renderItem = (
     item: Record<string, any>,
     i: number,
