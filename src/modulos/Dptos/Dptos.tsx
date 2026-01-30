@@ -417,14 +417,14 @@ const Dptos = () => {
     );
 
     if (file?.status) {
-      const url = getUrlImages("/report" + (file.url || ""));
+      const url = getUrlImages("/" + file.url);
       // Intentar derivar un nombre de archivo desde el path; si no, usar por defecto
       const suggestedName = (() => {
         const path = String(file.data?.path || "");
         const base = path.split("/").pop();
         if (base && base.trim().length > 0) return base;
         const ext = "xlsx".toLowerCase();
-        return `listado-${mod.modulo}.${ext}`;
+        return `reporte-deudas-${new Date().toISOString()}.${ext}`;
       })();
 
       try {
