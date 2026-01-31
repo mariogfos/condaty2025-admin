@@ -52,7 +52,7 @@ const HomePage = () => {
   // Modal de contenidos (RenderView)
   const [openContentRender, setOpenContentRender] = useState(false);
   const [selectedContentId, setSelectedContentId] = useState<number | null>(
-    null
+    null,
   );
   const [selectedContentData, setSelectedContentData] = useState<any>(null);
 
@@ -148,7 +148,8 @@ const HomePage = () => {
             <Avatar
               hasImage={data.owner.has_image}
               src={getUrlImages(
-                `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
+                `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`,
+                data?.owner?.url_avatar,
               )}
               name={primaryText}
               w={40}
@@ -182,7 +183,6 @@ const HomePage = () => {
       .join("")
       .substring(0, 2)
       .toUpperCase();
-
     return (
       <div
         className={`${styles.itemRow}`}
@@ -194,9 +194,10 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
-              hasImage={data.owner.has_image}
+              hasImage={data.owner?.has_image}
               src={getUrlImages(
-                `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
+                `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`,
+                data?.owner?.url_avatar,
               )}
               name={primaryText}
               w={40}
@@ -234,7 +235,7 @@ const HomePage = () => {
           if (userCan("owners", "C") == false) {
             return showToast(
               "No tiene permisos para aceptar cuentas pre-registradas",
-              "error"
+              "error",
             );
           }
           setDataOwner({ ...ownerData, type_owner: data?.type });
@@ -245,7 +246,8 @@ const HomePage = () => {
           <Avatar
             hasImage={ownerData.has_image}
             src={getUrlImages(
-              `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`
+              `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`,
+              ownerData?.url_avatar,
             )}
             name={primaryText}
             w={40}
@@ -266,7 +268,7 @@ const HomePage = () => {
               if (userCan("owners", "C") == false) {
                 return showToast(
                   "No tiene permisos para aceptar cuentas pre-registradas",
-                  "error"
+                  "error",
                 );
               }
               setDataOwner({ ...ownerData, type_owner: data.type });
@@ -297,7 +299,6 @@ const HomePage = () => {
       entityType = "OWNER";
       primaryText = getFullName(dataSource); // Asume que getFullName puede manejar el objeto owner
     }
-    // Si ni guardia ni owner están presentes, primaryText permanece "Alerta del Sistema"
 
     const userInitials = primaryText
       ?.split(" ")
@@ -333,7 +334,8 @@ const HomePage = () => {
         dataSource.updatedAt ||
         new Date().toISOString();
       avatarImageUrl = getUrlImages(
-        `/${entityType}-${dataSource.id}.webp?d=${updatedAtTimestamp}`
+        `/${entityType}-${dataSource.id}.webp?d=${updatedAtTimestamp}`,
+        dataSource?.url_avatar,
       );
     }
 
@@ -477,7 +479,7 @@ const HomePage = () => {
                     "Bs. " +
                     formatNumber(
                       Number(dashboard?.data?.TotalIngresos) -
-                        Number(dashboard?.data?.TotalEgresos)
+                        Number(dashboard?.data?.TotalEgresos),
                     )
                   }
                   icon={
@@ -562,14 +564,16 @@ const HomePage = () => {
                   />
                 </div>
               </div>
-              <section className={`${styles.fourWidgetSection} ${styles.widgetsHome}`}>
+              <section
+                className={`${styles.fourWidgetSection} ${styles.widgetsHome}`}
+              >
                 <div className={styles.widgetRow}>
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Revisiones de pago"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/payments")}
-                    emptyListMessage="No hay pagos por revisar. Una vez los residentes comiencen a pagar sus deudas se mostrarán aquí." 
+                    emptyListMessage="No hay pagos por revisar. Una vez los residentes comiencen a pagar sus deudas se mostrarán aquí."
                     //emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí."
                     emptyListIcon={<IconPagos size={32} />}
                     data={dashboard?.data?.porConfirmar}

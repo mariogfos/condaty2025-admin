@@ -16,14 +16,11 @@ const DateCell = ({ createdAt }: { createdAt: string }) => {
 
 const GuardCell = ({ guardia }: { guardia: any }) => {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <Avatar
         hasImage={guardia.has_image}
         src={getUrlImages(
-          '/GUARD-' +
-            guardia.id +
-            '.webp?d=' +
-            guardia.updated_at
+          "/GUARD-" + guardia.id + ".webp?d=" + guardia.updated_at,
         )}
         name={getFullName(guardia)}
       />
@@ -40,11 +37,11 @@ const DescriptionCell = ({ description }: { description: string }) => {
     <div
       title={description}
       style={{
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        maxWidth: '100%',
-        width: '100%'
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        maxWidth: "100%",
+        width: "100%",
       }}
     >
       {description}
@@ -61,7 +58,7 @@ const renderGuardCell = (props: any) => {
 };
 
 const renderDescriptionCell = (props: any) => {
-  const description = props?.item?.descrip || '';
+  const description = props?.item?.descrip || "";
   return <DescriptionCell description={description} />;
 };
 
@@ -116,7 +113,7 @@ const Binnacle = () => {
     hideActions: { edit: true, del: true, add: true },
     renderView: (props: any) => <RenderView {...props} />,
     loadView: { fullType: "DET" },
-    export: true
+    export: true,
   };
 
   const paramsInitial = {
@@ -128,41 +125,41 @@ const Binnacle = () => {
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       created_at: {
-        rules: ['required'],
-        api: 'e',
-        label: 'Fecha',
+        rules: ["required"],
+        api: "e",
+        label: "Fecha",
         list: {
           width: 210,
           onRender: renderDateCell,
         },
         filter: {
-          label: 'Periodo',
+          label: "Periodo",
           options: getPeriodOptions,
         },
       },
       guardia: {
-        rules: [''],
-        api: '',
-        label: 'Guardia',
+        rules: [""],
+        api: "",
+        label: "Guardia",
         list: {
           width: 300,
           onRender: renderGuardCell,
         },
       },
       descrip: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Descripción',
-        form: { type: 'text' },
+        rules: ["required"],
+        api: "ae",
+        label: "Descripción",
+        form: { type: "text" },
         list: {
           onRender: renderDescriptionCell,
         },
       },
       image: {},
     }),
-    []
+    [],
   );
 
   const {
@@ -196,7 +193,13 @@ const Binnacle = () => {
     setCustomDateErrors({});
   };
 
-  const handleCustomFilterSave = ({ startDate, endDate }: { startDate: string; endDate: string }) => {
+  const handleCustomFilterSave = ({
+    startDate,
+    endDate,
+  }: {
+    startDate: string;
+    endDate: string;
+  }) => {
     let err: { startDate?: string; endDate?: string } = {};
     if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
     if (!endDate) err.endDate = "La fecha de fin es obligatoria";

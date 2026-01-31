@@ -67,9 +67,9 @@ const rigthFile = (data: {
               "." +
               data.item.url +
               "?" +
-              data.item.updated_at
+              data.item.updated_at,
           ),
-          "_blank"
+          "_blank",
         );
       }}
     />
@@ -77,29 +77,29 @@ const rigthFile = (data: {
 };
 
 const getTypefilter = () => [
-  { id: 'ALL', name: 'Todos' },
-  { id: 'D', name: 'Documento' },
-  { id: 'V', name: 'Video' },
-  { id: 'I', name: 'Imagen' },
+  { id: "ALL", name: "Todos" },
+  { id: "D", name: "Documento" },
+  { id: "V", name: "Video" },
+  { id: "I", name: "Imagen" },
 ];
 
 const getTypeContentsfilter = () => [
-  { id: 'ALL', name: 'Todos' },
-  { id: 'P', name: 'Publicación' },
-  { id: 'N', name: 'Noticia' },
+  { id: "ALL", name: "Todos" },
+  { id: "P", name: "Publicación" },
+  { id: "N", name: "Noticia" },
 ];
 
 const getPeriodOptions = () => [
-  { id: 'ALL', name: 'Todos' },
-  { id: 'd', name: 'Hoy' },
-  { id: 'ld', name: 'Ayer' },
-  { id: 'w', name: 'Esta semana' },
-  { id: 'lw', name: 'Semana anterior' },
-  { id: 'm', name: 'Este mes' },
-  { id: 'lm', name: 'Mes anterior' },
-  { id: 'y', name: 'Este año' },
-  { id: 'ly', name: 'Año anterior' },
-  { id: 'custom', name: 'Personalizado' },
+  { id: "ALL", name: "Todos" },
+  { id: "d", name: "Hoy" },
+  { id: "ld", name: "Ayer" },
+  { id: "w", name: "Esta semana" },
+  { id: "lw", name: "Semana anterior" },
+  { id: "m", name: "Este mes" },
+  { id: "lm", name: "Mes anterior" },
+  { id: "y", name: "Este año" },
+  { id: "ly", name: "Año anterior" },
+  { id: "custom", name: "Personalizado" },
 ];
 
 const Contents = () => {
@@ -109,7 +109,8 @@ const Contents = () => {
     endDate?: string;
   }>({});
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
-  const [selectedContentIdForComments, setSelectedContentIdForComments] = useState<number | null>(null);
+  const [selectedContentIdForComments, setSelectedContentIdForComments] =
+    useState<number | null>(null);
   const [selectedContentData, setSelectedContentData] = useState<any>(null);
 
   const { user, showToast } = useAuth();
@@ -226,56 +227,66 @@ const Contents = () => {
 
   const { setStore, store } = useAuth();
   useEffect(() => {
-    setStore({ ...store, title: '' });
+    setStore({ ...store, title: "" });
   }, []);
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       created_at: {
         rules: [],
-        api: 'e',
-        label: 'Fecha',
+        api: "e",
+        label: "Fecha",
         list: {
-          width: '220px',
-          onRender: (props: any) => getDateTimeStrMesShort(props?.item?.created_at),
+          width: "220px",
+          onRender: (props: any) =>
+            getDateTimeStrMesShort(props?.item?.created_at),
           form: false,
         },
         filter: {
-          key: 'created_at',
-          label: 'Periodo',
+          key: "created_at",
+          label: "Periodo",
           options: getPeriodOptions,
         },
       },
       user: {
         rules: [],
-        api: 'ae',
-        label: 'Creador',
+        api: "ae",
+        label: "Creador",
         list: {
-          width: '200px',
+          width: "200px",
           onRender: (item: any) => {
             const user = item?.item.user;
             const nombreCompleto = getFullName(user);
             const cedulaIdentidad = user?.ci;
 
             return (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
                   hasImage={1}
-                  src={getUrlImages('/ADM-' + user?.id + '.webp?d=' + user?.updated_at)}
+                  src={getUrlImages(
+                    "/ADM-" + user?.id + ".webp?d=" + user?.updated_at,
+                    user?.url_avatar,
+                  )}
                   name={nombreCompleto}
                 />
                 <div>
-                  <p style={{ marginBottom: '2px', fontWeight: 500, color: 'var(--cWhite)' }}>
+                  <p
+                    style={{
+                      marginBottom: "2px",
+                      fontWeight: 500,
+                      color: "var(--cWhite)",
+                    }}
+                  >
                     {nombreCompleto}
                   </p>
                   {cedulaIdentidad && (
                     <span
                       style={{
-                        fontSize: '11px',
-                        color: 'var(--cWhiteV1)',
-                        display: 'block',
-                        marginBottom: '4px',
+                        fontSize: "11px",
+                        color: "var(--cWhiteV1)",
+                        display: "block",
+                        marginBottom: "4px",
                       }}
                     >
                       CI: {cedulaIdentidad}
@@ -288,33 +299,33 @@ const Contents = () => {
         },
       },
       type: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Tipo',
+        rules: ["required"],
+        api: "ae",
+        label: "Tipo",
         list: {
-          width: '180px',
+          width: "180px",
         },
         form: {
-          type: 'select',
+          type: "select",
           options: lType,
         },
         filter: {
-          label: 'Tipo de contenido',
-          width: '180px',
+          label: "Tipo de contenido",
+          width: "180px",
           options: getTypefilter,
         },
       },
       title: {
-        rules: [''],
-        api: 'ae',
-        label: 'Titulo',
+        rules: [""],
+        api: "ae",
+        label: "Titulo",
         list: false,
-        form: { type: 'text' },
+        form: { type: "text" },
       },
       description: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Contenido',
+        rules: ["required"],
+        api: "ae",
+        label: "Contenido",
         list: {
           onRender: (item: any) => {
             const title = item?.item?.title;
@@ -323,73 +334,75 @@ const Contents = () => {
             return (
               <div className={styles.contentContainer}>
                 {title && <div className={styles.contentTitle}>{title}</div>}
-                {description && <div className={styles.contentDescription}>{description}</div>}
+                {description && (
+                  <div className={styles.contentDescription}>{description}</div>
+                )}
               </div>
             );
           },
         },
-        form: { type: 'textArea', lines: 6, isLimit: true, maxLength: 5000 },
+        form: { type: "textArea", lines: 6, isLimit: true, maxLength: 5000 },
       },
       reaction: {
-        api: 'ae',
-        label: 'Interacciones',
-        list: { width: '150px' },
+        api: "ae",
+        label: "Interacciones",
+        list: { width: "150px" },
         onHide: isType,
         form: {},
         onRender: (item: any) => (
-          <div style={{ display: 'flex', alignItems: 'center', fontSize: 14 }}>
-            <IconLike color={'var(--cAccent)'} size={24} />
+          <div style={{ display: "flex", alignItems: "center", fontSize: 14 }}>
+            <IconLike color={"var(--cAccent)"} size={24} />
             {formatNumber(item?.item?.likes, 0)} <IconComment size={24} />
             {formatNumber(item?.item?.comments_count, 0)}
           </div>
         ),
       },
       url: {
-        rules: ['requiredIf:type,V'],
-        api: 'a*e*',
-        label: 'Link del video',
+        rules: ["requiredIf:type,V"],
+        api: "a*e*",
+        label: "Link del video",
         list: false,
         onHide: isType,
-        form: { type: 'text' },
+        form: { type: "text" },
       },
       avatar: {
-        api: 'a*e*',
-        label: 'Suba una imagen',
+        api: "a*e*",
+        label: "Suba una imagen",
         list: false,
         onHide: isType,
         form: {
-          type: 'imageUploadMultiple',
-          prefix: 'CONT',
+          type: "imageUploadMultiple",
+          prefix: "CONT",
           maxFiles: 10,
-          images: 'images',
-          style: { width: '100%' },
+          images: "images",
+          style: { width: "100%" },
         },
       },
       file: {
-        rules: ['requiredFileIf:type,D'],
-        api: 'a*e*',
-        label: 'Suba un Documento',
+        rules: ["requiredFileIf:type,D"],
+        api: "a*e*",
+        label: "Suba un Documento",
         list: false,
         onHide: isType,
         form: {
-          type: 'fileUpload',
+          type: "fileUpload",
           onRigth: rigthFile,
-          style: { width: '100%' },
+          style: { width: "100%" },
         },
       },
       content: {
-        api: 'ae',
-        label: 'Contenido',
+        api: "ae",
+        label: "Contenido",
         list: false,
         form: false,
         filter: {
-          key: 'content',
-          label: 'Tipo de publicación',
+          key: "content",
+          label: "Tipo de publicación",
           options: getTypeContentsfilter,
         },
       },
     }),
-    []
+    [],
   );
 
   const _onChange = (
@@ -397,7 +410,7 @@ const Contents = () => {
     item: any,
     setItem: Function,
     setShowExtraModal: Function,
-    action: any
+    action: any,
   ) => {
     const { name, value } = e.target;
     let selDestinies: any = [];
@@ -406,7 +419,10 @@ const Contents = () => {
       if (value) {
         setItem({ ...item, lDestiny: [...item.lDestiny, id] });
       } else {
-        setItem({ ...item, lDestiny: item.lDestiny.filter((d: number) => d != id) });
+        setItem({
+          ...item,
+          lDestiny: item.lDestiny.filter((d: number) => d != id),
+        });
       }
       return true;
     }
@@ -437,14 +453,19 @@ const Contents = () => {
             setItem={setItem}
             selDestinies={selDestinies}
             setShowExtraModal={setShowExtraModal}
-          />
+          />,
         );
       else setShowExtraModal(null);
     }
     return false;
   };
 
-  const ModalDestiny = ({ item, setItem, selDestinies, setShowExtraModal }: {
+  const ModalDestiny = ({
+    item,
+    setItem,
+    selDestinies,
+    setShowExtraModal,
+  }: {
     item: any;
     setItem: Function;
     selDestinies: any;
@@ -462,7 +483,10 @@ const Contents = () => {
     const setOnSearch = (e: any) => setSearch(e);
 
     const normalizeText = (text: string) =>
-      text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+      text
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase();
 
     useEffect(() => {
       if (search == "") {
@@ -470,7 +494,7 @@ const Contents = () => {
         return;
       }
       const filtered = selDestinies.filter((d: any) =>
-        normalizeText(d.name).includes(normalizeText(search))
+        normalizeText(d.name).includes(normalizeText(search)),
       );
       setDestiniesFiltered(filtered);
     }, [search, selDestinies]);
@@ -494,8 +518,17 @@ const Contents = () => {
     };
 
     return (
-      <DataModal title="Destino" open={openDestiny} onClose={_onClose} onSave={_onSave}>
-        <DataSearch name="searchDestiny" setSearch={setOnSearch} value={search} />
+      <DataModal
+        title="Destino"
+        open={openDestiny}
+        onClose={_onClose}
+        onSave={_onSave}
+      >
+        <DataSearch
+          name="searchDestiny"
+          setSearch={setOnSearch}
+          value={search}
+        />
         {destiniesFiltered.map((d: any, i: number) => (
           <Check
             key={"check" + i}
@@ -546,7 +579,7 @@ const Contents = () => {
     mod,
     onEdit,
     onDel,
-    title: '',
+    title: "",
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
@@ -560,18 +593,18 @@ const Contents = () => {
           data={data?.message?.total || 0}
           icon={
             <IconDocs
-              color={'var(--cWhite)'}
-              style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+              color={"var(--cWhite)"}
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
               circle
               size={18}
             />
           }
-          style={{ minWidth: '160px', maxWidth: '268px', marginBottom: "16px" }}
+          style={{ minWidth: "160px", maxWidth: "268px", marginBottom: "16px" }}
         />
       )}
       <List
         actionsWidth="140px"
-        height={'calc(100vh - 440px)'}
+        height={"calc(100vh - 440px)"}
         emptyMsg="Lista de publicaciones vacía. Una vez empieces a publicar"
         emptyLine2="noticias las verás aquí."
         emptyIcon={<IconPublicacion size={80} color="var(--cWhiteV1)" />}
@@ -589,9 +622,15 @@ const Contents = () => {
           if (!endDate) err.endDate = "La fecha de fin es obligatoria";
           if (startDate && endDate && startDate > endDate)
             err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
-          if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
-            err.startDate = "El periodo personalizado debe estar dentro del mismo año";
-            err.endDate = "El periodo personalizado debe estar dentro del mismo año";
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
           }
           if (Object.keys(err).length > 0) {
             setCustomDateErrors(err);
