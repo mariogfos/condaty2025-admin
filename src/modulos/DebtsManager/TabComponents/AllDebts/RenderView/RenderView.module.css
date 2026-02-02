@@ -59,8 +59,8 @@
 
 .content {
   padding: 32px;
-  background-color: var(--cBlackV2);
-  border: 0.5px solid var(--cWhiteV1);
+  background-color: var(--cBackground);
+  border: 0.5px solid var(--cBorder);
   border-radius: var(--sL);
 }
 
