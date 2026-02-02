@@ -21,7 +21,7 @@ const RenderForm = ({
   const { showToast } = useAuth();
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -47,6 +47,12 @@ const RenderForm = ({
       key: "bank_entity_id",
       errors,
     });
+    errors = checkRules({
+      value: formState?.ci_holder,
+      rules: ["required", "ci"],
+      key: "ci_holder",
+      errors,
+    });
 
     errors = checkRules({
       value: formState?.account_type,
@@ -67,18 +73,12 @@ const RenderForm = ({
       errors,
     });
     errors = checkRules({
-      value: formState?.currency_type_id,
-      rules: ["required"],
-      key: "currency_type_id",
-      errors,
-    });
-    errors = checkRules({
       value: formState?.holder,
       rules: ["required"],
       key: "holder",
       errors,
     });
-    
+
     errors = checkRules({
       value: formState?.alias_holder,
       rules: ["required"],
@@ -104,7 +104,7 @@ const RenderForm = ({
         holder: formState.holder || "",
         ci_holder: formState.ci_holder || "",
         alias_holder: formState.alias_holder || "",
-      }
+      },
     );
 
     if (data?.success) {
@@ -217,7 +217,7 @@ const RenderForm = ({
             value={
               typeof formState?.avatar === "object" || formState?.id
                 ? getUrlImages(
-                    "/BANK-" + formState?.id + ".webp?" + formState?.updated_at
+                    "/BANK-" + formState?.id + ".webp?" + formState?.updated_at,
                   )
                 : undefined
             }
