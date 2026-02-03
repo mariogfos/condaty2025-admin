@@ -123,6 +123,11 @@ const Login = () => {
     );
 
     if (data?.success && !error && data?.data?.token) {
+      const userKey = getUserKey();
+      if (userKey) {
+        localStorage.removeItem(getAttemptsKey(userKey));
+        localStorage.removeItem(getBlockKey(userKey));
+      }
       localStorage.setItem(
         (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
         JSON.stringify({ token: data?.data?.token, user: data?.data?.user }),
