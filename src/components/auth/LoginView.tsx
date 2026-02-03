@@ -91,7 +91,7 @@ const LoginView = ({
       {/* Imagen de fondo */}
       <div className={styles.imageBackground}>
         <Image
-          src="/assets/images/LoginPortada.png" // Asegúrate que esta es la ruta correcta
+          src="/assets/images/LoginPortada.png" 
           alt="Fondo de Login"
           fill
           style={{ objectFit: "cover" }}
