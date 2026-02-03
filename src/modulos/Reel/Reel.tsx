@@ -540,7 +540,6 @@ const Reel = () => {
                       name={getFullName(item.user)}
                       src={getUrlImages(
                         `/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`,
-                        item.user?.url_avatar,
                       )}
                       w={44}
                       h={44}
@@ -550,7 +549,7 @@ const Reel = () => {
                         {getFullName(item.user) || "Usuario Desconocido"}
                       </span>
                       <span className={styles.userRole}>
-                        {item.user?.role1?.[0].name}
+                        {item.user?.role1?.[0]?.name || ""}
                       </span>
                     </div>
                   </div>

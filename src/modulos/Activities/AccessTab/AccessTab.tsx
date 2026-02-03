@@ -158,7 +158,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
                       prefix +
                         user?.id +
                         ".webp?" +
-                        (user?.updated_at || new Date().toISOString())
+                        (user?.updated_at || new Date().toISOString()),
                     )}
                   />
                   {/* </div> */}
@@ -209,9 +209,13 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         label: "Entrada",
         list: {
           onRender: (props: any) => {
-            return <div>{props.item.confirm === 'N' ? "-/-" :
-              getDateTimeStrMesShort(props?.item?.in_at)
-              }</div>;
+            return (
+              <div>
+                {props.item.confirm === "N"
+                  ? "-/-"
+                  : getDateTimeStrMesShort(props?.item?.in_at)}
+              </div>
+            );
           },
         },
         filter: {
