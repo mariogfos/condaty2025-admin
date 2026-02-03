@@ -55,31 +55,24 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     switch (item?.type) {
       case 0: {
         return <div>Individual</div>;
-        break;
       }
       case 1: {
         return <div>Expensas</div>;
-        break;
       }
       case 2: {
         return <div>Reservas</div>;
-        break;
       }
       case 3: {
         return <div>Multa por Cancelación</div>;
-        break;
       }
       case 4: {
         return <div>Compartida</div>;
-        break;
       }
       case 5: {
         return <div>Condonación</div>;
-        break;
       }
       default: {
         return <div>-/-</div>;
-        break;
       }
     }
   };
@@ -468,7 +461,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     modulo: "debt-dptos",
     singular: "Deuda",
     plural: "",
-    export: true,
+    // export: true,
     filter: true,
     permiso: "expense",
     extraData: true,
