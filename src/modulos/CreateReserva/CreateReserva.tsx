@@ -365,9 +365,12 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
           response?.data?.message || "Reserva creada exitosamente",
           "success",
         );
-        setOpenDebt({ open: true, item: response?.data?.data?.debtDpto });
-        // if (reLoad) reLoad();
-        // if (onClose) onClose();
+        if (response?.data?.data?.debtDpto) {
+          setOpenDebt({ open: true, item: response?.data?.data?.debtDpto });
+        } else {
+          if (reLoad) reLoad();
+          if (onClose) onClose();
+        }
       } else {
         showToast(
           response?.data?.message || "Error al crear la reserva.",
@@ -855,7 +858,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                           `/OWNER-${
                             selectedUnit?.titular?.id
                           }.webp?d=${Date.now().toString()}`,
-                          selectedUnit?.titular?.url_avatar,
                         )}
                         name={getFullName(selectedUnit?.titular)}
                         w={40}
