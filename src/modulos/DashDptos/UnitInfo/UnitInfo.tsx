@@ -133,6 +133,38 @@ const UnitInfo = ({
       );
     }
   };
+
+  const releaseOwner = async () => {
+    setOpenOwnerMenu(false);
+    const dptoId = datas?.data?.id || datas?.data?.dpto_id || null;
+    const ownerId = datas?.homeowner?.id || null;
+    
+    if (!dptoId || !ownerId) {
+      console.error("Faltan datos para desvincular propietario", { dptoId, ownerId });
+      showToast("Faltan datos para desvincular propietario", "error");
+      return;
+    }
+
+    try {
+      const { data } = await execute("/dptos-release-owner", "POST", {
+        dpto_id: dptoId,
+        owner_id: ownerId,
+        type: "H",
+      });
+      if (data?.success) {
+        showToast("Propietario desvinculado exitosamente", "success");
+        window.location.reload();
+      } else {
+        showToast(data?.message || "Error al desvincular propietario", "error");
+      }
+    } catch (error: any) {
+      showToast(
+        error?.message ||
+          "Error al desvincular propietario, comunícate con tu administrador",
+        "error"
+      );
+    }
+  };
   return (
     <div className={styles.infoCard}>
       <div className={styles.cardHeader}>
@@ -268,6 +300,18 @@ const UnitInfo = ({
                   >
                     Asignar
                   </button>
+                  {datas?.homeowner && (
+                    <button
+                      type="button"
+                      className={styles.menuItem}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        releaseOwner();
+                      }}
+                    >
+                      Desvincular
+                    </button>
+                  )}
                 </div>
               )}
             </div>
