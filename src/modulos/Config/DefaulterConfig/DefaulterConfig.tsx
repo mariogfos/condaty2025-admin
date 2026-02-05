@@ -44,6 +44,21 @@ const limit_msgs: any = {
         "El bloqueo es la configuración que define después de cuántos días desde el vencimiento de la expensa mas antigua impaga, el sistema restrinja automáticamente su acceso a la aplicación del condominio.",
     },
   },
+  M: {
+    label: "Fin de mes",
+    soft: {
+      title:
+        "Define después de cuántos días desde el vencimiento de la expensa mas antigua, se activará la notificación de aviso al residente para informarle que pague sus expensas",
+      tooltip:
+        "El pre-aviso es la configuración que define cuántos días desde el vencimiento de la expensa mas antigua impaga, antes de que el sistema le envíe una notificación automática recordándole realizar el pago.",
+    },
+    hard: {
+      title:
+        "Define después de cuántos días desde el vencimiento de la expensa mas antigua, el sistema bloqueará el acceso del residente a la app",
+      tooltip:
+        "El bloqueo es la configuración que define después de cuántos días desde el vencimiento de la expensa mas antigua impaga, el sistema restrinja automáticamente su acceso a la aplicación del condominio.",
+    },
+  },
 };
 
 const lLimit_type = [
