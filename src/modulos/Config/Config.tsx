@@ -143,6 +143,14 @@ const Config = () => {
 
     if (typeSearch === "M") {
       errors = checkRules({
+        value: formState.limit_type,
+        rules: ["required"],
+        key: "limit_type",
+        errors,
+        data: formState,
+      });
+
+      errors = checkRules({
         value: formState.soft_limit,
         // rules: ["required", "lessOrEqual:hard_limit,Bloqueo"],
         rules: ["required"],
