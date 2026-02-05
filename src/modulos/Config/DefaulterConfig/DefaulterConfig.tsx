@@ -64,6 +64,7 @@ const limit_msgs: any = {
 const lLimit_type = [
   { id: "C", name: "Por cantidad de expensas impagas" },
   { id: "D", name: "Por días desde el vencimiento de la deuda mas antigua" },
+  { id: "M", name: "Por fin de mes" },
 ];
 
 const DefaulterConfig = ({
