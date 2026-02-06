@@ -124,16 +124,23 @@ export const capitalizeWords = (s: any) => {
   });
   return result.trim();
 };
-export const getUrlImages = (url: string) => {
-  const originalString = process.env.NEXT_PUBLIC_API_URL as string;
-  const lastIndexOfString = originalString.lastIndexOf("/api");
-  if (lastIndexOfString === -1) {
-    return originalString + url;
+export const getUrlImages = (
+  fallbackPath: string,
+  customUrl?: string | null,
+) => {
+  // Si existe la URL personalizada, se usa directamente
+  if (customUrl) {
+    return customUrl;
   }
-  const replacementString = "/storage";
-  const newUrl =
-    originalString.substring(0, lastIndexOfString) + replacementString + url;
-  return newUrl;
+
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL as string;
+  const apiIndex = baseUrl.lastIndexOf("/api");
+
+  if (apiIndex === -1) {
+    return baseUrl + fallbackPath;
+  }
+
+  return baseUrl.substring(0, apiIndex) + "/storage" + fallbackPath;
 };
 
 export const getFullName = (
@@ -143,7 +150,7 @@ export const getFullName = (
     last_name?: string;
     mother_last_name?: string;
   },
-  format: string = "NsLm"
+  format: string = "NsLm",
 ): string => {
   if (!data) {
     return "";
@@ -251,7 +258,7 @@ export const getInitials = (name = "", lastName = "") => {
 export const truncateText = (
   text: string,
   maxLength: number = 30,
-  ellipsis: string = "..."
+  ellipsis: string = "...",
 ): string => {
   if (!text) return "";
   if (text.length <= maxLength) return text;
