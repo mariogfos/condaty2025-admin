@@ -3,11 +3,7 @@ import Image from "next/image";
 import { getUrlImages } from "@/mk/utils/string";
 import { ContentItem } from "../types";
 import ImageMosaic from "../ImageMosaic/ImageMosaic";
-import {
-  IconArrowLeft,
-  IconArrowRight,
-  IconPdfPro,
-} from "@/components/layout/icons/IconsBiblioteca";
+import { IconPdfPro } from "@/components/layout/icons/IconsBiblioteca";
 import styles from "./MediaRenderer.module.css";
 
 interface MediaRendererProps {
@@ -21,38 +17,56 @@ const MediaRenderer: React.FC<MediaRendererProps> = ({
   item,
   modoCompacto = false,
   onImageClick,
-  onNavigateImage
 }) => {
-  const isYouTubeUrl = (url: string) => {
-    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-    return youtubeRegex.test(url);
-  };
+  // Normalizamos las imágenes (files > images)
+  const normalizedImages = React.useMemo(() => {
+    if (item.files && Array.isArray(item.files) && item.files.length > 0) {
+      return item?.files.filter(
+        (url): url is string => typeof url === "string" && url.trim() !== "",
+      );
+    }
+
+    if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+      return item.images; // pasamos los objetos originales
+    }
+
+    return [];
+  }, [item.files, item.images]);
+
+  const hasImages = normalizedImages.length > 0;
+
+  // ── YouTube ──
+  const isYouTubeUrl = (url: string) =>
+    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/.test(
+      url,
+    );
 
   const getYouTubeEmbedUrl = (url: string) => {
-    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+    const match = url.match(
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/,
+    );
     return match ? `https://www.youtube.com/embed/${match[1]}` : null;
   };
 
-  const isInstagramUrl = (url: string) => {
-    return /instagram\.com\/(p|reel)\//.test(url);
-  };
+  // ── Instagram ──
+  const isInstagramUrl = (url: string) =>
+    /instagram\.com\/(p|reel)\//.test(url);
+  const getInstagramEmbedUrl = (url: string) => `${url}embed/`;
 
-  const getInstagramEmbedUrl = (url: string) => {
-    return `${url}embed/`;
-  };
-
-  if (item.type === "I" && item.images && item.images.length > 0) {
-    if (item.images.length === 1) {
-      const currentIndex = item.currentImageIndex || 0;
-      const currentImage = item.images[currentIndex];
-      const imageUrl = getUrlImages(
-        `/CONT-${item.id}-${currentImage.id}.webp?d=${item.updated_at}`
-      );
+  // Render
+  if (item.type === "I" && hasImages) {
+    if (normalizedImages.length === 1) {
+      const imageSrc =
+        typeof normalizedImages[0] === "string"
+          ? normalizedImages[0]
+          : getUrlImages(
+              `/CONT-${item.id}-${normalizedImages[0].id}.webp?d=${item.updated_at || ""}`,
+            );
 
       return (
         <div className={styles.contentMediaContainer}>
           <Image
-            src={imageUrl}
+            src={imageSrc}
             alt={item.title || "Imagen de contenido"}
             width={600}
             height={400}
@@ -62,17 +76,20 @@ const MediaRenderer: React.FC<MediaRendererProps> = ({
           />
         </div>
       );
-    } else {
-      return (
-        <ImageMosaic
-          item={item}
-          modoCompacto={modoCompacto}
-          onImageClick={onImageClick}
-        />
-      );
     }
+
+    // Múltiples imágenes → pasamos el array tal cual (ya sea strings o objetos)
+
+    return (
+      <ImageMosaic
+        item={item}
+        modoCompacto={modoCompacto}
+        onImageClick={onImageClick}
+      />
+    );
   }
 
+  // Video
   if (item.type === "V" && item.url) {
     if (isYouTubeUrl(item.url)) {
       const embedUrl = getYouTubeEmbedUrl(item.url);
@@ -91,7 +108,9 @@ const MediaRenderer: React.FC<MediaRendererProps> = ({
           </div>
         );
       }
-    } else if (isInstagramUrl(item.url)) {
+    }
+
+    if (isInstagramUrl(item.url)) {
       const embedUrl = getInstagramEmbedUrl(item.url);
       return (
         <div className={styles.contentMediaContainer}>
@@ -105,23 +124,24 @@ const MediaRenderer: React.FC<MediaRendererProps> = ({
           </div>
         </div>
       );
-    } else {
-      return (
-        <div className={styles.contentMediaContainer}>
-          <div className={styles.externalMediaLink}>
-            <a href={item.url} target="_blank" rel="noopener noreferrer">
-              Ver contenido externo
-            </a>
-            <div className={styles.externalMediaUrl}>{item.url}</div>
-          </div>
-        </div>
-      );
     }
+
+    return (
+      <div className={styles.contentMediaContainer}>
+        <div className={styles.externalMediaLink}>
+          <a href={item.url} target="_blank" rel="noopener noreferrer">
+            Ver contenido externo
+          </a>
+          <div className={styles.externalMediaUrl}>{item.url}</div>
+        </div>
+      </div>
+    );
   }
 
+  // Documento
   if (item.type === "D" && item.url) {
     const documentUrl = getUrlImages(
-      `/CONT-${item.id}.${item.url}?${item.updated_at}`
+      `/CONT-${item.id}.${item.url}?${item.updated_at || ""}`,
     );
 
     return (

@@ -124,19 +124,6 @@ export const capitalizeWords = (s: any) => {
   });
   return result.trim();
 };
-
-// export const getUrlImages = (url: string) => {
-//   const originalString = process.env.NEXT_PUBLIC_API_URL as string;
-//   const lastIndexOfString = originalString.lastIndexOf("/api");
-//   if (lastIndexOfString === -1) {
-//     return originalString + url;
-//   }
-//   const replacementString = "/storage";
-//   const newUrl =
-//     originalString.substring(0, lastIndexOfString) + replacementString + url;
-//   return newUrl;
-// };
-
 export const getUrlImages = (
   fallbackPath: string,
   customUrl?: string | null,
@@ -163,7 +150,7 @@ export const getFullName = (
     last_name?: string;
     mother_last_name?: string;
   },
-  format: string = "NSLM",
+  format: string = "NsLm",
 ): string => {
   if (!data) {
     return "";
