@@ -60,9 +60,6 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
           `/OWNER-${item.owner?.id}.webp?d=${item.owner?.updated_at}`,
         );
   };
-
-  console.log(items);
-
   return (
     <div className={styles.compactListContainer}>
       {items.map((item: ContentItem, index: number) => {
