@@ -25,9 +25,13 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
   onOpenComments,
   modoCompacto = false,
   onImageClick,
-  onOpenRenderView
+  onOpenRenderView,
 }) => {
-  const handleToggleDescription = (contentId: number, items: ContentItem[], setItems: React.Dispatch<React.SetStateAction<ContentItem[]>>) => {
+  const handleToggleDescription = (
+    contentId: number,
+    items: ContentItem[],
+    setItems: React.Dispatch<React.SetStateAction<ContentItem[]>>,
+  ) => {
     setItems((prevContents) =>
       prevContents.map((content) =>
         content.id === contentId
@@ -35,36 +39,44 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
               ...content,
               isDescriptionExpanded: !content.isDescriptionExpanded,
             }
-          : content
-      )
+          : content,
+      ),
     );
   };
 
   // Función para determinar si es una noticia y su posición
   const getNewsIndex = (items: ContentItem[], currentIndex: number) => {
-    const newsItems = items.filter(item => item.title && item.title.trim() !== '');
+    const newsItems = items.filter(
+      (item) => item.title && item.title.trim() !== "",
+    );
     const currentItem = items[currentIndex];
-    if (!currentItem.title || currentItem.title.trim() === '') return -1;
-    return newsItems.findIndex(newsItem => newsItem.id === currentItem.id);
+    if (!currentItem.title || currentItem.title.trim() === "") return -1;
+    return newsItems.findIndex((newsItem) => newsItem.id === currentItem.id);
   };
-
+  const urlAvatar = (item: any) => {
+    return item.user
+      ? getUrlImages(`/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`)
+      : getUrlImages(
+          `/OWNER-${item.owner?.id}.webp?d=${item.owner?.updated_at}`,
+        );
+  };
   return (
     <div className={styles.compactListContainer}>
       {items.map((item: ContentItem, index: number) => {
-        const isNews = item.title && item.title.trim() !== '';
+        const isNews = item.title && item.title.trim() !== "";
         const newsIndex = getNewsIndex(items, index);
         const isImageRight = newsIndex % 2 === 0;
 
         return (
           <article
             key={`compact-content-${item.id}`}
-            className={`${styles.contentCardCompact} ${isNews ? styles.newsCard : ''} ${isNews && isImageRight ? styles.newsImageRight : ''} ${isNews && !isImageRight ? styles.newsImageLeft : ''}`}
+            className={`${styles.contentCardCompact} ${isNews ? styles.newsCard : ""} ${isNews && isImageRight ? styles.newsImageRight : ""} ${isNews && !isImageRight ? styles.newsImageLeft : ""}`}
             onClick={() => onOpenRenderView?.(item.id, item)}
             role="button"
             tabIndex={0}
-            aria-label={`Abrir detalle de la publicación${item.title ? `: ${item.title}` : ''}`}
+            aria-label={`Abrir detalle de la publicación${item.title ? `: ${item.title}` : ""}`}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 onOpenRenderView?.(item.id, item);
               }
@@ -75,15 +87,18 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                 <Avatar
                   hasImage={1}
                   name={getFullName(item.user)}
-                  src={getUrlImages(`/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`)}
+                  src={urlAvatar(item)}
                   w={40}
                   h={40}
                 />
                 <div className={styles.userDetails}>
                   <span className={styles.userName}>
-                    {getFullName(item.user) || 'Usuario Desconocido'}
+                    {getFullName(item.user || item.owner) ||
+                      "Usuario Desconocido"}
                   </span>
-                  <span className={styles.userRole}>{item.user?.role1?.[0]?.name}</span>
+                  <span className={styles.userRole}>
+                    {item.user?.role1?.[0]?.name}
+                  </span>
                 </div>
               </div>
               <time dateTime={item.created_at} className={styles.postDate}>
@@ -96,32 +111,32 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
               <section className={styles.newsContentBody}>
                 <div className={styles.newsTextContent}>
                   <h3 className={styles.newsTitle}>{item.title}</h3>
-                  {
-                    item.description
-                    ?
-                      <div>
-                        <p className={styles.newsDescription}>
-                          {item.isDescriptionExpanded || item.description?.length <= 100
-                            ? item.description
-                            : `${item.description?.substring(0, 100)}...`}
-                        </p>
-                        {item.description?.length > 100 && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleToggleDescription(item.id, items, () => {});
-                            }}
-                            className={styles.seeMoreButton}
-                          >
-                            {item.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
-                          </button>
-                        )}
-                      </div>
-                    : <p className={styles.newsDescription}>Sin descripción</p>
-                  }
+                  {item.description ? (
+                    <div>
+                      <p className={styles.newsDescription}>
+                        {item.isDescriptionExpanded ||
+                        item.description?.length <= 100
+                          ? item.description
+                          : `${item.description?.substring(0, 100)}...`}
+                      </p>
+                      {item.description?.length > 100 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleDescription(item.id, items, () => {});
+                          }}
+                          className={styles.seeMoreButton}
+                        >
+                          {item.isDescriptionExpanded ? "Ver menos" : "Ver más"}
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <p className={styles.newsDescription}>Sin descripción</p>
+                  )}
                 </div>
                 <div className={styles.newsMediaContent}>
-                  {item.images && item.images.length > 0 && (
+                  {(item.images.length > 0 || item.files.length > 0) && (
                     <div className={styles.newsImageContainer}>
                       {/* Contador de imágenes - solo si hay más de una */}
                       {item.images.length > 1 && (
@@ -139,9 +154,9 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                         }}
                         role="button"
                         tabIndex={0}
-                        aria-label={`Ver imagen completa de ${item.title || 'noticia'}`}
+                        aria-label={`Ver imagen completa de ${item.title || "noticia"}`}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
+                          if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
                             e.stopPropagation();
                             onOpenRenderView?.(item.id, item);
@@ -149,8 +164,13 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                         }}
                       >
                         <img
-                          src={getUrlImages(`/CONT-${item.id}-${item.images[0].id}.webp?d=${item.updated_at}`)}
-                          alt={item.title || 'Imagen de noticia'}
+                          src={
+                            item?.files?.[0] ||
+                            getUrlImages(
+                              `/CONT-${item.id}-${item.images[0].id}.webp?d=${item.updated_at}`,
+                            )
+                          }
+                          alt={item.title || "Imagen de noticia"}
                           className={styles.newsImage}
                         />
                       </div>
@@ -161,11 +181,14 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
             ) : (
               // Layout normal para posts
               <section className={styles.contentBody}>
-                {item.title && <h3 className={styles.contentTitle}>{item.title}</h3>}
+                {item.title && (
+                  <h3 className={styles.contentTitle}>{item.title}</h3>
+                )}
                 {item.description && (
                   <div>
                     <p className={styles.contentDescription}>
-                      {item.isDescriptionExpanded || item.description.length <= 100
+                      {item.isDescriptionExpanded ||
+                      item.description.length <= 100
                         ? item.description
                         : `${item.description.substring(0, 100)}...`}
                     </p>
@@ -177,7 +200,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                         }}
                         className={styles.seeMoreButton}
                       >
-                        {item.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
+                        {item.isDescriptionExpanded ? "Ver menos" : "Ver más"}
                       </button>
                     )}
                   </div>
@@ -192,13 +215,17 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
 
             <footer className={styles.contentFooter}>
               <div className={styles.contentStats}>
-                <div className={`${styles.statDisplay} ${item.liked ? styles.liked : ''}`}
+                <div
+                  className={`${styles.statDisplay} ${item.liked ? styles.liked : ""}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     onLike?.(item.id);
                   }}
                 >
-                  <IconLike color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={16} />
+                  <IconLike
+                    color={item.liked ? "var(--cAccent)" : "var(--cWhiteV1)"}
+                    size={16}
+                  />
                   <span>{item.likes}</span>
                 </div>
                 <div
@@ -208,14 +235,12 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                     onOpenComments?.(item.id);
                   }}
                 >
-                  <IconComment color={'var(--cWhiteV1)'} size={16} />
+                  <IconComment color={"var(--cWhiteV1)"} size={16} />
                   <span>{item.comments_count}</span>
                 </div>
               </div>
 
-
-
-  {/*             <div className={styles.contentActions}>
+              {/*             <div className={styles.contentActions}>
                 <button
                   className={`${styles.actionButton} ${item.liked ? styles.liked : ''}`}
                   onClick={() => onLike?.(item.id)}
