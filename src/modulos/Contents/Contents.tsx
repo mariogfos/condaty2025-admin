@@ -257,19 +257,23 @@ const Contents = () => {
           width: "200px",
           onRender: (item: any) => {
             const user = item?.item.user;
-            const nombreCompleto = getFullName(user);
-            const cedulaIdentidad = user?.ci;
+            const owner = item?.item.owner;
+            const nombreCompleto = getFullName(user || owner);
+            const cedulaIdentidad = user?.ci || owner?.ci;
+
+            const urlAvatar = user
+              ? getUrlImages(
+                  "/ADM-" + user?.id + ".webp?d=" + user?.updated_at,
+                  user?.url_avatar,
+                )
+              : getUrlImages(
+                  "/OWNER-" + owner?.id + ".webp?d=" + owner?.updated_at,
+                  owner?.url_avatar,
+                );
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar
-                  hasImage={1}
-                  src={getUrlImages(
-                    "/ADM-" + user?.id + ".webp?d=" + user?.updated_at,
-                    user?.url_avatar,
-                  )}
-                  name={nombreCompleto}
-                />
+                <Avatar hasImage={1} src={urlAvatar} name={nombreCompleto} />
                 <div>
                   <p
                     style={{

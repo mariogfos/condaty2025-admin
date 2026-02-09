@@ -27,7 +27,6 @@ const RenderView = (props: {
   onEdit?: (item: any) => void;
   onDelete?: (item: any) => void;
   reLoad?: () => void;
-
   onOpenComments?: (contentId: number, contentData: any) => void;
   selectedContentData?: any;
   contentId?: number;
@@ -37,11 +36,47 @@ const RenderView = (props: {
   const { showToast } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
   const [indexVisible, setIndexVisible] = useState(0);
-  const [contentData, setContentData] = useState(null);
+  const [contentData, setContentData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const { execute } = useAxios();
 
   const currentData = props.selectedContentData || contentData || data;
+
+  // ── Normalizamos las imágenes ──
+  const normalizedImages = useMemo(() => {
+    // Prioridad: files > images
+    const raw = currentData?.files || currentData?.images || [];
+
+    return raw
+      .map((item: any, idx: number) => {
+        // Caso 1: files → array de URLs directas
+        if (typeof item === "string" && item.trim()) {
+          return {
+            type: "url",
+            url: item,
+            index: idx,
+          };
+        }
+
+        // Caso 2: images → array de objetos {id, ext, ...}
+        if (item && typeof item === "object" && "id" in item) {
+          const url = getUrlImages(
+            `/CONT-${currentData.id}-${item.id}.webp?${currentData?.updated_at || ""}`,
+          );
+          return {
+            type: "object",
+            url,
+            id: item.id,
+            index: idx,
+          };
+        }
+
+        return null;
+      })
+      .filter(Boolean); // quitamos nulos
+  }, [currentData]);
+
+  const hasImagesContent = normalizedImages.length > 0;
 
   useEffect(() => {
     const fetchContentDetails = async () => {
@@ -71,9 +106,7 @@ const RenderView = (props: {
           }
         } catch (error) {
           console.error("Error fetching content details:", error);
-          if (showToast) {
-            showToast("Error al cargar los detalles del contenido", "error");
-          }
+          showToast?.("Error al cargar los detalles del contenido", "error");
         } finally {
           setLoading(false);
         }
@@ -100,7 +133,7 @@ const RenderView = (props: {
 
   const commentsCount = useMemo(() => {
     return currentData?.comments?.length || currentData?.comments_count || 0;
-  }, [currentData?.comments, currentData?.comments_count]);
+  }, [currentData]);
 
   const toggleExpanded = useCallback(
     () => setIsExpanded(!isExpanded),
@@ -108,16 +141,14 @@ const RenderView = (props: {
   );
 
   const nextIndex = useCallback(() => {
-    setIndexVisible(
-      (prevIndex) => (prevIndex + 1) % currentData?.images?.length,
-    );
-  }, [currentData?.images?.length]);
+    setIndexVisible((prev) => (prev + 1) % normalizedImages.length);
+  }, [normalizedImages.length]);
 
   const prevIndex = useCallback(() => {
-    setIndexVisible((prevIndex) =>
-      prevIndex === 0 ? currentData?.images?.length - 1 : prevIndex - 1,
+    setIndexVisible((prev) =>
+      prev === 0 ? normalizedImages.length - 1 : prev - 1,
     );
-  }, [currentData?.images?.length]);
+  }, [normalizedImages.length]);
 
   const handleEdit = useCallback(() => {
     const itemForEdit = {
@@ -128,6 +159,7 @@ const RenderView = (props: {
       type: currentData.type,
       url: currentData.url || "",
       images: currentData.images || [],
+      files: currentData.files || [], // también lo pasamos
       user_id: currentData.user_id,
       destiny: currentData.destiny || 0,
       client_id: currentData.client_id,
@@ -139,21 +171,15 @@ const RenderView = (props: {
     };
 
     props.onClose();
-    if (props.onEdit) {
-      props.onEdit(itemForEdit);
-    }
+    props.onEdit?.(itemForEdit);
   }, [currentData, props]);
 
   const handleDelete = useCallback(() => {
-    if (props.onDelete) {
-      props.onDelete(currentData);
-    }
+    props.onDelete?.(currentData);
   }, [currentData, props]);
 
   const handleOpenComments = useCallback(() => {
-    if (props.onOpenComments) {
-      props.onOpenComments(currentData?.id, currentData);
-    }
+    props.onOpenComments?.(currentData?.id, currentData);
   }, [props.onOpenComments, currentData]);
 
   const getDocumentUrl = () => {
@@ -165,31 +191,35 @@ const RenderView = (props: {
     return null;
   };
 
-  const hasDocument = () => {
-    return (
-      currentData?.type === "D" &&
-      currentData?.url &&
-      currentData?.url !== "null"
-    );
-  };
+  const hasDocument = () =>
+    currentData?.type === "D" &&
+    currentData?.url &&
+    currentData?.url !== "null";
 
-  const hasImages = () => {
-    return (
-      currentData?.type === "I" &&
-      currentData?.images &&
-      currentData?.images.length > 0 &&
-      currentData?.images[indexVisible]?.id
-    );
-  };
+  const urlAvatar = currentData?.user
+    ? getUrlImages(
+        "/ADM-" +
+          currentData?.user?.id +
+          ".webp?d=" +
+          currentData?.user?.updated_at,
+        currentData?.user?.url_avatar,
+      )
+    : getUrlImages(
+        "/OWNER-" +
+          currentData?.owner?.id +
+          ".webp?d=" +
+          currentData?.owner?.updated_at,
+        currentData?.owner?.url_avatar,
+      );
   console.log(currentData);
   return (
     <DataModal
       open={props.open}
-      onClose={props?.onClose}
-      title={"Detalle de la publicación"}
+      onClose={props.onClose}
+      title="Detalle de la publicación"
       buttonText=""
       buttonCancel=""
-      variant={"mini"}
+      variant="mini"
     >
       <div className={styles.container}>
         <div className={styles.header}>
@@ -212,24 +242,18 @@ const RenderView = (props: {
             )}
           </div>
         </div>
+
         <Br />
+
         <div className={styles.content}>
           <div className={styles.imageContainer}>
             {currentData?.type === "I" ? (
-              hasImages() ? (
+              hasImagesContent ? (
                 <div>
                   <div className={styles.imageWrapper}>
                     <Image
                       alt="Imagen de la publicación"
-                      src={getUrlImages(
-                        "/CONT-" +
-                          currentData.id +
-                          "-" +
-                          currentData.images[indexVisible]?.id +
-                          ".webp" +
-                          "?" +
-                          currentData?.updated_at,
-                      )}
+                      src={normalizedImages[indexVisible]?.url || ""}
                       square={true}
                       expandable={true}
                       expandableIcon={false}
@@ -238,13 +262,14 @@ const RenderView = (props: {
                       style={{ width: "100%", height: "100%" }}
                     />
                   </div>
-                  {currentData?.images?.length > 1 && (
+
+                  {normalizedImages.length > 1 && (
                     <div className={styles.containerButton}>
                       <div className={styles.button} onClick={prevIndex}>
                         <IconArrowLeft size={18} color="var(--cWhite)" />
                       </div>
                       <p style={{ color: "var(--cWhite)", fontSize: 10 }}>
-                        {indexVisible + 1} / {currentData?.images?.length}
+                        {indexVisible + 1} / {normalizedImages.length}
                       </p>
                       <div className={styles.button} onClick={nextIndex}>
                         <IconArrowRight size={18} color="var(--cWhite)" />
@@ -253,7 +278,6 @@ const RenderView = (props: {
                   )}
                 </div>
               ) : (
-                /* Mostrar mensaje de imagen no disponible */
                 <div
                   className={styles.imageWrapper}
                   style={{
@@ -283,7 +307,7 @@ const RenderView = (props: {
                         margin: "0",
                       }}
                     >
-                      La imagen fue eliminada y no se pudo cargar.
+                      No se encontraron imágenes válidas.
                     </p>
                   </div>
                 </div>
@@ -296,7 +320,6 @@ const RenderView = (props: {
                 controls
               />
             ) : currentData?.type === "D" ? (
-              /* Mostrar documento o mensaje de no disponible */
               <div
                 className={styles.imageWrapper}
                 style={{
@@ -336,10 +359,9 @@ const RenderView = (props: {
                         (currentData?.description?.length > 100 ? "..." : "")
                       : "El documento fue eliminado y no se pudo cargar."}
                   </p>
-                  {/* Solo mostrar el botón si el documento existe */}
                   {hasDocument() && getDocumentUrl() && (
                     <a
-                      href={getDocumentUrl() || undefined}
+                      href={getDocumentUrl() ?? undefined}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{
@@ -377,22 +399,18 @@ const RenderView = (props: {
             <div className={styles.userSection}>
               <Avatar
                 hasImage={1}
-                name={getFullName(currentData?.user)}
-                src={getUrlImages(
-                  "/ADM-" +
-                    currentData?.user?.id +
-                    ".webp?d=" +
-                    currentData?.user?.updated_at,
-                  currentData?.user?.url_avatar,
-                )}
+                name={getFullName(currentData?.user || currentData?.owner)}
+                src={urlAvatar}
                 w={48}
                 h={48}
               />
               <div className={styles.userInfo}>
                 <div className={styles.userName}>
-                  {getFullName(currentData?.user)}
+                  {getFullName(currentData?.user || currentData?.owner)}
                 </div>
-                <div className={styles.userRole}>Administrador</div>
+                <div className={styles.userRole}>
+                  {currentData?.user?.role1?.[0]?.name}
+                </div>
               </div>
             </div>
 
@@ -402,9 +420,7 @@ const RenderView = (props: {
 
             <div className={styles.descriptionContainer}>
               <p
-                className={`${styles.description} ${
-                  !isExpanded ? styles.descriptionTruncated : ""
-                }`}
+                className={`${styles.description} ${!isExpanded ? styles.descriptionTruncated : ""}`}
               >
                 {currentData?.description}
               </p>
@@ -420,11 +436,12 @@ const RenderView = (props: {
                   </button>
                 )}
             </div>
+
             <Br />
 
             <div className={styles.statsContainer}>
               <div className={styles.statItem}>
-                <IconLike color={"var(--cAccent)"} size={24} />
+                <IconLike color="var(--cAccent)" size={24} />
                 <span>{currentData?.likes || 0} Apoyos</span>
               </div>
               <div
@@ -432,7 +449,7 @@ const RenderView = (props: {
                 onClick={handleOpenComments}
                 style={{ cursor: "pointer" }}
               >
-                <IconComment color={"var(--cAccent)"} size={24} />
+                <IconComment color="var(--cAccent)" size={24} />
                 <span>{commentsCount} Comentarios</span>
               </div>
             </div>

@@ -520,6 +520,19 @@ const Reel = () => {
     return <div className={styles.loadingState}>Cargando publicaciones...</div>;
   }
 
+  const urlAvatar = (item: ContentItem) => {
+    let img = item.user
+      ? getUrlImages(
+          "/ADM-" + item.user?.id + ".webp?d=" + item.user?.updated_at,
+          item.user?.url_avatar,
+        )
+      : getUrlImages(
+          "/OWNER-" + item.owner?.id + ".webp?d=" + item.owner?.updated_at,
+          item.owner?.url_avatar,
+        );
+    return img;
+  };
+
   return (
     <div className={styles.reelContainer}>
       {contents.length > 0
@@ -538,18 +551,17 @@ const Reel = () => {
                     <Avatar
                       hasImage={1}
                       name={getFullName(item.user)}
-                      src={getUrlImages(
-                        `/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`,
-                      )}
+                      src={urlAvatar(item)}
                       w={44}
                       h={44}
                     />
                     <div className={styles.userDetails}>
                       <span className={styles.userName}>
-                        {getFullName(item.user) || "Usuario Desconocido"}
+                        {getFullName(item.user || item.owner) ||
+                          "Usuario Desconocido"}
                       </span>
                       <span className={styles.userRole}>
-                        {item.user?.role1?.[0]?.name || ""}
+                        {item.user?.role1?.[0]?.name}
                       </span>
                     </div>
                   </div>
@@ -597,12 +609,13 @@ const Reel = () => {
                       </div>
                     </div>
                     <div className={styles.newsMediaContent}>
-                      {item.images && item.images.length > 0 && (
+                      {(item.images.length > 0 || item?.files?.length > 0) && (
                         <div className={styles.newsImageContainer}>
                           {/* Contador de imágenes - solo si hay más de una */}
-                          {item.images.length > 1 && (
+                          {(item.images.length > 1 ||
+                            item?.files?.length > 1) && (
                             <div className={styles.newsImageCounter}>
-                              +{item.images.length}
+                              +{item?.files?.length || item.images.length}
                             </div>
                           )}
 
@@ -621,9 +634,12 @@ const Reel = () => {
                             aria-label={`Ver imagen completa de ${item.title || "noticia"}`}
                           >
                             <img
-                              src={getUrlImages(
-                                `/CONT-${item.id}-${item.images[0].id}.webp?d=${item.updated_at}`,
-                              )}
+                              src={
+                                item?.files?.[0] ||
+                                getUrlImages(
+                                  `/CONT-${item.id}-${item.images[0].id}.webp?d=${item.updated_at}`,
+                                )
+                              }
                               alt={item.title || "Imagen de noticia"}
                               className={styles.newsImage}
                               style={{

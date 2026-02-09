@@ -13,7 +13,7 @@ interface ImageMosaicProps {
 const ImageMosaic: React.FC<ImageMosaicProps> = ({
   item,
   modoCompacto = false,
-  onImageClick
+  onImageClick,
 }) => {
   if (!item.images || item.images.length <= 1) {
     return null;
@@ -31,42 +31,58 @@ const ImageMosaic: React.FC<ImageMosaicProps> = ({
   }
 
   const renderImage = (image: any, index: number, isLast = false) => {
-    const imageUrl = getUrlImages(
-      `/CONT-${item.id}-${image.id}.webp?d=${item.updated_at}`
-    );
+    // Soporte para dos formatos:
+    // 1. Objeto con id → construimos la URL
+    // 2. String → usamos directamente como URL
+    let imageUrl: string;
 
-    const imageClass = index === 0 ?
-      `${styles.mosaicImage} ${styles.mosaicImageFirst}` :
-      styles.mosaicImage;
+    if (typeof image === "string") {
+      imageUrl = image;
+    } else if (image && typeof image === "object" && "id" in image) {
+      imageUrl = getUrlImages(
+        `/CONT-${item.id}-${image.id}.webp?d=${item.updated_at || ""}`,
+      );
+    } else {
+      // Fallback en caso de formato inválido
+      imageUrl = "/placeholder-image.jpg"; // o una imagen por defecto
+    }
+
+    const imageClass =
+      index === 0
+        ? `${styles.mosaicImage} ${styles.mosaicImageFirst}`
+        : styles.mosaicImage;
+
+    // Usamos un identificador único (id o índice)
+    const key =
+      typeof image === "string" ? `url-${index}` : `mosaic-${image.id}`;
 
     return (
       <div
-        key={`mosaic-${image.id}`}
+        key={key}
         className={isLast ? styles.mosaicImageLast : undefined}
         onClick={onImageClick}
       >
         <Image
           src={imageUrl}
-          alt={`Imagen ${index + 1} de ${item.title || 'contenido'}`}
+          alt={`Imagen ${index + 1} de ${item.title || "contenido"}`}
           width={300}
           height={200}
           className={imageClass}
           unoptimized
         />
         {isLast && imageCount > 4 && (
-          <div className={styles.mosaicOverlay}>
-            +{imageCount - 3}
-          </div>
+          <div className={styles.mosaicOverlay}>+{imageCount - 3}</div>
         )}
       </div>
     );
   };
 
+  // Mostramos hasta 4 imágenes (como antes)
   const imagesToShow = imageCount > 4 ? item.images.slice(0, 4) : item.images;
 
   return (
     <div className={containerClass}>
-      {imagesToShow.map((image, index) => {
+      {imagesToShow.map((image: any, index: any) => {
         const isLast = index === imagesToShow.length - 1 && imageCount > 4;
         return renderImage(image, index, isLast);
       })}
