@@ -153,67 +153,71 @@ const DefaulterConfig = ({
             />
           </div>
         </div>
-        <div className={styles.sectionContainer}>
-          <div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <h2 className={styles.sectionTitle}>Pre-aviso</h2>
-              <Tooltip
-                position="right"
-                title={limit_msgs[formState?.limit_type].soft.tooltip}
-              >
-                <IconQuestion size={16} />
-              </Tooltip>
+        {formState?.limit_type != "M" && (
+          <>
+            <div className={styles.sectionContainer}>
+              <div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <h2 className={styles.sectionTitle}>Pre-aviso</h2>
+                  <Tooltip
+                    position="right"
+                    title={limit_msgs[formState?.limit_type].soft.tooltip}
+                  >
+                    <IconQuestion size={16} />
+                  </Tooltip>
+                </div>
+                <p className={styles.sectionSubtitle}>
+                  {limit_msgs[formState?.limit_type].soft.title}
+                </p>
+              </div>
+
+              <div className={styles.inputField}>
+                <Input
+                  type="number"
+                  label={limit_msgs[formState?.limit_type].label}
+                  name="soft_limit"
+                  error={errors}
+                  required
+                  value={formState?.soft_limit}
+                  onChange={handleInputChange}
+                  maxLength={2}
+                  min={0}
+                />
+              </div>
             </div>
-            <p className={styles.sectionSubtitle}>
-              {limit_msgs[formState?.limit_type].soft.title}
-            </p>
-          </div>
 
-          <div className={styles.inputField}>
-            <Input
-              type="number"
-              label={limit_msgs[formState?.limit_type].label}
-              name="soft_limit"
-              error={errors}
-              required
-              value={formState?.soft_limit}
-              onChange={handleInputChange}
-              maxLength={2}
-              min={0}
-            />
-          </div>
-        </div>
+            <div className={styles.sectionContainer}>
+              <div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <h2 className={styles.sectionTitle}>Bloqueo</h2>
+                  <Tooltip
+                    position="right"
+                    title={limit_msgs[formState?.limit_type].hard.tooltip}
+                  >
+                    <IconQuestion size={16} />
+                  </Tooltip>
+                </div>
+                <p className={styles.sectionSubtitle}>
+                  {limit_msgs[formState?.limit_type].hard.title}
+                </p>
+              </div>
 
-        <div className={styles.sectionContainer}>
-          <div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <h2 className={styles.sectionTitle}>Bloqueo</h2>
-              <Tooltip
-                position="right"
-                title={limit_msgs[formState?.limit_type].hard.tooltip}
-              >
-                <IconQuestion size={16} />
-              </Tooltip>
+              <div className={styles.inputField}>
+                <Input
+                  type="number"
+                  label={limit_msgs[formState?.limit_type].label}
+                  name="hard_limit"
+                  error={errors}
+                  required
+                  value={formState?.hard_limit}
+                  onChange={handleInputChange}
+                  maxLength={2}
+                  min={0}
+                />
+              </div>
             </div>
-            <p className={styles.sectionSubtitle}>
-              {limit_msgs[formState?.limit_type].hard.title}
-            </p>
-          </div>
-
-          <div className={styles.inputField}>
-            <Input
-              type="number"
-              label={limit_msgs[formState?.limit_type].label}
-              name="hard_limit"
-              error={errors}
-              required
-              value={formState?.hard_limit}
-              onChange={handleInputChange}
-              maxLength={2}
-              min={0}
-            />
-          </div>
-        </div>
+          </>
+        )}
 
         <div className={styles.sectionContainer}>
           <div>
