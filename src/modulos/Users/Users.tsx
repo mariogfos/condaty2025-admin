@@ -256,6 +256,7 @@ const Users = () => {
                       administrador?.id +
                       ".webp?d=" +
                       administrador?.updated_at,
+                    administrador?.url_avatar,
                   )}
                   name={nombreCompleto}
                 />

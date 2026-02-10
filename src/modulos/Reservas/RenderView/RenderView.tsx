@@ -85,7 +85,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         page: 1,
         perPage: 1,
       },
-      open && (!!reservationId || !!item?.id) // Solo ejecutar si el modal está abierto y tenemos un ID
+      open && (!!reservationId || !!item?.id), // Solo ejecutar si el modal está abierto y tenemos un ID
     );
 
     // Usar los datos de la consulta DET si están disponibles, sino usar el item original
@@ -151,13 +151,13 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     };
 
     const getFormattedReservationTime = (
-      periods: any[] | undefined | null
+      periods: any[] | undefined | null,
     ): string => {
       if (!periods || periods.length === 0) return "Horario no especificado";
       try {
         const validPeriods = Array.isArray(periods) ? periods : [];
         const sortedPeriods = [...validPeriods].sort((a, b) =>
-          (a.time_from || "").localeCompare(b.time_from || "")
+          (a.time_from || "").localeCompare(b.time_from || ""),
         );
         const formattedPeriodStrings = sortedPeriods.map((period) => {
           const startTime = (period.time_from || "00:00:00").substring(0, 5);
@@ -173,7 +173,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
 
     const getPriceDetails = (
       area: any | undefined | null,
-      totalAmount: string | number | undefined | null
+      totalAmount: string | number | undefined | null,
     ): string => {
       const safeTotalAmount = totalAmount ?? 0;
       if (!area) return "Detalles de precio no disponibles";
@@ -202,7 +202,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       const currentStatus = getUpdatedReservationStatus(
         status,
         reservationDetail?.date_end,
-        reservationDetail?.end_time
+        reservationDetail?.end_time,
       );
 
       return currentStatus ? RESERVATION_STATUS_CONFIG[currentStatus] : null;
@@ -226,7 +226,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
           "PUT",
           payload,
           false,
-          false
+          false,
         );
         if (reLoad) reLoad();
         onClose();
@@ -234,7 +234,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         setActionError(
           error?.response?.data?.message ||
             error?.message ||
-            "Ocurrió un error al aprobar."
+            "Ocurrió un error al aprobar.",
         );
       } finally {
         setIsActionLoading(false);
@@ -268,7 +268,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
           "PUT",
           payload,
           false,
-          false
+          false,
         );
 
         setIsRejectModalOpen(false);
@@ -278,7 +278,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         setActionError(
           error?.response?.data?.message ||
             error?.message ||
-            "Ocurrió un error al rechazar."
+            "Ocurrió un error al rechazar.",
         );
         setIsRejectModalOpen(false);
       } finally {
@@ -312,7 +312,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         {
           status: "C",
           reason: formState?.reason,
-        }
+        },
       );
       if (data?.success) {
         setOpenModalCancel(false);
@@ -360,7 +360,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                   const updatedStatus = getUpdatedReservationStatus(
                     reservationDetail.status,
                     reservationDetail?.date_end,
-                    reservationDetail?.end_time
+                    reservationDetail?.end_time,
                   );
 
                   const canCancel =
@@ -389,7 +389,8 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                       <Avatar
                         hasImage={1}
                         src={getUrlImages(
-                          `/OWNER-${reservationDetail.owner?.id}.webp?d=${reservationDetail.owner?.updated_at}`
+                          `/OWNER-${reservationDetail.owner?.id}.webp?d=${reservationDetail.owner?.updated_at}`,
+                          reservationDetail?.owner?.url_avatar,
                         )}
                         name={getFullName(reservationDetail.owner)}
                         w={40}
@@ -457,7 +458,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                             <span className={styles.detailText}>
                               {reservationDetail.date_at
                                 ? getFormattedReservationDate(
-                                    reservationDetail.date_at
+                                    reservationDetail.date_at,
                                   )
                                 : ""}
                             </span>
@@ -469,7 +470,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                             />
                             <span className={styles.detailText}>
                               {getFormattedReservationTime(
-                                reservationDetail.periods
+                                reservationDetail.periods,
                               )}
                             </span>
                           </div>
@@ -488,7 +489,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                             <span className={styles.priceDetailText}>
                               {getPriceDetails(
                                 reservationDetail.area,
-                                reservationDetail.amount
+                                reservationDetail.amount,
                               )}
                             </span>
                           </div>
@@ -663,7 +664,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         )}
       </>
     );
-  }
+  },
 );
 
 ReservationDetailModal.displayName = "ReservationDetailModal";
