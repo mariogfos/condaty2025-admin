@@ -81,9 +81,9 @@ const DefaulterConfig = ({
       return;
     }
 
-    const numericValue = parseFloat(value);
+    const numericValue = Number.parseFloat(value);
 
-    if (isNaN(numericValue)) {
+    if (Number.isNaN(numericValue)) {
       return;
     }
 
