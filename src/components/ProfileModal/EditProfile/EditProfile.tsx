@@ -2,13 +2,11 @@ import Input from "@/mk/components/forms/Input/Input";
 import NewModal from "@/mk/components/ui/NewModal/NewModal";
 import React from "react";
 import styles from "./EditProfile.module.css";
-import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
-import { getUrlImages, getFullName } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import useAxios from "@/mk/hooks/useAxios";
 import { IconDepartments } from "@/components/layout/icons/IconsBiblioteca";
-import Button from "@/mk/components/forms/Button/Button";
+import UploadFileProfile from "@/mk/components/forms/UploadFileProfile/UploadFileProfile";
 
 const EditProfile = ({
   open,
@@ -85,6 +83,7 @@ const EditProfile = ({
         ? { address: formState.address }
         : {}),
       ...(user?.fosrole_id ? { email: formState.email } : {}),
+      url_avatar: formState.url_avatar,
     };
     const { data, error: err } = await execute(
       url + "/" + formState.id,
@@ -102,7 +101,6 @@ const EditProfile = ({
       setErrors(err.data?.errors);
     }
   };
-
   return (
     <NewModal
       title="Información personal"
@@ -118,52 +116,12 @@ const EditProfile = ({
     >
       <div className={styles.EditProfile}>
         <section>
-          <div className={styles.avatarSection}>
-            <div className={styles.avatarWrapper}>
-              <UploadFile
-                name="avatar"
-                value={
-                  formState.has_image === "1" || formState.avatar
-                    ? formState.avatar || getUrlImages(urlImages)
-                    : ""
-                }
-                onChange={(e: any) => {
-                  setFormState({ ...formState, avatar: e.target.value });
-                }}
-                ext={["jpg", "png", "jpeg", "webp"]}
-                img
-                error={errors}
-                setError={setErrors}
-                sizePreview={{ width: "100%", height: "100%" }}
-                avatar={true}
-                userName={getFullName(formState)}
-                hideActions={true}
-              />
-            </div>
-            <div className={styles.avatarActions}>
-              <div className={styles.avatarButtons}>
-                <Button
-                  variant="primary"
-                  onClick={() => document.getElementById("avatar")?.click()}
-                  style={{ width: "auto", padding: "0 16px" }}
-                >
-                  Subir foto
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setFormState({ ...formState, avatar: { file: "delete" } });
-                  }}
-                  style={{ width: "auto", padding: "0 16px" }}
-                >
-                  Eliminar
-                </Button>
-              </div>
-              <span className={styles.avatarInfo}>
-                El tamaño de la imagen no debe ser mayor a 2MB.
-              </span>
-            </div>
-          </div>
+          <UploadFileProfile
+            name={"url_avatar"}
+            formState={formState}
+            setFormState={setFormState}
+            user={user}
+          />
         </section>
         <section>
           <div>

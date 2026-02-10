@@ -233,6 +233,7 @@ const Owners = () => {
                     residente?.id +
                     ".webp?d=" +
                     residente?.updated_at,
+                  residente?.url_avatar,
                 )}
                 name={nombreCompleto}
               />

@@ -137,7 +137,7 @@ export default function ChatInstantDb() {
             {latestMessage.text}
           </div>
         </>,
-        "info"
+        "info",
       );
     }
 
@@ -175,7 +175,7 @@ export default function ChatInstantDb() {
       // console.log(e);
       setOpen(!open);
     },
-    [open]
+    [open],
   );
 
   useEvent("onOpenChat", onOpenChat);
@@ -253,7 +253,7 @@ export default function ChatInstantDb() {
                         e.id ==
                         currentRoom?.value
                           .replace("--", "")
-                          .replace(user.id, "")
+                          .replace(user.id, ""),
                     )?.has_image
                   }
                   src={getUrlImages(
@@ -262,7 +262,7 @@ export default function ChatInstantDb() {
                         .replace("--", "")
                         .replace(user.id, "") +
                       ".webp?d=" +
-                      new Date().getTime()
+                      new Date().getTime(),
                   )}
                   w={40}
                   h={40}
@@ -431,7 +431,10 @@ const ChatContactItem = ({
         ) : (
           <Avatar
             hasImage={u?.name ? u.has_image : user.has_image}
-            src={getUrlImages("/ADM-" + u?.id + ".webp?d=" + u?.updated_at)}
+            src={getUrlImages(
+              "/ADM-" + u?.id + ".webp?d=" + u?.updated_at,
+              u?.url_avatar,
+            )}
             w={40}
             h={40}
             name={u?.name ?? getFullName(user)}

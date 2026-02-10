@@ -95,14 +95,22 @@ const Reserva = () => {
     const ownerName = owner ? getFullName(owner) : "Residente no disponible";
     const dptoNro = dpto?.nro ? dpto.nro : "Sin Dpto.";
 
-    const imageUrl = owner
-      ? getUrlImages(
-          `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`,
-        )
-      : undefined;
+    // const imageUrl = owner
+    //   ? getUrlImages(
+    //       `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`,
+    //     )
+    //   : undefined;
+
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Avatar src={owner?.url_avatar || imageUrl} name={ownerName} />
+        <Avatar
+          // src={owner?.url_avatar || imageUrl}
+          src={getUrlImages(
+            `/OWNER-${owner?.id}.webp?d=${owner?.updated_at || Date.now()}`,
+            owner?.url_avatar,
+          )}
+          name={ownerName}
+        />
         <div>
           <p
             style={{
