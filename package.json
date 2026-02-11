@@ -12,7 +12,7 @@
     "@instantdb/admin": "^0.17.12",
     "@instantdb/react": "^0.21.22",
     "@mlc-ai/web-llm": "^0.2.78",
-    "axios": "^1.12.0",
+    "axios": "^1.13.5",
     "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.13.3",
     "next": "^16.1.5",
