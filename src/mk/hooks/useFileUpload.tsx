@@ -118,7 +118,7 @@ export const useFileUpload = ({
     } else {
       setFilePreviews([]);
     }
-  }, [formState?.[name]]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sincronizar URLs completadas con el formState
   useEffect(() => {
