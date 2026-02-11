@@ -66,6 +66,10 @@ const lLimit_type = [
   { id: "D", name: "Por días desde el vencimiento de la deuda mas antigua" },
   { id: "M", name: "Por fin de mes" },
 ];
+const lcheckMora = [
+  { id: 0, name: "No" },
+  { id: 1, name: "Sí" },
+];
 
 const DefaulterConfig = ({
   formState,
@@ -218,6 +222,35 @@ const DefaulterConfig = ({
             </div>
           </>
         )}
+
+        <div className={styles.sectionContainer}>
+          <div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <h2 className={styles.sectionTitle}>MORA en guardias</h2>
+              <Tooltip
+                position="right"
+                title="Indique si se mostrará a los GUARDIAS si una unidad o residente esta EN MORA."
+              >
+                <IconQuestion size={16} />
+              </Tooltip>
+            </div>
+            <p className={styles.sectionSubtitle}>
+              Indique si se mostrará a los GUARDIAS si una unidad o residente
+              esta EN MORA.
+            </p>
+          </div>
+          <div className={styles.inputField}>
+            <Select
+              label="Mostrar a Guardias"
+              name="check_mora"
+              error={errors}
+              required
+              value={formState?.check_mora || 0}
+              onChange={onChange}
+              options={lcheckMora}
+            />
+          </div>
+        </div>
 
         <div className={styles.sectionContainer}>
           <div>
