@@ -136,7 +136,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   )}
                 </div>
                 <div className={styles.newsMediaContent}>
-                  {(item.images.length > 0 || item.files.length > 0) && (
+                  {(item?.images?.length > 0 || item?.files?.length > 0) && (
                     <div className={styles.newsImageContainer}>
                       {/* Contador de imágenes - solo si hay más de una */}
                       {item.images.length > 1 && (

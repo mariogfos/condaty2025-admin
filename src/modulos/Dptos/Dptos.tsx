@@ -255,6 +255,7 @@ const Dptos = () => {
                       props?.item?.homeowner?.id +
                       ".webp?d=" +
                       props?.item?.homeowner?.updated_at,
+                    props?.item?.homeowner?.url_avatar,
                   )}
                   name={getFullName(props?.item?.homeowner)}
                 />
@@ -295,6 +296,7 @@ const Dptos = () => {
                   hasImage={tenant?.has_image}
                   src={getUrlImages(
                     "/OWNER-" + personId + ".webp?d=" + updatedAt,
+                    tenant?.url_avatar,
                   )}
                   name={getFullName(tenant)}
                 />

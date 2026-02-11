@@ -93,10 +93,11 @@ const Areas = () => {
                 "/AREA-" +
                   item?.id +
                   "-" +
-                  item?.images?.[0]?.id +
+                  item?.images_local?.[0]?.id +
                   ".webp" +
                   "?" +
-                  item?.updated_at
+                  item?.updated_at,
+                item?.images?.[0],
               )}
             />
             <p style={{ color: "var(--cWhite)", fontWeight: 500 }}>
@@ -314,7 +315,7 @@ const Areas = () => {
         },
       },
     }),
-    []
+    [],
   );
 
   const extraButtons = [

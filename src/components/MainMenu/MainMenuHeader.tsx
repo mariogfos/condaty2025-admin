@@ -13,14 +13,11 @@ interface MainMenuHeaderProps {
 
 const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
   const client = user?.clients?.find((c: any) => c.id == user?.client_id);
-  // console.log(user,'usrrr')
   return (
     <div className={styles.menuHeader}>
       <div>
         <Avatar
-          src={getUrlImages(
-            "/CLIENT-" + user?.client_id + ".webp?d=" + client?.updated_at
-          )}
+          src={client?.url_banner?.[0]}
           name={getFullName(user)}
           w={collapsed ? 48 : 210}
           h={collapsed ? 48 : 128}
