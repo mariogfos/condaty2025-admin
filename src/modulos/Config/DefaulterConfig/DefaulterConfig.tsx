@@ -252,25 +252,25 @@ const DefaulterConfig = ({
             />
           </div>
         </div>
-        aaaa
         <div className={styles.sectionContainer}>
           <div className={styles.switchContainer}>
             <div>
               <p className={styles.textTitle}>
                 Mostrar Boton de Avisar en la App de Guardia
               </p>
-              <p className={styles.textSubtitle}>
-                Activa esta opción para que el guardia en la App no pueda avisar al Residente cuando rcibe una visita si se encuentra en MORA
+              <p className={styles.sectionSubtitle}>
+                Activa esta opción para que el guardia en la App no pueda avisar
+                al Residente cuando recibe una visita si se encuentra en MORA
               </p>
             </div>
 
             <Switch
               name="button_mora"
               label=""
-              value={formState?.button_mora || 0}
+              value={formState?.button_mora || "0"}
               onChange={onChange}
-              optionValue={['1', '0']}
-              checked={formState?.button_mora === 1}
+              optionValue={["1", "0"]}
+              checked={formState?.button_mora == 1}
             />
           </div>
         </div>
