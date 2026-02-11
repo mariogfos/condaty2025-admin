@@ -38,7 +38,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
       >
         <div className={styles.clientInfo}>
           <Avatar
-            src={getUrlImages("/CLIENT-" + c.id + ".webp?d=")}
+            src={c.url_banner?.[0]}
             name={c.name}
             hasImage={c.has_image}
             style={{ width: 40, height: 40, borderRadius: "50%" }}

@@ -1,14 +1,13 @@
 import Input from "@/mk/components/forms/Input/Input";
-import React from "react";
+import React, { useState } from "react";
 import styles from "./DefaulterConfig.module.css";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import { IconQuestion } from "@/components/layout/icons/IconsBiblioteca";
 import Select from "@/mk/components/forms/Select/Select";
+import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 
 interface DefaulterConfigProps {
-  formState: any;
-  onChange: any;
-  errors: any;
+  client_config: any;
   onSave?: any;
 }
 
@@ -71,53 +70,131 @@ const lcheckMora = [
   { id: 1, name: "Sí" },
 ];
 
-const DefaulterConfig = ({
-  formState,
-  onChange,
-  errors,
-  onSave,
-}: DefaulterConfigProps) => {
+const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
+  const [formState, setFormState] = useState({
+    limit_type: client_config?.limit_type || "",
+    soft_limit: client_config?.soft_limit || "",
+    hard_limit: client_config?.hard_limit || "",
+    penalty_limit: client_config?.penalty_limit || "",
+    penalty_type: client_config?.penalty_type || "",
+    penalty_data: client_config?.penalty_data || "",
+  });
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    let errors: any = {};
+
+    errors = checkRules({
+      value: formState.limit_type,
+      rules: ["required"],
+      key: "limit_type",
+      errors,
+      data: formState,
+    });
+
+    errors = checkRules({
+      value: formState.soft_limit,
+      rules: ["required"],
+      key: "soft_limit",
+      errors,
+      data: formState,
+    });
+    errors = checkRules({
+      value: formState.hard_limit,
+      rules: ["required"],
+      key: "hard_limit",
+      errors,
+      data: formState,
+    });
+    errors = checkRules({
+      value: formState.penalty_limit,
+      rules: ["required"],
+      key: "penalty_limit",
+      errors,
+      data: formState,
+    });
+    errors = checkRules({
+      value: formState.penalty_type,
+      rules: ["required"],
+      key: "penalty_type",
+      errors,
+      data: formState,
+    });
+    if (formState.penalty_type == 1) {
+      errors = checkRules({
+        value: formState.penalty_data?.percent,
+        rules: ["required", "number", "less:100", "greater:0"],
+        key: "percent",
+        errors,
+        data: formState.penalty_data,
+      });
+    }
+    if (formState.penalty_type == 2) {
+      errors = checkRules({
+        value: formState.penalty_data?.amount,
+        rules: ["required"],
+        key: "amount",
+        errors,
+        data: formState.penalty_data,
+      });
+    }
+    if (formState.penalty_type == 3) {
+      errors = checkRules({
+        value: formState.penalty_data?.first_amount,
+        rules: ["required"],
+        key: "first_amount",
+        errors,
+        data: formState.penalty_data,
+      });
+      errors = checkRules({
+        value: formState.penalty_data?.second_amount,
+        rules: ["required"],
+        key: "second_amount",
+        errors,
+        data: formState.penalty_data,
+      });
+    }
+
+    setErrors(errors);
+    return errors;
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    if (value === "" || value === "-") {
-      onChange(e);
-      return;
-    }
+    if (["percent", "amount", "first_amount", "second_amount"].includes(name)) {
+      let newValue: any = value;
+      if (name === "percent") {
+        const numeric = Number(value);
+        if (!isNaN(numeric) && numeric > 100) {
+          newValue = 100;
+        }
+        if (!isNaN(numeric) && numeric < 0) {
+          newValue = 0;
+        }
+      }
 
-    const numericValue = Number.parseFloat(value);
-
-    if (Number.isNaN(numericValue)) {
-      return;
-    }
-
-    if (numericValue < 0) {
-      const syntheticEvent = {
-        ...e,
-        target: {
-          ...e.target,
-          value: "0",
+      setFormState((prev) => ({
+        ...prev,
+        penalty_data: {
+          ...prev.penalty_data,
+          [name]: newValue,
         },
-      };
-      onChange(syntheticEvent);
+      }));
+
       return;
     }
 
-    if (name === "penalty_percent" && numericValue > 100) {
-      const syntheticEvent = {
-        ...e,
-        target: {
-          ...e.target,
-          value: "100",
-        },
-      };
-      onChange(syntheticEvent);
-      return;
-    }
-
-    onChange(e);
+    setFormState((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
+  const _onSave = () => {
+    if (hasErrors(validate())) return;
+    onSave(formState);
+  };
   return (
     <div className={styles.defaulterContainer}>
       <div>
@@ -152,7 +229,7 @@ const DefaulterConfig = ({
               error={errors}
               required
               value={formState?.limit_type}
-              onChange={onChange}
+              onChange={handleInputChange}
               options={lLimit_type}
             />
           </div>
@@ -302,27 +379,6 @@ const DefaulterConfig = ({
               pago
             </p>
           </div>
-
-          {/* <div className={styles.inputField}>
-            <div className={styles.percentInputContainer}>
-              <Input
-                type="number"
-                label="Porcentaje"
-                name="penalty_percent"
-                error={errors}
-                required
-                value={formState?.penalty_percent}
-                onChange={handleInputChange}
-                maxLength={3}
-                min={0}
-                max={100}
-              />
-              {(formState?.penalty_percent ||
-                formState?.penalty_percent != 0) && (
-                <span className={styles.percentSymbol}>%</span>
-              )}
-            </div>
-          </div> */}
           <Select
             name="penalty_type"
             label="Tipo de multa"
@@ -417,7 +473,7 @@ const DefaulterConfig = ({
         </div>
 
         <div className={styles.saveButtonContainer}>
-          <button className={`${styles.saveButton}`} onClick={onSave}>
+          <button className={`${styles.saveButton}`} onClick={_onSave}>
             Guardar datos
           </button>
         </div>

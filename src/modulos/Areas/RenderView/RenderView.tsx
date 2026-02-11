@@ -33,6 +33,32 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
   const descriptionRef = useRef(null);
   const [isTruncated, setIsTruncated] = useState(false);
 
+  // Función para obtener las imágenes priorizando item.images
+  const getImages = () => {
+    if (item?.images && item.images.length > 0) {
+      return item.images;
+    }
+    return item?.images_local || [];
+  };
+
+  // Función para renderizar la URL de la imagen según el tipo
+  const getImageUrl = (image: any, index: number) => {
+    // Si es una URL de Cloudinary (string), usarla directamente
+    if (typeof image === "string") {
+      return image;
+    }
+    // Si es un objeto de images_local, usar la función getUrlImages
+    if (image?.id) {
+      return getUrlImages(
+        "/AREA-" + item?.id + "-" + image.id + ".webp?" + item?.updated_at,
+      );
+    }
+    return "";
+  };
+
+  const images = getImages();
+  const totalImages = images.length;
+
   useEffect(() => {
     const el: any = descriptionRef.current;
     if (el) {
@@ -44,11 +70,11 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
   const toggleExpanded = () => setIsExpanded(!isExpanded);
 
   const nextIndex = () => {
-    setIndexVisible((prevIndex) => (prevIndex + 1) % item?.images?.length);
+    setIndexVisible((prevIndex) => (prevIndex + 1) % totalImages);
   };
   const prevIndex = () => {
     setIndexVisible((prevIndex) =>
-      prevIndex === 0 ? item?.images?.length - 1 : prevIndex - 1
+      prevIndex === 0 ? totalImages - 1 : prevIndex - 1,
     );
   };
   const sortedDays = () => {
@@ -63,7 +89,7 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
     };
 
     return Object.keys(item?.available_hours || {}).sort(
-      (a, b) => dayOrder[a] - dayOrder[b]
+      (a, b) => dayOrder[a] - dayOrder[b],
     );
   };
   const onSaveStatus = async (status: string) => {
@@ -96,30 +122,22 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
           <div className={styles.containerFirstSection}>
             <div className={styles.containerImage}>
               <div className={styles.image}>
-                {item?.images?.[indexVisible]?.id && (
+                {images[indexVisible] && (
                   <img
                     alt=""
                     width={"100%"}
                     height={"auto"}
-                    src={getUrlImages(
-                      "/AREA-" +
-                        item?.id +
-                        "-" +
-                        item?.images?.[indexVisible]?.id +
-                        ".webp" +
-                        "?" +
-                        item?.updated_at
-                    )}
+                    src={getImageUrl(images[indexVisible], indexVisible)}
                   />
                 )}
               </div>
-              {item?.images?.length > 1 && (
+              {totalImages > 1 && (
                 <div className={styles.containerButton}>
                   <div className={styles.button} onClick={prevIndex}>
                     <IconArrowLeft size={18} color="var(--cWhite)" />
                   </div>
                   <p style={{ color: "var(--cWhite)", fontSize: 10 }}>
-                    {indexVisible + 1} / {item?.images?.length}
+                    {indexVisible + 1} / {totalImages}
                   </p>
                   <div className={styles.button} onClick={nextIndex}>
                     <IconArrowRight size={18} color="var(--cWhite)" />

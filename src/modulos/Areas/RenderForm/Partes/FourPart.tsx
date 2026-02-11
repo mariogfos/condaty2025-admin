@@ -12,6 +12,7 @@ import { formatNumber } from "@/mk/utils/numbers";
 import { getUrlImages } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Br from "@/components/Detail/Br";
+
 const status: any = {
   A: "Activa",
   X: "Inactiva",
@@ -33,13 +34,24 @@ const FourPart = ({ item }: { item: any }) => {
       setIsTruncated(isOverflowing);
     }
   }, [item?.description]);
+
   const allImages = React.useMemo(() => {
+    // PRIORIDAD 1: Si existen item.images (URLs de Cloudinary), usarlas
+    if (item?.images && Array.isArray(item.images) && item.images.length > 0) {
+      return item.images.map((url: string, index: number) => ({
+        id: index,
+        type: "cloudinary",
+        src: url,
+      }));
+    }
+
+    // PRIORIDAD 2: Si no hay item.images, usar la lógica anterior con imágenes locales
     let backendImages =
-      item?.images?.map((img: any) => ({
+      item?.images_local?.map((img: any) => ({
         id: img?.id,
         type: "backend",
         src: getUrlImages(
-          `/AREA-${item?.id}-${img?.id}.webp?${item?.updated_at}`
+          `/AREA-${item?.id}-${img?.id}.webp?${item?.updated_at}`,
         ),
       })) || [];
 
@@ -47,7 +59,7 @@ const FourPart = ({ item }: { item: any }) => {
       .filter((key) => {
         if (item?.avatar?.[key]?.file && item.avatar[key].file == "delete") {
           backendImages = backendImages.filter(
-            (img: any) => img.id != item?.avatar?.[key]?.id
+            (img: any) => img.id != item?.avatar?.[key]?.id,
           );
         }
         return item?.avatar?.[key]?.file && item.avatar[key].file != "delete";
@@ -58,13 +70,10 @@ const FourPart = ({ item }: { item: any }) => {
         src: `data:image/webp;base64,${item?.avatar?.[key]?.file}`,
       }));
 
-    // const backendImages = _backendImages.filter((img) => img.id != item?.avatar?.[key]?.id)
-
     const data = [...backendImages, ...localAvatars];
-    // const r=data.map((e,index)=>{{ id:e.id,type:e.type,src:e.file  }});
 
     const r = Array.from(
-      new Map(data.map((item, index) => [index, item])).values()
+      new Map(data.map((item, index) => [index, item])).values(),
     );
 
     return r;
@@ -78,7 +87,7 @@ const FourPart = ({ item }: { item: any }) => {
 
   const prevIndex = () => {
     setIndexVisible((prevIndex) =>
-      prevIndex === 0 ? totalImages - 1 : prevIndex - 1
+      prevIndex === 0 ? totalImages - 1 : prevIndex - 1,
     );
   };
 
@@ -94,23 +103,24 @@ const FourPart = ({ item }: { item: any }) => {
     };
 
     return Object.keys(item?.available_hours || {}).sort(
-      (a, b) => dayOrder[a] - dayOrder[b]
+      (a, b) => dayOrder[a] - dayOrder[b],
     );
   };
+
   return (
     <>
       <div className={styles.renderView}>
         <div className={styles.containerFirstSection}>
           <div className={styles.containerImage}>
             <div className={styles.image}>
-              {/* {item?.images?.[indexVisible]?.id && item.id && ( */}
-              <img
-                alt=""
-                width="100%"
-                height="auto"
-                src={allImages?.[indexVisible]?.src}
-              />
-              {/* )} */}
+              {allImages?.[indexVisible]?.src && (
+                <img
+                  alt=""
+                  width="100%"
+                  height="auto"
+                  src={allImages?.[indexVisible]?.src}
+                />
+              )}
             </div>
             {allImages?.length > 1 && (
               <div className={styles.containerButton}>

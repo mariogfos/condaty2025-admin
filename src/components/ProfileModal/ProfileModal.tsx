@@ -22,6 +22,7 @@ import GuardEditForm from "./GuardEditForm/GuardEditForm";
 import Button from "@/mk/components/forms/Button/Button";
 import Image from "next/image";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
+import RenderForm from "@/modulos/Guards/RenderForm/RenderForm";
 
 interface ProfileModalProps {
   open: boolean;
@@ -225,9 +226,7 @@ const ProfileModal = ({
   const [portadaError, setPortadaError] = useState(false);
   const getPortadaCliente = () => {
     if (!portadaError) {
-      return getUrlImages(
-        "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at,
-      );
+      return client?.url_banner?.[0];
     }
     return "/assets/images/PortadaEmpty.png";
   };
@@ -563,7 +562,7 @@ const ProfileModal = ({
                         className={styles.securityButton}
                         onClick={onChangePassword}
                       >
-                        Restablecer contraseña
+                        Restablecer
                       </button>
                     </div>
                   </div>
@@ -612,15 +611,15 @@ const ProfileModal = ({
         {openEdit && (
           <>
             {type === "guard" ? (
-              <GuardEditForm
+              <RenderForm
                 open={openEdit}
                 onClose={() => setOpenEdit(false)}
-                formState={formState}
-                setFormState={setFormState}
-                errors={errors}
-                setErrors={setErrors}
-                reLoad={() => reLoadDet()}
-                reLoadList={reLoad}
+                item={formState}
+                execute={execute}
+                reLoad={() => {
+                  reLoadDet();
+                  if (reLoad) reLoad();
+                }}
               />
             ) : (
               <EditProfile

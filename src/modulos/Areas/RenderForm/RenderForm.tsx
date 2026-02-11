@@ -40,10 +40,17 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   const validateLevel1 = () => {
     let errors: any = {};
 
+    // errors = checkRules({
+    //   value: formState?.avatar,
+    //   rules: ["requiredImageMultiple"],
+    //   key: "avatar",
+    //   errors,
+    //   data: formState,
+    // });
     errors = checkRules({
-      value: formState?.avatar,
-      rules: ["requiredImageMultiple"],
-      key: "avatar",
+      value: formState?.images,
+      rules: ["required"],
+      key: "images",
       errors,
       data: formState,
     });
@@ -160,7 +167,8 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
       "/areas" + (formState.id ? "/" + formState.id : ""),
       method,
       {
-        avatar: formState?.avatar,
+        // avatar: formState?.avatar,
+        images: formState?.images,
         title: formState?.title,
         description: formState?.description,
         max_capacity: formState?.max_capacity,
@@ -180,7 +188,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         max_reservations_per_day: formState?.max_reservations_per_day,
         reservation_duration: parseFloat(formState?.reservation_duration),
         is_free: formState?.has_price == "S" ? "X" : "A",
-      }
+      },
     );
 
     if (data?.success) {
@@ -219,6 +227,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
               errors={errors}
               setErrors={setErrors}
               formState={formState}
+              setFormState={setFormState}
               handleChange={handleChange}
             />
           )}
@@ -272,6 +281,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
           title="Volver a lista de áreas sociales"
           open={openComfirm}
           onClose={() => setOpenComfirm(false)}
+          maxWidth={800}
           onSave={() => onClose()}
           buttonText="Volver"
           buttonCancel="Continuar creación"

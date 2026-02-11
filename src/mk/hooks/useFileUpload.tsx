@@ -29,7 +29,7 @@ interface UseFileUploadProps {
 }
 
 const extDocuments = ["pdf", "docx", "doc", "xlsx", "xls", "txt", "csv"];
-const extImages = ["jpg", "jpeg", "png", "webp", "heic"];
+const extImages = ["jpg", "jpeg", "png", "webp", "heic", "avif"];
 
 const extractPublicId = (url: string): string | null => {
   try {
@@ -69,7 +69,6 @@ export const useFileUpload = ({
 }: UseFileUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [filePreviews, setFilePreviews] = useState<PreviewItem[]>([]);
-
   const isSingle = cant === 1;
 
   const allowedExtensions = new Set(
@@ -100,7 +99,7 @@ export const useFileUpload = ({
     if (initialUrls.length > 0) {
       const existingPreviews: PreviewItem[] = initialUrls.map((url) => {
         const originalName = decodeURIComponent(
-          url.split("/").pop()?.split("?")[0] || "archivo",
+          url?.split("/")?.pop()?.split("?")[0] || "archivo",
         );
         const type = getFileType(originalName);
 

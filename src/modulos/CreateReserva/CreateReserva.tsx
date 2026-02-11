@@ -858,6 +858,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                           `/OWNER-${
                             selectedUnit?.titular?.id
                           }.webp?d=${Date.now().toString()}`,
+                          selectedUnit?.titular?.url_avatar,
                         )}
                         name={getFullName(selectedUnit?.titular)}
                         w={40}

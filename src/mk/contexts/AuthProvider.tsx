@@ -53,7 +53,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
   };
 
   const getUser = async (client_id = null) => {
-    setSplash(true);
+    // setSplash(true);
     setWaiting(1, "getUser");
     let currentUser: any = false;
     try {
@@ -79,6 +79,8 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
           process.env.NEXT_PUBLIC_AUTH_IAM,
           "POST",
           credentials,
+          false,
+          true,
         );
 
         if (data?.success && !error) {
@@ -125,7 +127,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
           localStorage.removeItem("condaty_client_id");
           setUser(false);
           setWaiting(-1, "-getUser");
-          setSplash(false);
+          // setSplash(false);
           // router.reload();
           // router.reload();
           return;

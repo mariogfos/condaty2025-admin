@@ -66,13 +66,7 @@ const Reserva = () => {
   const onRenderAreaList = ({ item }: any) => {
     const area = item?.area;
     const areaName = area?.title;
-    const imageUrl = area?.images?.[0]
-      ? getUrlImages(
-          `/AREA-${area.images[0].entity_id}-${
-            area.images[0].id
-          }.webp?d=${new Date().toISOString()}`,
-        )
-      : undefined;
+    const imageUrl = area?.images?.[0];
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Avatar src={imageUrl} hasImage={2} name={areaName} />
@@ -95,16 +89,9 @@ const Reserva = () => {
     const ownerName = owner ? getFullName(owner) : "Residente no disponible";
     const dptoNro = dpto?.nro ? dpto.nro : "Sin Dpto.";
 
-    // const imageUrl = owner
-    //   ? getUrlImages(
-    //       `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`,
-    //     )
-    //   : undefined;
-
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Avatar
-          // src={owner?.url_avatar || imageUrl}
           src={getUrlImages(
             `/OWNER-${owner?.id}.webp?d=${owner?.updated_at || Date.now()}`,
             owner?.url_avatar,
