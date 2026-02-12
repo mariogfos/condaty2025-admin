@@ -43,11 +43,31 @@ const limit_msgs: any = {
         "El bloqueo es la configuración que define después de cuántos días desde el vencimiento de la expensa mas antigua impaga, el sistema restrinja automáticamente su acceso a la aplicación del condominio.",
     },
   },
+  M: {
+    label: "Fin de mes",
+    soft: {
+      title:
+        "Define después de cuántos días desde el vencimiento de la expensa mas antigua, se activará la notificación de aviso al residente para informarle que pague sus expensas",
+      tooltip:
+        "El pre-aviso es la configuración que define cuántos días desde el vencimiento de la expensa mas antigua impaga, antes de que el sistema le envíe una notificación automática recordándole realizar el pago.",
+    },
+    hard: {
+      title:
+        "Define después de cuántos días desde el vencimiento de la expensa mas antigua, el sistema bloqueará el acceso del residente a la app",
+      tooltip:
+        "El bloqueo es la configuración que define después de cuántos días desde el vencimiento de la expensa mas antigua impaga, el sistema restrinja automáticamente su acceso a la aplicación del condominio.",
+    },
+  },
 };
 
 const lLimit_type = [
   { id: "C", name: "Por cantidad de expensas impagas" },
   { id: "D", name: "Por días desde el vencimiento de la deuda mas antigua" },
+  { id: "M", name: "Por fin de mes" },
+];
+const lcheckMora = [
+  { id: 0, name: "No" },
+  { id: 1, name: "Sí" },
 ];
 
 const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
@@ -214,64 +234,97 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
             />
           </div>
         </div>
+        {formState?.limit_type != "M" && (
+          <>
+            <div className={styles.sectionContainer}>
+              <div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <h2 className={styles.sectionTitle}>Pre-aviso</h2>
+                  <Tooltip
+                    position="right"
+                    title={limit_msgs[formState?.limit_type].soft.tooltip}
+                  >
+                    <IconQuestion size={16} />
+                  </Tooltip>
+                </div>
+                <p className={styles.sectionSubtitle}>
+                  {limit_msgs[formState?.limit_type].soft.title}
+                </p>
+              </div>
+
+              <div className={styles.inputField}>
+                <Input
+                  type="number"
+                  label={limit_msgs[formState?.limit_type].label}
+                  name="soft_limit"
+                  error={errors}
+                  required
+                  value={formState?.soft_limit}
+                  onChange={handleInputChange}
+                  maxLength={2}
+                  min={0}
+                />
+              </div>
+            </div>
+
+            <div className={styles.sectionContainer}>
+              <div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <h2 className={styles.sectionTitle}>Bloqueo</h2>
+                  <Tooltip
+                    position="right"
+                    title={limit_msgs[formState?.limit_type].hard.tooltip}
+                  >
+                    <IconQuestion size={16} />
+                  </Tooltip>
+                </div>
+                <p className={styles.sectionSubtitle}>
+                  {limit_msgs[formState?.limit_type].hard.title}
+                </p>
+              </div>
+
+              <div className={styles.inputField}>
+                <Input
+                  type="number"
+                  label={limit_msgs[formState?.limit_type].label}
+                  name="hard_limit"
+                  error={errors}
+                  required
+                  value={formState?.hard_limit}
+                  onChange={handleInputChange}
+                  maxLength={2}
+                  min={0}
+                />
+              </div>
+            </div>
+          </>
+        )}
+
         <div className={styles.sectionContainer}>
           <div>
             <div style={{ display: "flex", gap: 8 }}>
-              <h2 className={styles.sectionTitle}>Pre-aviso</h2>
+              <h2 className={styles.sectionTitle}>MORA en guardias</h2>
               <Tooltip
                 position="right"
-                title={limit_msgs[formState?.limit_type].soft.tooltip}
+                title="Indique si se mostrará a los GUARDIAS si una unidad o residente esta EN MORA."
               >
                 <IconQuestion size={16} />
               </Tooltip>
             </div>
             <p className={styles.sectionSubtitle}>
-              {limit_msgs[formState?.limit_type].soft.title}
+              Indique si se mostrará a los GUARDIAS si una unidad o residente
+              esta EN MORA.
             </p>
           </div>
-
           <div className={styles.inputField}>
-            <Input
-              type="number"
-              label={limit_msgs[formState?.limit_type].label}
-              name="soft_limit"
+            <Select
+              label="Mostrar a Guardias"
+              name="check_mora"
               error={errors}
               required
-              value={formState?.soft_limit}
-              onChange={handleInputChange}
-              maxLength={2}
-              min={0}
-            />
-          </div>
-        </div>
-
-        <div className={styles.sectionContainer}>
-          <div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <h2 className={styles.sectionTitle}>Bloqueo</h2>
-              <Tooltip
-                position="right"
-                title={limit_msgs[formState?.limit_type].hard.tooltip}
-              >
-                <IconQuestion size={16} />
-              </Tooltip>
-            </div>
-            <p className={styles.sectionSubtitle}>
-              {limit_msgs[formState?.limit_type].hard.title}
-            </p>
-          </div>
-
-          <div className={styles.inputField}>
-            <Input
-              type="number"
-              label={limit_msgs[formState?.limit_type].label}
-              name="hard_limit"
-              error={errors}
-              required
-              value={formState?.hard_limit}
-              onChange={handleInputChange}
-              maxLength={2}
-              min={0}
+              value={formState?.check_mora || 0}
+              onChange={onChange}
+              options={lcheckMora}
             />
           </div>
         </div>

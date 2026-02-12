@@ -61,3 +61,6 @@ WARP.md
 
 # env 
 /.env.development
+
+#package-lock.json
+package-lock.json

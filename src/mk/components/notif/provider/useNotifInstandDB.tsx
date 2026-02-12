@@ -21,24 +21,28 @@ export const initSocket = async () => {
   } else {
     console.log("recuperando conexion a InstantDB");
   }
-  const unDiaAtras = Date.now() - 24 * 60 * 60 * 1000;
-  const del: any[] = [];
-  const query = {
-    notif: {
-      $: {
-        where: {
-          created_at: { $lt: unDiaAtras },
+
+  if (typeof window !== "undefined") {
+    const unDiaAtras = Date.now() - 24 * 60 * 60 * 1000;
+    const del: any[] = [];
+    const query = {
+      notif: {
+        $: {
+          where: {
+            created_at: { $lt: unDiaAtras },
+          },
+          limit: 1000,
         },
-        limit: 1000,
       },
-    },
-  };
-  const { data: _notif } = await db.queryOnce(query);
-  _notif.notif.forEach((e: any) => {
-    del.push(db.tx.notif[e.id].delete());
-  });
-  console.log("notif", del.length);
-  if (del.length > 0) db.transact(del);
+    };
+    const { data: _notif } = await db.queryOnce(query);
+    _notif.notif.forEach((e: any) => {
+      del.push(db.tx.notif[e.id].delete());
+    });
+    console.log("notif", del.length);
+    if (del.length > 0) db.transact(del);
+  }
+
   return db;
 };
 
