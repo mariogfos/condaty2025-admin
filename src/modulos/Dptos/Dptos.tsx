@@ -249,7 +249,6 @@ const Dptos = () => {
             return props?.item?.homeowner ? (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
-                  hasImage={props?.item?.homeowner?.has_image}
                   src={getUrlImages(
                     "/OWNER-" +
                       props?.item?.homeowner?.id +
@@ -293,7 +292,6 @@ const Dptos = () => {
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
-                  hasImage={tenant?.has_image}
                   src={getUrlImages(
                     "/OWNER-" + personId + ".webp?d=" + updatedAt,
                     tenant?.url_avatar,
