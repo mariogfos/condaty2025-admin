@@ -79,6 +79,8 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
     penalty_limit: client_config?.penalty_limit || "",
     penalty_type: client_config?.penalty_type || "",
     penalty_data: client_config?.penalty_data || "",
+    button_mora: client_config?.button_mora || "0",
+    check_mora: client_config?.check_mora || "0",
   });
   const [errors, setErrors] = useState({});
 
@@ -324,7 +326,7 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
               error={errors}
               required
               value={formState?.check_mora || 0}
-              onChange={onChange}
+              onChange={handleInputChange}
               options={lcheckMora}
             />
           </div>
@@ -345,7 +347,7 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
               name="button_mora"
               label=""
               value={formState?.button_mora || "0"}
-              onChange={onChange}
+              onChange={handleInputChange}
               optionValue={["1", "0"]}
               checked={formState?.button_mora == 1}
             />
