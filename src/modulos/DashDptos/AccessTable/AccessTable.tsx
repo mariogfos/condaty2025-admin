@@ -1,9 +1,9 @@
-'use client';
-import { getFullName, getUrlImages } from '@/mk/utils/string';
-import { getDateTimeStrMesShort } from '@/mk/utils/date';
-import Table from '@/mk/components/ui/Table/Table';
-import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
-import EmptyData from '@/components/NoData/EmptyData';
+"use client";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getDateTimeStrMesShort } from "@/mk/utils/date";
+import Table from "@/mk/components/ui/Table/Table";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import EmptyData from "@/components/NoData/EmptyData";
 import {
   IconArrowRight,
   IconArrowLeft,
@@ -11,26 +11,25 @@ import {
   IconTaxi,
   IconOther,
   IconExitHome,
-} from '@/components/layout/icons/IconsBiblioteca';
-import styles from './AccessTable.module.css';
+} from "@/components/layout/icons/IconsBiblioteca";
+import styles from "./AccessTable.module.css";
 
 interface AccessTableProps {
   access: any[];
-
 }
 const renderSubtitle = (item: any) => {
-  let subtitle = 'CI: ' + item.visit?.ci;
+  let subtitle = "CI: " + item.visit?.ci;
   if (item?.other) {
     subtitle = item.other?.other_type?.name;
   }
-  if (item?.type === 'O') {
-    subtitle = 'CI: ' + item.owner?.ci;
+  if (item?.type === "O") {
+    subtitle = "CI: " + item.owner?.ci;
   }
   return subtitle;
 };
 const visitCell = ({ item }: { item: any }) => {
-  const displayUser = item?.type === 'O' ? item.owner : item.visit;
-  
+  const displayUser = item?.type === "O" ? item.owner : item.visit;
+
   return (
     <div className={styles.visitInfo}>
       {leftAccess(item)}
@@ -58,16 +57,18 @@ const leftAccess = (item: any) => {
     }
     return <div className={styles.iconContainer}>{icon}</div>;
   }
-  if (item?.type === 'O') {
+  if (item?.type === "O") {
     return (
       <Avatar
-        hasImage={item?.owner?.has_iamge}
-        src={getUrlImages(`/OWNER-${item?.owner?.id}.webp?d=${item?.owner?.updated_at}`)}
+        src={getUrlImages(
+          `/OWNER-${item?.owner?.id}.webp?d=${item?.owner?.updated_at}`,
+          item?.owner?.url_avatar,
+        )}
         name={getFullName(item.owner)}
         w={40}
-        h={40}  
+        h={40}
       />
-    )
+    );
   }
   return (
     <Avatar
@@ -75,7 +76,7 @@ const leftAccess = (item: any) => {
       name={getFullName(item.visit)}
       w={40}
       h={40}
-     // className={styles.visitorAvatar}
+      // className={styles.visitorAvatar}
     />
   );
 };
@@ -84,10 +85,13 @@ const visitedToCell = ({ item }: { item: any }) => {
   // Priorizar mostrar al residente/propietario (owner)
   const person = item?.owner ?? item?.titular?.owner ?? item?.homeowner ?? null;
 
-  const updatedAtQuery = person?.updated_at ? `?d=${person.updated_at}` : '';
+  const updatedAtQuery = person?.updated_at ? `?d=${person.updated_at}` : "";
   const avatarSrc = person?.id
-    ? getUrlImages(`/OWNER-${person.id}.webp${updatedAtQuery}`)
-    : '';
+    ? getUrlImages(
+        `/OWNER-${person.id}.webp${updatedAtQuery}`,
+        person?.url_avatar,
+      )
+    : "";
 
   return (
     <div className={styles.visitInfo}>
@@ -100,7 +104,9 @@ const visitedToCell = ({ item }: { item: any }) => {
       />
       <div>
         <p className={styles.visitName}>{getFullName(person || {})}</p>
-        <p className={styles.visitSubtitle}>C.I. {person?.ci || 'Sin registro'}</p>
+        <p className={styles.visitSubtitle}>
+          C.I. {person?.ci || "Sin registro"}
+        </p>
       </div>
     </div>
   );
@@ -110,64 +116,65 @@ const entryExitCell = ({ item }: { item: any }) => (
   <div>
     <div className={styles.entryExit}>
       <IconArrowRight size={12} color="var(--cSuccess)" />
-      <p className={styles.timeText}>{getDateTimeStrMesShort(item.in_at) || '-/-'}</p>
+      <p className={styles.timeText}>
+        {getDateTimeStrMesShort(item.in_at) || "-/-"}
+      </p>
     </div>
     <div className={styles.entryExit}>
       <IconArrowLeft size={12} color="var(--cError)" />
-      <p className={styles.timeText}>{getDateTimeStrMesShort(item.out_at) || '-/-'}</p>
+      <p className={styles.timeText}>
+        {getDateTimeStrMesShort(item.out_at) || "-/-"}
+      </p>
     </div>
   </div>
 );
 
 const typeCell = ({ item }: { item: any }) => {
-  if (item.type === 'P') {
-    return 'Pedido';
+  if (item.type === "P") {
+    return "Pedido";
   }
-  if (item.type === 'I') {
-    return 'Individual';
+  if (item.type === "I") {
+    return "Individual";
   }
-  if (item.type === 'G') {
-    return 'QR Grupal';
+  if (item.type === "G") {
+    return "QR Grupal";
   }
-  if (item.type === 'F') {
-    return 'QR Frecuente';
+  if (item.type === "F") {
+    return "QR Frecuente";
   }
-  if (item.type === 'O') {
-    return 'Llave QR';
+  if (item.type === "O") {
+    return "Llave QR";
   }
-  if (item.type === 'C') {
-    return 'Sin QR';
+  if (item.type === "C") {
+    return "Sin QR";
   }
-  return '-/-';
+  return "-/-";
 };
 
 const AccessTable = ({ access }: AccessTableProps) => {
-
   const accessHeader = [
     {
-      key: 'visit',
-      label: 'Visita',
-      responsive: 'desktop',
-      onRender: visitCell
-
+      key: "visit",
+      label: "Visita",
+      responsive: "desktop",
+      onRender: visitCell,
     },
     {
-      key: 'visited_to',
-      label: 'Visitó a',
-      responsive: 'desktop',
+      key: "visited_to",
+      label: "Visitó a",
+      responsive: "desktop",
       onRender: visitedToCell,
-
     },
     {
-      key: 'type',
-      label: 'Tipo de Acceso',
-      responsive: 'desktop',
+      key: "type",
+      label: "Tipo de Acceso",
+      responsive: "desktop",
       onRender: typeCell,
     },
     {
-      key: 'entry_exit',
-      label: 'Ingreso/Salida',
-      responsive: 'desktop',
+      key: "entry_exit",
+      label: "Ingreso/Salida",
+      responsive: "desktop",
       onRender: entryExitCell,
     },
   ];
@@ -183,7 +190,14 @@ const AccessTable = ({ access }: AccessTableProps) => {
     );
   }
 
-  return <Table header={accessHeader} data={access.slice(0, 5)} className="striped" style={{ width: '100%', height: '100%' }} />;
+  return (
+    <Table
+      header={accessHeader}
+      data={access.slice(0, 5)}
+      className="striped"
+      style={{ width: "100%", height: "100%" }}
+    />
+  );
 };
 
 export default AccessTable;

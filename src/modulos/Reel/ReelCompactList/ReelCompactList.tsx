@@ -55,9 +55,13 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
   };
   const urlAvatar = (item: any) => {
     return item.user
-      ? getUrlImages(`/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`)
+      ? getUrlImages(
+          `/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`,
+          item?.user?.url_avatar,
+        )
       : getUrlImages(
           `/OWNER-${item.owner?.id}.webp?d=${item.owner?.updated_at}`,
+          item?.owner?.url_avatar,
         );
   };
   return (
@@ -86,7 +90,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
               <div className={styles.userInfo}>
                 <Avatar
                   hasImage={1}
-                  name={getFullName(item.user)}
+                  name={getFullName(item.user ? item.user : item.owner)}
                   src={urlAvatar(item)}
                   w={40}
                   h={40}
