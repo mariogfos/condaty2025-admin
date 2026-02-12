@@ -22,6 +22,7 @@ import MediaRenderer from "./MediaRenderer/MediaRenderer";
 import ReelCompactList from "./ReelCompactList/ReelCompactList";
 import CommentModal from "./CommentModal/CommentModal";
 import { ContentItem, Comment } from "./types";
+import LinkifyDescription from "@/mk/components/ui/LinkifyDescription/LinkifyDescription";
 
 const Reel = () => {
   const { user, showToast } = useAuth();
@@ -579,9 +580,16 @@ const Reel = () => {
                         {item.description ? (
                           <p className={styles.newsDescription}>
                             {item?.isDescriptionExpanded ||
-                            item?.description?.length <= 200
-                              ? item?.description
-                              : `${item?.description?.substring(0, 200)}...`}
+                            item?.description?.length <= 200 ? (
+                              <LinkifyDescription text={item?.description} />
+                            ) : (
+                              <>
+                                <LinkifyDescription
+                                  text={item?.description?.substring(0, 200)}
+                                />
+                                ...
+                              </>
+                            )}
                           </p>
                         ) : (
                           <p className={styles.newsDescription}>
@@ -660,9 +668,16 @@ const Reel = () => {
                       <div>
                         <p className={styles.contentDescription}>
                           {item?.isDescriptionExpanded ||
-                          item?.description?.length <= 150
-                            ? item?.description
-                            : `${item?.description?.substring(0, 150)}...`}
+                          item?.description?.length <= 150 ? (
+                            <LinkifyDescription text={item?.description} />
+                          ) : (
+                            <>
+                              <LinkifyDescription
+                                text={item?.description?.substring(0, 150)}
+                              />
+                              ...
+                            </>
+                          )}
                         </p>
                         {item?.description?.length > 150 && (
                           <button
