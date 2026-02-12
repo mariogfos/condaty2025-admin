@@ -4,6 +4,7 @@ import styles from "./DefaulterConfig.module.css";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import { IconQuestion } from "@/components/layout/icons/IconsBiblioteca";
 import Select from "@/mk/components/forms/Select/Select";
+import Switch from "@/mk/components/forms/Switch/Switch";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 
 interface DefaulterConfigProps {
@@ -78,6 +79,8 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
     penalty_limit: client_config?.penalty_limit || "",
     penalty_type: client_config?.penalty_type || "",
     penalty_data: client_config?.penalty_data || "",
+    button_mora: client_config?.button_mora || "0",
+    check_mora: client_config?.check_mora || "0",
   });
   const [errors, setErrors] = useState({});
 
@@ -323,8 +326,30 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
               error={errors}
               required
               value={formState?.check_mora || 0}
-              onChange={onChange}
+              onChange={handleInputChange}
               options={lcheckMora}
+            />
+          </div>
+        </div>
+        <div className={styles.sectionContainer}>
+          <div className={styles.switchContainer}>
+            <div>
+              <p className={styles.textTitle}>
+                Mostrar Boton de Avisar en la App de Guardia
+              </p>
+              <p className={styles.sectionSubtitle}>
+                Activa esta opción para que el guardia en la App no pueda avisar
+                al Residente cuando recibe una visita si se encuentra en MORA
+              </p>
+            </div>
+
+            <Switch
+              name="button_mora"
+              label=""
+              value={formState?.button_mora || "0"}
+              onChange={handleInputChange}
+              optionValue={["1", "0"]}
+              checked={formState?.button_mora == 1}
             />
           </div>
         </div>
