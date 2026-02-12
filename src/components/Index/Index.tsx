@@ -146,7 +146,6 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
-              hasImage={data.owner.has_image}
               src={getUrlImages(
                 `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`,
                 data?.owner?.url_avatar,

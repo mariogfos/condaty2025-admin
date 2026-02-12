@@ -95,13 +95,7 @@ const visitedToCell = ({ item }: { item: any }) => {
 
   return (
     <div className={styles.visitInfo}>
-      <Avatar
-        hasImage={person?.has_image}
-        src={avatarSrc}
-        name={getFullName(person || {})}
-        w={32}
-        h={32}
-      />
+      <Avatar src={avatarSrc} name={getFullName(person || {})} w={32} h={32} />
       <div>
         <p className={styles.visitName}>{getFullName(person || {})}</p>
         <p className={styles.visitSubtitle}>
