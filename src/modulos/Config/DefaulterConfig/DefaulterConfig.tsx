@@ -4,6 +4,7 @@ import styles from "./DefaulterConfig.module.css";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import { IconQuestion } from "@/components/layout/icons/IconsBiblioteca";
 import Select from "@/mk/components/forms/Select/Select";
+import Switch from "@/mk/components/forms/Switch/Switch";
 
 interface DefaulterConfigProps {
   formState: any;
@@ -248,6 +249,28 @@ const DefaulterConfig = ({
               value={formState?.check_mora || 0}
               onChange={onChange}
               options={lcheckMora}
+            />
+          </div>
+        </div>
+        <div className={styles.sectionContainer}>
+          <div className={styles.switchContainer}>
+            <div>
+              <p className={styles.textTitle}>
+                Mostrar Boton de Avisar en la App de Guardia
+              </p>
+              <p className={styles.sectionSubtitle}>
+                Activa esta opción para que el guardia en la App no pueda avisar
+                al Residente cuando recibe una visita si se encuentra en MORA
+              </p>
+            </div>
+
+            <Switch
+              name="button_mora"
+              label=""
+              value={formState?.button_mora || "0"}
+              onChange={onChange}
+              optionValue={["1", "0"]}
+              checked={formState?.button_mora == 1}
             />
           </div>
         </div>
