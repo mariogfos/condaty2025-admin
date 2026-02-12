@@ -9,6 +9,7 @@ import {
 import { ContentItem } from "../types";
 import MediaRenderer from "../MediaRenderer/MediaRenderer";
 import styles from "./ReelCompactList.module.css";
+import LinkifyDescription from "@/mk/components/ui/LinkifyDescription/LinkifyDescription";
 
 interface ReelCompactListProps {
   items: ContentItem[];
@@ -55,11 +56,16 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
   };
   const urlAvatar = (item: any) => {
     return item.user
-      ? getUrlImages(`/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`)
+      ? getUrlImages(
+          `/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`,
+          item?.user?.url_avatar,
+        )
       : getUrlImages(
           `/OWNER-${item.owner?.id}.webp?d=${item.owner?.updated_at}`,
+          item?.owner?.url_avatar,
         );
   };
+  console.log(items);
   return (
     <div className={styles.compactListContainer}>
       {items.map((item: ContentItem, index: number) => {
@@ -115,9 +121,13 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                     <div>
                       <p className={styles.newsDescription}>
                         {item.isDescriptionExpanded ||
-                        item.description?.length <= 100
-                          ? item.description
-                          : `${item.description?.substring(0, 100)}...`}
+                        item.description?.length <= 100 ? (
+                          <LinkifyDescription text={item.description} />
+                        ) : (
+                          <LinkifyDescription
+                            text={`${item.description.substring(0, 100)}...`}
+                          />
+                        )}
                       </p>
                       {item.description?.length > 100 && (
                         <button
@@ -188,9 +198,13 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   <div>
                     <p className={styles.contentDescription}>
                       {item.isDescriptionExpanded ||
-                      item.description.length <= 100
-                        ? item.description
-                        : `${item.description.substring(0, 100)}...`}
+                      item.description.length <= 100 ? (
+                        <LinkifyDescription text={item.description} />
+                      ) : (
+                        <LinkifyDescription
+                          text={`${item.description.substring(0, 100)}...`}
+                        />
+                      )}
                     </p>
                     {item.description.length > 100 && (
                       <button
@@ -239,26 +253,6 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   <span>{item.comments_count}</span>
                 </div>
               </div>
-
-              {/*             <div className={styles.contentActions}>
-                <button
-                  className={`${styles.actionButton} ${item.liked ? styles.liked : ''}`}
-                  onClick={() => onLike?.(item.id)}
-                  aria-pressed={!!item.liked}
-                  aria-label={`Me gusta esta publicación`}
-                >
-                  <IconLike color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={16} />
-                  <span>Apoyar</span>
-                </button>
-                <button
-                  className={styles.actionButton}
-                  onClick={() => onOpenComments?.(item.id)}
-                  aria-label={`Comentar esta publicación`}
-                >
-                  <IconComment color={'var(--cWhiteV1)'} size={16} />
-                  <span>Comentar</span>
-                </button>
-              </div> */}
             </footer>
           </article>
         );
