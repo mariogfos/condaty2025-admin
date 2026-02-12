@@ -8,10 +8,7 @@ import MainMenu from "../MainMenu/MainMenu";
 import Header from "../Header/Header";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import {
-  getDateTimeAgo,
-  getFormattedDate,
-} from "@/mk/utils/date";
+import { getDateTimeAgo, getFormattedDate } from "@/mk/utils/date";
 import SideMenu from "@/mk/components/ui/SideMenu/SideMenu";
 import { useEvent } from "@/mk/hooks/useEvents";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
@@ -58,7 +55,7 @@ const Layout = ({ children }: any) => {
   const [openAlert, setOpenAlert]: any = useState({ open: false, item: null });
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [soundBell] = useState(
-    typeof window !== "undefined" ? new Audio("/sounds/Alerta.mp3") : null
+    typeof window !== "undefined" ? new Audio("/sounds/Alerta.mp3") : null,
   );
   const [openClient, setOpenClient] = useState(false);
   const [isLayoutAlertDescExpanded, setIsLayoutAlertDescExpanded] =
@@ -73,7 +70,7 @@ const Layout = ({ children }: any) => {
   const truncateText = (text: string, max: number) =>
     (text ?? "").length > max
       ? (text ?? "").slice(0, max).trimEnd() + "…"
-      : text ?? "";
+      : (text ?? "");
 
   // Precalcular valores del nombre/descripcion de la emergencia
   const emergencyName = openAlert?.item?.name ?? "";
@@ -103,7 +100,7 @@ const Layout = ({ children }: any) => {
         // Configurar el volumen a 0 temporalmente para no hacer ruido
         const originalVolume = soundBell.volume;
         soundBell.volume = 0;
-        
+
         soundBell
           .play()
           .then(() => {
@@ -164,7 +161,7 @@ const Layout = ({ children }: any) => {
       if (e.event == "admins" && e.payload.act == "newVoucher") {
         showToast(
           "¡Revisa tus ingresos, tienes un nuevo comprobante de pago!",
-          "info"
+          "info",
         );
       }
 
@@ -178,12 +175,12 @@ const Layout = ({ children }: any) => {
           soundBell
             ?.play()
             .catch((error) =>
-              console.log("Error al reproducir el sonido:", error)
+              console.log("Error al reproducir el sonido:", error),
             );
         }
       }
     },
-    [soundBell, showToast, audioEnabled, user, userCan]
+    [soundBell, showToast, audioEnabled, user, userCan],
   );
 
   useEvent("onNotif", onNotif);
@@ -197,7 +194,6 @@ const Layout = ({ children }: any) => {
     soundBell?.pause();
     soundBell?.load();
   };
-
   return (
     <main className={layoutClassName}>
       <section>
@@ -312,7 +308,8 @@ const Layout = ({ children }: any) => {
                   "/OWNER-" +
                     openAlert?.item?.owner_id +
                     ".webp?d=" +
-                    openAlert?.item?.owner_updated_at
+                    openAlert?.item?.owner_updated_at,
+                  openAlert?.item?.url_avatar,
                 )}
                 name={openAlert?.item?.owner_name}
               />

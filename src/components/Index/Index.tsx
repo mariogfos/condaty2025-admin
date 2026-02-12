@@ -228,6 +228,8 @@ const HomePage = () => {
       ? `C.I: ${ownerData.ci}`
       : ownerData?.email || "";
 
+    console.log(ownerData);
+
     return (
       <div
         className={styles.itemRow}
@@ -244,7 +246,7 @@ const HomePage = () => {
       >
         <div className={styles.itemImageContainer}>
           <Avatar
-            hasImage={ownerData.has_image}
+            // hasImage={ownerData.has_image}
             src={getUrlImages(
               `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`,
               ownerData?.url_avatar,
@@ -320,12 +322,8 @@ const HomePage = () => {
       // Mayor que 2 también es alto
       levelClass = styles.levelHigh;
     }
-
-    // Determinar si podemos intentar cargar una imagen de avatar
-    // Intentamos cargar si dataSource (guardia u owner) está presente y tiene un id.
     const canDisplayAvatarImage = !!dataSource?.id;
     let avatarImageUrl = null;
-
     if (canDisplayAvatarImage) {
       // El campo 'updated_at' podría tener diferentes nombres (updated_at vs updatedAt) o estar ausente.
       // Usar una marca de tiempo actual como fallback si no está disponible para asegurar la invalidación de caché.
@@ -350,7 +348,7 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {canDisplayAvatarImage && avatarImageUrl ? (
             <Avatar
-              hasImage={dataSource.has_image}
+              // hasImage={dataSource.has_image}
               src={avatarImageUrl} // URL construida dinámicamente
               name={primaryText} // El componente Avatar debería manejar el fallback a iniciales si src falla
               w={40}

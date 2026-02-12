@@ -71,16 +71,23 @@ const UnitInfo = ({
   }, [openOwnerMenu, openTenantMenu, openTitularSelector]);
 
   const owner = datas?.homeowner;
+  console.log(owner);
   const ownerUpdatedAtQuery = owner?.updated_at ? `?d=${owner.updated_at}` : "";
   const ownerAvatarSrc = owner?.id
-    ? getUrlImages(`/OWNER-${owner.id}.webp${ownerUpdatedAtQuery}`)
+    ? getUrlImages(
+        `/OWNER-${owner.id}.webp${ownerUpdatedAtQuery}`,
+        owner?.url_avatar,
+      )
     : "";
   const tenant = datas?.tenant;
   const tenantUpdatedAtQuery = tenant?.updated_at
     ? `?d=${tenant.updated_at}`
     : "";
   const tenantAvatarSrc = tenant?.id
-    ? getUrlImages(`/OWNER-${tenant.id}.webp${tenantUpdatedAtQuery}`)
+    ? getUrlImages(
+        `/OWNER-${tenant.id}.webp${tenantUpdatedAtQuery}`,
+        tenant?.url_avatar,
+      )
     : "";
   const ownerWhatsAppLink = generateWhatsAppLink(owner?.phone || "");
   const tenantWhatsAppLink = generateWhatsAppLink(tenant?.phone || "");
@@ -91,10 +98,10 @@ const UnitInfo = ({
   const tenantDependentsToShow = Array.isArray(tenant?.dependientes)
     ? tenant.dependientes
     : samePerson
-    ? Array.isArray(owner?.dependientes)
-      ? owner.dependientes
-      : []
-    : [];
+      ? Array.isArray(owner?.dependientes)
+        ? owner.dependientes
+        : []
+      : [];
 
   const currentHolder = datas?.data?.holder;
   const HandleTitular = () => {
@@ -129,7 +136,7 @@ const UnitInfo = ({
       showToast(
         error?.message ||
           "Error al cambiar de titular comunicate con tu administrador",
-        "error"
+        "error",
       );
     }
   };
@@ -138,9 +145,12 @@ const UnitInfo = ({
     setOpenOwnerMenu(false);
     const dptoId = datas?.data?.id || datas?.data?.dpto_id || null;
     const ownerId = datas?.homeowner?.id || null;
-    
+
     if (!dptoId || !ownerId) {
-      console.error("Faltan datos para desvincular propietario", { dptoId, ownerId });
+      console.error("Faltan datos para desvincular propietario", {
+        dptoId,
+        ownerId,
+      });
       showToast("Faltan datos para desvincular propietario", "error");
       return;
     }
@@ -161,7 +171,7 @@ const UnitInfo = ({
       showToast(
         error?.message ||
           "Error al desvincular propietario, comunícate con tu administrador",
-        "error"
+        "error",
       );
     }
   };
@@ -379,7 +389,7 @@ const UnitInfo = ({
                         : "";
                       const dependentAvatarSrc = dependentOwner?.id
                         ? getUrlImages(
-                            `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`
+                            `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`,
                           )
                         : "";
                       return (
@@ -548,7 +558,7 @@ const UnitInfo = ({
                         : "";
                       const dependentAvatarSrc = dependentOwner?.id
                         ? getUrlImages(
-                            `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`
+                            `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`,
                           )
                         : "";
                       return (
