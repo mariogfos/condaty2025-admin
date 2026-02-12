@@ -31,6 +31,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import EmptyData from "@/components/NoData/EmptyData";
 import ContentRenderView from "@/modulos/Contents/RenderView/RenderView";
+import Button from "@/mk/components/forms/Button/Button";
 
 const paramsInitial = {
   fullType: "L",
@@ -38,7 +39,7 @@ const paramsInitial = {
 };
 
 const HomePage = () => {
-  const { store, setStore, userCan, showToast } = useAuth();
+  const { store, setStore, userCan, showToast, user } = useAuth();
   const [openActive, setOpenActive] = useState(false);
   const [openPayment, setOpenPayment] = useState(false);
   const [dataOwner, setDataOwner]: any = useState({});
@@ -397,6 +398,11 @@ const HomePage = () => {
       </div>
     );
   };
+  useEffect(() => {
+    if (!store?.reLoadDashboard) return;
+    reLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store?.reLoadDashboard]);
 
   if (!userCan("home", "R")) return <NotAccess />;
 
