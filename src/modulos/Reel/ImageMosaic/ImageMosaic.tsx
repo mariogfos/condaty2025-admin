@@ -1,11 +1,15 @@
 import React from "react";
 import Image from "next/image";
-import { getUrlImages } from "@/mk/utils/string";
-import { ContentItem } from "../types";
 import styles from "./ImageMosaic.module.css";
 
 interface ImageMosaicProps {
-  item: ContentItem;
+  item: {
+    files?: string[]; // ← nuevo formato esperado
+    id?: string | number;
+    title?: any;
+    updated_at?: string;
+    [key: string]: any;
+  };
   modoCompacto?: boolean;
   onImageClick?: () => void;
 }
@@ -15,11 +19,14 @@ const ImageMosaic: React.FC<ImageMosaicProps> = ({
   modoCompacto = false,
   onImageClick,
 }) => {
-  if (!item.images || item.images.length <= 1) {
+  // Usamos files en lugar de images
+  const images = item?.files || [];
+
+  if (images.length <= 1) {
     return null;
   }
 
-  const imageCount = item.images.length;
+  const imageCount = images.length;
   let containerClass = styles.imageMosaicContainer;
 
   if (imageCount === 2) {
@@ -30,31 +37,14 @@ const ImageMosaic: React.FC<ImageMosaicProps> = ({
     containerClass += ` ${styles.fourOrMoreImages}`;
   }
 
-  const renderImage = (image: any, index: number, isLast = false) => {
-    // Soporte para dos formatos:
-    // 1. Objeto con id → construimos la URL
-    // 2. String → usamos directamente como URL
-    let imageUrl: string;
-
-    if (typeof image === "string") {
-      imageUrl = image;
-    } else if (image && typeof image === "object" && "id" in image) {
-      imageUrl = getUrlImages(
-        `/CONT-${item.id}-${image.id}.webp?d=${item.updated_at || ""}`,
-      );
-    } else {
-      // Fallback en caso de formato inválido
-      imageUrl = "/placeholder-image.jpg"; // o una imagen por defecto
-    }
+  const renderImage = (imageUrl: string, index: number, isLast = false) => {
+    // Ya no necesitamos construir URL ni getUrlImages, porque llegan URLs completas
+    const key = `mosaic-${index}-${imageUrl.substring(0, 20)}`; // clave única simple
 
     const imageClass =
       index === 0
         ? `${styles.mosaicImage} ${styles.mosaicImageFirst}`
         : styles.mosaicImage;
-
-    // Usamos un identificador único (id o índice)
-    const key =
-      typeof image === "string" ? `url-${index}` : `mosaic-${image.id}`;
 
     return (
       <div
@@ -68,7 +58,7 @@ const ImageMosaic: React.FC<ImageMosaicProps> = ({
           width={300}
           height={200}
           className={imageClass}
-          unoptimized
+          unoptimized // ← mantengo porque usas Cloudinary y Next/Image con ?w o similar no siempre es necesario
         />
         {isLast && imageCount > 4 && (
           <div className={styles.mosaicOverlay}>+{imageCount - 3}</div>
@@ -77,14 +67,14 @@ const ImageMosaic: React.FC<ImageMosaicProps> = ({
     );
   };
 
-  // Mostramos hasta 4 imágenes (como antes)
-  const imagesToShow = imageCount > 4 ? item.images.slice(0, 4) : item.images;
+  // Mostramos máximo 4 imágenes (como el original)
+  const imagesToShow = imageCount > 4 ? images.slice(0, 4) : images;
 
   return (
     <div className={containerClass}>
-      {imagesToShow.map((image: any, index: any) => {
+      {imagesToShow.map((imageUrl: string, index: number) => {
         const isLast = index === imagesToShow.length - 1 && imageCount > 4;
-        return renderImage(image, index, isLast);
+        return renderImage(imageUrl, index, isLast);
       })}
     </div>
   );
