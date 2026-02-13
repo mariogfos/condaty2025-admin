@@ -6,7 +6,7 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import useAxios from "@/mk/hooks/useAxios";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import React, { useEffect, useState } from "react";
 import { Image } from "@/mk/components/ui/Image/Image";
 import styles from "./ModalAccessExpand.module.css";
@@ -123,17 +123,7 @@ const ModalAccessExpand = ({
           key={data?.id}
           title={getFullName(data?.visit)}
           subtitle={"C.I:" + data?.visit?.ci}
-          left={
-            <Avatar
-              name={getFullName(data?.visit)}
-              // src={getUrlImages(
-              //   "/VISIT-" +
-              //     data?.visit?.id +
-              //     ".webp?" +
-              //     data?.visit?.updated_at,
-              // )}
-            />
-          }
+          left={<Avatar name={getFullName(data?.visit)} />}
         />
         <KeyValue title="Estado" value={statusAccess[getStatus()]} />
         {data?.plate && type == "T" && (
@@ -198,12 +188,7 @@ const ModalAccessExpand = ({
           left={
             <Avatar
               name={getFullName(invitation?.owner)}
-              src={getUrlImages(
-                "/OWNER-" +
-                  invitation?.owner?.id +
-                  ".webp?d=" +
-                  invitation?.owner?.updated_at,
-              )}
+              src={invitation?.owner?.url_avatar}
             />
           }
           style={{ marginBottom: 8 }}
@@ -291,12 +276,7 @@ const ModalAccessExpand = ({
           left={
             <Avatar
               name={getFullName(invitation?.owner)}
-              src={getUrlImages(
-                "/OWNER-" +
-                  invitation?.owner?.id +
-                  ".webp?d=" +
-                  invitation?.owner?.updated_at,
-              )}
+              src={invitation?.owner?.url_avatar}
             />
           }
           style={{ marginBottom: 8 }}

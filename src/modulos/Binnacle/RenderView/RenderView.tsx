@@ -116,13 +116,7 @@ const RenderView = memo((props: BinnacleDetailProps) => {
             <div className={styles.value} style={{ display: "flex", gap: 8 }}>
               {hasGuardImage && (
                 <Avatar
-                  src={getUrlImages(
-                    "/GUARD-" +
-                      item?.guardia?.id +
-                      ".webp?d=" +
-                      item?.guardia?.updated_at,
-                    item?.guardia?.url_avatar,
-                  )}
+                  src={item?.guardia?.url_avatar}
                   name={getFullName(item?.guardia)}
                 />
               )}

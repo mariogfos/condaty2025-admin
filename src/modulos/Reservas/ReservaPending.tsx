@@ -4,7 +4,7 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Reserva.module.css"; // Puedes usar los mismos estilos o crear unos nuevos
 import useCrudUtils from "../shared/useCrudUtils"; // Ajusta la ruta si es necesario
 import { useMemo, useEffect } from "react"; // useEffect puede no ser necesario aquí
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getDateStrMes } from "@/mk/utils/date"; // Asegúrate que format venga de tu utilidad o date-fns
 import { format, parse } from "date-fns"; // Necesario para parsear hora
@@ -82,14 +82,7 @@ const ReservaPending = () => {
             const area = props?.item?.area;
             const areaName = area?.title;
             const firstImage = area?.images?.[0];
-            const imageUrl = firstImage
-              ? getUrlImages(
-                  `/AREA-${firstImage.area_id}-${firstImage.id}.${
-                    firstImage.ext
-                  }?d=${area.updated_at ?? Date.now()}`,
-                  area?.url_avatar,
-                )
-              : undefined;
+            const imageUrl = firstImage;
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {" "}
@@ -116,12 +109,7 @@ const ReservaPending = () => {
               ? getFullName(owner)
               : "Residente no disponible";
             const dptoNro = dpto?.nro ? `Dpto: ${dpto.nro}` : "Sin Dpto.";
-            const imageUrl = owner
-              ? getUrlImages(
-                  `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`,
-                  owner?.url_avatar,
-                )
-              : undefined;
+            const imageUrl = owner ? owner?.url_avatar : undefined;
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {" "}

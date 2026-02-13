@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { getDateTimeAgo } from "@/mk/utils/date";
 import { IconX } from "@/components/layout/icons/IconsBiblioteca";
 import useAxios from "@/mk/hooks/useAxios";
@@ -14,6 +14,7 @@ type CommentUser = {
   mother_last_name?: string;
   updated_at?: string;
   has_image?: any;
+  url_avatar?: string;
 };
 
 type Comment = {
@@ -27,6 +28,7 @@ type Comment = {
   created_at: string;
   user: CommentUser | null;
   person: CommentUser | null;
+  url_avatar?: string;
 };
 
 interface CommentsModalProps {
@@ -152,18 +154,8 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
                     }
                     src={
                       comment.user
-                        ? getUrlImages(
-                            `/ADM-${comment.user.id}.webp?d=${
-                              comment.user.updated_at || ""
-                            }`,
-                          )
-                        : comment.person?.id
-                          ? getUrlImages(
-                              `/OWNER-${comment.person.id}.webp?d=${
-                                comment.person.updated_at || ""
-                              }`,
-                            )
-                          : undefined
+                        ? comment.user.url_avatar
+                        : comment.person?.url_avatar
                     }
                     w={32}
                     h={32}

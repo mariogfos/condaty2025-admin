@@ -3,8 +3,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Button from "@/mk/components/forms/Button/Button";
 import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes } from "@/mk/utils/date";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { getFullName } from "@/mk/utils/string";
 import styles from "./BudgetDirApprovalModal.module.css";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar"; // <- Agregar import
@@ -200,10 +199,7 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
         {/* Header Section - Centrado con Avatar */}
         <div className={styles.headerSection}>
           <Avatar
-            src={getUrlImages(
-              "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at,
-              item?.user?.url_avatar,
-            )}
+            src={item?.user?.url_avatar}
             h={60}
             w={60}
             // <- Quitar style={{ borderRadius: 16 }} ya que el Avatar maneja esto internamente

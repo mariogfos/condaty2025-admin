@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./Defaulters.module.css";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { formatNumber } from "@/mk/utils/numbers";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import {
@@ -103,20 +103,7 @@ const Defaulters = () => {
                     }}
                   >
                     <Avatar
-                      src={
-                        titularId
-                          ? getUrlImages(
-                              "/OWNER" +
-                                "-" +
-                                titularId +
-                                ".webp" +
-                                (titular?.updated_at
-                                  ? "?d=" + titular?.updated_at
-                                  : ""),
-                              titular?.url_avatar,
-                            )
-                          : ""
-                      }
+                      src={titular?.url_avatar}
                       name={getFullName(titular)}
                       w={32}
                       h={32}

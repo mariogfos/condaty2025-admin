@@ -1,6 +1,6 @@
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "../Users.module.css";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 const RenderView = (props: {
@@ -22,10 +22,7 @@ const RenderView = (props: {
       <div>
         <div>
           <Avatar
-            src={getUrlImages(
-              "/ADM-" + props.item.id + ".webp?d=" + props.item.updated_at,
-              props.item?.url_avatar,
-            )}
+            src={props.item?.url_avatar}
             h={170}
             w={170}
             style={{ borderRadius: 16 }}

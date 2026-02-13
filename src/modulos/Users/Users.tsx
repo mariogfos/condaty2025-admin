@@ -3,7 +3,7 @@ import styles from "./Users.module.css";
 import { useCallback, useEffect, useMemo } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import { getFullName, getUrlImages, pluralize } from "@/mk/utils/string";
+import { getFullName, pluralize } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
@@ -249,16 +249,7 @@ const Users = () => {
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar
-                  src={getUrlImages(
-                    "/ADM-" +
-                      administrador?.id +
-                      ".webp?d=" +
-                      administrador?.updated_at,
-                    administrador?.url_avatar,
-                  )}
-                  name={nombreCompleto}
-                />
+                <Avatar src={administrador?.url_avatar} name={nombreCompleto} />
                 <div>
                   <p
                     style={{

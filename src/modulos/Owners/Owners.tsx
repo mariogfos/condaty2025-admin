@@ -1,13 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import styles from "./Owners.module.css";
-import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import React, { useCallback, useMemo, useState } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { lStatusActive } from "@/mk/utils/utils";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
@@ -226,16 +224,7 @@ const Owners = () => {
 
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Avatar
-                src={getUrlImages(
-                  "/OWNER-" +
-                    residente?.id +
-                    ".webp?d=" +
-                    residente?.updated_at,
-                  residente?.url_avatar,
-                )}
-                name={nombreCompleto}
-              />
+              <Avatar src={residente?.url_avatar} name={nombreCompleto} />
               <div>
                 {" "}
                 <p

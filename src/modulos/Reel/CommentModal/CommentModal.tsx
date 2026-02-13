@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { getDateTimeAgo } from "@/mk/utils/date";
 import { IconX } from "@/components/layout/icons/IconsBiblioteca";
 import { Comment } from "../types";
@@ -84,17 +84,9 @@ const CommentModal: React.FC<CommentModalProps> = ({
                     }
                     src={
                       comment.user
-                        ? getUrlImages(
-                            `/ADM-${comment.user.id}.webp?d=${comment.user.updated_at || ""}`,
-                            comment.user.url_avatar,
-                          )
+                        ? comment.user.url_avatar
                         : comment.person?.id
-                          ? getUrlImages(
-                              `/OWNER-${comment.person.id}.webp?d=${
-                                comment.person.updated_at || ""
-                              }`,
-                              comment.person.url_avatar,
-                            )
+                          ? comment.person.url_avatar
                           : undefined
                     }
                     w={32}

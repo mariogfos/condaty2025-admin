@@ -3,7 +3,7 @@ import React, { memo } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Button from "@/mk/components/forms/Button/Button";
 import useAxios from "@/mk/hooks/useAxios";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import {
   format,
   parseISO,
@@ -387,10 +387,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                   <div className={styles.requesterSection}>
                     <div className={styles.requesterInfoContainer}>
                       <Avatar
-                        src={getUrlImages(
-                          `/OWNER-${reservationDetail.owner?.id}.webp?d=${reservationDetail.owner?.updated_at}`,
-                          reservationDetail?.owner?.url_avatar,
-                        )}
+                        src={reservationDetail?.owner?.url_avatar}
                         name={getFullName(reservationDetail.owner)}
                         w={40}
                         h={40}

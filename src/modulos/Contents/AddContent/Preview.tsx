@@ -8,7 +8,7 @@ import {
   IconShare,
 } from "@/components/layout/icons/IconsBiblioteca";
 import Image from "next/image";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
 type PostData = {
@@ -18,7 +18,6 @@ type PostData = {
   title?: string | null;
   description: string;
   hasImage: boolean;
-  imageUrl: string | null;
   imageCount?: number;
   likes: number;
   comments: number;
@@ -33,8 +32,6 @@ type Props = {
   action: any;
 };
 
-const STATIC_BACKGROUND = "/assets/images/portadaLogin.webp";
-
 const STATIC_TOP_POST: PostData = {
   userName: "María González",
   userRole: "Administradora",
@@ -43,7 +40,7 @@ const STATIC_TOP_POST: PostData = {
   description:
     "Recordamos a todos los propietarios que mañana tenemos reunión de consorcio a las 19:00 hs en el salón de usos múltiples...",
   hasImage: true,
-  imageUrl: STATIC_BACKGROUND,
+
   imageCount: 3,
   likes: 24,
   comments: 8,
@@ -59,7 +56,6 @@ const STATIC_BOTTOM_POST: PostData = {
   description:
     "Buenos días vecinos, quería informar que el ascensor del edificio B está fuera de servicio desde ayer...",
   hasImage: true,
-  imageUrl: STATIC_BACKGROUND,
   imageCount: 1,
   likes: 18,
   comments: 15,
@@ -77,8 +73,7 @@ const getDisplayName = (user: any, dataFake: any, postData: PostData) =>
   dataFake?.name ||
   "Usuario";
 
-const getPostImageSrc = (postData: PostData) =>
-  postData.files?.[0] || postData.imageUrl || "/images/default-post.jpg";
+const getPostImageSrc = (postData: PostData) => postData?.files?.[0];
 
 const PostCard = ({
   isBackground = false,
@@ -99,7 +94,6 @@ const PostCard = ({
 
   const imageSrc = getPostImageSrc(postData);
   const showImageCounter = !!postData.imageCount && postData.imageCount > 1;
-
   return (
     <div
       className={`${previewStyles.postCard} ${isBackground ? previewStyles.postCardBackground : ""}`}
@@ -107,19 +101,7 @@ const PostCard = ({
     >
       {/* Header */}
       <div className={previewStyles.userHeader}>
-        <Avatar
-          src={
-            user
-              ? getUrlImages(
-                  `/ADM-${user?.id}.webp?d=${user?.updated_at}`,
-                  user?.url_avatar,
-                )
-              : ""
-          }
-          name={displayName}
-          w={40}
-          h={40}
-        />
+        <Avatar src={user?.url_avatar} name={displayName} w={40} h={40} />
         <div className={previewStyles.userInfo}>
           <div className={previewStyles.userName}>{displayName}</div>
           <div className={previewStyles.userRole}>{displayRole}</div>
@@ -152,7 +134,9 @@ const PostCard = ({
           </p>
         </div>
 
-        {postData.hasImage ? (
+        {postData?.hasImage &&
+        typeof imageSrc === "string" &&
+        imageSrc.length > 0 ? (
           <div
             className={
               postData.isPost
@@ -161,7 +145,7 @@ const PostCard = ({
             }
           >
             <Image
-              src={imageSrc}
+              src={imageSrc || ""}
               alt="Preview de la publicación"
               width={postData.isPost ? 400 : 140}
               height={postData.isPost ? 250 : 140}
@@ -224,31 +208,6 @@ const PostCard = ({
   );
 };
 
-const getFirstAvailableImage = (formState: any): string | null => {
-  // Avatar en base64
-  if (formState?.avatar) {
-    for (const item of Object.values(formState.avatar) as any[]) {
-      if (
-        item?.file &&
-        item.file !== "delete" &&
-        item.file !== "" &&
-        item.file.length > 10
-      ) {
-        return "data:image/webp;base64," + decodeURIComponent(item.file);
-      }
-    }
-  }
-
-  // Imagen existente en servidor
-  if (formState?.images?.[0]?.id && formState?.id) {
-    return getUrlImages(
-      `/CONT-${formState.id}-${formState.images[0].id}.webp?d=${formState.updated_at}`,
-    );
-  }
-
-  return null;
-};
-
 const getImageCount = (formState: any): number => {
   if (formState?.files?.length) return formState.files.length;
 
@@ -278,7 +237,6 @@ const Preview = ({ formState }: Props) => {
       "Lorem ipsum dolor sit amet consectetur. Placerat augue id nulla risus ut ultrices...",
   };
 
-  const imageUrl = getFirstAvailableImage(formState);
   const isPost = formState?.isType === "P";
 
   const mainPost: PostData = {
@@ -287,9 +245,7 @@ const Preview = ({ formState }: Props) => {
     time: "Hace un momento",
     title: formState?.title || null,
     description: formState?.description || dataFake.description,
-    hasImage:
-      formState?.type === "I" && (!!imageUrl || formState?.files?.length > 0),
-    imageUrl,
+    hasImage: formState?.type === "I" && formState?.files?.length >= 1,
     files: formState?.files,
     imageCount: getImageCount(formState),
     likes: 36,

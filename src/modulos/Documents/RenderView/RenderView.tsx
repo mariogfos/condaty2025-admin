@@ -1,5 +1,4 @@
 import styles from "./RenderView.module.css";
-import { getUrlImages } from "@/mk/utils/string";
 import { getFullName } from "../../../mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import {

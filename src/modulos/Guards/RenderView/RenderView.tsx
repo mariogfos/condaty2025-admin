@@ -1,6 +1,5 @@
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "../Guards.module.css";
-import { getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getFullName } from "../../../mk/utils/string";
 
@@ -24,10 +23,7 @@ const RenderView = (props: {
       <div>
         <div>
           <Avatar
-            src={getUrlImages(
-              "/GUARD-" + props.item.id + ".webp?d=" + props.item.updated_at,
-              props.item.url_avatar,
-            )}
+            src={props.item.url_avatar}
             h={170}
             w={170}
             style={{ borderRadius: 16 }}

@@ -5,9 +5,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import {
   IconCamera,
@@ -50,27 +49,16 @@ const Profile = () => {
     setStore({ title: "PERFIL" });
   }, []);
 
-  // Obtenemos la URL del avatar
   const getAvatarUrl = () => {
-    // Si hay una vista previa (al subir nueva imagen), usamos esa
     if (preview) {
       return preview;
     }
-    // Si no, generamos la URL con la función getUrlImages
-    return getUrlImages(
-      `/ADM-${user?.id}.webp?d=${user?.updated_at}`,
-      user?.url_avatar,
-    );
+    return user?.url_avatar;
   };
 
   useEffect(() => {
     setFormState((prevState: any) => ({ ...prevState, ...user }));
   }, [user]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setFormState({ ...formState, [e.target.name]: value });
-  };
 
   const validate = () => {
     let errors: any = {};

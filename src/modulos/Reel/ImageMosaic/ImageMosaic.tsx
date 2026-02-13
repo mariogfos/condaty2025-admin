@@ -38,8 +38,7 @@ const ImageMosaic: React.FC<ImageMosaicProps> = ({
   }
 
   const renderImage = (imageUrl: string, index: number, isLast = false) => {
-    // Ya no necesitamos construir URL ni getUrlImages, porque llegan URLs completas
-    const key = `mosaic-${index}-${imageUrl.substring(0, 20)}`; // clave única simple
+    const key = `mosaic-${index}-${imageUrl.substring(0, 20)}`;
 
     const imageClass =
       index === 0

@@ -4,7 +4,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import useAxios from "@/mk/hooks/useAxios";
 import React, { useEffect, useState } from "react";
 import TitleSubtitle from "./TitleSubtitle";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";

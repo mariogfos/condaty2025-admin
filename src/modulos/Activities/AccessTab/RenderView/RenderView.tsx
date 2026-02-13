@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderView.module.css";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { Image } from "@/mk/components/ui/Image/Image";
@@ -179,9 +179,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               <section className={styles.headerSection}>
                 <Avatar
                   name={getFullName(owner)}
-                  src={getUrlImages(
-                    "/OWNER-" + owner?.id + ".webp?" + owner?.updated_at,
-                  )}
+                  src={owner?.url_avatar}
                   style={{ marginBottom: "var(--spM)" }}
                 />
                 <div className={styles.amountDisplay}>{getFullName(owner)}</div>
@@ -196,9 +194,6 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               <section className={styles.headerSection}>
                 <Avatar
                   name={getFullName(visit)}
-                  // src={getUrlImages(
-                  //   "/VISIT-" + visit?.id + ".webp?" + visit?.updated_at,
-                  // )}
                   style={{ marginBottom: "var(--spM)" }}
                 />
                 <div className={styles.amountDisplay}>{getFullName(visit)}</div>
@@ -417,17 +412,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                       key={acc.id}
                       title={getFullName(acc.visit || visit)}
                       subtitle={"C.I: " + acc?.visit?.ci}
-                      left={
-                        <Avatar
-                          // src={getUrlImages(
-                          //   "/VISIT-" +
-                          //     (acc?.visit?.id || visit?.id) +
-                          //     ".webp?" +
-                          //     (acc?.visit?.updated_at || visit?.updated_at),
-                          // )}
-                          name={getFullName(acc.visit || visit)}
-                        />
-                      }
+                      left={<Avatar name={getFullName(acc.visit || visit)} />}
                       right={
                         <IconExpand
                           color="var(--cWhiteV1)"
@@ -457,17 +442,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                       key={acc.id}
                       title={getFullName(acc.visit || visit)}
                       subtitle={"C.I: " + acc?.visit?.ci}
-                      left={
-                        <Avatar
-                          // src={getUrlImages(
-                          //   "/VISIT-" +
-                          //     (acc?.visit?.id || visit?.id) +
-                          //     ".webp?" +
-                          //     (acc?.visit?.updated_at || visit?.updated_at),
-                          // )}
-                          name={getFullName(acc.visit || visit)}
-                        />
-                      }
+                      left={<Avatar name={getFullName(acc.visit || visit)} />}
                       right={
                         <IconExpand
                           color="var(--cWhiteV1)"

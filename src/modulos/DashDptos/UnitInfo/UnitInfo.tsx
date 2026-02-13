@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import EmptyData from "@/components/NoData/EmptyData";
 import Button from "@/mk/components/forms/Button/Button";
@@ -71,24 +71,9 @@ const UnitInfo = ({
   }, [openOwnerMenu, openTenantMenu, openTitularSelector]);
 
   const owner = datas?.homeowner;
-  console.log(owner);
-  const ownerUpdatedAtQuery = owner?.updated_at ? `?d=${owner.updated_at}` : "";
-  const ownerAvatarSrc = owner?.id
-    ? getUrlImages(
-        `/OWNER-${owner.id}.webp${ownerUpdatedAtQuery}`,
-        owner?.url_avatar,
-      )
-    : "";
+  const ownerAvatarSrc = owner?.id ? owner?.url_avatar : "";
   const tenant = datas?.tenant;
-  const tenantUpdatedAtQuery = tenant?.updated_at
-    ? `?d=${tenant.updated_at}`
-    : "";
-  const tenantAvatarSrc = tenant?.id
-    ? getUrlImages(
-        `/OWNER-${tenant.id}.webp${tenantUpdatedAtQuery}`,
-        tenant?.url_avatar,
-      )
-    : "";
+  const tenantAvatarSrc = tenant?.id ? tenant?.url_avatar : "";
   const ownerWhatsAppLink = generateWhatsAppLink(owner?.phone || "");
   const tenantWhatsAppLink = generateWhatsAppLink(tenant?.phone || "");
   const samePerson = !!owner?.id && !!tenant?.id && owner.id === tenant.id;
@@ -383,13 +368,8 @@ const UnitInfo = ({
                   <div className={styles.dependentsGrid}>
                     {ownerDependentsToShow?.map((dependiente: any) => {
                       const dependentOwner = dependiente.owner;
-                      const dependentUpdatedAtQuery = dependentOwner?.updated_at
-                        ? `?d=${dependentOwner.updated_at}`
-                        : "";
                       const dependentAvatarSrc = dependentOwner?.id
-                        ? getUrlImages(
-                            `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`,
-                          )
+                        ? dependentOwner?.url_avatar
                         : "";
                       return (
                         <Tooltip
@@ -550,13 +530,8 @@ const UnitInfo = ({
                   <div className={styles.dependentsGrid}>
                     {tenantDependentsToShow?.map((dependiente: any) => {
                       const dependentOwner = dependiente.owner;
-                      const dependentUpdatedAtQuery = dependentOwner?.updated_at
-                        ? `?d=${dependentOwner.updated_at}`
-                        : "";
                       const dependentAvatarSrc = dependentOwner?.id
-                        ? getUrlImages(
-                            `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`,
-                          )
+                        ? dependentOwner?.url_avatar
                         : "";
                       return (
                         <Tooltip

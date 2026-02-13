@@ -2,8 +2,7 @@
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes } from "@/mk/utils/date";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import styles from "./RenderView.module.css";
 
@@ -102,13 +101,9 @@ const RenderView = (props: any) => {
       <div className={styles.container}>
         <div className={styles.headerSection}>
           <Avatar
-            src={getUrlImages(
-              "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at,
-              item?.user?.url_avatar,
-            )}
+            src={item?.user?.url_avatar}
             h={60}
             w={60}
-            // <- Quitar style={{ borderRadius: 16 }} ya que el Avatar maneja esto internamente
             name={getFullName(item?.user)}
           />
           <div className={styles.createdBy}>

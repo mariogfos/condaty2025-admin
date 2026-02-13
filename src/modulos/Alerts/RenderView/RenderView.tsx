@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderView.module.css";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import Button from "@/mk/components/forms/Button/Button";
@@ -124,10 +124,7 @@ const UserInfoDisplay = ({
           }
         >
           <Avatar
-            src={getUrlImages(
-              prefix + user.id + ".webp?d=" + user.updated_at,
-              user.url_avatar,
-            )}
+            src={user.url_avatar}
             name={getFullName(user)}
             w={40}
             h={40}

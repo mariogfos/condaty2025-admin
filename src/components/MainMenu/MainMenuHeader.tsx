@@ -1,9 +1,7 @@
 "use client";
 import React from "react";
-import { useRouter } from "next/navigation";
 import { Avatar } from "../../mk/components/ui/Avatar/Avatar";
-import { IconLogoElekta } from "../layout/icons/IconsBiblioteca";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import styles from "./mainmenu.module.css";
 
 interface MainMenuHeaderProps {

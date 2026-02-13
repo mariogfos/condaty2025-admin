@@ -1,7 +1,6 @@
 "use client";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "../Owners.module.css";
-import { getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getFullName } from "../../../mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
@@ -84,10 +83,7 @@ const RenderView = (props: any) => {
             <div className={styles.boxContent}>
               <div className={styles.avatarOwner}>
                 <Avatar
-                  src={getUrlImages(
-                    "/OWNER-" + item.id + ".webp?d=" + item.updated_at,
-                    item.url_avatar,
-                  )}
+                  src={item.url_avatar}
                   h={191}
                   w={191}
                   style={{ borderRadius: "50%" }}

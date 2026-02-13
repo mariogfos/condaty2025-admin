@@ -2,7 +2,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import React from "react";
 import styles from "./InvitationsDetail.module.css";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import {
   getDateStrMes,
   formatDateRange,
@@ -99,9 +99,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
             name={getFullName(owner)}
             h={60}
             w={60}
-            src={getUrlImages(
-              "/OWNER-" + owner?.id + ".webp?d=" + owner?.updated_at,
-            )}
+            src={owner?.url_avatar}
             style={{ marginBottom: "var(--spS)" }}
           />
           <div className={styles.headerName}>{getFullName(owner)}</div>
@@ -245,17 +243,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                       )}
                     </>
                   }
-                  left={
-                    <Avatar
-                      // src={getUrlImages(
-                      //   "/VISIT-" +
-                      //     (acc?.visit?.id || visit?.id) +
-                      //     ".webp?" +
-                      //     (acc?.visit?.updated_at || visit?.updated_at),
-                      // )}
-                      name={getFullName(acc.visit || visit)}
-                    />
-                  }
+                  left={<Avatar name={getFullName(acc.visit || visit)} />}
                 ></ItemList>
               ))}
             </div>
@@ -273,17 +261,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                       variant="V3"
                       key={acc.id}
                       title={getFullName(acc.visit || visit)}
-                      left={
-                        <Avatar
-                          name={getFullName(acc.visit || visit)}
-                          // src={getUrlImages(
-                          //   "/VISIT-" +
-                          //     visit?.id +
-                          //     ".webp?" +
-                          //     visit?.updated_at,
-                          // )}
-                        />
-                      }
+                      left={<Avatar name={getFullName(acc.visit || visit)} />}
                     />
                   ))}
                 </div>

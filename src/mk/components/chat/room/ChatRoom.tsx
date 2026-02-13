@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./chatroom.module.css";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { getDateStr, getTimePMAM } from "@/mk/utils/date1";
 import {
   IconCheck,
@@ -521,13 +521,7 @@ const ChatRoom = ({
                     msg.sender !== user.id &&
                     lastSender !== msg.sender ? (
                       <Avatar
-                        src={getUrlImages(
-                          "/ADM-" +
-                            userMsg?.id +
-                            ".webp?d=" +
-                            userMsg?.updated_at,
-                          userMsg?.url_avatar,
-                        )}
+                        src={userMsg?.url_avatar}
                         w={32}
                         h={32}
                         name={userMsg?.name ?? getFullName(user)}
