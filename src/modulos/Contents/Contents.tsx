@@ -273,7 +273,7 @@ const Contents = () => {
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar hasImage={1} src={urlAvatar} name={nombreCompleto} />
+                <Avatar src={urlAvatar} name={nombreCompleto} />
                 <div>
                   <p
                     style={{

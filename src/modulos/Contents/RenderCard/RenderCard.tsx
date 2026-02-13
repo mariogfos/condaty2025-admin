@@ -23,7 +23,7 @@ type PropsType = {
 
 const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
   const [openDrop, setOpenDrop] = useState<{ open: boolean; item: any | null }>(
-    { open: false, item: null }
+    { open: false, item: null },
   );
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -34,14 +34,14 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
   const handlePrevImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCurrentImageIndex((prevIndex) =>
-      prevIndex === 0 ? item.images.length - 1 : prevIndex - 1
+      prevIndex === 0 ? item.images.length - 1 : prevIndex - 1,
     );
   };
 
   const handleNextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCurrentImageIndex((prevIndex) =>
-      prevIndex === item.images.length - 1 ? 0 : prevIndex + 1
+      prevIndex === item.images.length - 1 ? 0 : prevIndex + 1,
     );
   };
 
@@ -68,10 +68,10 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
         <div>
           <div>
             <Avatar
-              hasImage={item?.user?.has_image}
               name={getFullName(item?.user)}
               src={getUrlImages(
-                "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at
+                "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at,
+                item?.user?.url_avatar,
               )}
             />
             <div style={{ flexGrow: 1 }}>
@@ -165,7 +165,7 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
                     item.images[currentImageIndex]?.id +
                     ".webp" +
                     "?" +
-                    item?.updated_at
+                    item?.updated_at,
                 )}
                 alt={`Imagen ${currentImageIndex + 1}`}
               />
@@ -329,8 +329,8 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
                   item.images && item.images.length > 0
                     ? 2
                     : item?.title
-                    ? 2
-                    : 8,
+                      ? 2
+                      : 8,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
                 textOverflow: "ellipsis",

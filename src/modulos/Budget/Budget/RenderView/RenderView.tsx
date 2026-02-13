@@ -102,9 +102,9 @@ const RenderView = (props: any) => {
       <div className={styles.container}>
         <div className={styles.headerSection}>
           <Avatar
-            hasImage={item?.user?.has_image}
             src={getUrlImages(
-              "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at
+              "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at,
+              item?.user?.url_avatar,
             )}
             h={60}
             w={60}

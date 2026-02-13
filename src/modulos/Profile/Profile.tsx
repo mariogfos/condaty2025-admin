@@ -57,7 +57,10 @@ const Profile = () => {
       return preview;
     }
     // Si no, generamos la URL con la función getUrlImages
-    return getUrlImages(`/ADM-${user?.id}.webp?d=${user?.updated_at}`);
+    return getUrlImages(
+      `/ADM-${user?.id}.webp?d=${user?.updated_at}`,
+      user?.url_avatar,
+    );
   };
 
   useEffect(() => {
@@ -114,7 +117,7 @@ const Profile = () => {
     const { data, error: err } = await execute(
       "/users/" + user.id,
       "PUT",
-      newUser
+      newUser,
     );
 
     if (data?.success) {
@@ -143,7 +146,7 @@ const Profile = () => {
 
       if (
         !["png", "jpg", "jpeg"].includes(
-          file.name.split(".").pop()?.toLowerCase() || ""
+          file.name.split(".").pop()?.toLowerCase() || "",
         )
       ) {
         showToast("Solo se permiten imágenes png, jpg, jpeg", "error");
@@ -189,7 +192,6 @@ const Profile = () => {
               {/* Avatar para móvil */}
               <div className={styles.mobileAvatarWrapper}>
                 <Avatar
-                  hasImage={user?.has_image}
                   src={getAvatarUrl()}
                   name={getFullName(user)}
                   w={112}
@@ -210,7 +212,6 @@ const Profile = () => {
               {/* Avatar para desktop */}
               <div className={styles.desktopImageContainer}>
                 <Avatar
-                  hasImage={user?.has_image}
                   src={getAvatarUrl()}
                   name={getFullName(user)}
                   w={350}
@@ -342,7 +343,6 @@ const Profile = () => {
       >
         <div className={styles.profileModal}>
           <Avatar
-            hasImage={user?.has_image}
             name={getFullName(user)}
             src={getAvatarUrl()}
             w={100}

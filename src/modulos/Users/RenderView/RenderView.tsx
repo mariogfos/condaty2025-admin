@@ -10,7 +10,6 @@ const RenderView = (props: {
   onConfirm?: Function;
   extraData?: any;
 }) => {
-  console.log("extraDatasaassasa");
   return (
     <DataModal
       open={props.open}
@@ -23,9 +22,9 @@ const RenderView = (props: {
       <div>
         <div>
           <Avatar
-            hasImage={props.item?.has_image}
             src={getUrlImages(
-              "/ADM-" + props.item.id + ".webp?d=" + props.item.updated_at
+              "/ADM-" + props.item.id + ".webp?d=" + props.item.updated_at,
+              props.item?.url_avatar,
             )}
             h={170}
             w={170}
@@ -34,18 +33,6 @@ const RenderView = (props: {
           />
           <div>
             <p className={styles.title}>{getFullName(props.item)}</p>
-            {/* <p style={{ color: "var(--cWhiteV1)", fontSize: "var(--sL)" }}>
-              {
-                props.extraData?.roles?.find(
-                  (e: any) => e.id == props.item.role_id
-                ).name
-              }
-            </p> */}
-            {/* {props?.item?.level > 1 && (
-              <p style={{ fontSize: 10 }}>
-                {entidades[props?.item.level] + ": " + getEntidad()}
-              </p>
-            )} */}
           </div>
         </div>
         <section>
@@ -62,7 +49,7 @@ const RenderView = (props: {
             <p>
               {
                 props?.extraData?.roles.find(
-                  (i: any) => i.id === props.item.role_id
+                  (i: any) => i.id === props.item.role_id,
                 )?.description
               }
             </p>

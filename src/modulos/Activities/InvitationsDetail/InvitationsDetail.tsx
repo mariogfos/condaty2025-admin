@@ -96,12 +96,11 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
         <p>Creador</p>
         <section className={styles.headerSection}>
           <Avatar
-            hasImage={owner.has_image}
             name={getFullName(owner)}
             h={60}
             w={60}
             src={getUrlImages(
-              "/OWNER-" + owner?.id + ".webp?d=" + owner?.updated_at
+              "/OWNER-" + owner?.id + ".webp?d=" + owner?.updated_at,
             )}
             style={{ marginBottom: "var(--spS)" }}
           />
@@ -230,7 +229,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                           size={12}
                         />
                         {getDateTimeStrMesShort(
-                          acc?.in_at || acc?.access?.in_at
+                          acc?.in_at || acc?.access?.in_at,
                         )}
                       </div>
                       {(acc?.out_at || acc?.access?.out_at) && (
@@ -240,7 +239,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                             size={12}
                           />
                           {getDateTimeStrMesShort(
-                            acc?.out_at || acc?.access?.out_at
+                            acc?.out_at || acc?.access?.out_at,
                           )}
                         </div>
                       )}
@@ -248,15 +247,12 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                   }
                   left={
                     <Avatar
-                      hasImage={
-                        acc.visit ? acc.visit?.has_image : visit?.has_image
-                      }
-                      src={getUrlImages(
-                        "/VISIT-" +
-                          (acc?.visit?.id || visit?.id) +
-                          ".webp?" +
-                          (acc?.visit?.updated_at || visit?.updated_at)
-                      )}
+                      // src={getUrlImages(
+                      //   "/VISIT-" +
+                      //     (acc?.visit?.id || visit?.id) +
+                      //     ".webp?" +
+                      //     (acc?.visit?.updated_at || visit?.updated_at),
+                      // )}
                       name={getFullName(acc.visit || visit)}
                     />
                   }
@@ -279,11 +275,13 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                       title={getFullName(acc.visit || visit)}
                       left={
                         <Avatar
-                          hasImage={1}
                           name={getFullName(acc.visit || visit)}
-                          src={getUrlImages(
-                            "/VISIT-" + visit?.id + ".webp?" + visit?.updated_at
-                          )}
+                          // src={getUrlImages(
+                          //   "/VISIT-" +
+                          //     visit?.id +
+                          //     ".webp?" +
+                          //     visit?.updated_at,
+                          // )}
                         />
                       }
                     />

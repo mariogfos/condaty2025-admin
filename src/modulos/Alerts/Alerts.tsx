@@ -150,7 +150,7 @@ const Alerts = () => {
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {avatarSrc ? (
-          <Avatar hasImage={1} src={avatarSrc} name={fullName} />
+          <Avatar src={avatarSrc} name={fullName} />
         ) : (
           <Avatar
             name={

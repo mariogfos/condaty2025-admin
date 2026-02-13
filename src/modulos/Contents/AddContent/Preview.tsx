@@ -108,7 +108,6 @@ const PostCard = ({
       {/* Header */}
       <div className={previewStyles.userHeader}>
         <Avatar
-          hasImage={1}
           src={
             user
               ? getUrlImages(

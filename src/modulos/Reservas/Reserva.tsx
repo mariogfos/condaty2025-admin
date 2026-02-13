@@ -69,7 +69,7 @@ const Reserva = () => {
     const imageUrl = area?.images?.[0];
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Avatar src={imageUrl} hasImage={2} name={areaName} />
+        <Avatar src={imageUrl} name={areaName} />
         <p
           style={{
             color: "var(--cWhite)",

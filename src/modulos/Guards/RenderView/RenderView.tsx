@@ -24,9 +24,9 @@ const RenderView = (props: {
       <div>
         <div>
           <Avatar
-            hasImage={props.item?.has_image}
             src={getUrlImages(
-              "/GUARD-" + props.item.id + ".webp?d=" + props.item.updated_at
+              "/GUARD-" + props.item.id + ".webp?d=" + props.item.updated_at,
+              props.item.url_avatar,
             )}
             h={170}
             w={170}

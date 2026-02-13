@@ -387,7 +387,6 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                   <div className={styles.requesterSection}>
                     <div className={styles.requesterInfoContainer}>
                       <Avatar
-                        hasImage={1}
                         src={getUrlImages(
                           `/OWNER-${reservationDetail.owner?.id}.webp?d=${reservationDetail.owner?.updated_at}`,
                           reservationDetail?.owner?.url_avatar,

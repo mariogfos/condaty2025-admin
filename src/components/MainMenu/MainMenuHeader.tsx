@@ -22,24 +22,11 @@ const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
           w={collapsed ? 48 : 210}
           h={collapsed ? 48 : 128}
           style={{ borderRadius: 8 }}
-          hasImage={1}
         />
       </div>
-      {/* <div>
-        <Avatar
-          hasImage={user.has_image}
-          w={collapsed ? 64 : 128}
-          h={collapsed ? 64 : 128}
-          name={getFullName(user)}
-          src={getUrlImages(`/ADM-${user?.id}.webp?d=${user?.updated_at}`)}
-          onClick={() => router.push("/profile")}
-        />
-      </div> */}
       {!collapsed && (
         <div>
-          {/* <p>{getFullName(user)}</p> */}
           <p style={{ color: "var(--cWhite)" }}>{client?.name}</p>
-          {/* <p style={{color: "var(--cBlackV2)"}}>{user?.entidad?.name}</p> */}
         </div>
       )}
     </div>

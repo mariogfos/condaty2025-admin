@@ -142,7 +142,7 @@ const HomeOwners = () => {
         searchBy: e.target.value,
       },
       false,
-      true
+      true,
     );
 
     if (data?.success && data.data?.data?.id) {
@@ -168,7 +168,7 @@ const HomeOwners = () => {
       });
       showToast(
         "El propietario ya existe en Condaty, se va a vincular al Condominio",
-        "warning"
+        "warning",
       );
     } else {
       props.setError({ ci: "" });
@@ -196,7 +196,7 @@ const HomeOwners = () => {
         searchBy: e.target.value,
       },
       false,
-      true
+      true,
     );
 
     if (data?.success && data.data?.data?.id) {
@@ -280,12 +280,12 @@ const HomeOwners = () => {
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
-                hasImage={propietario?.has_image}
                 src={getUrlImages(
                   "/HOMEOWNER-" +
                     propietario?.id +
                     ".webp?d=" +
-                    propietario?.updated_at
+                    propietario?.updated_at,
+                  propietario?.url_avatar,
                 )}
                 name={nombreCompleto}
               />

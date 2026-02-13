@@ -52,7 +52,6 @@ const HistoryAccess = ({ accessData, open, close }: HistoryAccessProps) => {
             <div key={index} className={styles.visitRow}>
               <div className={styles.visitorInfo}>
                 <Avatar
-                  hasImage={visita.visit?.has_image}
                   name={getFullName(visita.visit)}
                   w={28}
                   h={28}

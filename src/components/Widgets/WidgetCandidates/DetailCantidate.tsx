@@ -58,7 +58,7 @@ const DetailCandidate = ({ open, close, id }: PropsDetailCandidate) => {
                   "/PCAND-" +
                     candidate?.data[0]?.id +
                     ".webp?d=" +
-                    candidate?.data[0]?.updated_at
+                    candidate?.data[0]?.updated_at,
                 )}
                 alt={candidate?.data[0]?.name}
                 style={{
@@ -70,14 +70,13 @@ const DetailCandidate = ({ open, close, id }: PropsDetailCandidate) => {
               />
             </div>
             <Avatar
-              hasImage={candidate?.data[0]?.has_image}
               className={styles.avatar}
               name={candidate?.data[0]?.name}
               src={getUrlImages(
                 "/CAND-" +
                   candidate?.data[0]?.id +
                   ".webp?d=" +
-                  candidate?.data[0]?.updated_at
+                  candidate?.data[0]?.updated_at,
               )}
               h={140}
               w={140}
@@ -110,7 +109,7 @@ const DetailCandidate = ({ open, close, id }: PropsDetailCandidate) => {
                 <div className={styles.subtitle}>
                   {
                     extraData?.data?.typeCands?.find(
-                      (e: any) => e.id == candidate?.data[0]?.typecand_id
+                      (e: any) => e.id == candidate?.data[0]?.typecand_id,
                     )?.name
                   }
                 </div>
@@ -165,7 +164,7 @@ const DetailCandidate = ({ open, close, id }: PropsDetailCandidate) => {
                           window.open(url, "_blank"); // Abre el enlace en una nueva pestaña
                         } else {
                           console.error(
-                            "No se encontró la URL de la red social."
+                            "No se encontró la URL de la red social.",
                           );
                         }
                       }}
@@ -195,7 +194,7 @@ const DetailCandidate = ({ open, close, id }: PropsDetailCandidate) => {
                           window.open(url, "_blank"); // Abre el enlace en una nueva pestaña
                         } else {
                           console.error(
-                            "No se encontró la URL de la red social."
+                            "No se encontró la URL de la red social.",
                           );
                         }
                       }}
@@ -225,7 +224,7 @@ const DetailCandidate = ({ open, close, id }: PropsDetailCandidate) => {
                           window.open(url, "_blank"); // Abre el enlace en una nueva pestaña
                         } else {
                           console.error(
-                            "No se encontró la URL de la red social."
+                            "No se encontró la URL de la red social.",
                           );
                         }
                       }}
@@ -255,7 +254,7 @@ const DetailCandidate = ({ open, close, id }: PropsDetailCandidate) => {
                           window.open(url, "_blank"); // Abre el enlace en una nueva pestaña
                         } else {
                           console.error(
-                            "No se encontró la URL de la red social."
+                            "No se encontró la URL de la red social.",
                           );
                         }
                       }}
@@ -329,7 +328,7 @@ const DetailCandidate = ({ open, close, id }: PropsDetailCandidate) => {
                       "/PLAN-" +
                         candidate?.data[0].id +
                         ".pdf?d=" +
-                        candidate?.data[0].updated_at
+                        candidate?.data[0].updated_at,
                     )}
                     target="_blank"
                     rel="noopener noreferrer"

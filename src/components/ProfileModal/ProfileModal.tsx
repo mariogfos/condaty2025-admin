@@ -353,7 +353,6 @@ const ProfileModal = ({
                     expandable={true}
                     expandableZIndex={10002}
                     expandableIcon={false}
-                    hasImage={1}
                     src={data?.data[0]?.url_avatar || getUrlImages(urlImages)}
                     name={getFullName(data?.data[0], "NSLM")}
                     w={191}

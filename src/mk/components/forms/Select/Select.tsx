@@ -50,7 +50,7 @@ const Section = ({
       onChangeSearch({ target: { value: "" } });
       setOpenOptions(false);
     },
-    selectRef
+    selectRef,
   );
 
   return (
@@ -84,8 +84,8 @@ const Section = ({
                       ? styles["selected"]
                       : ""
                     : selectValue === option[optionValue]
-                    ? styles["selected"]
-                    : ""
+                      ? styles["selected"]
+                      : ""
                 }
                 key={`li${name}${option[optionValue] || key}`}
                 onClick={
@@ -96,7 +96,7 @@ const Section = ({
                       }
                     : (e) => {
                         handleSelectMultiClickElement(
-                          option[optionValue] || key
+                          option[optionValue] || key,
                         );
                         e.stopPropagation();
                       }
@@ -105,7 +105,6 @@ const Section = ({
                 <div style={{ alignItems: "center", gap: "8px" }}>
                   {option["img"] && (
                     <Avatar
-                      hasImage={option.has_image}
                       className={styles.avatar}
                       name={option[optionLabel] ?? option.label}
                       src={option["img"]}
@@ -132,7 +131,7 @@ const Section = ({
                 key={`li${name}${key}`}
                 onClick={() =>
                   handleSelectClickElement(
-                    _options[key][optionValue] || _options[key].label
+                    _options[key][optionValue] || _options[key].label,
                   )
                 }
               >
@@ -167,7 +166,7 @@ const Select = ({
   onChange = (e: any) => {},
 }: PropsType) => {
   const [selectValue, setSelectValue] = useState(
-    value || (multiSelect ? [] : "")
+    value || (multiSelect ? [] : ""),
   );
   const [openOptions, setOpenOptions] = useState(false);
   const [search, setSearch] = useState("");
@@ -217,7 +216,7 @@ const Select = ({
         currentSelectedValues.length > 0
       ) {
         const selectedFullOptions = options.filter((option: any) =>
-          currentSelectedValues.includes(option[optionValue])
+          currentSelectedValues.includes(option[optionValue]),
         );
 
         let displayString = "";
@@ -247,7 +246,7 @@ const Select = ({
   useEffect(() => {
     const parentWithClass = findParentWithClass(
       selectRef.current,
-      "contScrollable"
+      "contScrollable",
     );
     if (parentWithClass) {
       parentWithClass.addEventListener("scroll", calcPosition);
@@ -380,10 +379,12 @@ const Select = ({
             multiSelect
               ? selectedNames
               : options.find
-              ? options.find((i: any) => i[optionValue] == value)
-                ? options.find((i: any) => i[optionValue] == value)[optionLabel]
-                : ""
-              : options[value]?.label
+                ? options.find((i: any) => i[optionValue] == value)
+                  ? options.find((i: any) => i[optionValue] == value)[
+                      optionLabel
+                    ]
+                  : ""
+                : options[value]?.label
           }
           onChange={onChange}
           readOnly={true}
@@ -420,7 +421,7 @@ const Select = ({
             setOpenOptions={setOpenOptions}
             selectRef={selectRef}
           />,
-          document.getElementById("portal-root") as any
+          document.getElementById("portal-root") as any,
         )}
     </div>
   );

@@ -403,7 +403,6 @@ const RenderView = (props: {
           <div className={styles.contentContainer}>
             <div className={styles.userSection}>
               <Avatar
-                hasImage={1}
                 name={getFullName(currentData?.user || currentData?.owner)}
                 src={urlAvatar}
                 w={48}

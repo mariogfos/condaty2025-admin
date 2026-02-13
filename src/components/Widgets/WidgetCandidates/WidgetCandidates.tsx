@@ -29,8 +29,8 @@ const WidgetCandidates = ({ data, params }: any) => {
             {params?.level === 1
               ? "Candidatos a nivel nacional"
               : params?.level == 2
-              ? "Candidatos a nivel departamental"
-              : "Candidatos a nivel municipal"}
+                ? "Candidatos a nivel departamental"
+                : "Candidatos a nivel municipal"}
           </span>
         }
         className={styles.widgetCandidates}
@@ -81,11 +81,10 @@ const WidgetCandidates = ({ data, params }: any) => {
                 }}
               >
                 <Avatar
-                  hasImage={candidate?.has_image}
                   className={styles.avatar}
                   name={getFullName(candidate)}
                   src={getUrlImages(
-                    `/CAND-${candidate?.id}.webp?d=${candidate?.updated_at}`
+                    `/CAND-${candidate?.id}.webp?d=${candidate?.updated_at}`,
                   )}
                   h={72}
                   w={72}

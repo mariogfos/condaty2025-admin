@@ -103,7 +103,6 @@ const Defaulters = () => {
                     }}
                   >
                     <Avatar
-                      hasImage={titular?.has_image}
                       src={
                         titularId
                           ? getUrlImages(
@@ -113,7 +112,8 @@ const Defaulters = () => {
                                 ".webp" +
                                 (titular?.updated_at
                                   ? "?d=" + titular?.updated_at
-                                  : "")
+                                  : ""),
+                              titular?.url_avatar,
                             )
                           : ""
                       }
@@ -221,7 +221,7 @@ const Defaulters = () => {
         },
       },
     }),
-    []
+    [],
   );
 
   const { userCan, List, data, extraData } = useCrud({
@@ -255,7 +255,7 @@ const Defaulters = () => {
         acc.porCobrarMv += item.mv || 0;
         return acc;
       },
-      { porCobrarExpensa: 0, porCobrarMulta: 0, porCobrarMv: 0 }
+      { porCobrarExpensa: 0, porCobrarMulta: 0, porCobrarMv: 0 },
     );
     return totals;
   }, [data?.data]);
@@ -273,7 +273,7 @@ const Defaulters = () => {
       calculatedTotals.porCobrarExpensa,
       calculatedTotals.porCobrarMulta,
       calculatedTotals.porCobrarMv,
-    ]
+    ],
   );
   const handleRowClick = (item: any) => {
     router.push(`/units/${item.dpto_id}`);

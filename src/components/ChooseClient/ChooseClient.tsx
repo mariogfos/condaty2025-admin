@@ -40,7 +40,6 @@ const ChooseClient = ({ open, onClose }: Props) => {
           <Avatar
             src={c.url_banner?.[0]}
             name={c.name}
-            hasImage={c.has_image}
             style={{ width: 40, height: 40, borderRadius: "50%" }}
           />
           <div className={styles.clientText}>

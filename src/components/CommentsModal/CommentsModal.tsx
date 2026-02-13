@@ -58,7 +58,7 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
     try {
       const response = await executeFetchComments(
         `/comments?fullType=L&id=${id}&type=C&perPage=-1&page=1`,
-        "GET"
+        "GET",
       );
       if (response?.data && Array.isArray(response.data)) {
         setComments(response.data);
@@ -147,30 +147,23 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
                   className={styles.commentItem}
                 >
                   <Avatar
-                    hasImage={
-                      comment.user?.name
-                        ? comment.user.has_image
-                        : comment.person?.has_image
-                    }
                     name={
-                      comment.user?.name ||
-                      comment.person?.name ||
-                      "Usuario"
+                      comment.user?.name || comment.person?.name || "Usuario"
                     }
                     src={
                       comment.user
                         ? getUrlImages(
                             `/ADM-${comment.user.id}.webp?d=${
                               comment.user.updated_at || ""
-                            }`
+                            }`,
                           )
                         : comment.person?.id
-                        ? getUrlImages(
-                            `/OWNER-${comment.person.id}.webp?d=${
-                              comment.person.updated_at || ""
-                            }`
-                          )
-                        : undefined
+                          ? getUrlImages(
+                              `/OWNER-${comment.person.id}.webp?d=${
+                                comment.person.updated_at || ""
+                              }`,
+                            )
+                          : undefined
                     }
                     w={32}
                     h={32}
@@ -182,8 +175,8 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
                         {comment.user?.name
                           ? getFullName(comment.user)
                           : comment.person?.name
-                          ? getFullName(comment.person)
-                          : "Usuario"}
+                            ? getFullName(comment.person)
+                            : "Usuario"}
                       </span>
                       <time
                         dateTime={comment.created_at}

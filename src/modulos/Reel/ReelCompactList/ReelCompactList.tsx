@@ -89,7 +89,6 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
             <header className={styles.contentHeader}>
               <div className={styles.userInfo}>
                 <Avatar
-                  hasImage={1}
                   name={getFullName(item.user ? item.user : item.owner)}
                   src={urlAvatar(item)}
                   w={40}

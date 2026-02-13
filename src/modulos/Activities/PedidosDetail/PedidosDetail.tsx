@@ -56,10 +56,9 @@ const PedidosDetail = ({ item, open, onClose }: Props) => {
     >
       <Card>
         <Avatar
-          hasImage={item?.owner?.has_image}
           name={getFullName(item?.owner)}
           src={getUrlImages(
-            "/OWNER-" + item?.owner?.id + ".webp?" + item?.owner?.updated_at
+            "/OWNER-" + item?.owner?.id + ".webp?" + item?.owner?.updated_at,
           )}
           h={60}
           w={60}

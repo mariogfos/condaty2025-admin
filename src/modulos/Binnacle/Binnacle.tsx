@@ -18,9 +18,9 @@ const GuardCell = ({ guardia }: { guardia: any }) => {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <Avatar
-        hasImage={guardia.has_image}
         src={getUrlImages(
           "/GUARD-" + guardia.id + ".webp?d=" + guardia.updated_at,
+          guardia?.url_avatar,
         )}
         name={getFullName(guardia)}
       />

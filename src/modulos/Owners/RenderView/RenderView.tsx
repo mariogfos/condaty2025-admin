@@ -14,7 +14,7 @@ const RenderView = (props: any) => {
   const { user } = useAuth();
   const [item, setItem]: any = useState({});
   const client = item?.clients?.find(
-    (item: any) => item?.id === user?.client_id
+    (item: any) => item?.id === user?.client_id,
   );
   const [openActive, setOpenActive] = useState(false);
   const [typeActive, setTypeActive] = useState("");
@@ -34,7 +34,7 @@ const RenderView = (props: any) => {
         searchBy: data?.id,
       },
       false,
-      true
+      true,
     );
     if (dataDetail?.success === true) {
       setItem(dataDetail?.data[0]);
@@ -84,9 +84,9 @@ const RenderView = (props: any) => {
             <div className={styles.boxContent}>
               <div className={styles.avatarOwner}>
                 <Avatar
-                  hasImage={item?.has_image}
                   src={getUrlImages(
-                    "/OWNER-" + item.id + ".webp?d=" + item.updated_at
+                    "/OWNER-" + item.id + ".webp?d=" + item.updated_at,
+                    item.url_avatar,
                   )}
                   h={191}
                   w={191}

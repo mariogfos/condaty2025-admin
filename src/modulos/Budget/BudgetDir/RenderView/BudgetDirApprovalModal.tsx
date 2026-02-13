@@ -77,12 +77,12 @@ type BudgetApprovalViewProps = {
     method: string,
     payload: any,
     noWaiting?: boolean,
-    noGenericError?: boolean
+    noGenericError?: boolean,
   ) => Promise<{ data?: any; error?: any }>;
   reLoad: () => void;
   showToast: (
     message: string,
-    type: "success" | "error" | "warning" | "info"
+    type: "success" | "error" | "warning" | "info",
   ) => void;
   extraData?: any;
 };
@@ -108,7 +108,7 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
     // <- Validación del comentario
     if (newStatus === "R" && (!comment || comment.trim() === "")) {
       setCommentError(
-        "El comentario es obligatorio para rechazar un presupuesto"
+        "El comentario es obligatorio para rechazar un presupuesto",
       );
       showToast("El comentario es obligatorio para rechazar", "warning");
       return;
@@ -137,14 +137,14 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
         "POST",
         payload,
         false,
-        true
+        true,
       );
 
       const toastType: "success" | "info" =
         newStatus === "A" ? "success" : "info";
       showToast(
         response?.message || `Presupuesto ${actionText} correctamente.`,
-        toastType
+        toastType,
       );
 
       reLoad();
@@ -200,9 +200,9 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
         {/* Header Section - Centrado con Avatar */}
         <div className={styles.headerSection}>
           <Avatar
-            hasImage={item?.user?.has_image}
             src={getUrlImages(
-              "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at
+              "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at,
+              item?.user?.url_avatar,
             )}
             h={60}
             w={60}

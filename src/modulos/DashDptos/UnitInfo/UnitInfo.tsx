@@ -335,7 +335,6 @@ const UnitInfo = ({
                   className={styles.personCardClickable}
                 >
                   <Avatar
-                    hasImage={owner?.has_image}
                     src={ownerAvatarSrc}
                     name={getFullName(owner)}
                     w={48}
@@ -399,7 +398,6 @@ const UnitInfo = ({
                           position="top-left"
                         >
                           <Avatar
-                            hasImage={dependentOwner?.has_image}
                             className={styles.dependentAvatar}
                             src={dependentAvatarSrc}
                             name={getFullName(dependentOwner)}
@@ -504,7 +502,6 @@ const UnitInfo = ({
                   className={styles.personCardClickable}
                 >
                   <Avatar
-                    hasImage={tenant?.has_image}
                     src={tenantAvatarSrc}
                     name={getFullName(tenant)}
                     w={48}
@@ -568,7 +565,6 @@ const UnitInfo = ({
                           position="top-left"
                         >
                           <Avatar
-                            hasImage={dependentOwner?.has_image}
                             className={styles.dependentAvatar}
                             src={dependentAvatarSrc}
                             name={getFullName(dependentOwner)}

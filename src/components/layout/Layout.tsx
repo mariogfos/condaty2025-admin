@@ -303,7 +303,6 @@ const Layout = ({ children }: any) => {
             }
             left={
               <Avatar
-                hasImage={openAlert?.item?.owner_has_image}
                 src={getUrlImages(
                   "/OWNER-" +
                     openAlert?.item?.owner_id +

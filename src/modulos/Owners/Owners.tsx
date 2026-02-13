@@ -227,7 +227,6 @@ const Owners = () => {
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
-                hasImage={residente?.has_image}
                 src={getUrlImages(
                   "/OWNER-" +
                     residente?.id +

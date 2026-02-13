@@ -72,7 +72,6 @@ const leftAccess = (item: any) => {
   }
   return (
     <Avatar
-      hasImage={item?.visit?.has_image}
       name={getFullName(item.visit)}
       w={40}
       h={40}

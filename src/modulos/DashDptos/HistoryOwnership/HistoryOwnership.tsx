@@ -29,7 +29,7 @@ const HistoryOwnership = ({
         searchTerm === "" ||
         getFullName(titular?.owner)
           .toUpperCase()
-          .includes(searchTerm.toUpperCase())
+          .includes(searchTerm.toUpperCase()),
     );
     setFilteredData(filtered);
   };
@@ -75,9 +75,8 @@ const HistoryOwnership = ({
               >
                 <div className={styles.titularInfo}>
                   <Avatar
-                    hasImage={titular?.owner?.has_image}
                     src={getUrlImages(
-                      `/OWNER-${titular?.owner?.id}.webp?d=${titular?.owner?.updated_at}`
+                      `/OWNER-${titular?.owner?.id}.webp?d=${titular?.owner?.updated_at}`,
                     )}
                     name={getFullName(titular?.owner)}
                     className={styles.avatar}

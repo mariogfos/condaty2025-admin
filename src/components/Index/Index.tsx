@@ -193,7 +193,6 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
-              hasImage={data.owner?.has_image}
               src={getUrlImages(
                 `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`,
                 data?.owner?.url_avatar,
@@ -245,7 +244,6 @@ const HomePage = () => {
       >
         <div className={styles.itemImageContainer}>
           <Avatar
-            // hasImage={ownerData.has_image}
             src={getUrlImages(
               `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`,
               ownerData?.url_avatar,
@@ -347,7 +345,6 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {canDisplayAvatarImage && avatarImageUrl ? (
             <Avatar
-              // hasImage={dataSource.has_image}
               src={avatarImageUrl} // URL construida dinámicamente
               name={primaryText} // El componente Avatar debería manejar el fallback a iniciales si src falla
               w={40}

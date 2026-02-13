@@ -50,7 +50,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
         area_id: formState.area_id,
       },
       false,
-      true
+      true,
     );
     if (data?.success) {
       const orderUpdate_at = data?.data?.map((item: any) => ({
@@ -115,7 +115,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
     const { data } = await execute(
       "/reservations-areablocked",
       "POST",
-      formState
+      formState,
     );
     if (data?.success) {
       _onClose();
@@ -137,7 +137,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
         page: 1,
       },
       false,
-      true
+      true,
     );
     if (data?.success) {
       setDataM(data?.data);
@@ -160,7 +160,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
         is_canceled: "Y",
       },
       false,
-      true
+      true,
     );
     if (data?.success) {
       getAreasM();
@@ -338,17 +338,8 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                     }}
                   >
                     <Avatar
-                      hasImage={1}
                       name={reserva.area?.title || "Área sin nombre"}
-                      src={getUrlImages(
-                        "/AREA-" +
-                          reserva?.area?.id +
-                          "-" +
-                          reserva?.area?.images?.[0]?.id +
-                          ".webp" +
-                          "?" +
-                          reserva?.area?.updated_at
-                      )}
+                      src={reserva?.area?.images?.[0]}
                     />
 
                     <div

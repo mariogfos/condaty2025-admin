@@ -59,7 +59,7 @@ const ReservaPending = () => {
               try {
                 formattedTime = format(
                   parse(timeString, "HH:mm:ss", new Date()),
-                  "H:mm"
+                  "H:mm",
                 );
               } catch (e) {
                 console.error("Error parsing time:", e);
@@ -86,7 +86,8 @@ const ReservaPending = () => {
               ? getUrlImages(
                   `/AREA-${firstImage.area_id}-${firstImage.id}.${
                     firstImage.ext
-                  }?d=${area.updated_at ?? Date.now()}`
+                  }?d=${area.updated_at ?? Date.now()}`,
+                  area?.url_avatar,
                 )
               : undefined;
             return (
@@ -117,17 +118,14 @@ const ReservaPending = () => {
             const dptoNro = dpto?.nro ? `Dpto: ${dpto.nro}` : "Sin Dpto.";
             const imageUrl = owner
               ? getUrlImages(
-                  `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`
+                  `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`,
+                  owner?.url_avatar,
                 )
               : undefined;
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {" "}
-                <Avatar
-                  hasImage={owner?.has_image}
-                  src={imageUrl}
-                  name={ownerName}
-                />{" "}
+                <Avatar src={imageUrl} name={ownerName} />{" "}
                 <div>
                   {" "}
                   <p style={{ margin: 0, lineHeight: "1.3" }}>
@@ -198,7 +196,7 @@ const ReservaPending = () => {
         // No necesitamos el filtro de estado aquí, ya está en paramsInitial
       },
     }),
-    []
+    [],
   );
 
   // Desestructura las props necesarias para useCrudUtils desde useCrud

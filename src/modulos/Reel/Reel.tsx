@@ -549,7 +549,6 @@ const Reel = () => {
                 <header className={styles.contentHeader}>
                   <div className={styles.userInfo}>
                     <Avatar
-                      hasImage={1}
                       name={getFullName(item.user)}
                       src={urlAvatar(item)}
                       w={44}

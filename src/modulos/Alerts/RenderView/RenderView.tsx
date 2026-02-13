@@ -124,7 +124,6 @@ const UserInfoDisplay = ({
           }
         >
           <Avatar
-            hasImage={1}
             src={getUrlImages(
               prefix + user.id + ".webp?d=" + user.updated_at,
               user.url_avatar,

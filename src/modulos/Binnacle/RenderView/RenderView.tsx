@@ -5,13 +5,15 @@ import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import styles from "./RenderView.module.css";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { Image } from "@/mk/components/ui/Image/Image";
-import { IconArrowLeft, IconArrowRight } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconArrowLeft,
+  IconArrowRight,
+} from "@/components/layout/icons/IconsBiblioteca";
 
 interface BinnacleDetailProps {
   open: boolean;
   onClose: () => void;
   item: any;
-
 }
 
 const RenderView = memo((props: BinnacleDetailProps) => {
@@ -19,13 +21,17 @@ const RenderView = memo((props: BinnacleDetailProps) => {
 
   const normalizeHasImage = (v: any) => v === true || v === 1 || v === "1";
 
-  const [imageExist, setImageExist] = useState<boolean>(normalizeHasImage(item?.has_image));
+  const [imageExist, setImageExist] = useState<boolean>(
+    normalizeHasImage(item?.has_image),
+  );
   const hasGuardImage = normalizeHasImage(item?.guardia?.has_image);
 
   const images: string[] = useMemo(() => {
     const arr = Array.isArray(item?.url_file) ? item.url_file : [];
     return arr
-      .map((u: any) => (typeof u === "string" ? u.trim().replace(/^`|`$/g, "") : ""))
+      .map((u: any) =>
+        typeof u === "string" ? u.trim().replace(/^`|`$/g, "") : "",
+      )
       .filter((u: string) => u && /^https?:\/\//.test(u));
   }, [item?.url_file]);
 
@@ -39,7 +45,9 @@ const RenderView = memo((props: BinnacleDetailProps) => {
   }, [images.length]);
 
   const prevIndex = useCallback(() => {
-    setIndexVisible((prev) => (images.length ? (prev === 0 ? images.length - 1 : prev - 1) : 0));
+    setIndexVisible((prev) =>
+      images.length ? (prev === 0 ? images.length - 1 : prev - 1) : 0,
+    );
   }, [images.length]);
 
   return (
@@ -83,10 +91,13 @@ const RenderView = memo((props: BinnacleDetailProps) => {
             </div>
           </div>
         ) : (
-          imageExist && normalizeHasImage(item?.has_image) && (
+          imageExist &&
+          normalizeHasImage(item?.has_image) && (
             <div className={styles.imageContainer}>
               <Avatar
-                src={getUrlImages("/GNEW-" + item.id + ".webp?d=" + item.updated_at)}
+                src={getUrlImages(
+                  "/GNEW-" + item.id + ".webp?d=" + item.updated_at,
+                )}
                 h={298}
                 w={298}
                 onError={() => {
@@ -95,7 +106,6 @@ const RenderView = memo((props: BinnacleDetailProps) => {
                 style={{ borderRadius: 16 }}
                 name={getFullName(item)}
                 expandable={true}
-                hasImage={item?.has_image}
               />
             </div>
           )
@@ -106,9 +116,12 @@ const RenderView = memo((props: BinnacleDetailProps) => {
             <div className={styles.value} style={{ display: "flex", gap: 8 }}>
               {hasGuardImage && (
                 <Avatar
-                  hasImage={item.guardia.has_image}
                   src={getUrlImages(
-                    "/GUARD-" + item?.guardia?.id + ".webp?d=" + item?.guardia?.updated_at
+                    "/GUARD-" +
+                      item?.guardia?.id +
+                      ".webp?d=" +
+                      item?.guardia?.updated_at,
+                    item?.guardia?.url_avatar,
                   )}
                   name={getFullName(item?.guardia)}
                 />

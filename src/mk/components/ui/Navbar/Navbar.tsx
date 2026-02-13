@@ -56,10 +56,9 @@ const Navbar = ({
             ) : (
               <head>
                 <Avatar
-                  hasImage={user.has_image}
                   name={getFullName(user)}
                   src={getUrlImages(
-                    "/ADM-" + user?.id + ".png?d=" + user?.updated_at
+                    "/ADM-" + user?.id + ".png?d=" + user?.updated_at,
                   )}
                   onClick={() => {
                     router.push("/profile");
@@ -88,10 +87,9 @@ const Navbar = ({
         </span>
         <section>
           <Avatar
-            hasImage={user.has_image}
             name={getFullName(user)}
             src={getUrlImages(
-              "/ADM-" + user?.id + ".png?d=" + user?.updated_at
+              "/ADM-" + user?.id + ".png?d=" + user?.updated_at,
             )}
             onClick={() => {
               setOpenModal("profile");
