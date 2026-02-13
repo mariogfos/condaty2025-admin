@@ -2,7 +2,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import React from "react";
 import styles from "./InvitationsDetail.module.css";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import {
   getDateStrMes,
   formatDateRange,
@@ -96,13 +96,10 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
         <p>Creador</p>
         <section className={styles.headerSection}>
           <Avatar
-            hasImage={owner.has_image}
             name={getFullName(owner)}
             h={60}
             w={60}
-            src={getUrlImages(
-              "/OWNER-" + owner?.id + ".webp?d=" + owner?.updated_at
-            )}
+            src={owner?.url_avatar}
             style={{ marginBottom: "var(--spS)" }}
           />
           <div className={styles.headerName}>{getFullName(owner)}</div>
@@ -230,7 +227,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                           size={12}
                         />
                         {getDateTimeStrMesShort(
-                          acc?.in_at || acc?.access?.in_at
+                          acc?.in_at || acc?.access?.in_at,
                         )}
                       </div>
                       {(acc?.out_at || acc?.access?.out_at) && (
@@ -240,26 +237,13 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                             size={12}
                           />
                           {getDateTimeStrMesShort(
-                            acc?.out_at || acc?.access?.out_at
+                            acc?.out_at || acc?.access?.out_at,
                           )}
                         </div>
                       )}
                     </>
                   }
-                  left={
-                    <Avatar
-                      hasImage={
-                        acc.visit ? acc.visit?.has_image : visit?.has_image
-                      }
-                      src={getUrlImages(
-                        "/VISIT-" +
-                          (acc?.visit?.id || visit?.id) +
-                          ".webp?" +
-                          (acc?.visit?.updated_at || visit?.updated_at)
-                      )}
-                      name={getFullName(acc.visit || visit)}
-                    />
-                  }
+                  left={<Avatar name={getFullName(acc.visit || visit)} />}
                 ></ItemList>
               ))}
             </div>
@@ -277,15 +261,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                       variant="V3"
                       key={acc.id}
                       title={getFullName(acc.visit || visit)}
-                      left={
-                        <Avatar
-                          hasImage={1}
-                          name={getFullName(acc.visit || visit)}
-                          src={getUrlImages(
-                            "/VISIT-" + visit?.id + ".webp?" + visit?.updated_at
-                          )}
-                        />
-                      }
+                      left={<Avatar name={getFullName(acc.visit || visit)} />}
                     />
                   ))}
                 </div>

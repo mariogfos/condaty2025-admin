@@ -5,9 +5,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import {
   IconCamera,
@@ -50,24 +49,16 @@ const Profile = () => {
     setStore({ title: "PERFIL" });
   }, []);
 
-  // Obtenemos la URL del avatar
   const getAvatarUrl = () => {
-    // Si hay una vista previa (al subir nueva imagen), usamos esa
     if (preview) {
       return preview;
     }
-    // Si no, generamos la URL con la función getUrlImages
-    return getUrlImages(`/ADM-${user?.id}.webp?d=${user?.updated_at}`);
+    return user?.url_avatar;
   };
 
   useEffect(() => {
     setFormState((prevState: any) => ({ ...prevState, ...user }));
   }, [user]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setFormState({ ...formState, [e.target.name]: value });
-  };
 
   const validate = () => {
     let errors: any = {};
@@ -114,7 +105,7 @@ const Profile = () => {
     const { data, error: err } = await execute(
       "/users/" + user.id,
       "PUT",
-      newUser
+      newUser,
     );
 
     if (data?.success) {
@@ -143,7 +134,7 @@ const Profile = () => {
 
       if (
         !["png", "jpg", "jpeg"].includes(
-          file.name.split(".").pop()?.toLowerCase() || ""
+          file.name.split(".").pop()?.toLowerCase() || "",
         )
       ) {
         showToast("Solo se permiten imágenes png, jpg, jpeg", "error");
@@ -189,7 +180,6 @@ const Profile = () => {
               {/* Avatar para móvil */}
               <div className={styles.mobileAvatarWrapper}>
                 <Avatar
-                  hasImage={user?.has_image}
                   src={getAvatarUrl()}
                   name={getFullName(user)}
                   w={112}
@@ -210,7 +200,6 @@ const Profile = () => {
               {/* Avatar para desktop */}
               <div className={styles.desktopImageContainer}>
                 <Avatar
-                  hasImage={user?.has_image}
                   src={getAvatarUrl()}
                   name={getFullName(user)}
                   w={350}
@@ -342,7 +331,6 @@ const Profile = () => {
       >
         <div className={styles.profileModal}>
           <Avatar
-            hasImage={user?.has_image}
             name={getFullName(user)}
             src={getAvatarUrl()}
             w={100}

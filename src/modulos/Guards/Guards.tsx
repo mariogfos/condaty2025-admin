@@ -3,7 +3,7 @@ import styles from "./Guards.module.css";
 import { useCallback, useEffect, useMemo } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
   IconGuardShield,
@@ -14,6 +14,7 @@ import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import Br from "@/components/Detail/Br";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import RenderForm from "./RenderForm/RenderForm";
 const paramsInitial = {
   perPage: 20,
   page: 1,
@@ -23,7 +24,7 @@ const paramsInitial = {
 };
 
 const Guards = () => {
-  const { userCan, user } = useAuth();
+  const { userCan } = useAuth();
   const mod: ModCrudType = {
     modulo: "guards",
     singular: "guardia",
@@ -58,6 +59,7 @@ const Guards = () => {
         />
       );
     },
+    renderForm: (props: any) => <RenderForm {...props} />,
     renderDel: (props: {
       open: boolean;
       onClose: any;
@@ -78,83 +80,83 @@ const Guards = () => {
     },
   };
 
-  const onBlurCi = useCallback(async (e: any, props: any) => {
-    if (e.target.value.trim() == "") return;
-    const { data, error } = await execute(
-      "/guards",
-      "GET",
-      {
-        fullType: "EXIST",
-        type: "ci",
-        searchBy: e.target.value,
-      },
-      false,
-      true
-    );
+  // const onBlurCi = useCallback(async (e: any, props: any) => {
+  //   if (e.target.value.trim() == "") return;
+  //   const { data, error } = await execute(
+  //     "/guards",
+  //     "GET",
+  //     {
+  //       fullType: "EXIST",
+  //       type: "ci",
+  //       searchBy: e.target.value,
+  //     },
+  //     false,
+  //     true,
+  //   );
 
-    if (data?.success && data.data?.data?.id) {
-      const filteredData = data.data.data;
-      if (filteredData.existCondo) {
-        showToast("El guardia ya existe en este condominio", "warning");
-        props.setItem({});
-        props.setError({ ci: " Ese CI ya esta en uso en este condominio." });
-        return;
-      }
-      props.setError({ ci: "" });
-      props.setItem({
-        ...props.item,
-        ci: filteredData.ci,
-        name: filteredData.name,
-        password: "12345678",
-        middle_name: filteredData.middle_name,
-        last_name: filteredData.last_name,
-        mother_last_name: filteredData.mother_last_name,
-        email: filteredData.email ?? "",
-        phone: filteredData.phone,
-        _disabled: true,
-        _emailDisabled: true,
-      });
-      showToast(
-        "El guardia ya existe en condaty, se va a vincular al condominio",
-        "warning"
-      );
-    } else {
-      props.setError({ ci: "" });
-      props.setItem({
-        ...props.item,
-        _disabled: false,
-        _emailDisabled: false,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  //   if (data?.success && data.data?.data?.id) {
+  //     const filteredData = data.data.data;
+  //     if (filteredData.existCondo) {
+  //       showToast("El guardia ya existe en este condominio", "warning");
+  //       props.setItem({});
+  //       props.setError({ ci: " Ese CI ya esta en uso en este condominio." });
+  //       return;
+  //     }
+  //     props.setError({ ci: "" });
+  //     props.setItem({
+  //       ...props.item,
+  //       ci: filteredData.ci,
+  //       name: filteredData.name,
+  //       password: "12345678",
+  //       middle_name: filteredData.middle_name,
+  //       last_name: filteredData.last_name,
+  //       mother_last_name: filteredData.mother_last_name,
+  //       email: filteredData.email ?? "",
+  //       phone: filteredData.phone,
+  //       _disabled: true,
+  //       _emailDisabled: true,
+  //     });
+  //     showToast(
+  //       "El guardia ya existe en condaty, se va a vincular al condominio",
+  //       "warning",
+  //     );
+  //   } else {
+  //     props.setError({ ci: "" });
+  //     props.setItem({
+  //       ...props.item,
+  //       _disabled: false,
+  //       _emailDisabled: false,
+  //     });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
-  const onBlurEmail = useCallback(async (e: any, props: any) => {
-    if (
-      e.target.value.trim() == "" ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
-    )
-      return;
+  // const onBlurEmail = useCallback(async (e: any, props: any) => {
+  //   if (
+  //     e.target.value.trim() == "" ||
+  //     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
+  //   )
+  //     return;
 
-    const { data, error } = await execute(
-      "/guards",
-      "GET",
-      {
-        fullType: "EXIST",
-        type: "email",
-        searchBy: e.target.value,
-      },
-      false,
-      true
-    );
+  //   const { data, error } = await execute(
+  //     "/guards",
+  //     "GET",
+  //     {
+  //       fullType: "EXIST",
+  //       type: "email",
+  //       searchBy: e.target.value,
+  //     },
+  //     false,
+  //     true,
+  //   );
 
-    if (data?.success && data.data?.data?.id) {
-      showToast("El email ya esta en uso", "warning");
-      props.setError({ email: "El email ya esta en uso" });
-      props.setItem({ ...props.item, email: "" });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  //   if (data?.success && data.data?.data?.id) {
+  //     showToast("El email ya esta en uso", "warning");
+  //     props.setError({ email: "El email ya esta en uso" });
+  //     props.setItem({ ...props.item, email: "" });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   const onDisbled = ({ item, field }: any) => {
     if (field?.name === "email") {
@@ -183,7 +185,7 @@ const Guards = () => {
         form: {
           type: "number",
           disabled: onDisbled,
-          onBlur: onBlurCi,
+          // onBlur: onBlurCi,
           required: true,
         },
         list: false,
@@ -202,12 +204,7 @@ const Guards = () => {
           const cedulaIdentidad = guardia?.ci;
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Avatar
-                src={getUrlImages(
-                  "/GUARD-" + guardia?.id + ".webp?d=" + guardia?.updated_at
-                )}
-                name={nombreCompleto}
-              />
+              <Avatar src={guardia?.url_avatar} name={nombreCompleto} />
               <div>
                 <p
                   style={{
@@ -300,7 +297,7 @@ const Guards = () => {
         form: {
           type: "text",
           disabled: onDisbled,
-          onBlur: onBlurEmail,
+          // onBlur: onBlurEmail,
           onTop: () => {
             return (
               <div style={{ width: "100%" }}>
@@ -319,19 +316,18 @@ const Guards = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { List, setStore, store, showToast, execute, reLoad, data } =
-    useCrud({
-      paramsInitial,
-      mod,
-      fields,
-    });
+  const { List, setStore, store, showToast, execute, reLoad, data } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+  });
 
   useEffect(() => {
     setStore({ ...store, title: "" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (! userCan(mod.permiso, "R")) return <NotAccess />;
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.Guards}>
       <h1 className={styles.title}>Guardias</h1>

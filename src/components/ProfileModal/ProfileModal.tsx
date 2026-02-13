@@ -14,7 +14,7 @@ import {
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./ProfileModal.module.css";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import Authentication from "@/modulos/Profile/Authentication";
 import useAxios from "@/mk/hooks/useAxios";
 import EditProfile from "./EditProfile/EditProfile";
@@ -22,6 +22,7 @@ import GuardEditForm from "./GuardEditForm/GuardEditForm";
 import Button from "@/mk/components/forms/Button/Button";
 import Image from "next/image";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
+import RenderForm from "@/modulos/Guards/RenderForm/RenderForm";
 
 interface ProfileModalProps {
   open: boolean;
@@ -225,9 +226,7 @@ const ProfileModal = ({
   const [portadaError, setPortadaError] = useState(false);
   const getPortadaCliente = () => {
     if (!portadaError) {
-      return getUrlImages(
-        "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at,
-      );
+      return client?.url_banner?.[0];
     }
     return "/assets/images/PortadaEmpty.png";
   };
@@ -354,8 +353,7 @@ const ProfileModal = ({
                     expandable={true}
                     expandableZIndex={10002}
                     expandableIcon={false}
-                    hasImage={1}
-                    src={data?.data[0]?.url_avatar || getUrlImages(urlImages)}
+                    src={data?.data[0]?.url_avatar}
                     name={getFullName(data?.data[0], "NSLM")}
                     w={191}
                     h={191}
@@ -563,7 +561,7 @@ const ProfileModal = ({
                         className={styles.securityButton}
                         onClick={onChangePassword}
                       >
-                        Restablecer contraseña
+                        Restablecer
                       </button>
                     </div>
                   </div>
@@ -612,15 +610,15 @@ const ProfileModal = ({
         {openEdit && (
           <>
             {type === "guard" ? (
-              <GuardEditForm
+              <RenderForm
                 open={openEdit}
                 onClose={() => setOpenEdit(false)}
-                formState={formState}
-                setFormState={setFormState}
-                errors={errors}
-                setErrors={setErrors}
-                reLoad={() => reLoadDet()}
-                reLoadList={reLoad}
+                item={formState}
+                execute={execute}
+                reLoad={() => {
+                  reLoadDet();
+                  if (reLoad) reLoad();
+                }}
               />
             ) : (
               <EditProfile

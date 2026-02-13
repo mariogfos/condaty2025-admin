@@ -173,7 +173,7 @@ const RenderView = ({
           debtDptoId: propItem?.id,
         },
         false,
-        true
+        true,
       );
 
       if (res?.success) {
@@ -229,7 +229,7 @@ const RenderView = ({
         id: propItem?.id,
       },
       false,
-      true
+      true,
     );
     if (file?.success === true && file?.data?.path) {
       const receiptUrl = getUrlImages("/" + file.data.path);
@@ -238,7 +238,7 @@ const RenderView = ({
     } else {
       showToast(
         error?.data?.message || "No se pudo generar el recibo.",
-        "error"
+        "error",
       );
     }
     setLoadingExport(false);
@@ -453,7 +453,7 @@ const RenderView = ({
               parseFloat(
                 hasMaintenanceValue(user)
                   ? item?.maintenance_amount || "0"
-                  : "0"
+                  : "0",
               ),
             debt_dpto_id: item?.id ?? propItem?.id,
             bank_account_id: item?.subcategory?.bank_account_id,

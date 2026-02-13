@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styles from "../Activities.module.css";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { IconExitHome } from "@/components/layout/icons/IconsBiblioteca";
@@ -151,16 +151,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
             return (
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 <div style={{ display: "flex", gap: 8 }}>
-                  <Avatar
-                    hasImage={user?.has_image}
-                    name={getFullName(user)}
-                    src={getUrlImages(
-                      prefix +
-                        user?.id +
-                        ".webp?" +
-                        (user?.updated_at || new Date().toISOString()),
-                    )}
-                  />
+                  <Avatar name={getFullName(user)} src={user?.url_avatar} />
                   {/* </div> */}
                   <div className={styles.avatarText}>
                     <div style={{ color: "var(--cWhite)" }}>
@@ -184,14 +175,8 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
               <div style={{ display: "flex", gap: 8 }}>
                 <div>
                   <Avatar
-                    hasImage={props?.item?.owner?.has_image}
                     name={getFullName(props.item.owner)}
-                    src={getUrlImages(
-                      "/OWNER-" +
-                        props.item?.owner?.id +
-                        ".webp?" +
-                        props.item?.owner?.updated_at,
-                    )}
+                    src={props.item?.owner?.url_avatar}
                   />
                 </div>
                 <div className={styles.avatarText}>
