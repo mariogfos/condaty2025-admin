@@ -199,7 +199,6 @@ export default function ChatInstantDb() {
     setProfileModalOpen(false);
     setSelectedUserId(null);
   };
-  console.log(user);
   return (
     <>
       <div
