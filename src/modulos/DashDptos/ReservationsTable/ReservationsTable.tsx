@@ -1,5 +1,5 @@
 "use client";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+
 import Table from "@/mk/components/ui/Table/Table";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import EmptyData from "@/components/NoData/EmptyData";
@@ -85,16 +85,7 @@ const areaInfoCell = ({ item }: { item: any }) => (
   <div className={styles.areaInfo}>
     <Avatar
       name={item?.area?.title}
-      src={getUrlImages(
-        "/AREA-" +
-          item?.area?.id +
-          "-" +
-          item?.area?.images?.[0]?.id +
-          ".webp" +
-          "?" +
-          item?.area?.updated_at,
-        item?.area?.images?.[0],
-      )}
+      src={item?.area?.images?.[0]}
       w={32}
       h={32}
     />

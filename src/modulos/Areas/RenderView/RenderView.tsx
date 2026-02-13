@@ -1,6 +1,6 @@
 import { Card } from "@/mk/components/ui/Card/Card";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
-import { getUrlImages } from "@/mk/utils/string";
+
 import React, { useEffect, useRef, useState } from "react";
 import { formatNumber } from "../../../mk/utils/numbers";
 import {
@@ -46,12 +46,6 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
     // Si es una URL de Cloudinary (string), usarla directamente
     if (typeof image === "string") {
       return image;
-    }
-    // Si es un objeto de images_local, usar la función getUrlImages
-    if (image?.id) {
-      return getUrlImages(
-        "/AREA-" + item?.id + "-" + image.id + ".webp?" + item?.updated_at,
-      );
     }
     return "";
   };

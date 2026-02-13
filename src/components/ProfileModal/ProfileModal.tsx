@@ -14,7 +14,7 @@ import {
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./ProfileModal.module.css";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import Authentication from "@/modulos/Profile/Authentication";
 import useAxios from "@/mk/hooks/useAxios";
 import EditProfile from "./EditProfile/EditProfile";
@@ -353,8 +353,7 @@ const ProfileModal = ({
                     expandable={true}
                     expandableZIndex={10002}
                     expandableIcon={false}
-                    hasImage={1}
-                    src={data?.data[0]?.url_avatar || getUrlImages(urlImages)}
+                    src={data?.data[0]?.url_avatar}
                     name={getFullName(data?.data[0], "NSLM")}
                     w={191}
                     h={191}

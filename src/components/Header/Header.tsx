@@ -1,5 +1,5 @@
 "use client";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import styles from "./header.module.css";
 import {
@@ -104,7 +104,7 @@ const Header = ({
       <div className={styles["header-title"]}>
         <Avatar
           name={getFullName(user)}
-          src={getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)}
+          src={user?.url_avatar}
           onClick={() => {
             // router.push("/profile");
             setStore({ openProfileModal: true });
@@ -171,10 +171,7 @@ const Header = ({
             name={getFullName(user)}
             h={40}
             w={40}
-            src={
-              user?.url_avatar ||
-              getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)
-            }
+            src={user?.url_avatar}
             onClick={() => {
               setStore({ ...store, openProfileModal: true });
             }}

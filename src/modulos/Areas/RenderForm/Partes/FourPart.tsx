@@ -9,7 +9,6 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import { formatNumber } from "@/mk/utils/numbers";
-import { getUrlImages } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Br from "@/components/Detail/Br";
 
@@ -50,9 +49,7 @@ const FourPart = ({ item }: { item: any }) => {
       item?.images_local?.map((img: any) => ({
         id: img?.id,
         type: "backend",
-        src: getUrlImages(
-          `/AREA-${item?.id}-${img?.id}.webp?${item?.updated_at}`,
-        ),
+        src: img?.url,
       })) || [];
 
     const localAvatars = Object.keys(item?.avatar || {})

@@ -3,7 +3,7 @@ import { Card } from "@/mk/components/ui/Card/Card";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import React from "react";
 import styles from "./PedidosDetail.module.css";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { getDateTimeStrMes } from "@/mk/utils/date";
 import Br from "@/components/Detail/Br";
 
@@ -56,11 +56,8 @@ const PedidosDetail = ({ item, open, onClose }: Props) => {
     >
       <Card>
         <Avatar
-          hasImage={item?.owner?.has_image}
           name={getFullName(item?.owner)}
-          src={getUrlImages(
-            "/OWNER-" + item?.owner?.id + ".webp?" + item?.owner?.updated_at
-          )}
+          src={item?.owner?.url_avatar}
           h={60}
           w={60}
           style={{ marginBottom: 16 }}

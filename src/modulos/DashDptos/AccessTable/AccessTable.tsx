@@ -1,5 +1,5 @@
 "use client";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import Table from "@/mk/components/ui/Table/Table";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
@@ -60,10 +60,7 @@ const leftAccess = (item: any) => {
   if (item?.type === "O") {
     return (
       <Avatar
-        src={getUrlImages(
-          `/OWNER-${item?.owner?.id}.webp?d=${item?.owner?.updated_at}`,
-          item?.owner?.url_avatar,
-        )}
+        src={item?.owner?.url_avatar}
         name={getFullName(item.owner)}
         w={40}
         h={40}
@@ -72,7 +69,6 @@ const leftAccess = (item: any) => {
   }
   return (
     <Avatar
-      hasImage={item?.visit?.has_image}
       name={getFullName(item.visit)}
       w={40}
       h={40}
@@ -84,14 +80,7 @@ const leftAccess = (item: any) => {
 const visitedToCell = ({ item }: { item: any }) => {
   // Priorizar mostrar al residente/propietario (owner)
   const person = item?.owner ?? item?.titular?.owner ?? item?.homeowner ?? null;
-
-  const updatedAtQuery = person?.updated_at ? `?d=${person.updated_at}` : "";
-  const avatarSrc = person?.id
-    ? getUrlImages(
-        `/OWNER-${person.id}.webp${updatedAtQuery}`,
-        person?.url_avatar,
-      )
-    : "";
+  const avatarSrc = person?.id ? person?.url_avatar : "";
 
   return (
     <div className={styles.visitInfo}>

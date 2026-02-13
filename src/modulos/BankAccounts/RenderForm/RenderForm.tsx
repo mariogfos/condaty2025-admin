@@ -4,9 +4,6 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useState, useEffect } from "react";
-import styles from "./RenderForm.module.css";
-import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
-import { getUrlImages } from "@/mk/utils/string";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 
 const RenderForm = ({
@@ -220,27 +217,6 @@ const RenderForm = ({
         error={errors}
         required
       />
-      {/* <div style={{ flex: 1 }}>
-          <UploadFile
-            name="avatar"
-            onChange={handleChange}
-            value={
-              typeof formState?.avatar === "object" || formState?.id
-                ? getUrlImages(
-                    "/BANK-" + formState?.id + ".webp?" + formState?.updated_at,
-                  )
-                : undefined
-            }
-            setError={setErrors}
-            error={errors}
-            img={true}
-            editor={{ width: 1350, height: 568 }}
-            sizePreview={{ width: "650px", height: "284px" }}
-            placeholder="Subir Código QR"
-            ext={["jpg", "png", "jpeg", "webp"]}
-            item={formState}
-          />
-        </div> */}
     </DataModal>
   );
 };

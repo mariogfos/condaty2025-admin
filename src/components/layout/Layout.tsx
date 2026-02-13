@@ -13,7 +13,6 @@ import SideMenu from "@/mk/components/ui/SideMenu/SideMenu";
 import { useEvent } from "@/mk/hooks/useEvents";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getUrlImages } from "@/mk/utils/string";
 import {
   IconAlert,
   IconAmbulance,
@@ -303,14 +302,7 @@ const Layout = ({ children }: any) => {
             }
             left={
               <Avatar
-                hasImage={openAlert?.item?.owner_has_image}
-                src={getUrlImages(
-                  "/OWNER-" +
-                    openAlert?.item?.owner_id +
-                    ".webp?d=" +
-                    openAlert?.item?.owner_updated_at,
-                  openAlert?.item?.url_avatar,
-                )}
+                src={openAlert?.item?.url_avatar}
                 name={openAlert?.item?.owner_name}
               />
             }

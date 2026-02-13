@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { getDateTimeAgo } from "@/mk/utils/date";
 import { IconX } from "@/components/layout/icons/IconsBiblioteca";
 import { Comment } from "../types";
@@ -31,7 +31,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
   setNewCommentText,
   postingComment,
   postCommentError,
-  onPostComment
+  onPostComment,
 }) => {
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -47,7 +47,10 @@ const CommentModal: React.FC<CommentModalProps> = ({
 
   return (
     <div className={styles.commentModalOverlay} onClick={onClose}>
-      <div className={styles.commentModalContent} onClick={e => e.stopPropagation()}>
+      <div
+        className={styles.commentModalContent}
+        onClick={(e) => e.stopPropagation()}
+      >
         <header className={styles.commentModalHeader}>
           <h3 className={styles.commentModalTitle}>Comentarios</h3>
           <button
@@ -61,7 +64,9 @@ const CommentModal: React.FC<CommentModalProps> = ({
 
         <section className={styles.commentModalBody}>
           {loadingComments ? (
-            <div className={styles.loadingComments}>Cargando comentarios...</div>
+            <div className={styles.loadingComments}>
+              Cargando comentarios...
+            </div>
           ) : commentsError ? (
             <div className={styles.commentsError}>
               Error al cargar comentarios. Intenta de nuevo.
@@ -69,22 +74,20 @@ const CommentModal: React.FC<CommentModalProps> = ({
           ) : comments.length > 0 ? (
             <ul className={styles.commentList}>
               {comments.map((comment: Comment) => (
-                <li key={`comment-${comment.id}`} className={styles.commentItem}>
+                <li
+                  key={`comment-${comment.id}`}
+                  className={styles.commentItem}
+                >
                   <Avatar
-                    hasImage={1}
-                    name={comment.user?.name || comment.person?.name || 'Usuario'}
+                    name={
+                      comment.user?.name || comment.person?.name || "Usuario"
+                    }
                     src={
                       comment.user
-                        ? getUrlImages(
-                            `/ADM-${comment.user.id}.webp?d=${comment.user.updated_at || ''}`
-                          )
+                        ? comment.user.url_avatar
                         : comment.person?.id
-                        ? getUrlImages(
-                            `/OWNER-${comment.person.id}.webp?d=${
-                              comment.person.updated_at || ''
-                            }`
-                          )
-                        : undefined
+                          ? comment.person.url_avatar
+                          : undefined
                     }
                     w={32}
                     h={32}
@@ -96,10 +99,13 @@ const CommentModal: React.FC<CommentModalProps> = ({
                         {comment.user?.name
                           ? getFullName(comment.user)
                           : comment.person?.name
-                          ? getFullName(comment.person)
-                          : 'Usuario'}
+                            ? getFullName(comment.person)
+                            : "Usuario"}
                       </span>
-                      <time dateTime={comment.created_at} className={styles.commentDate}>
+                      <time
+                        dateTime={comment.created_at}
+                        className={styles.commentDate}
+                      >
                         {getDateTimeAgo(comment.created_at)}
                       </time>
                     </div>
@@ -110,7 +116,9 @@ const CommentModal: React.FC<CommentModalProps> = ({
               <div ref={commentsEndRef} />
             </ul>
           ) : (
-            <div className={styles.noCommentsYet}>Aún no hay comentarios. ¡Sé el primero!</div>
+            <div className={styles.noCommentsYet}>
+              Aún no hay comentarios. ¡Sé el primero!
+            </div>
           )}
         </section>
 
@@ -119,7 +127,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
             placeholder="Escribe tu comentario..."
             className={styles.commentInput}
             value={newCommentText}
-            onChange={e => setNewCommentText(e.target.value)}
+            onChange={(e) => setNewCommentText(e.target.value)}
             disabled={postingComment}
             rows={3}
           />
@@ -128,10 +136,12 @@ const CommentModal: React.FC<CommentModalProps> = ({
             onClick={onPostComment}
             disabled={postingComment || !newCommentText.trim()}
           >
-            {postingComment ? 'Publicando...' : 'Comentar'}
+            {postingComment ? "Publicando..." : "Comentar"}
           </button>
           {postCommentError && (
-            <p className={styles.commentPostError}>Error al publicar. Intenta de nuevo.</p>
+            <p className={styles.commentPostError}>
+              Error al publicar. Intenta de nuevo.
+            </p>
           )}
         </footer>
       </div>
