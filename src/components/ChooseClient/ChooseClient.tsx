@@ -19,13 +19,18 @@ interface Props {
   onClose: () => void;
 }
 const ChooseClient = ({ open, onClose }: Props) => {
-  const { user, getUser } = useAuth();
+  const { user, getUser, setStore, store } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
   const onClick = async (id: any) => {
     await getUser(id);
     router.push("/");
+    setStore({
+      ...store,
+      reLoadDashboard: true,
+    });
+    onClose();
   };
 
   const renderClient = (c: any) => {
