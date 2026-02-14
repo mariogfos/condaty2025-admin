@@ -19,6 +19,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import Br from "@/components/Detail/Br";
 import useAxios from "@/mk/hooks/useAxios";
+import LinkifyDescription from "@/mk/components/ui/LinkifyDescription/LinkifyDescription";
 
 const RenderView = (props: {
   open: boolean;
@@ -413,7 +414,7 @@ const RenderView = (props: {
               <p
                 className={`${styles.description} ${!isExpanded ? styles.descriptionTruncated : ""}`}
               >
-                {currentData?.description}
+                <LinkifyDescription text={currentData?.description} />
               </p>
 
               {currentData?.description &&
