@@ -3,7 +3,6 @@ import { useEffect, useMemo } from "react";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Documents.module.css";
-import { getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderView from "./RenderView/RenderView";
 import { IconDocs } from "@/components/layout/icons/IconsBiblioteca";
@@ -98,24 +97,6 @@ const Documents = () => {
           ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png"],
           maxSize: 30,
           style: { width: "100%" },
-        },
-        onRender: ({ item }: any) => {
-          return (
-            <a
-              target="_blank"
-              href={getUrlImages(
-                "/DOC-" +
-                  item.id +
-                  "." +
-                  (item.doc?.ext || item.ext) +
-                  "?d=" +
-                  item.updated_at,
-              )}
-              rel="noopener noreferrer"
-            >
-              <p className={styles.viewButton}>Ver archivo</p>
-            </a>
-          );
         },
       },
     }),

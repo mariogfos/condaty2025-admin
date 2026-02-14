@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { getDateStrMes } from "@/mk/utils/date";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import styles from "./HistoryOwnership.module.css";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
@@ -29,7 +29,7 @@ const HistoryOwnership = ({
         searchTerm === "" ||
         getFullName(titular?.owner)
           .toUpperCase()
-          .includes(searchTerm.toUpperCase())
+          .includes(searchTerm.toUpperCase()),
     );
     setFilteredData(filtered);
   };
@@ -75,10 +75,7 @@ const HistoryOwnership = ({
               >
                 <div className={styles.titularInfo}>
                   <Avatar
-                    hasImage={titular?.owner?.has_image}
-                    src={getUrlImages(
-                      `/OWNER-${titular?.owner?.id}.webp?d=${titular?.owner?.updated_at}`
-                    )}
+                    src={titular?.owner?.url_avatar}
                     name={getFullName(titular?.owner)}
                     className={styles.avatar}
                   />

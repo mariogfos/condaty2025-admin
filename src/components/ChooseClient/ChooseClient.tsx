@@ -11,7 +11,6 @@ import {
 import styles from "./ChooseClient.module.css";
 import List from "@/mk/components/ui/List/List";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getUrlImages } from "@/mk/utils/string";
 import Input from "@/mk/components/forms/Input/Input";
 import Button from "@/mk/components/forms/Button/Button";
 
@@ -45,7 +44,6 @@ const ChooseClient = ({ open, onClose }: Props) => {
           <Avatar
             src={c.url_banner?.[0]}
             name={c.name}
-            hasImage={c.has_image}
             style={{ width: 40, height: 40, borderRadius: "50%" }}
           />
           <div className={styles.clientText}>

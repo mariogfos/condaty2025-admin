@@ -4,7 +4,7 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Contents.module.css";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useEffect, useMemo, useState } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import {
   IconComment,
   IconDocs,
@@ -48,33 +48,6 @@ const lType = [
   { id: "V", name: "Video", ext: "mp4" },
   { id: "D", name: "Documento", ext: "pdf,doc,docx" },
 ];
-
-const rigthFile = (data: {
-  key: string;
-  user?: Record<string, any>;
-  item: Record<string, any>;
-}) => {
-  if (!data.item.url) return null;
-  return (
-    <IconDownload
-      size={40}
-      color={"white"}
-      onClick={() => {
-        window.open(
-          getUrlImages(
-            "/CONT-" +
-              data.item.id +
-              "." +
-              data.item.url +
-              "?" +
-              data.item.updated_at,
-          ),
-          "_blank",
-        );
-      }}
-    />
-  );
-};
 
 const getTypefilter = () => [
   { id: "ALL", name: "Todos" },
@@ -261,19 +234,11 @@ const Contents = () => {
             const nombreCompleto = getFullName(user || owner);
             const cedulaIdentidad = user?.ci || owner?.ci;
 
-            const urlAvatar = user
-              ? getUrlImages(
-                  "/ADM-" + user?.id + ".webp?d=" + user?.updated_at,
-                  user?.url_avatar,
-                )
-              : getUrlImages(
-                  "/OWNER-" + owner?.id + ".webp?d=" + owner?.updated_at,
-                  owner?.url_avatar,
-                );
+            const urlAvatar = user ? user?.url_avatar : owner?.url_avatar;
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar hasImage={1} src={urlAvatar} name={nombreCompleto} />
+                <Avatar src={urlAvatar} name={nombreCompleto} />
                 <div>
                   <p
                     style={{
@@ -390,7 +355,7 @@ const Contents = () => {
         onHide: isType,
         form: {
           type: "fileUpload",
-          onRigth: rigthFile,
+          // onRigth: rigthFile,
           style: { width: "100%" },
         },
       },

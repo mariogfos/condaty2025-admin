@@ -3,7 +3,7 @@ import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo, useState } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import RenderView from "./RenderView/RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
@@ -17,13 +17,7 @@ const DateCell = ({ createdAt }: { createdAt: string }) => {
 const GuardCell = ({ guardia }: { guardia: any }) => {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <Avatar
-        hasImage={guardia.has_image}
-        src={getUrlImages(
-          "/GUARD-" + guardia.id + ".webp?d=" + guardia.updated_at,
-        )}
-        name={getFullName(guardia)}
-      />
+      <Avatar src={guardia?.url_avatar} name={getFullName(guardia)} />
       <div>
         <p>{getFullName(guardia)} </p>
         <p>CI: {guardia?.ci}</p>

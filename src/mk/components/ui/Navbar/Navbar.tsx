@@ -8,10 +8,8 @@ import {
   IconSetting,
 } from "@/components/layout/icons/IconsBiblioteca";
 import { Avatar } from "../Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-// import useScreenSize from "@/mk/hooks/useScreenSize";
-import Dropdown from "../Dropdown/Dropdown";
 
 const Navbar = ({
   client,
@@ -56,11 +54,8 @@ const Navbar = ({
             ) : (
               <head>
                 <Avatar
-                  hasImage={user.has_image}
                   name={getFullName(user)}
-                  src={getUrlImages(
-                    "/ADM-" + user?.id + ".png?d=" + user?.updated_at
-                  )}
+                  src={user?.url_avatar}
                   onClick={() => {
                     router.push("/profile");
                   }}
@@ -88,11 +83,8 @@ const Navbar = ({
         </span>
         <section>
           <Avatar
-            hasImage={user.has_image}
             name={getFullName(user)}
-            src={getUrlImages(
-              "/ADM-" + user?.id + ".png?d=" + user?.updated_at
-            )}
+            src={user?.url_avatar}
             onClick={() => {
               setOpenModal("profile");
             }}
@@ -104,12 +96,7 @@ const Navbar = ({
             <p>Administración</p>
           </div>
         </section>
-        <a>
-          {/* <Dropdown trigger={<IconArrowDown />}>
-            <p onClick={() => setOpenModal("profile")}>Mi perfil</p>
-            <p onClick={handleLogout}>Cerrar sesión</p>
-          </Dropdown> */}
-        </a>
+        <a></a>
       </header>
     </>
   );

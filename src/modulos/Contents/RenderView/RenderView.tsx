@@ -201,21 +201,8 @@ const RenderView = (props: {
     currentData?.files?.length > 0;
 
   const urlAvatar = currentData?.user
-    ? getUrlImages(
-        "/ADM-" +
-          currentData?.user?.id +
-          ".webp?d=" +
-          currentData?.user?.updated_at,
-        currentData?.user?.url_avatar,
-      )
-    : getUrlImages(
-        "/OWNER-" +
-          currentData?.owner?.id +
-          ".webp?d=" +
-          currentData?.owner?.updated_at,
-        currentData?.owner?.url_avatar,
-      );
-  console.log(currentData);
+    ? currentData?.user?.url_avatar
+    : currentData?.owner?.url_avatar;
   return (
     <DataModal
       open={props.open}
@@ -403,7 +390,6 @@ const RenderView = (props: {
           <div className={styles.contentContainer}>
             <div className={styles.userSection}>
               <Avatar
-                hasImage={1}
                 name={getFullName(currentData?.user || currentData?.owner)}
                 src={urlAvatar}
                 w={48}

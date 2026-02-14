@@ -3,7 +3,7 @@ import styles from "./Guards.module.css";
 import { useCallback, useEffect, useMemo } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
   IconGuardShield,
@@ -204,13 +204,7 @@ const Guards = () => {
           const cedulaIdentidad = guardia?.ci;
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Avatar
-                src={getUrlImages(
-                  "/GUARD-" + guardia?.id + ".webp?d=" + guardia?.updated_at,
-                  guardia?.url_avatar,
-                )}
-                name={nombreCompleto}
-              />
+              <Avatar src={guardia?.url_avatar} name={nombreCompleto} />
               <div>
                 <p
                   style={{

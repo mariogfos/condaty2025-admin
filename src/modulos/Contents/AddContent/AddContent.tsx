@@ -8,7 +8,6 @@ import {
   IconGallery,
   IconVideo,
 } from "@/components/layout/icons/IconsBiblioteca";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Radio from "@/mk/components/forms/Ratio/Radio";
 import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
@@ -16,10 +15,8 @@ import CardContent from "./CardContent";
 import Button from "@/mk/components/forms/Button/Button";
 import Preview from "./Preview";
 import ModalDestiny from "./ModalDestiny";
-import UploadFileMultiple from "@/mk/components/forms/UploadFile/UploadFileMultiple";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TagContents from "./TagContents";
-import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 import Br from "@/components/Detail/Br";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 
