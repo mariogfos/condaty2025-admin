@@ -3,7 +3,7 @@ import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo, useState } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import styles from "./Reserva.module.css";
@@ -69,7 +69,7 @@ const Reserva = () => {
     const imageUrl = area?.images?.[0];
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Avatar src={imageUrl} hasImage={2} name={areaName} />
+        <Avatar src={imageUrl} name={areaName} />
         <p
           style={{
             color: "var(--cWhite)",
@@ -91,13 +91,7 @@ const Reserva = () => {
 
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Avatar
-          src={getUrlImages(
-            `/OWNER-${owner?.id}.webp?d=${owner?.updated_at || Date.now()}`,
-            owner?.url_avatar,
-          )}
-          name={ownerName}
-        />
+        <Avatar src={owner?.url_avatar} name={ownerName} />
         <div>
           <p
             style={{

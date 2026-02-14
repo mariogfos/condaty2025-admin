@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
   IconAdmin,
@@ -141,16 +141,13 @@ const Alerts = () => {
     const updatedAt = entityToDisplay?.updated_at;
     const avatarSrc =
       entityId && avatarTypePrefix && updatedAt
-        ? getUrlImages(
-            `/${avatarTypePrefix}${entityId}.webp?d=${updatedAt}`,
-            entityToDisplay?.url_avatar,
-          )
+        ? entityToDisplay?.url_avatar
         : null;
 
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {avatarSrc ? (
-          <Avatar hasImage={1} src={avatarSrc} name={fullName} />
+          <Avatar src={avatarSrc} name={fullName} />
         ) : (
           <Avatar
             name={

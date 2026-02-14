@@ -1,6 +1,6 @@
 import React from "react";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { getDateTimeAgo } from "@/mk/utils/date";
 import {
   IconComment,
@@ -55,15 +55,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
     return newsItems.findIndex((newsItem) => newsItem.id === currentItem.id);
   };
   const urlAvatar = (item: any) => {
-    return item.user
-      ? getUrlImages(
-          `/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`,
-          item?.user?.url_avatar,
-        )
-      : getUrlImages(
-          `/OWNER-${item.owner?.id}.webp?d=${item.owner?.updated_at}`,
-          item?.owner?.url_avatar,
-        );
+    return item.user ? item?.user?.url_avatar : item?.owner?.url_avatar;
   };
   console.log(items);
   return (
@@ -91,8 +83,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
             <header className={styles.contentHeader}>
               <div className={styles.userInfo}>
                 <Avatar
-                  hasImage={1}
-                  name={getFullName(item.user)}
+                  name={getFullName(item.user ? item.user : item.owner)}
                   src={urlAvatar(item)}
                   w={40}
                   h={40}
@@ -174,12 +165,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                         }}
                       >
                         <img
-                          src={
-                            item?.files?.[0] ||
-                            getUrlImages(
-                              `/CONT-${item.id}-${item.images[0].id}.webp?d=${item.updated_at}`,
-                            )
-                          }
+                          src={item?.files?.[0]}
                           alt={item.title || "Imagen de noticia"}
                           className={styles.newsImage}
                         />

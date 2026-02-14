@@ -81,7 +81,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
         categoryName = subCategoryData.padre.name || "-/-";
       } else if (subCategoryData.category_id && extraData?.categories) {
         const parentCategory = extraData.categories.find(
-          (c) => c.id === subCategoryData.category_id
+          (c) => c.id === subCategoryData.category_id,
         );
         categoryName = parentCategory ? parentCategory.name : "-/-";
       } else {
@@ -90,12 +90,12 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
       }
     } else if (item?.category_id && extraData?.categories) {
       const foundCategory = extraData.categories.find(
-        (c) => c.id === item.category_id
+        (c) => c.id === item.category_id,
       );
       if (foundCategory) {
         if (foundCategory.category_id) {
           const parentCategory = extraData.categories.find(
-            (c) => c.id === foundCategory.category_id
+            (c) => c.id === foundCategory.category_id,
           );
           categoryName = parentCategory ? parentCategory.name : "-/-";
           subCategoryName = foundCategory.name;
@@ -145,7 +145,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
       "POST",
       { id: item?.id },
       false,
-      true
+      true,
     );
 
     if (file?.success === true && file?.data?.path) {
@@ -154,7 +154,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
     } else {
       showToast(
         error?.data?.message || "No se pudo generar la nota de egreso.",
-        "error"
+        "error",
       );
     }
   };
@@ -195,7 +195,6 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
       maxWidth={980}
       headerDivider={false}
     >
-      
       <div className={styles.container}>
         <div className={styles.headerSection}>
           <div className={styles.amountDisplay}>{formatBs(item.amount)}</div>
@@ -203,7 +202,6 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
             {formatToDayFdMYH(item.date_at)}
           </div>
         </div>
-
       </div>
       <div className={styles.container}>
         {/* Contenedor de la sección de detalles, usará flex para centrar las columnas */}
@@ -245,7 +243,6 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
                 </span>
               </div>
             )}
-            
           </div>
           {/* Columna Central */}
           <div className={styles.detailsColumn}>
@@ -255,7 +252,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
                 {((item.description || "-/-").match(/.{1,20}/g) || []).map(
                   (line, idx) => (
                     <span key={idx}>{line}</span>
-                  )
+                  ),
                 )}
               </span>
             </div>
@@ -289,7 +286,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
                 {getStatusText(item.status)}
               </span>
             </div>
-            
+
             {item.status === "X" && item.canceled_obs && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Motivo de anulación</span>
@@ -300,7 +297,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
                 </span>
               </div>
             )}
-            
+
             {item?.bank_account_id && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Número de cuenta</span>
@@ -313,11 +310,9 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
             )}
           </div>
         </section>
-
       </div>
 
       <div className={styles.voucherButtonContainer}>
-
         {item && onDel && item.status !== "X" && (
           <Button
             variant="danger"
@@ -334,7 +329,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
           className={styles.voucherButton}
           style={{ marginRight: item.ext ? 8 : 0 }}
           onClick={handleGenerateReceipt}
-          >
+        >
           Descargar nota de egreso
         </Button>
 
@@ -346,10 +341,10 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
               openFileInNewTab(
                 `/EXPENSE-${item.id}.${item.ext}?d=${
                   item.updated_at || Date.now()
-                }`
+                }`,
               )
             }
-            >
+          >
             Ver comprobante
           </Button>
         )}

@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import { getUrlImages } from "@/mk/utils/string";
 import { ContentItem } from "../types";
 import ImageMosaic from "../ImageMosaic/ImageMosaic";
 import { IconPdfPro } from "@/components/layout/icons/IconsBiblioteca";
@@ -56,12 +55,7 @@ const MediaRenderer: React.FC<MediaRendererProps> = ({
   // Render
   if (item.type === "I" && hasImages) {
     if (normalizedImages.length === 1) {
-      const imageSrc =
-        typeof normalizedImages[0] === "string"
-          ? normalizedImages[0]
-          : getUrlImages(
-              `/CONT-${item.id}-${normalizedImages[0].id}.webp?d=${item.updated_at || ""}`,
-            );
+      const imageSrc: any = normalizedImages[0];
 
       return (
         <div className={styles.contentMediaContainer}>
@@ -139,10 +133,8 @@ const MediaRenderer: React.FC<MediaRendererProps> = ({
   }
 
   // Documento
-  if (item.type === "D" && item.url) {
-    const documentUrl = getUrlImages(
-      `/CONT-${item.id}.${item.url}?${item.updated_at || ""}`,
-    );
+  if (item.type === "D" && item?.files?.length > 0) {
+    const documentUrl = item.files?.[0];
 
     return (
       <div className={styles.contentMediaContainer}>

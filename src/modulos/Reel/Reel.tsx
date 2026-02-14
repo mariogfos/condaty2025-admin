@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import styles from "./Reel.module.css";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { getDateTimeAgo } from "@/mk/utils/date";
 import {
   IconComment,
@@ -522,15 +522,7 @@ const Reel = () => {
   }
 
   const urlAvatar = (item: ContentItem) => {
-    let img = item.user
-      ? getUrlImages(
-          "/ADM-" + item.user?.id + ".webp?d=" + item.user?.updated_at,
-          item.user?.url_avatar,
-        )
-      : getUrlImages(
-          "/OWNER-" + item.owner?.id + ".webp?d=" + item.owner?.updated_at,
-          item.owner?.url_avatar,
-        );
+    let img = item.user ? item.user?.url_avatar : item.owner?.url_avatar;
     return img;
   };
 
@@ -550,7 +542,6 @@ const Reel = () => {
                 <header className={styles.contentHeader}>
                   <div className={styles.userInfo}>
                     <Avatar
-                      hasImage={1}
                       name={getFullName(item.user)}
                       src={urlAvatar(item)}
                       w={44}
@@ -642,12 +633,7 @@ const Reel = () => {
                             aria-label={`Ver imagen completa de ${item.title || "noticia"}`}
                           >
                             <img
-                              src={
-                                item?.files?.[0] ||
-                                getUrlImages(
-                                  `/CONT-${item.id}-${item.images[0].id}.webp?d=${item.updated_at}`,
-                                )
-                              }
+                              src={item?.files?.[0]}
                               alt={item.title || "Imagen de noticia"}
                               className={styles.newsImage}
                               style={{
