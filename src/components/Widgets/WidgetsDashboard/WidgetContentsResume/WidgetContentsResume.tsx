@@ -8,6 +8,7 @@ import EmptyData from "@/components/NoData/EmptyData";
 import { IconPublicacion } from "@/components/layout/icons/IconsBiblioteca";
 import { useRouter } from "next/navigation";
 import { ContentItem } from "@/modulos/Reel/types";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const WidgetContentsResume = ({
   onOpenRenderView,
@@ -16,6 +17,7 @@ const WidgetContentsResume = ({
 }) => {
   const [contents, setContents] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { store, setStore } = useAuth();
   const { data, loaded, error, reLoad } = useAxios(
     "/contents",
     "GET",
@@ -25,14 +27,19 @@ const WidgetContentsResume = ({
       fullType: "L",
       searchBy: "",
     },
-    false
+    false,
   );
   const router = useRouter();
 
   useEffect(() => {
+    if (!store?.reLoadDashboard) return;
     reLoad();
+    setStore({
+      ...store,
+      reLoadDashboard: false,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [store?.reLoadDashboard]);
 
   useEffect(() => {
     if (!loaded && loading) return;
