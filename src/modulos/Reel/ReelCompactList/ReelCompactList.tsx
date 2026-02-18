@@ -137,16 +137,14 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   )}
                 </div>
                 <div className={styles.newsMediaContent}>
-                  {(item?.images?.length > 0 || item?.files?.length > 0) && (
+                  {item?.files?.length > 0 && (
                     <div className={styles.newsImageContainer}>
-                      {/* Contador de imágenes - solo si hay más de una */}
-                      {item.images.length > 1 && (
+                      {item.files.length > 1 && (
                         <div className={styles.newsImageCounter}>
-                          +{item.images.length}
+                          +{item.files.length}
                         </div>
                       )}
 
-                      {/* Imagen principal - siempre la primera */}
                       <div
                         className={styles.newsImageWrapper}
                         onClick={(e) => {
@@ -165,7 +163,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                         }}
                       >
                         <img
-                          src={item?.files?.[0]}
+                          src={item.files[0]}
                           alt={item.title || "Imagen de noticia"}
                           className={styles.newsImage}
                         />

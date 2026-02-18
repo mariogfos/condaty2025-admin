@@ -17,20 +17,15 @@ const MediaRenderer: React.FC<MediaRendererProps> = ({
   modoCompacto = false,
   onImageClick,
 }) => {
-  // Normalizamos las imágenes (files > images)
   const normalizedImages = React.useMemo(() => {
-    if (item.files && Array.isArray(item.files) && item.files.length > 0) {
-      return item?.files.filter(
-        (url): url is string => typeof url === "string" && url.trim() !== "",
-      );
+    if (!Array.isArray(item.files) || item.files.length === 0) {
+      return [];
     }
 
-    if (item.images && Array.isArray(item.images) && item.images.length > 0) {
-      return item.images; // pasamos los objetos originales
-    }
-
-    return [];
-  }, [item.files, item.images]);
+    return item.files.filter(
+      (url): url is string => typeof url === "string" && url.trim() !== "",
+    );
+  }, [item.files]);
 
   const hasImages = normalizedImages.length > 0;
 
