@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import styles from "./Reel.module.css";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { getDateTimeAgo } from "@/mk/utils/date";
 import {
   IconComment,
@@ -22,6 +22,7 @@ import MediaRenderer from "./MediaRenderer/MediaRenderer";
 import ReelCompactList from "./ReelCompactList/ReelCompactList";
 import CommentModal from "./CommentModal/CommentModal";
 import { ContentItem, Comment } from "./types";
+import LinkifyDescription from "@/mk/components/ui/LinkifyDescription/LinkifyDescription";
 
 const Reel = () => {
   const { user, showToast } = useAuth();
@@ -521,15 +522,7 @@ const Reel = () => {
   }
 
   const urlAvatar = (item: ContentItem) => {
-    let img = item.user
-      ? getUrlImages(
-          "/ADM-" + item.user?.id + ".webp?d=" + item.user?.updated_at,
-          item.user?.url_avatar,
-        )
-      : getUrlImages(
-          "/OWNER-" + item.owner?.id + ".webp?d=" + item.owner?.updated_at,
-          item.owner?.url_avatar,
-        );
+    let img = item.user ? item.user?.url_avatar : item.owner?.url_avatar;
     return img;
   };
 
@@ -549,7 +542,6 @@ const Reel = () => {
                 <header className={styles.contentHeader}>
                   <div className={styles.userInfo}>
                     <Avatar
-                      hasImage={1}
                       name={getFullName(item.user)}
                       src={urlAvatar(item)}
                       w={44}
@@ -579,9 +571,16 @@ const Reel = () => {
                         {item.description ? (
                           <p className={styles.newsDescription}>
                             {item?.isDescriptionExpanded ||
-                            item?.description?.length <= 200
-                              ? item?.description
-                              : `${item?.description?.substring(0, 200)}...`}
+                            item?.description?.length <= 200 ? (
+                              <LinkifyDescription text={item?.description} />
+                            ) : (
+                              <>
+                                <LinkifyDescription
+                                  text={item?.description?.substring(0, 200)}
+                                />
+                                ...
+                              </>
+                            )}
                           </p>
                         ) : (
                           <p className={styles.newsDescription}>
@@ -634,12 +633,7 @@ const Reel = () => {
                             aria-label={`Ver imagen completa de ${item.title || "noticia"}`}
                           >
                             <img
-                              src={
-                                item?.files?.[0] ||
-                                getUrlImages(
-                                  `/CONT-${item.id}-${item.images[0].id}.webp?d=${item.updated_at}`,
-                                )
-                              }
+                              src={item?.files?.[0]}
                               alt={item.title || "Imagen de noticia"}
                               className={styles.newsImage}
                               style={{
@@ -660,9 +654,16 @@ const Reel = () => {
                       <div>
                         <p className={styles.contentDescription}>
                           {item?.isDescriptionExpanded ||
-                          item?.description?.length <= 150
-                            ? item?.description
-                            : `${item?.description?.substring(0, 150)}...`}
+                          item?.description?.length <= 150 ? (
+                            <LinkifyDescription text={item?.description} />
+                          ) : (
+                            <>
+                              <LinkifyDescription
+                                text={item?.description?.substring(0, 150)}
+                              />
+                              ...
+                            </>
+                          )}
                         </p>
                         {item?.description?.length > 150 && (
                           <button

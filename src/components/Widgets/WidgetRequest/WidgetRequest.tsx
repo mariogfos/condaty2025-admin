@@ -101,13 +101,7 @@ const RequestWidget: React.FC<RequestWidgetProps> = ({
           <div key={item.id || index} className={styles.item}>
             <div className={styles.avatar}>
               {item.imageUrl ? (
-                <Avatar
-                  hasImage={1}
-                  src={item.imageUrl}
-                  name={item.name}
-                  w={48}
-                  h={48}
-                />
+                <Avatar src={item.imageUrl} name={item.name} w={48} h={48} />
               ) : (
                 <div className={styles.initialsAvatar}>
                   <span>{getInitials(item.name)}</span>

@@ -31,6 +31,7 @@ export type CommentUser = {
   mother_last_name?: string;
   updated_at?: string;
   has_image?: any;
+  url_avatar?: string;
 };
 
 export type Comment = {

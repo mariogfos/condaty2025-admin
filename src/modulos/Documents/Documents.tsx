@@ -3,12 +3,12 @@ import { useEffect, useMemo } from "react";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Documents.module.css";
-import { getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderView from "./RenderView/RenderView";
 import { IconDocs } from "@/components/layout/icons/IconsBiblioteca";
+import RenderForm from "./RenderForm/RenderForm";
 
-const lOptions = [
+export const lOptionsFortoDocument = [
   { id: "A", name: "Guardias y residentes" },
   { id: "O", name: "Residentes" },
   { id: "G", name: "Guardias" },
@@ -39,6 +39,7 @@ const Documents = () => {
       noWaiting?: boolean;
       reLoad?: any;
     }) => <RenderView {...props} />,
+    renderForm: (props: any) => <RenderForm {...props} />,
   };
 
   const paramsInitial = {
@@ -58,21 +59,24 @@ const Documents = () => {
         form: { type: "text" },
         list: { width: "280" },
       },
-      ext: {
-        rules: [],
-        api: "ae",
-        label: "Extensión",
-        list: false,
-      },
-      
+      // ext: {
+      //   rules: [],
+      //   api: "a*e*",
+      //   label: "Extensión",
+      //   list: false,
+      // },
+
       for_to: {
         rules: ["required"],
         api: "ae*",
         label: "Visible para",
-        form: { type: "select", options: lOptions },
+        form: { type: "select", options: lOptionsFortoDocument },
         list: { width: "280" },
         filter: {
-          options: () => [{ id: "ALL", name: "Todos" }, ...lOptions],
+          options: () => [
+            { id: "ALL", name: "Todos" },
+            ...lOptionsFortoDocument,
+          ],
         },
       },
       descrip: {
@@ -86,35 +90,17 @@ const Documents = () => {
         rules: ["required"],
         api: "ae*",
         label: "Archivo",
-        prefix: 'DOC-',
+        prefix: "DOC-",
         form: {
-          onchange: '',
+          onchange: "",
           type: "fileUpload",
           ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png"],
           maxSize: 30,
           style: { width: "100%" },
         },
-        onRender: ({ item }: any) => {
-          return (
-            <a
-              target="_blank"
-              href={getUrlImages(
-                "/DOC-" +
-                  item.id +
-                  "." +
-                  (item.doc?.ext || item.ext) +
-                  "?d=" +
-                  item.updated_at
-              )}
-              rel="noopener noreferrer"
-            >
-              <p className={styles.viewButton}>Ver archivo</p>
-            </a>
-          );
-        },
       },
     }),
-    []
+    [],
   );
 
   useEffect(() => {

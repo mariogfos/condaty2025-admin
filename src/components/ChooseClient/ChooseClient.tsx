@@ -11,7 +11,6 @@ import {
 import styles from "./ChooseClient.module.css";
 import List from "@/mk/components/ui/List/List";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getUrlImages } from "@/mk/utils/string";
 import Input from "@/mk/components/forms/Input/Input";
 import Button from "@/mk/components/forms/Button/Button";
 
@@ -20,13 +19,18 @@ interface Props {
   onClose: () => void;
 }
 const ChooseClient = ({ open, onClose }: Props) => {
-  const { user, getUser } = useAuth();
+  const { user, getUser, setStore, store } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
   const onClick = async (id: any) => {
     await getUser(id);
     router.push("/");
+    setStore({
+      ...store,
+      reLoadDashboard: true,
+    });
+    onClose();
   };
 
   const renderClient = (c: any) => {
@@ -38,9 +42,8 @@ const ChooseClient = ({ open, onClose }: Props) => {
       >
         <div className={styles.clientInfo}>
           <Avatar
-            src={getUrlImages("/CLIENT-" + c.id + ".webp?d=")}
+            src={c.url_banner?.[0]}
             name={c.name}
-            hasImage={c.has_image}
             style={{ width: 40, height: 40, borderRadius: "50%" }}
           />
           <div className={styles.clientText}>

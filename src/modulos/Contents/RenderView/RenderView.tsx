@@ -19,6 +19,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import Br from "@/components/Detail/Br";
 import useAxios from "@/mk/hooks/useAxios";
+import LinkifyDescription from "@/mk/components/ui/LinkifyDescription/LinkifyDescription";
 
 const RenderView = (props: {
   open: boolean;
@@ -183,6 +184,9 @@ const RenderView = (props: {
   }, [props.onOpenComments, currentData]);
 
   const getDocumentUrl = () => {
+    if (currentData?.files?.length > 0) {
+      return currentData?.files?.[0];
+    }
     if (currentData?.type === "D" && currentData?.id && currentData?.url) {
       return getUrlImages(
         `/CONT-${currentData.id}.pdf?d=${currentData.updated_at}`,
@@ -192,26 +196,14 @@ const RenderView = (props: {
   };
 
   const hasDocument = () =>
-    currentData?.type === "D" &&
-    currentData?.url &&
-    currentData?.url !== "null";
+    (currentData?.type === "D" &&
+      currentData?.url &&
+      currentData?.url !== "null") ||
+    currentData?.files?.length > 0;
 
   const urlAvatar = currentData?.user
-    ? getUrlImages(
-        "/ADM-" +
-          currentData?.user?.id +
-          ".webp?d=" +
-          currentData?.user?.updated_at,
-        currentData?.user?.url_avatar,
-      )
-    : getUrlImages(
-        "/OWNER-" +
-          currentData?.owner?.id +
-          ".webp?d=" +
-          currentData?.owner?.updated_at,
-        currentData?.owner?.url_avatar,
-      );
-  console.log(currentData);
+    ? currentData?.user?.url_avatar
+    : currentData?.owner?.url_avatar;
   return (
     <DataModal
       open={props.open}
@@ -359,7 +351,8 @@ const RenderView = (props: {
                         (currentData?.description?.length > 100 ? "..." : "")
                       : "El documento fue eliminado y no se pudo cargar."}
                   </p>
-                  {hasDocument() && getDocumentUrl() && (
+                  {(currentData?.files?.length > 0 ||
+                    (hasDocument() && getDocumentUrl())) && (
                     <a
                       href={getDocumentUrl() ?? undefined}
                       target="_blank"
@@ -398,7 +391,6 @@ const RenderView = (props: {
           <div className={styles.contentContainer}>
             <div className={styles.userSection}>
               <Avatar
-                hasImage={1}
                 name={getFullName(currentData?.user || currentData?.owner)}
                 src={urlAvatar}
                 w={48}
@@ -422,7 +414,7 @@ const RenderView = (props: {
               <p
                 className={`${styles.description} ${!isExpanded ? styles.descriptionTruncated : ""}`}
               >
-                {currentData?.description}
+                <LinkifyDescription text={currentData?.description} />
               </p>
 
               {currentData?.description &&

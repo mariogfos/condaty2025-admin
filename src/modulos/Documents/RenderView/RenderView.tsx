@@ -1,8 +1,11 @@
 import styles from "./RenderView.module.css";
-import { getUrlImages } from "@/mk/utils/string";
 import { getFullName } from "../../../mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { IconPDF, IconJPG, IconDOC } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconPDF,
+  IconJPG,
+  IconDOC,
+} from "@/components/layout/icons/IconsBiblioteca";
 import { Card } from "@/mk/components/ui/Card/Card";
 import ContainerDetail from "@/components/Detail/ContainerDetail";
 import LabelValueDetail from "@/components/Detail/LabelValueDetail";
@@ -19,20 +22,12 @@ const RenderView = (props: {
     O: { name: "Residentes" },
     G: { name: "Guardias" },
     A: { name: "Guardias y residentes" },
-
   };
 
   const handleDownload = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
 
-    const url = getUrlImages(
-      "/DOC-" +
-        props?.item?.id +
-        "." +
-        (props?.item?.doc?.ext || props?.item?.ext) +
-        "?d=" +
-        props?.item?.updated_at
-    );
+    const url = props?.item?.files[0] || "";
 
     const fileName = `documento-${props?.item?.id}.${
       props?.item?.doc?.ext || props?.item?.ext
@@ -57,8 +52,8 @@ const RenderView = (props: {
       window.location.href = url;
     }
   };
-
-  const iconNameExtension = props?.item?.ext;
+  const iconNameExtension =
+    props?.item?.files[0]?.split(".").pop()?.toLowerCase() ?? "";
 
   return (
     <DataModal
@@ -68,7 +63,7 @@ const RenderView = (props: {
       buttonText=""
       buttonCancel=""
       className={styles.renderView}
-      variant={'mini'}
+      variant={"mini"}
     >
       <Card>
         <section>
@@ -82,23 +77,25 @@ const RenderView = (props: {
               justifyContent: "center",
             }}
           >
-
             {(() => {
               switch (iconNameExtension?.toLowerCase()) {
                 case "pdf":
-                  return <IconPDF color={"var(--cBlack)"} viewBox="0 0 18 24" />;
+                  return (
+                    <IconPDF color={"var(--cBlack)"} viewBox="0 0 18 24" />
+                  );
                 case "doc":
                 case "docx":
                 case "xls":
                 case "xlsx":
-                  return <IconDOC color={"var(--cBlack)"}  />;
+                  return <IconDOC color={"var(--cBlack)"} />;
                 case "webp":
-                  return <IconJPG color={"var(--cBlack)"} viewBox="0 0 18 24" />;
+                  return (
+                    <IconJPG color={"var(--cBlack)"} viewBox="0 0 18 24" />
+                  );
                 default:
                   return <IconDOC color={"var(--cBlack)"} />;
               }
             })()}
-            
           </div>
 
           <div>{props?.item?.name}</div>
@@ -106,13 +103,17 @@ const RenderView = (props: {
         <Br />
 
         <ContainerDetail>
+          <LabelValueDetail
+            value={getFullName(props?.item?.user)}
+            label="Subido por"
+          />
 
-          <LabelValueDetail value={getFullName(props?.item?.user)} label="Subido por"/>
-          
-          <LabelValueDetail value={DocDestiny[props?.item?.for_to]?.name} label="Segmentación" />
+          <LabelValueDetail
+            value={DocDestiny[props?.item?.for_to]?.name}
+            label="Segmentación"
+          />
 
           <LabelValueDetail value={props?.item?.descrip} label="Descripción" />
-
         </ContainerDetail>
         <Br />
 

@@ -1,274 +1,49 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styles from "./Config.module.css";
 import useAxios from "@/mk/hooks/useAxios";
-
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import DefaulterConfig from "./DefaulterConfig/DefaulterConfig";
 import PaymentsConfig from "./PaymentsConfig/PaymentsConfig";
 import DptoConfig from "./DptoConfig/DptoConfig";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
-import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
-
+const paramsInitial = {
+  perPage: -1,
+  page: 1,
+  extraData: true,
+};
 const Config = () => {
-  const [formState, setFormState]: any = useState({});
-  const [errorImage, setErrorImage] = useState(false);
+  const { getUser } = useAuth();
   const { showToast, userCan }: any = useAuth();
-  const [errors, setErrors]: any = useState({});
   const [typeSearch, setTypeSearch] = useState("C");
-  // const router = useRouter();
 
   const {
     data: client_config,
     reLoad,
     execute,
   } = useAxios("/client-config", "GET", {
-    perPage: -1,
-    orderBy: "asc",
-    sortBy: "",
-    relations: "client",
-    page: 1,
-    extraData: true,
-    // searchBy: "client_id,=," + user?.client_id,
+    ...paramsInitial,
   });
-  const onChange = (e: any) => {
-    let value = e?.target?.value;
-    let name = e.target.name;
-    if (e.target.type == "checkbox") {
-      value = e.target.checked ? "Y" : "N";
-    }
-    // Normalizar campos específicos que deben ser numéricos
-    if (name === "has_financial_data") {
-      if (typeof value === "string" && (value === "1" || value === "0")) {
-        value = Number(value);
-      }
-      if (typeof value === "boolean") {
-        value = value ? 1 : 0;
-      }
-    }
-    if (
-      name == "percent" ||
-      name == "amount" ||
-      name == "first_amount" ||
-      name == "second_amount"
-    ) {
-      setFormState({
-        ...formState,
-        penalty_data: { ...formState?.penalty_data, [name]: value },
-      });
-      return;
-    }
-    setFormState({ ...formState, [name]: value });
-  };
-  useEffect(() => {
-    const ci = formState.payment_transfer_ci;
 
-    if (ci && ci.length > 15) {
-      setErrors({ ...errors, payment_transfer_ci: "Máximo 15 caracteres" });
-      setFormState((prevState: any) => ({
-        ...prevState,
-        payment_transfer_ci: ci.slice(0, 15),
-      }));
-    }
-  }, [formState.payment_transfer_ci]);
-
-  const validate = () => {
-    let errors: any = {};
-
-    if (typeSearch === "C") {
-      if (errorImage) {
-        errors = checkRules({
-          value: formState.avatar,
-          rules: ["required"],
-          key: "avatar",
-          errors,
-        });
-      }
-      errors = checkRules({
-        value: formState.name,
-        rules: ["required"],
-        key: "name",
-        errors,
-      });
-      errors = checkRules({
-        value: formState.email,
-        rules: ["required", "email"],
-        key: "email",
-        errors,
-      });
-      errors = checkRules({
-        value: formState.address,
-        rules: ["required"],
-        key: "address",
-        errors,
-      });
-      errors = checkRules({
-        value: formState.phone,
-        rules: ["required"],
-        key: "phone",
-        errors,
-      });
-      errors = checkRules({
-        value: formState.year,
-        rules: ["required"],
-        key: "year",
-        errors,
-      });
-      errors = checkRules({
-        value: formState.month,
-        rules: ["required"],
-        key: "month",
-        errors,
-      });
-      errors = checkRules({
-        value: formState.initial_amount,
-        rules: ["required"],
-        key: "initial_amount",
-        errors,
-      });
-
-      if (formState.payment_time_limit) {
-        errors = checkRules({
-          value: formState.payment_time_limit,
-          rules: ["required", "integer", "positive", "less:400"],
-          key: "payment_time_limit",
-          errors,
-        });
-      }
-    }
-
-    if (typeSearch === "M") {
-      errors = checkRules({
-        value: formState.limit_type,
-        rules: ["required"],
-        key: "limit_type",
-        errors,
-        data: formState,
-      });
-
-      if (formState.limit_type == "M") {
-        errors = checkRules({
-          value: formState.soft_limit,
-          // rules: ["required", "lessOrEqual:hard_limit,Bloqueo"],
-          rules: ["required"],
-          key: "soft_limit",
-          errors,
-          data: formState,
-        });
-        errors = checkRules({
-          value: formState.hard_limit,
-          // rules: ["required", "greaterOrEqual:soft_limit,Pre-aviso"],
-          rules: ["required"],
-          key: "hard_limit",
-          errors,
-          data: formState,
-        });
-      }
-
-      errors = checkRules({
-        value: formState.penalty_limit,
-        // rules: ["required", "lessOrEqual:hard_limit,Bloqueo"],
-        rules: ["required"],
-        key: "penalty_limit",
-        errors,
-        data: formState,
-      });
-
-      if (formState.penalty_type == 1) {
-        errors = checkRules({
-          value: formState.penalty_data?.percent,
-          rules: ["required", "number", "less:100", "greater:0"],
-          key: "percent",
-          errors,
-          data: formState.penalty_data,
-        });
-      }
-      if (formState.penalty_type == 2) {
-        errors = checkRules({
-          value: formState.penalty_data?.amount,
-          rules: ["required"],
-          key: "amount",
-          errors,
-          data: formState.penalty_data,
-        });
-      }
-      if (formState.penalty_type == 3) {
-        errors = checkRules({
-          value: formState.penalty_data?.first_amount,
-          rules: ["required"],
-          key: "first_amount",
-          errors,
-          data: formState.penalty_data,
-        });
-        errors = checkRules({
-          value: formState.penalty_data?.second_amount,
-          rules: ["required"],
-          key: "second_amount",
-          errors,
-          data: formState.penalty_data,
-        });
-      }
-    }
-
-    if (typeSearch === "P") {
-      errors = checkRules({
-        value: formState.main_account_id,
-        rules: ["required"],
-        key: "main_account_id",
-        errors,
-      });
-    }
-
-    setErrors(errors);
-    return errors;
-  };
-
-  // Ahora, el onSave utiliza la función validate para comprobar si hay errores:
-  const onSave = async () => {
-    if (hasErrors(validate())) return;
+  const onSave = async (formState: any) => {
     const { data, error } = await execute("/client-config-actualizar", "PUT", {
       ...formState,
-      penalty_data: formState.penalty_data,
     });
 
     if (data?.success === true) {
       showToast("Datos guardados", "success");
-      setErrors({});
-
-      // Forzar recarga completa de la página
-      if (typeSearch === "C") {
-        window.location.reload();
-      }
+      reLoad(paramsInitial);
+      getUser();
     } else {
       showToast(error?.data?.message || data?.message, "error");
       console.log("error:", error);
-      // setErrors(error?.data?.errors);
     }
   };
 
-  useEffect(() => {
-    setFormState({
-      ...client_config?.data[0],
-      client: undefined,
-      deleted_at: undefined,
-      created_at: undefined,
-      remember_token: undefined,
-      ...client_config?.data[0]?.client,
-    });
-  }, [client_config?.data]);
-
-  useEffect(() => {
-    if (formState.penalty_type !== client_config?.data[0]?.penalty_type) {
-      setFormState({
-        ...formState,
-        penalty_data: {},
-      });
-    }
-  }, [formState.penalty_type]);
   if (!userCan("settings", "R")) {
     return <NotAccess />;
   }
@@ -288,13 +63,11 @@ const Config = () => {
         />
       </div>
 
-      <div className="">
+      <div>
         {typeSearch == "M" && (
           <LoadingScreen>
             <DefaulterConfig
-              formState={formState}
-              onChange={onChange}
-              errors={errors}
+              client_config={client_config?.data?.[0]}
               onSave={onSave}
             />
           </LoadingScreen>
@@ -303,11 +76,8 @@ const Config = () => {
         {typeSearch == "P" && (
           <LoadingScreen>
             <PaymentsConfig
-              formState={formState}
-              onChange={onChange}
-              errors={errors}
               bankAccounts={client_config?.extraData?.bankAccounts}
-              setErrors={setErrors}
+              client_config={client_config?.data?.[0]}
               onSave={onSave}
             />
           </LoadingScreen>
@@ -315,12 +85,7 @@ const Config = () => {
         {typeSearch == "C" && (
           <LoadingScreen>
             <DptoConfig
-              formState={formState}
-              setFormState={setFormState}
-              onChange={onChange}
-              errors={errors}
-              setErrors={setErrors}
-              client_config={client_config}
+              client_config={client_config?.data?.[0]}
               onSave={onSave}
             />
           </LoadingScreen>

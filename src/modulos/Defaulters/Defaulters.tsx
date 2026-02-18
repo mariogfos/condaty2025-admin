@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./Defaulters.module.css";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { formatNumber } from "@/mk/utils/numbers";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import {
@@ -103,20 +103,7 @@ const Defaulters = () => {
                     }}
                   >
                     <Avatar
-                      hasImage={titular?.has_image}
-                      src={
-                        titularId
-                          ? getUrlImages(
-                              "/OWNER" +
-                                "-" +
-                                titularId +
-                                ".webp" +
-                                (titular?.updated_at
-                                  ? "?d=" + titular?.updated_at
-                                  : "")
-                            )
-                          : ""
-                      }
+                      src={titular?.url_avatar}
                       name={getFullName(titular)}
                       w={32}
                       h={32}
@@ -221,7 +208,7 @@ const Defaulters = () => {
         },
       },
     }),
-    []
+    [],
   );
 
   const { userCan, List, data, extraData } = useCrud({
@@ -255,7 +242,7 @@ const Defaulters = () => {
         acc.porCobrarMv += item.mv || 0;
         return acc;
       },
-      { porCobrarExpensa: 0, porCobrarMulta: 0, porCobrarMv: 0 }
+      { porCobrarExpensa: 0, porCobrarMulta: 0, porCobrarMv: 0 },
     );
     return totals;
   }, [data?.data]);
@@ -273,7 +260,7 @@ const Defaulters = () => {
       calculatedTotals.porCobrarExpensa,
       calculatedTotals.porCobrarMulta,
       calculatedTotals.porCobrarMv,
-    ]
+    ],
   );
   const handleRowClick = (item: any) => {
     router.push(`/units/${item.dpto_id}`);

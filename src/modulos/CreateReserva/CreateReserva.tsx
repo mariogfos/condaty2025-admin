@@ -15,7 +15,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { ApiArea, FormState } from "./Type";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
@@ -456,6 +456,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     }
     onClose();
   };
+  const currentImage = selectedAreaDetails?.images?.[currentImageIndex];
   return (
     <div className={styles.pageWrapper}>
       <HeaderBack label="Volver a lista de reservas" onClick={_onClose} />
@@ -509,23 +510,19 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                 {selectedAreaDetails && selectedUnit && (
                   <>
                     <div className={styles.areaPreview}>
-                      {selectedAreaDetails.images &&
-                        selectedAreaDetails.images.length > 0 && (
+                      {selectedAreaDetails?.images &&
+                        selectedAreaDetails?.images?.length > 0 && (
                           <div className={styles.imageContainer}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              key={
-                                selectedAreaDetails?.images[currentImageIndex]
-                                  ?.id
-                              }
-                              className={styles.previewImage}
-                              src={getUrlImages(
-                                `/AREA-${selectedAreaDetails?.id}-${selectedAreaDetails?.images[currentImageIndex]?.id}.webp?d=${selectedAreaDetails?.updated_at}`,
-                              )}
-                              alt={`Imagen ${currentImageIndex + 1} de ${
-                                selectedAreaDetails.title
-                              }`}
-                            />
+                            {currentImage && (
+                              <img
+                                key={currentImage}
+                                className={styles.previewImage}
+                                src={currentImage}
+                                alt={`Imagen ${currentImageIndex + 1} de ${selectedAreaDetails?.title}`}
+                              />
+                            )}
+
                             {selectedAreaDetails?.images?.length > 1 && (
                               <div className={styles.imagePagination}>
                                 <button
@@ -854,11 +851,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   <div className={styles.summaryOwnerInfo}>
                     <div className={styles.ownerIdentifier}>
                       <Avatar
-                        src={getUrlImages(
-                          `/OWNER-${
-                            selectedUnit?.titular?.id
-                          }.webp?d=${Date.now().toString()}`,
-                        )}
+                        src={selectedUnit?.titular?.url_avatar}
                         name={getFullName(selectedUnit?.titular)}
                         w={40}
                         h={40}

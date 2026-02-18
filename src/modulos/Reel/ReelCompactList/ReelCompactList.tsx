@@ -1,6 +1,6 @@
 import React from "react";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { getDateTimeAgo } from "@/mk/utils/date";
 import {
   IconComment,
@@ -9,6 +9,7 @@ import {
 import { ContentItem } from "../types";
 import MediaRenderer from "../MediaRenderer/MediaRenderer";
 import styles from "./ReelCompactList.module.css";
+import LinkifyDescription from "@/mk/components/ui/LinkifyDescription/LinkifyDescription";
 
 interface ReelCompactListProps {
   items: ContentItem[];
@@ -54,12 +55,9 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
     return newsItems.findIndex((newsItem) => newsItem.id === currentItem.id);
   };
   const urlAvatar = (item: any) => {
-    return item.user
-      ? getUrlImages(`/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`)
-      : getUrlImages(
-          `/OWNER-${item.owner?.id}.webp?d=${item.owner?.updated_at}`,
-        );
+    return item.user ? item?.user?.url_avatar : item?.owner?.url_avatar;
   };
+  console.log(items);
   return (
     <div className={styles.compactListContainer}>
       {items.map((item: ContentItem, index: number) => {
@@ -85,8 +83,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
             <header className={styles.contentHeader}>
               <div className={styles.userInfo}>
                 <Avatar
-                  hasImage={1}
-                  name={getFullName(item.user)}
+                  name={getFullName(item.user ? item.user : item.owner)}
                   src={urlAvatar(item)}
                   w={40}
                   h={40}
@@ -115,9 +112,13 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                     <div>
                       <p className={styles.newsDescription}>
                         {item.isDescriptionExpanded ||
-                        item.description?.length <= 100
-                          ? item.description
-                          : `${item.description?.substring(0, 100)}...`}
+                        item.description?.length <= 100 ? (
+                          <LinkifyDescription text={item.description} />
+                        ) : (
+                          <LinkifyDescription
+                            text={`${item.description.substring(0, 100)}...`}
+                          />
+                        )}
                       </p>
                       {item.description?.length > 100 && (
                         <button
@@ -136,16 +137,14 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   )}
                 </div>
                 <div className={styles.newsMediaContent}>
-                  {(item.images.length > 0 || item.files.length > 0) && (
+                  {item?.files?.length > 0 && (
                     <div className={styles.newsImageContainer}>
-                      {/* Contador de imágenes - solo si hay más de una */}
-                      {item.images.length > 1 && (
+                      {item.files.length > 1 && (
                         <div className={styles.newsImageCounter}>
-                          +{item.images.length}
+                          +{item.files.length}
                         </div>
                       )}
 
-                      {/* Imagen principal - siempre la primera */}
                       <div
                         className={styles.newsImageWrapper}
                         onClick={(e) => {
@@ -164,12 +163,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                         }}
                       >
                         <img
-                          src={
-                            item?.files?.[0] ||
-                            getUrlImages(
-                              `/CONT-${item.id}-${item.images[0].id}.webp?d=${item.updated_at}`,
-                            )
-                          }
+                          src={item.files[0]}
                           alt={item.title || "Imagen de noticia"}
                           className={styles.newsImage}
                         />
@@ -188,9 +182,13 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   <div>
                     <p className={styles.contentDescription}>
                       {item.isDescriptionExpanded ||
-                      item.description.length <= 100
-                        ? item.description
-                        : `${item.description.substring(0, 100)}...`}
+                      item.description.length <= 100 ? (
+                        <LinkifyDescription text={item.description} />
+                      ) : (
+                        <LinkifyDescription
+                          text={`${item.description.substring(0, 100)}...`}
+                        />
+                      )}
                     </p>
                     {item.description.length > 100 && (
                       <button
@@ -239,26 +237,6 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   <span>{item.comments_count}</span>
                 </div>
               </div>
-
-              {/*             <div className={styles.contentActions}>
-                <button
-                  className={`${styles.actionButton} ${item.liked ? styles.liked : ''}`}
-                  onClick={() => onLike?.(item.id)}
-                  aria-pressed={!!item.liked}
-                  aria-label={`Me gusta esta publicación`}
-                >
-                  <IconLike color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={16} />
-                  <span>Apoyar</span>
-                </button>
-                <button
-                  className={styles.actionButton}
-                  onClick={() => onOpenComments?.(item.id)}
-                  aria-label={`Comentar esta publicación`}
-                >
-                  <IconComment color={'var(--cWhiteV1)'} size={16} />
-                  <span>Comentar</span>
-                </button>
-              </div> */}
             </footer>
           </article>
         );
