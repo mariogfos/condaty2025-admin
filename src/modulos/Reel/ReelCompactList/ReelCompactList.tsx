@@ -131,16 +131,14 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   )}
                 </div>
                 <div className={styles.newsMediaContent}>
-                  {(item?.images?.length > 0 || item?.files?.length > 0) && (
+                  {item?.files?.length > 0 && (
                     <div className={styles.newsImageContainer}>
-                      {/* Contador de imágenes - solo si hay más de una */}
-                      {item.images.length > 1 && (
+                      {item.files.length > 1 && (
                         <div className={styles.newsImageCounter}>
-                          +{item.images.length}
+                          +{item.files.length}
                         </div>
                       )}
 
-                      {/* Imagen principal - siempre la primera */}
                       <div
                         className={styles.newsImageWrapper}
                         onClick={(e) => {
@@ -159,7 +157,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                         }}
                       >
                         <img
-                          src={item?.files?.[0]}
+                          src={item.files[0]}
                           alt={item.title || "Imagen de noticia"}
                           className={styles.newsImage}
                         />
@@ -229,26 +227,6 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   <span>{item.comments_count}</span>
                 </div>
               </div>
-
-              {/*             <div className={styles.contentActions}>
-                <button
-                  className={`${styles.actionButton} ${item.liked ? styles.liked : ''}`}
-                  onClick={() => onLike?.(item.id)}
-                  aria-pressed={!!item.liked}
-                  aria-label={`Me gusta esta publicación`}
-                >
-                  <IconLike color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={16} />
-                  <span>Apoyar</span>
-                </button>
-                <button
-                  className={styles.actionButton}
-                  onClick={() => onOpenComments?.(item.id)}
-                  aria-label={`Comentar esta publicación`}
-                >
-                  <IconComment color={'var(--cWhiteV1)'} size={16} />
-                  <span>Comentar</span>
-                </button>
-              </div> */}
             </footer>
           </article>
         );
