@@ -49,6 +49,7 @@ import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModa
 import EmptyData from "@/components/NoData/EmptyData";
 import { IconEmptySearch } from "@/components/layout/icons/IconsBiblioteca";
 import useMediaQuery from "../useMediaQuery";
+import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 
 export type ModCrudType = {
   modulo: string;
@@ -1115,6 +1116,7 @@ const useCrud = ({
         setFilterSel({ ...filterSel, [name]: e.target.value });
         onFilter(name, e.target.value);
       };
+      // console.log('export:',mod.export);
 
       return (
         <nav
@@ -1154,7 +1156,7 @@ const useCrud = ({
               onClick={data?.length > 0 ? onImport : () => {}}
             />
           )}
-          {mod.export && (
+          {mod.export === true && (
             <IconExport
               title="Exportar reporte"
               className={
@@ -1163,6 +1165,39 @@ const useCrud = ({
               onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
             />
           )}
+          {
+            mod.export?.length > 0 && (
+              <Dropdown
+                trigger={
+                  <IconExport
+                    title="Exportar reporte"
+                    className={
+                      styles.icons +
+                      " " +
+                      (data?.length == 0 ? styles.disabled : "")
+                    }
+                  />
+                }
+                items={mod.export}
+                onClick={
+                  data?.length > 0 ? (e: string) => onExport(e) : () => {}
+                }
+              />
+            )
+
+            // mod.export.map((item: string) => (
+            //   <IconExport
+            //   key={item}
+            //     title="Exportar reporte"
+            //     className={
+            //       styles.icons +
+            //       " " +
+            //       (data?.length == 0 ? styles.disabled : "")
+            //     }
+            //     onClick={data?.length > 0 ? () => onExport(item) : () => {}}
+            //   />
+            // ))
+          }
           {mod.listAndCard && (
             <div className={styles.listAndCard}>
               <div
