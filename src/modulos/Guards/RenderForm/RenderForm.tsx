@@ -186,7 +186,7 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState?.email]);
-  console.log(formState);
+
   return (
     <DataModal
       open={open}
@@ -197,7 +197,6 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
       variant={"mini"}
     >
       <UploadFileSingle
-        // label="Logo para pantallas"
         formState={formState}
         name="url_avatar"
         setFormState={setFormState}

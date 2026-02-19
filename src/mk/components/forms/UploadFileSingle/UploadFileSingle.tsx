@@ -85,7 +85,7 @@ const UploadFileSingle: React.FC<UploadFileSingleProps> = ({
           />
         ) : (
           <div className={styles.placeholder}>
-            <IconGallery size={50} />
+            <IconGallery size={50} color="var(--cWhite)" />
             <p>{title}</p>
           </div>
         )}
@@ -99,7 +99,7 @@ const UploadFileSingle: React.FC<UploadFileSingleProps> = ({
                 triggerUpload();
               }}
             >
-              <IconEdit size={18} />
+              <IconEdit size={18} color="var(--cWhite)" />
             </div>
 
             <div
@@ -109,7 +109,7 @@ const UploadFileSingle: React.FC<UploadFileSingleProps> = ({
                 handleDelete(0);
               }}
             >
-              <IconTrash size={18} />
+              <IconTrash size={18} color="var(--cWhite)" />
             </div>
           </div>
         )}
