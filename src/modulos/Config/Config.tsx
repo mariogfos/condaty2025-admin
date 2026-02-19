@@ -17,7 +17,7 @@ const paramsInitial = {
   extraData: true,
 };
 const Config = () => {
-  const { getUser } = useAuth();
+  const { getUser, user } = useAuth();
   const { showToast, userCan }: any = useAuth();
   const [typeSearch, setTypeSearch] = useState("C");
 
@@ -28,7 +28,6 @@ const Config = () => {
   } = useAxios("/client-config", "GET", {
     ...paramsInitial,
   });
-
   const onSave = async (formState: any) => {
     const { data, error } = await execute("/client-config-actualizar", "PUT", {
       ...formState,
