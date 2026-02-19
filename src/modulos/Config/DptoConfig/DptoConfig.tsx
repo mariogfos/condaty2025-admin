@@ -29,6 +29,8 @@ const DptoConfig = ({ client_config, onSave }: PropsType) => {
     initial_amount: client_config?.initial_amount || "",
     has_maintenance_value: Boolean(client_config?.has_maintenance_value),
     has_financial_data: Number(client_config?.has_financial_data) === 1,
+    has_financial_debt: Number(client_config?.has_financial_debt) === 1,
+    financial_mode: client_config?.financial_mode || 0,
     has_soft_reservation: Boolean(client_config?.has_soft_reservation),
     bookingRequiresPayment:
       client_config?.payment_time_limit !== null &&
@@ -83,6 +85,13 @@ const DptoConfig = ({ client_config, onSave }: PropsType) => {
       setFormState((prev: any) => ({
         ...prev,
         has_financial_data: isEnabled,
+      }));
+    } else if (name === "has_financial_debt") {
+      const isEnabled = value === "1" || value === 1 || value === true;
+
+      setFormState((prev: any) => ({
+        ...prev,
+        has_financial_debt: isEnabled,
       }));
     } else if (name === "has_soft_reservation") {
       const isEnabled = value === "Y";
@@ -189,13 +198,13 @@ const DptoConfig = ({ client_config, onSave }: PropsType) => {
       data: formState,
     });
 
-    errors = checkRules({
-      value: formState.description,
-      rules: ["required"],
-      key: "description",
-      errors,
-      data: formState,
-    });
+    // errors = checkRules({
+    //   value: formState.description,
+    //   rules: ["required"],
+    //   key: "description",
+    //   errors,
+    //   data: formState,
+    // });
 
     errors = checkRules({
       value: formState.month,
@@ -221,7 +230,15 @@ const DptoConfig = ({ client_config, onSave }: PropsType) => {
         data: formState,
       });
     }
-
+    if (formState?.has_financial_debt && formState?.has_financial_data) {
+      errors = checkRules({
+        value: formState.financial_mode,
+        rules: ["required"],
+        key: "financial_mode",
+        errors,
+        data: formState,
+      });
+    }
     setErrors(errors);
     return errors;
   };
@@ -541,6 +558,45 @@ const DptoConfig = ({ client_config, onSave }: PropsType) => {
             />
           </div>
         </div>
+        {formState.has_financial_data && (
+          <>
+            <div className={styles.sectionContainer}>
+              <div className={styles.switchContainer}>
+                <div>
+                  <p className={styles.textTitle}>Mostrar deudas </p>
+                  <p className={styles.textSubtitle}>
+                    Activa esta opción para mostrar las deudas del condominio en
+                    el resumen financiero.
+                  </p>
+                </div>
+                <Switch
+                  name="has_financial_debt"
+                  label=""
+                  value={formState.has_financial_debt ? "1" : "0"}
+                  onChange={handleSwitchChange}
+                  optionValue={["1", "0"]}
+                  checked={formState.has_financial_debt}
+                />
+              </div>
+            </div>
+            {formState?.has_financial_debt && (
+              <div className={styles.sectionContainer}>
+                <Select
+                  name="financial_mode"
+                  label="Modo de finanzas"
+                  value={formState.financial_mode}
+                  onChange={handleChange}
+                  options={[
+                    { id: 1, name: "Solo expensas" },
+                    { id: 2, name: "Expensas y multas separados" },
+                    { id: 3, name: "Expensas y mutas juntos" },
+                  ]}
+                  error={errors}
+                />
+              </div>
+            )}
+          </>
+        )}
 
         <div className={styles.sectionContainer}>
           <div className={styles.switchContainer}>
