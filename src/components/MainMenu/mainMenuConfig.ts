@@ -64,7 +64,6 @@ export const menuConfig = [
     items: [
       { href: "/units", perm: "units", label: "Unidades" },
       { href: "/areas", perm: "areas", label: "Áreas sociales" },
-      { href: "/activities", perm: "accesses", label: "Accesos" },
       { href: "/documents", perm: "documents", label: "Documentos" },
       { href: "/configs", perm: "settings", label: "Configuración" },
     ],
@@ -110,6 +109,7 @@ export const menuConfig = [
     key: "Vigilancia y seguridad",
     items: [
       { href: "/guards", perm: "guards", label: "Guardias" },
+      { href: "/activities", perm: "accesses", label: "Accesos" },
       {
         href: "/alerts",
         perm: "alerts",
