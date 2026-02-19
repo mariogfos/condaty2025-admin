@@ -46,7 +46,7 @@ const Defaulters = () => {
     permiso: "defaulters",
     pagination: false,
     extraData: true,
-    export: true,
+    export: ["pdf", "xls"],
     hideActions: {
       view: true,
       add: true,

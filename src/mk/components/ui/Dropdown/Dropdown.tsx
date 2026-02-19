@@ -5,10 +5,11 @@ import { useRouter, usePathname } from "next/navigation";
 
 type DropdownProps = {
   trigger: React.ReactNode;
-  items: { name: string; route: string }[]; // Cambiado para recibir un array de objetos
+  items: { name: string; route: string }[] | string[]; // Cambiado para recibir un array de objetos
+  onClick?: Function;
 };
 
-const Dropdown = ({ trigger, items }: DropdownProps) => {
+const Dropdown = ({ trigger, items, onClick }: DropdownProps) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router: any = useRouter();
@@ -37,7 +38,12 @@ const Dropdown = ({ trigger, items }: DropdownProps) => {
 
   const handleLinkClick = (route: string) => {
     setDropdownOpen(false); // Cierra el dropdown
-    router.push(route); // Navega a la nueva página
+
+    if (onClick) {
+      onClick(route);
+    } else {
+      router.push(route);
+    } // Navega a la nueva página
   };
 
   return (
@@ -46,18 +52,21 @@ const Dropdown = ({ trigger, items }: DropdownProps) => {
       {dropdownOpen && (
         <div className={styles.dropdownMenu}>
           {items.map((item) => {
-            const isActive = path === item.route; // Verifica si está activo
+            const isActive =
+              path === (typeof item == "string" ? item : item.route); // Verifica si está activo
             return (
               <p
-                key={item.route}
+                key={typeof item == "string" ? item : item.route}
                 className={isActive ? styles.active : ""}
-                onClick={() => handleLinkClick(item.route)}
+                onClick={() =>
+                  handleLinkClick(typeof item == "string" ? item : item.route)
+                }
                 style={{
-                  backgroundColor: isActive ? "rgba(33, 37, 41, 0.5)" : "", // Cambia el fondo si está activo
+                  backgroundColor: isActive ? "rgba(6, 7, 8, 0.5)" : "", // Cambia el fondo si está activo
                   borderRadius: 8,
                 }}
               >
-                {item.name}
+                {typeof item == "string" ? item : item.name}
               </p>
             );
           })}
