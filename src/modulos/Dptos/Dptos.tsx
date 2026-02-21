@@ -113,7 +113,7 @@ const Dptos = () => {
     plural: "",
     filter: true,
     permiso: "units",
-    export: true,
+    // export: true,
     extraData: true,
     import: false,
     titleAdd: "Nueva unidad",
@@ -148,8 +148,7 @@ const Dptos = () => {
           onReport();
         }}
       >
-        <IconDepartments2 />
-        Estado de Cuentas
+        <IconDepartments2 /> Estado de cuentas
       </Button>
     );
   };
@@ -382,7 +381,7 @@ const Dptos = () => {
     fields,
     getFilter,
     _onImport: onImport,
-    // extraButtons: [<ButtonReportDeudas />],
+    extraButtons: [<ButtonReportDeudas />],
   });
 
   const { onLongPress, selItem } = useCrudUtils({
