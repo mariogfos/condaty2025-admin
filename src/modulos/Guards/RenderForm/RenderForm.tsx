@@ -33,7 +33,7 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
     });
     errors = checkRules({
       value: formState?.url_avatar,
-      rules: ["required"],
+      rules: [""],
       key: "url_avatar",
       errors,
       data: formState,
