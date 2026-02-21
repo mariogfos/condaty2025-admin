@@ -91,27 +91,26 @@ const LoginView = ({
       {/* Imagen de fondo */}
       <div className={styles.imageBackground}>
         <Image
-          src="/assets/images/LoginPortada.png" 
+          src="/assets/images/LoginPortada.png"
           alt="Fondo de Login"
           fill
           style={{ objectFit: "cover" }}
           priority
         />
       </div>
-
+      <div className={styles.logoContainerFloating}>
+        <Image
+          src="/assets/images/logologin.png"
+          alt="Logo Login"
+          width={360}
+          height={117}
+          className={styles.logoImageFloating}
+          priority
+        />
+      </div>
       {/* Formulario Centrado */}
       <div className={styles.formCenter}>
         <div className={styles.formWrapper}>
-          <div className={styles.logoContainerFloating}>
-            <Image
-              src="/assets/images/logologin.png"
-              alt="Logo Login"
-              width={360}
-              height={117}
-              className={styles.logoImageFloating}
-              priority
-            />
-          </div>
           <div className={styles.titleSection}>
             <div className={styles.title}>
               {showTrustDevice
