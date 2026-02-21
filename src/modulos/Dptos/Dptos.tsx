@@ -139,18 +139,20 @@ const Dptos = () => {
     }) => <RenderForm {...props} />,
   };
 
-  // const ButtonReportDeudas = () => {
-  //   return (
-  //     <Button
-  //       onClick={() => {
-  //         console.log(process.env.NEXT_PUBLIC_API_URL + "/dptos-export-deudas");
-  //         onReport();
-  //       }}
-  //     >
-  //       deudas{" "}
-  //     </Button>
-  //   );
-  // };
+  const ButtonReportDeudas = () => {
+    return (
+      <Button
+        variant="secondary"
+        onClick={() => {
+          console.log(process.env.NEXT_PUBLIC_API_URL + "/dptos-export-deudas");
+          onReport();
+        }}
+      >
+        <IconDepartments2 />
+        Estado de Cuentas
+      </Button>
+    );
+  };
 
   const fields = useMemo(() => {
     return {
