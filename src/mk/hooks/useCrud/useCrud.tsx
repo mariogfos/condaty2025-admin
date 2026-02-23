@@ -526,9 +526,17 @@ const useCrud = ({
     );
 
     if (file?.success) {
-      const url = getUrlImages("/" + (file.data?.path || ""));
-      // Intentar derivar un nombre de archivo desde el path; si no, usar por defecto
+      // Si viene secureUrl (Cloudinary), usar directo; sino, usar el método anterior con path
+      const url = file.data?.secureUrl
+        ? file.data.secureUrl
+        : getUrlImages("/" + (file.data?.path || ""));
+      
+      // Intentar derivar un nombre de archivo desde el path o secureUrl; si no, usar por defecto
       const suggestedName = (() => {
+        if (file.data?.secureUrl) {
+          const urlPath = file.data.secureUrl.split("/").pop();
+          if (urlPath && urlPath.trim().length > 0) return urlPath;
+        }
         const path = String(file.data?.path || "");
         const base = path.split("/").pop();
         if (base && base.trim().length > 0) return base;
