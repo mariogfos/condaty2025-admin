@@ -113,7 +113,7 @@ const Dptos = () => {
     plural: "",
     filter: true,
     permiso: "units",
-    export: true,
+    // export: true,
     extraData: true,
     import: false,
     titleAdd: "Nueva unidad",
@@ -139,18 +139,19 @@ const Dptos = () => {
     }) => <RenderForm {...props} />,
   };
 
-  // const ButtonReportDeudas = () => {
-  //   return (
-  //     <Button
-  //       onClick={() => {
-  //         console.log(process.env.NEXT_PUBLIC_API_URL + "/dptos-export-deudas");
-  //         onReport();
-  //       }}
-  //     >
-  //       deudas{" "}
-  //     </Button>
-  //   );
-  // };
+  const ButtonReportDeudas = () => {
+    return (
+      <Button
+        variant="secondary"
+        onClick={() => {
+          console.log(process.env.NEXT_PUBLIC_API_URL + "/dptos-export-deudas");
+          onReport();
+        }}
+      >
+        <IconDepartments2 /> Estado de cuentas
+      </Button>
+    );
+  };
 
   const fields = useMemo(() => {
     return {
@@ -380,7 +381,7 @@ const Dptos = () => {
     fields,
     getFilter,
     _onImport: onImport,
-    // extraButtons: [<ButtonReportDeudas />],
+    extraButtons: [<ButtonReportDeudas />],
   });
 
   const { onLongPress, selItem } = useCrudUtils({
