@@ -76,7 +76,7 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
     });
     errors = checkRules({
       value: formState?.address,
-      rules: ["required"],
+      rules: [""],
       key: "address",
       errors,
       data: formState,
