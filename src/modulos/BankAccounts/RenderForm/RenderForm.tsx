@@ -14,7 +14,7 @@ const RenderForm = ({
   extraData,
   reLoad,
 }: any) => {
-  const [formState, setFormState] = useState({ ...item });
+  const [formState, setFormState] = useState({ ...item, initial_amount: item?.initial_amount ?? 0 });
   const [errors, setErrors] = useState({});
   const { showToast } = useAuth();
 
@@ -28,6 +28,14 @@ const RenderForm = ({
       [name]: value,
     }));
   };
+  useEffect(() => {
+    setFormState((prev: any) => ({
+      ...prev,
+      ...item,
+      initial_amount: item?.initial_amount ?? 0,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item, open]);
   const validate = () => {
     let errors: any = {};
     if (!formState?.id) {
@@ -71,6 +79,12 @@ const RenderForm = ({
       errors,
     });
     errors = checkRules({
+      value: formState?.initial_amount,
+      rules: ["number", "positive"],
+      key: "initial_amount",
+      errors,
+    });
+    errors = checkRules({
       value: formState?.holder,
       rules: ["required"],
       key: "holder",
@@ -103,6 +117,7 @@ const RenderForm = ({
         holder: formState.holder || "",
         ci_holder: formState.ci_holder || "",
         alias_holder: formState.alias_holder || "",
+        initial_amount: Number(formState.initial_amount || 0),
       },
     );
 
@@ -191,6 +206,18 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
         required
+      />
+      <Input
+        label="Saldo inicial"
+        name="initial_amount"
+        value={
+          formState.initial_amount !== undefined && formState.initial_amount !== null
+            ? String(formState.initial_amount)
+            : ""
+        }
+        onChange={handleChange}
+        error={errors}
+        type="number"
       />
       <Input
         label="Titular"
