@@ -3,6 +3,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "../BankAccounts.module.css";
 import Button from "@/mk/components/forms/Button/Button";
 import { ReactNode, useEffect, useState } from "react";
+import { formatNumber } from "@/mk/utils/numbers";
 import { Card } from "@/mk/components/ui/Card/Card";
 import RenderForm from "../RenderForm/RenderForm";
 import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
@@ -224,6 +225,16 @@ const RenderView = (props: any) => {
                   </p>
                 ),
               }}
+            />
+            <SectionValues
+              left={{
+                label: "Saldo inicial",
+                value:
+                  item?.initial_amount !== undefined && item?.initial_amount !== null
+                    ? `${formatNumber(item.initial_amount, 2)} ${item?.currency_type?.code || ''}`
+                    : "-/-",
+              }}
+              right={{ label: "", value: "" }}
             />
           </Card>
         )}
