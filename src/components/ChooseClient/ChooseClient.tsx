@@ -14,6 +14,8 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Input from "@/mk/components/forms/Input/Input";
 import Button from "@/mk/components/forms/Button/Button";
 
+import { StatusBadge } from "../StatusBadge/StatusBadge";
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -57,8 +59,28 @@ const ChooseClient = ({ open, onClose }: Props) => {
             <span className={styles.clientName}>{c.name}</span>
           </div>
         </div>
-        <div className={styles.arrowIcon}>
-          <IconArrowRight size={16} color="var(--cWhiteV1)" />
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {c.privacy === "P" && (
+            <StatusBadge
+              backgroundColor="rgba(0, 227, 140, 0.1)"
+              color="#00E38C"
+              containerStyle={{ width: "auto" }}
+            >
+              Público
+            </StatusBadge>
+          )}
+          {c.privacy === "T" && (
+            <StatusBadge
+              backgroundColor="rgba(228, 96, 85, 0.1)"
+              color="#E46055"
+              containerStyle={{ width: "auto" }}
+            >
+              Prueba
+            </StatusBadge>
+          )}
+          <div className={styles.arrowIcon}>
+            <IconArrowRight size={16} color="var(--cWhiteV1)" />
+          </div>
         </div>
       </div>
     );
