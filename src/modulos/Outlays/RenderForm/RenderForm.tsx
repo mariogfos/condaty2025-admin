@@ -94,6 +94,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     Subcategory[]
   >([]);
   const [showBank, setShowBank] = useState<boolean>(false);
+  const [bankEnabled, setBankEnabled] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [toast] = useState<{
     msg: string;
@@ -301,8 +302,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       avatar,
     } = _formState;
 
-    let bank_account_id = _formState.bank_account_id;
-
     const searchSubcategory: any = extraData?.subcategories?.find(
       (subcat) => subcat.id === _formState.subcategory_id
     );
@@ -310,13 +309,18 @@ const RenderForm: React.FC<RenderFormProps> = ({
       (bank: any) => bank.is_main == 1
     );
 
-    if (searchSubcategory?.bank_account_id) {
-      bank_account_id = searchSubcategory.bank_account_id;
-    } else if (searchSubcategory?.padre?.bank_account_id) {
-      bank_account_id = searchSubcategory.padre.bank_account_id;
-    } else if (mainAccount) {
-      bank_account_id = mainAccount.id;
-    }
+    const resolvedDefault =
+      searchSubcategory?.bank_account_id ??
+      searchSubcategory?.padre?.bank_account_id ??
+      (mainAccount ? mainAccount.id : null);
+
+    // Prefer user-selected bank_account_id; if absent, use resolved default
+    let bank_account_id =
+      _formState.bank_account_id !== undefined &&
+      _formState.bank_account_id !== null &&
+      String(_formState.bank_account_id).trim() !== ""
+        ? _formState.bank_account_id
+        : resolvedDefault;
 
     const params = {
       date_at,
@@ -333,22 +337,45 @@ const RenderForm: React.FC<RenderFormProps> = ({
   }, [_formState, validar, onSave]);
 
   useEffect(() => {
-    if (_formState.subcategory_id) {
-      const searchSubcategory: any = extraData?.subcategories?.find(
-        (subcat) => subcat.id === _formState.subcategory_id
-      );
+    const searchSubcategory: any = extraData?.subcategories?.find(
+      (subcat) => subcat.id === _formState.subcategory_id
+    );
 
-      if (
-        !searchSubcategory?.bank_account_id &&
-        !searchSubcategory?.padre?.bank_account_id
-      ) {
-        setShowBank(true);
-      } else {
-        setShowBank(false);
-        _setFormState((prev) => ({ ...prev, bank_account_id: null }));
-      }
+    const resolved = (() => {
+      if (!searchSubcategory) return null;
+      if (searchSubcategory?.bank_account_id) return searchSubcategory.bank_account_id;
+      if (searchSubcategory?.padre?.bank_account_id) return searchSubcategory.padre.bank_account_id;
+      return null;
+    })();
+
+    // Enable bank select only when category+subcategory selected and subcategory has linked account
+    if (_formState.category_id && _formState.subcategory_id && resolved !== null) {
+      setBankEnabled(true);
+      // if no explicit bank_account_id in form state, set the resolved default
+      _setFormState((prev) => ({
+        ...prev,
+        bank_account_id: prev.bank_account_id ?? resolved,
+      }));
+    } else {
+      setBankEnabled(false);
+      // clear bank_account_id if disabling
+      _setFormState((prev) => ({ ...prev, bank_account_id: prev.bank_account_id ?? null }));
     }
-  }, [_formState.subcategory_id]);
+  }, [_formState.subcategory_id, _formState.category_id, extraData?.subcategories]);
+
+  const resolveBankAccountId = () => {
+    const searchSubcategory: any = extraData?.subcategories?.find(
+      (subcat) => subcat.id === _formState.subcategory_id
+    );
+    const mainAccount: any = extraData?.bankAccounts?.find(
+      (bank: any) => bank.is_main == 1
+    );
+
+    if (searchSubcategory?.bank_account_id) return searchSubcategory.bank_account_id;
+    if (searchSubcategory?.padre?.bank_account_id) return searchSubcategory.padre.bank_account_id;
+    if (mainAccount) return mainAccount.id;
+    return null;
+  };
   const getOptionsBankAccounts = useCallback(() => {
     return extraData?.bankAccounts?.map((bank: any) => ({
       id: bank.id,
@@ -422,20 +449,26 @@ const RenderForm: React.FC<RenderFormProps> = ({
               </div>
             </div>
           </div>
-          {showBank && (
+          <div className={styles['input-container']}>
             <Select
               name="bank_account_id"
-              value={_formState.bank_account_id || ""}
+              value={
+                bankEnabled
+                  ? (_formState.bank_account_id !== undefined && _formState.bank_account_id !== null
+                      ? String(_formState.bank_account_id)
+                      : (resolveBankAccountId() !== null ? String(resolveBankAccountId()) : "") )
+                  : ""
+              }
               label="Cuenta bancaria"
               onChange={handleChangeInput}
               options={getOptionsBankAccounts() || []}
               error={_errors}
-              required
               optionLabel="name"
               optionValue="id"
+              disabled={!bankEnabled}
               className={_errors.bank_account_id ? styles.error : ""}
             />
-          )}
+          </div>
           {/* Monto y Método de pago */}
           <div className={styles["two-column-container"]}>
             <div className={styles.column}>
