@@ -55,31 +55,24 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     switch (item?.type) {
       case 0: {
         return <div>Individual</div>;
-        break;
       }
       case 1: {
         return <div>Expensas</div>;
-        break;
       }
       case 2: {
         return <div>Reservas</div>;
-        break;
       }
       case 3: {
         return <div>Multa por Cancelación</div>;
-        break;
       }
       case 4: {
         return <div>Compartida</div>;
-        break;
       }
       case 5: {
         return <div>Condonación</div>;
-        break;
       }
       default: {
         return <div>-/-</div>;
-        break;
       }
     }
   };
@@ -468,7 +461,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     modulo: "debt-dptos",
     singular: "Deuda",
     plural: "",
-    export: false,
+    // export: true,
     filter: true,
     permiso: "expense",
     extraData: true,
@@ -595,40 +588,43 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
         filterBreakPoint={2500}
         sumarize={false}
       />
-      <DateRangeFilterModal
-        open={openCustomFilter}
-        onClose={() => {
-          setOpenCustomFilter(false);
-          setCustomDateErrors({});
-        }}
-        onSave={({ startDate, endDate }) => {
-          let err: { startDate?: string; endDate?: string } = {};
-          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
-          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
-          if (startDate && endDate && startDate > endDate)
-            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
-          if (
-            startDate &&
-            endDate &&
-            startDate.slice(0, 4) !== endDate.slice(0, 4)
-          ) {
-            err.startDate =
-              "El periodo personalizado debe estar dentro del mismo año";
-            err.endDate =
-              "El periodo personalizado debe estar dentro del mismo año";
-          }
-          if (Object.keys(err).length > 0) {
-            setCustomDateErrors(err);
-            return;
-          }
-          const customDateFilterString = `${startDate},${endDate}`;
-          onFilter("due_at", customDateFilterString);
-          setOpenCustomFilter(false);
-          setCustomDateErrors({});
-        }}
-        errorStart={customDateErrors.startDate}
-        errorEnd={customDateErrors.endDate}
-      />
+      {openCustomFilter && (
+        <DateRangeFilterModal
+          open={openCustomFilter}
+          onClose={() => {
+            setOpenCustomFilter(false);
+            setCustomDateErrors({});
+          }}
+          onSave={({ startDate, endDate }) => {
+            let err: { startDate?: string; endDate?: string } = {};
+            if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+            if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+            if (startDate && endDate && startDate > endDate)
+              err.startDate =
+                "La fecha de inicio no puede ser mayor a la de fin";
+            if (
+              startDate &&
+              endDate &&
+              startDate.slice(0, 4) !== endDate.slice(0, 4)
+            ) {
+              err.startDate =
+                "El periodo personalizado debe estar dentro del mismo año";
+              err.endDate =
+                "El periodo personalizado debe estar dentro del mismo año";
+            }
+            if (Object.keys(err).length > 0) {
+              setCustomDateErrors(err);
+              return;
+            }
+            const customDateFilterString = `${startDate},${endDate}`;
+            onFilter("due_at", customDateFilterString);
+            setOpenCustomFilter(false);
+            setCustomDateErrors({});
+          }}
+          errorStart={customDateErrors.startDate}
+          errorEnd={customDateErrors.endDate}
+        />
+      )}
     </>
   );
 };

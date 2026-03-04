@@ -3,7 +3,7 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./HomeOwners.module.css";
 import { useMemo, useState, useCallback } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
@@ -27,11 +27,6 @@ const paramsInitial = {
 const HomeOwners = () => {
   const [unitsModalOpen, setUnitsModalOpen] = useState(false);
   const [selectedHomeowner, setSelectedHomeowner] = useState(null);
-
-  const openUnitsModal = (homeowner: any) => {
-    setSelectedHomeowner(homeowner);
-    setUnitsModalOpen(true);
-  };
 
   const closeUnitsModal = () => {
     setUnitsModalOpen(false);
@@ -142,7 +137,7 @@ const HomeOwners = () => {
         searchBy: e.target.value,
       },
       false,
-      true
+      true,
     );
 
     if (data?.success && data.data?.data?.id) {
@@ -168,7 +163,7 @@ const HomeOwners = () => {
       });
       showToast(
         "El propietario ya existe en Condaty, se va a vincular al Condominio",
-        "warning"
+        "warning",
       );
     } else {
       props.setError({ ci: "" });
@@ -196,7 +191,7 @@ const HomeOwners = () => {
         searchBy: e.target.value,
       },
       false,
-      true
+      true,
     );
 
     if (data?.success && data.data?.data?.id) {
@@ -279,16 +274,7 @@ const HomeOwners = () => {
 
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Avatar
-                hasImage={propietario?.has_image}
-                src={getUrlImages(
-                  "/HOMEOWNER-" +
-                    propietario?.id +
-                    ".webp?d=" +
-                    propietario?.updated_at
-                )}
-                name={nombreCompleto}
-              />
+              <Avatar src={propietario?.url_avatar} name={nombreCompleto} />
               <div>
                 <p
                   style={{

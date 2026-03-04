@@ -6,8 +6,6 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useState } from "react";
 import styles from "../Users.module.css";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 const RenderForm = ({
   open,
@@ -99,7 +97,7 @@ const RenderForm = ({
         cols: "id",
       },
       false,
-      true
+      true,
     );
     if (response?.data != null) {
       setErrors({ ...errors, email: "El correo electrónico ya existe" });
@@ -119,7 +117,7 @@ const RenderForm = ({
         email: formState.email,
         role_id: formState.role_id,
       },
-      false
+      false,
     );
     if (response?.success == true) {
       reLoad();

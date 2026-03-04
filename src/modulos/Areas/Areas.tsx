@@ -7,7 +7,6 @@ import RenderView from "./RenderView/RenderView";
 import Button from "@/mk/components/forms/Button/Button";
 import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 
@@ -85,20 +84,7 @@ const Areas = () => {
         label: "Nombre",
         onRender: ({ item }: any) => (
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Avatar
-              w={40}
-              h={40}
-              name={item.title}
-              src={getUrlImages(
-                "/AREA-" +
-                  item?.id +
-                  "-" +
-                  item?.images?.[0]?.id +
-                  ".webp" +
-                  "?" +
-                  item?.updated_at
-              )}
-            />
+            <Avatar w={40} h={40} name={item.title} src={item?.images?.[0]} />
             <p style={{ color: "var(--cWhite)", fontWeight: 500 }}>
               {item.title}
             </p>
@@ -314,7 +300,7 @@ const Areas = () => {
         },
       },
     }),
-    []
+    [],
   );
 
   const extraButtons = [

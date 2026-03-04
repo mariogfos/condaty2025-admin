@@ -1,11 +1,15 @@
 import React from "react";
 import Image from "next/image";
-import { getUrlImages } from "@/mk/utils/string";
-import { ContentItem } from "../types";
 import styles from "./ImageMosaic.module.css";
 
 interface ImageMosaicProps {
-  item: ContentItem;
+  item: {
+    files?: string[]; // ← nuevo formato esperado
+    id?: string | number;
+    title?: any;
+    updated_at?: string;
+    [key: string]: any;
+  };
   modoCompacto?: boolean;
   onImageClick?: () => void;
 }
@@ -13,13 +17,16 @@ interface ImageMosaicProps {
 const ImageMosaic: React.FC<ImageMosaicProps> = ({
   item,
   modoCompacto = false,
-  onImageClick
+  onImageClick,
 }) => {
-  if (!item.images || item.images.length <= 1) {
+  // Usamos files en lugar de images
+  const images = item?.files || [];
+
+  if (images.length <= 1) {
     return null;
   }
 
-  const imageCount = item.images.length;
+  const imageCount = images.length;
   let containerClass = styles.imageMosaicContainer;
 
   if (imageCount === 2) {
@@ -30,45 +37,43 @@ const ImageMosaic: React.FC<ImageMosaicProps> = ({
     containerClass += ` ${styles.fourOrMoreImages}`;
   }
 
-  const renderImage = (image: any, index: number, isLast = false) => {
-    const imageUrl = getUrlImages(
-      `/CONT-${item.id}-${image.id}.webp?d=${item.updated_at}`
-    );
+  const renderImage = (imageUrl: string, index: number, isLast = false) => {
+    const key = `mosaic-${index}-${imageUrl.substring(0, 20)}`;
 
-    const imageClass = index === 0 ?
-      `${styles.mosaicImage} ${styles.mosaicImageFirst}` :
-      styles.mosaicImage;
+    const imageClass =
+      index === 0
+        ? `${styles.mosaicImage} ${styles.mosaicImageFirst}`
+        : styles.mosaicImage;
 
     return (
       <div
-        key={`mosaic-${image.id}`}
+        key={key}
         className={isLast ? styles.mosaicImageLast : undefined}
         onClick={onImageClick}
       >
         <Image
           src={imageUrl}
-          alt={`Imagen ${index + 1} de ${item.title || 'contenido'}`}
+          alt={`Imagen ${index + 1} de ${item.title || "contenido"}`}
           width={300}
           height={200}
           className={imageClass}
-          unoptimized
+          unoptimized // ← mantengo porque usas Cloudinary y Next/Image con ?w o similar no siempre es necesario
         />
         {isLast && imageCount > 4 && (
-          <div className={styles.mosaicOverlay}>
-            +{imageCount - 3}
-          </div>
+          <div className={styles.mosaicOverlay}>+{imageCount - 3}</div>
         )}
       </div>
     );
   };
 
-  const imagesToShow = imageCount > 4 ? item.images.slice(0, 4) : item.images;
+  // Mostramos máximo 4 imágenes (como el original)
+  const imagesToShow = imageCount > 4 ? images.slice(0, 4) : images;
 
   return (
     <div className={containerClass}>
-      {imagesToShow.map((image, index) => {
+      {imagesToShow.map((imageUrl: string, index: number) => {
         const isLast = index === imagesToShow.length - 1 && imageCount > 4;
-        return renderImage(image, index, isLast);
+        return renderImage(imageUrl, index, isLast);
       })}
     </div>
   );

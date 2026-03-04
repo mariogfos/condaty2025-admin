@@ -10,7 +10,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import ChatRoom from "./room/ChatRoom";
 import useInstandDB from "./provider/useInstandDB";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "../ui/Avatar/Avatar";
 import Logo from "@/components/req/Logo";
 import { useEvent } from "@/mk/hooks/useEvents";
@@ -137,7 +137,7 @@ export default function ChatInstantDb() {
             {latestMessage.text}
           </div>
         </>,
-        "info"
+        "info",
       );
     }
 
@@ -175,7 +175,7 @@ export default function ChatInstantDb() {
       // console.log(e);
       setOpen(!open);
     },
-    [open]
+    [open],
   );
 
   useEvent("onOpenChat", onOpenChat);
@@ -199,7 +199,6 @@ export default function ChatInstantDb() {
     setProfileModalOpen(false);
     setSelectedUserId(null);
   };
-
   return (
     <>
       <div
@@ -247,23 +246,14 @@ export default function ChatInstantDb() {
                 />
               ) : (
                 <Avatar
-                  hasImage={
-                    usersChat.find(
-                      (e: any) =>
-                        e.id ==
-                        currentRoom?.value
-                          .replace("--", "")
-                          .replace(user.id, "")
-                    )?.has_image
-                  }
-                  src={getUrlImages(
-                    "/ADM-" +
-                      currentRoom?.value
-                        .replace("--", "")
-                        .replace(user.id, "") +
-                      ".webp?d=" +
-                      new Date().getTime()
-                  )}
+                  // src={getUrlImages(
+                  //   "/ADM-" +
+                  //     currentRoom?.value
+                  //       .replace("--", "")
+                  //       .replace(user.id, "") +
+                  //     ".webp?d=" +
+                  //     new Date().getTime(),
+                  // )}
                   w={40}
                   h={40}
                   name={currentRoom?.text ?? ""}
@@ -430,8 +420,7 @@ const ChatContactItem = ({
           <IconGroup size={40} />
         ) : (
           <Avatar
-            hasImage={u?.name ? u.has_image : user.has_image}
-            src={getUrlImages("/ADM-" + u?.id + ".webp?d=" + u?.updated_at)}
+            src={u?.url_avatar}
             w={40}
             h={40}
             name={u?.name ?? getFullName(user)}

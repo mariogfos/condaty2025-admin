@@ -11,11 +11,8 @@ import useAxios from "../hooks/useAxios";
 import { useRouter } from "next/navigation";
 import Login from "../components/auth/Login";
 import useToast, { ToastType } from "../hooks/useToast";
-import { logError } from "../utils/logs";
 import Splash from "../../components/req/Splash";
 import Toast from "../components/ui/Toast/Toast";
-import { IconLogoElekta } from "@/components/layout/icons/IconsBiblioteca";
-
 export interface AuthContextType {
   user: any;
   error: any;
@@ -56,39 +53,67 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
   };
 
   const getUser = async (client_id = null) => {
-    setSplash(true);
+    // setSplash(true);
     setWaiting(1, "getUser");
     let currentUser: any = false;
     try {
       const token = await JSON.parse(
         localStorage.getItem(
-          (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
-        ) + ""
+          (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+        ) + "",
       );
       currentUser = user || token.user;
       const credentials: any = {};
-      if (client_id) credentials.client_id = client_id;
+      if (client_id) {
+        credentials.client_id = client_id;
+      } else if (currentUser?.client_id) {
+        credentials.client_id = currentUser.client_id;
+      }
+      if (client_id) {
+        credentials.client_id = client_id;
+      } else if (currentUser?.client_id) {
+        credentials.client_id = currentUser.client_id;
+      }
       if (currentUser) {
         const { data, error }: any = await execute(
           process.env.NEXT_PUBLIC_AUTH_IAM,
           "POST",
-          credentials
+          credentials,
+          false,
+          true,
         );
 
         if (data?.success && !error) {
           currentUser = data?.data?.user;
+          if (client_id) {
+            currentUser.client_id = client_id;
+          } else if (credentials.client_id) {
+            currentUser.client_id = credentials.client_id;
+          }
+
+          if (currentUser.client_id) {
+            localStorage.setItem("condaty_client_id", currentUser.client_id);
+          }
+
+          if (client_id) {
+            currentUser.client_id = client_id;
+          } else if (credentials.client_id) {
+            currentUser.client_id = credentials.client_id;
+          }
+
+          if (currentUser.client_id) {
+            localStorage.setItem("condaty_client_id", currentUser.client_id);
+          }
+
           localStorage.setItem(
             (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
-            JSON.stringify({ token: token.token, user: data?.data?.user })
+            JSON.stringify({ token: token.token, user: currentUser }),
           );
         } else {
-          
-
           if (error.status == 500) {
-          
             setTimeout(async () => {
               localStorage.removeItem(
-                (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
+                (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
               );
               setUser(false);
               setSplash(false);
@@ -96,12 +121,15 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
             return;
           }
           localStorage.removeItem(
-            (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
+            (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
           );
+          localStorage.removeItem("condaty_client_id");
+          localStorage.removeItem("condaty_client_id");
           setUser(false);
           setWaiting(-1, "-getUser");
-          setSplash(false);
-          router.reload();
+          // setSplash(false);
+          // router.reload();
+          // router.reload();
           return;
         }
       }
@@ -116,7 +144,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
   const userCan = (
     ability: string,
     _action: string,
-    minResponsive: "desktop" | "tablet" | "mobile" | null = "tablet"
+    minResponsive: "desktop" | "tablet" | "mobile" | null = "tablet",
   ) => {
     // console.log("userCan", ability, _action, minResponsive, window.innerWidth);
     if (minResponsive != "mobile") {
@@ -139,10 +167,12 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     if (!ability) return true;
     if (!user) return false;
     if (user.role?.abilities == "**" + user.client_id + "**") return true;
-    if (!user.role?.abilities?.includes(ability)) return false;
-    const a = user?.role?.abilities?.indexOf(ability);
-    const b = (user?.role?.abilities + "|").indexOf("|", a);
-    const permiso = (user.role.abilities.substring(a, b) + ":").split(":");
+    const abilities = "|" + user.role?.abilities || "";
+
+    if (!abilities?.includes(ability)) return false;
+    const a = abilities?.indexOf("|" + ability);
+    const b = (abilities + "|").indexOf("|", a + 1);
+    const permiso = (abilities.substring(a, b) + ":").split(":");
     if (!(permiso[1] + "").includes(action)) {
       return false;
     }
@@ -156,14 +186,14 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     const { data, error }: any = await execute(
       process.env.NEXT_PUBLIC_AUTH_LOGIN,
       "POST",
-      credentials
+      credentials,
     );
 
     if (data?.success && !error) {
       setUser(data?.data?.user);
       localStorage.setItem(
         (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
-        JSON.stringify({ token: data?.data?.token, user: data?.data?.user })
+        JSON.stringify({ token: data?.data?.token, user: data?.data?.user }),
       );
       setWaiting(-1, "-login");
       return { user: data?.data?.user };
@@ -179,16 +209,15 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     setWaiting(1, "logout");
     const { data, error }: any = await execute(
       process.env.NEXT_PUBLIC_AUTH_LOGOUT,
-      "POST"
+      "POST",
     );
     localStorage.removeItem(
-      (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
+      (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
     );
     setUser(false);
     if (data?.success) {
       setWaiting(-1, "-logout");
     } else {
-      
       setWaiting(-1, "-logout2");
       return { user, errors: data?.errors || data?.message || error };
     }
@@ -212,7 +241,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
       getUser: getUser,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user, error, loaded, waiting, splash, store, storeRef]
+    [user, error, loaded, waiting, splash, store, storeRef],
   );
 
   useEffect(() => {

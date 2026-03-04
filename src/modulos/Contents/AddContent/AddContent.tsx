@@ -8,7 +8,6 @@ import {
   IconGallery,
   IconVideo,
 } from "@/components/layout/icons/IconsBiblioteca";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Radio from "@/mk/components/forms/Ratio/Radio";
 import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
@@ -16,11 +15,10 @@ import CardContent from "./CardContent";
 import Button from "@/mk/components/forms/Button/Button";
 import Preview from "./Preview";
 import ModalDestiny from "./ModalDestiny";
-import UploadFileMultiple from "@/mk/components/forms/UploadFile/UploadFileMultiple";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TagContents from "./TagContents";
-import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 import Br from "@/components/Detail/Br";
+import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 
 const AddContent = ({
   onClose,
@@ -121,8 +119,9 @@ const AddContent = ({
           title: null,
           type: "I",
           url: null,
-          file: null,
-          avatar: formState?.avatar,
+          // file: null,
+          // avatar: formState?.avatar,
+          files: [],
         });
       }
       if (formState?.isType == "N") {
@@ -130,8 +129,9 @@ const AddContent = ({
           ...formState,
           type: "I",
           url: null,
-          file: null,
-          avatar: formState?.avatar,
+          // file: null,
+          // avatar: formState?.avatar,
+          files: formState?.files || [],
         });
       }
     }
@@ -164,19 +164,19 @@ const AddContent = ({
     return selDestinies;
   };
 
-  const getDestinysNames = () => {
-    let des: any = [];
-    if (formState?.destiny == 0) {
-      return (des = ["Todos"]);
-    }
-    if (formState?.destiny > 0) {
-      selDestinies(formState?.destiny)
-        .filter((d: any) => ldestinys?.includes(d.id))
-        .map((d: any) => des.push(d.name));
-      return des;
-    }
-    return des;
-  };
+  // const getDestinysNames = () => {
+  //   let des: any = [];
+  //   if (formState?.destiny == 0) {
+  //     return (des = ["Todos"]);
+  //   }
+  //   if (formState?.destiny > 0) {
+  //     selDestinies(formState?.destiny)
+  //       .filter((d: any) => ldestinys?.includes(d.id))
+  //       .map((d: any) => des.push(d.name));
+  //     return des;
+  //   }
+  //   return des;
+  // };
 
   const validate = (field: any = "") => {
     let errors: any = {};
@@ -189,9 +189,9 @@ const AddContent = ({
         errors,
       });
       errors = checkRules({
-        value: formState?.avatar,
-        rules: ["requiredImageMultiple"],
-        key: "avatar",
+        value: formState?.files,
+        rules: ["required"],
+        key: "files",
         errors,
         data: formState,
       });
@@ -205,7 +205,6 @@ const AddContent = ({
         errors,
       });
     }
-    // Solo validar description como requerido si es Post (isType == "P")
     if (formState?.isType == "P") {
       errors = checkRules({
         value: formState?.description,
@@ -217,18 +216,9 @@ const AddContent = ({
     setErrors(errors);
     return errors;
   };
-
   const onSave = async () => {
     if (hasErrors(validate())) return;
     setItem({ ...formState });
-    if (
-      formState.isType == "N" &&
-      action == "add" &&
-      Object?.keys(formState?.avatar || {}).length <= 0
-    ) {
-      showToast("Debe cargar una imagen", "error");
-      return;
-    }
 
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
@@ -241,8 +231,9 @@ const AddContent = ({
         description: formState?.description,
         avatar: formState?.avatar,
         file: formState?.file,
+        files: formState?.files,
         type: formState?.type,
-      }
+      },
     );
 
     if (data?.success == true) {
@@ -264,7 +255,7 @@ const AddContent = ({
         lDestiny: sel,
       },
       false,
-      true
+      true,
     );
 
     setFormState({
@@ -273,7 +264,6 @@ const AddContent = ({
       affCount: data?.data?.affCount,
     });
   };
-
   return (
     open && (
       <div className={styles.AddContent}>
@@ -389,7 +379,7 @@ const AddContent = ({
 
                 {formState?.type == "I" && (
                   <div className={styles.uploadContainer}>
-                    <UploadFileMultiple
+                    {/* <UploadFileMultiple
                       name="avatar"
                       value={formState?.avatar || {}}
                       onChange={handleChangeInput}
@@ -402,6 +392,14 @@ const AddContent = ({
                       prefix={"CONT"}
                       images={formState?.images || []}
                       item={formState}
+                    /> */}
+                    <UploadFileV3
+                      formState={formState}
+                      setFormState={setFormState}
+                      name="files"
+                      error={errors}
+                      cant={10}
+                      maxMB={2}
                     />
                   </div>
                 )}
@@ -418,7 +416,7 @@ const AddContent = ({
                 )}
                 {formState?.type == "D" && (
                   <div className={styles.uploadContainer}>
-                    <UploadFile
+                    {/* <UploadFile
                       name={"file"}
                       value={formState?.file}
                       onChange={handleChangeInput}
@@ -427,6 +425,14 @@ const AddContent = ({
                       ext={["pdf"]}
                       setError={setErrors}
                       item={formState}
+                    /> */}
+                    <UploadFileV3
+                      formState={formState}
+                      setFormState={setFormState}
+                      name="files"
+                      error={errors}
+                      cant={1}
+                      mode="documents"
                     />
                   </div>
                 )}

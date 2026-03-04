@@ -3,8 +3,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Button from "@/mk/components/forms/Button/Button";
 import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes } from "@/mk/utils/date";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { getFullName } from "@/mk/utils/string";
 import styles from "./BudgetDirApprovalModal.module.css";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar"; // <- Agregar import
@@ -77,12 +76,12 @@ type BudgetApprovalViewProps = {
     method: string,
     payload: any,
     noWaiting?: boolean,
-    noGenericError?: boolean
+    noGenericError?: boolean,
   ) => Promise<{ data?: any; error?: any }>;
   reLoad: () => void;
   showToast: (
     message: string,
-    type: "success" | "error" | "warning" | "info"
+    type: "success" | "error" | "warning" | "info",
   ) => void;
   extraData?: any;
 };
@@ -108,7 +107,7 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
     // <- Validación del comentario
     if (newStatus === "R" && (!comment || comment.trim() === "")) {
       setCommentError(
-        "El comentario es obligatorio para rechazar un presupuesto"
+        "El comentario es obligatorio para rechazar un presupuesto",
       );
       showToast("El comentario es obligatorio para rechazar", "warning");
       return;
@@ -137,14 +136,14 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
         "POST",
         payload,
         false,
-        true
+        true,
       );
 
       const toastType: "success" | "info" =
         newStatus === "A" ? "success" : "info";
       showToast(
         response?.message || `Presupuesto ${actionText} correctamente.`,
-        toastType
+        toastType,
       );
 
       reLoad();
@@ -200,10 +199,7 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
         {/* Header Section - Centrado con Avatar */}
         <div className={styles.headerSection}>
           <Avatar
-            hasImage={item?.user?.has_image}
-            src={getUrlImages(
-              "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at
-            )}
+            src={item?.user?.url_avatar}
             h={60}
             w={60}
             // <- Quitar style={{ borderRadius: 16 }} ya que el Avatar maneja esto internamente

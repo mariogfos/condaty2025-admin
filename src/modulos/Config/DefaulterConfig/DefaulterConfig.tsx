@@ -1,64 +1,203 @@
 import Input from "@/mk/components/forms/Input/Input";
-import React, {   } from "react";
+import React, { useState } from "react";
 import styles from "./DefaulterConfig.module.css";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import { IconQuestion } from "@/components/layout/icons/IconsBiblioteca";
 import Select from "@/mk/components/forms/Select/Select";
+import Switch from "@/mk/components/forms/Switch/Switch";
+import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 
 interface DefaulterConfigProps {
-  formState: any;
-  onChange: any;
-  errors: any;
+  client_config: any;
   onSave?: any;
 }
 
-const DefaulterConfig = ({
-  formState,
-  onChange,
-  errors,
-  onSave,
-}: DefaulterConfigProps) => {
+const limit_msgs: any = {
+  C: {
+    label: "Cantidad",
+    soft: {
+      title:
+        "Define después de cuántas expensas impagas, se activará la notificación de aviso al residente para informarle que pague sus expensas",
+      tooltip:
+        "El pre-aviso es la configuración que define cuántas expensas impagas puede acumular un residente, antes de que el sistema le envíe una notificación automática recordándole realizar el pago.",
+    },
+
+    hard: {
+      title:
+        "Define después de cuántas expensas impagas, el sistema bloqueará el acceso del residente a la app",
+      tooltip:
+        "El bloqueo es la configuración que define cuántas expensas impagas puede acumular un residente antes de que el sistema restrinja automáticamente su acceso a la aplicación del condominio.",
+    },
+  },
+  D: {
+    label: "Dias",
+    soft: {
+      title:
+        "Define después de cuántos días desde el vencimiento de la expensa mas antigua, se activará la notificación de aviso al residente para informarle que pague sus expensas",
+      tooltip:
+        "El pre-aviso es la configuración que define cuántos días desde el vencimiento de la expensa mas antigua impaga, antes de que el sistema le envíe una notificación automática recordándole realizar el pago.",
+    },
+    hard: {
+      title:
+        "Define después de cuántos días desde el vencimiento de la expensa mas antigua, el sistema bloqueará el acceso del residente a la app",
+      tooltip:
+        "El bloqueo es la configuración que define después de cuántos días desde el vencimiento de la expensa mas antigua impaga, el sistema restrinja automáticamente su acceso a la aplicación del condominio.",
+    },
+  },
+  M: {
+    label: "Fin de mes",
+    soft: {
+      title:
+        "Define después de cuántos días desde el vencimiento de la expensa mas antigua, se activará la notificación de aviso al residente para informarle que pague sus expensas",
+      tooltip:
+        "El pre-aviso es la configuración que define cuántos días desde el vencimiento de la expensa mas antigua impaga, antes de que el sistema le envíe una notificación automática recordándole realizar el pago.",
+    },
+    hard: {
+      title:
+        "Define después de cuántos días desde el vencimiento de la expensa mas antigua, el sistema bloqueará el acceso del residente a la app",
+      tooltip:
+        "El bloqueo es la configuración que define después de cuántos días desde el vencimiento de la expensa mas antigua impaga, el sistema restrinja automáticamente su acceso a la aplicación del condominio.",
+    },
+  },
+};
+
+const lLimit_type = [
+  { id: "C", name: "Por cantidad de expensas impagas" },
+  { id: "D", name: "Por días desde el vencimiento de la deuda mas antigua" },
+  { id: "M", name: "Por fin de mes" },
+];
+const lcheckMora = [
+  { id: 0, name: "No" },
+  { id: 1, name: "Sí" },
+];
+
+const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
+  const [formState, setFormState] = useState({
+    limit_type: client_config?.limit_type || "",
+    soft_limit: client_config?.soft_limit || "",
+    hard_limit: client_config?.hard_limit || "",
+    penalty_limit: client_config?.penalty_limit || "",
+    penalty_type: client_config?.penalty_type || "",
+    penalty_data: client_config?.penalty_data || "",
+    button_mora: client_config?.button_mora || "0",
+    check_mora: client_config?.check_mora || "0",
+  });
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    let errors: any = {};
+
+    errors = checkRules({
+      value: formState.limit_type,
+      rules: ["required"],
+      key: "limit_type",
+      errors,
+      data: formState,
+    });
+
+    errors = checkRules({
+      value: formState.soft_limit,
+      rules: ["required"],
+      key: "soft_limit",
+      errors,
+      data: formState,
+    });
+    errors = checkRules({
+      value: formState.hard_limit,
+      rules: ["required"],
+      key: "hard_limit",
+      errors,
+      data: formState,
+    });
+    errors = checkRules({
+      value: formState.penalty_limit,
+      rules: ["required"],
+      key: "penalty_limit",
+      errors,
+      data: formState,
+    });
+    errors = checkRules({
+      value: formState.penalty_type,
+      rules: ["required"],
+      key: "penalty_type",
+      errors,
+      data: formState,
+    });
+    if (formState.penalty_type == 1) {
+      errors = checkRules({
+        value: formState.penalty_data?.percent,
+        rules: ["required", "number", "less:100", "greater:0"],
+        key: "percent",
+        errors,
+        data: formState.penalty_data,
+      });
+    }
+    if (formState.penalty_type == 2) {
+      errors = checkRules({
+        value: formState.penalty_data?.amount,
+        rules: ["required"],
+        key: "amount",
+        errors,
+        data: formState.penalty_data,
+      });
+    }
+    if (formState.penalty_type == 3) {
+      errors = checkRules({
+        value: formState.penalty_data?.first_amount,
+        rules: ["required"],
+        key: "first_amount",
+        errors,
+        data: formState.penalty_data,
+      });
+      errors = checkRules({
+        value: formState.penalty_data?.second_amount,
+        rules: ["required"],
+        key: "second_amount",
+        errors,
+        data: formState.penalty_data,
+      });
+    }
+
+    setErrors(errors);
+    return errors;
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    if (value === "" || value === "-") {
-      onChange(e);
-      return;
-    }
+    if (["percent", "amount", "first_amount", "second_amount"].includes(name)) {
+      let newValue: any = value;
+      if (name === "percent") {
+        const numeric = Number(value);
+        if (!isNaN(numeric) && numeric > 100) {
+          newValue = 100;
+        }
+        if (!isNaN(numeric) && numeric < 0) {
+          newValue = 0;
+        }
+      }
 
-    const numericValue = parseFloat(value);
-
-    if (isNaN(numericValue)) {
-      return;
-    }
-
-    if (numericValue < 0) {
-      const syntheticEvent = {
-        ...e,
-        target: {
-          ...e.target,
-          value: "0",
+      setFormState((prev) => ({
+        ...prev,
+        penalty_data: {
+          ...prev.penalty_data,
+          [name]: newValue,
         },
-      };
-      onChange(syntheticEvent);
+      }));
+
       return;
     }
 
-    if (name === "penalty_percent" && numericValue > 100) {
-      const syntheticEvent = {
-        ...e,
-        target: {
-          ...e.target,
-          value: "100",
-        },
-      };
-      onChange(syntheticEvent);
-      return;
-    }
-
-    onChange(e);
+    setFormState((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
+  const _onSave = () => {
+    if (hasErrors(validate())) return;
+    onSave(formState);
+  };
   return (
     <div className={styles.defaulterContainer}>
       <div>
@@ -72,64 +211,145 @@ const DefaulterConfig = ({
         <div className={styles.sectionContainer}>
           <div>
             <div style={{ display: "flex", gap: 8 }}>
-              <h2 className={styles.sectionTitle}>Pre-aviso</h2>
+              <h2 className={styles.sectionTitle}>
+                Tipo de cálculo para el pre-aviso y bloqueo
+              </h2>
               <Tooltip
                 position="right"
-                title="El pre-aviso es la configuración que define cuántas expensas impagas puede acumular un residente, antes de que el sistema le envíe una notificación automática recordándole realizar el pago."
+                title="indique que tipo de limitante se pondrá a los pre-avisos y bloqueos."
               >
                 <IconQuestion size={16} />
               </Tooltip>
             </div>
             <p className={styles.sectionSubtitle}>
-              Define después de cuántas expensas impagas, se activará la
-              notificación de aviso al residente para informarle que pague sus
-              expensas
+              {limit_msgs[formState?.limit_type].soft.title}
             </p>
           </div>
-
           <div className={styles.inputField}>
-            <Input
-              type="number"
-              label="Cantidad"
-              name="soft_limit"
+            <Select
+              label="Tipo de cálculo"
+              name="limit_type"
               error={errors}
               required
-              value={formState?.soft_limit}
+              value={formState?.limit_type}
               onChange={handleInputChange}
-              maxLength={2}
-              min={0}
+              options={lLimit_type}
             />
           </div>
         </div>
+        {formState?.limit_type != "M" && (
+          <>
+            <div className={styles.sectionContainer}>
+              <div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <h2 className={styles.sectionTitle}>Pre-aviso</h2>
+                  <Tooltip
+                    position="right"
+                    title={limit_msgs[formState?.limit_type].soft.tooltip}
+                  >
+                    <IconQuestion size={16} />
+                  </Tooltip>
+                </div>
+                <p className={styles.sectionSubtitle}>
+                  {limit_msgs[formState?.limit_type].soft.title}
+                </p>
+              </div>
+
+              <div className={styles.inputField}>
+                <Input
+                  type="number"
+                  label={limit_msgs[formState?.limit_type].label}
+                  name="soft_limit"
+                  error={errors}
+                  required
+                  value={formState?.soft_limit}
+                  onChange={handleInputChange}
+                  maxLength={2}
+                  min={0}
+                />
+              </div>
+            </div>
+
+            <div className={styles.sectionContainer}>
+              <div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <h2 className={styles.sectionTitle}>Bloqueo</h2>
+                  <Tooltip
+                    position="right"
+                    title={limit_msgs[formState?.limit_type].hard.tooltip}
+                  >
+                    <IconQuestion size={16} />
+                  </Tooltip>
+                </div>
+                <p className={styles.sectionSubtitle}>
+                  {limit_msgs[formState?.limit_type].hard.title}
+                </p>
+              </div>
+
+              <div className={styles.inputField}>
+                <Input
+                  type="number"
+                  label={limit_msgs[formState?.limit_type].label}
+                  name="hard_limit"
+                  error={errors}
+                  required
+                  value={formState?.hard_limit}
+                  onChange={handleInputChange}
+                  maxLength={2}
+                  min={0}
+                />
+              </div>
+            </div>
+          </>
+        )}
 
         <div className={styles.sectionContainer}>
           <div>
             <div style={{ display: "flex", gap: 8 }}>
-              <h2 className={styles.sectionTitle}>Bloqueo</h2>
+              <h2 className={styles.sectionTitle}>MORA en guardias</h2>
               <Tooltip
                 position="right"
-                title="El bloqueo es la configuración que define cuántas expensas impagas puede acumular un residente antes de que el sistema restrinja automáticamente su acceso a la aplicación del condominio."
+                title="Indique si se mostrará a los GUARDIAS si una unidad o residente esta EN MORA."
               >
                 <IconQuestion size={16} />
               </Tooltip>
             </div>
             <p className={styles.sectionSubtitle}>
-              Define después de cuántas expensas impagas, el sistema bloqueará
-              el acceso del residente a la app
+              Indique si se mostrará a los GUARDIAS si una unidad o residente
+              esta EN MORA.
             </p>
           </div>
-
           <div className={styles.inputField}>
-            <Input
-              type="number"
-              label="Cantidad"
-              name="hard_limit"
+            <Select
+              label="Mostrar a Guardias"
+              name="check_mora"
               error={errors}
               required
-              value={formState?.hard_limit}
+              value={formState?.check_mora || 0}
               onChange={handleInputChange}
-              maxLength={2}
-              min={0}
+              options={lcheckMora}
+            />
+          </div>
+        </div>
+        <div className={styles.sectionContainer}>
+          <div className={styles.switchContainer}>
+            <div>
+              <p className={styles.textTitle}>
+                Mostrar Boton de Avisar en la App de Guardia
+              </p>
+              <p className={styles.sectionSubtitle}>
+                Activa esta opción para que el guardia en la App no pueda avisar
+                al Residente cuando recibe una visita si se encuentra en MORA
+              </p>
+            </div>
+
+            <Switch
+              name="button_mora"
+              label=""
+              value={formState?.button_mora || "0"}
+              onChange={handleInputChange}
+              optionValue={["1", "0"]}
+              checked={formState?.button_mora == 1}
             />
           </div>
         </div>
@@ -184,27 +404,6 @@ const DefaulterConfig = ({
               pago
             </p>
           </div>
-
-          {/* <div className={styles.inputField}>
-            <div className={styles.percentInputContainer}>
-              <Input
-                type="number"
-                label="Porcentaje"
-                name="penalty_percent"
-                error={errors}
-                required
-                value={formState?.penalty_percent}
-                onChange={handleInputChange}
-                maxLength={3}
-                min={0}
-                max={100}
-              />
-              {(formState?.penalty_percent ||
-                formState?.penalty_percent != 0) && (
-                <span className={styles.percentSymbol}>%</span>
-              )}
-            </div>
-          </div> */}
           <Select
             name="penalty_type"
             label="Tipo de multa"
@@ -299,7 +498,7 @@ const DefaulterConfig = ({
         </div>
 
         <div className={styles.saveButtonContainer}>
-          <button className={`${styles.saveButton}`} onClick={onSave}>
+          <button className={`${styles.saveButton}`} onClick={_onSave}>
             Guardar datos
           </button>
         </div>

@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import styles from "./mainmenu.module.css";
@@ -33,10 +39,14 @@ const Badge: React.FC = () => (
 );
 
 const MainmenuDropdown = ({
-  label, icon, items,
+  label,
+  icon,
+  items,
   collapsed = false,
-  isOpen = false, onToggle,
-  setSideBarOpen }: MainmenuDropdownProps) => {
+  isOpen = false,
+  onToggle,
+  setSideBarOpen,
+}: MainmenuDropdownProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -45,7 +55,7 @@ const MainmenuDropdown = ({
 
   const hasItemWithBadge = useMemo(
     () => items.some((item) => Number(item.bage) > 0),
-    [items]
+    [items],
   );
 
   // Función para validar si la ruta actual coincide con el href del item
@@ -64,13 +74,13 @@ const MainmenuDropdown = ({
 
       return false;
     },
-    [pathname, type]
+    [pathname, type],
   );
 
   // Verificar si alguna ruta del dropdown está activa
   const isRouteActive = useMemo(
     () => items.some((item) => validatePathname(item)),
-    [items, validatePathname]
+    [items, validatePathname],
   );
 
   const handleLinkClick = useCallback(() => {
@@ -109,7 +119,9 @@ const MainmenuDropdown = ({
     >
       <div onClick={onToggle} className={styles.dropdownHeader}>
         <div className={styles.dropdownLabel}>
-          {icon}
+          <div style={{ color: isRouteActive ? "var(--cAccent)" : undefined }}>
+            {icon}
+          </div>
           {!collapsed && <p>{label}</p>}
           {hasItemWithBadge && <Badge />}
         </div>
@@ -131,8 +143,8 @@ const MainmenuDropdown = ({
                 .join(" ")}
             >
               <div className={styles.contentWithBadge}>
-              {item.label}
-              {Number(item.bage) > 0 && <Badge />}
+                {item.label}
+                {Number(item.bage) > 0 && <Badge />}
               </div>
             </Link>
           ))}

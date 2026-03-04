@@ -3,7 +3,7 @@ import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo, useState } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import styles from "./Reserva.module.css";
@@ -18,7 +18,7 @@ import {
   RESERVATION_STATUS_CONFIG,
   RESERVATION_STATUS_OPTIONS,
   getUpdatedReservationStatus,
-  type ReservationStatus
+  type ReservationStatus,
 } from "./constants/reservationConstants";
 
 const mod = {
@@ -66,16 +66,10 @@ const Reserva = () => {
   const onRenderAreaList = ({ item }: any) => {
     const area = item?.area;
     const areaName = area?.title;
-    const imageUrl = area?.images?.[0]
-      ? getUrlImages(
-          `/AREA-${area.images[0].entity_id}-${
-            area.images[0].id
-          }.webp?d=${new Date().toISOString()}`
-        )
-      : undefined;
+    const imageUrl = area?.images?.[0];
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Avatar src={imageUrl} hasImage={2} name={areaName} />
+        <Avatar src={imageUrl} name={areaName} />
         <p
           style={{
             color: "var(--cWhite)",
@@ -95,15 +89,9 @@ const Reserva = () => {
     const ownerName = owner ? getFullName(owner) : "Residente no disponible";
     const dptoNro = dpto?.nro ? dpto.nro : "Sin Dpto.";
 
-    const imageUrl = owner
-      ? getUrlImages(
-          `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`
-        )
-      : undefined;
-
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Avatar src={imageUrl} name={ownerName} />
+        <Avatar src={owner?.url_avatar} name={ownerName} />
         <div>
           <p
             style={{
@@ -184,7 +172,7 @@ const Reserva = () => {
                 {getDateStrMes(props?.item?.date_at)}{" "}
                 {format(
                   parse(props?.item?.start_time, "HH:mm:ss", new Date()),
-                  "H:mm"
+                  "H:mm",
                 )}
               </div>
             );
@@ -224,10 +212,12 @@ const Reserva = () => {
             status = getUpdatedReservationStatus(
               status,
               props?.item?.date_end,
-              props?.item?.end_time
+              props?.item?.end_time,
             );
 
-            const currentStatus = status ? RESERVATION_STATUS_CONFIG[status] : null;
+            const currentStatus = status
+              ? RESERVATION_STATUS_CONFIG[status]
+              : null;
 
             return (
               <StatusBadge
@@ -252,7 +242,7 @@ const Reserva = () => {
         },
       },
     }),
-    []
+    [],
   );
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };

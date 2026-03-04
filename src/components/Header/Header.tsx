@@ -1,5 +1,5 @@
 "use client";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import styles from "./header.module.css";
 import {
@@ -78,7 +78,7 @@ const Header = ({
     (e: any) => {
       setCountChat((old) => old + 1);
     },
-    [user?.id]
+    [user?.id],
   );
 
   useEvent("onChatNewMsg", onChat);
@@ -104,8 +104,7 @@ const Header = ({
       <div className={styles["header-title"]}>
         <Avatar
           name={getFullName(user)}
-          src={getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)}
-          hasImage={user.has_image}
+          src={user?.url_avatar}
           onClick={() => {
             // router.push("/profile");
             setStore({ openProfileModal: true });
@@ -169,13 +168,10 @@ const Header = ({
       <div>
         <div style={{ cursor: "pointer" }}>
           <Avatar
-            hasImage={1}
             name={getFullName(user)}
             h={40}
             w={40}
-            src={getUrlImages(
-              "/ADM-" + user?.id + ".webp?d=" + user?.updated_at
-            )}
+            src={user?.url_avatar}
             onClick={() => {
               setStore({ ...store, openProfileModal: true });
             }}

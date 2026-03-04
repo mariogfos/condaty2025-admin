@@ -219,7 +219,7 @@ const BalanceGeneral: React.FC = () => {
     const currentCateg = formStateFilter.filter_categ;
     if (Array.isArray(currentCateg)) {
       const nuevas = currentCateg.filter((cat: string) =>
-        categoriasDisponibles.includes(cat)
+        categoriasDisponibles.includes(cat),
       );
 
       if (nuevas.length !== currentCateg.length) {
@@ -489,17 +489,17 @@ const BalanceGeneral: React.FC = () => {
               ingresos={filtrarHastaMesActual(
                 filtrarPorCategorias(
                   finanzas?.data.ingresosHist || [],
-                  "category_id"
+                  "category_id",
                 ),
-                "I"
+                "I",
               )}
               chartTypes={[charType.filter_charType]}
               h={360}
               title={`Bs ${formatNumber(
                 getLegendIngresos().reduce(
                   (acc: number, cat: any) => acc + cat.total,
-                  0
-                )
+                  0,
+                ),
               )}`}
               subtitle={"Total de ingresos"}
               periodo={formStateFilter?.filter_date}
@@ -611,17 +611,17 @@ const BalanceGeneral: React.FC = () => {
               egresos={filtrarHastaMesActual(
                 filtrarPorCategorias(
                   finanzas?.data.egresosHist || [],
-                  "category_id"
+                  "category_id",
                 ),
-                "E"
+                "E",
               )}
               chartTypes={[charType.filter_charType]}
               h={360}
               title={`Bs ${formatNumber(
                 getLegendEgresos().reduce(
                   (acc: number, cat: any) => acc + cat.total,
-                  0
-                )
+                  0,
+                ),
               )}`}
               subtitle={"Total de egresos"}
               periodo={formStateFilter?.filter_date}
@@ -877,7 +877,7 @@ const BalanceGeneral: React.FC = () => {
                           chartTypes={[charType.filter_charType]}
                           subtitle={getSubtitle()}
                           title={`Bs ${formatNumber(
-                            calculatedTotals.saldoFinal
+                            calculatedTotals.saldoFinal,
                           )}`}
                           periodo={formStateFilter?.filter_date}
                           className={styles.lightChart}

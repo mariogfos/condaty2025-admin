@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import EmptyData from "@/components/NoData/EmptyData";
 import Button from "@/mk/components/forms/Button/Button";
@@ -71,17 +71,9 @@ const UnitInfo = ({
   }, [openOwnerMenu, openTenantMenu, openTitularSelector]);
 
   const owner = datas?.homeowner;
-  const ownerUpdatedAtQuery = owner?.updated_at ? `?d=${owner.updated_at}` : "";
-  const ownerAvatarSrc = owner?.id
-    ? getUrlImages(`/OWNER-${owner.id}.webp${ownerUpdatedAtQuery}`)
-    : "";
+  const ownerAvatarSrc = owner?.id ? owner?.url_avatar : "";
   const tenant = datas?.tenant;
-  const tenantUpdatedAtQuery = tenant?.updated_at
-    ? `?d=${tenant.updated_at}`
-    : "";
-  const tenantAvatarSrc = tenant?.id
-    ? getUrlImages(`/OWNER-${tenant.id}.webp${tenantUpdatedAtQuery}`)
-    : "";
+  const tenantAvatarSrc = tenant?.id ? tenant?.url_avatar : "";
   const ownerWhatsAppLink = generateWhatsAppLink(owner?.phone || "");
   const tenantWhatsAppLink = generateWhatsAppLink(tenant?.phone || "");
   const samePerson = !!owner?.id && !!tenant?.id && owner.id === tenant.id;
@@ -91,10 +83,10 @@ const UnitInfo = ({
   const tenantDependentsToShow = Array.isArray(tenant?.dependientes)
     ? tenant.dependientes
     : samePerson
-    ? Array.isArray(owner?.dependientes)
-      ? owner.dependientes
-      : []
-    : [];
+      ? Array.isArray(owner?.dependientes)
+        ? owner.dependientes
+        : []
+      : [];
 
   const currentHolder = datas?.data?.holder;
   const HandleTitular = () => {
@@ -129,7 +121,42 @@ const UnitInfo = ({
       showToast(
         error?.message ||
           "Error al cambiar de titular comunicate con tu administrador",
-        "error"
+        "error",
+      );
+    }
+  };
+
+  const releaseOwner = async () => {
+    setOpenOwnerMenu(false);
+    const dptoId = datas?.data?.id || datas?.data?.dpto_id || null;
+    const ownerId = datas?.homeowner?.id || null;
+
+    if (!dptoId || !ownerId) {
+      console.error("Faltan datos para desvincular propietario", {
+        dptoId,
+        ownerId,
+      });
+      showToast("Faltan datos para desvincular propietario", "error");
+      return;
+    }
+
+    try {
+      const { data } = await execute("/dptos-release-owner", "POST", {
+        dpto_id: dptoId,
+        owner_id: ownerId,
+        type: "H",
+      });
+      if (data?.success) {
+        showToast("Propietario desvinculado exitosamente", "success");
+        window.location.reload();
+      } else {
+        showToast(data?.message || "Error al desvincular propietario", "error");
+      }
+    } catch (error: any) {
+      showToast(
+        error?.message ||
+          "Error al desvincular propietario, comunícate con tu administrador",
+        "error",
       );
     }
   };
@@ -268,6 +295,18 @@ const UnitInfo = ({
                   >
                     Asignar
                   </button>
+                  {datas?.homeowner && (
+                    <button
+                      type="button"
+                      className={styles.menuItem}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        releaseOwner();
+                      }}
+                    >
+                      Desvincular
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -281,7 +320,6 @@ const UnitInfo = ({
                   className={styles.personCardClickable}
                 >
                   <Avatar
-                    hasImage={owner?.has_image}
                     src={ownerAvatarSrc}
                     name={getFullName(owner)}
                     w={48}
@@ -330,13 +368,8 @@ const UnitInfo = ({
                   <div className={styles.dependentsGrid}>
                     {ownerDependentsToShow?.map((dependiente: any) => {
                       const dependentOwner = dependiente.owner;
-                      const dependentUpdatedAtQuery = dependentOwner?.updated_at
-                        ? `?d=${dependentOwner.updated_at}`
-                        : "";
                       const dependentAvatarSrc = dependentOwner?.id
-                        ? getUrlImages(
-                            `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`
-                          )
+                        ? dependentOwner?.url_avatar
                         : "";
                       return (
                         <Tooltip
@@ -345,7 +378,6 @@ const UnitInfo = ({
                           position="top-left"
                         >
                           <Avatar
-                            hasImage={dependentOwner?.has_image}
                             className={styles.dependentAvatar}
                             src={dependentAvatarSrc}
                             name={getFullName(dependentOwner)}
@@ -450,7 +482,6 @@ const UnitInfo = ({
                   className={styles.personCardClickable}
                 >
                   <Avatar
-                    hasImage={tenant?.has_image}
                     src={tenantAvatarSrc}
                     name={getFullName(tenant)}
                     w={48}
@@ -499,13 +530,8 @@ const UnitInfo = ({
                   <div className={styles.dependentsGrid}>
                     {tenantDependentsToShow?.map((dependiente: any) => {
                       const dependentOwner = dependiente.owner;
-                      const dependentUpdatedAtQuery = dependentOwner?.updated_at
-                        ? `?d=${dependentOwner.updated_at}`
-                        : "";
                       const dependentAvatarSrc = dependentOwner?.id
-                        ? getUrlImages(
-                            `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`
-                          )
+                        ? dependentOwner?.url_avatar
                         : "";
                       return (
                         <Tooltip
@@ -514,7 +540,6 @@ const UnitInfo = ({
                           position="top-left"
                         >
                           <Avatar
-                            hasImage={dependentOwner?.has_image}
                             className={styles.dependentAvatar}
                             src={dependentAvatarSrc}
                             name={getFullName(dependentOwner)}

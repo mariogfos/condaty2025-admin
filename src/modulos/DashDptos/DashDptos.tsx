@@ -52,7 +52,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
   >(null);
   const [openProfileModal, setOpenProfileModal] = useState(false);
   const [selectedDependentId, setSelectedDependentId] = useState<string | null>(
-    null
+    null,
   );
   const [openOwnerProfileModal, setOpenOwnerProfileModal] = useState(false);
   const [openTenantProfileModal, setOpenTenantProfileModal] = useState(false);
@@ -70,7 +70,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const datas = dashData?.data || {};
 
   const [currentChangeType, setCurrentChangeType] = useState<"H" | "T" | null>(
-    null
+    null,
   );
 
   const onSave = async () => {
@@ -83,7 +83,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     const list: any[] =
       currentChangeType === "H" ? extra.homeowners || [] : extra.tenants || [];
     const selectedOwner = list.find(
-      (owner: any) => String(owner.id) === String(formState.owner_id)
+      (owner: any) => String(owner.id) === String(formState.owner_id),
     );
 
     setOpenTitular(false);
@@ -104,14 +104,15 @@ const DashDptos = ({ id }: DashDptosProps) => {
       const { data: response } = await execute(
         "/dptos-change-owner",
         "POST",
-        payload
+        payload,
       );
 
       if (response?.success) {
         showToast(
           `${type === "H" ? "Propietario" : "Residente"} actualizado`,
-          "success"
+          "success",
         );
+        setFormState({});
         setOpenTitular(false);
         setErrorsT({});
         setCurrentChangeType(null);
@@ -120,13 +121,13 @@ const DashDptos = ({ id }: DashDptosProps) => {
         showToast(
           response?.message ||
             `Error al actualizar ${type === "H" ? "propietario" : "residente"}`,
-          "error"
+          "error",
         );
       }
     } catch (error) {
       showToast(
         `Error al actualizar ${type === "H" ? "propietario" : "residente"}`,
-        error as string
+        error as string,
       );
     }
   };
@@ -161,7 +162,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const [openOwnerForm, setOpenOwnerForm] = useState(false);
   const [newOwnerType, setNewOwnerType] = useState<"Propietario" | "Residente">(
-    "Propietario"
+    "Propietario",
   );
   const [newIsResident, setNewIsResident] = useState<boolean>(false);
 
@@ -176,7 +177,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     if (type === "T" && !datas?.homeowner) {
       showToast(
         "No se puede asignar un residente a esta unidad porque no existe un propietario registrado.",
-        "error"
+        "error",
       );
       return;
     }
@@ -205,7 +206,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
       if (data?.success) {
         showToast(
           isHomeowner ? "Propietario liberado" : "Residente desvinculado",
-          "success"
+          "success",
         );
         reLoad({ extraData: true });
         setOpenDelTitular(false);
@@ -216,7 +217,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             `Error al ${
               isHomeowner ? "liberar propietario" : "desvincular residente"
             }`,
-          "error"
+          "error",
         );
       }
     } catch (error) {
@@ -427,7 +428,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
               idPerfil === datas?.tenant?.id
                 ? datas?.tenant
                 : datas?.tenant?.dependientes?.find(
-                    (dep: any) => dep.owner_id === idPerfil
+                    (dep: any) => dep.owner_id === idPerfil,
                   )?.owner || {}
             }
             reLoad={reLoad}
@@ -470,7 +471,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 method: string,
                 data: any,
                 showLoader?: boolean,
-                silent?: boolean
+                silent?: boolean,
               ) => Promise<{ data?: any }>
             }
             extraData={{

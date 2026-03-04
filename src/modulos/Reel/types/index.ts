@@ -7,6 +7,7 @@ export type User = {
   mother_last_name?: string;
   updated_at: string;
   role1: Role[];
+  url_avatar?: string;
 };
 
 export type Role = {
@@ -30,6 +31,7 @@ export type CommentUser = {
   mother_last_name?: string;
   updated_at?: string;
   has_image?: any;
+  url_avatar?: string;
 };
 
 export type Comment = {
@@ -63,8 +65,14 @@ export type ContentItem = {
   deleted_at: string | null;
   comments_count: number;
   liked: 0 | 1;
-  images: Image[];
+  images: {
+    id: number;
+    ext: string;
+    entity_id?: string;
+  }[];
+  files: string[];
   user: User;
   currentImageIndex?: number;
   isDescriptionExpanded?: boolean;
+  owner: User;
 };

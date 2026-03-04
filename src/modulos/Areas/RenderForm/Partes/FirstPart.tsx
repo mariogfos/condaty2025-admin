@@ -5,10 +5,12 @@ import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import UploadFileMultiple from "@/mk/components/forms/UploadFile/UploadFileMultiple";
 import Br from "@/components/Detail/Br";
+import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 interface PropsType {
   handleChange: any;
   errors: any;
   setErrors: any;
+  setFormState: any;
   formState: any;
 }
 
@@ -16,12 +18,13 @@ const FirstPart = ({
   handleChange,
   errors,
   setErrors,
+  setFormState,
   formState,
 }: PropsType) => {
   return (
     <>
       {/* <p className={styles.title}>Fotografía del área social</p> */}
-      <UploadFileMultiple
+      {/* <UploadFileMultiple
         name="avatar"
         value={formState?.avatar}
         onChange={handleChange}
@@ -37,6 +40,13 @@ const FirstPart = ({
         // editor={}
         // sizePreview={_field.sizePreview}
         // autoOpen={data?.action == "add"}
+      /> */}
+      <UploadFileV3
+        formState={formState}
+        setFormState={setFormState}
+        name="images"
+        error={errors}
+        cant={5}
       />
       <Br />
       <p className={styles.title}>Datos generales</p>

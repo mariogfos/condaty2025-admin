@@ -109,7 +109,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
             perPage: 1,
           },
           false,
-          true
+          true,
         );
         if (data?.data) {
           setItem(data.data);
@@ -135,7 +135,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       "POST",
       { id: item?.id },
       false,
-      true
+      true,
     );
 
     if (file?.success === true && file?.data?.path) {
@@ -145,7 +145,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     } else {
       showToast(
         error?.data?.message || "No se pudo generar el recibo.",
-        "error"
+        "error",
       );
     }
   };
@@ -163,26 +163,26 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       "POST",
       { id: item?.id },
       false,
-      true
+      true,
     );
     if (file?.success === true && file?.data?.path) {
       const receiptUrl = getUrlImages("/" + file.data.path);
       const waLink = generateWhatsAppLink(
         phone,
-        `Recibo de pago: ${receiptUrl}`
+        `Recibo de pago: ${receiptUrl}`,
       );
       window.open(waLink, "_blank");
       showToast("Recibo generado con éxito.", "success");
     } else {
       showToast(
         error?.data?.message || "No se pudo generar el recibo.",
-        "error"
+        "error",
       );
     }
   };
 
   const handleChangeInput = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     let value = e.target.value;
     if ((e.target as HTMLInputElement).type === "checkbox") {
@@ -210,7 +210,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         confirm_obs: formState.confirm_obs,
       },
       false,
-      noWaiting
+      noWaiting,
     );
 
     if (payment?.success === true) {
@@ -243,7 +243,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         perPage: 1,
       },
       false,
-      true
+      true,
     );
     if (data?.data) {
       setItem(data.data);
@@ -267,7 +267,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       "PUT",
       body,
       false,
-      true
+      true,
     );
 
     if (data?.success === true) {
@@ -286,7 +286,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         error?.data?.message ||
           error?.message ||
           "No se pudo actualizar el número de respaldo",
-        "error"
+        "error",
       );
     }
   };
@@ -319,7 +319,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     if (!extraData?.dptos) return (item?.dptos || "-/-").replace(/,/g, "");
 
     const dpto = extraData.dptos.find(
-      (d: any) => d.id === item?.dpto_id || d.id === item?.dptos
+      (d: any) => d.id === item?.dpto_id || d.id === item?.dptos,
     );
 
     if (dpto) {
@@ -441,7 +441,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         .map((u: any) =>
           String(u || "")
             .replace(/[`'"\s]/g, "")
-            .trim()
+            .trim(),
         )
         .filter((u: string) => !!u)
     : [];
@@ -450,7 +450,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   if (voucherUrls.length === 0 && item.ext) {
     const ext = item.ext || "webp";
     const legacyUrl = getUrlImages(
-      "/PAYMENT-" + item.id + "." + ext + "?d=" + item.updated_at
+      "/PAYMENT-" + item.id + "." + ext + "?d=" + item.updated_at,
     );
     voucherUrls.push(legacyUrl);
   }
@@ -481,7 +481,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
           if (!/\.[a-zA-Z0-9]+$/.test(name)) {
             const ext = (blob.type.split("/")[1] || "file").replace(
               /[^a-zA-Z0-9]/g,
-              ""
+              "",
             );
             name = name + "." + ext;
           }
@@ -852,7 +852,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                                   data-label="Multa"
                                 >
                                   {formatBs(
-                                    periodo?.debt_dpto?.penalty_amount || 0
+                                    periodo?.debt_dpto?.penalty_amount || 0,
                                   )}
                                 </div>
 
@@ -863,7 +863,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                                   >
                                     {formatBs(
                                       periodo?.debt_dpto?.maintenance_amount ||
-                                        0
+                                        0,
                                     )}
                                   </div>
                                 )}

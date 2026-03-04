@@ -15,7 +15,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { ApiArea, FormState } from "./Type";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
@@ -98,7 +98,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   useEffect(() => {
     if (formState?.unidad) {
       const selectedUnit = extraData?.dptos?.find(
-        (u: any) => String(u.id) === formState.unidad
+        (u: any) => String(u.id) === formState.unidad,
       );
       setSelectedUnit(selectedUnit);
     }
@@ -118,11 +118,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
           owner_id:
             ownerId ||
             extraData?.dptos?.find(
-              (u: any) => String(u.id) === formState.unidad
+              (u: any) => String(u.id) === formState.unidad,
             )?.titular?.id,
         },
         false,
-        true
+        true,
       );
       if (data?.success) {
         setDataReserv(data?.data);
@@ -142,7 +142,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       showToast,
       formState?.unidad,
       extraData?.dptos,
-    ]
+    ],
   );
 
   const unidadesOptions = () => {
@@ -158,7 +158,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       } else {
         data.push({
           id: String(unidad.id),
-            name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)} `,
+          name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)} `,
         });
       }
     });
@@ -170,7 +170,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       return;
     }
     return extraData?.areas.find(
-      (area: ApiArea) => area.id === formState.area_social
+      (area: ApiArea) => area.id === formState.area_social,
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState.area_social]);
@@ -225,7 +225,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         }
       };
     },
-    [formState.area_social, formState.unidad, getCalendar, monthChangeTimer]
+    [formState.area_social, formState.unidad, getCalendar, monthChangeTimer],
   );
 
   const handleDateChange = (dateString?: string | undefined) => {
@@ -238,11 +238,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
 
     if (dateString == new Date().toISOString().split("T")?.[0]) {
       daysAvailable = dataDay?.available.filter(
-        (d: any) => parseInt(d.split("-")[1]) > new Date().getHours()
+        (d: any) => parseInt(d.split("-")[1]) > new Date().getHours(),
       );
 
       unavailableSlots = dataDay?.available.filter(
-        (d: any) => parseInt(d.split("-")[1]) <= new Date().getHours()
+        (d: any) => parseInt(d.split("-")[1]) <= new Date().getHours(),
       );
     } else {
       daysAvailable = dataDay?.available;
@@ -256,7 +256,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       setShowMessage(false);
     }
     setUnavailableTimeSlots(
-      unavailableSlots.concat(dataDay?.unavailable, dataDay?.maintenance)
+      unavailableSlots.concat(dataDay?.unavailable, dataDay?.maintenance),
     );
     if (Array.isArray(daysAvailable)) {
       setAvailableTimeSlots(daysAvailable);
@@ -325,7 +325,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     setIsSubmitting(true);
 
     const selectedUnit = extraData?.dptos.find(
-      (u: any) => String(u.id) === formState.unidad
+      (u: any) => String(u.id) === formState.unidad,
     );
     const ownerId = selectedUnit?.titular?.id;
     if (!ownerId) {
@@ -358,20 +358,23 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         "POST",
         payload,
         false,
-        true
+        true,
       );
       if (response?.data?.success) {
         showToast(
           response?.data?.message || "Reserva creada exitosamente",
-          "success"
+          "success",
         );
-        setOpenDebt({ open: true, item: response?.data?.data?.debtDpto });
-        // if (reLoad) reLoad();
-        // if (onClose) onClose();
+        if (response?.data?.data?.debtDpto) {
+          setOpenDebt({ open: true, item: response?.data?.data?.debtDpto });
+        } else {
+          if (reLoad) reLoad();
+          if (onClose) onClose();
+        }
       } else {
         showToast(
           response?.data?.message || "Error al crear la reserva.",
-          "error"
+          "error",
         );
       }
     } catch (error) {
@@ -442,7 +445,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       isAvailable: false,
     }));
     return [...available, ...unavailable].sort((a, b) =>
-      a.period.localeCompare(b.period)
+      a.period.localeCompare(b.period),
     );
   }, [availableTimeSlots, unavailableTimeSlots]);
 
@@ -453,6 +456,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     }
     onClose();
   };
+  const currentImage = selectedAreaDetails?.images?.[currentImageIndex];
   return (
     <div className={styles.pageWrapper}>
       <HeaderBack label="Volver a lista de reservas" onClick={_onClose} />
@@ -506,23 +510,19 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                 {selectedAreaDetails && selectedUnit && (
                   <>
                     <div className={styles.areaPreview}>
-                      {selectedAreaDetails.images &&
-                        selectedAreaDetails.images.length > 0 && (
+                      {selectedAreaDetails?.images &&
+                        selectedAreaDetails?.images?.length > 0 && (
                           <div className={styles.imageContainer}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              key={
-                                selectedAreaDetails?.images[currentImageIndex]
-                                  ?.id
-                              }
-                              className={styles.previewImage}
-                              src={getUrlImages(
-                                `/AREA-${selectedAreaDetails?.id}-${selectedAreaDetails?.images[currentImageIndex]?.id}.webp?d=${selectedAreaDetails?.updated_at}`
-                              )}
-                              alt={`Imagen ${currentImageIndex + 1} de ${
-                                selectedAreaDetails.title
-                              }`}
-                            />
+                            {currentImage && (
+                              <img
+                                key={currentImage}
+                                className={styles.previewImage}
+                                src={currentImage}
+                                alt={`Imagen ${currentImageIndex + 1} de ${selectedAreaDetails?.title}`}
+                              />
+                            )}
+
                             {selectedAreaDetails?.images?.length > 1 && (
                               <div className={styles.imagePagination}>
                                 <button
@@ -532,7 +532,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                                       prev > 0
                                         ? prev - 1
                                         : (selectedAreaDetails?.images
-                                            ?.length || 1) - 1
+                                            ?.length || 1) - 1,
                                     )
                                   }
                                   disabled={
@@ -557,7 +557,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                                         1) -
                                         1
                                         ? prev + 1
-                                        : 0
+                                        : 0,
                                     )
                                   }
                                   disabled={
@@ -717,7 +717,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                           <div className={styles.periodSelectionContainer}>
                             {allTimeSlots.map((slot) => {
                               const isSelected = selectedPeriods.includes(
-                                slot.period
+                                slot.period,
                               );
                               const isDisabled = !slot.isAvailable;
 
@@ -851,11 +851,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   <div className={styles.summaryOwnerInfo}>
                     <div className={styles.ownerIdentifier}>
                       <Avatar
-                        src={getUrlImages(
-                          `/OWNER-${
-                            selectedUnit?.titular?.id
-                          }.webp?d=${Date.now().toString()}`
-                        )}
+                        src={selectedUnit?.titular?.url_avatar}
                         name={getFullName(selectedUnit?.titular)}
                         w={40}
                         h={40}

@@ -1,12 +1,12 @@
 // src/mk/services/storage/storage.service.ts
-import { CloudinaryAdapter } from './adapters/CloudinaryAdapter';
-import type { StorageFile, IStorageAdapter } from './types';
+import { CloudinaryAdapter } from "./adapters/CloudinaryAdapter";
+import type { StorageFile, IStorageAdapter } from "./types";
 
 // Configuración de Cloudinary - ajustar según tu config
 const cloudinaryConfig = {
-  cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '',
-  uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '',
-  folder: process.env.NEXT_PUBLIC_CLOUDINARY_FOLDER || 'condaty-admin',
+  cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "",
+  uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "",
+  folder: process.env.NEXT_PUBLIC_CLOUDINARY_FOLDER || "condaty-admin",
 };
 
 class StorageService {

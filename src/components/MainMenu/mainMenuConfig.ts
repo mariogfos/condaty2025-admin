@@ -6,14 +6,31 @@ import {
   IconComunicationDialog,
   IconCalendar,
   IconSecurity,
+  IconBackOffice,
+  IconFinance,
+  IconAdministracion,
+  IconCommunication,
+  IconSecurityV2,
 } from "../layout/icons/IconsBiblioteca";
 
 export const menuConfig = [
   { type: "item", href: "/", label: "Inicio", perm: "home", icon: IconHome },
   {
     type: "dropdown",
+    label: "Backoffice",
+    icon: IconBackOffice,
+    key: "Backoffice",
+    items: [
+      { href: "/superadmins", perm: "superadmins", label: "Superadmins" },
+      { href: "/condominios", perm: "condominios", label: "Condominios" },
+      { href: "/invitations", perm: "campanas", label: "Invitaciones QR" },
+      { href: "/uploads", perm: "cargamasiva", label: "Carga masiva" },
+    ],
+  },
+  {
+    type: "dropdown",
     label: "Finanzas",
-    icon: IconPayments,
+    icon: IconFinance,
     key: "Finanzas",
     items: [
       { href: "/balance", label: "Flujo de efectivo", perm: "balance" },
@@ -42,12 +59,11 @@ export const menuConfig = [
   {
     type: "dropdown",
     label: "Administración",
-    icon: IconMonitorLine,
+    icon: IconAdministracion,
     key: "Administración",
     items: [
       { href: "/units", perm: "units", label: "Unidades" },
       { href: "/areas", perm: "areas", label: "Áreas sociales" },
-      { href: "/activities", perm: "accesses", label: "Accesos" },
       { href: "/documents", perm: "documents", label: "Documentos" },
       { href: "/configs", perm: "settings", label: "Configuración" },
     ],
@@ -66,7 +82,7 @@ export const menuConfig = [
   {
     type: "dropdown",
     label: "Comunicación",
-    icon: IconComunicationDialog,
+    icon: IconCommunication,
     key: "Comunicación",
     items: [
       { href: "/contents", perm: "contents", label: "Publicaciones" },
@@ -89,10 +105,11 @@ export const menuConfig = [
   {
     type: "dropdown",
     label: "Vigilancia y seguridad",
-    icon: IconSecurity,
+    icon: IconSecurityV2,
     key: "Vigilancia y seguridad",
     items: [
       { href: "/guards", perm: "guards", label: "Guardias" },
+      { href: "/activities", perm: "accesses", label: "Accesos" },
       {
         href: "/alerts",
         perm: "alerts",

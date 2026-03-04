@@ -1,27 +1,28 @@
-'use client';
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import Image from 'next/image';
-import styles from './Reel.module.css';
-import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
-import { getFullName, getUrlImages } from '@/mk/utils/string';
-import { getDateTimeAgo } from '@/mk/utils/date';
+"use client";
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import Image from "next/image";
+import styles from "./Reel.module.css";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { getFullName } from "@/mk/utils/string";
+import { getDateTimeAgo } from "@/mk/utils/date";
 import {
   IconComment,
   IconLike,
   IconX,
   IconPublicacion,
-} from '@/components/layout/icons/IconsBiblioteca';
-import useAxios from '@/mk/hooks/useAxios';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import EmptyData from '@/components/NoData/EmptyData';
-import RenderView from '@/modulos/Contents/RenderView/RenderView';
-import AddContent from '@/modulos/Contents/AddContent/AddContent';
+} from "@/components/layout/icons/IconsBiblioteca";
+import useAxios from "@/mk/hooks/useAxios";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import EmptyData from "@/components/NoData/EmptyData";
+import RenderView from "@/modulos/Contents/RenderView/RenderView";
+import AddContent from "@/modulos/Contents/AddContent/AddContent";
 
 // Importar componentes extraídos
-import MediaRenderer from './MediaRenderer/MediaRenderer';
-import ReelCompactList from './ReelCompactList/ReelCompactList';
-import CommentModal from './CommentModal/CommentModal';
-import { ContentItem, Comment } from './types';
+import MediaRenderer from "./MediaRenderer/MediaRenderer";
+import ReelCompactList from "./ReelCompactList/ReelCompactList";
+import CommentModal from "./CommentModal/CommentModal";
+import { ContentItem, Comment } from "./types";
+import LinkifyDescription from "@/mk/components/ui/LinkifyDescription/LinkifyDescription";
 
 const Reel = () => {
   const { user, showToast } = useAuth();
@@ -32,7 +33,8 @@ const Reel = () => {
   const [hasMore, setHasMore] = useState(true);
   const [totalDBItems, setTotalDBItems] = useState(0);
   const itemsPerPage = 20;
-  const [selectedContentForModal, setSelectedContentForModal] = useState<ContentItem | null>(null);
+  const [selectedContentForModal, setSelectedContentForModal] =
+    useState<ContentItem | null>(null);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
 
   // Estados para manejar la edición
@@ -45,12 +47,11 @@ const Reel = () => {
 
   // Estados para comentarios
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
-  const [selectedContentIdForComments, setSelectedContentIdForComments] = useState<number | null>(
-    null
-  );
+  const [selectedContentIdForComments, setSelectedContentIdForComments] =
+    useState<number | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
-  const [newCommentText, setNewCommentText] = useState('');
+  const [newCommentText, setNewCommentText] = useState("");
   const [postingComment, setPostingComment] = useState(false);
 
   const {
@@ -59,16 +60,16 @@ const Reel = () => {
     error: initialError,
     reLoad: reLoadInitial,
   } = useAxios(
-    '/contents',
-    'GET',
+    "/contents",
+    "GET",
     {
       perPage: itemsPerPage,
       page: 1,
-      fullType: 'L',
-      searchBy: '',
+      fullType: "L",
+      searchBy: "",
       extraData: true,
     },
-    false
+    false,
   );
 
   const { execute: fetchMoreContents } = useAxios();
@@ -122,14 +123,14 @@ const Reel = () => {
   const loadExtraData = async () => {
     if (!extraData) {
       try {
-        const response = await executeGetExtraData('/contents', 'GET', {
-          fullType: 'EXTRA',
+        const response = await executeGetExtraData("/contents", "GET", {
+          fullType: "EXTRA",
         });
         if (response?.data) {
           setExtraData(response.data);
         }
       } catch (error) {
-        console.error('Error loading extra data:', error);
+        console.error("Error loading extra data:", error);
       }
     }
   };
@@ -139,11 +140,11 @@ const Reel = () => {
       if (page > 1 && hasMore && !initialLoadingState && !loadingMoreState) {
         setLoadingMoreState(true);
 
-        const result = await fetchMoreContents('/contents', 'GET', {
+        const result = await fetchMoreContents("/contents", "GET", {
           perPage: itemsPerPage,
           page: page,
-          fullType: 'L',
-          searchBy: '',
+          fullType: "L",
+          searchBy: "",
         });
 
         setLoadingMoreState(false);
@@ -160,9 +161,13 @@ const Reel = () => {
               isDescriptionExpanded: false,
             }));
 
-            setContents(prevContents => {
-              const existingIds = new Set(prevContents.map(content => content.id));
-              const uniqueNewItems = incomingItems.filter((item: any) => !existingIds.has(item.id));
+            setContents((prevContents) => {
+              const existingIds = new Set(
+                prevContents.map((content) => content.id),
+              );
+              const uniqueNewItems = incomingItems.filter(
+                (item: any) => !existingIds.has(item.id),
+              );
               return [...prevContents, ...uniqueNewItems];
             });
 
@@ -178,49 +183,60 @@ const Reel = () => {
     };
 
     loadMoreItems();
-  }, [page, hasMore, initialLoadingState, loadingMoreState, fetchMoreContents, totalDBItems]);
+  }, [
+    page,
+    hasMore,
+    initialLoadingState,
+    loadingMoreState,
+    fetchMoreContents,
+    totalDBItems,
+  ]);
 
   const loadMoreRef = useCallback(
     (node: HTMLDivElement | null) => {
       if (initialLoadingState || loadingMoreState) return;
       if (observer.current) observer.current.disconnect();
 
-      observer.current = new IntersectionObserver(entries => {
+      observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMore && !loadingMoreState) {
-          setPage(prevPage => prevPage + 1);
+          setPage((prevPage) => prevPage + 1);
         }
       });
 
       if (node) observer.current.observe(node);
     },
-    [initialLoadingState, loadingMoreState, hasMore]
+    [initialLoadingState, loadingMoreState, hasMore],
   );
 
   // Función handleLike con patrón optimista
   const handleLike = async (contentId: number) => {
     // Actualización optimista inmediata
-    setContents(prevContents =>
-      prevContents.map(content => {
+    setContents((prevContents) =>
+      prevContents.map((content) => {
         if (content.id === contentId) {
           const wasLiked = content.liked === 1;
           return {
             ...content,
             liked: wasLiked ? 0 : 1,
-            likes: wasLiked ? Math.max(0, content.likes - 1) : content.likes + 1,
+            likes: wasLiked
+              ? Math.max(0, content.likes - 1)
+              : content.likes + 1,
           } as ContentItem;
         }
         return content;
-      })
+      }),
     );
 
     // También actualizar el modal si está abierto
-    setSelectedContentForModal(prevModalContent => {
+    setSelectedContentForModal((prevModalContent) => {
       if (prevModalContent && prevModalContent.id === contentId) {
         const wasLiked = prevModalContent.liked === 1;
         return {
           ...prevModalContent,
           liked: wasLiked ? 0 : 1,
-          likes: wasLiked ? Math.max(0, prevModalContent.likes - 1) : prevModalContent.likes + 1,
+          likes: wasLiked
+            ? Math.max(0, prevModalContent.likes - 1)
+            : prevModalContent.likes + 1,
         };
       }
       return prevModalContent;
@@ -228,27 +244,29 @@ const Reel = () => {
 
     // Llamada al backend
     try {
-      const response = await executeLike('/content-like', 'POST', {
+      const response = await executeLike("/content-like", "POST", {
         id: contentId,
       });
 
       // Si el backend devuelve error, revertir el cambio optimista
       if (!response?.data) {
         // Revertir cambios
-        setContents(prevContents =>
-          prevContents.map(content => {
+        setContents((prevContents) =>
+          prevContents.map((content) => {
             if (content.id === contentId) {
               const wasLiked = content.liked === 1;
               return {
                 ...content,
                 liked: wasLiked ? 0 : 1,
-                likes: wasLiked ? Math.max(0, content.likes - 1) : content.likes + 1,
+                likes: wasLiked
+                  ? Math.max(0, content.likes - 1)
+                  : content.likes + 1,
               } as ContentItem;
             }
             return content;
-          })
+          }),
         );
-        setSelectedContentForModal(prevModalContent => {
+        setSelectedContentForModal((prevModalContent) => {
           if (prevModalContent && prevModalContent.id === contentId) {
             const wasLiked = prevModalContent.liked === 1;
             return {
@@ -264,26 +282,30 @@ const Reel = () => {
       }
     } catch (err) {
       // En caso de error, revertir el cambio optimista
-      setContents(prevContents =>
-        prevContents.map(content => {
+      setContents((prevContents) =>
+        prevContents.map((content) => {
           if (content.id === contentId) {
             const wasLiked = content.liked === 1;
             return {
               ...content,
               liked: wasLiked ? 0 : 1,
-              likes: wasLiked ? Math.max(0, content.likes - 1) : content.likes + 1,
+              likes: wasLiked
+                ? Math.max(0, content.likes - 1)
+                : content.likes + 1,
             } as ContentItem;
           }
           return content;
-        })
+        }),
       );
-      setSelectedContentForModal(prevModalContent => {
+      setSelectedContentForModal((prevModalContent) => {
         if (prevModalContent && prevModalContent.id === contentId) {
           const wasLiked = prevModalContent.liked === 1;
           return {
             ...prevModalContent,
             liked: wasLiked ? 0 : 1,
-            likes: wasLiked ? Math.max(0, prevModalContent.likes - 1) : prevModalContent.likes + 1,
+            likes: wasLiked
+              ? Math.max(0, prevModalContent.likes - 1)
+              : prevModalContent.likes + 1,
           };
         }
         return prevModalContent;
@@ -292,15 +314,15 @@ const Reel = () => {
   };
 
   const handleToggleDescription = (contentId: number) => {
-    setContents(prevContents =>
-      prevContents.map(content =>
+    setContents((prevContents) =>
+      prevContents.map((content) =>
         content.id === contentId
           ? {
               ...content,
               isDescriptionExpanded: !content.isDescriptionExpanded,
             }
-          : content
-      )
+          : content,
+      ),
     );
   };
 
@@ -311,7 +333,7 @@ const Reel = () => {
     try {
       const response = await executeFetchComments(
         `/comments?fullType=L&id=${contentId}&type=C&perPage=-1&page=1`,
-        'GET'
+        "GET",
       );
       if (response?.data && Array.isArray(response.data)) {
         setComments(response.data);
@@ -330,27 +352,31 @@ const Reel = () => {
   };
 
   const handlePostComment = async () => {
-    if (!newCommentText.trim() || !selectedContentIdForComments || postingComment) {
+    if (
+      !newCommentText.trim() ||
+      !selectedContentIdForComments ||
+      postingComment
+    ) {
       return;
     }
     setPostingComment(true);
     try {
-      const response = await executePostComment('/comments', 'POST', {
+      const response = await executePostComment("/comments", "POST", {
         id: selectedContentIdForComments,
         comment: newCommentText,
-        type: 'C',
+        type: "C",
       });
       if (response?.data) {
-        setNewCommentText('');
-        setContents(prevContents =>
-          prevContents.map(content =>
+        setNewCommentText("");
+        setContents((prevContents) =>
+          prevContents.map((content) =>
             content.id === selectedContentIdForComments
               ? {
                   ...content,
                   comments_count: (content.comments_count || 0) + 1,
                 }
-              : content
-          )
+              : content,
+          ),
         );
         fetchComments(selectedContentIdForComments);
       }
@@ -370,17 +396,24 @@ const Reel = () => {
     setIsCommentModalOpen(false);
     setSelectedContentIdForComments(null);
     setComments([]);
-    setNewCommentText('');
+    setNewCommentText("");
     setPostingComment(false);
   };
 
-  const handleImageNavigation = (contentId: number, direction: 'prev' | 'next') => {
+  const handleImageNavigation = (
+    contentId: number,
+    direction: "prev" | "next",
+  ) => {
     let updatedItemForModal: any | null = null;
 
-    const newContents = contents.map(content => {
-      if (content.id === contentId && content.images && content.images.length > 1) {
+    const newContents = contents.map((content) => {
+      if (
+        content.id === contentId &&
+        content.images &&
+        content.images.length > 1
+      ) {
         const newIndex =
-          direction === 'next'
+          direction === "next"
             ? ((content.currentImageIndex || 0) + 1) % content.images.length
             : ((content.currentImageIndex || 0) - 1 + content.images.length) %
               content.images.length;
@@ -415,7 +448,7 @@ const Reel = () => {
 
   // Función mejorada para manejar la edición
   const handleEditContent = async (item: any) => {
-    console.log('Editando contenido:', item);
+    console.log("Editando contenido:", item);
 
     // Cargar extraData si no está disponible
     await loadExtraData();
@@ -423,13 +456,13 @@ const Reel = () => {
     // Preparar el item para edición con todos los campos necesarios
     const editItem = {
       ...item,
-      title: item.title || '',
-      description: item.description || '',
+      title: item.title || "",
+      description: item.description || "",
       type: item.type,
-      url: item.url || '',
+      url: item.url || "",
       images: item.images || [],
       user_id: item.user_id,
-      destiny: item.destiny || 'T',
+      destiny: item.destiny || "T",
       client_id: item.client_id,
       status: item.status,
       created_at: item.created_at,
@@ -438,7 +471,7 @@ const Reel = () => {
       lDestiny: item.lDestiny || [],
     };
 
-    console.log('Item preparado para edición:', editItem);
+    console.log("Item preparado para edición:", editItem);
 
     setEditingContent(editItem);
     setEditErrors({});
@@ -447,24 +480,24 @@ const Reel = () => {
   };
 
   const handleCloseEditModal = () => {
-    console.log('Cerrando modal de edición');
+    console.log("Cerrando modal de edición");
     setIsEditModalOpen(false);
     setEditingContent(null);
     setEditErrors({});
   };
 
   const handleSaveEdit = () => {
-    console.log('Guardando edición');
+    console.log("Guardando edición");
     handleReloadReel();
     handleCloseEditModal();
   };
 
   const handleDeleteContent = (item: any) => {
-    console.log('Contenido eliminado:', item);
-    setContents(prevContents =>
-      prevContents.filter(content => content.id !== item.id)
+    console.log("Contenido eliminado:", item);
+    setContents((prevContents) =>
+      prevContents.filter((content) => content.id !== item.id),
     );
-    setTotalDBItems(prev => Math.max(0, prev - 1));
+    setTotalDBItems((prev) => Math.max(0, prev - 1));
     handleCloseContentModal();
   };
 
@@ -476,43 +509,52 @@ const Reel = () => {
 
   // Función para determinar si es una noticia y su posición
   const getNewsIndex = (items: ContentItem[], currentIndex: number) => {
-    const newsItems = items.filter(item => item.title && item.title.trim() !== '');
+    const newsItems = items.filter(
+      (item) => item.title && item.title.trim() !== "",
+    );
     const currentItem = items[currentIndex];
-    if (!currentItem.title || currentItem.title.trim() === '') return -1;
-    return newsItems.findIndex(newsItem => newsItem.id === currentItem.id);
+    if (!currentItem.title || currentItem.title.trim() === "") return -1;
+    return newsItems.findIndex((newsItem) => newsItem.id === currentItem.id);
   };
 
   if (initialLoadingState && page === 1 && contents.length === 0) {
     return <div className={styles.loadingState}>Cargando publicaciones...</div>;
   }
 
+  const urlAvatar = (item: ContentItem) => {
+    let img = item.user ? item.user?.url_avatar : item.owner?.url_avatar;
+    return img;
+  };
+
   return (
     <div className={styles.reelContainer}>
       {contents.length > 0
         ? contents.map((item: ContentItem, index: number) => {
-            const isNews = item.title && item.title.trim() !== '';
+            const isNews = item.title && item.title.trim() !== "";
             const newsIndex = getNewsIndex(contents, index);
             const isImageRight = newsIndex % 2 === 0; // Par = imagen derecha, Impar = imagen izquierda
 
             return (
               <article
                 key={`content-${item.id}`}
-                className={`${styles.contentCard} ${isNews ? styles.newsCard : ''} ${isNews && isImageRight ? styles.newsImageRight : ''} ${isNews && !isImageRight ? styles.newsImageLeft : ''}`}
+                className={`${styles.contentCard} ${isNews ? styles.newsCard : ""} ${isNews && isImageRight ? styles.newsImageRight : ""} ${isNews && !isImageRight ? styles.newsImageLeft : ""}`}
               >
                 <header className={styles.contentHeader}>
                   <div className={styles.userInfo}>
                     <Avatar
-                      hasImage={1}
                       name={getFullName(item.user)}
-                      src={getUrlImages(`/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`)}
+                      src={urlAvatar(item)}
                       w={44}
                       h={44}
                     />
                     <div className={styles.userDetails}>
                       <span className={styles.userName}>
-                        {getFullName(item.user) || 'Usuario Desconocido'}
+                        {getFullName(item.user || item.owner) ||
+                          "Usuario Desconocido"}
                       </span>
-                      <span className={styles.userRole}>{item.user?.role1?.[0].name}</span>
+                      <span className={styles.userRole}>
+                        {item.user?.role1?.[0]?.name}
+                      </span>
                     </div>
                   </div>
                   <time dateTime={item.created_at} className={styles.postDate}>
@@ -526,40 +568,53 @@ const Reel = () => {
                     <div className={styles.newsTextContent}>
                       <h2 className={styles.newsTitle}>{item?.title}</h2>
                       <div>
-                        {
-                          item.description
-                            ? <p className={styles.newsDescription}>
-                                {item?.isDescriptionExpanded || item?.description?.length <= 200
-                                  ? item?.description
-                                  : `${item?.description?.substring(0, 200)}...`}
-                              </p>
-                            : <p className={styles.newsDescription}>Sin descripción</p>
-                        }
+                        {item.description ? (
+                          <p className={styles.newsDescription}>
+                            {item?.isDescriptionExpanded ||
+                            item?.description?.length <= 200 ? (
+                              <LinkifyDescription text={item?.description} />
+                            ) : (
+                              <>
+                                <LinkifyDescription
+                                  text={item?.description?.substring(0, 200)}
+                                />
+                                ...
+                              </>
+                            )}
+                          </p>
+                        ) : (
+                          <p className={styles.newsDescription}>
+                            Sin descripción
+                          </p>
+                        )}
                         {item?.description?.length > 200 && (
                           <button
                             onClick={() => handleToggleDescription(item.id)}
                             className={styles.seeMoreButton}
                             style={{
-                              background: 'none',
-                              border: 'none',
-                              color: 'var(--cInfo)',
-                              cursor: 'pointer',
-                              padding: '5px 0px',
-                              display: 'block',
+                              background: "none",
+                              border: "none",
+                              color: "var(--cInfo)",
+                              cursor: "pointer",
+                              padding: "5px 0px",
+                              display: "block",
                             }}
                           >
-                            {item?.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
+                            {item?.isDescriptionExpanded
+                              ? "Ver menos"
+                              : "Ver más"}
                           </button>
                         )}
                       </div>
                     </div>
                     <div className={styles.newsMediaContent}>
-                      {item.images && item.images.length > 0 && (
+                      {(item.images.length > 0 || item?.files?.length > 0) && (
                         <div className={styles.newsImageContainer}>
                           {/* Contador de imágenes - solo si hay más de una */}
-                          {item.images.length > 1 && (
+                          {(item.images.length > 1 ||
+                            item?.files?.length > 1) && (
                             <div className={styles.newsImageCounter}>
-                              +{item.images.length}
+                              +{item?.files?.length || item.images.length}
                             </div>
                           )}
 
@@ -568,23 +623,23 @@ const Reel = () => {
                             className={styles.newsImageWrapper}
                             onClick={() => handleOpenContentModal(item)}
                             onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
+                              if (e.key === "Enter" || e.key === " ") {
                                 e.preventDefault();
                                 handleOpenContentModal(item);
                               }
                             }}
                             role="button"
                             tabIndex={0}
-                            aria-label={`Ver imagen completa de ${item.title || 'noticia'}`}
+                            aria-label={`Ver imagen completa de ${item.title || "noticia"}`}
                           >
                             <img
-                              src={getUrlImages(`/CONT-${item.id}-${item.images[0].id}.webp?d=${item.updated_at}`)}
-                              alt={item.title || 'Imagen de noticia'}
+                              src={item?.files?.[0]}
+                              alt={item.title || "Imagen de noticia"}
                               className={styles.newsImage}
                               style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover'
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
                               }}
                             />
                           </div>
@@ -598,24 +653,34 @@ const Reel = () => {
                     {item?.description && (
                       <div>
                         <p className={styles.contentDescription}>
-                          {item?.isDescriptionExpanded || item?.description?.length <= 150
-                            ? item?.description
-                            : `${item?.description?.substring(0, 150)}...`}
+                          {item?.isDescriptionExpanded ||
+                          item?.description?.length <= 150 ? (
+                            <LinkifyDescription text={item?.description} />
+                          ) : (
+                            <>
+                              <LinkifyDescription
+                                text={item?.description?.substring(0, 150)}
+                              />
+                              ...
+                            </>
+                          )}
                         </p>
                         {item?.description?.length > 150 && (
                           <button
                             onClick={() => handleToggleDescription(item.id)}
                             className={styles.seeMoreButton}
                             style={{
-                              background: 'none',
-                              border: 'none',
-                              color: 'var(--cInfo)',
-                              cursor: 'pointer',
-                              padding: '5px 0px',
-                              display: 'block',
+                              background: "none",
+                              border: "none",
+                              color: "var(--cInfo)",
+                              cursor: "pointer",
+                              padding: "5px 0px",
+                              display: "block",
                             }}
                           >
-                            {item?.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
+                            {item?.isDescriptionExpanded
+                              ? "Ver menos"
+                              : "Ver más"}
                           </button>
                         )}
                       </div>
@@ -624,19 +689,28 @@ const Reel = () => {
                       item={item}
                       modoCompacto={false}
                       onImageClick={() => handleOpenContentModal(item)}
-                      onNavigateImage={direction => handleImageNavigation(item.id, direction)}
+                      onNavigateImage={(direction) =>
+                        handleImageNavigation(item.id, direction)
+                      }
                     />
                   </section>
                 )}
 
                 <footer className={styles.contentFooter}>
                   <div className={styles.contentStats}>
-                    <div className={`${styles.statDisplay} ${item?.liked ? styles.liked : ''}`}>
-                      <IconLike color={item?.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={20} />
+                    <div
+                      className={`${styles.statDisplay} ${item?.liked ? styles.liked : ""}`}
+                    >
+                      <IconLike
+                        color={
+                          item?.liked ? "var(--cAccent)" : "var(--cWhiteV1)"
+                        }
+                        size={20}
+                      />
                       <span>{item?.likes}</span>
                     </div>
                     <div className={styles.statDisplay}>
-                      <IconComment color={'var(--cWhiteV1)'} size={20} />
+                      <IconComment color={"var(--cWhiteV1)"} size={20} />
                       <span>{item.comments_count}</span>
                     </div>
                   </div>
@@ -645,12 +719,17 @@ const Reel = () => {
 
                   <div className={styles.contentActions}>
                     <button
-                      className={`${styles.actionButton} ${item?.liked ? styles.liked : ''}`}
+                      className={`${styles.actionButton} ${item?.liked ? styles.liked : ""}`}
                       onClick={() => handleLike(item.id)}
                       aria-pressed={!!item?.liked}
                       aria-label={`Me gusta esta publicación`}
                     >
-                      <IconLike color={item?.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={20} />
+                      <IconLike
+                        color={
+                          item?.liked ? "var(--cAccent)" : "var(--cWhiteV1)"
+                        }
+                        size={20}
+                      />
                       <span>Apoyar</span>
                     </button>
                     <button
@@ -658,7 +737,7 @@ const Reel = () => {
                       onClick={() => handleOpenComments(item.id)}
                       aria-label={`Comentar esta publicación`}
                     >
-                      <IconComment color={'var(--cWhiteV1)'} size={20} />
+                      <IconComment color={"var(--cWhiteV1)"} size={20} />
                       <span>Comentar</span>
                     </button>
                   </div>
@@ -677,14 +756,16 @@ const Reel = () => {
           )}
 
       {loadingMoreState && (
-        <div className={styles.loadingMoreState}>Cargando más publicaciones...</div>
+        <div className={styles.loadingMoreState}>
+          Cargando más publicaciones...
+        </div>
       )}
       {!loadingMoreState &&
         !initialLoadingState &&
         hasMore &&
         contents.length > 0 &&
         contents.length < totalDBItems && (
-          <div ref={loadMoreRef} style={{ height: '20px', margin: '20px 0' }} />
+          <div ref={loadMoreRef} style={{ height: "20px", margin: "20px 0" }} />
         )}
       {!initialLoadingState && !hasMore && contents.length > 0 && (
         <div className={styles.noMoreContentState}>Has llegado al final.</div>

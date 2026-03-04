@@ -9,7 +9,7 @@ import { getDateTimeStrMes } from "@/mk/utils/date";
 import WidgetBase from "../Widgets/WidgetBase/WidgetBase";
 import WidgetGraphResume from "../Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume";
 import { WidgetList } from "../Widgets/WidgetsDashboard/WidgetList/WidgetList";
-import { getFullName, getUrlImages, truncateText } from "@/mk/utils/string";
+import { getFullName, truncateText } from "@/mk/utils/string";
 import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
@@ -31,6 +31,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import EmptyData from "@/components/NoData/EmptyData";
 import ContentRenderView from "@/modulos/Contents/RenderView/RenderView";
+import Button from "@/mk/components/forms/Button/Button";
 
 const paramsInitial = {
   fullType: "L",
@@ -38,7 +39,7 @@ const paramsInitial = {
 };
 
 const HomePage = () => {
-  const { store, setStore, userCan, showToast } = useAuth();
+  const { store, setStore, userCan, showToast, user } = useAuth();
   const [openActive, setOpenActive] = useState(false);
   const [openPayment, setOpenPayment] = useState(false);
   const [dataOwner, setDataOwner]: any = useState({});
@@ -52,7 +53,7 @@ const HomePage = () => {
   // Modal de contenidos (RenderView)
   const [openContentRender, setOpenContentRender] = useState(false);
   const [selectedContentId, setSelectedContentId] = useState<number | null>(
-    null
+    null,
   );
   const [selectedContentData, setSelectedContentData] = useState<any>(null);
 
@@ -112,18 +113,6 @@ const HomePage = () => {
     reLoad: reLoad,
   };
 
-  const removeDuplicates = (str: string | undefined | null): string => {
-    if (!str) return "";
-    const uniqueArray = str.split(",").filter((item, index, self) => {
-      const trimmedItem = item.trim();
-      return (
-        trimmedItem !== "" &&
-        self.findIndex((s) => s.trim() === trimmedItem) === index
-      );
-    });
-    return uniqueArray.join(" ");
-  };
-
   const pagosList = (data: any) => {
     const imageUrl = data?.owner;
     const primaryText = getFullName(data?.owner);
@@ -146,10 +135,7 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
-              hasImage={data.owner.has_image}
-              src={getUrlImages(
-                `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
-              )}
+              src={data?.owner?.url_avatar}
               name={primaryText}
               w={40}
               h={40}
@@ -182,7 +168,6 @@ const HomePage = () => {
       .join("")
       .substring(0, 2)
       .toUpperCase();
-
     return (
       <div
         className={`${styles.itemRow}`}
@@ -194,10 +179,7 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
-              hasImage={data.owner.has_image}
-              src={getUrlImages(
-                `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
-              )}
+              src={data?.owner?.url_avatar}
               name={primaryText}
               w={40}
               h={40}
@@ -234,7 +216,7 @@ const HomePage = () => {
           if (userCan("owners", "C") == false) {
             return showToast(
               "No tiene permisos para aceptar cuentas pre-registradas",
-              "error"
+              "error",
             );
           }
           setDataOwner({ ...ownerData, type_owner: data?.type });
@@ -243,10 +225,7 @@ const HomePage = () => {
       >
         <div className={styles.itemImageContainer}>
           <Avatar
-            hasImage={ownerData.has_image}
-            src={getUrlImages(
-              `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`
-            )}
+            src={ownerData?.url_avatar}
             name={primaryText}
             w={40}
             h={40}
@@ -266,7 +245,7 @@ const HomePage = () => {
               if (userCan("owners", "C") == false) {
                 return showToast(
                   "No tiene permisos para aceptar cuentas pre-registradas",
-                  "error"
+                  "error",
                 );
               }
               setDataOwner({ ...ownerData, type_owner: data.type });
@@ -297,7 +276,6 @@ const HomePage = () => {
       entityType = "OWNER";
       primaryText = getFullName(dataSource); // Asume que getFullName puede manejar el objeto owner
     }
-    // Si ni guardia ni owner están presentes, primaryText permanece "Alerta del Sistema"
 
     const userInitials = primaryText
       ?.split(" ")
@@ -319,22 +297,10 @@ const HomePage = () => {
       // Mayor que 2 también es alto
       levelClass = styles.levelHigh;
     }
-
-    // Determinar si podemos intentar cargar una imagen de avatar
-    // Intentamos cargar si dataSource (guardia u owner) está presente y tiene un id.
     const canDisplayAvatarImage = !!dataSource?.id;
     let avatarImageUrl = null;
-
     if (canDisplayAvatarImage) {
-      // El campo 'updated_at' podría tener diferentes nombres (updated_at vs updatedAt) o estar ausente.
-      // Usar una marca de tiempo actual como fallback si no está disponible para asegurar la invalidación de caché.
-      const updatedAtTimestamp =
-        dataSource.updated_at ||
-        dataSource.updatedAt ||
-        new Date().toISOString();
-      avatarImageUrl = getUrlImages(
-        `/${entityType}-${dataSource.id}.webp?d=${updatedAtTimestamp}`
-      );
+      avatarImageUrl = dataSource?.url_avatar;
     }
 
     return (
@@ -348,7 +314,6 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {canDisplayAvatarImage && avatarImageUrl ? (
             <Avatar
-              hasImage={dataSource.has_image}
               src={avatarImageUrl} // URL construida dinámicamente
               name={primaryText} // El componente Avatar debería manejar el fallback a iniciales si src falla
               w={40}
@@ -395,6 +360,11 @@ const HomePage = () => {
       </div>
     );
   };
+  useEffect(() => {
+    if (!store?.reLoadDashboard) return;
+    reLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store?.reLoadDashboard]);
 
   if (!userCan("home", "R")) return <NotAccess />;
 
@@ -477,7 +447,7 @@ const HomePage = () => {
                     "Bs. " +
                     formatNumber(
                       Number(dashboard?.data?.TotalIngresos) -
-                        Number(dashboard?.data?.TotalEgresos)
+                        Number(dashboard?.data?.TotalEgresos),
                     )
                   }
                   icon={
@@ -562,14 +532,16 @@ const HomePage = () => {
                   />
                 </div>
               </div>
-              <section className={`${styles.fourWidgetSection} ${styles.widgetsHome}`}>
+              <section
+                className={`${styles.fourWidgetSection} ${styles.widgetsHome}`}
+              >
                 <div className={styles.widgetRow}>
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Revisiones de pago"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/payments")}
-                    emptyListMessage="No hay pagos por revisar. Una vez los residentes comiencen a pagar sus deudas se mostrarán aquí." 
+                    emptyListMessage="No hay pagos por revisar. Una vez los residentes comiencen a pagar sus deudas se mostrarán aquí."
                     //emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí."
                     emptyListIcon={<IconPagos size={32} />}
                     data={dashboard?.data?.porConfirmar}

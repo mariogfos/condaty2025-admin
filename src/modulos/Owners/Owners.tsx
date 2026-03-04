@@ -1,13 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import styles from "./Owners.module.css";
-import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import React, { useCallback, useMemo, useState } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { lStatusActive } from "@/mk/utils/utils";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
@@ -25,6 +23,7 @@ import Select from "@/mk/components/forms/Select/Select";
 import RenderForm from "../Owners/RenderForm/RenderForm";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import RenderView from "./RenderView/RenderView";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const paramsInitial = {
   perPage: 20,
@@ -32,8 +31,8 @@ const paramsInitial = {
   fullType: "L",
   searchBy: "",
 };
-
 const Owners = () => {
+  const { user } = useAuth();
   const [unitsModalOpen, setUnitsModalOpen] = useState(false);
   const [selectedHomeowner, setSelectedHomeowner] = useState(null);
 
@@ -123,7 +122,7 @@ const Owners = () => {
           dataID={props?.item?.id}
           type={"owner"}
           title="Perfil de Residente"
-          edit={false}
+          edit={user?.fosrole_id ? true : false}
           reLoad={props?.reLoad}
         />
       ),
@@ -154,7 +153,7 @@ const Owners = () => {
         searchBy: e.target.value,
       },
       false,
-      true
+      true,
     );
 
     if (data?.success && data.data?.data?.id) {
@@ -180,7 +179,7 @@ const Owners = () => {
       });
       showToast(
         "El residente ya existe en Condaty, se va a vincular al Condominio",
-        "warning"
+        "warning",
       );
     } else {
       props.setError({ ci: "" });
@@ -225,13 +224,7 @@ const Owners = () => {
 
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Avatar
-                hasImage={residente?.has_image}
-                src={getUrlImages(
-                  "/OWNER-" + residente?.id + ".webp?d=" + residente?.updated_at
-                )}
-                name={nombreCompleto}
-              />
+              <Avatar src={residente?.url_avatar} name={nombreCompleto} />
               <div>
                 {" "}
                 <p
@@ -378,7 +371,7 @@ const Owners = () => {
           disabled: onDisbled,
         },
         list: {
-          onRender: ({item}: any) => {
+          onRender: ({ item }: any) => {
             return item?.phone || "-/-";
           },
         },

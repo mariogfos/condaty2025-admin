@@ -4,9 +4,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useState, useEffect } from "react";
-import styles from "./RenderForm.module.css";
-import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
-import { getUrlImages } from "@/mk/utils/string";
+import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 
 const RenderForm = ({
   open,
@@ -21,7 +19,7 @@ const RenderForm = ({
   const { showToast } = useAuth();
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -34,9 +32,9 @@ const RenderForm = ({
     let errors: any = {};
     if (!formState?.id) {
       errors = checkRules({
-        value: formState?.avatar,
-        rules: ["requiredImageMultiple"],
-        key: "avatar",
+        value: formState?.images,
+        rules: ["required"],
+        key: "images",
         errors,
         data: formState,
       });
@@ -45,6 +43,12 @@ const RenderForm = ({
       value: formState?.bank_entity_id,
       rules: ["required"],
       key: "bank_entity_id",
+      errors,
+    });
+    errors = checkRules({
+      value: formState?.ci_holder,
+      rules: ["required", "ci"],
+      key: "ci_holder",
       errors,
     });
 
@@ -67,18 +71,12 @@ const RenderForm = ({
       errors,
     });
     errors = checkRules({
-      value: formState?.currency_type_id,
-      rules: ["required"],
-      key: "currency_type_id",
-      errors,
-    });
-    errors = checkRules({
       value: formState?.holder,
       rules: ["required"],
       key: "holder",
       errors,
     });
-    
+
     errors = checkRules({
       value: formState?.alias_holder,
       rules: ["required"],
@@ -96,7 +94,8 @@ const RenderForm = ({
       "/bank-accounts" + (formState.id ? "/" + formState.id : ""),
       method,
       {
-        avatar: formState.avatar || "",
+        // avatar: formState.avatar || "",
+        images: formState.images || "",
         bank_entity_id: formState.bank_entity_id || "",
         account_type: formState.account_type || "",
         account_number: formState.account_number || "",
@@ -104,7 +103,7 @@ const RenderForm = ({
         holder: formState.holder || "",
         ci_holder: formState.ci_holder || "",
         alias_holder: formState.alias_holder || "",
-      }
+      },
     );
 
     if (data?.success) {
@@ -120,118 +119,104 @@ const RenderForm = ({
     <DataModal
       open={open}
       onClose={onClose}
+      maxWidth={760}
       title={
         formState.id ? "Editar cuenta bancaria" : "Agregar cuenta bancaria"
       }
       onSave={_onSave}
       variant={"mini"}
     >
-      <div style={{ display: "flex", gap: 28 }}>
-        <div style={{ flex: 1 }}>
-          <Select
-            label="Entidad bancaria"
-            name="bank_entity_id"
-            filter
-            value={formState.bank_entity_id || ""}
-            optionLabel="name"
-            options={extraData?.bankEntities || []}
-            optionValue="id"
-            onChange={handleChange}
-            disabled={item?.isInUse}
-            error={errors}
-            required
-          />
-          <Select
-            label="Tipo de cuenta"
-            name="account_type"
-            value={formState.account_type || ""}
-            disabled={item?.isInUse}
-            optionLabel="name"
-            options={[
-              {
-                id: "S",
-                name: "Cuenta ahorro",
-              },
-              {
-                id: "C",
-                name: "Cuenta corriente",
-              },
-            ]}
-            optionValue="id"
-            onChange={handleChange}
-            error={errors}
-            required
-          />
-          <Input
-            name="account_number"
-            value={formState.account_number || ""}
-            onChange={handleChange}
-            label="Nº de cuenta"
-            error={errors}
-            type="number"
-            disabled={item?.isInUse}
-            required
-          />
-          <Select
-            label="Tipo de moneda"
-            name="currency_type_id"
-            value={formState.currency_type_id || ""}
-            optionLabel="name"
-            disabled={item?.isInUse}
-            options={extraData?.currencyTypes || []}
-            optionValue="id"
-            onChange={handleChange}
-            error={errors}
-            required
-          />
-          <Input
-            label="Titular"
-            name="holder"
-            value={formState.holder || ""}
-            onChange={handleChange}
-            disabled={item?.isInUse}
-            error={errors}
-          />
-          <Input
-            label="CI/NIT"
-            name="ci_holder"
-            type="number"
-            value={formState.ci_holder || ""}
-            onChange={handleChange}
-            disabled={item?.isInUse}
-            error={errors}
-          />
-          <Input
-            label="Alias"
-            name="alias_holder"
-            value={formState.alias_holder || ""}
-            onChange={handleChange}
-            error={errors}
-            required
-          />
-        </div>
-        <div style={{ flex: 1 }}>
-          <UploadFile
-            name="avatar"
-            onChange={handleChange}
-            value={
-              typeof formState?.avatar === "object" || formState?.id
-                ? getUrlImages(
-                    "/BANK-" + formState?.id + ".webp?" + formState?.updated_at
-                  )
-                : undefined
-            }
-            setError={setErrors}
-            error={errors}
-            img={true}
-            editor={{ width: 1350, height: 568 }}
-            sizePreview={{ width: "650px", height: "284px" }}
-            placeholder="Subir Código QR"
-            ext={["jpg", "png", "jpeg", "webp"]}
-            item={formState}
-          />
-        </div>
-      </div>
+      <p style={{ marginBottom: 12, color: "var(--cWhite)", fontWeight: 600 }}>
+        Subir QR
+      </p>
+      <UploadFileV3
+        formState={formState}
+        setFormState={setFormState}
+        name="images"
+        error={errors}
+        cant={1}
+      />
+      <Select
+        label="Entidad bancaria"
+        name="bank_entity_id"
+        filter
+        value={formState.bank_entity_id || ""}
+        optionLabel="name"
+        options={extraData?.bankEntities || []}
+        optionValue="id"
+        onChange={handleChange}
+        disabled={item?.isInUse}
+        error={errors}
+        required
+      />
+      <Select
+        label="Tipo de cuenta"
+        name="account_type"
+        value={formState.account_type || ""}
+        disabled={item?.isInUse}
+        optionLabel="name"
+        options={[
+          {
+            id: "S",
+            name: "Cuenta ahorro",
+          },
+          {
+            id: "C",
+            name: "Cuenta corriente",
+          },
+        ]}
+        optionValue="id"
+        onChange={handleChange}
+        error={errors}
+        required
+      />
+      <Input
+        name="account_number"
+        value={formState.account_number || ""}
+        onChange={handleChange}
+        label="Nº de cuenta"
+        error={errors}
+        type="number"
+        disabled={item?.isInUse}
+        required
+      />
+      <Select
+        label="Tipo de moneda"
+        name="currency_type_id"
+        value={formState.currency_type_id || ""}
+        optionLabel="name"
+        disabled={item?.isInUse}
+        options={extraData?.currencyTypes || []}
+        optionValue="id"
+        onChange={handleChange}
+        error={errors}
+        required
+      />
+      <Input
+        label="Titular"
+        name="holder"
+        value={formState.holder || ""}
+        onChange={handleChange}
+        disabled={item?.isInUse}
+        error={errors}
+      />
+      <Input
+        label="CI/NIT"
+        name="ci_holder"
+        type="number"
+        value={formState.ci_holder || ""}
+        onChange={handleChange}
+        disabled={item?.isInUse}
+        error={errors}
+      />
+      <Input
+        label="Alias"
+        name="alias_holder"
+        value={formState.alias_holder || ""}
+        onChange={handleChange}
+        error={errors}
+        required
+      />
     </DataModal>
   );
 };

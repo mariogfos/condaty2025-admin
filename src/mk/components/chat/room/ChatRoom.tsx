@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./chatroom.module.css";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import { getDateStr, getTimePMAM } from "@/mk/utils/date1";
 import {
   IconCheck,
@@ -13,7 +13,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import { SendEmoticonType, SendMessageType } from "../chat-types";
 
-import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
+import EmojiPicker, { EmojiStyle, Theme } from "emoji-picker-react";
 import { Avatar } from "../../ui/Avatar/Avatar";
 import { Image } from "../../ui/Image/Image";
 import { useChatProvider } from "../chatBot/useChatProvider";
@@ -74,17 +74,21 @@ const ChatRoom = ({
     textarea.style.height = "auto";
 
     // Obtener altura de línea
-    const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight, 10);
+    const lineHeight = parseInt(
+      window.getComputedStyle(textarea).lineHeight,
+      10,
+    );
     const maxHeight = lineHeight * 10;
 
     const newHeight = Math.min(textarea.scrollHeight, maxHeight);
     textarea.style.height = `${newHeight}px`;
 
-    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
+    textarea.style.overflowY =
+      textarea.scrollHeight > maxHeight ? "auto" : "hidden";
   }, [newMessage]);
 
   const cancelUpload = () => {
-    selectedFiles.forEach(file => {
+    selectedFiles.forEach((file) => {
       URL.revokeObjectURL(file.previewURL);
     });
     setSelectedFiles([]);
@@ -93,16 +97,19 @@ const ChatRoom = ({
   };
 
   const removeFile = (id: string) => {
-    const fileToRemove = selectedFiles.find(f => f.id === id);
-    const indexToRemove = selectedFiles.findIndex(f => f.id === id);
+    const fileToRemove = selectedFiles.find((f) => f.id === id);
+    const indexToRemove = selectedFiles.findIndex((f) => f.id === id);
     if (fileToRemove) {
       URL.revokeObjectURL(fileToRemove.previewURL);
-      setSelectedFiles(prev => {
-        const updated = prev.filter(f => f.id !== id);
+      setSelectedFiles((prev) => {
+        const updated = prev.filter((f) => f.id !== id);
         // Ajustar el índice seleccionado si es necesario
         if (indexToRemove === selectedPreviewIndex && updated.length > 0) {
           setSelectedPreviewIndex(Math.max(0, selectedPreviewIndex - 1));
-        } else if (selectedPreviewIndex >= updated.length && updated.length > 0) {
+        } else if (
+          selectedPreviewIndex >= updated.length &&
+          updated.length > 0
+        ) {
           setSelectedPreviewIndex(updated.length - 1);
         } else if (updated.length === 0) {
           setSelectedPreviewIndex(0);
@@ -115,7 +122,7 @@ const ChatRoom = ({
   const handleSendMessage = async () => {
     // No permitir enviar si está subiendo imágenes
     if (isUploading) return;
-    
+
     const messageText = newMessage;
     const hasText = messageText.trim().length > 0;
     if (!hasText && selectedFiles.length === 0) return;
@@ -134,7 +141,7 @@ const ChatRoom = ({
             selectedFiles.length === 1 ? messageText : "",
             roomId,
             user?.id,
-            selectedFile.file
+            selectedFile.file,
           );
         }
         // Enviar el texto después de las imágenes si hay múltiples imágenes
@@ -154,7 +161,7 @@ const ChatRoom = ({
       db.transact(
         db.tx.messages[msgId].update({
           received_at: Date.now(),
-        })
+        }),
       );
       const reply = await sendMessageBot(messageText);
       if (reply != "") {
@@ -162,17 +169,15 @@ const ChatRoom = ({
         db.transact(
           db.tx.messages[msgId].update({
             read_at: Date.now(),
-          })
+          }),
         );
       }
     }
   };
 
-
-
   const messages = useMemo(
     () => chats?.messages?.filter((m: any) => m.roomId === roomId) || [],
-    [chats, roomId]
+    [chats, roomId],
   );
 
   useEffect(() => {
@@ -208,12 +213,12 @@ const ChatRoom = ({
     }
     const files = e.target.files;
     if (files) {
-      const newFiles: SelectedFile[] = Array.from(files).map(file => ({
+      const newFiles: SelectedFile[] = Array.from(files).map((file) => ({
         file,
         previewURL: URL.createObjectURL(file),
-        id: `${Date.now()}-${Math.random()}`
+        id: `${Date.now()}-${Math.random()}`,
       }));
-      setSelectedFiles(prev => {
+      setSelectedFiles((prev) => {
         const updated = [...prev, ...newFiles];
         setSelectedPreviewIndex(prev.length); // Seleccionar la primera nueva imagen
         return updated;
@@ -254,13 +259,15 @@ const ChatRoom = ({
 
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
-      const newFiles: SelectedFile[] = imageFiles.map(file => ({
+      const imageFiles = Array.from(files).filter((file) =>
+        file.type.startsWith("image/"),
+      );
+      const newFiles: SelectedFile[] = imageFiles.map((file) => ({
         file,
         previewURL: URL.createObjectURL(file),
-        id: `${Date.now()}-${Math.random()}`
+        id: `${Date.now()}-${Math.random()}`,
       }));
-      setSelectedFiles(prev => {
+      setSelectedFiles((prev) => {
         const updated = [...prev, ...newFiles];
         setSelectedPreviewIndex(prev.length); // Seleccionar la primera nueva imagen
         return updated;
@@ -330,7 +337,7 @@ const ChatRoom = ({
   };
 
   const onKeyUp = (e: any) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       if (e.shiftKey) {
         // No hacer nada, el textarea ya maneja el salto de línea
       } else {
@@ -349,17 +356,20 @@ const ChatRoom = ({
   // Cerrar el picker al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (inputEmojiPickerRef.current && !inputEmojiPickerRef.current.contains(event.target as Node)) {
+      if (
+        inputEmojiPickerRef.current &&
+        !inputEmojiPickerRef.current.contains(event.target as Node)
+      ) {
         setShowInputEmojiPicker(false);
       }
     };
 
     if (showInputEmojiPicker) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showInputEmojiPicker]);
 
@@ -370,20 +380,23 @@ const ChatRoom = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       // No interceptar si el usuario está escribiendo en el textarea
       const target = e.target as HTMLElement;
-      if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
+      if (target.tagName === "TEXTAREA" || target.tagName === "INPUT") {
         return;
       }
 
-      if (e.key === 'ArrowLeft' && selectedPreviewIndex > 0) {
+      if (e.key === "ArrowLeft" && selectedPreviewIndex > 0) {
         e.preventDefault();
         setSelectedPreviewIndex(selectedPreviewIndex - 1);
-      } else if (e.key === 'ArrowRight' && selectedPreviewIndex < selectedFiles.length - 1) {
+      } else if (
+        e.key === "ArrowRight" &&
+        selectedPreviewIndex < selectedFiles.length - 1
+      ) {
         e.preventDefault();
         setSelectedPreviewIndex(selectedPreviewIndex + 1);
-      } else if (e.key === 'Escape') {
+      } else if (e.key === "Escape") {
         e.preventDefault();
         cancelUpload();
-      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+      } else if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();
         if (selectedFiles.length > 0) {
           removeFile(selectedFiles[selectedPreviewIndex].id);
@@ -391,9 +404,9 @@ const ChatRoom = ({
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [selectedFiles, selectedPreviewIndex]);
 
@@ -409,11 +422,11 @@ const ChatRoom = ({
     };
 
     if (showEmojiPicker) {
-      document.addEventListener('mousedown', handleClickOutsideReaction);
+      document.addEventListener("mousedown", handleClickOutsideReaction);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutsideReaction);
+      document.removeEventListener("mousedown", handleClickOutsideReaction);
     };
   }, [showEmojiPicker]);
 
@@ -458,11 +471,11 @@ const ChatRoom = ({
                     msg.sender === user.id
                       ? styles.myMessage
                       : lastSender !== msg.sender
-                      ? styles.otherMessage
-                      : styles.otherSameMessage
+                        ? styles.otherMessage
+                        : styles.otherSameMessage
                   }`}
-                  style={{ position: 'relative' }}
-                  ref={el => {
+                  style={{ position: "relative" }}
+                  ref={(el) => {
                     msgRefs.current[msg.id] = el;
                   }}
                 >
@@ -472,8 +485,8 @@ const ChatRoom = ({
                       ref={reactionEmojiPickerRef}
                       style={{
                         ...(showEmojiPicker?.placeBelow
-                          ? { top: 'calc(100% + 8px)', bottom: 'auto' }
-                          : { bottom: 'calc(100% + 8px)', top: 'auto' }),
+                          ? { top: "calc(100% + 8px)", bottom: "auto" }
+                          : { bottom: "calc(100% + 8px)", top: "auto" }),
                       }}
                       onDragEnter={(e) => e.stopPropagation()}
                       onDragOver={(e) => e.stopPropagation()}
@@ -490,16 +503,25 @@ const ChatRoom = ({
                         // @ts-ignore
                         locale="es"
                       />
-                      <IconX size={10} color="black" onClick={() => handleEmojiClick(null)} />
+                      <IconX
+                        size={10}
+                        color="black"
+                        onClick={() => handleEmojiClick(null)}
+                      />
                     </div>
                   )}
                   <div
-                    className={isGroup && msg.sender !== user.id ? styles.avatar : styles.noAvatar}
+                    className={
+                      isGroup && msg.sender !== user.id
+                        ? styles.avatar
+                        : styles.noAvatar
+                    }
                   >
-                    {isGroup && msg.sender !== user.id && lastSender !== msg.sender ? (
+                    {isGroup &&
+                    msg.sender !== user.id &&
+                    lastSender !== msg.sender ? (
                       <Avatar
-                        hasImage={userMsg?.name ? userMsg.has_image : user.has_image}
-                        src={getUrlImages('/ADM-' + userMsg?.id + '.webp?d=' + userMsg?.updated_at)}
+                        src={userMsg?.url_avatar}
                         w={32}
                         h={32}
                         name={userMsg?.name ?? getFullName(user)}
@@ -508,30 +530,41 @@ const ChatRoom = ({
                   </div>
                   <div className={styles.messageBubble}>
                     {msg.sender !== user.id && (
-                      <div className={styles.emojiIcon} onClick={() => handleEmojiClick(msg)}>
+                      <div
+                        className={styles.emojiIcon}
+                        onClick={() => handleEmojiClick(msg)}
+                      >
                         <EmojiText>😊</EmojiText>
                       </div>
                     )}
-                    {isGroup && msg.sender !== user.id && lastSender !== msg.sender && (
-                      <div className={styles.messageUser}>{userMsg?.name ?? getFullName(user)}</div>
-                    )}
+                    {isGroup &&
+                      msg.sender !== user.id &&
+                      lastSender !== msg.sender && (
+                        <div className={styles.messageUser}>
+                          {userMsg?.name ?? getFullName(user)}
+                        </div>
+                      )}
                     {(lastSender = msg.sender) && null}
                     <div
                       style={{
-                        whiteSpace: 'pre-line',
-                        overflowWrap: 'anywhere',
+                        whiteSpace: "pre-line",
+                        overflowWrap: "anywhere",
                       }}
                     >
-                      {msg['$files'].length > 0 && (
+                      {msg["$files"].length > 0 && (
                         <Image
-                          src={msg['$files'][0].url}
+                          src={msg["$files"][0].url}
                           alt="Imagen adjunta"
                           w={250}
                           expandable={true}
                           expandableIcon={false}
                           expandableZIndex={10002}
                           square={true}
-                          style={{ width: '100%', height: 'auto', maxWidth: '250px' }}
+                          style={{
+                            width: "100%",
+                            height: "auto",
+                            maxWidth: "250px",
+                          }}
                           objectFit="cover"
                         />
                       )}
@@ -541,44 +574,58 @@ const ChatRoom = ({
                   <div
                     className={
                       styles.bubbleHour +
-                      ' ' +
+                      " " +
                       (msg.sender !== user.id && isGroup && styles.isGroup)
                     }
                   >
                     <div className={styles.messageHour}>
-                      {getTimePMAM(msg.created_at)}{' '}
-                      {msg.sender === user.id && !msg.received_at && <IconCheck size={12} />}
-                      {msg.sender === user.id && msg.received_at && !msg.read_at && (
-                        <IconReadMessage size={12} />
+                      {getTimePMAM(msg.created_at)}{" "}
+                      {msg.sender === user.id && !msg.received_at && (
+                        <IconCheck size={12} />
                       )}
-                      {msg.sender === user.id && msg.received_at && msg.read_at && (
-                        <IconReadMessage size={12} color="var(--cPrimary)" />
-                      )}
+                      {msg.sender === user.id &&
+                        msg.received_at &&
+                        !msg.read_at && <IconReadMessage size={12} />}
+                      {msg.sender === user.id &&
+                        msg.received_at &&
+                        msg.read_at && (
+                          <IconReadMessage size={12} color="var(--cPrimary)" />
+                        )}
                     </div>
                     {/* Render de reacciones agrupadas y resaltado del usuario actual */}
                     {(() => {
-                      const reactions = (msg.emoticon && JSON.parse(msg.emoticon)) || [];
-                      type ReactionAgg = { emoji: string; count: number; users: string[] };
+                      const reactions =
+                        (msg.emoticon && JSON.parse(msg.emoticon)) || [];
+                      type ReactionAgg = {
+                        emoji: string;
+                        count: number;
+                        users: string[];
+                      };
 
                       const grouped: ReactionAgg[] = Object.values(
-                        reactions.reduce((acc: Record<string, ReactionAgg>, r: any) => {
-                          const key = String(r.emoji);
-                          if (!acc[key]) {
-                            acc[key] = { emoji: key, count: 0, users: [] };
-                          }
-                          acc[key].count += 1;
-                          acc[key].users.push(String(r.sender));
-                          return acc;
-                        }, {} as Record<string, ReactionAgg>)
+                        reactions.reduce(
+                          (acc: Record<string, ReactionAgg>, r: any) => {
+                            const key = String(r.emoji);
+                            if (!acc[key]) {
+                              acc[key] = { emoji: key, count: 0, users: [] };
+                            }
+                            acc[key].count += 1;
+                            acc[key].users.push(String(r.sender));
+                            return acc;
+                          },
+                          {} as Record<string, ReactionAgg>,
+                        ),
                       );
 
                       return (
                         <div className={styles.reactionContainer}>
                           {grouped.map((g, i) => (
                             <span
-                              key={i + 'grp'}
+                              key={i + "grp"}
                               className={`${styles.reactionBubble} ${
-                                g.users.includes(String(user.id)) ? styles.myReaction : ''
+                                g.users.includes(String(user.id))
+                                  ? styles.myReaction
+                                  : ""
                               }`}
                             >
                               <EmojiText>{g.emoji}</EmojiText>
@@ -619,8 +666,10 @@ const ChatRoom = ({
                 {/* Botón anterior */}
                 {selectedFiles.length > 1 && selectedPreviewIndex > 0 && (
                   <button
-                    className={styles.navButton + ' ' + styles.navPrev}
-                    onClick={() => setSelectedPreviewIndex(selectedPreviewIndex - 1)}
+                    className={styles.navButton + " " + styles.navPrev}
+                    onClick={() =>
+                      setSelectedPreviewIndex(selectedPreviewIndex - 1)
+                    }
                     title="Imagen anterior"
                   >
                     ‹
@@ -628,15 +677,18 @@ const ChatRoom = ({
                 )}
 
                 {/* Botón siguiente */}
-                {selectedFiles.length > 1 && selectedPreviewIndex < selectedFiles.length - 1 && (
-                  <button
-                    className={styles.navButton + ' ' + styles.navNext}
-                    onClick={() => setSelectedPreviewIndex(selectedPreviewIndex + 1)}
-                    title="Siguiente imagen"
-                  >
-                    ›
-                  </button>
-                )}
+                {selectedFiles.length > 1 &&
+                  selectedPreviewIndex < selectedFiles.length - 1 && (
+                    <button
+                      className={styles.navButton + " " + styles.navNext}
+                      onClick={() =>
+                        setSelectedPreviewIndex(selectedPreviewIndex + 1)
+                      }
+                      title="Siguiente imagen"
+                    >
+                      ›
+                    </button>
+                  )}
 
                 <Image
                   src={selectedFiles[selectedPreviewIndex].previewURL}
@@ -644,7 +696,11 @@ const ChatRoom = ({
                   w={600}
                   h={400}
                   square={true}
-                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
                   objectFit="contain"
                 />
               </div>
@@ -657,7 +713,9 @@ const ChatRoom = ({
                       <div
                         key={file.id}
                         className={`${styles.thumbnailItem} ${
-                          index === selectedPreviewIndex ? styles.thumbnailSelected : ''
+                          index === selectedPreviewIndex
+                            ? styles.thumbnailSelected
+                            : ""
                         }`}
                         onClick={() => setSelectedPreviewIndex(index)}
                       >
@@ -677,7 +735,7 @@ const ChatRoom = ({
                           w={80}
                           h={80}
                           square={true}
-                          style={{ width: '100%', height: '100%' }}
+                          style={{ width: "100%", height: "100%" }}
                           objectFit="cover"
                         />
                       </div>
@@ -705,12 +763,12 @@ const ChatRoom = ({
           accept="image/*"
           multiple
           onChange={handleFileSelect}
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
         />
 
         <textarea
           value={newMessage}
-          onChange={e => setNewMessage(e.target.value)}
+          onChange={(e) => setNewMessage(e.target.value)}
           className={styles.chatInput}
           placeholder="Escribe un mensaje..."
           onBlur={typing.inputProps.onBlur}
@@ -724,9 +782,7 @@ const ChatRoom = ({
         {isUploading && (
           <div className={styles.loadingOverlay}>
             <div className={styles.loader} />
-            <span className={styles.loadingText}>
-              Subiendo imagen...
-            </span>
+            <span className={styles.loadingText}>Subiendo imagen...</span>
           </div>
         )}
 
@@ -760,16 +816,16 @@ const ChatRoom = ({
             }}
             circle={true}
             style={{
-              padding: '4px',
-              backgroundColor: 'var(--cWhiteV1)',
+              padding: "4px",
+              backgroundColor: "var(--cWhiteV1)",
               opacity: isUploading ? 0.5 : 1,
-              pointerEvents: isUploading ? 'none' : 'auto',
+              pointerEvents: isUploading ? "none" : "auto",
             }}
             reverse={true}
             title="Emojis"
           />
 
-          {roomId.indexOf('chatBot') === -1 && (
+          {roomId.indexOf("chatBot") === -1 && (
             <IconImage
               color="var(--cBlackV1)"
               onClick={() => {
@@ -779,10 +835,10 @@ const ChatRoom = ({
               }}
               circle={true}
               style={{
-                padding: '4px',
-                backgroundColor: 'var(--cWhiteV1)',
+                padding: "4px",
+                backgroundColor: "var(--cWhiteV1)",
                 opacity: isUploading ? 0.5 : 1,
-                pointerEvents: isUploading ? 'none' : 'auto',
+                pointerEvents: isUploading ? "none" : "auto",
               }}
               title="Adjuntar imagen"
             />
@@ -796,8 +852,8 @@ const ChatRoom = ({
             circle={true}
             reverse={true}
             style={{
-              padding: '4px',
-              backgroundColor: 'var(--cAccent)',
+              padding: "4px",
+              backgroundColor: "var(--cAccent)",
               opacity: isUploading ? 0.65 : 1,
             }}
             title="Enviar mensaje"
@@ -809,6 +865,3 @@ const ChatRoom = ({
 };
 
 export default ChatRoom;
-
-
-

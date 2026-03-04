@@ -3,7 +3,7 @@ import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo, useState } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import RenderView from "./RenderView/RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
@@ -16,17 +16,8 @@ const DateCell = ({ createdAt }: { createdAt: string }) => {
 
 const GuardCell = ({ guardia }: { guardia: any }) => {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <Avatar
-        hasImage={guardia.has_image}
-        src={getUrlImages(
-          '/GUARD-' +
-            guardia.id +
-            '.webp?d=' +
-            guardia.updated_at
-        )}
-        name={getFullName(guardia)}
-      />
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <Avatar src={guardia?.url_avatar} name={getFullName(guardia)} />
       <div>
         <p>{getFullName(guardia)} </p>
         <p>CI: {guardia?.ci}</p>
@@ -40,11 +31,11 @@ const DescriptionCell = ({ description }: { description: string }) => {
     <div
       title={description}
       style={{
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        maxWidth: '100%',
-        width: '100%'
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        maxWidth: "100%",
+        width: "100%",
       }}
     >
       {description}
@@ -61,7 +52,7 @@ const renderGuardCell = (props: any) => {
 };
 
 const renderDescriptionCell = (props: any) => {
-  const description = props?.item?.descrip || '';
+  const description = props?.item?.descrip || "";
   return <DescriptionCell description={description} />;
 };
 
@@ -116,7 +107,7 @@ const Binnacle = () => {
     hideActions: { edit: true, del: true, add: true },
     renderView: (props: any) => <RenderView {...props} />,
     loadView: { fullType: "DET" },
-    export: true
+    export: true,
   };
 
   const paramsInitial = {
@@ -128,41 +119,41 @@ const Binnacle = () => {
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       created_at: {
-        rules: ['required'],
-        api: 'e',
-        label: 'Fecha',
+        rules: ["required"],
+        api: "e",
+        label: "Fecha",
         list: {
           width: 210,
           onRender: renderDateCell,
         },
         filter: {
-          label: 'Periodo',
+          label: "Periodo",
           options: getPeriodOptions,
         },
       },
       guardia: {
-        rules: [''],
-        api: '',
-        label: 'Guardia',
+        rules: [""],
+        api: "",
+        label: "Guardia",
         list: {
           width: 300,
           onRender: renderGuardCell,
         },
       },
       descrip: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Descripción',
-        form: { type: 'text' },
+        rules: ["required"],
+        api: "ae",
+        label: "Descripción",
+        form: { type: "text" },
         list: {
           onRender: renderDescriptionCell,
         },
       },
       image: {},
     }),
-    []
+    [],
   );
 
   const {
@@ -196,7 +187,13 @@ const Binnacle = () => {
     setCustomDateErrors({});
   };
 
-  const handleCustomFilterSave = ({ startDate, endDate }: { startDate: string; endDate: string }) => {
+  const handleCustomFilterSave = ({
+    startDate,
+    endDate,
+  }: {
+    startDate: string;
+    endDate: string;
+  }) => {
     let err: { startDate?: string; endDate?: string } = {};
     if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
     if (!endDate) err.endDate = "La fecha de fin es obligatoria";
