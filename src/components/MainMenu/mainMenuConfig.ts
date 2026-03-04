@@ -25,6 +25,7 @@ export const menuConfig = [
       { href: "/condominios", perm: "condominios", label: "Condominios" },
       { href: "/invitations", perm: "campanas", label: "Invitaciones QR" },
       { href: "/uploads", perm: "cargamasiva", label: "Carga masiva" },
+    { href: "/app-versions", perm: "superadmins", label: "Versiones de App" },
     ],
   },
   {
