@@ -164,13 +164,11 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
                   <div className={styles.commentContent}>
                     <div className={styles.commentUserInfo}>
                       <span className={styles.commentUserName}>
-                        <span data-i18n-ignore="true">
-                          {comment.user?.name
-                            ? getFullName(comment.user)
-                            : comment.person?.name
-                              ? getFullName(comment.person)
-                              : "Usuario"}
-                        </span>
+                        {comment.user?.name
+                          ? getFullName(comment.user)
+                          : comment.person?.name
+                            ? getFullName(comment.person)
+                            : "Usuario"}
                       </span>
                       <time
                         dateTime={comment.created_at}
@@ -179,9 +177,7 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
                         {getDateTimeAgo(comment.created_at)}
                       </time>
                     </div>
-                    <p className={styles.commentText} data-i18n-ignore="true">
-                      {comment.comment}
-                    </p>
+                    <p className={styles.commentText}>{comment.comment}</p>
                   </div>
                 </li>
               ))}

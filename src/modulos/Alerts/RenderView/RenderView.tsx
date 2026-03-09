@@ -19,7 +19,6 @@ import {
   IconTheft,
   IconClock,
 } from "@/components/layout/icons/IconsBiblioteca";
-import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
 
 const getAlertTypeBoxDetails = (item: any) => {
   const details = {
@@ -162,28 +161,23 @@ const InfoBlock = ({
   value: string;
   valueStyle?: React.CSSProperties;
   isHighLevel?: boolean;
-}) => {
-  const ignoreValueTranslation = shouldIgnoreValueTranslationContext({ label });
-
-  return (
-    <div
-      className={
-        isHighLevel ? styles.hlInfoBlockContent : styles.gInfoBlockContent
-      }
+}) => (
+  <div
+    className={
+      isHighLevel ? styles.hlInfoBlockContent : styles.gInfoBlockContent
+    }
+  >
+    <span className={isHighLevel ? styles.hlInfoLabel : styles.gInfoLabel}>
+      {label}
+    </span>
+    <span
+      className={isHighLevel ? styles.hlInfoValue : styles.gInfoValue}
+      style={valueStyle}
     >
-      <span className={isHighLevel ? styles.hlInfoLabel : styles.gInfoLabel}>
-        {label}
-      </span>
-      <span
-        data-i18n-ignore={ignoreValueTranslation ? "true" : undefined}
-        className={isHighLevel ? styles.hlInfoValue : styles.gInfoValue}
-        style={valueStyle}
-      >
-        {value}
-      </span>
-    </div>
-  );
-};
+      {value}
+    </span>
+  </div>
+);
 
 const AttendedSection = ({
   attendant,

@@ -11,7 +11,6 @@ import { PropsTypeInputBase } from "../ControlLabel";
 import { createPortal } from "react-dom";
 import { useOnClickOutside } from "@/mk/hooks/useOnClickOutside";
 import { Avatar } from "../../ui/Avatar/Avatar";
-import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
 // import { buscarCoincidencias } from "@/mk/utils/searchs";
 
 interface PropsType extends PropsTypeInputBase {
@@ -44,7 +43,6 @@ const Section = ({
   handleSelectMultiClickElement,
   setOpenOptions,
   selectRef,
-  ignoreOptionsTranslation,
 }: any) => {
   useOnClickOutside(
     selectRef1,
@@ -80,11 +78,6 @@ const Section = ({
         {_options.map
           ? _options.map((option: any, key: any) => (
               <li
-                data-i18n-ignore={
-                  ignoreOptionsTranslation || option.translate === false
-                    ? "true"
-                    : undefined
-                }
                 className={
                   Array.isArray(selectValue)
                     ? selectValue.includes(option[optionValue])
@@ -181,10 +174,6 @@ const Select = ({
   const [selectedNames, setSelectedNames]: any = useState("");
   const [position, setPosition]: any = useState(null);
   const selectRef1 = useRef<HTMLDivElement>(null);
-  const ignoreOptionsTranslation = shouldIgnoreValueTranslationContext({
-    label,
-    key: name,
-  });
 
   // esto se esta dejando cuando para verlo despues cuando se aplique el otro tipo de busqueda 06/11/2025
 
@@ -431,7 +420,6 @@ const Select = ({
             handleSelectMultiClickElement={handleSelectMultiClickElement}
             setOpenOptions={setOpenOptions}
             selectRef={selectRef}
-            ignoreOptionsTranslation={ignoreOptionsTranslation}
           />,
           document.getElementById("portal-root") as any,
         )}

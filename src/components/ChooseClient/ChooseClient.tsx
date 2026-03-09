@@ -13,7 +13,6 @@ import List from "@/mk/components/ui/List/List";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Input from "@/mk/components/forms/Input/Input";
 import Button from "@/mk/components/forms/Button/Button";
-import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 import { StatusBadge } from "../StatusBadge/StatusBadge";
 
@@ -25,7 +24,6 @@ const ChooseClient = ({ open, onClose }: Props) => {
   const { user, getUser, setStore, store } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
-  const { t } = useScopedI18n("chooseClient");
 
   const onClick = async (id: any) => {
     await getUser(id);
@@ -53,10 +51,10 @@ const ChooseClient = ({ open, onClose }: Props) => {
           <div className={styles.clientText}>
             <span className={styles.clientType}>
               {c.type == "C"
-                ? t("condominium")
+                ? "Condominio"
                 : c.type == "U"
-                  ? t("urbanization")
-                  : t("building")}
+                  ? "Urbanización"
+                  : "Edificio"}
             </span>
             <span className={styles.clientName}>{c.name}</span>
           </div>
@@ -112,13 +110,15 @@ const ChooseClient = ({ open, onClose }: Props) => {
       className={styles.modalFullScreen}
       style={{ backgroundColor: "#1a1a1a" }}
     >
-      <div className={styles.container} data-i18n-ignore="true">
+      <div className={styles.container}>
         <div className={styles.leftPanel}>
           <div className={styles.logoContainer}>
             <IconLogo size={98} />
           </div>
-          <h1 className={styles.title}>{t("welcomeTitle")}</h1>
-          <p className={styles.subtitle}>{t("subtitle")}</p>
+          <h1 className={styles.title}>¡Bienvenido a Condaty!</h1>
+          <p className={styles.subtitle}>
+            ¿Qué condominio quieres administrar hoy?
+          </p>
         </div>
         <div className={styles.rightPanel}>
           <div className={styles.listContainer}>
@@ -128,7 +128,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
                   name="search"
                   value={searchTerm}
                   onChange={(e: any) => setSearchTerm(e.target.value)}
-                  placeholder={t("searchPlaceholder")}
+                  placeholder="Buscar por nombre..."
                   className={styles.searchInput}
                   iconRight={<IconSearch size={20} color="var(--cWhiteV1)" />}
                 />
@@ -157,7 +157,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
                     width: "100%",
                   }}
                 >
-                  {t("back")}
+                  Volver
                 </Button>
               </div>
             )}

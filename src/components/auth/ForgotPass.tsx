@@ -6,7 +6,6 @@ import Input from "../../mk/components/forms/Input/Input";
 import InputPassword from "../../mk/components/forms/InputPassword/InputPassword";
 import DataModal from "../../mk/components/ui/DataModal/DataModal";
 import { logError } from "@/mk/utils/logs";
-import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 type PropsType = {
   open: boolean;
@@ -17,7 +16,6 @@ type PropsType = {
 const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
   const { execute } = useAxios();
   const { showToast } = useAuth();
-  const { t } = useScopedI18n("auth");
   const [formState, setformState]: any = useState({});
   const [errors, seterrors]: any = useState({});
   const [minutos, setMinutos] = useState(0);
@@ -72,18 +70,18 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
 
   const onGetCode = async () => {
     if (minutos || segundos > 0) {
-      showToast(t("waitToResendCode"), "info");
+      showToast("Espera 2 minutos para solicitar el código.", "info");
       return;
     }
     // console.log(formState.ci,'fstci')
     let err = {};
     if (!formState.ci) {
-      err = { ...err, ci: t("enterDocument") };
+      err = { ...err, ci: "Indica tu carnet de identidad" };
     }
     if (formState.ci && formState.ci.length > 11) {
       err = {
         ...err,
-        ci: t("documentMaxLength"),
+        ci: "El carnet de identidad debe tener máximo 11 caracteres",
       };
     }
 
@@ -99,12 +97,12 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
     });
 
     if (data?.success === true) {
-      showToast(t("verificationCodeSent"), "success");
+      showToast(data?.message, "success");
       // console.log(data?.message,"datamsg")
       setformState({ ...formState, newPassword: "", pinned: 2 });
       cuentaRegresiva(2 * 60 * 1000);
     } else {
-      showToast(t("unableToSendCode"), "error");
+      showToast(error?.message, "error");
     }
   };
   const setCode = (code: string) => {
@@ -117,13 +115,13 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       if (!formState.code) {
         err = {
           ...err,
-          code: t("enterVerificationCode"),
+          code: "Ingresa el código de verificación enviado a tu correo electrónico",
         };
       }
       if (formState.code?.length != 4) {
         err = {
           ...err,
-          code: t("codeMustHaveFourDigits"),
+          code: "El código de verificación debe tener 4 dígitos",
         };
       }
 
@@ -142,8 +140,11 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       if (data?.success === true) {
         setformState({ ...formState, pinned: 3 });
       } else {
-        showToast(t("invalidVerificationCode"), "error");
-        seterrors({ code: t("invalidVerificationCode") });
+        showToast(
+          error?.message || "El código de verificación no es válido",
+          "error"
+        );
+        seterrors({ code: "El código de verificación no es válido" });
       }
     }
   };
@@ -156,21 +157,21 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
 
     if (formState.pinned === 3) {
       if (!formState.newPassword)
-        err = { ...err, newPassword: t("enterNewPassword") };
+        err = { ...err, password: "Ingresa tu nueva contraseña" };
       if (formState.newPassword?.length < 8)
         err = {
           ...err,
-          newPassword: t("passwordMinLength"),
+          newPassword: "La contraseña debe tener al menos 8 caracteres",
         };
       if (formState.newPassword?.length > 10)
         err = {
           ...err,
-          newPassword: t("passwordMaxLength"),
+          newPassword: "La contraseña debe tener máximo 10 caracteres",
         };
       if (formState.newPassword != formState.repPassword) {
         err = {
           ...err,
-          repPassword: t("passwordsMustMatch"),
+          repPassword: "Las contraseñas deben ser iguales",
         };
       }
     }
@@ -183,12 +184,18 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
     // console.log(param,'paramsssss')
     const { data, error } = await execute(url, "POST", param);
     if (data?.success == true) {
-      showToast(t("passwordUpdated"), "success");
+      showToast(data.message, "success");
       setformState({ pinned: 0 });
       seterrors({});
       setOpen(false);
     } else {
-      showToast(t("unableToChangePassword"), "error");
+      showToast(
+        data?.errors?.token ||
+          data?.message ||
+          error?.data?.message ||
+          error?.message,
+        "error"
+      );
       logError("Error ChangePass", error);
       seterrors(error?.data?.errors);
     }
@@ -208,22 +215,21 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
   return (
     <DataModal
       open={open}
-      ignoreTranslation
       title={
         formState.pinned === 1
-          ? t("forgotPasswordTitle")
+          ? "Olvidé mi contraseña"
           : formState.pinned === 2
-            ? t("verificationCodeTitle")
-            : t("changePasswordTitle")
+          ? "Código de verificación"
+          : "Cambiar contraseña"
       }
       onClose={() => setOpen(false)}
       onSave={_onSave}
       buttonText={
         formState.pinned === 1
-          ? t("getCode")
+          ? "Obtener código"
           : formState.pinned === 2
-            ? t("continue")
-            : t("changePasswordAction")
+          ? "Continuar"
+          : "Cambiar contraseña"
       }
       buttonCancel=""
       // variant={"mini"}
@@ -231,12 +237,11 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       maxWidth={680}
     >
       {formState.pinned === 1 ? (
-        <div data-i18n-ignore="true">
-          {t("forgotPasswordDescription", {
-            document: t("identityDocumentLabel"),
-          })}
+        <div>
+          Ingresa tu cédula de identidad y se enviará un código de verificación
+          a tu correo electrónico.
           <Input
-            label={t("identityDocumentLabel")}
+            label={"Cedúla de identidad"}
             required={true}
             type="text"
             name="ci"
@@ -248,19 +253,20 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
           />
           {(minutos || segundos > 0) && (
             <div className="cError">
-              {t("forgotPasswordCountdown", {
-                minutes: minutos,
-                seconds: segundos < 10 ? `0${segundos}` : segundos,
-              })}
+              Espera {minutos} minuto{minutos === 0 ? `s` : ""} con {segundos}{" "}
+              segundos para volver a solicitar el código de verificación.
             </div>
           )}
         </div>
       ) : formState.pinned === 2 ? (
-        <div data-i18n-ignore="true">
-          <div>{t("verificationCodeDescription")}</div>
+        <>
+          <div>
+            Enviamos un código de verificación a tu correo para que puedas crear
+            una contraseña nueva
+          </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <InputCode
-              label={t("verificationCodeLabel")}
+              label="Código de verificación"
               type="number"
               name="code"
               error={errors}
@@ -269,19 +275,23 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
               onChange={() => {}}
               // className="mYl"
             ></InputCode>
+            {/* <div> Si no encuentras el código en tu buzón, busca en la carpeta de
+                spam o correos no deseados. Si el código no está allí, es
+                posible que tu correo electrónico indicado no exista o es
+                incorrecto.</div> */}
           </div>
-        </div>
+        </>
       ) : (
-        <div data-i18n-ignore="true">
+        <div>
           <InputPassword
-            label={t("newPasswordLabel")}
+            label="Contraseña nueva"
             name="newPassword"
             value={formState["newPassword"]}
             error={errors}
             onChange={handleChangeInput}
           />
           <InputPassword
-            label={t("repeatPasswordLabel")}
+            label="Repetir contraseña"
             name="repPassword"
             value={formState["repPassword"]}
             error={errors}

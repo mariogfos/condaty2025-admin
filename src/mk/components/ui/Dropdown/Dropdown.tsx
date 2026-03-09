@@ -7,17 +7,9 @@ type DropdownProps = {
   trigger: React.ReactNode;
   items: { name: string; route: string }[] | string[]; // Cambiado para recibir un array de objetos
   onClick?: Function;
-  ignoreTranslation?: boolean;
-  activeValue?: string;
 };
 
-const Dropdown = ({
-  trigger,
-  items,
-  onClick,
-  ignoreTranslation = false,
-  activeValue,
-}: DropdownProps) => {
+const Dropdown = ({ trigger, items, onClick }: DropdownProps) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router: any = useRouter();
@@ -55,23 +47,20 @@ const Dropdown = ({
   };
 
   return (
-    <div
-      className={styles.dropdown}
-      ref={dropdownRef}
-      data-i18n-ignore={ignoreTranslation ? "true" : undefined}
-    >
+    <div className={styles.dropdown} ref={dropdownRef}>
       <div onClick={handleDropdownToggle}>{trigger}</div>
       {dropdownOpen && (
         <div className={styles.dropdownMenu}>
           {items.map((item) => {
-            const itemRoute = typeof item == "string" ? item : item.route;
             const isActive =
-              activeValue !== undefined ? activeValue === itemRoute : path === itemRoute;
+              path === (typeof item == "string" ? item : item.route); // Verifica si está activo
             return (
               <p
-                key={itemRoute}
+                key={typeof item == "string" ? item : item.route}
                 className={isActive ? styles.active : ""}
-                onClick={() => handleLinkClick(itemRoute)}
+                onClick={() =>
+                  handleLinkClick(typeof item == "string" ? item : item.route)
+                }
                 style={{
                   backgroundColor: isActive ? "rgba(6, 7, 8, 0.5)" : "", // Cambia el fondo si está activo
                   borderRadius: 8,

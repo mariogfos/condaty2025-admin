@@ -9,7 +9,6 @@ import { useAuth } from '@/mk/contexts/AuthProvider';
 import { colorStatusForgiveness, statusForgiveness } from '../constants';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import Button from '@/mk/components/forms/Button/Button';
-import { shouldIgnoreValueTranslationContext } from '@/i18n/translationGuards';
 
 const LabelValue = ({
   label,
@@ -24,18 +23,11 @@ const LabelValue = ({
   style?: React.CSSProperties;
   styleLabel?: React.CSSProperties;
 }) => {
-  const ignoreValueTranslation = shouldIgnoreValueTranslationContext({ label });
-
   return (
     <div style={{ ...style, flex: 1 }}>
       <p style={{ color: 'var(--cWhiteV1)', ...styleLabel }}>{label}</p>
       {typeof value == 'string' ? (
-        <p
-          data-i18n-ignore={ignoreValueTranslation ? 'true' : undefined}
-          style={{ color: 'var(--cWhite)', marginTop: 8, ...styleValue }}
-        >
-          {value}
-        </p>
+        <p style={{ color: 'var(--cWhite)', marginTop: 8, ...styleValue }}>{value}</p>
       ) : (
         value
       )}

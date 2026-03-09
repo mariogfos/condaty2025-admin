@@ -10,7 +10,6 @@ import { ContentItem } from "../types";
 import MediaRenderer from "../MediaRenderer/MediaRenderer";
 import styles from "./ReelCompactList.module.css";
 import LinkifyDescription from "@/mk/components/ui/LinkifyDescription/LinkifyDescription";
-import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 interface ReelCompactListProps {
   items: ContentItem[];
@@ -29,7 +28,6 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
   onImageClick,
   onOpenRenderView,
 }) => {
-  const { t } = useScopedI18n("content");
   const handleToggleDescription = (
     contentId: number,
     items: ContentItem[],
@@ -59,8 +57,9 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
   const urlAvatar = (item: any) => {
     return item.user ? item?.user?.url_avatar : item?.owner?.url_avatar;
   };
+  console.log(items);
   return (
-    <div className={styles.compactListContainer} data-i18n-ignore="true">
+    <div className={styles.compactListContainer}>
       {items.map((item: ContentItem, index: number) => {
         const isNews = item.title && item.title.trim() !== "";
         const newsIndex = getNewsIndex(items, index);
@@ -73,9 +72,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
             onClick={() => onOpenRenderView?.(item.id, item)}
             role="button"
             tabIndex={0}
-            aria-label={t("openPostDetail", {
-              suffix: item.title ? `: ${item.title}` : "",
-            })}
+            aria-label={`Abrir detalle de la publicación${item.title ? `: ${item.title}` : ""}`}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
@@ -94,7 +91,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                 <div className={styles.userDetails}>
                   <span className={styles.userName}>
                     {getFullName(item.user || item.owner) ||
-                      t("unknownUser")}
+                      "Usuario Desconocido"}
                   </span>
                   <span className={styles.userRole}>
                     {item.user?.role1?.[0]?.name}
@@ -114,7 +111,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   {item.description ? (
                     <div>
                       <p className={styles.newsDescription}>
-                      {item.isDescriptionExpanded ||
+                        {item.isDescriptionExpanded ||
                         item.description?.length <= 100 ? (
                           <LinkifyDescription text={item.description} />
                         ) : (
@@ -131,12 +128,12 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                           }}
                           className={styles.seeMoreButton}
                         >
-                          {item.isDescriptionExpanded ? t("seeLess") : t("seeMore")}
+                          {item.isDescriptionExpanded ? "Ver menos" : "Ver más"}
                         </button>
                       )}
                     </div>
                   ) : (
-                    <p className={styles.newsDescription}>{t("noDescription")}</p>
+                    <p className={styles.newsDescription}>Sin descripción</p>
                   )}
                 </div>
                 <div className={styles.newsMediaContent}>
@@ -156,9 +153,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                         }}
                         role="button"
                         tabIndex={0}
-                        aria-label={t("viewFullImage", {
-                          title: item.title || t("newsImageAlt"),
-                        })}
+                        aria-label={`Ver imagen completa de ${item.title || "noticia"}`}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
@@ -169,7 +164,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                       >
                         <img
                           src={item.files[0]}
-                          alt={item.title || t("newsImageAlt")}
+                          alt={item.title || "Imagen de noticia"}
                           className={styles.newsImage}
                         />
                       </div>
@@ -196,16 +191,16 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                       )}
                     </p>
                     {item.description.length > 100 && (
-                        <button
+                      <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleToggleDescription(item.id, items, () => {});
                         }}
-                          className={styles.seeMoreButton}
-                        >
-                          {item.isDescriptionExpanded ? t("seeLess") : t("seeMore")}
-                        </button>
-                      )}
+                        className={styles.seeMoreButton}
+                      >
+                        {item.isDescriptionExpanded ? "Ver menos" : "Ver más"}
+                      </button>
+                    )}
                   </div>
                 )}
                 <MediaRenderer

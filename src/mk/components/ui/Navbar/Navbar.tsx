@@ -62,8 +62,8 @@ const Navbar = ({
                   h={48}
                   w={48}
                 />
-                <p data-i18n-ignore="true">{getFullName(user)}</p>
-                <p data-i18n-ignore="true">{client?.name}</p>
+                <p>{getFullName(user)}</p>
+                <p>{client?.name}</p>
               </head>
             )}
           </>
@@ -92,7 +92,7 @@ const Navbar = ({
             w={40}
           />
           <div>
-            <p data-i18n-ignore="true">{getFullName(user)}</p>
+            <p>{getFullName(user)}</p>
             <p>Administración</p>
           </div>
         </section>
