@@ -13,83 +13,105 @@ import {
   IconSecurityV2,
 } from "../layout/icons/IconsBiblioteca";
 
-export const menuConfig = [
-  { type: "item", href: "/", label: "Inicio", perm: "home", icon: IconHome },
+export type MenuConfigItem =
+  | {
+      type: "item";
+      href: string;
+      labelKey: string;
+      perm: string;
+      icon: any;
+      badgeKey?: string;
+    }
+  | {
+      type: "dropdown";
+      labelKey: string;
+      icon: any;
+      key: string;
+      items: Array<{
+        href: string;
+        perm: string;
+        labelKey: string;
+        badgeKey?: string;
+      }>;
+    };
+
+export const menuConfig: MenuConfigItem[] = [
+  { type: "item", href: "/", labelKey: "home", perm: "home", icon: IconHome },
   {
     type: "dropdown",
-    label: "Backoffice",
+    labelKey: "backoffice",
     icon: IconBackOffice,
     key: "Backoffice",
     items: [
-      { href: "/superadmins", perm: "superadmins", label: "Superadmins" },
-      { href: "/condominios", perm: "condominios", label: "Condominios" },
-      { href: "/invitations", perm: "campanas", label: "Invitaciones QR" },
-      { href: "/uploads", perm: "cargamasiva", label: "Carga masiva" },
+      { href: "/superadmins", perm: "superadmins", labelKey: "superadmins" },
+      { href: "/condominios", perm: "condominios", labelKey: "condominiums" },
+      { href: "/invitations", perm: "campanas", labelKey: "qrInvitations" },
+      { href: "/uploads", perm: "cargamasiva", labelKey: "bulkUpload" },
     ],
   },
   {
     type: "dropdown",
-    label: "Finanzas",
+    labelKey: "finance",
     icon: IconFinance,
     key: "Finanzas",
     items: [
-      { href: "/balance", label: "Flujo de efectivo", perm: "balance" },
+      { href: "/balance", labelKey: "cashFlow", perm: "balance" },
       {
         href: "/payments",
-        label: "Ingresos",
+        labelKey: "incomes",
         perm: "payments",
         badgeKey: "paymentsBage",
       },
-      { href: "/outlays", label: "Egresos", perm: "outlays" },
-      { href: "/expenses", label: "Expensas", perm: "expenses" },
-      { href: "/defaulters", label: "Morosos", perm: "defaulters" },
-      { href: "/debts_manager", label: "Deudas", perm: "debts_manager" },
+      { href: "/outlays", labelKey: "outlays", perm: "outlays" },
+      { href: "/expenses", labelKey: "condominiumFees", perm: "expenses" },
+      { href: "/defaulters", labelKey: "defaulters", perm: "defaulters" },
+      { href: "/debts_manager", labelKey: "debts", perm: "debts_manager" },
       {
         href: "/bank-accounts",
-        label: "Cuentas Bancarias",
+        labelKey: "bankAccounts",
         perm: "bank_accounts",
       },
       {
         href: "/partial-payments",
-        label: "Pagos Parciales",
+        labelKey: "partialPayments",
         perm: "bank_accounts",
       },
     ],
   },
   {
     type: "dropdown",
-    label: "Administración",
+    labelKey: "administration",
     icon: IconAdministracion,
     key: "Administración",
     items: [
-      { href: "/units", perm: "units", label: "Unidades" },
-      { href: "/areas", perm: "areas", label: "Áreas sociales" },
-      { href: "/documents", perm: "documents", label: "Documentos" },
-      { href: "/configs", perm: "settings", label: "Configuración" },
+      { href: "/units", perm: "units", labelKey: "units" },
+      { href: "/areas", perm: "areas", labelKey: "commonAreas" },
+      { href: "/documents", perm: "documents", labelKey: "documents" },
+      { href: "/configs", perm: "settings", labelKey: "settings" },
     ],
   },
   {
     type: "dropdown",
-    label: "Usuarios",
+    labelKey: "users",
     icon: IconGroup,
     key: "Usuarios",
     items: [
-      { href: "/owners", perm: "owners", label: "Residentes" },
-      { href: "/users", perm: "users", label: "Personal Administrativo" },
-      { href: "/roles", perm: "roles", label: "Roles y permisos" },
+      { href: "/owners", perm: "owners", labelKey: "residents" },
+      { href: "/users", perm: "users", labelKey: "administrativeStaff" },
+      { href: "/roles", perm: "roles", labelKey: "rolesAndPermissions" },
     ],
   },
   {
     type: "dropdown",
-    label: "Comunicación",
+    labelKey: "communication",
     icon: IconCommunication,
     key: "Comunicación",
     items: [
-      { href: "/contents", perm: "contents", label: "Publicaciones" },
+      { href: "/contents", perm: "contents", labelKey: "publications" },
       {
         href: "/reels",
         perm: "contents",
-        label: "Muro publicaciones",
+        labelKey: "publicationsWall",
         badgeKey: "reelsBage",
       },
     ],
@@ -97,26 +119,26 @@ export const menuConfig = [
   {
     type: "item",
     href: "/reservas",
-    label: "Reservas",
+    labelKey: "reservations",
     perm: "reservations",
     icon: IconCalendar,
     badgeKey: "reservasBage",
   },
   {
     type: "dropdown",
-    label: "Vigilancia y seguridad",
+    labelKey: "securityAndAccess",
     icon: IconSecurityV2,
     key: "Vigilancia y seguridad",
     items: [
-      { href: "/guards", perm: "guards", label: "Guardias" },
-      { href: "/activities", perm: "accesses", label: "Accesos" },
+      { href: "/guards", perm: "guards", labelKey: "guards" },
+      { href: "/activities", perm: "accesses", labelKey: "accesses" },
       {
         href: "/alerts",
         perm: "alerts",
-        label: "Alertas",
+        labelKey: "alerts",
         badgeKey: "alertsBage",
       },
-      { href: "/binnacle", perm: "guardlogs", label: "Bitácora" },
+      { href: "/binnacle", perm: "guardlogs", labelKey: "logbook" },
     ],
   },
 ];

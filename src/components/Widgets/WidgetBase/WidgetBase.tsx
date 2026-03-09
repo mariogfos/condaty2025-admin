@@ -9,6 +9,7 @@ interface Props {
   variant?: string; // TODO: add more variants if needed
   style?: CSSProperties;
   titleStyle?: any;
+  ignoreTranslation?: boolean;
 }
 
 const WidgetBase = ({
@@ -19,10 +20,12 @@ const WidgetBase = ({
   style,
   variant,
   titleStyle,
+  ignoreTranslation = false,
 }: Props) => {
   return (
     <div
       style={style}
+      data-i18n-ignore={ignoreTranslation ? "true" : undefined}
       className={
         (variant === "V1" ? styles.widgetBaseV1 : styles.widgetBase) +
         " " +

@@ -1,8 +1,9 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { ChartType, ProptypesBase } from "./GraphsTypes";
 import dynamic from "next/dynamic";
 import Select from "../../forms/Select/Select";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 const GraphsAdapter = dynamic(() => import("./GraphsAdapter"), { ssr: false });
 
 type LChartType = {
@@ -17,43 +18,46 @@ const GraphBase = ({
   downloadPdf = false,
   exportando = false,
 }: ProptypesBase & { exportando?: boolean }) => {
-  const [chartType, setChartType] = React.useState<ChartType>("bar");
-  const [lChartType, setLChartType] = React.useState<LChartType[]>([
-    { id: "bar", name: "Barra" },
-    { id: "donut", name: "Donut" },
-  ]);
-  const onChange = (e:any) => {
+  const { t } = useScopedI18n("graph");
+  const [chartType, setChartType] = React.useState<ChartType>(
+    chartTypes?.[0] || "bar",
+  );
+  const lChartType = useMemo<LChartType[]>(() => {
+    const availableTypes: ChartType[] = chartTypes?.length
+      ? chartTypes
+      : ["bar", "donut"];
+
+    return availableTypes.map((type) => ({
+      id: type,
+      name:
+        type == "bar"
+          ? t("bar")
+          : type == "radialBar"
+            ? "Circular"
+          : type == "pie"
+            ? t("pie")
+          : type == "donut"
+            ? t("donut")
+            : t("line"),
+    }));
+  }, [chartTypes, t]);
+
+  const onChange = (e: any) => {
     setChartType(e.target.value);
   };
 
   useEffect(() => {
-    if (chartTypes) {
-      const lChartT: LChartType[] = [];
-      chartTypes.forEach((type) => {
-        lChartT.push({
-          id: type,
-          name:
-            type == "bar"
-              ? "Barra"
-              : type == "radialBar"
-              ? "Circular"
-              : type == "pie"
-              ? "Torta"
-              : type == "donut"
-              ? "Donut"
-              : "Linea",
-        });
-      });
-      if (lChartT.length == 1) setChartType(lChartT[0].id);
-      setLChartType(lChartT);
+    if (!lChartType.length) return;
+    if (!lChartType.some((type) => type.id === chartType)) {
+      setChartType(lChartType[0].id);
     }
-  }, [chartTypes]);
+  }, [chartType, lChartType]);
 
   return (
     <div className={`bg-[${background}] rounded-3xl my-4 p-8`}>
       {chartTypes && chartTypes.length > 1 && (
         <Select
-          label="Tipo de gráfica"
+          label={t("chartTypeLabel")}
           value={chartType}
           name="type"
           className="w-[180px] "
@@ -62,7 +66,15 @@ const GraphBase = ({
           required
         />
       )}
-      <GraphsAdapter data={data} chartType={chartType} options={options} downloadPdf={downloadPdf} exportando={exportando} />
+      <div data-i18n-ignore="true">
+        <GraphsAdapter
+          data={data}
+          chartType={chartType}
+          options={options}
+          downloadPdf={downloadPdf}
+          exportando={exportando}
+        />
+      </div>
     </div>
   );
 };
