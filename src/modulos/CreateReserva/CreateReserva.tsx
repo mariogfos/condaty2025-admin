@@ -92,7 +92,13 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState?.area_social, formState.unidad]);
   useEffect(() => {
-    setFormState({ ...formState, unidad: "" });
+    setFormState((prev) => {
+      if (!prev.unidad) {
+        return prev;
+      }
+      return { ...prev, unidad: "" };
+    });
+    setSelectedUnit(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState?.area_social]);
   useEffect(() => {
@@ -101,6 +107,8 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         (u: any) => String(u.id) === formState.unidad,
       );
       setSelectedUnit(selectedUnit);
+    } else {
+      setSelectedUnit(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState?.unidad]);
@@ -145,10 +153,16 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     ],
   );
 
-  const unidadesOptions = () => {
-    let data: any = [];
-    extraData?.dptos?.map((unidad: any) => {
-      if (selectedAreaDetails?.penalty_or_debt_restriction == "A") {
+  const unidadesOptions = useMemo(() => {
+    const selectedArea = extraData?.areas?.find(
+      (area: ApiArea) => area.id === formState.area_social,
+    );
+    if (!selectedArea) {
+      return [];
+    }
+    let data: any[] = [];
+    extraData?.dptos?.forEach((unidad: any) => {
+      if (selectedArea?.penalty_or_debt_restriction == "A") {
         if (unidad?.defaulter == "X") {
           data.push({
             id: String(unidad.id),
@@ -163,7 +177,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       }
     });
     return data;
-  };
+  }, [extraData?.dptos, extraData?.areas, formState.area_social]);
 
   const selectedAreaDetails: ApiArea | undefined = useMemo(() => {
     if (!formState.area_social) {
@@ -500,10 +514,18 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                       label="Unidad"
                       name="unidad"
                       value={formState.unidad}
-                      options={unidadesOptions()}
+                      options={unidadesOptions}
                       onChange={handleChange}
                       error={errors}
                       filter
+                      disabled={!selectedAreaDetails}
+                      placeholder={
+                        !selectedAreaDetails
+                          ? "Selecciona primero un área social"
+                          : unidadesOptions.length === 0
+                            ? "No hay unidades disponibles"
+                            : "Selecciona una unidad"
+                      }
                     />
                   </div>
                 </div>
