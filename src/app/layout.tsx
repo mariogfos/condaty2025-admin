@@ -9,6 +9,7 @@ import { Metadata, Viewport } from "next";
 import ChatInstantDb from "@/mk/components/chat/ChatInstantDb";
 import NotifInstantDb from "@/mk/components/notif/ActiveNotificationDB";
 import { ImageModalProvider } from "@/contexts/ImageModalContext";
+import AppLanguageLayer from "@/i18n/AppLanguageLayer";
 // import { ReactScan } from "@/mk/utils/reactscan/ReactScan";
 
 // const geistSans = Geist({
@@ -24,9 +25,6 @@ import { ImageModalProvider } from "@/contexts/ImageModalContext";
 export const metadata: Metadata = {
   title: process.env.NEXT_PUBLIC_APP_NAME || "Condaty",
   description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Cantady",
-  other: {
-    google: "notranslate",
-  },
 };
 export const viewport: Viewport = {
   width: "device-width",
@@ -42,26 +40,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       {/* <ReactScan /> */}
       <body cz-shortcut-listen="true">
         <AxiosInstanceProvider interceptors={axiosInterceptors}>
-          <AuthProvider>
-            <ImageModalProvider>
-              <NotifInstantDb />
-              <div
-                id="portal-root"
-                style={{
-                  position: "absolute",
-                  overflow: "visible",
-                  zIndex: 9999,
-                  width: "100%",
-                }}
-              ></div>
-              <Layout>{children}</Layout>
-              <ChatInstantDb />
-            </ImageModalProvider>
-          </AuthProvider>
+          <AppLanguageLayer>
+            <AuthProvider>
+              <ImageModalProvider>
+                <NotifInstantDb />
+                <div
+                  id="portal-root"
+                  style={{
+                    position: "absolute",
+                    overflow: "visible",
+                    zIndex: 9999,
+                    width: "100%",
+                  }}
+                ></div>
+                <Layout>{children}</Layout>
+                <ChatInstantDb />
+              </ImageModalProvider>
+            </AuthProvider>
+          </AppLanguageLayer>
         </AxiosInstanceProvider>
       </body>
     </html>
