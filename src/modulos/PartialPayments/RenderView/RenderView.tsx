@@ -15,6 +15,7 @@ import { hasMaintenanceValue } from "@/mk/utils/utils";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 import { MONTHS, MONTHS_S } from "@/mk/utils/date1";
 import RenderDel from "@/modulos/Payments/RenderDel/RenderDel";
+import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
 
 const LabelValue = ({
   label,
@@ -29,11 +30,14 @@ const LabelValue = ({
   style?: React.CSSProperties;
   styleLabel?: React.CSSProperties;
 }) => {
+  const ignoreValueTranslation = shouldIgnoreValueTranslationContext({ label });
+
   return (
     <div style={{ ...style, flex: 1 }}>
       <p style={{ color: "var(--cWhiteV1)", ...styleLabel }}>{label}</p>
       {typeof value == "string" ? (
         <p
+          data-i18n-ignore={ignoreValueTranslation ? "true" : undefined}
           style={{
             color: "var(--cWhite)",
             marginTop: 8,

@@ -1,4 +1,5 @@
 import { CSSProperties } from "react";
+import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
 import styles from "./keyValue.module.css";
 type PropsType = {
   title?: any;
@@ -20,6 +21,10 @@ const KeyValue = ({
   styleTitle,
   styleValue,
 }: PropsType) => {
+  const ignoreValueTranslation = shouldIgnoreValueTranslationContext({
+    label: title,
+  });
+
   return (
     <div className={styles.keyValue}>
       <section>
@@ -33,6 +38,7 @@ const KeyValue = ({
           {title}
         </div>
         <div
+          data-i18n-ignore={ignoreValueTranslation ? "true" : undefined}
           style={{
             ...styleValue,
             color: colorValue ? colorValue : "var(--cWhite)",

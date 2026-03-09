@@ -24,7 +24,9 @@ const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
       </div>
       {!collapsed && (
         <div>
-          <p style={{ color: "var(--cWhite)" }}>{client?.name}</p>
+          <p style={{ color: "var(--cWhite)" }} data-i18n-ignore="true">
+            {client?.name}
+          </p>
         </div>
       )}
     </div>

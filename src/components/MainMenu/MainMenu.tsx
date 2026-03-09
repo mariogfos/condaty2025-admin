@@ -8,6 +8,7 @@ import MainmenuItem from "./MainMenuItem";
 import MainmenuDropdown from "./MainmenuDropdown";
 import { menuConfig } from "./mainMenuConfig";
 import { IconDepartments, IconLogout } from "../layout/icons/IconsBiblioteca";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 type PropsType = {
   user: any;
   collapsed: boolean;
@@ -24,11 +25,12 @@ const MainMenu = ({
   setOpenClient,
 }: PropsType) => {
   const { store, setStore, userCan } = useAuth();
+  const { translate } = useScopedI18n("sidebar");
   const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
-  const handleToggle = useCallback((label: string) => {
-    setOpenMenu((prev) => (prev === label ? null : label));
+  const handleToggle = useCallback((key: string) => {
+    setOpenMenu((prev) => (prev === key ? null : key));
   }, []);
 
   useEffect(() => {
@@ -72,9 +74,9 @@ const MainMenu = ({
         if (item.type === "item") {
           return (
             <MainmenuItem
-              key={item.label}
+              key={item.labelKey}
               href={item.href}
-              label={item.label}
+              label={translate(item.labelKey)}
               icon={<item.icon />}
               bage={store?.[item.badgeKey]}
               collapsed={collapsed}
@@ -92,16 +94,17 @@ const MainMenu = ({
           return (
             <MainmenuDropdown
               key={item.key}
-              label={item.label}
+              label={translate(item.labelKey)}
               icon={<item.icon />}
               items={visibleSubs.map((sub: any) => ({
                 ...sub,
+                label: translate(sub.labelKey),
                 bage: store?.[sub.badgeKey],
               }))}
               collapsed={collapsed}
               setSideBarOpen={setSideBarOpen}
-              isOpen={openMenu === item.label}
-              onToggle={() => handleToggle(item.label)}
+              isOpen={openMenu === item.key}
+              onToggle={() => handleToggle(item.key)}
             />
           );
         }
@@ -109,17 +112,17 @@ const MainMenu = ({
         return null;
       })
       .filter(Boolean);
-  }, [collapsed, openMenu, store, handleToggle, setSideBarOpen, userCan]);
+  }, [collapsed, handleToggle, openMenu, setSideBarOpen, store, translate, userCan]);
 
   return (
-    <section className={styles.menu}>
+    <section className={styles.menu} data-i18n-ignore="true">
       <MainMenuHeader user={user} collapsed={collapsed} />
       <div>{renderedMenu}</div>
       {user?.clients?.length > 1 && (
         <MainmenuItem
           href="#"
           onclick={() => setOpenClient(true)}
-          label="Cambiar de condominio"
+          label={translate("switchCondominium")}
           icon={<IconDepartments />}
           collapsed={collapsed}
         />
@@ -127,7 +130,7 @@ const MainMenu = ({
       <MainmenuItem
         href="#"
         onclick={() => setLogout(true)}
-        label="Cerrar sesión"
+        label={translate("signOut")}
         labelColor="var(--cError)"
         icon={<IconLogout color={"var(--cError)"} />}
         collapsed={collapsed}

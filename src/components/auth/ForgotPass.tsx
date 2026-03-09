@@ -6,6 +6,7 @@ import Input from "../../mk/components/forms/Input/Input";
 import InputPassword from "../../mk/components/forms/InputPassword/InputPassword";
 import DataModal from "../../mk/components/ui/DataModal/DataModal";
 import { logError } from "@/mk/utils/logs";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 type PropsType = {
   open: boolean;
@@ -16,6 +17,7 @@ type PropsType = {
 const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
   const { execute } = useAxios();
   const { showToast } = useAuth();
+  const { translate } = useScopedI18n("auth");
   const [formState, setformState]: any = useState({});
   const [errors, seterrors]: any = useState({});
   const [minutos, setMinutos] = useState(0);
@@ -70,18 +72,18 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
 
   const onGetCode = async () => {
     if (minutos || segundos > 0) {
-      showToast("Espera 2 minutos para solicitar el código.", "info");
+      showToast(translate("waitToResendCode"), "info");
       return;
     }
     // console.log(formState.ci,'fstci')
     let err = {};
     if (!formState.ci) {
-      err = { ...err, ci: "Indica tu carnet de identidad" };
+      err = { ...err, ci: translate("enterDocument") };
     }
     if (formState.ci && formState.ci.length > 11) {
       err = {
         ...err,
-        ci: "El carnet de identidad debe tener máximo 11 caracteres",
+        ci: translate("documentMaxLength"),
       };
     }
 
@@ -97,12 +99,12 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
     });
 
     if (data?.success === true) {
-      showToast(data?.message, "success");
+      showToast(translate("verificationCodeSent"), "success");
       // console.log(data?.message,"datamsg")
       setformState({ ...formState, newPassword: "", pinned: 2 });
       cuentaRegresiva(2 * 60 * 1000);
     } else {
-      showToast(error?.message, "error");
+      showToast(translate("unableToSendCode"), "error");
     }
   };
   const setCode = (code: string) => {
@@ -115,13 +117,13 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       if (!formState.code) {
         err = {
           ...err,
-          code: "Ingresa el código de verificación enviado a tu correo electrónico",
+          code: translate("enterVerificationCode"),
         };
       }
       if (formState.code?.length != 4) {
         err = {
           ...err,
-          code: "El código de verificación debe tener 4 dígitos",
+          code: translate("codeMustHaveFourDigits"),
         };
       }
 
@@ -140,11 +142,8 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       if (data?.success === true) {
         setformState({ ...formState, pinned: 3 });
       } else {
-        showToast(
-          error?.message || "El código de verificación no es válido",
-          "error"
-        );
-        seterrors({ code: "El código de verificación no es válido" });
+        showToast(translate("invalidVerificationCode"), "error");
+        seterrors({ code: translate("invalidVerificationCode") });
       }
     }
   };
@@ -157,21 +156,21 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
 
     if (formState.pinned === 3) {
       if (!formState.newPassword)
-        err = { ...err, password: "Ingresa tu nueva contraseña" };
+        err = { ...err, newPassword: translate("enterNewPassword") };
       if (formState.newPassword?.length < 8)
         err = {
           ...err,
-          newPassword: "La contraseña debe tener al menos 8 caracteres",
+          newPassword: translate("passwordMinLength"),
         };
       if (formState.newPassword?.length > 10)
         err = {
           ...err,
-          newPassword: "La contraseña debe tener máximo 10 caracteres",
+          newPassword: translate("passwordMaxLength"),
         };
       if (formState.newPassword != formState.repPassword) {
         err = {
           ...err,
-          repPassword: "Las contraseñas deben ser iguales",
+          repPassword: translate("passwordsMustMatch"),
         };
       }
     }
@@ -184,18 +183,12 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
     // console.log(param,'paramsssss')
     const { data, error } = await execute(url, "POST", param);
     if (data?.success == true) {
-      showToast(data.message, "success");
+      showToast(translate("passwordUpdated"), "success");
       setformState({ pinned: 0 });
       seterrors({});
       setOpen(false);
     } else {
-      showToast(
-        data?.errors?.token ||
-          data?.message ||
-          error?.data?.message ||
-          error?.message,
-        "error"
-      );
+      showToast(translate("unableToChangePassword"), "error");
       logError("Error ChangePass", error);
       seterrors(error?.data?.errors);
     }
@@ -215,21 +208,22 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
   return (
     <DataModal
       open={open}
+      ignoreTranslation
       title={
         formState.pinned === 1
-          ? "Olvidé mi contraseña"
+          ? translate("forgotPasswordTitle")
           : formState.pinned === 2
-          ? "Código de verificación"
-          : "Cambiar contraseña"
+            ? translate("verificationCodeTitle")
+            : translate("changePasswordTitle")
       }
       onClose={() => setOpen(false)}
       onSave={_onSave}
       buttonText={
         formState.pinned === 1
-          ? "Obtener código"
+          ? translate("getCode")
           : formState.pinned === 2
-          ? "Continuar"
-          : "Cambiar contraseña"
+            ? translate("continue")
+            : translate("changePasswordAction")
       }
       buttonCancel=""
       // variant={"mini"}
@@ -237,11 +231,12 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       maxWidth={680}
     >
       {formState.pinned === 1 ? (
-        <div>
-          Ingresa tu cédula de identidad y se enviará un código de verificación
-          a tu correo electrónico.
+        <div data-i18n-ignore="true">
+          {translate("forgotPasswordDescription", {
+            document: translate("identityDocumentLabel"),
+          })}
           <Input
-            label={"Cedúla de identidad"}
+            label={translate("identityDocumentLabel")}
             required={true}
             type="text"
             name="ci"
@@ -253,20 +248,19 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
           />
           {(minutos || segundos > 0) && (
             <div className="cError">
-              Espera {minutos} minuto{minutos === 0 ? `s` : ""} con {segundos}{" "}
-              segundos para volver a solicitar el código de verificación.
+              {translate("forgotPasswordCountdown", {
+                minutes: minutos,
+                seconds: segundos < 10 ? `0${segundos}` : segundos,
+              })}
             </div>
           )}
         </div>
       ) : formState.pinned === 2 ? (
-        <>
-          <div>
-            Enviamos un código de verificación a tu correo para que puedas crear
-            una contraseña nueva
-          </div>
+        <div data-i18n-ignore="true">
+          <div>{translate("verificationCodeDescription")}</div>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <InputCode
-              label="Código de verificación"
+              label={translate("verificationCodeLabel")}
               type="number"
               name="code"
               error={errors}
@@ -275,23 +269,19 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
               onChange={() => {}}
               // className="mYl"
             ></InputCode>
-            {/* <div> Si no encuentras el código en tu buzón, busca en la carpeta de
-                spam o correos no deseados. Si el código no está allí, es
-                posible que tu correo electrónico indicado no exista o es
-                incorrecto.</div> */}
           </div>
-        </>
+        </div>
       ) : (
-        <div>
+        <div data-i18n-ignore="true">
           <InputPassword
-            label="Contraseña nueva"
+            label={translate("newPasswordLabel")}
             name="newPassword"
             value={formState["newPassword"]}
             error={errors}
             onChange={handleChangeInput}
           />
           <InputPassword
-            label="Repetir contraseña"
+            label={translate("repeatPasswordLabel")}
             name="repPassword"
             value={formState["repPassword"]}
             error={errors}
