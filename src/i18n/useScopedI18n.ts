@@ -39,6 +39,5 @@ export const useScopedI18n = (section: I18nSection) => {
     locale,
     localeTag: LOCALE_TAGS[locale],
     translate,
-    t: translate,
   };
 };
