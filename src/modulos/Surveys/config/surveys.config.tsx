@@ -1,15 +1,11 @@
 import React from "react";
 import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import { GMT, compareDate, getDateStrMes } from "@/mk/utils/date";
+import { getDateStrMes } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
 import RenderForm from "../components/RenderForm/RenderForm";
 import RenderView from "../components/RenderView/RenderView";
-import {
-  getStatusLabel,
-  getDestinyLabel,
-  SURVEY_STATUSES,
-} from "./surveys.constants";
-import { SurveyItemData } from "../types/surveys.types";
+import { getStatusLabel, getDestinyLabel, SURVEY_STATUSES } from "./surveys.constants";
+
 import styles from "../Surveys.module.css";
 
 export const getSurveyConfig = (
@@ -62,31 +58,10 @@ export const getSurveyConfig = (
     loadView: { fullType: "DET" },
   };
 
+
   const fields = {
     id: { rules: [], api: "e" },
-    scheduled_at: {
-      rules: ["validateIf:switch,Y", "required", "greaterDate"],
-      api: "ae",
-      label: "Fecha inicio",
-      form: {
-        onTop: () => {
-          return (
-            <p style={{ fontSize: 14, color: "var(--cBlackV2)" }}>
-              Define el inicio y final de la encuesta para controlar cuándo
-              estará disponible para los afiliados
-            </p>
-          );
-        },
-        type: "date",
-        onHide: (data: any) => !data.item.switch || data.item.switch === "N",
-        disabled: (item: SurveyItemData) => {
-          let hoy = new Date();
-          hoy.setHours(hoy.getHours() - GMT);
-          hoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-          return !!(item?.begin_at && new Date(item?.begin_at) <= hoy);
-        },
-      },
-    },
+
     created_at: {
       rules: [],
       api: "ae",
@@ -97,7 +72,13 @@ export const getSurveyConfig = (
         ),
       },
     },
-    end_at: {
+    scheduled_at: {
+      rules: ["validateIf:switch,Y", "required", "greaterDate"],
+      api: "ae",
+      label: "Fecha inicio2",
+
+    },
+    expires_at: {
       rules: [
         "validateIf:switch,Y",
         "greaterDate",
@@ -106,45 +87,13 @@ export const getSurveyConfig = (
       ],
       api: "ae",
       label: "Fecha fin",
-      form: {
-        type: "date",
-        onHide: (data: any) => !data.item.switch || data.item.switch === "N",
-        keyLeft: "begin_at",
-        disabled: (item: SurveyItemData) =>
-          !!(item.end_at && compareDate(item.end_at, new Date(), "<")),
-      },
+
     },
     title: {
       rules: ["required"],
       api: "ae",
       label: "Título",
-      form: {
-        label: "Escribe el título de la encuesta",
-        type: "text",
-        disabled: (item: SurveyItemData) => {
-          let hoy = new Date();
-          hoy.setHours(hoy.getHours() - GMT);
-          hoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-          return (
-            (item?.begin_at && new Date(item?.begin_at) <= hoy) ||
-            (item?.sanswerscount && item?.sanswerscount > 0)
-          );
-        },
-        onTop: () => {
-          return (
-            <div
-              style={{
-                color: "white",
-                fontSize: "var(--sL)",
-                fontWeight: 600,
-                marginBottom: "var(--spXs)",
-              }}
-            >
-              Título de la pregunta
-            </div>
-          );
-        },
-      },
+
       list: {
         onRender: (props: any) => (
           <div className={styles.surveyName}>{props.item.title}</div>
@@ -155,45 +104,25 @@ export const getSurveyConfig = (
       rules: ["required"],
       api: "ae",
       label: "Descripción",
-      form: { type: "textarea" },
+
     },
     switch: {
       rules: [],
       api: "ae",
       list: false,
-      form: {
-        precarga: "N",
-        edit: {
-          precarga: (data: any) => (data.data?.begin_at ? "Y" : "N"),
-        },
-      },
+
     },
-    creator: {
+    created_by_name: {
       rules: [""],
       api: "",
       label: "Creado por",
-      list: {
-        onRender: (props: any) => (
-          <div>
-            {props.item.created_by ? props.item.created_by : "Sin usuario"}
-          </div>
-        ),
-      },
+      list: true
     },
     destiny: {
       rules: ["required"],
       api: "ae",
       label: "Destinatarios",
-      form: {
-        type: "select",
-        options: [
-          { id: "T", name: "Todos" },
-          { id: "P", name: "Propietarios" },
-          { id: "R", name: "Residentes" },
-          { id: "A", name: "Administradores" },
-          { id: "D", name: "Departamento" },
-        ],
-      },
+
       list: {
         width: "120px",
         onRender: (props: any) => {
@@ -206,13 +135,7 @@ export const getSurveyConfig = (
       rules: ["required"],
       api: "ae",
       label: "Obligatoria",
-      form: {
-        type: "select",
-        options: [
-          { id: "Y", name: "Sí" },
-          { id: "N", name: "No" },
-        ],
-      },
+
       list: {
         width: "100px",
         onRender: (props: any) => (
@@ -220,16 +143,11 @@ export const getSurveyConfig = (
         ),
       },
     },
-    squestions_count: {
+    questions_count: {
       rules: [""],
       api: "",
       label: "Preguntas",
-      list: {
-        width: "150px",
-        onRender: (props: any) => (
-          <div>{props.item.squestions?.length || 0} preguntas</div>
-        ),
-      },
+      list: true,
     },
     votes: {
       label: "Votos",
@@ -241,13 +159,7 @@ export const getSurveyConfig = (
       rules: ["required"],
       api: "ae",
       label: "Estado",
-      form: {
-        type: "select",
-        options: SURVEY_STATUSES.filter((s) => s.value !== "X").map((s) => ({
-          id: s.value,
-          name: s.label,
-        })),
-      },
+
       list: {
         width: "100px",
         onRender: (props: any) => {
