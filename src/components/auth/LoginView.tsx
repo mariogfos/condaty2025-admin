@@ -9,6 +9,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import ForgotPass from "./ForgotPass";
 import Logo from "@/components/req/Logo";
 import styles from "./loginView.module.css";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 export interface PropsLogin {
   errors: any;
@@ -50,6 +51,7 @@ const LoginView = ({
   const [openModal, setOpenModal] = useState(false);
   const [timer, setTimer] = useState(59);
   const [canResend, setCanResend] = useState(false);
+  const { translate } = useScopedI18n("auth");
   // Removed internal mock states (attempts, isBlocked, mockErrors) as they are now managed by parent
 
   useEffect(() => {
@@ -79,7 +81,7 @@ const LoginView = ({
 
   const formatMessage = (msg: string) => {
     if (!msg)
-      return "Parece que estás ingresando desde un dispositivo nuevo. Para tu seguridad, te enviamos un código a <b>tu correo</b> para confirmar tu identidad.";
+      return translate("verificationMessage");
     return msg.replace(
       /-+(.*?)-+/g,
       '<span style="font-weight: 800; color: #fff;">$1</span>',
@@ -87,7 +89,7 @@ const LoginView = ({
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-i18n-ignore="true">
       {/* Imagen de fondo */}
       <div className={styles.imageBackground}>
         <Image
@@ -114,18 +116,17 @@ const LoginView = ({
           <div className={styles.titleSection}>
             <div className={styles.title}>
               {showTrustDevice
-                ? "¿Confiar en este dispositivo?"
+                ? translate("trustDeviceTitle")
                 : showVerification
-                  ? "Ingresa el código de verificación"
-                  : "¡Te damos la bienvenida!"}
+                  ? translate("verificationTitle")
+                  : translate("loginTitle")}
             </div>
           </div>
 
           {showTrustDevice ? (
             <div className={styles.verificationContainer}>
               <p className={styles.verificationText}>
-                Estás iniciando sesión desde un dispositivo nuevo. Si confías en
-                él, no volveremos a pedirte verificación en futuros accesos.
+                {translate("trustDeviceBody")}
               </p>
 
               <div className={styles.verificationButtons}>
@@ -137,13 +138,13 @@ const LoginView = ({
                     color: "white",
                   }}
                 >
-                  No confiar
+                  {translate("trustNo")}
                 </Button>
                 <Button
                   className={styles.button}
                   onClick={() => onTrustDevice && onTrustDevice(true)}
                 >
-                  Confiar
+                  {translate("trustYes")}
                 </Button>
               </div>
             </div>
@@ -169,14 +170,14 @@ const LoginView = ({
 
               {errors["code"] && !isBlocked && (
                 <p className={styles.errorText}>
-                  Pin incorrecto, tienes {3 - attempts} intentos restantes.
+                  {translate("verificationInvalid", {
+                    remaining: Math.max(3 - attempts, 0),
+                  })}
                 </p>
               )}
 
               {isBlocked ? (
-                <p className={styles.errorText}>
-                  Has excedido el número de intentos. Bloqueado por 30 minutos.
-                </p>
+                <p className={styles.errorText}>{translate("verificationBlocked")}</p>
               ) : (
                 <>
                   {canResend ? (
@@ -184,12 +185,13 @@ const LoginView = ({
                       className={styles.resendTextGreen}
                       onClick={handleResend}
                     >
-                      Reenviar un nuevo código
+                      {translate("resendCode")}
                     </div>
                   ) : (
                     <p className={styles.resendText}>
-                      Volver a solicitar código en 0:
-                      {timer < 10 ? `0${timer}` : timer}
+                      {translate("resendCountdown", {
+                        seconds: timer < 10 ? `0${timer}` : timer,
+                      })}
                     </p>
                   )}
                 </>
@@ -204,11 +206,11 @@ const LoginView = ({
                     color: "white",
                   }}
                 >
-                  Volver
+                  {translate("back")}
                 </Button>
                 {!isBlocked && (
                   <Button className={styles.button} onClick={onVerify}>
-                    Verificar
+                    {translate("verify")}
                   </Button>
                 )}
               </div>
@@ -224,7 +226,7 @@ const LoginView = ({
               <div className={styles.inputContainer}>
                 <Input
                   required
-                  label={config?.app?.loginLabel || "Carnet de identidad"}
+                  label={translate("identityDocumentLabel")}
                   type="number"
                   name="email"
                   error={errors}
@@ -236,7 +238,7 @@ const LoginView = ({
 
               <div className={styles.inputContainer}>
                 <InputPassword
-                  label="Contraseña"
+                  label={translate("passwordLabel")}
                   required
                   name="password"
                   error={errors}
@@ -249,17 +251,17 @@ const LoginView = ({
                 className={styles.forgotPassword}
                 onClick={() => setOpenModal(true)}
               >
-                Olvidé mi contraseña
+                {translate("forgotPassword")}
               </div>
-              <Button className={styles.button}>Iniciar sesión</Button>
+              <Button className={styles.button}>{translate("loginAction")}</Button>
               <div className={styles.termsContainer}>
-                Al iniciar sesión aceptas los{" "}
+                {translate("termsPrefix")}
                 <a href="https://www.condaty.com/terminos">
-                  Términos y Condiciones
+                  {translate("termsLink")}
                 </a>{" "}
-                y nuestras{" "}
+                {translate("privacyConnector")}
                 <a href="https://www.condaty.com/politicas">
-                  Políticas de Privacidad
+                  {translate("privacyLink")}
                 </a>
               </div>
             </form>
