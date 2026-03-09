@@ -1,4 +1,14 @@
-import lang from "../../config/lang";
+import es from "@/mk/utils/traductor/es";
+import pt from "@/mk/utils/traductor/pt";
+import en from "@/mk/utils/traductor/en";
+import { getCurrentClientLocale } from "@/i18n/runtime";
+
+const dictionaries = {
+  es,
+  pt,
+  en,
+};
+
 const t = (s = "", p1 = "") => {
   let ini = "";
   let end = "";
@@ -12,6 +22,8 @@ const t = (s = "", p1 = "") => {
   const upper = /^[A-Z0-9 ]+$/;
   const key = s.toLowerCase();
 
+  const locale = getCurrentClientLocale();
+  const lang = dictionaries[locale] || dictionaries.es;
   let l = lang ? lang[key] || s : s;
 
   let c = ini + l + end;

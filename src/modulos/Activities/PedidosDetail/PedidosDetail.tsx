@@ -6,6 +6,7 @@ import styles from "./PedidosDetail.module.css";
 import { getFullName } from "@/mk/utils/string";
 import { getDateTimeStrMes } from "@/mk/utils/date";
 import Br from "@/components/Detail/Br";
+import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
 
 interface Props {
   item?: any;
@@ -31,10 +32,13 @@ const getStatusText = (status?: string) => {
 };
 
 const LabelValue = ({ value, label, colorValue }: LabelValueProps) => {
+  const ignoreValueTranslation = shouldIgnoreValueTranslationContext({ label });
+
   return (
     <div className={styles.LabelValue}>
       <p>{label}</p>
       <p
+        data-i18n-ignore={ignoreValueTranslation ? "true" : undefined}
         style={{
           color: colorValue || "var(--cWhite)",
         }}
@@ -63,11 +67,15 @@ const PedidosDetail = ({ item, open, onClose }: Props) => {
           style={{ marginBottom: 16 }}
         />
         <p
+          data-i18n-ignore="true"
           style={{ textAlign: "center", color: "var(--cWhite)", fontSize: 16 }}
         >
           {getFullName(item?.owner)}
         </p>
-        <p style={{ textAlign: "center", fontSize: 16, fontWeight: "300" }}>
+        <p
+          data-i18n-ignore="true"
+          style={{ textAlign: "center", fontSize: 16, fontWeight: "300" }}
+        >
           C.I. {item?.owner?.ci} - Unidad: {item?.owner?.dpto[0]?.nro}
         </p>
 
