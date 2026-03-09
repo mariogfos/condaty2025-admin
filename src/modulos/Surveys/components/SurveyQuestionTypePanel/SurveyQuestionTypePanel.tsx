@@ -35,7 +35,7 @@ if(!view){
           <p>(El afiliado solo podrá elegir una opción)</p>
         </div>
       </div>
-      <div className={styles.questionTypeOption} onClick={()=>openSurveyType('N')}>
+      <div className={styles.questionTypeOption} onClick={()=>openSurveyType('M')}>
         <div className={styles.icon}><IconParkListCheckbox size={32}/></div>
         <div className={styles.textContainer}>
           <h3>Opción múltiple</h3>

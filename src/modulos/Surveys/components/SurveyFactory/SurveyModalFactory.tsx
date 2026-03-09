@@ -3,7 +3,7 @@ import SurveySingleChoice from "./SurveySingleChoice/SurveySingleChoice";
 import SurveyMultipleChoice from "./SurveyMultipleChoice/SurveyMultipleChoice";
 import SurveyOpenTextChoice from "./SurveyOpenTextChoice/SurveyOpenTextChoice";
 import SurveyScaleChoice from "../SurveyScaleChoice/SurveyScaleChoice";
-export type SurveyType = "S" | "N" | "E" | "T";
+export type SurveyType = "S" | "M" | "E" | "T";
 
 export interface SurveyOption {
   id: string;
@@ -34,7 +34,7 @@ const SurveyModalFactory: React.FC<ModalProps> = ({
           setType={setType}
         />
       );
-    case "N":
+    case "M":
       return (
         <SurveyMultipleChoice
           formState={formState}
