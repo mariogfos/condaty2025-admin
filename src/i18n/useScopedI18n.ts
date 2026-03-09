@@ -23,7 +23,7 @@ export const useScopedI18n = (section: I18nSection) => {
   const scopedMessages = useMemo(() => messages[locale][section], [locale, section]);
   const fallbackMessages = messages.es[section];
 
-  const t = useCallback(
+  const translate = useCallback(
     (key: string, values?: MessageValues) => {
       const source =
         (scopedMessages as Record<string, string>)[key] ??
@@ -38,6 +38,7 @@ export const useScopedI18n = (section: I18nSection) => {
   return {
     locale,
     localeTag: LOCALE_TAGS[locale],
-    t,
+    translate,
+    t: translate,
   };
 };

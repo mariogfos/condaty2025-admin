@@ -29,7 +29,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
   onImageClick,
   onOpenRenderView,
 }) => {
-  const { t } = useScopedI18n("content");
+  const { translate } = useScopedI18n("content");
   const handleToggleDescription = (
     contentId: number,
     items: ContentItem[],
@@ -73,7 +73,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
             onClick={() => onOpenRenderView?.(item.id, item)}
             role="button"
             tabIndex={0}
-            aria-label={t("openPostDetail", {
+            aria-label={translate("openPostDetail", {
               suffix: item.title ? `: ${item.title}` : "",
             })}
             onKeyDown={(e) => {
@@ -94,7 +94,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                 <div className={styles.userDetails}>
                   <span className={styles.userName}>
                     {getFullName(item.user || item.owner) ||
-                      t("unknownUser")}
+                      translate("unknownUser")}
                   </span>
                   <span className={styles.userRole}>
                     {item.user?.role1?.[0]?.name}
@@ -131,12 +131,12 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                           }}
                           className={styles.seeMoreButton}
                         >
-                          {item.isDescriptionExpanded ? t("seeLess") : t("seeMore")}
+                          {item.isDescriptionExpanded ? translate("seeLess") : translate("seeMore")}
                         </button>
                       )}
                     </div>
                   ) : (
-                    <p className={styles.newsDescription}>{t("noDescription")}</p>
+                    <p className={styles.newsDescription}>{translate("noDescription")}</p>
                   )}
                 </div>
                 <div className={styles.newsMediaContent}>
@@ -156,8 +156,8 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                         }}
                         role="button"
                         tabIndex={0}
-                        aria-label={t("viewFullImage", {
-                          title: item.title || t("newsImageAlt"),
+                        aria-label={translate("viewFullImage", {
+                          title: item.title || translate("newsImageAlt"),
                         })}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
@@ -169,7 +169,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                       >
                         <img
                           src={item.files[0]}
-                          alt={item.title || t("newsImageAlt")}
+                          alt={item.title || translate("newsImageAlt")}
                           className={styles.newsImage}
                         />
                       </div>
@@ -203,7 +203,7 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                         }}
                           className={styles.seeMoreButton}
                         >
-                          {item.isDescriptionExpanded ? t("seeLess") : t("seeMore")}
+                          {item.isDescriptionExpanded ? translate("seeLess") : translate("seeMore")}
                         </button>
                       )}
                   </div>

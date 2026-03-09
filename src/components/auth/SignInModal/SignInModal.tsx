@@ -19,13 +19,13 @@ export const SignInModal: any = ({
   handleSubmit,
   errors,
 }: PropsType) => {
-  const { t } = useScopedI18n("auth");
+  const { translate } = useScopedI18n("auth");
 
   return (
     <DataModal
       open={open}
       title=""
-      buttonText={t("loginAction")}
+      buttonText={translate("loginAction")}
       onClose={() => setOpen(false)}
       buttonCancel=""
       fullScreen={true}
@@ -36,10 +36,10 @@ export const SignInModal: any = ({
     >
       <div className={styles.signInModal} data-i18n-ignore="true">
         <div>
-          <div>{t("accessAccount")}</div>
-          <div>{t("accessAccountSubtitle")}</div>
+          <div>{translate("accessAccount")}</div>
+          <div>{translate("accessAccountSubtitle")}</div>
           <Input
-            label={t("identityDocumentLabel")}
+            label={translate("identityDocumentLabel")}
             name="email"
             required
             value={formState.email}
@@ -47,17 +47,17 @@ export const SignInModal: any = ({
             error={errors}
           />
           <InputPassword
-            label={t("passwordLabel")}
+            label={translate("passwordLabel")}
             required
             name="password"
             value={formState.password}
             onChange={handleChange}
             error={errors}
           />
-          <div className="link">{t("forgotPassword")}</div>
+          <div className="link">{translate("forgotPassword")}</div>
         </div>
         <div>
-          {t("modalLegalDisclaimer")}
+          {translate("modalLegalDisclaimer")}
         </div>
       </div>
     </DataModal>

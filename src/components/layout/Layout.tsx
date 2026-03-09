@@ -25,7 +25,7 @@ import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 const Layout = ({ children }: any) => {
   const { user, logout, store, setStore, showToast, userCan } = useAuth();
-  const { localeTag, t } = useScopedI18n("layout");
+  const { localeTag, translate } = useScopedI18n("layout");
 
   const [sideBarOpen, setSideBarOpen] = useState(false);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
@@ -46,22 +46,22 @@ const Layout = ({ children }: any) => {
   const isDesktop = true;
   const typeAlerts: any = {
     E: {
-      name: t("medicalEmergency"),
+      name: translate("medicalEmergency"),
       icon: <IconAmbulance size={36} color="var(--cWhite)" />,
       color: { background: "var(--cHoverError)", border: "var(--cError)" },
     },
     F: {
-      name: t("fire"),
+      name: translate("fire"),
       icon: <IconFlame size={36} color="var(--cWhite)" />,
       color: { background: "var(--cHoverWarning)", border: "var(--cWarning)" },
     },
     T: {
-      name: t("theft"),
+      name: translate("theft"),
       icon: <IconTheft size={36} color="var(--cWhite)" />,
       color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
     },
     O: {
-      name: t("other"),
+      name: translate("other"),
       icon: <IconAlert size={36} color="var(--cWhite)" />,
       color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
     },
@@ -253,7 +253,7 @@ const Layout = ({ children }: any) => {
             setStore({ openProfileModal: false });
           }}
           dataID={user?.id}
-          titleBack={t("profileBack")}
+          titleBack={translate("profileBack")}
           type="admin"
           del={false}
           setOnLogout={setOnLogout}
@@ -263,28 +263,28 @@ const Layout = ({ children }: any) => {
       {onLogout && (
         <DataModal
           open={onLogout}
-          title={t("logoutTitle")}
+          title={translate("logoutTitle")}
           onClose={() => {
             setOnLogout(false);
           }}
-          buttonText={t("logoutAction")}
-          buttonCancel={t("cancel")}
+          buttonText={translate("logoutAction")}
+          buttonCancel={translate("cancel")}
           minWidth={360}
           maxWidth={680}
           onSave={() => logout()}
         >
-          <p className={styles.modalLogout}>{t("logoutConfirm")}</p>
+          <p className={styles.modalLogout}>{translate("logoutConfirm")}</p>
         </DataModal>
       )}
       {openAlert?.open && (
         <DataModal
           style={{ border: "2px solid #F23D2D", width: "450px" }}
-          title={t("newEmergency")}
+          title={translate("newEmergency")}
           colorTitle="var(--cError)"
           iconClose={false}
           open={openAlert?.open}
           buttonCancel=""
-          buttonText={t("close")}
+          buttonText={translate("close")}
           onClose={onCloseAlert}
           onSave={onCloseAlert}
         >
@@ -295,12 +295,12 @@ const Layout = ({ children }: any) => {
               fontSize: "14px",
             }}
           >
-            {t("resident")}
+            {translate("resident")}
           </p>
           <ItemList
             variant="V1"
             title={openAlert?.item?.owner_name}
-            subtitle={t("unitPrefix", { unit: openAlert?.item?.unit ?? "" })}
+            subtitle={translate("unitPrefix", { unit: openAlert?.item?.unit ?? "" })}
             right={
               <p style={{ width: 110, textAlign: "right" }}>
                 {getDateTimeAgo(openAlert?.item?.created_at)}
@@ -314,7 +314,7 @@ const Layout = ({ children }: any) => {
             }
           />
           <p style={{ color: "var(--cWhiteV1)", marginBottom: 8 }}>
-            {t("emergencyType")}
+            {translate("emergencyType")}
           </p>
           <div
             style={{
@@ -337,7 +337,7 @@ const Layout = ({ children }: any) => {
                 className={styles.viewMoreBtn}
                 onClick={() => setIsLayoutAlertDescExpanded((v: boolean) => !v)}
               >
-                {isLayoutAlertDescExpanded ? t("seeLess") : t("seeMore")}
+                {isLayoutAlertDescExpanded ? translate("seeLess") : translate("seeMore")}
               </button>
             )}
           </div>

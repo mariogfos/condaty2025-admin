@@ -18,7 +18,7 @@ const GraphBase = ({
   downloadPdf = false,
   exportando = false,
 }: ProptypesBase & { exportando?: boolean }) => {
-  const { t } = useScopedI18n("graph");
+  const { translate } = useScopedI18n("graph");
   const [chartType, setChartType] = React.useState<ChartType>(
     chartTypes?.[0] || "bar",
   );
@@ -31,16 +31,16 @@ const GraphBase = ({
       id: type,
       name:
         type == "bar"
-          ? t("bar")
+          ? translate("bar")
           : type == "radialBar"
             ? "Circular"
           : type == "pie"
-            ? t("pie")
+            ? translate("pie")
           : type == "donut"
-            ? t("donut")
-            : t("line"),
+            ? translate("donut")
+            : translate("line"),
     }));
-  }, [chartTypes, t]);
+  }, [chartTypes, translate]);
 
   const onChange = (e: any) => {
     setChartType(e.target.value);
@@ -57,7 +57,7 @@ const GraphBase = ({
     <div className={`bg-[${background}] rounded-3xl my-4 p-8`}>
       {chartTypes && chartTypes.length > 1 && (
         <Select
-          label={t("chartTypeLabel")}
+          label={translate("chartTypeLabel")}
           value={chartType}
           name="type"
           className="w-[180px] "

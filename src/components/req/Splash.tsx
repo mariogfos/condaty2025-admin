@@ -5,7 +5,7 @@ import { useScopedI18n } from "@/i18n/useScopedI18n";
 import styles from "./splash.module.css";
 
 const Splash = () => {
-  const { t } = useScopedI18n("splash");
+  const { translate } = useScopedI18n("splash");
 
   return (
     <div className={styles.absPage} data-i18n-ignore="true">
@@ -13,8 +13,8 @@ const Splash = () => {
         <IconLogo className={styles.logo} size={156} />
         <div className={styles.spinDot}>.</div>
         <div className={styles.text}>
-          <span className={styles.bold}>{t("lead")}</span> {t("middle")}{" "}
-          <span className={styles.bold}>{t("tail")}</span>
+          <span className={styles.bold}>{translate("lead")}</span> {translate("middle")}{" "}
+          <span className={styles.bold}>{translate("tail")}</span>
         </div>
       </div>
     </div>

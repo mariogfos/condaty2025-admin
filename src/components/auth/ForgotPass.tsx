@@ -17,7 +17,7 @@ type PropsType = {
 const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
   const { execute } = useAxios();
   const { showToast } = useAuth();
-  const { t } = useScopedI18n("auth");
+  const { translate } = useScopedI18n("auth");
   const [formState, setformState]: any = useState({});
   const [errors, seterrors]: any = useState({});
   const [minutos, setMinutos] = useState(0);
@@ -72,18 +72,18 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
 
   const onGetCode = async () => {
     if (minutos || segundos > 0) {
-      showToast(t("waitToResendCode"), "info");
+      showToast(translate("waitToResendCode"), "info");
       return;
     }
     // console.log(formState.ci,'fstci')
     let err = {};
     if (!formState.ci) {
-      err = { ...err, ci: t("enterDocument") };
+      err = { ...err, ci: translate("enterDocument") };
     }
     if (formState.ci && formState.ci.length > 11) {
       err = {
         ...err,
-        ci: t("documentMaxLength"),
+        ci: translate("documentMaxLength"),
       };
     }
 
@@ -99,12 +99,12 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
     });
 
     if (data?.success === true) {
-      showToast(t("verificationCodeSent"), "success");
+      showToast(translate("verificationCodeSent"), "success");
       // console.log(data?.message,"datamsg")
       setformState({ ...formState, newPassword: "", pinned: 2 });
       cuentaRegresiva(2 * 60 * 1000);
     } else {
-      showToast(t("unableToSendCode"), "error");
+      showToast(translate("unableToSendCode"), "error");
     }
   };
   const setCode = (code: string) => {
@@ -117,13 +117,13 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       if (!formState.code) {
         err = {
           ...err,
-          code: t("enterVerificationCode"),
+          code: translate("enterVerificationCode"),
         };
       }
       if (formState.code?.length != 4) {
         err = {
           ...err,
-          code: t("codeMustHaveFourDigits"),
+          code: translate("codeMustHaveFourDigits"),
         };
       }
 
@@ -142,8 +142,8 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       if (data?.success === true) {
         setformState({ ...formState, pinned: 3 });
       } else {
-        showToast(t("invalidVerificationCode"), "error");
-        seterrors({ code: t("invalidVerificationCode") });
+        showToast(translate("invalidVerificationCode"), "error");
+        seterrors({ code: translate("invalidVerificationCode") });
       }
     }
   };
@@ -156,21 +156,21 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
 
     if (formState.pinned === 3) {
       if (!formState.newPassword)
-        err = { ...err, newPassword: t("enterNewPassword") };
+        err = { ...err, newPassword: translate("enterNewPassword") };
       if (formState.newPassword?.length < 8)
         err = {
           ...err,
-          newPassword: t("passwordMinLength"),
+          newPassword: translate("passwordMinLength"),
         };
       if (formState.newPassword?.length > 10)
         err = {
           ...err,
-          newPassword: t("passwordMaxLength"),
+          newPassword: translate("passwordMaxLength"),
         };
       if (formState.newPassword != formState.repPassword) {
         err = {
           ...err,
-          repPassword: t("passwordsMustMatch"),
+          repPassword: translate("passwordsMustMatch"),
         };
       }
     }
@@ -183,12 +183,12 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
     // console.log(param,'paramsssss')
     const { data, error } = await execute(url, "POST", param);
     if (data?.success == true) {
-      showToast(t("passwordUpdated"), "success");
+      showToast(translate("passwordUpdated"), "success");
       setformState({ pinned: 0 });
       seterrors({});
       setOpen(false);
     } else {
-      showToast(t("unableToChangePassword"), "error");
+      showToast(translate("unableToChangePassword"), "error");
       logError("Error ChangePass", error);
       seterrors(error?.data?.errors);
     }
@@ -211,19 +211,19 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       ignoreTranslation
       title={
         formState.pinned === 1
-          ? t("forgotPasswordTitle")
+          ? translate("forgotPasswordTitle")
           : formState.pinned === 2
-            ? t("verificationCodeTitle")
-            : t("changePasswordTitle")
+            ? translate("verificationCodeTitle")
+            : translate("changePasswordTitle")
       }
       onClose={() => setOpen(false)}
       onSave={_onSave}
       buttonText={
         formState.pinned === 1
-          ? t("getCode")
+          ? translate("getCode")
           : formState.pinned === 2
-            ? t("continue")
-            : t("changePasswordAction")
+            ? translate("continue")
+            : translate("changePasswordAction")
       }
       buttonCancel=""
       // variant={"mini"}
@@ -232,11 +232,11 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
     >
       {formState.pinned === 1 ? (
         <div data-i18n-ignore="true">
-          {t("forgotPasswordDescription", {
-            document: t("identityDocumentLabel"),
+          {translate("forgotPasswordDescription", {
+            document: translate("identityDocumentLabel"),
           })}
           <Input
-            label={t("identityDocumentLabel")}
+            label={translate("identityDocumentLabel")}
             required={true}
             type="text"
             name="ci"
@@ -248,7 +248,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
           />
           {(minutos || segundos > 0) && (
             <div className="cError">
-              {t("forgotPasswordCountdown", {
+              {translate("forgotPasswordCountdown", {
                 minutes: minutos,
                 seconds: segundos < 10 ? `0${segundos}` : segundos,
               })}
@@ -257,10 +257,10 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
         </div>
       ) : formState.pinned === 2 ? (
         <div data-i18n-ignore="true">
-          <div>{t("verificationCodeDescription")}</div>
+          <div>{translate("verificationCodeDescription")}</div>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <InputCode
-              label={t("verificationCodeLabel")}
+              label={translate("verificationCodeLabel")}
               type="number"
               name="code"
               error={errors}
@@ -274,14 +274,14 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       ) : (
         <div data-i18n-ignore="true">
           <InputPassword
-            label={t("newPasswordLabel")}
+            label={translate("newPasswordLabel")}
             name="newPassword"
             value={formState["newPassword"]}
             error={errors}
             onChange={handleChangeInput}
           />
           <InputPassword
-            label={t("repeatPasswordLabel")}
+            label={translate("repeatPasswordLabel")}
             name="repPassword"
             value={formState["repPassword"]}
             error={errors}

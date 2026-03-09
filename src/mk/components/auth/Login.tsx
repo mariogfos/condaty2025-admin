@@ -12,7 +12,7 @@ import { useScopedI18n } from "@/i18n/useScopedI18n";
 const Login = () => {
   const { user, getUser } = useAuth();
   const { execute } = useAxios();
-  const { t } = useScopedI18n("auth");
+  const { translate } = useScopedI18n("auth");
   // const router = useRouter();
   const [errors, setErrors] = useState({});
   const [formState, setFormState] = useState({
@@ -106,7 +106,7 @@ const Login = () => {
         if (blockUntil > Date.now()) {
           setIsBlocked(true);
           setErrors({
-            email: t("accountTemporarilyBlocked"),
+            email: translate("accountTemporarilyBlocked"),
           });
           return;
         } else {
@@ -138,7 +138,7 @@ const Login = () => {
       getUser();
     } else {
       if (data?.errors?.device === "untrusted") {
-        setVerificationMessage(t("verificationMessage"));
+        setVerificationMessage(translate("verificationMessage"));
         setIsNewDevice(true);
         if (userKey) {
           const storedAttempts = localStorage.getItem(getAttemptsKey(userKey));
@@ -160,11 +160,11 @@ const Login = () => {
         }
       } else if (data?.errors?.status == 500) {
         setErrors({
-          email: t("serverConnectionIssue"),
+          email: translate("serverConnectionIssue"),
         });
       } else {
         setErrors({
-          email: t("invalidCredentials"),
+          email: translate("invalidCredentials"),
         });
       }
     }
@@ -222,7 +222,7 @@ const Login = () => {
       }
 
       setErrors({
-        code: t("invalidPin"),
+        code: translate("invalidPin"),
       });
     }
   };

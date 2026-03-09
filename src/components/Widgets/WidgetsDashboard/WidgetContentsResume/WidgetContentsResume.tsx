@@ -19,7 +19,7 @@ const WidgetContentsResume = ({
   const [contents, setContents] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { store, setStore } = useAuth();
-  const { t } = useScopedI18n("content");
+  const { translate } = useScopedI18n("content");
   const { data, loaded, error, reLoad } = useAxios(
     "/contents",
     "GET",
@@ -70,8 +70,8 @@ const WidgetContentsResume = ({
   return (
     <WidgetBase
       variant={"V1"}
-      title={t("community")}
-      subtitle={t("communitySubtitle")}
+      title={translate("community")}
+      subtitle={translate("communitySubtitle")}
       className={styles.widgetContentsResume}
       ignoreTranslation
     >
@@ -85,7 +85,7 @@ const WidgetContentsResume = ({
             fontSize: "16px",
           }}
         >
-          {t("loadingPosts")}
+          {translate("loadingPosts")}
         </div>
       ) : contents.length > 0 ? (
         <div>
@@ -99,8 +99,8 @@ const WidgetContentsResume = ({
         </div>
       ) : (
         <EmptyData
-          message={t("emptyMessage")}
-          line2={t("emptyLine2")}
+          message={translate("emptyMessage")}
+          line2={translate("emptyLine2")}
           h={200}
           icon={<IconPublicacion size={40} color="var(--cWhiteV1)" />}
         />

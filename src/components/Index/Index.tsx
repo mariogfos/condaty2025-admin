@@ -41,7 +41,7 @@ const paramsInitial = {
 
 const HomePage = () => {
   const { store, setStore, userCan, showToast, user } = useAuth();
-  const { localeTag, t } = useScopedI18n("home");
+  const { localeTag, translate } = useScopedI18n("home");
   const [openActive, setOpenActive] = useState(false);
   const [openPayment, setOpenPayment] = useState(false);
   const [dataOwner, setDataOwner]: any = useState({});
@@ -72,12 +72,12 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    const pageTitle = t("pageTitle");
+    const pageTitle = translate("pageTitle");
     if (store?.title === pageTitle) return;
     setStore({
       title: pageTitle,
     });
-  }, [setStore, store?.title, t]);
+  }, [setStore, store?.title, translate]);
 
   const {
     data: dashboard,
@@ -92,14 +92,14 @@ const HomePage = () => {
   const monthLabel = new Intl.DateTimeFormat(localeTag, {
     month: "long",
   }).format(today);
-  const formattedDate = t("summaryOfMonth", {
+  const formattedDate = translate("summaryOfMonth", {
     month: monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1),
   });
   let balance: any =
     Number(dashboard?.data?.TotalIngresos) -
     Number(dashboard?.data?.TotalEgresos);
   const balanceMessage =
-    balance > 0 ? t("positiveBalance") : t("negativeBalance");
+    balance > 0 ? translate("positiveBalance") : translate("negativeBalance");
 
   const paymentProps: any = {
     open: openPayment,
@@ -152,7 +152,7 @@ const HomePage = () => {
           </span>
         </div>
         <div className={styles.itemActionContainer}>
-          <button className={styles.itemActionButton}>{t("review")}</button>
+          <button className={styles.itemActionButton}>{translate("review")}</button>
         </div>
       </div>
     );
@@ -161,7 +161,7 @@ const HomePage = () => {
   const reservasList = (data: any) => {
     const imageUrl = data?.owner;
     const primaryText = getFullName(data?.owner);
-    const secondaryText = `${data?.area?.title || t("areaNotSpecified")}`;
+    const secondaryText = `${data?.area?.title || translate("areaNotSpecified")}`;
     const ownerInitials = primaryText
       ?.split(" ")
       .map((n) => n[0])
@@ -200,7 +200,7 @@ const HomePage = () => {
           </span>
         </div>
         <div className={styles.itemActionContainer}>
-          <button className={styles.itemActionButton}>{t("review")}</button>
+          <button className={styles.itemActionButton}>{translate("review")}</button>
         </div>
       </div>
     );
@@ -210,7 +210,7 @@ const HomePage = () => {
     const ownerData = data?.owner || data;
     const primaryText = getFullName(ownerData);
     const secondaryText = ownerData?.ci
-      ? `${t("preRegistrationIdLabel")}: ${ownerData.ci}`
+      ? `${translate("preRegistrationIdLabel")}: ${ownerData.ci}`
       : ownerData?.email || "";
 
     return (
@@ -219,7 +219,7 @@ const HomePage = () => {
         onClick={() => {
           if (userCan("owners", "C") == false) {
             return showToast(
-              t("preRegistrationPermissionDenied"),
+              translate("preRegistrationPermissionDenied"),
               "error",
             );
           }
@@ -252,7 +252,7 @@ const HomePage = () => {
             onClick={() => {
               if (userCan("owners", "C") == false) {
                 return showToast(
-                  t("preRegistrationPermissionDenied"),
+                  translate("preRegistrationPermissionDenied"),
                   "error",
                 );
               }
@@ -260,7 +260,7 @@ const HomePage = () => {
               setOpenActive(true);
             }}
             >
-            {t("review")}
+            {translate("review")}
           </button>
         </div>
       </div>
@@ -273,7 +273,7 @@ const HomePage = () => {
 
     let dataSource = null; // Contendrá el objeto guardia o owner
     let entityType = ""; // Será "GUARD" o "OWNER"
-    let primaryText: string = t("systemAlert");
+    let primaryText: string = translate("systemAlert");
 
     if (hasGuard) {
       dataSource = data.guardia;
@@ -292,7 +292,7 @@ const HomePage = () => {
       .substring(0, 2)
       .toUpperCase();
 
-    const secondaryText = data.descrip || t("noDescription");
+    const secondaryText = data.descrip || translate("noDescription");
     const truncatedSecondaryText = truncateText(secondaryText, 35);
 
     let levelClass = styles.levelLow;
@@ -390,14 +390,14 @@ const HomePage = () => {
           <div className={styles.leftColumn}>
             <WidgetBase
               variant={"V1"}
-              title={t("currentSummary")}
+              title={translate("currentSummary")}
               subtitle={formattedDate}
               className={styles.summaryWidgetEqualHeight}
               style={{ maxHeight: "max-content" }}
             >
               <div className={styles.widgetsResumeContainer}>
                 <WidgetDashCard
-                  title={t("incomes")}
+                  title={translate("incomes")}
                   data={"Bs. " + formatNumber(dashboard?.data?.TotalIngresos)}
                   onClick={() => (window.location.href = "/payments")}
                   icon={
@@ -421,12 +421,12 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle={t("incomesTooltip")}
+                  tooltipTitle={translate("incomesTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipWidth={437}
                 />
                 <WidgetDashCard
-                  title={t("outlays")}
+                  title={translate("outlays")}
                   data={"Bs. " + formatNumber(dashboard?.data?.TotalEgresos)}
                   onClick={() => (window.location.href = "/outlays")}
                   icon={
@@ -450,7 +450,7 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle={t("outlaysTooltip")}
+                  tooltipTitle={translate("outlaysTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipWidth={556}
                 />
@@ -483,12 +483,12 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle={t("balanceTooltip")}
+                  tooltipTitle={translate("balanceTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipWidth={486}
                 />
                 <WidgetDashCard
-                  title={t("delinquency")}
+                  title={translate("delinquency")}
                   data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
                   onClick={() => (window.location.href = "/defaulters")}
                   icon={
@@ -512,7 +512,7 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle={t("delinquencyTooltip")}
+                  tooltipTitle={translate("delinquencyTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipWidth={500}
                 />
@@ -537,7 +537,7 @@ const HomePage = () => {
                         dashboard?.data?.egresosHist?.length === 0)
                     }
                     emptyDataProps={{
-                      message: t("emptyFinancialChart"),
+                      message: translate("emptyFinancialChart"),
                       h: 300,
                       icon: <IconGraphics size={80} />,
                     }}
@@ -550,10 +550,10 @@ const HomePage = () => {
                 <div className={styles.widgetRow}>
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
-                    title={t("paymentReviews")}
-                    viewAllText={t("seeAllFeminine")}
+                    title={translate("paymentReviews")}
+                    viewAllText={translate("seeAllFeminine")}
                     onViewAllClick={() => (window.location.href = "/payments")}
-                    emptyListMessage={t("paymentsReviewEmpty")}
+                    emptyListMessage={translate("paymentsReviewEmpty")}
                     //emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí."
                     emptyListIcon={<IconPagos size={32} />}
                     data={dashboard?.data?.porConfirmar}
@@ -562,10 +562,10 @@ const HomePage = () => {
                   />
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
-                    title={t("alerts")}
-                    viewAllText={t("seeAllFeminine")}
+                    title={translate("alerts")}
+                    viewAllText={translate("seeAllFeminine")}
                     onViewAllClick={() => (window.location.href = "/alerts")}
-                    emptyListMessage={t("alertsEmpty")}
+                    emptyListMessage={translate("alertsEmpty")}
                     //emptyListLine2="residente registre una se mostrará aquí."
                     emptyListIcon={<IconAlerts size={32} />}
                     data={dashboard?.data?.alertas}
@@ -576,10 +576,10 @@ const HomePage = () => {
                 <div className={styles.widgetRow}>
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
-                    title={t("reservationRequests")}
-                    viewAllText={t("seeAllFeminine")}
+                    title={translate("reservationRequests")}
+                    viewAllText={translate("seeAllFeminine")}
                     onViewAllClick={() => (window.location.href = "/reservas")}
-                    emptyListMessage={t("reservationsEmpty")}
+                    emptyListMessage={translate("reservationsEmpty")}
                     //emptyListLine2="comiencen a reservar las áreas se mostrarán aquí."
                     emptyListIcon={<IconReservedAreas size={32} />}
                     data={dashboard?.data?.porReservar}
@@ -588,10 +588,10 @@ const HomePage = () => {
                   />
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
-                    title={t("preRegistrations")}
-                    viewAllText={t("seeAllMasculine")}
+                    title={translate("preRegistrations")}
+                    viewAllText={translate("seeAllMasculine")}
                     onViewAllClick={() => setOpenPreRegistroModal(true)}
-                    emptyListMessage={t("preRegistrationsEmpty")}
+                    emptyListMessage={translate("preRegistrationsEmpty")}
                     //emptyListLine2="cuando un usuario se auto-registre se mostrará aquí."
                     emptyListIcon={<IconGroup2 size={32} />}
                     data={dashboard?.data?.porActivar}
@@ -607,35 +607,35 @@ const HomePage = () => {
           <div className={styles.rightColumn}>
             <WidgetBase
               variant={"V1"}
-              title={t("usersSummary")}
-              subtitle={t("usersSummarySubtitle")}
+              title={translate("usersSummary")}
+              subtitle={translate("usersSummarySubtitle")}
               className={styles.summaryWidgetEqualHeight}
               style={{ maxHeight: "max-content" }}
             >
               <div className={styles.widgetsResumeContainer}>
                 <WidgetDashCard
-                  title={t("administrators")}
+                  title={translate("administrators")}
                   data={formatNumber(dashboard?.data?.adminsCount, 0)}
                   tooltip={true}
-                  tooltipTitle={t("administratorsTooltip")}
+                  tooltipTitle={translate("administratorsTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipPosition="left"
                   tooltipWidth={500}
                 />
                 <WidgetDashCard
-                  title={t("residents")}
+                  title={translate("residents")}
                   data={formatNumber(dashboard?.data?.ownersCount, 0)}
                   tooltip={true}
-                  tooltipTitle={t("residentsTooltip")}
+                  tooltipTitle={translate("residentsTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipPosition="left"
                   tooltipWidth={500}
                 />
                 <WidgetDashCard
-                  title={t("guards")}
+                  title={translate("guards")}
                   data={formatNumber(dashboard?.data?.guardsCount, 0)}
                   tooltip={true}
-                  tooltipTitle={t("guardsTooltip")}
+                  tooltipTitle={translate("guardsTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipPosition="left"
                   tooltipWidth={500}
@@ -666,7 +666,7 @@ const HomePage = () => {
       )}
       <DataModal
         open={openPreRegistroModal}
-        title={t("fullPreRegistrationsList")}
+        title={translate("fullPreRegistrationsList")}
         onClose={() => setOpenPreRegistroModal(false)}
         buttonText=""
         buttonCancel=""

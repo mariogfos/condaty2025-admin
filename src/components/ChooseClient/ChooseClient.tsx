@@ -25,7 +25,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
   const { user, getUser, setStore, store } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
-  const { t } = useScopedI18n("chooseClient");
+  const { translate } = useScopedI18n("chooseClient");
 
   const onClick = async (id: any) => {
     await getUser(id);
@@ -53,10 +53,10 @@ const ChooseClient = ({ open, onClose }: Props) => {
           <div className={styles.clientText}>
             <span className={styles.clientType}>
               {c.type == "C"
-                ? t("condominium")
+                ? translate("condominium")
                 : c.type == "U"
-                  ? t("urbanization")
-                  : t("building")}
+                  ? translate("urbanization")
+                  : translate("building")}
             </span>
             <span className={styles.clientName}>{c.name}</span>
           </div>
@@ -117,8 +117,8 @@ const ChooseClient = ({ open, onClose }: Props) => {
           <div className={styles.logoContainer}>
             <IconLogo size={98} />
           </div>
-          <h1 className={styles.title}>{t("welcomeTitle")}</h1>
-          <p className={styles.subtitle}>{t("subtitle")}</p>
+          <h1 className={styles.title}>{translate("welcomeTitle")}</h1>
+          <p className={styles.subtitle}>{translate("subtitle")}</p>
         </div>
         <div className={styles.rightPanel}>
           <div className={styles.listContainer}>
@@ -128,7 +128,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
                   name="search"
                   value={searchTerm}
                   onChange={(e: any) => setSearchTerm(e.target.value)}
-                  placeholder={t("searchPlaceholder")}
+                  placeholder={translate("searchPlaceholder")}
                   className={styles.searchInput}
                   iconRight={<IconSearch size={20} color="var(--cWhiteV1)" />}
                 />
@@ -157,7 +157,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
                     width: "100%",
                   }}
                 >
-                  {t("back")}
+                  {translate("back")}
                 </Button>
               </div>
             )}

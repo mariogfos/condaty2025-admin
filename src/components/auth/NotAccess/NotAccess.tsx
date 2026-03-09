@@ -3,11 +3,11 @@ import styles from "./notAccess.module.css";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 const NotAccess = () => {
-  const { t } = useScopedI18n("auth");
+  const { translate } = useScopedI18n("auth");
 
   return (
     <div className={styles.notAccess} data-i18n-ignore="true">
-      {t("noModuleAccess")}
+      {translate("noModuleAccess")}
       <div>
         <IconAlert size={80} color="orange" />
       </div>

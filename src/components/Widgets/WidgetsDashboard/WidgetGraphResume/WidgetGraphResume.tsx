@@ -41,7 +41,7 @@ const WidgetGraphResume = ({
   showEmptyData = false,
   emptyDataProps,
 }: PropsType) => {
-  const { localeTag, t } = useScopedI18n("graph");
+  const { localeTag, translate } = useScopedI18n("graph");
   const [balance, setBalance] = useState({
     inicial: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     ingresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -68,14 +68,14 @@ const WidgetGraphResume = ({
     id: type,
     name:
       type === "bar"
-        ? t("bar")
+        ? translate("bar")
         : type === "line"
-          ? t("line")
+          ? translate("line")
         : type === "donut"
-          ? t("donut")
+          ? translate("donut")
         : type === "pie"
-          ? t("pie")
-          : t("line"),
+          ? translate("pie")
+          : translate("line"),
   }));
 
   useEffect(() => {
@@ -159,9 +159,9 @@ const WidgetGraphResume = ({
       <WidgetBase className={styles.widgetBase}>
         <div className={styles.headerRow}>
           <div className={styles.titleBlock}>
-            <p className={styles.title}>{title || t("title")}</p>
+            <p className={styles.title}>{title || translate("title")}</p>
             <p className={styles.subtitle}>
-              {subtitle || t("subtitle", { year: formattedTodayDate })}
+              {subtitle || translate("subtitle", { year: formattedTodayDate })}
             </p>
           </div>
           {chartTypes && chartTypes.length > 1 && (
@@ -179,7 +179,7 @@ const WidgetGraphResume = ({
         </div>
         {showEmptyData ? (
           <EmptyData
-            message={emptyDataProps?.message || t("noDataAvailable")}
+            message={emptyDataProps?.message || translate("noDataAvailable")}
             line2={emptyDataProps?.line2}
             h={emptyDataProps?.h || 300}
             icon={emptyDataProps?.icon}
@@ -190,10 +190,10 @@ const WidgetGraphResume = ({
               data={{
                 labels: meses,
                 values: [
-                  { name: t("openingBalance"), values: balance?.inicial },
-                  { name: t("incomes"), values: balance?.ingresos },
-                  { name: t("outlays"), values: balance?.egresos },
-                  { name: t("cumulativeBalance"), values: balance?.saldos },
+                  { name: translate("openingBalance"), values: balance?.inicial },
+                  { name: translate("incomes"), values: balance?.ingresos },
+                  { name: translate("outlays"), values: balance?.egresos },
+                  { name: translate("cumulativeBalance"), values: balance?.saldos },
                 ],
               }}
               // pasar solo el tipo seleccionado para ocultar el select interno de GraphBase
@@ -214,7 +214,7 @@ const WidgetGraphResume = ({
                   className={styles.legendColor}
                   style={{ backgroundColor: "var(--cCompl1)" }}
                 ></div>
-                <span className={styles.legendLabel}>{t("openingBalance")}</span>
+                <span className={styles.legendLabel}>{translate("openingBalance")}</span>
                 <span className={styles.legendValue}>
                   Bs {formatNumber(saldoInicial || 0)}
                 </span>
@@ -224,7 +224,7 @@ const WidgetGraphResume = ({
                   className={styles.legendColor}
                   style={{ backgroundColor: "var(--cCompl7)" }}
                 ></div>
-                <span className={styles.legendLabel}>{t("incomes")}</span>
+                <span className={styles.legendLabel}>{translate("incomes")}</span>
                 <span className={styles.legendValue}>
                   Bs {formatNumber(balance.ingresos.reduce((a, b) => a + b, 0))}
                 </span>
@@ -234,7 +234,7 @@ const WidgetGraphResume = ({
                   className={styles.legendColor}
                   style={{ backgroundColor: "var(--cCompl8)" }}
                 ></div>
-                <span className={styles.legendLabel}>{t("outlays")}</span>
+                <span className={styles.legendLabel}>{translate("outlays")}</span>
                 <span className={styles.legendValue}>
                   Bs {formatNumber(balance.egresos.reduce((a, b) => a + b, 0))}
                 </span>
@@ -244,7 +244,7 @@ const WidgetGraphResume = ({
                   className={styles.legendColor}
                   style={{ backgroundColor: "var(--cCompl9)" }}
                 ></div>
-                <span className={styles.legendLabel}>{t("cumulativeBalance")}</span>
+                <span className={styles.legendLabel}>{translate("cumulativeBalance")}</span>
                 <span className={styles.legendValue}>
                   Bs{" "}
                   {formatNumber(

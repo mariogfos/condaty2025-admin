@@ -25,7 +25,7 @@ const MainMenu = ({
   setOpenClient,
 }: PropsType) => {
   const { store, setStore, userCan } = useAuth();
-  const { t } = useScopedI18n("sidebar");
+  const { translate } = useScopedI18n("sidebar");
   const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
@@ -76,7 +76,7 @@ const MainMenu = ({
             <MainmenuItem
               key={item.labelKey}
               href={item.href}
-              label={t(item.labelKey)}
+              label={translate(item.labelKey)}
               icon={<item.icon />}
               bage={store?.[item.badgeKey]}
               collapsed={collapsed}
@@ -94,11 +94,11 @@ const MainMenu = ({
           return (
             <MainmenuDropdown
               key={item.key}
-              label={t(item.labelKey)}
+              label={translate(item.labelKey)}
               icon={<item.icon />}
               items={visibleSubs.map((sub: any) => ({
                 ...sub,
-                label: t(sub.labelKey),
+                label: translate(sub.labelKey),
                 bage: store?.[sub.badgeKey],
               }))}
               collapsed={collapsed}
@@ -112,7 +112,7 @@ const MainMenu = ({
         return null;
       })
       .filter(Boolean);
-  }, [collapsed, handleToggle, openMenu, setSideBarOpen, store, t, userCan]);
+  }, [collapsed, handleToggle, openMenu, setSideBarOpen, store, translate, userCan]);
 
   return (
     <section className={styles.menu} data-i18n-ignore="true">
@@ -122,7 +122,7 @@ const MainMenu = ({
         <MainmenuItem
           href="#"
           onclick={() => setOpenClient(true)}
-          label={t("switchCondominium")}
+          label={translate("switchCondominium")}
           icon={<IconDepartments />}
           collapsed={collapsed}
         />
@@ -130,7 +130,7 @@ const MainMenu = ({
       <MainmenuItem
         href="#"
         onclick={() => setLogout(true)}
-        label={t("signOut")}
+        label={translate("signOut")}
         labelColor="var(--cError)"
         icon={<IconLogout color={"var(--cError)"} />}
         collapsed={collapsed}

@@ -53,7 +53,7 @@ const Header = ({
   const isActive = (path: string) => router.pathname === path;
   const { store, setStore } = useAuth();
   const { locale, setPreference } = useLanguage();
-  const { t } = useScopedI18n("header");
+  const { translate } = useScopedI18n("header");
   const [count, setCount] = useState(0);
 
   const menuItems = [
@@ -228,11 +228,11 @@ const Header = ({
     <div className={styles["header-desktop"]}>
       <div className={styles["header-greeting"]} data-i18n-ignore="true">
         <h1>
-          {t("greetingStart")}{" "}
+          {translate("greetingStart")}{" "}
           <span data-i18n-ignore="true">{getFullName(user)}</span>
-          {t("greetingEnd")}
+          {translate("greetingEnd")}
         </h1>
-        <p>{t("greetingSubtitle")}</p>
+        <p>{translate("greetingSubtitle")}</p>
       </div>
 
       <div className={styles["header-controls"]}>
@@ -265,8 +265,8 @@ const Header = ({
             <div
               className={styles.notificationContainer}
               data-i18n-ignore="true"
-              aria-label={t("changeLanguage")}
-              title={t("changeLanguage")}
+              aria-label={translate("changeLanguage")}
+              title={translate("changeLanguage")}
             >
               <div className={styles.notificationIcon}>
                 <IconWorld color="var(--cWhiteV1)" />

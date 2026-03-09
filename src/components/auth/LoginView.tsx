@@ -51,7 +51,7 @@ const LoginView = ({
   const [openModal, setOpenModal] = useState(false);
   const [timer, setTimer] = useState(59);
   const [canResend, setCanResend] = useState(false);
-  const { t } = useScopedI18n("auth");
+  const { translate } = useScopedI18n("auth");
   // Removed internal mock states (attempts, isBlocked, mockErrors) as they are now managed by parent
 
   useEffect(() => {
@@ -81,7 +81,7 @@ const LoginView = ({
 
   const formatMessage = (msg: string) => {
     if (!msg)
-      return t("verificationMessage");
+      return translate("verificationMessage");
     return msg.replace(
       /-+(.*?)-+/g,
       '<span style="font-weight: 800; color: #fff;">$1</span>',
@@ -116,17 +116,17 @@ const LoginView = ({
           <div className={styles.titleSection}>
             <div className={styles.title}>
               {showTrustDevice
-                ? t("trustDeviceTitle")
+                ? translate("trustDeviceTitle")
                 : showVerification
-                  ? t("verificationTitle")
-                  : t("loginTitle")}
+                  ? translate("verificationTitle")
+                  : translate("loginTitle")}
             </div>
           </div>
 
           {showTrustDevice ? (
             <div className={styles.verificationContainer}>
               <p className={styles.verificationText}>
-                {t("trustDeviceBody")}
+                {translate("trustDeviceBody")}
               </p>
 
               <div className={styles.verificationButtons}>
@@ -138,13 +138,13 @@ const LoginView = ({
                     color: "white",
                   }}
                 >
-                  {t("trustNo")}
+                  {translate("trustNo")}
                 </Button>
                 <Button
                   className={styles.button}
                   onClick={() => onTrustDevice && onTrustDevice(true)}
                 >
-                  {t("trustYes")}
+                  {translate("trustYes")}
                 </Button>
               </div>
             </div>
@@ -170,14 +170,14 @@ const LoginView = ({
 
               {errors["code"] && !isBlocked && (
                 <p className={styles.errorText}>
-                  {t("verificationInvalid", {
+                  {translate("verificationInvalid", {
                     remaining: Math.max(3 - attempts, 0),
                   })}
                 </p>
               )}
 
               {isBlocked ? (
-                <p className={styles.errorText}>{t("verificationBlocked")}</p>
+                <p className={styles.errorText}>{translate("verificationBlocked")}</p>
               ) : (
                 <>
                   {canResend ? (
@@ -185,11 +185,11 @@ const LoginView = ({
                       className={styles.resendTextGreen}
                       onClick={handleResend}
                     >
-                      {t("resendCode")}
+                      {translate("resendCode")}
                     </div>
                   ) : (
                     <p className={styles.resendText}>
-                      {t("resendCountdown", {
+                      {translate("resendCountdown", {
                         seconds: timer < 10 ? `0${timer}` : timer,
                       })}
                     </p>
@@ -206,11 +206,11 @@ const LoginView = ({
                     color: "white",
                   }}
                 >
-                  {t("back")}
+                  {translate("back")}
                 </Button>
                 {!isBlocked && (
                   <Button className={styles.button} onClick={onVerify}>
-                    {t("verify")}
+                    {translate("verify")}
                   </Button>
                 )}
               </div>
@@ -226,7 +226,7 @@ const LoginView = ({
               <div className={styles.inputContainer}>
                 <Input
                   required
-                  label={t("identityDocumentLabel")}
+                  label={translate("identityDocumentLabel")}
                   type="number"
                   name="email"
                   error={errors}
@@ -238,7 +238,7 @@ const LoginView = ({
 
               <div className={styles.inputContainer}>
                 <InputPassword
-                  label={t("passwordLabel")}
+                  label={translate("passwordLabel")}
                   required
                   name="password"
                   error={errors}
@@ -251,17 +251,17 @@ const LoginView = ({
                 className={styles.forgotPassword}
                 onClick={() => setOpenModal(true)}
               >
-                {t("forgotPassword")}
+                {translate("forgotPassword")}
               </div>
-              <Button className={styles.button}>{t("loginAction")}</Button>
+              <Button className={styles.button}>{translate("loginAction")}</Button>
               <div className={styles.termsContainer}>
-                {t("termsPrefix")}
+                {translate("termsPrefix")}
                 <a href="https://www.condaty.com/terminos">
-                  {t("termsLink")}
+                  {translate("termsLink")}
                 </a>{" "}
-                {t("privacyConnector")}
+                {translate("privacyConnector")}
                 <a href="https://www.condaty.com/politicas">
-                  {t("privacyLink")}
+                  {translate("privacyLink")}
                 </a>
               </div>
             </form>
