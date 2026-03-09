@@ -3,6 +3,7 @@ import styles from './RenderView.module.css';
 import { getFullName } from '@/mk/utils/string';
 import { getDateStrMes, MONTHS_S } from '@/mk/utils/date';
 import { useState } from 'react';
+import { shouldIgnoreValueTranslationContext } from '@/i18n/translationGuards';
 
 import PaymentRenderView from '../../../Payments/RenderView/RenderView';
 import { formatBs } from '@/mk/utils/numbers';
@@ -76,10 +77,13 @@ const RenderView = (props: {
   };
 
   const InfoBlock = ({ value, label, colorValue, className }: InfoBlockProps) => {
+    const ignoreValueTranslation = shouldIgnoreValueTranslationContext({ label });
+
     return (
       <div className={`${styles.infoBlock} ${className}`}>
         <span className={styles.infoLabel}>{label}</span>
         <span
+          data-i18n-ignore={ignoreValueTranslation ? 'true' : undefined}
           className={styles.infoValue}
           style={{
             color: colorValue || 'var(--cWhite)',

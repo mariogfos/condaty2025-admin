@@ -8,7 +8,7 @@ import MainMenu from "../MainMenu/MainMenu";
 import Header from "../Header/Header";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { getDateTimeAgo, getFormattedDate } from "@/mk/utils/date";
+import { getDateTimeAgo } from "@/mk/utils/date";
 import SideMenu from "@/mk/components/ui/SideMenu/SideMenu";
 import { useEvent } from "@/mk/hooks/useEvents";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
@@ -21,31 +21,11 @@ import {
 } from "./icons/IconsBiblioteca";
 import ChooseClient from "../ChooseClient/ChooseClient";
 import ProfileModal from "../ProfileModal/ProfileModal";
-const typeAlerts: any = {
-  E: {
-    name: "Emergencia Medica",
-    icon: <IconAmbulance size={36} color="var(--cWhite)" />,
-    color: { background: "var(--cHoverError)", border: "var(--cError)" },
-  },
-  F: {
-    name: "Incendio",
-    icon: <IconFlame size={36} color="var(--cWhite)" />,
-    color: { background: "var(--cHoverWarning)", border: "var(--cWarning)" },
-  },
-  T: {
-    name: "Robo",
-    icon: <IconTheft size={36} color="var(--cWhite)" />,
-    color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
-  },
-  O: {
-    name: "Otro",
-    icon: <IconAlert size={36} color="var(--cWhite)" />,
-    color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
-  },
-};
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 const Layout = ({ children }: any) => {
   const { user, logout, store, setStore, showToast, userCan } = useAuth();
+  const { localeTag, t } = useScopedI18n("layout");
 
   const [sideBarOpen, setSideBarOpen] = useState(false);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
@@ -64,6 +44,34 @@ const Layout = ({ children }: any) => {
   const router = useRouter();
   const isTablet = false;
   const isDesktop = true;
+  const typeAlerts: any = {
+    E: {
+      name: t("medicalEmergency"),
+      icon: <IconAmbulance size={36} color="var(--cWhite)" />,
+      color: { background: "var(--cHoverError)", border: "var(--cError)" },
+    },
+    F: {
+      name: t("fire"),
+      icon: <IconFlame size={36} color="var(--cWhite)" />,
+      color: { background: "var(--cHoverWarning)", border: "var(--cWarning)" },
+    },
+    T: {
+      name: t("theft"),
+      icon: <IconTheft size={36} color="var(--cWhite)" />,
+      color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
+    },
+    O: {
+      name: t("other"),
+      icon: <IconAlert size={36} color="var(--cWhite)" />,
+      color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
+    },
+  };
+  const formattedToday = new Intl.DateTimeFormat(localeTag, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
 
   // Helper para truncar texto a 150 chars con "…"
   const truncateText = (text: string, max: number) =>
@@ -202,7 +210,7 @@ const Layout = ({ children }: any) => {
           path={path}
           router={router}
           client={client}
-          title={store?.title + " / " + getFormattedDate()}
+          title={store?.title + " / " + formattedToday}
           right={store?.right}
           customTitle={store?.customTitle}
           openSlider={sideBarOpen}
@@ -245,7 +253,7 @@ const Layout = ({ children }: any) => {
             setStore({ openProfileModal: false });
           }}
           dataID={user?.id}
-          titleBack="Volver atrás"
+          titleBack={t("profileBack")}
           type="admin"
           del={false}
           setOnLogout={setOnLogout}
@@ -255,30 +263,28 @@ const Layout = ({ children }: any) => {
       {onLogout && (
         <DataModal
           open={onLogout}
-          title="Cerrar sesión"
+          title={t("logoutTitle")}
           onClose={() => {
             setOnLogout(false);
           }}
-          buttonText="Cerrar sesión"
-          buttonCancel="Cancelar"
+          buttonText={t("logoutAction")}
+          buttonCancel={t("cancel")}
           minWidth={360}
           maxWidth={680}
           onSave={() => logout()}
         >
-          <p className={styles.modalLogout}>
-            ¿Estás seguro de que deseas cerrar sesión?
-          </p>
+          <p className={styles.modalLogout}>{t("logoutConfirm")}</p>
         </DataModal>
       )}
       {openAlert?.open && (
         <DataModal
           style={{ border: "2px solid #F23D2D", width: "450px" }}
-          title="Nueva emergencia"
+          title={t("newEmergency")}
           colorTitle="var(--cError)"
           iconClose={false}
           open={openAlert?.open}
           buttonCancel=""
-          buttonText="Cerrar"
+          buttonText={t("close")}
           onClose={onCloseAlert}
           onSave={onCloseAlert}
         >
@@ -289,12 +295,12 @@ const Layout = ({ children }: any) => {
               fontSize: "14px",
             }}
           >
-            Residente
+            {t("resident")}
           </p>
           <ItemList
             variant="V1"
             title={openAlert?.item?.owner_name}
-            subtitle={"Unidad: " + openAlert?.item?.unit}
+            subtitle={t("unitPrefix", { unit: openAlert?.item?.unit ?? "" })}
             right={
               <p style={{ width: 110, textAlign: "right" }}>
                 {getDateTimeAgo(openAlert?.item?.created_at)}
@@ -308,7 +314,7 @@ const Layout = ({ children }: any) => {
             }
           />
           <p style={{ color: "var(--cWhiteV1)", marginBottom: 8 }}>
-            Tipo de emergencia
+            {t("emergencyType")}
           </p>
           <div
             style={{
@@ -331,7 +337,7 @@ const Layout = ({ children }: any) => {
                 className={styles.viewMoreBtn}
                 onClick={() => setIsLayoutAlertDescExpanded((v: boolean) => !v)}
               >
-                {isLayoutAlertDescExpanded ? "Ver menos" : "Ver más"}
+                {isLayoutAlertDescExpanded ? t("seeLess") : t("seeMore")}
               </button>
             )}
           </div>

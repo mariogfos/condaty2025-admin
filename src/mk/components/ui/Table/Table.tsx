@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import styles from "./styles.module.css";
+import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
 import { formatNumber } from "@/mk/utils/numbers";
 import useScrollbarWidth from "@/mk/hooks/useScrollbarWidth";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -389,8 +390,19 @@ const Body = ({
           ) : (
             <div key={"row" + index} onClick={(e) => _onRowClick(row)}>
               {header.map(
-                (item: any, i: number) =>
-                  !item.onHide?.() && (
+                (item: any, i: number) => {
+                  if (item.onHide?.()) {
+                    return null;
+                  }
+
+                  const ignoreTranslation = shouldIgnoreValueTranslationContext(
+                    {
+                      label: item.label,
+                      key: item.key,
+                    },
+                  );
+
+                  return (
                     <span
                       key={item.key + i}
                       className={styles[item.responsive] + " " + item.className}
@@ -398,6 +410,9 @@ const Body = ({
                         ...item.style,
                         ...getWidth(item.width),
                       }}
+                      data-i18n-ignore={
+                        ignoreTranslation ? "true" : undefined
+                      }
                     >
                       {item.onRender &&
                         item.onRender?.({
@@ -409,7 +424,8 @@ const Body = ({
                         })}
                       {!item.onRender && row[item.key]}
                     </span>
-                  ),
+                  );
+                },
               )}
               {onButtonActions && (
                 <span

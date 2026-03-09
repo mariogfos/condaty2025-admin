@@ -32,6 +32,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import EmptyData from "@/components/NoData/EmptyData";
 import ContentRenderView from "@/modulos/Contents/RenderView/RenderView";
 import Button from "@/mk/components/forms/Button/Button";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 const paramsInitial = {
   fullType: "L",
@@ -40,6 +41,7 @@ const paramsInitial = {
 
 const HomePage = () => {
   const { store, setStore, userCan, showToast, user } = useAuth();
+  const { localeTag, t } = useScopedI18n("home");
   const [openActive, setOpenActive] = useState(false);
   const [openPayment, setOpenPayment] = useState(false);
   const [dataOwner, setDataOwner]: any = useState({});
@@ -70,10 +72,12 @@ const HomePage = () => {
   };
 
   useEffect(() => {
+    const pageTitle = t("pageTitle");
+    if (store?.title === pageTitle) return;
     setStore({
-      title: "Inicio",
+      title: pageTitle,
     });
-  }, []);
+  }, [setStore, store?.title, t]);
 
   const {
     data: dashboard,
@@ -85,25 +89,17 @@ const HomePage = () => {
   });
 
   const today = new Date();
-  const meses = [
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
-  ];
-  const formattedDate = `Resumen del mes de ${meses[today.getMonth()]}`;
+  const monthLabel = new Intl.DateTimeFormat(localeTag, {
+    month: "long",
+  }).format(today);
+  const formattedDate = t("summaryOfMonth", {
+    month: monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1),
+  });
   let balance: any =
     Number(dashboard?.data?.TotalIngresos) -
     Number(dashboard?.data?.TotalEgresos);
-  const balanceMessage = balance > 0 ? "Balance a favor" : "Balance en contra";
+  const balanceMessage =
+    balance > 0 ? t("positiveBalance") : t("negativeBalance");
 
   const paymentProps: any = {
     open: openPayment,
@@ -148,11 +144,15 @@ const HomePage = () => {
           )}
         </div>
         <div className={styles.itemTextInfo}>
-          <span className={styles.itemPrimaryText}>{primaryText}</span>
-          <span className={styles.itemSecondaryText}>{secondaryText}</span>
+          <span className={styles.itemPrimaryText} data-i18n-ignore="true">
+            {primaryText}
+          </span>
+          <span className={styles.itemSecondaryText} data-i18n-ignore="true">
+            {secondaryText}
+          </span>
         </div>
         <div className={styles.itemActionContainer}>
-          <button className={styles.itemActionButton}>Revisar</button>
+          <button className={styles.itemActionButton}>{t("review")}</button>
         </div>
       </div>
     );
@@ -161,7 +161,7 @@ const HomePage = () => {
   const reservasList = (data: any) => {
     const imageUrl = data?.owner;
     const primaryText = getFullName(data?.owner);
-    const secondaryText = `${data?.area?.title || "No especificada"}`;
+    const secondaryText = `${data?.area?.title || t("areaNotSpecified")}`;
     const ownerInitials = primaryText
       ?.split(" ")
       .map((n) => n[0])
@@ -192,11 +192,15 @@ const HomePage = () => {
           )}
         </div>
         <div className={styles.itemTextInfo}>
-          <span className={styles.itemPrimaryText}>{primaryText}</span>
-          <span className={styles.itemSecondaryText}>{secondaryText}</span>
+          <span className={styles.itemPrimaryText} data-i18n-ignore="true">
+            {primaryText}
+          </span>
+          <span className={styles.itemSecondaryText} data-i18n-ignore="true">
+            {secondaryText}
+          </span>
         </div>
         <div className={styles.itemActionContainer}>
-          <button className={styles.itemActionButton}>Revisar</button>
+          <button className={styles.itemActionButton}>{t("review")}</button>
         </div>
       </div>
     );
@@ -206,7 +210,7 @@ const HomePage = () => {
     const ownerData = data?.owner || data;
     const primaryText = getFullName(ownerData);
     const secondaryText = ownerData?.ci
-      ? `C.I: ${ownerData.ci}`
+      ? `${t("preRegistrationIdLabel")}: ${ownerData.ci}`
       : ownerData?.email || "";
 
     return (
@@ -215,7 +219,7 @@ const HomePage = () => {
         onClick={() => {
           if (userCan("owners", "C") == false) {
             return showToast(
-              "No tiene permisos para aceptar cuentas pre-registradas",
+              t("preRegistrationPermissionDenied"),
               "error",
             );
           }
@@ -233,9 +237,13 @@ const HomePage = () => {
           />
         </div>
         <div className={styles.itemTextInfo}>
-          <span className={styles.itemPrimaryText}>{primaryText}</span>
+          <span className={styles.itemPrimaryText} data-i18n-ignore="true">
+            {primaryText}
+          </span>
           {secondaryText && (
-            <span className={styles.itemSecondaryText}>{secondaryText}</span>
+            <span className={styles.itemSecondaryText} data-i18n-ignore="true">
+              {secondaryText}
+            </span>
           )}
         </div>
         <div className={styles.itemActionContainer}>
@@ -244,15 +252,15 @@ const HomePage = () => {
             onClick={() => {
               if (userCan("owners", "C") == false) {
                 return showToast(
-                  "No tiene permisos para aceptar cuentas pre-registradas",
+                  t("preRegistrationPermissionDenied"),
                   "error",
                 );
               }
               setDataOwner({ ...ownerData, type_owner: data.type });
               setOpenActive(true);
             }}
-          >
-            Revisar
+            >
+            {t("review")}
           </button>
         </div>
       </div>
@@ -265,7 +273,7 @@ const HomePage = () => {
 
     let dataSource = null; // Contendrá el objeto guardia o owner
     let entityType = ""; // Será "GUARD" o "OWNER"
-    let primaryText = "Alerta del Sistema"; // Texto por defecto
+    let primaryText: string = t("systemAlert");
 
     if (hasGuard) {
       dataSource = data.guardia;
@@ -284,7 +292,7 @@ const HomePage = () => {
       .substring(0, 2)
       .toUpperCase();
 
-    const secondaryText = data.descrip || "Sin descripción";
+    const secondaryText = data.descrip || t("noDescription");
     const truncatedSecondaryText = truncateText(secondaryText, 35);
 
     let levelClass = styles.levelLow;
@@ -330,11 +338,17 @@ const HomePage = () => {
           )}
         </div>
         <div className={styles.itemTextInfo}>
-          <span className={styles.itemPrimaryText}>{primaryText}</span>
-          <span className={styles.itemSecondaryText} title={secondaryText}>
+          <span className={styles.itemPrimaryText} data-i18n-ignore="true">
+            {primaryText}
+          </span>
+          <span
+            className={styles.itemSecondaryText}
+            title={secondaryText}
+            data-i18n-ignore="true"
+          >
             {truncatedSecondaryText}
           </span>
-          <span className={styles.itemDateText}>
+          <span className={styles.itemDateText} data-i18n-ignore="true">
             {getDateTimeStrMes(data.created_at)}
           </span>
         </div>
@@ -370,20 +384,20 @@ const HomePage = () => {
 
   return (
     <>
-      <div className={styles.container}>
+      <div className={styles.container} data-i18n-ignore="true">
         <div className={styles.mainLayout}>
           {/* Columna Izquierda (65%) */}
           <div className={styles.leftColumn}>
             <WidgetBase
               variant={"V1"}
-              title={"Resumen actual"}
+              title={t("currentSummary")}
               subtitle={formattedDate}
               className={styles.summaryWidgetEqualHeight}
               style={{ maxHeight: "max-content" }}
             >
               <div className={styles.widgetsResumeContainer}>
                 <WidgetDashCard
-                  title="Ingresos"
+                  title={t("incomes")}
                   data={"Bs. " + formatNumber(dashboard?.data?.TotalIngresos)}
                   onClick={() => (window.location.href = "/payments")}
                   icon={
@@ -407,12 +421,12 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle="Dinero total que entra a las cuentas del condominio. Principalmente por cuotas de expensas, alquiler de áreas comunes, intereses bancarios, multas y otros aportes."
+                  tooltipTitle={t("incomesTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipWidth={437}
                 />
                 <WidgetDashCard
-                  title="Egresos"
+                  title={t("outlays")}
                   data={"Bs. " + formatNumber(dashboard?.data?.TotalEgresos)}
                   onClick={() => (window.location.href = "/outlays")}
                   icon={
@@ -436,7 +450,7 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle="Pagos o salidas de dinero del condominio para cubrir gastos operativos y de mantenimiento. Incluye servicios básicos, personal, reparaciones, seguros, administración, impuestos y otros costos."
+                  tooltipTitle={t("outlaysTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipWidth={556}
                 />
@@ -469,12 +483,12 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle="Monto acumulado proveniente de la diferencia entre ingresos y egresos del condominio"
+                  tooltipTitle={t("balanceTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipWidth={486}
                 />
                 <WidgetDashCard
-                  title="Cartera vencida"
+                  title={t("delinquency")}
                   data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
                   onClick={() => (window.location.href = "/defaulters")}
                   icon={
@@ -498,7 +512,7 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle="Deudas pendientes de pago al condominio que han superado la fecha límite. Principalmente expensas impagas, multas o recargos vencidos. Su gestión es crucial para la liquidez del condominio."
+                  tooltipTitle={t("delinquencyTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipWidth={500}
                 />
@@ -523,9 +537,7 @@ const HomePage = () => {
                         dashboard?.data?.egresosHist?.length === 0)
                     }
                     emptyDataProps={{
-                      message:
-                        "Gráfica financiera sin datos. verás la evolución del control financiero a medida ",
-                      line2: "que tengas movimiento financiero.",
+                      message: t("emptyFinancialChart"),
                       h: 300,
                       icon: <IconGraphics size={80} />,
                     }}
@@ -538,10 +550,10 @@ const HomePage = () => {
                 <div className={styles.widgetRow}>
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
-                    title="Revisiones de pago"
-                    viewAllText="Ver todas"
+                    title={t("paymentReviews")}
+                    viewAllText={t("seeAllFeminine")}
                     onViewAllClick={() => (window.location.href = "/payments")}
-                    emptyListMessage="No hay pagos por revisar. Una vez los residentes comiencen a pagar sus deudas se mostrarán aquí."
+                    emptyListMessage={t("paymentsReviewEmpty")}
                     //emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí."
                     emptyListIcon={<IconPagos size={32} />}
                     data={dashboard?.data?.porConfirmar}
@@ -550,10 +562,10 @@ const HomePage = () => {
                   />
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
-                    title="Alertas"
-                    viewAllText="Ver todas"
+                    title={t("alerts")}
+                    viewAllText={t("seeAllFeminine")}
                     onViewAllClick={() => (window.location.href = "/alerts")}
-                    emptyListMessage="No existe ningún tipo de alerta. Cuando un guardia o residente registre una se mostrará aquí."
+                    emptyListMessage={t("alertsEmpty")}
                     //emptyListLine2="residente registre una se mostrará aquí."
                     emptyListIcon={<IconAlerts size={32} />}
                     data={dashboard?.data?.alertas}
@@ -564,10 +576,10 @@ const HomePage = () => {
                 <div className={styles.widgetRow}>
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
-                    title="Solicitudes de Reservas"
-                    viewAllText="Ver todas"
+                    title={t("reservationRequests")}
+                    viewAllText={t("seeAllFeminine")}
                     onViewAllClick={() => (window.location.href = "/reservas")}
-                    emptyListMessage="Sin solicitudes de reserva. Una vez los residentes comiencen a reservar las áreas se mostrarán aquí."
+                    emptyListMessage={t("reservationsEmpty")}
                     //emptyListLine2="comiencen a reservar las áreas se mostrarán aquí."
                     emptyListIcon={<IconReservedAreas size={32} />}
                     data={dashboard?.data?.porReservar}
@@ -576,10 +588,10 @@ const HomePage = () => {
                   />
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
-                    title="Pre-registro"
-                    viewAllText="Ver todos"
+                    title={t("preRegistrations")}
+                    viewAllText={t("seeAllMasculine")}
                     onViewAllClick={() => setOpenPreRegistroModal(true)}
-                    emptyListMessage="No se encontró ninguna cuenta de pre-registro, cuando un usuario se auto-registre se mostrará aquí."
+                    emptyListMessage={t("preRegistrationsEmpty")}
                     //emptyListLine2="cuando un usuario se auto-registre se mostrará aquí."
                     emptyListIcon={<IconGroup2 size={32} />}
                     data={dashboard?.data?.porActivar}
@@ -595,37 +607,35 @@ const HomePage = () => {
           <div className={styles.rightColumn}>
             <WidgetBase
               variant={"V1"}
-              title={"Resumen de usuarios"}
-              subtitle={
-                "Cantidad de todos los usuarios en general del condominio"
-              }
+              title={t("usersSummary")}
+              subtitle={t("usersSummarySubtitle")}
               className={styles.summaryWidgetEqualHeight}
               style={{ maxHeight: "max-content" }}
             >
               <div className={styles.widgetsResumeContainer}>
                 <WidgetDashCard
-                  title="Administradores"
+                  title={t("administrators")}
                   data={formatNumber(dashboard?.data?.adminsCount, 0)}
                   tooltip={true}
-                  tooltipTitle="Cantidad total de administradores registrados en el condominio. Los administradores gestionan y supervisan el sistema."
+                  tooltipTitle={t("administratorsTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipPosition="left"
                   tooltipWidth={500}
                 />
                 <WidgetDashCard
-                  title="Residentes"
+                  title={t("residents")}
                   data={formatNumber(dashboard?.data?.ownersCount, 0)}
                   tooltip={true}
-                  tooltipTitle="Cantidad total de residentes activos. Los residentes son los usuarios que viven en el condominio."
+                  tooltipTitle={t("residentsTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipPosition="left"
                   tooltipWidth={500}
                 />
                 <WidgetDashCard
-                  title="Guardias"
+                  title={t("guards")}
                   data={formatNumber(dashboard?.data?.guardsCount, 0)}
                   tooltip={true}
-                  tooltipTitle="Cantidad total de guardias registrados. Los guardias son responsables de la seguridad y el control de accesos."
+                  tooltipTitle={t("guardsTooltip")}
                   tooltipColor="var(--cWhiteV1)"
                   tooltipPosition="left"
                   tooltipWidth={500}
@@ -656,13 +666,13 @@ const HomePage = () => {
       )}
       <DataModal
         open={openPreRegistroModal}
-        title="Lista completa de pre-registros"
+        title={t("fullPreRegistrationsList")}
         onClose={() => setOpenPreRegistroModal(false)}
         buttonText=""
         buttonCancel=""
         variant={"mini"}
       >
-        {renderPreRegistroList()}
+        <div data-i18n-ignore="true">{renderPreRegistroList()}</div>
       </DataModal>
       {openActive && (
         <OwnersRender

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import { MONTHS_S_GRAPH, getDateStr, getDateStrMes, getNow } from "@/mk/utils/date";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import WidgetBase from "../../WidgetBase/WidgetBase";
@@ -8,6 +7,7 @@ import styles from "./WidgetGraphResume.module.css";
 import { formatNumber } from "@/mk/utils/numbers";
 import EmptyData from "@/components/NoData/EmptyData";
 import Select from "@/mk/components/forms/Select/Select";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 
 type PropsType = {
@@ -41,6 +41,7 @@ const WidgetGraphResume = ({
   showEmptyData = false,
   emptyDataProps,
 }: PropsType) => {
+  const { localeTag, t } = useScopedI18n("graph");
   const [balance, setBalance] = useState({
     inicial: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     ingresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -67,14 +68,14 @@ const WidgetGraphResume = ({
     id: type,
     name:
       type === "bar"
-        ? "Barra"
+        ? t("bar")
         : type === "line"
-        ? "Línea"
+          ? t("line")
         : type === "donut"
-        ? "Donut"
+          ? t("donut")
         : type === "pie"
-        ? "Torta"
-        : "Línea",
+          ? t("pie")
+          : t("line"),
   }));
 
   useEffect(() => {
@@ -84,17 +85,16 @@ const WidgetGraphResume = ({
       egresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       saldos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     };
-    // ingresos?.map((item) => {
-    //   lista.ingresos[item.mes - 1] =
-    //     lista.ingresos[item.mes - 1] +
-    //     Number(item.expensa) +
-    //     Number(item.multa);
-    //   lista.saldos[item.mes - 1] =
-    //     lista.saldos[item.mes - 1] + Number(item.expensa) + Number(item.multa);
-    // });
     let mesI = 0;
     let mesF = 12;
-    let lmeses = MONTHS_S_GRAPH.slice(0, 12);
+    const monthFormatter = new Intl.DateTimeFormat(localeTag, { month: "short" });
+    let lmeses = Array.from({ length: 12 }, (_, index) => {
+      const label = monthFormatter
+        .format(new Date(2026, index, 1))
+        .replace(/\.$/, "");
+
+      return label.charAt(0).toUpperCase() + label.slice(1);
+    });
     ingresos?.map((item) => {
       if (item.mes > mesI) mesI = item.mes;
       if (item.mes < mesF) mesF = item.mes;
@@ -146,22 +146,22 @@ const WidgetGraphResume = ({
     setMeses(lmeses);
 
     setBalance(lista);
-  }, [ingresos, egresos, saldoInicial]);
+  }, [egresos, ingresos, localeTag, saldoInicial]);
 
   // const formattedDate =`Al ${getFormattedDate(currentDate)}`
   const today = new Date();
   const formattedTodayDate = today.getFullYear();
   return (
-    <div className={styles.widgetGraphResume + " " + className}>
+    <div
+      className={styles.widgetGraphResume + " " + className}
+      data-i18n-ignore="true"
+    >
       <WidgetBase className={styles.widgetBase}>
         <div className={styles.headerRow}>
           <div className={styles.titleBlock}>
-            <p className={styles.title}>
-              {title || "Resumen general"}
-            </p>
+            <p className={styles.title}>{title || t("title")}</p>
             <p className={styles.subtitle}>
-              {subtitle ||
-                `Este es un resumen general del año ${formattedTodayDate}`}
+              {subtitle || t("subtitle", { year: formattedTodayDate })}
             </p>
           </div>
           {chartTypes && chartTypes.length > 1 && (
@@ -179,7 +179,7 @@ const WidgetGraphResume = ({
         </div>
         {showEmptyData ? (
           <EmptyData
-            message={emptyDataProps?.message || "No hay datos disponibles"}
+            message={emptyDataProps?.message || t("noDataAvailable")}
             line2={emptyDataProps?.line2}
             h={emptyDataProps?.h || 300}
             icon={emptyDataProps?.icon}
@@ -190,10 +190,10 @@ const WidgetGraphResume = ({
               data={{
                 labels: meses,
                 values: [
-                  { name: "Saldo inicial", values: balance?.inicial },
-                  { name: "Ingresos", values: balance?.ingresos },
-                  { name: "Egresos", values: balance?.egresos },
-                  { name: "Saldo Acumulado", values: balance?.saldos },
+                  { name: t("openingBalance"), values: balance?.inicial },
+                  { name: t("incomes"), values: balance?.ingresos },
+                  { name: t("outlays"), values: balance?.egresos },
+                  { name: t("cumulativeBalance"), values: balance?.saldos },
                 ],
               }}
               // pasar solo el tipo seleccionado para ocultar el select interno de GraphBase
@@ -214,7 +214,7 @@ const WidgetGraphResume = ({
                   className={styles.legendColor}
                   style={{ backgroundColor: "var(--cCompl1)" }}
                 ></div>
-                <span className={styles.legendLabel}>Saldo Inicial</span>
+                <span className={styles.legendLabel}>{t("openingBalance")}</span>
                 <span className={styles.legendValue}>
                   Bs {formatNumber(saldoInicial || 0)}
                 </span>
@@ -224,7 +224,7 @@ const WidgetGraphResume = ({
                   className={styles.legendColor}
                   style={{ backgroundColor: "var(--cCompl7)" }}
                 ></div>
-                <span className={styles.legendLabel}>Ingresos</span>
+                <span className={styles.legendLabel}>{t("incomes")}</span>
                 <span className={styles.legendValue}>
                   Bs {formatNumber(balance.ingresos.reduce((a, b) => a + b, 0))}
                 </span>
@@ -234,7 +234,7 @@ const WidgetGraphResume = ({
                   className={styles.legendColor}
                   style={{ backgroundColor: "var(--cCompl8)" }}
                 ></div>
-                <span className={styles.legendLabel}>Egresos</span>
+                <span className={styles.legendLabel}>{t("outlays")}</span>
                 <span className={styles.legendValue}>
                   Bs {formatNumber(balance.egresos.reduce((a, b) => a + b, 0))}
                 </span>
@@ -244,7 +244,7 @@ const WidgetGraphResume = ({
                   className={styles.legendColor}
                   style={{ backgroundColor: "var(--cCompl9)" }}
                 ></div>
-                <span className={styles.legendLabel}>Saldo Acumulado</span>
+                <span className={styles.legendLabel}>{t("cumulativeBalance")}</span>
                 <span className={styles.legendValue}>
                   Bs{" "}
                   {formatNumber(
