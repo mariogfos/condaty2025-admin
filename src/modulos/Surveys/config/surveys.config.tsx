@@ -61,6 +61,17 @@ export const getSurveyConfig = (
 
   const fields = {
     id: { rules: [], api: "e" },
+
+    created_at: {
+      rules: [],
+      api: "ae",
+      label: "Fecha creación",
+      list: {
+        onRender: (props: any) => (
+          <div>{getDateStrMes(props.item.created_at)}</div>
+        ),
+      },
+    },
     scheduled_at: {
       rules: ["validateIf:switch,Y", "required", "greaterDate"],
       api: "ae",
@@ -84,17 +95,7 @@ export const getSurveyConfig = (
         },
       },
     },
-    created_at: {
-      rules: [],
-      api: "ae",
-      label: "Fecha creación",
-      list: {
-        onRender: (props: any) => (
-          <div>{getDateStrMes(props.item.created_at)}</div>
-        ),
-      },
-    },
-    end_at: {
+    expires_at: {
       rules: [
         "validateIf:switch,Y",
         "greaterDate",
@@ -165,17 +166,11 @@ export const getSurveyConfig = (
         },
       },
     },
-    creator: {
+    created_by_name: {
       rules: [""],
       api: "",
       label: "Creado por",
-      list: {
-        onRender: (props: any) => (
-          <div>
-            {props.item.created_by ? props.item.created_by : "Sin usuario"}
-          </div>
-        ),
-      },
+      list: true
     },
     destiny: {
       rules: ["required"],
