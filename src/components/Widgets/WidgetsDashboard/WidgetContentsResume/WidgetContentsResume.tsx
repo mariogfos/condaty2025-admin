@@ -9,7 +9,6 @@ import { IconPublicacion } from "@/components/layout/icons/IconsBiblioteca";
 import { useRouter } from "next/navigation";
 import { ContentItem } from "@/modulos/Reel/types";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 const WidgetContentsResume = ({
   onOpenRenderView,
@@ -19,7 +18,6 @@ const WidgetContentsResume = ({
   const [contents, setContents] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { store, setStore } = useAuth();
-  const { t } = useScopedI18n("content");
   const { data, loaded, error, reLoad } = useAxios(
     "/contents",
     "GET",
@@ -70,10 +68,9 @@ const WidgetContentsResume = ({
   return (
     <WidgetBase
       variant={"V1"}
-      title={t("community")}
-      subtitle={t("communitySubtitle")}
+      title={"Comunidad"}
+      subtitle={"Publicaciones y anuncios del condominio"}
       className={styles.widgetContentsResume}
-      ignoreTranslation
     >
       {/* <div className={styles.widgetContentsResumeContent}> */}
       {loading ? (
@@ -85,22 +82,21 @@ const WidgetContentsResume = ({
             fontSize: "16px",
           }}
         >
-          {t("loadingPosts")}
+          Cargando publicaciones...
         </div>
       ) : contents.length > 0 ? (
-        <div>
-          <ReelCompactList
-            items={contents}
-            onLike={handleRedirectToReel}
-            onOpenComments={handleRedirectToReel}
-            onImageClick={handleRedirectToReel}
-            onOpenRenderView={onOpenRenderView}
-          />
-        </div>
+        <ReelCompactList
+          items={contents}
+          // modoCompacto={true}
+          onLike={handleRedirectToReel}
+          onOpenComments={handleRedirectToReel}
+          onImageClick={handleRedirectToReel}
+          onOpenRenderView={onOpenRenderView}
+        />
       ) : (
         <EmptyData
-          message={t("emptyMessage")}
-          line2={t("emptyLine2")}
+          message="Sin publicaciones. Las noticias de administración aparecerán"
+          line2="aquí, una vez comiences a crear y publicar contenido."
           h={200}
           icon={<IconPublicacion size={40} color="var(--cWhiteV1)" />}
         />

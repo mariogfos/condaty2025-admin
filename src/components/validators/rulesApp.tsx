@@ -1,6 +1,4 @@
 import { ValidFunctionType } from "@/mk/utils/validate/Rules";
-import { getIdentityDocumentCode } from "@/i18n/identity";
-import { getCurrentClientLocale } from "@/i18n/runtime";
 
 const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
@@ -173,14 +171,7 @@ export const validCi: ValidFunctionType = (value, param) => {
   let [min, max]: any = param;
   if (!min) min = 3;
   if (!max) max = 20;
-  const locale = getCurrentClientLocale();
-  const identityCode = getIdentityDocumentCode(locale);
-  const errorByLocale = {
-    es: `El ${identityCode} debe tener entre ${min} y ${max} números`,
-    pt: `O ${identityCode} deve ter entre ${min} e ${max} números`,
-    en: `The ${identityCode} must contain between ${min} and ${max} digits`,
-  };
-  const error = errorByLocale[locale] ?? errorByLocale.es;
+  const error = "El CI debe tener entre " + min + " y " + max + " numeros";
   return value.length < min || value.length > max || isNaN(value) ? error : "";
 };
 

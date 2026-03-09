@@ -1,6 +1,5 @@
 "use client";
 import {
-  useCallback,
   createContext,
   useContext,
   useEffect,
@@ -46,12 +45,12 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
   const router: any = useRouter();
   const { showToast } = useToast(toast, setToast);
 
-  const _setStore = useCallback(async (newStore: object) => {
+  const _setStore = async (newStore: object) => {
     setStore((old: object | Function) => {
       if (typeof newStore == "function") return { ...newStore(old) };
       return { ...old, ...newStore };
     });
-  }, []);
+  };
 
   const getUser = async (client_id = null) => {
     // setSplash(true);

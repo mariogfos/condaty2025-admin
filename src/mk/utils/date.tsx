@@ -1,5 +1,3 @@
-import { AppLocale, getCurrentClientLocale } from "@/i18n/runtime";
-
 export const MONTHS = [
   "",
   "Enero",
@@ -84,152 +82,16 @@ export const DAYS = [
 ];
 export const DAYS_SHORT = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
-const DATE_COPY: Record<
-  AppLocale,
-  {
-    months: string[];
-    monthsShort: string[];
-    days: string[];
-    daysShort: string[];
-    invalidDate: string;
-    noStartOrEndDate: string;
-    ended: string;
-    endsToday: string;
-    endsTomorrow: string;
-  }
-> = {
-  es: {
-    months: MONTHS,
-    monthsShort: MONTHS_S,
-    days: DAYS,
-    daysShort: DAYS_SHORT,
-    invalidDate: "Fecha inválida",
-    noStartOrEndDate: "No hay fecha de inicio o fin",
-    ended: "Finalizada",
-    endsToday: "Finaliza hoy",
-    endsTomorrow: "Finaliza mañana",
-  },
-  pt: {
-    months: [
-      "",
-      "Janeiro",
-      "Fevereiro",
-      "Março",
-      "Abril",
-      "Maio",
-      "Junho",
-      "Julho",
-      "Agosto",
-      "Setembro",
-      "Outubro",
-      "Novembro",
-      "Dezembro",
-    ],
-    monthsShort: [
-      "",
-      "Jan",
-      "Fev",
-      "Mar",
-      "Abr",
-      "Mai",
-      "Jun",
-      "Jul",
-      "Ago",
-      "Set",
-      "Out",
-      "Nov",
-      "Dez",
-    ],
-    days: [
-      "Domingo",
-      "Segunda-feira",
-      "Terça-feira",
-      "Quarta-feira",
-      "Quinta-feira",
-      "Sexta-feira",
-      "Sábado",
-    ],
-    daysShort: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
-    invalidDate: "Data inválida",
-    noStartOrEndDate: "Não há data de início ou fim",
-    ended: "Encerrada",
-    endsToday: "Termina hoje",
-    endsTomorrow: "Termina amanhã",
-  },
-  en: {
-    months: [
-      "",
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ],
-    monthsShort: [
-      "",
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-    days: [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ],
-    daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    invalidDate: "Invalid date",
-    noStartOrEndDate: "Missing start or end date",
-    ended: "Finished",
-    endsToday: "Ends today",
-    endsTomorrow: "Ends tomorrow",
-  },
-};
-
-const getActiveLocale = (locale?: AppLocale) => locale ?? getCurrentClientLocale();
-
-const getDateLocaleCopy = (locale?: AppLocale) =>
-  DATE_COPY[getActiveLocale(locale)] ?? DATE_COPY.es;
-
-export const getLocalizedMonthShortLabels = (locale?: AppLocale) =>
-  getDateLocaleCopy(locale).monthsShort.slice(1);
-
 export const GMT = -4;
 
-export function getFormattedDate(locale?: AppLocale) {
+export function getFormattedDate() {
   const date = new Date();
-  const activeLocale = getActiveLocale(locale);
-  const copy = getDateLocaleCopy(activeLocale);
-  const dayName = copy.days[date.getDay()];
+  const dayName = DAYS[date.getDay()];
   const day = date.getDate();
-  const month = copy.months[date.getMonth() + 1];
+  const month = MONTHS[date.getMonth() + 1];
   const year = date.getFullYear();
 
-  if (activeLocale === "en") {
-    return `${dayName}, ${month} ${day}, ${year}`;
-  }
-
-  const yearConnector = activeLocale === "pt" ? "de" : "del";
-  return `${dayName}, ${day} de ${month} ${yearConnector} ${year}`;
+  return `${dayName}, ${day} de ${month} del ${year}`;
 }
 
 export const getDateStr = (dateStr: string | null): string =>
@@ -303,40 +165,26 @@ export const getDateTimeStrMes = (
   dateStr: string | null = "",
   dateStrBase: string | null = "",
   utc: boolean = false,
-  utcBase: boolean = false,
-  locale?: AppLocale
+  utcBase: boolean = false
 ): string => {
   if (!dateStr || dateStr == "") return "";
-  const activeLocale = getActiveLocale(locale);
-  const copy = getDateLocaleCopy(activeLocale);
   const date = _getDateTimeStrMes(dateStr, dateStrBase, utc, utcBase);
-
-  if (activeLocale === "en") {
-    return `${copy.months[parseInt(date[1])]} ${date[2]}, ${date[0]}, ${date[3]}`;
-  }
-
-  const yearConnector = activeLocale === "pt" ? "de" : "del";
-  return `${date[2]} de ${copy.months[parseInt(date[1])]} ${yearConnector} ${date[0]}, ${date[3]}`;
+  return `${date[2]} de ${MONTHS[parseInt(date[1])]} del ${date[0]}, ${
+    date[3]
+  }`;
 };
 
 export const getDateTimeStrMesShort = (
   dateStr: string | null = "",
   dateStrBase: string | null = "",
   utc: boolean = false,
-  utcBase: boolean = false,
-  locale?: AppLocale
+  utcBase: boolean = false
 ): string => {
   if (!dateStr || dateStr == "") return "";
-  const activeLocale = getActiveLocale(locale);
-  const copy = getDateLocaleCopy(activeLocale);
   const date = _getDateTimeStrMes(dateStr, dateStrBase, utc, utcBase);
+  // obtener el dia, lunes martes, etc
   let _date = new Date(dateStr);
-  let day = copy.daysShort[_date.getDay()];
-
-  if (activeLocale === "en") {
-    return `${day}, ${date[1]}/${date[2]}/${date[0]} - ${date[3]}`;
-  }
-
+  let day = DAYS_SHORT[_date.getDay()];
   return `${day}, ${date[2]}/${date[1]}/${date[0]} - ${date[3]}`;
 };
 
@@ -375,35 +223,20 @@ const _getDateStrMes = (
 export const getDateStrMes = (
   dateStr: string | null = "",
   utc: boolean = false,
-  fixDay: boolean = false,
-  locale?: AppLocale
+  fixDay: boolean = false
 ): string => {
   if (!dateStr || dateStr == "") return "";
-  const activeLocale = getActiveLocale(locale);
-  const copy = getDateLocaleCopy(activeLocale);
   const date = _getDateStrMes(dateStr, utc, fixDay);
-
-  if (activeLocale === "en") {
-    return `${copy.months[parseInt(date[1])]} ${date[2]}, ${date[0]}`;
-  }
-
-  const year = activeLocale === "pt" ? ` de ${date[0]}` : ` del ${date[0]}`;
-  return `${date[2]} de ${copy.months[parseInt(date[1])]}${year}`;
+  let year = ` del ${date[0]}`;
+  return `${date[2]} de ${MONTHS[parseInt(date[1])]}${year}`;
 };
 
 export const getDateStrMesShort = (
   dateStr: string | null = "",
-  utc: boolean = false,
-  locale?: AppLocale
+  utc: boolean = false
 ): string => {
   if (!dateStr || dateStr == "") return "";
-  const activeLocale = getActiveLocale(locale);
   const date = _getDateStrMes(dateStr, utc);
-
-  if (activeLocale === "en") {
-    return `${date[1]}/${date[2]}/${date[0]}`;
-  }
-
   return `${date[2]}/${date[1]}/${date[0]}`;
 };
 
@@ -434,7 +267,7 @@ export const getNow = (): string => {
   // return new Date().toISOString().substring(0, 10);
 };
 
-export const getDateDesdeHasta = (date: any, locale?: AppLocale) => {
+export const getDateDesdeHasta = (date: any) => {
   const fechaActual = new Date();
   //convertir fechaActual a hora local
   fechaActual.setHours(
@@ -464,10 +297,9 @@ export const getDateDesdeHasta = (date: any, locale?: AppLocale) => {
     ultimoDia.setHours(
       ultimoDia.getHours() + ultimoDia.getTimezoneOffset() / 60
     );
-    const separator = getActiveLocale(locale) === "en" ? " to " : " al ";
     return `${primerDia.getDate()}/${
       primerDia.getMonth() + 1
-    }/${primerDia.getFullYear()}${separator}${ultimoDia.getDate()}/${
+    }/${primerDia.getFullYear()} al ${ultimoDia.getDate()}/${
       ultimoDia.getMonth() + 1
     }/${ultimoDia.getFullYear()}`;
   }
@@ -518,21 +350,15 @@ export const getDateDesdeHasta = (date: any, locale?: AppLocale) => {
         "-" +
         (primerDia.getMonth() + 1) +
         "-" +
-        primerDia.getDate(),
-      false,
-      false,
-      locale,
+        primerDia.getDate()
     ) +
-    (getActiveLocale(locale) === "en" ? " to " : " al ") +
+    " al " +
     getDateStrMes(
       ultimoDia.getFullYear() +
         "-" +
         (ultimoDia.getMonth() + 1) +
         "-" +
-        ultimoDia.getDate(),
-      false,
-      false,
-      locale,
+        ultimoDia.getDate()
     )
   );
   // return "Fecha no válida";
@@ -604,16 +430,12 @@ export const differenceInDays = (begin_at: string, end_at: string): number => {
 };
 
 export const getDateRemaining = (begin_at: string, end_at: string): string => {
-  const activeLocale = getActiveLocale();
-  const copy = getDateLocaleCopy(activeLocale);
-  if (!begin_at || !end_at) return copy.noStartOrEndDate;
+  if (!begin_at || !end_at) return "No hay fecha de inicio o fin";
   const days = differenceInDays(begin_at, end_at);
-  if (days == null) return copy.invalidDate;
-  if (days < 0) return copy.ended;
-  if (days == 0) return copy.endsToday;
-  if (days == 1) return copy.endsTomorrow;
-  if (activeLocale === "pt") return `Termina em ${days} dias`;
-  if (activeLocale === "en") return `Ends in ${days} days`;
+  if (days == null) return "Fecha inválida";
+  if (days < 0) return "Finalizada";
+  if (days == 0) return "Finaliza hoy";
+  if (days == 1) return "Finaliza mañana";
   return `Finaliza en ${days} días`;
 };
 
@@ -692,24 +514,21 @@ export const getCurrentYearWeek = () => {
 
 export const getDateTimeAgo = (
   dateStr: string | null = "",
-  utc: boolean = false,
-  locale?: AppLocale
+  utc: boolean = false
 ): string => {
   if (!dateStr || dateStr === "") return "";
-  const activeLocale = getActiveLocale(locale);
-  const copy = getDateLocaleCopy(activeLocale);
 
   let date: any;
 
   if (esFormatoISO8601(dateStr) || utc) {
     date = convertirFechaUTCaLocal(dateStr);
-    if (!date) return copy.invalidDate;
+    if (!date) return "Fecha inválida"; // Manejo de error en caso de que la conversión falle
   } else {
     date = new Date(dateStr);
   }
 
   if (isNaN(date.getTime())) {
-    return copy.invalidDate;
+    return "Fecha inválida";
   }
 
   const now: any = convertirFechaUTCaLocal(new Date().toISOString());
@@ -720,61 +539,32 @@ export const getDateTimeAgo = (
   const diffDays = Math.floor(diffHours / 24);
 
   if (diffMinutes < 1) {
-    if (activeLocale === "pt") return "Agora há pouco";
-    if (activeLocale === "en") return "Just now";
     return "Hace un momento";
   } else if (diffHours < 1) {
-    if (activeLocale === "pt") {
-      return `Há ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
-    }
-    if (activeLocale === "en") {
-      return `${diffMinutes} ${diffMinutes === 1 ? "minute" : "minutes"} ago`;
-    }
     return `Hace ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
   } else if (diffMinutes < 5) {
-    if (activeLocale === "pt") {
-      return `Há ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
-    }
-    if (activeLocale === "en") {
-      return `${diffMinutes} ${diffMinutes === 1 ? "minute" : "minutes"} ago`;
-    }
     return `Hace ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
   } else if (diffHours < 24) {
-    if (activeLocale === "pt") {
-      return `Há ${diffHours} ${diffHours === 1 ? "hora" : "horas"}`;
-    }
-    if (activeLocale === "en") {
-      return `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
-    }
     return `Hace ${diffHours} ${diffHours === 1 ? "hora" : "horas"}`;
   } else if (diffDays > 0) {
-    if (activeLocale === "pt") {
-      return `Há ${diffDays} ${diffDays === 1 ? "dia" : "dias"}`;
-    }
-    if (activeLocale === "en") {
-      return `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
-    }
     return `Hace ${diffDays} ${diffDays === 1 ? "día" : "días"}`;
   } else {
-    return getDateTimeStrMes(dateStr, "", utc, false, activeLocale);
+    return getDateTimeStrMes(dateStr);
   }
 };
 
 export const formatToDayDDMMYYYY = (
   dateStr: string | null = "",
-  utc: boolean = true,
-  locale?: AppLocale
+  utc: boolean = true
 ): string => {
   if (!dateStr || dateStr === "") return "";
-  const activeLocale = getActiveLocale(locale);
-  const copy = getDateLocaleCopy(activeLocale);
 
   let dateForFormatting: Date;
 
   // 1. Obtener un objeto Date base
   if (esFormatoISO8601(dateStr) || utc) {
     const convertedDate = convertirFechaUTCaLocal(dateStr);
-    if (!convertedDate) return copy.invalidDate;
+    if (!convertedDate) return "Fecha inválida";
     dateForFormatting = convertedDate;
   } else {
     let tempDate = new Date(dateStr.replace(" ", "T"));
@@ -787,20 +577,16 @@ export const formatToDayDDMMYYYY = (
           Number(parts[2])
         );
       }
-      if (isNaN(tempDate.getTime())) return copy.invalidDate;
+      if (isNaN(tempDate.getTime())) return "Fecha inválida";
     }
     dateForFormatting = tempDate;
   }
 
   // 2. Extraer componentes de fecha del objeto Date
-  const diaSemana = copy.daysShort[dateForFormatting.getDay()];
+  const diaSemana = DAYS_SHORT[dateForFormatting.getDay()];
   const dia = String(dateForFormatting.getDate()).padStart(2, "0");
   const mesNum = String(dateForFormatting.getMonth() + 1).padStart(2, "0");
   const año = dateForFormatting.getFullYear();
-
-  if (activeLocale === "en") {
-    return `${diaSemana}, ${mesNum}/${dia}/${año}`;
-  }
 
   return `${diaSemana}, ${dia}/${mesNum}/${año}`;
 };
@@ -814,12 +600,9 @@ export const formatToDayDDMMYYYY = (
 export const formatToDayDDMMYYYYHHMM = (
   dateStr: string | null = "",
   utc: boolean = true,
-  mostrarHora: boolean = true,
-  locale?: AppLocale
+  mostrarHora: boolean = true
 ): string => {
   if (!dateStr || dateStr === "") return "";
-  const activeLocale = getActiveLocale(locale);
-  const copy = getDateLocaleCopy(activeLocale);
 
   let dateForFormatting: Date;
 
@@ -828,7 +611,7 @@ export const formatToDayDDMMYYYYHHMM = (
     // Para cadenas ISO o marcadas como UTC, usamos convertirFechaUTCaLocal
     // para intentar obtener un objeto Date que represente el tiempo local (GMT-4)
     const convertedDate = convertirFechaUTCaLocal(dateStr);
-    if (!convertedDate) return copy.invalidDate;
+    if (!convertedDate) return "Fecha inválida";
     dateForFormatting = convertedDate;
   } else {
     // Para otras cadenas, intentamos parsearlas. new Date() las toma como locales del navegador.
@@ -857,21 +640,18 @@ export const formatToDayDDMMYYYYHHMM = (
           Number(parts[2])
         );
       }
-      if (isNaN(tempDate.getTime())) return copy.invalidDate;
+      if (isNaN(tempDate.getTime())) return "Fecha inválida";
     }
     dateForFormatting = tempDate;
   }
 
   // 2. Extraer componentes de fecha del objeto Date
-  const diaSemana = copy.daysShort[dateForFormatting.getDay()];
+  const diaSemana = DAYS_SHORT[dateForFormatting.getDay()];
   const dia = String(dateForFormatting.getDate()).padStart(2, "0");
   const mesNum = String(dateForFormatting.getMonth() + 1).padStart(2, "0");
   const año = dateForFormatting.getFullYear();
 
   if (!mostrarHora) {
-    if (activeLocale === "en") {
-      return `${diaSemana}, ${mesNum}/${dia}/${año}`;
-    }
     return `${diaSemana}, ${dia}/${mesNum}/${año}`;
   }
 
@@ -904,10 +684,6 @@ export const formatToDayDDMMYYYYHHMM = (
   const horaStr = String(hora).padStart(2, "0");
   const minutosStr = String(minutos).padStart(2, "0");
 
-  if (activeLocale === "en") {
-    return `${diaSemana}, ${mesNum}/${dia}/${año} - ${horaStr}:${minutosStr}`;
-  }
-
   return `${diaSemana}, ${dia}/${mesNum}/${año} - ${horaStr}:${minutosStr}`;
 };
 
@@ -915,19 +691,16 @@ export const formatToDayFdMYH = (
   dateStr: string | null = "",
   utc: boolean = true,
   mostrarHora: boolean = true,
-  fixDay: boolean = false,
-  locale?: AppLocale
+  fixDay: boolean = false
 ): string => {
   if (!dateStr || dateStr === "") return "";
-  const activeLocale = getActiveLocale(locale);
-  const copy = getDateLocaleCopy(activeLocale);
 
   let dateForFormatting: Date;
 
   // 1. Obtener un objeto Date base
   if ((esFormatoISO8601(dateStr) || utc) && !fixDay) {
     const convertedDate = convertirFechaUTCaLocal(dateStr);
-    if (!convertedDate) return copy.invalidDate;
+    if (!convertedDate) return "Fecha inválida";
     dateForFormatting = convertedDate;
   } else {
     let tempDate: Date | null = null;
@@ -971,23 +744,18 @@ export const formatToDayFdMYH = (
           Number(parts[2])
         );
       }
-      if (isNaN(tempDate.getTime())) return copy.invalidDate;
+      if (isNaN(tempDate.getTime())) return "Fecha inválida";
     }
     dateForFormatting = tempDate;
   }
   // 2. Extraer componentes de fecha del objeto Date
-  const diaSemana = copy.days[dateForFormatting.getDay()];
+  const diaSemana = DAYS[dateForFormatting.getDay()];
   const dia = String(dateForFormatting.getDate()).padStart(2, "0");
-  const mes = copy.months[dateForFormatting.getMonth() + 1];
+  const mes = MONTHS_ES[dateForFormatting.getMonth()];
   const año = dateForFormatting.getFullYear();
 
   if (!mostrarHora) {
-    if (activeLocale === "en") {
-      return `${diaSemana}, ${mes} ${dia}, ${año}`;
-    }
-
-    const yearConnector = activeLocale === "pt" ? "de" : "del";
-    return `${diaSemana}, ${dia} de ${mes} ${yearConnector} ${año}`;
+    return `${diaSemana}, ${dia} de ${mes} del ${año}`;
   }
 
   // 3. Extraer y ajustar componentes de hora, replicando la lógica de getDateTimeStrMes para la hora
@@ -1011,21 +779,13 @@ export const formatToDayFdMYH = (
   const horaStr = String(hora).padStart(2, "0");
   const minutosStr = String(minutos).padStart(2, "0");
 
-  if (activeLocale === "en") {
-    return `${diaSemana}, ${mes} ${dia}, ${año} - ${horaStr}:${minutosStr}`;
-  }
-
-  const yearConnector = activeLocale === "pt" ? "de" : "del";
-  return `${diaSemana}, ${dia} de ${mes} ${yearConnector} ${año} - ${horaStr}:${minutosStr}`;
+  return `${diaSemana}, ${dia} de ${mes} del ${año} - ${horaStr}:${minutosStr}`;
 };
 
 export const formatDateRange = (
   startDateStr: string | null,
-  endDateStr: string | null,
-  locale?: AppLocale
+  endDateStr: string | null
 ): string => {
-  const activeLocale = getActiveLocale(locale);
-  const copy = getDateLocaleCopy(activeLocale);
   const formatSingleDate = (dateStr: string | null): string => {
     if (!dateStr) return "";
 
@@ -1033,14 +793,10 @@ export const formatDateRange = (
 
     if (!date) return ""; // Si la fecha no es válida, retorna vacío.
 
-    const diaSemana = copy.daysShort[date.getDay()];
-    const dia = String(date.getDate()).padStart(2, "0");
-    const mes = String(date.getMonth() + 1).padStart(2, "0");
-    const anio = date.getFullYear();
-
-    if (activeLocale === "en") {
-      return `${diaSemana}, ${mes}/${dia}/${anio}`;
-    }
+    const diaSemana = DAYS_SHORT[date.getDay()]; // Ej: 'Lun'
+    const dia = String(date.getDate()).padStart(2, "0"); // Ej: '12'
+    const mes = String(date.getMonth() + 1).padStart(2, "0"); // Ej: '04'
+    const anio = date.getFullYear(); // Ej: '2025'
 
     return `${diaSemana}, ${dia}/${mes}/${anio}`;
   };
@@ -1050,10 +806,8 @@ export const formatDateRange = (
 
   // Si alguna de las fechas es inválida, mejor no mostrar nada o un error.
   if (!formattedStart || !formattedEnd) {
-    if (activeLocale === "pt") return "Intervalo de datas inválido";
-    if (activeLocale === "en") return "Invalid date range";
     return "Rango de fechas inválido";
   }
 
-  return `${formattedStart}${activeLocale === "en" ? " to " : " a "}${formattedEnd}`;
+  return `${formattedStart} a ${formattedEnd}`;
 };

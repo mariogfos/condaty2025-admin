@@ -21,7 +21,6 @@
   flex-direction: column;
   align-items: flex-start;
   flex: 1;
-  min-width: 0;
 }
 
 .header-greeting h1 {
@@ -30,10 +29,6 @@
   font-weight: 600;
   margin: 0;
   margin-top: -1px;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .header-greeting p {
@@ -42,10 +37,6 @@
   font-weight: 400;
   margin: 0;
   line-height: 1.5;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .header-title p {
@@ -79,9 +70,6 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 2;
 }
 
 /* Contenedor exterior - con borde según Figma */

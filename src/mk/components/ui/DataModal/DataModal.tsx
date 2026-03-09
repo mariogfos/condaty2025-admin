@@ -27,7 +27,6 @@ type PropsType = {
   zIndex?: number;
   minWidth?: string | number | null;
   maxWidth?: string | number | null;
-  ignoreTranslation?: boolean;
 };
 
 const DataModal = ({
@@ -53,7 +52,6 @@ const DataModal = ({
   headerDivider = true,
   minWidth = null,
   maxWidth = null,
-  ignoreTranslation = false,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
 
@@ -85,7 +83,6 @@ const DataModal = ({
       style={{ visibility: open ? "visible" : "hidden", zIndex }}
       className={styles.dataModal}
       onClick={(e) => e.stopPropagation()}
-      data-i18n-ignore={ignoreTranslation ? "true" : undefined}
     >
       <main
         className={
