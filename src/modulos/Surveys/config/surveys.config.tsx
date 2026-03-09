@@ -4,7 +4,11 @@ import { GMT, compareDate, getDateStrMes } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
 import RenderForm from "../components/RenderForm/RenderForm";
 import RenderView from "../components/RenderView/RenderView";
-import { getStatusLabel, getDestinyLabel, SURVEY_STATUSES } from "./surveys.constants";
+import {
+  getStatusLabel,
+  getDestinyLabel,
+  SURVEY_STATUSES,
+} from "./surveys.constants";
 import { SurveyItemData } from "../types/surveys.types";
 import styles from "../Surveys.module.css";
 
@@ -29,7 +33,7 @@ export const getSurveyConfig = (
     ),
     filter: true,
     permiso: "",
-    extraData: false,
+    extraData: true,
     hideActions: {
       view: false,
       add: false,
@@ -58,24 +62,12 @@ export const getSurveyConfig = (
     loadView: { fullType: "DET" },
   };
 
-
   const fields = {
     id: { rules: [], api: "e" },
-
-    created_at: {
-      rules: [],
-      api: "ae",
-      label: "Fecha creación",
-      list: {
-        onRender: (props: any) => (
-          <div>{getDateStrMes(props.item.created_at)}</div>
-        ),
-      },
-    },
     scheduled_at: {
       rules: ["validateIf:switch,Y", "required", "greaterDate"],
       api: "ae",
-      label: "Fecha inicio2",
+      label: "Fecha inicio",
       form: {
         onTop: () => {
           return (
@@ -95,7 +87,17 @@ export const getSurveyConfig = (
         },
       },
     },
-    expires_at: {
+    created_at: {
+      rules: [],
+      api: "ae",
+      label: "Fecha creación",
+      list: {
+        onRender: (props: any) => (
+          <div>{getDateStrMes(props.item.created_at)}</div>
+        ),
+      },
+    },
+    end_at: {
       rules: [
         "validateIf:switch,Y",
         "greaterDate",
@@ -166,11 +168,17 @@ export const getSurveyConfig = (
         },
       },
     },
-    created_by_name: {
+    creator: {
       rules: [""],
       api: "",
       label: "Creado por",
-      list: true
+      list: {
+        onRender: (props: any) => (
+          <div>
+            {props.item.created_by ? props.item.created_by : "Sin usuario"}
+          </div>
+        ),
+      },
     },
     destiny: {
       rules: ["required"],
@@ -235,7 +243,10 @@ export const getSurveyConfig = (
       label: "Estado",
       form: {
         type: "select",
-        options: SURVEY_STATUSES.filter(s => s.value !== 'X').map(s => ({ id: s.value, name: s.label })),
+        options: SURVEY_STATUSES.filter((s) => s.value !== "X").map((s) => ({
+          id: s.value,
+          name: s.label,
+        })),
       },
       list: {
         width: "100px",
