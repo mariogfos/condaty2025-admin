@@ -7,7 +7,6 @@ import {
   IconArrowRight,
   IconEye,
 } from "@/components/layout/icons/IconsBiblioteca";
-import useAxios from "@/mk/hooks/useAxios";
 import Check from "@/mk/components/forms/Check/Check";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import Input from "@/mk/components/forms/Input/Input";
@@ -36,7 +35,6 @@ const RenderForm = ({
   const [surveyType, setSurveyType] = useState("");
   const [level, setLevel] = useState(1);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-  const { execute: localExecute } = useAxios();
   const { showToast } = useAuth();
 
   useEffect(() => {
@@ -75,10 +73,10 @@ const RenderForm = ({
       if (item.id && !formState.fullLoaded) {
         setIsLoadingDetails(true);
         try {
-          const { data } = await localExecute("/surveys", "GET", {
+          const { data } = await execute("/surveys", "GET", {
             fullType: "DET",
             searchBy: item.id,
-          });
+          }, false, true);
           if (data?.success && data?.data) {
             let newState = { ...data.data, fullLoaded: true };
             if (newState.id && !newState.name && newState.title) {
@@ -101,8 +99,8 @@ const RenderForm = ({
                 switch: q.switch,
               }));
             }
-            // Preserve changes made by user while loading
-            setFormState((prev: any) => ({ ...prev, ...newState, ...prev }));
+            // Preserve changes made by user while loading but accept new detailed structure
+            setFormState((prev: any) => ({ ...prev, ...newState }));
           }
         } catch (error) {
           console.error("Error cargando detalles encuesta:", error);
