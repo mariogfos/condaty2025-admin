@@ -49,7 +49,7 @@ export const getSurveyConfig = (
           user={props.user}
           execute={props.execute}
           setErrors={props.setErrors}
-          reLoad={reLoad}
+          reLoad={props.reLoad}
           action={props.action}
         />
       );

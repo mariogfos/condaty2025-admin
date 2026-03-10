@@ -117,6 +117,21 @@ const RenderForm = ({
     setLevel(2);
 
     if (level === 2) {
+      const qs = formState.questions || [];
+      if (qs.length === 0) {
+        showToast("La encuesta debe tener al menos una pregunta.", "error");
+        return;
+      }
+
+      const missingOptions = qs.some((q: any) => 
+        ["S", "M"].includes(q.type) && (!q.options || q.options.length === 0)
+      );
+
+      if (missingOptions) {
+        showToast("Las preguntas de selección deben tener al menos una opción.", "error");
+        return;
+      }
+
       let method = formState.id ? "PUT" : "POST";
       const { data } = await execute(
         "/surveys" + (formState.id ? "/" + formState.id : ""),
