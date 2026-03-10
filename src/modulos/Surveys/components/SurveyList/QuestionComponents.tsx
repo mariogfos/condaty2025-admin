@@ -55,13 +55,13 @@ export const SingleChoiceQuestionComponent: React.FC<{
 
   return (
     <div className={styles.surveyquestion}>
-      <h3>{question.name}</h3>
+      <h3>{question.question_text}</h3>
       <p>{question.description}</p>
       <div>
-        {question.options.map((option) => (
+        {question.soptions.map((option) => (
           <div key={option.id}>
             <IconRatioOn color="var(--cBlackV2)" size={20} />
-            <p>{option.name}</p>
+            <p>{option.option_text}</p>
           </div>
         ))}
       </div>
@@ -98,13 +98,13 @@ export const MultipleChoiceQuestionComponent: React.FC<{
 
   return (
     <div className={styles.surveyquestion}>
-      <h3>{question.name}</h3>
+      <h3>{question.question_text}</h3>
       <p>{question.description}</p>
       <div>
-        {question.options.map((option) => (
+        {question.soptions.map((option) => (
           <div key={option.id}>
             <IconCheckOff color="var(--cBlackV2)" />
-            <p>{option.name}</p>
+            <p>{option.option_text}</p>
           </div>
         ))}
       </div>
@@ -140,12 +140,12 @@ export const ScaleQuestionComponent: React.FC<{
   return (
     <div className={styles.scale}>
       <WidgetScale
-        title={question.name}
+        title={question.question_text}
         description={question.description}
-        minValue={parseInt(question.min)}
-        maxValue={parseInt(question.max)}
-        minLabel={question.options[0].name}
-        maxLabel={question.options[question.options.length - 1].name}
+        minValue={parseInt(question.min_options)}
+        maxValue={parseInt(question.max_options)}
+        minLabel={question.soptions[0].option_text}
+        maxLabel={question.soptions[question.soptions.length - 1].option_text}
       />
       <div>
         <IconEdit onClick={onEdit} />
@@ -178,7 +178,7 @@ export const TextQuestionComponent: React.FC<{
 
   return (
     <div className={styles.surveyquestion}>
-      <h3>{question.name}</h3>
+      <h3>{question.question_text}</h3>
       <p>{question.description}</p>
       <div>
         <TextArea

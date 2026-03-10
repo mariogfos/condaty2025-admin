@@ -1,35 +1,32 @@
 export interface Option {
     id: number;
-    name: string;
+    option_text: string;
 }
 
 export interface BaseQuestion {
     type: string;
-    name: string;
+    question_text: string;
     description: string;
 }
 
 export interface SingleChoiceQuestion extends BaseQuestion {
     type: 'S';
     nresp: number;
-    options: Option[];
-    soptions?: Option[];
+    soptions: Option[];
 }
 
 export interface MultipleChoiceQuestion extends BaseQuestion {
     type: 'S';
-    min: string;
-    max: string;
-    options: Option[];
-    soptions?: Option[];
+    min_options: string;
+    max_options: string;
+    soptions: Option[];
 }
 
 export interface ScaleQuestion extends BaseQuestion {
     type: 'E';
-    min: string;
-    max: string;
-    options: Option[];
-    soptions?: Option[];
+    min_options: string;
+    max_options: string;
+    soptions: Option[];
 }
 
 export interface TextQuestion extends BaseQuestion {

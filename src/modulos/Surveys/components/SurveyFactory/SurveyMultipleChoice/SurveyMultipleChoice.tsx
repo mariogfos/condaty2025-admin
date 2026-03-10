@@ -18,21 +18,21 @@ const SurveyMultipleChoice = ({
     editingQuestion
       ? { ...editingQuestion }
       : {
-          options: [
-            { id: -1, name: "" },
-            { id: -2, name: "" },
+          soptions: [
+            { id: -1, option_text: "" },
+            { id: -2, option_text: "" },
           ],
           type: "S",
           order:
             editingIndex !== undefined
               ? editingIndex
-              : formState?.questions?.length,
+              : formState?.squestions?.length,
         }
   );
 
   const handleChange = (e: any) => {
     let value = e.target.value;
-    if (e.target.name === "min" || e.target.name === "max") {
+    if (e.target.name === "min_options" || e.target.name === "max_options") {
       const numValue = Number(value);
       if (isNaN(numValue)) {
         value = "";
@@ -42,11 +42,11 @@ const SurveyMultipleChoice = ({
         }
       }
     }
-    if (e.target.name.includes("options")) {
+    if (e.target.name.includes("soptions")) {
       const index = e.target.name.split(".")[1];
-      const opt: any = [...formStateMultipleChoice.options];
-      opt[index].name = value;
-      setFormStateMultipleChoice({ ...formStateMultipleChoice, options: opt });
+      const opt: any = [...formStateMultipleChoice.soptions];
+      opt[index].option_text = value;
+      setFormStateMultipleChoice({ ...formStateMultipleChoice, soptions: opt });
       return;
     }
 
@@ -61,31 +61,31 @@ const SurveyMultipleChoice = ({
     let errors: any = {};
 
     errors = checkRules({
-      value: formStateMultipleChoice.name,
+      value: formStateMultipleChoice.question_text,
       rules: ["required"],
-      key: "name",
+      key: "question_text",
       errors,
     });
 
     errors = checkRules({
-      value: formStateMultipleChoice.options,
+      value: formStateMultipleChoice.soptions,
       rules: ["optionSurvey"],
-      key: "options",
+      key: "soptions",
       errors,
       data: formStateMultipleChoice,
     });
 
     errors = checkRules({
-      value: formStateMultipleChoice.min,
-      rules: ["required", "lessOrEqual:max,Máximo"],
-      key: "min",
+      value: formStateMultipleChoice.min_options,
+      rules: ["required", "lessOrEqual:max_options,Máximo"],
+      key: "min_options",
       errors,
       data: formStateMultipleChoice,
     });
     errors = checkRules({
-      value: formStateMultipleChoice.max,
+      value: formStateMultipleChoice.max_options,
       rules: ["required"],
-      key: "max",
+      key: "max_options",
       errors,
     });
 
@@ -101,33 +101,33 @@ const SurveyMultipleChoice = ({
       order:
         editingIndex !== undefined
           ? editingIndex
-          : formState?.questions?.length, // Define el orden basado en el índice
+          : formState?.squestions?.length, // Define el orden basado en el índice
     };
 
     if (editingIndex !== undefined && editingIndex !== null) {
       // Actualizar pregunta existente
       setFormState((prevFormState: any) => {
-        const updatedQuestions = [...prevFormState.questions];
+        const updatedQuestions = [...prevFormState.squestions];
         updatedQuestions[editingIndex] = updatedQuestion;
         return {
           ...prevFormState,
-          questions: updatedQuestions,
+          squestions: updatedQuestions,
         };
       });
     } else {
       // Agregar nueva pregunta
       setFormState((prevFormState: any) => ({
         ...prevFormState,
-        questions: [...(prevFormState.questions || []), updatedQuestion],
+        squestions: [...(prevFormState.squestions || []), updatedQuestion],
       }));
     }
     setType("");
   };
 
   const onDelOption = (index: number) => {
-    const opt: any = [...formStateMultipleChoice.options];
+    const opt: any = [...formStateMultipleChoice.soptions];
     opt.splice(index, 1);
-    setFormStateMultipleChoice({ ...formStateMultipleChoice, options: opt });
+    setFormStateMultipleChoice({ ...formStateMultipleChoice, soptions: opt });
   };
 
   return (
@@ -147,9 +147,9 @@ const SurveyMultipleChoice = ({
               <p>Pregunta</p>
               <Input
                 type="text"
-                value={formStateMultipleChoice.name}
+                value={formStateMultipleChoice.question_text}
                 onChange={handleChange}
-                name="name"
+                name="question_text"
                 label="Escribe tu pregunta aquí"
                 error={errors}
               />
@@ -169,23 +169,23 @@ const SurveyMultipleChoice = ({
             </div>
             <div>
               <p>Opciones</p>
-              {errors?.options && (
+              {errors?.soptions && (
                 <span style={{ color: "var(--cError)", fontSize: "10px" }}>
-                  {errors.options}
+                  {errors.soptions}
                 </span>
               )}
-              {formStateMultipleChoice?.options?.map((o: any, i: number) => (
+              {formStateMultipleChoice?.soptions?.map((o: any, i: number) => (
                 <div key={i} className={styles.option}>
                   <Input
                     type="text"
-                    name={"options." + i}
-                    value={o.name || ""}
+                    name={"soptions." + i}
+                    value={o.option_text || ""}
                     onChange={handleChange}
                     label={"Opción " + (i + 1)}
                     error={errors}
                     iconLeft={<IconCheckOff color="var(--cBlackV2)" />}
                     iconRight={
-                      i >= formStateMultipleChoice.min && (
+                      i >= formStateMultipleChoice.min_options && (
                         <IconX
                           color="var(--cBlackV2)"
                           onClick={() => {
@@ -203,15 +203,15 @@ const SurveyMultipleChoice = ({
                 small
                 onClick={() => {
                   const opt: any = [
-                    ...formStateMultipleChoice.options,
+                    ...formStateMultipleChoice.soptions,
                     {
-                      id: (formStateMultipleChoice.options.length + 1) * -1,
-                      name: "",
+                      id: (formStateMultipleChoice.soptions.length + 1) * -1,
+                      option_text: "",
                     },
                   ];
                   setFormStateMultipleChoice({
                     ...formStateMultipleChoice,
-                    options: opt,
+                    soptions: opt,
                   });
                 }}
               >
@@ -226,17 +226,17 @@ const SurveyMultipleChoice = ({
               <div>
                 <Input
                   type="number"
-                  value={formStateMultipleChoice.min}
+                  value={formStateMultipleChoice.min_options}
                   onChange={handleChange}
-                  name="min"
+                  name="min_options"
                   label="Mínimo"
                   error={errors}
                 />
                 <Input
                   type="number"
-                  value={formStateMultipleChoice.max}
+                  value={formStateMultipleChoice.max_options}
                   onChange={handleChange}
-                  name="max"
+                  name="max_options"
                   label="Máximo"
                   error={errors}
                 />

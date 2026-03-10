@@ -19,26 +19,26 @@ const SurveySingleChoice = ({
     editingQuestion
       ? { ...editingQuestion }
       : {
-          options: [
-            { id: -1, name: "" },
-            { id: -2, name: "" },
+          soptions: [
+            { id: -1, option_text: "" },
+            { id: -2, option_text: "" },
           ],
           type: "S",
           nresp: 1,
           order:
             editingIndex !== undefined
               ? editingIndex
-              : formState?.questions?.length,
+              : formState?.squestions?.length,
         }
   );
 
   const handleChange = (e: any) => {
     let value = e.target.value;
-    if (e.target.name.includes("options")) {
+    if (e.target.name.includes("soptions")) {
       const index = e.target.name.split(".")[1];
-      const opt: any = formStateSingleChoice.options;
-      opt[index].name = value;
-      setFormStateSingleChoice({ ...formStateSingleChoice, options: opt });
+      const opt: any = formStateSingleChoice.soptions;
+      opt[index].option_text = value;
+      setFormStateSingleChoice({ ...formStateSingleChoice, soptions: opt });
       return;
     }
 
@@ -49,25 +49,25 @@ const SurveySingleChoice = ({
   };
 
   const onDelOption = (index: number) => {
-    const opt: any = formStateSingleChoice.options;
+    const opt: any = formStateSingleChoice.soptions;
     opt.splice(index, 1);
-    setFormStateSingleChoice({ ...formStateSingleChoice, options: opt });
+    setFormStateSingleChoice({ ...formStateSingleChoice, soptions: opt });
   };
 
   const validate = (field: any = "") => {
     let errors: any = {};
 
     errors = checkRules({
-      value: formStateSingleChoice.name,
+      value: formStateSingleChoice.question_text,
       rules: ["required"],
-      key: "name",
+      key: "question_text",
       errors,
     });
 
     errors = checkRules({
-      value: formStateSingleChoice.options,
+      value: formStateSingleChoice.soptions,
       rules: ["optionSurvey"],
-      key: "options",
+      key: "soptions",
       errors,
       data: formStateSingleChoice,
     });
@@ -84,24 +84,24 @@ const SurveySingleChoice = ({
       order:
         editingIndex !== undefined
           ? editingIndex
-          : formState?.questions?.length, // Agrega el orden basado en el índice
+          : formState?.squestions?.length, // Agrega el orden basado en el índice
     };
 
     if (editingIndex !== undefined && editingIndex !== null) {
       // Actualizar pregunta existente
       setFormState((prevFormState: any) => {
-        const updatedQuestions = [...prevFormState.questions];
+        const updatedQuestions = [...prevFormState.squestions];
         updatedQuestions[editingIndex] = updatedQuestion;
         return {
           ...prevFormState,
-          questions: updatedQuestions,
+          squestions: updatedQuestions,
         };
       });
     } else {
       // Agregar nueva pregunta con order
       setFormState((prevFormState: any) => ({
         ...prevFormState,
-        questions: [...(prevFormState.questions || []), updatedQuestion],
+        squestions: [...(prevFormState.squestions || []), updatedQuestion],
       }));
     }
     setType("");
@@ -122,9 +122,9 @@ const SurveySingleChoice = ({
           <p>Pregunta</p>
           <Input
             type="text"
-            value={formStateSingleChoice.name}
+            value={formStateSingleChoice.question_text}
             onChange={handleChange}
-            name="name"
+            name="question_text"
             label="Escribe tu pregunta aquí"
             error={errors}
           />
@@ -144,17 +144,17 @@ const SurveySingleChoice = ({
         </div>
         <div>
           <p>Opciones</p>
-          {errors?.options && (
+          {errors?.soptions && (
             <span style={{ color: "var(--cError)", fontSize: "10px" }}>
-              {errors.options}
+              {errors.soptions}
             </span>
           )}
-          {formStateSingleChoice?.options?.map((o: any, i: number) => (
+          {formStateSingleChoice?.soptions?.map((o: any, i: number) => (
             <div key={i} className={styles.option}>
               <Input
                 type="text"
-                name={"options." + i}
-                value={o.name || ""}
+                name={"soptions." + i}
+                value={o.option_text || ""}
                 onChange={handleChange}
                 label={"Opción " + (i + 1)}
                 error={errors}
@@ -177,14 +177,14 @@ const SurveySingleChoice = ({
             style={{ justifyContent: "flex-start", paddingLeft: 0 }}
             small
             onClick={() => {
-              const opt: any = formStateSingleChoice.options;
+              const opt: any = formStateSingleChoice.soptions;
               opt.push({
-                id: (formStateSingleChoice.options.length + 1) * -1,
-                name: "",
+                id: (formStateSingleChoice.soptions.length + 1) * -1,
+                option_text: "",
               });
               setFormStateSingleChoice({
                 ...formStateSingleChoice,
-                options: opt,
+                soptions: opt,
               });
             }}
           >

@@ -20,28 +20,28 @@ const SurveyScaleChoice = ({
     editingQuestion
       ? { ...editingQuestion }
       : {
-          options: [
-            { id: -1, name: "", order: 0 },
-            { id: -2, name: "", order: 1 },
+          soptions: [
+            { id: -1, option_text: "", order: 0 },
+            { id: -2, option_text: "", order: 1 },
           ],
-          min: "1",
+          min_options: "1",
           type: "E",
           order:
             editingIndex !== undefined
               ? editingIndex
-              : formState?.questions?.length,
+              : formState?.squestions?.length,
         }
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value: any = e.target.value;
 
-    if (e.target.name === "max") {
+    if (e.target.name === "max_options") {
       // Permitir el campo vacío
       if (value === "") {
         setFormStateScaleChoice({
           ...formStateScaleChoice,
-          max: "",
+          max_options: "",
         });
         return;
       }
@@ -54,36 +54,36 @@ const SurveyScaleChoice = ({
           // Permitir "1" como parte de "10"
           setFormStateScaleChoice({
             ...formStateScaleChoice,
-            max: value,
+            max_options: value,
           });
         } else if (numValue >= 2 && numValue < 10) {
           // Valores válidos entre 2 y 9
           setFormStateScaleChoice({
             ...formStateScaleChoice,
-            max: numValue,
+            max_options: numValue,
           });
         } else if (numValue === 10) {
           // Limitar a 10
           setFormStateScaleChoice({
             ...formStateScaleChoice,
-            max: 10,
+            max_options: 10,
           });
         } else if (numValue > 10) {
           // Si el usuario ingresa un número mayor que 10, limitar a 10
           setFormStateScaleChoice({
             ...formStateScaleChoice,
-            max: 10,
+            max_options: 10,
           });
         }
       }
       return;
     }
 
-    if (e.target.name.includes("options")) {
+    if (e.target.name.includes("soptions")) {
       const index = Number(e.target.name.split(".")[1]);
-      const opt: any = [...formStateScaleChoice.options];
-      opt[index] = { ...opt[index], name: value };
-      setFormStateScaleChoice({ ...formStateScaleChoice, options: opt });
+      const opt: any = [...formStateScaleChoice.soptions];
+      opt[index] = { ...opt[index], option_text: value };
+      setFormStateScaleChoice({ ...formStateScaleChoice, soptions: opt });
       return;
     }
 
@@ -97,36 +97,36 @@ const SurveyScaleChoice = ({
     let errors: any = {};
 
     errors = checkRules({
-      value: formStateScaleChoice.name,
+      value: formStateScaleChoice.question_text,
       rules: ["required"],
-      key: "name",
+      key: "question_text",
       errors,
     });
 
     errors = checkRules({
-      value: formStateScaleChoice.min,
+      value: formStateScaleChoice.min_options,
       rules: ["required"],
-      key: "min",
+      key: "min_options",
       errors,
       data: formStateScaleChoice,
     });
     errors = checkRules({
-      value: formStateScaleChoice.max,
-      rules: ["required", "greater:min"],
-      key: "max",
+      value: formStateScaleChoice.max_options,
+      rules: ["required", "greater:min_options"],
+      key: "max_options",
       errors,
     });
 
     errors = checkRules({
-      value: formStateScaleChoice.options[0].name,
+      value: formStateScaleChoice.soptions[0].option_text,
       rules: ["required"],
-      key: "options.0",
+      key: "soptions.0",
       errors,
     });
     errors = checkRules({
-      value: formStateScaleChoice.options[1].name,
+      value: formStateScaleChoice.soptions[1].option_text,
       rules: ["required"],
-      key: "options.1",
+      key: "soptions.1",
       errors,
     });
 
@@ -142,24 +142,24 @@ const SurveyScaleChoice = ({
       order:
         editingIndex !== undefined
           ? editingIndex
-          : formState?.questions?.length, // Define el orden basado en el índice
+          : formState?.squestions?.length, // Define el orden basado en el índice
     };
 
     if (editingIndex !== undefined && editingIndex !== null) {
       // Actualizar pregunta existente
       setFormState((prevFormState: any) => {
-        const updatedQuestions = [...prevFormState.questions];
+        const updatedQuestions = [...prevFormState.squestions];
         updatedQuestions[editingIndex] = updatedQuestion;
         return {
           ...prevFormState,
-          questions: updatedQuestions,
+          squestions: updatedQuestions,
         };
       });
     } else {
       // Agregar nueva pregunta
       setFormState((prevFormState: any) => ({
         ...prevFormState,
-        questions: [...(prevFormState.questions || []), updatedQuestion],
+        squestions: [...(prevFormState.squestions || []), updatedQuestion],
       }));
     }
     setType("");
@@ -186,11 +186,11 @@ const SurveyScaleChoice = ({
               <Input
                 type="text"
                 label="Escribe tu pregunta aquí"
-                value={formStateScaleChoice?.name}
+                value={formStateScaleChoice?.question_text}
                 required={true}
                 onChange={handleChange}
                 error={errors}
-                name="name"
+                name="question_text"
               />
             </div>
             <div>
@@ -208,13 +208,13 @@ const SurveyScaleChoice = ({
             </div>
             <div>
               <WidgetScale
-                minValue={formStateScaleChoice.min}
-                maxValue={formStateScaleChoice.max}
-                minLabel={formStateScaleChoice.options[0].name}
+                minValue={formStateScaleChoice.min_options}
+                maxValue={formStateScaleChoice.max_options}
+                minLabel={formStateScaleChoice.soptions[0].option_text}
                 maxLabel={
-                  formStateScaleChoice?.options[
-                    formStateScaleChoice.options.length - 1
-                  ].name
+                  formStateScaleChoice?.soptions[
+                    formStateScaleChoice.soptions.length - 1
+                  ].option_text
                 }
               />
             </div>
@@ -226,9 +226,9 @@ const SurveyScaleChoice = ({
               <div>
                 <p>Desde</p>
                 <Input
-                  value={formStateScaleChoice?.min}
+                  value={formStateScaleChoice?.min_options}
                   onChange={handleChange}
-                  name="min"
+                  name="min_options"
                   placeholder="1"
                   disabled={true}
                   type="number"
@@ -238,9 +238,9 @@ const SurveyScaleChoice = ({
               <div>
                 <p>Hasta</p>
                 <Input
-                  value={formStateScaleChoice?.max}
+                  value={formStateScaleChoice?.max_options}
                   onChange={handleChange}
-                  name="max"
+                  name="max_options"
                   // placeholder="0"
                   type="number"
                   maxLength={2} // Limitar a 2 caracteres
@@ -254,9 +254,9 @@ const SurveyScaleChoice = ({
                 <p>Lado Izquierdo</p>
                 <Input
                   type="text"
-                  value={formStateScaleChoice?.options[0].name}
+                  value={formStateScaleChoice?.soptions[0].option_text}
                   onChange={handleChange}
-                  name={"options.0"}
+                  name={"soptions.0"}
                   error={errors}
                 />
               </div>
@@ -265,12 +265,12 @@ const SurveyScaleChoice = ({
                 <Input
                   type="text"
                   value={
-                    formStateScaleChoice?.options[
-                      formStateScaleChoice.options.length - 1
-                    ].name
+                    formStateScaleChoice?.soptions[
+                      formStateScaleChoice.soptions.length - 1
+                    ].option_text
                   }
                   onChange={handleChange}
-                  name={`options.${formStateScaleChoice.options.length - 1}`}
+                  name={`soptions.${formStateScaleChoice.soptions.length - 1}`}
                   error={errors}
                 />
               </div>

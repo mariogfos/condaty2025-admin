@@ -18,12 +18,12 @@ const SurveyOpenTextChoice = ({
       ? { ...editingQuestion }
       : {
           type: "T",
-          name: "",
+          question_text: "",
           description: "",
           order:
             editingIndex !== undefined
               ? editingIndex
-              : formState?.questions?.length,
+              : formState?.squestions?.length,
         }
   );
 
@@ -41,9 +41,9 @@ const SurveyOpenTextChoice = ({
     let errors: any = {};
 
     errors = checkRules({
-      value: formStateSingleChoice.name,
+      value: formStateSingleChoice.question_text,
       rules: ["required"],
-      key: "name",
+      key: "question_text",
       errors,
     });
 
@@ -59,24 +59,24 @@ const SurveyOpenTextChoice = ({
       order:
         editingIndex !== undefined
           ? editingIndex
-          : formState?.questions?.length,
+          : formState?.squestions?.length,
     };
 
     if (editingIndex !== undefined && editingIndex !== null) {
       // Actualizar pregunta existente
       setFormState((prevFormState: any) => {
-        const updatedQuestions = [...prevFormState.questions];
+        const updatedQuestions = [...prevFormState.squestions];
         updatedQuestions[editingIndex] = updatedQuestion;
         return {
           ...prevFormState,
-          questions: updatedQuestions,
+          squestions: updatedQuestions,
         };
       });
     } else {
       // Agregar nueva pregunta
       setFormState((prevFormState: any) => ({
         ...prevFormState,
-        questions: [...(prevFormState.questions || []), updatedQuestion],
+        squestions: [...(prevFormState.squestions || []), updatedQuestion],
       }));
     }
     setType("");
@@ -97,9 +97,9 @@ const SurveyOpenTextChoice = ({
           <p>Pregunta</p>
           <Input
             type="text"
-            value={formStateSingleChoice.name}
+            value={formStateSingleChoice.question_text}
             onChange={handleChange}
-            name="name"
+            name="question_text"
             label="Escribe tu pregunta aquí"
             error={errors}
           />
@@ -119,10 +119,10 @@ const SurveyOpenTextChoice = ({
         </div>
         <div>
           <p>Vista previa</p>
-          {formStateSingleChoice.name && (
+          {formStateSingleChoice.question_text && (
             <TextArea
               name="question_name"
-              value={formStateSingleChoice.name}
+              value={formStateSingleChoice.question_text}
               disabled
               style={{
                 color: "var(--cWhitheV1)",

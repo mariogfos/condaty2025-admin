@@ -45,26 +45,8 @@ const RenderForm = ({
       newState.title = newState.name;
     }
 
-    if (newState.id && newState.squestions && newState.squestions.length > 0) {
-      newState.questions = newState.squestions.map((q: any) => ({
-        id: q.id,
-        name: q.question_text || q.question_text,
-        description: q.description,
-        type: q.type,
-        options: q.soptions ? q.soptions.map((o: any) => ({
-          id: o.id,
-          name: o.option_text || o.option_text,
-        })) : [],
-        min: q.min_options || q.min_options,
-        max: q.max_options || q.max_options,
-        order: q.order,
-        is_mandatory: q.is_required,
-        switch: q.switch,
-      }));
-    }
-    
     // Only set state if we actually changed something to avoid unnecessary renders
-    if (newState.title !== formState.title || newState.questions !== formState.questions) {
+    if (newState.title !== formState.title || newState.squestions !== formState.squestions) {
       setFormState(newState);
     }
   }, []);
@@ -83,23 +65,7 @@ const RenderForm = ({
             if (newState.id && !newState.title && newState.name) {
               newState.title = newState.name;
             }
-            if (newState.squestions && newState.squestions.length > 0) {
-              newState.questions = newState.squestions.map((q: any) => ({
-                id: q.id,
-                name: q.question_text,
-                description: q.description,
-                type: q.type,
-                options: q.soptions ? q.soptions.map((o: any) => ({
-                  id: o.id,
-                  name: o.option_text,
-                })) : [],
-                min: q.min_options,
-                max: q.max_options,
-                order: q.order,
-                is_mandatory: q.is_required ? "Y" : "N",
-                switch: q.switch,
-              }));
-            }
+            // Data comes exactly as needed in squestions.
             // Preserve changes made by user while loading but accept new detailed structure
             setFormState((prev: any) => ({ ...prev, ...newState }));
           }
@@ -174,14 +140,14 @@ const RenderForm = ({
     setLevel(2);
 
     if (level === 2) {
-      const qs = formState.questions || [];
+      const qs = formState.squestions || [];
       if (qs.length === 0) {
         showToast("La encuesta debe tener al menos una pregunta.", "error");
         return;
       }
 
       const missingOptions = qs.some((q: any) => 
-        ["S", "M"].includes(q.type) && (!q.options || q.options.length === 0)
+        ["S", "M"].includes(q.type) && (!q.soptions || q.soptions.length === 0)
       );
 
       if (missingOptions) {
@@ -200,21 +166,7 @@ const RenderForm = ({
           scheduled_at: formState.switch === "Y" ? formState.begin_at : null,
           expires_at: formState.switch === "Y" ? formState.end_at : null,
           is_mandatory: formState.is_mandatory === "Y",
-          squestions: (formState.questions || []).map((q: any) => ({
-            id: q.id,
-            question_text: q.name,
-            description: q.description,
-            type: q.type,
-            soptions: q.options?.map((o: any) => ({
-              id: o.id,
-              option_text: o.name,
-              ...o
-            })),
-            min_options: q.min,
-            max_options: q.max,
-            order: q.order,
-            is_required: q.is_mandatory === "Y" || q.is_mandatory === true,
-          })),
+          squestions: formState.squestions || [],
         }
       );
 
@@ -402,7 +354,7 @@ const RenderForm = ({
                 </div>
               )}
               <div className={styles.titleFormLv2}>
-                <div>{formState.name}</div> {formState.is_mandatory === "Y" && <div> • Obligatoria</div>}
+                <div>{formState.title}</div> {formState.is_mandatory === "Y" && <div> • Obligatoria</div>}
               </div>
               <div className={styles.subtitleFormLv2}>{formState.description}</div>
             </section>

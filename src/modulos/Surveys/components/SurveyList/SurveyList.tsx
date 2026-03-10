@@ -24,9 +24,9 @@ import {
 
 interface SurveyListProps {
   formState: {
-    questions: Question[];
+    squestions: Question[];
   };
-  setFormState: React.Dispatch<React.SetStateAction<{ questions: Question[] }>>;
+  setFormState: React.Dispatch<React.SetStateAction<{ squestions: Question[] }>>;
 }
 
 const isSingleChoiceQuestion = (
@@ -52,12 +52,12 @@ const isTextQuestion = (question: Question): question is TextQuestion => {
 const SurveyList: React.FC<SurveyListProps> = ({ formState, setFormState }) => {
   // const [questions, setQuestions] :any= useState(formState);
   useEffect(() => {
-    const _questions = formState?.questions;
+    const _questions = formState?.squestions;
     // console.log("useeffect entro");
     if (_questions) {
       // console.log("useeffect entro2");
       _questions.sort((a: any, b: any) => a.order - b.order);
-      setFormState({ ...formState, questions: _questions });
+      setFormState({ ...formState, squestions: _questions });
     }
   }, []);
 
@@ -67,9 +67,9 @@ const SurveyList: React.FC<SurveyListProps> = ({ formState, setFormState }) => {
   const [editingQuestionType, setEditingQuestionType] = useState<string>("");
 
   const onDeleteQuestion = (index: number) => {
-    const newQuestions = [...formState?.questions];
+    const newQuestions = [...formState?.squestions];
     newQuestions.splice(index, 1);
-    setFormState({ ...formState, questions: newQuestions });
+    setFormState({ ...formState, squestions: newQuestions });
   };
 
   const onEditQuestion = (index: number, type: string) => {
@@ -77,32 +77,32 @@ const SurveyList: React.FC<SurveyListProps> = ({ formState, setFormState }) => {
     setEditingQuestionType(type);
   };
 
-  if (!Array.isArray(formState?.questions)) {
+  if (!Array.isArray(formState?.squestions)) {
     return <div></div>;
   }
 
   const upOrder = (index: number) => {
-    const newQuestions: any = [...formState?.questions];
+    const newQuestions: any = [...formState?.squestions];
     console.log("upOrder", index);
     if (index > 0) {
       const temp = newQuestions[index];
       newQuestions[index] = newQuestions[index - 1];
       newQuestions[index - 1] = temp;
       newQuestions.map((q: any, i: number) => (q.order = i));
-      setFormState({ ...formState, questions: newQuestions });
+      setFormState({ ...formState, squestions: newQuestions });
       console.log("newQuestions", newQuestions);
     }
   };
 
   const downOrder = (index: number) => {
-    const newQuestions: any = [...formState?.questions];
+    const newQuestions: any = [...formState?.squestions];
     console.log("downOrder", index);
     if (index < newQuestions.length - 1) {
       const temp = newQuestions[index];
       newQuestions[index] = newQuestions[index + 1];
       newQuestions[index + 1] = temp;
       newQuestions.map((q: any, i: number) => (q.order = i));
-      setFormState({ ...formState, questions: newQuestions });
+      setFormState({ ...formState, squestions: newQuestions });
       console.log("newQuestions", newQuestions);
       // const temp = newQuestions[index + 1].order || 0;
       // newQuestions[index + 1].order = newQuestions[index].order || 1;
@@ -116,7 +116,7 @@ const SurveyList: React.FC<SurveyListProps> = ({ formState, setFormState }) => {
   return (
     <>
       <div className={styles.surveylist}>
-        {formState?.questions.map((question: any, index: number) => (
+        {formState?.squestions.map((question: any, index: number) => (
           <div style={{ position: "relative" }} key={index + "quetions"}>
             {isSingleChoiceQuestion(question) && (
               <SingleChoiceQuestionComponent
@@ -150,7 +150,7 @@ const SurveyList: React.FC<SurveyListProps> = ({ formState, setFormState }) => {
                 onEdit={() => onEditQuestion(index, "Text")}
               />
             )}
-            {index < formState?.questions.length - 1 && (
+            {index < formState?.squestions.length - 1 && (
               <IconArrowDown
                 style={{
                   position: "absolute",
@@ -165,7 +165,7 @@ const SurveyList: React.FC<SurveyListProps> = ({ formState, setFormState }) => {
               <IconArrowUp
                 style={{
                   position: "absolute",
-                  right: index < formState?.questions.length - 1 ? 44 : 16,
+                  right: index < formState?.squestions.length - 1 ? 44 : 16,
                   top: 16,
                   cursor: "pointer",
                 }}
@@ -177,7 +177,7 @@ const SurveyList: React.FC<SurveyListProps> = ({ formState, setFormState }) => {
       </div>
       {editingQuestionIndex !== null &&
         (() => {
-          const questionToEdit = formState?.questions[editingQuestionIndex];
+          const questionToEdit = formState?.squestions[editingQuestionIndex];
           switch (editingQuestionType) {
             case "SingleChoice":
               return (
