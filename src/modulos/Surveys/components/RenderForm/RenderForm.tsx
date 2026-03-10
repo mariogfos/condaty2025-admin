@@ -7,6 +7,7 @@ import {
   IconArrowRight,
   IconEye,
 } from "@/components/layout/icons/IconsBiblioteca";
+import useAxios from "@/mk/hooks/useAxios";
 import Check from "@/mk/components/forms/Check/Check";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import Input from "@/mk/components/forms/Input/Input";
@@ -34,6 +35,8 @@ const RenderForm = ({
   const [errors, setErrors] = useState({});
   const [surveyType, setSurveyType] = useState("");
   const [level, setLevel] = useState(1);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const { execute: localExecute } = useAxios();
   const { showToast } = useAuth();
 
   useEffect(() => {
@@ -66,6 +69,50 @@ const RenderForm = ({
       setFormState(newState);
     }
   }, []);
+
+  useEffect(() => {
+    const fetchDetails = async () => {
+      if (item.id && !formState.fullLoaded) {
+        setIsLoadingDetails(true);
+        try {
+          const { data } = await localExecute("/surveys", "GET", {
+            fullType: "DET",
+            searchBy: item.id,
+          });
+          if (data?.success && data?.data) {
+            let newState = { ...data.data, fullLoaded: true };
+            if (newState.id && !newState.name && newState.title) {
+              newState.name = newState.title;
+            }
+            if (newState.squestions && newState.squestions.length > 0) {
+              newState.questions = newState.squestions.map((q: any) => ({
+                id: q.id,
+                name: q.name,
+                description: q.description,
+                type: q.type,
+                options: q.soptions ? q.soptions.map((o: any) => ({
+                  id: o.id,
+                  name: o.name,
+                })) : [],
+                min: q.min,
+                max: q.max,
+                order: q.order,
+                is_mandatory: q.is_mandatory,
+                switch: q.switch,
+              }));
+            }
+            // Preserve changes made by user while loading
+            setFormState((prev: any) => ({ ...prev, ...newState, ...prev }));
+          }
+        } catch (error) {
+          console.error("Error cargando detalles encuesta:", error);
+        } finally {
+          setIsLoadingDetails(false);
+        }
+      }
+    };
+    fetchDetails();
+  }, [item.id]);
 
   const openSurveyType = (type: string) => {
     setSurveyType(type);
@@ -220,12 +267,13 @@ const RenderForm = ({
               borderRadius: "var(--bRadius)",
             }}
           ></div>
-          <div style={{ marginTop: 12 }}>
+          <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <section>
               <p>{level}/2</p>
               <p>Define los datos de información y segmentación de tu encuesta</p>
             </section>
-            <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              {isLoadingDetails && <span style={{ fontSize: "12px", color: "var(--cTextV2)", fontStyle: "italic" }}>Sincronizando detalles...</span>}
               <IconArrowLeft
                 onClick={() => {
                   if (level === 2) setLevel(1);
