@@ -79,9 +79,9 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
     const previouslyEmpty = !targetCriteria.unit_types || targetCriteria.unit_types.length === 0;
 
     if (previouslyEmpty) {
-      selected = selected.filter((v: string) => v !== "");
+      selected = selected.filter((v: string) => v !== "-1");
     } else {
-      if (selected.includes("")) {
+      if (selected.includes("-1")) {
         selected = [];
       }
     }
@@ -140,9 +140,9 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
                 <Select
                   name="unit_types"
                   label="Seleccionar Tipos (Múltiple)"
-                  value={targetCriteria.unit_types?.length > 0 ? targetCriteria.unit_types : [""]}
+                  value={(!targetCriteria.unit_types || targetCriteria.unit_types.length === 0) ? ["-1"] : targetCriteria.unit_types}
                   options={[
-                    { id: "", name: "Todas las unidades" },
+                    { id: "-1", name: "Todas las unidades" },
                     ...extraData.unit_types.map((ut: any) => ({ ...ut, id: String(ut.id) }))
                   ]}
                   optionValue="id"
