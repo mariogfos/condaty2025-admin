@@ -65,8 +65,9 @@ export const getSurveyConfig = (
     created_at: {
       rules: [],
       api: "ae",
-      label: "Fecha creación",
+      label: "Fecha",
       list: {
+        width: "160px",
         onRender: (props: any) => (
           <div>{getDateStrMes(props.item.created_at)}</div>
         ),
@@ -75,7 +76,7 @@ export const getSurveyConfig = (
     scheduled_at: {
       rules: ["validateIf:switch,Y", "required", "greaterDate"],
       api: "ae",
-      label: "Fecha inicio2",
+      label: "Fecha inicio",
 
     },
     expires_at: {
@@ -94,11 +95,7 @@ export const getSurveyConfig = (
       api: "ae",
       label: "Título",
 
-      list: {
-        onRender: (props: any) => (
-          <div className={styles.surveyName}>{props.item.title}</div>
-        ),
-      },
+      list: true,
     },
     description: {
       rules: ["required"],
@@ -116,32 +113,34 @@ export const getSurveyConfig = (
       rules: [""],
       api: "",
       label: "Creado por",
-      list: true
+      list: false
     },
-    destiny: {
+    target_criteria: {
       rules: ["required"],
       api: "ae",
       label: "Destinatarios",
 
-      list: {
-        width: "120px",
-        onRender: (props: any) => {
-          if (!props.item.destiny) return null;
-          return <div>{getDestinyLabel(props.item.destiny)}</div>;
-        },
-      },
+      list: false,
+      // {
+      //   width: "120px",
+      //   onRender: (props: any) => {
+
+      //     return <div>{JSON.stringify(props.item.target_criteria)}</div>;
+      //   },
+      // },
     },
     is_mandatory: {
       rules: ["required"],
       api: "ae",
       label: "Obligatoria",
 
-      list: {
-        width: "100px",
-        onRender: (props: any) => (
-          <div>{props.item.is_mandatory === "Y" ? "Sí" : "No"}</div>
-        ),
-      },
+      list: false,
+      //  {
+      //   width: "100px",
+      //   onRender: (props: any) => (
+      //     <div>{props.item.is_mandatory === "Y" ? "Sí" : "No"}</div>
+      //   ),
+      // },
     },
     questions_count: {
       rules: [""],
@@ -151,6 +150,12 @@ export const getSurveyConfig = (
     },
     votes: {
       label: "Votos",
+      list: {
+        width: "100px",
+        onRender: (props: any) => (
+          <div>{props.item.total_voters}/{props.item.estimated_audience}</div>
+        ),
+      },
     },
     type: {
       label: "Tipo",

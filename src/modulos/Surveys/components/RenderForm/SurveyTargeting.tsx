@@ -18,7 +18,10 @@ const ROLES_OPTIONS = [
 ];
 
 export default function SurveyTargeting({ formState, setFormState, execute, errors, extraData }: any) {
-  const [affCount, setAffCount] = useState<number | null>(null);
+  // Initialize from the DET data already available in formState (avoids extra request on load)
+  const [affCount, setAffCount] = useState<number | null>(
+    formState.estimated_audience != null ? Number(formState.estimated_audience) : null
+  );
   const [affMeta, setAffMeta] = useState(0);
 
   // Parse default from formState or initiate
@@ -40,18 +43,29 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
     }
   };
 
-  // Debounce the calculateAudience
+  // Track whether this is the first render (skip initial API call when we already have data)
+  const [hasInitialized, setHasInitialized] = React.useState(false);
+  const targetCriteriaKey = JSON.stringify([
+    targetCriteria.roles,
+    targetCriteria.only_arrears,
+    targetCriteria.vote_per_unit,
+    targetCriteria.unit_types,
+  ]);
+
   useEffect(() => {
+    // Skip the very first render when we already have estimated_audience from DET
+    if (!hasInitialized) {
+      setHasInitialized(true);
+      // Only skip if we already have data; if not, still fetch
+      if (affCount !== null) return;
+    }
+
     const handler = setTimeout(() => {
       calculateAudience(targetCriteria);
     }, 500);
     return () => clearTimeout(handler);
-  }, [
-    JSON.stringify(targetCriteria.roles),
-    targetCriteria.only_arrears,
-    targetCriteria.vote_per_unit,
-    JSON.stringify(targetCriteria.unit_types),
-  ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetCriteriaKey]);
 
   useEffect(() => {
     if (affCount !== null && formState.meta === undefined) {

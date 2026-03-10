@@ -251,7 +251,6 @@ useEffect(() => {
 
         {level === 1 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "16px" }}>
-            <pre>***{JSON.stringify(formState)}***</pre>
             <SurveyTargeting
               formState={formState}
               setFormState={setFormState}
@@ -370,7 +369,6 @@ useEffect(() => {
               <div className={styles.subtitleFormLv2}>{formState.description}</div>
             </section>
             <div>
-              <pre>***{JSON.stringify(formState.squestions)}***</pre>
               <SurveyList formState={formState} setFormState={setFormState} />
             </div>
             <SurveyQuestionTypePanel openSurveyType={openSurveyType} />
