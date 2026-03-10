@@ -1,16 +1,16 @@
-
 .activeContainer {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spL);
-    min-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+  width: 100%;
+  min-width: 0;
 }
 .textContent {
-    font-size: var(--sM);
-    color: var(--cWhiteV1);
-    margin-bottom: var(--spL);
+  font-size: var(--sM);
+  color: var(--cWhiteV1);
+  margin-bottom: var(--spL);
 }
 
 .resalted {
-    color: var(--cWhite);
+  color: var(--cWhite);
 }
