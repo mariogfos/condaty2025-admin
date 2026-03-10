@@ -22,7 +22,7 @@ const SurveyMultipleChoice = ({
             { id: -1, option_text: "" },
             { id: -2, option_text: "" },
           ],
-          type: "S",
+          type: "M",
           order:
             editingIndex !== undefined
               ? editingIndex

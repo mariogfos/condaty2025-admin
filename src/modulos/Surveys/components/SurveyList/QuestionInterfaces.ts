@@ -4,21 +4,24 @@ export interface Option {
 }
 
 export interface BaseQuestion {
+    id?: number;
     type: string;
     question_text: string;
-    description: string;
+    description?: string;
+    order?: number;
 }
 
 export interface SingleChoiceQuestion extends BaseQuestion {
     type: 'S';
-    nresp: number;
+    min_options: number | string;
+    max_options: number | string;
     soptions: Option[];
 }
 
 export interface MultipleChoiceQuestion extends BaseQuestion {
-    type: 'S';
-    min_options: string;
-    max_options: string;
+    type: 'M';
+    min_options: number | string;
+    max_options: number | string;
     soptions: Option[];
 }
 

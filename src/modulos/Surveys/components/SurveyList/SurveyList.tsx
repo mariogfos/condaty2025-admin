@@ -32,13 +32,13 @@ interface SurveyListProps {
 const isSingleChoiceQuestion = (
   question: Question
 ): question is SingleChoiceQuestion => {
-  return question.type === "S" && "nresp" in question;
+  return question.type === "S";
 };
 
 const isMultipleChoiceQuestion = (
   question: Question
 ): question is MultipleChoiceQuestion => {
-  return question.type === "S" && "min" in question && "max" in question;
+  return question.type === "M";
 };
 
 const isScaleQuestion = (question: Question): question is ScaleQuestion => {
@@ -53,13 +53,15 @@ const SurveyList: React.FC<SurveyListProps> = ({ formState, setFormState }) => {
   // const [questions, setQuestions] :any= useState(formState);
   useEffect(() => {
     const _questions = formState?.squestions;
-    // console.log("useeffect entro");
-    if (_questions) {
-      // console.log("useeffect entro2");
-      _questions.sort((a: any, b: any) => a.order - b.order);
-      setFormState({ ...formState, squestions: _questions });
+    if (_questions && _questions.length > 0) {
+      const sorted = [..._questions].sort((a: any, b: any) => a.order - b.order);
+      // Only update if order changed to avoid infinite loop
+      const alreadySorted = sorted.every((q: any, i: number) => q.id === _questions[i].id);
+      if (!alreadySorted) {
+        setFormState((prev: any) => ({ ...prev, squestions: sorted }));
+      }
     }
-  }, []);
+  }, [formState?.squestions?.length]);
 
   const [editingQuestionIndex, setEditingQuestionIndex] = useState<
     number | null

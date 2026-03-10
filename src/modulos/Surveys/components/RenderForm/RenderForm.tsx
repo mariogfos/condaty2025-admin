@@ -37,20 +37,24 @@ const RenderForm = ({
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const { showToast } = useAuth();
 
-  useEffect(() => {
-    let newState = { ...formState };
+  // useEffect(() => {
+  //   let newState = { ...formState };
     
-    // We already use `title` as native now. If a lingering `name` exists from older code, map it to `title`.
-    if (newState.id && !newState.title && newState.name) {
-      newState.title = newState.name;
-    }
+  //   // // We already use `title` as native now. If a lingering `name` exists from older code, map it to `title`.
+  //   // if (newState.id && !newState.title && newState.name) {
+  //   //   newState.title = newState.name;
+  //   // }
 
-    // Only set state if we actually changed something to avoid unnecessary renders
-    if (newState.title !== formState.title || newState.squestions !== formState.squestions) {
-      setFormState(newState);
-    }
-  }, []);
+  //   // Only set state if we actually changed something to avoid unnecessary renders
+  //   if (newState.title !== formState.title || newState.squestions !== formState.squestions) {
+  //     setFormState(newState);
+  //   }
+  // }, []);
 
+useEffect(() => {
+      console.log("formState.squestions", formState.squestions);
+  }, [formState.squestions]);
+  
   useEffect(() => {
     const fetchDetails = async () => {
       if (item.id && !formState.fullLoaded) {
@@ -60,13 +64,15 @@ const RenderForm = ({
             fullType: "DET",
             searchBy: item.id,
           }, false, true);
-          if (data?.survey) {
-            let newState = { ...data.survey, fullLoaded: true };
-            if (newState.id && !newState.title && newState.name) {
-              newState.title = newState.name;
-            }
+          console.log("data", data);
+          if (data?.success && data?.data?.survey) {
+            let newState = { ...data.data.survey, fullLoaded: true };
+            // if (newState.id && !newState.title && newState.name) {
+            //   newState.title = newState.name;
+            // }
             // Data comes exactly as needed in squestions.
             // Preserve changes made by user while loading but accept new detailed structure
+            console.log("newState", newState);
             setFormState((prev: any) => ({ ...prev, ...newState }));
           }
         } catch (error) {
@@ -241,6 +247,7 @@ const RenderForm = ({
 
         {level === 1 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "16px" }}>
+            <pre>***{JSON.stringify(formState)}***</pre>
             <SurveyTargeting
               formState={formState}
               setFormState={setFormState}
@@ -359,6 +366,7 @@ const RenderForm = ({
               <div className={styles.subtitleFormLv2}>{formState.description}</div>
             </section>
             <div>
+              <pre>***{JSON.stringify(formState.squestions)}***</pre>
               <SurveyList formState={formState} setFormState={setFormState} />
             </div>
             <SurveyQuestionTypePanel openSurveyType={openSurveyType} />
