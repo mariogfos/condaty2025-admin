@@ -40,30 +40,31 @@ const RenderForm = ({
   useEffect(() => {
     let newState = { ...formState };
     
-    if (newState.id && !newState.name && newState.title) {
-      newState.name = newState.title;
+    // We already use `title` as native now. If a lingering `name` exists from older code, map it to `title`.
+    if (newState.id && !newState.title && newState.name) {
+      newState.title = newState.name;
     }
 
     if (newState.id && newState.squestions && newState.squestions.length > 0) {
       newState.questions = newState.squestions.map((q: any) => ({
         id: q.id,
-        name: q.name,
+        name: q.question_text || q.question_text,
         description: q.description,
         type: q.type,
         options: q.soptions ? q.soptions.map((o: any) => ({
           id: o.id,
-          name: o.name,
+          name: o.option_text || o.option_text,
         })) : [],
-        min: q.min,
-        max: q.max,
+        min: q.min_options || q.min_options,
+        max: q.max_options || q.max_options,
         order: q.order,
-        is_mandatory: q.is_mandatory,
+        is_mandatory: q.is_required,
         switch: q.switch,
       }));
     }
     
     // Only set state if we actually changed something to avoid unnecessary renders
-    if (newState.name !== formState.name || newState.questions !== formState.questions) {
+    if (newState.title !== formState.title || newState.questions !== formState.questions) {
       setFormState(newState);
     }
   }, []);
@@ -79,21 +80,21 @@ const RenderForm = ({
           }, false, true);
           if (data?.survey) {
             let newState = { ...data.survey, fullLoaded: true };
-            if (newState.id && !newState.name && newState.title) {
-              newState.name = newState.title;
+            if (newState.id && !newState.title && newState.name) {
+              newState.title = newState.name;
             }
-            if (newState.questions && newState.questions.length > 0) {
-              newState.questions = newState.questions.map((q: any) => ({
+            if (newState.squestions && newState.squestions.length > 0) {
+              newState.questions = newState.squestions.map((q: any) => ({
                 id: q.id,
-                name: q.question_text || q.name,
+                name: q.question_text,
                 description: q.description,
                 type: q.type,
-                options: q.options ? q.options.map((o: any) => ({
+                options: q.soptions ? q.soptions.map((o: any) => ({
                   id: o.id,
-                  name: o.option_text || o.name,
+                  name: o.option_text,
                 })) : [],
-                min: q.min_options || q.min,
-                max: q.max_options || q.max,
+                min: q.min_options,
+                max: q.max_options,
                 order: q.order,
                 is_mandatory: q.is_required ? "Y" : "N",
                 switch: q.switch,
@@ -136,9 +137,9 @@ const RenderForm = ({
   const validateLevel1 = () => {
     let errors: any = {};
     errors = checkRules({
-      value: formState.name,
+      value: formState.title,
       rules: ["required"],
-      key: "name",
+      key: "title",
       errors,
     });
     
@@ -193,18 +194,18 @@ const RenderForm = ({
         "/surveys" + (formState.id ? "/" + formState.id : ""),
         method,
         {
-          title: formState.name || formState.title, // Map correctly to DTO 
+          title: formState.title, 
           description: formState.description,
           target_criteria: formState.target_criteria || { roles: [], unit_types: [], only_arrears: false, vote_per_unit: true },
           scheduled_at: formState.switch === "Y" ? formState.begin_at : null,
           expires_at: formState.switch === "Y" ? formState.end_at : null,
           is_mandatory: formState.is_mandatory === "Y",
-          questions: (formState.questions || []).map((q: any) => ({
+          squestions: (formState.questions || []).map((q: any) => ({
             id: q.id,
             question_text: q.name,
             description: q.description,
             type: q.type,
-            options: q.options?.map((o: any) => ({
+            soptions: q.options?.map((o: any) => ({
               id: o.id,
               option_text: o.name,
               ...o
@@ -304,8 +305,8 @@ const RenderForm = ({
               <Input
                 label="Título"
                 type="text"
-                name="name"
-                value={formState?.name || formState?.title}
+                name="title"
+                value={formState?.title}
                 onChange={handleChange}
                 error={errors}
               />
