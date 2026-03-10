@@ -77,25 +77,25 @@ const RenderForm = ({
             fullType: "DET",
             searchBy: item.id,
           }, false, true);
-          if (data?.success && data?.data) {
-            let newState = { ...data.data, fullLoaded: true };
+          if (data?.survey) {
+            let newState = { ...data.survey, fullLoaded: true };
             if (newState.id && !newState.name && newState.title) {
               newState.name = newState.title;
             }
-            if (newState.squestions && newState.squestions.length > 0) {
-              newState.questions = newState.squestions.map((q: any) => ({
+            if (newState.questions && newState.questions.length > 0) {
+              newState.questions = newState.questions.map((q: any) => ({
                 id: q.id,
-                name: q.name,
+                name: q.question_text || q.name,
                 description: q.description,
                 type: q.type,
-                options: q.soptions ? q.soptions.map((o: any) => ({
+                options: q.options ? q.options.map((o: any) => ({
                   id: o.id,
-                  name: o.name,
+                  name: o.option_text || o.name,
                 })) : [],
-                min: q.min,
-                max: q.max,
+                min: q.min_options || q.min,
+                max: q.max_options || q.max,
                 order: q.order,
-                is_mandatory: q.is_mandatory,
+                is_mandatory: q.is_required ? "Y" : "N",
                 switch: q.switch,
               }));
             }
