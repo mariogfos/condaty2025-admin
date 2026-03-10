@@ -43,9 +43,10 @@ const SurveyMultipleChoice = ({
       }
     }
     if (e.target.name.includes("soptions")) {
-      const index = e.target.name.split(".")[1];
-      const opt: any = [...formStateMultipleChoice.soptions];
-      opt[index].option_text = value;
+      const index = parseInt(e.target.name.split(".")[1]);
+      const opt = formStateMultipleChoice.soptions.map((o: any, i: number) =>
+        i === index ? { ...o, option_text: value } : o
+      );
       setFormStateMultipleChoice({ ...formStateMultipleChoice, soptions: opt });
       return;
     }
@@ -125,8 +126,7 @@ const SurveyMultipleChoice = ({
   };
 
   const onDelOption = (index: number) => {
-    const opt: any = [...formStateMultipleChoice.soptions];
-    opt.splice(index, 1);
+    const opt = formStateMultipleChoice.soptions.filter((_: any, i: number) => i !== index);
     setFormStateMultipleChoice({ ...formStateMultipleChoice, soptions: opt });
   };
 

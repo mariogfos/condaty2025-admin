@@ -29,7 +29,11 @@ const RenderForm = ({
   action,
   extraData,
 }: any) => {
-  const [formState, setFormState]: any = useState({ ...item });
+  const normalizeFormState = (s: any) => ({
+    ...s,
+    is_mandatory: s.is_mandatory === true || s.is_mandatory === "Y" ? "Y" : "N",
+  });
+  const [formState, setFormState]: any = useState(normalizeFormState({ ...item }));
   const [_open, setOpen] = useState(open);
   const [errors, setErrors] = useState({});
   const [surveyType, setSurveyType] = useState("");
@@ -73,7 +77,7 @@ useEffect(() => {
             // Data comes exactly as needed in squestions.
             // Preserve changes made by user while loading but accept new detailed structure
             console.log("newState", newState);
-            setFormState((prev: any) => ({ ...prev, ...newState }));
+            setFormState((prev: any) => ({ ...prev, ...normalizeFormState(newState) }));
           }
         } catch (error) {
           console.error("Error cargando detalles encuesta:", error);

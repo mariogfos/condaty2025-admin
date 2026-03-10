@@ -35,9 +35,10 @@ const SurveySingleChoice = ({
   const handleChange = (e: any) => {
     let value = e.target.value;
     if (e.target.name.includes("soptions")) {
-      const index = e.target.name.split(".")[1];
-      const opt: any = formStateSingleChoice.soptions;
-      opt[index].option_text = value;
+      const index = parseInt(e.target.name.split(".")[1]);
+      const opt = formStateSingleChoice.soptions.map((o: any, i: number) =>
+        i === index ? { ...o, option_text: value } : o
+      );
       setFormStateSingleChoice({ ...formStateSingleChoice, soptions: opt });
       return;
     }
@@ -49,8 +50,7 @@ const SurveySingleChoice = ({
   };
 
   const onDelOption = (index: number) => {
-    const opt: any = formStateSingleChoice.soptions;
-    opt.splice(index, 1);
+    const opt = formStateSingleChoice.soptions.filter((_: any, i: number) => i !== index);
     setFormStateSingleChoice({ ...formStateSingleChoice, soptions: opt });
   };
 
@@ -177,11 +177,13 @@ const SurveySingleChoice = ({
             style={{ justifyContent: "flex-start", paddingLeft: 0 }}
             small
             onClick={() => {
-              const opt: any = formStateSingleChoice.soptions;
-              opt.push({
-                id: (formStateSingleChoice.soptions.length + 1) * -1,
-                option_text: "",
-              });
+              const opt = [
+                ...formStateSingleChoice.soptions,
+                {
+                  id: (formStateSingleChoice.soptions.length + 1) * -1,
+                  option_text: "",
+                },
+              ];
               setFormStateSingleChoice({
                 ...formStateSingleChoice,
                 soptions: opt,
