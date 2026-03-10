@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./RenderForm.module.css";
 import Check from "@/mk/components/forms/Check/Check";
 import Switch from "@/mk/components/forms/Switch/Switch";
+import Select from "@/mk/components/forms/Select/Select";
 import { formatNumber } from "@/mk/utils/numbers";
 import Input from "@/mk/components/forms/Input/Input";
 import { IconWorld } from "@/components/layout/icons/IconsBiblioteca";
@@ -16,7 +17,7 @@ const ROLES_OPTIONS = [
   { id: "guard", name: "Guardia" },
 ];
 
-export default function SurveyTargeting({ formState, setFormState, execute, errors }: any) {
+export default function SurveyTargeting({ formState, setFormState, execute, errors, extraData }: any) {
   const [affCount, setAffCount] = useState<number | null>(null);
   const [affMeta, setAffMeta] = useState(0);
 
@@ -72,12 +73,19 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
     updateCriteria("roles", newRoles);
   };
 
-  const handleUnitTypeToggle = (utId: string) => {
-    const currentUTs = targetCriteria.unit_types || [];
-    const newUTs = currentUTs.includes(utId)
-      ? currentUTs.filter((id: string) => id !== utId)
-      : [...currentUTs, utId];
-    updateCriteria("unit_types", newUTs);
+  const handleUnitTypeChange = (e: any) => {
+    // Select returns an array of strings/numbers when multiSelect is true
+    let selected = e.target.value.map(String);
+    const previouslyEmpty = !targetCriteria.unit_types || targetCriteria.unit_types.length === 0;
+
+    if (previouslyEmpty) {
+      selected = selected.filter((v: string) => v !== "");
+    } else {
+      if (selected.includes("")) {
+        selected = [];
+      }
+    }
+    updateCriteria("unit_types", selected);
   };
 
   const hasOwnerSelected = ["owner_homeowner", "owner_titular", "owner_dependiente"].some(
@@ -122,24 +130,26 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
             </div>
           </div>
 
-          {hasOwnerSelected && formState.extraData?.unit_types && formState.extraData.unit_types.length > 0 && (
+          {hasOwnerSelected && extraData?.unit_types && extraData.unit_types.length > 0 && (
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--borderL)", paddingTop: 16 }}>
               <div>
                 <p className={styles.title}>Tipos de Unidad (Opcional)</p>
-                <p className={styles.subtitle}>Si dejas vacío, aplicará a todas. Selecciona para limitar a tipos específicos.</p>
+                <p className={styles.subtitle}>Aplica por defecto a todas las unidades. Selecciona para limitar a tipos específicos.</p>
               </div>
-              <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "flex-end", flex: 1 }}>
-                {formState.extraData.unit_types.map((ut: any) => (
-                  <Check
-                    key={ut.id}
-                    name={`ut_${ut.id}`}
-                    label={ut.name}
-                    value={String(ut.id)}
-                    checked={(targetCriteria.unit_types || []).includes(String(ut.id))}
-                    onChange={() => handleUnitTypeToggle(String(ut.id))}
-                    reverse
-                  />
-                ))}
+              <div style={{ flex: 1, maxWidth: "400px" }}>
+                <Select
+                  name="unit_types"
+                  label="Seleccionar Tipos (Múltiple)"
+                  value={targetCriteria.unit_types?.length > 0 ? targetCriteria.unit_types : [""]}
+                  options={[
+                    { id: "", name: "Todas las unidades" },
+                    ...extraData.unit_types.map((ut: any) => ({ ...ut, id: String(ut.id) }))
+                  ]}
+                  optionValue="id"
+                  optionLabel="name"
+                  onChange={handleUnitTypeChange}
+                  multiSelect={true}
+                />
               </div>
             </div>
           )}
@@ -159,18 +169,20 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
             </div>
           )}
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--borderL)", paddingTop: 16 }}>
-            <div>
-              <p className={styles.title}>Un voto por unidad</p>
-              <p className={styles.subtitle}>Permitir solo una respuesta por departamento</p>
+          {hasOwnerSelected && (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--borderL)", paddingTop: 16 }}>
+              <div>
+                <p className={styles.title}>Un voto por unidad</p>
+                <p className={styles.subtitle}>Permitir solo una respuesta por departamento</p>
+              </div>
+              <Switch
+                name="vote_per_unit"
+                optionValue={["Y", "N"]}
+                value={targetCriteria.vote_per_unit ? "Y" : "N"}
+                onChange={(e: any) => updateCriteria("vote_per_unit", e.target.checked)}
+              />
             </div>
-            <Switch
-              name="vote_per_unit"
-              optionValue={["Y", "N"]}
-              value={targetCriteria.vote_per_unit ? "Y" : "N"}
-              onChange={(e: any) => updateCriteria("vote_per_unit", e.target.checked)}
-            />
-          </div>
+          )}
         </div>
       </div>
 

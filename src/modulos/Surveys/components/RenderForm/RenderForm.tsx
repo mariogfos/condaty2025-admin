@@ -27,6 +27,7 @@ const RenderForm = ({
   execute,
   reLoad,
   action,
+  extraData,
 }: any) => {
   const [formState, setFormState]: any = useState({ ...item });
   const [_open, setOpen] = useState(open);
@@ -220,6 +221,7 @@ const RenderForm = ({
               setFormState={setFormState}
               execute={execute}
               errors={errors}
+              extraData={extraData}
             />
 
             <div style={{ paddingBottom: "16px" }}>
