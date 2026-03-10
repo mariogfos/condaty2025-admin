@@ -2,16 +2,18 @@ import React, { useEffect, useState } from "react";
 import styles from "./RenderForm.module.css";
 import Check from "@/mk/components/forms/Check/Check";
 import Switch from "@/mk/components/forms/Switch/Switch";
-import CardContent from "./CardContent";
 import { formatNumber } from "@/mk/utils/numbers";
 import Input from "@/mk/components/forms/Input/Input";
 import { IconWorld } from "@/components/layout/icons/IconsBiblioteca";
 
 const ROLES_OPTIONS = [
-  { id: "OWN", name: "Propietarios" },
-  { id: "RES", name: "Residentes" },
-  { id: "GUA", name: "Guardias" },
-  { id: "ADM", name: "Administradores" },
+  { id: "admin", name: "Administrador del Sistema" },
+  { id: "directive", name: "Mesa Directiva" },
+  { id: "owner_homeowner", name: "Propietarios (Dueños)" },
+  { id: "owner_titular", name: "Residentes Titulares" },
+  { id: "owner_dependiente", name: "Residentes Dependientes" },
+  { id: "guard_supervisor", name: "Supervisor de Guardias" },
+  { id: "guard", name: "Guardia" },
 ];
 
 export default function SurveyTargeting({ formState, setFormState, execute, errors }: any) {
@@ -20,7 +22,7 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
 
   // Parse default from formState or initiate
   const targetCriteria = formState.target_criteria || {
-    roles: [],
+    roles: {},
     unit_types: [],
     only_arrears: false,
     vote_per_unit: true,
@@ -44,9 +46,10 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
     }, 500);
     return () => clearTimeout(handler);
   }, [
-    targetCriteria.roles?.join(","),
+    JSON.stringify(targetCriteria.roles),
     targetCriteria.only_arrears,
     targetCriteria.vote_per_unit,
+    JSON.stringify(targetCriteria.unit_types),
   ]);
 
   useEffect(() => {
@@ -63,12 +66,23 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
   };
 
   const handleRoleToggle = (roleId: string) => {
-    const currentRoles = targetCriteria.roles || [];
-    const newRoles = currentRoles.includes(roleId)
-      ? currentRoles.filter((r: string) => r !== roleId)
-      : [...currentRoles, roleId];
+    const currentRoles = targetCriteria.roles || {};
+    const currentVal = currentRoles[roleId] === "1" ? "0" : "1";
+    const newRoles = { ...currentRoles, [roleId]: currentVal };
     updateCriteria("roles", newRoles);
   };
+
+  const handleUnitTypeToggle = (utId: string) => {
+    const currentUTs = targetCriteria.unit_types || [];
+    const newUTs = currentUTs.includes(utId)
+      ? currentUTs.filter((id: string) => id !== utId)
+      : [...currentUTs, utId];
+    updateCriteria("unit_types", newUTs);
+  };
+
+  const hasOwnerSelected = ["owner_homeowner", "owner_titular", "owner_dependiente"].some(
+    r => (targetCriteria.roles || {})[r] === "1"
+  );
 
   const calculatePercentage = (total: number, percentage: number): number => {
     return Math.ceil((total * percentage) / 100);
@@ -82,11 +96,11 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
   };
 
   return (
-    <CardContent
-      title="Segmentación y Público Objetivo"
-      subtitle="Selecciona el público al que se mostrará tu encuesta"
-      style={{ marginBottom: "16px" }}
-    >
+    <div style={{ marginBottom: "16px" }}>
+      <div style={{ marginBottom: "16px" }}>
+        <h3 className={styles.title}>Segmentación y Público Objetivo</h3>
+        <p className={styles.subtitle}>Selecciona el público al que se mostrará tu encuesta</p>
+      </div>
       <div style={{ display: "flex", gap: "24px", alignItems: "flex-start", marginTop: "16px" }}>
         <IconWorld size={48} color="var(--cWhiteV1)" style={{ minWidth: 30 }} />
         
@@ -100,7 +114,7 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
                   name={`role_${role.id}`}
                   label={role.name}
                   value={role.id}
-                  checked={(targetCriteria.roles || []).includes(role.id)}
+                  checked={(targetCriteria.roles || {})[role.id] === "1"}
                   onChange={() => handleRoleToggle(role.id)}
                   reverse
                 />
@@ -108,18 +122,42 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
             </div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--borderL)", paddingTop: 16 }}>
-            <div>
-              <p className={styles.title}>Solo morosos</p>
-              <p className={styles.subtitle}>Limitar encuesta únicamente a unidades con deudas atrasadas</p>
+          {hasOwnerSelected && formState.extraData?.unit_types && formState.extraData.unit_types.length > 0 && (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--borderL)", paddingTop: 16 }}>
+              <div>
+                <p className={styles.title}>Tipos de Unidad (Opcional)</p>
+                <p className={styles.subtitle}>Si dejas vacío, aplicará a todas. Selecciona para limitar a tipos específicos.</p>
+              </div>
+              <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "flex-end", flex: 1 }}>
+                {formState.extraData.unit_types.map((ut: any) => (
+                  <Check
+                    key={ut.id}
+                    name={`ut_${ut.id}`}
+                    label={ut.name}
+                    value={String(ut.id)}
+                    checked={(targetCriteria.unit_types || []).includes(String(ut.id))}
+                    onChange={() => handleUnitTypeToggle(String(ut.id))}
+                    reverse
+                  />
+                ))}
+              </div>
             </div>
-            <Switch
-              name="only_arrears"
-              optionValue={["Y", "N"]}
-              value={targetCriteria.only_arrears ? "Y" : "N"}
-              onChange={(e: any) => updateCriteria("only_arrears", e.target.checked)}
-            />
-          </div>
+          )}
+
+          {hasOwnerSelected && (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--borderL)", paddingTop: 16 }}>
+              <div>
+                <p className={styles.title}>Solo morosos</p>
+                <p className={styles.subtitle}>Limitar encuesta únicamente a unidades con deudas atrasadas</p>
+              </div>
+              <Switch
+                name="only_arrears"
+                optionValue={["Y", "N"]}
+                value={targetCriteria.only_arrears ? "Y" : "N"}
+                onChange={(e: any) => updateCriteria("only_arrears", e.target.checked)}
+              />
+            </div>
+          )}
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--borderL)", paddingTop: 16 }}>
             <div>
@@ -180,6 +218,6 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
           </div>
         </div>
       )}
-    </CardContent>
+    </div>
   );
 }

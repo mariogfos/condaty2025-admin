@@ -2,8 +2,8 @@ export type SurveyStatus = "D" | "S" | "A" | "P" | "C" | "X"; // Borrador, Progr
 export type QuestionType = "S" | "M" | "E" | "T"; // Single, Multiple, Scale, Text
 
 export interface TargetCriteria {
-  roles: string[];
-  unit_types: number[];
+  roles: Record<string, string>;
+  unit_types: string[];
   only_arrears: boolean;
   vote_per_unit: boolean;
 }

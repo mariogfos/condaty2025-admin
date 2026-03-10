@@ -18,7 +18,6 @@ import SurveyQuestionTypePanel from "../SurveyQuestionTypePanel/SurveyQuestionTy
 import SurveyFactory from "../SurveyFactory/SurveyModalFactory";
 import SurveyList from "../SurveyList/SurveyList";
 import SurveyTargeting from "./SurveyTargeting";
-import CardContent from "./CardContent";
 
 const RenderForm = ({
   open,
@@ -223,7 +222,11 @@ const RenderForm = ({
               errors={errors}
             />
 
-            <CardContent title="Detalles de la encuesta" subtitle="Información general de la encuesta" style={{ paddingBottom: "16px" }}>
+            <div style={{ paddingBottom: "16px" }}>
+              <div style={{ marginBottom: "16px" }}>
+                <h3 className={styles.title}>Detalles de la encuesta</h3>
+                <p className={styles.subtitle}>Información general de la encuesta</p>
+              </div>
               <Input
                 label="Título"
                 type="text"
@@ -311,7 +314,7 @@ const RenderForm = ({
                   </div>
                 )}
               </div>
-            </CardContent>
+            </div>
           </div>
         )}
 
