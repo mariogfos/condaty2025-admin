@@ -37,22 +37,33 @@ const RenderForm = ({
   const { showToast } = useAuth();
 
   useEffect(() => {
-    if (formState.id && formState.squestions && formState.squestions[0] && formState.squestions[0].soptions) {
-      formState.questions = formState.squestions.map((q: any) => ({
+    let newState = { ...formState };
+    
+    if (newState.id && !newState.name && newState.title) {
+      newState.name = newState.title;
+    }
+
+    if (newState.id && newState.squestions && newState.squestions.length > 0) {
+      newState.questions = newState.squestions.map((q: any) => ({
         id: q.id,
         name: q.name,
         description: q.description,
         type: q.type,
-        options: q.soptions.map((o: any) => ({
+        options: q.soptions ? q.soptions.map((o: any) => ({
           id: o.id,
           name: o.name,
-        })),
+        })) : [],
         min: q.min,
         max: q.max,
         order: q.order,
         is_mandatory: q.is_mandatory,
         switch: q.switch,
       }));
+    }
+    
+    // Only set state if we actually changed something to avoid unnecessary renders
+    if (newState.name !== formState.name || newState.questions !== formState.questions) {
+      setFormState(newState);
     }
   }, []);
 

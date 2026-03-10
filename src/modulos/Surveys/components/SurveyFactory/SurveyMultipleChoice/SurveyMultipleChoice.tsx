@@ -77,7 +77,7 @@ const SurveyMultipleChoice = ({
 
     errors = checkRules({
       value: formStateMultipleChoice.min,
-      rules: ["required", "minMax:max"],
+      rules: ["required", "lessOrEqual:max,Máximo"],
       key: "min",
       errors,
       data: formStateMultipleChoice,
