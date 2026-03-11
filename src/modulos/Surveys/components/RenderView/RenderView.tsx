@@ -67,7 +67,6 @@ function Chip({ label }: { label: string }) {
 
 function SegmentationSummary({ criteria, lTypeUnit=[] }: { criteria: any, lTypeUnit: any }) {
   const roles = criteria?.roles ?? {};
-  console.log("lTypeUnit", lTypeUnit);
   const activeRoles = Object.entries(roles)
     .filter(([, v]) => v === "1" || v === 1 || v === true)
     .map(([k]) => ROLE_LABELS[k] ?? k);

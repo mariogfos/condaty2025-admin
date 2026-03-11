@@ -31,12 +31,7 @@ export const getSurveyConfig = (
     filter: true,
     permiso: "",
     extraData: true,
-    hideActions: {
-      view: false,
-      add: false,
-      edit: false,
-      del: false,
-    },
+    onHideActions:  (item:any) => { return {hideDel:item.status == "C" ||item.total_voters>0, hideEdit:item.status == "C"||item.total_voters>0} },
     search: true,
     renderForm: (props: any) => {
       return (
