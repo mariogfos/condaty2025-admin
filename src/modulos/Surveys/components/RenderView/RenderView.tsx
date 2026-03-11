@@ -164,24 +164,28 @@ const RenderView = (props: {
         {/* Dates */}
         {(surveyData?.created_at || surveyData?.expires_at || surveyData?.scheduled_at) && (
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-            {/* {surveyData?.created_at && (
+            {surveyData?.created_at && (
               <div>
                 <p className={styles.subtitle}>Creada</p>
                 <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
-                  {getDateStrMes(surveyData.created_at)}
+                  {getDateStrMes(surveyData.created_at)} por {surveyData.created_by_name}
                 </p>
               </div>
-            )} */}
-            {surveyData?.created_by_name && (
-          <p className={styles.subtitle} style={{ fontSize: "0.8rem", margin: 0 }}>
-            Creada por: {surveyData.created_by_name} el {getDateStrMes(surveyData.created_at)}
-          </p>
-        )}
+            )}
+            
             {surveyData?.scheduled_at && (
               <div>
                 <p className={styles.subtitle}>Programada para</p>
                 <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
                   {getDateStrMes(surveyData.scheduled_at)}
+                </p>
+              </div>
+            )}
+            {surveyData?.published_at && (
+              <div>
+                <p className={styles.subtitle}>Publicada</p>
+                <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                  {getDateStrMes(surveyData.published_at)}
                 </p>
               </div>
             )}
