@@ -37,17 +37,84 @@ function MetricCard({ label, value }: { label: string; value: string | number })
   );
 }
 
+const ROLE_LABELS: Record<string, string> = {
+  admin: "Administradores",
+  directive: "Directivos",
+  owner_titular: "Residentes titulares",
+  owner_homeowner: "Propietarios",
+  owner_dependiente: "Dependientes",
+  guard: "Guardias",
+  guard_supervisor: "Supervisor de guardia",
+};
+
+function Chip({ label }: { label: string }) {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        padding: "3px 10px",
+        background: "rgba(99,102,241,0.15)",
+        border: "1px solid rgba(99,102,241,0.4)",
+        borderRadius: 20,
+        fontSize: "0.78rem",
+        color: "var(--cWhiteV1)",
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
+function SegmentationSummary({ criteria, lTypeUnit=[] }: { criteria: any, lTypeUnit: any }) {
+  const roles = criteria?.roles ?? {};
+  console.log("lTypeUnit", lTypeUnit);
+  const activeRoles = Object.entries(roles)
+    .filter(([, v]) => v === "1" || v === 1 || v === true)
+    .map(([k]) => ROLE_LABELS[k] ?? k);
+
+  const unitTypes: string[] = Array.isArray(criteria?.unit_types)
+    ? criteria.unit_types.map((t: string) => 'Tipo: '+lTypeUnit.find((x: any) => x.id == t)?.name)
+    : [];
+
+  const flags: string[] = [];
+  if (criteria?.only_arrears) flags.push("Solo en mora");
+  if (criteria?.vote_per_unit) flags.push("Un voto por unidad");
+  if (criteria?.only_inhabited_units) flags.push("Solo unidades habitadas");
+
+  const all = [...activeRoles, ...unitTypes, ...flags];
+  if (!all.length) return null;
+
+  return (
+    <div
+      style={{
+        padding: "12px 16px",
+        background: "rgba(255,255,255,0.04)",
+        borderRadius: "var(--bRadius)",
+        borderLeft: "3px solid rgba(99,102,241,0.5)",
+      }}
+    >
+      <p className={styles.subtitle} style={{ marginBottom: 8, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+        Segmentación de audiencia
+      </p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {all.map((label, i) => <Chip key={i} label={label} />)}
+      </div>
+    </div>
+  );
+}
+
+
 const RenderView = (props: {
   open: boolean;
   onClose: any;
   item: Record<string, any>;
   onEdit?: Function;
   reLoad?: Function;
+  extraData?: Record<string, any>;
 }) => {
   const { showToast } = useAuth();
   const { execute } = useAxios();
-
-  // Optimistic initial state from the list row — filled in after DET loads
+    // Optimistic initial state from the list row — filled in after DET loads
   const [surveyData, setSurveyData] = useState<any>(props.item.survey);
   const [detailsLoaded, setDetailsLoaded] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -208,12 +275,18 @@ const RenderView = (props: {
           </div>
         )}
 
+        {/* Segmentation Criteria */}
+        {detailsLoaded && surveyData?.target_criteria && (
+          <SegmentationSummary criteria={surveyData.target_criteria} lTypeUnit={props.extraData?.unit_types}/>
+        )}
+
         {/* Loading indicator while DET loads */}
         {detailLoading && (
           <p className={styles.subtitle} style={{ textAlign: "center", fontSize: "0.8rem", margin: 0 }}>
             Cargando detalles completos...
           </p>
         )}
+
 
         {/* Statistics — only shown after details loaded and has answers */}
         {detailsLoaded && hasAnswers && surveyData?.squestions?.length > 0 && (
