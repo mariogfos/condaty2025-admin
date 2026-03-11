@@ -202,10 +202,10 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
 
       {affCount !== null && (
         <div style={{ marginTop: 24, padding: "16px", backgroundColor: "rgba(255, 255, 255, 0.05)", borderRadius: "var(--bRadius)" }}>
-          <p className={styles.title}>IA de Elekta</p>
+          <p className={styles.title}>Metas de la encuesta</p>
           <p className={styles.subtitle}>
-            Cuentas con un público de {formatNumber(affCount, 0)} afiliados. 
-            Te sugerimos alcanzar una muestra del 10% ({formatNumber(calculatePercentage(affCount, 10), 0)} afiliados) 
+            Cuentas con un público de {formatNumber(affCount, 0)} registrados. 
+            Te sugerimos alcanzar al menos una muestra del 10% ({formatNumber(calculatePercentage(affCount, 10), 0)} registrados) 
             para obtener resultados estadísticamente relevantes.
           </p>
           <p className={styles.title} style={{ marginBottom: 8, marginTop: 16 }}>
@@ -228,7 +228,7 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
                 }}
               >
                 <p className={styles.title}>{pct}%</p>
-                <p className={styles.subtitle}>{formatNumber(calculatePercentage(affCount, pct), 0)} Afiliados</p>
+                <p className={styles.subtitle}>{formatNumber(calculatePercentage(affCount, pct), 0)} Registrados</p>
               </div>
             ))}
             <div style={{ flex: 1, minWidth: "150px" }}>

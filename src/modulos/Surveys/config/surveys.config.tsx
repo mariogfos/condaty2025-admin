@@ -147,7 +147,9 @@ export const getSurveyConfig = (
       rules: [""],
       api: "",
       label: "Preguntas",
-      list: true,
+       list: {
+        width: "100px",
+      },
     },
     votes: {
       label: "Votos",

@@ -9,6 +9,7 @@ import styles from "./SurveyList.module.css";
 import {
   IconCheckOff,
   IconEdit,
+  IconRatioOff,
   IconRatioOn,
   IconTrash,
 } from "@/components/layout/icons/IconsBiblioteca";
@@ -60,12 +61,12 @@ export const SingleChoiceQuestionComponent: React.FC<{
       <div>
         {question.soptions.map((option) => (
           <div key={option.id}>
-            <IconRatioOn color="var(--cBlackV2)" size={20} />
+            <IconRatioOff color="var(--cWhiteV1)" size={20} />
             <p>{option.option_text}</p>
           </div>
         ))}
       </div>
-      <div>
+      <div style={{color: 'var(--cWhiteV1)'}}>
         <IconEdit onClick={onEdit} />
         <IconTrash onClick={handleDelete} />
       </div>
@@ -103,7 +104,7 @@ export const MultipleChoiceQuestionComponent: React.FC<{
       <div>
         {question.soptions.map((option) => (
           <div key={option.id}>
-            <IconCheckOff color="var(--cBlackV2)" />
+            <IconCheckOff color="var(--cWhiteV1)" />
             <p>{option.option_text}</p>
           </div>
         ))}

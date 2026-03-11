@@ -63,7 +63,7 @@ const Surveys = () => {
   return (
     <div className={styles.surveysContainer}>
       <h1 className={styles.title}>Encuestas</h1>
-      <List onRowClick={handleRowClick} />
+      <List  height={"calc(100vh - 310px)"} onRowClick={handleRowClick} />
       <DateRangeFilterModal
         open={openCustomFilter}
         onClose={() => {

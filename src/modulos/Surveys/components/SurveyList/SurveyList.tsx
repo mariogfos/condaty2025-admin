@@ -85,33 +85,23 @@ const SurveyList: React.FC<SurveyListProps> = ({ formState, setFormState }) => {
 
   const upOrder = (index: number) => {
     const newQuestions: any = [...formState?.squestions];
-    console.log("upOrder", index);
     if (index > 0) {
       const temp = newQuestions[index];
       newQuestions[index] = newQuestions[index - 1];
       newQuestions[index - 1] = temp;
       newQuestions.map((q: any, i: number) => (q.order = i));
       setFormState({ ...formState, squestions: newQuestions });
-      console.log("newQuestions", newQuestions);
     }
   };
 
   const downOrder = (index: number) => {
     const newQuestions: any = [...formState?.squestions];
-    console.log("downOrder", index);
     if (index < newQuestions.length - 1) {
       const temp = newQuestions[index];
       newQuestions[index] = newQuestions[index + 1];
       newQuestions[index + 1] = temp;
       newQuestions.map((q: any, i: number) => (q.order = i));
       setFormState({ ...formState, squestions: newQuestions });
-      console.log("newQuestions", newQuestions);
-      // const temp = newQuestions[index + 1].order || 0;
-      // newQuestions[index + 1].order = newQuestions[index].order || 1;
-      // newQuestions[index].order = temp;
-      // newQuestions.sort((a: any, b: any) => a.order - b.order);
-      // setFormState({ ...formState, questions: newQuestions });
-      // console.log("newQuestions", newQuestions);
     }
   };
 
