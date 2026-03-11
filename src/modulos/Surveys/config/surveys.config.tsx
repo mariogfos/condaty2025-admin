@@ -5,6 +5,7 @@ import { getFullName } from "@/mk/utils/string";
 import RenderForm from "../components/RenderForm/RenderForm";
 import RenderView from "../components/RenderView/RenderView";
 import { getStatusLabel, getDestinyLabel, SURVEY_STATUSES } from "./surveys.constants";
+import { getPeriodOptions } from "@/mk/utils/periodFilterOptions";
 
 import styles from "../Surveys.module.css";
 
@@ -71,6 +72,11 @@ export const getSurveyConfig = (
         onRender: (props: any) => (
           <div>{getDateStrMes(props.item.created_at)}</div>
         ),
+      },
+      filter: {
+        key: "created_at",
+        label: "Período",
+        options: getPeriodOptions,
       },
     },
     scheduled_at: {
@@ -164,7 +170,6 @@ export const getSurveyConfig = (
       rules: ["required"],
       api: "ae",
       label: "Estado",
-
       list: {
         width: "100px",
         onRender: (props: any) => {
@@ -177,6 +182,16 @@ export const getSurveyConfig = (
             </div>
           );
         },
+      },
+      filter: {
+        label: "Estado",
+        options: () => [
+          { id: "ALL", name: "Todos los estados" },
+          { id: "D", name: "Borrador" },
+          { id: "A", name: "Activa" },
+          { id: "S", name: "Programada" },
+          { id: "C", name: "Cerrada" },
+        ],
       },
     },
     questions: {
