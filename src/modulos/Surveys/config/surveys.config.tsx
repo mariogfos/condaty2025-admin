@@ -1,7 +1,6 @@
 import React from "react";
 import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getDateStrMes } from "@/mk/utils/date";
-import { getFullName } from "@/mk/utils/string";
 import RenderForm from "../components/RenderForm/RenderForm";
 import RenderView from "../components/RenderView/RenderView";
 import { getStatusLabel, getDestinyLabel, SURVEY_STATUSES } from "./surveys.constants";
