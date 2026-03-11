@@ -35,7 +35,7 @@ const paramsInitial = {
 
 const Notifications = () => {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, userCan } = useAuth();
   const [openPayment, setOpenPayment] = useState({ open: false, id: null });
   const [openReservas, setOpenReservas] = useState({ open: false, id: null });
 
@@ -319,11 +319,18 @@ const Notifications = () => {
   }, [user?.id]);
 
   // Usar useCrud normalmente SIN filtrar datos aquí
-  const { userCan, List, setStore, onSearch, searchs, data } = useCrud({
+  const { List, setStore, onSearch, searchs, data } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
+
+  // Requerir permisos específicos para que la página se renderice
+  const hasPaymentsPerm = userCan("payments", "R");
+  const hasReservationsPerm = userCan("reservations", "R");
+
+  // Si no tiene ambos permisos, no renderizamos la página
+  if (!hasPaymentsPerm || !hasReservationsPerm) return <NotAccess />;
 
   // ELIMINAR filteredData - no es necesario
   // const filteredData = useMemo(() => { ... });
@@ -375,14 +382,18 @@ const Notifications = () => {
         router.push(`/alerts`);
       }
       if (parsedMessage?.info?.act === "newVoucher") {
-        setOpenPayment({ open: true, id: parsedMessage.info.id });
+        if (hasPaymentsPerm) {
+          setOpenPayment({ open: true, id: parsedMessage.info.id });
+        }
       }
       if (parsedMessage?.info?.act === "newAdmin") {
         router.push("/users");
       }
       if (parsedMessage?.info?.act === "newReservationAdm") {
         //router.push("/reservas");
-        setOpenReservas({ open: true, id: parsedMessage.info.id });
+        if (hasReservationsPerm) {
+          setOpenReservas({ open: true, id: parsedMessage.info.id });
+        }
       }
       if (parsedMessage?.info?.act === "newContent") {
         router.push("/contents");
