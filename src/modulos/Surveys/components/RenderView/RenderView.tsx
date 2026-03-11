@@ -207,6 +207,7 @@ const RenderView = (props: {
                 surveyId={surveyData.id}
                 currentStatus={surveyData.status}
                 hasAnswers={hasAnswers}
+                surveyData={surveyData}
                 onStatusChanged={handleStatusChanged}
                 onDuplicate={() => props.reLoad?.()}
               />

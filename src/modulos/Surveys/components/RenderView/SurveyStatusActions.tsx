@@ -3,17 +3,20 @@ import React, { useState } from "react";
 import Button from "@/mk/components/forms/Button/Button";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import ScheduleSurveyModal from "./ScheduleSurveyModal";
 
 type StatusAction = {
   label: string;
   targetStatus: string;
   variant?: "primary" | "secondary" | "terciary" | "danger";
+  /** If true, intercept click and show the ScheduleSurveyModal before calling API */
+  needsDates?: boolean;
 };
 
 const STATUS_ACTIONS: Record<string, StatusAction[]> = {
   D: [
     { label: "Publicar ahora", targetStatus: "A", variant: "primary" },
-    { label: "Programar", targetStatus: "S", variant: "secondary" },
+    { label: "Programar", targetStatus: "S", variant: "secondary", needsDates: true },
   ],
   A: [
     { label: "Pausar", targetStatus: "P", variant: "secondary" },
@@ -25,7 +28,8 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
   ],
   S: [
     { label: "Publicar ya", targetStatus: "A", variant: "primary" },
-    { label: "Volver a borrador", targetStatus: "D", variant: "secondary" },
+    { label: "Editar programación", targetStatus: "S", variant: "secondary", needsDates: true },
+    { label: "Volver a borrador", targetStatus: "D", variant: "terciary" },
   ],
   C: [],
   X: [],
@@ -35,6 +39,8 @@ type Props = {
   surveyId: number;
   currentStatus: string;
   hasAnswers?: boolean;
+  /** Current survey data to pre-fill dates in the modal */
+  surveyData?: Record<string, any>;
   onStatusChanged: (updatedSurvey: any) => void;
   onDuplicate?: () => void;
 };
@@ -42,22 +48,43 @@ type Props = {
 export default function SurveyStatusActions({
   surveyId,
   currentStatus,
+  surveyData,
   onStatusChanged,
   onDuplicate,
 }: Props) {
   const { execute } = useAxios();
   const { showToast } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
 
   const actions = STATUS_ACTIONS[currentStatus] ?? [];
 
-  const handleChangeStatus = async (targetStatus: string) => {
+  const handleActionClick = (action: StatusAction) => {
+    if (action.needsDates) {
+      // Open the schedule modal and remember which status we want
+      setPendingStatus(action.targetStatus);
+      setScheduleModalOpen(true);
+    } else {
+      callChangeStatus(action.targetStatus);
+    }
+  };
+
+  const callChangeStatus = async (
+    targetStatus: string,
+    scheduledAt?: string,
+    expiresAt?: string | null
+  ) => {
     setLoading(targetStatus);
     try {
+      const payload: Record<string, any> = { status: targetStatus };
+      if (scheduledAt) payload.scheduled_at = scheduledAt;
+      if (expiresAt) payload.expires_at = expiresAt;
+
       const { data } = await execute(
         `/surveys/${surveyId}/status`,
         "PUT",
-        { status: targetStatus },
+        payload,
         false,
         true
       );
@@ -69,6 +96,14 @@ export default function SurveyStatusActions({
       showToast(e?.message || "Error al cambiar estado", "error");
     } finally {
       setLoading(null);
+    }
+  };
+
+  const handleScheduleConfirm = (scheduledAt: string, expiresAt: string | null) => {
+    setScheduleModalOpen(false);
+    if (pendingStatus) {
+      callChangeStatus(pendingStatus, scheduledAt, expiresAt ?? undefined);
+      setPendingStatus(null);
     }
   };
 
@@ -94,26 +129,41 @@ export default function SurveyStatusActions({
   };
 
   return (
-    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-      {actions.map((action) => (
+    <>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+        {actions.map((action) => (
+          <Button
+            key={`${action.targetStatus}-${action.label}`}
+            variant={action.variant ?? "secondary"}
+            small
+            disabled={loading !== null}
+            onClick={() => handleActionClick(action)}
+          >
+            {loading === action.targetStatus && !action.needsDates ? "..." : action.label}
+          </Button>
+        ))}
         <Button
-          key={action.targetStatus}
-          variant={action.variant ?? "secondary"}
+          variant="terciary"
           small
           disabled={loading !== null}
-          onClick={() => handleChangeStatus(action.targetStatus)}
+          onClick={handleDuplicate}
         >
-          {loading === action.targetStatus ? "..." : action.label}
+          {loading === "duplicate" ? "..." : "Duplicar"}
         </Button>
-      ))}
-      <Button
-        variant="terciary"
-        small
-        disabled={loading !== null}
-        onClick={handleDuplicate}
-      >
-        {loading === "duplicate" ? "..." : "Duplicar"}
-      </Button>
-    </div>
+      </div>
+
+      {/* Schedule modal — shown when Programar or Editar programación is clicked */}
+      <ScheduleSurveyModal
+        open={scheduleModalOpen}
+        onClose={() => {
+          setScheduleModalOpen(false);
+          setPendingStatus(null);
+        }}
+        initialScheduledAt={surveyData?.scheduled_at}
+        initialExpiresAt={surveyData?.expires_at}
+        onConfirm={handleScheduleConfirm}
+        loading={loading !== null}
+      />
+    </>
   );
 }
