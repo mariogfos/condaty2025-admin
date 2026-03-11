@@ -197,6 +197,14 @@ const RenderView = (props: {
                 </p>
               </div>
             )}
+            {surveyData?.status === "C" && (
+              <div>
+                <p className={styles.subtitle}>Cerrada</p>
+                <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                  {getDateStrMes(surveyData.closed_at || surveyData.expires_at)}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
