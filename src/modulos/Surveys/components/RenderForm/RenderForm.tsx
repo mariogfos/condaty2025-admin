@@ -225,7 +225,7 @@ const RenderForm = ({
         </section>
 
         {level === 1 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "16px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: "16px" }}>
             <SurveyTargeting
               formState={formState}
               setFormState={setFormState}
@@ -234,11 +234,15 @@ const RenderForm = ({
               extraData={extraData}
             />
 
-            <div style={{ paddingBottom: "16px" }}>
-              <div style={{ marginBottom: "16px" }}>
-                <h3 className={styles.title}>Detalles de la encuesta</h3>
-                <p className={styles.subtitle}>Información general de la encuesta</p>
-              </div>
+            {/* Card 2: Detalle de la encuesta */}
+            <div
+              style={{
+                background: "var(--cBlackV1)",
+                borderRadius: "var(--bRadius)",
+                padding: "16px",
+              }}
+            >
+              <h3 className={styles.title} style={{ marginBottom: 12 }}>Detalle de la encuesta</h3>
               <Input
                 label="Título"
                 type="text"
@@ -248,84 +252,15 @@ const RenderForm = ({
                 error={errors}
               />
               <TextArea
-                label="Descripción"
+                label="Observaciones (Opc)"
                 name="description"
                 value={formState?.description}
                 onChange={handleChange}
                 error={errors}
                 isLimit={true}
                 maxLength={255}
-                style={{ marginBottom: "16px" }}
+                style={{ marginBottom: 0 }}
               />
-
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "16px 0", borderTop: "1px solid var(--borderV1)", borderBottom: "1px solid var(--borderV1)" }}>
-                <div>
-                  <p className={styles.title}>Obligatoriedad</p>
-                  <p className={styles.subtitle}>
-                    Marca aquí para requerir que el usuario responda la encuesta sin posibilidad de omitirla
-                  </p>
-                </div>
-                <Check
-                  name="is_mandatory"
-                  disabled={
-                    (formState.begin_at && new Date(formState.begin_at) < new Date()) ||
-                    formState?.sanswerscount > 0
-                  }
-                  value={formState.is_mandatory}
-                  error={errors}
-                  checked={formState.is_mandatory === "Y"}
-                  onChange={(e: any) => {
-                    handleChange({
-                      target: { name: "is_mandatory", value: e.target.checked ? "Y" : "N" },
-                    });
-                  }}
-                />
-              </div>
-
-              <div style={{ marginTop: "16px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <div>
-                    <p className={styles.title}>Programar encuesta</p>
-                    <p className={styles.subtitle}>
-                      Selecciona este campo para programar el envío en una fecha específica
-                    </p>
-                  </div>
-                  <Switch
-                    name="switch"
-                    optionValue={["Y", "N"]}
-                    value={formState.switch || "N"}
-                    onChange={(e: any) => {
-                      handleChange({
-                        target: { name: "switch", value: e.target.checked ? "Y" : "N" },
-                      });
-                    }}
-                  />
-                </div>
-                {formState.switch === "Y" && (
-                  <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
-                    <Input
-                      type="date"
-                      name="begin_at"
-                      label="Fecha de inicio"
-                      value={valueDate(formState?.begin_at)}
-                      onChange={handleChange}
-                      disabled={disabled()}
-                      error={errors}
-                    />
-                    <Input
-                      type="date"
-                      name="end_at"
-                      label="Fecha de fin"
-                      value={valueDate(formState?.end_at)}
-                      error={errors}
-                      onChange={handleChange}
-                      disabled={
-                        item?.end_at && compareDate(item?.end_at, new Date(), "<") ? true : false
-                      }
-                    />
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         )}

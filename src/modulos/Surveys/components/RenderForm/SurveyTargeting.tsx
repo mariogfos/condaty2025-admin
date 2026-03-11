@@ -1,30 +1,31 @@
 import React, { useEffect, useState } from "react";
 import styles from "./RenderForm.module.css";
-import Check from "@/mk/components/forms/Check/Check";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import Select from "@/mk/components/forms/Select/Select";
 import { formatNumber } from "@/mk/utils/numbers";
 import Input from "@/mk/components/forms/Input/Input";
-import { IconWorld } from "@/components/layout/icons/IconsBiblioteca";
 
 const ROLES_OPTIONS = [
-  { id: "admin", name: "Administrador del Sistema" },
-  { id: "directive", name: "Mesa Directiva" },
-  { id: "owner_homeowner", name: "Propietarios (Dueños)" },
-  { id: "owner_titular", name: "Residentes Titulares" },
-  { id: "owner_dependiente", name: "Residentes Dependientes" },
-  { id: "guard_supervisor", name: "Supervisor de Guardias" },
-  { id: "guard", name: "Guardia" },
+  { id: "owner_homeowner", name: "Propietarios (Dueños)", hasUnits: true },
+  { id: "owner_titular", name: "Residentes Titulares", hasUnits: true },
+  { id: "owner_dependiente", name: "Residentes Dependientes", hasUnits: true },
+  { id: "guard_supervisor", name: "Supervisor de Guardias", hasUnits: false },
+  { id: "guard", name: "Guardias", hasUnits: false },
+  { id: "directive", name: "Mesa Directiva", hasUnits: false },
+  { id: "admin", name: "Administradores", hasUnits: false },
 ];
 
-export default function SurveyTargeting({ formState, setFormState, execute, errors, extraData }: any) {
-  // Initialize from the DET data already available in formState (avoids extra request on load)
-  const [affCount, setAffCount] = useState<number | null>(
-    formState.estimated_audience != null ? Number(formState.estimated_audience) : null
-  );
-  const [affMeta, setAffMeta] = useState(0);
+const OWNER_ROLES = ["owner_homeowner", "owner_titular", "owner_dependiente"];
 
-  // Parse default from formState or initiate
+/** Convert roles object { owner_homeowner: "1", ... } → string[] of active role IDs */
+function rolesToArray(roles: Record<string, string> | undefined): string[] {
+  if (!roles) return [];
+  return Object.entries(roles)
+    .filter(([, v]) => v === "1")
+    .map(([k]) => k);
+}
+
+export default function SurveyTargeting({ formState, setFormState, execute, extraData }: any) {
   const targetCriteria = formState.target_criteria || {
     roles: {},
     unit_types: [],
@@ -32,19 +33,11 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
     vote_per_unit: true,
   };
 
-  const calculateAudience = async (criteria: any) => {
-    try {
-      const { data } = await execute("/surveys/calculate-audience", "POST", { target_criteria: criteria }, false, true);
-      if (data?.success) {
-        setAffCount(data.data?.count || 0);
-      }
-    } catch (error) {
-      console.error("Error calculating audience", error);
-    }
-  };
+  const [affCount, setAffCount] = useState<number | null>(
+    formState.estimated_audience != null ? Number(formState.estimated_audience) : null
+  );
+  const [hasInitialized, setHasInitialized] = useState(false);
 
-  // Track whether this is the first render (skip initial API call when we already have data)
-  const [hasInitialized, setHasInitialized] = React.useState(false);
   const targetCriteriaKey = JSON.stringify([
     targetCriteria.roles,
     targetCriteria.only_arrears,
@@ -52,198 +45,250 @@ export default function SurveyTargeting({ formState, setFormState, execute, erro
     targetCriteria.unit_types,
   ]);
 
+  // Derive role selection from roles object
+  const selectedRoleIds = rolesToArray(targetCriteria.roles);
+  const hasOwnerRole = selectedRoleIds.some(id => OWNER_ROLES.includes(id));
+
+  const calculateAudience = async (criteria: any) => {
+    try {
+      const { data } = await execute(
+        "/surveys/calculate-audience",
+        "POST",
+        { target_criteria: criteria },
+        false,
+        true
+      );
+      if (data?.success) setAffCount(data.data?.count ?? 0);
+    } catch { /* silent */ }
+  };
+
   useEffect(() => {
-    // Skip the very first render when we already have estimated_audience from DET
     if (!hasInitialized) {
       setHasInitialized(true);
-      // Only skip if we already have data; if not, still fetch
       if (affCount !== null) return;
     }
-
-    const handler = setTimeout(() => {
-      calculateAudience(targetCriteria);
-    }, 500);
-    return () => clearTimeout(handler);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    const t = setTimeout(() => calculateAudience(targetCriteria), 600);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetCriteriaKey]);
 
-  useEffect(() => {
-    if (affCount !== null && formState.meta === undefined) {
-      setAffMeta(Math.ceil((affCount * 10) / 100));
-    } else if (formState.meta !== undefined) {
-      setAffMeta(formState.meta);
-    }
-  }, [affCount, formState.meta]);
-
   const updateCriteria = (key: string, value: any) => {
-    const newCriteria = { ...targetCriteria, [key]: value };
+    setFormState({ ...formState, target_criteria: { ...targetCriteria, [key]: value } });
+  };
+
+  /** Multiselect roles handler — builds roles object from selected array */
+  const handleRolesChange = (e: any) => {
+    const selected: string[] = (e.target.value as string[])
+      .map(String)
+      .filter(v => v !== "");
+
+    const newRoles: Record<string, string> = {};
+    ROLES_OPTIONS.forEach(r => {
+      newRoles[r.id] = selected.includes(r.id) ? "1" : "0";
+    });
+
+    const stillHasOwner = selected.some(id => OWNER_ROLES.includes(id));
+    const newCriteria = {
+      ...targetCriteria,
+      roles: newRoles,
+      vote_per_unit: stillHasOwner ? targetCriteria.vote_per_unit : false,
+      only_arrears: stillHasOwner ? targetCriteria.only_arrears : false,
+      unit_types: stillHasOwner ? targetCriteria.unit_types : [],
+    };
     setFormState({ ...formState, target_criteria: newCriteria });
   };
 
-  const handleRoleToggle = (roleId: string) => {
-    const currentRoles = targetCriteria.roles || {};
-    const currentVal = currentRoles[roleId] === "1" ? "0" : "1";
-    const newRoles = { ...currentRoles, [roleId]: currentVal };
-    updateCriteria("roles", newRoles);
-  };
-
   const handleUnitTypeChange = (e: any) => {
-    // Select returns an array of strings/numbers when multiSelect is true
-    let selected = e.target.value.map(String);
-    const previouslyEmpty = !targetCriteria.unit_types || targetCriteria.unit_types.length === 0;
-
-    if (previouslyEmpty) {
-      selected = selected.filter((v: string) => v !== "-1");
-    } else {
-      if (selected.includes("-1")) {
-        selected = [];
-      }
+    let selected = (e.target.value as string[]).map(String);
+    const wasEmpty = !targetCriteria.unit_types?.length;
+    if (wasEmpty) {
+      selected = selected.filter(v => v !== "-1");
+    } else if (selected.includes("-1")) {
+      selected = [];
     }
     updateCriteria("unit_types", selected);
   };
 
-  const hasOwnerSelected = ["owner_homeowner", "owner_titular", "owner_dependiente"].some(
-    r => (targetCriteria.roles || {})[r] === "1"
+  const CardRow = ({
+    label,
+    subtitle,
+    children,
+  }: {
+    label: string;
+    subtitle?: string;
+    children: React.ReactNode;
+  }) => (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: 24,
+        padding: "14px 0",
+        borderTop: "1px solid rgba(255,255,255,0.06)",
+      }}
+    >
+      <div>
+        <p className={styles.title} style={{ margin: 0 }}>{label}</p>
+        {subtitle && (
+          <p className={styles.subtitle} style={{ margin: 0, fontSize: "0.8rem" }}>{subtitle}</p>
+        )}
+      </div>
+      {children}
+    </div>
   );
 
-  const calculatePercentage = (total: number, percentage: number): number => {
-    return Math.ceil((total * percentage) / 100);
-  };
-
-  const _onClickCardPercentage = (percentage: number) => {
-    if (affCount === null) return;
-    const newAff = calculatePercentage(affCount, percentage);
-    setAffMeta(newAff);
-    setFormState({ ...formState, meta: newAff });
-  };
-
   return (
-    <div style={{ marginBottom: "16px" }}>
-      <div style={{ marginBottom: "16px" }}>
-        <h3 className={styles.title}>Segmentación y Público Objetivo</h3>
-        <p className={styles.subtitle}>Selecciona el público al que se mostrará tu encuesta</p>
-      </div>
-      <div style={{ display: "flex", gap: "24px", alignItems: "flex-start", marginTop: "16px" }}>
-        <IconWorld size={48} color="var(--cWhiteV1)" style={{ minWidth: 30 }} />
-        
-        <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: "16px" }}>
-          <div>
-            <p className={styles.title} style={{ marginBottom: "8px" }}>Roles permitidos</p>
-            <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-              {ROLES_OPTIONS.map((role) => (
-                <Check
-                  key={role.id}
-                  name={`role_${role.id}`}
-                  label={role.name}
-                  value={role.id}
-                  checked={(targetCriteria.roles || {})[role.id] === "1"}
-                  onChange={() => handleRoleToggle(role.id)}
-                  reverse
-                />
-              ))}
-            </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+
+      {/* ─── Card 1: Grupo + toggles ─── */}
+      <div
+        style={{
+          background: "var(--cBlackV1)",
+          borderRadius: "var(--bRadius)",
+          padding: "16px",
+        }}
+      >
+        {/* Multiselect roles */}
+        <p className={styles.title} style={{ marginBottom: 10 }}>
+          Selecciona el grupo que recibirá la encuesta
+        </p>
+        <Select
+          name="target_roles"
+          label="Selecciona uno o más grupos"
+          value={selectedRoleIds.length ? selectedRoleIds : []}
+          options={ROLES_OPTIONS}
+          optionValue="id"
+          optionLabel="name"
+          onChange={handleRolesChange}
+          multiSelect
+        />
+
+        {/* Conditional: unit types (owner/resident only) */}
+        {hasOwnerRole && extraData?.unit_types?.length > 0 && (
+          <div style={{ marginTop: 12 }}>
+            <Select
+              name="unit_types"
+              label="Tipos de unidad (opcional)"
+              value={!targetCriteria.unit_types?.length ? ["-1"] : targetCriteria.unit_types}
+              options={[
+                { id: "-1", name: "Todas las unidades" },
+                ...extraData.unit_types.map((ut: any) => ({ ...ut, id: String(ut.id) })),
+              ]}
+              optionValue="id"
+              optionLabel="name"
+              onChange={handleUnitTypeChange}
+              multiSelect
+            />
           </div>
+        )}
 
-          {hasOwnerSelected && extraData?.unit_types && extraData.unit_types.length > 0 && (
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--borderL)", paddingTop: 16 }}>
-              <div>
-                <p className={styles.title}>Tipos de Unidad (Opcional)</p>
-                <p className={styles.subtitle}>Aplica por defecto a todas las unidades. Selecciona para limitar a tipos específicos.</p>
-              </div>
-              <div style={{ flex: 1, maxWidth: "400px" }}>
-                <Select
-                  name="unit_types"
-                  label="Seleccionar Tipos (Múltiple)"
-                  value={(!targetCriteria.unit_types || targetCriteria.unit_types.length === 0) ? ["-1"] : targetCriteria.unit_types}
-                  options={[
-                    { id: "-1", name: "Todas las unidades" },
-                    ...extraData.unit_types.map((ut: any) => ({ ...ut, id: String(ut.id) }))
-                  ]}
-                  optionValue="id"
-                  optionLabel="name"
-                  onChange={handleUnitTypeChange}
-                  multiSelect={true}
-                />
-              </div>
-            </div>
-          )}
-
-          {hasOwnerSelected && (
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--borderL)", paddingTop: 16 }}>
-              <div>
-                <p className={styles.title}>Solo morosos</p>
-                <p className={styles.subtitle}>Limitar encuesta únicamente a unidades con deudas atrasadas</p>
-              </div>
-              <Switch
-                name="only_arrears"
-                optionValue={["Y", "N"]}
-                value={targetCriteria.only_arrears ? "Y" : "N"}
-                onChange={(e: any) => updateCriteria("only_arrears", e.target.checked)}
-              />
-            </div>
-          )}
-
-          {hasOwnerSelected && (
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--borderL)", paddingTop: 16 }}>
-              <div>
-                <p className={styles.title}>Un voto por unidad</p>
-                <p className={styles.subtitle}>Permitir solo una respuesta por departamento</p>
-              </div>
+ {/* Owner-only toggles */}
+        {hasOwnerRole && (
+          <>
+            <CardRow
+              label="Un voto por unidad"
+              subtitle="Permitir solo una respuesta por departamento"
+            >
               <Switch
                 name="vote_per_unit"
                 optionValue={["Y", "N"]}
                 value={targetCriteria.vote_per_unit ? "Y" : "N"}
                 onChange={(e: any) => updateCriteria("vote_per_unit", e.target.checked)}
               />
-            </div>
-          )}
-        </div>
-      </div>
+            </CardRow>
 
-      {affCount !== null && (
-        <div style={{ marginTop: 24, padding: "16px", backgroundColor: "rgba(255, 255, 255, 0.05)", borderRadius: "var(--bRadius)" }}>
-          <p className={styles.title}>Metas de la encuesta</p>
-          <p className={styles.subtitle}>
-            Cuentas con un público de {formatNumber(affCount, 0)} registrados. 
-            Te sugerimos alcanzar al menos una muestra del 10% ({formatNumber(calculatePercentage(affCount, 10), 0)} registrados) 
-            para obtener resultados estadísticamente relevantes.
-          </p>
-          <p className={styles.title} style={{ marginBottom: 8, marginTop: 16 }}>
-            ¿Qué meta quieres fijar?
-          </p>
-          <div className={styles.metas} style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "stretch" }}>
-            {[10, 20, 100].map((pct) => (
-              <div
-                key={pct}
-                onClick={() => _onClickCardPercentage(pct)}
-                style={{
-                  padding: "12px",
-                  borderRadius: "var(--bRadius)",
-                  cursor: "pointer",
-                  border: "1px solid var(--borderL)",
-                  flex: 1,
-                  minWidth: "100px",
-                  textAlign: "center",
-                  backgroundColor: affMeta === calculatePercentage(affCount, pct) ? "var(--cHover)" : "transparent",
-                }}
-              >
-                <p className={styles.title}>{pct}%</p>
-                <p className={styles.subtitle}>{formatNumber(calculatePercentage(affCount, pct), 0)} Registrados</p>
-              </div>
-            ))}
-            <div style={{ flex: 1, minWidth: "150px" }}>
-              <Input
-                type="number"
-                name="meta"
-                label="Personalizado"
-                value={formState?.meta}
-                style={{ margin: 0 }}
-                onChange={(e: any) => setFormState({ ...formState, meta: e.target.value })}
+            <CardRow
+              label="Solo morosos"
+              subtitle="Limitar encuesta únicamente a unidades con deudas atrasadas"
+            >
+              <Switch
+                name="only_arrears"
+                optionValue={["Y", "N"]}
+                value={targetCriteria.only_arrears ? "Y" : "N"}
+                onChange={(e: any) => updateCriteria("only_arrears", e.target.checked)}
               />
-            </div>
+            </CardRow>
+          </>
+        )}
+
+        {/* Audience preview */}
+        {affCount !== null && (
+          <div
+            style={{
+              marginTop: 12,
+              padding: "10px 14px",
+              background: "rgba(255,255,255,0.04)",
+              borderRadius: "var(--bRadius)",
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+            }}
+          >
+            <p className={styles.subtitle} style={{ margin: 0, fontSize: "0.82rem" }}>
+              Audiencia estimada:
+            </p>
+            <p className={styles.title} style={{ margin: 0 }}>
+              {formatNumber(affCount, 0)} personas
+            </p>
           </div>
-        </div>
-      )}
+        )}
+        {/* Toggle: obligatoria */}
+        <CardRow
+          label="¿Quieres asegurarte de que todos respondan?"
+          subtitle="Activa para que los usuarios respondan la encuesta sin posibilidad de omitirla"
+        >
+          <Switch
+            name="is_mandatory"
+            optionValue={["Y", "N"]}
+            value={formState.is_mandatory === "Y" ? "Y" : "N"}
+            onChange={(e: any) =>
+              setFormState({ ...formState, is_mandatory: e.target.checked ? "Y" : "N" })
+            }
+          />
+        </CardRow>
+
+        {/* Toggle: programar */}
+        <CardRow
+          label="Programar encuesta"
+          subtitle="Elige una fecha específica para enviar la encuesta"
+        >
+          <Switch
+            name="switch"
+            optionValue={["Y", "N"]}
+            value={formState.switch || "N"}
+            onChange={(e: any) =>
+              setFormState({ ...formState, switch: e.target.checked ? "Y" : "N" })
+            }
+          />
+        </CardRow>
+
+        {/* Date inputs (shown when scheduling is ON) */}
+        {formState.switch === "Y" && (
+          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+            <Input
+              type="date"
+              name="begin_at"
+              label="Fecha de inicio"
+              value={(formState?.begin_at || "").split("T")[0].split(" ")[0]}
+              onChange={(e: any) =>
+                setFormState({ ...formState, begin_at: e.target.value })
+              }
+            />
+            <Input
+              type="date"
+              name="end_at"
+              label="Fecha de fin"
+              value={(formState?.end_at || "").split("T")[0].split(" ")[0]}
+              onChange={(e: any) =>
+                setFormState({ ...formState, end_at: e.target.value })
+              }
+            />
+          </div>
+        )}
+
+       
+      </div>
     </div>
   );
 }
