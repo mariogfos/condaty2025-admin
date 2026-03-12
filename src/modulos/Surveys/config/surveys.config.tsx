@@ -3,7 +3,11 @@ import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getDateStrMes } from "@/mk/utils/date";
 import RenderForm from "../components/RenderForm/RenderForm";
 import RenderView from "../components/RenderView/RenderView";
-import { getStatusLabel, getDestinyLabel, SURVEY_STATUSES } from "./surveys.constants";
+import {
+  getStatusLabel,
+  getDestinyLabel,
+  SURVEY_STATUSES,
+} from "./surveys.constants";
 import { getPeriodOptions } from "@/mk/utils/periodFilterOptions";
 
 import styles from "../Surveys.module.css";
@@ -28,9 +32,14 @@ export const getSurveyConfig = (
       </p>
     ),
     filter: true,
-    permiso: "",
+    permiso: "surveys",
     extraData: true,
-    onHideActions:  (item:any) => { return {hideDel:item.status == "C" ||item.total_voters>0, hideEdit:item.status == "C"||item.total_voters>0} },
+    onHideActions: (item: any) => {
+      return {
+        hideDel: item.status == "C" || item.total_voters > 0,
+        hideEdit: item.status == "C" || item.total_voters > 0,
+      };
+    },
     search: true,
     renderForm: (props: any) => {
       return (
@@ -52,7 +61,6 @@ export const getSurveyConfig = (
     renderView: (props: any) => <RenderView {...props} />,
     loadView: { fullType: "DET" },
   };
-
 
   const fields = {
     id: { rules: [], api: "e" },
@@ -77,7 +85,6 @@ export const getSurveyConfig = (
       rules: ["validateIf:switch,Y", "required", "greaterDate"],
       api: "ae",
       label: "Fecha inicio",
-
     },
     expires_at: {
       rules: [
@@ -88,7 +95,6 @@ export const getSurveyConfig = (
       ],
       api: "ae",
       label: "Fecha fin",
-
     },
     title: {
       rules: ["required"],
@@ -101,19 +107,17 @@ export const getSurveyConfig = (
       rules: ["required"],
       api: "ae",
       label: "Descripción",
-
     },
     switch: {
       rules: [],
       api: "ae",
       list: false,
-
     },
     created_by_name: {
       rules: [""],
       api: "",
       label: "Creado por",
-      list: false
+      list: false,
     },
     target_criteria: {
       rules: ["required"],
@@ -146,7 +150,7 @@ export const getSurveyConfig = (
       rules: [""],
       api: "",
       label: "Preguntas",
-       list: {
+      list: {
         width: "100px",
       },
     },
@@ -155,7 +159,9 @@ export const getSurveyConfig = (
       list: {
         width: "100px",
         onRender: (props: any) => (
-          <div>{props.item.total_voters}/{props.item.estimated_audience}</div>
+          <div>
+            {props.item.total_voters}/{props.item.estimated_audience}
+          </div>
         ),
       },
     },
