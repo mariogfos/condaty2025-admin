@@ -93,6 +93,7 @@ export const menuConfig = [
         label: "Muro publicaciones",
         badgeKey: "reelsBage",
       },
+      { href: "/surveys", perm: "surveys", label: "Encuestas" },
     ],
   },
   {
