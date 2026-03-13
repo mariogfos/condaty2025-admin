@@ -8,10 +8,12 @@ import SurveySummaryCard from "./components/SurveySummaryCard/SurveySummaryCard"
 import SurveyList from "./components/SurveyListView/SurveyList";
 import SurveyDetailModal from "./components/SurveyDetailModal/SurveyDetailModal";
 import SurveyAnswerForm from "./components/SurveyAnswerForm";
+import { useMySurveys } from "./hooks/useMySurveys";
+import { SurveyFilterType } from "./types/mySurveys.types";
 
 const MisEncuestas = () => {
   const { setStore, store, userCan } = useAuth();
-  const [activeTab, setActiveTab] = useState("P");
+  // const [activeTab, setActiveTab] = useState("P");
   const [counts, setCounts] = useState({
     P: 0,
     R: 0,
@@ -19,11 +21,24 @@ const MisEncuestas = () => {
   });
   const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
   const [modalMode, setModalMode] = useState<"view" | "answer">("view");
-  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<SurveyFilterType>("P");
+  const {
+    counts: myCounts,
+    surveys,
+    error,
+    fetchSurveys,
+    fetchSurveyDetail,
+    submitAnswers,
+    fetchCounts,
+    execute,
+    reLoad,
+    loading,
+  } = useMySurveys();
 
   useEffect(() => {
-    setStore({ ...store, title: "" });
-  }, []);
+    // setStore({ ...store, title: "" });
+    fetchSurveys(activeTab);
+  }, [activeTab]);
 
   const tabs = [
     { value: "P", text: "Pendientes", numero: counts.P },
@@ -31,7 +46,11 @@ const MisEncuestas = () => {
     { value: "E", text: "Historial", numero: counts.E },
   ];
 
-  const handleCountsChange = (newCounts: { P: number; R: number; E: number }) => {
+  const handleCountsChange = (newCounts: {
+    P: number;
+    R: number;
+    E: number;
+  }) => {
     setCounts(newCounts);
   };
 
@@ -102,6 +121,10 @@ const MisEncuestas = () => {
           onView={handleViewSurvey}
           onAnswer={handleAnswerSurvey}
           onCountsChange={handleCountsChange}
+          surveys={surveys}
+          execute={execute}
+          reLoad={reLoad}
+          loading={loading}
         />
       </div>
 

@@ -1,141 +1,166 @@
 // condaty-admin/src/modulos/Surveys/hooks/useMySurveys.ts
-import { useState, useCallback } from 'react';
-import useAxios from '@/mk/hooks/useAxios';
-import { 
-  MySurveyCount, 
-  SurveyListItem, 
-  SurveyDetail, 
+import { useState, useCallback } from "react";
+import useAxios from "@/mk/hooks/useAxios";
+import {
+  MySurveyCount,
+  SurveyListItem,
+  SurveyDetail,
   SurveyAnswer,
-  SurveyFilterType 
-} from '../types/mySurveys.types';
+  SurveyFilterType,
+} from "../types/mySurveys.types";
 
 interface UseMySurveysReturn {
   counts: MySurveyCount | null;
   surveys: SurveyListItem[];
-  loading: boolean;
   error: string | null;
-  activeTab: SurveyFilterType;
-  setActiveTab: (tab: SurveyFilterType) => void;
+  loading: boolean;
   fetchSurveys: (filter: SurveyFilterType, dptoId?: string) => Promise<void>;
   fetchSurveyDetail: (surveyId: string) => Promise<SurveyDetail | null>;
-  submitAnswers: (surveyId: string, dptoId: string, answers: SurveyAnswer[]) => Promise<boolean>;
+  submitAnswers: (
+    surveyId: string,
+    dptoId: string,
+    answers: SurveyAnswer[],
+  ) => Promise<boolean>;
   fetchCounts: () => Promise<void>;
+  execute: Function;
+  reLoad: Function;
 }
+
+const modulePath = "/surveys";
 
 export const useMySurveys = (): UseMySurveysReturn => {
   const [counts, setCounts] = useState<MySurveyCount | null>(null);
   const [surveys, setSurveys] = useState<SurveyListItem[]>([]);
-  const [activeTab, setActiveTab] = useState<SurveyFilterType>('P');
+
   const [error, setError] = useState<string | null>(null);
-
-  // Fetch counts
-  const { execute: executeCounts, loaded: loadingCounts } = useAxios(
-    '/surveys/my-counts',
-    'GET',
-    {},
-    true
-  );
-
-  // Fetch surveys list
-  const { execute: executeSurveys, loaded: loadingSurveys } = useAxios(
-    '/surveys',
-    'GET',
-    {},
-    true
-  );
-
-  // Submit answers
-  const { execute: executeAnswers, loaded: loadingSubmit } = useAxios(
-    '/surveys/answers',
-    'POST',
-    {},
-    true
-  );
-
-  const loading = loadingCounts || loadingSurveys || loadingSubmit;
+  const [loading, setLoading] = useState<boolean>(false);
+  const { execute, reLoad } = useAxios();
 
   const fetchCounts = useCallback(async () => {
     try {
-      const response = await executeCounts();
+      setLoading(true);
+      setError(null);
+      const { data: response } = await execute(
+        "/surveys/my-counts",
+        "GET",
+        {},
+        false,
+        true,
+      );
       if (response?.success) {
         setCounts(response.data);
       }
     } catch (err: any) {
-      console.error('Error fetching counts:', err);
+      console.error("Error fetching counts:", err);
+      setError(err.message || "Error al cargar encuestas");
+    } finally {
+      setLoading(false);
     }
-  }, [executeCounts]);
+  }, [surveys]);
 
-  const fetchSurveys = useCallback(async (filter: SurveyFilterType, dptoId?: string) => {
-    setError(null);
-    try {
-      const payload: Record<string, string> = {
-        filterBy: filter,
-        fullType: 'L',
-      };
-      if (dptoId) {
-        payload.dpto_id = dptoId;
-      }
-      
-      const response = await executeSurveys(payload, 'GET');
-      
-      if (response?.success) {
-        setSurveys(response.data?.data || []);
-      } else {
-        setError(response?.message || 'Error al cargar encuestas');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Error al cargar encuestas');
-    }
-  }, [executeSurveys]);
+  const fetchSurveys = useCallback(
+    async (filter: SurveyFilterType, dptoId?: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const payload: Record<string, string> = {
+          filterBy: filter,
+          fullType: "L",
+        };
+        if (dptoId) {
+          payload.dpto_id = dptoId;
+        }
 
-  const fetchSurveyDetail = useCallback(async (surveyId: string): Promise<SurveyDetail | null> => {
-    try {
-      const payload: Record<string, string> = {
-        fullType: 'DET',
-        searchBy: surveyId,
-      };
-      
-      const response = await executeSurveys(payload, 'GET');
-      
-      if (response?.success) {
-        return response.data?.survey || null;
+        const { data: response } = await execute(
+          modulePath,
+          "GET",
+          payload,
+          true,
+        );
+
+        if (response?.success) {
+          setSurveys(response.data || []);
+        } else {
+          setError(response?.message || "Error al cargar encuestas");
+        }
+      } catch (err: any) {
+        setError(err.message || "Error al cargar encuestas");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const fetchSurveyDetail = useCallback(
+    async (surveyId: string): Promise<SurveyDetail | null> => {
+      try {
+        setLoading(true);
+        setError(null);
+        const payload: Record<string, string> = {
+          fullType: "DET",
+          searchBy: surveyId,
+        };
+
+        const { data: response } = await execute(
+          modulePath,
+          "GET",
+          payload,
+          false,
+          true,
+        );
+
+        if (response?.success) {
+          return response.data?.survey || null;
+        }
+        return null;
+      } catch (err: any) {
+        console.error("Error fetching survey detail:", err);
+        setError(err.message || "Error al cargar encuesta");
+      } finally {
+        setLoading(false);
       }
       return null;
-    } catch (err) {
-      console.error('Error fetching survey detail:', err);
-      return null;
-    }
-  }, [executeSurveys]);
+    },
+    [],
+  );
 
-  const submitAnswers = useCallback(async (
-    surveyId: string, 
-    dptoId: string, 
-    answers: SurveyAnswer[]
-  ): Promise<boolean> => {
-    try {
-      const response = await executeAnswers('', 'POST', {
-        survey_id: surveyId,
-        dpto_id: dptoId,
-        questions: answers,
-      });
-      
-      return response?.success || false;
-    } catch (err) {
-      console.error('Error submitting answers:', err);
-      return false;
-    }
-  }, [executeAnswers]);
+  const submitAnswers = useCallback(
+    async (
+      surveyId: string,
+      dptoId: string,
+      answers: SurveyAnswer[],
+    ): Promise<boolean> => {
+      try {
+        const { data: response } = await execute(
+          modulePath + "/answers",
+          "POST",
+          {
+            survey_id: surveyId,
+            dpto_id: dptoId,
+            questions: answers,
+          },
+        );
+
+        return response?.success || false;
+      } catch (err) {
+        console.error("Error submitting answers:", err);
+        return false;
+      }
+    },
+    [],
+  );
 
   return {
     counts,
     surveys,
-    loading,
     error,
-    activeTab,
-    setActiveTab,
     fetchSurveys,
     fetchSurveyDetail,
     submitAnswers,
     fetchCounts,
+    execute,
+    reLoad,
+    loading,
   };
 };
