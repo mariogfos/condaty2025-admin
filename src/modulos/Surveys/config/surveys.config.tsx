@@ -33,7 +33,6 @@ export const getSurveyConfig = (
     ),
     filter: true,
     permiso: "surveys",
-    extraData: true,
     onHideActions: (item: any) => {
       return {
         hideDel: item.status == "C" || item.total_voters > 0,

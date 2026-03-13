@@ -94,6 +94,7 @@ export const menuConfig = [
         badgeKey: "reelsBage",
       },
       { href: "/surveys", perm: "surveys", label: "Encuestas" },
+      { href: "/mis-encuestas", perm: "surveys", label: "Mis Encuestas" },
     ],
   },
   {
