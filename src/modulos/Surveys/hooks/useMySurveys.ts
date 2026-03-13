@@ -68,17 +68,15 @@ export const useMySurveys = (): UseMySurveysReturn => {
   const fetchSurveys = useCallback(async (filter: SurveyFilterType, dptoId?: string) => {
     setError(null);
     try {
-      const params: Record<string, string> = {
+      const payload: Record<string, string> = {
         filterBy: filter,
         fullType: 'L',
       };
       if (dptoId) {
-        params.dpto_id = dptoId;
+        payload.dpto_id = dptoId;
       }
       
-      // Build query string
-      const queryString = new URLSearchParams(params).toString();
-      const response = await executeSurveys(`?${queryString}`, 'GET');
+      const response = await executeSurveys(payload, 'GET');
       
       if (response?.success) {
         setSurveys(response.data?.data || []);
@@ -92,7 +90,12 @@ export const useMySurveys = (): UseMySurveysReturn => {
 
   const fetchSurveyDetail = useCallback(async (surveyId: string): Promise<SurveyDetail | null> => {
     try {
-      const response = await executeSurveys(`?fullType=DET&searchBy=${surveyId}`, 'GET');
+      const payload: Record<string, string> = {
+        fullType: 'DET',
+        searchBy: surveyId,
+      };
+      
+      const response = await executeSurveys(payload, 'GET');
       
       if (response?.success) {
         return response.data?.survey || null;

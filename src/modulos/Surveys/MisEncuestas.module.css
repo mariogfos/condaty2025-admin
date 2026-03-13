@@ -1,0 +1,42 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+  padding: var(--spM);
+}
+
+.summarySection {
+  border-radius: var(--bRadius);
+}
+
+.summaryHeader {
+  margin-bottom: var(--spL);
+}
+
+.summaryTitle {
+  font-size: var(--sXxl);
+  font-weight: var(--bBold);
+  color: var(--cWhite);
+  letter-spacing: 1px;
+  margin: 0;
+  text-shadow: 1px 1px 2px var(--cBlackV3);
+}
+
+.summaryCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spL);
+}
+
+.tabsSection {
+  background-color: var(--cBlackV1);
+  border-radius: var(--bRadius);
+  width: fit-content;
+  margin-bottom: var(--spM);
+}
+
+.listSection {
+  background: var(--cBackground);
+  padding: var(--spM);
+  border-radius: var(--bRadius);
+}

@@ -1,0 +1,204 @@
+import React, { useState } from "react";
+import {
+  SingleChoiceQuestion,
+  MultipleChoiceQuestion,
+  ScaleQuestion,
+  TextQuestion,
+} from "./QuestionInterfaces";
+import styles from "./SurveyList.module.css";
+import {
+  IconCheckOff,
+  IconEdit,
+  IconRatioOff,
+  IconRatioOn,
+  IconTrash,
+} from "@/components/layout/icons/IconsBiblioteca";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import WidgetScale from "@/components/WidgetScale/WidgetScale";
+
+
+// Reutilizamos la lógica para cada tipo de pregunta
+const DeleteConfirmationModal: React.FC<{
+  show: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}> = ({ show, onClose, onConfirm }) => (
+  <DataModal
+    open={show}
+    title="Eliminar pregunta"
+    onClose={onClose}
+    buttonText="Eliminar"
+    buttonCancel="Cancelar"
+    onSave={onConfirm}
+  >
+    <p className={styles.modalLogout}>
+      ¿Estás seguro de que deseas eliminar esta pregunta?
+    </p>
+  </DataModal>
+);
+
+export const SingleChoiceQuestionComponent: React.FC<{
+  question: SingleChoiceQuestion;
+  onDelete: () => void;
+  onEdit: () => void;
+}> = ({ question, onDelete, onEdit }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    onDelete();
+    setShowDeleteModal(false);
+  };
+
+  return (
+    <div className={styles.surveyquestion}>
+      <h3>{question.question_text}</h3>
+      <p>{question.description}</p>
+      <div>
+        {question.soptions.map((option) => (
+          <div key={option.id}>
+            <IconRatioOff color="var(--cWhiteV1)" size={20} />
+            <p>{option.option_text}</p>
+          </div>
+        ))}
+      </div>
+      <div style={{color: 'var(--cWhiteV1)'}}>
+        <IconEdit onClick={onEdit} />
+        <IconTrash onClick={handleDelete} />
+      </div>
+      <DeleteConfirmationModal
+        show={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
+    </div>
+  );
+};
+
+// Repetir la misma lógica en los demás componentes
+
+export const MultipleChoiceQuestionComponent: React.FC<{
+  question: MultipleChoiceQuestion;
+  onDelete: () => void;
+  onEdit: () => void;
+}> = ({ question, onDelete, onEdit }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    onDelete();
+    setShowDeleteModal(false);
+  };
+
+  return (
+    <div className={styles.surveyquestion}>
+      <h3>{question.question_text}</h3>
+      <p>{question.description}</p>
+      <div>
+        {question.soptions.map((option) => (
+          <div key={option.id}>
+            <IconCheckOff color="var(--cWhiteV1)" />
+            <p>{option.option_text}</p>
+          </div>
+        ))}
+      </div>
+      <div>
+        <IconEdit onClick={onEdit} />
+        <IconTrash onClick={handleDelete} />
+      </div>
+      <DeleteConfirmationModal
+        show={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
+    </div>
+  );
+};
+
+export const ScaleQuestionComponent: React.FC<{
+  question: ScaleQuestion;
+  onDelete: () => void;
+  onEdit: () => void;
+}> = ({ question, onDelete, onEdit }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    onDelete();
+    setShowDeleteModal(false);
+  };
+
+  return (
+    <div className={styles.scale}>
+      <WidgetScale
+        title={question.question_text}
+        description={question.description}
+        minValue={parseInt(question.min_options)}
+        maxValue={parseInt(question.max_options)}
+        minLabel={question.soptions[0].option_text}
+        maxLabel={question.soptions[question.soptions.length - 1].option_text}
+      />
+      <div>
+        <IconEdit onClick={onEdit} />
+        <IconTrash onClick={handleDelete} />
+      </div>
+      <DeleteConfirmationModal
+        show={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
+    </div>
+  );
+};
+
+export const TextQuestionComponent: React.FC<{
+  question: TextQuestion;
+  onDelete: () => void;
+  onEdit: () => void;
+}> = ({ question, onDelete, onEdit }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    onDelete();
+    setShowDeleteModal(false);
+  };
+
+  return (
+    <div className={styles.surveyquestion}>
+      <h3>{question.question_text}</h3>
+      <p>{question.description}</p>
+      <div>
+        <TextArea
+          value={""}
+          name=""
+          label="Escribe tu respuesta aquí"
+          lines={5}
+          disabled={true}
+        />
+      </div>
+      <div>
+        <IconEdit onClick={onEdit} />
+        <IconTrash onClick={handleDelete} />
+      </div>
+      <DeleteConfirmationModal
+        show={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
+    </div>
+  );
+};
