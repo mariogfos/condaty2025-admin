@@ -89,7 +89,7 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
 
       const payload = {
         survey_id: survey.id,
-        questions: answersList,
+        squestions: answersList,
       };
 
       const response = await executeSubmit('/surveys/answers', 'POST', payload);

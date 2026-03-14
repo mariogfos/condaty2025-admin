@@ -21,6 +21,7 @@ interface UseMySurveysReturn {
     dptoId: string,
     answers: SurveyAnswer[],
   ) => Promise<boolean>;
+  fetchResults: (surveyId: string, dptoId?: string) => Promise<any | null>;
   fetchCounts: () => Promise<void>;
   execute: Function;
   reLoad: Function;
@@ -138,7 +139,7 @@ export const useMySurveys = (): UseMySurveysReturn => {
           {
             survey_id: surveyId,
             dpto_id: dptoId,
-            questions: answers,
+            squestions: answers,
           },
         );
 
@@ -151,6 +152,41 @@ export const useMySurveys = (): UseMySurveysReturn => {
     [],
   );
 
+  const fetchResults = useCallback(
+    async (surveyId: string, dptoId?: string): Promise<any | null> => {
+      try {
+        setLoading(true);
+        setError(null);
+        const payload: Record<string, string> = {
+          survey_id: surveyId,
+        };
+        if (dptoId) {
+          payload.dpto_id = dptoId;
+        }
+
+        const { data: response } = await execute(
+          modulePath + "/results",
+          "GET",
+          payload,
+          false,
+          true
+        );
+
+        if (response?.success) {
+          return response.data || null;
+        }
+        return null;
+      } catch (err: any) {
+        console.error("Error fetching survey results:", err);
+        setError(err.message || "Error al cargar resultados");
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
   return {
     counts,
     surveys,
@@ -158,6 +194,7 @@ export const useMySurveys = (): UseMySurveysReturn => {
     fetchSurveys,
     fetchSurveyDetail,
     submitAnswers,
+    fetchResults,
     fetchCounts,
     execute,
     reLoad,
