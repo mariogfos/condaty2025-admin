@@ -1,11 +1,16 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Button from '@/mk/components/forms/Button/Button';
 import Input from '@/mk/components/forms/Input/Input';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
-import useAxios from "@/mk/hooks/useAxios";
 import styles from './SurveyAnswerForm.module.css';
+import { useMySurveys } from '../hooks/useMySurveys';
+import SurveyQuestion from './Questions/SurveyQuestion';
+import SingleChoice from './Questions/SingleChoice';
+import MultipleChoice from './Questions/MultipleChoice';
+import ScaleChoice from './Questions/ScaleChoice';
+import TextChoice from './Questions/TextChoice';
 
 interface SurveyAnswerFormProps {
   survey: any;
@@ -14,20 +19,35 @@ interface SurveyAnswerFormProps {
 }
 
 const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
-  survey,
+  survey: initialSurvey,
   onClose,
   onSuccess,
 }) => {
+  const [surveyDetail, setSurveyDetail] = useState<any>(initialSurvey);
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
-  const { execute: executeSubmit, loaded } = useAxios(
-    "/surveys/answers",
-    "POST",
-    {},
-    true
-  );
+  const { fetchSurveyDetail, submitAnswers } = useMySurveys();
+
+  useEffect(() => {
+    const loadDetail = async () => {
+      if (!initialSurvey.id) return;
+      
+      // Solo cargamos si no tenemos las preguntas ya
+      if (!initialSurvey.squestions || initialSurvey.squestions.length === 0) {
+        setIsLoadingDetail(true);
+        const detail = await fetchSurveyDetail(initialSurvey.id);
+        if (detail) {
+          setSurveyDetail(detail);
+        }
+        setIsLoadingDetail(false);
+      }
+    };
+
+    loadDetail();
+  }, [initialSurvey.id, fetchSurveyDetail]);
 
   const handleSingleSelect = (questionId: string, optionId: string) => {
     setAnswers(prev => ({
@@ -62,7 +82,7 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
     const newErrors: Record<string, string> = {};
     let isValid = true;
 
-    survey.squestions?.forEach((question: any) => {
+    surveyDetail.squestions?.forEach((question: any) => {
       const answer = answers[question.id];
       const isEmpty = !answer?.soption_id && 
         !(answer?.soption_ids && answer.soption_ids.length > 0) && 
@@ -87,17 +107,13 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
         a.soption_id || (a.soption_ids && a.soption_ids.length > 0) || a.answer
       );
 
-      const payload = {
-        survey_id: survey.id,
-        squestions: answersList,
-      };
-
-      const response = await executeSubmit('/surveys/answers', 'POST', payload);
+      // En el administrador no enviamos dpto_id
+      const success = await submitAnswers(surveyDetail.id, "", answersList as any);
       
-      if (response?.data?.success) {
+      if (success) {
         onSuccess();
       } else {
-        setErrors({ _general: response?.data?.message || 'Error al enviar respuestas' });
+        setErrors({ _general: 'Error al enviar respuestas. Inténtelo de nuevo.' });
       }
     } catch (err: any) {
       setErrors({ _general: err.message || 'Error al enviar respuestas' });
@@ -106,136 +122,102 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
     }
   };
 
-  const renderQuestion = (question: any) => {
+  const renderQuestion = (question: any, index: number) => {
     const error = errors[question.id];
-
-    switch (question.type) {
-      case 'S':
-        return (
-          <div className={styles.optionsList}>
-            {question.soptions?.map((option: any) => (
-              <div
-                key={option.id}
-                className={`${styles.option} ${answers[question.id]?.soption_id === option.id ? styles.selected : ''}`}
-                onClick={() => handleSingleSelect(question.id, option.id)}
-              >
-                <div className={styles.radio}>
-                  {answers[question.id]?.soption_id === option.id && <div className={styles.radioInner} />}
-                </div>
-                <span>{option.option_text}</span>
-              </div>
-            ))}
-          </div>
-        );
-
-      case 'M':
-        return (
-          <div className={styles.optionsList}>
-            {question.soptions?.map((option: any) => (
-              <div
-                key={option.id}
-                className={`${styles.option} ${answers[question.id]?.soption_ids?.includes(option.id) ? styles.selected : ''}`}
-                onClick={() => handleMultiSelect(question.id, option.id, !answers[question.id]?.soption_ids?.includes(option.id))}
-              >
-                <div className={`${styles.checkbox} ${answers[question.id]?.soption_ids?.includes(option.id) ? styles.checked : ''}`}>
-                  {answers[question.id]?.soption_ids?.includes(option.id) && <span className={styles.checkmark}>✓</span>}
-                </div>
-                <span>{option.option_text}</span>
-              </div>
-            ))}
-          </div>
-        );
-
-      case 'E':
-        return (
-          <div className={styles.scaleContainer}>
-            <Input
-              name={`question_${question.id}`}
-              type="number"
-              min={question.min_options || 1}
-              max={question.max_options || 5}
-              value={answers[question.id]?.answer || ''}
-              onChange={(e: any) => handleTextAnswer(question.id, e.target.value)}
-              placeholder={`${question.min_options || 1} - ${question.max_options || 5}`}
-            />
-            <div className={styles.scaleLabels}>
-              <span>Mín: {question.min_options || 1}</span>
-              <span>Máx: {question.max_options || 5}</span>
-            </div>
-          </div>
-        );
-
-      case 'T':
-        return (
-          <TextArea
-            name={`question_${question.id}`}
-            value={answers[question.id]?.answer || ''}
-            onChange={(e: any) => handleTextAnswer(question.id, e.target.value)}
-            placeholder="Escribe tu respuesta..."
-            lines={3}
-          />
-        );
-
-      default:
-        return null;
-    }
+    
+    return (
+      <SurveyQuestion
+        key={question.id}
+        index={index}
+        label={question.question_text}
+        description={question.description}
+        required={question.is_required}
+        error={error}
+      >
+        {(() => {
+          switch (question.type) {
+            case 'S':
+              return (
+                <SingleChoice
+                  options={question.soptions}
+                  value={answers[question.id]?.soption_id}
+                  onChange={(optionId) => handleSingleSelect(question.id, optionId as string)}
+                  disabled={isSubmitting}
+                />
+              );
+            case 'M':
+              return (
+                <MultipleChoice
+                  options={question.soptions}
+                  value={answers[question.id]?.soption_ids}
+                  onChange={(optionId, isSelected) => handleMultiSelect(question.id, optionId as string, isSelected)}
+                  disabled={isSubmitting}
+                />
+              );
+            case 'E':
+              return (
+                <ScaleChoice
+                  minOptions={question.min_options}
+                  maxOptions={question.max_options}
+                  minLabel={question.soptions?.[0]?.option_text}
+                  maxLabel={question.soptions?.[question.soptions.length - 1]?.option_text}
+                  value={answers[question.id]?.answer}
+                  onChange={(val) => handleTextAnswer(question.id, val.toString())}
+                  disabled={isSubmitting}
+                />
+              );
+            case 'T':
+              return (
+                <TextChoice
+                  name={`question_${question.id}`}
+                  value={answers[question.id]?.answer}
+                  onChange={(val) => handleTextAnswer(question.id, val)}
+                  disabled={isSubmitting}
+                />
+              );
+            default:
+              return null;
+          }
+        })()}
+      </SurveyQuestion>
+    );
   };
 
   return (
     <DataModal
       open={true}
       onClose={onClose}
-      title={survey.title}
+      onSave={handleSubmit}
+      title={surveyDetail.title}
+      buttonText={isSubmitting ? "Enviando..." : "Enviar respuestas"}
+      buttonCancel="Cancelar"
+      disabled={isSubmitting || isLoadingDetail || !surveyDetail.squestions?.length}
       style={{ width: '80%' }}
     >
       <div className={styles.content}>
-        {survey.description && (
-          <p className={styles.description}>{survey.description}</p>
+        {isLoadingDetail && <div className={styles.loadingBar} />}
+        
+        {surveyDetail.description && (
+          <p className={styles.description}>{surveyDetail.description}</p>
         )}
 
         {errors._general && (
           <div className={styles.errorGeneral}>{errors._general}</div>
         )}
 
-        <div className={styles.questions}>
-          {survey.squestions?.map((question: any, index: number) => (
-            <div 
-              key={question.id} 
-              className={`${styles.question} ${errors[question.id] ? styles.hasError : ''}`}
-            >
-              <label className={styles.questionLabel}>
-                {index + 1}. {question.question_text}
-                {question.is_required && <span className={styles.required}>*</span>}
-              </label>
-              {question.description && (
-                <p className={styles.questionDescription}>{question.description}</p>
-              )}
-              {renderQuestion(question)}
-              {errors[question.id] && (
-                <span className={styles.error}>{errors[question.id]}</span>
-              )}
-            </div>
-          ))}
-        </div>
-        
-        <div className={styles.actions}>
-          <Button 
-            variant="secondary" 
-            onClick={onClose} 
-            disabled={isSubmitting}
-          >
-            Cancelar
-          </Button>
-          <Button 
-            onClick={handleSubmit} 
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Enviando...' : 'Enviar respuestas'}
-          </Button>
-        </div>
+        {surveyDetail.squestions?.length > 0 ? (
+          <div className={styles.questions}>
+            {surveyDetail.squestions.map((question: any, index: number) => 
+               renderQuestion(question, index)
+            )}
+          </div>
+        ) : !isLoadingDetail && (
+          <div className={styles.emptyQuestions}>No hay preguntas disponibles para esta encuesta.</div>
+        )}
       </div>
     </DataModal>
   );
 };
 
 export default SurveyAnswerForm;
+

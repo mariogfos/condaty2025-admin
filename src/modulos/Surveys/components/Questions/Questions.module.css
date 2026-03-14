@@ -1,72 +1,18 @@
-.content {
-  position: relative;
-  overflow: hidden;
-}
-
-.loadingBar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background-color: var(--cSuccess);
-  z-index: 10;
-  animation: loadingAnim 2s infinite ease-in-out;
-}
-
-@keyframes loadingAnim {
-  0% { left: -100%; width: 100%; }
-  50% { left: 0%; width: 100%; }
-  100% { left: 100%; width: 100%; }
-}
-
-.header {
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--cGrayLight);
-}
-
-.title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--cWhite);
-  margin: 0 0 8px 0;
-}
-
-.description {
-  font-size: 14px;
-  color: var(--cWhiteV3);
-  margin: 0;
-  line-height: 1.5;
-}
-
-.questions {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  margin-top: 16px;
-}
-
-.emptyQuestions {
-  padding: 40px;
-  text-align: center;
-  color: var(--cWhiteV3);
-  font-style: italic;
-}
-
-.question {
+.surveyQuestion {
   padding: 16px;
   background: var(--cBlackV1);
   border-radius: 8px;
   border: 1px solid var(--cBlackV2);
+  margin-bottom: var(--spL);
+  position: relative;
 }
 
-.question.hasError {
+.surveyQuestion.hasError {
   border-color: var(--cError);
   border-left: 3px solid var(--cError);
 }
 
-.questionLabel {
+.label {
   display: block;
   font-size: 15px;
   font-weight: 500;
@@ -79,12 +25,20 @@
   margin-left: 4px;
 }
 
-.questionDescription {
+.description {
   font-size: 13px;
   color: var(--cWhiteV3);
   margin: 0 0 12px 0;
 }
 
+.error {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--cError);
+}
+
+/* Common Option Styles */
 .optionsList {
   display: flex;
   flex-direction: column;
@@ -109,8 +63,8 @@
 }
 
 .option.selected {
-  border-color: var(--cPrimary);
-  background: rgba(0, 122, 204, 0.05);
+  border-color: var(--cSuccess);
+  background: rgba(var(--cSuccessRGB), 0.05);
 }
 
 .radio {
@@ -127,7 +81,7 @@
 .radioInner {
   width: 10px;
   height: 10px;
-  background: var(--cPrimary);
+  background: var(--cSuccess);
   border-radius: 50%;
 }
 
@@ -153,31 +107,72 @@
   font-weight: bold;
 }
 
+/* Scale Styles */
 .scaleContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-top: 10px;
 }
 
 .scaleLabels {
   display: flex;
   justify-content: space-between;
+  font-size: 13px;
+  color: var(--cWhiteV3);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.scaleRadios {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 0 10px;
+}
+
+.scaleItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.scaleRadio {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--cBlackV2);
+  border-radius: 50%;
+  background: var(--cBlackV2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  color: var(--cWhiteV3);
+  font-size: 14px;
+}
+
+.scaleItem:hover .scaleRadio {
+  border-color: var(--cWhiteV3);
+  color: var(--cWhite);
+}
+
+.scaleItem.selected .scaleRadio {
+  background: var(--cSuccess);
+  border-color: var(--cSuccess);
+  color: var(--cBlackV1);
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(var(--cSuccessRGB), 0.3);
+}
+
+.scaleValueLabel {
   font-size: 12px;
   color: var(--cWhiteV3);
+  transition: all 0.2s ease;
 }
 
-.error {
-  display: block;
-  margin-top: 8px;
-  font-size: 13px;
-  color: var(--cError);
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--cGrayLight);
+.scaleItem.selected .scaleValueLabel {
+  color: var(--cSuccess);
+  font-weight: bold;
 }

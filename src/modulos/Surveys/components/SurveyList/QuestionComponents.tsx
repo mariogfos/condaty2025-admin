@@ -15,7 +15,11 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import WidgetScale from "@/components/WidgetScale/WidgetScale";
+import SurveyQuestion from "../Questions/SurveyQuestion";
+import SingleChoice from "../Questions/SingleChoice";
+import MultipleChoice from "../Questions/MultipleChoice";
+import ScaleChoice from "../Questions/ScaleChoice";
+import TextChoice from "../Questions/TextChoice";
 
 
 // Reutilizamos la lógica para cada tipo de pregunta
@@ -55,27 +59,28 @@ export const SingleChoiceQuestionComponent: React.FC<{
   };
 
   return (
-    <div className={styles.surveyquestion}>
-      <h3>{question.question_text}</h3>
-      <p>{question.description}</p>
-      <div>
-        {question.soptions.map((option) => (
-          <div key={option.id}>
-            <IconRatioOff color="var(--cWhiteV1)" size={20} />
-            <p>{option.option_text}</p>
-          </div>
-        ))}
-      </div>
-      <div style={{color: 'var(--cWhiteV1)'}}>
-        <IconEdit onClick={onEdit} />
-        <IconTrash onClick={handleDelete} />
-      </div>
-      <DeleteConfirmationModal
-        show={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={confirmDelete}
+    <SurveyQuestion
+      label={question.question_text}
+      description={question.description}
+      className={styles.surveyquestion}
+      actions={
+        <div style={{color: 'var(--cWhiteV1)'}}>
+          <IconEdit onClick={onEdit} />
+          <IconTrash onClick={handleDelete} />
+          <DeleteConfirmationModal
+            show={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={confirmDelete}
+          />
+        </div>
+      }
+    >
+      <SingleChoice
+        options={question.soptions}
+        onChange={() => {}}
+        readOnly={true}
       />
-    </div>
+    </SurveyQuestion>
   );
 };
 
@@ -98,27 +103,28 @@ export const MultipleChoiceQuestionComponent: React.FC<{
   };
 
   return (
-    <div className={styles.surveyquestion}>
-      <h3>{question.question_text}</h3>
-      <p>{question.description}</p>
-      <div>
-        {question.soptions.map((option) => (
-          <div key={option.id}>
-            <IconCheckOff color="var(--cWhiteV1)" />
-            <p>{option.option_text}</p>
-          </div>
-        ))}
-      </div>
-      <div>
-        <IconEdit onClick={onEdit} />
-        <IconTrash onClick={handleDelete} />
-      </div>
-      <DeleteConfirmationModal
-        show={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={confirmDelete}
+    <SurveyQuestion
+      label={question.question_text}
+      description={question.description}
+      className={styles.surveyquestion}
+      actions={
+        <div>
+          <IconEdit onClick={onEdit} />
+          <IconTrash onClick={handleDelete} />
+          <DeleteConfirmationModal
+            show={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={confirmDelete}
+          />
+        </div>
+      }
+    >
+      <MultipleChoice
+        options={question.soptions}
+        onChange={() => {}}
+        readOnly={true}
       />
-    </div>
+    </SurveyQuestion>
   );
 };
 
@@ -139,25 +145,31 @@ export const ScaleQuestionComponent: React.FC<{
   };
 
   return (
-    <div className={styles.scale}>
-      <WidgetScale
-        title={question.question_text}
-        description={question.description}
-        minValue={parseInt(question.min_options)}
-        maxValue={parseInt(question.max_options)}
-        minLabel={question.soptions[0].option_text}
-        maxLabel={question.soptions[question.soptions.length - 1].option_text}
+    <SurveyQuestion
+      label={question.question_text}
+      description={question.description}
+      className={styles.scale}
+      actions={
+        <div>
+          <IconEdit onClick={onEdit} />
+          <IconTrash onClick={handleDelete} />
+          <DeleteConfirmationModal
+            show={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={confirmDelete}
+          />
+        </div>
+      }
+    >
+      <ScaleChoice
+        minOptions={question.min_options}
+        maxOptions={question.max_options}
+        minLabel={question.soptions[0]?.option_text}
+        maxLabel={question.soptions[question.soptions.length - 1]?.option_text}
+        onChange={() => {}}
+        readOnly={true}
       />
-      <div>
-        <IconEdit onClick={onEdit} />
-        <IconTrash onClick={handleDelete} />
-      </div>
-      <DeleteConfirmationModal
-        show={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={confirmDelete}
-      />
-    </div>
+    </SurveyQuestion>
   );
 };
 
@@ -178,27 +190,27 @@ export const TextQuestionComponent: React.FC<{
   };
 
   return (
-    <div className={styles.surveyquestion}>
-      <h3>{question.question_text}</h3>
-      <p>{question.description}</p>
-      <div>
-        <TextArea
-          value={""}
-          name=""
-          label="Escribe tu respuesta aquí"
-          lines={5}
-          disabled={true}
-        />
-      </div>
-      <div>
-        <IconEdit onClick={onEdit} />
-        <IconTrash onClick={handleDelete} />
-      </div>
-      <DeleteConfirmationModal
-        show={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={confirmDelete}
+    <SurveyQuestion
+      label={question.question_text}
+      description={question.description}
+      className={styles.surveyquestion}
+      actions={
+        <div>
+          <IconEdit onClick={onEdit} />
+          <IconTrash onClick={handleDelete} />
+          <DeleteConfirmationModal
+            show={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={confirmDelete}
+          />
+        </div>
+      }
+    >
+      <TextChoice
+        name={`preview_${question.id}`}
+        onChange={() => {}}
+        readOnly={true}
       />
-    </div>
+    </SurveyQuestion>
   );
 };

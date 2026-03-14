@@ -25,7 +25,6 @@ const MisEncuestas = () => {
   const {
     counts: myCounts,
     surveys,
-    error,
     fetchSurveys,
     fetchSurveyDetail,
     submitAnswers,

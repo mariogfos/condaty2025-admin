@@ -18,6 +18,7 @@ Este manual es tu guía completa para entender, desarrollar y mantener el sistem
 8. [Flujos de Trabajo](#-flujos-de-trabajo)
 9. [Resolución de Problemas](#-resolución-de-problemas)
 10. [Recursos y Referencias](#-recursos-y-referencias)
+11. [Biblioteca de Preguntas y UI/UX Standards](#-biblioteca-de-preguntas-y-uiux-standards)
 
 ---
 
