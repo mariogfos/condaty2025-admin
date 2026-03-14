@@ -35,6 +35,7 @@ export const useMySurveys = (): UseMySurveysReturn => {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [detailsCache, setDetailsCache] = useState<Record<string, SurveyDetail>>({});
   const { execute, reLoad } = useAxios();
 
   const fetchCounts = useCallback(async () => {
@@ -95,6 +96,11 @@ export const useMySurveys = (): UseMySurveysReturn => {
 
   const fetchSurveyDetail = useCallback(
     async (surveyId: string): Promise<SurveyDetail | null> => {
+      // Return from cache if available
+      if (detailsCache[surveyId]) {
+        return detailsCache[surveyId];
+      }
+
       try {
         setLoading(true);
         setError(null);
@@ -112,7 +118,11 @@ export const useMySurveys = (): UseMySurveysReturn => {
         );
 
         if (response?.success) {
-          return response.data?.survey || null;
+          const detail = response.data?.survey || null;
+          if (detail) {
+            setDetailsCache((prev) => ({ ...prev, [surveyId]: detail }));
+          }
+          return detail;
         }
         return null;
       } catch (err: any) {
@@ -123,7 +133,7 @@ export const useMySurveys = (): UseMySurveysReturn => {
       }
       return null;
     },
-    [],
+    [detailsCache],
   );
 
   const submitAnswers = useCallback(

@@ -57,8 +57,15 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
     setErrors(prev => ({ ...prev, [questionId]: '' }));
   };
 
-  const handleMultiSelect = (questionId: string, optionId: string, currentlySelected: boolean) => {
+  const handleMultiSelect = (questionId: string, optionId: string, currentlySelected: boolean, maxOptions?: number) => {
     const current = answers[questionId]?.soption_ids || [];
+    
+    // Si estamos seleccionando (no deseleccionando) y ya llegamos al máximo
+    if (currentlySelected && maxOptions && maxOptions > 0 && current.length >= maxOptions) {
+      setErrors(prev => ({ ...prev, [questionId]: `Máximo ${maxOptions} opciones permitidas` }));
+      return;
+    }
+
     const newOptions = currentlySelected
       ? [...current, optionId]
       : current.filter((id: string) => id !== optionId);
@@ -68,6 +75,19 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
       [questionId]: { squestion_id: questionId, soption_ids: newOptions }
     }));
     setErrors(prev => ({ ...prev, [questionId]: '' }));
+  };
+
+  const handleScaleSelect = (questionId: string, value: number, options: any[]) => {
+    // Buscar la opción que coincida con el valor seleccionado
+    const option = options.find(o => parseInt(o.option_text) === value);
+    
+    if (option) {
+      setAnswers(prev => ({
+        ...prev,
+        [questionId]: { squestion_id: questionId, soption_id: option.id, answer: value.toString() }
+      }));
+      setErrors(prev => ({ ...prev, [questionId]: '' }));
+    }
   };
 
   const handleTextAnswer = (questionId: string, value: string) => {
@@ -84,13 +104,25 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
 
     surveyDetail.squestions?.forEach((question: any) => {
       const answer = answers[question.id];
+      const selectedCount = answer?.soption_ids?.length || 0;
       const isEmpty = !answer?.soption_id && 
-        !(answer?.soption_ids && answer.soption_ids.length > 0) && 
+        !(selectedCount > 0) && 
         !answer?.answer;
 
       if (question.is_required && isEmpty) {
         newErrors[question.id] = 'Esta pregunta es obligatoria';
         isValid = false;
+      } else if (question.type === 'M') {
+        const min = parseInt(question.min_options);
+        const max = parseInt(question.max_options);
+
+        if (min > 0 && selectedCount < min) {
+          newErrors[question.id] = `Debe seleccionar al menos ${min} ${min === 1 ? 'opción' : 'opciones'}`;
+          isValid = false;
+        } else if (max > 0 && selectedCount > max) {
+          newErrors[question.id] = `Puede seleccionar un máximo de ${max} ${max === 1 ? 'opción' : 'opciones'}`;
+          isValid = false;
+        }
       }
     });
 
@@ -125,12 +157,31 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
   const renderQuestion = (question: any, index: number) => {
     const error = errors[question.id];
     
+    const getConstraintHint = () => {
+      if (question.type !== 'M') return null;
+      const min = parseInt(question.min_options);
+      const max = parseInt(question.max_options);
+      
+      if (min > 0 && max > 0) {
+        if (min === max) return `Seleccione exactamente ${min} ${min === 1 ? 'opción' : 'opciones'}`;
+        return `Seleccione entre ${min} y ${max} opciones`;
+      }
+      if (min > 0) return `Seleccione al menos ${min} ${min === 1 ? 'opción' : 'opciones'}`;
+      if (max > 0) return `Máximo ${max} ${max === 1 ? 'opción' : 'opciones'}`;
+      return null;
+    };
+
+    const hint = getConstraintHint();
+    const description = question.description 
+      ? (hint ? `${question.description} (${hint})` : question.description)
+      : (hint ? hint : "");
+
     return (
       <SurveyQuestion
         key={question.id}
         index={index}
         label={question.question_text}
-        description={question.description}
+        description={description}
         required={question.is_required}
         error={error}
       >
@@ -150,7 +201,7 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
                 <MultipleChoice
                   options={question.soptions}
                   value={answers[question.id]?.soption_ids}
-                  onChange={(optionId, isSelected) => handleMultiSelect(question.id, optionId as string, isSelected)}
+                  onChange={(optionId, isSelected) => handleMultiSelect(question.id, optionId as string, isSelected, question.max_options)}
                   disabled={isSubmitting}
                 />
               );
@@ -162,7 +213,7 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
                   minLabel={question.soptions?.[0]?.option_text}
                   maxLabel={question.soptions?.[question.soptions.length - 1]?.option_text}
                   value={answers[question.id]?.answer}
-                  onChange={(val) => handleTextAnswer(question.id, val.toString())}
+                  onChange={(val) => handleScaleSelect(question.id, val, question.soptions || [])}
                   disabled={isSubmitting}
                 />
               );

@@ -68,7 +68,10 @@ const MisEncuestas = () => {
   };
 
   const handleSurveyAnswered = () => {
+    setSelectedSurvey((prev: any) => ({ ...prev, has_responded: true }));
     setModalMode("view");
+    fetchCounts();
+    fetchSurveys(activeTab);
   };
 
   if (!userCan("surveys", "R")) {

@@ -31,19 +31,32 @@ const SurveyDetailModal: React.FC<SurveyDetailModalProps> = ({
       if (!initialSurvey.id) return;
       
       setIsLoadingDetail(true);
-      // Fetch core detail (questions, etc)
-      const detail = await fetchSurveyDetail(initialSurvey.id);
-      if (detail) {
-        setSurveyDetail(detail);
-      }
+      
+      const hasResponded = initialSurvey.has_responded;
+      const isClosed = initialSurvey.status === 'C' || initialSurvey.status === 'X';
 
-      // If already responded or closed/expired, fetch results
-      if (initialSurvey.has_responded || initialSurvey.status === 'C' || initialSurvey.status === 'X') {
+      if (hasResponded || isClosed) {
+        // Only fetch results if we are viewing stats
         const res = await fetchResults(initialSurvey.id);
         if (res) {
           setResults(res);
+          // If results have survey_info, we can update surveyDetail with it
+          if (res.survey_info) {
+            setSurveyDetail((prev: any) => ({
+              ...prev,
+              ...res.survey_info,
+              title: res.survey_info.title || prev.title,
+            }));
+          }
+        }
+      } else {
+        // Only fetch detail if we are showing questions preview
+        const detail = await fetchSurveyDetail(initialSurvey.id);
+        if (detail) {
+          setSurveyDetail(detail);
         }
       }
+      
       setIsLoadingDetail(false);
     };
 
@@ -69,22 +82,24 @@ const SurveyDetailModal: React.FC<SurveyDetailModalProps> = ({
           <p className={styles.description}>{surveyDetail.description}</p>
         )}
         
-        <div className={styles.stats}>
-          <div className={styles.stat}>
-            <span className={styles.statValue}>{surveyDetail.questions_count || 0}</span>
-            <span className={styles.statLabel}>Preguntas</span>
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statValue}>{results?.survey_info?.total_participants ?? surveyDetail.estimated_audience ?? 0}</span>
-            <span className={styles.statLabel}>Participantes</span>
-          </div>
-          {results?.survey_info?.global_score > 0 && (
+        {!results && (
+          <div className={styles.stats}>
             <div className={styles.stat}>
-              <span className={styles.statValue}>{results.survey_info.global_score}</span>
-              <span className={styles.statLabel}>Puntaje Global</span>
+              <span className={styles.statValue}>{surveyDetail.questions_count || 0}</span>
+              <span className={styles.statLabel}>Preguntas</span>
             </div>
-          )}
-        </div>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{surveyDetail.estimated_audience ?? 0}</span>
+              <span className={styles.statLabel}>Participantes</span>
+            </div>
+            {surveyDetail.global_score > 0 && (
+              <div className={styles.stat}>
+                <span className={styles.statValue}>{surveyDetail.global_score}</span>
+                <span className={styles.statLabel}>Puntaje Global</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {results ? (
           <div className={styles.resultsContainer}>
@@ -92,6 +107,7 @@ const SurveyDetailModal: React.FC<SurveyDetailModalProps> = ({
             <SurveyStatsView 
               squestions={results.questions} 
               totalParticipants={results.survey_info?.total_participants || 0} 
+              showSummary={false}
             />
           </div>
         ) : (
