@@ -7,6 +7,7 @@ import {
   IconSetting,
   IconNotification,
   IconMessage,
+  IconWorld,
 } from "../layout/icons/IconsBiblioteca";
 
 import HeadTitle from "../HeadTitle/HeadTitle";
@@ -16,6 +17,9 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 import { useEvent } from "@/mk/hooks/useEvents";
 import { useCallback, useEffect, useState } from "react";
+import { useLanguage } from "@/i18n/LanguageProvider";
+import { AppLocale } from "@/i18n/runtime";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 type PropsType = {
   isTablet: boolean;
@@ -48,12 +52,19 @@ const Header = ({
 }: PropsType) => {
   const isActive = (path: string) => router.pathname === path;
   const { store, setStore } = useAuth();
+  const { locale, setPreference } = useLanguage();
+  const { translate } = useScopedI18n("header");
   const [count, setCount] = useState(0);
 
   const menuItems = [
     { name: "Roles", route: "/roles" },
     { name: "Categorias de roles", route: "/rolescategories" },
     { name: "Permisos", route: "/rolesabilities" },
+  ];
+  const languageMenuItems = [
+    { name: "Español", route: "es" },
+    { name: "Português", route: "pt" },
+    { name: "English", route: "en" },
   ];
   const onNotif = useCallback((data: any) => {
     // console.log("nueva counter", data);
@@ -110,8 +121,8 @@ const Header = ({
             setStore({ openProfileModal: true });
           }}
         />
-        <p>{getFullName(user)}</p>
-        <p>{client?.name}</p>
+        <p data-i18n-ignore="true">{getFullName(user)}</p>
+        <p data-i18n-ignore="true">{client?.name}</p>
       </div>
     );
   };
@@ -215,12 +226,13 @@ const Header = ({
 
   return (
     <div className={styles["header-desktop"]}>
-      <div className={styles["header-greeting"]}>
-        <h1>¡Hola {getFullName(user)}!</h1>
-        <p>
-          Es un gusto tenerte de nuevo con nosotros, te deseamos una excelente
-          jornada laboral
-        </p>
+      <div className={styles["header-greeting"]} data-i18n-ignore="true">
+        <h1>
+          {translate("greetingStart")}{" "}
+          <span data-i18n-ignore="true">{getFullName(user)}</span>
+          {translate("greetingEnd")}
+        </h1>
+        <p>{translate("greetingSubtitle")}</p>
       </div>
 
       <div className={styles["header-controls"]}>
@@ -247,6 +259,29 @@ const Header = ({
             setCountChat(0);
           }}
           bage={countChat}
+        />
+        <Dropdown
+          trigger={
+            <div
+              className={styles.notificationContainer}
+              data-i18n-ignore="true"
+              aria-label={translate("changeLanguage")}
+              title={translate("changeLanguage")}
+            >
+              <div className={styles.notificationIcon}>
+                <IconWorld color="var(--cWhiteV1)" />
+              </div>
+            </div>
+          }
+          items={languageMenuItems}
+          activeValue={locale}
+          onClick={(value: string) => {
+            setPreference(value as AppLocale);
+            if (typeof window !== "undefined") {
+              window.location.reload();
+            }
+          }}
+          ignoreTranslation
         />
         {/* <Dropdown
           trigger={

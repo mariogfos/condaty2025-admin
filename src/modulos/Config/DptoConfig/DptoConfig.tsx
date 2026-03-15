@@ -7,6 +7,7 @@ import styles from "./DptoConfig.module.css";
 import Button from "@/mk/components/forms/Button/Button";
 import Br from "@/components/Detail/Br";
 import UploadFileSingle from "@/mk/components/forms/UploadFileSingle/UploadFileSingle";
+import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 interface PropsType {
   client_config: Record<string, any>;
@@ -463,16 +464,19 @@ const DptoConfig = ({ client_config, onSave }: PropsType) => {
             </p>
           </div>
 
-          <Input
-            type="currency"
-            label="Saldo"
-            name="initial_amount"
-            error={errors}
-            required
-            value={formState.initial_amount}
-            onChange={handleChange}
-            className="dark-input"
-          />
+          <Tooltip title="Este es el valor reflejado de la suma de sus montos inciales de cuentas bancarias">
+            <Input
+              type="currency"
+              label="Saldo"
+              name="initial_amount"
+              error={errors}
+              required
+              disabled
+              value={formState.initial_amount}
+              onChange={handleChange}
+              className="dark-input"
+            />
+          </Tooltip>
         </div>
 
         <Br />

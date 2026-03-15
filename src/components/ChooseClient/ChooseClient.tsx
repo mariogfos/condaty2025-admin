@@ -13,6 +13,9 @@ import List from "@/mk/components/ui/List/List";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Input from "@/mk/components/forms/Input/Input";
 import Button from "@/mk/components/forms/Button/Button";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
+
+import { StatusBadge } from "../StatusBadge/StatusBadge";
 
 interface Props {
   open: boolean;
@@ -22,6 +25,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
   const { user, getUser, setStore, store } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+  const { translate } = useScopedI18n("chooseClient");
 
   const onClick = async (id: any) => {
     await getUser(id);
@@ -49,16 +53,36 @@ const ChooseClient = ({ open, onClose }: Props) => {
           <div className={styles.clientText}>
             <span className={styles.clientType}>
               {c.type == "C"
-                ? "Condominio"
+                ? translate("condominium")
                 : c.type == "U"
-                  ? "Urbanización"
-                  : "Edificio"}
+                  ? translate("urbanization")
+                  : translate("building")}
             </span>
             <span className={styles.clientName}>{c.name}</span>
           </div>
         </div>
-        <div className={styles.arrowIcon}>
-          <IconArrowRight size={16} color="var(--cWhiteV1)" />
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {c.privacy === "P" && (
+            <StatusBadge
+              backgroundColor="rgba(0, 227, 140, 0.1)"
+              color="#00E38C"
+              containerStyle={{ width: "auto" }}
+            >
+              Público
+            </StatusBadge>
+          )}
+          {c.privacy === "T" && (
+            <StatusBadge
+              backgroundColor="rgba(228, 96, 85, 0.1)"
+              color="#E46055"
+              containerStyle={{ width: "auto" }}
+            >
+              Prueba
+            </StatusBadge>
+          )}
+          <div className={styles.arrowIcon}>
+            <IconArrowRight size={16} color="var(--cWhiteV1)" />
+          </div>
         </div>
       </div>
     );
@@ -88,15 +112,13 @@ const ChooseClient = ({ open, onClose }: Props) => {
       className={styles.modalFullScreen}
       style={{ backgroundColor: "#1a1a1a" }}
     >
-      <div className={styles.container}>
+      <div className={styles.container} data-i18n-ignore="true">
         <div className={styles.leftPanel}>
           <div className={styles.logoContainer}>
             <IconLogo size={98} />
           </div>
-          <h1 className={styles.title}>¡Bienvenido a Condaty!</h1>
-          <p className={styles.subtitle}>
-            ¿Qué condominio quieres administrar hoy?
-          </p>
+          <h1 className={styles.title}>{translate("welcomeTitle")}</h1>
+          <p className={styles.subtitle}>{translate("subtitle")}</p>
         </div>
         <div className={styles.rightPanel}>
           <div className={styles.listContainer}>
@@ -106,7 +128,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
                   name="search"
                   value={searchTerm}
                   onChange={(e: any) => setSearchTerm(e.target.value)}
-                  placeholder="Buscar por nombre..."
+                  placeholder={translate("searchPlaceholder")}
                   className={styles.searchInput}
                   iconRight={<IconSearch size={20} color="var(--cWhiteV1)" />}
                 />
@@ -135,7 +157,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
                     width: "100%",
                   }}
                 >
-                  Volver
+                  {translate("back")}
                 </Button>
               </div>
             )}

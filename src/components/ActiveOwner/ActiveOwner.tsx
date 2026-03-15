@@ -116,6 +116,7 @@ const ActiveOwner = ({
       buttonText="Guardar"
       onClose={onClose}
       variant={"mini"}
+      style={{ width: "min(92vw, 780px)" }}
     >
       {typeActive === "A" ? (
         <div className={styles.activeContainer}>

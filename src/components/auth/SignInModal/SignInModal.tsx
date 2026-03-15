@@ -4,6 +4,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { PropsLogin } from "../LoginView";
 import styles from "./signInModal.module.css";
 import Button from "@/mk/components/forms/Button/Button";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 interface PropsType extends PropsLogin {
   open: boolean;
@@ -18,27 +19,27 @@ export const SignInModal: any = ({
   handleSubmit,
   errors,
 }: PropsType) => {
+  const { translate } = useScopedI18n("auth");
+
   return (
     <DataModal
       open={open}
       title=""
-      buttonText="Ingresar"
+      buttonText={translate("loginAction")}
       onClose={() => setOpen(false)}
       buttonCancel=""
       fullScreen={true}
       onSave={handleSubmit}
       variant={"mini"}
       disabled={!formState.password || !formState.email}
+      ignoreTranslation
     >
-      <div className={styles.signInModal}>
+      <div className={styles.signInModal} data-i18n-ignore="true">
         <div>
-          <div>Accede a tu cuenta</div>
-          <div>
-            Por favor, ingresa tus datos para así mantenerte informado sobre tu
-            movimiento
-          </div>
+          <div>{translate("accessAccount")}</div>
+          <div>{translate("accessAccountSubtitle")}</div>
           <Input
-            label="Carnet de identidad"
+            label={translate("identityDocumentLabel")}
             name="email"
             required
             value={formState.email}
@@ -46,18 +47,17 @@ export const SignInModal: any = ({
             error={errors}
           />
           <InputPassword
-            label="Contraseña"
+            label={translate("passwordLabel")}
             required
             name="password"
             value={formState.password}
             onChange={handleChange}
             error={errors}
           />
-          <div className="link"> Olvidé mi contraseña</div>
+          <div className="link">{translate("forgotPassword")}</div>
         </div>
         <div>
-          Recuerda que al momento de ingresar estás aceptando nuestra política
-          de privacidad y nuestras condiciones uso.
+          {translate("modalLegalDisclaimer")}
         </div>
       </div>
     </DataModal>

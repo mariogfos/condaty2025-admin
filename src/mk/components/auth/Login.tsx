@@ -7,10 +7,12 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { UAParser } from "ua-parser-js";
 import useAxios from "../../hooks/useAxios";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 const Login = () => {
   const { user, getUser } = useAuth();
   const { execute } = useAxios();
+  const { translate } = useScopedI18n("auth");
   // const router = useRouter();
   const [errors, setErrors] = useState({});
   const [formState, setFormState] = useState({
@@ -104,7 +106,7 @@ const Login = () => {
         if (blockUntil > Date.now()) {
           setIsBlocked(true);
           setErrors({
-            email: "Cuenta bloqueada temporalmente. Intente más tarde.",
+            email: translate("accountTemporarilyBlocked"),
           });
           return;
         } else {
@@ -136,7 +138,7 @@ const Login = () => {
       getUser();
     } else {
       if (data?.errors?.device === "untrusted") {
-        setVerificationMessage(data?.message);
+        setVerificationMessage(translate("verificationMessage"));
         setIsNewDevice(true);
         if (userKey) {
           const storedAttempts = localStorage.getItem(getAttemptsKey(userKey));
@@ -158,11 +160,11 @@ const Login = () => {
         }
       } else if (data?.errors?.status == 500) {
         setErrors({
-          email: "Problemas de conexión con el servidor. Intente más tarde!",
+          email: translate("serverConnectionIssue"),
         });
       } else {
         setErrors({
-          email: "Datos incorrectos",
+          email: translate("invalidCredentials"),
         });
       }
     }
@@ -220,7 +222,7 @@ const Login = () => {
       }
 
       setErrors({
-        code: data?.message || "PIN incorrecto",
+        code: translate("invalidPin"),
       });
     }
   };
