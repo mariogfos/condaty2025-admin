@@ -10,7 +10,6 @@ interface SurveyListProps {
   activeTab: string;
   onView: (survey: any) => void;
   onAnswer: (survey: any) => void;
-  onCountsChange: (counts: { P: number; R: number; E: number }) => void;
   execute: Function;
   reLoad: Function;
   loading: boolean;
@@ -21,7 +20,6 @@ const SurveyList: React.FC<SurveyListProps> = ({
   activeTab,
   onView,
   onAnswer,
-  onCountsChange,
   execute,
   reLoad,
   loading,

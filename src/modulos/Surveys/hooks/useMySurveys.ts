@@ -58,7 +58,7 @@ export const useMySurveys = (): UseMySurveysReturn => {
     } finally {
       setLoading(false);
     }
-  }, [surveys]);
+  }, []);
 
   const fetchSurveys = useCallback(
     async (filter: SurveyFilterType, dptoId?: string) => {

@@ -3,9 +3,9 @@
 export type SurveyFilterType = 'P' | 'R' | 'E'; // Pending, Responded, Expired
 
 export interface MySurveyCount {
-  pending: number;
-  responded: number;
-  expired: number;
+  P: number;
+  R: number;
+  E: number;
 }
 
 export interface SurveyQuestion {

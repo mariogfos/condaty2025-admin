@@ -14,11 +14,6 @@ import { SurveyFilterType } from "./types/mySurveys.types";
 const MisEncuestas = () => {
   const { setStore, store, userCan } = useAuth();
   // const [activeTab, setActiveTab] = useState("P");
-  const [counts, setCounts] = useState({
-    P: 0,
-    R: 0,
-    E: 0,
-  });
   const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
   const [modalMode, setModalMode] = useState<"view" | "answer">("view");
   const [activeTab, setActiveTab] = useState<SurveyFilterType>("P");
@@ -35,23 +30,19 @@ const MisEncuestas = () => {
   } = useMySurveys();
 
   useEffect(() => {
-    // setStore({ ...store, title: "" });
+    fetchCounts();
+  }, []);
+
+  useEffect(() => {
     fetchSurveys(activeTab);
   }, [activeTab]);
 
   const tabs = [
-    { value: "P", text: "Pendientes", numero: counts.P },
-    { value: "R", text: "Respondidas", numero: counts.R },
-    { value: "E", text: "Historial", numero: counts.E },
+    { value: "P", text: "Pendientes", numero: myCounts?.P || 0 },
+    { value: "R", text: "Respondidas", numero: myCounts?.R || 0 },
+    { value: "E", text: "Historial", numero: myCounts?.E || 0 },
   ];
 
-  const handleCountsChange = (newCounts: {
-    P: number;
-    R: number;
-    E: number;
-  }) => {
-    setCounts(newCounts);
-  };
 
   const handleViewSurvey = (survey: any) => {
     setSelectedSurvey(survey);
@@ -88,19 +79,19 @@ const MisEncuestas = () => {
         <div className={styles.summaryCards}>
           <SurveySummaryCard
             title="PENDIENTES"
-            count={counts.P}
+            count={myCounts?.P || 0}
             isActive={activeTab === "P"}
             onClick={() => setActiveTab("P")}
           />
           <SurveySummaryCard
             title="RESPONDIDAS"
-            count={counts.R}
+            count={myCounts?.R || 0}
             isActive={activeTab === "R"}
             onClick={() => setActiveTab("R")}
           />
           <SurveySummaryCard
             title="HISTORIAL"
-            count={counts.E}
+            count={myCounts?.E || 0}
             isActive={activeTab === "E"}
             onClick={() => setActiveTab("E")}
           />
@@ -122,7 +113,6 @@ const MisEncuestas = () => {
           activeTab={activeTab}
           onView={handleViewSurvey}
           onAnswer={handleAnswerSurvey}
-          onCountsChange={handleCountsChange}
           surveys={surveys}
           execute={execute}
           reLoad={reLoad}
