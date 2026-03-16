@@ -945,296 +945,129 @@ async function fetchUserData(userId: number) {
     throw new Error('Error inesperado al cargar datos');
   }
 }
-```
 
 ---
 
-## 🧪 Testing y QA
+## 🧪 Testing y QA (Estandarizado 2026)
 
-### Estrategia de Testing
+### Estrategia de Testing (Modelo Encuestas)
 
-```
-Nivel 1: Unit Tests (Componentes individuales)
-├── Hooks personalizados
-├── Funciones utilitarias
-└── Componentes UI puros
+Para asegurar la robustez del sistema y evitar regresiones (especialente al modificar la Librería MK), hemos definido un flujo de testeo basado en el **Módulo de Encuestas (Surveys)** como prototipo:
 
-Nivel 2: Integration Tests (Flujos completos)
-├── Autenticación
-├── CRUD operations
-├── Form validation
-└── API interactions
+1.  **Unit Tests (Lógica de Negocio)**: Testear hooks personalizados que manejan estados y llamadas al API.
+    *   *Ejemplo Prototipo*: `src/modulos/Surveys/hooks/__tests__/useMySurveys.test.ts`
+2.  **Integration Tests (Configuración y Contratos)**: Verificar que la configuración enviada a `useCrud` produce el comportamiento esperado.
+    *   *Ejemplo Prototipo*: `src/modulos/Surveys/__tests__/Surveys.test.tsx`
+3.  **E2E Tests (Flujos Críticos)**: Validar el viaje completo del usuario.
+    *   *Ejemplo Prototipo*: `tests/e2e/surveys/responder-encuesta.spec.ts`
 
-Nivel 3: E2E Tests (User journeys)
-├── Login → Dashboard → Logout
-├── Crear usuario → Editar → Eliminar
-├── Reserva de área → Pago → Confirmación
-└── Alerta → Atención → Cierre
-```
+### Stack Tecnológico Recomendado
 
-### Herramientas de Testing
+*   **Vitest**: Test runner ultra-rápido (4-10x más rápido que Jest) con soporte nativo para ESM y Vite.
+*   **React Testing Library (RTL)**: Estándar para testing orientado al usuario.
+*   **Playwright**: Herramienta líder para E2E (superior a Cypress en velocidad y soporte multi-navegador/Safari).
+*   **MSW (Mock Service Worker)**: Para interceptar y mockear llamadas de red a nivel de red, no de código.
 
-```bash
-# Instalar dependencias de testing
-npm install --save-dev @testing-library/react @testing-library/jest-dom vitest @vitejs/plugin-react
+### Testing de Hooks (Negocio)
 
-# Configurar Vitest (archivo vite.config.ts)
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.ts'
-  }
-});
-```
-
-### Testing de Componentes
+Utilizamos el hook `useMySurveys` como referencia para testear lógica asíncrona y caché:
 
 ```typescript
-// src/components/__tests__/UserCard.test.tsx
+// src/modulos/Surveys/hooks/__tests__/useMySurveys.test.ts
+import { renderHook, waitFor } from '@testing-library/react';
+import { useMySurveys } from '../useMySurveys';
 
-import { render, screen, fireEvent } from '@testing-library/react';
-import UserCard from '../UserCard';
-
-describe('UserCard', () => {
-  const mockUser = {
-    id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: 'admin',
-    isActive: true
-  };
-
-  it('renders user information correctly', () => {
-    render(<UserCard user={mockUser} />);
+describe('useMySurveys Hook', () => {
+  it('debe cargar encuestas con el filtro correcto', async () => {
+    const { result } = renderHook(() => useMySurveys());
     
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
-    expect(screen.getByText('john@example.com')).toBeInTheDocument();
-    expect(screen.getByText('Administrador')).toBeInTheDocument();
-  });
-
-  it('shows active status badge', () => {
-    render(<UserCard user={mockUser} />);
+    await result.current.fetchSurveys('P'); // P = Pendientes
     
-    const badge = screen.getByText('Activo');
-    expect(badge).toHaveClass('badge-active');
-  });
-
-  it('calls onEdit when edit button is clicked', () => {
-    const mockOnEdit = vi.fn();
-    render(<UserCard user={mockUser} onEdit={mockOnEdit} />);
-    
-    fireEvent.click(screen.getByRole('button', { name: /editar/i }));
-    expect(mockOnEdit).toHaveBeenCalledWith(mockUser);
-  });
-});
-```
-
-### Testing de Hooks
-
-```typescript
-// src/mk/hooks/__tests__/useCrud.test.tsx
-
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { useCrud } from '../useCrud/useCrud';
-import { axiosMock } from '@/test/mocks/axios';
-
-describe('useCrud', () => {
-  const mockConfig = {
-    modulo: 'users',
-    singular: 'Usuario',
-    plural: 'Usuarios',
-    permiso: 'USER'
-  };
-
-  const mockFields = {
-    name: {
-      label: 'Nombre',
-      form: { type: 'text', rules: { required: true } },
-      list: { order: 1, width: '200px' }
-    }
-  };
-
-  beforeEach(() => {
-    axiosMock.reset();
-  });
-
-  it('loads data on mount', async () => {
-    const mockData = [
-      { id: 1, name: 'John' },
-      { id: 2, name: 'Jane' }
-    ];
-
-    axiosMock.onGet('/api/users').reply(200, {
-      data: mockData,
-      total: 2
-    });
-
-    const { result } = renderHook(() => 
-      useCrud({ 
-        paramsInitial: { page: 1, perPage: 10 },
-        mod: mockConfig,
-        fields: mockFields
-      })
-    );
-
     await waitFor(() => {
-      expect(result.current.loaded).toBe(true);
-      expect(result.current.data).toEqual(mockData);
+      expect(result.current.surveys).toHaveLength(mockData.length);
+      expect(result.current.loading).toBe(false);
     });
   });
 
-  it('creates new record successfully', async () => {
-    const newUser = { name: 'New User' };
-    const createdUser = { id: 3, name: 'New User' };
-
-    axiosMock.onPost('/api/users').reply(201, createdUser);
-
-    const { result } = renderHook(() => 
-      useCrud({ 
-        paramsInitial: { page: 1, perPage: 10 },
-        mod: mockConfig,
-        fields: mockFields
-      })
-    );
-
-    await act(async () => {
-      await result.current.onSave(newUser);
-    });
-
-    expect(result.current.data).toContainEqual(createdUser);
-  });
-});
-```
-
-### Testing de Integración
-
-```typescript
-// src/modulos/Users/__tests__/UsersModule.test.tsx
-
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import UsersModule from '../UsersModule';
-import { axiosMock } from '@/test/mocks/axios';
-
-describe('UsersModule Integration', () => {
-  beforeEach(() => {
-    axiosMock.reset();
-  });
-
-  it('complete CRUD flow', async () => {
-    // Mock initial data
-    axiosMock.onGet('/api/users').reply(200, {
-      data: [{ id: 1, name: 'John', email: 'john@example.com' }],
-      total: 1
-    });
-
-    render(<UsersModule />);
-
-    // Wait for data to load
-    await waitFor(() => {
-      expect(screen.getByText('John')).toBeInTheDocument();
-    });
-
-    // Click add button
-    fireEvent.click(screen.getByText('Agregar Usuario'));
-
-    // Fill form
-    fireEvent.change(screen.getByLabelText('Nombre'), {
-      target: { value: 'Jane Doe' }
-    });
-    fireEvent.change(screen.getByLabelText('Email'), {
-      target: { value: 'jane@example.com' }
-    });
-
-    // Mock create request
-    axiosMock.onPost('/api/users').reply(201, {
-      id: 2,
-      name: 'Jane Doe',
-      email: 'jane@example.com'
-    });
-
-    // Submit form
-    fireEvent.click(screen.getByText('Guardar'));
-
-    // Verify new user appears in list
-    await waitFor(() => {
-      expect(screen.getByText('Jane Doe')).toBeInTheDocument();
-    });
-  });
-});
-```
-
-### Testing de APIs
-
-```typescript
-// src/test/api/users.test.ts
-
-import { describe, it, expect } from 'vitest';
-import { apiClient } from '@/test/utils/apiClient';
-
-describe('Users API', () => {
-  it('GET /api/users returns paginated list', async () => {
-    const response = await apiClient.get('/users', {
-      params: { page: 1, perPage: 10 }
-    });
-
-    expect(response.status).toBe(200);
-    expect(response.data).toHaveProperty('data');
-    expect(response.data).toHaveProperty('total');
-    expect(Array.isArray(response.data.data)).toBe(true);
-  });
-
-  it('POST /api/users creates new user', async () => {
-    const newUser = {
-      name: 'Test User',
-      email: 'test@example.com',
-      role: 'resident'
-    };
-
-    const response = await apiClient.post('/users', newUser);
-
-    expect(response.status).toBe(201);
-    expect(response.data).toHaveProperty('id');
-    expect(response.data.name).toBe(newUser.name);
-    expect(response.data.email).toBe(newUser.email);
-  });
-
-  it('PUT /api/users/:id updates existing user', async () => {
-    const updateData = { name: 'Updated Name' };
+  it('debe usar el caché de detalles para evitar llamadas redundantes', async () => {
+    const { result } = renderHook(() => useMySurveys());
     
-    const response = await apiClient.put('/users/1', updateData);
-
-    expect(response.status).toBe(200);
-    expect(response.data.name).toBe(updateData.name);
-  });
-
-  it('DELETE /api/users/:id removes user', async () => {
-    const response = await apiClient.delete('/users/1');
-
-    expect(response.status).toBe(204);
+    await result.current.fetchSurveyDetail('123'); // Primera llamada
+    await result.current.fetchSurveyDetail('123'); // Segunda llamada (desde caché)
+    
+    expect(spyExecute).toHaveBeenCalledTimes(1); 
   });
 });
 ```
 
-### Checklist de QA
+### Testing de Módulos Configurables (CRUD)
 
-```markdown
-## Checklist de QA - Nuevo Módulo
+Dado que la mayoría de nuestros módulos son configuraciones de `useCrud`, testeamos que la configuración (`mod` y `fields`) sea correcta:
 
-### Funcionalidad
-- [ ] CRUD operations funcionan correctamente
-- [ ] Validación de formularios
-- [ ] Paginación y búsqueda
-- [ ] Filtros avanzados
-- [ ] Exportación de datos
-- [ ] Importación de datos
+```typescript
+// src/modulos/Surveys/__tests__/Surveys.test.tsx
+import { render, screen } from '@testing-library/react';
+import Surveys from '../Surveys';
 
-### UI/UX
-- [ ] Diseño responsive
+describe('Surveys Module (Admin CRUD)', () => {
+  it('debe renderizar el botón de "Agregar Encuesta" si el usuario tiene permisos', () => {
+    mockUserPermissions(['surveys:C']);
+    render(<Surveys />);
+    expect(screen.getByText(/Agregar Encuesta/i)).toBeInTheDocument();
+  });
+
+  it('debe mostrar los estados correctos en la lista (Borrador, Activa, etc.)', async () => {
+    render(<Surveys />);
+    await waitFor(() => {
+      expect(screen.getByText('Borrador')).toHaveClass('statusD');
+    });
+  });
+});
+```
+
+### End-to-End (E2E) con Playwright
+
+Para el flujo de "Responder Encuesta", Playwright asegura que la integración Front-Back sea perfecta:
+
+```typescript
+// tests/e2e/surveys/answer-flow.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('Usuario puede responder una encuesta de selección múltiple', async ({ page }) => {
+  await page.goto('/mis-encuestas');
+  await page.click('text=Encuesta de Satisfacción');
+  
+  // Responder preguntas
+  await page.check('text=Muy Satisfecho');
+  await page.click('button:has-text("Enviar Respuestas")');
+  
+  // Verificar éxito y desaparición de la encuesta de "Pendientes"
+  await expect(page.locator('.toast-success')).toBeVisible();
+  await expect(page.locator('text=Encuesta de Satisfacción')).not.toBeVisible();
+});
+```
+
+### 🛡️ Estrategia de Regresión
+
+Para evitar que cambios en `src/mk` (Librería Core) rompan módulos existentes:
+
+1.  **Smoke Tests de Módulos**: Cada módulo debe tener un test de "humo" que verifique que renderiza sin explotar.
+2.  **Contract Testing**: Validar que los DTOs y respuestas del API coincidan con lo que el frontend espera (usando tipos compartidos).
+3.  **MSW Baselines**: Mantener mocks estables (`src/test/mocks/handlers/`) que representen el comportamiento actual "conocido bueno".
+
+### Checklist de QA - Nuevo Módulo (Prototipo Encuestas)
+
+#### Funcionalidad
+- [ ] CRUD completo (Crear, Ver, Editar, Borrar).
+- [ ] Validación de reglas (ej: `greaterDate` en fechas de cierre).
+- [ ] Paginación y búsqueda asíncrona.
+- [ ] Filtros personalizados (ej: Rango de fechas mediante `DateRangeFilterModal`).
+
+#### UI/UX
+- [ ] Soporte completo para **Dark Mode** (verificar contrastes en `SurveyStatsView`).
+- [ ] Feedback visual de carga (`LoadingScreen`) y éxito (`Toast`).
+- [ ] Accesibilidad (Labels correctos en formularios dinámicos).
+- [ ] Diseño responsive (Vista de cards en mobile vs tabla en desktop).
 - [ ] Estados de carga
 - [ ] Mensajes de error
 - [ ] Feedback de acciones
