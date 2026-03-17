@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { getDateTimeAgo, getFormattedDate } from "@/mk/utils/date";
 import SideMenu from "@/mk/components/ui/SideMenu/SideMenu";
 import { useEvent } from "@/mk/hooks/useEvents";
+import useNotifInstandDB from "@/mk/components/notif/provider/useNotifInstandDB";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
@@ -60,10 +61,13 @@ const Layout = ({ children }: any) => {
   const [isLayoutAlertDescExpanded, setIsLayoutAlertDescExpanded] =
     useState(false);
 
-  const path: any = usePathname();
+  const path = usePathname();
   const router = useRouter();
   const isTablet = false;
   const isDesktop = true;
+
+  // Call useNotifInstandDB with showToast
+  useNotifInstandDB([], showToast as any);
 
   // Helper para truncar texto a 150 chars con "…"
   const truncateText = (text: string, max: number) =>
@@ -162,11 +166,6 @@ const Layout = ({ children }: any) => {
           "¡Revisa tus ingresos, tienes un nuevo comprobante de pago!",
           "info",
         );
-      }
-
-      if (e.event == "new-survey") {
-        const title = e.payload?.title || "Nueva encuesta disponible";
-        showToast(`📋 ${title}`, "info");
       }
 
       if (

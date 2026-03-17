@@ -39,25 +39,14 @@ const MisEncuestas = () => {
 
   // Refresh list and counter when a new survey notification arrives
   const handleNewSurveyNotif = useCallback(
-    (data: any) => {
-      try {
-        // data.payload is stored as a JSON string by useInstantMsg
-        const payload =
-          typeof data?.payload === "string"
-            ? JSON.parse(data.payload)
-            : data?.payload;
-        if (payload?.act === "new-survey" || data?.event === "new-survey") {
-          fetchCounts();
-          fetchSurveys("P"); // Refresh pending tab — where new surveys appear
-        }
-      } catch {
-        // ignore JSON parse errors
-      }
+    () => {
+      fetchCounts();
+      fetchSurveys("P"); // Refresh pending tab — where new surveys appear
     },
     [fetchCounts, fetchSurveys]
   );
 
-  useEvent("onNotif", handleNewSurveyNotif);
+  useEvent("survey:new", handleNewSurveyNotif);
 
   const tabs = [
     { value: "P", text: "Pendientes", numero: myCounts?.P || 0 },

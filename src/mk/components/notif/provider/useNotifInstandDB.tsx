@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { id, init } from "@instantdb/react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useEvent } from "@/mk/hooks/useEvents";
+import { MODULE_REGISTRY } from "@/mk/notif/notifRegistry";
 
 let last: any = 0;
 try {
@@ -110,8 +111,11 @@ const isNotifForAdmin = (notif: any, userRoleCode: string): boolean => {
   return true;
 };
 
+export type ShowToastFn = (message: string, type?: "info" | "success" | "warning" | "error") => void;
+
 const useNotifInstandDB = (
-  channels: { channel: string }[] | undefined = []
+  channels: { channel: string }[] | undefined = [],
+  showToast?: ShowToastFn
 ): NotifType => {
   const { user } = useAuth();
   const [lastNotif, setLastNotif] = useState<number | null>(null);
@@ -127,6 +131,13 @@ const useNotifInstandDB = (
       (process.env.NEXT_PUBLIC_AUTH_IAM as string).replace("/", "") +
       user?.id,
     [user?.id]
+  );
+
+  // Derive extra channels declared by registered modules
+  const registryChannels = useMemo(
+    () =>
+      MODULE_REGISTRY.flatMap((m) => m.extraChannels ?? []),
+    []
   );
 
   const query = useMemo(
@@ -146,6 +157,7 @@ const useNotifInstandDB = (
                   { channel: channelGral + user?.client_id + "-alerts-2" },
                   { channel: channelGral + user?.client_id + "-alerts-3" },
                   ...channels,
+                  ...registryChannels,
                 ],
               },
             ],
@@ -158,7 +170,7 @@ const useNotifInstandDB = (
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user?.client_id, chiam, channels]
+    [user?.client_id, chiam, channels, registryChannels]
   );
 
   const { data } = db.useQuery(user?.id ? query : null);
@@ -187,6 +199,37 @@ const useNotifInstandDB = (
           setLastNotif(last);
           return;
         }
+
+        // Parse payload once — it is a JSON string stored by useInstantMsg
+        const parsedPayload = (() => {
+          try {
+            return typeof latest.payload === "string"
+              ? JSON.parse(latest.payload)
+              : latest.payload;
+          } catch {
+            return latest.payload;
+          }
+        })();
+
+        // Helper that modules use to dispatch scoped window events
+        const dispatchModuleEvent = (eventName: string, data: any) => {
+          window.dispatchEvent(new CustomEvent(eventName, { detail: data }));
+        };
+
+        // Run all matching module registry handlers
+        MODULE_REGISTRY.forEach((moduleConfig) => {
+          const handler = moduleConfig.events[latest.event];
+          if (handler) {
+            handler({
+              notif: latest,
+              payload: parsedPayload,
+              dispatch: dispatchModuleEvent,
+              showToast: showToast || ((msg: string) => console.log("Toast (no-op):", msg)),
+            });
+          }
+        });
+
+        // Still dispatch the global onNotif event so legacy handlers work
         console.log("notif enviada (admin)");
         dispatch(latest);
         last = latest.created_at;
@@ -195,7 +238,7 @@ const useNotifInstandDB = (
       setLastNotif(last);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lastNotif, userRoleCode]
+    [lastNotif, userRoleCode, showToast]
   );
 
   useEffect(() => {
