@@ -5,6 +5,8 @@ import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import ScheduleSurveyModal from "./ScheduleSurveyModal";
 
+import useInstantMsg from "@/mk/hooks/useInstantMsg";
+
 type StatusAction = {
   label: string;
   targetStatus: string;
@@ -54,6 +56,7 @@ export default function SurveyStatusActions({
 }: Props) {
   const { execute } = useAxios();
   const { showToast } = useAuth();
+  const { notifySegmented } = useInstantMsg();
   const [loading, setLoading] = useState<string | null>(null);
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
@@ -91,6 +94,17 @@ export default function SurveyStatusActions({
       if (data?.success) {
         showToast(data.message || "Estado actualizado", "success");
         onStatusChanged(data.data);
+
+        // Smart notify: resolveChannel picks the right channel automatically.
+        // Single group → specific channel (e.g. "owners"). Multi-group → "all".
+        // Result: exactly 1 DB write regardless of how many groups are targeted.
+        if (targetStatus === "A") {
+          notifySegmented("new-survey", {
+            id: surveyId,
+            title: surveyData?.title || "Nueva encuesta disponible",
+            act: "new-survey",
+          }, surveyData?.target_criteria);
+        }
       }
     } catch (e: any) {
       showToast(e?.message || "Error al cambiar estado", "error");

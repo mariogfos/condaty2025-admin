@@ -164,6 +164,11 @@ const Layout = ({ children }: any) => {
         );
       }
 
+      if (e.event == "new-survey") {
+        const title = e.payload?.title || "Nueva encuesta disponible";
+        showToast(`📋 ${title}`, "info");
+      }
+
       if (
         e.event == "alerts" &&
         e.payload?.level == 4 &&
