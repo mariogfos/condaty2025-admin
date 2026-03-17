@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./MisEncuestas.module.css";
@@ -10,10 +10,10 @@ import SurveyDetailModal from "./components/SurveyDetailModal/SurveyDetailModal"
 import SurveyAnswerForm from "./components/SurveyAnswerForm";
 import { useMySurveys } from "./hooks/useMySurveys";
 import { SurveyFilterType } from "./types/mySurveys.types";
+import { useEvent } from "@/mk/hooks/useEvents";
 
 const MisEncuestas = () => {
   const { setStore, store, userCan } = useAuth();
-  // const [activeTab, setActiveTab] = useState("P");
   const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
   const [modalMode, setModalMode] = useState<"view" | "answer">("view");
   const [activeTab, setActiveTab] = useState<SurveyFilterType>("P");
@@ -37,12 +37,33 @@ const MisEncuestas = () => {
     fetchSurveys(activeTab);
   }, [activeTab]);
 
+  // Refresh list and counter when a new survey notification arrives
+  const handleNewSurveyNotif = useCallback(
+    (data: any) => {
+      try {
+        // data.payload is stored as a JSON string by useInstantMsg
+        const payload =
+          typeof data?.payload === "string"
+            ? JSON.parse(data.payload)
+            : data?.payload;
+        if (payload?.act === "new-survey" || data?.event === "new-survey") {
+          fetchCounts();
+          fetchSurveys("P"); // Refresh pending tab — where new surveys appear
+        }
+      } catch {
+        // ignore JSON parse errors
+      }
+    },
+    [fetchCounts, fetchSurveys]
+  );
+
+  useEvent("onNotif", handleNewSurveyNotif);
+
   const tabs = [
     { value: "P", text: "Pendientes", numero: myCounts?.P || 0 },
     { value: "R", text: "Respondidas", numero: myCounts?.R || 0 },
     { value: "E", text: "Historial", numero: myCounts?.E || 0 },
   ];
-
 
   const handleViewSurvey = (survey: any) => {
     setSelectedSurvey(survey);
