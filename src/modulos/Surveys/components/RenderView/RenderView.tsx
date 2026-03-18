@@ -6,7 +6,7 @@ import { getDateStrMes } from "@/mk/utils/date";
 import { formatNumber } from "@/mk/utils/numbers";
 import styles from "../../Surveys.module.css";
 import useAxios from "@/mk/hooks/useAxios";
-import { getStatusLabel } from "../../config/surveys.constants";
+import { SURVEY_STATUSES } from "../../config/surveys.constants";
 import SurveyStatusActions from "./SurveyStatusActions";
 import SurveyStatsView from "./SurveyStatsView";
 
@@ -19,7 +19,13 @@ const STATUS_COLOR: Record<string, string> = {
   X: "var(--cError, #ef4444)",
 };
 
-function MetricCard({ label, value }: { label: string; value: string | number }) {
+function MetricCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
   return (
     <div
       style={{
@@ -31,8 +37,15 @@ function MetricCard({ label, value }: { label: string; value: string | number })
         textAlign: "center",
       }}
     >
-      <p className={styles.subtitle} style={{ marginBottom: 4 }}>{label}</p>
-      <p className={styles.title} style={{ fontSize: "1.25rem", marginBottom: 0 }}>{value}</p>
+      <p className={styles.subtitle} style={{ marginBottom: 4 }}>
+        {label}
+      </p>
+      <p
+        className={styles.title}
+        style={{ fontSize: "1.25rem", marginBottom: 0 }}
+      >
+        {value}
+      </p>
     </div>
   );
 }
@@ -65,14 +78,22 @@ function Chip({ label }: { label: string }) {
   );
 }
 
-function SegmentationSummary({ criteria, lTypeUnit=[] }: { criteria: any, lTypeUnit: any }) {
+function SegmentationSummary({
+  criteria,
+  lTypeUnit = [],
+}: {
+  criteria: any;
+  lTypeUnit: any;
+}) {
   const roles = criteria?.roles ?? {};
   const activeRoles = Object.entries(roles)
     .filter(([, v]) => v === "1" || v === 1 || v === true)
     .map(([k]) => ROLE_LABELS[k] ?? k);
 
   const unitTypes: string[] = Array.isArray(criteria?.unit_types)
-    ? criteria.unit_types.map((t: string) => 'Tipo: '+lTypeUnit.find((x: any) => x.id == t)?.name)
+    ? criteria.unit_types.map(
+        (t: string) => "Tipo: " + lTypeUnit.find((x: any) => x.id == t)?.name,
+      )
     : [];
 
   const flags: string[] = [];
@@ -92,16 +113,25 @@ function SegmentationSummary({ criteria, lTypeUnit=[] }: { criteria: any, lTypeU
         borderLeft: "3px solid rgba(99,102,241,0.5)",
       }}
     >
-      <p className={styles.subtitle} style={{ marginBottom: 8, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+      <p
+        className={styles.subtitle}
+        style={{
+          marginBottom: 8,
+          fontSize: "0.75rem",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+        }}
+      >
         Segmentación de audiencia
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {all.map((label, i) => <Chip key={i} label={label} />)}
+        {all.map((label, i) => (
+          <Chip key={i} label={label} />
+        ))}
       </div>
     </div>
   );
 }
-
 
 const RenderView = (props: {
   open: boolean;
@@ -113,14 +143,18 @@ const RenderView = (props: {
 }) => {
   const { showToast } = useAuth();
   const { execute } = useAxios();
-    // Optimistic initial state from the list row — filled in after DET loads
+  // Optimistic initial state from the list row — filled in after DET loads
   const [surveyData, setSurveyData] = useState<any>(props.item.survey);
   const [detailsLoaded, setDetailsLoaded] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
 
   // Resolved numbers — only trusted after detailsLoaded = true
-  const [audience, setAudience] = useState<number>(props.item?.estimated_audience ?? 0);
-  const [realResponses, setRealResponses] = useState<number>(props.item?.real_responses_count ?? 0);
+  const [audience, setAudience] = useState<number>(
+    props.item?.estimated_audience ?? 0,
+  );
+  const [realResponses, setRealResponses] = useState<number>(
+    props.item?.real_responses_count ?? 0,
+  );
 
   useEffect(() => {
     if (!props.open || !props.item?.survey?.id) return;
@@ -130,16 +164,22 @@ const RenderView = (props: {
     setAudience(props.item?.estimated_audience ?? 0);
     setRealResponses(props.item?.real_responses_count ?? 0);
     fetchDetails(props.item.survey.id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.open, props.item?.survey?.id]);
 
   const fetchDetails = async (id: number) => {
     setDetailLoading(true);
     try {
-      const { data } = await execute("/surveys", "GET", {
-        fullType: "DET",
-        searchBy: id,
-      },false,true);
+      const { data } = await execute(
+        "/surveys",
+        "GET",
+        {
+          fullType: "DET",
+          searchBy: id,
+        },
+        false,
+        true,
+      );
       if (data?.data) {
         const det = data.data;
         if (det.survey) setSurveyData(det.survey);
@@ -154,7 +194,8 @@ const RenderView = (props: {
     }
   };
 
-  const participation = audience > 0 ? Math.round((realResponses / audience) * 100) : 0;
+  const participation =
+    audience > 0 ? Math.round((realResponses / audience) * 100) : 0;
   // Only show stats AFTER details loaded to avoid flash of "no answers"
   const hasAnswers = detailsLoaded && realResponses > 0;
   const statusColor = STATUS_COLOR[surveyData?.status] ?? "var(--cWhiteV1)";
@@ -172,15 +213,40 @@ const RenderView = (props: {
       buttonText=""
       buttonCancel=""
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: "4px 0" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 20,
+          padding: "4px 0",
+        }}
+      >
         {/* Header: Title + Status + Actions */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              flexWrap: "wrap",
+              gap: 12,
+            }}
+          >
             <div style={{ flex: 1 }}>
-              <p className={styles.title} style={{ fontSize: "1.15rem", marginBottom: 4, marginTop: 0 }}>
+              <p
+                className={styles.title}
+                style={{ fontSize: "1.15rem", marginBottom: 4, marginTop: 0 }}
+              >
                 {surveyData?.title || surveyData?.name || "—"}
               </p>
-              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
+              >
                 {surveyData?.status && (
                   <span
                     style={{
@@ -192,11 +258,17 @@ const RenderView = (props: {
                       padding: "2px 8px",
                     }}
                   >
-                    {surveyData.status_label || getStatusLabel(surveyData.status)}
+                    {surveyData.status_label ||
+                      SURVEY_STATUSES[surveyData.status]}
                   </span>
                 )}
-                {surveyData?.is_mandatory === true || surveyData?.is_mandatory === "Y" ? (
-                  <span style={{ fontSize: "0.75rem", color: "var(--cWhiteV1)" }}>• Obligatoria</span>
+                {surveyData?.is_mandatory === true ||
+                surveyData?.is_mandatory === "Y" ? (
+                  <span
+                    style={{ fontSize: "0.75rem", color: "var(--cWhiteV1)" }}
+                  >
+                    • Obligatoria
+                  </span>
                 ) : null}
               </div>
             </div>
@@ -215,7 +287,14 @@ const RenderView = (props: {
           </div>
 
           {surveyData?.description && (
-            <p style={{ color: "var(--cWhiteV1)", fontSize: "0.9rem", lineHeight: 1.5, margin: 0 }}>
+            <p
+              style={{
+                color: "var(--cWhiteV1)",
+                fontSize: "0.9rem",
+                lineHeight: 1.5,
+                margin: 0,
+              }}
+            >
               {surveyData.description}
             </p>
           )}
@@ -223,27 +302,48 @@ const RenderView = (props: {
 
         {/* Metrics Row */}
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <MetricCard label="Audiencia estimada" value={formatNumber(audience, 0)} />
-          <MetricCard label="Participantes" value={formatNumber(realResponses, 0)} />
+          <MetricCard
+            label="Audiencia estimada"
+            value={formatNumber(audience, 0)}
+          />
+          <MetricCard
+            label="Participantes"
+            value={formatNumber(realResponses, 0)}
+          />
           <MetricCard label="Participación" value={`${participation}%`} />
         </div>
 
         {/* Dates */}
-        {(surveyData?.created_at || surveyData?.expires_at || surveyData?.scheduled_at) && (
+        {(surveyData?.created_at ||
+          surveyData?.expires_at ||
+          surveyData?.scheduled_at) && (
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
             {surveyData?.created_at && (
               <div>
                 <p className={styles.subtitle}>Creada</p>
-                <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
-                  {getDateStrMes(surveyData.created_at)} por {surveyData.created_by_name}
+                <p
+                  style={{
+                    color: "var(--cWhiteV1)",
+                    fontSize: "0.875rem",
+                    margin: 0,
+                  }}
+                >
+                  {getDateStrMes(surveyData.created_at)} por{" "}
+                  {surveyData.created_by_name}
                 </p>
               </div>
             )}
-            
+
             {surveyData?.scheduled_at && (
               <div>
                 <p className={styles.subtitle}>Programada para</p>
-                <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                <p
+                  style={{
+                    color: "var(--cWhiteV1)",
+                    fontSize: "0.875rem",
+                    margin: 0,
+                  }}
+                >
                   {getDateStrMes(surveyData.scheduled_at)}
                 </p>
               </div>
@@ -251,7 +351,13 @@ const RenderView = (props: {
             {surveyData?.published_at && (
               <div>
                 <p className={styles.subtitle}>Publicada</p>
-                <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                <p
+                  style={{
+                    color: "var(--cWhiteV1)",
+                    fontSize: "0.875rem",
+                    margin: 0,
+                  }}
+                >
                   {getDateStrMes(surveyData.published_at)}
                 </p>
               </div>
@@ -259,7 +365,13 @@ const RenderView = (props: {
             {surveyData?.expires_at && (
               <div>
                 <p className={styles.subtitle}>Vence</p>
-                <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                <p
+                  style={{
+                    color: "var(--cWhiteV1)",
+                    fontSize: "0.875rem",
+                    margin: 0,
+                  }}
+                >
                   {getDateStrMes(surveyData.expires_at)}
                 </p>
               </div>
@@ -267,7 +379,13 @@ const RenderView = (props: {
             {surveyData?.status === "C" && (
               <div>
                 <p className={styles.subtitle}>Cerrada</p>
-                <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                <p
+                  style={{
+                    color: "var(--cWhiteV1)",
+                    fontSize: "0.875rem",
+                    margin: 0,
+                  }}
+                >
                   {getDateStrMes(surveyData.closed_at || surveyData.expires_at)}
                 </p>
               </div>
@@ -277,22 +395,36 @@ const RenderView = (props: {
 
         {/* Segmentation Criteria */}
         {detailsLoaded && surveyData?.target_criteria && (
-          <SegmentationSummary criteria={surveyData.target_criteria} lTypeUnit={props.extraData?.unit_types}/>
+          <SegmentationSummary
+            criteria={surveyData.target_criteria}
+            lTypeUnit={props.extraData?.unit_types}
+          />
         )}
 
         {/* Loading indicator while DET loads */}
         {detailLoading && (
-          <p className={styles.subtitle} style={{ textAlign: "center", fontSize: "0.8rem", margin: 0 }}>
+          <p
+            className={styles.subtitle}
+            style={{ textAlign: "center", fontSize: "0.8rem", margin: 0 }}
+          >
             Cargando detalles completos...
           </p>
         )}
 
-
         {/* Statistics — only shown after details loaded and has answers */}
         {detailsLoaded && hasAnswers && surveyData?.squestions?.length > 0 && (
           <div>
-            <div style={{ borderTop: "1px solid var(--borderV1)", paddingTop: 20, marginBottom: 16 }}>
-              <p className={styles.title} style={{ fontSize: "1rem", marginBottom: 4 }}>
+            <div
+              style={{
+                borderTop: "1px solid var(--borderV1)",
+                paddingTop: 20,
+                marginBottom: 16,
+              }}
+            >
+              <p
+                className={styles.title}
+                style={{ fontSize: "1rem", marginBottom: 4 }}
+              >
                 Estadísticas de respuestas
               </p>
               <p className={styles.subtitle} style={{ fontSize: "0.8rem" }}>
@@ -307,7 +439,13 @@ const RenderView = (props: {
         )}
 
         {detailsLoaded && !hasAnswers && (
-          <div style={{ borderTop: "1px solid var(--borderV1)", paddingTop: 16, textAlign: "center" }}>
+          <div
+            style={{
+              borderTop: "1px solid var(--borderV1)",
+              paddingTop: 16,
+              textAlign: "center",
+            }}
+          >
             <p className={styles.subtitle}>
               Aún no hay respuestas registradas para esta encuesta.
             </p>

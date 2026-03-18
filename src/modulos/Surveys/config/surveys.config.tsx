@@ -3,14 +3,16 @@ import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getDateStrMes } from "@/mk/utils/date";
 import RenderForm from "../components/RenderForm/RenderForm";
 import RenderView from "../components/RenderView/RenderView";
-import {
-  getStatusLabel,
-  getDestinyLabel,
-  SURVEY_STATUSES,
-} from "./surveys.constants";
+import { SURVEY_STATUSES } from "./surveys.constants";
 import { getPeriodOptions } from "@/mk/utils/periodFilterOptions";
 
 import styles from "../Surveys.module.css";
+import { getArrayFromObject } from "@/mk/utils/array";
+
+const lSurveyStatus = () =>
+  getArrayFromObject(SURVEY_STATUSES, [
+    { id: "ALL", name: "Todos los estados" },
+  ]);
 
 export const getSurveyConfig = (
   reLoad: any,
@@ -35,8 +37,9 @@ export const getSurveyConfig = (
     permiso: "surveys",
     onHideActions: (item: any) => {
       return {
-        hideDel: item.status == "C" || item.total_voters > 0,
-        hideEdit: item.status == "C" || item.total_voters > 0,
+        hideDel: item.status == SURVEY_STATUSES.CLOSED || item.total_voters > 0,
+        hideEdit:
+          item.status == SURVEY_STATUSES.CLOSED || item.total_voters > 0,
       };
     },
     search: true,
@@ -122,15 +125,7 @@ export const getSurveyConfig = (
       rules: ["required"],
       api: "ae",
       label: "Destinatarios",
-
       list: false,
-      // {
-      //   width: "120px",
-      //   onRender: (props: any) => {
-
-      //     return <div>{JSON.stringify(props.item.target_criteria)}</div>;
-      //   },
-      // },
     },
     is_mandatory: {
       rules: ["required"],
@@ -179,20 +174,14 @@ export const getSurveyConfig = (
             <div
               className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}
             >
-              {getStatusLabel(props.item.status)}
+              {SURVEY_STATUSES[props.item.status]}
             </div>
           );
         },
       },
       filter: {
         label: "Estado",
-        options: () => [
-          { id: "ALL", name: "Todos los estados" },
-          { id: "D", name: "Borrador" },
-          { id: "A", name: "Activa" },
-          { id: "S", name: "Programada" },
-          { id: "C", name: "Cerrada" },
-        ],
+        options: lSurveyStatus,
       },
     },
     questions: {
