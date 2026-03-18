@@ -40,8 +40,6 @@ export const AppVersionModal: React.FC = () => {
           setForm({
             min_version_android: json?.owner?.min_version?.android || '',
             min_version_ios: json?.owner?.min_version?.ios || '',
-            latest_version_android: json?.owner?.latest_version?.android || '',
-            latest_version_ios: json?.owner?.latest_version?.ios || '',
             update_url_android: json?.owner?.update_url?.android || '',
             update_url_ios: json?.owner?.update_url?.ios || '',
             min_version_android_guard: json?.guard?.min_version?.android || '',
@@ -134,29 +132,6 @@ export const AppVersionModal: React.FC = () => {
                     name="min_version_ios"
                     label="Min iOS"
                     value={form.min_version_ios || ''}
-                    onChange={handleChange}
-                    required={false}
-                    styleInput={{ margin: '4px 0' }}
-                  />
-                </div>
-              </div>
-
-              <div className={formStyles['input-row']}>
-                <div className={`${formStyles['input-half']} ${modalStyles.inputWrapper}`}>
-                  <Input
-                    name="latest_version_android"
-                    label="Latest Android"
-                    value={form.latest_version_android || ''}
-                    onChange={handleChange}
-                    required={false}
-                    styleInput={{ margin: '4px 0' }}
-                  />
-                </div>
-                <div className={`${formStyles['input-half']} ${modalStyles.inputWrapper}`}>
-                  <Input
-                    name="latest_version_ios"
-                    label="Latest iOS"
-                    value={form.latest_version_ios || ''}
                     onChange={handleChange}
                     required={false}
                     styleInput={{ margin: '4px 0' }}
