@@ -13,7 +13,7 @@ import { SurveyFilterType } from "./types/mySurveys.types";
 import { useEvent } from "@/mk/hooks/useEvents";
 
 const MisEncuestas = () => {
-  const { setStore, store, userCan } = useAuth();
+  const { userCan } = useAuth();
   const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
   const [modalMode, setModalMode] = useState<"view" | "answer">("view");
   const [activeTab, setActiveTab] = useState<SurveyFilterType>("P");
@@ -21,30 +21,21 @@ const MisEncuestas = () => {
     counts: myCounts,
     surveys,
     fetchSurveys,
-    fetchSurveyDetail,
-    submitAnswers,
-    fetchCounts,
     execute,
     reLoad,
     loading,
   } = useMySurveys();
 
   useEffect(() => {
-    fetchCounts();
-  }, []);
-
-  useEffect(() => {
+    // Cambios de pestaña: sin counts (ya los tenemos)
     fetchSurveys(activeTab);
   }, [activeTab]);
 
   // Refresh list and counter when a new survey notification arrives
-  const handleNewSurveyNotif = useCallback(
-    () => {
-      fetchCounts();
-      fetchSurveys("P"); // Refresh pending tab — where new surveys appear
-    },
-    [fetchCounts, fetchSurveys]
-  );
+  const handleNewSurveyNotif = useCallback(() => {
+    // Recargar counts junto con la lista
+    fetchSurveys("P", undefined, true); // Refresh pending tab — where new surveys appear
+  }, [fetchSurveys]);
 
   useEvent("survey:new", handleNewSurveyNotif);
 
@@ -71,8 +62,8 @@ const MisEncuestas = () => {
   const handleSurveyAnswered = () => {
     setSelectedSurvey((prev: any) => ({ ...prev, has_responded: true }));
     setModalMode("view");
-    fetchCounts();
-    fetchSurveys(activeTab);
+    // Recargar counts junto con la lista
+    fetchSurveys(activeTab, undefined, true);
   };
 
   if (!userCan("surveys", "R")) {

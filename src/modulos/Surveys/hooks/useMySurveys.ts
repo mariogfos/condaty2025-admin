@@ -14,7 +14,11 @@ interface UseMySurveysReturn {
   surveys: SurveyListItem[];
   error: string | null;
   loading: boolean;
-  fetchSurveys: (filter: SurveyFilterType, dptoId?: string) => Promise<void>;
+  fetchSurveys: (
+    filter: SurveyFilterType,
+    dptoId?: string,
+    includeCounts?: boolean,
+  ) => Promise<void>;
   fetchSurveyDetail: (surveyId: string) => Promise<SurveyDetail | null>;
   submitAnswers: (
     surveyId: string,
@@ -35,7 +39,9 @@ export const useMySurveys = (): UseMySurveysReturn => {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [detailsCache, setDetailsCache] = useState<Record<string, SurveyDetail>>({});
+  const [detailsCache, setDetailsCache] = useState<
+    Record<string, SurveyDetail>
+  >({});
   const { execute, reLoad } = useAxios();
 
   const fetchCounts = useCallback(async () => {
@@ -61,7 +67,11 @@ export const useMySurveys = (): UseMySurveysReturn => {
   }, []);
 
   const fetchSurveys = useCallback(
-    async (filter: SurveyFilterType, dptoId?: string) => {
+    async (
+      filter: SurveyFilterType,
+      dptoId?: string,
+      includeCounts: boolean = true,
+    ) => {
       setLoading(true);
       setError(null);
       try {
@@ -71,6 +81,9 @@ export const useMySurveys = (): UseMySurveysReturn => {
         };
         if (dptoId) {
           payload.dpto_id = dptoId;
+        }
+        if (includeCounts) {
+          payload.include_counts = "true";
         }
 
         const { data: response } = await execute(
@@ -82,6 +95,10 @@ export const useMySurveys = (): UseMySurveysReturn => {
 
         if (response?.success) {
           setSurveys(response.data || []);
+          // Si se incluyeron los counts en la respuesta (vienen en extraData), guardarlos
+          if (includeCounts && response.extraData?.counts) {
+            setCounts(response.extraData.counts);
+          }
         } else {
           setError(response?.message || "Error al cargar encuestas");
         }
@@ -179,7 +196,7 @@ export const useMySurveys = (): UseMySurveysReturn => {
           "GET",
           payload,
           false,
-          true
+          true,
         );
 
         if (response?.success) {
@@ -194,7 +211,7 @@ export const useMySurveys = (): UseMySurveysReturn => {
         setLoading(false);
       }
     },
-    []
+    [],
   );
 
   return {
