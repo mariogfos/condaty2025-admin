@@ -4,7 +4,9 @@ import dynamic from "next/dynamic";
 import styles from "../../Surveys.module.css";
 import { formatNumber } from "@/mk/utils/numbers";
 
-const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
+const ReactApexChart = dynamic(() => import("react-apexcharts"), {
+  ssr: false,
+});
 
 const CHART_COLORS = [
   "rgba(103, 194, 171, 0.9)",
@@ -29,11 +31,19 @@ type SQuestion = {
   type: "S" | "M" | "E" | "T";
   soptions?: SOption[];
   options?: SOption[];
-  open_answers?: string[];
+  // open_answers?: string[];
+  total_responses?: number;
   user_response?: any;
+  text_responses_sample?: string[];
 };
 
-function QuestionChart({ question, index }: { question: SQuestion; index: number }) {
+function QuestionChart({
+  question,
+  index,
+}: {
+  question: SQuestion;
+  index: number;
+}) {
   const isText = question.type === "T";
   const options = question.options || question.soptions || [];
   const userResponse = question.user_response;
@@ -41,28 +51,49 @@ function QuestionChart({ question, index }: { question: SQuestion; index: number
 
   const isMyResponse = (optId: any) => {
     if (userResponse === undefined || userResponse === null) return false;
-    if (Array.isArray(userResponse)) return userResponse.some(id => id == optId);
+    if (Array.isArray(userResponse))
+      return userResponse.some((id) => id == optId);
     return userResponse == optId;
   };
 
   if (isText) {
-    const answers = question.open_answers ?? [];
+    // const answers = question.text_responses_sample ?? [];
     return (
       <div>
         <p className={styles.subtitle} style={{ marginBottom: 8 }}>
-          {answers.length > 0 ? `${answers.length} respuesta(s) de muestra:` : "Sin respuestas aún."}
+          {(question.total_responses || 0) > 0
+            ? `${question.total_responses} respuesta(s) de muestra:`
+            : "Sin respuestas aún."}
         </p>
-        {answers.length > 0 && (
-          <ul style={{ paddingLeft: 16, display: "flex", flexDirection: "column", gap: 6, listStyle: "disc" }}>
-            {answers.slice(0, 5).map((r, i) => {
+        {(question.total_responses || 0) > 0 && (
+          <ul
+            style={{
+              paddingLeft: 16,
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+              listStyle: "disc",
+            }}
+          >
+            {question.text_responses_sample?.slice(0, 5).map((r, i) => {
               const matchesUser = userResponse && r === userResponse;
               return (
-                <li key={i} style={{ 
-                  color: matchesUser ? "var(--cPrimary, #6366f1)" : "var(--cWhiteV1)", 
-                  fontSize: "0.875rem",
-                  fontWeight: matchesUser ? "bold" : "normal"
-                }}>
-                  "{r}" {matchesUser && <span style={{ fontSize: "0.7rem", opacity: 0.8 }}>(Tu respuesta)</span>}
+                <li
+                  key={i}
+                  style={{
+                    color: matchesUser
+                      ? "var(--cPrimary, #6366f1)"
+                      : "var(--cWhiteV1)",
+                    fontSize: "0.875rem",
+                    fontWeight: matchesUser ? "bold" : "normal",
+                  }}
+                >
+                  "{r}"{" "}
+                  {matchesUser && (
+                    <span style={{ fontSize: "0.7rem", opacity: 0.8 }}>
+                      (Tu respuesta)
+                    </span>
+                  )}
                 </li>
               );
             })}
@@ -72,7 +103,10 @@ function QuestionChart({ question, index }: { question: SQuestion; index: number
     );
   }
 
-  const total = options.reduce((acc, o: any) => acc + (o.votes ?? o.answers_count ?? 0), 0);
+  const total = options.reduce(
+    (acc, o: any) => acc + (o.votes ?? o.answers_count ?? 0),
+    0,
+  );
   const categories = options.map((o: any) => {
     const label = o.option_text || o.text || "";
     return isMyResponse(o.id) ? `${label} (Tu respuesta)` : label;
@@ -105,10 +139,10 @@ function QuestionChart({ question, index }: { question: SQuestion; index: number
       enabled: true,
       formatter: (val: number) =>
         `${val} voto${val !== 1 ? "s" : ""} (${total > 0 ? Math.round((val / total) * 100) : 0}%)`,
-      style: { 
-        fontSize: "11px", 
+      style: {
+        fontSize: "11px",
         fontWeight: "bold",
-        colors: ["#1A1A1A"] // Color oscuro para contraste dentro de las barras claras
+        colors: ["#1A1A1A"], // Color oscuro para contraste dentro de las barras claras
       },
       dropShadow: {
         enabled: true,
@@ -116,7 +150,7 @@ function QuestionChart({ question, index }: { question: SQuestion; index: number
         left: 0,
         blur: 1,
         color: "#FFFFFF",
-        opacity: 1
+        opacity: 1,
       },
       offsetX: -5, // Lo movemos un poco hacia la izquierda para que esté bien dentro de la barra
       textAnchor: "end",
@@ -125,18 +159,18 @@ function QuestionChart({ question, index }: { question: SQuestion; index: number
       categories,
       labels: { style: { colors: "#A0A0A0" } },
     },
-    yaxis: { 
-      labels: { 
+    yaxis: {
+      labels: {
         padding: 10,
         style: { colors: "#A0A0A0" },
         maxWidth: 200,
-      } 
+      },
     },
-    grid: { 
+    grid: {
       borderColor: "#2a2a2a",
       padding: {
-        left: 20 // Espacio extra para que no pegue a la izquierda
-      }
+        left: 20, // Espacio extra para que no pegue a la izquierda
+      },
     },
     legend: { show: false },
     tooltip: {
@@ -150,8 +184,12 @@ function QuestionChart({ question, index }: { question: SQuestion; index: number
 
   return (
     <div>
-      <p className={styles.subtitle} style={{ marginBottom: 4, fontSize: "0.8rem" }}>
-        {formatNumber(total, 0)} {total === 1 ? "voto registrado" : "votos registrados"}
+      <p
+        className={styles.subtitle}
+        style={{ marginBottom: 4, fontSize: "0.8rem" }}
+      >
+        {formatNumber(total, 0)}{" "}
+        {total === 1 ? "voto registrado" : "votos registrados"}
       </p>
       {total === 0 && !userResponse ? (
         <p className={styles.subtitle}>Sin votos aún para esta pregunta.</p>
@@ -173,7 +211,11 @@ type Props = {
   showSummary?: boolean;
 };
 
-export default function SurveyStatsView({ squestions, totalParticipants, showSummary = true }: Props) {
+export default function SurveyStatsView({
+  squestions,
+  totalParticipants,
+  showSummary = true,
+}: Props) {
   if (!squestions?.length) return null;
 
   return (
@@ -190,8 +232,13 @@ export default function SurveyStatsView({ squestions, totalParticipants, showSum
           }}
         >
           <div>
-            <p className={styles.subtitle} style={{ marginBottom: 2 }}>Total participantes</p>
-            <p className={styles.title} style={{ fontSize: "1.4rem", margin: 0 }}>
+            <p className={styles.subtitle} style={{ marginBottom: 2 }}>
+              Total participantes
+            </p>
+            <p
+              className={styles.title}
+              style={{ fontSize: "1.4rem", margin: 0 }}
+            >
               {formatNumber(totalParticipants, 0)}
             </p>
           </div>
@@ -209,10 +256,21 @@ export default function SurveyStatsView({ squestions, totalParticipants, showSum
             borderLeft: "3px solid var(--cPrimary, #6366f1)",
           }}
         >
-          <p className={styles.subtitle} style={{ marginBottom: 4, fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <p
+            className={styles.subtitle}
+            style={{
+              marginBottom: 4,
+              fontSize: "0.7rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
             Pregunta {idx + 1}
           </p>
-          <p className={styles.title} style={{ marginBottom: 12, fontSize: "0.95rem", marginTop: 0 }}>
+          <p
+            className={styles.title}
+            style={{ marginBottom: 12, fontSize: "0.95rem", marginTop: 0 }}
+          >
             {q.question_text || (q as any).text}
           </p>
           <QuestionChart question={q} index={idx} />

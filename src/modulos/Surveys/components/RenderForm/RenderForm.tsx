@@ -11,7 +11,7 @@ import Check from "@/mk/components/forms/Check/Check";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import { GMT, compareDate, getDateStrMes } from "@/mk/utils/date";
+import { GMT, compareDate, getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import SurveyQuestionTypePanel from "../SurveyQuestionTypePanel/SurveyQuestionTypePanel";
@@ -270,7 +270,7 @@ const RenderForm = ({
             <section>
               {formState.begin_at && formState.end_at && (
                 <div className={styles.titleDate}>
-                  Programada para el {getDateStrMes(formState.begin_at)} hasta el {getDateStrMes(formState.end_at)}{" "}
+                  Programada para el {getDateTimeStrMes(formState.begin_at)} hasta el {getDateTimeStrMes(formState.end_at)}{" "}
                 </div>
               )}
               <div className={styles.titleFormLv2}>

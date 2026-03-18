@@ -267,19 +267,19 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
         {formState.switch === "Y" && (
           <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
             <Input
-              type="date"
+              type="datetime-local"
               name="begin_at"
               label="Fecha de inicio"
-              value={(formState?.begin_at || "").split("T")[0].split(" ")[0]}
+              value={(formState?.begin_at || "").replace(" ", "T").substring(0, 16)}
               onChange={(e: any) =>
                 setFormState({ ...formState, begin_at: e.target.value })
               }
             />
             <Input
-              type="date"
+              type="datetime-local"
               name="end_at"
               label="Fecha de fin"
-              value={(formState?.end_at || "").split("T")[0].split(" ")[0]}
+              value={(formState?.end_at || "").replace(" ", "T").substring(0, 16)}
               onChange={(e: any) =>
                 setFormState({ ...formState, end_at: e.target.value })
               }

@@ -1,6 +1,6 @@
 import React from "react";
 import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import { getDateStrMes } from "@/mk/utils/date";
+import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import RenderForm from "../components/RenderForm/RenderForm";
 import RenderView from "../components/RenderView/RenderView";
 import { SURVEY_STATUSES } from "./surveys.constants";
@@ -74,7 +74,7 @@ export const getSurveyConfig = (
       list: {
         width: "160px",
         onRender: (props: any) => (
-          <div>{getDateStrMes(props.item.created_at)}</div>
+          <div>{getDateTimeStrMes(props.item.created_at)}</div>
         ),
       },
       filter: {
