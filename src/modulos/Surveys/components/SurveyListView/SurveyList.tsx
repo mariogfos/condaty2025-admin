@@ -4,6 +4,7 @@ import useAxios from "@/mk/hooks/useAxios";
 import Button from "@/mk/components/forms/Button/Button";
 import styles from "./SurveyList.module.css";
 import { SurveyItemData } from "../../types/surveys.types";
+import { IconSurvey } from "@/components/layout/icons/IconsBiblioteca";
 
 interface SurveyListProps {
   surveys: any[];
@@ -137,7 +138,7 @@ const SurveyList: React.FC<SurveyListProps> = ({
           className={styles.item}
           onClick={() => onClick(survey)}
         >
-          <svg
+          {/* <svg
             width="40"
             height="40"
             viewBox="0 0 40 40"
@@ -152,18 +153,18 @@ const SurveyList: React.FC<SurveyListProps> = ({
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-          </svg>
-
+          </svg> */}
+          <IconSurvey color="var(--cPrimary)" />
           <div className={styles.itemHeader}>
             <h3 className={styles.itemTitle}>{survey.title}</h3>
             {survey.description && (
               <p className={styles.itemDescription}>{survey.description}</p>
             )}
             <div className={styles.itemMeta}>
-              <span>
+              {/* <span>
                 {survey.questions_count} pregunta
                 {survey.questions_count !== 1 ? "s" : ""}
-              </span>
+              </span> */}
               {activeTab === "P" && survey.expires_at && (
                 <span>
                   Vence:{" "}
@@ -183,7 +184,6 @@ const SurveyList: React.FC<SurveyListProps> = ({
               )}
             </div>
           </div>
-
           <div>{getStatusBadge(survey)}</div>
         </div>
       ))}
