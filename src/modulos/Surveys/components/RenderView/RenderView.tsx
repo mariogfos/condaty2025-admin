@@ -9,6 +9,7 @@ import useAxios from "@/mk/hooks/useAxios";
 import { SURVEY_STATUSES } from "../../config/surveys.constants";
 import SurveyStatusActions from "./SurveyStatusActions";
 import SurveyStatsView from "./SurveyStatsView";
+import { SurveyDashboard } from "../SurveyDashboard/SurveyDashboard";
 
 const STATUS_COLOR: Record<string, string> = {
   A: "var(--cSuccess, #10b981)",
@@ -155,42 +156,63 @@ const RenderView = (props: {
   const [realResponses, setRealResponses] = useState<number>(
     props.item?.real_responses_count ?? 0,
   );
+  const [stats, setStats] = useState<any>(null);
+  const [filters, setFilters] = useState<any>({});
+  const [statsLoading, setStatsLoading] = useState(false);
 
   useEffect(() => {
     if (!props.open || !props.item?.survey?.id) return;
-    // Reset on new survey
-    setSurveyData(props.item.survey);
-    setDetailsLoaded(false);
+    
+    // Only reset detailed status if current survey changes
+    if (surveyData?.id !== props.item.survey.id) {
+        setSurveyData(props.item.survey);
+        setDetailsLoaded(false);
+        setStats(null);
+    }
+    
     setAudience(props.item?.estimated_audience ?? 0);
     setRealResponses(props.item?.real_responses_count ?? 0);
-    fetchDetails(props.item.survey.id);
+    loadData(props.item.survey.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.open, props.item?.survey?.id]);
+  }, [props.open, props.item?.survey?.id, filters]);
 
-  const fetchDetails = async (id: number) => {
+  const loadData = async (id: number) => {
     setDetailLoading(true);
+    setStatsLoading(true);
     try {
-      const { data } = await execute(
+      // Fetch Basic Details
+      const detailRes = await execute(
         "/surveys",
         "GET",
-        {
-          fullType: "DET",
-          searchBy: id,
-        },
+        { fullType: "DET", searchBy: id },
         false,
-        true,
+        true
       );
-      if (data?.data) {
-        const det = data.data;
+      if (detailRes.data?.success) {
+        const det = detailRes.data.data;
         if (det.survey) setSurveyData(det.survey);
         setAudience(det.estimated_audience ?? 0);
         setRealResponses(det.real_responses_count ?? 0);
         setDetailsLoaded(true);
       }
-    } catch {
+
+      // Fetch Advanced Stats
+      const statsRes = await execute(
+        "/surveys/results",
+        "GET",
+        { survey_id: id, ...filters },
+        false,
+        true
+      );
+      if (statsRes.data?.success) {
+        setStats(statsRes.data.data);
+      }
+    } catch (err) {
+      console.error("Error loading survey data:", err);
       showToast("Error al obtener detalle de la encuesta", "error");
     } finally {
       setDetailLoading(false);
+      setStatsLoading(false);
     }
   };
 
@@ -212,6 +234,8 @@ const RenderView = (props: {
       title="Detalle de la encuesta"
       buttonText=""
       buttonCancel=""
+      maxWidth="95vw"
+      style={{ width: "95vw", maxWidth: "1200px" }}
     >
       <div
         style={{
@@ -300,140 +324,59 @@ const RenderView = (props: {
           )}
         </div>
 
-        {/* Metrics Row */}
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <MetricCard
-            label="Audiencia estimada"
-            value={formatNumber(audience, 0)}
-          />
-          <MetricCard
-            label="Participantes"
-            value={formatNumber(realResponses, 0)}
-          />
-          <MetricCard label="Participación" value={`${participation}%`} />
+        {/* Dates & Segmentation */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {(surveyData?.created_at || surveyData?.expires_at || surveyData?.scheduled_at) && (
+            <div style={{ display: "flex", gap: 24, flexWrap: "wrap", background: "rgba(255,255,255,0.02)", padding: 12, borderRadius: 8 }}>
+              {surveyData?.created_at && (
+                <div>
+                  <p className={styles.subtitle}>Creada</p>
+                  <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                    {getDateStrMes(surveyData.created_at)} por {surveyData.created_by_name}
+                  </p>
+                </div>
+              )}
+              {surveyData?.scheduled_at && (
+                <div>
+                  <p className={styles.subtitle}>Programada</p>
+                  <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                    {getDateStrMes(surveyData.scheduled_at)}
+                  </p>
+                </div>
+              )}
+              {surveyData?.expires_at && (
+                <div>
+                  <p className={styles.subtitle}>Vence</p>
+                  <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                    {getDateStrMes(surveyData.expires_at)}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {detailsLoaded && surveyData?.target_criteria && (
+            <SegmentationSummary
+              criteria={surveyData.target_criteria}
+              lTypeUnit={props.extraData?.unit_types}
+            />
+          )}
         </div>
 
-        {/* Dates */}
-        {(surveyData?.created_at ||
-          surveyData?.expires_at ||
-          surveyData?.scheduled_at) && (
-          <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-            {surveyData?.created_at && (
-              <div>
-                <p className={styles.subtitle}>Creada</p>
-                <p
-                  style={{
-                    color: "var(--cWhiteV1)",
-                    fontSize: "0.875rem",
-                    margin: 0,
-                  }}
-                >
-                  {getDateStrMes(surveyData.created_at)} por{" "}
-                  {surveyData.created_by_name}
-                </p>
-              </div>
-            )}
-
-            {surveyData?.scheduled_at && (
-              <div>
-                <p className={styles.subtitle}>Programada para</p>
-                <p
-                  style={{
-                    color: "var(--cWhiteV1)",
-                    fontSize: "0.875rem",
-                    margin: 0,
-                  }}
-                >
-                  {getDateStrMes(surveyData.scheduled_at)}
-                </p>
-              </div>
-            )}
-            {surveyData?.published_at && (
-              <div>
-                <p className={styles.subtitle}>Publicada</p>
-                <p
-                  style={{
-                    color: "var(--cWhiteV1)",
-                    fontSize: "0.875rem",
-                    margin: 0,
-                  }}
-                >
-                  {getDateStrMes(surveyData.published_at)}
-                </p>
-              </div>
-            )}
-            {surveyData?.expires_at && (
-              <div>
-                <p className={styles.subtitle}>Vence</p>
-                <p
-                  style={{
-                    color: "var(--cWhiteV1)",
-                    fontSize: "0.875rem",
-                    margin: 0,
-                  }}
-                >
-                  {getDateStrMes(surveyData.expires_at)}
-                </p>
-              </div>
-            )}
-            {surveyData?.status === "C" && (
-              <div>
-                <p className={styles.subtitle}>Cerrada</p>
-                <p
-                  style={{
-                    color: "var(--cWhiteV1)",
-                    fontSize: "0.875rem",
-                    margin: 0,
-                  }}
-                >
-                  {getDateStrMes(surveyData.closed_at || surveyData.expires_at)}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Segmentation Criteria */}
-        {detailsLoaded && surveyData?.target_criteria && (
-          <SegmentationSummary
-            criteria={surveyData.target_criteria}
-            lTypeUnit={props.extraData?.unit_types}
-          />
-        )}
-
-        {/* Loading indicator while DET loads */}
-        {detailLoading && (
-          <p
-            className={styles.subtitle}
-            style={{ textAlign: "center", fontSize: "0.8rem", margin: 0 }}
-          >
-            Cargando detalles completos...
-          </p>
-        )}
-
-        {/* Statistics — only shown after details loaded and has answers */}
-        {detailsLoaded && hasAnswers && surveyData?.squestions?.length > 0 && (
-          <div>
-            <div
-              style={{
-                borderTop: "1px solid var(--borderV1)",
-                paddingTop: 20,
-                marginBottom: 16,
-              }}
-            >
-              <p
-                className={styles.title}
-                style={{ fontSize: "1rem", marginBottom: 4 }}
-              >
-                Estadísticas de respuestas
-              </p>
-              <p className={styles.subtitle} style={{ fontSize: "0.8rem" }}>
-                Resultados globales de todos los participantes
-              </p>
-            </div>
-            <SurveyStatsView
-              squestions={surveyData.squestions}
-              totalParticipants={realResponses}
+        {/* Statistics — using new Dashboard */}
+        {detailsLoaded && stats && (
+          <div style={{ 
+            marginTop: 20, 
+            borderTop: "1px solid var(--borderV1)", 
+            paddingTop: 20,
+            background: "#0f172a", // Forced dark background
+            borderRadius: "16px",
+            padding: "20px"
+          }}>
+            <SurveyDashboard 
+              stats={stats} 
+              filters={filters} 
+              onFilterChange={setFilters} 
             />
           </div>
         )}

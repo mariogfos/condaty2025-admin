@@ -9,6 +9,7 @@ import SingleChoice from "../Questions/SingleChoice";
 import MultipleChoice from "../Questions/MultipleChoice";
 import ScaleChoice from "../Questions/ScaleChoice";
 import TextChoice from "../Questions/TextChoice";
+import { SurveyDashboard } from "../SurveyDashboard/SurveyDashboard";
 
 interface SurveyDetailModalProps {
   survey: any;
@@ -23,6 +24,7 @@ const SurveyDetailModal: React.FC<SurveyDetailModalProps> = ({
 }) => {
   const [surveyDetail, setSurveyDetail] = useState<any>(initialSurvey);
   const [results, setResults] = useState<any>(null);
+  const [filters, setFilters] = useState<any>({});
   const { fetchSurveyDetail, fetchResults } = useMySurveys();
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
@@ -61,7 +63,7 @@ const SurveyDetailModal: React.FC<SurveyDetailModalProps> = ({
     };
 
     loadData();
-  }, [initialSurvey.id, initialSurvey.has_responded, initialSurvey.status, fetchSurveyDetail, fetchResults]);
+  }, [initialSurvey.id, initialSurvey.has_responded, initialSurvey.status, fetchSurveyDetail, fetchResults, filters]);
 
   const canAnswer = surveyDetail?.can_respond && !initialSurvey.has_responded && initialSurvey.status === 'A';
 

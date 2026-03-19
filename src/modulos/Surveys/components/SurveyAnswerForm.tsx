@@ -28,6 +28,7 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+  const [startTime, setStartTime] = useState<string | null>(null);
 
   const { fetchSurveyDetail, submitAnswers } = useMySurveys();
 
@@ -47,6 +48,7 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
     };
 
     loadDetail();
+    setStartTime(new Date().toISOString());
   }, [initialSurvey.id, fetchSurveyDetail]);
 
   const handleSingleSelect = (questionId: string, optionId: string) => {
@@ -140,7 +142,14 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
       );
 
       // En el administrador no enviamos dpto_id
-      const success = await submitAnswers(surveyDetail.id, "", answersList as any);
+      const endTime = new Date().toISOString();
+      const success = await submitAnswers(
+        surveyDetail.id, 
+        "", 
+        answersList as any, 
+        startTime || undefined, 
+        endTime
+      );
       
       if (success) {
         onSuccess();

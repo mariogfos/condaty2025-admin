@@ -24,8 +24,10 @@ interface UseMySurveysReturn {
     surveyId: string,
     dptoId: string,
     answers: SurveyAnswer[],
+    startedAt?: string,
+    completedAt?: string,
   ) => Promise<boolean>;
-  fetchResults: (surveyId: string, dptoId?: string) => Promise<any | null>;
+  fetchResults: (surveyId: string, filters?: any) => Promise<any | null>;
   fetchCounts: () => Promise<void>;
   execute: Function;
   reLoad: Function;
@@ -158,6 +160,8 @@ export const useMySurveys = (): UseMySurveysReturn => {
       surveyId: string,
       dptoId: string,
       answers: SurveyAnswer[],
+      startedAt?: string,
+      completedAt?: string,
     ): Promise<boolean> => {
       try {
         const { data: response } = await execute(
@@ -167,6 +171,8 @@ export const useMySurveys = (): UseMySurveysReturn => {
             survey_id: surveyId,
             dpto_id: dptoId,
             squestions: answers,
+            started_at: startedAt,
+            completed_at: completedAt,
           },
         );
 
@@ -180,16 +186,14 @@ export const useMySurveys = (): UseMySurveysReturn => {
   );
 
   const fetchResults = useCallback(
-    async (surveyId: string, dptoId?: string): Promise<any | null> => {
+    async (surveyId: string, filters: any = {}): Promise<any | null> => {
       try {
         setLoading(true);
         setError(null);
         const payload: Record<string, string> = {
           survey_id: surveyId,
+          ...filters
         };
-        if (dptoId) {
-          payload.dpto_id = dptoId;
-        }
 
         const { data: response } = await execute(
           modulePath + "/results",
