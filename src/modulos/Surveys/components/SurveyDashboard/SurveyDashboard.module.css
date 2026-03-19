@@ -192,3 +192,37 @@
   color: #ffffff !important;
   font-weight: 700 !important;
 }
+
+/* Highlights / Insights */
+.highlightsSection {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-top: 12px !important;
+  animation: fadeIn 0.5s ease-out !important;
+}
+
+.highlightItem {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  padding: 14px 18px !important;
+  background: rgba(99, 102, 241, 0.1) !important;
+  border: 1px solid rgba(99, 102, 241, 0.2) !important;
+  border-radius: 14px !important;
+  font-size: 0.925rem !important;
+  color: #e0e7ff !important;
+  line-height: 1.5 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+.highlightIcon {
+  font-size: 1.25rem !important;
+  flex-shrink: 0 !important;
+  margin-top: -2px !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

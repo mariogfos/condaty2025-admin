@@ -35,7 +35,9 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({ stats, filters
     <div className={styles.kpiGrid}>
       <div className={styles.kpiCard}>
         <span className={styles.kpiLabel}>Participantes</span>
-        <span className={styles.kpiValue} style={{ color: '#3b82f6' }}>{survey_info.total_participants}</span>
+        <span className={styles.kpiValue} style={{ color: '#3b82f6' }}>
+          {survey_info.total_participants} / {survey_info.estimated_audience}
+        </span>
       </div>
       <div className={styles.kpiCard}>
         <span className={styles.kpiLabel}>Tasa de Participación</span>
@@ -200,6 +202,17 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({ stats, filters
                 {q.advanced_stats.std_dev !== undefined ? (1 - (q.advanced_stats.std_dev / 4.5)).toFixed(2) : '1.00'}
               </span>
             </div>
+          </div>
+        )}
+
+        {q.highlights && q.highlights.length > 0 && (
+          <div className={styles.highlightsSection}>
+            {q.highlights.map((h: string, idx: number) => (
+              <div key={idx} className={styles.highlightItem}>
+                <span className={styles.highlightIcon}>💡</span>
+                <span>{h}</span>
+              </div>
+            ))}
           </div>
         )}
       </div>
