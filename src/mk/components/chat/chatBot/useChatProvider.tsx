@@ -2,7 +2,7 @@ import useAxios from "@/mk/hooks/useAxios";
 import { useEvent } from "@/mk/hooks/useEvents";
 import { useCallback, useState } from "react";
 
-export type Provider = "chatgpt" | "deepseek" | "kimi";
+export type Provider = "chatgpt" | "deepseek" | "kimi | openrouter | gemini";
 
 export type ChatMessage = {
   role: string;
@@ -26,7 +26,7 @@ export function useChatProvider({ provider, context }: UseChatProviderOptions) {
       }
       execute("chatbot-clear", "POST", {}, false, true);
     },
-    [execute]
+    [execute],
   );
 
   useEvent("onChatCloseRoom", onClose);
