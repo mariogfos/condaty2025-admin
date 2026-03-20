@@ -8,7 +8,7 @@ import MainMenu from "../MainMenu/MainMenu";
 import Header from "../Header/Header";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { getDateTimeAgo, getFormattedDate } from "@/mk/utils/date";
+import { getDateTimeAgo } from "@/mk/utils/date";
 import SideMenu from "@/mk/components/ui/SideMenu/SideMenu";
 import { useEvent } from "@/mk/hooks/useEvents";
 import useNotifInstandDB from "@/mk/components/notif/provider/useNotifInstandDB";
@@ -46,9 +46,11 @@ const typeAlerts: any = {
     color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
   },
 };
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 const Layout = ({ children }: any) => {
   const { user, logout, store, setStore, showToast, userCan } = useAuth();
+  const { localeTag, translate } = useScopedI18n("layout");
 
   const [sideBarOpen, setSideBarOpen] = useState(false);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
@@ -68,6 +70,34 @@ const Layout = ({ children }: any) => {
   const router = useRouter();
   const isTablet = false;
   const isDesktop = true;
+  const typeAlerts: any = {
+    E: {
+      name: translate("medicalEmergency"),
+      icon: <IconAmbulance size={36} color="var(--cWhite)" />,
+      color: { background: "var(--cHoverError)", border: "var(--cError)" },
+    },
+    F: {
+      name: translate("fire"),
+      icon: <IconFlame size={36} color="var(--cWhite)" />,
+      color: { background: "var(--cHoverWarning)", border: "var(--cWarning)" },
+    },
+    T: {
+      name: translate("theft"),
+      icon: <IconTheft size={36} color="var(--cWhite)" />,
+      color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
+    },
+    O: {
+      name: translate("other"),
+      icon: <IconAlert size={36} color="var(--cWhite)" />,
+      color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
+    },
+  };
+  const formattedToday = new Intl.DateTimeFormat(localeTag, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
 
   // Call useNotifInstandDB with showToast
   useNotifInstandDB([], showToast as any);
@@ -186,8 +216,10 @@ const Layout = ({ children }: any) => {
         }
       }
       if (e.event == "new-survey") {
-        const payload = typeof e.payload === "string" ? JSON.parse(e.payload) : e.payload;
-        const isMandatory = payload?.is_mandatory === "Y" || payload?.is_mandatory === true;
+        const payload =
+          typeof e.payload === "string" ? JSON.parse(e.payload) : e.payload;
+        const isMandatory =
+          payload?.is_mandatory === "Y" || payload?.is_mandatory === true;
         if (isMandatory) {
           setSelectedSurvey({ ...payload, is_mandatory: true });
         }
@@ -216,7 +248,7 @@ const Layout = ({ children }: any) => {
           path={path}
           router={router}
           client={client}
-          title={store?.title + " / " + getFormattedDate()}
+          title={store?.title + " / " + formattedToday}
           right={store?.right}
           customTitle={store?.customTitle}
           openSlider={sideBarOpen}
@@ -259,7 +291,7 @@ const Layout = ({ children }: any) => {
             setStore({ openProfileModal: false });
           }}
           dataID={user?.id}
-          titleBack="Volver atrás"
+          titleBack={translate("profileBack")}
           type="admin"
           del={false}
           setOnLogout={setOnLogout}
@@ -269,30 +301,28 @@ const Layout = ({ children }: any) => {
       {onLogout && (
         <DataModal
           open={onLogout}
-          title="Cerrar sesión"
+          title={translate("logoutTitle")}
           onClose={() => {
             setOnLogout(false);
           }}
-          buttonText="Cerrar sesión"
-          buttonCancel="Cancelar"
+          buttonText={translate("logoutAction")}
+          buttonCancel={translate("cancel")}
           minWidth={360}
           maxWidth={680}
           onSave={() => logout()}
         >
-          <p className={styles.modalLogout}>
-            ¿Estás seguro de que deseas cerrar sesión?
-          </p>
+          <p className={styles.modalLogout}>{translate("logoutConfirm")}</p>
         </DataModal>
       )}
       {openAlert?.open && (
         <DataModal
           style={{ border: "2px solid #F23D2D", width: "450px" }}
-          title="Nueva emergencia"
+          title={translate("newEmergency")}
           colorTitle="var(--cError)"
           iconClose={false}
           open={openAlert?.open}
           buttonCancel=""
-          buttonText="Cerrar"
+          buttonText={translate("close")}
           onClose={onCloseAlert}
           onSave={onCloseAlert}
         >
@@ -303,12 +333,14 @@ const Layout = ({ children }: any) => {
               fontSize: "14px",
             }}
           >
-            Residente
+            {translate("resident")}
           </p>
           <ItemList
             variant="V1"
             title={openAlert?.item?.owner_name}
-            subtitle={"Unidad: " + openAlert?.item?.unit}
+            subtitle={translate("unitPrefix", {
+              unit: openAlert?.item?.unit ?? "",
+            })}
             right={
               <p style={{ width: 110, textAlign: "right" }}>
                 {getDateTimeAgo(openAlert?.item?.created_at)}
@@ -322,7 +354,7 @@ const Layout = ({ children }: any) => {
             }
           />
           <p style={{ color: "var(--cWhiteV1)", marginBottom: 8 }}>
-            Tipo de emergencia
+            {translate("emergencyType")}
           </p>
           <div
             style={{
@@ -345,7 +377,9 @@ const Layout = ({ children }: any) => {
                 className={styles.viewMoreBtn}
                 onClick={() => setIsLayoutAlertDescExpanded((v: boolean) => !v)}
               >
-                {isLayoutAlertDescExpanded ? "Ver menos" : "Ver más"}
+                {isLayoutAlertDescExpanded
+                  ? translate("seeLess")
+                  : translate("seeMore")}
               </button>
             )}
           </div>
