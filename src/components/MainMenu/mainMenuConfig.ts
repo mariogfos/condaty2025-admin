@@ -48,6 +48,11 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/invitations", perm: "campanas", labelKey: "qrInvitations" },
       { href: "/uploads", perm: "cargamasiva", labelKey: "bulkUpload" },
       { href: "/app-versions", perm: "superadmins", labelKey: "appVersions" },
+      {
+        href: "/visit-reasons",
+        perm: "", //"visit_reasons",
+        labelKey: "Motivos de visitas",
+      },
     ],
   },
   {
@@ -134,11 +139,6 @@ export const menuConfig: MenuConfigItem[] = [
     key: "Vigilancia y seguridad",
     items: [
       { href: "/guards", perm: "guards", labelKey: "Guardias" },
-      {
-        href: "/visit-reasons",
-        perm: "visit_reasons",
-        labelKey: "Motivos de visitas",
-      },
       { href: "/activities", perm: "accesses", labelKey: "Accesos" },
       {
         href: "/alerts",
