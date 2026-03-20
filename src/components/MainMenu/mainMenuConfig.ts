@@ -115,8 +115,8 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "publicationsWall",
         badgeKey: "reelsBage",
       },
-      { href: "/surveys", perm: "surveys", label: "Encuestas" },
-      { href: "/mis-encuestas", perm: "surveys", label: "Mis Encuestas" },
+      { href: "/surveys", perm: "surveys", labelKey: "Encuestas" },
+      { href: "/mis-encuestas", perm: "surveys", labelKey: "Mis Encuestas" },
     ],
   },
   {
@@ -133,13 +133,13 @@ export const menuConfig: MenuConfigItem[] = [
     icon: IconSecurityV2,
     key: "Vigilancia y seguridad",
     items: [
-      { href: "/guards", perm: "guards", label: "Guardias" },
+      { href: "/guards", perm: "guards", labelKey: "Guardias" },
       {
         href: "/visit-reasons",
         perm: "visit_reasons",
-        label: "Motivos de visitas",
+        labelKey: "Motivos de visitas",
       },
-      { href: "/activities", perm: "accesses", label: "Accesos" },
+      { href: "/activities", perm: "accesses", labelKey: "Accesos" },
       {
         href: "/alerts",
         perm: "alerts",
