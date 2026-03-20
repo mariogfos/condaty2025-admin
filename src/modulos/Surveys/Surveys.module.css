@@ -37,22 +37,42 @@
   }
   
   .statusA {
-    background-color: var(--success, #10b981);
+    background-color: var(--cSuccess, #10b981);
+    color: white;
+  }
+  
+  .statusS {
+    background-color: var(--cInfo, #3b82f6);
+    color: white;
+  }
+  
+  .statusP {
+    background-color: var(--cWarning, #f59e0b);
+    color: white;
+  }
+  
+  .statusC {
+    background-color: var(--cError, #ef4444);
+    color: white;
+  }
+  
+  .statusX {
+    background-color: var(--cError, #ef4444);
     color: white;
   }
   
   .statusI {
-    background-color: var(--warning, #f59e0b);
+    background-color: var(--cWarning, #f59e0b);
     color: white;
   }
   
   .statusF {
-    background-color: var(--info, #3b82f6);
+    background-color: var(--cInfo, #3b82f6);
     color: white;
   }
   
   .statusD {
-    background-color: var(--lightv3, #a7a7a7);
+    background-color: var(--cWhiteV1, #a7a7a7);
     color: white;
   }
   

@@ -309,7 +309,7 @@ const useCrud = ({
       item = await getItemApi(item);
     }
     initOpen(setOpenView, item, "view");
-  }, []);
+  }, [mod, userCan, showToast, getItemApi, initOpen]);
 
   const onImport = useCallback((e: any) => {
     if (!userCan(mod.permiso, "C"))
@@ -470,8 +470,14 @@ const useCrud = ({
       if (filterBy.filterBy[key]) fil.push(key + ":" + filterBy.filterBy[key]);
     }
     fil = fil.join("|");
-    //setParams({ ...params, ...(fil ? { filterBy: fil } : {}) });
-    setParams({ ...params, ...(fil ? { filterBy: fil, page: 1 } : {}) });
+    // Always update filterBy: set to new value OR explicitly to undefined to clear old filters from params
+    const newParams = { ...params, page: 1 };
+    if (fil) {
+      newParams.filterBy = fil;
+    } else {
+      delete newParams.filterBy;
+    }
+    setParams(newParams);
     setOldFilter(filterBy);
   };
 
