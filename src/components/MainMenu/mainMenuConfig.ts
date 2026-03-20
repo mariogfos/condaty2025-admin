@@ -112,6 +112,11 @@ export const menuConfig = [
     key: "Vigilancia y seguridad",
     items: [
       { href: "/guards", perm: "guards", label: "Guardias" },
+      {
+        href: "/visit-reasons",
+        perm: "visit_reasons",
+        label: "Motivos de visitas",
+      },
       { href: "/activities", perm: "accesses", label: "Accesos" },
       {
         href: "/alerts",
