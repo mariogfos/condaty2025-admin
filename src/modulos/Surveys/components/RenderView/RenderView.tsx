@@ -138,8 +138,9 @@ const RenderView = (props: {
   open: boolean;
   onClose: any;
   item: Record<string, any>;
-  onEdit?: Function;
-  reLoad?: Function;
+  onEdit?: (item: any) => void;
+  reLoad?: () => void;
+  onCloseView?: () => void;
   extraData?: Record<string, any>;
 }) => {
   const { showToast } = useAuth();
@@ -227,6 +228,16 @@ const RenderView = (props: {
     props.reLoad?.();
   };
 
+  const handleOnDuplicate = (newSurvey: any) => {
+    props.reLoad?.();
+    props.onCloseView?.();
+    if (newSurvey) {
+      setTimeout(() => {
+        props.onEdit?.(newSurvey);
+      }, 100);
+    }
+  };
+
   return (
     <DataModal
       open={props.open}
@@ -305,7 +316,7 @@ const RenderView = (props: {
                 hasAnswers={hasAnswers}
                 surveyData={surveyData}
                 onStatusChanged={handleStatusChanged}
-                onDuplicate={() => props.reLoad?.()}
+                onDuplicate={handleOnDuplicate}
               />
             )}
           </div>

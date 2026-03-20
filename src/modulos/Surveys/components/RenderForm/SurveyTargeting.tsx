@@ -18,10 +18,11 @@ const ROLES_OPTIONS = [
 const OWNER_ROLES = ["owner_homeowner", "owner_titular", "owner_dependiente"];
 
 /** Convert roles object { owner_homeowner: "1", ... } → string[] of active role IDs */
-function rolesToArray(roles: Record<string, string> | undefined): string[] {
+function rolesToArray(roles: any): string[] {
   if (!roles) return [];
+  if (Array.isArray(roles)) return roles.map(String);
   return Object.entries(roles)
-    .filter(([, v]) => v === "1")
+    .filter(([, v]) => v === "1" || v === 1 || v === true)
     .map(([k]) => k);
 }
 
@@ -65,7 +66,7 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
   useEffect(() => {
     if (!hasInitialized) {
       setHasInitialized(true);
-      if (affCount !== null) return;
+      // Even if we have a value, let's refresh it once on mount to be sure
     }
     const t = setTimeout(() => calculateAudience(targetCriteria), 600);
     return () => clearTimeout(t);

@@ -8,13 +8,13 @@ Este documento resume los endpoints disponibles para el módulo de encuestas y s
 | :--- | :--- | :--- | :--- |
 | `GET` | `/` | `fullType=CRUD` | Lista para administración (con contadores globales). |
 | `GET` | `/` | `fullType=L`, `filterBy=(P\|R\|E)` | Lista para residentes (Pendientes, Respondidas, Expiradas). |
-| `GET` | `/` | `fullType=DET`, `searchBy={id}` | Detalle completo de una encuesta (preguntas, opciones, metadata). |
+| `GET` | `/` | `fullType=DET`, `searchBy={id}` | Detalle completo. **Usa SurveyResource** (preguntas, opciones, metadata). |
 | `GET` | `/my-counts` | `dpto_id` (opcional) | Contadores resumidos (P/R/E) para el usuario. |
 | `GET` | `/results` | `survey_id`, `dpto_id` (opcional) | **Estadísticas y respuestas del usuario**. Devuelve `user_response`. |
 | `POST` | `/answers` | `survey_id`, `squestions` (lista) | **Enviar respuestas**. Requiere `soption_id` para escala/selección. |
 | `POST` | `/calculate-audience` | `target_criteria` | Estimar alcance antes de publicar (Admin). |
 | `PUT` | `/{id}/status` | `status=(A\|C\|S\|X...)` | Cambiar estado (Publicar, Cerrar, etc.). |
-| `POST` | `/{id}/duplicate` | - | Clonar una encuesta existente. |
+| `POST` | `/{id}/duplicate` | - | Clonar encuesta. **Devuelve SurveyResource** (objeto completo con preguntas). |
 
 ## Estructura de Datos (Resultados)
 

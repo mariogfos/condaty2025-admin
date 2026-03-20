@@ -21,11 +21,19 @@ const Surveys = () => {
     endDate?: string;
   }>({});
 
-  // Use ref to break circular dependency between config and useCrud
+  // Use refs to break circular dependency between config and useCrud
   const triggerReloadRef = React.useRef<any>(() => {});
+  const onEditRef = React.useRef<any>(() => {});
+  const onCloseViewRef = React.useRef<any>(() => {});
+
   const { mod, fields } = React.useMemo(
-    () => getSurveyConfig((...args: any[]) => triggerReloadRef.current(...args)),
-    []
+    () =>
+      getSurveyConfig(
+        (...args: any[]) => triggerReloadRef.current(...args),
+        (item: any) => onEditRef.current(item),
+        () => onCloseViewRef.current(),
+      ),
+    [],
   );
 
   // Memoize filter handler to prevent useCrud re-initialization
@@ -47,15 +55,18 @@ const Surveys = () => {
     return { filterBy: currentFilters };
   }, []);
 
-  const { userCan, List, onView, reLoad, onFilter } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-    getFilter: handleGetFilter,
-  });
+  const { userCan, List, onView, onEdit, reLoad, onFilter, onCloseView } =
+    useCrud({
+      paramsInitial,
+      mod,
+      fields,
+      getFilter: handleGetFilter,
+    });
 
-  // Assign the real reLoad function to the ref
+  // Assign the real functions to the refs
   triggerReloadRef.current = reLoad;
+  onEditRef.current = onEdit;
+  onCloseViewRef.current = onCloseView;
 
   const handleRowClick = (item: SurveyItemData) => {
     onView(item);

@@ -44,7 +44,7 @@ type Props = {
   /** Current survey data to pre-fill dates in the modal */
   surveyData?: Record<string, any>;
   onStatusChanged: (updatedSurvey: any) => void;
-  onDuplicate?: () => void;
+  onDuplicate?: (newSurvey: any) => void;
 };
 
 export default function SurveyStatusActions({
@@ -134,7 +134,7 @@ export default function SurveyStatusActions({
       );
       if (data?.success) {
         showToast("Encuesta duplicada como borrador", "success");
-        onDuplicate?.();
+        onDuplicate?.(data.data);
       }
     } catch (e: any) {
       showToast("Error al duplicar la encuesta", "error");

@@ -16,6 +16,8 @@ const lSurveyStatus = () =>
 
 export const getSurveyConfig = (
   reLoad: any,
+  onEdit?: (item: any) => void,
+  onCloseView?: () => void,
 ): { mod: ModCrudType; fields: any } => {
   const mod: ModCrudType = {
     modulo: "surveys",
@@ -60,7 +62,14 @@ export const getSurveyConfig = (
         />
       );
     },
-    renderView: (props: any) => <RenderView {...props} />,
+    renderView: (props: any) => (
+      <RenderView
+        {...props}
+        reLoad={reLoad}
+        onEdit={onEdit}
+        onCloseView={onCloseView}
+      />
+    ),
     // loadView: { fullType: "DET" }, // Removed to enable instant optimistic load
   };
 
