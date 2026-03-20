@@ -138,8 +138,9 @@ export const menuConfig: MenuConfigItem[] = [
     icon: IconSecurityV2,
     key: "Vigilancia y seguridad",
     items: [
-      { href: "/guards", perm: "guards", labelKey: "Guardias" },
-      { href: "/activities", perm: "accesses", labelKey: "Accesos" },
+      { href: "/guards", perm: "guards", labelKey: "guards" },
+      { href: "/activities", perm: "accesses", labelKey: "accesses" },
+      { href: "/visitors", perm: "accesses", labelKey: "visitors" },
       {
         href: "/alerts",
         perm: "alerts",
