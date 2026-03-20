@@ -16,12 +16,14 @@ interface SurveyAnswerFormProps {
   survey: any;
   onClose: () => void;
   onSuccess: () => void;
+  isMandatory?: boolean;
 }
 
 const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
   survey: initialSurvey,
   onClose,
   onSuccess,
+  isMandatory = false,
 }) => {
   const [surveyDetail, setSurveyDetail] = useState<any>(initialSurvey);
   const [answers, setAnswers] = useState<Record<string, any>>({});
@@ -250,7 +252,8 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
       onSave={handleSubmit}
       title={surveyDetail.title}
       buttonText={isSubmitting ? "Enviando..." : "Enviar respuestas"}
-      buttonCancel="Cancelar"
+      buttonCancel={isMandatory ? "" : "Cancelar"}
+      iconClose={!isMandatory}
       disabled={isSubmitting || isLoadingDetail || !surveyDetail.squestions?.length}
       style={{ width: '80%' }}
     >

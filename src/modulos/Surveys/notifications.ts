@@ -14,10 +14,12 @@ export const surveyNotifications: ModuleNotifConfig = {
   moduleId: "surveys",
   events: {
     "new-survey": ({ payload, showToast, dispatch }) => {
+      const isMandatory = payload?.is_mandatory === "Y" || payload?.is_mandatory === true;
       const title = payload?.title ?? "Nueva encuesta disponible";
       showToast(`📋 ${title}`, "info");
-      // Dispatch a scoped event — MisEncuestas.tsx listens to this
-      dispatch("survey:new", payload);
+      console.log("Dispatching survey:new from notifications.ts:", { isMandatory, payload });
+      // Dispatch a scoped event — MisEncuestas.tsx and Layout.tsx listen to this
+      dispatch("survey:new", { ...payload, is_mandatory: isMandatory });
     },
   },
 };

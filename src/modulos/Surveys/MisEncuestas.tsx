@@ -32,9 +32,15 @@ const MisEncuestas = () => {
   }, [activeTab]);
 
   // Refresh list and counter when a new survey notification arrives
-  const handleNewSurveyNotif = useCallback(() => {
+  const handleNewSurveyNotif = useCallback((payload: any) => {
     // Recargar counts junto con la lista
-    fetchSurveys("P", undefined, true); // Refresh pending tab — where new surveys appear
+    fetchSurveys("P", undefined, true).then((res: any) => {
+        if (payload?.is_mandatory) {
+            // After refreshing, try to find the survey in the new list to have the full object
+            // However, handleAnswerSurvey also handles fetching detail if needed.
+            handleAnswerSurvey(payload);
+        }
+    });
   }, [fetchSurveys]);
 
   useEvent("survey:new", handleNewSurveyNotif);
@@ -135,6 +141,7 @@ const MisEncuestas = () => {
           survey={selectedSurvey}
           onClose={handleCloseModal}
           onSuccess={handleSurveyAnswered}
+          isMandatory={!!selectedSurvey?.is_mandatory}
         />
       )}
     </div>

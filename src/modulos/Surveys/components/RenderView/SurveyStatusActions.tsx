@@ -103,6 +103,7 @@ export default function SurveyStatusActions({
             id: surveyId,
             title: surveyData?.title || "Nueva encuesta disponible",
             act: "new-survey",
+            is_mandatory: surveyData?.is_mandatory === "Y" || surveyData?.is_mandatory === true,
           }, surveyData?.target_criteria);
         }
       }

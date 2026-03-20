@@ -22,6 +22,8 @@ import {
 } from "./icons/IconsBiblioteca";
 import ChooseClient from "../ChooseClient/ChooseClient";
 import ProfileModal from "../ProfileModal/ProfileModal";
+import SurveyAnswerForm from "@/modulos/Surveys/components/SurveyAnswerForm";
+
 const typeAlerts: any = {
   E: {
     name: "Emergencia Medica",
@@ -60,6 +62,7 @@ const Layout = ({ children }: any) => {
   const [openClient, setOpenClient] = useState(false);
   const [isLayoutAlertDescExpanded, setIsLayoutAlertDescExpanded] =
     useState(false);
+  const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
 
   const path = usePathname();
   const router = useRouter();
@@ -180,6 +183,13 @@ const Layout = ({ children }: any) => {
             .catch((error) =>
               console.log("Error al reproducir el sonido:", error),
             );
+        }
+      }
+      if (e.event == "new-survey") {
+        const payload = typeof e.payload === "string" ? JSON.parse(e.payload) : e.payload;
+        const isMandatory = payload?.is_mandatory === "Y" || payload?.is_mandatory === true;
+        if (isMandatory) {
+          setSelectedSurvey({ ...payload, is_mandatory: true });
         }
       }
     },
@@ -348,6 +358,18 @@ const Layout = ({ children }: any) => {
           onClose={() => {
             setOpenClient(false);
           }}
+        />
+      )}
+
+      {selectedSurvey && (
+        <SurveyAnswerForm
+          survey={selectedSurvey}
+          onClose={() => setSelectedSurvey(null)}
+          onSuccess={() => {
+            setSelectedSurvey(null);
+            showToast("Encuesta respondida con éxito", "success");
+          }}
+          isMandatory={true}
         />
       )}
     </main>
