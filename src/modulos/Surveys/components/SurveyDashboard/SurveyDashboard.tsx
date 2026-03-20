@@ -24,43 +24,69 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({ stats, filters
   const { execute } = useAxios();
   const { showToast } = useAuth();
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+  const [aiReports, setAiReports] = useState<any[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState('openai');
+  const [pollingActive, setPollingActive] = useState(false);
 
   const survey_info = stats?.survey_info;
   const questions = stats?.questions || [];
 
-  const fetchAIReports = async () => {
+  const fetchAIReports = async (showLoading = false) => {
     if (!survey_info?.id) return;
     try {
-      const res = await execute(`/surveys/ai-reports`, "GET", { survey_id: survey_info.id }, false, true);
+      const res = await execute(`/surveys/ai-reports`, "GET", { survey_id: survey_info.id }, showLoading, true);
       if (res.data?.success) {
-        const summary = res.data.data.find((r: any) => !r.squestion_id);
+        const reports = res.data.data || [];
+        setAiReports(reports);
+        const summary = reports.find((r: any) => !r.squestion_id);
         setAiAnalysis(summary);
+        
+        // Stop polling if we have a final summary
+        if (summary?.is_final) {
+            setPollingActive(false);
+            setAiLoading(false);
+        }
+        return reports;
       }
     } catch (error) {
       console.error('Error fetching AI reports:', error);
     }
+    return [];
   };
 
   const handleRunAI = async () => {
     if (!survey_info?.id) return;
     setAiLoading(true);
+    setPollingActive(true);
     try {
       const res = await execute(`/surveys/analyze-ai`, 'POST', { 
         survey_id: survey_info.id,
         provider: selectedProvider 
-      });
+      }, false, true); // notWaiting: true to avoid global loading
+      
       if (res.data?.success) {
-        showToast('Análisis de IA iniciado. Los resultados aparecerán en breve.', 'success');
-        setTimeout(fetchAIReports, 8000);
+        showToast('Análisis de IA iniciado. Los resultados aparecerán progresivamente.', 'success');
       }
     } catch (error) {
       showToast('Error al iniciar el análisis de IA', 'error');
-    } finally {
       setAiLoading(false);
+      setPollingActive(false);
     }
   };
+
+  // Polling Effect
+  useEffect(() => {
+    let interval: any;
+    if (pollingActive && survey_info?.id) {
+        interval = setInterval(() => {
+            fetchAIReports();
+        }, 4000);
+    }
+    return () => {
+        if (interval) clearInterval(interval);
+    };
+  }, [pollingActive, survey_info?.id]);
 
   useEffect(() => {
     if (survey_info?.id && isMounted) {
@@ -135,6 +161,7 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({ stats, filters
               )}
             </div>
           </div>
+          {renderAIQuestionAnalysis(q.id)}
         </div>
       );
     }
@@ -262,6 +289,36 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({ stats, filters
             ))}
           </div>
         )}
+        {renderAIQuestionAnalysis(q.id)}
+      </div>
+    );
+  };
+
+  const renderAIQuestionAnalysis = (questionId: number) => {
+    const report = aiReports.find(r => Number(r.squestion_id) === Number(questionId));
+    if (!report) return null;
+
+    const sentiment = report.sentiment_stats;
+    const sentimentColor = sentiment?.label === 'Positivo' ? '#10b981' : (sentiment?.label === 'Negativo' ? '#f43f5e' : '#f59e0b');
+
+    return (
+      <div className={styles.aiQuestionBox}>
+        <div className={styles.aiQuestionHeader}>
+          <span className={styles.aiSparkle}>✨ Análisis IA</span>
+          {sentiment && (
+            <div className={styles.sentimentBadge} style={{ backgroundColor: `${sentimentColor}20`, color: sentimentColor }}>
+              {sentiment.label} ({sentiment.score}/10)
+            </div>
+          )}
+        </div>
+        <p className={styles.aiQuestionContent}>{report.content}</p>
+        {report.metadata?.keywords?.length > 0 && (
+            <div className={styles.aiKeywords}>
+                {report.metadata.keywords.map((k: string) => (
+                    <span key={k} className={styles.aiTag}>#{k}</span>
+                ))}
+            </div>
+        )}
       </div>
     );
   };
@@ -294,10 +351,10 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({ stats, filters
               disabled={aiLoading}
             >
               <option value="openai">OpenAI (Pro)</option>
-              <option value="gemini">Google Gemini</option>
               <option value="deepseek">DeepSeek</option>
+              {/* <option value="gemini">Google Gemini</option>
               <option value="openrouter">Free (Llama3)</option>
-              <option value="kimi">Kimi (OpenRouter)</option>
+              <option value="kimi">Kimi (OpenRouter)</option> */}
             </select>
             <button 
               className={styles.aiButton} 

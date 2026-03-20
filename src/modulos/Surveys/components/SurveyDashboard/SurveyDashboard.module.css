@@ -336,3 +336,56 @@
   font-size: 0.8rem !important;
   cursor: pointer !important;
 }
+
+/* AI Question Analysis */
+.aiQuestionBox {
+  margin-top: 16px !important;
+  padding: 16px !important;
+  background: rgba(99, 102, 241, 0.05) !important;
+  border: 2px dashed rgba(139, 92, 246, 0.2) !important;
+  border-radius: 14px !important;
+  animation: fadeIn 0.4s ease-out !important;
+}
+
+.aiQuestionHeader {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 10px !important;
+}
+
+.aiSparkle {
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  color: #a5b4fc !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.sentimentBadge {
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+}
+
+.aiQuestionContent {
+  font-size: 0.925rem !important;
+  line-height: 1.5 !important;
+  color: #f1f5f9 !important;
+  margin: 0 !important;
+}
+
+.aiKeywords {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin-top: 12px !important;
+}
+
+.aiTag {
+  font-size: 0.75rem !important;
+  color: #818cf8 !important;
+  font-weight: 600 !important;
+  opacity: 0.8 !important;
+}

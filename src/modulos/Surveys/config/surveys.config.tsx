@@ -154,7 +154,7 @@ export const getSurveyConfig = (
         width: "100px",
         onRender: (props: any) => (
           <div>
-            {props.item.real_responses_count}/{props.item.estimated_audience}
+            {props.item.total_voters}/{props.item.estimated_audience}
           </div>
         ),
       },
