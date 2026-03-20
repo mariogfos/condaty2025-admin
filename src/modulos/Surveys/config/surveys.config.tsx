@@ -61,7 +61,7 @@ export const getSurveyConfig = (
       );
     },
     renderView: (props: any) => <RenderView {...props} />,
-    loadView: { fullType: "DET" },
+    // loadView: { fullType: "DET" }, // Removed to enable instant optimistic load
   };
 
   const fields = {
@@ -154,7 +154,7 @@ export const getSurveyConfig = (
         width: "100px",
         onRender: (props: any) => (
           <div>
-            {props.item.total_voters}/{props.item.estimated_audience}
+            {props.item.real_responses_count}/{props.item.estimated_audience}
           </div>
         ),
       },

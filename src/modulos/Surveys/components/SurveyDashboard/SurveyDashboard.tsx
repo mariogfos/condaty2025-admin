@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import styles from './SurveyDashboard.module.css';
 import dynamic from 'next/dynamic';
+import useAxios from '@/mk/hooks/useAxios';
+import { useAuth } from '@/mk/contexts/AuthProvider';
 
 const Chart = dynamic(() => import('react-apexcharts'), { 
   ssr: false,
@@ -19,6 +21,52 @@ const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308'
 
 export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({ stats, filters, onFilterChange }) => {
   const [isMounted, setIsMounted] = useState(false);
+  const { execute } = useAxios();
+  const { showToast } = useAuth();
+  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState('openai');
+
+  const survey_info = stats?.survey_info;
+  const questions = stats?.questions || [];
+
+  const fetchAIReports = async () => {
+    if (!survey_info?.id) return;
+    try {
+      const res = await execute(`/surveys/ai-reports`, "GET", { survey_id: survey_info.id }, false, true);
+      if (res.data?.success) {
+        const summary = res.data.data.find((r: any) => !r.squestion_id);
+        setAiAnalysis(summary);
+      }
+    } catch (error) {
+      console.error('Error fetching AI reports:', error);
+    }
+  };
+
+  const handleRunAI = async () => {
+    if (!survey_info?.id) return;
+    setAiLoading(true);
+    try {
+      const res = await execute(`/surveys/analyze-ai`, 'POST', { 
+        survey_id: survey_info.id,
+        provider: selectedProvider 
+      });
+      if (res.data?.success) {
+        showToast('Análisis de IA iniciado. Los resultados aparecerán en breve.', 'success');
+        setTimeout(fetchAIReports, 8000);
+      }
+    } catch (error) {
+      showToast('Error al iniciar el análisis de IA', 'error');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (survey_info?.id && isMounted) {
+      fetchAIReports();
+    }
+  }, [survey_info?.id, isMounted]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -28,8 +76,7 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({ stats, filters
     return () => clearTimeout(timer);
   }, []);
 
-  if (!stats || !isMounted) return null;
-  const { survey_info, questions } = stats;
+  if (!stats || !isMounted || !survey_info) return null;
 
   const renderKPIs = () => (
     <div className={styles.kpiGrid}>
@@ -227,6 +274,57 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({ stats, filters
       </header>
 
       {renderKPIs()}
+
+      <section className={styles.aiSection}>
+        <div className={styles.aiHeader}>
+          <div className={styles.aiTitle}>
+            <span>✨</span>
+            <div>
+              <strong>Análisis Inteligente (IA)</strong>
+              <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.7 }}>
+                {aiAnalysis ? `Última actualización: ${new Date(aiAnalysis.analyzed_at).toLocaleString()}` : 'Aún no se ha generado un análisis global'}
+              </p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <select 
+              className={styles.providerSelect}
+              value={selectedProvider}
+              onChange={(e) => setSelectedProvider(e.target.value)}
+              disabled={aiLoading}
+            >
+              <option value="openai">OpenAI (Pro)</option>
+              <option value="gemini">Google Gemini</option>
+              <option value="deepseek">DeepSeek</option>
+              <option value="openrouter">Free (Llama3)</option>
+              <option value="kimi">Kimi (OpenRouter)</option>
+            </select>
+            <button 
+              className={styles.aiButton} 
+              onClick={handleRunAI}
+              disabled={aiLoading}
+            >
+              {aiLoading ? (
+                <div className={styles.aiLoading}>
+                  <div className={styles.aiPulse} /> Procesando...
+                </div>
+              ) : (
+                'Análisis IA'
+              )}
+            </button>
+          </div>
+        </div>
+
+        {aiAnalysis ? (
+          <div className={styles.aiContent}>
+            {aiAnalysis.content}
+          </div>
+        ) : !aiLoading && (
+          <p className={styles.questionMeta} style={{ fontStyle: 'italic' }}>
+            Haz clic en el botón superior para generar un resumen ejecutivo de toda la encuesta basado en los datos actuales.
+          </p>
+        )}
+      </section>
 
       <div className={styles.questionsGrid}>
         {questions.map((q: any) => {

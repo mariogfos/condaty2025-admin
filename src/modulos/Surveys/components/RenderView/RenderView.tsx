@@ -145,7 +145,7 @@ const RenderView = (props: {
   const { showToast } = useAuth();
   const { execute } = useAxios();
   // Optimistic initial state from the list row — filled in after DET loads
-  const [surveyData, setSurveyData] = useState<any>(props.item.survey);
+  const [surveyData, setSurveyData] = useState<any>(props.item);
   const [detailsLoaded, setDetailsLoaded] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
 
@@ -161,20 +161,20 @@ const RenderView = (props: {
   const [statsLoading, setStatsLoading] = useState(false);
 
   useEffect(() => {
-    if (!props.open || !props.item?.survey?.id) return;
+    if (!props.open || !props.item?.id) return;
     
     // Only reset detailed status if current survey changes
-    if (surveyData?.id !== props.item.survey.id) {
-        setSurveyData(props.item.survey);
+    if (surveyData?.id !== props.item.id) {
+        setSurveyData(props.item);
         setDetailsLoaded(false);
         setStats(null);
     }
     
     setAudience(props.item?.estimated_audience ?? 0);
     setRealResponses(props.item?.real_responses_count ?? 0);
-    loadData(props.item.survey.id);
+    loadData(props.item.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.open, props.item?.survey?.id, filters]);
+  }, [props.open, props.item?.id, filters]);
 
   const loadData = async (id: number) => {
     setDetailLoading(true);

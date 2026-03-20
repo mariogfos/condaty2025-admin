@@ -21,13 +21,15 @@ const Surveys = () => {
     endDate?: string;
   }>({});
 
-  // Define reLoad for use inside the config if needed
-  let triggerReload: (params?: Record<string, any>) => void = () => {};
+  // Use ref to break circular dependency between config and useCrud
+  const triggerReloadRef = React.useRef<any>(() => {});
+  const { mod, fields } = React.useMemo(
+    () => getSurveyConfig((...args: any[]) => triggerReloadRef.current(...args)),
+    []
+  );
 
-  const { mod, fields } = getSurveyConfig(triggerReload);
-
-  // Handle filter changes — intercept the "custom" period to show the date range modal
-  const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
+  // Memoize filter handler to prevent useCrud re-initialization
+  const handleGetFilter = React.useCallback((opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
     if (opt === "created_at" && value === "custom") {
@@ -43,7 +45,7 @@ const Surveys = () => {
       currentFilters[opt] = value;
     }
     return { filterBy: currentFilters };
-  };
+  }, []);
 
   const { userCan, List, onView, reLoad, onFilter } = useCrud({
     paramsInitial,
@@ -52,7 +54,8 @@ const Surveys = () => {
     getFilter: handleGetFilter,
   });
 
-  triggerReload = (...args: any[]) => reLoad(...args);
+  // Assign the real reLoad function to the ref
+  triggerReloadRef.current = reLoad;
 
   const handleRowClick = (item: SurveyItemData) => {
     onView(item);

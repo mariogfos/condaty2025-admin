@@ -309,7 +309,7 @@ const useCrud = ({
       item = await getItemApi(item);
     }
     initOpen(setOpenView, item, "view");
-  }, []);
+  }, [mod, userCan, showToast, getItemApi, initOpen]);
 
   const onImport = useCallback((e: any) => {
     if (!userCan(mod.permiso, "C"))
