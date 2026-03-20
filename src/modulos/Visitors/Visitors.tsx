@@ -81,6 +81,20 @@ const Visitors = () => {
           ),
         },
       },
+      first_entry: {
+        rules: [""],
+        api: "",
+        label: "Primer acceso",
+        list: {
+          onRender: (props: any) => (
+            <div>
+              {props.item.first_entry
+                ? getDateTimeStrMesShort(props.item.first_entry)
+                : "-/-"}
+            </div>
+          ),
+        },
+      },
       last_entry: {
         rules: [""],
         api: "",
