@@ -180,6 +180,111 @@
   width: 100%;
 }
 
+.devicesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.deviceCard {
+  border: 1px solid #d7fff014;
+  background-color: #12151999;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.deviceHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.deviceGuard {
+  color: var(--cWhite);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.deviceBlock {
+  border: 1px solid #d7fff014;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.deviceNameWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deviceIcon {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #00e38c14;
+  border: 1px solid #00e38c33;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deviceList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deviceRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.deviceName {
+  color: var(--cWhite);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.deviceMeta {
+  color: #d6ffef99;
+  font-size: 12px;
+}
+
+.actionList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  border-radius: 8px;
+  padding: 4px 6px;
+  background-color: #00e38c14;
+  color: #00e38c;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.actionText {
+  color: var(--cWhiteV1);
+  font-size: 12px;
+}
+
 @media (max-width: 900px) {
   .modalTitle {
     font-size: 28px;
