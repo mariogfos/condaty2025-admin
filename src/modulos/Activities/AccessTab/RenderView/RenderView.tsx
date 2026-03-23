@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import DetailModal from "@/mk/components/ui/DetailModal/DetailModal";
 import styles from "./RenderView.module.css";
 import { getFullName } from "@/mk/utils/string";
-import { getDateTimeStrMesShort } from "@/mk/utils/date";
+import { formatToDayFdMYH } from "@/mk/utils/date";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { Image } from "@/mk/components/ui/Image/Image";
 import useAxios from "@/mk/hooks/useAxios";
@@ -14,6 +14,7 @@ import {
   IconArrowRight,
   IconCheck,
   IconExpand,
+  IconPhone,
 } from "@/components/layout/icons/IconsBiblioteca";
 import ModalAccessExpand from "../ModalAccessExpand/ModalAccessExpand";
 
@@ -65,7 +66,9 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     true,
   );
 
-  const accessDetail = data?.data?.[0] || {};
+  const accessDetail = data?.data?.access || data?.data?.[0] || {};
+  const accessDevices =
+    data?.data?.accessDevices || data?.data?.access_devices || [];
   const {
     visit,
     in_at,
@@ -81,6 +84,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     begin_at,
     plate,
   } = accessDetail;
+  const accessType = accessDetail?.type || item?.type;
 
   const getStatus = () => {
     if (out_at) return "Completado";
@@ -143,7 +147,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     const src = getEntityAvatar(person);
     return (
       <div className={styles.personValue}>
-        <Avatar name={text} src={src} w={34} h={34} />
+        <Avatar name={text} src={src} w={24} h={24} />
         <span>
           {text || "-/-"}
           {roleText ? (
@@ -160,7 +164,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   ];
 
   const entityImages =
-    item?.type === "O"
+    accessType === "O"
       ? [
           ...normalizeImageUrls((owner as any)?.url_image_a),
           ...normalizeImageUrls((owner as any)?.url_image_r),
@@ -187,8 +191,8 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   }, [images]);
 
   const displayName =
-    item?.type === "O" ? getFullName(owner) : getFullName(visit);
-  const displayCi = item?.type === "O" ? owner?.ci : visit?.ci;
+    accessType === "O" ? getFullName(owner) : getFullName(visit);
+  const displayCi = accessType === "O" ? owner?.ci : visit?.ci;
   const status = getStatus();
   const statusClassName =
     status === "Completado"
@@ -197,24 +201,35 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
         ? styles.statusError
         : styles.statusPending;
   const approvalLabel =
-    item?.type === "C"
+    accessType === "C"
       ? confirm === "N"
         ? "Rechazado por"
         : "Aprobado por"
       : "Aprobado por";
-  const approvedByGuard = confirm == "G" || item?.rejected_guard_id !== null;
+  const approvedByGuard =
+    confirm == "G" || accessDetail?.rejected_guard_id !== null;
   const approvalName = approvedByGuard
     ? getFullName(guardia)
     : getFullName(owner);
   const approvalRole = approvedByGuard ? "(Guardia)" : "(Propietario)";
   const reasonLabel =
-    item?.rejected_guard_id !== null
-      ? item?.confirm !== "N"
+    accessDetail?.rejected_guard_id !== null
+      ? accessDetail?.confirm !== "N"
         ? "Motivo de aprobación"
         : "Motivo de rechazo"
-      : item?.confirm === "N"
+      : accessDetail?.confirm === "N"
         ? "Motivo de rechazo"
         : "Motivo";
+  const getActionNameEs = (actionName: string) => {
+    if (actionName === "In") return "Entrada";
+    if (actionName === "Out") return "Salida";
+    return actionName || "-/-";
+  };
+  const formatDetailDate = (dateStr: string | null = "") => {
+    const formatted = formatToDayFdMYH(dateStr, true, true, false) || "";
+    if (!formatted) return "-/-";
+    return formatted.replace(/ del (\d{4}) - /, ", $1 - ");
+  };
 
   return (
     <>
@@ -225,7 +240,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
           <p className={styles.modalTitle}>
             <span className={styles.modalTitleMain}>Acceso </span>
             <span className={styles.modalTitleId}>
-              #{item?.access_id || item?.id || "-/-"}
+              #{accessDetail?.id || item?.access_id || item?.id || "-/-"}
             </span>
           </p>
         }
@@ -248,7 +263,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                     {displayName || "Sin nombre"}
                   </span>{" "}
                   <span className={styles.summarySoft}>
-                    {item?.type === "P" ? "entregó a " : "visitó a "}
+                    {accessType === "P" ? "entregó a " : "visitó a "}
                   </span>
                   <span className={styles.summaryStrong}>
                     {getFullName(owner) || "-/-"}
@@ -261,7 +276,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   </span>
                 </p>
                 <p className={styles.summaryDate}>
-                  {getDateTimeStrMesShort(in_at || begin_at) || "-/-"}
+                  {formatDetailDate(in_at || begin_at)}
                 </p>
               </div>
             </section>
@@ -281,15 +296,15 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 />
                 <Row
                   label="Tipo de acceso"
-                  value={getTypeAccess(item?.type, item)}
+                  value={getTypeAccess(accessType, accessDetail)}
                 />
-                {item?.type == "G" && (
+                {accessType == "G" && (
                   <Row
                     label="Evento"
                     value={item?.invitation?.title || "-/-"}
                   />
                 )}
-                {item?.type == "G" && (
+                {accessType == "G" && (
                   <Row
                     label="Cantidad de invitados"
                     value={accessDetail?.invitation?.guests?.length || "-/-"}
@@ -297,31 +312,31 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 )}
                 <Row
                   label={
-                    item?.type == "C" && confirm == "N"
+                    accessType == "C" && confirm == "N"
                       ? "Hora y fecha de petición"
                       : "Hora y fecha de ingreso"
                   }
                   value={
-                    item?.type == "C" && confirm == "N"
-                      ? getDateTimeStrMesShort(begin_at) || "-/-"
-                      : getDateTimeStrMesShort(in_at) || "-/-"
+                    accessType == "C" && confirm == "N"
+                      ? formatDetailDate(begin_at)
+                      : formatDetailDate(in_at)
                   }
                 />
                 <Row
                   label={
-                    item?.type == "C" && confirm == "N"
+                    accessType == "C" && confirm == "N"
                       ? "Hora y fecha de rechazo"
                       : "Hora y fecha de salida"
                   }
                   value={
-                    item?.type == "C" && confirm == "N"
-                      ? getDateTimeStrMesShort(confirm_at) || "-/-"
-                      : getDateTimeStrMesShort(out_at) || "-/-"
+                    accessType == "C" && confirm == "N"
+                      ? formatDetailDate(confirm_at)
+                      : formatDetailDate(out_at)
                   }
                 />
-                {item?.type !== "O" && (
+                {accessType !== "O" && (
                   <Row
-                    label={item?.type != "P" ? "Visitó a" : "Entregó a"}
+                    label={accessType != "P" ? "Visitó a" : "Entregó a"}
                     value={
                       <PersonValue
                         person={item?.owner || owner}
@@ -366,7 +381,10 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                     )
                   }
                 />
-                <Row label={reasonLabel} value={item?.obs_confirm || "-/-"} />
+                <Row
+                  label={reasonLabel}
+                  value={accessDetail?.obs_confirm || "-/-"}
+                />
               </div>
             </section>
 
@@ -386,7 +404,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 <Row label="Placa" value={plate || "-/-"} />
                 <Row
                   label="Tipo de usuario"
-                  value={item?.type === "O" ? "Residente" : "Visitante"}
+                  value={accessType === "O" ? "Residente" : "Visitante"}
                 />
               </div>
             </section>
@@ -399,15 +417,120 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 <Row label="Nombre completo" value={displayName || "-/-"} />
                 <Row
                   label="Tipo de acceso"
-                  value={getTypeAccess(item?.type, item)}
+                  value={getTypeAccess(accessType, accessDetail)}
                 />
-                <Row label="Motivo" value={item?.obs_confirm || "-/-"} />
+                <Row
+                  label="Motivo"
+                  value={accessDetail?.obs_confirm || "-/-"}
+                />
                 <Row
                   label="Tipo de usuario"
-                  value={item?.type === "O" ? "Residente" : "Visitante"}
+                  value={accessType === "O" ? "Residente" : "Visitante"}
                 />
               </div>
             </section>
+
+            {accessDevices.length > 0 && (
+              <>
+                <div className={styles.separator} />
+                <section className={styles.sectionBlock}>
+                  <p className={styles.sectionTitle}>
+                    Dispositivos de registro
+                  </p>
+                  <div className={styles.devicesContainer}>
+                    {accessDevices.map((group: any, idx: number) => (
+                      <div
+                        className={styles.deviceCard}
+                        key={(group?.guard_id || "guard") + idx}
+                      >
+                        <div className={styles.deviceHeader}>
+                          <span className={styles.deviceGuard}>
+                            {group?.guard_name || "Guardia"}
+                          </span>
+                        </div>
+                        {(group?.devices || []).map((dev: any, i: number) => (
+                          <div
+                            className={styles.deviceBlock}
+                            key={`${group?.guard_id || "g"}-d-${i}`}
+                          >
+                            <div className={styles.detailsGrid}>
+                              <div className={styles.rowLabel}>Dispositivo</div>
+                              <div className={styles.rowValue}>
+                                <div className={styles.deviceNameWrap}>
+                                  <span className={styles.deviceIcon}>
+                                    <IconPhone
+                                      size={14}
+                                      color="var(--cAccent)"
+                                    />
+                                  </span>
+                                  <span>
+                                    {dev?.device_name || "Dispositivo"}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className={styles.rowLabel}>
+                                Marca / modelo
+                              </div>
+                              <div className={styles.rowValue}>
+                                {(dev?.brand || "-/-") +
+                                  " / " +
+                                  (dev?.model || "-/-")}
+                              </div>
+                              <div className={styles.rowLabel}>Sistema</div>
+                              <div className={styles.rowValue}>
+                                {(dev?.os || "-/-") +
+                                  " " +
+                                  (dev?.os_version || "")}
+                              </div>
+                              <div className={styles.rowLabel}>Red</div>
+                              <div className={styles.rowValue}>
+                                {"IP " +
+                                  (dev?.ip_address || "-/-") +
+                                  " · " +
+                                  (dev?.carrier && dev?.carrier !== "unknown"
+                                    ? dev?.carrier
+                                    : "")}
+                              </div>
+                              <div className={styles.rowLabel}>App</div>
+                              <div className={styles.rowValue}>
+                                {"v" +
+                                  (dev?.app_version || "-/-") +
+                                  " (" +
+                                  (dev?.build_number || "-/-") +
+                                  ")"}
+                              </div>
+                              <div className={styles.rowLabel}>Emulador</div>
+                              <div className={styles.rowValue}>
+                                {dev?.is_emulator ? "Sí" : "No"}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        <div className={styles.actionList}>
+                          {(group?.actions || []).map(
+                            (action: any, i: number) => (
+                              <div
+                                className={styles.actionRow}
+                                key={`${group?.guard_id || "g"}-a-${i}`}
+                              >
+                                <span className={styles.actionBadge}>
+                                  {getActionNameEs(action?.action_name)}
+                                </span>
+                                <span className={styles.actionText}>
+                                  {(action?.description || "Sin descripción") +
+                                    " · " +
+                                    formatDetailDate(action?.date_at)}
+                                </span>
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </>
+            )}
 
             {images.length > 0 && (
               <>
