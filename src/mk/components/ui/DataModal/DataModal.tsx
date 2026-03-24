@@ -1,9 +1,6 @@
 "use client";
-import { CSSProperties, useEffect, useState } from "react";
-import Button from "../../forms/Button/Button";
-import { IconX } from "../../../../components/layout/icons/IconsBiblioteca";
-import styles from "./dataModal.module.css";
-import HeadTitle from "@/components/HeadTitle/HeadTitle";
+import { CSSProperties } from "react";
+import DetailModal from "../DetailModal/DetailModal";
 
 type PropsType = {
   children: any;
@@ -34,116 +31,56 @@ const DataModal = ({
   children,
   onClose,
   open,
-  onSave = (e: any) => {},
+  onSave = () => {},
   title = "",
   className = "",
   buttonText = "Guardar",
   buttonCancel = "Cancelar",
   buttonExtra = null,
-  id = "",
   style = {},
   duration = 300,
   fullScreen = false,
   iconClose = true,
   disabled = false,
-  //colorTitle = 'var(--cAccent)',
-  colorTitle = "var(--cWhite)",
   variant = null,
   zIndex = 200,
-  headerDivider = true,
   minWidth = null,
   maxWidth = null,
   ignoreTranslation = false,
 }: PropsType) => {
-  const [openModal, setOpenModal] = useState(false);
-
-  const _close = (a: any = false) => {
-    setOpenModal(false);
-    setTimeout(() => {
-      onClose(a);
-    }, duration);
-  };
-
-  useEffect(() => {
-    if (open) {
-      setTimeout(() => {
-        setOpenModal(open);
-      }, 100);
-    } else {
-      setOpenModal(open);
-    }
-  }, [open]);
-
-  if (minWidth) {
-    style.minWidth = minWidth;
+  const customStyle = { ...style } as CSSProperties;
+  if (minWidth) customStyle.minWidth = minWidth as any;
+  if (maxWidth) customStyle.maxWidth = maxWidth as any;
+  if (variant === "mini" && !customStyle.maxWidth) customStyle.maxWidth = 560;
+  if (fullScreen) {
+    customStyle.width = "100vw";
+    customStyle.maxWidth = "100vw";
+    customStyle.height = "100vh";
+    customStyle.maxHeight = "100vh";
+    customStyle.borderRadius = 0;
   }
-  if (maxWidth) {
-    style.maxWidth = maxWidth;
-  }
+
   return (
-    <div
-      style={{ visibility: open ? "visible" : "hidden", zIndex }}
-      className={styles.dataModal}
-      onClick={(e) => e.stopPropagation()}
-      data-i18n-ignore={ignoreTranslation ? "true" : undefined}
-    >
-      <main
-        className={
-          (openModal ? styles["open"] : "") +
-          "  " +
-          (fullScreen ? styles["full"] : "") +
-          " " +
-          (variant ? styles[variant] : "")
-        }
-        style={style}
+    <div data-i18n-ignore={ignoreTranslation ? "true" : undefined}>
+      <DetailModal
+        open={open}
+        onClose={onClose}
+        onSave={onSave}
+        title={title}
+        className={className}
+        buttonText={buttonText}
+        buttonCancel={buttonCancel}
+        buttonExtra={buttonExtra}
+        duration={duration}
+        disabled={disabled}
+        style={customStyle}
+        zIndex={zIndex}
+        iconClose={iconClose}
+        maxWidth={maxWidth}
+        minWidth={minWidth}
       >
-        <HeadTitle
-          style={{ padding: "0px" }}
-          title={fullScreen ? title : ""}
-          customTitle={
-            !fullScreen ? <p style={{ fontSize: 24 }}>{title}</p> : ""
-          }
-          left={fullScreen && iconClose ? null : false}
-          onBack={() => _close(false)}
-          right={
-            iconClose &&
-            !fullScreen && (
-              <IconX
-                className=""
-                size={40}
-                onClick={() => _close(false)}
-                circle
-                style={{ backgroundColor: "transparent", padding: "0px" }}
-              />
-            )
-          }
-          colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
-          colorTitle={!fullScreen ? colorTitle : "var(--cAccent)"}
-        />
-        {/* {!fullScreen && headerDivider && (
-          <div className={styles.headerDivider} />
-        )} */}
-        <section className={className}>{children}</section>
-        {(buttonText != "" || buttonCancel != "" || buttonExtra) && (
-          <footer>
-            {buttonText != "" && (
-              <Button
-                variant="primary"
-                disabled={disabled}
-                onClick={() => onSave("save")}
-              >
-                {buttonText}
-              </Button>
-            )}
-            {buttonCancel != "" && (
-              <Button variant="secondary" onClick={() => _close("cancel")}>
-                {buttonCancel}
-              </Button>
-            )}
-            {buttonExtra}
-          </footer>
-        )}
-      </main>
+        {children}
+      </DetailModal>
     </div>
   );
 };

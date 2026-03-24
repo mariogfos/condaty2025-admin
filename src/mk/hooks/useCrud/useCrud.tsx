@@ -25,6 +25,7 @@ import {
 import LoadingScreen from "../../components/ui/LoadingScreen/LoadingScreen";
 import Table, { RenderColType } from "../../components/ui/Table/Table";
 import DataModal from "../../components/ui/DataModal/DataModal";
+import DetailModal from "../../components/ui/DetailModal/DetailModal";
 import Button from "../../components/forms/Button/Button";
 import Select from "../../components/forms/Select/Select";
 // import useScreenSize from "../useScreenSize";
@@ -579,8 +580,13 @@ const useCrud = ({
     initOpen(setOpenView, item, "export");
   };
 
+  const didInitFetchRef = useRef(false);
   useEffect(() => {
-    reLoad(params, mod?.noWaiting, true);
+    if (!didInitFetchRef.current) {
+      didInitFetchRef.current = true;
+      return;
+    }
+    reLoad(params, mod?.noWaiting);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
@@ -644,7 +650,7 @@ const useCrud = ({
     }, [fields]);
 
     return (
-      <DataModal
+      <DetailModal
         open={open}
         onClose={() => onClose()}
         title={"Detalle de " + mod.singular}
@@ -715,7 +721,7 @@ const useCrud = ({
             </Fragment>
           ))}
         </div>
-      </DataModal>
+      </DetailModal>
     );
   });
   Detail.displayName = "Detail";
@@ -901,8 +907,7 @@ const useCrud = ({
     );
 
     return (
-      <DataModal
-        variant={"mini"}
+      <DetailModal
         open={open}
         onClose={() => onClose()}
         title={
@@ -921,6 +926,7 @@ const useCrud = ({
             ? onConfirm(formStateForm, setErrorForm)
             : onSave(formStateForm, setErrorForm)
         }
+        maxWidth={560}
       >
         <div
           style={{
@@ -1003,7 +1009,7 @@ const useCrud = ({
           ))}
         </div>
         {showExtraModal}
-      </DataModal>
+      </DetailModal>
     );
   });
   Form.displayName = "Form";
