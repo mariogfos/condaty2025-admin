@@ -37,23 +37,31 @@ const Surveys = () => {
   );
 
   // Memoize filter handler to prevent useCrud re-initialization
-  const handleGetFilter = React.useCallback((opt: string, value: string, oldFilterState: any) => {
-    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+  const handleGetFilter = React.useCallback(
+    (opt: string, value: string, oldFilterState: any) => {
+      const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === "created_at" && value === "custom") {
-      setCustomDateErrors({});
-      setOpenCustomFilter(true);
-      delete currentFilters[opt];
+      if (opt === "created_at" && value === "custom") {
+        setCustomDateErrors({});
+        setOpenCustomFilter(true);
+        delete currentFilters[opt];
+        return { filterBy: currentFilters };
+      }
+
+      if (
+        value === "" ||
+        value === null ||
+        value === undefined ||
+        value === "ALL"
+      ) {
+        delete currentFilters[opt];
+      } else {
+        currentFilters[opt] = value;
+      }
       return { filterBy: currentFilters };
-    }
-
-    if (value === "" || value === null || value === undefined || value === "ALL") {
-      delete currentFilters[opt];
-    } else {
-      currentFilters[opt] = value;
-    }
-    return { filterBy: currentFilters };
-  }, []);
+    },
+    [],
+  );
 
   const { userCan, List, onView, onEdit, reLoad, onFilter, onCloseView } =
     useCrud({
@@ -76,15 +84,25 @@ const Surveys = () => {
 
   return (
     <div className={styles.surveysContainer}>
-      <h1 className={styles.title}>Encuestas</h1>
-      <List  height={"calc(100vh - 310px)"} onRowClick={handleRowClick} />
+      {/* <h1 className={styles.title}>Encuestas</h1> */}
+      <List
+        height={"calc(100vh - 310px)"}
+        onRowClick={handleRowClick}
+        title={mod.plural}
+      />
       <DateRangeFilterModal
         open={openCustomFilter}
         onClose={() => {
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}
-        onSave={({ startDate, endDate }: { startDate: string; endDate: string }) => {
+        onSave={({
+          startDate,
+          endDate,
+        }: {
+          startDate: string;
+          endDate: string;
+        }) => {
           let err: { startDate?: string; endDate?: string } = {};
           if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
           if (!endDate) err.endDate = "La fecha de fin es obligatoria";
