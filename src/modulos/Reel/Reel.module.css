@@ -9,11 +9,11 @@
 
 .contentCard {
   box-sizing: border-box;
-  background: var(--cBlackV2);
+  background: #d7fff005;
   border-radius: var(--bRadiusL);
   padding: var(--spM);
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0,0,0,0.1);
-  border: 1px solid var(--cBlackV3);
+  border: 1px solid #d7fff014;
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
@@ -48,7 +48,7 @@
   position: relative;
   width: 100%;
   height: 300px; /* Altura fija para todas las noticias */
-  background-color: var(--cBlackV1);
+  background-color: #d7fff005;
   border-radius: var(--bRadiusM);
   overflow: hidden;
   cursor: pointer;
@@ -165,7 +165,7 @@
   flex-wrap: wrap;
   padding-bottom: var(--spM);
   margin-bottom: var(--spL);
-  border-bottom: 1px solid var(--cBlackV3);
+  border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
 }
 
 .userInfo {
@@ -237,7 +237,7 @@
 .contentFooter {
   margin-top: var(--spL);
   padding-top: var(--spM);
-  border-top: 1px solid var(--cBlackV3);
+  border-top: 0.3px solid rgba(215, 255, 240, 0.12);
   display: flex;
   flex-direction: column;
   gap: var(--spM);
@@ -375,7 +375,8 @@
 }
 
 .editModalContent {
-  background-color: var(--cBlack);
+  background-color: #121519;
+  border: 1px solid #d7fff014;
   border-radius: 12px;
   width: 100%;
   max-width: 1200px;
@@ -423,7 +424,7 @@
   .newsImageContainer {
     position: relative;
 
-    background-color: var(--cBlackV1);
+    background-color: #d7fff005;
     border-radius: var(--bRadiusM);
     overflow: hidden;
     cursor: pointer;
@@ -466,7 +467,7 @@
     position: absolute;
     top: var(--spS);
     right: var(--spS);
-    background: #6B7280; /* Gris plomo */
+    background: #d7fff014;
     color: white; /* Letras blancas */
     padding: var(--spXs) var(--spS);
     border-radius: var(--bRadiusS);

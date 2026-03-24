@@ -173,6 +173,18 @@ const WidgetGraphResume = ({
                 className={styles.chartTypeSelect}
                 onChange={(e: any) => setSelectedChartType(e.target.value as ChartType)}
                 options={chartTypeOptions}
+                inputStyle={{
+                  height: 44,
+                  backgroundColor: "#d7fff005",
+                  border: "1px solid #d7fff014",
+                  borderRadius: 12,
+                  color: "#878f9a",
+                }}
+                style={{
+                  height: 44,
+                  border: "none",
+                  backgroundColor: "transparent",
+                }}
               />
             </div>
           )}

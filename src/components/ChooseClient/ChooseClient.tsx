@@ -110,7 +110,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
       iconClose={user?.client_id ? undefined : false}
       fullScreen={user?.client_id ? false : true}
       className={styles.modalFullScreen}
-      style={{ backgroundColor: "#1a1a1a" }}
+      style={{ backgroundColor: "#121519" }}
     >
       <div className={styles.container} data-i18n-ignore="true">
         <div className={styles.leftPanel}>
@@ -142,21 +142,8 @@ const ChooseClient = ({ open, onClose }: Props) => {
               }`}
             />
             {user?.client_id && (
-              <div
-                style={{
-                  marginTop: 16,
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <Button
-                  onClick={onClose}
-                  style={{
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                    color: "white",
-                    width: "100%",
-                  }}
-                >
+              <div className={styles.backButtonContainer}>
+                <Button onClick={onClose} className={styles.backButton}>
                   {translate("back")}
                 </Button>
               </div>
