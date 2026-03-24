@@ -133,6 +133,7 @@ export const menuConfig: MenuConfigItem[] = [
     items: [
       { href: "/guards", perm: "guards", labelKey: "guards" },
       { href: "/activities", perm: "accesses", labelKey: "accesses" },
+      { href: "/visitors", perm: "accesses", labelKey: "visitors" },
       {
         href: "/alerts",
         perm: "alerts",
