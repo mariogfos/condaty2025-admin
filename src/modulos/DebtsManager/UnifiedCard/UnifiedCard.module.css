@@ -9,6 +9,22 @@
   justify-content: space-between;
 }
 
+.summaryCard {
+  background-color: #d7fff005;
+  border: 1px solid #d7fff014;
+  border-radius: 12px;
+}
+
+.detailCard {
+  background-color: var(--cBackground);
+  border: 1px solid var(--cBorder);
+}
+
+.active.summaryCard {
+  border: 1px solid rgba(0, 227, 140, 0.4);
+  background-color: rgba(0, 227, 140, 0.08);
+}
+
 .header {
   margin-bottom: 16px;
   @media (width <= 1280px) {
@@ -21,8 +37,8 @@
 
 .title {
   font-size: 12px;
-  font-weight: 600;
-  color: var(--cAccent);
+  font-weight: 400;
+  color: #878f9a;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0;
@@ -59,7 +75,7 @@
 
 .count {
   font-size: 14px;
-  color: var(--cWhiteV1);
+  color: #878f9a;
   text-shadow: 1px 1px 2px var(--cBlackV3);
 }
 

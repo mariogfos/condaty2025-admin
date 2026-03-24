@@ -46,7 +46,7 @@
 }
 
 .infoCard {
-  background-color: var(--cBackground);
+  background-color: #d7fff005;
   border-radius: 1rem;
   padding: 16px;
   width: 600px;
@@ -226,6 +226,12 @@
   overflow: hidden;
 }
 
+.historyWidgetCard {
+  background-color: #d7fff005 !important;
+  border: 1px solid #d7fff014 !important;
+  border-radius: 12px !important;
+}
+
 .accessContent,
 .reservationsContent {
   margin-top: 1rem;
@@ -272,9 +278,9 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   padding: 0.5rem;
-  color: var(--light-color);
+  color: #878f9a;
   font-size: 0.75rem;
-  border-bottom: 1px solid var(--light-v3);
+  border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
 }
 
 .accountList {
@@ -287,7 +293,8 @@
   grid-template-columns: repeat(5, 1fr);
   align-items: center;
   padding: 0.75rem;
-  background-color: var(--dark-color);
+  background-color: #d7fff005;
+  border: 0.3px solid rgba(215, 255, 240, 0.12);
   border-radius: 0.75rem;
   margin-top: 0.5rem;
   cursor: pointer;
@@ -313,9 +320,9 @@
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
   padding: 0.5rem;
-  color: var(--light-color);
+  color: #878f9a;
   font-size: 0.75rem;
-  border-bottom: 1px solid var(--light-v3);
+  border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
 }
 
 .visitRow {
@@ -323,7 +330,8 @@
   grid-template-columns: 2fr 1fr 1fr 1fr;
   align-items: center;
   padding: 0.75rem;
-  background-color: var(--dark-color);
+  background-color: #d7fff005;
+  border: 0.3px solid rgba(215, 255, 240, 0.12);
   border-radius: 0.75rem;
   margin-top: 0.5rem;
 }

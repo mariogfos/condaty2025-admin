@@ -1058,19 +1058,17 @@ const useCrud = ({
                     border: "1px solid #d7fff014",
                     borderRadius: 12,
                     color: "#878f9a",
-                  }}
-                  style={{
-                    height: 44,
-                    backgroundColor: "#d7fff005",
-                    border: "1px solid #d7fff014",
-                    borderRadius: 12,
                     ...(filterSel[f.key] &&
                       filterSel[f.key] != "" &&
                       filterSel[f.key] != "T" &&
                       filterSel[f.key] != "ALL" && {
                         border: "1px solid var(--cPrimary)",
-                        borderRadius: 8,
                       }),
+                  }}
+                  style={{
+                    height: 44,
+                    border: "none",
+                    backgroundColor: "transparent",
                   }}
                 />
               ))}
@@ -1101,21 +1099,19 @@ const useCrud = ({
                   border: "1px solid #d7fff014",
                   borderRadius: 12,
                   color: "#878f9a",
-                }}
-                style={{
-                  width: selectWidth,
-                  minWidth: selectWidth,
-                  height: 44,
-                  backgroundColor: "#d7fff005",
-                  border: "1px solid #d7fff014",
-                  borderRadius: 12,
                   ...(filterSel[f.key] &&
                     filterSel[f.key] != "" &&
                     filterSel[f.key] != "T" &&
                     filterSel[f.key] != "ALL" && {
                       border: "1px solid var(--cPrimary)",
-                      borderRadius: 8,
                     }),
+                }}
+                style={{
+                  width: selectWidth,
+                  minWidth: selectWidth,
+                  height: 44,
+                  border: "none",
+                  backgroundColor: "transparent",
                 }}
               />
             ))}
@@ -1558,7 +1554,16 @@ const useCrud = ({
                     id={mod?.modulo}
                   />
                 ) : data === null ? null : (
-                  <section>{emptyContent}</section>
+                  <section
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      flexGrow: 1,
+                      minHeight: props?.height || "280px",
+                    }}
+                  >
+                    {emptyContent}
+                  </section>
                 )}
                 {props?.paginationHide ? null : (
                   <div>

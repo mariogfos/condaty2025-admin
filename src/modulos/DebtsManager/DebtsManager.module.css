@@ -77,16 +77,19 @@
 }
 
 .tabsSection {
-  background-color: var(--cBlackV1);
-  border-radius: var(--bRadius);
+  background-color: #d7fff005;
+  border: 1px solid #d7fff014;
+  border-radius: 12px;
   width: fit-content; /* Solo el ancho necesario para los tabs */
   margin-bottom: var(--spM);
+  padding: 4px;
 }
 
 .listSection {
-  background: var(--cBackground);
+  background: #d7fff005;
+  border: 1px solid #d7fff014;
   padding: var(--sM);
-  border-radius: var(--bRadius);
+  border-radius: 12px;
 }
 
 @media (max-width: 1280px) {

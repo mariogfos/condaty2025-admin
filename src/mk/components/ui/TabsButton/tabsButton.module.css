@@ -51,13 +51,13 @@
 
 .buttonRounded {
   position: relative;
-  border: var(--bWidth) solid transparent;
-  background: var(--cBlackV1);
+  border: 1px solid transparent;
+  background: transparent;
   cursor: pointer;
   transition: color 0.3s ease-in-out;
-  padding: 12px 16px;
+  padding: 10px 16px;
   border-radius:  var( --sXs); /* Solo redondear el lado izquierdo del primer botón */
-  color: var(--cWhiteV1);
+  color: #878f9a;
   white-space: nowrap;
   width: auto;
   flex: none;
@@ -66,14 +66,14 @@
 
 .selectedRounded {
   position: relative;
-  border: var(--bWidth) solid var(--cAccent);
+  border: 1px solid #d7fff014;
   background: transparent;
   cursor: pointer;
   transition: color 0.3s ease-in-out;
-  padding: 12px 16px;
+  padding: 10px 16px;
   border-radius:  var( --sXs); /* Solo redondear el lado izquierdo del primer botón */
   color: var(--cWhite);
-  background-color: var(--cHoverBigSidebar);
+  background-color: rgba(0, 227, 140, 0.14);
   white-space: nowrap;
   width: auto;
   flex: none;
