@@ -530,7 +530,7 @@ const useCrud = ({
       const url = file.data?.secureUrl
         ? file.data.secureUrl
         : getUrlImages("/" + (file.data?.path || ""));
-      
+
       // Intentar derivar un nombre de archivo desde el path o secureUrl; si no, usar por defecto
       const suggestedName = (() => {
         if (file.data?.secureUrl) {
@@ -1052,7 +1052,18 @@ const useCrud = ({
                   optionLabel={f?.optionLabel}
                   optionValue={f?.optionValue}
                   error={false}
+                  inputStyle={{
+                    height: 44,
+                    backgroundColor: "#d7fff005",
+                    border: "1px solid #d7fff014",
+                    borderRadius: 12,
+                    color: "#878f9a",
+                  }}
                   style={{
+                    height: 44,
+                    backgroundColor: "#d7fff005",
+                    border: "1px solid #d7fff014",
+                    borderRadius: 12,
                     ...(filterSel[f.key] &&
                       filterSel[f.key] != "" &&
                       filterSel[f.key] != "T" &&
@@ -1084,9 +1095,20 @@ const useCrud = ({
                 value={filterSel[f.key] || ""}
                 optionLabel={f?.optionLabel}
                 optionValue={f?.optionValue}
+                inputStyle={{
+                  height: 44,
+                  backgroundColor: "#d7fff005",
+                  border: "1px solid #d7fff014",
+                  borderRadius: 12,
+                  color: "#878f9a",
+                }}
                 style={{
                   width: selectWidth,
                   minWidth: selectWidth,
+                  height: 44,
+                  backgroundColor: "#d7fff005",
+                  border: "1px solid #d7fff014",
+                  borderRadius: 12,
                   ...(filterSel[f.key] &&
                     filterSel[f.key] != "" &&
                     filterSel[f.key] != "T" &&
@@ -1248,7 +1270,7 @@ const useCrud = ({
               <Button
                 className={styles.addButton}
                 onClick={onClick || onAdd}
-                style={{ height: 48 }}
+                style={{ height: 44 }}
                 variant="primary"
               >
                 {mod.titleAdd + " " + mod.singular}
