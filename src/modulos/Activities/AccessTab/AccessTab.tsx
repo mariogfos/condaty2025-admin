@@ -8,7 +8,7 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { IconExitHome } from "@/components/layout/icons/IconsBiblioteca";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
-import RenderView from "./RenderView/RenderView";
+import RenderView from "./RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 
