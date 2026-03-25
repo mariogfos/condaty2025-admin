@@ -8,6 +8,7 @@ import {
   SurveyAnswer,
   SurveyFilterType,
 } from "../types/mySurveys.types";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 interface UseMySurveysReturn {
   counts: MySurveyCount | null;
@@ -26,7 +27,7 @@ interface UseMySurveysReturn {
     answers: SurveyAnswer[],
     startedAt?: string,
     completedAt?: string,
-  ) => Promise<boolean>;
+  ) => Promise<Record<string, any>>;
   fetchResults: (surveyId: string, filters?: any) => Promise<any | null>;
   fetchCounts: () => Promise<void>;
   execute: Function;
@@ -45,6 +46,7 @@ export const useMySurveys = (): UseMySurveysReturn => {
     Record<string, SurveyDetail>
   >({});
   const { execute, reLoad } = useAxios();
+  const { showToast } = useAuth();
 
   const fetchCounts = useCallback(async () => {
     try {
@@ -162,9 +164,9 @@ export const useMySurveys = (): UseMySurveysReturn => {
       answers: SurveyAnswer[],
       startedAt?: string,
       completedAt?: string,
-    ): Promise<boolean> => {
+    ): Promise<Record<string, any>> => {
       try {
-        const { data: response } = await execute(
+        const { data: response, error } = await execute(
           modulePath + "/answers",
           "POST",
           {
@@ -175,11 +177,19 @@ export const useMySurveys = (): UseMySurveysReturn => {
             completed_at: completedAt,
           },
         );
-
-        return response?.success || false;
-      } catch (err) {
+        if (response?.success) {
+          return response;
+        }
+        return {
+          success: false,
+          message: error?.data?.message || "Error al enviar respuestas",
+        };
+      } catch (err: any) {
         console.error("Error submitting answers:", err);
-        return false;
+        return {
+          success: false,
+          message: err?.message || "Error al enviar respuestas",
+        };
       }
     },
     [],
@@ -192,7 +202,7 @@ export const useMySurveys = (): UseMySurveysReturn => {
         setError(null);
         const payload: Record<string, string> = {
           survey_id: surveyId,
-          ...filters
+          ...filters,
         };
 
         const { data: response } = await execute(
