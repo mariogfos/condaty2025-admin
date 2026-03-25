@@ -308,6 +308,17 @@ const Areas = () => {
       variant="secondary"
       key={"Button"}
       onClick={() => setOpenMaintenance(true)}
+      style={{
+        height: 44,
+        padding: "12px 16px",
+        fontSize: 15,
+        fontWeight: 600,
+        color: "#878f9a",
+        borderRadius: 12,
+        border: "1px solid #d7fff014",
+        backgroundColor: "#d7fff005",
+        width: "auto",
+      }}
     >
       Poner en mantenimiento
     </Button>,

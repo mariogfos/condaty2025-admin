@@ -1063,6 +1063,9 @@ const useCrud = ({
                     backgroundColor: "#d7fff005",
                     border: "1px solid #d7fff014",
                     borderRadius: 12,
+                    padding: "16px",
+                    fontSize: 15,
+                    fontWeight: 600,
                     color: "#878f9a",
                     ...(filterSel[f.key] &&
                       filterSel[f.key] != "" &&
@@ -1104,6 +1107,9 @@ const useCrud = ({
                   backgroundColor: "#d7fff005",
                   border: "1px solid #d7fff014",
                   borderRadius: 12,
+                  padding: "16px",
+                  fontSize: 15,
+                  fontWeight: 600,
                   color: "#878f9a",
                   ...(filterSel[f.key] &&
                     filterSel[f.key] != "" &&

@@ -97,7 +97,16 @@ const Permisos = ({
       {/* <legend>Permisos</legend> */}
 
       {extraData?.ability_categories?.map((cat: any) => (
-        <Card key={cat.id} style={{ backgroundColor: "var(--cBlackV2)", marginBottom: "16px", gap:"12px" }}>
+        <Card
+          key={cat.id}
+          style={{
+            backgroundColor: "#d7fff005",
+            border: "1px solid #d7fff014",
+            borderRadius: "12px",
+            marginBottom: "16px",
+            gap: "12px",
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -126,8 +135,9 @@ const Permisos = ({
               <Card
                 key={item.id}
                 style={{
-                  backgroundColor: "var(--cWhiteV2)",
-                  border: "1px solid var(--cWhiteV1)",
+                  backgroundColor: "rgba(18, 21, 25, 0.62)",
+                  border: "1px solid #d7fff014",
+                  borderRadius: "12px",
                 }}
               >
                 <div

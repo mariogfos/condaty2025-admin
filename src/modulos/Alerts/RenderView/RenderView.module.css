@@ -4,10 +4,10 @@
   gap: var(--spM);
   align-self: stretch;
   /* background-color: var(--figma-main-bg, #333536); */
-  background-color: var(--cBackground-foreground);
+  background-color: #d7fff005;
   padding: var(--spL, 16px);
-  border-radius: var(--bRadiusL, 16px);
-  border: 1px solid var(--cBorder);
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
 }
 
 .hlTopSection,
@@ -303,8 +303,8 @@
 }
 .gInfoSeparator {
   height: 0.5px;
-  background-color: var(--figma-border-color, #a7a7a7);
-  opacity: 0.5;
+  background-color: rgba(215, 255, 240, 0.12);
+  opacity: 1;
   margin: var(--spS) 0;
 }
 .gInfoLabelLarge {

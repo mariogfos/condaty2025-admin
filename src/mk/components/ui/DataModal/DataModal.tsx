@@ -1,6 +1,9 @@
 "use client";
-import { CSSProperties } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 import DetailModal from "../DetailModal/DetailModal";
+import Button from "../../forms/Button/Button";
+import HeadTitle from "@/components/HeadTitle/HeadTitle";
+import styles from "./dataModal.module.css";
 
 type PropsType = {
   children: any;
@@ -48,6 +51,25 @@ const DataModal = ({
   maxWidth = null,
   ignoreTranslation = false,
 }: PropsType) => {
+  const [openModal, setOpenModal] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        setOpenModal(true);
+      }, 100);
+    } else {
+      setOpenModal(false);
+    }
+  }, [open]);
+
+  const _close = (a: any = false) => {
+    setOpenModal(false);
+    setTimeout(() => {
+      onClose(a);
+    }, duration);
+  };
+
   const customStyle = { ...style } as CSSProperties;
   if (minWidth) customStyle.minWidth = minWidth as any;
   if (maxWidth) customStyle.maxWidth = maxWidth as any;
@@ -58,6 +80,61 @@ const DataModal = ({
     customStyle.height = "100vh";
     customStyle.maxHeight = "100vh";
     customStyle.borderRadius = 0;
+  }
+
+  if (fullScreen) {
+    return (
+      <div
+        style={{ visibility: open ? "visible" : "hidden", zIndex }}
+        className={styles.dataModal}
+        data-i18n-ignore={ignoreTranslation ? "true" : undefined}
+      >
+        <main
+          className={
+            (openModal ? styles.open : "") +
+            " " +
+            (fullScreen ? styles.full : "") +
+            " " +
+            (variant ? styles[variant] : "")
+          }
+          style={customStyle}
+        >
+          <HeadTitle
+            style={{ padding: "0px" }}
+            title={title}
+            left={iconClose ? null : false}
+            onBack={() => _close(false)}
+            colorBack="var(--cAccent)"
+            colorTitle="var(--cAccent)"
+          />
+          <section className={className}>{children}</section>
+          {(buttonText !== "" || buttonCancel !== "" || buttonExtra) && (
+            <footer>
+              {buttonText !== "" && (
+                <Button
+                  variant="primary"
+                  disabled={disabled}
+                  onClick={() => onSave("save")}
+                  style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+                >
+                  {buttonText}
+                </Button>
+              )}
+              {buttonCancel !== "" && (
+                <Button
+                  variant="secondary"
+                  onClick={() => _close("cancel")}
+                  style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+                >
+                  {buttonCancel}
+                </Button>
+              )}
+              {buttonExtra}
+            </footer>
+          )}
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -78,6 +155,7 @@ const DataModal = ({
         iconClose={iconClose}
         maxWidth={maxWidth}
         minWidth={minWidth}
+        fullScreen={fullScreen}
       >
         {children}
       </DetailModal>

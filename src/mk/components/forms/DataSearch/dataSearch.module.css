@@ -3,12 +3,15 @@
 .dataSearch {
   padding-right: 0;
   width: 100%;
+  max-width: 480px;
+  height: 44px;
+  padding: 16px !important;
   border-radius: 12px;
-  background-color: rgba(215, 255, 240, 0.02);
-  border: 0.1px solid rgba(215, 255, 240, 0.08);
+  background-color: #12151999;
+  border: 1px solid #d7fff014;
   & > div > input::placeholder {
-    color: var(--cWhiteV1);
-    font-size: var(--sM);
+    color: #a7a7a7;
+    font-size: 15px;
   }
   & > span > svg.error {
     color: var(--cError);

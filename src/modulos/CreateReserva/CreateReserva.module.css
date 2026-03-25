@@ -23,10 +23,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--spXl);
-  background-color: var(--cBackground);
+  background-color: #d7fff005;
   padding: var(--spL);
   border-radius: var(--bRadiusM);
-  border: var(--bWidth) solid var(--cBorder);
+  border: 1px solid #d7fff014;
 }
 .summaryTitle {
   font-size: var(--sXl);
@@ -84,7 +84,7 @@
   gap: var(--spL);
   margin-bottom: 16px;
   border-radius: var(--bRadiusS);
-  background-color: var(--cBackground);
+  background-color: #d7fff005;
 }
 .imageContainer {
   flex-grow: 1;
@@ -99,7 +99,7 @@
   height: 300px;
   object-fit: cover;
   border-radius: var(--bRadius);
-  background-color: var(--cBlackV1);
+  background-color: rgba(18, 21, 25, 0.72);
 }
 .imagePagination {
   display: flex;
@@ -192,7 +192,7 @@
   gap: var(--spXl);
 }
 .summaryContainer {
-  background-color: var(--cBackground);
+  background-color: #d7fff005;
   border-radius: var(--bRadius);
   margin: var(--spM) 0;
 }
@@ -271,9 +271,9 @@
   margin-right: 10px;
 }
 .backBtn:hover {
-  background-color: var(--cBlackV3);
+  background-color: rgba(0, 227, 140, 0.12);
   color: var(--cWhite);
-  border-color: var(--cBlackV3);
+  border-color: #d7fff014;
 }
 .nextBtn,
 .submitBtn {
@@ -340,7 +340,7 @@
 }
 .quantityButton:hover:not(:disabled) {
   border-color: var(--cAccent);
-  background-color: var(--cBlackV3);
+  background-color: rgba(0, 227, 140, 0.12);
 }
 .quantityButton:disabled {
   opacity: 0.5;
@@ -349,15 +349,15 @@
   color: var(--terciary);
 }
 .unavailablePeriod {
-  background-color: var(--cWhiteV2);
+  background-color: rgba(18, 21, 25, 0.62);
   color: var(--cWhiteV1);
-  border-color: var(--cWhiteV2);
+  border-color: #d7fff014;
   text-decoration: line-through;
   cursor: not-allowed !important;
 }
 .unavailablePeriod:hover {
-  background-color: var(--cWhiteV3);
-  border-color: var(--cWhiteV3);
+  background-color: rgba(18, 21, 25, 0.72);
+  border-color: #d7fff014;
 }
 .rulesModalContent .title {
   color: var(--cWhite);
