@@ -85,23 +85,28 @@
 .iconOuterContainer {
   width: 40px;
   height: 40px;
-  background-color: transparent;
-  border-radius: 6.69px;
+  background-color: #d7fff005;
+  border-radius: 999px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 0.3px solid rgba(215, 255, 240, 0.42);
+  border: 1px solid #d7fff014;
   overflow: hidden;
-  padding: 3.35px 5.02px;
+  flex-shrink: 0;
 }
 
 /* Estilos para el contenedor de notificaciones */
 .notificationContainer {
   cursor: pointer;
-  padding: 8px;
-  border: 0.3px solid rgba(215, 255, 240, 0.42);
+  width: 40px;
+  height: 40px;
+  border: 1px solid #d7fff014;
   border-radius: 100%;
-  background-color: rgba(18, 21, 25, 0.52);
+  background-color: #d7fff005;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 /* Icono de notificación */
@@ -112,6 +117,7 @@
   align-items: center;
   color: #fafafa;
   cursor: pointer;
+  line-height: 0;
 }
 
 /* Contenedor del icono de perfil */
@@ -159,10 +165,14 @@
     border-radius: 6px;
   }
 
-  .notificationContainer,
-  .profileContainer {
-    width: 20px;
-    height: 20px;
+  .notificationContainer {
+    width: 36px;
+    height: 36px;
+  }
+
+  .notificationIcon svg {
+    width: 18px;
+    height: 18px;
   }
 
   .header-greeting h1 {
