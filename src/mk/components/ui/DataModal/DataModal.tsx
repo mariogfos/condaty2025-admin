@@ -74,12 +74,11 @@ const DataModal = ({
     }
   }, [open]);
 
-  if (minWidth) {
-    style.minWidth = minWidth;
-  }
-  if (maxWidth) {
-    style.maxWidth = maxWidth;
-  }
+  const combinedStyle: CSSProperties = {
+    ...style,
+    ...(minWidth ? { minWidth } : {}),
+    ...(maxWidth ? { maxWidth } : {}),
+  };
   return (
     <div
       style={{ visibility: open ? "visible" : "hidden", zIndex }}
@@ -95,7 +94,7 @@ const DataModal = ({
           " " +
           (variant ? styles[variant] : "")
         }
-        style={style}
+        style={combinedStyle}
       >
         <HeadTitle
           style={{ padding: "0px" }}

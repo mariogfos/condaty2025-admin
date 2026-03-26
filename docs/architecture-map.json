@@ -1,0 +1,281 @@
+{
+  "project": "condaty-admin",
+  "type": "nextjs-webapp",
+  "location": "condaty-admin",
+  "stack": {
+    "framework": "Next.js 15",
+    "ui": "React 19",
+    "state": "InstantDB",
+    "charts": "React-ApexCharts",
+    "animations": "Motion",
+    "ai": "@mlc-ai/web-llm",
+    "storage": "Cloudinary",
+    "testing": "Vitest + Playwright"
+  },
+  "routes": {
+    "/": "Dashboard principal",
+    "/activities": "Actividades y accesos",
+    "/alerts": "Alertas y pánico",
+    "/areas": "Gestión de áreas",
+    "/balance": "Balance financiero",
+    "/bank-accounts": "Cuentas bancarias",
+    "/binnacle": "Bitácora",
+    "/budget": "Presupuestos",
+    "/categories": "Categorías",
+    "/contents": "Contenido multimedia",
+    "/condominios": "Condominios",
+    "/configs": "Configuración",
+    "/dptos": "Departamentos/Unidades",
+    "/dashDpto/[id]": "Detalle de unidad",
+    "/debts_manager": "Gestión de deudas",
+    "/defaulters": "Morosos",
+    "/documents": "Documentos",
+    "/events": "Eventos",
+    "/expenses": "Gastos",
+    "/guards": "Guardias",
+    "/homeowners": "Residentes",
+    "/invitations": "Invitaciones",
+    "/notifications": "Notificaciones",
+    "/owners": "Propietarios",
+    "/ownermanager": "Administradores",
+    "/outlays": "Egresos",
+    "/partial-payments": "Pagos parciales",
+    "/payments": "Pagos",
+    "/profile": "Perfil de usuario",
+    "/reservas": "Reservas",
+    "/roles": "Roles",
+    "/rolesabilities": "Permisos",
+    "/rolescategories": "Categorías de roles",
+    "/surveys": "Encuestas",
+    "/mis-encuestas": "Mis encuestas",
+    "/units": "Unidades",
+    "/unittypes": "Tipos de unidades",
+    "/uploads": "Cargas",
+    "/users": "Usuarios",
+    "/visitors": "Visitantes",
+    "/visit-reasons": "Razones de visita",
+    "/reels": "Reels/Medios",
+    "/ev": "Estado de vivienda",
+    "/superadmins": "Super admins",
+    "/app-versions": "Versiones de app"
+  },
+  "modules": {
+    "Dashboard": {
+      "path": "src/app/page.tsx"
+    },
+    "Activities": {
+      "components": ["QrTab", "InvitationsDetail"],
+      "path": "src/modulos/Activities"
+    },
+    "Alerts": {
+      "components": ["Alerts", "RenderView"],
+      "path": "src/modulos/Alerts"
+    },
+    "Areas": {
+      "components": ["Areas", "RenderForm", "RenderView", "MaintenanceModal"],
+      "path": "src/modulos/Areas"
+    },
+    "Balance": {
+      "components": [
+        "Balance",
+        "TableIngresos",
+        "TableEgresos",
+        "TableResumenGeneral",
+        "TableFinance"
+      ],
+      "path": "src/modulos/Balance"
+    },
+    "BankAccounts": {
+      "components": ["BankAccounts", "RenderForm", "RenderView"],
+      "path": "src/modulos/BankAccounts"
+    },
+    "Binnacle": {
+      "components": ["Binnacle", "RenderView"],
+      "path": "src/modulos/Binnacle"
+    },
+    "Budget": {
+      "components": ["BudgetsTab", "Budget", "BudgetDir", "ApprovalModal"],
+      "path": "src/modulos/Budget"
+    },
+    "Contents": {
+      "components": ["Contents", "AddContent", "RenderView"],
+      "path": "src/modulos/Contents"
+    },
+    "Condominios": {
+      "components": ["Condominios", "RenderForm", "RenderDel"],
+      "path": "src/modulos/Condominios"
+    },
+    "Config": {
+      "components": ["Config", "DptoConfig", "PaymentsConfig"],
+      "path": "src/modulos/Config"
+    },
+    "DashDptos": {
+      "components": [
+        "DashDptos",
+        "ReservationsTable",
+        "PaymentsTable",
+        "AccessTable",
+        "HistoryPayments",
+        "HistoryOwnership",
+        "HistoryAccess",
+        "UnitInfo",
+        "TitleRender"
+      ],
+      "path": "src/modulos/DashDptos"
+    },
+    "Dptos": {
+      "components": ["Dptos", "RenderForm"],
+      "path": "src/modulos/Dptos"
+    },
+    "Expenses": {
+      "components": ["Expenses", "RenderForm"],
+      "path": "src/modulos/Expenses"
+    },
+    "Guards": {
+      "components": ["Guards", "RenderForm", "RenderView"],
+      "path": "src/modulos/Guards"
+    },
+    "Invitations": {
+      "components": ["Invitations", "RenderForm"],
+      "path": "src/modulos/Invitations"
+    },
+    "Outlays": {
+      "components": ["Outlays", "RenderDel"],
+      "path": "src/modulos/Outlays"
+    },
+    "OwnersManager": {
+      "components": ["OwnerManagers", "RenderForm"],
+      "path": "src/modulos/OwnersManager"
+    },
+    "Payments": {
+      "components": ["Payments", "RenderForm", "RenderDel"],
+      "path": "src/modulos/Payments"
+    },
+    "Profile": {
+      "components": ["Profile", "Authentication"],
+      "path": "src/modulos/Profile"
+    },
+    "Reservas": {
+      "components": [
+        "Reserva",
+        "ReservaPending",
+        "ReservaModal",
+        "CancelReasonModal",
+        "RenderForm"
+      ],
+      "path": "src/modulos/Reservas"
+    },
+    "Reel": {
+      "components": [
+        "Reel",
+        "ReelCompactList",
+        "MediaRenderer",
+        "CommentModal"
+      ],
+      "path": "src/modulos/Reel"
+    },
+    "Roles": {
+      "components": ["Roles", "Permisos"],
+      "path": "src/modulos/Roles"
+    },
+    "UnitTypes": {
+      "components": ["UnitsTypes", "RenderForm", "RenderView"],
+      "path": "src/modulos/UnitTypes"
+    },
+    "Uploads": {
+      "components": ["Uploads"],
+      "path": "src/modulos/Uploads"
+    },
+    "Visitors": {
+      "components": ["Visitors"],
+      "path": "src/modulos/Visitors"
+    },
+    "VisitReasons": {
+      "components": ["VisitReasons"],
+      "path": "src/modulos/VisitReasons"
+    }
+  },
+  "shared": {
+    "hooks": [
+      "useCrud",
+      "useAxios",
+      "useStore",
+      "useToast",
+      "useMediaQuery",
+      "useScreenSize",
+      "useLongPress",
+      "useScrollbarWidth",
+      "useInViewport",
+      "useFileUpload",
+      "useInstantMsg",
+      "useEvents",
+      "useEmojiRenderer",
+      "useEffectDebug",
+      "usePrevious",
+      "useOnClickOutside"
+    ],
+    "components": [
+      "Calendar",
+      "AreaCalendar",
+      "TimeSlots",
+      "UploadFile",
+      "ImageEditor",
+      "InputCode",
+      "ImportDataModal",
+      "StatsCard",
+      "InfoCard",
+      "ProgressBar",
+      "HeaderBack",
+      "ChatRoom",
+      "ChatBotLLm",
+      "Login",
+      "AuthProvider"
+    ],
+    "services": ["storage (Cloudinary)"],
+    "utils": [
+      "date",
+      "date1",
+      "string",
+      "numbers",
+      "array",
+      "phone",
+      "traductor (es/en/pt)",
+      "validate",
+      "fileUpload",
+      "images",
+      "searchs",
+      "logs",
+      "platform",
+      "dbTools",
+      "adapters",
+      "zipper"
+    ],
+    "contexts": ["AuthProvider", "AxiosInstanceProvider", "ImageModalContext"],
+    "i18n": ["LanguageProvider", "useScopedI18n", "translations (es/en/pt)"]
+  },
+  "external_integrations": [
+    "InstantDB (state/realtime)",
+    "Cloudinary (imágenes)",
+    "@mlc-ai/web-llm (AI/LLM)",
+    "Axios (HTTP)",
+    "react-apexcharts (gráficos)",
+    "motion (animaciones)",
+    "date-fns (fechas)",
+    "xlsx/SheetJS (Excel)",
+    "html2canvas (capturas)",
+    "FingerprintJS"
+  ],
+  "api_routes": [
+    "/api/login",
+    "/api/notif",
+    "/api/translate",
+    "/api/cloudinary-upload"
+  ],
+  "flows": [
+    "Login → AuthProvider → Dashboard",
+    "Dashboard → Modules → useCrud → API condaty-api",
+    "Upload → CloudinaryAdapter → Cloudinary",
+    "Balance → TableFinance → react-apexcharts",
+    "Chat → InstantDB → @mlc-ai/web-llm"
+  ]
+}

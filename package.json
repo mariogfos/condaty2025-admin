@@ -6,13 +6,17 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:module": "vitest --run",
+    "test:e2e": "playwright test",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@instantdb/admin": "^0.17.12",
     "@instantdb/react": "^0.21.22",
-    "cloudinary": "^2.8.0",
     "@mlc-ai/web-llm": "^0.2.78",
     "@types/ua-parser-js": "^0.7.39",
     "axios": "^1.12.0",
@@ -34,17 +38,26 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.58.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20.17.19",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@typescript-eslint/eslint-plugin": "^8.26.0",
     "@typescript-eslint/parser": "^8.26.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/ui": "^4.1.0",
     "autoprefixer": "^10.4.21",
+    "axios-mock-adapter": "^2.1.0",
     "eslint": "^9.21.0",
     "eslint-config-next": "15.1.7",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "jsdom": "^29.0.0",
     "knip": "^5.60.0",
+    "msw": "^2.12.11",
     "postcss": "^8.5.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.0"
   }
 }

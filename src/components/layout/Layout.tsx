@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { getDateTimeAgo } from "@/mk/utils/date";
 import SideMenu from "@/mk/components/ui/SideMenu/SideMenu";
 import { useEvent } from "@/mk/hooks/useEvents";
+import useNotifInstandDB from "@/mk/components/notif/provider/useNotifInstandDB";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
@@ -21,6 +22,30 @@ import {
 } from "./icons/IconsBiblioteca";
 import ChooseClient from "../ChooseClient/ChooseClient";
 import ProfileModal from "../ProfileModal/ProfileModal";
+import SurveyAnswerForm from "@/modulos/Surveys/components/SurveyAnswerForm";
+
+const typeAlerts: any = {
+  E: {
+    name: "Emergencia Medica",
+    icon: <IconAmbulance size={36} color="var(--cWhite)" />,
+    color: { background: "var(--cHoverError)", border: "var(--cError)" },
+  },
+  F: {
+    name: "Incendio",
+    icon: <IconFlame size={36} color="var(--cWhite)" />,
+    color: { background: "var(--cHoverWarning)", border: "var(--cWarning)" },
+  },
+  T: {
+    name: "Robo",
+    icon: <IconTheft size={36} color="var(--cWhite)" />,
+    color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
+  },
+  O: {
+    name: "Otro",
+    icon: <IconAlert size={36} color="var(--cWhite)" />,
+    color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
+  },
+};
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 const Layout = ({ children }: any) => {
@@ -39,8 +64,9 @@ const Layout = ({ children }: any) => {
   const [openClient, setOpenClient] = useState(false);
   const [isLayoutAlertDescExpanded, setIsLayoutAlertDescExpanded] =
     useState(false);
+  const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
 
-  const path: any = usePathname();
+  const path = usePathname();
   const router = useRouter();
   const isTablet = false;
   const isDesktop = true;
@@ -72,6 +98,9 @@ const Layout = ({ children }: any) => {
     month: "long",
     year: "numeric",
   }).format(new Date());
+
+  // Call useNotifInstandDB with showToast
+  useNotifInstandDB([], showToast as any);
 
   // Helper para truncar texto a 150 chars con "…"
   const truncateText = (text: string, max: number) =>
@@ -184,6 +213,15 @@ const Layout = ({ children }: any) => {
             .catch((error) =>
               console.log("Error al reproducir el sonido:", error),
             );
+        }
+      }
+      if (e.event == "new-survey") {
+        const payload =
+          typeof e.payload === "string" ? JSON.parse(e.payload) : e.payload;
+        const isMandatory =
+          payload?.is_mandatory === "Y" || payload?.is_mandatory === true;
+        if (isMandatory) {
+          setSelectedSurvey({ ...payload, is_mandatory: true });
         }
       }
     },
@@ -300,7 +338,9 @@ const Layout = ({ children }: any) => {
           <ItemList
             variant="V1"
             title={openAlert?.item?.owner_name}
-            subtitle={translate("unitPrefix", { unit: openAlert?.item?.unit ?? "" })}
+            subtitle={translate("unitPrefix", {
+              unit: openAlert?.item?.unit ?? "",
+            })}
             right={
               <p style={{ width: 110, textAlign: "right" }}>
                 {getDateTimeAgo(openAlert?.item?.created_at)}
@@ -337,7 +377,9 @@ const Layout = ({ children }: any) => {
                 className={styles.viewMoreBtn}
                 onClick={() => setIsLayoutAlertDescExpanded((v: boolean) => !v)}
               >
-                {isLayoutAlertDescExpanded ? translate("seeLess") : translate("seeMore")}
+                {isLayoutAlertDescExpanded
+                  ? translate("seeLess")
+                  : translate("seeMore")}
               </button>
             )}
           </div>
@@ -350,6 +392,18 @@ const Layout = ({ children }: any) => {
           onClose={() => {
             setOpenClient(false);
           }}
+        />
+      )}
+
+      {selectedSurvey && (
+        <SurveyAnswerForm
+          survey={selectedSurvey}
+          onClose={() => setSelectedSurvey(null)}
+          onSuccess={() => {
+            setSelectedSurvey(null);
+            showToast("Encuesta respondida con éxito", "success");
+          }}
+          isMandatory={true}
         />
       )}
     </main>
