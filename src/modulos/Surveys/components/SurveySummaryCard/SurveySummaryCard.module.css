@@ -1,0 +1,47 @@
+.card {
+  background-color: var(--cBlackV1);
+  border-radius: var(--bRadius);
+  padding: var(--spM);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.card:hover {
+  border-color: var(--cPrimary);
+}
+
+.card.active {
+  border-color: var(--cPrimary);
+  background-color: var(--cBlackV2);
+}
+
+.header {
+  margin-bottom: var(--spS);
+}
+
+.title {
+  font-size: var(--sSm);
+  font-weight: var(--bBold);
+  color: var(--cWhite);
+  letter-spacing: 1px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.content {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spS);
+}
+
+.count {
+  font-size: var(--sXxl);
+  font-weight: var(--bBold);
+  color: var(--cPrimary);
+}
+
+.label {
+  font-size: var(--sXs);
+  color: var(--cGrayLight);
+}

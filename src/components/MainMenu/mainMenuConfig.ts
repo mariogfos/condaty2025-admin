@@ -48,6 +48,11 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/invitations", perm: "campanas", labelKey: "qrInvitations" },
       { href: "/uploads", perm: "cargamasiva", labelKey: "bulkUpload" },
       { href: "/app-versions", perm: "superadmins", labelKey: "appVersions" },
+      {
+        href: "/visit-reasons",
+        perm: "", //"visit_reasons",
+        labelKey: "Motivos de visitas",
+      },
     ],
   },
   {
@@ -115,6 +120,8 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "publicationsWall",
         badgeKey: "reelsBage",
       },
+      { href: "/surveys", perm: "surveys", labelKey: "Encuestas" },
+      { href: "/mis-encuestas", perm: "surveys", labelKey: "Mis Encuestas" },
     ],
   },
   {

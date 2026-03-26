@@ -1,0 +1,132 @@
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spXl);
+  color: var(--cWhiteV1);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--cGrayLight);
+  border-top-color: var(--cPrimary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: var(--spM);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty {
+  padding: var(--spXl);
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: var(--sMd);
+  font-weight: var(--bBold);
+  color: var(--cWhiteV1);
+  margin: 0 0 var(--spS) 0;
+}
+
+.emptyDescription {
+  font-size: var(--sSm);
+  color: var(--cWhiteV3);
+  margin: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+}
+
+.item {
+  background: var(--cBlackV3);
+  border: 1px solid var(--cGrayLight);
+  border-radius: var(--bRadius);
+  padding: var(--spM);
+  transition: box-shadow 0.2s ease;
+  display: flex;
+  gap: var(--spM);
+  justify-content: space-between;
+}
+
+.item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.itemHeader {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-grow: 1;
+  /* gap: var(--spM); */
+  /* margin-bottom: var(--spS); */
+}
+
+.itemTitle {
+  font-size: var(--sMd);
+  font-weight: var(--bBold);
+  color: var(--cWhite);
+  margin: 0;
+  flex: 1;
+}
+
+.badgeSuccess {
+  background: var(--cSuccess);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: var(--sXs);
+  font-weight: var(--bBold);
+}
+
+.badgeActive {
+  background: var(--cPrimary);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: var(--sXs);
+  font-weight: var(--bBold);
+}
+
+.badgeDefault {
+  background: var(--cGrayDark);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: var(--sXs);
+  font-weight: var(--bBold);
+}
+
+.itemDescription {
+  font-size: var(--sSm);
+  color: var(--cWhiteV3);
+  margin: 0 0 var(--spS) 0;
+}
+
+.itemMeta {
+  display: flex;
+  gap: var(--spM);
+  font-size: var(--sXs);
+  color: var(--cWhiteV3);
+  margin-bottom: var(--spM);
+}
+
+.mandatory {
+  color: var(--cWarning);
+  font-weight: var(--bBold);
+}
+
+.itemActions {
+  display: flex;
+  gap: var(--spS);
+}
