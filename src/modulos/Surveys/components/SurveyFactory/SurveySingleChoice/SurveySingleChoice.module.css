@@ -15,10 +15,11 @@
     margin-bottom: var(--spXl);
   }
   & > div {
-    background-color: var(--cBlackV1);
+    background-color: #d7fff005;
     border-radius: var(--bRadius);
     padding: var(--spM);
     margin-bottom: var(--spM);
+    border: 1px solid #d7fff014;
     & > p {
       color: var(--cWhite);
       font-size: var(--sM);

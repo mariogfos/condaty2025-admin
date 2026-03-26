@@ -136,7 +136,7 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
         alignItems: "center",
         gap: 24,
         padding: "14px 0",
-        borderTop: "1px solid rgba(255,255,255,0.06)",
+        borderTop: "1px solid #d7fff014",
       }}
     >
       <div>
@@ -155,9 +155,10 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
       {/* ─── Card 1: Grupo + toggles ─── */}
       <div
         style={{
-          background: "var(--cBlackV1)",
+          background: "#d7fff005",
           borderRadius: "var(--bRadius)",
           padding: "16px",
+          border: "1px solid #d7fff014",
         }}
       >
         {/* Multiselect roles */}
@@ -241,8 +242,9 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
             style={{
               marginTop: 12,
               padding: "10px 14px",
-              background: "rgba(255,255,255,0.04)",
+              background: "#d7fff005",
               borderRadius: "var(--bRadius)",
+              border: "1px solid #d7fff014",
               display: "flex",
               gap: 8,
               alignItems: "center",

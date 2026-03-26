@@ -10,7 +10,7 @@
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid var(--cGrayLight);
+  border: 3px solid var(--cWhiteV2);
   border-top-color: var(--cPrimary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -42,9 +42,18 @@
 }
 
 @keyframes loadingAnim {
-  0% { left: -100%; width: 100%; }
-  50% { left: 0%; width: 100%; }
-  100% { left: 100%; width: 100%; }
+  0% {
+    left: -100%;
+    width: 100%;
+  }
+  50% {
+    left: 0%;
+    width: 100%;
+  }
+  100% {
+    left: 100%;
+    width: 100%;
+  }
 }
 
 .description {
@@ -57,9 +66,10 @@
   display: flex;
   gap: var(--spL);
   padding: var(--spM);
-  background: var(--cBlackV2);
+  background: #d7fff005;
   border-radius: var(--bRadius);
   margin-bottom: var(--spM);
+  border: 1px solid #d7fff014;
 }
 
 .stat {
@@ -100,8 +110,8 @@
 
 .question {
   padding: var(--spS);
-  background: var(--cBlackV1);
-  border: 1px solid var(--cBlackV2);
+  background: #d7fff005;
+  border: 1px solid #d7fff014;
   border-radius: var(--bRadius);
   margin-bottom: var(--spS);
 }
@@ -135,5 +145,5 @@
   justify-content: flex-end;
   gap: var(--spS);
   padding-top: var(--spM);
-  border-top: 1px solid var(--cGrayLight);
+  border-top: 1px solid #d7fff014;
 }

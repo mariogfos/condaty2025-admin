@@ -6,6 +6,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import ScheduleSurveyModal from "./ScheduleSurveyModal";
 
 import useInstantMsg from "@/mk/hooks/useInstantMsg";
+import { CSSProperties } from "react";
 
 type StatusAction = {
   label: string;
@@ -62,6 +63,49 @@ export default function SurveyStatusActions({
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
 
   const actions = STATUS_ACTIONS[currentStatus] ?? [];
+
+  const getActionButtonStyle = (variant: StatusAction["variant"]): CSSProperties => {
+    if (variant === "primary") {
+      return {
+        height: 44,
+        padding: "12px 24px",
+        fontSize: "15px",
+        fontWeight: 600,
+        borderRadius: 12,
+        width: "auto",
+        minWidth: 170,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+      };
+    }
+
+    if (variant === "danger") {
+      return {
+        height: 44,
+        padding: "12px 16px",
+        fontSize: "14px",
+        fontWeight: 400,
+        borderRadius: 12,
+        width: "auto",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+      };
+    }
+
+    return {
+      height: 44,
+      padding: "12px 16px",
+      fontSize: "14px",
+      fontWeight: 400,
+      borderRadius: 12,
+      width: "auto",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+    };
+  };
 
   const handleActionClick = (action: StatusAction) => {
     if (action.needsDates) {
@@ -150,18 +194,18 @@ export default function SurveyStatusActions({
           <Button
             key={`${action.targetStatus}-${action.label}`}
             variant={action.variant ?? "secondary"}
-            small
             disabled={loading !== null}
             onClick={() => handleActionClick(action)}
+            style={getActionButtonStyle(action.variant ?? "secondary")}
           >
             {loading === action.targetStatus && !action.needsDates ? "..." : action.label}
           </Button>
         ))}
         <Button
-          variant="terciary"
-          small
+          variant="secondary"
           disabled={loading !== null}
           onClick={handleDuplicate}
+          style={getActionButtonStyle("secondary")}
         >
           {loading === "duplicate" ? "..." : "Duplicar"}
         </Button>

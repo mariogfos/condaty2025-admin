@@ -2,12 +2,13 @@
   display: flex !important;
   flex-direction: column !important;
   gap: 24px !important;
-  color: #ffffff !important;
-  background-color: #0f172a !important; /* Deep slate dark */
+  color: var(--cWhite) !important;
+  background-color: #d7fff005 !important;
   width: 100% !important;
   padding: 30px !important;
   border-radius: 16px !important;
   box-sizing: border-box !important;
+  border: 1px solid #d7fff014 !important;
 }
 
 .header {
@@ -18,8 +19,8 @@
   font-size: 1.75rem !important;
   font-weight: 800 !important;
   margin: 0 !important;
-  color: #ffffff !important;
-  background: linear-gradient(90deg, #818cf8, #c084fc);
+  color: var(--cWhite) !important;
+  background: linear-gradient(90deg, var(--cPrimary), var(--accentv1));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -27,7 +28,7 @@
 
 .subtitle {
   font-size: 1rem !important;
-  color: #94a3b8 !important;
+  color: var(--cWhiteV1) !important;
   margin-top: 6px !important;
 }
 
@@ -40,8 +41,8 @@
 }
 
 .kpiCard {
-  background-color: #1e293b !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background-color: #d7fff005 !important;
+  border: 1px solid #d7fff014 !important;
   border-radius: 16px !important;
   padding: 24px !important;
   text-align: center !important;
@@ -52,7 +53,7 @@
   display: block !important;
   font-size: 0.8rem !important;
   font-weight: 600 !important;
-  color: #94a3b8 !important;
+  color: var(--cWhiteV1) !important;
   text-transform: uppercase !important;
   letter-spacing: 0.1em !important;
   margin-bottom: 10px !important;
@@ -62,7 +63,7 @@
   display: block !important;
   font-size: 2.25rem !important;
   font-weight: 800 !important;
-  color: #ffffff !important;
+  color: var(--cWhite) !important;
 }
 
 /* Questions Grid */
@@ -73,8 +74,8 @@
 }
 
 .questionCard {
-  background-color: #1e293b !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background-color: #d7fff005 !important;
+  border: 1px solid #d7fff014 !important;
   border-radius: 20px !important;
   padding: 28px !important;
   display: flex !important;
@@ -84,7 +85,7 @@
 }
 
 .questionHeader {
-  border-bottom: 2px solid rgba(255, 255, 255, 0.05) !important;
+  border-bottom: 1px solid #d7fff014 !important;
   padding-bottom: 16px !important;
 }
 
@@ -92,13 +93,13 @@
   font-size: 1.25rem !important;
   font-weight: 700 !important;
   margin: 0 !important;
-  color: #f8fafc !important;
+  color: var(--cWhite) !important;
   line-height: 1.4 !important;
 }
 
 .questionMeta {
   font-size: 0.85rem !important;
-  color: #94a3b8 !important;
+  color: var(--cWhiteV3) !important;
   margin-top: 10px !important;
 }
 
@@ -108,9 +109,10 @@
   align-items: center !important;
   justify-content: center !important;
   width: 100% !important;
-  background-color: rgba(0, 0, 0, 0.2) !important;
+  background-color: #d7fff005 !important;
   border-radius: 12px !important;
   padding: 12px !important;
+  border: 1px solid #d7fff014 !important;
 }
 
 /* Text Analytics */
@@ -129,18 +131,18 @@
 
 .keyword {
   padding: 8px 16px !important;
-  background-color: rgba(99, 102, 241, 0.15) !important;
-  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  background-color: var(--cHoverCompl10) !important;
+  border: 1px solid var(--cBorderSidebar) !important;
   border-radius: 20px !important;
   font-size: 0.95rem !important;
-  color: #a5b4fc !important;
+  color: var(--cPrimary) !important;
 }
 
 .keywordCount {
   font-size: 0.8rem !important;
   opacity: 0.7 !important;
   margin-left: 8px !important;
-  background: rgba(0,0,0,0.3) !important;
+  background: #d7fff014 !important;
   padding: 2px 8px !important;
   border-radius: 10px !important;
 }
@@ -156,12 +158,12 @@
 
 .commentItem {
   padding: 16px !important;
-  background-color: rgba(255, 255, 255, 0.03) !important;
+  background-color: #d7fff005 !important;
   border-radius: 12px !important;
   font-size: 0.95rem !important;
-  color: #e2e8f0 !important;
+  color: var(--cWhiteV1) !important;
   font-style: italic !important;
-  border-left: 4px solid #6366f1 !important;
+  border-left: 4px solid var(--cPrimary) !important;
   line-height: 1.6 !important;
 }
 
@@ -172,24 +174,24 @@
   flex-wrap: wrap !important;
   margin-top: 8px !important;
   padding-top: 16px !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-top: 1px solid #d7fff014 !important;
 }
 
 .statBadge {
   padding: 10px 16px !important;
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  background-color: #d7fff005 !important;
   border-radius: 12px !important;
   font-size: 0.9rem !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid #d7fff014 !important;
 }
 
 .statLabel {
-  color: #94a3b8 !important;
+  color: var(--cWhiteV3) !important;
   margin-right: 8px !important;
 }
 
 .statValue {
-  color: #ffffff !important;
+  color: var(--cWhite) !important;
   font-weight: 700 !important;
 }
 
@@ -207,11 +209,11 @@
   align-items: flex-start !important;
   gap: 12px !important;
   padding: 14px 18px !important;
-  background: rgba(99, 102, 241, 0.1) !important;
-  border: 1px solid rgba(99, 102, 241, 0.2) !important;
+  background: var(--cHoverCompl10) !important;
+  border: 1px solid var(--cBorderSidebar) !important;
   border-radius: 14px !important;
   font-size: 0.925rem !important;
-  color: #e0e7ff !important;
+  color: var(--cWhite) !important;
   line-height: 1.5 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -223,13 +225,19 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 /* AI Analysis Section */
 .aiSection {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(192, 132, 252, 0.1) 100%) !important;
-  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+  background: #d7fff005 !important;
+  border: 1px solid #d7fff014 !important;
   border-radius: 20px !important;
   padding: 24px !important;
   margin-bottom: 30px !important;
@@ -238,13 +246,7 @@
 }
 
 .aiSection::before {
-  content: "" !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 4px !important;
-  height: 100% !important;
-  background: linear-gradient(to bottom, #818cf8, #c084fc) !important;
+  display: none !important;
 }
 
 .aiHeader {
@@ -262,7 +264,7 @@
   gap: 10px !important;
   font-size: 1.1rem !important;
   font-weight: 700 !important;
-  color: #e0e7ff !important;
+  color: var(--cWhite) !important;
 }
 
 .aiTitle span {
@@ -270,24 +272,25 @@
 }
 
 .aiButton {
-  padding: 8px 18px !important;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
+  height: 44px !important;
+  padding: 12px 24px !important;
+  background: var(--cPrimary) !important;
   border: none !important;
-  border-radius: 10px !important;
-  color: white !important;
+  border-radius: 12px !important;
+  color: #212121 !important;
   font-weight: 600 !important;
-  font-size: 0.9rem !important;
+  font-size: 15px !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
 }
 
 .aiButton:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35) !important;
   filter: brightness(1.1) !important;
 }
 
@@ -300,7 +303,7 @@
 .aiContent {
   font-size: 1rem !important;
   line-height: 1.7 !important;
-  color: #f1f5f9 !important;
+  color: var(--cWhiteV1) !important;
   white-space: pre-line !important;
 }
 
@@ -308,7 +311,7 @@
   display: flex !important;
   align-items: center !important;
   gap: 12px !important;
-  color: #94a3b8 !important;
+  color: var(--cWhiteV3) !important;
   font-size: 0.95rem !important;
   font-style: italic !important;
 }
@@ -316,21 +319,30 @@
 .aiPulse {
   width: 8px !important;
   height: 8px !important;
-  background-color: #8b5cf6 !important;
+  background-color: var(--cPrimary) !important;
   border-radius: 50% !important;
   animation: pulse 1.5s infinite !important;
 }
 
 @keyframes pulse {
-  0% { transform: scale(0.8); opacity: 0.5; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(0.8); opacity: 0.5; }
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
 }
 
 .providerSelect {
-  background: rgba(0, 0, 0, 0.3) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: white !important;
+  background: #d7fff005 !important;
+  border: 1px solid #d7fff014 !important;
+  color: var(--cWhite) !important;
   padding: 6px 12px !important;
   border-radius: 8px !important;
   font-size: 0.8rem !important;
@@ -341,8 +353,8 @@
 .aiQuestionBox {
   margin-top: 16px !important;
   padding: 16px !important;
-  background: rgba(99, 102, 241, 0.05) !important;
-  border: 2px dashed rgba(139, 92, 246, 0.2) !important;
+  background: #d7fff005 !important;
+  border: 2px dashed var(--cBorderSidebar) !important;
   border-radius: 14px !important;
   animation: fadeIn 0.4s ease-out !important;
 }
@@ -357,7 +369,7 @@
 .aiSparkle {
   font-size: 0.85rem !important;
   font-weight: 700 !important;
-  color: #a5b4fc !important;
+  color: var(--cPrimary) !important;
   text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
 }
@@ -372,7 +384,7 @@
 .aiQuestionContent {
   font-size: 0.925rem !important;
   line-height: 1.5 !important;
-  color: #f1f5f9 !important;
+  color: var(--cWhiteV1) !important;
   margin: 0 !important;
 }
 
@@ -385,7 +397,7 @@
 
 .aiTag {
   font-size: 0.75rem !important;
-  color: #818cf8 !important;
+  color: var(--cPrimary) !important;
   font-weight: 600 !important;
   opacity: 0.8 !important;
 }

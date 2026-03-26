@@ -70,7 +70,7 @@ const RenderForm = ({
 
   const progressBarStyle =
     level === 1
-      ? { background: `linear-gradient(to right, var(--cSuccess) 50%, var(--cBlackV1) 50%)` }
+      ? { background: `linear-gradient(to right, var(--cSuccess) 50%, #d7fff014 50%)` }
       : { backgroundColor: "var(--cSuccess)" };
 
   const handleChange = (e: any) => {
@@ -211,7 +211,7 @@ const RenderForm = ({
               <p>Define los datos de información y segmentación de tu encuesta</p>
             </section>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              {isLoadingDetails && <span style={{ fontSize: "12px", color: "var(--cTextV2)", fontStyle: "italic" }}>Sincronizando detalles...</span>}
+              {isLoadingDetails && <span style={{ fontSize: "12px", color: "var(--cWhiteV3)", fontStyle: "italic" }}>Sincronizando detalles...</span>}
               <IconArrowLeft
                 onClick={() => {
                   if (level === 2) setLevel(1);
@@ -239,9 +239,10 @@ const RenderForm = ({
             {/* Card 2: Detalle de la encuesta */}
             <div
               style={{
-                background: "var(--cBlackV1)",
+                background: "#d7fff005",
                 borderRadius: "var(--bRadius)",
                 padding: "16px",
+                border: "1px solid #d7fff014",
               }}
             >
               <h3 className={styles.title} style={{ marginBottom: 12 }}>Detalle de la encuesta</h3>

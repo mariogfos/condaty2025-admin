@@ -1,8 +1,8 @@
 .surveyQuestion {
   padding: 16px;
-  background: var(--cBlackV1);
+  background: #d7fff005;
   border-radius: 8px;
-  border: 1px solid var(--cBlackV2);
+  border: 1px solid #d7fff014;
   margin-bottom: var(--spL);
   position: relative;
 }
@@ -50,7 +50,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px;
-  border: 1px solid var(--cBlackV2);
+  border: 1px solid #d7fff014;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -59,12 +59,12 @@
 }
 
 .option:hover {
-  background: var(--cBlackV2);
+  background: rgba(0, 227, 140, 0.08);
 }
 
 .option.selected {
   border-color: var(--cSuccess);
-  background: rgba(var(--cSuccessRGB), 0.05);
+  background: var(--cHoverSuccess);
 }
 
 .radio {
@@ -141,9 +141,9 @@
 .scaleRadio {
   width: 32px;
   height: 32px;
-  border: 2px solid var(--cBlackV2);
+  border: 2px solid #d7fff014;
   border-radius: 50%;
-  background: var(--cBlackV2);
+  background: #d7fff005;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -163,7 +163,7 @@
   border-color: var(--cSuccess);
   color: var(--cBlackV1);
   transform: scale(1.1);
-  box-shadow: 0 0 15px rgba(var(--cSuccessRGB), 0.3);
+  box-shadow: 0 0 15px var(--cHoverSuccess);
 }
 
 .scaleValueLabel {

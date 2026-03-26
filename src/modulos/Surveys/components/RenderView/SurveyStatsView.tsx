@@ -9,12 +9,12 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 });
 
 const CHART_COLORS = [
-  "rgba(103, 194, 171, 0.9)",
-  "rgba(131, 147, 237, 0.9)",
-  "rgba(237, 179, 86, 0.9)",
-  "rgba(239, 120, 120, 0.9)",
-  "rgba(130, 210, 232, 0.9)",
-  "rgba(200, 150, 230, 0.9)",
+  "rgba(0, 227, 140, 0.9)",
+  "rgba(78, 231, 172, 0.9)",
+  "rgba(233, 176, 30, 0.9)",
+  "rgba(247, 178, 103, 0.9)",
+  "rgba(228, 96, 85, 0.9)",
+  "rgba(179, 130, 217, 0.9)",
 ];
 
 type SOption = {
@@ -81,9 +81,7 @@ function QuestionChart({
                 <li
                   key={i}
                   style={{
-                    color: matchesUser
-                      ? "var(--cPrimary, #6366f1)"
-                      : "var(--cWhiteV1)",
+                    color: matchesUser ? "var(--cPrimary)" : "var(--cWhiteV1)",
                     fontSize: "0.875rem",
                     fontWeight: matchesUser ? "bold" : "normal",
                   }}
@@ -115,7 +113,7 @@ function QuestionChart({
 
   // Generate colors based on whether it's the user's response
   const colors = options.map((o, i) => {
-    if (isMyResponse(o.id)) return "var(--cPrimary, #6366f1)";
+    if (isMyResponse(o.id)) return "var(--cPrimary)";
     return CHART_COLORS[i % CHART_COLORS.length].replace("0.9", "0.4"); // Fade other bars
   });
 
@@ -142,14 +140,14 @@ function QuestionChart({
       style: {
         fontSize: "11px",
         fontWeight: "bold",
-        colors: ["#1A1A1A"], // Color oscuro para contraste dentro de las barras claras
+        colors: ["var(--cBlack)"],
       },
       dropShadow: {
         enabled: true,
         top: 0,
         left: 0,
         blur: 1,
-        color: "#FFFFFF",
+        color: "var(--cWhite)",
         opacity: 1,
       },
       offsetX: -5, // Lo movemos un poco hacia la izquierda para que esté bien dentro de la barra
@@ -157,17 +155,17 @@ function QuestionChart({
     },
     xaxis: {
       categories,
-      labels: { style: { colors: "#A0A0A0" } },
+      labels: { style: { colors: "var(--cWhiteV1)" } },
     },
     yaxis: {
       labels: {
         padding: 10,
-        style: { colors: "#A0A0A0" },
+        style: { colors: "var(--cWhiteV1)" },
         maxWidth: 200,
       },
     },
     grid: {
-      borderColor: "#2a2a2a",
+      borderColor: "#d7fff014",
       padding: {
         left: 20, // Espacio extra para que no pegue a la izquierda
       },
@@ -227,8 +225,9 @@ export default function SurveyStatsView({
             display: "flex",
             gap: 24,
             padding: "12px 16px",
-            background: "rgba(255,255,255,0.04)",
+            background: "#d7fff005",
             borderRadius: "var(--bRadius)",
+            border: "1px solid #d7fff014",
           }}
         >
           <div>
@@ -251,9 +250,10 @@ export default function SurveyStatsView({
           key={q.id}
           style={{
             padding: "16px",
-            background: "rgba(255,255,255,0.04)",
+            background: "#d7fff005",
             borderRadius: "var(--bRadius)",
-            borderLeft: "3px solid var(--cPrimary, #6366f1)",
+            border: "1px solid #d7fff014",
+            borderLeft: "3px solid var(--cPrimary)",
           }}
         >
           <p

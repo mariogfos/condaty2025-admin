@@ -15,15 +15,24 @@
 }
 
 @keyframes loadingAnim {
-  0% { left: -100%; width: 100%; }
-  50% { left: 0%; width: 100%; }
-  100% { left: 100%; width: 100%; }
+  0% {
+    left: -100%;
+    width: 100%;
+  }
+  50% {
+    left: 0%;
+    width: 100%;
+  }
+  100% {
+    left: 100%;
+    width: 100%;
+  }
 }
 
 .header {
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--cGrayLight);
+  border-bottom: 1px solid #d7fff014;
 }
 
 .title {
@@ -56,9 +65,9 @@
 
 .question {
   padding: 16px;
-  background: var(--cBlackV1);
+  background: #d7fff005;
   border-radius: 8px;
-  border: 1px solid var(--cBlackV2);
+  border: 1px solid #d7fff014;
 }
 
 .question.hasError {
@@ -96,7 +105,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px;
-  border: 1px solid var(--cBlackV2);
+  border: 1px solid #d7fff014;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -105,12 +114,12 @@
 }
 
 .option:hover {
-  background: var(--cBlackV2);
+  background: rgba(0, 227, 140, 0.08);
 }
 
 .option.selected {
   border-color: var(--cPrimary);
-  background: rgba(0, 122, 204, 0.05);
+  background: var(--cHoverCompl10);
 }
 
 .radio {
@@ -179,5 +188,5 @@
   gap: 12px;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid var(--cGrayLight);
+  border-top: 1px solid #d7fff014;
 }

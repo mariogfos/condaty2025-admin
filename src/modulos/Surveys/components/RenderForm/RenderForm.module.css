@@ -28,9 +28,10 @@
     flex-direction: column;
     gap: var(--spS);
     & > div {
-      background-color: var(--cBlackV1);
+      background-color: #d7fff005;
       padding: var(--spM);
       border-radius: var(--bRadius);
+      border: 1px solid #d7fff014;
       /* display: flex;
       justify-content: space-between; */
     }
@@ -52,10 +53,11 @@
     align-items: center;
     cursor: pointer;
     & > div {
-      border: 1px solid var(--cBlackV3);
+      border: 1px solid #d7fff014;
       border-radius: var(--bRadius);
       padding: 8px;
       flex-grow: 1;
+      background-color: #d7fff005;
       & > p:nth-child(even) {
         margin-top: 4px;
       }
@@ -80,7 +82,7 @@
   }
 }
 .titleDate {
-  color: var(--cBlackV2);
+  color: var(--cWhiteV3);
   font-size: var(--sS);
 }
 .titleFormLv2 {

@@ -12,12 +12,12 @@ import SurveyStatsView from "./SurveyStatsView";
 import { SurveyDashboard } from "../SurveyDashboard/SurveyDashboard";
 
 const STATUS_COLOR: Record<string, string> = {
-  A: "var(--cSuccess, #10b981)",
-  P: "var(--cWarning, #f59e0b)",
-  S: "var(--cInfo, #3b82f6)",
-  D: "var(--cWhiteV1, #a7a7a7)",
-  C: "var(--cError, #ef4444)",
-  X: "var(--cError, #ef4444)",
+  A: "var(--cSuccess)",
+  P: "var(--cWarning)",
+  S: "var(--cPrimary)",
+  D: "var(--cWhiteV2)",
+  C: "var(--cError)",
+  X: "var(--cError)",
 };
 
 function MetricCard({
@@ -33,9 +33,10 @@ function MetricCard({
         flex: 1,
         minWidth: 100,
         padding: "12px 16px",
-        background: "rgba(255,255,255,0.05)",
+        background: "#d7fff005",
         borderRadius: "var(--bRadius)",
         textAlign: "center",
+        border: "1px solid #d7fff014",
       }}
     >
       <p className={styles.subtitle} style={{ marginBottom: 4 }}>
@@ -66,12 +67,13 @@ function Chip({ label }: { label: string }) {
     <span
       style={{
         display: "inline-block",
-        padding: "3px 10px",
-        background: "rgba(99,102,241,0.15)",
-        border: "1px solid rgba(99,102,241,0.4)",
-        borderRadius: 20,
-        fontSize: "0.78rem",
+        padding: "8px 12px",
+        background: "#d7fff005",
+        border: "1px solid #d7fff014",
+        borderRadius: 12,
+        fontSize: "0.85rem",
         color: "var(--cWhiteV1)",
+        fontWeight: 400,
       }}
     >
       {label}
@@ -110,9 +112,10 @@ function SegmentationSummary({
     <div
       style={{
         padding: "12px 16px",
-        background: "rgba(255,255,255,0.04)",
+        background: "#d7fff005",
         borderRadius: "var(--bRadius)",
-        borderLeft: "3px solid rgba(99,102,241,0.5)",
+        border: "1px solid #d7fff014",
+        borderLeft: "3px solid var(--cPrimary)",
       }}
     >
       <p
@@ -164,14 +167,14 @@ const RenderView = (props: {
 
   useEffect(() => {
     if (!props.open || !props.item?.id) return;
-    
+
     // Only reset detailed status if current survey changes
     if (surveyData?.id !== props.item.id) {
-        setSurveyData(props.item);
-        setDetailsLoaded(false);
-        setStats(null);
+      setSurveyData(props.item);
+      setDetailsLoaded(false);
+      setStats(null);
     }
-    
+
     setAudience(props.item?.estimated_audience ?? 0);
     setRealResponses(props.item?.real_responses_count ?? 0);
     loadData(props.item.id);
@@ -188,7 +191,7 @@ const RenderView = (props: {
         "GET",
         { fullType: "DET", searchBy: id },
         false,
-        true
+        true,
       );
       if (detailRes.data?.success) {
         const det = detailRes.data.data;
@@ -204,7 +207,7 @@ const RenderView = (props: {
         "GET",
         { survey_id: id, ...filters },
         false,
-        true
+        true,
       );
       if (statsRes.data?.success) {
         setStats(statsRes.data.data);
@@ -338,20 +341,45 @@ const RenderView = (props: {
 
         {/* Dates & Segmentation */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {(surveyData?.created_at || surveyData?.expires_at || surveyData?.scheduled_at) && (
-            <div style={{ display: "flex", gap: 24, flexWrap: "wrap", background: "rgba(255,255,255,0.02)", padding: 12, borderRadius: 8 }}>
+          {(surveyData?.created_at ||
+            surveyData?.expires_at ||
+            surveyData?.scheduled_at) && (
+            <div
+              style={{
+                display: "flex",
+                gap: 24,
+                flexWrap: "wrap",
+                background: "#d7fff005",
+                padding: 12,
+                borderRadius: 8,
+                border: "1px solid #d7fff014",
+              }}
+            >
               {surveyData?.created_at && (
                 <div>
                   <p className={styles.subtitle}>Creada</p>
-                  <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
-                    {getDateStrMes(surveyData.created_at)} por {surveyData.created_by_name}
+                  <p
+                    style={{
+                      color: "var(--cWhiteV1)",
+                      fontSize: "0.875rem",
+                      margin: 0,
+                    }}
+                  >
+                    {getDateStrMes(surveyData.created_at)} por{" "}
+                    {surveyData.created_by_name}
                   </p>
                 </div>
               )}
               {surveyData?.scheduled_at && (
                 <div>
                   <p className={styles.subtitle}>Programada</p>
-                  <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                  <p
+                    style={{
+                      color: "var(--cWhiteV1)",
+                      fontSize: "0.875rem",
+                      margin: 0,
+                    }}
+                  >
                     {getDateStrMes(surveyData.scheduled_at)}
                   </p>
                 </div>
@@ -359,7 +387,13 @@ const RenderView = (props: {
               {surveyData?.expires_at && (
                 <div>
                   <p className={styles.subtitle}>Vence</p>
-                  <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                  <p
+                    style={{
+                      color: "var(--cWhiteV1)",
+                      fontSize: "0.875rem",
+                      margin: 0,
+                    }}
+                  >
                     {getDateStrMes(surveyData.expires_at)}
                   </p>
                 </div>
@@ -377,18 +411,19 @@ const RenderView = (props: {
 
         {/* Statistics — using new Dashboard */}
         {detailsLoaded && stats && (
-          <div style={{ 
-            marginTop: 20, 
-            borderTop: "1px solid var(--borderV1)", 
-            paddingTop: 20,
-            background: "#0f172a", // Forced dark background
-            borderRadius: "16px",
-            padding: "20px"
-          }}>
-            <SurveyDashboard 
-              stats={stats} 
-              filters={filters} 
-              onFilterChange={setFilters} 
+          <div
+            style={{
+              marginTop: 20,
+              background: "#d7fff005",
+              border: "1px solid #d7fff014",
+              borderRadius: "16px",
+              padding: "20px",
+            }}
+          >
+            <SurveyDashboard
+              stats={stats}
+              filters={filters}
+              onFilterChange={setFilters}
             />
           </div>
         )}
@@ -396,7 +431,7 @@ const RenderView = (props: {
         {detailsLoaded && !hasAnswers && (
           <div
             style={{
-              borderTop: "1px solid var(--borderV1)",
+              borderTop: "1px solid #d7fff014",
               paddingTop: 16,
               textAlign: "center",
             }}

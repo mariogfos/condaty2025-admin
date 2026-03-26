@@ -36,8 +36,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: var(--cBackground);
-  border: 0.5px solid var(--cBorder);
+  background-color: #d7fff005;
+  border: 1px solid #d7fff014;
   border-radius: var(--bRadiusM);
   padding: 24px;
   overflow: hidden;
@@ -89,9 +89,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background-color: var(--cHover);
+  background-color: #d7fff005;
   border-radius: var(--bRadiusS);
-  border: 1px solid var(--cWhiteV3);
+  border: 1px solid #d7fff014;
   margin: 0;
 }
 
@@ -180,11 +180,11 @@
 
 .TagContents {
   display: flex;
-  background-color: var(--cHover);
+  background-color: #d7fff005;
   padding: var(--spS) var(--spM);
   align-items: center;
   border-radius: var(--bRadiusS);
-  border: var(--bWidth) solid var(--cBlackV2);
+  border: 1px solid #d7fff014;
   color: var(--cWhiteV1);
   font-size: var(--sM);
   gap: var(--spXs);
@@ -194,7 +194,7 @@
 }
 
 .TagContents:hover {
-  background-color: var(--cHoverCompl1);
+  background-color: rgba(0, 227, 140, 0.08);
 }
 
 .TagContents.active {

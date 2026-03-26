@@ -1,10 +1,11 @@
 .surveyQuestionTypePanel {
   display: flex;
   padding: var(--spM);
-  background-color: var(--cBlackV1);
+  background-color: #d7fff005;
   border-radius: var(--bRadius);
   flex-direction: column;
   gap: var(--spM);
+  border: 1px solid #d7fff014;
   & > section {
     display: flex;
     gap: var(--spS);
@@ -29,15 +30,15 @@
   gap: var(--spS);
   flex-direction: column;
   padding: var(--spM);
-  border: 1px solid var(--cBlackV3);
-  background-color: var(--cHover);
+  border: 1px solid #d7fff014;
+  background-color: #d7fff005;
   border-radius: var(--bRadiusS);
   cursor: pointer;
   width: 100%;
 }
 
 .questionTypeOption:hover {
-  border: 1px solid var(--cWhiteV1);
+  border: 1px solid var(--cPrimary);
 }
 
 .icon {
