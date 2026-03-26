@@ -206,14 +206,18 @@ export const validPhone: ValidFunctionType = (value, param) => {
 
 export const validOptionsSurvey: ValidFunctionType = (value, param, field) => {
   let error: string = "";
-  let min = 1;
-  if (field?.nresp) min = field.nresp;
-  if (field?.max) min = field.max;
+  // Minimum required options (at least min_options or 1)
+  const min = Number(field?.min_options ?? field?.nresp ?? field?.max ?? 1);
 
-  if (value.length <= min) return "Debe tener más de " + min + " opciones";
+  if (!value || !Array.isArray(value) || value.length < min) {
+    return `Debe tener al menos ${min} opción${min !== 1 ? 'es' : ''}`;
+  }
 
   value.forEach((option: any) => {
-    if (!option.name) error = "Todas las opciones deben tener un valor";
+    // Support both option_text (API native) and name (legacy)
+    if (!option.option_text && !option.name) {
+      error = "Todas las opciones deben tener un valor";
+    }
   });
   return error;
 };

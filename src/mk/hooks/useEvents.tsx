@@ -5,7 +5,7 @@ interface AppEvent<PayloadType = unknown> extends Event {
 }
 
 export interface CustomWindowEventMap extends WindowEventMap {
-  /* Custom Event */
+  /* Global events */
   onNotif: AppEvent<string>;
   onReset: AppEvent<string>;
   onChatNewMsg: AppEvent<string>;
@@ -13,6 +13,9 @@ export interface CustomWindowEventMap extends WindowEventMap {
   onChatNewRoom: AppEvent<string>;
   onChatCloseRoom: AppEvent<string>;
   onOpenChat: AppEvent<string>;
+  /* Module-scoped events (dispatched by notifications.ts in each module) */
+  "survey:new": AppEvent<any>;
+  "survey:closed": AppEvent<any>;
 }
 
 export const useEvent = <PayloadType = unknown,>(

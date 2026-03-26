@@ -33,13 +33,17 @@
 .tabsButton > button > span {
   position: absolute;
   background-color: var(--cError);
+  color: var(--cWhite, #ffffff);
   border-radius: 100%;
   top: -4px;
   right: 0;
-  font-size: var(--sL);
-  padding: 2.5px;
-  width: 13px;
-  height: 13px;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
 }
 
 /* Nueva variación rounded - corregida */
@@ -84,11 +88,15 @@
 .selectedRounded > span {
   position: absolute;
   background-color: var(--cError);
+  color: var(--cWhite, #ffffff);
   border-radius: 100%;
   top: -4px;
   right: 0;
-  font-size: var(--sL);
-  padding: 2.5px;
-  width: 13px;
-  height: 13px;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
 }

@@ -19,6 +19,8 @@
 /out/
 /nogit
 nogit/
+/test-results
+test-results/
 prompt_aliases.json
 
 *.log*
@@ -28,6 +30,7 @@ prompt_aliases.json
 .env*
 /.env.development
 .env.production
+/context
 # misc
 .DS_Store
 *.pem
