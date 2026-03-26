@@ -29,7 +29,7 @@ const SurveySingleChoice = ({
             editingIndex !== undefined
               ? editingIndex
               : formState?.squestions?.length,
-        }
+        },
   );
 
   const handleChange = (e: any) => {
@@ -37,7 +37,7 @@ const SurveySingleChoice = ({
     if (e.target.name.includes("soptions")) {
       const index = parseInt(e.target.name.split(".")[1]);
       const opt = formStateSingleChoice.soptions.map((o: any, i: number) =>
-        i === index ? { ...o, option_text: value } : o
+        i === index ? { ...o, option_text: value } : o,
       );
       setFormStateSingleChoice({ ...formStateSingleChoice, soptions: opt });
       return;
@@ -50,7 +50,9 @@ const SurveySingleChoice = ({
   };
 
   const onDelOption = (index: number) => {
-    const opt = formStateSingleChoice.soptions.filter((_: any, i: number) => i !== index);
+    const opt = formStateSingleChoice.soptions.filter(
+      (_: any, i: number) => i !== index,
+    );
     setFormStateSingleChoice({ ...formStateSingleChoice, soptions: opt });
   };
 
@@ -162,7 +164,7 @@ const SurveySingleChoice = ({
                 iconRight={
                   i > formStateSingleChoice.nresp && (
                     <IconX
-                      color="var(--cBlackV2)"
+                      color="var(--cWhite)"
                       onClick={() => {
                         onDelOption(i);
                       }}

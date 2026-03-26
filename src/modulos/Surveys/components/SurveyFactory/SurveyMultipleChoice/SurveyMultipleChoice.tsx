@@ -27,7 +27,7 @@ const SurveyMultipleChoice = ({
             editingIndex !== undefined
               ? editingIndex
               : formState?.squestions?.length,
-        }
+        },
   );
 
   const handleChange = (e: any) => {
@@ -45,7 +45,7 @@ const SurveyMultipleChoice = ({
     if (e.target.name.includes("soptions")) {
       const index = parseInt(e.target.name.split(".")[1]);
       const opt = formStateMultipleChoice.soptions.map((o: any, i: number) =>
-        i === index ? { ...o, option_text: value } : o
+        i === index ? { ...o, option_text: value } : o,
       );
       setFormStateMultipleChoice({ ...formStateMultipleChoice, soptions: opt });
       return;
@@ -126,7 +126,9 @@ const SurveyMultipleChoice = ({
   };
 
   const onDelOption = (index: number) => {
-    const opt = formStateMultipleChoice.soptions.filter((_: any, i: number) => i !== index);
+    const opt = formStateMultipleChoice.soptions.filter(
+      (_: any, i: number) => i !== index,
+    );
     setFormStateMultipleChoice({ ...formStateMultipleChoice, soptions: opt });
   };
 
@@ -187,7 +189,7 @@ const SurveyMultipleChoice = ({
                     iconRight={
                       i >= formStateMultipleChoice.min_options && (
                         <IconX
-                          color="var(--cBlackV2)"
+                          color="var(--cWhite)"
                           onClick={() => {
                             onDelOption(i);
                           }}
