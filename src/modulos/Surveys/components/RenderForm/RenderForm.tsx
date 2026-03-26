@@ -147,7 +147,7 @@ const RenderForm = ({
         {
           title: formState.title, 
           description: formState.description,
-          target_criteria: formState.target_criteria || { roles: [], unit_types: [], only_arrears: false, vote_per_unit: true },
+          target_criteria: formState.target_criteria || { roles: [], unit_types: [], only_arrears: false, only_current: false, vote_per_unit: true },
           scheduled_at: formState.switch === "Y" ? formState.begin_at : null,
           expires_at: formState.switch === "Y" ? formState.end_at : null,
           is_mandatory: formState.is_mandatory === "Y",
