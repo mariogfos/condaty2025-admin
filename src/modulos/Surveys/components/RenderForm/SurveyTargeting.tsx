@@ -31,6 +31,7 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
     roles: {},
     unit_types: [],
     only_arrears: false,
+    only_current: false,
     vote_per_unit: true,
   };
 
@@ -42,6 +43,7 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
   const targetCriteriaKey = JSON.stringify([
     targetCriteria.roles,
     targetCriteria.only_arrears,
+    targetCriteria.only_current,
     targetCriteria.vote_per_unit,
     targetCriteria.unit_types,
   ]);
@@ -74,7 +76,14 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
   }, [targetCriteriaKey]);
 
   const updateCriteria = (key: string, value: any) => {
-    setFormState({ ...formState, target_criteria: { ...targetCriteria, [key]: value } });
+    // Mutual exclusion: only_arrears and only_current cannot be both true
+    if (key === 'only_arrears' && value === true) {
+      setFormState({ ...formState, target_criteria: { ...targetCriteria, only_arrears: true, only_current: false } });
+    } else if (key === 'only_current' && value === true) {
+      setFormState({ ...formState, target_criteria: { ...targetCriteria, only_current: true, only_arrears: false } });
+    } else {
+      setFormState({ ...formState, target_criteria: { ...targetCriteria, [key]: value } });
+    }
   };
 
   /** Multiselect roles handler — builds roles object from selected array */
@@ -94,6 +103,7 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
       roles: newRoles,
       vote_per_unit: stillHasOwner ? targetCriteria.vote_per_unit : false,
       only_arrears: stillHasOwner ? targetCriteria.only_arrears : false,
+      only_current: stillHasOwner ? targetCriteria.only_current : false,
       unit_types: stillHasOwner ? targetCriteria.unit_types : [],
     };
     setFormState({ ...formState, target_criteria: newCriteria });
@@ -208,6 +218,18 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
                 optionValue={["Y", "N"]}
                 value={targetCriteria.only_arrears ? "Y" : "N"}
                 onChange={(e: any) => updateCriteria("only_arrears", e.target.checked)}
+              />
+            </CardRow>
+
+            <CardRow
+              label="Solo al día"
+              subtitle="Limitar encuesta únicamente a unidades sin deudas atrasadas"
+            >
+              <Switch
+                name="only_current"
+                optionValue={["Y", "N"]}
+                value={targetCriteria.only_current ? "Y" : "N"}
+                onChange={(e: any) => updateCriteria("only_current", e.target.checked)}
               />
             </CardRow>
           </>

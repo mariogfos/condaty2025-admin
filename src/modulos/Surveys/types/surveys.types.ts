@@ -5,6 +5,7 @@ export interface TargetCriteria {
   roles: Record<string, string>;
   unit_types: string[];
   only_arrears: boolean;
+  only_current: boolean;  // Nuevo: filtrar solo los que están al día
   vote_per_unit: boolean;
 }
 
