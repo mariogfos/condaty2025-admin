@@ -94,8 +94,10 @@ const RenderForm = ({
       errors,
     });
     
-    // Check if target_criteria exists and has at least one role
-    if (!formState.target_criteria?.roles || formState.target_criteria.roles.length === 0) {
+    // Check if target_criteria exists and has at least one role selected
+    const rolesObj = formState.target_criteria?.roles || {};
+    const hasSelectedRole = Object.values(rolesObj).some(v => v === "1");
+    if (!hasSelectedRole) {
       errors.target_criteria = "Selecciona al menos un rol";
       showToast("Selecciona al menos un rol en la segmentación", "error");
     }
@@ -147,7 +149,7 @@ const RenderForm = ({
         {
           title: formState.title, 
           description: formState.description,
-          target_criteria: formState.target_criteria || { roles: [], unit_types: [], only_arrears: false, vote_per_unit: true },
+          target_criteria: formState.target_criteria || { roles: [], unit_types: [], only_arrears: false, only_current: false, vote_per_unit: true },
           scheduled_at: formState.switch === "Y" ? formState.begin_at : null,
           expires_at: formState.switch === "Y" ? formState.end_at : null,
           is_mandatory: formState.is_mandatory === "Y",

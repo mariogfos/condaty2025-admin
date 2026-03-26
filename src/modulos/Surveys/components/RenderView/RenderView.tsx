@@ -99,6 +99,7 @@ function SegmentationSummary({
 
   const flags: string[] = [];
   if (criteria?.only_arrears) flags.push("Solo en mora");
+  if (criteria?.only_current) flags.push("Solo al día");
   if (criteria?.vote_per_unit) flags.push("Un voto por unidad");
   if (criteria?.only_inhabited_units) flags.push("Solo unidades habitadas");
 
