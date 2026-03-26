@@ -94,8 +94,10 @@ const RenderForm = ({
       errors,
     });
     
-    // Check if target_criteria exists and has at least one role
-    if (!formState.target_criteria?.roles || formState.target_criteria.roles.length === 0) {
+    // Check if target_criteria exists and has at least one role selected
+    const rolesObj = formState.target_criteria?.roles || {};
+    const hasSelectedRole = Object.values(rolesObj).some(v => v === "1");
+    if (!hasSelectedRole) {
       errors.target_criteria = "Selecciona al menos un rol";
       showToast("Selecciona al menos un rol en la segmentación", "error");
     }
