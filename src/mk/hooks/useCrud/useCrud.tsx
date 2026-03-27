@@ -205,6 +205,7 @@ const useCrud = ({
     mod.titleAdd = mod.titleAdd ?? "Agregar";
     mod.titleEdit = mod.titleEdit ?? "Editar";
     mod.titleDel = mod.titleDel ?? "Eliminar";
+    // mod.title = mod.title ?? store?.title ?? mod.plural;
   }
 
   // const [data, setData]: any = useState(null);
@@ -301,15 +302,18 @@ const useCrud = ({
     return item;
   }, []);
 
-  const onView = useCallback(async (item: Record<string, any>) => {
-    if (!userCan(mod.permiso, "R"))
-      return showToast("No tiene permisos para visualizar", "error");
+  const onView = useCallback(
+    async (item: Record<string, any>) => {
+      if (!userCan(mod.permiso, "R"))
+        return showToast("No tiene permisos para visualizar", "error");
 
-    if (mod.loadView) {
-      item = await getItemApi(item);
-    }
-    initOpen(setOpenView, item, "view");
-  }, []);
+      if (mod.loadView) {
+        item = await getItemApi(item);
+      }
+      initOpen(setOpenView, item, "view");
+    },
+    [mod, userCan, showToast, getItemApi, initOpen],
+  );
 
   const onImport = useCallback((e: any) => {
     if (!userCan(mod.permiso, "C"))
@@ -470,8 +474,14 @@ const useCrud = ({
       if (filterBy.filterBy[key]) fil.push(key + ":" + filterBy.filterBy[key]);
     }
     fil = fil.join("|");
-    //setParams({ ...params, ...(fil ? { filterBy: fil } : {}) });
-    setParams({ ...params, ...(fil ? { filterBy: fil, page: 1 } : {}) });
+    // Always update filterBy: set to new value OR explicitly to undefined to clear old filters from params
+    const newParams = { ...params, page: 1 };
+    if (fil) {
+      newParams.filterBy = fil;
+    } else {
+      delete newParams.filterBy;
+    }
+    setParams(newParams);
     setOldFilter(filterBy);
   };
 
@@ -530,7 +540,7 @@ const useCrud = ({
       const url = file.data?.secureUrl
         ? file.data.secureUrl
         : getUrlImages("/" + (file.data?.path || ""));
-      
+
       // Intentar derivar un nombre de archivo desde el path o secureUrl; si no, usar por defecto
       const suggestedName = (() => {
         if (file.data?.secureUrl) {
@@ -1477,11 +1487,11 @@ const useCrud = ({
 
     return (
       <div className={styles.useCrud}>
-        {/* {JSON.stringify(data)}---
-        {JSON.stringify(_data)}--- */}
-        {store?.title && openList && !props.hideTitle && (
+        {/* {JSON.stringify(mod.title)} */}
+        {/* {JSON.stringify(_data)}--- */}
+        {(props.title || store?.title) && openList && !props.hideTitle && (
           <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>
-            {store?.title}
+            {props.title ?? store?.title}
           </p>
         )}
         {openList && (

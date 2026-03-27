@@ -19,6 +19,7 @@ import {
   IconAmbulance,
   IconBalance,
   IconCancelReservation,
+  IconSurvey,
 } from "@/components/layout/icons/IconsBiblioteca";
 import useCrudUtils from "../shared/useCrudUtils";
 import RenderItem from "../shared/RenderItem";
@@ -27,6 +28,7 @@ import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
 import TaskDetailModal from "@/modulos/Tasks/TaskDetailModal";
 import { useEvent } from "@/mk/hooks/useEvents";
+import SurveyAnswerForm from "../Surveys/components/SurveyAnswerForm";
 
 const paramsInitial = {
   fullType: "L",
@@ -89,6 +91,7 @@ const Notifications = () => {
   const [openPayment, setOpenPayment] = useState({ open: false, id: null });
   const [openReservas, setOpenReservas] = useState({ open: false, id: null });
   const [taskModalId, setTaskModalId] = useState<string | null>(null);
+  const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
 
   const mod: ModCrudType = {
     modulo: "notifications",
@@ -112,6 +115,9 @@ const Notifications = () => {
 
       const actValue = messageData.act || messageData.info?.act;
       const level = messageData.level || messageData.info?.level;
+      if (actValue === "new-survey") {
+        return <IconSurvey color="var(--cPrimary)" />;
+      }
 
       if (actValue === "newContent") {
         return (
@@ -334,7 +340,7 @@ const Notifications = () => {
               const parsedMessage = parseNotificationMessage(props.item.message);
 
               const notificationsView = JSON.parse(
-                localStorage.getItem("notificationsView") || "[]"
+                localStorage.getItem("notificationsView") || "[]",
               );
               const isRead = notificationsView.includes(props.item.id);
 
@@ -419,13 +425,13 @@ const Notifications = () => {
     try {
       // Agregar a localStorage para marcar como leída
       const notificationsView = JSON.parse(
-        localStorage.getItem("notificationsView") || "[]"
+        localStorage.getItem("notificationsView") || "[]",
       );
       if (!notificationsView.includes(item.id)) {
         notificationsView.push(item.id);
         localStorage.setItem(
           "notificationsView",
-          JSON.stringify(notificationsView)
+          JSON.stringify(notificationsView),
         );
       }
 
@@ -441,6 +447,10 @@ const Notifications = () => {
         parsedMessage?.info?.task_id || parsedMessage?.info?.id || "";
 
       // Navegar según el tipo de notificación
+      if (notificationAct?.info?.act === "new-survey") {
+        setSelectedSurvey(parsedMessage.info);
+      }
+
       if (notificationAct === "newPreregister") {
         router.push("/");
       }
@@ -475,7 +485,7 @@ const Notifications = () => {
   const renderItem = (
     item: Record<string, any>,
     i: number,
-    onClick: Function
+    onClick: Function,
   ) => {
     try {
       const parsedMessage = parseNotificationMessage(item.message);
@@ -523,10 +533,21 @@ const Notifications = () => {
         />
       )}
       {openReservas.open && (
-        <ReservationDetailModal 
+        <ReservationDetailModal
           open={openReservas.open}
           onClose={() => setOpenReservas({ open: false, id: null })}
           reservationId={openReservas.id || ""}
+        />
+      )}
+      {selectedSurvey && (
+        <SurveyAnswerForm
+          survey={selectedSurvey}
+          onClose={() => setSelectedSurvey(null)}
+          onSuccess={() => {
+            setSelectedSurvey(null);
+            // showToast("Encuesta respondida con éxito", "success");
+          }}
+          isMandatory={false}
         />
       )}
       <TaskDetailModal

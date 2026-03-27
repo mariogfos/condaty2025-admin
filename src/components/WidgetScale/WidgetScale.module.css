@@ -9,9 +9,9 @@
 }
 
 .title {
-  color: var(--cWhiteV1);
-  font-size: 16px;
-  font-weight: bold;
+  color: var(--cWhite);
+  font-size: var(--sM);
+  font-weight: var(--bSemibold);
 }
 
 .description {
@@ -30,6 +30,7 @@
   color: var(--cWhiteV1);
   text-align: left;
 }
+
 .labelRight {
   font-size: 14px;
   color: var(--cWhiteV1);
@@ -54,7 +55,7 @@
   display: none;
 }
 
-.checkbox + .checkboxValue {
+.checkbox+.checkboxValue {
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -67,19 +68,21 @@
   border: 1px solid var(--cWhiteV1);
 }
 
-.checkbox:checked + .checkboxValue {
+.checkbox:checked+.checkboxValue {
   background-color: var(--cSuccess);
   color: var(--cWhite);
 }
 
-.checkboxValue + .checkboxNumber {
-  color: var(--cWhiteV1); /* Color del número debajo del círculo */
+.checkboxValue+.checkboxNumber {
+  color: var(--cWhiteV1);
+  /* Color del número debajo del círculo */
   font-size: 12px;
-  margin-top: 8px; /* Espacio entre el círculo y el número */
+  margin-top: 8px;
+  /* Espacio entre el círculo y el número */
   display: block;
 }
 
-.checkbox:checked + .checkboxValue {
+.checkbox:checked+.checkboxValue {
   background-color: var(--cSuccess);
   color: var(--cWhite);
 }
