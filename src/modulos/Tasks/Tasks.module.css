@@ -1,0 +1,366 @@
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.leftControls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 320px;
+  flex: 1;
+}
+
+.filterSummary {
+  font-size: 12px;
+  color: var(--cWhiteV1);
+}
+
+.filterFieldSelect {
+  min-width: 170px;
+}
+
+.rightControls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.smallButton {
+  width: auto !important;
+  height: 40px !important;
+  padding: 0 14px !important;
+}
+
+.emptyBox {
+  min-height: 260px;
+  border: 1px solid var(--cBorder);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  color: var(--cWhiteV1);
+  background: linear-gradient(180deg, var(--cBlackV2), var(--cBlackV1));
+}
+
+.tableWrap {
+  width: 100%;
+  overflow: auto;
+  border: 1px solid var(--cBorder);
+  border-radius: 12px;
+}
+
+.filtersModalGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.paginationBar {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.paginationInfo {
+  font-size: 12px;
+  color: var(--cWhiteV1);
+}
+
+.paginationActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.categoriesHeaderRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.categoryColorChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--cWhite);
+  border: 1px solid var(--cBorder);
+  min-width: 88px;
+}
+
+.categoryActionsRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.emptyInline {
+  padding: 20px;
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+.colorField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.colorPickerRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.colorPickerInput {
+  width: 42px;
+  height: 32px;
+  border: 1px solid var(--cBorder);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.colorPickerInput::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.colorPickerInput::-webkit-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+.colorPickerValue {
+  font-size: 12px;
+  color: var(--cWhiteV1);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--cBlackV2);
+  text-align: left;
+  padding: 12px;
+  font-size: 13px;
+  color: var(--cWhiteV1);
+  border-bottom: 1px solid var(--cBorder);
+}
+
+.table tbody tr {
+  cursor: pointer;
+  border-bottom: 1px solid var(--cBorder);
+}
+
+.table tbody tr:hover {
+  background: var(--cBlackV2);
+}
+
+.table tbody td {
+  padding: 12px;
+  vertical-align: top;
+}
+
+.statusHeaderCenter {
+  text-align: center !important;
+}
+
+.statusCellCenter {
+  vertical-align: middle;
+}
+
+.taskTitle {
+  font-weight: 600;
+}
+
+.taskDesc {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--cWhiteV1);
+}
+
+.badgeAlignedText {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.dashCenter {
+  min-height: 28px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.kanbanWrap {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(260px, 1fr));
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.kanbanCol {
+  min-height: 60vh;
+  background: var(--cBlackV2);
+  border: 1px solid var(--cBorder);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.kanbanColHeader {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--cBorder);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.kanbanColBody {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kanbanColBodyActive {
+  background: color-mix(in srgb, var(--cPrimary) 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cPrimary) 55%, transparent);
+}
+
+.kanbanCard {
+  border: 1px solid var(--cBorder);
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+  background: var(--cBlack);
+  min-width: 0;
+  overflow: hidden;
+  transition: transform 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
+}
+
+.kanbanCard:hover {
+  border-color: var(--cAccent);
+}
+
+.kanbanCardDragging {
+  opacity: 0.45;
+  transform: scale(0.98);
+}
+
+.kanbanCard h4 {
+  font-size: 14px;
+  margin: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.kanbanCard p {
+  font-size: 12px;
+  margin: 6px 0;
+  color: var(--cWhiteV1);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-clamp: 3;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardBadges {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.peopleRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.personCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.personCell span {
+  font-size: 12px;
+  color: var(--cWhiteV1);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.personEmpty {
+  font-size: 12px;
+  color: var(--cWhiteV1);
+}
+
+.formGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.creatorPreview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.creatorPreview > span {
+  font-size: 13px;
+  color: var(--cWhiteV1);
+}
+
+.row3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 1024px) {
+  .row3 {
+    grid-template-columns: 1fr;
+  }
+
+  .kanbanWrap {
+    grid-template-columns: repeat(6, minmax(220px, 1fr));
+  }
+}

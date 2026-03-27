@@ -1,0 +1,299 @@
+.detailWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.detailHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.headerTitleArea {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.titleWithIcon {
+  position: relative;
+  width: 100%;
+}
+
+.titleContent {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.titleContent h3 {
+  padding-right: 34px;
+}
+
+.detailHeader h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.detailHeader p {
+  margin: 6px 0 0;
+  color: var(--cWhiteV1);
+}
+
+.taskDescription {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--cBorder);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--cBlackV2) 85%, transparent);
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 110px;
+  max-height: 240px;
+  overflow-y: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.editIconButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--cWhiteV1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.editIconButton:hover {
+  background-color: var(--cHoverAccent);
+  color: var(--cAccent);
+}
+
+.detailBadges {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.metaChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--cBorder);
+  background: color-mix(in srgb, var(--cBlackV2) 75%, transparent);
+  border-radius: 999px;
+  padding: 0 10px;
+  height: 36px;
+  box-sizing: border-box;
+}
+
+.metaChipLabel {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cWhiteV1);
+  opacity: 0.75;
+}
+
+.metaChipValue {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cWhite);
+}
+
+.metaChipDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--cBlack) 55%, transparent);
+}
+
+.quickStatusControl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--cBorder);
+  background: color-mix(in srgb, var(--cBlackV2) 75%, transparent);
+  border-radius: 999px;
+  padding: 0 8px;
+  height: 36px;
+  box-sizing: border-box;
+}
+
+.quickStatusSelectWrap {
+  width: 180px;
+}
+
+.quickStatusSelectWrap :global(label) {
+  display: none !important;
+}
+
+.quickStatusSelectWrap :global(input) {
+  height: 30px !important;
+  min-height: 30px !important;
+  background: transparent !important;
+  color: var(--cWhite) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 0 28px 0 10px !important;
+  text-overflow: clip !important;
+}
+
+.quickStatusSelectWrap :global(input:disabled) {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.quickStatusOptions {
+  border: 1px solid var(--cBorder);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: -16px;
+}
+
+.quickStatusOptions > ul > li {
+  border-bottom: 1px solid color-mix(in srgb, var(--cBorder) 85%, transparent);
+}
+
+.quickStatusOptions > ul > li:last-child {
+  border-bottom: 0;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metaCard {
+  border: 1px solid var(--cBorder);
+  background: var(--cBlackV2);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.metaCard h5 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--cWhiteV1);
+  font-weight: 500;
+}
+
+.metaDateValue {
+  margin: 0;
+  font-size: 13px;
+  color: var(--cWhite);
+  font-weight: 500;
+}
+
+.personLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.personName {
+  margin: 0;
+  font-weight: 600;
+}
+
+.personType {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--cWhiteV1);
+  text-transform: capitalize;
+}
+
+.imagesWrap {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.commentsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.commentsSection h4 {
+  margin: 0;
+}
+
+.commentList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.commentItem {
+  border: 1px solid var(--cBorder);
+  background: var(--cBlackV2);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.commentHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.commentHeadLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.commentAuthor {
+  margin: 0;
+  font-size: 13px;
+}
+
+.commentDate {
+  margin: 0;
+  font-size: 12px;
+  color: var(--cWhiteV1);
+}
+
+.commentItem p {
+  margin: 8px 0 0;
+}
+
+.commentImages {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.commentComposer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+}
