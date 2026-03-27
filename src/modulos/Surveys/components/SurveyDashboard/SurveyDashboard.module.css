@@ -16,8 +16,8 @@
 }
 
 .title {
-  font-size: 1.75rem !important;
-  font-weight: 800 !important;
+  font-size: var(--sXxl) !important;
+  font-weight: var(--bBold) !important;
   margin: 0 !important;
   color: var(--cWhite) !important;
   background: linear-gradient(90deg, var(--cPrimary), var(--accentv1));
@@ -27,7 +27,7 @@
 }
 
 .subtitle {
-  font-size: 1rem !important;
+  font-size: var(--sM) !important;
   color: var(--cWhiteV1) !important;
   margin-top: 6px !important;
 }
@@ -51,8 +51,8 @@
 
 .kpiLabel {
   display: block !important;
-  font-size: 0.8rem !important;
-  font-weight: 600 !important;
+  font-size: var(--sS) !important;
+  font-weight: var(--bSemibold) !important;
   color: var(--cWhiteV1) !important;
   text-transform: uppercase !important;
   letter-spacing: 0.1em !important;
@@ -61,8 +61,8 @@
 
 .kpiValue {
   display: block !important;
-  font-size: 2.25rem !important;
-  font-weight: 800 !important;
+  font-size: var(--sXxl) !important;
+  font-weight: var(--bBold) !important;
   color: var(--cWhite) !important;
 }
 
@@ -90,15 +90,15 @@
 }
 
 .questionTitle {
-  font-size: 1.25rem !important;
-  font-weight: 700 !important;
+  font-size: var(--sXl) !important;
+  font-weight: var(--bBold) !important;
   margin: 0 !important;
   color: var(--cWhite) !important;
   line-height: 1.4 !important;
 }
 
 .questionMeta {
-  font-size: 0.85rem !important;
+  font-size: var(--sS) !important;
   color: var(--cWhiteV3) !important;
   margin-top: 10px !important;
 }
@@ -134,12 +134,12 @@
   background-color: var(--cHoverCompl10) !important;
   border: 1px solid var(--cBorderSidebar) !important;
   border-radius: 20px !important;
-  font-size: 0.95rem !important;
+  font-size: var(--sM) !important;
   color: var(--cPrimary) !important;
 }
 
 .keywordCount {
-  font-size: 0.8rem !important;
+  font-size: var(--sS) !important;
   opacity: 0.7 !important;
   margin-left: 8px !important;
   background: #d7fff014 !important;
@@ -160,7 +160,7 @@
   padding: 16px !important;
   background-color: #d7fff005 !important;
   border-radius: 12px !important;
-  font-size: 0.95rem !important;
+  font-size: var(--sM) !important;
   color: var(--cWhiteV1) !important;
   font-style: italic !important;
   border-left: 4px solid var(--cPrimary) !important;
@@ -181,7 +181,7 @@
   padding: 10px 16px !important;
   background-color: #d7fff005 !important;
   border-radius: 12px !important;
-  font-size: 0.9rem !important;
+  font-size: var(--sM) !important;
   border: 1px solid #d7fff014 !important;
 }
 
@@ -192,7 +192,7 @@
 
 .statValue {
   color: var(--cWhite) !important;
-  font-weight: 700 !important;
+  font-weight: var(--bBold) !important;
 }
 
 /* Highlights / Insights */
@@ -212,14 +212,14 @@
   background: var(--cHoverCompl10) !important;
   border: 1px solid var(--cBorderSidebar) !important;
   border-radius: 14px !important;
-  font-size: 0.925rem !important;
+  font-size: var(--sM) !important;
   color: var(--cWhite) !important;
   line-height: 1.5 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
 
 .highlightIcon {
-  font-size: 1.25rem !important;
+  font-size: var(--sXl) !important;
   flex-shrink: 0 !important;
   margin-top: -2px !important;
 }
@@ -262,13 +262,13 @@
   display: flex !important;
   align-items: center !important;
   gap: 10px !important;
-  font-size: 1.1rem !important;
-  font-weight: 700 !important;
+  font-size: var(--sL) !important;
+  font-weight: var(--bBold) !important;
   color: var(--cWhite) !important;
 }
 
 .aiTitle span {
-  font-size: 1.4rem !important;
+  font-size: var(--sXl) !important;
 }
 
 .aiButton {
@@ -278,8 +278,8 @@
   border: none !important;
   border-radius: 12px !important;
   color: #212121 !important;
-  font-weight: 600 !important;
-  font-size: 15px !important;
+  font-weight: var(--bSemibold) !important;
+  font-size: var(--sM) !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
   display: flex !important;
@@ -301,7 +301,7 @@
 }
 
 .aiContent {
-  font-size: 1rem !important;
+  font-size: var(--sM) !important;
   line-height: 1.7 !important;
   color: var(--cWhiteV1) !important;
   white-space: pre-line !important;
@@ -312,7 +312,7 @@
   align-items: center !important;
   gap: 12px !important;
   color: var(--cWhiteV3) !important;
-  font-size: 0.95rem !important;
+  font-size: var(--sM) !important;
   font-style: italic !important;
 }
 
@@ -345,7 +345,7 @@
   color: var(--cWhite) !important;
   padding: 6px 12px !important;
   border-radius: 8px !important;
-  font-size: 0.8rem !important;
+  font-size: var(--sS) !important;
   cursor: pointer !important;
 }
 
@@ -367,8 +367,8 @@
 }
 
 .aiSparkle {
-  font-size: 0.85rem !important;
-  font-weight: 700 !important;
+  font-size: var(--sS) !important;
+  font-weight: var(--bBold) !important;
   color: var(--cPrimary) !important;
   text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
@@ -377,12 +377,12 @@
 .sentimentBadge {
   padding: 4px 10px !important;
   border-radius: 8px !important;
-  font-size: 0.75rem !important;
-  font-weight: 700 !important;
+  font-size: var(--sS) !important;
+  font-weight: var(--bBold) !important;
 }
 
 .aiQuestionContent {
-  font-size: 0.925rem !important;
+  font-size: var(--sM) !important;
   line-height: 1.5 !important;
   color: var(--cWhiteV1) !important;
   margin: 0 !important;
@@ -396,8 +396,8 @@
 }
 
 .aiTag {
-  font-size: 0.75rem !important;
+  font-size: var(--sS) !important;
   color: var(--cPrimary) !important;
-  font-weight: 600 !important;
+  font-weight: var(--bSemibold) !important;
   opacity: 0.8 !important;
 }

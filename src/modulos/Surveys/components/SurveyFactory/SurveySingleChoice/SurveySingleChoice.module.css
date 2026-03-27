@@ -2,12 +2,12 @@
   & > p:nth-child(1) {
     color: var(--cWhite);
     font-size: var(--sXl);
-    font-weight: 700;
+    font-weight: var(--bBold);
   }
   & > p:nth-child(2) {
     color: var(--cWhiteV1);
     font-size: var(--sM);
-    font-weight: 400;
+    font-weight: var(--bRegular);
     margin-bottom: var(--spXs);
   }
   & > p:nth-child(3) {
@@ -23,7 +23,7 @@
     & > p {
       color: var(--cWhite);
       font-size: var(--sM);
-      font-weight: 600;
+      font-weight: var(--bSemibold);
       margin-bottom: var(--spS);
     }
   }

@@ -36,14 +36,14 @@
 }
 
 .title {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: var(--sXl);
+  font-weight: var(--bBold);
   color: var(--cWhite);
   margin: 0 0 8px 0;
 }
 
 .description {
-  font-size: 14px;
+  font-size: var(--sM);
   color: var(--cWhiteV3);
   margin: 0;
   line-height: 1.5;
@@ -77,8 +77,8 @@
 
 .questionLabel {
   display: block;
-  font-size: 15px;
-  font-weight: 500;
+  font-size: var(--sM);
+  font-weight: var(--bSemibold);
   color: var(--cWhiteV1);
   margin-bottom: 4px;
 }
@@ -89,7 +89,7 @@
 }
 
 .questionDescription {
-  font-size: 13px;
+  font-size: var(--sS);
   color: var(--cWhiteV3);
   margin: 0 0 12px 0;
 }
@@ -109,7 +109,7 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
-  font-size: 14px;
+  font-size: var(--sM);
   color: var(--cWhite);
 }
 
@@ -158,8 +158,8 @@
 
 .checkmark {
   color: white;
-  font-size: 12px;
-  font-weight: bold;
+  font-size: var(--sS);
+  font-weight: var(--bBold);
 }
 
 .scaleContainer {
@@ -171,14 +171,14 @@
 .scaleLabels {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: var(--sS);
   color: var(--cWhiteV3);
 }
 
 .error {
   display: block;
   margin-top: 8px;
-  font-size: 13px;
+  font-size: var(--sS);
   color: var(--cError);
 }
 

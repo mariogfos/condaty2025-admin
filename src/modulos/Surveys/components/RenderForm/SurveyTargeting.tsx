@@ -150,119 +150,89 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
   );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+    <div className={styles.targetCard}>
+      <h3 className={styles.targetTitle}>Audiencia</h3>
+      <p className={styles.targetSubtitle}>Selecciona el grupo que recibirá la encuesta</p>
 
-      {/* ─── Card 1: Grupo + toggles ─── */}
-      <div
-        style={{
-          background: "#d7fff005",
-          borderRadius: "var(--bRadius)",
-          padding: "16px",
-          border: "1px solid #d7fff014",
-        }}
-      >
-        {/* Multiselect roles */}
-        <p className={styles.title} style={{ marginBottom: 10 }}>
-          Selecciona el grupo que recibirá la encuesta
-        </p>
-        <Select
-          name="target_roles"
-          label="Selecciona uno o más grupos"
-          value={selectedRoleIds.length ? selectedRoleIds : []}
-          options={ROLES_OPTIONS}
-          optionValue="id"
-          optionLabel="name"
-          onChange={handleRolesChange}
-          multiSelect
-        />
+      <div className={styles.targetTopRow}>
+        <div style={{ flex: 1 }}>
+          <Select
+            name="target_roles"
+            label="Selecciona uno o más grupos"
+            value={selectedRoleIds.length ? selectedRoleIds : []}
+            options={ROLES_OPTIONS}
+            optionValue="id"
+            optionLabel="name"
+            onChange={handleRolesChange}
+            multiSelect
+          />
+        </div>
+        <div className={styles.audienceBadge}>
+          Alcance estimado: {formatNumber(affCount || 0, 0)} personas
+        </div>
+      </div>
 
         {/* Conditional: unit types (owner/resident only) */}
-        {hasOwnerRole && extraData?.unit_types?.length > 0 && (
-          <div style={{ marginTop: 12 }}>
-            <Select
-              name="unit_types"
-              label="Tipos de unidad (opcional)"
-              value={!targetCriteria.unit_types?.length ? ["-1"] : targetCriteria.unit_types}
-              options={[
-                { id: "-1", name: "Todas las unidades" },
-                ...extraData.unit_types.map((ut: any) => ({ ...ut, id: String(ut.id) })),
-              ]}
-              optionValue="id"
-              optionLabel="name"
-              onChange={handleUnitTypeChange}
-              multiSelect
-            />
-          </div>
-        )}
+      {hasOwnerRole && extraData?.unit_types?.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <Select
+            name="unit_types"
+            label="Tipos de unidad (opcional)"
+            value={!targetCriteria.unit_types?.length ? ["-1"] : targetCriteria.unit_types}
+            options={[
+              { id: "-1", name: "Todas las unidades" },
+              ...extraData.unit_types.map((ut: any) => ({ ...ut, id: String(ut.id) })),
+            ]}
+            optionValue="id"
+            optionLabel="name"
+            onChange={handleUnitTypeChange}
+            multiSelect
+          />
+        </div>
+      )}
 
- {/* Owner-only toggles */}
-        {hasOwnerRole && (
-          <>
-            <CardRow
-              label="Un voto por unidad"
-              subtitle="Permitir solo una respuesta por departamento"
-            >
-              <Switch
-                name="vote_per_unit"
-                optionValue={["Y", "N"]}
-                value={targetCriteria.vote_per_unit ? "Y" : "N"}
-                onChange={(e: any) => updateCriteria("vote_per_unit", e.target.checked)}
-              />
-            </CardRow>
-
-            <CardRow
-              label="Solo morosos"
-              subtitle="Limitar encuesta únicamente a unidades con deudas atrasadas"
-            >
-              <Switch
-                name="only_arrears"
-                optionValue={["Y", "N"]}
-                value={targetCriteria.only_arrears ? "Y" : "N"}
-                onChange={(e: any) => updateCriteria("only_arrears", e.target.checked)}
-              />
-            </CardRow>
-
-            <CardRow
-              label="Solo al día"
-              subtitle="Limitar encuesta únicamente a unidades sin deudas atrasadas"
-            >
-              <Switch
-                name="only_current"
-                optionValue={["Y", "N"]}
-                value={targetCriteria.only_current ? "Y" : "N"}
-                onChange={(e: any) => updateCriteria("only_current", e.target.checked)}
-              />
-            </CardRow>
-          </>
-        )}
-
-        {/* Audience preview */}
-        {affCount !== null && (
-          <div
-            style={{
-              marginTop: 12,
-              padding: "10px 14px",
-              background: "#d7fff005",
-              borderRadius: "var(--bRadius)",
-              border: "1px solid #d7fff014",
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-            }}
+      {hasOwnerRole && (
+        <>
+          <CardRow
+            label="Un voto por unidad"
+            subtitle="Permitir solo una respuesta por departamento"
           >
-            <p className={styles.subtitle} style={{ margin: 0, fontSize: "0.82rem" }}>
-              Audiencia estimada:
-            </p>
-            <p className={styles.title} style={{ margin: 0 }}>
-              {formatNumber(affCount, 0)} personas
-            </p>
-          </div>
-        )}
-        {/* Toggle: obligatoria */}
-        <CardRow
-          label="¿Quieres asegurarte de que todos respondan?"
-          subtitle="Activa para que los usuarios respondan la encuesta sin posibilidad de omitirla"
-        >
+            <Switch
+              name="vote_per_unit"
+              optionValue={["Y", "N"]}
+              value={targetCriteria.vote_per_unit ? "Y" : "N"}
+              onChange={(e: any) => updateCriteria("vote_per_unit", e.target.checked)}
+            />
+          </CardRow>
+
+          <CardRow
+            label="Solo morosos"
+            subtitle="Limitar encuesta únicamente a unidades con deudas atrasadas"
+          >
+            <Switch
+              name="only_arrears"
+              optionValue={["Y", "N"]}
+              value={targetCriteria.only_arrears ? "Y" : "N"}
+              onChange={(e: any) => updateCriteria("only_arrears", e.target.checked)}
+            />
+          </CardRow>
+
+          <CardRow
+            label="Solo al día"
+            subtitle="Limitar encuesta únicamente a unidades sin deudas atrasadas"
+          >
+            <Switch
+              name="only_current"
+              optionValue={["Y", "N"]}
+              value={targetCriteria.only_current ? "Y" : "N"}
+              onChange={(e: any) => updateCriteria("only_current", e.target.checked)}
+            />
+          </CardRow>
+        </>
+      )}
+
+      <div className={styles.switchGrid}>
+        <div className={styles.switchItem}>
           <Switch
             name="is_mandatory"
             optionValue={["Y", "N"]}
@@ -271,13 +241,14 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
               setFormState({ ...formState, is_mandatory: e.target.checked ? "Y" : "N" })
             }
           />
-        </CardRow>
-
-        {/* Toggle: programar */}
-        <CardRow
-          label="Programar encuesta"
-          subtitle="Elige una fecha específica para enviar la encuesta"
-        >
+          <div className={styles.switchText}>
+            <p className={styles.title}>¿Quieres asegurarte de que todos respondan?</p>
+            <p className={styles.targetSubtitle}>
+              Activa para que los usuarios respondan la encuesta sin posibilidad de omitirla
+            </p>
+          </div>
+        </div>
+        <div className={styles.switchItem}>
           <Switch
             name="switch"
             optionValue={["Y", "N"]}
@@ -286,34 +257,37 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
               setFormState({ ...formState, switch: e.target.checked ? "Y" : "N" })
             }
           />
-        </CardRow>
-
-        {/* Date inputs (shown when scheduling is ON) */}
-        {formState.switch === "Y" && (
-          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-            <Input
-              type="datetime-local"
-              name="begin_at"
-              label="Fecha de inicio"
-              value={(formState?.begin_at || "").replace(" ", "T").substring(0, 16)}
-              onChange={(e: any) =>
-                setFormState({ ...formState, begin_at: e.target.value })
-              }
-            />
-            <Input
-              type="datetime-local"
-              name="end_at"
-              label="Fecha de fin"
-              value={(formState?.end_at || "").replace(" ", "T").substring(0, 16)}
-              onChange={(e: any) =>
-                setFormState({ ...formState, end_at: e.target.value })
-              }
-            />
+          <div className={styles.switchText}>
+            <p className={styles.title}>Programar encuesta</p>
+            <p className={styles.targetSubtitle}>
+              Elige una fecha específica para enviar la encuesta
+            </p>
           </div>
-        )}
-
-       
+        </div>
       </div>
+
+      {formState.switch === "Y" && (
+        <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+          <Input
+            type="datetime-local"
+            name="begin_at"
+            label="Fecha de inicio"
+            value={(formState?.begin_at || "").replace(" ", "T").substring(0, 16)}
+            onChange={(e: any) =>
+              setFormState({ ...formState, begin_at: e.target.value })
+            }
+          />
+          <Input
+            type="datetime-local"
+            name="end_at"
+            label="Fecha de fin"
+            value={(formState?.end_at || "").replace(" ", "T").substring(0, 16)}
+            onChange={(e: any) =>
+              setFormState({ ...formState, end_at: e.target.value })
+            }
+          />
+        </div>
+      )}
     </div>
   );
 }

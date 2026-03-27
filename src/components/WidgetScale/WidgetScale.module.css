@@ -1,9 +1,9 @@
 .scale {
-  background-color: var(--cBlackV1);
+  background-color: transparent;
   padding: 16px;
   border-radius: 12px;
   width: 100%;
-  color: #bbb;
+  color: var(--cWhiteV3);
   display: flex;
   flex-direction: column;
 }

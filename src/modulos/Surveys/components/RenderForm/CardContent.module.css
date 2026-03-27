@@ -15,8 +15,8 @@
   gap: 8px;
   color: var(--cAccent);
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--sM);
+  font-weight: var(--bSemibold);
 }
 
 .backButton:hover {
@@ -78,8 +78,8 @@
 
 .formHeader p {
   color: var(--cWhite);
-  font-size: var(--spL);
-  font-weight: 600;
+  font-size: var(--sL);
+  font-weight: var(--bSemibold);
   margin-top: var(--spM);
   padding: 0;
 }
@@ -97,12 +97,13 @@
 
 .destinationLabel {
   color: var(--cWhiteV1);
-  font-size: 14px;
+  font-size: var(--sM);
 }
 
 .destinationValue {
   color: var(--cWhite);
-  font-weight: 500;
+  font-weight: var(--bSemibold);
+  font-size: var(--sM);
 }
 
 .destinationIcon {
@@ -147,7 +148,7 @@
 .containerPreview > p {
   color: var(--cWhite);
   font-size: var(--sXl);
-  font-weight: 700;
+  font-weight: var(--bBold);
   margin: 0;
 }
 
@@ -163,15 +164,15 @@
 }
 
 .title {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--sL);
+  font-weight: var(--bSemibold);
   color: var(--cWhite);
 }
 
 .subtitle {
   font-size: var(--sM);
   color: var(--cWhiteV1);
-  font-weight: 400;
+  font-weight: var(--bRegular);
 }
 
 .card {

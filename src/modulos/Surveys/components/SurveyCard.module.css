@@ -33,8 +33,8 @@
 }
 
 .title {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--sL);
+  font-weight: var(--bBold);
   color: var(--cWhite);
   margin: 0;
   line-height: 1.3;
@@ -42,7 +42,7 @@
 }
 
 .description {
-  font-size: 14px;
+  font-size: var(--sM);
   color: var(--cWhiteV3);
   margin: 0;
   line-height: 1.4;
@@ -57,7 +57,7 @@
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
-  font-size: 13px;
+  font-size: var(--sS);
   color: var(--cWhiteV3);
 }
 

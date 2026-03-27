@@ -8,17 +8,18 @@
 .title {
   color: var(--cWhite);
   margin-bottom: 1rem;
-  font-size: 1.125rem;
-  font-weight: 500;
+  font-size: var(--sXl);
+  font-weight: var(--bBold);
 }
 
 .surveyName {
-  font-weight: 500;
+  font-weight: var(--bSemibold);
+  font-size: var(--sM);
   color: var(--cWhite);
 }
 
 .surveyDescription {
-  font-size: 0.875rem;
+  font-size: var(--sM);
   color: var(--cWhiteV1);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -31,8 +32,8 @@
   display: inline-block;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: var(--sS);
+  font-weight: var(--bSemibold);
   text-align: center;
 }
 
