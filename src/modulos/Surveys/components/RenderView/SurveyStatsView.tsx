@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import dynamic from "next/dynamic";
-import styles from "../../Surveys.module.css";
+import styles from "./SurveyStatsView.module.css";
 import { formatNumber } from "@/mk/utils/numbers";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -60,37 +60,20 @@ function QuestionChart({
     // const answers = question.text_responses_sample ?? [];
     return (
       <div>
-        <p className={styles.subtitle} style={{ marginBottom: 8 }}>
+        <p className={styles.textHint}>
           {(question.total_responses || 0) > 0
             ? `${question.total_responses} respuesta(s) de muestra:`
             : "Sin respuestas aún."}
         </p>
         {(question.total_responses || 0) > 0 && (
-          <ul
-            style={{
-              paddingLeft: 16,
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-              listStyle: "disc",
-            }}
-          >
+          <ul className={styles.textList}>
             {question.text_responses_sample?.slice(0, 5).map((r, i) => {
               const matchesUser = userResponse && r === userResponse;
               return (
-                <li
-                  key={i}
-                  style={{
-                    color: matchesUser ? "var(--cPrimary)" : "var(--cWhiteV1)",
-                    fontSize: "0.875rem",
-                    fontWeight: matchesUser ? "bold" : "normal",
-                  }}
-                >
+                <li key={i} className={matchesUser ? styles.myResponse : ""}>
                   "{r}"{" "}
                   {matchesUser && (
-                    <span style={{ fontSize: "0.7rem", opacity: 0.8 }}>
-                      (Tu respuesta)
-                    </span>
+                    <span className={styles.userTag}>(Tu respuesta)</span>
                   )}
                 </li>
               );
@@ -182,15 +165,12 @@ function QuestionChart({
 
   return (
     <div>
-      <p
-        className={styles.subtitle}
-        style={{ marginBottom: 4, fontSize: "0.8rem" }}
-      >
+      <p className={styles.textHint}>
         {formatNumber(total, 0)}{" "}
         {total === 1 ? "voto registrado" : "votos registrados"}
       </p>
       {total === 0 && !userResponse ? (
-        <p className={styles.subtitle}>Sin votos aún para esta pregunta.</p>
+        <p className={styles.textHint}>Sin votos aún para esta pregunta.</p>
       ) : (
         <ReactApexChart
           options={chartOptions}
@@ -217,65 +197,29 @@ export default function SurveyStatsView({
   if (!squestions?.length) return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      {/* Summary */}
+    <div className={styles.statsContainer}>
       {showSummary && (
-        <div
-          style={{
-            display: "flex",
-            gap: 24,
-            padding: "12px 16px",
-            background: "#d7fff005",
-            borderRadius: "var(--bRadius)",
-            border: "1px solid #d7fff014",
-          }}
-        >
+        <div className={styles.summaryCard}>
           <div>
-            <p className={styles.subtitle} style={{ marginBottom: 2 }}>
-              Total participantes
-            </p>
-            <p
-              className={styles.title}
-              style={{ fontSize: "1.4rem", margin: 0 }}
-            >
+            <p className={styles.summaryLabel}>Total participantes</p>
+            <p className={styles.summaryValue}>
               {formatNumber(totalParticipants, 0)}
             </p>
           </div>
         </div>
       )}
 
-      {/* Per-question charts */}
-      {squestions.map((q, idx) => (
-        <div
-          key={q.id}
-          style={{
-            padding: "16px",
-            background: "#d7fff005",
-            borderRadius: "var(--bRadius)",
-            border: "1px solid #d7fff014",
-            borderLeft: "3px solid var(--cPrimary)",
-          }}
-        >
-          <p
-            className={styles.subtitle}
-            style={{
-              marginBottom: 4,
-              fontSize: "0.7rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            Pregunta {idx + 1}
-          </p>
-          <p
-            className={styles.title}
-            style={{ marginBottom: 12, fontSize: "0.95rem", marginTop: 0 }}
-          >
-            {q.question_text || (q as any).text}
-          </p>
-          <QuestionChart question={q} index={idx} />
-        </div>
-      ))}
+      <div className={styles.questionGrid}>
+        {squestions.map((q, idx) => (
+          <div key={q.id} className={styles.questionCard}>
+            <p className={styles.questionIndex}>P{idx + 1}</p>
+            <p className={styles.questionTitle}>
+              {q.question_text || (q as any).text}
+            </p>
+            <QuestionChart question={q} index={idx} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

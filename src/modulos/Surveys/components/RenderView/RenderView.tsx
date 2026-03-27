@@ -8,7 +8,6 @@ import styles from "../../Surveys.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { SURVEY_STATUSES } from "../../config/surveys.constants";
 import SurveyStatusActions from "./SurveyStatusActions";
-import SurveyStatsView from "./SurveyStatsView";
 import { SurveyDashboard } from "../SurveyDashboard/SurveyDashboard";
 
 const STATUS_COLOR: Record<string, string> = {
@@ -31,20 +30,34 @@ function MetricCard({
     <div
       style={{
         flex: 1,
-        minWidth: 100,
-        padding: "12px 16px",
-        background: "#d7fff005",
-        borderRadius: "var(--bRadius)",
-        textAlign: "center",
+        minWidth: 180,
+        padding: "14px 16px",
+        background: "linear-gradient(150deg, #d7fff008, #d7fff002)",
+        borderRadius: 10,
+        textAlign: "left",
         border: "1px solid #d7fff014",
+        display: "flex",
+        flexDirection: "column",
+        gap: 4,
       }}
     >
-      <p className={styles.subtitle} style={{ marginBottom: 4 }}>
+      <p
+        style={{
+          margin: 0,
+          color: "var(--cWhiteV3)",
+          fontSize: "var(--sS)",
+          fontWeight: 500,
+        }}
+      >
         {label}
       </p>
       <p
-        className={styles.title}
-        style={{ fontSize: "1.25rem", marginBottom: 0 }}
+        style={{
+          margin: 0,
+          color: "var(--cPrimary)",
+          fontSize: "var(--sXl)",
+          fontWeight: 700,
+        }}
       >
         {value}
       </p>
@@ -111,18 +124,15 @@ function SegmentationSummary({
   return (
     <div
       style={{
-        padding: "12px 16px",
-        background: "#d7fff005",
-        borderRadius: "var(--bRadius)",
-        border: "1px solid #d7fff014",
-        borderLeft: "3px solid var(--cPrimary)",
+        padding: "2px 4px",
       }}
     >
       <p
-        className={styles.subtitle}
         style={{
-          marginBottom: 8,
-          fontSize: "0.75rem",
+          margin: "0 0 8px",
+          fontSize: "var(--sS)",
+          color: "var(--cWhiteV3)",
+          fontWeight: 600,
           textTransform: "uppercase",
           letterSpacing: "0.05em",
         }}
@@ -256,25 +266,33 @@ const RenderView = (props: {
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 20,
-          padding: "4px 0",
+          gap: 12,
+          padding: "2px 0 4px",
         }}
       >
-        {/* Header: Title + Status + Actions */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "flex-start",
+              alignItems: "center",
               flexWrap: "wrap",
               gap: 12,
+              padding: "8px 12px",
+              borderRadius: 10,
+              border: "1px solid #d7fff014",
+              background: "linear-gradient(150deg, #d7fff009, #d7fff002)",
             }}
           >
             <div style={{ flex: 1 }}>
               <p
-                className={styles.title}
-                style={{ fontSize: "1.15rem", marginBottom: 4, marginTop: 0 }}
+                style={{
+                  margin: 0,
+                  color: "var(--cWhite)",
+                  fontSize: "var(--sL)",
+                  fontWeight: 700,
+                  lineHeight: 1.25,
+                }}
               >
                 {surveyData?.title || surveyData?.name || "—"}
               </p>
@@ -289,12 +307,12 @@ const RenderView = (props: {
                 {surveyData?.status && (
                   <span
                     style={{
-                      fontSize: "0.75rem",
+                      fontSize: "var(--sS)",
                       fontWeight: 600,
                       color: statusColor,
                       border: `1px solid ${statusColor}`,
-                      borderRadius: 4,
-                      padding: "2px 8px",
+                      borderRadius: 999,
+                      padding: "2px 10px",
                     }}
                   >
                     {surveyData.status_label ||
@@ -312,7 +330,6 @@ const RenderView = (props: {
               </div>
             </div>
 
-            {/* Action buttons */}
             {surveyData?.id && (
               <SurveyStatusActions
                 surveyId={surveyData.id}
@@ -329,9 +346,9 @@ const RenderView = (props: {
             <p
               style={{
                 color: "var(--cWhiteV1)",
-                fontSize: "0.9rem",
-                lineHeight: 1.5,
-                margin: 0,
+                fontSize: "var(--sS)",
+                lineHeight: 1.4,
+                margin: "0 4px",
               }}
             >
               {surveyData.description}
@@ -339,7 +356,6 @@ const RenderView = (props: {
           )}
         </div>
 
-        {/* Dates & Segmentation */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {(surveyData?.created_at ||
             surveyData?.expires_at ||
@@ -349,9 +365,9 @@ const RenderView = (props: {
                 display: "flex",
                 gap: 24,
                 flexWrap: "wrap",
-                background: "#d7fff005",
-                padding: 12,
-                borderRadius: 8,
+                background: "linear-gradient(150deg, #d7fff008, #d7fff002)",
+                padding: "10px 12px",
+                borderRadius: 10,
                 border: "1px solid #d7fff014",
               }}
             >
@@ -361,7 +377,7 @@ const RenderView = (props: {
                   <p
                     style={{
                       color: "var(--cWhiteV1)",
-                      fontSize: "0.875rem",
+                      fontSize: "var(--sM)",
                       margin: 0,
                     }}
                   >
@@ -376,7 +392,7 @@ const RenderView = (props: {
                   <p
                     style={{
                       color: "var(--cWhiteV1)",
-                      fontSize: "0.875rem",
+                      fontSize: "var(--sM)",
                       margin: 0,
                     }}
                   >
@@ -390,7 +406,7 @@ const RenderView = (props: {
                   <p
                     style={{
                       color: "var(--cWhiteV1)",
-                      fontSize: "0.875rem",
+                      fontSize: "var(--sM)",
                       margin: 0,
                     }}
                   >
@@ -402,30 +418,49 @@ const RenderView = (props: {
           )}
 
           {detailsLoaded && surveyData?.target_criteria && (
-            <SegmentationSummary
-              criteria={surveyData.target_criteria}
-              lTypeUnit={props.extraData?.unit_types}
-            />
+            <div
+              style={{
+                padding: "8px 10px",
+                borderRadius: 10,
+                border: "1px solid #d7fff014",
+                background: "linear-gradient(150deg, #d7fff008, #d7fff002)",
+              }}
+            >
+              <SegmentationSummary
+                criteria={surveyData.target_criteria}
+                lTypeUnit={props.extraData?.unit_types}
+              />
+            </div>
           )}
         </div>
 
-        {/* Statistics — using new Dashboard */}
-        {detailsLoaded && stats && (
+        {detailsLoaded && (
           <div
             style={{
-              marginTop: 20,
-              background: "#d7fff005",
-              border: "1px solid #d7fff014",
-              borderRadius: "16px",
-              padding: "20px",
+              display: "grid",
+              gap: 10,
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             }}
           >
-            <SurveyDashboard
-              stats={stats}
-              filters={filters}
-              onFilterChange={setFilters}
+            <MetricCard
+              label="Participantes"
+              value={`${formatNumber(realResponses || 0, 0)} / ${formatNumber(audience || 0, 0)}`}
             />
+            <MetricCard
+              label="Tasa de participación"
+              value={`${participation}%`}
+            />
+            <MetricCard label="Representatividad" value={`${participation}%`} />
+            <MetricCard label="Tiempo promedio" value="N/A" />
           </div>
+        )}
+
+        {detailsLoaded && stats && (
+          <SurveyDashboard
+            stats={stats}
+            filters={filters}
+            onFilterChange={setFilters}
+          />
         )}
 
         {detailsLoaded && !hasAnswers && (

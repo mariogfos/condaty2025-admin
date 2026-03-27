@@ -67,13 +67,13 @@ export default function SurveyStatusActions({
   const getActionButtonStyle = (variant: StatusAction["variant"]): CSSProperties => {
     if (variant === "primary") {
       return {
-        height: 44,
-        padding: "12px 24px",
-        fontSize: "15px",
+        height: 34,
+        padding: "6px 14px",
+        fontSize: "12px",
         fontWeight: 600,
-        borderRadius: 12,
+        borderRadius: 8,
         width: "auto",
-        minWidth: 170,
+        minWidth: 110,
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
@@ -82,11 +82,11 @@ export default function SurveyStatusActions({
 
     if (variant === "danger") {
       return {
-        height: 44,
-        padding: "12px 16px",
-        fontSize: "14px",
-        fontWeight: 400,
-        borderRadius: 12,
+        height: 34,
+        padding: "6px 12px",
+        fontSize: "12px",
+        fontWeight: 500,
+        borderRadius: 8,
         width: "auto",
         display: "inline-flex",
         alignItems: "center",
@@ -95,11 +95,11 @@ export default function SurveyStatusActions({
     }
 
     return {
-      height: 44,
-      padding: "12px 16px",
-      fontSize: "14px",
-      fontWeight: 400,
-      borderRadius: 12,
+      height: 34,
+      padding: "6px 12px",
+      fontSize: "12px",
+      fontWeight: 500,
+      borderRadius: 8,
       width: "auto",
       display: "inline-flex",
       alignItems: "center",
@@ -189,7 +189,7 @@ export default function SurveyStatusActions({
 
   return (
     <>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
         {actions.map((action) => (
           <Button
             key={`${action.targetStatus}-${action.label}`}
