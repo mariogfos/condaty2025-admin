@@ -105,13 +105,13 @@ const RenderForm = ({
     if (formState.switch === "Y") {
       errors = checkRules({
         value: formState.begin_at,
-        rules: ["required", "greaterDate"],
+        rules: ["required", "greaterDateTime"],
         key: "begin_at",
         errors,
       });
       errors = checkRules({
         value: formState.end_at,
-        rules: ["greaterDate", "greaterDate:begin_at", "required"],
+        rules: ["greaterDateTime", "greaterDateTime:begin_at", "required"],
         key: "end_at",
         errors,
         data: formState,

@@ -115,7 +115,7 @@ export const getSurveyConfig = (
       list: true,
     },
     description: {
-      rules: ["required"],
+      rules: [],
       api: "ae",
       label: "Descripción",
     },
