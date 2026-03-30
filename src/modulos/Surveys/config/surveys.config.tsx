@@ -101,7 +101,7 @@ export const getSurveyConfig = (
       rules: [
         "validateIf:switch,Y",
         "greaterDate",
-        "greaterDate:begin_at",
+        "greaterDate:scheduled_at",
         "required",
       ],
       api: "ae",
