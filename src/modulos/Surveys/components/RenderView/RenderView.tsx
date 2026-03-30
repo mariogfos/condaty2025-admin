@@ -54,22 +54,22 @@ function MetricCard({
 const ROLE_LABELS: Record<string, string> = {
   admin: "Administradores",
   directive: "Directivos",
-  
+
   // Roles de propietarios/residentes
   owner_homeowner: "Propietarios",
-  owner_homeowner_resident: "Propietarios Residentes",
-  owner_homeowner_non_resident: "Propietarios NO Residentes",
+  owner_homeowner_resident: "Propietarios residentes",
+  owner_homeowner_non_resident: "Propietarios no residentes",
   owner_titular: "Inquilinos",
   resident: "Residentes",
-  
+
   // Dependientes
   owner_dependiente: "Dependientes",
-  dependent_of_homeowner: "Dependientes de Propietarios",
-  dependent_of_tenant: "Dependientes de Inquilinos",
-  
+  dependent_of_homeowner: "Dependientes de propietarios",
+  dependent_of_tenant: "Dependientes de inquilininos",
+
   // Staff
   guard: "Guardias",
-  guard_supervisor: "Supervisor de guardia",
+  guard_supervisor: "Supervisor de guardias",
 };
 
 function Chip({ label }: { label: string }) {
@@ -175,14 +175,14 @@ const RenderView = (props: {
 
   useEffect(() => {
     if (!props.open || !props.item?.id) return;
-    
+
     // Only reset detailed status if current survey changes
     if (surveyData?.id !== props.item.id) {
-        setSurveyData(props.item);
-        setDetailsLoaded(false);
-        setStats(null);
+      setSurveyData(props.item);
+      setDetailsLoaded(false);
+      setStats(null);
     }
-    
+
     setAudience(props.item?.estimated_audience ?? 0);
     setRealResponses(props.item?.real_responses_count ?? 0);
     loadData(props.item.id);
@@ -199,7 +199,7 @@ const RenderView = (props: {
         "GET",
         { fullType: "DET", searchBy: id },
         false,
-        true
+        true,
       );
       if (detailRes.data?.success) {
         const det = detailRes.data.data;
@@ -215,7 +215,7 @@ const RenderView = (props: {
         "GET",
         { survey_id: id, ...filters },
         false,
-        true
+        true,
       );
       if (statsRes.data?.success) {
         setStats(statsRes.data.data);
@@ -349,20 +349,44 @@ const RenderView = (props: {
 
         {/* Dates & Segmentation */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {(surveyData?.created_at || surveyData?.expires_at || surveyData?.scheduled_at) && (
-            <div style={{ display: "flex", gap: 24, flexWrap: "wrap", background: "rgba(255,255,255,0.02)", padding: 12, borderRadius: 8 }}>
+          {(surveyData?.created_at ||
+            surveyData?.expires_at ||
+            surveyData?.scheduled_at) && (
+            <div
+              style={{
+                display: "flex",
+                gap: 24,
+                flexWrap: "wrap",
+                background: "rgba(255,255,255,0.02)",
+                padding: 12,
+                borderRadius: 8,
+              }}
+            >
               {surveyData?.created_at && (
                 <div>
                   <p className={styles.subtitle}>Creada</p>
-                  <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
-                    {getDateStrMes(surveyData.created_at)} por {surveyData.created_by_name}
+                  <p
+                    style={{
+                      color: "var(--cWhiteV1)",
+                      fontSize: "0.875rem",
+                      margin: 0,
+                    }}
+                  >
+                    {getDateStrMes(surveyData.created_at)} por{" "}
+                    {surveyData.created_by_name}
                   </p>
                 </div>
               )}
               {surveyData?.scheduled_at && (
                 <div>
                   <p className={styles.subtitle}>Programada</p>
-                  <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                  <p
+                    style={{
+                      color: "var(--cWhiteV1)",
+                      fontSize: "0.875rem",
+                      margin: 0,
+                    }}
+                  >
                     {getDateStrMes(surveyData.scheduled_at)}
                   </p>
                 </div>
@@ -370,7 +394,13 @@ const RenderView = (props: {
               {surveyData?.expires_at && (
                 <div>
                   <p className={styles.subtitle}>Vence</p>
-                  <p style={{ color: "var(--cWhiteV1)", fontSize: "0.875rem", margin: 0 }}>
+                  <p
+                    style={{
+                      color: "var(--cWhiteV1)",
+                      fontSize: "0.875rem",
+                      margin: 0,
+                    }}
+                  >
                     {getDateStrMes(surveyData.expires_at)}
                   </p>
                 </div>
@@ -388,18 +418,20 @@ const RenderView = (props: {
 
         {/* Statistics — using new Dashboard */}
         {detailsLoaded && stats && (
-          <div style={{ 
-            marginTop: 20, 
-            borderTop: "1px solid var(--borderV1)", 
-            paddingTop: 20,
-            background: "#0f172a", // Forced dark background
-            borderRadius: "16px",
-            padding: "20px"
-          }}>
-            <SurveyDashboard 
-              stats={stats} 
-              filters={filters} 
-              onFilterChange={setFilters} 
+          <div
+            style={{
+              marginTop: 20,
+              borderTop: "1px solid var(--borderV1)",
+              paddingTop: 20,
+              background: "#0f172a", // Forced dark background
+              borderRadius: "16px",
+              padding: "20px",
+            }}
+          >
+            <SurveyDashboard
+              stats={stats}
+              filters={filters}
+              onFilterChange={setFilters}
             />
           </div>
         )}
