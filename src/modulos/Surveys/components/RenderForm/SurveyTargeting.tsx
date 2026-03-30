@@ -6,16 +6,37 @@ import { formatNumber } from "@/mk/utils/numbers";
 import Input from "@/mk/components/forms/Input/Input";
 
 const ROLES_OPTIONS = [
+  // Propietarios
   { id: "owner_homeowner", name: "Propietarios (Dueños)", hasUnits: true },
-  { id: "owner_titular", name: "Residentes Titulares", hasUnits: true },
-  { id: "owner_dependiente", name: "Residentes Dependientes", hasUnits: true },
+  { id: "owner_homeowner_resident", name: "Propietarios Residentes", hasUnits: true },
+  { id: "owner_homeowner_non_resident", name: "Propietarios NO Residentes", hasUnits: true },
+  
+  // Inquilinos/Residentes
+  { id: "owner_titular", name: "Inquilinos", hasUnits: true },
+  { id: "resident", name: "Todos los Residentes", hasUnits: true },
+  
+  // Dependientes
+  { id: "owner_dependiente", name: "Dependientes", hasUnits: true },
+  { id: "dependent_of_homeowner", name: "Dependientes de Propietarios", hasUnits: true },
+  { id: "dependent_of_tenant", name: "Dependientes de Inquilinos", hasUnits: true },
+  
+  // Staff
   { id: "guard_supervisor", name: "Supervisor de Guardias", hasUnits: false },
   { id: "guard", name: "Guardias", hasUnits: false },
   { id: "directive", name: "Mesa Directiva", hasUnits: false },
   { id: "admin", name: "Administradores", hasUnits: false },
 ];
 
-const OWNER_ROLES = ["owner_homeowner", "owner_titular", "owner_dependiente"];
+const OWNER_ROLES = [
+  "owner_homeowner", 
+  "owner_homeowner_resident", 
+  "owner_homeowner_non_resident",
+  "owner_titular", 
+  "resident",
+  "owner_dependiente", 
+  "dependent_of_homeowner",
+  "dependent_of_tenant"
+];
 
 /** Convert roles object { owner_homeowner: "1", ... } → string[] of active role IDs */
 function rolesToArray(roles: any): string[] {

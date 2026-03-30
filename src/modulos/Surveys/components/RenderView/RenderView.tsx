@@ -54,9 +54,20 @@ function MetricCard({
 const ROLE_LABELS: Record<string, string> = {
   admin: "Administradores",
   directive: "Directivos",
-  owner_titular: "Residentes titulares",
+  
+  // Roles de propietarios/residentes
   owner_homeowner: "Propietarios",
+  owner_homeowner_resident: "Propietarios Residentes",
+  owner_homeowner_non_resident: "Propietarios NO Residentes",
+  owner_titular: "Inquilinos",
+  resident: "Residentes",
+  
+  // Dependientes
   owner_dependiente: "Dependientes",
+  dependent_of_homeowner: "Dependientes de Propietarios",
+  dependent_of_tenant: "Dependientes de Inquilinos",
+  
+  // Staff
   guard: "Guardias",
   guard_supervisor: "Supervisor de guardia",
 };
