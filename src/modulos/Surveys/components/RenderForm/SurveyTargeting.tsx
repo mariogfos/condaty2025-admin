@@ -26,7 +26,13 @@ function rolesToArray(roles: any): string[] {
     .map(([k]) => k);
 }
 
-export default function SurveyTargeting({ formState, setFormState, execute, extraData }: any) {
+export default function SurveyTargeting({
+  formState,
+  setFormState,
+  execute,
+  extraData,
+  errors,
+}: any) {
   const targetCriteria = formState.target_criteria || {
     roles: {},
     unit_types: [],
@@ -36,7 +42,9 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
   };
 
   const [affCount, setAffCount] = useState<number | null>(
-    formState.estimated_audience != null ? Number(formState.estimated_audience) : null
+    formState.estimated_audience != null
+      ? Number(formState.estimated_audience)
+      : null,
   );
   const [hasInitialized, setHasInitialized] = useState(false);
 
@@ -50,7 +58,7 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
 
   // Derive role selection from roles object
   const selectedRoleIds = rolesToArray(targetCriteria.roles);
-  const hasOwnerRole = selectedRoleIds.some(id => OWNER_ROLES.includes(id));
+  const hasOwnerRole = selectedRoleIds.some((id) => OWNER_ROLES.includes(id));
 
   const calculateAudience = async (criteria: any) => {
     try {
@@ -59,10 +67,12 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
         "POST",
         { target_criteria: criteria },
         false,
-        true
+        true,
       );
       if (data?.success) setAffCount(data.data?.count ?? 0);
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   };
 
   useEffect(() => {
@@ -77,12 +87,29 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
 
   const updateCriteria = (key: string, value: any) => {
     // Mutual exclusion: only_arrears and only_current cannot be both true
-    if (key === 'only_arrears' && value === true) {
-      setFormState({ ...formState, target_criteria: { ...targetCriteria, only_arrears: true, only_current: false } });
-    } else if (key === 'only_current' && value === true) {
-      setFormState({ ...formState, target_criteria: { ...targetCriteria, only_current: true, only_arrears: false } });
+    if (key === "only_arrears" && value === true) {
+      setFormState({
+        ...formState,
+        target_criteria: {
+          ...targetCriteria,
+          only_arrears: true,
+          only_current: false,
+        },
+      });
+    } else if (key === "only_current" && value === true) {
+      setFormState({
+        ...formState,
+        target_criteria: {
+          ...targetCriteria,
+          only_current: true,
+          only_arrears: false,
+        },
+      });
     } else {
-      setFormState({ ...formState, target_criteria: { ...targetCriteria, [key]: value } });
+      setFormState({
+        ...formState,
+        target_criteria: { ...targetCriteria, [key]: value },
+      });
     }
   };
 
@@ -90,14 +117,14 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
   const handleRolesChange = (e: any) => {
     const selected: string[] = (e.target.value as string[])
       .map(String)
-      .filter(v => v !== "");
+      .filter((v) => v !== "");
 
     const newRoles: Record<string, string> = {};
-    ROLES_OPTIONS.forEach(r => {
+    ROLES_OPTIONS.forEach((r) => {
       newRoles[r.id] = selected.includes(r.id) ? "1" : "0";
     });
 
-    const stillHasOwner = selected.some(id => OWNER_ROLES.includes(id));
+    const stillHasOwner = selected.some((id) => OWNER_ROLES.includes(id));
     const newCriteria = {
       ...targetCriteria,
       roles: newRoles,
@@ -113,7 +140,7 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
     let selected = (e.target.value as string[]).map(String);
     const wasEmpty = !targetCriteria.unit_types?.length;
     if (wasEmpty) {
-      selected = selected.filter(v => v !== "-1");
+      selected = selected.filter((v) => v !== "-1");
     } else if (selected.includes("-1")) {
       selected = [];
     }
@@ -140,9 +167,16 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
       }}
     >
       <div>
-        <p className={styles.title} style={{ margin: 0 }}>{label}</p>
+        <p className={styles.title} style={{ margin: 0 }}>
+          {label}
+        </p>
         {subtitle && (
-          <p className={styles.subtitle} style={{ margin: 0, fontSize: "0.8rem" }}>{subtitle}</p>
+          <p
+            className={styles.subtitle}
+            style={{ margin: 0, fontSize: "0.8rem" }}
+          >
+            {subtitle}
+          </p>
         )}
       </div>
       {children}
@@ -151,7 +185,6 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-
       {/* ─── Card 1: Grupo + toggles ─── */}
       <div
         style={{
@@ -181,10 +214,17 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
             <Select
               name="unit_types"
               label="Tipos de unidad (opcional)"
-              value={!targetCriteria.unit_types?.length ? ["-1"] : targetCriteria.unit_types}
+              value={
+                !targetCriteria.unit_types?.length
+                  ? ["-1"]
+                  : targetCriteria.unit_types
+              }
               options={[
                 { id: "-1", name: "Todas las unidades" },
-                ...extraData.unit_types.map((ut: any) => ({ ...ut, id: String(ut.id) })),
+                ...extraData.unit_types.map((ut: any) => ({
+                  ...ut,
+                  id: String(ut.id),
+                })),
               ]}
               optionValue="id"
               optionLabel="name"
@@ -194,7 +234,7 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
           </div>
         )}
 
- {/* Owner-only toggles */}
+        {/* Owner-only toggles */}
         {hasOwnerRole && (
           <>
             <CardRow
@@ -205,7 +245,9 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
                 name="vote_per_unit"
                 optionValue={["Y", "N"]}
                 value={targetCriteria.vote_per_unit ? "Y" : "N"}
-                onChange={(e: any) => updateCriteria("vote_per_unit", e.target.checked)}
+                onChange={(e: any) =>
+                  updateCriteria("vote_per_unit", e.target.checked)
+                }
               />
             </CardRow>
 
@@ -217,7 +259,9 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
                 name="only_arrears"
                 optionValue={["Y", "N"]}
                 value={targetCriteria.only_arrears ? "Y" : "N"}
-                onChange={(e: any) => updateCriteria("only_arrears", e.target.checked)}
+                onChange={(e: any) =>
+                  updateCriteria("only_arrears", e.target.checked)
+                }
               />
             </CardRow>
 
@@ -229,7 +273,9 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
                 name="only_current"
                 optionValue={["Y", "N"]}
                 value={targetCriteria.only_current ? "Y" : "N"}
-                onChange={(e: any) => updateCriteria("only_current", e.target.checked)}
+                onChange={(e: any) =>
+                  updateCriteria("only_current", e.target.checked)
+                }
               />
             </CardRow>
           </>
@@ -248,7 +294,10 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
               alignItems: "center",
             }}
           >
-            <p className={styles.subtitle} style={{ margin: 0, fontSize: "0.82rem" }}>
+            <p
+              className={styles.subtitle}
+              style={{ margin: 0, fontSize: "0.82rem" }}
+            >
               Audiencia estimada:
             </p>
             <p className={styles.title} style={{ margin: 0 }}>
@@ -266,7 +315,10 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
             optionValue={["Y", "N"]}
             value={formState.is_mandatory === "Y" ? "Y" : "N"}
             onChange={(e: any) =>
-              setFormState({ ...formState, is_mandatory: e.target.checked ? "Y" : "N" })
+              setFormState({
+                ...formState,
+                is_mandatory: e.target.checked ? "Y" : "N",
+              })
             }
           />
         </CardRow>
@@ -281,7 +333,10 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
             optionValue={["Y", "N"]}
             value={formState.switch || "N"}
             onChange={(e: any) =>
-              setFormState({ ...formState, switch: e.target.checked ? "Y" : "N" })
+              setFormState({
+                ...formState,
+                switch: e.target.checked ? "Y" : "N",
+              })
             }
           />
         </CardRow>
@@ -291,26 +346,30 @@ export default function SurveyTargeting({ formState, setFormState, execute, extr
           <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
             <Input
               type="datetime-local"
-              name="begin_at"
+              name="scheduled_at"
               label="Fecha de inicio"
-              value={(formState?.begin_at || "").replace(" ", "T").substring(0, 16)}
+              error={errors}
+              value={(formState?.scheduled_at || "")
+                .replace(" ", "T")
+                .substring(0, 16)}
               onChange={(e: any) =>
-                setFormState({ ...formState, begin_at: e.target.value })
+                setFormState({ ...formState, scheduled_at: e.target.value })
               }
             />
             <Input
               type="datetime-local"
-              name="end_at"
+              name="expires_at"
               label="Fecha de fin"
-              value={(formState?.end_at || "").replace(" ", "T").substring(0, 16)}
+              value={(formState?.expires_at || "")
+                .replace(" ", "T")
+                .substring(0, 16)}
+              error={errors}
               onChange={(e: any) =>
-                setFormState({ ...formState, end_at: e.target.value })
+                setFormState({ ...formState, expires_at: e.target.value })
               }
             />
           </div>
         )}
-
-       
       </div>
     </div>
   );
