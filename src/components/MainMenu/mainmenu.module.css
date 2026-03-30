@@ -70,7 +70,7 @@
 .menuItem {
   & > a {
     text-decoration: none;
-    color: var(--cWhiteV1);
+    color: rgba(215, 255, 240, 0.6);
     font-weight: var(--bMedium);
     font-size: var(--sM);
     display: flex;
@@ -101,7 +101,7 @@
 
 .menuDropdown {
   position: relative;
-  color: var(--cWhiteV1);
+  color: rgba(215, 255, 240, 0.6);
   font-weight: var(--bMedium);
   font-size: var(--sM);
   cursor: pointer;
@@ -210,7 +210,7 @@
 
     & > a {
       text-decoration: none;
-      color: var(--cWhiteV1);
+      color: rgba(215, 255, 240, 0.6);
       padding: var(--spS) var(--spM);
       font-weight: var(--bRegular);
       font-size: var(--sM);
