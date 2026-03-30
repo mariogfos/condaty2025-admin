@@ -97,7 +97,16 @@ const Permisos = ({
       {/* <legend>Permisos</legend> */}
 
       {extraData?.ability_categories?.map((cat: any) => (
-        <Card key={cat.id} style={{ backgroundColor: "var(--cBlackV2)", marginBottom: "16px", gap:"12px" }}>
+        <Card
+          key={cat.id}
+          style={{
+            backgroundColor: "#d7fff005",
+            border: "1px solid #d7fff014",
+            borderRadius: "12px",
+            marginBottom: "16px",
+            gap: "12px",
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -126,8 +135,9 @@ const Permisos = ({
               <Card
                 key={item.id}
                 style={{
-                  backgroundColor: "var(--cWhiteV2)",
-                  border: "1px solid var(--cWhiteV1)",
+                  backgroundColor: "#d7fff005",
+                  border: "1px solid #d7fff014",
+                  borderRadius: "12px",
                 }}
               >
                 <div
@@ -139,7 +149,11 @@ const Permisos = ({
                 >
                   <div>
                     <div
-                      style={{ color: "var(--cWhite)", marginBottom: "8px", fontWeight: "400" }}
+                      style={{
+                        color: "var(--cWhite)",
+                        marginBottom: "8px",
+                        fontWeight: "400",
+                      }}
                     >
                       {item.description}
                     </div>
@@ -153,7 +167,11 @@ const Permisos = ({
                       <Check
                         name={item.name + "_R"}
                         checked={(permisos[item.name] + "").indexOf("R") > -1}
-                        value={(permisos[item.name] + "").indexOf("R") > -1 ? "Y" : "N"}
+                        value={
+                          (permisos[item.name] + "").indexOf("R") > -1
+                            ? "Y"
+                            : "N"
+                        }
                         onChange={onSelItem}
                         disabled={!setItem}
                         label="Ver"
@@ -162,7 +180,11 @@ const Permisos = ({
                       <Check
                         name={item.name + "_C"}
                         checked={(permisos[item.name] + "").indexOf("C") > -1}
-                        value={(permisos[item.name] + "").indexOf("C") > -1 ? "Y" : "N"}
+                        value={
+                          (permisos[item.name] + "").indexOf("C") > -1
+                            ? "Y"
+                            : "N"
+                        }
                         onChange={onSelItem}
                         disabled={!setItem}
                         label="Crear"
@@ -171,7 +193,11 @@ const Permisos = ({
                       <Check
                         name={item.name + "_U"}
                         checked={(permisos[item.name] + "").indexOf("U") > -1}
-                        value={(permisos[item.name] + "").indexOf("U") > -1 ? "Y" : "N"}
+                        value={
+                          (permisos[item.name] + "").indexOf("U") > -1
+                            ? "Y"
+                            : "N"
+                        }
                         onChange={onSelItem}
                         disabled={!setItem}
                         label="Editar"
@@ -180,7 +206,11 @@ const Permisos = ({
                       <Check
                         name={item.name + "_D"}
                         checked={(permisos[item.name] + "").indexOf("D") > -1}
-                        value={(permisos[item.name] + "").indexOf("D") > -1 ? "Y" : "N"}
+                        value={
+                          (permisos[item.name] + "").indexOf("D") > -1
+                            ? "Y"
+                            : "N"
+                        }
                         onChange={onSelItem}
                         disabled={!setItem}
                         label="Eliminar"

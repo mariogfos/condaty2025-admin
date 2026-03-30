@@ -8,14 +8,18 @@
 .contentCardCompact {
   box-sizing: border-box;
   /* background: var(--cBlackV3); */
-  background-color: var(--cBackground-foreground);
+  background-color: #d7fff005;
   border-radius: var(--bRadiusL);
   padding: var(--spM);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--cBorder);
+  box-shadow:
+    0 10px 30px -10px rgba(0, 0, 0, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d7fff014;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  transition:
+    transform 0.2s ease-out,
+    box-shadow 0.2s ease-out;
   cursor: pointer;
 }
 
@@ -47,7 +51,7 @@
   position: relative;
   width: 100%;
   height: 200px; /* Altura más pequeña para modo compacto */
-  background-color: var(--cBlackV1);
+  background-color: #d7fff005;
   border-radius: var(--bRadiusM);
   overflow: hidden;
   cursor: pointer;
@@ -87,7 +91,7 @@
   position: absolute;
   top: var(--spS);
   right: var(--spS);
-  background: #6b7280;
+  background: #d7fff014;
   color: white;
   padding: var(--spXs) var(--spS);
   border-radius: var(--bRadiusS);
@@ -130,7 +134,7 @@
   flex-wrap: wrap;
   padding-bottom: var(--spS);
   margin-bottom: var(--spM);
-  border-bottom: 1px solid var(--cBlackV3);
+  border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
 }
 
 .userInfo {
@@ -207,7 +211,7 @@
 .contentFooter {
   margin-top: var(--spM);
   padding-top: var(--spS);
-  border-top: 1px solid var(--cBlackV3);
+  border-top: 0.3px solid rgba(215, 255, 240, 0.12);
   display: flex;
   flex-direction: column;
   gap: var(--spS);
@@ -266,7 +270,9 @@
   font-size: 13px;
   font-family: var(--fPrimary);
   font-weight: var(--bMedium);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
   outline: none;
   flex: 1;
   min-height: 36px;

@@ -1,12 +1,14 @@
 .surveyQuestionTypePanel {
   display: flex;
   padding: var(--spM);
-  background-color: var(--cBlackV1);
+  background-color: #d7fff005;
   border-radius: var(--bRadius);
   flex-direction: column;
   gap: var(--spM);
+  border: 1px solid #d7fff014;
   & > section {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--spS);
   }
 }
@@ -16,7 +18,7 @@
   justify-content: space-between;
   & > div > h2 {
     color: var(--cWhite);
-    font-size: var(--sL);
+    font-size: var(--sXl);
   }
   & > div > p {
     color: var(--cWhiteV1);
@@ -29,20 +31,27 @@
   gap: var(--spS);
   flex-direction: column;
   padding: var(--spM);
-  border: 1px solid var(--cBlackV3);
-  background-color: var(--cHover);
+  border: 1px solid #d7fff01f;
+  background-color: #d7fff005;
   border-radius: var(--bRadiusS);
   cursor: pointer;
   width: 100%;
+  min-height: 220px;
+  justify-content: center;
 }
 
 .questionTypeOption:hover {
-  border: 1px solid var(--cWhiteV1);
+  border: 1px solid var(--cPrimary);
+  box-shadow: 0 0 0 1px rgba(0, 183, 129, 0.35);
 }
 
 .icon {
   display: flex;
   justify-content: flex-start;
+  padding: 10px;
+  border: 1px solid #d7fff014;
+  border-radius: 14px;
+  background: rgba(0, 183, 129, 0.12);
 }
 
 .textContainer {
@@ -50,14 +59,23 @@
   align-self: flex-start;
   flex-direction: column;
   font-size: var(--sM);
-  font-weight: 500;
+  font-weight: var(--bRegular);
   justify-content: flex-start;
   gap: var(--spS);
   & > h3 {
-    color: var(--cWhiteV1);
+    color: var(--cWhite);
+    font-size: var(--sL);
+    font-weight: var(--bBold);
   }
   & > p {
     color: var(--cWhiteV1);
-    font-size: var(--sS);
+    font-size: var(--sM);
+    line-height: 1.35;
+  }
+}
+
+@media (max-width: 1024px) {
+  .surveyQuestionTypePanel > section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

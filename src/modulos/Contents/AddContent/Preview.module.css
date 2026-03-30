@@ -14,10 +14,10 @@
 .postCard {
   width: 100%;
   max-width: 550px;
-  background-color: var(--cBlackV2);
+  background-color: #d7fff005;
   border-radius: 5px;
   padding: 10px;
-  border: 1px solid var(--cWhiteV2);
+  border: 1px solid #d7fff014;
   font-family: var(--fPrimary);
   margin-bottom: 20px;
   position: relative;
@@ -96,7 +96,7 @@
 .imageContainer {
   width: 140px;
   height: 140px;
-  background-color: var(--cWhiteV2);
+  background-color: rgba(18, 21, 25, 0.72);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -165,7 +165,7 @@
 
 .separator {
   height: 1px;
-  background-color: var(--cWhiteV2);
+  background-color: rgba(215, 255, 240, 0.12);
   margin: 12px 0;
 }
 

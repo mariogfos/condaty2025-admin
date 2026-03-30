@@ -107,7 +107,8 @@ const RenderView = ({
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <div
               style={{
-                backgroundColor: "#4F5659",
+                backgroundColor: "rgba(18, 21, 25, 0.72)",
+                border: "1px solid #d7fff014",
                 padding: 8,
                 borderRadius: "100%",
                 display: "flex",
@@ -291,10 +292,10 @@ const RenderView = ({
           <div style={{ display: "flex", gap: 12, flexDirection: "column" }}>
             <div
               style={{
-                backgroundColor: "var(--cBackground)",
+                backgroundColor: "#d7fff005",
                 padding: 16,
                 borderRadius: 16,
-                border: "1px solid var(--cBorder)",
+                border: "1px solid #d7fff014",
               }}
             >
               <p
@@ -327,10 +328,10 @@ const RenderView = ({
             </div>
             <div
               style={{
-                backgroundColor: "var(--cBackground)",
+                backgroundColor: "#d7fff005",
                 padding: 16,
                 borderRadius: 16,
-                border: "1px solid var(--cBorder)",
+                border: "1px solid #d7fff014",
                 display: "flex",
                 gap: 16,
               }}
@@ -350,10 +351,10 @@ const RenderView = ({
 
             <div
               style={{
-                backgroundColor: "var(--cBackground)",
+                backgroundColor: "#d7fff005",
                 padding: 16,
                 borderRadius: 16,
-                border: "1px solid var(--cBorder)",
+                border: "1px solid #d7fff014",
                 gap: 16,
               }}
             >
@@ -410,7 +411,7 @@ const RenderView = ({
                   padding: 16,
                   borderBottomLeftRadius: 12,
                   borderBottomRightRadius: 12,
-                  border: "1px solid var(--cBorder)",
+                  border: "1px solid #d7fff014",
                   borderTop: "none",
                   display: "flex",
                   alignItems: "center",

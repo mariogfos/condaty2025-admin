@@ -1,5 +1,5 @@
 .container {
-  background-color: var(--cBlackV2);
+  background-color: #d7fff005;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -8,8 +8,8 @@
   font-family: var(--fPrimary);
   box-sizing: border-box;
   color: var(--cWhite);
-  border-radius: var(--bRadiusS);
-  border: 1px solid var(--cWhiteV1);
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
   min-width: 600px;
 }
 
@@ -128,7 +128,7 @@
 /* Tabla de periodos */
 .tableContainer {
   width: 100%;
-  border: 0.5px solid var(--cWhiteV1);
+  border: 1px solid #d7fff014;
   border-radius: var(--bRadiusM);
   overflow: hidden;
 }
@@ -137,8 +137,8 @@
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
   width: 100%;
-  background-color: var(--cBlackV2);
-  border-bottom: 1px solid var(--cWhiteV1);
+  background-color: rgba(18, 21, 25, 0.8);
+  border-bottom: 1px solid #d7fff014;
 }
 
 .headerCell {
@@ -167,7 +167,7 @@
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
   width: 100%;
-  border-bottom: 1px solid var(--cBlackV3);
+  border-bottom: 1px solid rgba(215, 255, 240, 0.12);
 }
 
 .tableBody .tableRow:last-child {
@@ -188,11 +188,11 @@
 }
 
 .tableRow:nth-child(odd) .tableCell {
-  background-color: var(--cHoverCompl1);
+  background-color: rgba(18, 21, 25, 0.76);
 }
 
 .tableRow:nth-child(even) .tableCell {
-  background-color: var(--cWhiteV2);
+  background-color: #121519;
 }
 
 .tableCell:nth-child(2),
@@ -226,15 +226,18 @@
 }
 
 .paymentButton {
-  background-color: transparent;
+  background-color: #d7fff005;
   color: var(--cWhite);
-  border: 1px solid var(--cWhiteV1);
+  border: 1px solid #d7fff014;
   font-size: var(--sL);
   padding: var(--spM) var(--spXl);
   border-radius: var(--bRadiusS);
   text-align: center;
   font-weight: var(--bSemibold);
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
   cursor: pointer;
   min-width: 220px;
   max-width: 100%;
@@ -321,8 +324,8 @@
     grid-template-columns: 1fr;
     gap: 0;
     padding: var(--spM);
-    border-bottom: 1px solid var(--cBlackV3);
-    background-color: var(--cBlackV1);
+    border-bottom: 1px solid rgba(215, 255, 240, 0.12);
+    background-color: rgba(18, 21, 25, 0.76);
   }
 
   .tableBody .tableRow:last-child {
@@ -335,7 +338,7 @@
     text-align: left !important;
     padding: var(--spS) 0;
     border-right: none;
-    border-bottom: 1px dashed var(--cBlackV3);
+    border-bottom: 1px dashed rgba(215, 255, 240, 0.12);
     font-size: var(--sS);
     background-color: transparent;
     min-height: auto;

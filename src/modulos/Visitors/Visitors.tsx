@@ -9,7 +9,7 @@ import { IconExitHome } from "@/components/layout/icons/IconsBiblioteca";
 
 const paramsInitial = {
   fullType: "VS",
-  perPage: -1,
+  perPage: 20,
   page: 1,
   extraData: false,
 };
@@ -34,7 +34,7 @@ const Visitors = () => {
       export: false,
       filter: false,
       search: true,
-      noWaiting: true,
+      noWaiting: false,
       hideActions: {
         add: true,
         edit: true,

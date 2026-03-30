@@ -2,9 +2,9 @@
   display: flex;
   gap: 20px;
   padding: 16px;
-  background-color: var(--cBlackV2);
-  border-radius: var(--bRadiusS);
-  border: 0.5px solid var(--cWhiteV1);
+  background-color: #d7fff005;
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
   width: 100%;
 }
 
@@ -19,7 +19,7 @@
 .imageWrapper {
   width: 380px;
   height: 300px;
-  background-color: var(--cWhiteV2);
+  background-color: #d7fff005;
   border-radius: var(--bRadiusS);
   overflow: hidden;
   display: flex;
@@ -38,9 +38,9 @@
 }
 
 .button {
-  background-color: transparent;
+  background-color: #d7fff005;
   padding: 6px;
-  border: 0.5px solid var(--cWhiteV1);
+  border: 1px solid #d7fff014;
   border-radius: 100%;
   display: flex;
   justify-content: center;
@@ -50,7 +50,7 @@
 }
 
 .button:hover {
-  background-color: var(--cWhiteV2);
+  background-color: rgba(0, 227, 140, 0.12);
 }
 
 .detailsContainer {

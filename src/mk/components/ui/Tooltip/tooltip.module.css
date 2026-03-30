@@ -17,7 +17,8 @@
 
 .tooltip {
   visibility: hidden;
-  background-color: var(--cWhiteV3);
+  background-color: rgba(30, 34, 40, 0.94);
+  border: 1px solid #d7fff014;
   color: var(--cWhite);
   text-align: start;
   padding: 10px;

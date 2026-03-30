@@ -1,13 +1,13 @@
 .container {
-  /* min-width: 180px; */
-  /* background-color: var(--cBlackV2); */
-  background-color: var(--cBackground-foreground);
-  padding: var(--spM) var(--spS);
-  border-radius: var(--bRadius);
+  min-width: 200px;
+  background-color: #d7fff005;
+  padding: 12px;
+  border-radius: 12px;
   position: relative;
-  border: 1px solid var(--cBorder);
-  gap: var(--spS);
+  border: 1px solid #d7fff014;
+  gap: 16px;
   display: flex;
+  align-items: center;
   flex-grow: 1;
   flex-basis: 0;
 
@@ -30,9 +30,9 @@
 
     /* Estilos para el dato principal */
     .data {
-      font-size: var(--sXl) !important;
-      font-weight: var(--bSemibold);
-      color: var(--cWhite);
+      font-size: 20px !important;
+      font-weight: 600;
+      color: #ffffff;
 
       /* margin-top: var(--spS); */
     }
@@ -86,9 +86,9 @@
 .title {
   display: flex;
   align-items: center;
-  font-size: var(--sL);
-  font-weight: var(--bRegular);
-  color: var(--cWhiteV1);
+  font-size: 12px;
+  font-weight: 400;
+  color: #878f9a;
   gap: 6px;
   min-width: 0;
 }
@@ -104,4 +104,13 @@
   flex: 0 0 auto;
   display: flex;
   justify-content: center;
+  color: #878f9a;
+}
+
+.iconWrap :global(svg) {
+  color: #878f9a;
+}
+
+.iconWrap :global(svg path) {
+  fill: #878f9a;
 }

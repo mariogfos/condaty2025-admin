@@ -694,6 +694,18 @@ const BalanceGeneral: React.FC = () => {
               options={ldate}
               required
               iconLeft={<IconArrowDown />}
+              inputStyle={{
+                height: 44,
+                backgroundColor: "#d7fff005",
+                border: "1px solid #d7fff014",
+                borderRadius: 12,
+                color: "#878f9a",
+              }}
+              style={{
+                height: 44,
+                border: "none",
+                backgroundColor: "transparent",
+              }}
             />
           </div>
           <div className={styles.filterItem}>
@@ -717,6 +729,18 @@ const BalanceGeneral: React.FC = () => {
               ]}
               required
               iconLeft={<IconArrowDown />}
+              inputStyle={{
+                height: 44,
+                backgroundColor: "#d7fff005",
+                border: "1px solid #d7fff014",
+                borderRadius: 12,
+                color: "#878f9a",
+              }}
+              style={{
+                height: 44,
+                border: "none",
+                backgroundColor: "transparent",
+              }}
             />
           </div>
 
@@ -747,6 +771,18 @@ const BalanceGeneral: React.FC = () => {
                 options={getCategories()}
                 required
                 iconLeft={<IconArrowDown />}
+                inputStyle={{
+                  height: 44,
+                  backgroundColor: "#d7fff005",
+                  border: "1px solid #d7fff014",
+                  borderRadius: 12,
+                  color: "#878f9a",
+                }}
+                style={{
+                  height: 44,
+                  border: "none",
+                  backgroundColor: "transparent",
+                }}
               />
             </div>
           </div>

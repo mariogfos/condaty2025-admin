@@ -156,7 +156,14 @@ const RenderView = (props: any) => {
         {loading ? (
           <SkeletonAdapterComponent type="CardSkeleton" />
         ) : (
-          <Card style={{ marginBottom: 12 }}>
+          <Card
+            style={{
+              marginBottom: 12,
+              backgroundColor: "#d7fff005",
+              border: "1px solid #d7fff014",
+              borderRadius: 12,
+            }}
+          >
             <SectionValues
               left={{ label: "Alias", value: item?.alias_holder }}
               right={{ label: "Titular", value: item?.holder }}

@@ -248,10 +248,10 @@ const FourPart = ({ item }: { item: any }) => {
               <div
                 key={day}
                 style={{
-                  backgroundColor: "var(--cBackground)",
+                  backgroundColor: "#d7fff005",
                   padding: 12,
                   borderRadius: 8,
-                  border: "1px solid var(--cBorder)",
+                  border: "1px solid #d7fff014",
                   maxWidth: 210,
                   minWidth: 210,
                 }}
@@ -285,7 +285,8 @@ const FourPart = ({ item }: { item: any }) => {
                       style={{
                         padding: 8,
                         borderRadius: 8,
-                        border: "0.5px solid var(--cWhiteV1)",
+                        border: "1px solid #d7fff014",
+                        backgroundColor: "rgba(18, 21, 25, 0.62)",
                         flex: "0 0 auto",
                       }}
                     >

@@ -49,6 +49,12 @@
   /* overflow: hidden; */
 }
 
+.summaryWidgetEqualHeight {
+  background-color: #d7fff005 !important;
+  border: 1px solid #d7fff014 !important;
+  border-radius: 12px !important;
+}
+
 .fourWidgetSection {
   display: flex;
   flex-direction: column;
@@ -66,8 +72,8 @@
         @media (max-width: 1024px) {
           width: 100%;
         }
-        
-        [class*="singleLine"]{
+
+        [class*="singleLine"] {
           max-width: 370px;
           @media (max-width: 768px) {
             max-width: 100%;
@@ -139,10 +145,10 @@
 }
 
 .widgetAlerts {
-  background-color: var(--cBlackV2, #333536);
+  background-color: #d7fff005;
   padding: var(--spL, 1rem);
-  border-radius: var(--bRadiusL, 1rem);
-  border: 0.5px solid var(--cBorder, #a7a7a7);
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
   display: flex;
   flex-direction: column;
   gap: var(--spM, 1rem);
@@ -339,9 +345,9 @@
 .preRegistroItem {
   margin-bottom: 1rem;
   padding: 1rem;
-  background-color: var(--darkv1);
+  background-color: #d7fff005;
   border-radius: 0.5rem;
-  border: 1px solid var(--cBorderTransparent);
+  border: 1px solid #d7fff014;
 }
 
 .preRegistroItem:last-child {

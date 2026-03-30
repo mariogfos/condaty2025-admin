@@ -3,17 +3,18 @@
 }
 .background {
   width: 100%;
-  background-color: var(--cBackground);
+  background-color: #d7fff005;
   padding: 4px;
   border-radius: 12px;
+  border: 1px solid #d7fff014;
 }
 
 .box {
   height: 160px;
-  border: 2px dashed var(--cBackground-foreground);
+  border: 2px dashed rgba(215, 255, 240, 0.2);
   /* hacer que los dashed sean mas separados */
   border-radius: 12px;
-  background-color: var(--cBackground-muted);
+  background-color: rgba(18, 21, 25, 0.48);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -36,7 +37,7 @@
 }
 
 .subtitle {
-  color: #a0a0a0;
+  color: #878f9a;
   font-size: 14px;
   margin-top: 4px;
 }
@@ -61,7 +62,7 @@
 }
 
 .preview {
-  background-color: var(--cBackground);
+  background-color: #d7fff005;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -75,8 +76,8 @@
   min-width: 0;
   padding: 8px;
   border-radius: 8px;
-  border: 1px solid var(--cBackground-foreground);
-  background-color: var(--cBackground-muted);
+  border: 1px solid #d7fff014;
+  background-color: rgba(18, 21, 25, 0.48);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -100,7 +101,7 @@
 
 .status {
   flex-shrink: 0;
-  color: var(--cWhiteV1);
+  color: #878f9a;
   display: flex;
   align-items: center;
   gap: 4px;
