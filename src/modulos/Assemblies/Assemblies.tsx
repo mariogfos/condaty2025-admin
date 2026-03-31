@@ -134,7 +134,8 @@ const Assemblies = () => {
       end_date: { rules: ["required"], api: "ae", label: "Fecha fin", list: false },
       end_time: { rules: ["required"], api: "ae", label: "Hora fin", list: false },
       meeting_url: { rules: [], api: "ae", label: "Enlace", list: false },
-      physical_address: { rules: [], api: "ae", label: "Dirección", list: false },
+      address: { rules: [], api: "ae", label: "Dirección", list: false },
+      address_url: { rules: [], api: "ae", label: "URL ubicación", list: false },
       files: { rules: [], api: "ae", label: "Documentos", list: false },
       declarations: { rules: [], api: "ae", label: "Declaraciones", list: false },
       status: {

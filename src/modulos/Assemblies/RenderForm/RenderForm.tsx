@@ -17,8 +17,6 @@ const TYPE_OPTIONS = [
   { id: "Informative", name: "Informativa" },
 ];
 
-const PARTICIPATION_OPTIONS = [{ id: "Homeowner", name: "Propietario" }];
-
 const MODALITY_OPTIONS = [
   { id: "Virtual", name: "Virtual" },
   { id: "Presential", name: "Presencial" },
@@ -45,6 +43,31 @@ const getFilenameFromUrl = (url: string, fallback: string) => {
   return base || fallback;
 };
 
+const normalizeDateInput = (value: any) => {
+  if (!value) return "";
+  return String(value).split("T")[0];
+};
+
+const normalizeTimeInput = (value: any) => {
+  if (!value) return "";
+  const raw = String(value).trim();
+  const match = raw.match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return raw;
+  return `${match[1].padStart(2, "0")}:${match[2]}`;
+};
+
+const isValidTimeValue = (value: string) => /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
+
+const isValidHttpUrl = (value: string) => {
+  if (!value) return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
 const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   const { showToast } = useAuth();
   const [level, setLevel] = useState(1);
@@ -56,17 +79,15 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       subject: item?.subject || "",
       description: item?.description || "",
       type: item?.type || "",
-      start_date: item?.start_date || "",
-      start_time: item?.start_time || "",
-      end_date: item?.end_date || "",
-      end_time: item?.end_time || "",
+      start_date: normalizeDateInput(item?.start_date),
+      start_time: normalizeTimeInput(item?.start_time),
+      end_date: normalizeDateInput(item?.end_date || item?.start_date),
+      end_time: normalizeTimeInput(item?.end_time),
       modality: item?.modality || "Virtual",
-      participation: item?.participation || "Homeowner",
       meeting_url: item?.meeting_url || "",
       address: item?.address || item?.physical_address || "",
       address_url: item?.address_url || "",
       files: normalizeUrls(item?.files),
-      declarations: normalizeUrls(item?.declarations),
       status: item?.status || "Scheduled",
     }),
     [item],
@@ -82,7 +103,12 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
-    setFormState((prev: any) => ({ ...prev, [name]: value }));
+    setFormState((prev: any) => {
+      if (name === "start_date") {
+        return { ...prev, start_date: value, end_date: value };
+      }
+      return { ...prev, [name]: value };
+    });
   };
 
   const validateStep1 = () => {
@@ -105,13 +131,6 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       key: "type",
       errors: newErrors,
     });
-    newErrors = checkRules({
-      value: formState.participation,
-      rules: ["required"],
-      key: "participation",
-      errors: newErrors,
-    });
-
     setErrors((prev: any) => ({ ...prev, ...newErrors }));
     return newErrors;
   };
@@ -120,9 +139,16 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
     let newErrors: any = {};
     newErrors = checkRules({ value: formState.start_date, rules: ["required"], key: "start_date", errors: newErrors });
     newErrors = checkRules({ value: formState.start_time, rules: ["required"], key: "start_time", errors: newErrors });
-    newErrors = checkRules({ value: formState.end_date, rules: ["required"], key: "end_date", errors: newErrors });
     newErrors = checkRules({ value: formState.end_time, rules: ["required"], key: "end_time", errors: newErrors });
     newErrors = checkRules({ value: formState.modality, rules: ["required"], key: "modality", errors: newErrors });
+
+    if (formState.start_time && !isValidTimeValue(formState.start_time)) {
+      newErrors.start_time = "La hora de inicio no es válida";
+    }
+
+    if (formState.end_time && !isValidTimeValue(formState.end_time)) {
+      newErrors.end_time = "La hora de finalización no es válida";
+    }
 
     if (["Virtual", "Hybrid"].includes(formState.modality)) {
       newErrors = checkRules({
@@ -131,21 +157,33 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
         key: "meeting_url",
         errors: newErrors,
       });
+
+      if (formState.meeting_url && !isValidHttpUrl(formState.meeting_url)) {
+        newErrors.meeting_url = "Debe ser un enlace válido (https://...)";
+      }
     }
 
-    if (formState.modality === "Presential") {
+    if (["Presential", "Hybrid"].includes(formState.modality)) {
       newErrors = checkRules({
         value: formState.address,
         rules: ["required"],
         key: "address",
         errors: newErrors,
       });
+
+      newErrors = checkRules({
+        value: formState.address_url,
+        rules: ["googleMapsLink"],
+        key: "address_url",
+        errors: newErrors,
+      });
     }
 
-    const startAt = `${formState.start_date || ""}T${formState.start_time || ""}`;
-    const endAt = `${formState.end_date || ""}T${formState.end_time || ""}`;
+    const dateRef = formState.start_date || "";
+    const startAt = `${dateRef}T${formState.start_time || ""}`;
+    const endAt = `${dateRef}T${formState.end_time || ""}`;
     if (startAt && endAt && startAt > endAt) {
-      newErrors.end_date = "La fecha y hora de cierre no puede ser menor al inicio";
+      newErrors.end_time = "La hora de finalización no puede ser menor al inicio";
     }
 
     setErrors((prev: any) => ({ ...prev, ...newErrors }));
@@ -171,19 +209,20 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       subject: formState.subject,
       description: formState.description,
       type: formState.type,
-      start_date: formState.start_date,
+      start_date: normalizeDateInput(formState.start_date),
       start_time: formState.start_time,
-      end_date: formState.end_date,
+      end_date: normalizeDateInput(formState.start_date),
       end_time: formState.end_time,
       modality: formState.modality,
-      participation: formState.participation,
-      meeting_url: formState.meeting_url,
-      address: formState.modality === "Presential" ? formState.address : "",
-      address_url:
-        formState.modality === "Presential" ? formState.address_url : "",
       files: buildFileObjects(formState.files, "documento_asamblea"),
-      declarations: buildFileObjects(formState.declarations, "declaracion_asamblea"),
       status: formState.status || "Scheduled",
+      ...(formState.modality !== "Presential" ? { meeting_url: formState.meeting_url } : {}),
+      ...(formState.modality !== "Virtual"
+        ? {
+            address: formState.address,
+            address_url: formState.address_url,
+          }
+        : {}),
     };
 
     const method = formState.id ? "PUT" : "POST";
@@ -292,16 +331,6 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               error={errors}
               required
             />
-
-            <Select
-              name="participation"
-              label="Participación"
-              value={formState.participation}
-              options={PARTICIPATION_OPTIONS}
-              onChange={handleChange}
-              error={errors}
-              required
-            />
           </section>
 
           <section className={styles.sectionCard}>
@@ -319,20 +348,6 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             />
           </section>
 
-          <section className={styles.sectionCard}>
-            <h3 className={styles.sectionTitle}>Declaraciones o actas</h3>
-            <p className={styles.sectionSubtitle}>
-              Sube documentos complementarios de respaldo para la asamblea.
-            </p>
-            <UploadFileV3
-              formState={formState}
-              setFormState={setFormState}
-              name="declarations"
-              mode="documents"
-              error={errors}
-              maxMB={5}
-            />
-          </section>
         </>
       )}
 
@@ -373,16 +388,6 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               required
             />
           </div>
-
-          <Input
-            type="date"
-            name="end_date"
-            label="Fecha de finalización"
-            value={formState.end_date}
-            onChange={handleChange}
-            error={errors}
-            required
-          />
 
           <h3 className={styles.sectionTitle}>¿Cómo se realizará la asamblea?</h3>
           <p className={styles.sectionSubtitle}>
@@ -427,7 +432,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             />
           )}
 
-          {formState.modality === "Presential" && (
+          {formState.modality !== "Virtual" && (
             <Input
               type="text"
               name="address"
@@ -435,11 +440,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               value={formState.address}
               onChange={handleChange}
               error={errors}
-              required={formState.modality === "Presential"}
+              required={formState.modality !== "Virtual"}
             />
           )}
 
-          {formState.modality === "Presential" && (
+          {formState.modality !== "Virtual" && (
             <Input
               type="text"
               name="address_url"
