@@ -1,5 +1,5 @@
 .container {
-  background-color: var(--cBlackV2);
+  background-color: #d7fff005;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -8,8 +8,8 @@
   font-family: var(--fPrimary);
   box-sizing: border-box;
   color: var(--cWhite);
-  border-radius: var(--bRadiusS);
-  border: 1px solid var(--cWhiteV1);
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
   min-width: 600px;
 }
 

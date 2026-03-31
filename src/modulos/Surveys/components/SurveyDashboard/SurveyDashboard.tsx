@@ -15,7 +15,7 @@ const Chart = dynamic(() => import("react-apexcharts"), {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        color: "#94a3b8",
+        color: "var(--cWhiteV1)",
       }}
     >
       Cargando...
@@ -30,15 +30,15 @@ interface SurveyDashboardProps {
 }
 
 const COLORS = [
-  "#6366f1",
-  "#8b5cf6",
-  "#ec4899",
-  "#f43f5e",
-  "#f97316",
-  "#eab308",
-  "#22c55e",
-  "#06b6d4",
-  "#3b82f6",
+  "var(--cPrimary)",
+  "var(--accentv1)",
+  "var(--cSuccess)",
+  "var(--cWarning)",
+  "var(--cError)",
+  "var(--cCompl1)",
+  "var(--cCompl2)",
+  "var(--cCompl3)",
+  "var(--cCompl6)",
 ];
 
 export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
@@ -149,25 +149,25 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
     <div className={styles.kpiGrid}>
       <div className={styles.kpiCard}>
         <span className={styles.kpiLabel}>Participantes</span>
-        <span className={styles.kpiValue} style={{ color: "#3b82f6" }}>
+        <span className={styles.kpiValue} style={{ color: "var(--cPrimary)" }}>
           {survey_info.total_participants} / {survey_info.estimated_audience}
         </span>
       </div>
       <div className={styles.kpiCard}>
         <span className={styles.kpiLabel}>Tasa de Participación</span>
-        <span className={styles.kpiValue} style={{ color: "#10b981" }}>
+        <span className={styles.kpiValue} style={{ color: "var(--cSuccess)" }}>
           {survey_info.participation_rate}%
         </span>
       </div>
       <div className={styles.kpiCard}>
         <span className={styles.kpiLabel}>Representatividad</span>
-        <span className={styles.kpiValue} style={{ color: "#8b5cf6" }}>
+        <span className={styles.kpiValue} style={{ color: "var(--cPrimary)" }}>
           {survey_info.representativeness}%
         </span>
       </div>
       <div className={styles.kpiCard}>
         <span className={styles.kpiLabel}>Tiempo Promedio</span>
-        <span className={styles.kpiValue} style={{ color: "#f59e0b" }}>
+        <span className={styles.kpiValue} style={{ color: "var(--cWarning)" }}>
           {survey_info.avg_response_time_seconds
             ? `${Math.round(survey_info.avg_response_time_seconds / 60)} min`
             : "N/A"}
@@ -245,7 +245,7 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
         toolbar: { show: false },
         animations: { enabled: false },
         background: "transparent",
-        foreColor: "#ffffff",
+        foreColor: "var(--cWhite)",
       },
       theme: { mode: "dark" },
       colors: COLORS,
@@ -253,13 +253,17 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
         type: "category",
         categories: complexCategories,
         labels: {
-          style: { colors: "#ffffff", fontSize: "11px", fontWeight: 600 },
+          style: {
+            colors: "var(--cWhiteV1)",
+            fontSize: "11px",
+            fontWeight: 600,
+          },
           rotate: isScale ? -20 : 0,
           offsetY: isScale ? 5 : 0,
         },
       },
       yaxis: {
-        labels: { style: { colors: "#ffffff", fontSize: "11px" } },
+        labels: { style: { colors: "var(--cWhiteV1)", fontSize: "11px" } },
         forceNiceScale: true,
         decimalsInFloat: 0,
       },
@@ -276,7 +280,7 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
       },
       grid: {
         show: true,
-        borderColor: "rgba(255,255,255,0.05)",
+        borderColor: "#d7fff014",
         strokeDashArray: 3,
       },
       dataLabels: {
@@ -284,16 +288,16 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
         textAnchor: isScale ? "middle" : "start",
         offsetX: isScale ? 0 : 12,
         offsetY: isScale ? -20 : 0,
-        style: { fontSize: "12px", fontWeight: 700, colors: ["#ffffff"] },
+        style: { fontSize: "12px", fontWeight: 700, colors: ["var(--cWhite)"] },
         formatter: (val: any) => val,
         background: {
           enabled: true, // Always enabled for clear reading
-          foreColor: "#ffffff",
+          foreColor: "var(--cWhite)",
           padding: 4,
           borderRadius: 4,
           borderWidth: 0,
           opacity: 1, // Solid as requested
-          backgroundColor: "#000000", // Black as requested
+          backgroundColor: "var(--cBlack)",
           dropShadow: { enabled: false },
         },
       },
@@ -316,8 +320,6 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
           className={styles.chartContainer}
           style={{
             height: 300,
-            background: "rgba(0,0,0,0.15)",
-            borderRadius: "12px",
           }}
         >
           {hasData ? (
@@ -336,7 +338,7 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#94a3b8",
+                color: "var(--cWhiteV3)",
                 fontStyle: "italic",
               }}
             >
@@ -392,25 +394,22 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
     if (!report) return null;
 
     const sentiment = report.sentiment_stats;
-    const sentimentColor =
+    const sentimentStyles =
       sentiment?.label === "Positivo"
-        ? "#10b981"
+        ? { backgroundColor: "var(--cHoverSuccess)", color: "var(--cSuccess)" }
         : sentiment?.label === "Negativo"
-          ? "#f43f5e"
-          : "#f59e0b";
+          ? { backgroundColor: "var(--cHoverError)", color: "var(--cError)" }
+          : {
+              backgroundColor: "var(--cHoverWarning)",
+              color: "var(--cWarning)",
+            };
 
     return (
       <div className={styles.aiQuestionBox}>
         <div className={styles.aiQuestionHeader}>
-          <span className={styles.aiSparkle}>✨ Análisis IA</span>
+          <span className={styles.aiSparkle}>Análisis IA</span>
           {sentiment && (
-            <div
-              className={styles.sentimentBadge}
-              style={{
-                backgroundColor: `${sentimentColor}20`,
-                color: sentimentColor,
-              }}
-            >
+            <div className={styles.sentimentBadge} style={sentimentStyles}>
               {sentiment.label} ({sentiment.score}/10)
             </div>
           )}
@@ -443,9 +442,8 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
       <section className={styles.aiSection}>
         <div className={styles.aiHeader}>
           <div className={styles.aiTitle}>
-            <span>✨</span>
             <div>
-              <strong>Análisis Inteligente (IA)</strong>
+              <strong>Análisis IA</strong>
               <p style={{ margin: 0, fontSize: "0.75rem", opacity: 0.7 }}>
                 {aiAnalysis
                   ? `Última actualización: ${new Date(aiAnalysis.analyzed_at).toLocaleString()}`

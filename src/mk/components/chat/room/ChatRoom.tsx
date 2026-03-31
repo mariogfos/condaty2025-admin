@@ -54,7 +54,7 @@ const ChatRoom = ({
   db,
 }: ChatRoomPropsType) => {
   const [newMessage, setNewMessage] = useState("");
-  const { sendMessageBot } = useChatProvider({ provider: "kimi" });
+  const { sendMessageBot } = useChatProvider({ provider: "deepseek" });
   const draftsRef = useRef<Record<string, string>>({});
   const prevRoomIdRef = useRef(roomId);
 

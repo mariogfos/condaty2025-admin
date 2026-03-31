@@ -3,9 +3,9 @@
 
 }
 .cardEvent {
-  background-color: var(--cHover);
-  border:1px solid var(--cBlackV3);
-  border-radius: var(--bRadius);
+  background-color: #d7fff005;
+  border: 1px solid #d7fff014;
+  border-radius: 12px;
   padding:var(--spS);
   width: 100%;
 }
@@ -85,9 +85,9 @@
     & > div {
       flex: 1;
 
-      background-color: var(--cBlackV1);
-      background-color: aquamarine;
+      background-color: #d7fff005;
       border-radius: 8px;
+      border: 1px solid #d7fff014;
       padding: 8px 0px;
       & > p:nth-child(1) {
         text-align: center;

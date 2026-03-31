@@ -1,11 +1,10 @@
 import Input from "@/mk/components/forms/Input/Input";
-import NewModal from "@/mk/components/ui/NewModal/NewModal";
+import DetailModal from "@/mk/components/ui/DetailModal/DetailModal";
 import React from "react";
 import styles from "./EditProfile.module.css";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import useAxios from "@/mk/hooks/useAxios";
-import { IconDepartments } from "@/components/layout/icons/IconsBiblioteca";
 import UploadFileProfile from "@/mk/components/forms/UploadFileProfile/UploadFileProfile";
 
 const EditProfile = ({
@@ -102,10 +101,8 @@ const EditProfile = ({
     }
   };
   return (
-    <NewModal
+    <DetailModal
       title="Información personal"
-      subtitle="Ingresa los datos personales del usuario."
-      icon={<IconDepartments size={24} />}
       open={open}
       onClose={onClose}
       buttonText="Guardar cambios"
@@ -113,8 +110,10 @@ const EditProfile = ({
       onSave={onSave}
       minWidth={480}
       maxWidth={960}
+      zIndex={10010}
     >
       <div className={styles.EditProfile}>
+        <p className={styles.subtitle}>Ingresa los datos personales del usuario.</p>
         <section>
           <UploadFileProfile
             name={"url_avatar"}
@@ -203,7 +202,7 @@ const EditProfile = ({
           )}
         </section>
       </div>
-    </NewModal>
+    </DetailModal>
   );
 };
 

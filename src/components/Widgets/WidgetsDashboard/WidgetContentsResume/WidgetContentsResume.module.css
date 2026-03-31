@@ -19,6 +19,9 @@
 .widgetContentsResume {
   overflow-y: auto;
   flex-grow: 1;
+  background-color: #d7fff005;
+  border: 1px solid #d7fff014;
+  border-radius: 12px;
 }
 
 .descriptionArea {

@@ -23,7 +23,10 @@ export default function ScheduleSurveyModal({
 }: Props) {
   const [scheduledAt, setScheduledAt] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
-  const [errors, setErrors] = useState<{ scheduledAt?: string; expiresAt?: string }>({});
+  const [errors, setErrors] = useState<{
+    scheduledAt?: string;
+    expiresAt?: string;
+  }>({});
 
   // Pre-fill dates converting API datetime to input[type=datetime-local] format
   useEffect(() => {
@@ -64,13 +67,24 @@ export default function ScheduleSurveyModal({
       buttonCancel="Cancelar"
       onSave={handleConfirm}
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "8px 0" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          padding: "8px 0",
+        }}
+      >
         <p className={styles.subtitle} style={{ margin: 0 }}>
-          Define cuándo se publicará y, opcionalmente, cuándo cerrará la encuesta.
+          Define cuándo se publicará y, opcionalmente, cuándo cerrará la
+          encuesta.
         </p>
 
         <div>
-          <label className={styles.subtitle} style={{ display: "block", marginBottom: 6, fontSize: "0.85rem" }}>
+          <label
+            className={styles.subtitle}
+            style={{ display: "block", marginBottom: 6, fontSize: "0.85rem" }}
+          >
             Fecha y hora de inicio *
           </label>
           <input
@@ -80,25 +94,36 @@ export default function ScheduleSurveyModal({
             style={{
               width: "100%",
               padding: "10px 12px",
-              background: "rgba(255,255,255,0.06)",
-              border: errors.scheduledAt ? "1px solid var(--cError, #ef4444)" : "1px solid var(--borderV1)",
+              background: "#d7fff005",
+              border: errors.scheduledAt
+                ? "1px solid var(--cError)"
+                : "1px solid #d7fff014",
               borderRadius: "var(--bRadius)",
               color: "var(--cWhite)",
               fontSize: "0.9rem",
-              colorScheme: "dark",
               boxSizing: "border-box",
             }}
           />
           {errors.scheduledAt && (
-            <p style={{ color: "var(--cError, #ef4444)", fontSize: "0.78rem", marginTop: 4 }}>
+            <p
+              style={{
+                color: "var(--cError)",
+                fontSize: "0.78rem",
+                marginTop: 4,
+              }}
+            >
               {errors.scheduledAt}
             </p>
           )}
         </div>
 
         <div>
-          <label className={styles.subtitle} style={{ display: "block", marginBottom: 6, fontSize: "0.85rem" }}>
-            Fecha y hora de cierre <span style={{ opacity: 0.6 }}>(opcional)</span>
+          <label
+            className={styles.subtitle}
+            style={{ display: "block", marginBottom: 6, fontSize: "0.85rem" }}
+          >
+            Fecha y hora de cierre{" "}
+            <span style={{ opacity: 0.6 }}>(opcional)</span>
           </label>
           <input
             type="datetime-local"
@@ -107,17 +132,24 @@ export default function ScheduleSurveyModal({
             style={{
               width: "100%",
               padding: "10px 12px",
-              background: "rgba(255,255,255,0.06)",
-              border: errors.expiresAt ? "1px solid var(--cError, #ef4444)" : "1px solid var(--borderV1)",
+              background: "#d7fff005",
+              border: errors.expiresAt
+                ? "1px solid var(--cError)"
+                : "1px solid #d7fff014",
               borderRadius: "var(--bRadius)",
               color: "var(--cWhite)",
               fontSize: "0.9rem",
-              colorScheme: "dark",
               boxSizing: "border-box",
             }}
           />
           {errors.expiresAt && (
-            <p style={{ color: "var(--cError, #ef4444)", fontSize: "0.78rem", marginTop: 4 }}>
+            <p
+              style={{
+                color: "var(--cError)",
+                fontSize: "0.78rem",
+                marginTop: 4,
+              }}
+            >
               {errors.expiresAt}
             </p>
           )}

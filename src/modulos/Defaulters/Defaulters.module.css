@@ -41,10 +41,10 @@
   flex-direction: column;
   padding-left: var(--spL);
   padding-right: var(--spL);
-  background-color: var(--cBlackV1);
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  border-radius: var(--bRadius);
-  border: 0.5px solid var(--cWhiteV1);
+  background-color: #d7fff005;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
   & > div:nth-child(1) {
     margin-bottom: var(--spL);
     display: flex;

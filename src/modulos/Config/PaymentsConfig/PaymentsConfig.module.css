@@ -28,10 +28,10 @@
   display: flex;
   flex-direction: column;
 
-  background-color: var(--cBackground);
+  background-color: #d7fff005;
   padding: 1rem;
-  border-radius: 1rem;
-  border: 1px solid var(--cBorder);
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
 }
 
 .sectionTitle {

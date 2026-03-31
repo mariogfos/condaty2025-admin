@@ -25,9 +25,9 @@
     font-weight: 500;
   }
   &.secondary {
-    border: var(--bWidth) solid var(--cBorder);
-    color: var(--cWhite);
-    background-color: var(--cBackground);
+    border: 1px solid #d7fff014;
+    color: #878f9a;
+    background-color: #d7fff005;
   }
 
   &.terciary {

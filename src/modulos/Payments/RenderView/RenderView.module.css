@@ -1,5 +1,5 @@
 .container {
-  background-color: var(--cBackground);
+  background-color: #d7fff005;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -8,8 +8,8 @@
   font-family: var(--fPrimary);
   box-sizing: border-box;
   color: var(--cWhite);
-  border-radius: var(--bRadiusM);
-  border: 1px solid var(--cBorder);
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
   min-width: 600px;
   margin-bottom: var(--spM);
   &:last-of-type {
@@ -171,9 +171,9 @@
 }
 
 .voucherButton {
-  background-color: transparent;
+  background-color: #d7fff005;
   color: var(--cWhite);
-  border: 1px solid var(--cWhiteV5);
+  border: 1px solid #d7fff014;
   font-size: var(--sL);
   padding: var(--spM) var(--spXl);
   border-radius: var(--bRadiusS);
@@ -190,8 +190,8 @@
 }
 
 .voucherButton:hover {
-  background-color: var(--cWhiteV3);
-  border-color: var(--cWhite);
+  background-color: rgba(0, 227, 140, 0.12);
+  border-color: #d7fff014;
 }
 
 .periodsDetailsSection {
@@ -218,7 +218,7 @@
 
 .periodsTableWrapper {
   width: 100%;
-  border: 1px solid var(--cBorder);
+  border: 1px solid #d7fff014;
   border-radius: var(--bRadiusM);
   overflow: hidden;
 }
@@ -247,7 +247,7 @@
 
 .periodsTableHeader,
 .periodsTableHeaderReservations {
-  background-color: var(--cBlackV2);
+  background-color: rgba(18, 21, 25, 0.8);
   color: var(--cWhite);
   font-family: Roboto, sans-serif;
   font-weight: 600;
@@ -280,7 +280,7 @@
   font-family: Roboto, sans-serif;
   font-size: 16px;
   font-weight: 500;
-  background-color: var(--cBackground);
+  background-color: rgba(18, 21, 25, 0.8);
   height: 48px;
 }
 
@@ -293,7 +293,7 @@
 .periodsTableBody
   .periodsTableRowReservations:nth-child(odd)
   .periodsTableCell {
-  background-color: var(--cBackground-muted);
+  background-color: rgba(18, 21, 25, 0.76);
   color: var(--cWhiteV1);
 }
 
@@ -301,7 +301,7 @@
 .periodsTableBody
   .periodsTableRowReservations:nth-child(even)
   .periodsTableCell {
-  background-color: var(--cBackground);
+  background-color: #121519;
   color: var(--cWhiteV1);
 }
 
@@ -490,8 +490,8 @@
     grid-template-columns: 1fr;
     gap: 0;
     padding: var(--spM);
-    border-bottom: 1px solid var(--cBlackV5);
-    background-color: var(--cBlackV1);
+    border-bottom: 1px solid rgba(215, 255, 240, 0.12);
+    background-color: rgba(18, 21, 25, 0.76);
   }
 
   .periodsTableBody .periodsTableRow:last-child {
@@ -504,7 +504,7 @@
     text-align: left !important;
     padding: var(--spS) 0;
     border-right: none;
-    border-bottom: 1px dashed var(--cBlackV5);
+    border-bottom: 1px dashed rgba(215, 255, 240, 0.12);
     font-size: var(--sS);
     background-color: transparent;
     min-height: auto;

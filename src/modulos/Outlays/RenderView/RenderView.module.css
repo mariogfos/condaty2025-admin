@@ -1,5 +1,5 @@
 .container {
-  background-color: var(--cBlackV2);
+  background-color: #d7fff005;
   display: flex;
   flex-direction: column;
   padding: var(--spL);
@@ -7,8 +7,8 @@
   font-family: var(--fPrimary);
   box-sizing: border-box;
   color: var(--cWhite);
-  border-radius: var(--bRadiusM);
-  border: 0.5px solid var(--cWhiteV5);
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
   margin-bottom: var(--spM);
   &:last-of-type {
     margin-bottom: 0;
@@ -110,9 +110,9 @@
   padding-bottom: var(--spS);
 }
 .voucherButton {
-  background-color: var(--cHoveTablePdf);
+  background-color: #d7fff005;
   color: var(--cWhite);
-  border: 1px solid var(--cWhiteV1);
+  border: 1px solid #d7fff014;
   font-size: var(--sM);
   padding: var(--spM) var(--spXl);
   border-radius: var(--bRadiusS);
@@ -122,8 +122,8 @@
   cursor: pointer;
 }
 .voucherButton:hover {
-  background-color: var(--cWhiteV3);
-  border-color: var(--cWhite);
+  background-color: rgba(0, 227, 140, 0.12);
+  border-color: #d7fff014;
 }
 
 .messageContainer {
@@ -195,7 +195,7 @@
     gap: 12px;
   }
   .voucherButton {
-    background-color: var(--cHoveTablePdf);
+    background-color: #d7fff005;
     padding: var(--spS) var(--spM);
     font-size: var(--sS);
     width: 100%;

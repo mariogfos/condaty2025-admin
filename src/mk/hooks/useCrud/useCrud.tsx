@@ -25,6 +25,7 @@ import {
 import LoadingScreen from "../../components/ui/LoadingScreen/LoadingScreen";
 import Table, { RenderColType } from "../../components/ui/Table/Table";
 import DataModal from "../../components/ui/DataModal/DataModal";
+import DetailModal from "../../components/ui/DetailModal/DetailModal";
 import Button from "../../components/forms/Button/Button";
 import Select from "../../components/forms/Select/Select";
 // import useScreenSize from "../useScreenSize";
@@ -589,8 +590,13 @@ const useCrud = ({
     initOpen(setOpenView, item, "export");
   };
 
+  const didInitFetchRef = useRef(false);
   useEffect(() => {
-    reLoad(params, mod?.noWaiting, true);
+    if (!didInitFetchRef.current) {
+      didInitFetchRef.current = true;
+      return;
+    }
+    reLoad(params, mod?.noWaiting);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
@@ -654,7 +660,7 @@ const useCrud = ({
     }, [fields]);
 
     return (
-      <DataModal
+      <DetailModal
         open={open}
         onClose={() => onClose()}
         title={"Detalle de " + mod.singular}
@@ -725,7 +731,7 @@ const useCrud = ({
             </Fragment>
           ))}
         </div>
-      </DataModal>
+      </DetailModal>
     );
   });
   Detail.displayName = "Detail";
@@ -911,8 +917,7 @@ const useCrud = ({
     );
 
     return (
-      <DataModal
-        variant={"mini"}
+      <DetailModal
         open={open}
         onClose={() => onClose()}
         title={
@@ -931,6 +936,7 @@ const useCrud = ({
             ? onConfirm(formStateForm, setErrorForm)
             : onSave(formStateForm, setErrorForm)
         }
+        maxWidth={560}
       >
         <div
           style={{
@@ -1013,7 +1019,7 @@ const useCrud = ({
           ))}
         </div>
         {showExtraModal}
-      </DataModal>
+      </DetailModal>
     );
   });
   Form.displayName = "Form";
@@ -1062,14 +1068,26 @@ const useCrud = ({
                   optionLabel={f?.optionLabel}
                   optionValue={f?.optionValue}
                   error={false}
-                  style={{
+                  inputStyle={{
+                    height: 44,
+                    backgroundColor: "#d7fff005",
+                    border: "1px solid #d7fff014",
+                    borderRadius: 12,
+                    padding: "16px",
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: "#878f9a",
                     ...(filterSel[f.key] &&
                       filterSel[f.key] != "" &&
                       filterSel[f.key] != "T" &&
                       filterSel[f.key] != "ALL" && {
                         border: "1px solid var(--cPrimary)",
-                        borderRadius: 8,
                       }),
+                  }}
+                  style={{
+                    height: 44,
+                    border: "none",
+                    backgroundColor: "transparent",
                   }}
                 />
               ))}
@@ -1094,16 +1112,28 @@ const useCrud = ({
                 value={filterSel[f.key] || ""}
                 optionLabel={f?.optionLabel}
                 optionValue={f?.optionValue}
-                style={{
-                  width: selectWidth,
-                  minWidth: selectWidth,
+                inputStyle={{
+                  height: 44,
+                  backgroundColor: "#d7fff005",
+                  border: "1px solid #d7fff014",
+                  borderRadius: 12,
+                  padding: "16px",
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: "#878f9a",
                   ...(filterSel[f.key] &&
                     filterSel[f.key] != "" &&
                     filterSel[f.key] != "T" &&
                     filterSel[f.key] != "ALL" && {
                       border: "1px solid var(--cPrimary)",
-                      borderRadius: 8,
                     }),
+                }}
+                style={{
+                  width: selectWidth,
+                  minWidth: selectWidth,
+                  height: 44,
+                  border: "none",
+                  backgroundColor: "transparent",
                 }}
               />
             ))}
@@ -1258,7 +1288,7 @@ const useCrud = ({
               <Button
                 className={styles.addButton}
                 onClick={onClick || onAdd}
-                style={{ height: 48 }}
+                style={{ height: 44 }}
                 variant="primary"
               >
                 {mod.titleAdd + " " + mod.singular}
@@ -1546,7 +1576,16 @@ const useCrud = ({
                     id={mod?.modulo}
                   />
                 ) : data === null ? null : (
-                  <section>{emptyContent}</section>
+                  <section
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      flexGrow: 1,
+                      minHeight: props?.height || "280px",
+                    }}
+                  >
+                    {emptyContent}
+                  </section>
                 )}
                 {props?.paginationHide ? null : (
                   <div>

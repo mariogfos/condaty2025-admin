@@ -29,14 +29,16 @@
 }
 
 .tabsSection {
-  background-color: var(--cBlackV1);
+  background-color: #d7fff005;
   border-radius: var(--bRadius);
   width: fit-content;
   margin-bottom: var(--spM);
+  border: 1px solid #d7fff014;
 }
 
 .listSection {
-  background: var(--cBackground);
+  background: #d7fff005;
   padding: var(--spM);
   border-radius: var(--bRadius);
+  border: 1px solid #d7fff014;
 }
