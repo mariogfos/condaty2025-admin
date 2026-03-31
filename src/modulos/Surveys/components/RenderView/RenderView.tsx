@@ -68,11 +68,22 @@ function MetricCard({
 const ROLE_LABELS: Record<string, string> = {
   admin: "Administradores",
   directive: "Directivos",
-  owner_titular: "Residentes titulares",
+
+  // Roles de propietarios/residentes
   owner_homeowner: "Propietarios",
+  owner_homeowner_resident: "Propietarios residentes",
+  owner_homeowner_non_resident: "Propietarios no residentes",
+  owner_titular: "Inquilinos",
+  resident: "Residentes",
+
+  // Dependientes
   owner_dependiente: "Dependientes",
+  dependent_of_homeowner: "Dependientes de propietarios",
+  dependent_of_tenant: "Dependientes de inquilininos",
+
+  // Staff
   guard: "Guardias",
-  guard_supervisor: "Supervisor de guardia",
+  guard_supervisor: "Supervisor de guardias",
 };
 
 function Chip({ label }: { label: string }) {
@@ -183,6 +194,9 @@ const RenderView = (props: {
       setSurveyData(props.item);
       setDetailsLoaded(false);
       setStats(null);
+      setSurveyData(props.item);
+      setDetailsLoaded(false);
+      setStats(null);
     }
 
     setAudience(props.item?.estimated_audience ?? 0);
@@ -202,6 +216,7 @@ const RenderView = (props: {
         { fullType: "DET", searchBy: id },
         false,
         true,
+        true,
       );
       if (detailRes.data?.success) {
         const det = detailRes.data.data;
@@ -217,6 +232,7 @@ const RenderView = (props: {
         "GET",
         { survey_id: id, ...filters },
         false,
+        true,
         true,
       );
       if (statsRes.data?.success) {
@@ -365,10 +381,9 @@ const RenderView = (props: {
                 display: "flex",
                 gap: 24,
                 flexWrap: "wrap",
-                background: "linear-gradient(150deg, #d7fff008, #d7fff002)",
-                padding: "10px 12px",
-                borderRadius: 10,
-                border: "1px solid #d7fff014",
+                background: "rgba(255,255,255,0.02)",
+                padding: 12,
+                borderRadius: 8,
               }}
             >
               {surveyData?.created_at && (
@@ -377,7 +392,7 @@ const RenderView = (props: {
                   <p
                     style={{
                       color: "var(--cWhiteV1)",
-                      fontSize: "var(--sM)",
+                      fontSize: "0.875rem",
                       margin: 0,
                     }}
                   >
@@ -392,7 +407,7 @@ const RenderView = (props: {
                   <p
                     style={{
                       color: "var(--cWhiteV1)",
-                      fontSize: "var(--sM)",
+                      fontSize: "0.875rem",
                       margin: 0,
                     }}
                   >
@@ -406,7 +421,7 @@ const RenderView = (props: {
                   <p
                     style={{
                       color: "var(--cWhiteV1)",
-                      fontSize: "var(--sM)",
+                      fontSize: "0.875rem",
                       margin: 0,
                     }}
                   >
@@ -456,11 +471,22 @@ const RenderView = (props: {
         )}
 
         {detailsLoaded && stats && (
-          <SurveyDashboard
-            stats={stats}
-            filters={filters}
-            onFilterChange={setFilters}
-          />
+          <div
+            style={{
+              marginTop: 20,
+              borderTop: "1px solid var(--borderV1)",
+              paddingTop: 20,
+              background: "#0f172a", // Forced dark background
+              borderRadius: "16px",
+              padding: "20px",
+            }}
+          >
+            <SurveyDashboard
+              stats={stats}
+              filters={filters}
+              onFilterChange={setFilters}
+            />
+          </div>
         )}
 
         {detailsLoaded && !hasAnswers && (
