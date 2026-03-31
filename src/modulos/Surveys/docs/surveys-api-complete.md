@@ -68,6 +68,28 @@ Accept: application/json
 | `R` | Respondidas | Encuestas que el usuario ya respondió |
 | `E` | Expiradas | Encuestas vencidas |
 
+### TargetRoles (Roles para Segmentación de Encuestas)
+
+> **Versión:** 2.0 (Marzo 2026)
+> **Actualización:** Se agregaron 7 nuevos roles para mejor segmentación
+
+| Rol | Descripción |
+|-----|-------------|
+| `owner_homeowner` | Propietario (dueño del departamento) |
+| `owner_homeowner_resident` | Propietario que RESIDE en el condominio |
+| `owner_homeowner_non_resident` | Propietario que NO reside en el condominio |
+| `owner_titular` | Inquilino/Arrendatario |
+| `resident` | Cualquier persona que resida (propietario + inquilino) |
+| `owner_dependiente` | Dependiente de cualquier titular |
+| `dependent_of_homeowner` | Dependiente de un propietario |
+| `dependent_of_tenant` | Dependiente de un inquilino |
+| `guard` | Guardia de seguridad |
+| `guard_supervisor` | Supervisor de guardias |
+| `admin` | Administrador del sistema |
+| `directive` | Miembro de mesa directiva |
+
+**Nota:** Un usuario puede tener múltiples roles simultáneamente. Ejemplo: un propietario que vive en el edificio tiene `owner_homeowner` + `owner_homeowner_resident` + `resident`.
+
 ---
 
 ## Endpoints CRUD

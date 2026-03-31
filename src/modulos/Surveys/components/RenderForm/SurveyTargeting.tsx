@@ -6,16 +6,53 @@ import { formatNumber } from "@/mk/utils/numbers";
 import Input from "@/mk/components/forms/Input/Input";
 
 const ROLES_OPTIONS = [
-  { id: "owner_homeowner", name: "Propietarios (Dueños)", hasUnits: true },
-  { id: "owner_titular", name: "Residentes Titulares", hasUnits: true },
-  { id: "owner_dependiente", name: "Residentes Dependientes", hasUnits: true },
-  { id: "guard_supervisor", name: "Supervisor de Guardias", hasUnits: false },
+  // Propietarios
+  { id: "owner_homeowner", name: "Propietarios (dueños)", hasUnits: true },
+  {
+    id: "owner_homeowner_resident",
+    name: "Propietarios residentes",
+    hasUnits: true,
+  },
+  {
+    id: "owner_homeowner_non_resident",
+    name: "Propietarios no residentes",
+    hasUnits: true,
+  },
+
+  // Inquilinos/Residentes
+  { id: "owner_titular", name: "Inquilinos", hasUnits: true },
+  { id: "resident", name: "Todos los residentes", hasUnits: true },
+
+  // Dependientes
+  { id: "owner_dependiente", name: "Dependientes", hasUnits: true },
+  {
+    id: "dependent_of_homeowner",
+    name: "Dependientes de propietarios",
+    hasUnits: true,
+  },
+  {
+    id: "dependent_of_tenant",
+    name: "Dependientes de inquilininos",
+    hasUnits: true,
+  },
+
+  // Staff
+  { id: "guard_supervisor", name: "Supervisor de guardias", hasUnits: false },
   { id: "guard", name: "Guardias", hasUnits: false },
-  { id: "directive", name: "Mesa Directiva", hasUnits: false },
+  { id: "directive", name: "Mesa directiva", hasUnits: false },
   { id: "admin", name: "Administradores", hasUnits: false },
 ];
 
-const OWNER_ROLES = ["owner_homeowner", "owner_titular", "owner_dependiente"];
+const OWNER_ROLES = [
+  "owner_homeowner",
+  "owner_homeowner_resident",
+  "owner_homeowner_non_resident",
+  "owner_titular",
+  "resident",
+  "owner_dependiente",
+  "dependent_of_homeowner",
+  "dependent_of_tenant",
+];
 
 /** Convert roles object { owner_homeowner: "1", ... } → string[] of active role IDs */
 function rolesToArray(roles: any): string[] {
@@ -186,7 +223,9 @@ export default function SurveyTargeting({
   return (
     <div className={styles.targetCard}>
       <h3 className={styles.targetTitle}>Audiencia</h3>
-      <p className={styles.targetSubtitle}>Selecciona el grupo que recibirá la encuesta</p>
+      <p className={styles.targetSubtitle}>
+        Selecciona el grupo que recibirá la encuesta
+      </p>
 
       <div className={styles.targetTopRow}>
         <div style={{ flex: 1 }}>
@@ -206,16 +245,23 @@ export default function SurveyTargeting({
         </div>
       </div>
 
-        {/* Conditional: unit types (owner/resident only) */}
+      {/* Conditional: unit types (owner/resident only) */}
       {hasOwnerRole && extraData?.unit_types?.length > 0 && (
         <div style={{ marginTop: 12 }}>
           <Select
             name="unit_types"
             label="Tipos de unidad (opcional)"
-            value={!targetCriteria.unit_types?.length ? ["-1"] : targetCriteria.unit_types}
+            value={
+              !targetCriteria.unit_types?.length
+                ? ["-1"]
+                : targetCriteria.unit_types
+            }
             options={[
               { id: "-1", name: "Todas las unidades" },
-              ...extraData.unit_types.map((ut: any) => ({ ...ut, id: String(ut.id) })),
+              ...extraData.unit_types.map((ut: any) => ({
+                ...ut,
+                id: String(ut.id),
+              })),
             ]}
             optionValue="id"
             optionLabel="name"
@@ -235,7 +281,9 @@ export default function SurveyTargeting({
               name="vote_per_unit"
               optionValue={["Y", "N"]}
               value={targetCriteria.vote_per_unit ? "Y" : "N"}
-              onChange={(e: any) => updateCriteria("vote_per_unit", e.target.checked)}
+              onChange={(e: any) =>
+                updateCriteria("vote_per_unit", e.target.checked)
+              }
             />
           </CardRow>
 
@@ -247,7 +295,9 @@ export default function SurveyTargeting({
               name="only_arrears"
               optionValue={["Y", "N"]}
               value={targetCriteria.only_arrears ? "Y" : "N"}
-              onChange={(e: any) => updateCriteria("only_arrears", e.target.checked)}
+              onChange={(e: any) =>
+                updateCriteria("only_arrears", e.target.checked)
+              }
             />
           </CardRow>
 
@@ -259,7 +309,9 @@ export default function SurveyTargeting({
               name="only_current"
               optionValue={["Y", "N"]}
               value={targetCriteria.only_current ? "Y" : "N"}
-              onChange={(e: any) => updateCriteria("only_current", e.target.checked)}
+              onChange={(e: any) =>
+                updateCriteria("only_current", e.target.checked)
+              }
             />
           </CardRow>
         </>
@@ -272,13 +324,19 @@ export default function SurveyTargeting({
             optionValue={["Y", "N"]}
             value={formState.is_mandatory === "Y" ? "Y" : "N"}
             onChange={(e: any) =>
-              setFormState({ ...formState, is_mandatory: e.target.checked ? "Y" : "N" })
+              setFormState({
+                ...formState,
+                is_mandatory: e.target.checked ? "Y" : "N",
+              })
             }
           />
           <div className={styles.switchText}>
-            <p className={styles.title}>¿Quieres asegurarte de que todos respondan?</p>
+            <p className={styles.title}>
+              ¿Quieres asegurarte de que todos respondan?
+            </p>
             <p className={styles.targetSubtitle}>
-              Activa para que los usuarios respondan la encuesta sin posibilidad de omitirla
+              Activa para que los usuarios respondan la encuesta sin posibilidad
+              de omitirla
             </p>
           </div>
         </div>
@@ -307,20 +365,26 @@ export default function SurveyTargeting({
         <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
           <Input
             type="datetime-local"
-            name="begin_at"
+            name="scheduled_at"
             label="Fecha de inicio"
-            value={(formState?.begin_at || "").replace(" ", "T").substring(0, 16)}
+            error={errors}
+            value={(formState?.scheduled_at || "")
+              .replace(" ", "T")
+              .substring(0, 16)}
             onChange={(e: any) =>
-              setFormState({ ...formState, begin_at: e.target.value })
+              setFormState({ ...formState, scheduled_at: e.target.value })
             }
           />
           <Input
             type="datetime-local"
-            name="end_at"
+            name="expires_at"
             label="Fecha de fin"
-            value={(formState?.end_at || "").replace(" ", "T").substring(0, 16)}
+            value={(formState?.expires_at || "")
+              .replace(" ", "T")
+              .substring(0, 16)}
+            error={errors}
             onChange={(e: any) =>
-              setFormState({ ...formState, end_at: e.target.value })
+              setFormState({ ...formState, expires_at: e.target.value })
             }
           />
         </div>
