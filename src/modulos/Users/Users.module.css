@@ -20,7 +20,7 @@
   .subtitle {
     font-size: var(--sL);
     font-weight: 400;
-    color: var(--cBlackV2);
+    color: #878f9a;
   }
   .avatar {
     position: absolute;
@@ -38,8 +38,9 @@
     }
     & > section {
       padding: 8px;
-      background-color: var(--cBlackV1);
-      border-radius: 8px;
+      background-color: #d7fff005;
+      border-radius: 12px;
+      border: 1px solid #d7fff014;
       margin-top: 8px;
 
       & > div {
@@ -79,8 +80,9 @@
     }
     & > section {
       padding: var(--spM);
-      background-color: var(--cBlackV1);
-      border-radius: 8px;
+      background-color: #d7fff005;
+      border-radius: 12px;
+      border: 1px solid #d7fff014;
 
       width: 100%;
 
@@ -164,7 +166,8 @@
   height: 79px;
   padding: var(--spM);
   border-radius: var(--bRadiusM);
-  background-color: var(--cBlackV1);
+  background-color: #d7fff005;
+  border: 1px solid #d7fff014;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

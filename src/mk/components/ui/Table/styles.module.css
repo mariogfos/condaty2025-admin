@@ -3,8 +3,9 @@
   font-size: var(--sM);
   overflow: auto;
 
-  border-radius: var(--bRadius);
-  border: 1px solid var(--cBorder);
+  border-radius: 12px;
+  border: 0.3px solid rgba(215, 255, 240, 0.12);
+  background-color: #121519;
   @media (width <= 1024px) {
     background-color: transparent;
     border: none;
@@ -18,8 +19,7 @@
     color: var(--cWhite);
     font-weight: var(--bSemiBold);
     overflow: auto;
-    /* background-color: var(--cBlackV2); */
-    background-color: var(--cBackground);
+    background-color: #121519;
     border-top-left-radius: var(--bRadius);
     border-top-right-radius: var(--bRadius);
     overflow: hidden;
@@ -36,10 +36,14 @@
       align-items: center; /* Centra el contenido verticalmente */
       justify-content: left; /* Centra el contenido horizontalmente */
       text-align: left; /* Centra el texto */
-      /* white-space: nowrap; */
+      border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
+      border-left: 0.3px solid rgba(215, 255, 240, 0.12);
     }
     & > div:first-child {
       border-left: 0;
+    }
+    & > div:last-child {
+      border-right: 0.3px solid rgba(215, 255, 240, 0.12);
     }
   }
 
@@ -62,12 +66,12 @@
     & > div > div {
       margin-right: -12px;
       margin-left: -12px;
-      border: 1px solid var(--cWhiteV3);
+      border: 0.3px solid rgba(215, 255, 240, 0.12);
       border-bottom-left-radius: var(--bRadius);
       border-bottom-right-radius: var(--bRadius);
       margin-top: -12px;
       padding: 12px;
-      background-color: var(--cWhiteV3);
+      background-color: #121519;
       color: var(--cBlackV2);
       font-size: 16px;
       color: var(--cWhite);
@@ -118,6 +122,7 @@
     gap: 0px;
     border-bottom-left-radius: var(--bRadius);
     border-bottom-right-radius: var(--bRadius);
+    border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
     /* min-height: 300px; */
     /* border: 1px solid var(--cWhiteV3); */
     @media (width <= 1280px) {
@@ -130,7 +135,7 @@
       display: flex;
       align-items: stretch; /* Hace que todas las celdas tengan la misma altura */
       gap: 0px;
-      background-color: var(--cBlackV1);
+      background-color: #121519;
       color: var(--cWhiteV2);
       /* overflow: hidden; */
       /* height: 48px; */
@@ -151,9 +156,19 @@
         display: flex; /* Permite la alineación del contenido interno */
         align-items: center; /* Centra verticalmente el contenido */
         box-sizing: border-box; /* Asegura que padding y border se incluyan en el tamaño total */
-        border-top: 1px solid var(--cBorder);
+        border-top: 0.3px solid rgba(215, 255, 240, 0.12);
+        border-left: 0.3px solid rgba(215, 255, 240, 0.12);
         /* border-bottom: 0.5px solid var(--cWhiteV1); */
       }
+      & > span:first-child {
+        border-left: 0;
+      }
+      & > span:last-child {
+        border-right: 0.3px solid rgba(215, 255, 240, 0.12);
+      }
+    }
+    & > div:last-child > span {
+      border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
     }
   }
 
@@ -182,17 +197,17 @@
 .table.striped {
   & main {
     & > div:nth-child(even) {
-      background-color: var(--cBackground);
+      background-color: #11161b;
       color: var(--cWhiteV1);
       &:hover {
-        background-color: var(--cBlack);
+        background-color: rgba(0, 227, 140, 0.08);
       }
     }
     & > div:nth-child(odd) {
-      background-color: var(--cBackground-muted);
+      background-color: #121519;
       color: var(--cWhiteV1);
       &:hover {
-        background-color: var(--cBlack);
+        background-color: rgba(0, 227, 140, 0.08);
       }
     }
   }

@@ -32,28 +32,28 @@ if(!view){
         <div className={styles.icon}><IconSingleChoiceSurvey size={32}  /></div>
         <div className={styles.textContainer}>
           <h3>Opción única</h3>
-          <p>(El afiliado solo podrá elegir una opción)</p>
+          <p>El usuario solo podrá elegir una opción de respuesta de una lista predefinida.</p>
         </div>
       </div>
       <div className={styles.questionTypeOption} onClick={()=>openSurveyType('M')}>
         <div className={styles.icon}><IconParkListCheckbox size={32}/></div>
         <div className={styles.textContainer}>
           <h3>Opción múltiple</h3>
-          <p>(El afiliado elegirá más de una opción)</p>
+          <p>El usuario podrá elegir una o más opciones de respuesta de una lista.</p>
         </div>
       </div>
       <div className={styles.questionTypeOption} onClick={()=>openSurveyType('E')}>
         <div className={styles.icon}><IconTowtoneLinearScale size={32} /></div>
         <div className={styles.textContainer}>
           <h3>Opción en escala</h3>
-          <p>(El afiliado elegirá una puntuación entre el 1 y 10)</p>
+          <p>El usuario asigna una puntuación entre 1 y 10, o una escala personalizada.</p>
         </div>
       </div>
       <div className={styles.questionTypeOption} onClick={()=>openSurveyType('T')}>
         <div className={styles.icon}><IconParagraph size={32}/></div>
         <div className={styles.textContainer}>
           <h3>Opción de caja de texto</h3>
-          <p>(El afiliado responderá mediante un párrafo de texto)</p>
+          <p>El usuario responderá mediante un párrafo de texto libre.</p>
         </div>
       </div>
       </section>

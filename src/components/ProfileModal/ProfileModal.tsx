@@ -274,7 +274,7 @@ const ProfileModal = ({
         buttonText=""
         buttonCancel=""
         zIndex={zIndex}
-        style={{ backgroundColor: "#191919" }}
+        style={{ backgroundColor: "#121519" }}
       >
         <div className={styles.ProfileModal}>
           <section>
@@ -290,11 +290,11 @@ const ProfileModal = ({
                   type="button"
                   onClick={() => setOpenEdit(true)}
                   style={{
-                    backgroundColor: "var(--cWhiteV2)",
+                    backgroundColor: "#d7fff005",
                     padding: 8,
-                    borderRadius: "var(--bRadiusS)",
+                    borderRadius: "12px",
                     cursor: "pointer",
-                    border: "none",
+                    border: "1px solid #d7fff014",
                     color: "inherit",
                     display: "flex",
                     alignItems: "center",
@@ -308,11 +308,11 @@ const ProfileModal = ({
                 <button
                   type="button"
                   style={{
-                    backgroundColor: "var(--cWhiteV2)",
+                    backgroundColor: "#d7fff005",
                     padding: 8,
-                    borderRadius: "var(--bRadiusS)",
+                    borderRadius: "12px",
                     cursor: "pointer",
-                    border: "none",
+                    border: "1px solid #d7fff014",
                     color: "inherit",
                     display: "flex",
                     alignItems: "center",
@@ -340,9 +340,9 @@ const ProfileModal = ({
                 borderTopRightRadius: "var(--bRadiusS)",
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
-                borderBottom: "1px solid var(--cWhiteV2)",
+                borderBottom: "1px solid #d7fff014",
                 objectFit: "cover",
-                background: "var(--cWhiteV2)",
+                background: "#d7fff005",
               }}
               unoptimized
             />

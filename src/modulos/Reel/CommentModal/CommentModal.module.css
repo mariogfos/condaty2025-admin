@@ -13,7 +13,7 @@
 }
 
 .commentModalContent {
-  background-color: var(--cBlack);
+  background-color: #121519;
   padding: var(--spL);
   border-radius: var(--bRadiusM);
   width: 100%;
@@ -22,7 +22,7 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 5px 25px rgba(0,0,0,0.5);
-  border: 1px solid var(--cBlackV3);
+  border: 1px solid #d7fff014;
 }
 
 .commentModalHeader {
@@ -31,7 +31,7 @@
   align-items: center;
   padding-bottom: var(--spM);
   margin-bottom: var(--spM);
-  border-bottom: 1px solid var(--cBlackV3);
+  border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
 }
 
 .commentModalTitle {
@@ -137,7 +137,7 @@
 .commentModalFooter {
   padding-top: var(--spM);
   margin-top: var(--spM);
-  border-top: 1px solid var(--cBlackV3);
+  border-top: 0.3px solid rgba(215, 255, 240, 0.12);
   display: flex;
   flex-direction: column;
   gap: var(--spM);
@@ -147,8 +147,8 @@
   width: 100%;
   padding: var(--spM);
   border-radius: var(--bRadiusS);
-  background-color: var(--cBlackV2);
-  border: 1px solid var(--cBlackV3);
+  background-color: #d7fff005;
+  border: 1px solid #d7fff014;
   color: var(--cWhite);
   font-family: var(--fPrimary);
   font-size: var(--sM);
@@ -184,7 +184,7 @@
 }
 
 .commentPostButton:disabled {
-  background-color: var(--cBlackV3);
+  background-color: #d7fff005;
   color: var(--cWhiteV2);
   cursor: not-allowed;
 }

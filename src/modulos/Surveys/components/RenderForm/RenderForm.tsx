@@ -34,6 +34,9 @@ const RenderForm = ({
   const [formState, setFormState]: any = useState(
     normalizeFormState({ ...item }),
   );
+  const [formState, setFormState]: any = useState(
+    normalizeFormState({ ...item }),
+  );
   const [_open, setOpen] = useState(open);
   const [errors, setErrors] = useState({});
   const [surveyType, setSurveyType] = useState("");
@@ -56,8 +59,22 @@ const RenderForm = ({
             false,
             true,
           );
+          const { data } = await execute(
+            "/surveys",
+            "GET",
+            {
+              fullType: "DET",
+              searchBy: item.id,
+            },
+            false,
+            true,
+          );
           if (data?.success && data?.data?.survey) {
             let newState = { ...data.data.survey, fullLoaded: true };
+            setFormState((prev: any) => ({
+              ...prev,
+              ...normalizeFormState(newState),
+            }));
             setFormState((prev: any) => ({
               ...prev,
               ...normalizeFormState(newState),
@@ -105,8 +122,10 @@ const RenderForm = ({
       errors,
     });
 
+
     // Check if target_criteria exists and has at least one role selected
     const rolesObj = formState.target_criteria?.roles || {};
+    const hasSelectedRole = Object.values(rolesObj).some((v) => v === "1");
     const hasSelectedRole = Object.values(rolesObj).some((v) => v === "1");
     if (!hasSelectedRole) {
       errors.target_criteria = "Selecciona al menos un rol";
@@ -148,9 +167,17 @@ const RenderForm = ({
         (q: any) =>
           ["S", "M"].includes(q.type) &&
           (!q.soptions || q.soptions.length === 0),
+      const missingOptions = qs.some(
+        (q: any) =>
+          ["S", "M"].includes(q.type) &&
+          (!q.soptions || q.soptions.length === 0),
       );
 
       if (missingOptions) {
+        showToast(
+          "Las preguntas de selección deben tener al menos una opción.",
+          "error",
+        );
         showToast(
           "Las preguntas de selección deben tener al menos una opción.",
           "error",
@@ -163,6 +190,7 @@ const RenderForm = ({
         "/surveys" + (formState.id ? "/" + formState.id : ""),
         method,
         {
+          title: formState.title,
           title: formState.title,
           description: formState.description,
           target_criteria: formState.target_criteria || {
@@ -178,8 +206,11 @@ const RenderForm = ({
           is_mandatory: formState.is_mandatory === "Y",
           squestions: formState.squestions || [],
         },
+        },
       );
 
+      if (data?.success === true || (data && !data.error)) {
+        // API Might return 'success' or just data
       if (data?.success === true || (data && !data.error)) {
         // API Might return 'success' or just data
         onClose();
@@ -206,13 +237,52 @@ const RenderForm = ({
     return val;
   };
 
+  const footerButtons =
+    level === 1 ? (
+      <>
+        <Button
+          variant="secondary"
+          onClick={() => _onClose()}
+          style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+        >
+          Cancelar
+        </Button>
+        <Button
+          variant="primary"
+          onClick={() => _onSave()}
+          style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+        >
+          Siguiente
+        </Button>
+      </>
+    ) : (
+      <>
+        <Button
+          variant="secondary"
+          onClick={() => setLevel(1)}
+          style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+        >
+          Volver
+        </Button>
+        <Button
+          variant="primary"
+          onClick={() => _onSave()}
+          style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+        >
+          Guardar encuesta
+        </Button>
+      </>
+    );
+
   return (
     <>
       <DataModal
         title={formState.id ? "Editar encuesta" : "Crear encuesta"}
         open={_open}
         onClose={_onClose}
-        buttonText={level === 1 ? "Siguiente" : "Guardar"}
+        buttonText=""
+        buttonCancel=""
+        buttonExtra={footerButtons}
         className={styles.renderFormLevel1}
         onSave={_onSave}
       >
@@ -267,6 +337,9 @@ const RenderForm = ({
               />
             </div>
           </div>
+          <div className={styles.stepperStatus}>
+            {isLoadingDetails && <span>Sincronizando detalles...</span>}
+          </div>
         </section>
 
         {level === 1 && (
@@ -313,7 +386,6 @@ const RenderForm = ({
                 error={errors}
                 isLimit={true}
                 maxLength={255}
-                style={{ marginBottom: 0 }}
               />
             </div>
           </div>
@@ -334,16 +406,20 @@ const RenderForm = ({
               </div>
               <div className={styles.subtitleFormLv2}>
                 {formState.description}
+                <div>{formState.title}</div>{" "}
+                {formState.is_mandatory === "Y" && <div> • Obligatoria</div>}
+              </div>
+              <div className={styles.subtitleFormLv2}>
+                {formState.description}
               </div>
             </section>
-            <div>
+            <div className={styles.questionsSection}>
               <SurveyList formState={formState} setFormState={setFormState} />
             </div>
             <SurveyQuestionTypePanel openSurveyType={openSurveyType} />
           </div>
         )}
       </DataModal>
-
       {surveyType !== "" && (
         <SurveyFactory
           type={surveyType}

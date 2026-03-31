@@ -44,9 +44,9 @@
 
 .selectOptions {
   cursor: pointer;
-  background-color: var(--cBackground);
-  border: var(--bWidth) solid var(--cBorder);
-  border-radius: var(--bRadius);
+  background-color: rgba(18, 21, 25, 0.96);
+  border: 1px solid #d7fff014;
+  border-radius: 12px;
   position: fixed;
   top: 20px;
   width: calc(100% - var(--spS) * 2);
@@ -65,11 +65,12 @@
       justify-content: space-between;
       align-items: center;
       padding: var(--spS) var(--spS);
+      color: #878f9a;
     }
 
     & li:hover,
     & li.selected {
-      background-color: var(--cFillSidebar);
+      background-color: rgba(0, 227, 140, 0.14);
       color: var(--cWhite);
     }
 

@@ -11,6 +11,7 @@ import {
   IconAdministracion,
   IconCommunication,
   IconSecurityV2,
+  IconUmbrella,
 } from "../layout/icons/IconsBiblioteca";
 
 export type MenuConfigItem =
@@ -91,7 +92,6 @@ export const menuConfig: MenuConfigItem[] = [
     key: "Administración",
     items: [
       { href: "/units", perm: "units", labelKey: "units" },
-      { href: "/areas", perm: "areas", labelKey: "commonAreas" },
       { href: "/documents", perm: "documents", labelKey: "documents" },
       { href: "/configs", perm: "settings", labelKey: "settings" },
     ],
@@ -125,12 +125,19 @@ export const menuConfig: MenuConfigItem[] = [
     ],
   },
   {
-    type: "item",
-    href: "/reservas",
-    labelKey: "reservations",
-    perm: "reservations",
-    icon: IconCalendar,
-    badgeKey: "reservasBage",
+    type: "dropdown",
+    labelKey: "Áreas sociales",
+    icon: IconUmbrella,
+    key: "Áreas sociales",
+    items: [
+      { href: "/areas", perm: "areas", labelKey: "commonAreas" },
+      {
+        href: "/reservas",
+        perm: "reservations",
+        labelKey: "reservations",
+        badgeKey: "reservasBage",
+      },
+    ],
   },
   {
     type: "dropdown",

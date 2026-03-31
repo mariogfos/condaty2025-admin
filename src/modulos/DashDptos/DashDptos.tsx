@@ -274,6 +274,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             }
             subtitle={`Últimos ${datas?.payments?.length || 0} pagos`}
             variant="V1"
+            className={styles.historyWidgetCard}
             style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.accountContent}>
@@ -303,6 +304,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
               />
             }
             variant="V1"
+            className={styles.historyWidgetCard}
             style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.accessContent}>
@@ -330,6 +332,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 : "Cargando..."
             }
             variant="V1"
+            className={styles.historyWidgetCard}
             style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.reservationsContent}>

@@ -206,7 +206,7 @@
 }
 
 .deudas-header {
-  background-color: var(--cBlackV2, #333536);
+  background-color: rgba(18, 21, 25, 0.8);
   color: var(--cWhite, #fbfbfb);
   font-weight: 600;
   font-size: 16px;
@@ -233,13 +233,13 @@
 }
 
 .deuda-item:nth-child(odd) .deuda-row {
-  background-color: var(--cBlackV2, #414141);
+  background-color: rgba(18, 21, 25, 0.76);
   color: var(--cWhiteV1, #a7a7a7);
 }
 
 .deuda-item:nth-child(even) .deuda-row {
-  background-color: var(--cWhiteV2, #fbfbfb);
-  color: var(--cWhiteV1, #333536);
+  background-color: #121519;
+  color: var(--cWhiteV1, #a7a7a7);
 }
 
 .deuda-item:not(:last-child) .deuda-row {

@@ -22,8 +22,7 @@ const TagContents = ({
   };
   return (
     <div
-      className={style.TagContents}
-      style={{ backgroundColor: isActive ? "var(--cBlackV3)" : undefined }}
+      className={`${style.TagContents} ${isActive ? style.active : ""}`}
       onClick={_onClick}
     >
       {icon}

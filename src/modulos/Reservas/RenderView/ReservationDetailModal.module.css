@@ -39,10 +39,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--spM, 12px);
-  background-color: var(--cBlackV2, #333536); /* Variable */
+  background-color: #d7fff005; /* Variable */
   padding: var(--spM, 12px);
   border-radius: var(--bRadius, 12px);
-  border: 0.5px solid var(--cWhiteV1, #a7a7a7); /* Variable */
+  border: 1px solid #d7fff014; /* Variable */
 }
 
 .requesterSection {
@@ -104,7 +104,7 @@
 }
 
 .imagePlaceholder {
-  background-color: var(--cBlackV3, #393c3f); /* Fondo placeholder */
+  background-color: rgba(18, 21, 25, 0.72); /* Fondo placeholder */
   display: flex;
   align-items: center;
   justify-content: center;

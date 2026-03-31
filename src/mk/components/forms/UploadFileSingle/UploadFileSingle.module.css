@@ -10,7 +10,8 @@
 
 .uploadArea {
   cursor: pointer;
-  background-color: var(--cBackground-foreground);
+  background-color: #d7fff005;
+  border: 1px solid #d7fff014;
   display: flex;
   align-items: center;
   border-radius: 12px;
@@ -45,7 +46,7 @@
 }
 
 .editButton {
-  background-color: var(--cBackground);
+  background-color: rgba(18, 21, 25, 0.86);
   width: 38px;
   height: 38px;
   border-radius: 100%;

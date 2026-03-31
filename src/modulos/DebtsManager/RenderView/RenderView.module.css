@@ -1,5 +1,5 @@
 .container {
-  background-color: var(--cBlackV2);
+  background-color: #d7fff005;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -8,8 +8,8 @@
   font-family: var(--fPrimary);
   box-sizing: border-box;
   color: var(--cWhite);
-  border-radius: var(--bRadiusS);
-  border: 1px solid var(--cWhiteV1);
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
   min-width: 600px;
 }
 
@@ -187,9 +187,9 @@
   gap: var(--spL);
   width: 100%;
   padding: var(--spL);
-  background-color: var(--cBlackV1);
+  background-color: rgba(18, 21, 25, 0.65);
   border-radius: var(--bRadiusS);
-  border: 1px solid var(--cWhiteV2);
+  border: 1px solid #d7fff014;
 }
 
 .advancedItem {
@@ -197,15 +197,15 @@
   flex-direction: column;
   gap: var(--spXs);
   padding: var(--spM);
-  background-color: var(--cBlackV2);
+  background-color: #d7fff005;
   border-radius: var(--bRadiusS);
-  border: 1px solid var(--cWhiteV3);
+  border: 1px solid #d7fff014;
   transition: all 0.2s ease;
 }
 
 .advancedItem:hover {
-  border-color: var(--cWhiteV1);
-  background-color: var(--cBlackV1);
+  border-color: #d7fff014;
+  background-color: rgba(0, 227, 140, 0.08);
 }
 
 .advancedItem .infoLabel {

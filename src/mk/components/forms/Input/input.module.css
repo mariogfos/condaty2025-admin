@@ -1,8 +1,8 @@
 .input {
-  background-color: var(--cBackground-foreground);
+  background-color: #d7fff005;
   width: 100%;
   border-radius: var(--bRadiusS);
-  border: var(--bWidth) solid var(--cBorder);
+  border: 1px solid #d7fff014;
   /* height: 48px; */
   font-size: var(--sL);
   /* align-items: center; */
@@ -21,7 +21,7 @@
     /* margin-bottom: 0; */
   }
   & > div > input::placeholder {
-    color: var(--cWhiteV1);
+    color: #878f9a;
     opacity: 0.5;
     font-size: var(--sL);
   }
@@ -29,7 +29,7 @@
     flex-shrink: 1;
     display: flex;
     align-items: center;
-    color: var(--cWhiteV1);
+    color: #878f9a;
   }
 
   & > div {
@@ -46,7 +46,7 @@
       top: 0;
       transition: all 0.3s;
       font-size: var(--sL);
-      color: var(--cWhiteV1);
+      color: #878f9a;
       padding-left: var(--spXs);
       padding-right: var(--spXs);
       padding-top: var(--spXs);
@@ -69,7 +69,7 @@
       font-size: var(--sS);
       transform: translateY(-20%);
       background-color: transparent;
-      color: var(--cWhiteV1);
+      color: #878f9a;
 
       /* Estilos previamente añadidos para permitir el ajuste en múltiples líneas */
       white-space: normal;

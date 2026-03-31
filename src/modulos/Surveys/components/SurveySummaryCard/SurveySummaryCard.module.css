@@ -1,10 +1,10 @@
 .card {
-  background-color: var(--cBlackV1);
+  background-color: #d7fff005;
   border-radius: var(--bRadius);
   padding: var(--spM);
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 2px solid transparent;
+  border: 1px solid #d7fff014;
 }
 
 .card:hover {
@@ -13,7 +13,7 @@
 
 .card.active {
   border-color: var(--cPrimary);
-  background-color: var(--cBlackV2);
+  background-color: rgba(0, 227, 140, 0.08);
 }
 
 .header {
@@ -43,5 +43,5 @@
 
 .label {
   font-size: var(--sXs);
-  color: var(--cGrayLight);
+  color: var(--cWhiteV3);
 }

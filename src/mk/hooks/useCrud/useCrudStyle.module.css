@@ -58,12 +58,8 @@
       justify-content: center;
       align-items: center;
       border-radius: 8px;
-      background-color: var(--cBackground);
-      border: 1px solid var(--cBackground-foreground);
-      /* border: 1px solid var(--cWhiteV3); */
-      /* padding: 4px; */
-      /* width: 40px;
-      height: 40px; */
+      background-color: rgba(18, 21, 25, 0.56);
+      border: 0.1px solid rgba(215, 255, 240, 0.22);
       overflow: hidden;
     }
     & div:first-child {
@@ -106,14 +102,17 @@
 }
 
 .addButton {
-  height: 56px;
-  padding: 0 24px;
-  font-size: 16px;
-  border-radius: var(--bRadiusS);
+  height: 44px !important;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600 !important;
+  color: #212121 !important;
+  background-color: #00e38c !important;
+  border-radius: 12px;
   cursor: pointer;
   transition: background-color 0.3s;
   width: auto;
-  min-width: 180px;
+  min-width: 170px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -126,12 +125,16 @@
 }
 .extraButtons > div > button,
 .extraButtons > button {
-  height: 48px;
-  padding: 0 24px;
-  font-size: 16px;
-  border-radius: var(--bRadiusS);
+  height: 44px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #878f9a;
+  gap: 8px;
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
+  background-color: #d7fff005;
   width: auto;
-  /* min-width: 180px; */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -187,13 +190,14 @@
 .icons,
 .extraButtons > div > svg {
   cursor: pointer;
-  background-color: var(--cBackground-foreground);
-  border: 1px solid var(--cBorder);
-  min-width: 48px;
-  padding: 8px;
-  height: 48px;
-  border-radius: var(--bRadiusS);
+  color: #878f9a;
+  background-color: #d7fff005;
+  border: 1px solid #d7fff014;
+  min-width: 44px;
+  padding: 12px;
+  height: 44px;
+  border-radius: 12px;
   &:hover {
-    background-color: var(--cHoverTable);
+    background-color: rgba(0, 227, 140, 0.12);
   }
 }

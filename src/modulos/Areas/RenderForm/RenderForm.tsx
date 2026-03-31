@@ -221,7 +221,13 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
       >
         <p style={{ fontSize: 24, fontWeight: 600 }}>Creación de área social</p>
         <StepProgressBar currentStep={level} totalSteps={4} />
-        <Card>
+        <Card
+          style={{
+            backgroundColor: "#d7fff005",
+            border: "1px solid #d7fff014",
+            borderRadius: 12,
+          }}
+        >
           {level === 1 && (
             <FirstPart
               errors={errors}
@@ -261,7 +267,8 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
                 style={{
                   padding: 10,
                   borderRadius: 10,
-                  border: "1px solid var(--cBorder)",
+                  border: "1px solid #d7fff014",
+                  backgroundColor: "#d7fff005",
                 }}
                 onClick={() => {
                   setLevel(level - 1);

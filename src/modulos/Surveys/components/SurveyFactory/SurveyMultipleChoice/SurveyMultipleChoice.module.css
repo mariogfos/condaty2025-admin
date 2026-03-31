@@ -2,12 +2,12 @@
   & > p:nth-child(1) {
     color: var(--cWhite);
     font-size: var(--sXl);
-    font-weight: 700;
+    font-weight: var(--bBold);
   }
   & > p:nth-child(2) {
     color: var(--cWhiteV1);
     font-size: var(--sM);
-    font-weight: 400;
+    font-weight: var(--bRegular);
     margin-bottom: var(--spXs);
   }
   & > p:nth-child(3) {
@@ -20,14 +20,15 @@
     & > div:nth-child(odd) {
       flex: 2;
       & > div {
-        background-color: var(--cBlackV1);
+        background-color: #d7fff005;
         border-radius: var(--bRadius);
         padding: var(--spM);
         margin-bottom: var(--spM);
+        border: 1px solid #d7fff014;
         & > p {
           color: var(--cWhite);
           font-size: var(--sM);
-          font-weight: 600;
+          font-weight: var(--bSemibold);
           margin-bottom: var(--spS);
         }
       }
@@ -35,20 +36,21 @@
     & > div:nth-child(even) {
       flex: 1;
       & > div {
-        background-color: var(--cBlackV1);
+        background-color: #d7fff005;
         border-radius: var(--bRadius);
         padding: var(--spM);
         margin-bottom: var(--spM);
+        border: 1px solid #d7fff014;
         & > p:nth-child(odd) {
           color: var(--cWhite);
           font-size: var(--sM);
-          font-weight: 600;
+          font-weight: var(--bSemibold);
           margin-bottom: var(--spS);
         }
         & > p:nth-child(even) {
           color: var(--cWhiteV1);
           font-size: var(--sM);
-          font-weight: 400;
+          font-weight: var(--bRegular);
           margin-bottom: var(--spS);
         }
         & > div {

@@ -43,7 +43,8 @@
 /* ----- Calendar Container ----- */
 .calendarGridContainer {
   padding: var(--spL);
-  background-color: var(--cBackground);
+  background-color: #d7fff005;
+  border: 1px solid #d7fff014;
   border-radius: var(--bRadiusS);
   display: flex;
   flex-direction: column;
@@ -144,7 +145,7 @@
 }
 
 .calendarDayButton:hover:not(:disabled) {
-  background-color: var(--cBlackV3);
+  background-color: rgba(0, 227, 140, 0.12);
 }
 
 /* ----- States ----- */

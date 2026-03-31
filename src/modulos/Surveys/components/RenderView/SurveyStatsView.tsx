@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import dynamic from "next/dynamic";
-import styles from "../../Surveys.module.css";
+import styles from "./SurveyStatsView.module.css";
 import { formatNumber } from "@/mk/utils/numbers";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -9,12 +9,12 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 });
 
 const CHART_COLORS = [
-  "rgba(103, 194, 171, 0.9)",
-  "rgba(131, 147, 237, 0.9)",
-  "rgba(237, 179, 86, 0.9)",
-  "rgba(239, 120, 120, 0.9)",
-  "rgba(130, 210, 232, 0.9)",
-  "rgba(200, 150, 230, 0.9)",
+  "rgba(0, 227, 140, 0.9)",
+  "rgba(78, 231, 172, 0.9)",
+  "rgba(233, 176, 30, 0.9)",
+  "rgba(247, 178, 103, 0.9)",
+  "rgba(228, 96, 85, 0.9)",
+  "rgba(179, 130, 217, 0.9)",
 ];
 
 type SOption = {
@@ -60,39 +60,20 @@ function QuestionChart({
     // const answers = question.text_responses_sample ?? [];
     return (
       <div>
-        <p className={styles.subtitle} style={{ marginBottom: 8 }}>
+        <p className={styles.textHint}>
           {(question.total_responses || 0) > 0
             ? `${question.total_responses} respuesta(s) de muestra:`
             : "Sin respuestas aún."}
         </p>
         {(question.total_responses || 0) > 0 && (
-          <ul
-            style={{
-              paddingLeft: 16,
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-              listStyle: "disc",
-            }}
-          >
+          <ul className={styles.textList}>
             {question.text_responses_sample?.slice(0, 5).map((r, i) => {
               const matchesUser = userResponse && r === userResponse;
               return (
-                <li
-                  key={i}
-                  style={{
-                    color: matchesUser
-                      ? "var(--cPrimary, #6366f1)"
-                      : "var(--cWhiteV1)",
-                    fontSize: "0.875rem",
-                    fontWeight: matchesUser ? "bold" : "normal",
-                  }}
-                >
+                <li key={i} className={matchesUser ? styles.myResponse : ""}>
                   "{r}"{" "}
                   {matchesUser && (
-                    <span style={{ fontSize: "0.7rem", opacity: 0.8 }}>
-                      (Tu respuesta)
-                    </span>
+                    <span className={styles.userTag}>(Tu respuesta)</span>
                   )}
                 </li>
               );
@@ -115,7 +96,7 @@ function QuestionChart({
 
   // Generate colors based on whether it's the user's response
   const colors = options.map((o, i) => {
-    if (isMyResponse(o.id)) return "var(--cPrimary, #6366f1)";
+    if (isMyResponse(o.id)) return "var(--cPrimary)";
     return CHART_COLORS[i % CHART_COLORS.length].replace("0.9", "0.4"); // Fade other bars
   });
 
@@ -142,14 +123,14 @@ function QuestionChart({
       style: {
         fontSize: "11px",
         fontWeight: "bold",
-        colors: ["#1A1A1A"], // Color oscuro para contraste dentro de las barras claras
+        colors: ["var(--cBlack)"],
       },
       dropShadow: {
         enabled: true,
         top: 0,
         left: 0,
         blur: 1,
-        color: "#FFFFFF",
+        color: "var(--cWhite)",
         opacity: 1,
       },
       offsetX: -5, // Lo movemos un poco hacia la izquierda para que esté bien dentro de la barra
@@ -157,17 +138,17 @@ function QuestionChart({
     },
     xaxis: {
       categories,
-      labels: { style: { colors: "#A0A0A0" } },
+      labels: { style: { colors: "var(--cWhiteV1)" } },
     },
     yaxis: {
       labels: {
         padding: 10,
-        style: { colors: "#A0A0A0" },
+        style: { colors: "var(--cWhiteV1)" },
         maxWidth: 200,
       },
     },
     grid: {
-      borderColor: "#2a2a2a",
+      borderColor: "#d7fff014",
       padding: {
         left: 20, // Espacio extra para que no pegue a la izquierda
       },
@@ -184,15 +165,12 @@ function QuestionChart({
 
   return (
     <div>
-      <p
-        className={styles.subtitle}
-        style={{ marginBottom: 4, fontSize: "0.8rem" }}
-      >
+      <p className={styles.textHint}>
         {formatNumber(total, 0)}{" "}
         {total === 1 ? "voto registrado" : "votos registrados"}
       </p>
       {total === 0 && !userResponse ? (
-        <p className={styles.subtitle}>Sin votos aún para esta pregunta.</p>
+        <p className={styles.textHint}>Sin votos aún para esta pregunta.</p>
       ) : (
         <ReactApexChart
           options={chartOptions}
@@ -219,63 +197,29 @@ export default function SurveyStatsView({
   if (!squestions?.length) return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      {/* Summary */}
+    <div className={styles.statsContainer}>
       {showSummary && (
-        <div
-          style={{
-            display: "flex",
-            gap: 24,
-            padding: "12px 16px",
-            background: "rgba(255,255,255,0.04)",
-            borderRadius: "var(--bRadius)",
-          }}
-        >
+        <div className={styles.summaryCard}>
           <div>
-            <p className={styles.subtitle} style={{ marginBottom: 2 }}>
-              Total participantes
-            </p>
-            <p
-              className={styles.title}
-              style={{ fontSize: "1.4rem", margin: 0 }}
-            >
+            <p className={styles.summaryLabel}>Total participantes</p>
+            <p className={styles.summaryValue}>
               {formatNumber(totalParticipants, 0)}
             </p>
           </div>
         </div>
       )}
 
-      {/* Per-question charts */}
-      {squestions.map((q, idx) => (
-        <div
-          key={q.id}
-          style={{
-            padding: "16px",
-            background: "rgba(255,255,255,0.04)",
-            borderRadius: "var(--bRadius)",
-            borderLeft: "3px solid var(--cPrimary, #6366f1)",
-          }}
-        >
-          <p
-            className={styles.subtitle}
-            style={{
-              marginBottom: 4,
-              fontSize: "0.7rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            Pregunta {idx + 1}
-          </p>
-          <p
-            className={styles.title}
-            style={{ marginBottom: 12, fontSize: "0.95rem", marginTop: 0 }}
-          >
-            {q.question_text || (q as any).text}
-          </p>
-          <QuestionChart question={q} index={idx} />
-        </div>
-      ))}
+      <div className={styles.questionGrid}>
+        {squestions.map((q, idx) => (
+          <div key={q.id} className={styles.questionCard}>
+            <p className={styles.questionIndex}>P{idx + 1}</p>
+            <p className={styles.questionTitle}>
+              {q.question_text || (q as any).text}
+            </p>
+            <QuestionChart question={q} index={idx} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

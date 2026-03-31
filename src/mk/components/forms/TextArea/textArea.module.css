@@ -3,7 +3,7 @@
   width: 100%;
 }
 .textArea {
-  background-color: var(--cBackground-foreground);
+  background-color: #d7fff005;
   display: block;
   outline: none;
   width: 100%;
@@ -11,20 +11,20 @@
   padding-left: var(--spM);
   padding-right: var(--spM);
   padding-top: var(--spL);
-  border: var(--bWidth) solid var(--cBorder);
+  border: 1px solid #d7fff014;
   font-size: var(--sM);
   resize: none;
   /* margin-top: calc(var(--spM)); */
   position: relative;
   & > div > textarea::placeholder {
-    color: var(--cWhiteV1);
+    color: #878f9a;
     font-size: var(--sL);
   }
   & > span {
     flex-shrink: 1;
     display: flex;
     align-items: center;
-    color: var(--cWhiteV1);
+    color: #878f9a;
   }
   & > div {
     flex-grow: 1;
@@ -36,7 +36,7 @@
       top: 0;
       transition: all 0.3s;
       font-size: var(--sL);
-      color: var(--cWhiteV1);
+      color: #878f9a;
       /* background-color: var(--cWhite); */
       padding-left: var(--spXs);
       padding-right: var(--spXs);
@@ -49,7 +49,7 @@
       font-size: var(--sS);
       transform: translateY(-28%);
       background-color: "transparent";
-      color: var(--cWhiteV1);
+      color: #878f9a;
     }
     & > textarea {
       width: 100%;
@@ -92,7 +92,6 @@
 .charCounter {
   /* flex: 1; */
   position: absolute;
-
   right: 0;
   bottom: -2px;
   font-size: 0.875rem; /* Tamaño de texto */

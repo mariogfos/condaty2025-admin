@@ -43,7 +43,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
 
   return (
     <div
-      className={`${styles.card} ${isActive ? styles.active : ''} ${className}`}
+      className={`${styles.card} ${variant === 'summary' ? styles.summaryCard : styles.detailCard} ${isActive ? styles.active : ''} ${className}`}
     >
       <div className={styles.header}>
         {variant === 'summary' && title && (
