@@ -5,7 +5,7 @@ export interface TargetCriteria {
   roles: Record<string, string>;
   unit_types: string[];
   only_arrears: boolean;
-  only_current: boolean;  // Nuevo: filtrar solo los que están al día
+  only_current: boolean; // Nuevo: filtrar solo los que están al día
   vote_per_unit: boolean;
 }
 
@@ -47,8 +47,6 @@ export interface SurveyConfig {
 
 // Interfaz para la data de la tabla según como la trae el hook
 export interface SurveyItemData extends SurveyConfig {
-  begin_at?: string | null; // Mapeando campos antiguos para retrocompatibilidad
-  end_at?: string | null; // Mapeando campos antiguos para retrocompatibilidad
   destiny?: string;
   is_mandatory?: string;
   name?: string; // Para retrocompatibilidad

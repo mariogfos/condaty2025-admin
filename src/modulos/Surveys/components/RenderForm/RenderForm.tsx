@@ -2,6 +2,11 @@
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderForm.module.css";
 import React, { useEffect, useState } from "react";
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconEye,
+} from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Button from "@/mk/components/forms/Button/Button";
@@ -82,7 +87,7 @@ const RenderForm = ({
     let hoy: any = new Date();
     hoy.setHours(hoy.getHours() - GMT);
     hoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-    return item?.begin_at && new Date(item?.begin_at) <= hoy;
+    return item?.scheduled_at && new Date(item?.scheduled_at) <= hoy;
   };
 
   const validateLevel1 = () => {
@@ -104,15 +109,15 @@ const RenderForm = ({
 
     if (formState.switch === "Y") {
       errors = checkRules({
-        value: formState.begin_at,
-        rules: ["required", "greaterDate"],
-        key: "begin_at",
+        value: formState.scheduled_at,
+        rules: ["required", "greaterDateTime"],
+        key: "scheduled_at",
         errors,
       });
       errors = checkRules({
-        value: formState.end_at,
-        rules: ["greaterDate", "greaterDate:begin_at", "required"],
-        key: "end_at",
+        value: formState.expires_at,
+        rules: ["greaterDateTime", "greaterDateTime:scheduled_at", "required"],
+        key: "expires_at",
         errors,
         data: formState,
       });
@@ -161,8 +166,9 @@ const RenderForm = ({
             only_current: false,
             vote_per_unit: true,
           },
-          scheduled_at: formState.switch === "Y" ? formState.begin_at : null,
-          expires_at: formState.switch === "Y" ? formState.end_at : null,
+          scheduled_at:
+            formState.switch === "Y" ? formState.scheduled_at : null,
+          expires_at: formState.switch === "Y" ? formState.expires_at : null,
           is_mandatory: formState.is_mandatory === "Y",
           squestions: formState.squestions || [],
         },
@@ -297,10 +303,10 @@ const RenderForm = ({
         {level === 2 && (
           <div className={styles.renderFormLevel2}>
             <section className={styles.surveyHeader}>
-              {formState.begin_at && formState.end_at && (
+              {formState.scheduled_at && formState.expires_at && (
                 <div className={styles.titleDate}>
-                  Programada para el {getDateTimeStrMes(formState.begin_at)}{" "}
-                  hasta el {getDateTimeStrMes(formState.end_at)}{" "}
+                  Programada para el {getDateTimeStrMes(formState.scheduled_at)}{" "}
+                  hasta el {getDateTimeStrMes(formState.expires_at)}{" "}
                 </div>
               )}
               <div className={styles.titleFormLv2}>
