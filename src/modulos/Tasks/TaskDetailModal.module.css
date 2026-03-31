@@ -46,7 +46,7 @@
   padding: 10px 12px;
   border: 1px solid var(--cBorder);
   border-radius: 10px;
-  background: color-mix(in srgb, var(--cBlackV2) 85%, transparent);
+  background: rgba(18, 21, 25, 0.76);
   color: var(--cWhiteV1);
   font-size: 13px;
   line-height: 1.5;
@@ -92,7 +92,7 @@
   align-items: center;
   gap: 8px;
   border: 1px solid var(--cBorder);
-  background: color-mix(in srgb, var(--cBlackV2) 75%, transparent);
+  background: rgba(18, 21, 25, 0.76);
   border-radius: 999px;
   padding: 0 10px;
   height: 36px;
@@ -128,7 +128,7 @@
   align-items: center;
   gap: 8px;
   border: 1px solid var(--cBorder);
-  background: color-mix(in srgb, var(--cBlackV2) 75%, transparent);
+  background: rgba(18, 21, 25, 0.76);
   border-radius: 999px;
   padding: 0 8px;
   height: 36px;
@@ -139,6 +139,17 @@
   width: 180px;
 }
 
+.quickStatusSelectWrap :global(*) {
+  border: none !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.quickStatusSelectWrap :global(.select) {
+  position: relative !important;
+}
+
 .quickStatusSelectWrap :global(label) {
   display: none !important;
 }
@@ -146,7 +157,6 @@
 .quickStatusSelectWrap :global(input) {
   height: 30px !important;
   min-height: 30px !important;
-  background: transparent !important;
   color: var(--cWhite) !important;
   font-size: 12px !important;
   font-weight: 600 !important;
@@ -182,7 +192,7 @@
 
 .metaCard {
   border: 1px solid var(--cBorder);
-  background: var(--cBlackV2);
+  background: rgba(18, 21, 25, 0.8);
   border-radius: 10px;
   padding: 10px;
 }
@@ -245,8 +255,8 @@
 }
 
 .commentItem {
-  border: 1px solid var(--cBorder);
-  background: var(--cBlackV2);
+  border: 0.5px solid rgba(215, 255, 240, 0.12);
+  background: rgba(18, 21, 25, 0.8);
   border-radius: 10px;
   padding: 10px;
 }

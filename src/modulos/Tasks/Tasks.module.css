@@ -45,7 +45,7 @@
 
 .emptyBox {
   min-height: 260px;
-  border: 1px solid var(--cBorder);
+  border: 0.5px solid rgba(215, 255, 240, 0.12);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -53,7 +53,7 @@
   align-items: center;
   gap: 8px;
   color: var(--cWhiteV1);
-  background: linear-gradient(180deg, var(--cBlackV2), var(--cBlackV1));
+  background: rgba(18, 21, 25, 0.8);
 }
 
 .tableWrap {
@@ -165,7 +165,7 @@
 .table thead th {
   position: sticky;
   top: 0;
-  background: var(--cBlackV2);
+  background: rgba(18, 21, 25, 0.8);
   text-align: left;
   padding: 12px;
   font-size: 13px;
@@ -178,8 +178,16 @@
   border-bottom: 1px solid var(--cBorder);
 }
 
+.table tbody tr:nth-child(odd) {
+  background: rgba(18, 21, 25, 0.76);
+}
+
+.table tbody tr:nth-child(even) {
+  background: #121519;
+}
+
 .table tbody tr:hover {
-  background: var(--cBlackV2);
+  background: rgba(0, 227, 140, 0.08);
 }
 
 .table tbody td {
@@ -230,8 +238,8 @@
 
 .kanbanCol {
   min-height: 60vh;
-  background: var(--cBlackV2);
-  border: 1px solid var(--cBorder);
+  background: rgba(18, 21, 25, 0.8);
+  border: 0.5px solid rgba(215, 255, 240, 0.12);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -265,7 +273,7 @@
   border-radius: 10px;
   padding: 10px;
   cursor: pointer;
-  background: var(--cBlack);
+  background: rgba(18, 21, 25, 0.8);
   min-width: 0;
   overflow: hidden;
   transition: transform 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
