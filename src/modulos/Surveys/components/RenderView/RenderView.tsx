@@ -194,9 +194,6 @@ const RenderView = (props: {
       setSurveyData(props.item);
       setDetailsLoaded(false);
       setStats(null);
-      setSurveyData(props.item);
-      setDetailsLoaded(false);
-      setStats(null);
     }
 
     setAudience(props.item?.estimated_audience ?? 0);
@@ -216,7 +213,6 @@ const RenderView = (props: {
         { fullType: "DET", searchBy: id },
         false,
         true,
-        true,
       );
       if (detailRes.data?.success) {
         const det = detailRes.data.data;
@@ -232,7 +228,6 @@ const RenderView = (props: {
         "GET",
         { survey_id: id, ...filters },
         false,
-        true,
         true,
       );
       if (statsRes.data?.success) {
@@ -381,9 +376,10 @@ const RenderView = (props: {
                 display: "flex",
                 gap: 24,
                 flexWrap: "wrap",
-                background: "rgba(255,255,255,0.02)",
-                padding: 12,
-                borderRadius: 8,
+                background: "linear-gradient(150deg, #d7fff008, #d7fff002)",
+                padding: "10px 12px",
+                borderRadius: 10,
+                border: "1px solid #d7fff014",
               }}
             >
               {surveyData?.created_at && (
@@ -392,7 +388,7 @@ const RenderView = (props: {
                   <p
                     style={{
                       color: "var(--cWhiteV1)",
-                      fontSize: "0.875rem",
+                      fontSize: "var(--sM)",
                       margin: 0,
                     }}
                   >
@@ -407,7 +403,7 @@ const RenderView = (props: {
                   <p
                     style={{
                       color: "var(--cWhiteV1)",
-                      fontSize: "0.875rem",
+                      fontSize: "var(--sM)",
                       margin: 0,
                     }}
                   >
@@ -421,7 +417,7 @@ const RenderView = (props: {
                   <p
                     style={{
                       color: "var(--cWhiteV1)",
-                      fontSize: "0.875rem",
+                      fontSize: "var(--sM)",
                       margin: 0,
                     }}
                   >
@@ -471,22 +467,11 @@ const RenderView = (props: {
         )}
 
         {detailsLoaded && stats && (
-          <div
-            style={{
-              marginTop: 20,
-              borderTop: "1px solid var(--borderV1)",
-              paddingTop: 20,
-              background: "#0f172a", // Forced dark background
-              borderRadius: "16px",
-              padding: "20px",
-            }}
-          >
-            <SurveyDashboard
-              stats={stats}
-              filters={filters}
-              onFilterChange={setFilters}
-            />
-          </div>
+          <SurveyDashboard
+            stats={stats}
+            filters={filters}
+            onFilterChange={setFilters}
+          />
         )}
 
         {detailsLoaded && !hasAnswers && (

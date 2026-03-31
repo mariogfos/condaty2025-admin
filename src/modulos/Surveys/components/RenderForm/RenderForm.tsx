@@ -2,13 +2,9 @@
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderForm.module.css";
 import React, { useEffect, useState } from "react";
-import {
-  IconArrowLeft,
-  IconArrowRight,
-  IconEye,
-} from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import Button from "@/mk/components/forms/Button/Button";
 import { GMT, getDateTimeStrMes } from "@/mk/utils/date";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -16,7 +12,6 @@ import SurveyQuestionTypePanel from "../SurveyQuestionTypePanel/SurveyQuestionTy
 import SurveyFactory from "../SurveyFactory/SurveyModalFactory";
 import SurveyList from "../SurveyList/SurveyList";
 import SurveyTargeting from "./SurveyTargeting";
-import Button from "@/mk/components/forms/Button/Button";
 
 const RenderForm = ({
   open,
@@ -63,10 +58,6 @@ const RenderForm = ({
               ...prev,
               ...normalizeFormState(newState),
             }));
-            setFormState((prev: any) => ({
-              ...prev,
-              ...normalizeFormState(newState),
-            }));
           }
         } catch (error) {
           console.error("Error cargando detalles encuesta:", error);
@@ -81,13 +72,6 @@ const RenderForm = ({
   const openSurveyType = (type: string) => {
     setSurveyType(type);
   };
-
-  const progressBarStyle =
-    level === 1
-      ? {
-          background: `linear-gradient(to right, var(--cSuccess) 50%, var(--cBlackV1) 50%)`,
-        }
-      : { backgroundColor: "var(--cSuccess)" };
 
   const handleChange = (e: any) => {
     let value = e.target.value;
@@ -260,55 +244,18 @@ const RenderForm = ({
         className={styles.renderFormLevel1}
         onSave={_onSave}
       >
-        <section>
-          <div>
-            Vista previa
-            <IconEye />
-          </div>
-          <div
-            style={{
-              ...progressBarStyle,
-              height: "3px",
-              width: "100%",
-              borderRadius: "var(--bRadius)",
-            }}
-          ></div>
-          <div
-            style={{
-              marginTop: 12,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <section>
-              <p>{level}/2</p>
-              <p>
-                Define los datos de información y segmentación de tu encuesta
-              </p>
-            </section>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              {isLoadingDetails && (
-                <span
-                  style={{
-                    fontSize: "12px",
-                    color: "var(--cTextV2)",
-                    fontStyle: "italic",
-                  }}
-                >
-                  Sincronizando detalles...
-                </span>
-              )}
-              <IconArrowLeft
-                onClick={() => {
-                  if (level === 2) setLevel(1);
-                }}
-              />
-              <IconArrowRight
-                onClick={() => {
-                  if (level === 1) _onSave();
-                }}
-              />
+        <section className={styles.stepperHeader}>
+          <div className={styles.stepperTrack}>
+            <div className={styles.stepperLine} />
+            <div className={`${styles.stepperStep} ${styles.active}`}>
+              <div className={styles.stepperCircle}>1</div>
+              <p>Configuración</p>
+            </div>
+            <div
+              className={`${styles.stepperStep} ${level === 2 ? styles.active : ""}`}
+            >
+              <div className={styles.stepperCircle}>2</div>
+              <p>Preguntas</p>
             </div>
           </div>
           <div className={styles.stepperStatus}>
@@ -317,14 +264,7 @@ const RenderForm = ({
         </section>
 
         {level === 1 && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-              marginTop: "16px",
-            }}
-          >
+          <div className={styles.levelOneContent}>
             <SurveyTargeting
               formState={formState}
               setFormState={setFormState}
@@ -332,18 +272,8 @@ const RenderForm = ({
               errors={errors}
               extraData={extraData}
             />
-
-            {/* Card 2: Detalle de la encuesta */}
-            <div
-              style={{
-                background: "var(--cBlackV1)",
-                borderRadius: "var(--bRadius)",
-                padding: "16px",
-              }}
-            >
-              <h3 className={styles.title} style={{ marginBottom: 12 }}>
-                Detalle de la encuesta
-              </h3>
+            <div className={styles.blockCard}>
+              <h3 className={styles.title}>Detalles de la encuesta</h3>
               <Input
                 label="Título"
                 type="text"
@@ -367,7 +297,7 @@ const RenderForm = ({
 
         {level === 2 && (
           <div className={styles.renderFormLevel2}>
-            <section>
+            <section className={styles.surveyHeader}>
               {formState.scheduled_at && formState.expires_at && (
                 <div className={styles.titleDate}>
                   Programada para el {getDateTimeStrMes(formState.scheduled_at)}{" "}
@@ -375,11 +305,6 @@ const RenderForm = ({
                 </div>
               )}
               <div className={styles.titleFormLv2}>
-                <div>{formState.title}</div>{" "}
-                {formState.is_mandatory === "Y" && <div> • Obligatoria</div>}
-              </div>
-              <div className={styles.subtitleFormLv2}>
-                {formState.description}
                 <div>{formState.title}</div>{" "}
                 {formState.is_mandatory === "Y" && <div> • Obligatoria</div>}
               </div>
