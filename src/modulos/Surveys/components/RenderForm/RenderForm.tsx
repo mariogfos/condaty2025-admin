@@ -2,11 +2,6 @@
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderForm.module.css";
 import React, { useEffect, useState } from "react";
-import {
-  IconArrowLeft,
-  IconArrowRight,
-  IconEye,
-} from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Button from "@/mk/components/forms/Button/Button";
