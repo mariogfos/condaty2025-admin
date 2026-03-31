@@ -1,0 +1,131 @@
+.renderForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+}
+
+.stepperHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stepperTrack {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 120px;
+  position: relative;
+}
+
+.stepperLine {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 2px;
+  background: #d7fff025;
+}
+
+.stepperStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--cWhiteV1);
+  font-weight: var(--bSemibold);
+  position: relative;
+  z-index: 1;
+}
+
+.stepperCircle {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid #d7fff045;
+  background: #1b1f2d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--sM);
+}
+
+.active {
+  color: var(--cPrimary);
+}
+
+.active .stepperCircle {
+  border-color: var(--cPrimary);
+  background: rgba(0, 183, 129, 0.2);
+}
+
+.sectionCard {
+  background: #d7fff005;
+  border-radius: var(--bRadius);
+  padding: 16px;
+  border: 1px solid #d7fff014;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: var(--sXl);
+  color: var(--cWhite);
+  font-weight: var(--bBold);
+  margin: 0;
+}
+
+.sectionSubtitle {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.row > div {
+  width: 100%;
+}
+
+.modalityGrid {
+  display: flex;
+  gap: 12px;
+}
+
+.modalityBtn {
+  width: 100%;
+  border: 1px solid #d7fff033;
+  border-radius: var(--bRadius);
+  padding: 12px;
+  background: transparent;
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  cursor: pointer;
+}
+
+.modalityBtnActive {
+  border-color: var(--cPrimary);
+  background: rgba(0, 183, 129, 0.15);
+  color: var(--cWhite);
+}
+
+@media (max-width: 900px) {
+  .stepperTrack {
+    gap: 70px;
+  }
+
+  .stepperLine {
+    width: 150px;
+  }
+
+  .row,
+  .modalityGrid {
+    flex-direction: column;
+  }
+}

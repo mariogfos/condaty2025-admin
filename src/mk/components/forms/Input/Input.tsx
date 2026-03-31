@@ -10,6 +10,7 @@ interface PropsType extends PropsTypeInputBase {
     | "email"
     | "password"
     | "datetime-local"
+    | "time"
     | "number"
     | "date"
     | "hidden"
