@@ -51,7 +51,7 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/app-versions", perm: "superadmins", labelKey: "appVersions" },
       {
         href: "/visit-reasons",
-        perm: "", //"visit_reasons",
+        perm: "visit_reasons",
         labelKey: "Motivos de visitas",
       },
     ],
@@ -92,7 +92,6 @@ export const menuConfig: MenuConfigItem[] = [
     key: "Administración",
     items: [
       { href: "/units", perm: "units", labelKey: "units" },
-      { href: "/assemblies", perm: "units", labelKey: "assemblies" },
       { href: "/documents", perm: "documents", labelKey: "documents" },
       { href: "/configs", perm: "settings", labelKey: "settings" },
     ],
