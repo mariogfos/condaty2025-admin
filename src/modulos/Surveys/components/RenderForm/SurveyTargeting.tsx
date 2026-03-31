@@ -40,6 +40,7 @@ const ROLES_OPTIONS = [
   { id: "guard_supervisor", name: "Supervisor de guardias", hasUnits: false },
   { id: "guard", name: "Guardias", hasUnits: false },
   { id: "directive", name: "Mesa directiva", hasUnits: false },
+  { id: "directive", name: "Mesa directiva", hasUnits: false },
   { id: "admin", name: "Administradores", hasUnits: false },
 ];
 
