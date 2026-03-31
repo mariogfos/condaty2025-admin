@@ -1,9 +1,9 @@
 "use client";
 import { CSSProperties, useEffect, useState } from "react";
+import DetailModal from "../DetailModal/DetailModal";
 import Button from "../../forms/Button/Button";
-import { IconX } from "../../../../components/layout/icons/IconsBiblioteca";
-import styles from "./dataModal.module.css";
 import HeadTitle from "@/components/HeadTitle/HeadTitle";
+import styles from "./dataModal.module.css";
 
 type PropsType = {
   children: any;
@@ -34,28 +34,34 @@ const DataModal = ({
   children,
   onClose,
   open,
-  onSave = (e: any) => {},
+  onSave = () => {},
   title = "",
   className = "",
   buttonText = "Guardar",
   buttonCancel = "Cancelar",
   buttonExtra = null,
-  id = "",
   style = {},
   duration = 300,
   fullScreen = false,
   iconClose = true,
   disabled = false,
-  //colorTitle = 'var(--cAccent)',
-  colorTitle = "var(--cWhite)",
   variant = null,
   zIndex = 200,
-  headerDivider = true,
   minWidth = null,
   maxWidth = null,
   ignoreTranslation = false,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        setOpenModal(true);
+      }, 100);
+    } else {
+      setOpenModal(false);
+    }
+  }, [open]);
 
   const _close = (a: any = false) => {
     setOpenModal(false);
@@ -64,85 +70,95 @@ const DataModal = ({
     }, duration);
   };
 
-  useEffect(() => {
-    if (open) {
-      setTimeout(() => {
-        setOpenModal(open);
-      }, 100);
-    } else {
-      setOpenModal(open);
-    }
-  }, [open]);
+  const customStyle = { ...style } as CSSProperties;
+  if (minWidth) customStyle.minWidth = minWidth as any;
+  if (maxWidth) customStyle.maxWidth = maxWidth as any;
+  if (variant === "mini" && !customStyle.maxWidth) customStyle.maxWidth = 560;
+  if (fullScreen) {
+    customStyle.width = "100vw";
+    customStyle.maxWidth = "100vw";
+    customStyle.height = "100vh";
+    customStyle.maxHeight = "100vh";
+    customStyle.borderRadius = 0;
+  }
 
-  const combinedStyle: CSSProperties = {
-    ...style,
-    ...(minWidth ? { minWidth } : {}),
-    ...(maxWidth ? { maxWidth } : {}),
-  };
-  return (
-    <div
-      style={{ visibility: open ? "visible" : "hidden", zIndex }}
-      className={styles.dataModal}
-      onClick={(e) => e.stopPropagation()}
-      data-i18n-ignore={ignoreTranslation ? "true" : undefined}
-    >
-      <main
-        className={
-          (openModal ? styles["open"] : "") +
-          "  " +
-          (fullScreen ? styles["full"] : "") +
-          " " +
-          (variant ? styles[variant] : "")
-        }
-        style={combinedStyle}
+  if (fullScreen) {
+    return (
+      <div
+        style={{ visibility: open ? "visible" : "hidden", zIndex }}
+        className={styles.dataModal}
+        data-i18n-ignore={ignoreTranslation ? "true" : undefined}
       >
-        <HeadTitle
-          style={{ padding: "0px" }}
-          title={fullScreen ? title : ""}
-          customTitle={
-            !fullScreen ? <p style={{ fontSize: 24 }}>{title}</p> : ""
+        <main
+          className={
+            (openModal ? styles.open : "") +
+            " " +
+            (fullScreen ? styles.full : "") +
+            " " +
+            (variant ? styles[variant] : "")
           }
-          left={fullScreen && iconClose ? null : false}
-          onBack={() => _close(false)}
-          right={
-            iconClose &&
-            !fullScreen && (
-              <IconX
-                className=""
-                size={40}
-                onClick={() => _close(false)}
-                circle
-                style={{ backgroundColor: "transparent", padding: "0px" }}
-              />
-            )
-          }
-          colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
-          colorTitle={!fullScreen ? colorTitle : "var(--cAccent)"}
-        />
-        {/* {!fullScreen && headerDivider && (
-          <div className={styles.headerDivider} />
-        )} */}
-        <section className={className}>{children}</section>
-        {(buttonText != "" || buttonCancel != "" || buttonExtra) && (
-          <footer>
-            {buttonText != "" && (
-              <Button
-                variant="primary"
-                disabled={disabled}
-                onClick={() => onSave("save")}
-              >
-                {buttonText}
-              </Button>
-            )}
-            {buttonCancel != "" && (
-              <Button variant="secondary" onClick={() => _close("cancel")}>
-                {buttonCancel}
-              </Button>
-            )}
-            {buttonExtra}
-          </footer>
-        )}
-      </main>
+          style={customStyle}
+        >
+          <HeadTitle
+            style={{ padding: "0px" }}
+            title={title}
+            left={iconClose ? null : false}
+            onBack={() => _close(false)}
+            colorBack="var(--cAccent)"
+            colorTitle="var(--cAccent)"
+          />
+          <section className={className}>{children}</section>
+          {(buttonText !== "" || buttonCancel !== "" || buttonExtra) && (
+            <footer>
+              {buttonText !== "" && (
+                <Button
+                  variant="primary"
+                  disabled={disabled}
+                  onClick={() => onSave("save")}
+                  style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+                >
+                  {buttonText}
+                </Button>
+              )}
+              {buttonCancel !== "" && (
+                <Button
+                  variant="secondary"
+                  onClick={() => _close("cancel")}
+                  style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+                >
+                  {buttonCancel}
+                </Button>
+              )}
+              {buttonExtra}
+            </footer>
+          )}
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div data-i18n-ignore={ignoreTranslation ? "true" : undefined}>
+      <DetailModal
+        open={open}
+        onClose={onClose}
+        onSave={onSave}
+        title={title}
+        className={className}
+        buttonText={buttonText}
+        buttonCancel={buttonCancel}
+        buttonExtra={buttonExtra}
+        duration={duration}
+        disabled={disabled}
+        style={customStyle}
+        zIndex={zIndex}
+        iconClose={iconClose}
+        maxWidth={maxWidth}
+        minWidth={minWidth}
+        fullScreen={fullScreen}
+      >
+        {children}
+      </DetailModal>
     </div>
   );
 };

@@ -9,6 +9,10 @@
   padding: 32px;
 }
 
+.fullScreenOverlay {
+  padding: 0;
+}
+
 .detailModal > main {
   width: clamp(680px, 70vw, 860px);
   max-width: calc(100vw - 90px);
@@ -33,6 +37,14 @@
   opacity: 0;
   transform: translateY(28px);
   transition: all 0.3s ease;
+}
+
+.detailModal > main.fullScreenMain {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
 }
 
 .detailModal > main::before {
@@ -154,6 +166,15 @@
     border-radius: 20px;
     padding: 16px;
     gap: 12px;
+  }
+
+  .detailModal > main.fullScreenMain {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    padding: 16px;
   }
 
   .title {

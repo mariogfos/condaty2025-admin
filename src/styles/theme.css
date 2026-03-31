@@ -251,7 +251,12 @@ button {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: var(--cBlack);
+  background: linear-gradient(
+      148deg,
+      rgba(0, 227, 140, 0.08) 0%,
+      rgba(0, 227, 140, 0) 50%,
+      rgba(0, 227, 140, 0) 100%
+    ), linear-gradient(0deg, rgba(18, 21, 25, 1) 0%, rgba(18, 21, 25, 1) 100%);
   display: flex;
   justify-content: center;
   align-items: center;

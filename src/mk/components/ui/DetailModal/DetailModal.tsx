@@ -23,6 +23,7 @@ type PropsType = {
   minWidth?: string | number | null;
   maxWidth?: string | number | null;
   iconClose?: boolean;
+  fullScreen?: boolean;
 };
 
 const DetailModal = ({
@@ -43,6 +44,7 @@ const DetailModal = ({
   minWidth = null,
   maxWidth = null,
   iconClose = true,
+  fullScreen = false,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
 
@@ -68,9 +70,12 @@ const DetailModal = ({
   return (
     <div
       style={{ visibility: open ? "visible" : "hidden", zIndex }}
-      className={styles.detailModal}
+      className={`${styles.detailModal} ${fullScreen ? styles.fullScreenOverlay : ""}`}
     >
-      <main className={openModal ? styles.open : ""} style={customStyle}>
+      <main
+        className={`${openModal ? styles.open : ""} ${fullScreen ? styles.fullScreenMain : ""}`}
+        style={customStyle}
+      >
         <header className={styles.header}>
           <div className={styles.titleWrap}>
             {title ? <div className={styles.title}>{title}</div> : null}
@@ -95,12 +100,17 @@ const DetailModal = ({
                 variant="primary"
                 disabled={disabled}
                 onClick={() => onSave("save")}
+                style={{ height: 44, fontSize: 15, fontWeight: 600 }}
               >
                 {buttonText}
               </Button>
             )}
             {buttonCancel !== "" && (
-              <Button variant="secondary" onClick={() => _close("cancel")}>
+              <Button
+                variant="secondary"
+                onClick={() => _close("cancel")}
+                style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+              >
                 {buttonCancel}
               </Button>
             )}

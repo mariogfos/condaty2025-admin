@@ -2,8 +2,12 @@
   display: flex;
   flex-direction: column;
 
-  & > section:nth-child(1) {
-    padding: 24px;
+  .subtitle {
+    color: #878f9a;
+    font-size: 14px;
+  }
+
+  & > section:first-of-type {
     /* Remove centered margin/width for UploadFile wrapper if we use flex layout */
   }
 
@@ -42,12 +46,11 @@
     font-size: 12px;
   }
 
-  & > section:nth-child(2) {
+  & > section:nth-of-type(2) {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: var(--spS);
-    padding: 24px;
 
     & > div:first-of-type {
       display: grid;

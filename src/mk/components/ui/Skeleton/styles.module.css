@@ -117,7 +117,8 @@
 
   & > div {
     border-radius: var(--bRadius);
-    background-color: var(--darkv1);
+    background-color: #121519;
+    border: 0.3px solid rgba(215, 255, 240, 0.12);
     padding-left: var(--spXl);
     padding-right: var(--spXl);
   }
@@ -128,7 +129,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--cBorder);
+  border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
   padding: var(--sL);
   animation: pulse-animation 1.5s infinite ease-in-out;
 
@@ -141,7 +142,7 @@
       height: var(--spXxl);
       width: var(--spXxl);
       border-radius: 100%;
-      background-color: #e5e7eb4d;
+      background-color: rgba(215, 255, 240, 0.08);
       animation-name: pulse-animation;
       animation-duration: 1.5s;
       animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
@@ -155,7 +156,7 @@
         height: var(--sL);
         width: 10rem;
         border-radius: var(--bRadius);
-        background-color: #d1d5db4d;
+        background-color: rgba(215, 255, 240, 0.08);
         animation: pulse-animation 1.5s infinite;
       }
 
@@ -164,7 +165,7 @@
         height: var(--sL);
         width: 3rem;
         border-radius: var(--bRadius);
-        background-color: #d1d5db4d;
+        background-color: rgba(215, 255, 240, 0.08);
         animation: pulse-animation 1.5s infinite;
       }
     }
@@ -176,7 +177,7 @@
     width: 3rem;
     /* w-12 */
     border-radius: var(--bRadius);
-    background-color: #d1d5db4d;
+    background-color: rgba(215, 255, 240, 0.08);
     animation: pulse-animation 1.5s infinite;
   }
 }
@@ -334,10 +335,10 @@
 }
 
 .skeletonWrapper {
-  --skeleton-bg-color: var(--cWhiteV3);
+  --skeleton-bg-color: rgba(215, 255, 240, 0.08);
   --skeleton-border-radius: 16px;
   --skeleton-animation-duration: 3s;
-  --skeleton-gradient-color: rgba(255, 255, 255, 0.1);
+  --skeleton-gradient-color: rgba(0, 227, 140, 0.12);
   --skeleton-gap: 8px;
   --skeleton-container-gap: 16px;
 }

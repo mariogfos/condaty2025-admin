@@ -2,7 +2,7 @@
   width: 100%;
   border-radius: var(--bRadiusM);
   overflow: hidden;
-  background-color: var(--cBlackV1);
+  background-color: #d7fff005;
   position: relative;
   cursor: default;
   max-height: 455px;
@@ -43,7 +43,7 @@
   position: relative;
   overflow: hidden;
   padding-top: 125%;
-  background-color: var(--cBlackV1);
+  background-color: #d7fff005;
 }
 
 .instagramFrame {
@@ -66,10 +66,10 @@
   padding: var(--spXl);
   text-align: center;
   min-height: 200px;
-  border: 1px solid var(--cBlackV3);
+  border: 1px solid #d7fff014;
   border-radius: var(--bRadiusM);
   gap: var(--spM);
-  background-color: var(--cBlackV2);
+  background-color: #d7fff005;
 }
 
 .documentTitlePreview {
@@ -107,7 +107,7 @@
 .externalMediaLink {
   padding: var(--spL);
   text-align: center;
-  border: 1px dashed var(--cBlackV3);
+  border: 1px dashed #d7fff014;
 }
 
 .externalMediaLink a {

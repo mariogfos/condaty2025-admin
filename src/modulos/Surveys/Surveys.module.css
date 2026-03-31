@@ -1,84 +1,85 @@
 .surveysContainer {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  color: var(--cWhite);
+  margin-bottom: 1rem;
+  font-size: var(--sXl);
+  font-weight: var(--bBold);
+}
+
+.surveyName {
+  font-weight: var(--bSemibold);
+  font-size: var(--sM);
+  color: var(--cWhite);
+}
+
+.surveyDescription {
+  font-size: var(--sM);
+  color: var(--cWhiteV1);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: var(--sS);
+  font-weight: var(--bSemibold);
+  text-align: center;
+}
+
+.statusA {
+  background-color: var(--cSuccess, #10b981);
+  color: white;
+}
+
+.statusS {
+  background-color: var(--cPrimary);
+  color: white;
+}
+
+.statusP {
+  background-color: var(--cWarning, #f59e0b);
+  color: white;
+}
+
+.statusC {
+  background-color: var(--cError, #ef4444);
+  color: white;
+}
+
+.statusX {
+  background-color: var(--cError, #ef4444);
+  color: white;
+}
+
+.statusI {
+  background-color: var(--cWarning, #f59e0b);
+  color: white;
+}
+
+.statusF {
+  background-color: var(--cPrimary);
+  color: white;
+}
+
+.statusD {
+  background-color: var(--cWhiteV2);
+  color: white;
+}
+
+/* Estilos para la vista móvil */
+@media (max-width: 768px) {
+  .surveysContainer {
+    padding: 0.5rem;
   }
-  
-  .title {
-    color: var(--tWhite, #ffffff);
-    margin-bottom: 1rem;
-    font-size: 1.125rem;
-    font-weight: 500;
-  }
-  
-  .surveyName {
-    font-weight: 500;
-    color: var(--tWhite, #ffffff);
-  }
-  
-  .surveyDescription {
-    font-size: 0.875rem;
-    color: var(--lightv3, #a7a7a7);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .statusBadge {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-align: center;
-  }
-  
-  .statusA {
-    background-color: var(--cSuccess, #10b981);
-    color: white;
-  }
-  
-  .statusS {
-    background-color: var(--cInfo, #3b82f6);
-    color: white;
-  }
-  
-  .statusP {
-    background-color: var(--cWarning, #f59e0b);
-    color: white;
-  }
-  
-  .statusC {
-    background-color: var(--cError, #ef4444);
-    color: white;
-  }
-  
-  .statusX {
-    background-color: var(--cError, #ef4444);
-    color: white;
-  }
-  
-  .statusI {
-    background-color: var(--cWarning, #f59e0b);
-    color: white;
-  }
-  
-  .statusF {
-    background-color: var(--cInfo, #3b82f6);
-    color: white;
-  }
-  
-  .statusD {
-    background-color: var(--cWhiteV1, #a7a7a7);
-    color: white;
-  }
-  
-  /* Estilos para la vista móvil */
-  @media (max-width: 768px) {
-    .surveysContainer {
-      padding: 0.5rem;
-    }
-  }
+}

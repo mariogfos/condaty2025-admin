@@ -60,9 +60,9 @@
 }
 
 .searchInput {
-  background-color: var(--cBlackV1) !important;
-  border: 1px solid var(--cWhiteV2) !important;
-  border-radius: 8px !important;
+  background-color: #d7fff005 !important;
+  border: 1px solid #d7fff014 !important;
+  border-radius: 12px !important;
   color: var(--cWhite) !important;
 }
 
@@ -115,14 +115,15 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background-color: var(--cBlackV1);
+  background-color: #d7fff005;
+  border: 1px solid #d7fff014;
   border-radius: 12px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .clientItem:hover {
-  background-color: var(--cBlackV2);
+  background-color: rgba(0, 227, 140, 0.08);
 }
 
 .clientInfo {
@@ -153,13 +154,14 @@
 }
 
 .modalFullScreen {
-  background-color: #1a1a1a !important;
+  background-color: #121519 !important;
 }
 
 .clientCard {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  background-color: var(--dark-v2);
+  background-color: #d7fff005;
+  border: 1px solid #d7fff014;
   color: var(--light-v3);
   border-radius: 1rem;
   padding: 1rem;
@@ -169,7 +171,21 @@
 }
 
 .clientCard:hover {
-  background-color: var(--p-black);
+  background-color: rgba(0, 227, 140, 0.08);
+}
+
+.backButtonContainer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.backButton {
+  width: 100%;
+  background-color: #d7fff005 !important;
+  border: 1px solid #d7fff014 !important;
+  border-radius: 12px !important;
+  color: var(--cWhite) !important;
 }
 
 .clientType {

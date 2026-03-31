@@ -13,20 +13,33 @@ const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
   const client = user?.clients?.find((c: any) => c.id == user?.client_id);
   return (
     <div className={styles.menuHeader}>
-      <div>
-        <Avatar
-          src={client?.url_banner?.[0]}
-          name={getFullName(user)}
-          w={collapsed ? 48 : 210}
-          h={collapsed ? 48 : 128}
-          style={{ borderRadius: 8 }}
-        />
-      </div>
       {!collapsed && (
+        <>
+          <div
+            className={styles.headerImage}
+            style={{
+              backgroundImage: client?.url_banner?.[0]
+                ? `url(${client.url_banner[0]})`
+                : undefined,
+            }}
+          />
+          <div className={styles.titleContainer}>
+            <div className={styles.headerTitle}>Condominio</div>
+            <div className={styles.headerSubtitle} data-i18n-ignore="true">
+              {client?.name}
+            </div>
+          </div>
+        </>
+      )}
+      {collapsed && (
         <div>
-          <p style={{ color: "var(--cWhite)" }} data-i18n-ignore="true">
-            {client?.name}
-          </p>
+          <Avatar
+            src={client?.url_banner?.[0]}
+            name={getFullName(user)}
+            w={48}
+            h={48}
+            style={{ borderRadius: 8 }}
+          />
         </div>
       )}
     </div>

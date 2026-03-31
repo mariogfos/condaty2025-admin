@@ -10,7 +10,7 @@
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid var(--cGrayLight);
+  border: 3px solid var(--cWhiteV2);
   border-top-color: var(--cPrimary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -25,9 +25,32 @@
 
 .content {
   position: relative;
-  overflow: hidden;
-  max-height: 70vh;
+  overflow: visible;
+  max-height: 76vh;
   overflow-y: auto;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+}
+
+.hero {
+  padding: var(--spM);
+  border: 1px solid #d7fff014;
+  border-radius: var(--bRadius);
+  background: linear-gradient(
+    140deg,
+    rgba(8, 18, 20, 0.8),
+    rgba(12, 24, 26, 0.45)
+  );
+}
+
+.title {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: var(--sXl);
+  font-weight: var(--bBold);
+  line-height: 1.25;
 }
 
 .loadingBar {
@@ -42,52 +65,115 @@
 }
 
 @keyframes loadingAnim {
-  0% { left: -100%; width: 100%; }
-  50% { left: 0%; width: 100%; }
-  100% { left: 100%; width: 100%; }
+  0% {
+    left: -100%;
+    width: 100%;
+  }
+  50% {
+    left: 0%;
+    width: 100%;
+  }
+  100% {
+    left: 100%;
+    width: 100%;
+  }
 }
 
 .description {
-  font-size: var(--sSm);
+  margin: 8px 0 0;
+  font-size: var(--sM);
   color: var(--cWhiteV3);
-  margin: 0 0 var(--spM) 0;
+  line-height: 1.45;
 }
 
-.stats {
+.metaStrip {
+  margin-top: var(--spM);
+  border-top: 1px solid #d7fff014;
+  padding-top: var(--spS);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--spS);
+  align-items: center;
+}
+
+.metaItem {
   display: flex;
-  gap: var(--spL);
-  padding: var(--spM);
-  background: var(--cBlackV2);
-  border-radius: var(--bRadius);
-  margin-bottom: var(--spM);
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metaItem > span {
+  font-size: var(--sS);
+  color: var(--cWhiteV3);
+}
+
+.metaItem > strong {
+  font-size: var(--sM);
+  font-weight: var(--bSemibold);
+  color: var(--cWhiteV1);
+}
+
+.statusPill {
+  justify-self: end;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #d7fff024;
+  background: rgba(0, 227, 140, 0.1);
+  color: var(--cPrimary);
+  font-size: var(--sS);
+  font-weight: var(--bSemibold);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--spS);
 }
 
 .stat {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: var(--spM);
+  min-height: 86px;
+  background: linear-gradient(140deg, #d7fff00a, #d7fff003);
+  border-radius: var(--bRadius);
+  border: 1px solid #d7fff014;
 }
 
 .statValue {
-  font-size: var(--sLg);
+  font-size: var(--sXl);
   font-weight: var(--bBold);
   color: var(--cPrimary);
 }
 
 .statLabel {
-  font-size: var(--sXs);
+  font-size: var(--sS);
+  font-weight: var(--bSemibold);
   color: var(--cWhiteV3);
 }
 
 .questions {
-  margin-bottom: var(--spM);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS);
+}
+
+.resultsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS);
 }
 
 .questionsTitle {
-  font-size: var(--sMd);
+  font-size: var(--sL);
   font-weight: var(--bBold);
   color: var(--cWhite);
-  margin: 0 0 var(--spM) 0;
+  margin: 0;
+  letter-spacing: 0.01em;
+  padding: 0 0 var(--spS);
+  border-bottom: 1px solid #d7fff014;
 }
 
 .emptyQuestions {
@@ -95,45 +181,20 @@
   text-align: center;
   color: var(--cWhiteV3);
   font-style: italic;
-  font-size: var(--sSm);
-}
-
-.question {
-  padding: var(--spS);
-  background: var(--cBlackV1);
-  border: 1px solid var(--cBlackV2);
+  font-size: var(--sM);
+  border: 1px solid #d7fff014;
   border-radius: var(--bRadius);
-  margin-bottom: var(--spS);
+  background: #d7fff005;
 }
 
-.questionText {
-  font-size: var(--sSm);
-  font-weight: var(--bSemibold);
-  color: var(--cWhite);
-  margin: 0 0 var(--spXs) 0;
-}
-
-.required {
-  color: var(--cError);
-  margin-left: 4px;
-}
-
-.questionDescription {
-  font-size: var(--sXs);
-  color: var(--cWhiteV3);
-  margin: 0 0 var(--spXs) 0;
-}
-
-.questionType {
-  font-size: var(--sXs);
-  color: var(--cPrimary);
-  margin: 0;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spS);
-  padding-top: var(--spM);
-  border-top: 1px solid var(--cGrayLight);
+@media (max-width: 900px) {
+  .metaStrip {
+    grid-template-columns: 1fr 1fr;
+  }
+  .statusPill {
+    justify-self: start;
+  }
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
