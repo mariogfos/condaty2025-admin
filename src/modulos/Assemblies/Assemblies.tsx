@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import styles from "./Assemblies.module.css";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
@@ -9,6 +9,8 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { IconCalendar } from "@/components/layout/icons/IconsBiblioteca";
 import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
+import AssemblyDetailModal from "./components/AssemblyDetailModal/AssemblyDetailModal";
+import { Assembly, STATUS_LABELS, TYPE_LABELS, MODALITY_LABELS } from "./types/assemblies.types";
 
 const paramsInitial = {
   fullType: "L",
@@ -17,60 +19,77 @@ const paramsInitial = {
   searchBy: "",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  Scheduled: "Pendiente",
-  InProgress: "En progreso",
-  Completed: "Completada",
-  Canceled: "Cancelada",
+// Labels actualizados para coincidir con la API (S, P, C, X)
+const API_STATUS_LABELS: Record<string, string> = {
+  S: "Programada",
+  P: "En progreso",
+  C: "Completada",
+  X: "Cancelada",
 };
 
 const STATUS_STYLE: Record<string, { color: string; backgroundColor: string }> = {
-  Scheduled: { color: "var(--cWarning)", backgroundColor: "var(--cHoverCompl4)" },
-  InProgress: { color: "#FFCF4A", backgroundColor: "rgba(255, 207, 74, 0.15)" },
-  Completed: { color: "var(--cSuccess)", backgroundColor: "var(--cHoverSuccess)" },
-  Canceled: { color: "var(--cError)", backgroundColor: "var(--cHoverError)" },
+  S: { color: "var(--cWarning)", backgroundColor: "var(--cHoverCompl4)" },
+  P: { color: "#FFCF4A", backgroundColor: "rgba(255, 207, 74, 0.15)" },
+  C: { color: "var(--cSuccess)", backgroundColor: "var(--cHoverSuccess)" },
+  X: { color: "var(--cError)", backgroundColor: "var(--cHoverError)" },
 };
 
 const STATUS_OPTIONS = [
   { id: "ALL", name: "Todos" },
-  { id: "Scheduled", name: "Pendiente" },
-  { id: "InProgress", name: "En progreso" },
-  { id: "Completed", name: "Completada" },
-  { id: "Canceled", name: "Cancelada" },
+  { id: "S", name: "Programada" },
+  { id: "P", name: "En progreso" },
+  { id: "C", name: "Completada" },
+  { id: "X", name: "Cancelada" },
 ];
 
 const TYPE_OPTIONS = [
-  { id: "Ordinary", name: "Ordinaria" },
-  { id: "Extraordinary", name: "Extraordinaria" },
-  { id: "Informative", name: "Informativa" },
+  { id: "O", name: "Ordinaria" },
+  { id: "E", name: "Extraordinaria" },
+  { id: "I", name: "Informativa" },
 ];
 
 const MODALITY_OPTIONS = [
-  { id: "Virtual", name: "Virtual" },
-  { id: "Presential", name: "Presencial" },
-  { id: "Hybrid", name: "Híbrida" },
+  { id: "V", name: "Virtual" },
+  { id: "I", name: "Presencial" },
+  { id: "H", name: "Híbrida" },
 ];
 
 const Assemblies = () => {
+  const [selectedAssembly, setSelectedAssembly] = useState<Assembly | null>(null);
+  
   const mod: ModCrudType = {
     modulo: "assemblies",
-    singular: "Asamblea",
+    singular: "Asambleas",
     plural: "Asambleas",
     permiso: "units",
     search: true,
     filter: true,
     titleAdd: "Crear asamblea",
     hideActions: {
-      view: true,
+      view: false, // Habilitamos view para abrir el modal de detalle
       edit: true,
       del: true,
     },
     saveMsg: {
-      add: "Asamblea creada con éxito",
-      edit: "Asamblea actualizada con éxito",
-      del: "Asamblea eliminada con éxito",
+      add: "Asambleas creada con éxito",
+      edit: "Asambleas actualizada con éxito",
+      del: "Asambleas eliminada con éxito",
     },
     renderForm: (props: any) => <RenderForm {...props} />,
+    // Custom renderView para el modal de detalle
+    renderView: (props: any) => {
+      const { item } = props;
+      return (
+        <AssemblyDetailModal
+          assembly={item as Assembly}
+          onClose={() => {}}
+          onUpdate={(updated) => {
+            // Actualizar el item en la lista si es necesario
+            props?.reLoad?.();
+          }}
+        />
+      );
+    },
   };
 
   const fields = useMemo(
@@ -154,7 +173,7 @@ const Assemblies = () => {
             return (
               <div className={styles.statusCell}>
                 <StatusBadge color={style.color} backgroundColor={style.backgroundColor}>
-                  {STATUS_LABELS[status] || status}
+                  {API_STATUS_LABELS[status] || status}
                 </StatusBadge>
               </div>
             );
@@ -165,11 +184,15 @@ const Assemblies = () => {
           options: () => STATUS_OPTIONS,
         },
       },
+      // Campos adicionales para la configuración
+      quorum_required: { rules: [], api: "ae", label: "Quórum requerido", list: false },
+      anonymous_voting: { rules: [], api: "ae", label: "Votación anónima", list: false },
+      target_audience: { rules: [], api: "ae", label: "Audiencia", list: false },
     }),
     [],
   );
 
-  const { userCan, List, data } = useCrud({
+  const { userCan, List, data, reLoad } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -177,10 +200,10 @@ const Assemblies = () => {
 
   const metrics = data?.message || {};
   const total = metrics?.total ?? 0;
-  const pending = metrics?.pending ?? metrics?.scheduled ?? 0;
-  const inProgress = metrics?.in_progress ?? metrics?.inProgress ?? 0;
-  const completed = metrics?.completed ?? 0;
-  const canceled = metrics?.canceled ?? metrics?.cancelled ?? 0;
+  const pending = metrics?.S ?? 0;
+  const inProgress = metrics?.P ?? 0;
+  const completed = metrics?.C ?? 0;
+  const canceled = metrics?.X ?? 0;
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
@@ -195,7 +218,7 @@ const Assemblies = () => {
           style={{ minWidth: "160px", maxWidth: "260px" }}
           icon={<IconCalendar color="var(--cInfo)" circle size={18} />}
         />
-        <WidgetDashCard title="Pendientes" data={pending} style={{ minWidth: "160px", maxWidth: "260px" }} />
+        <WidgetDashCard title="Programadas" data={pending} style={{ minWidth: "160px", maxWidth: "260px" }} />
         <WidgetDashCard title="En progreso" data={inProgress} style={{ minWidth: "160px", maxWidth: "260px" }} />
         <WidgetDashCard title="Completadas" data={completed} style={{ minWidth: "160px", maxWidth: "260px" }} />
         <WidgetDashCard title="Canceladas" data={canceled} style={{ minWidth: "160px", maxWidth: "260px" }} />
@@ -210,6 +233,18 @@ const Assemblies = () => {
           emptyIcon={<IconCalendar size={80} color="var(--cWhiteV1)" />}
         />
       </div>
+
+      {/* Modal de detalle */}
+      {selectedAssembly && (
+        <AssemblyDetailModal
+          assembly={selectedAssembly}
+          onClose={() => setSelectedAssembly(null)}
+          onUpdate={(updated) => {
+            setSelectedAssembly(updated);
+            reLoad();
+          }}
+        />
+      )}
     </div>
   );
 };

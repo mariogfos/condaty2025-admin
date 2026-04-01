@@ -12,15 +12,21 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css";
 
 const TYPE_OPTIONS = [
-  { id: "Ordinary", name: "Ordinaria" },
-  { id: "Extraordinary", name: "Extraordinaria" },
-  { id: "Informative", name: "Informativa" },
+  { id: "O", name: "Ordinaria" },
+  { id: "E", name: "Extraordinaria" },
+  { id: "I", name: "Informativa" },
 ];
 
 const MODALITY_OPTIONS = [
-  { id: "Virtual", name: "Virtual" },
-  { id: "Presential", name: "Presencial" },
-  { id: "Hybrid", name: "Híbrida" },
+  { id: "V", name: "Virtual" },
+  { id: "I", name: "Presencial" },
+  { id: "H", name: "Híbrida" },
+];
+
+const TARGET_AUDIENCE_OPTIONS = [
+  { id: "all_owners", name: "Todos los propietarios" },
+  { id: "residents", name: "Solo residentes" },
+  { id: "dependents", name: "Solo dependientes" },
 ];
 
 const normalizeUrls = (value: any): string[] => {
@@ -78,17 +84,21 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       id: item?.id,
       subject: item?.subject || "",
       description: item?.description || "",
-      type: item?.type || "",
+      type: item?.type || "O", // O=Ordinaria por defecto
       start_date: normalizeDateInput(item?.start_date),
       start_time: normalizeTimeInput(item?.start_time),
       end_date: normalizeDateInput(item?.end_date || item?.start_date),
       end_time: normalizeTimeInput(item?.end_time),
-      modality: item?.modality || "Virtual",
+      modality: item?.modality || "V", // V=Virtual por defecto
       meeting_url: item?.meeting_url || "",
       address: item?.address || item?.physical_address || "",
       address_url: item?.address_url || "",
       files: normalizeUrls(item?.files),
-      status: item?.status || "Scheduled",
+      status: item?.status || "S", // S=Scheduled por defecto
+      // Nuevos campos de configuración
+      quorum_required: item?.quorum_required ?? 50,
+      anonymous_voting: item?.anonymous_voting ?? false,
+      target_audience: item?.target_audience || "all_owners",
     }),
     [item],
   );
