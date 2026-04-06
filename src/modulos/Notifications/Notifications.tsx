@@ -1,15 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import styles from "./Notifications.module.css";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { getDateStrMes, getDateTimeAgo } from "@/mk/utils/date";
+import { getDateTimeAgo } from "@/mk/utils/date";
 import { useRouter } from "next/navigation";
 import {
   IconAlertNotification,
   IconPreRegister,
+  IconCheckSquare,
   IconPaymentCommitment,
   IconNewReserve,
   IconUser,
@@ -25,6 +26,7 @@ import RenderItem from "../shared/RenderItem";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
+import TaskDetailModal from "@/modulos/Tasks/TaskDetailModal";
 import { useEvent } from "@/mk/hooks/useEvents";
 import SurveyAnswerForm from "../Surveys/components/SurveyAnswerForm";
 
@@ -35,11 +37,60 @@ const paramsInitial = {
   searchBy: "",
 };
 
+const EMPTY_NOTIFICATION_MESSAGE = {
+  msg: { title: "", body: "" },
+  info: null,
+  act: "",
+  level: 0,
+};
+
+const parseNotificationMessage = (raw: unknown) => {
+  if (!raw) return EMPTY_NOTIFICATION_MESSAGE;
+
+  if (typeof raw === "object") {
+    return raw as {
+      msg?: { title?: string; body?: string };
+      info?: any;
+      act?: string;
+      level?: number;
+    };
+  }
+
+  if (typeof raw !== "string") return EMPTY_NOTIFICATION_MESSAGE;
+
+  const candidates = [raw, raw.replace(/\\'/g, "'")];
+
+  for (const candidate of candidates) {
+    try {
+      let parsed: unknown = candidate;
+
+      // Algunos backends envían doble serialización: "{...}".
+      for (let i = 0; i < 2 && typeof parsed === "string"; i += 1) {
+        parsed = JSON.parse(parsed);
+      }
+
+      if (parsed && typeof parsed === "object") {
+        return parsed as {
+          msg?: { title?: string; body?: string };
+          info?: any;
+          act?: string;
+          level?: number;
+        };
+      }
+    } catch {
+      // Intentar siguiente candidato.
+    }
+  }
+
+  return EMPTY_NOTIFICATION_MESSAGE;
+};
+
 const Notifications = () => {
   const router = useRouter();
   const { user, userCan } = useAuth();
   const [openPayment, setOpenPayment] = useState({ open: false, id: null });
   const [openReservas, setOpenReservas] = useState({ open: false, id: null });
+  const [taskModalId, setTaskModalId] = useState<string | null>(null);
   const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
 
   const mod: ModCrudType = {
@@ -167,6 +218,23 @@ const Notifications = () => {
         );
       }
 
+      if (actValue === "task") {
+        return (
+          <div
+            style={{
+              borderRadius: 50,
+              padding: 8,
+              backgroundColor: "var(--cPrimary)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <IconCheckSquare color="var(--cWhite)" />
+          </div>
+        );
+      }
+
       //if (actValue === "newVoucher" || actValue === "newPayment") {
       if (actValue === "admins") {
         return (
@@ -269,10 +337,7 @@ const Notifications = () => {
           width: "100%",
           onRender: (props: any) => {
             try {
-              let x = props.item.message
-                .replace(/\\"/g, '"')
-                .replace(/\\'/g, "'");
-              const parsedMessage = JSON.parse(x);
+              const parsedMessage = parseNotificationMessage(props.item.message);
 
               const notificationsView = JSON.parse(
                 localStorage.getItem("notificationsView") || "[]",
@@ -341,7 +406,7 @@ const Notifications = () => {
   // ELIMINAR filteredData - no es necesario
   // const filteredData = useMemo(() => { ... });
 
-  const { onLongPress, selItem, searchState } = useCrudUtils({
+  const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -376,37 +441,41 @@ const Notifications = () => {
         notif: 0,
       }));
 
-      // Parse message con mejor manejo de caracteres especiales
-      let x = item.message.replace(/\\"/g, '"').replace(/\\'/g, "'");
-      const parsedMessage = JSON.parse(x);
+      const parsedMessage = parseNotificationMessage(item.message);
+      const notificationAct = parsedMessage?.info?.act || parsedMessage?.act;
+      const taskId =
+        parsedMessage?.info?.task_id || parsedMessage?.info?.id || "";
 
       // Navegar según el tipo de notificación
-      if (parsedMessage?.info?.act === "new-survey") {
+      if (notificationAct?.info?.act === "new-survey") {
         setSelectedSurvey(parsedMessage.info);
       }
 
-      if (parsedMessage?.info?.act === "newPreregister") {
+      if (notificationAct === "newPreregister") {
         router.push("/");
       }
-      if (parsedMessage?.info?.act === "alerts") {
+      if (notificationAct === "alerts") {
         router.push(`/alerts`);
       }
-      if (parsedMessage?.info?.act === "newVoucher") {
+      if (notificationAct === "newVoucher") {
         if (hasPaymentsPerm) {
           setOpenPayment({ open: true, id: parsedMessage.info.id });
         }
       }
-      if (parsedMessage?.info?.act === "newAdmin") {
+      if (notificationAct === "newAdmin") {
         router.push("/users");
       }
-      if (parsedMessage?.info?.act === "newReservationAdm") {
+      if (notificationAct === "newReservationAdm") {
         //router.push("/reservas");
         if (hasReservationsPerm) {
           setOpenReservas({ open: true, id: parsedMessage.info.id });
         }
       }
-      if (parsedMessage?.info?.act === "newContent") {
+      if (notificationAct === "newContent") {
         router.push("/contents");
+      }
+      if (notificationAct === "task" && taskId) {
+        setTaskModalId(taskId);
       }
     } catch (error) {
       console.error("Error processing notification:", error);
@@ -419,17 +488,7 @@ const Notifications = () => {
     onClick: Function,
   ) => {
     try {
-      let parsedMessage: { msg: { title: string; body: string }; info?: any } =
-        {
-          msg: { title: "", body: "" },
-          info: null,
-        };
-      try {
-        let x = item.message.replace(/\\"/g, '"').replace(/\\'/g, "'");
-        parsedMessage = JSON.parse(x);
-      } catch (error) {
-        console.error("Error parsing message:", error);
-      }
+      const parsedMessage = parseNotificationMessage(item.message);
 
       return (
         <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
@@ -491,6 +550,11 @@ const Notifications = () => {
           isMandatory={false}
         />
       )}
+      <TaskDetailModal
+        open={Boolean(taskModalId)}
+        taskId={taskModalId}
+        onClose={() => setTaskModalId(null)}
+      />
     </div>
   );
 };
