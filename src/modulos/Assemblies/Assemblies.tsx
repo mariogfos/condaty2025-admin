@@ -10,7 +10,12 @@ import { IconCalendar } from "@/components/layout/icons/IconsBiblioteca";
 import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
 import AssemblyDetailModal from "./components/AssemblyDetailModal/AssemblyDetailModal";
-import { Assembly, STATUS_LABELS, TYPE_LABELS, MODALITY_LABELS } from "./types/assemblies.types";
+import {
+  Assembly,
+  STATUS_LABELS,
+  TYPE_LABELS,
+  MODALITY_LABELS,
+} from "./types/assemblies.types";
 
 const paramsInitial = {
   fullType: "L",
@@ -27,12 +32,13 @@ const API_STATUS_LABELS: Record<string, string> = {
   X: "Cancelada",
 };
 
-const STATUS_STYLE: Record<string, { color: string; backgroundColor: string }> = {
-  S: { color: "var(--cWarning)", backgroundColor: "var(--cHoverCompl4)" },
-  P: { color: "#FFCF4A", backgroundColor: "rgba(255, 207, 74, 0.15)" },
-  C: { color: "var(--cSuccess)", backgroundColor: "var(--cHoverSuccess)" },
-  X: { color: "var(--cError)", backgroundColor: "var(--cHoverError)" },
-};
+const STATUS_STYLE: Record<string, { color: string; backgroundColor: string }> =
+  {
+    S: { color: "var(--cWarning)", backgroundColor: "var(--cHoverCompl4)" },
+    P: { color: "#FFCF4A", backgroundColor: "rgba(255, 207, 74, 0.15)" },
+    C: { color: "var(--cSuccess)", backgroundColor: "var(--cHoverSuccess)" },
+    X: { color: "var(--cError)", backgroundColor: "var(--cHoverError)" },
+  };
 
 const STATUS_OPTIONS = [
   { id: "ALL", name: "Todos" },
@@ -55,8 +61,11 @@ const MODALITY_OPTIONS = [
 ];
 
 const Assemblies = () => {
-  const [selectedAssembly, setSelectedAssembly] = useState<Assembly | null>(null);
-  
+  const [selectedAssembly, setSelectedAssembly] = useState<Assembly | null>(
+    null,
+  );
+  const onCloseViewRef = React.useRef<any>(() => {});
+
   const mod: ModCrudType = {
     modulo: "assemblies",
     singular: "Asambleas",
@@ -78,11 +87,14 @@ const Assemblies = () => {
     renderForm: (props: any) => <RenderForm {...props} />,
     // Custom renderView para el modal de detalle
     renderView: (props: any) => {
-      const { item } = props;
+      // const { item } = props;
+      // setSelectedAssembly(item as Assembly);
       return (
         <AssemblyDetailModal
-          assembly={item as Assembly}
-          onClose={() => {}}
+          // assembly={item as Assembly}
+          {...props}
+          // onClose={() => {}}
+          onClose={onCloseView}
           onUpdate={(updated) => {
             // Actualizar el item en la lista si es necesario
             props?.reLoad?.();
@@ -149,14 +161,39 @@ const Assemblies = () => {
           },
         },
       },
-      start_time: { rules: ["required"], api: "ae", label: "Hora inicio", list: false },
-      end_date: { rules: ["required"], api: "ae", label: "Fecha fin", list: false },
-      end_time: { rules: ["required"], api: "ae", label: "Hora fin", list: false },
+      start_time: {
+        rules: ["required"],
+        api: "ae",
+        label: "Hora inicio",
+        list: false,
+      },
+      end_date: {
+        rules: ["required"],
+        api: "ae",
+        label: "Fecha fin",
+        list: false,
+      },
+      end_time: {
+        rules: ["required"],
+        api: "ae",
+        label: "Hora fin",
+        list: false,
+      },
       meeting_url: { rules: [], api: "ae", label: "Enlace", list: false },
       address: { rules: [], api: "ae", label: "Dirección", list: false },
-      address_url: { rules: [], api: "ae", label: "URL ubicación", list: false },
+      address_url: {
+        rules: [],
+        api: "ae",
+        label: "URL ubicación",
+        list: false,
+      },
       files: { rules: [], api: "ae", label: "Documentos", list: false },
-      declarations: { rules: [], api: "ae", label: "Declaraciones", list: false },
+      declarations: {
+        rules: [],
+        api: "ae",
+        label: "Declaraciones",
+        list: false,
+      },
       status: {
         rules: ["required"],
         api: "ae",
@@ -172,7 +209,10 @@ const Assemblies = () => {
             };
             return (
               <div className={styles.statusCell}>
-                <StatusBadge color={style.color} backgroundColor={style.backgroundColor}>
+                <StatusBadge
+                  color={style.color}
+                  backgroundColor={style.backgroundColor}
+                >
                   {API_STATUS_LABELS[status] || status}
                 </StatusBadge>
               </div>
@@ -185,18 +225,34 @@ const Assemblies = () => {
         },
       },
       // Campos adicionales para la configuración
-      quorum_required: { rules: [], api: "ae", label: "Quórum requerido", list: false },
-      anonymous_voting: { rules: [], api: "ae", label: "Votación anónima", list: false },
-      target_audience: { rules: [], api: "ae", label: "Audiencia", list: false },
+      quorum_required: {
+        rules: [],
+        api: "ae",
+        label: "Quórum requerido",
+        list: false,
+      },
+      anonymous_voting: {
+        rules: [],
+        api: "ae",
+        label: "Votación anónima",
+        list: false,
+      },
+      target_audience: {
+        rules: [],
+        api: "ae",
+        label: "Audiencia",
+        list: false,
+      },
     }),
     [],
   );
 
-  const { userCan, List, data, reLoad } = useCrud({
+  const { userCan, List, data, reLoad, onCloseView } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
+  onCloseViewRef.current = onCloseView;
 
   const metrics = data?.message || {};
   const total = metrics?.total ?? 0;
@@ -218,10 +274,26 @@ const Assemblies = () => {
           style={{ minWidth: "160px", maxWidth: "260px" }}
           icon={<IconCalendar color="var(--cInfo)" circle size={18} />}
         />
-        <WidgetDashCard title="Programadas" data={pending} style={{ minWidth: "160px", maxWidth: "260px" }} />
-        <WidgetDashCard title="En progreso" data={inProgress} style={{ minWidth: "160px", maxWidth: "260px" }} />
-        <WidgetDashCard title="Completadas" data={completed} style={{ minWidth: "160px", maxWidth: "260px" }} />
-        <WidgetDashCard title="Canceladas" data={canceled} style={{ minWidth: "160px", maxWidth: "260px" }} />
+        <WidgetDashCard
+          title="Programadas"
+          data={pending}
+          style={{ minWidth: "160px", maxWidth: "260px" }}
+        />
+        <WidgetDashCard
+          title="En progreso"
+          data={inProgress}
+          style={{ minWidth: "160px", maxWidth: "260px" }}
+        />
+        <WidgetDashCard
+          title="Completadas"
+          data={completed}
+          style={{ minWidth: "160px", maxWidth: "260px" }}
+        />
+        <WidgetDashCard
+          title="Canceladas"
+          data={canceled}
+          style={{ minWidth: "160px", maxWidth: "260px" }}
+        />
       </div>
 
       <div className={styles.listContainer}>
@@ -235,7 +307,7 @@ const Assemblies = () => {
       </div>
 
       {/* Modal de detalle */}
-      {selectedAssembly && (
+      {/* {selectedAssembly && (
         <AssemblyDetailModal
           assembly={selectedAssembly}
           onClose={() => setSelectedAssembly(null)}
@@ -244,7 +316,7 @@ const Assemblies = () => {
             reLoad();
           }}
         />
-      )}
+      )} */}
     </div>
   );
 };

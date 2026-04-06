@@ -17,15 +17,22 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
 }) => {
   const [attendances, setAttendances] = useState<AssemblyAttendance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { execute: fetchAttendances, loading } = useAxios();
+  const { execute: fetchAttendances, loaded } = useAxios();
 
   useEffect(() => {
     const loadAttendances = async () => {
       setIsLoading(true);
       try {
-        const response = await fetchAttendances(`/assemblies/${assemblyId}/attendances`, "GET", {}, false, true);
+        const { data: response } = await fetchAttendances(
+          `/assemblies/${assemblyId}/attendances`,
+          "GET",
+          {},
+          false,
+          true,
+        );
         if (response?.data) {
-          setAttendances(response.data);
+          console.log("response", response.data);
+          setAttendances(response.data || []);
         }
       } catch (error) {
         console.error("Error loading attendances:", error);
@@ -41,10 +48,15 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
     return modality === "P" ? "Presencial" : "Virtual";
   };
 
-  const inPersonCount = attendances.filter(a => a.modality_type === "P").length;
-  const virtualCount = attendances.filter(a => a.modality_type === "V").length;
+  console.log("attendances", attendances);
+  const inPersonCount = attendances?.filter(
+    (a) => a.modality_type === "P",
+  ).length;
+  const virtualCount = attendances?.filter(
+    (a) => a.modality_type === "V",
+  ).length;
 
-  if (isLoading || loading) {
+  if (isLoading || !loaded) {
     return <div className={styles.loading}>Cargando asistentes...</div>;
   }
 
@@ -55,14 +67,13 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
           Total: <strong>{attendances.length}</strong> asistentes
         </span>
         <span className={styles.breakdown}>
-          Presencial: <strong>{inPersonCount}</strong> | Virtual: <strong>{virtualCount}</strong>
+          Presencial: <strong>{inPersonCount}</strong> | Virtual:{" "}
+          <strong>{virtualCount}</strong>
         </span>
       </div>
 
       {attendances.length === 0 ? (
-        <div className={styles.empty}>
-          No hay asistentes registrados aún.
-        </div>
+        <div className={styles.empty}>No hay asistentes registrados aún.</div>
       ) : (
         <div className={styles.list}>
           <table className={styles.table}>
@@ -82,13 +93,18 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                   <td>{attendance.dpto?.number || "-"}</td>
                   <td>{attendance.role || "-"}</td>
                   <td>
-                    <span className={`${styles.modalityBadge} ${attendance.modality_type === "P" ? styles.inPerson : styles.virtual}`}>
+                    <span
+                      className={`${styles.modalityBadge} ${attendance.modality_type === "P" ? styles.inPerson : styles.virtual}`}
+                    >
                       {getModalityLabel(attendance.modality_type)}
                     </span>
                   </td>
                   <td>
-                    {attendance.joined_at 
-                      ? formatToDayDDMMYYYYHHMM(attendance.joined_at.replace(" ", "T"), false)
+                    {attendance.joined_at
+                      ? formatToDayDDMMYYYYHHMM(
+                          attendance.joined_at.replace(" ", "T"),
+                          false,
+                        )
                       : "-"}
                   </td>
                 </tr>
