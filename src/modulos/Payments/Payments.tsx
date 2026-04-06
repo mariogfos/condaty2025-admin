@@ -43,6 +43,7 @@ const Payments = () => {
     plural: 'Ingresos',
     permiso: '',
     extraData: true,
+    export: true,
     renderForm: RenderForm,
     renderView: (props: any) => <RenderView {...props} payment_id={props?.item?.id} />,
     loadView: { fullType: 'DET' },
