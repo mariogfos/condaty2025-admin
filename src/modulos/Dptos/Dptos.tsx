@@ -118,7 +118,7 @@ const Dptos = () => {
     import: false,
     titleAdd: "Nueva unidad",
     hideActions: {
-      view: true,
+      // view: true,
       add: !userCan("units", "C"),
       edit: true,
       del: true,

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./Assemblies.module.css";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
@@ -9,13 +10,14 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { IconCalendar } from "@/components/layout/icons/IconsBiblioteca";
 import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
-import AssemblyDetailModal from "./components/AssemblyDetailModal/AssemblyDetailModal";
+import { Assembly } from "./types/assemblies.types";
 import {
-  Assembly,
-  STATUS_LABELS,
-  TYPE_LABELS,
-  MODALITY_LABELS,
-} from "./types/assemblies.types";
+  API_STATUS_LABELS,
+  STATUS_OPTIONS,
+  STATUS_STYLE,
+  TYPE_OPTIONS,
+  MODALITY_OPTIONS,
+} from "./config/assemblies.constants";
 
 const paramsInitial = {
   fullType: "L",
@@ -24,47 +26,8 @@ const paramsInitial = {
   searchBy: "",
 };
 
-// Labels actualizados para coincidir con la API (S, P, C, X)
-const API_STATUS_LABELS: Record<string, string> = {
-  S: "Programada",
-  P: "En progreso",
-  C: "Completada",
-  X: "Cancelada",
-};
-
-const STATUS_STYLE: Record<string, { color: string; backgroundColor: string }> =
-  {
-    S: { color: "var(--cWarning)", backgroundColor: "var(--cHoverCompl4)" },
-    P: { color: "#FFCF4A", backgroundColor: "rgba(255, 207, 74, 0.15)" },
-    C: { color: "var(--cSuccess)", backgroundColor: "var(--cHoverSuccess)" },
-    X: { color: "var(--cError)", backgroundColor: "var(--cHoverError)" },
-  };
-
-const STATUS_OPTIONS = [
-  { id: "ALL", name: "Todos" },
-  { id: "S", name: "Programada" },
-  { id: "P", name: "En progreso" },
-  { id: "C", name: "Completada" },
-  { id: "X", name: "Cancelada" },
-];
-
-const TYPE_OPTIONS = [
-  { id: "O", name: "Ordinaria" },
-  { id: "E", name: "Extraordinaria" },
-  { id: "I", name: "Informativa" },
-];
-
-const MODALITY_OPTIONS = [
-  { id: "V", name: "Virtual" },
-  { id: "I", name: "Presencial" },
-  { id: "H", name: "Híbrida" },
-];
-
 const Assemblies = () => {
-  const [selectedAssembly, setSelectedAssembly] = useState<Assembly | null>(
-    null,
-  );
-  const onCloseViewRef = React.useRef<any>(() => {});
+  const router = useRouter();
 
   const mod: ModCrudType = {
     modulo: "assemblies",
@@ -75,33 +38,16 @@ const Assemblies = () => {
     filter: true,
     titleAdd: "Crear asamblea",
     hideActions: {
-      view: false, // Habilitamos view para abrir el modal de detalle
+      view: false,
       edit: true,
       del: true,
     },
     saveMsg: {
-      add: "Asambleas creada con éxito",
-      edit: "Asambleas actualizada con éxito",
-      del: "Asambleas eliminada con éxito",
+      add: "Asamblea creada con éxito",
+      edit: "Asamblea actualizada con éxito",
+      del: "Asamblea eliminada con éxito",
     },
     renderForm: (props: any) => <RenderForm {...props} />,
-    // Custom renderView para el modal de detalle
-    renderView: (props: any) => {
-      // const { item } = props;
-      // setSelectedAssembly(item as Assembly);
-      return (
-        <AssemblyDetailModal
-          // assembly={item as Assembly}
-          {...props}
-          // onClose={() => {}}
-          onClose={onCloseView}
-          onUpdate={(updated) => {
-            // Actualizar el item en la lista si es necesario
-            props?.reLoad?.();
-          }}
-        />
-      );
-    },
   };
 
   const fields = useMemo(
@@ -224,7 +170,6 @@ const Assemblies = () => {
           options: () => STATUS_OPTIONS,
         },
       },
-      // Campos adicionales para la configuración
       quorum_required: {
         rules: [],
         api: "ae",
@@ -247,12 +192,16 @@ const Assemblies = () => {
     [],
   );
 
-  const { userCan, List, data, reLoad, onCloseView } = useCrud({
+  const { userCan, List, data } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
-  onCloseViewRef.current = onCloseView;
+
+  const handleRowClick = (item: Assembly) => {
+    console.log("click en fila", item);
+    router.push(`/assemblies/${item.id}`);
+  };
 
   const metrics = data?.message || {};
   const total = metrics?.total ?? 0;
@@ -285,7 +234,7 @@ const Assemblies = () => {
           style={{ minWidth: "160px", maxWidth: "260px" }}
         />
         <WidgetDashCard
-          title="Completadas"
+          title="Finalizadas"
           data={completed}
           style={{ minWidth: "160px", maxWidth: "260px" }}
         />
@@ -303,20 +252,9 @@ const Assemblies = () => {
           emptyMsg="Lista vacía. Cuando registres asambleas"
           emptyLine2="las verás aquí."
           emptyIcon={<IconCalendar size={80} color="var(--cWhiteV1)" />}
+          onRowClick={handleRowClick}
         />
       </div>
-
-      {/* Modal de detalle */}
-      {/* {selectedAssembly && (
-        <AssemblyDetailModal
-          assembly={selectedAssembly}
-          onClose={() => setSelectedAssembly(null)}
-          onUpdate={(updated) => {
-            setSelectedAssembly(updated);
-            reLoad();
-          }}
-        />
-      )} */}
     </div>
   );
 };

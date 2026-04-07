@@ -1,0 +1,280 @@
+/* src/modulos/Assemblies/components/AssemblyDetail/AssemblyDetail.module.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  background-color: #0d0d0d;
+  min-height: 100vh;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.breadcrumb span:first-child {
+  cursor: pointer;
+}
+
+.breadcrumb span:first-child:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb .active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cardTitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.editButton {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mainSubject {
+  margin: 0 0 4px 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.typeLabel {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.statusBadge {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 2px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 20px;
+}
+
+.metricItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metricLabel {
+  font-size: 12px;
+  color: #666;
+}
+
+.metricValue {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.descriptionText {
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.votacionesHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.votacionesTitle {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.addQuestionBtn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #eee;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+/* Votaciones card details */
+.votacionCard {
+  background: #151515;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 16px;
+}
+
+.votacionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.votacionMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.votacionCount {
+  font-size: 13px;
+  color: #666;
+}
+
+.votacionStatus {
+  color: #10B981;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.optionItem {
+  margin-bottom: 20px;
+}
+
+.optionHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.progressContainer {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: linear-gradient(90deg, #8B5CF6, #3B82F6);
+  border-radius: 4px;
+}
+
+/* Accordion sections on the right */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 4px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: 1px;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.detailLabel {
+  color: #666;
+}
+
+.detailValue {
+  text-align: right;
+  max-width: 180px;
+}
+
+.actionBtn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}

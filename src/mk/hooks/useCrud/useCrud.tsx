@@ -1548,11 +1548,16 @@ const useCrud = ({
                   flexGrow: 1,
                 }}
               >
+                {props.onRowClick ? "si" : "no"}
                 {_data?.length > 0 ? (
                   <Table
                     data={_data}
                     onRowClick={
-                      mod.hideActions?.view ? props.onRowClick : onView
+                      props.onRowClick
+                        ? props.onRowClick
+                        : mod.hideActions?.view
+                          ? () => {}
+                          : onView
                     }
                     header={header}
                     onTabletRow={props.onTabletRow}
