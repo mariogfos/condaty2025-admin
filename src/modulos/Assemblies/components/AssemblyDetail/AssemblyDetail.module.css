@@ -7,7 +7,7 @@
   background-color: #0d0d0d;
   min-height: 100vh;
   color: #fff;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .breadcrumb {
@@ -73,6 +73,8 @@
   letter-spacing: 1px;
   text-transform: uppercase;
   margin: 0;
+  flex-grow: 1;
+  width: 100%;
 }
 
 .editButton {
@@ -95,8 +97,8 @@
 
 .mainSubject {
   margin: 0 0 4px 0;
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .typeLabel {
@@ -108,7 +110,7 @@
 
 .statusBadge {
   background: rgba(16, 185, 129, 0.1);
-  color: #10B981;
+  color: #10b981;
   border: 1px solid rgba(16, 185, 129, 0.2);
   padding: 2px 12px;
   border-radius: 8px;
@@ -120,7 +122,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
   padding-top: 20px;
 }
 
@@ -137,7 +139,7 @@
 
 .metricValue {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 300;
 }
 
 .descriptionText {
@@ -200,7 +202,7 @@
 }
 
 .votacionStatus {
-  color: #10B981;
+  color: #10b981;
   font-size: 12px;
   font-weight: 600;
 }
@@ -225,7 +227,7 @@
 
 .progressBar {
   height: 100%;
-  background: linear-gradient(90deg, #8B5CF6, #3B82F6);
+  background: linear-gradient(90deg, #8b5cf6, #3b82f6);
   border-radius: 4px;
 }
 

@@ -1,0 +1,38 @@
+.card {
+  background: var(--cNeutral-800);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--cBlackV3);
+  border-radius: 12px;
+  padding: var(--spL);
+  position: relative;
+  &.v2 {
+    background: #000;
+  }
+}
+/* Accordion sections on the right */
+.section {
+  display: flex;
+  flex-direction: column;
+  /* gap: 12px; */
+  border: 1px solid var(--cBlackV3);
+  border-radius: var(--bRadiusM);
+  padding: var(--spS);
+  background: #000;
+  &.v2 {
+    background: var(--cNeutral-800);
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 4px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: 1px;
+}
