@@ -1517,8 +1517,6 @@ const useCrud = ({
 
     return (
       <div className={styles.useCrud}>
-        {/* {JSON.stringify(mod.title)} */}
-        {/* {JSON.stringify(_data)}--- */}
         {(props.title || store?.title) && openList && !props.hideTitle && (
           <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>
             {props.title ?? store?.title}
@@ -1548,7 +1546,6 @@ const useCrud = ({
                   flexGrow: 1,
                 }}
               >
-                {props.onRowClick ? "si" : "no"}
                 {_data?.length > 0 ? (
                   <Table
                     data={_data}

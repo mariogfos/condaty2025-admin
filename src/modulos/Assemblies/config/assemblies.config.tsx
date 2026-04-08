@@ -25,7 +25,7 @@ export const getAssemblyConfig = (
     permiso: "units",
     search: true,
     filter: true,
-    titleAdd: "Crear asamblea",
+    titleAdd: "Crear",
     hideActions: {
       view: false,
       edit: true,
