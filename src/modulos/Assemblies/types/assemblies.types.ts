@@ -15,9 +15,7 @@ export interface Assembly {
   description?: string;
   type: AssemblyType | string;
   participation?: string;
-  start_date: string;
-  start_time?: string;
-  end_date?: string;
+  start_time: string;
   end_time?: string;
   modality: AssemblyModality | string;
   meeting_url?: string;

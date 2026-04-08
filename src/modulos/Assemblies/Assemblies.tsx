@@ -91,38 +91,23 @@ const Assemblies = () => {
           },
         },
       },
-      start_date: {
-        rules: ["required"],
-        api: "ae",
-        label: "Fecha",
-        list: {
-          width: "230px",
-          onRender: (props: any) => {
-            const rawDate = props?.item?.start_date || "";
-            const date = String(rawDate).split("T")[0] || "";
-            const time = String(props?.item?.start_time || "").slice(0, 5);
-            if (!date) return "-";
-            const dateTime = `${date} ${time || "00:00"}`;
-            return formatToDayDDMMYYYYHHMM(dateTime, false);
-          },
-        },
-      },
       start_time: {
         rules: ["required"],
         api: "ae",
-        label: "Hora inicio",
-        list: false,
-      },
-      end_date: {
-        rules: ["required"],
-        api: "ae",
-        label: "Fecha fin",
-        list: false,
+        label: "Fecha y hora",
+        list: {
+          width: "230px",
+          onRender: (props: any) => {
+            const rawDateTime = props?.item?.start_time || "";
+            if (!rawDateTime) return "-";
+            return formatToDayDDMMYYYYHHMM(rawDateTime, false);
+          },
+        },
       },
       end_time: {
         rules: ["required"],
         api: "ae",
-        label: "Hora fin",
+        label: "Fecha fin",
         list: false,
       },
       meeting_url: { rules: [], api: "ae", label: "Enlace", list: false },

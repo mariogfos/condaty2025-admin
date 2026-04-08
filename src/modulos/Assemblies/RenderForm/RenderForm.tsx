@@ -49,20 +49,19 @@ const getFilenameFromUrl = (url: string, fallback: string) => {
   return base || fallback;
 };
 
-const normalizeDateInput = (value: any) => {
+const normalizeDateTimeInput = (value: any) => {
   if (!value) return "";
-  return String(value).split("T")[0];
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return "";
+  // Format: YYYY-MM-DDTHH:mm
+  return date.toISOString().slice(0, 16);
 };
 
-const normalizeTimeInput = (value: any) => {
-  if (!value) return "";
-  const raw = String(value).trim();
-  const match = raw.match(/^(\d{1,2}):(\d{2})/);
-  if (!match) return raw;
-  return `${match[1].padStart(2, "0")}:${match[2]}`;
+const isValidDateTimeValue = (value: string) => {
+  if (!value) return false;
+  const date = new Date(value);
+  return !isNaN(date.getTime());
 };
-
-const isValidTimeValue = (value: string) => /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
 
 const isValidHttpUrl = (value: string) => {
   if (!value) return false;
@@ -85,10 +84,8 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       subject: item?.subject || "",
       description: item?.description || "",
       type: item?.type || "O", // O=Ordinaria por defecto
-      start_date: normalizeDateInput(item?.start_date),
-      start_time: normalizeTimeInput(item?.start_time),
-      end_date: normalizeDateInput(item?.end_date || item?.start_date),
-      end_time: normalizeTimeInput(item?.end_time),
+      start_time: normalizeDateTimeInput(item?.start_time),
+      end_time: normalizeDateTimeInput(item?.end_time),
       modality: item?.modality || "V", // V=Virtual por defecto
       meeting_url: item?.meeting_url || "",
       address: item?.address || item?.physical_address || "",
@@ -113,12 +110,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
-    setFormState((prev: any) => {
-      if (name === "start_date") {
-        return { ...prev, start_date: value, end_date: value };
-      }
-      return { ...prev, [name]: value };
-    });
+    setFormState((prev: any) => ({ ...prev, [name]: value }));
   };
 
   const validateStep1 = () => {
@@ -147,17 +139,16 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
 
   const validateStep2 = () => {
     let newErrors: any = {};
-    newErrors = checkRules({ value: formState.start_date, rules: ["required"], key: "start_date", errors: newErrors });
     newErrors = checkRules({ value: formState.start_time, rules: ["required"], key: "start_time", errors: newErrors });
     newErrors = checkRules({ value: formState.end_time, rules: ["required"], key: "end_time", errors: newErrors });
     newErrors = checkRules({ value: formState.modality, rules: ["required"], key: "modality", errors: newErrors });
 
-    if (formState.start_time && !isValidTimeValue(formState.start_time)) {
-      newErrors.start_time = "La hora de inicio no es válida";
+    if (formState.start_time && !isValidDateTimeValue(formState.start_time)) {
+      newErrors.start_time = "La fecha y hora de inicio no es válida";
     }
 
-    if (formState.end_time && !isValidTimeValue(formState.end_time)) {
-      newErrors.end_time = "La hora de finalización no es válida";
+    if (formState.end_time && !isValidDateTimeValue(formState.end_time)) {
+      newErrors.end_time = "La fecha y hora de finalización no es válida";
     }
 
     if (["Virtual", "Hybrid"].includes(formState.modality)) {
@@ -189,11 +180,8 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       });
     }
 
-    const dateRef = formState.start_date || "";
-    const startAt = `${dateRef}T${formState.start_time || ""}`;
-    const endAt = `${dateRef}T${formState.end_time || ""}`;
-    if (startAt && endAt && startAt > endAt) {
-      newErrors.end_time = "La hora de finalización no puede ser menor al inicio";
+    if (formState.start_time && formState.end_time && formState.start_time > formState.end_time) {
+      newErrors.end_time = "La fecha de finalización no puede ser menor al inicio";
     }
 
     setErrors((prev: any) => ({ ...prev, ...newErrors }));
@@ -219,9 +207,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       subject: formState.subject,
       description: formState.description,
       type: formState.type,
-      start_date: normalizeDateInput(formState.start_date),
       start_time: formState.start_time,
-      end_date: normalizeDateInput(formState.start_date),
       end_time: formState.end_time,
       modality: formState.modality,
       files: buildFileObjects(formState.files, "documento_asamblea"),
@@ -369,35 +355,24 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
           </p>
 
           <Input
-            type="date"
-            name="start_date"
-            label="Fecha de apertura"
-            value={formState.start_date}
+            type="datetime-local"
+            name="start_time"
+            label="Fecha y hora de inicio"
+            value={formState.start_time}
             onChange={handleChange}
             error={errors}
             required
           />
 
-          <div className={styles.row}>
-            <Input
-              type="time"
-              name="start_time"
-              label="Hora de inicio"
-              value={formState.start_time}
-              onChange={handleChange}
-              error={errors}
-              required
-            />
-            <Input
-              type="time"
-              name="end_time"
-              label="Hora estimada de finalización"
-              value={formState.end_time}
-              onChange={handleChange}
-              error={errors}
-              required
-            />
-          </div>
+          <Input
+            type="datetime-local"
+            name="end_time"
+            label="Fecha y hora de finalización"
+            value={formState.end_time}
+            onChange={handleChange}
+            error={errors}
+            required
+          />
 
           <h3 className={styles.sectionTitle}>¿Cómo se realizará la asamblea?</h3>
           <p className={styles.sectionSubtitle}>

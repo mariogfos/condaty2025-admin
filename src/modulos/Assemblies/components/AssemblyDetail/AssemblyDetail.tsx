@@ -123,7 +123,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               <div className={styles.metricItem}>
                 <span className={styles.metricLabel}>Fecha de inicio</span>
                 <span className={styles.metricValue}>
-                  {getDateStrMes(assembly.start_date)}
+                  {getDateTimeStrMes(assembly.start_time)}
                 </span>
               </div>
             </div>
@@ -255,17 +255,19 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             }
           >
             <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Fecha de inicio:</span>
+              <span className={styles.detailLabel}>Inicio:</span>
               <span className={styles.detailValue}>
-                {getDateStrMes(assembly.start_date)}
+                {getDateTimeStrMes(assembly.start_time)}
               </span>
             </div>
-            <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Horario:</span>
-              <span className={styles.detailValue}>
-                {assembly.start_time} a {assembly.end_time || "?"}
-              </span>
-            </div>
+            {assembly.end_time && (
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Finalización:</span>
+                <span className={styles.detailValue}>
+                  {getDateTimeStrMes(assembly.end_time)}
+                </span>
+              </div>
+            )}
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Ubicación:</span>
               <span className={styles.detailValue}>
