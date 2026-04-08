@@ -4,7 +4,7 @@
 
 export type AssemblyStatus = "S" | "P" | "C" | "X"; // Scheduled, InProgress, Completed, Cancelled
 export type AssemblyType = "O" | "E" | "I"; // Ordinary, Extraordinary, Informative
-export type AssemblyModality = "V" | "I" | "H"; // Virtual, InPerson, Hybrid
+export type AssemblyModality = "V" | "P" | "H"; // Virtual, Presencial, Hybrid
 export type TargetAudience = "all_owners" | "residents" | "dependents";
 
 export interface Assembly {
@@ -99,7 +99,7 @@ export const TYPE_LABELS: Record<AssemblyType, string> = {
 
 export const MODALITY_LABELS: Record<AssemblyModality, string> = {
   V: "Virtual",
-  I: "Presencial",
+  P: "Presencial",
   H: "Híbrida",
 };
 

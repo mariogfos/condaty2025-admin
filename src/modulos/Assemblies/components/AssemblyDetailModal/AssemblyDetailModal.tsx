@@ -137,8 +137,7 @@ const AssemblyDetailModal: React.FC<AssemblyDetailModalProps> = ({
           <div className={styles.headerRow}>
             <span className={styles.label}>Fecha:</span>
             <span className={styles.value}>
-              {assembly.start_date}{" "}
-              {assembly.start_time ? `a las ${assembly.start_time}` : ""}
+              {formatDateTime(assembly.start_time)}
             </span>
           </div>
         </div>
@@ -200,7 +199,7 @@ const AssemblyDetailModal: React.FC<AssemblyDetailModalProps> = ({
               <p>{assembly.description || "Sin descripción"}</p>
             </div>
 
-            {assembly.modality !== "I" && assembly.meeting_url && (
+            {assembly.modality !== "P" && assembly.meeting_url && (
               <div className={styles.infoSection}>
                 <h4>Enlace de reunión</h4>
                 <a

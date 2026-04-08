@@ -19,7 +19,7 @@ const TYPE_OPTIONS = [
 
 const MODALITY_OPTIONS = [
   { id: "V", name: "Virtual" },
-  { id: "I", name: "Presencial" },
+  { id: "P", name: "Presencial" },
   { id: "H", name: "Híbrida" },
 ];
 
@@ -142,7 +142,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       key: "type",
       errors: newErrors,
     });
-    setErrors((prev: any) => ({ ...prev, ...newErrors }));
+    setErrors(newErrors);
     return newErrors;
   };
 
@@ -161,7 +161,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       newErrors.end_time = "La fecha y hora de finalización no es válida";
     }
 
-    if (["Virtual", "Hybrid"].includes(formState.modality)) {
+    if (["V", "H"].includes(formState.modality)) {
       newErrors = checkRules({
         value: formState.meeting_url,
         rules: ["required"],
@@ -174,7 +174,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       }
     }
 
-    if (["Presential", "Hybrid"].includes(formState.modality)) {
+    if (["P", "H"].includes(formState.modality)) {
       newErrors = checkRules({
         value: formState.address,
         rules: ["required"],
@@ -194,7 +194,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       newErrors.end_time = "La finalización debe ser posterior al inicio";
     }
 
-    setErrors((prev: any) => ({ ...prev, ...newErrors }));
+    setErrors(newErrors);
     return newErrors;
   };
 
@@ -222,8 +222,8 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       modality: formState.modality,
       files: buildFileObjects(formState.files, "documento_asamblea"),
       status: formState.status || "Scheduled",
-      ...(formState.modality !== "Presential" ? { meeting_url: formState.meeting_url } : {}),
-      ...(formState.modality !== "Virtual"
+      ...(formState.modality !== "P" ? { meeting_url: formState.meeting_url } : {}),
+      ...(formState.modality !== "V"
         ? {
             address: formState.address,
             address_url: formState.address_url,
@@ -427,7 +427,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             Completa la ubicación física o el enlace de acceso según la modalidad.
           </p>
 
-          {formState.modality !== "Presential" && (
+          {["V", "H"].includes(formState.modality) && (
             <Input
               type="text"
               name="meeting_url"
@@ -435,11 +435,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               value={formState.meeting_url}
               onChange={handleChange}
               error={errors}
-              required={formState.modality !== "Presential"}
+              required
             />
           )}
 
-          {formState.modality !== "Virtual" && (
+          {["P", "H"].includes(formState.modality) && (
             <Input
               type="text"
               name="address"
@@ -447,11 +447,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               value={formState.address}
               onChange={handleChange}
               error={errors}
-              required={formState.modality !== "Virtual"}
+              required
             />
           )}
 
-          {formState.modality !== "Virtual" && (
+          {["P", "H"].includes(formState.modality) && (
             <Input
               type="text"
               name="address_url"

@@ -31,7 +31,7 @@ export const TYPE_OPTIONS = [
 
 export const MODALITY_OPTIONS = [
   { id: "V", name: "Virtual" },
-  { id: "I", name: "Presencial" },
+  { id: "P", name: "Presencial" },
   { id: "H", name: "Híbrida" },
 ];
 
@@ -51,6 +51,6 @@ export const TYPE_LABELS: Record<string, string> = {
 
 export const MODALITY_LABELS: Record<string, string> = {
   V: "Virtual",
-  I: "Presencial",
+  P: "Presencial",
   H: "Híbrida",
 };
