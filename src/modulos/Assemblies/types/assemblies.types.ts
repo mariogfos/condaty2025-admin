@@ -21,7 +21,7 @@ export interface Assembly {
   meeting_url?: string;
   address?: string;
   address_url?: string;
-  files?: string[];
+  files?: any[];
   declarations?: string[];
   status: AssemblyStatus | string;
   quorum_required?: number;

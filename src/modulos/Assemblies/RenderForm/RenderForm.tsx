@@ -424,14 +424,16 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               Agrega archivos que los residentes puedan revisar antes de la
               asamblea.
             </p>
-            <UploadFileV3
-              formState={formState}
-              setFormState={setFormState}
-              name="files"
-              mode="all"
-              error={errors}
-              maxMB={5}
-            />
+            {open && (
+              <UploadFileV3
+                formState={formState}
+                setFormState={setFormState}
+                name="files"
+                mode="all"
+                error={errors}
+                maxMB={5}
+              />
+            )}
           </section>
         </>
       )}

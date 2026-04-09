@@ -24,6 +24,8 @@ import {
   IconArrowDown,
   IconArrowUp,
   IconArrowLeft,
+  IconDownload,
+  IconDOC,
 } from "@/components/layout/icons/IconsBiblioteca";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
@@ -31,6 +33,35 @@ import Card from "@/mk/v2/Components/ui/Card/Card";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import RenderForm from "../../RenderForm/RenderForm";
+import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+
+const normalizeUrls = (value: any): string[] => {
+  if (!value) return [];
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item?.url) return item.url;
+        return "";
+      })
+      .filter(Boolean);
+  }
+  if (typeof value === "string") return [value];
+  return [];
+};
+
+const getFilenameFromUrl = (url: string, fallback: string) => {
+  const base = url?.split("?")[0]?.split("/").pop() || "";
+  return base || fallback;
+};
+
+const buildFileObjects = (urls: string[], prefix: string) => {
+  return (urls || []).map((url, index) => ({
+    name: getFilenameFromUrl(url, `${prefix}_${index + 1}`),
+    url,
+  }));
+};
 
 interface AssemblyDetailProps {
   id: string | number;
@@ -53,6 +84,11 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [tempDescription, setTempDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isEditingFull, setIsEditingFull] = useState(false);
+  const [isEditingDocs, setIsEditingDocs] = useState(false);
+  const [tempDocs, setTempDocs] = useState({ files: [] as string[] });
+  const [isSavingDocs, setIsSavingDocs] = useState(false);
+
+  const { showToast } = useAuth();
 
   // Accordion states
   const [showDetails, setShowDetails] = useState(true);
@@ -88,6 +124,28 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       setIsEditingDescription(false);
     }
     setIsSaving(false);
+  };
+
+  const handleEditDocs = () => {
+    setTempDocs({ files: normalizeUrls(assembly?.files) });
+    setIsEditingDocs(true);
+  };
+
+  const handleSaveDocs = async () => {
+    if (!assembly) return;
+    setIsSavingDocs(true);
+    const payload = {
+      files: buildFileObjects(tempDocs.files, "documento_asamblea"),
+    };
+    const success = await updateAssembly(assembly.id, payload);
+    if (success) {
+      setAssembly({ ...assembly, files: payload.files as any });
+      setIsEditingDocs(false);
+      showToast("Documentos actualizados con éxito", "success");
+    } else {
+      showToast("No se pudieron actualizar los documentos", "error");
+    }
+    setIsSavingDocs(false);
   };
 
   if (loading && !assembly)
@@ -168,7 +226,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             titleRight={
               <button
                 className={styles.editButton}
-                onClick={handleEditDescription}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEditDescription();
+                }}
               >
                 <IconEdit size={14} /> Editar
               </button>
@@ -185,7 +246,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="VOTACIONES"
             titleRight={
-              <button className={styles.actionBtn}>
+              <button
+                className={styles.actionBtn}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <IconAdd size={14} /> Nueva pregunta
               </button>
             }
@@ -287,7 +351,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             titleRight={
               <button
                 className={styles.actionBtn}
-                onClick={() => setIsEditingFull(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditingFull(true);
+                }}
               >
                 <IconEdit size={12} /> Editar
               </button>
@@ -385,12 +452,44 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="DOCUMENTOS"
             titleRight={
-              <button className={styles.actionBtn}>
+              <button
+                className={styles.actionBtn}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEditDocs();
+                }}
+              >
                 <IconAdd size={12} /> Subir
               </button>
             }
           >
-            No hay documentos subidos.
+            <div className={styles.docList}>
+              {assembly.files && assembly.files.length > 0 ? (
+                assembly.files.map((file: any, index: number) => (
+                  <a
+                    key={index}
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.docItem}
+                  >
+                    <div className={styles.docInfo}>
+                      <IconDOC size={18} color="var(--cAccent)" />
+                      <span className={styles.docName}>
+                        {file.name || `Documento ${index + 1}`}
+                      </span>
+                    </div>
+                    <div className={styles.docDownload}>
+                      <IconDownload size={16} />
+                    </div>
+                  </a>
+                ))
+              ) : (
+                <div style={{ padding: "10px 0", color: "#666", fontSize: 13 }}>
+                  No hay documentos subidos.
+                </div>
+              )}
+            </div>
           </Card>
 
           {/* PARTICIPANTES */}
@@ -442,6 +541,39 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           reLoad={loadAssembly}
         />
       )}
+
+      <DataModal
+        title="Actualizar Documentos"
+        open={isEditingDocs}
+        onClose={() => setIsEditingDocs(false)}
+        onSave={handleSaveDocs}
+        buttonText={isSavingDocs ? "Guardando..." : "Guardar cambios"}
+        disabled={isSavingDocs}
+        maxWidth={600}
+      >
+        {isEditingDocs && (
+          <div style={{ padding: "10px 0" }}>
+            <p
+              style={{
+                fontSize: 14,
+                color: "#888",
+                marginBottom: 20,
+                lineHeight: 1.5,
+              }}
+            >
+              Sube o elimina documentos adjuntos para esta asamblea. Los cambios
+              se aplicarán inmediatamente al guardar.
+            </p>
+            <UploadFileV3
+              formState={tempDocs}
+              setFormState={setTempDocs}
+              name="files"
+              mode="all"
+              maxMB={5}
+            />
+          </div>
+        )}
+      </DataModal>
     </div>
   );
 };
