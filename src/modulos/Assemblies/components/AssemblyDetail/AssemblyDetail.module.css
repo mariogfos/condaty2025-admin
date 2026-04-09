@@ -286,3 +286,12 @@
   display: flex;
   flex-direction: column;
 }
+
+.link {
+  color: var(--cAccent);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}

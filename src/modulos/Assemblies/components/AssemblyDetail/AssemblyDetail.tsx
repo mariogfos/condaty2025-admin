@@ -30,6 +30,7 @@ import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import Card from "@/mk/v2/Components/ui/Card/Card";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import RenderForm from "../../RenderForm/RenderForm";
 
 interface AssemblyDetailProps {
   id: string | number;
@@ -41,6 +42,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     fetchAssemblyDetail,
     fetchAssemblyStats,
     updateAssembly,
+    execute,
     loading,
     error,
   } = useAssemblies();
@@ -50,23 +52,24 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [tempDescription, setTempDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isEditingFull, setIsEditingFull] = useState(false);
 
   // Accordion states
   const [showDetails, setShowDetails] = useState(true);
   const [showDocs, setShowDocs] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
 
+  const loadAssembly = async () => {
+    const data = await fetchAssemblyDetail(id);
+    if (data) {
+      setAssembly(data);
+      const statsData = await fetchAssemblyStats(id);
+      if (statsData) setStats(statsData);
+    }
+  };
+
   useEffect(() => {
-    const load = async () => {
-      const data = await fetchAssemblyDetail(id);
-      console.log("Assembly Detail:", data);
-      if (data) {
-        setAssembly(data);
-        const statsData = await fetchAssemblyStats(id);
-        if (statsData) setStats(statsData);
-      }
-    };
-    load();
+    loadAssembly();
   }, [id, fetchAssemblyDetail, fetchAssemblyStats]);
 
   const handleEditDescription = () => {
@@ -146,7 +149,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               <div className={styles.metricItem}>
                 <span className={styles.metricLabel}>Quórum</span>
                 <span className={styles.metricValue}>
-                  {stats?.quorum?.quorum_percentage || 0}%
+                  {stats?.quorum?.quorum_percentage || 0}% /{" "}
+                  {assembly.quorum_required || 0}%
                 </span>
               </div>
               <div className={styles.metricItem}>
@@ -281,7 +285,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="DETALLES"
             titleRight={
-              <button className={styles.actionBtn}>
+              <button
+                className={styles.actionBtn}
+                onClick={() => setIsEditingFull(true)}
+              >
                 <IconEdit size={12} /> Editar
               </button>
             }
@@ -301,15 +308,75 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               </div>
             )}
             <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Ubicación:</span>
+              <span className={styles.detailLabel}>Modalidad:</span>
               <span className={styles.detailValue}>
-                {assembly.address || "No definida"}
+                {MODALITY_LABELS[assembly.modality as any] || assembly.modality}
               </span>
             </div>
+
+            {["V", "H"].includes(assembly.modality as string) && (
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Reunión virtual:</span>
+                <span className={styles.detailValue}>
+                  {assembly.meeting_url ? (
+                    <a
+                      href={assembly.meeting_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.link}
+                    >
+                      Unirse a la reunión
+                    </a>
+                  ) : (
+                    "No definido"
+                  )}
+                </span>
+              </div>
+            )}
+
+            {["P", "H"].includes(assembly.modality as string) && (
+              <>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Dirección:</span>
+                  <span className={styles.detailValue}>
+                    {assembly.address || "No definida"}
+                  </span>
+                </div>
+                {assembly.address_url && (
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Ubicación:</span>
+                    <span className={styles.detailValue}>
+                      <a
+                        href={assembly.address_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.link}
+                      >
+                        Ver en Google Maps
+                      </a>
+                    </span>
+                  </div>
+                )}
+              </>
+            )}
+
             <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>URL de ubicación:</span>
+              <span className={styles.detailLabel}>Audiencia:</span>
               <span className={styles.detailValue}>
-                {assembly.address_url || "(Vacío)"}
+                {typeof assembly.target_audience === "string"
+                  ? assembly.target_audience
+                      .split(",")
+                      .map((id) => {
+                        const labels: any = {
+                          owners: "Propietarios",
+                          tenants: "Inquilinos",
+                          owner_dependents: "Dependientes de prop.",
+                          tenant_dependents: "Dependientes de inq.",
+                        };
+                        return labels[id] || id;
+                      })
+                      .join(", ")
+                  : "Todos"}
               </span>
             </div>
           </Card>
@@ -364,6 +431,17 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           />
         </div>
       </DataModal>
+
+      {isEditingFull && (
+        <RenderForm
+          open={isEditingFull}
+          onClose={() => setIsEditingFull(false)}
+          item={assembly}
+          setItem={setAssembly}
+          execute={execute}
+          reLoad={loadAssembly}
+        />
+      )}
     </div>
   );
 };

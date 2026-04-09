@@ -7,6 +7,7 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Select from "@/mk/components/forms/Select/Select";
 import Button from "@/mk/components/forms/Button/Button";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
+import Check from "@/mk/components/forms/Check/Check";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css";
@@ -24,9 +25,10 @@ const MODALITY_OPTIONS = [
 ];
 
 const TARGET_AUDIENCE_OPTIONS = [
-  { id: "all_owners", name: "Todos los propietarios" },
-  { id: "residents", name: "Solo residentes" },
-  { id: "dependents", name: "Solo dependientes" },
+  { id: "owners", name: "Propietarios" },
+  { id: "tenants", name: "Inquilinos" },
+  { id: "owner_dependents", name: "Dependientes de propietarios" },
+  { id: "tenant_dependents", name: "Dependientes de inquilinos" },
 ];
 
 const normalizeUrls = (value: any): string[] => {
@@ -105,7 +107,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       status: item?.status || "S", // S=Scheduled por defecto
       quorum_required: item?.quorum_required ?? 50,
       anonymous_voting: item?.anonymous_voting ?? false,
-      target_audience: item?.target_audience || "all_owners",
+      target_audience: Array.isArray(item?.target_audience)
+        ? item.target_audience
+        : item?.target_audience
+          ? String(item.target_audience).split(",")
+          : ["owners"],
     };
   }, [item]);
 
@@ -120,6 +126,16 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormState((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const toggleTargetAudience = (id: string) => {
+    setFormState((prev: any) => {
+      const current = prev.target_audience || [];
+      const next = current.includes(id)
+        ? current.filter((item: string) => item !== id)
+        : [...current, id];
+      return { ...prev, target_audience: next };
+    });
   };
 
   const validateStep1 = () => {
@@ -230,8 +246,13 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   };
 
   const onNext = () => {
-    if (hasErrors(validateStep1())) return;
-    setLevel(2);
+    if (level === 1) {
+      if (hasErrors(validateStep1())) return;
+      setLevel(2);
+    } else if (level === 2) {
+      if (hasErrors(validateStep2())) return;
+      setLevel(3);
+    }
   };
 
   const onSave = async () => {
@@ -255,6 +276,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             address_url: formState.address_url,
           }
         : {}),
+      quorum_required: formState.quorum_required,
+      target_audience: Array.isArray(formState.target_audience)
+        ? formState.target_audience.join(",")
+        : formState.target_audience,
+      anonymous_voting: formState.anonymous_voting,
     };
 
     const method = formState.id ? "PUT" : "POST";
@@ -280,11 +306,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   };
 
   const footerButtons =
-    level === 1 ? (
+    level < 3 ? (
       <>
         <Button
           variant="secondary"
-          onClick={closeModal}
+          onClick={level === 1 ? closeModal : () => setLevel(level - 1)}
           style={{ height: 44, fontSize: 15, fontWeight: 600 }}
         >
           Anterior
@@ -301,7 +327,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       <>
         <Button
           variant="secondary"
-          onClick={() => setLevel(1)}
+          onClick={() => setLevel(2)}
           style={{ height: 44, fontSize: 15, fontWeight: 600 }}
         >
           Anterior
@@ -311,7 +337,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
           onClick={onSave}
           style={{ height: 44, fontSize: 15, fontWeight: 600 }}
         >
-          Crear asamblea
+          {formState.id ? "Guardar cambios" : "Crear asamblea"}
         </Button>
       </>
     );
@@ -336,10 +362,16 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             <p>Información</p>
           </div>
           <div
-            className={`${styles.stepperStep} ${level === 2 ? styles.active : ""}`}
+            className={`${styles.stepperStep} ${level >= 2 ? styles.active : ""}`}
           >
             <div className={styles.stepperCircle}>2</div>
             <p>Programación</p>
+          </div>
+          <div
+            className={`${styles.stepperStep} ${level >= 3 ? styles.active : ""}`}
+          >
+            <div className={styles.stepperCircle}>3</div>
+            <p>Configuración</p>
           </div>
         </div>
       </section>
@@ -521,6 +553,64 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               error={errors}
             />
           )}
+        </section>
+      )}
+
+      {level === 3 && (
+        <section className={styles.sectionCard}>
+          <h3 className={styles.sectionTitle}>Configuración de la asamblea</h3>
+          <p className={styles.sectionSubtitle}>
+            Define quiénes pueden participar y el quórum necesario.
+          </p>
+
+          <div style={{ marginBottom: 24 }}>
+            <p
+              style={{
+                fontSize: 14,
+                color: "var(--cWhiteV1)",
+                marginBottom: 12,
+              }}
+            >
+              Audiencia objetivo (puedes marcar varias):
+            </p>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "12px",
+              }}
+            >
+              {TARGET_AUDIENCE_OPTIONS.map((option) => (
+                <Check
+                  key={option.id}
+                  name={`target_${option.id}`}
+                  label={option.name}
+                  value={option.id}
+                  reverse={true}
+                  checked={formState.target_audience?.includes(option.id)}
+                  onChange={() => toggleTargetAudience(option.id)}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "16px",
+            }}
+          >
+            <Input
+              type="number"
+              name="quorum_required"
+              label="Quórum mínimo (%)"
+              value={formState.quorum_required}
+              onChange={handleChange}
+              error={errors}
+              required
+            />
+          </div>
         </section>
       )}
     </DataModal>
