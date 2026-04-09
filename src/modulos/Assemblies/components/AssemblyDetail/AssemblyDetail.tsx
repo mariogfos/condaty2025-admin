@@ -308,7 +308,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             {/* Dynamic Voting Questions */}
             {assembly.surveys && assembly.surveys.length > 0 ? (
               assembly.surveys.map((survey: any) => (
-                <div key={survey.id} style={{ marginBottom: 32 }}>
+                <div key={survey.id} className={styles.votacionCard}>
                   <div
                     style={{
                       display: "flex",
