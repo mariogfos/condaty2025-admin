@@ -28,6 +28,8 @@ import {
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import Card from "@/mk/v2/Components/ui/Card/Card";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
 
 interface AssemblyDetailProps {
   id: string | number;
@@ -35,10 +37,19 @@ interface AssemblyDetailProps {
 
 const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const router = useRouter();
-  const { fetchAssemblyDetail, fetchAssemblyStats, loading, error } =
-    useAssemblies();
+  const {
+    fetchAssemblyDetail,
+    fetchAssemblyStats,
+    updateAssembly,
+    loading,
+    error,
+  } = useAssemblies();
   const [assembly, setAssembly] = useState<Assembly | null>(null);
   const [stats, setStats] = useState<AssemblyStats | null>(null);
+
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [tempDescription, setTempDescription] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Accordion states
   const [showDetails, setShowDetails] = useState(true);
@@ -57,6 +68,24 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     };
     load();
   }, [id, fetchAssemblyDetail, fetchAssemblyStats]);
+
+  const handleEditDescription = () => {
+    setTempDescription(assembly?.description || "");
+    setIsEditingDescription(true);
+  };
+
+  const handleSaveDescription = async () => {
+    if (!assembly) return;
+    setIsSaving(true);
+    const success = await updateAssembly(assembly.id, {
+      description: tempDescription,
+    });
+    if (success) {
+      setAssembly({ ...assembly, description: tempDescription });
+      setIsEditingDescription(false);
+    }
+    setIsSaving(false);
+  };
 
   if (loading && !assembly)
     return <div className={styles.container}>Cargando...</div>;
@@ -133,7 +162,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="DESCRIPCIÓN"
             titleRight={
-              <button className={styles.editButton}>
+              <button
+                className={styles.editButton}
+                onClick={handleEditDescription}
+              >
                 <IconEdit size={14} /> Editar
               </button>
             }
@@ -307,6 +339,31 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           </Card>
         </div>
       </div>
+
+      <DataModal
+        title="Editar Descripción"
+        open={isEditingDescription}
+        onClose={() => setIsEditingDescription(false)}
+        onSave={handleSaveDescription}
+        buttonText={isSaving ? "Guardando..." : "Guardar"}
+        disabled={isSaving}
+        maxWidth={800}
+        style={{ height: "90vh", display: "flex", flexDirection: "column" }}
+        className={styles.modalContent}
+      >
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <TextArea
+            name="description"
+            label="Descripción de la Asamblea"
+            value={tempDescription}
+            onChange={(e) => setTempDescription(e.target.value)}
+            lines={25}
+            style={{ flex: 1, minHeight: "400px" }}
+            placeholder="Escribe la descripción detallada aquí..."
+            required={false}
+          />
+        </div>
+      </DataModal>
     </div>
   );
 };

@@ -148,10 +148,30 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
 
   const validateStep2 = () => {
     let newErrors: any = {};
-    newErrors = checkRules({ value: formState.start_date, rules: ["required"], key: "start_date", errors: newErrors });
-    newErrors = checkRules({ value: formState.start_time, rules: ["required"], key: "start_time", errors: newErrors });
-    newErrors = checkRules({ value: formState.end_time, rules: ["required"], key: "end_time", errors: newErrors });
-    newErrors = checkRules({ value: formState.modality, rules: ["required"], key: "modality", errors: newErrors });
+    newErrors = checkRules({
+      value: formState.start_date,
+      rules: ["required"],
+      key: "start_date",
+      errors: newErrors,
+    });
+    newErrors = checkRules({
+      value: formState.start_time,
+      rules: ["required"],
+      key: "start_time",
+      errors: newErrors,
+    });
+    newErrors = checkRules({
+      value: formState.end_time,
+      rules: ["required"],
+      key: "end_time",
+      errors: newErrors,
+    });
+    newErrors = checkRules({
+      value: formState.modality,
+      rules: ["required"],
+      key: "modality",
+      errors: newErrors,
+    });
 
     if (!isValidDateTimeValue(formState.start_date, formState.start_time)) {
       newErrors.start_time = "La fecha y hora de inicio no es válida";
@@ -190,7 +210,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       });
     }
 
-    if (formState.start_time && formState.end_time && formState.start_time >= formState.end_time) {
+    if (
+      formState.start_time &&
+      formState.end_time &&
+      formState.start_time >= formState.end_time
+    ) {
       newErrors.end_time = "La finalización debe ser posterior al inicio";
     }
 
@@ -222,7 +246,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       modality: formState.modality,
       files: buildFileObjects(formState.files, "documento_asamblea"),
       status: formState.status || "Scheduled",
-      ...(formState.modality !== "P" ? { meeting_url: formState.meeting_url } : {}),
+      ...(formState.modality !== "P"
+        ? { meeting_url: formState.meeting_url }
+        : {}),
       ...(formState.modality !== "V"
         ? {
             address: formState.address,
@@ -256,19 +282,35 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   const footerButtons =
     level === 1 ? (
       <>
-        <Button variant="secondary" onClick={closeModal} style={{ height: 44, fontSize: 15, fontWeight: 600 }}>
+        <Button
+          variant="secondary"
+          onClick={closeModal}
+          style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+        >
           Anterior
         </Button>
-        <Button variant="primary" onClick={onNext} style={{ height: 44, fontSize: 15, fontWeight: 600 }}>
+        <Button
+          variant="primary"
+          onClick={onNext}
+          style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+        >
           Siguiente
         </Button>
       </>
     ) : (
       <>
-        <Button variant="secondary" onClick={() => setLevel(1)} style={{ height: 44, fontSize: 15, fontWeight: 600 }}>
+        <Button
+          variant="secondary"
+          onClick={() => setLevel(1)}
+          style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+        >
           Anterior
         </Button>
-        <Button variant="primary" onClick={onSave} style={{ height: 44, fontSize: 15, fontWeight: 600 }}>
+        <Button
+          variant="primary"
+          onClick={onSave}
+          style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+        >
           Crear asamblea
         </Button>
       </>
@@ -293,7 +335,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             <div className={styles.stepperCircle}>1</div>
             <p>Información</p>
           </div>
-          <div className={`${styles.stepperStep} ${level === 2 ? styles.active : ""}`}>
+          <div
+            className={`${styles.stepperStep} ${level === 2 ? styles.active : ""}`}
+          >
             <div className={styles.stepperCircle}>2</div>
             <p>Programación</p>
           </div>
@@ -303,7 +347,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       {level === 1 && (
         <>
           <section className={styles.sectionCard}>
-            <h3 className={styles.sectionTitle}>¿Qué asamblea deseas convocar?</h3>
+            <h3 className={styles.sectionTitle}>
+              ¿Qué asamblea deseas convocar?
+            </h3>
             <p className={styles.sectionSubtitle}>
               Define la información básica para identificar esta asamblea.
             </p>
@@ -338,11 +384,13 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               required
             />
           </section>
-
           <section className={styles.sectionCard}>
-            <h3 className={styles.sectionTitle}>¿Deseas adjuntar documentos para los residentes?</h3>
+            <h3 className={styles.sectionTitle}>
+              ¿Deseas adjuntar documentos para los residentes?
+            </h3>
             <p className={styles.sectionSubtitle}>
-              Agrega archivos que los residentes puedan revisar antes de la asamblea.
+              Agrega archivos que los residentes puedan revisar antes de la
+              asamblea.
             </p>
             <UploadFileV3
               formState={formState}
@@ -353,13 +401,14 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               maxMB={5}
             />
           </section>
-
         </>
       )}
 
       {level === 2 && (
         <section className={styles.sectionCard}>
-          <h3 className={styles.sectionTitle}>¿Cuándo se realizará la asamblea?</h3>
+          <h3 className={styles.sectionTitle}>
+            ¿Cuándo se realizará la asamblea?
+          </h3>
           <p className={styles.sectionSubtitle}>
             Selecciona la fecha y horario en que se llevará a cabo la reunión.
           </p>
@@ -374,7 +423,13 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             required
           />
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "16px",
+            }}
+          >
             <Input
               type="time"
               name="start_time"
@@ -396,7 +451,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             />
           </div>
 
-          <h3 className={styles.sectionTitle}>¿Cómo se realizará la asamblea?</h3>
+          <h3 className={styles.sectionTitle}>
+            ¿Cómo se realizará la asamblea?
+          </h3>
           <p className={styles.sectionSubtitle}>
             Indica si la reunión será presencial, virtual o híbrida.
           </p>
@@ -422,9 +479,12 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             })}
           </div>
 
-          <h3 className={styles.sectionTitle}>¿Dónde podrán participar los residentes?</h3>
+          <h3 className={styles.sectionTitle}>
+            ¿Dónde podrán participar los residentes?
+          </h3>
           <p className={styles.sectionSubtitle}>
-            Completa la ubicación física o el enlace de acceso según la modalidad.
+            Completa la ubicación física o el enlace de acceso según la
+            modalidad.
           </p>
 
           {["V", "H"].includes(formState.modality) && (

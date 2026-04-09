@@ -20,6 +20,10 @@ interface UseAssembliesReturn {
     id: string | number,
     status: string,
   ) => Promise<boolean>;
+  updateAssembly: (
+    id: string | number,
+    data: Partial<Assembly>,
+  ) => Promise<boolean>;
   execute: any;
   reLoad: any;
 }
@@ -140,6 +144,34 @@ export const useAssemblies = (): UseAssembliesReturn => {
     [],
   );
 
+  const updateAssembly = useCallback(
+    async (id: string | number, data: Partial<Assembly>): Promise<boolean> => {
+      setLoading(true);
+      try {
+        const { data: response } = await execute(
+          `${modulePath}/${id}`,
+          "PUT",
+          data,
+          false,
+          true,
+        );
+        if (response?.success) {
+          showToast("Asamblea actualizada correctamente", "success");
+          return true;
+        }
+        showToast(response?.message || "Error al actualizar asamblea", "error");
+        return false;
+      } catch (err: any) {
+        console.error("Error updating assembly:", err);
+        showToast(err.message || "Error al actualizar asamblea", "error");
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
   return {
     assemblies,
     stats,
@@ -149,6 +181,7 @@ export const useAssemblies = (): UseAssembliesReturn => {
     fetchAssemblyDetail,
     fetchAssemblyStats,
     updateAssemblyStatus,
+    updateAssembly,
     execute,
     reLoad,
   };
