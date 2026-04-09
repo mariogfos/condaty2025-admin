@@ -25,6 +25,8 @@ interface AssemblySurveyFormProps {
   assemblyId: string | number;
   execute: any;
   onSuccess?: () => void;
+  editItem?: any;
+  action?: "add" | "edit";
 }
 
 const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
@@ -33,6 +35,8 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
   assemblyId,
   execute,
   onSuccess,
+  editItem,
+  action = "add",
 }) => {
   const { showToast } = useAuth();
   const [level, setLevel] = useState(1);
@@ -55,20 +59,38 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
   useEffect(() => {
     if (open) {
       setLevel(1);
-      setFormState({
-        title: "",
-        target_criteria: {
-          roles: {},
-          vote_per_unit: true,
-          only_current: false,
-          only_arrears: false,
-        },
-        question: "",
-        options: ["", ""],
-      });
+      if (action === "edit" && editItem) {
+        const question = editItem.squestions?.[0];
+        setFormState({
+          title: editItem.title || "",
+          target_criteria: {
+            roles: editItem.target_criteria?.roles || {},
+            vote_per_unit: editItem.target_criteria?.vote_per_unit ?? true,
+            only_current: editItem.target_criteria?.only_current ?? false,
+            only_arrears: editItem.target_criteria?.only_arrears ?? false,
+          },
+          question: question?.question_text || "",
+          options: question?.soptions?.map((opt: any) => opt.option_text) || [
+            "",
+            "",
+          ],
+        });
+      } else {
+        setFormState({
+          title: "",
+          target_criteria: {
+            roles: {},
+            vote_per_unit: true,
+            only_current: false,
+            only_arrears: false,
+          },
+          question: "",
+          options: ["", ""],
+        });
+      }
       setErrors({});
     }
-  }, [open]);
+  }, [open, action, editItem]);
 
   const handleRolesChange = (e: any) => {
     const selected = e.target.value as string[];
@@ -138,46 +160,67 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
 
     setIsSaving(true);
     try {
-      // 1. Create Survey
+      // 1. Create or Update Survey
       const payload = {
         title: formState.question.substring(0, 50), // API Title
         type: "assembly",
         target_criteria: formState.target_criteria,
         squestions: [
           {
-            content: formState.question,
+            id: action === "edit" ? editItem.squestions?.[0]?.id : undefined,
+            question_text: formState.question,
             type: "S", // Single choice
             order: 1,
             is_mandatory: true,
             soptions: formState.options
-              .filter(opt => opt.trim() !== "")
+              .filter((opt) => opt.trim() !== "")
               .map((opt, idx) => ({
-                content: opt,
+                id:
+                  action === "edit"
+                    ? editItem.squestions?.[0]?.soptions?.[idx]?.id
+                    : undefined,
+                option_text: opt,
                 order: idx + 1,
               })),
           },
         ],
       };
 
-      const { data } = await execute("/surveys", "POST", payload);
+      const url = action === "edit" ? `/surveys/${editItem.id}` : "/surveys";
+      const method = action === "edit" ? "PUT" : "POST";
+
+      const { data } = await execute(url, method, payload);
 
       if (data?.success || (data && !data.error)) {
-        const surveyId = data?.data?.id || data?.id;
-        
-        // 2. Attach to Assembly
-        const attachRes = await execute(`/assemblies/${assemblyId}/surveys`, "POST", {
-          survey_id: surveyId,
-        });
+        const surveyId = data?.data?.id || data?.id || editItem?.id;
 
-        if (attachRes.data?.success || (attachRes.data && !attachRes.data.error)) {
-          showToast("Votación creada y agregada con éxito", "success");
+        // 2. Attach to Assembly (only if adding)
+        if (action === "add") {
+          const attachRes = await execute(
+            `/assemblies/${assemblyId}/surveys`,
+            "POST",
+            {
+              survey_id: surveyId,
+            },
+          );
+
+          if (
+            attachRes.data?.success ||
+            (attachRes.data && !attachRes.data.error)
+          ) {
+            showToast("Votación creada con éxito", "success");
+            onSuccess?.();
+            onClose();
+          } else {
+            showToast("Error al asociar la votación", "error");
+          }
+        } else {
+          showToast("Votación actualizada con éxito", "success");
           onSuccess?.();
           onClose();
-        } else {
-          showToast("Error al asociar la votación a la asamblea", "error");
         }
       } else {
-        showToast("Error al crear la votación", "error");
+        showToast("Error al procesar la votación", "error");
       }
     } catch (error) {
       console.error(error);
@@ -191,7 +234,7 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
     <DataModal
       open={open}
       onClose={onClose}
-      title="Crear pregunta"
+      title={action === "edit" ? "Editar pregunta" : "Crear pregunta"}
       buttonText=""
       buttonCancel=""
       maxWidth={520}
@@ -317,7 +360,7 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
                     Anterior
                 </Button>
                 <Button variant="primary" onClick={handleSave} disabled={isSaving} style={{ flex: 1 }}>
-                    {isSaving ? "Guardando..." : "Crear pregunta"}
+                    {isSaving ? "Guardando..." : (action === "edit" ? "Actualizar pregunta" : "Crear pregunta")}
                 </Button>
             </div>
           </div>

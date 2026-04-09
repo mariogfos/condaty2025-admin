@@ -20,6 +20,7 @@ import {
   IconEdit,
   IconAdd,
   IconCirclePlay,
+  IconCircleCheck,
   IconTrash,
   IconArrowDown,
   IconArrowUp,
@@ -89,6 +90,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [tempDocs, setTempDocs] = useState({ files: [] as string[] });
   const [isSavingDocs, setIsSavingDocs] = useState(false);
   const [isCreatingVoting, setIsCreatingVoting] = useState(false);
+  const [surveyToEdit, setSurveyToEdit] = useState<any>(null);
+  const [surveyAction, setSurveyAction] = useState<"add" | "edit">("add");
 
   const { showToast } = useAuth();
 
@@ -148,6 +151,45 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       showToast("No se pudieron actualizar los documentos", "error");
     }
     setIsSavingDocs(false);
+  };
+
+  const handleStatusChange = async (
+    surveyId: number | string,
+    status: string,
+  ) => {
+    try {
+      const { data } = await execute(`/surveys/${surveyId}/status`, "PUT", {
+        status,
+      });
+      if (data?.success || (data && !data.error)) {
+        showToast("Estado actualizado correctamente", "success");
+        loadAssembly();
+      }
+    } catch (e) {
+      showToast("Error al actualizar el estado", "error");
+    }
+  };
+
+  const handleEditSurvey = (survey: any) => {
+    setSurveyToEdit(survey);
+    setSurveyAction("edit");
+    setIsCreatingVoting(true);
+  };
+
+  const handleDeleteSurvey = async (surveyId: number | string) => {
+    if (!confirm("¿Estás seguro de eliminar esta votación?")) return;
+    try {
+      const { data } = await execute(`/surveys/${surveyId}`, "DELETE");
+      if (data?.success || (data && !data.error)) {
+        showToast("Votación eliminada correctamente", "success");
+        loadAssembly();
+      }
+    } catch (e: any) {
+      showToast(
+        e?.response?.data?.message || "Error al eliminar la votación",
+        "error",
+      );
+    }
   };
 
   if (loading && !assembly)
@@ -252,6 +294,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                 className={styles.actionBtn}
                 onClick={(e) => {
                   e.stopPropagation();
+                  setSurveyToEdit(null);
+                  setSurveyAction("add");
                   setIsCreatingVoting(true);
                 }}
               >
@@ -261,81 +305,139 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             openable={false}
             variant="v2"
           >
-            {/* Simulated Voting Question based on image */}
-            {1 == 1 ? (
-              [1].map((survey: any) => (
-                <div key={survey.id}>
+            {/* Dynamic Voting Questions */}
+            {assembly.surveys && assembly.surveys.length > 0 ? (
+              assembly.surveys.map((survey: any) => (
+                <div key={survey.id} style={{ marginBottom: 32 }}>
                   <div
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "flex-start",
+                      marginBottom: 8,
                     }}
                   >
-                    <h3 className={styles.votacionTitle}>Prueba prueba</h3>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <IconCirclePlay
-                        size={18}
-                        color="#888"
-                        style={{ cursor: "pointer" }}
-                      />
-                      <IconEdit
-                        size={18}
-                        color="#888"
-                        style={{ cursor: "pointer" }}
-                      />
-                      <IconTrash
-                        size={18}
-                        color="#888"
-                        style={{ cursor: "pointer" }}
-                      />
+                    <h3 className={styles.votacionTitle}>{survey.title}</h3>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                      {/* Lifecycle Actions */}
+                      {(survey.status === "D" || survey.status === "P") && (
+                        <IconCirclePlay
+                          size={22}
+                          color="var(--cSuccess)"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleStatusChange(survey.id, "A")}
+                          title="Activar"
+                        />
+                      )}
+                      
+                      {survey.status === "A" && (
+                        <>
+                          <div 
+                             style={{ 
+                               width: 14, height: 16, 
+                               borderLeft: '4px solid var(--cWarning)', 
+                               borderRight: '4px solid var(--cWarning)',
+                               cursor: 'pointer'
+                             }}
+                             onClick={() => handleStatusChange(survey.id, "P")}
+                             title="Pausar"
+                          />
+                          <IconCircleCheck
+                            size={22}
+                            color="var(--cError)"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleStatusChange(survey.id, "C")}
+                            title="Finalizar"
+                          />
+                        </>
+                      )}
+
+                      {/* Edit/Delete (Only if no votes) */}
+                      {(!survey.squestions?.[0]?.soptions?.some((o: any) => (o.votes || 0) > 0) && survey.status !== 'C') && (
+                        <>
+                          <IconEdit
+                            size={18}
+                            color="#888"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleEditSurvey(survey)}
+                            title="Editar"
+                          />
+                          <IconTrash
+                            size={18}
+                            color="var(--cError)"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleDeleteSurvey(survey.id)}
+                            title="Eliminar"
+                          />
+                        </>
+                      )}
                     </div>
-                  </div>
-                  <div className={styles.votacionMeta}>
-                    <span className={styles.votacionCount}>
-                      0 votos en total
-                    </span>
-                    <span className={styles.votacionStatus}>Finalizada</span>
                   </div>
 
-                  <div className={styles.optionItem}>
-                    <div className={styles.optionHeader}>
-                      <span>Sí estoy de acuerdo</span>
-                      <span>68% (31 votos)</span>
-                    </div>
-                    <div className={styles.progressContainer}>
-                      <div
-                        className={styles.progressBar}
-                        style={{ width: "68%" }}
-                      ></div>
-                    </div>
-                  </div>
+                  {survey.squestions?.map((q: any) => {
+                    const totalVotes =
+                      q.soptions?.reduce(
+                        (acc: number, opt: any) => acc + (opt.votes || 0),
+                        0,
+                      ) || 0;
 
-                  <div className={styles.optionItem}>
-                    <div className={styles.optionHeader}>
-                      <span>Voto nulo</span>
-                      <span>24% (11 votos)</span>
-                    </div>
-                    <div className={styles.progressContainer}>
-                      <div
-                        className={styles.progressBar}
-                        style={{ width: "24%", background: "#444" }}
-                      ></div>
-                    </div>
-                  </div>
+                    return (
+                      <div key={q.id}>
+                        <div className={styles.votacionMeta}>
+                          <span className={styles.votacionCount}>
+                            {totalVotes} {totalVotes === 1 ? "voto" : "votos"}{" "}
+                            en total
+                          </span>
+                          <span className={styles.votacionStatus}>
+                            {survey.status === "C"
+                              ? "Finalizada"
+                              : survey.status === "A"
+                                ? "Activa"
+                                : survey.status === "P" 
+                                  ? "Pausada"
+                                  : "Borrador"}
+                          </span>
+                        </div>
 
-                  <div className={styles.optionItem}>
-                    <div className={styles.optionHeader}>
-                      <span>No estoy de acuerdo</span>
-                      <span>8% (3 votos)</span>
-                    </div>
-                    <div className={styles.progressContainer}>
-                      <div
-                        className={styles.progressBar}
-                        style={{ width: "8%", background: "#EF4444" }}
-                      ></div>
-                    </div>
-                  </div>
+                        {q.soptions?.map((opt: any) => {
+                          const votes = opt.votes || 0;
+                          const percentage =
+                            totalVotes > 0
+                              ? Math.round((votes / totalVotes) * 100)
+                              : 0;
+
+                          return (
+                            <div key={opt.id} className={styles.optionItem}>
+                              <div className={styles.optionHeader}>
+                                <span>{opt.option_text}</span>
+                                <span>
+                                  {percentage}% ({votes}{" "}
+                                  {votes === 1 ? "voto" : "votos"})
+                                </span>
+                              </div>
+                              <div className={styles.progressContainer}>
+                                <div
+                                  className={styles.progressBar}
+                                  style={{
+                                    width: `${percentage}%`,
+                                    background: opt.option_text
+                                      .toLowerCase()
+                                      .includes("no")
+                                      ? "#EF4444"
+                                      : opt.option_text
+                                            .toLowerCase()
+                                            .includes("nulo")
+                                        ? "#444"
+                                        : "linear-gradient(90deg, #8b5cf6, #3b82f6)",
+                                  }}
+                                ></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
                 </div>
               ))
             ) : (
@@ -582,10 +684,15 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
 
       <AssemblySurveyForm
         open={isCreatingVoting}
-        onClose={() => setIsCreatingVoting(false)}
+        onClose={() => {
+          setIsCreatingVoting(false);
+          setSurveyToEdit(null);
+        }}
         assemblyId={id}
         execute={execute}
         onSuccess={loadAssembly}
+        editItem={surveyToEdit}
+        action={surveyAction}
       />
     </div>
   );
