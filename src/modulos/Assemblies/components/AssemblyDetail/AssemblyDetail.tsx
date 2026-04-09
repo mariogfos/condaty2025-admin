@@ -36,6 +36,8 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import RenderForm from "../../RenderForm/RenderForm";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import AssemblySurveyForm from "@/modulos/Surveys/components/AssemblySurveyForm/AssemblySurveyForm";
+import AssemblyAttendanceForm from "../AssemblyAttendanceForm/AssemblyAttendanceForm";
+import AssemblyAttendanceList from "../AssemblyAttendanceList/AssemblyAttendanceList";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const normalizeUrls = (value: any): string[] => {
@@ -90,6 +92,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [tempDocs, setTempDocs] = useState({ files: [] as string[] });
   const [isSavingDocs, setIsSavingDocs] = useState(false);
   const [isCreatingVoting, setIsCreatingVoting] = useState(false);
+  const [isRegisteringParticipant, setIsRegisteringParticipant] = useState(false);
   const [surveyToEdit, setSurveyToEdit] = useState<any>(null);
   const [surveyAction, setSurveyAction] = useState<"add" | "edit">("add");
 
@@ -603,12 +606,21 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="PARTICIPANTES"
             titleRight={
-              <button className={styles.actionBtn}>
+              <button
+                className={styles.actionBtn}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsRegisteringParticipant(true);
+                }}
+              >
                 <IconAdd size={12} /> Registrar
               </button>
             }
           >
-            No hay participantes registrados.
+            <AssemblyAttendanceList
+              assemblyId={Number(assembly.id)}
+              key={assembly.id}
+            />
           </Card>
         </div>
       </div>
@@ -693,6 +705,13 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
         onSuccess={loadAssembly}
         editItem={surveyToEdit}
         action={surveyAction}
+      />
+
+      <AssemblyAttendanceForm
+        open={isRegisteringParticipant}
+        onClose={() => setIsRegisteringParticipant(false)}
+        assemblyId={String(id)}
+        onSuccess={loadAssembly}
       />
     </div>
   );

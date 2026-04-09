@@ -1,0 +1,127 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 8px 0;
+}
+
+.searchSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+}
+
+.searchBar {
+  display: flex;
+  gap: 10px;
+}
+
+.searchInput {
+  flex: 1;
+}
+
+.searchBtn {
+  padding: 0 16px;
+}
+
+.resultsList {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.message {
+  padding: 30px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.residentItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.residentItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.residentItem.selected {
+  background: rgba(var(--cAccentRGB), 0.1);
+  border-left: 3px solid var(--cAccent);
+}
+
+.residentInfo {
+  flex: 1;
+}
+
+.resName {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.resDetail {
+  font-size: 12px;
+  color: #888;
+  margin: 2px 0 0 0;
+}
+
+.registrationForm {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.modalityOptions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.modalityCard {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.modalityCard:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.modalityCard.active {
+  background: var(--cAccent);
+  border-color: var(--cAccent);
+  color: #fff;
+}
+
+.registerBtn {
+  margin-top: 8px;
+}
+
+.footer {
+  margin-top: 8px;
+}
