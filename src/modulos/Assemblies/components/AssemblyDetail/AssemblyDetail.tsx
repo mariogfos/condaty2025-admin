@@ -34,6 +34,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import RenderForm from "../../RenderForm/RenderForm";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
+import AssemblySurveyForm from "@/modulos/Surveys/components/AssemblySurveyForm/AssemblySurveyForm";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const normalizeUrls = (value: any): string[] => {
@@ -87,6 +88,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [isEditingDocs, setIsEditingDocs] = useState(false);
   const [tempDocs, setTempDocs] = useState({ files: [] as string[] });
   const [isSavingDocs, setIsSavingDocs] = useState(false);
+  const [isCreatingVoting, setIsCreatingVoting] = useState(false);
 
   const { showToast } = useAuth();
 
@@ -248,7 +250,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             titleRight={
               <button
                 className={styles.actionBtn}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsCreatingVoting(true);
+                }}
               >
                 <IconAdd size={14} /> Nueva pregunta
               </button>
@@ -574,6 +579,14 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           </div>
         )}
       </DataModal>
+
+      <AssemblySurveyForm
+        open={isCreatingVoting}
+        onClose={() => setIsCreatingVoting(false)}
+        assemblyId={id}
+        execute={execute}
+        onSuccess={loadAssembly}
+      />
     </div>
   );
 };
