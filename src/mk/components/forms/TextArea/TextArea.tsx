@@ -7,12 +7,14 @@ interface PropsType extends PropsTypeInputBase {
   lines?: number;
   isLimit?: boolean; // Activar o desactivar el contador de caracteres
   maxLength?: number; // Límite de caracteres
+  fullHeight?: boolean; // Llenar el 100% del alto del contenedor padre
 }
 
 const TextArea = ({
   lines = 6,
   maxLength,
   isLimit = false,
+  fullHeight = false,
   ...props
 }: PropsType) => {
   const {
@@ -30,6 +32,17 @@ const TextArea = ({
 
   const [charCount, setCharCount] = useState(value?.length || 0);
 
+  const wrapperStyle: React.CSSProperties = fullHeight
+    ? { height: "100%", display: "flex", flexDirection: "column" }
+    : {};
+  const containerStyle: React.CSSProperties = fullHeight ? { height: "100%" } : {};
+  const fieldStyle: React.CSSProperties = fullHeight
+    ? { height: "100%", display: "flex", flexDirection: "column" }
+    : {};
+  const textAreaStyle: React.CSSProperties = fullHeight
+    ? { height: "100%", flex: 1, ...style }
+    : { width: "100%", ...style };
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (maxLength && e.target.value.length <= maxLength) {
       setCharCount(e.target.value.length); // Actualiza el contador de caracteres
@@ -39,17 +52,22 @@ const TextArea = ({
   };
 
   return (
-    <div className={styles.textAreaWrapper}>
-      <ControlLabel {...props} className={`${styles.textArea} ${className}`}>
+    <div className={styles.textAreaWrapper} style={wrapperStyle}>
+      <ControlLabel
+        {...props}
+        className={`${styles.textArea} ${className} ${fullHeight ? styles.fullHeight : ""}`}
+        style={fieldStyle}
+        styleContainer={containerStyle}
+      >
         <textarea
           id={name}
           name={name}
           value={value ?? ""}
           placeholder={placeholder}
-          style={{ width: "100%", ...style }}
+          style={textAreaStyle}
           disabled={disabled}
           required={required}
-          rows={lines}
+          rows={fullHeight ? undefined : lines}
           maxLength={maxLength} // Aplica el límite de caracteres
           onChange={handleChange}
           onFocus={onFocus}

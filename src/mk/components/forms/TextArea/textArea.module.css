@@ -4,7 +4,8 @@
 }
 .textArea {
   background-color: #d7fff005;
-  display: block;
+  display: flex;
+  flex-direction: row;
   outline: none;
   width: 100%;
   border-radius: var(--bRadius);
@@ -16,6 +17,16 @@
   resize: none;
   /* margin-top: calc(var(--spM)); */
   position: relative;
+
+  &.fullHeight {
+    height: 100%;
+    & > div {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+  }
+
   & > div > textarea::placeholder {
     color: #878f9a;
     font-size: var(--sL);

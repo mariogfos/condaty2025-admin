@@ -357,8 +357,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             label="Descripción de la Asamblea"
             value={tempDescription}
             onChange={(e) => setTempDescription(e.target.value)}
-            lines={25}
-            style={{ flex: 1, minHeight: "400px" }}
+            fullHeight={true}
+            style={{ minHeight: "400px" }}
             placeholder="Escribe la descripción detallada aquí..."
             required={false}
           />
