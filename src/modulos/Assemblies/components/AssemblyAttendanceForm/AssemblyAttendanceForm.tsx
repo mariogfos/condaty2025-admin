@@ -7,7 +7,11 @@ import Button from "@/mk/components/forms/Button/Button";
 import styles from "./AssemblyAttendanceForm.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { IconSearch, IconUser, IconCheck } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconSearch,
+  IconUser,
+  IconCheck,
+} from "@/components/layout/icons/IconsBiblioteca";
 
 interface AssemblyAttendanceFormProps {
   open: boolean;
@@ -46,14 +50,14 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
     setIsSearching(true);
     try {
       const { data: response } = await fetchResidents(
-        `/owners?fullType=L&searchBy=${search}`,
+        `/owners`,
         "GET",
-        {},
+        { searchBy: search, fullType: "L" },
         false,
-        true
+        true,
       );
       if (response?.data) {
-        setResidents(response.data.data || []);
+        setResidents(response.data || []);
       }
     } catch (error) {
       console.error("Error searching residents:", error);
@@ -72,7 +76,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
         {
           owner_id: selectedResident.id,
           modality_type: modality,
-        }
+        },
       );
 
       if (response?.success || !response?.error) {
@@ -129,7 +133,9 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
               >
                 <Avatar src={res.url_avatar} name={res.name} w={40} h={40} />
                 <div className={styles.residentInfo}>
-                  <p className={styles.resName}>{res.name} {res.last_name}</p>
+                  <p className={styles.resName}>
+                    {res.name} {res.last_name}
+                  </p>
                   <p className={styles.resDetail}>
                     Unidad: {res.all_units || "S/N"} | CI: {res.ci || "-"}
                   </p>
@@ -142,44 +148,50 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
           ) : search && !isSearching ? (
             <div className={styles.message}>No se encontraron resultados.</div>
           ) : (
-            <div className={styles.message}>Ingresa un nombre o unidad para buscar.</div>
+            <div className={styles.message}>
+              Ingresa un nombre o unidad para buscar.
+            </div>
           )}
         </div>
 
         {selectedResident && (
           <div className={styles.registrationForm}>
-             <div className={styles.fieldGroup}>
-                <label className={styles.label}>Modalidad</label>
-                <div className={styles.modalityOptions}>
-                  <div 
-                    className={`${styles.modalityCard} ${modality === "P" ? styles.active : ""}`}
-                    onClick={() => setModality("P")}
-                  >
-                    <span>Presencial</span>
-                  </div>
-                  <div 
-                    className={`${styles.modalityCard} ${modality === "V" ? styles.active : ""}`}
-                    onClick={() => setModality("V")}
-                  >
-                    <span>Virtual</span>
-                  </div>
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>Modalidad</label>
+              <div className={styles.modalityOptions}>
+                <div
+                  className={`${styles.modalityCard} ${modality === "P" ? styles.active : ""}`}
+                  onClick={() => setModality("P")}
+                >
+                  <span>Presencial</span>
                 </div>
-             </div>
+                <div
+                  className={`${styles.modalityCard} ${modality === "V" ? styles.active : ""}`}
+                  onClick={() => setModality("V")}
+                >
+                  <span>Virtual</span>
+                </div>
+              </div>
+            </div>
 
-             <Button
-                variant="primary"
-                onClick={handleRegister}
-                disabled={isSaving}
-                className={styles.registerBtn}
-                style={{ width: "100%" }}
-             >
-                {isSaving ? "Registrando..." : "Confirmar Registro"}
-             </Button>
+            <Button
+              variant="primary"
+              onClick={handleRegister}
+              disabled={isSaving}
+              className={styles.registerBtn}
+              style={{ width: "100%" }}
+            >
+              {isSaving ? "Registrando..." : "Confirmar Registro"}
+            </Button>
           </div>
         )}
 
         <div className={styles.footer}>
-          <Button variant="secondary" onClick={onClose} style={{ width: "100%" }}>
+          <Button
+            variant="secondary"
+            onClick={onClose}
+            style={{ width: "100%" }}
+          >
             Cancelar
           </Button>
         </div>
