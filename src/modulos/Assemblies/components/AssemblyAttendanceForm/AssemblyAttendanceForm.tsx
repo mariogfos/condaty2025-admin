@@ -6,6 +6,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import Button from "@/mk/components/forms/Button/Button";
 import styles from "./AssemblyAttendanceForm.module.css";
 import useAxios from "@/mk/hooks/useAxios";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
   IconSearch,
@@ -36,6 +37,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
 
   const { execute: fetchResidents } = useAxios();
   const { execute: saveAttendance } = useAxios();
+  const { showToast } = useAuth();
 
   useEffect(() => {
     if (!open) {
@@ -62,7 +64,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
     if (!search.trim()) return;
     setIsSearching(true);
     try {
-      const { data: response } = await fetchResidents(
+      const { data: response, error } = await fetchResidents(
         `/owners`,
         "GET",
         { searchBy: search, fullType: "L" },
@@ -71,6 +73,9 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
       );
       if (response?.data) {
         setResidents(response.data || []);
+      }
+      if (error) {
+        showToast(error.data?.message || "Error al buscar residentes", "error");
       }
     } catch (error) {
       console.error("Error searching residents:", error);
@@ -82,13 +87,13 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
   const handleRegister = async () => {
     if (!selectedResident) return;
     if (!selectedDptoId && (selectedResident.dpto?.length || 0) > 1) {
-      alert("Por favor selecciona el departamento que representa.");
+      showToast("Por favor selecciona el departamento que representa.", "warning");
       return;
     }
 
     setIsSaving(true);
     try {
-      const { data: response } = await saveAttendance(
+      const { data: response, error } = await saveAttendance(
         `/assemblies/${assemblyId}/manual-attendance`,
         "POST",
         {
@@ -99,11 +104,18 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
       );
 
       if (response?.success || !response?.error) {
+        showToast("Asistencia registrada correctamente", "success");
         onSuccess?.();
         onClose();
+      } else {
+        showToast(
+          response?.message || error?.data?.message || "Error al registrar asistencia",
+          "error"
+        );
       }
     } catch (error) {
       console.error("Error registering attendance:", error);
+      showToast("Error crítico al registrar asistencia", "error");
     } finally {
       setIsSaving(false);
     }

@@ -92,7 +92,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [tempDocs, setTempDocs] = useState({ files: [] as string[] });
   const [isSavingDocs, setIsSavingDocs] = useState(false);
   const [isCreatingVoting, setIsCreatingVoting] = useState(false);
-  const [isRegisteringParticipant, setIsRegisteringParticipant] = useState(false);
+  const [isRegisteringParticipant, setIsRegisteringParticipant] =
+    useState(false);
   const [surveyToEdit, setSurveyToEdit] = useState<any>(null);
   const [surveyAction, setSurveyAction] = useState<"add" | "edit">("add");
   const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
@@ -321,7 +322,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                     }}
                   >
                     <h3 className={styles.votacionTitle}>{survey.title}</h3>
-                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                    <div
+                      style={{ display: "flex", gap: 12, alignItems: "center" }}
+                    >
                       {/* Lifecycle Actions */}
                       {(survey.status === "D" || survey.status === "P") && (
                         <IconCirclePlay
@@ -332,18 +335,19 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                           title="Activar"
                         />
                       )}
-                      
+
                       {survey.status === "A" && (
                         <>
-                          <div 
-                             style={{ 
-                               width: 14, height: 16, 
-                               borderLeft: '4px solid var(--cWarning)', 
-                               borderRight: '4px solid var(--cWarning)',
-                               cursor: 'pointer'
-                             }}
-                             onClick={() => handleStatusChange(survey.id, "P")}
-                             title="Pausar"
+                          <div
+                            style={{
+                              width: 14,
+                              height: 16,
+                              borderLeft: "4px solid var(--cWarning)",
+                              borderRight: "4px solid var(--cWarning)",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => handleStatusChange(survey.id, "P")}
+                            title="Pausar"
                           />
                           <IconCircleCheck
                             size={22}
@@ -356,24 +360,27 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                       )}
 
                       {/* Edit/Delete (Only if no votes) */}
-                      {(!survey.squestions?.[0]?.soptions?.some((o: any) => (o.votes || 0) > 0) && survey.status !== 'C') && (
-                        <>
-                          <IconEdit
-                            size={18}
-                            color="#888"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => handleEditSurvey(survey)}
-                            title="Editar"
-                          />
-                          <IconTrash
-                            size={18}
-                            color="var(--cError)"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => handleDeleteSurvey(survey.id)}
-                            title="Eliminar"
-                          />
-                        </>
-                      )}
+                      {!survey.squestions?.[0]?.soptions?.some(
+                        (o: any) => (o.votes || 0) > 0,
+                      ) &&
+                        survey.status !== "C" && (
+                          <>
+                            <IconEdit
+                              size={18}
+                              color="#888"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleEditSurvey(survey)}
+                              title="Editar"
+                            />
+                            <IconTrash
+                              size={18}
+                              color="var(--cError)"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleDeleteSurvey(survey.id)}
+                              title="Eliminar"
+                            />
+                          </>
+                        )}
                     </div>
                   </div>
 
@@ -396,7 +403,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               ? "Finalizada"
                               : survey.status === "A"
                                 ? "Activa"
-                                : survey.status === "P" 
+                                : survey.status === "P"
                                   ? "Pausada"
                                   : "Borrador"}
                           </span>
@@ -487,7 +494,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Modalidad:</span>
               <span className={styles.detailValue}>
-                {MODALITY_LABELS[assembly.modality as any] || assembly.modality}
+                {MODALITY_LABELS[assembly.modality as any] || ""}
               </span>
             </div>
 
@@ -550,7 +557,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                           dependent_of_homeowner: "Dependientes de prop.",
                           dependent_of_tenant: "Dependientes de inq.",
                         };
-                        return labels[id] || id;
+                        return labels[id] || "";
                       })
                       .join(", ")
                   : "Todos"}
@@ -712,7 +719,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
         onClose={() => setIsRegisteringParticipant(false)}
         assemblyId={String(id)}
         onSuccess={() => {
-          setAttendanceRefreshKey(prev => prev + 1);
+          setAttendanceRefreshKey((prev) => prev + 1);
           // Opcionalmente recargar stats si es necesario
           loadAssembly();
         }}

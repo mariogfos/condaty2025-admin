@@ -25,10 +25,10 @@ const MODALITY_OPTIONS = [
 ];
 
 const TARGET_AUDIENCE_OPTIONS = [
-  { id: "owners", name: "Propietarios" },
-  { id: "tenants", name: "Inquilinos" },
-  { id: "owner_dependents", name: "Dependientes de propietarios" },
-  { id: "tenant_dependents", name: "Dependientes de inquilinos" },
+  { id: "owner_homeowner", name: "Propietarios" },
+  { id: "owner_tenant", name: "Inquilinos" },
+  { id: "dependent_of_homeowner", name: "Dependientes de propietarios" },
+  { id: "dependent_of_tenant", name: "Dependientes de inquilinos" },
 ];
 
 const normalizeUrls = (value: any): string[] => {
