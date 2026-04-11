@@ -3,16 +3,25 @@
 import { useEffect, useState } from "react";
 import styles from "./AssemblyAttendanceList.module.css";
 import useAxios from "@/mk/hooks/useAxios";
-import { AssemblyAttendance } from "../../types/assemblies.types";
+import { AssemblyAttendance, ROLE_LABELS } from "../../types/assemblies.types";
 import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
 
+// Helper para extraer solo la hora HH:MM
+const formatOnlyTime = (dateStr: string) => {
+  if (!dateStr) return "-";
+  const parts = dateStr.split(/[T ]/);
+  return parts[1] ? parts[1].slice(0, 5) : "-";
+};
+
 interface AssemblyAttendanceListProps {
-  assemblyId: number;
+  assemblyId: string | number;
+  refreshKey?: number;
   onAttendanceChange?: () => void;
 }
 
 const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
   assemblyId,
+  refreshKey,
   onAttendanceChange,
 }) => {
   const [attendances, setAttendances] = useState<AssemblyAttendance[]>([]);
@@ -42,7 +51,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
     };
 
     loadAttendances();
-  }, [assemblyId]);
+  }, [assemblyId, refreshKey]);
 
   const getModalityLabel = (modality: string) => {
     return modality === "P" ? "Presencial" : "Virtual";
@@ -89,9 +98,13 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
             <tbody>
               {attendances.map((attendance) => (
                 <tr key={attendance.id}>
-                  <td>{attendance.owner?.name || "Desconocido"}</td>
-                  <td>{attendance.dpto?.number || "-"}</td>
-                  <td>{attendance.role || "-"}</td>
+                  <td>
+                    {attendance.owner
+                      ? `${attendance.owner.name} ${attendance.owner.last_name || ""}`
+                      : "Desconocido"}
+                  </td>
+                  <td>{attendance.dpto?.nro || "-"}</td>
+                  <td>{ROLE_LABELS[attendance.role as string] || attendance.role || "-"}</td>
                   <td>
                     <span
                       className={`${styles.modalityBadge} ${attendance.modality_type === "P" ? styles.inPerson : styles.virtual}`}
@@ -99,14 +112,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                       {getModalityLabel(attendance.modality_type)}
                     </span>
                   </td>
-                  <td>
-                    {attendance.joined_at
-                      ? formatToDayDDMMYYYYHHMM(
-                          attendance.joined_at.replace(" ", "T"),
-                          false,
-                        )
-                      : "-"}
-                  </td>
+                  <td>{formatOnlyTime(attendance.joined_at)}</td>
                 </tr>
               ))}
             </tbody>

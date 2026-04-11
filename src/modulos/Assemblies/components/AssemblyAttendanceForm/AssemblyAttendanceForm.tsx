@@ -29,6 +29,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
   const [search, setSearch] = useState("");
   const [residents, setResidents] = useState<any[]>([]);
   const [selectedResident, setSelectedResident] = useState<any>(null);
+  const [selectedDptoId, setSelectedDptoId] = useState<string | null>(null);
   const [modality, setModality] = useState<"P" | "V">("P");
   const [isSearching, setIsSearching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -41,9 +42,21 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
       setSearch("");
       setResidents([]);
       setSelectedResident(null);
+      setSelectedDptoId(null);
       setModality("P");
     }
   }, [open]);
+
+  useEffect(() => {
+    if (selectedResident) {
+      const units = selectedResident.dpto || [];
+      if (units.length === 1) {
+        setSelectedDptoId(units[0].id);
+      } else {
+        setSelectedDptoId(null);
+      }
+    }
+  }, [selectedResident]);
 
   const handleSearch = async () => {
     if (!search.trim()) return;
@@ -54,7 +67,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
         "GET",
         { searchBy: search, fullType: "L" },
         false,
-        true,
+        true
       );
       if (response?.data) {
         setResidents(response.data || []);
@@ -68,6 +81,11 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
 
   const handleRegister = async () => {
     if (!selectedResident) return;
+    if (!selectedDptoId && (selectedResident.dpto?.length || 0) > 1) {
+      alert("Por favor selecciona el departamento que representa.");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const { data: response } = await saveAttendance(
@@ -76,7 +94,8 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
         {
           owner_id: selectedResident.id,
           modality_type: modality,
-        },
+          dpto_id: selectedDptoId,
+        }
       );
 
       if (response?.success || !response?.error) {
@@ -88,6 +107,12 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const getRoleLabel = (owner: any, dpto: any) => {
+    if (owner.id === dpto.homeowner_id) return "Propietario";
+    if (owner.id === dpto.tenant_id) return "Inquilino";
+    return dpto.holder === "H" ? "Dependiente de prop." : "Dependiente de inq.";
   };
 
   return (
@@ -156,6 +181,31 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
 
         {selectedResident && (
           <div className={styles.registrationForm}>
+            {selectedResident.dpto && selectedResident.dpto.length > 1 && (
+              <div className={styles.fieldGroup}>
+                <label className={styles.label}>Unidad que representa</label>
+                <div className={styles.dptoSelection}>
+                  {selectedResident.dpto.map((d: any) => (
+                    <div
+                      key={d.id}
+                      className={`${styles.dptoCard} ${selectedDptoId === d.id ? styles.active : ""}`}
+                      onClick={() => setSelectedDptoId(d.id)}
+                    >
+                      <div className={styles.dptoContent}>
+                        <span className={styles.dptoNro}>Unidad {d.nro}</span>
+                        <span className={styles.dptoRole}>
+                          {getRoleLabel(selectedResident, d)}
+                        </span>
+                      </div>
+                      {selectedDptoId === d.id && (
+                        <IconCheck size={14} color="var(--cSuccess)" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Modalidad</label>
               <div className={styles.modalityOptions}>
@@ -177,7 +227,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
             <Button
               variant="primary"
               onClick={handleRegister}
-              disabled={isSaving}
+              disabled={isSaving || !selectedDptoId}
               className={styles.registerBtn}
               style={{ width: "100%" }}
             >

@@ -95,7 +95,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [isRegisteringParticipant, setIsRegisteringParticipant] = useState(false);
   const [surveyToEdit, setSurveyToEdit] = useState<any>(null);
   const [surveyAction, setSurveyAction] = useState<"add" | "edit">("add");
-
+  const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
   const { showToast } = useAuth();
 
   // Accordion states
@@ -545,10 +545,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                       .split(",")
                       .map((id) => {
                         const labels: any = {
-                          owners: "Propietarios",
-                          tenants: "Inquilinos",
-                          owner_dependents: "Dependientes de prop.",
-                          tenant_dependents: "Dependientes de inq.",
+                          owner_homeowner: "Propietarios",
+                          owner_tenant: "Inquilinos",
+                          dependent_of_homeowner: "Dependientes de prop.",
+                          dependent_of_tenant: "Dependientes de inq.",
                         };
                         return labels[id] || id;
                       })
@@ -618,8 +618,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             }
           >
             <AssemblyAttendanceList
-              assemblyId={Number(assembly.id)}
-              key={assembly.id}
+              assemblyId={String(assembly.id)}
+              refreshKey={attendanceRefreshKey}
             />
           </Card>
         </div>
@@ -711,7 +711,11 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
         open={isRegisteringParticipant}
         onClose={() => setIsRegisteringParticipant(false)}
         assemblyId={String(id)}
-        onSuccess={loadAssembly}
+        onSuccess={() => {
+          setAttendanceRefreshKey(prev => prev + 1);
+          // Opcionalmente recargar stats si es necesario
+          loadAssembly();
+        }}
       />
     </div>
   );

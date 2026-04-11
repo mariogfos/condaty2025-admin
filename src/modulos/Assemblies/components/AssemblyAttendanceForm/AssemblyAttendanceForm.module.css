@@ -125,3 +125,54 @@
 .footer {
   margin-top: 8px;
 }
+
+.dptoSelection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.dptoCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dptoCard:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dptoCard.active {
+  border-color: var(--cAccent);
+  background: rgba(var(--cAccentRGB), 0.1);
+}
+
+.dptoContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.dptoNro {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dptoRole {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

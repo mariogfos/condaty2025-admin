@@ -55,9 +55,17 @@ export interface AssemblyAttendance {
   modality_type: "P" | "V"; // Presencial, Virtual
   represented_roles?: string[];
   // Relaciones cargadas
-  owner?: { id: number; name: string; dpto_id?: number };
-  dpto?: { id: number; number: string };
+  owner?: { id: number; name: string; last_name: string; dpto_id?: number };
+  dpto?: { id: number; nro: string };
 }
+
+export const ROLE_LABELS: Record<string, string> = {
+  owner_titular: "Titular",
+  owner_homeowner: "Propietario",
+  owner_tenant: "Inquilino",
+  dependent_of_homeowner: "Dependiente de Prop.",
+  dependent_of_tenant: "Dependiente de Inq.",
+};
 
 export interface AssemblyStats {
   total_attendances: number;
