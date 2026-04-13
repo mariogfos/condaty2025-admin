@@ -7,20 +7,28 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Select from "@/mk/components/forms/Select/Select";
 import Button from "@/mk/components/forms/Button/Button";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
+import Check from "@/mk/components/forms/Check/Check";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css";
 
 const TYPE_OPTIONS = [
-  { id: "Ordinary", name: "Ordinaria" },
-  { id: "Extraordinary", name: "Extraordinaria" },
-  { id: "Informative", name: "Informativa" },
+  { id: "O", name: "Ordinaria" },
+  { id: "E", name: "Extraordinaria" },
+  { id: "I", name: "Informativa" },
 ];
 
 const MODALITY_OPTIONS = [
-  { id: "Virtual", name: "Virtual" },
-  { id: "Presential", name: "Presencial" },
-  { id: "Hybrid", name: "Híbrida" },
+  { id: "V", name: "Virtual" },
+  { id: "P", name: "Presencial" },
+  { id: "H", name: "Híbrida" },
+];
+
+const TARGET_AUDIENCE_OPTIONS = [
+  { id: "owner_homeowner", name: "Propietarios" },
+  { id: "owner_tenant", name: "Inquilinos" },
+  { id: "dependent_of_homeowner", name: "Dependientes de propietarios" },
+  { id: "dependent_of_tenant", name: "Dependientes de inquilinos" },
 ];
 
 const normalizeUrls = (value: any): string[] => {
@@ -43,20 +51,26 @@ const getFilenameFromUrl = (url: string, fallback: string) => {
   return base || fallback;
 };
 
-const normalizeDateInput = (value: any) => {
-  if (!value) return "";
-  return String(value).split("T")[0];
+const splitDateTime = (value: any) => {
+  if (!value) return { date: "", time: "" };
+  // Safer to split string than use new Date() to avoid browser timezone adjustments
+  const parts = String(value).split(/[T ]/);
+  const date = parts[0] || "";
+  const time = parts[1] ? parts[1].slice(0, 5) : "";
+  return { date, time };
 };
 
-const normalizeTimeInput = (value: any) => {
-  if (!value) return "";
-  const raw = String(value).trim();
-  const match = raw.match(/^(\d{1,2}):(\d{2})/);
-  if (!match) return raw;
-  return `${match[1].padStart(2, "0")}:${match[2]}`;
+const joinDateTime = (date: string, time: string) => {
+  if (!date || !time) return "";
+  return `${date}T${time}`;
 };
 
-const isValidTimeValue = (value: string) => /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
+const isValidDateTimeValue = (date: string, time: string) => {
+  if (!date || !time) return false;
+  // still use Date for validity check only
+  const d = new Date(`${date}T${time}`);
+  return !isNaN(d.getTime());
+};
 
 const isValidHttpUrl = (value: string) => {
   if (!value) return false;
@@ -73,25 +87,33 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   const [level, setLevel] = useState(1);
   const [errors, setErrors] = useState<any>({});
 
-  const initialState = useMemo(
-    () => ({
+  const initialState = useMemo(() => {
+    const start = splitDateTime(item?.start_time);
+    const end = splitDateTime(item?.end_time);
+
+    return {
       id: item?.id,
       subject: item?.subject || "",
       description: item?.description || "",
-      type: item?.type || "",
-      start_date: normalizeDateInput(item?.start_date),
-      start_time: normalizeTimeInput(item?.start_time),
-      end_date: normalizeDateInput(item?.end_date || item?.start_date),
-      end_time: normalizeTimeInput(item?.end_time),
-      modality: item?.modality || "Virtual",
+      type: item?.type || "O", // O=Ordinaria por defecto
+      start_date: start.date,
+      start_time: start.time,
+      end_time: end.time,
+      modality: item?.modality || "V", // V=Virtual por defecto
       meeting_url: item?.meeting_url || "",
       address: item?.address || item?.physical_address || "",
       address_url: item?.address_url || "",
       files: normalizeUrls(item?.files),
-      status: item?.status || "Scheduled",
-    }),
-    [item],
-  );
+      status: item?.status || "S", // S=Scheduled por defecto
+      quorum_required: item?.quorum_required ?? 50,
+      anonymous_voting: item?.anonymous_voting ?? false,
+      target_audience: Array.isArray(item?.target_audience)
+        ? item.target_audience
+        : item?.target_audience
+          ? String(item.target_audience).split(",")
+          : ["owners"],
+    };
+  }, [item]);
 
   const [formState, setFormState] = useState(initialState);
 
@@ -103,11 +125,16 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
+    setFormState((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const toggleTargetAudience = (id: string) => {
     setFormState((prev: any) => {
-      if (name === "start_date") {
-        return { ...prev, start_date: value, end_date: value };
-      }
-      return { ...prev, [name]: value };
+      const current = prev.target_audience || [];
+      const next = current.includes(id)
+        ? current.filter((item: string) => item !== id)
+        : [...current, id];
+      return { ...prev, target_audience: next };
     });
   };
 
@@ -131,26 +158,46 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       key: "type",
       errors: newErrors,
     });
-    setErrors((prev: any) => ({ ...prev, ...newErrors }));
+    setErrors(newErrors);
     return newErrors;
   };
 
   const validateStep2 = () => {
     let newErrors: any = {};
-    newErrors = checkRules({ value: formState.start_date, rules: ["required"], key: "start_date", errors: newErrors });
-    newErrors = checkRules({ value: formState.start_time, rules: ["required"], key: "start_time", errors: newErrors });
-    newErrors = checkRules({ value: formState.end_time, rules: ["required"], key: "end_time", errors: newErrors });
-    newErrors = checkRules({ value: formState.modality, rules: ["required"], key: "modality", errors: newErrors });
+    newErrors = checkRules({
+      value: formState.start_date,
+      rules: ["required"],
+      key: "start_date",
+      errors: newErrors,
+    });
+    newErrors = checkRules({
+      value: formState.start_time,
+      rules: ["required"],
+      key: "start_time",
+      errors: newErrors,
+    });
+    newErrors = checkRules({
+      value: formState.end_time,
+      rules: ["required"],
+      key: "end_time",
+      errors: newErrors,
+    });
+    newErrors = checkRules({
+      value: formState.modality,
+      rules: ["required"],
+      key: "modality",
+      errors: newErrors,
+    });
 
-    if (formState.start_time && !isValidTimeValue(formState.start_time)) {
-      newErrors.start_time = "La hora de inicio no es válida";
+    if (!isValidDateTimeValue(formState.start_date, formState.start_time)) {
+      newErrors.start_time = "La fecha y hora de inicio no es válida";
     }
 
-    if (formState.end_time && !isValidTimeValue(formState.end_time)) {
-      newErrors.end_time = "La hora de finalización no es válida";
+    if (!isValidDateTimeValue(formState.start_date, formState.end_time)) {
+      newErrors.end_time = "La fecha y hora de finalización no es válida";
     }
 
-    if (["Virtual", "Hybrid"].includes(formState.modality)) {
+    if (["V", "H"].includes(formState.modality)) {
       newErrors = checkRules({
         value: formState.meeting_url,
         rules: ["required"],
@@ -163,7 +210,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       }
     }
 
-    if (["Presential", "Hybrid"].includes(formState.modality)) {
+    if (["P", "H"].includes(formState.modality)) {
       newErrors = checkRules({
         value: formState.address,
         rules: ["required"],
@@ -179,14 +226,15 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       });
     }
 
-    const dateRef = formState.start_date || "";
-    const startAt = `${dateRef}T${formState.start_time || ""}`;
-    const endAt = `${dateRef}T${formState.end_time || ""}`;
-    if (startAt && endAt && startAt > endAt) {
-      newErrors.end_time = "La hora de finalización no puede ser menor al inicio";
+    if (
+      formState.start_time &&
+      formState.end_time &&
+      formState.start_time >= formState.end_time
+    ) {
+      newErrors.end_time = "La finalización debe ser posterior al inicio";
     }
 
-    setErrors((prev: any) => ({ ...prev, ...newErrors }));
+    setErrors(newErrors);
     return newErrors;
   };
 
@@ -198,8 +246,13 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   };
 
   const onNext = () => {
-    if (hasErrors(validateStep1())) return;
-    setLevel(2);
+    if (level === 1) {
+      if (hasErrors(validateStep1())) return;
+      setLevel(2);
+    } else if (level === 2) {
+      if (hasErrors(validateStep2())) return;
+      setLevel(3);
+    }
   };
 
   const onSave = async () => {
@@ -209,20 +262,25 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       subject: formState.subject,
       description: formState.description,
       type: formState.type,
-      start_date: normalizeDateInput(formState.start_date),
-      start_time: formState.start_time,
-      end_date: normalizeDateInput(formState.start_date),
-      end_time: formState.end_time,
+      start_time: joinDateTime(formState.start_date, formState.start_time),
+      end_time: joinDateTime(formState.start_date, formState.end_time),
       modality: formState.modality,
       files: buildFileObjects(formState.files, "documento_asamblea"),
       status: formState.status || "Scheduled",
-      ...(formState.modality !== "Presential" ? { meeting_url: formState.meeting_url } : {}),
-      ...(formState.modality !== "Virtual"
+      ...(formState.modality !== "P"
+        ? { meeting_url: formState.meeting_url }
+        : {}),
+      ...(formState.modality !== "V"
         ? {
             address: formState.address,
             address_url: formState.address_url,
           }
         : {}),
+      quorum_required: formState.quorum_required,
+      target_audience: Array.isArray(formState.target_audience)
+        ? formState.target_audience.join(",")
+        : formState.target_audience,
+      anonymous_voting: formState.anonymous_voting,
     };
 
     const method = formState.id ? "PUT" : "POST";
@@ -248,22 +306,38 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   };
 
   const footerButtons =
-    level === 1 ? (
+    level < 3 ? (
       <>
-        <Button variant="secondary" onClick={closeModal} style={{ height: 44, fontSize: 15, fontWeight: 600 }}>
+        <Button
+          variant="secondary"
+          onClick={level === 1 ? closeModal : () => setLevel(level - 1)}
+          style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+        >
           Anterior
         </Button>
-        <Button variant="primary" onClick={onNext} style={{ height: 44, fontSize: 15, fontWeight: 600 }}>
+        <Button
+          variant="primary"
+          onClick={onNext}
+          style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+        >
           Siguiente
         </Button>
       </>
     ) : (
       <>
-        <Button variant="secondary" onClick={() => setLevel(1)} style={{ height: 44, fontSize: 15, fontWeight: 600 }}>
+        <Button
+          variant="secondary"
+          onClick={() => setLevel(2)}
+          style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+        >
           Anterior
         </Button>
-        <Button variant="primary" onClick={onSave} style={{ height: 44, fontSize: 15, fontWeight: 600 }}>
-          Crear asamblea
+        <Button
+          variant="primary"
+          onClick={onSave}
+          style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+        >
+          {formState.id ? "Guardar cambios" : "Crear asamblea"}
         </Button>
       </>
     );
@@ -287,9 +361,17 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             <div className={styles.stepperCircle}>1</div>
             <p>Información</p>
           </div>
-          <div className={`${styles.stepperStep} ${level === 2 ? styles.active : ""}`}>
+          <div
+            className={`${styles.stepperStep} ${level >= 2 ? styles.active : ""}`}
+          >
             <div className={styles.stepperCircle}>2</div>
             <p>Programación</p>
+          </div>
+          <div
+            className={`${styles.stepperStep} ${level >= 3 ? styles.active : ""}`}
+          >
+            <div className={styles.stepperCircle}>3</div>
+            <p>Configuración</p>
           </div>
         </div>
       </section>
@@ -297,7 +379,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       {level === 1 && (
         <>
           <section className={styles.sectionCard}>
-            <h3 className={styles.sectionTitle}>¿Qué asamblea deseas convocar?</h3>
+            <h3 className={styles.sectionTitle}>
+              ¿Qué asamblea deseas convocar?
+            </h3>
             <p className={styles.sectionSubtitle}>
               Define la información básica para identificar esta asamblea.
             </p>
@@ -332,28 +416,33 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               required
             />
           </section>
-
           <section className={styles.sectionCard}>
-            <h3 className={styles.sectionTitle}>¿Deseas adjuntar documentos para los residentes?</h3>
+            <h3 className={styles.sectionTitle}>
+              ¿Deseas adjuntar documentos para los residentes?
+            </h3>
             <p className={styles.sectionSubtitle}>
-              Agrega archivos que los residentes puedan revisar antes de la asamblea.
+              Agrega archivos que los residentes puedan revisar antes de la
+              asamblea.
             </p>
-            <UploadFileV3
-              formState={formState}
-              setFormState={setFormState}
-              name="files"
-              mode="all"
-              error={errors}
-              maxMB={5}
-            />
+            {open && (
+              <UploadFileV3
+                formState={formState}
+                setFormState={setFormState}
+                name="files"
+                mode="all"
+                error={errors}
+                maxMB={5}
+              />
+            )}
           </section>
-
         </>
       )}
 
       {level === 2 && (
         <section className={styles.sectionCard}>
-          <h3 className={styles.sectionTitle}>¿Cuándo se realizará la asamblea?</h3>
+          <h3 className={styles.sectionTitle}>
+            ¿Cuándo se realizará la asamblea?
+          </h3>
           <p className={styles.sectionSubtitle}>
             Selecciona la fecha y horario en que se llevará a cabo la reunión.
           </p>
@@ -361,14 +450,20 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
           <Input
             type="date"
             name="start_date"
-            label="Fecha de apertura"
+            label="Fecha de la asamblea"
             value={formState.start_date}
             onChange={handleChange}
             error={errors}
             required
           />
 
-          <div className={styles.row}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "16px",
+            }}
+          >
             <Input
               type="time"
               name="start_time"
@@ -378,10 +473,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               error={errors}
               required
             />
+
             <Input
               type="time"
               name="end_time"
-              label="Hora estimada de finalización"
+              label="Hora de finalización"
               value={formState.end_time}
               onChange={handleChange}
               error={errors}
@@ -389,7 +485,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             />
           </div>
 
-          <h3 className={styles.sectionTitle}>¿Cómo se realizará la asamblea?</h3>
+          <h3 className={styles.sectionTitle}>
+            ¿Cómo se realizará la asamblea?
+          </h3>
           <p className={styles.sectionSubtitle}>
             Indica si la reunión será presencial, virtual o híbrida.
           </p>
@@ -415,12 +513,15 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             })}
           </div>
 
-          <h3 className={styles.sectionTitle}>¿Dónde podrán participar los residentes?</h3>
+          <h3 className={styles.sectionTitle}>
+            ¿Dónde podrán participar los residentes?
+          </h3>
           <p className={styles.sectionSubtitle}>
-            Completa la ubicación física o el enlace de acceso según la modalidad.
+            Completa la ubicación física o el enlace de acceso según la
+            modalidad.
           </p>
 
-          {formState.modality !== "Presential" && (
+          {["V", "H"].includes(formState.modality) && (
             <Input
               type="text"
               name="meeting_url"
@@ -428,11 +529,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               value={formState.meeting_url}
               onChange={handleChange}
               error={errors}
-              required={formState.modality !== "Presential"}
+              required
             />
           )}
 
-          {formState.modality !== "Virtual" && (
+          {["P", "H"].includes(formState.modality) && (
             <Input
               type="text"
               name="address"
@@ -440,11 +541,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               value={formState.address}
               onChange={handleChange}
               error={errors}
-              required={formState.modality !== "Virtual"}
+              required
             />
           )}
 
-          {formState.modality !== "Virtual" && (
+          {["P", "H"].includes(formState.modality) && (
             <Input
               type="text"
               name="address_url"
@@ -454,6 +555,64 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               error={errors}
             />
           )}
+        </section>
+      )}
+
+      {level === 3 && (
+        <section className={styles.sectionCard}>
+          <h3 className={styles.sectionTitle}>Configuración de la asamblea</h3>
+          <p className={styles.sectionSubtitle}>
+            Define quiénes pueden participar y el quórum necesario.
+          </p>
+
+          <div style={{ marginBottom: 24 }}>
+            <p
+              style={{
+                fontSize: 14,
+                color: "var(--cWhiteV1)",
+                marginBottom: 12,
+              }}
+            >
+              Audiencia objetivo (puedes marcar varias):
+            </p>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "12px",
+              }}
+            >
+              {TARGET_AUDIENCE_OPTIONS.map((option) => (
+                <Check
+                  key={option.id}
+                  name={`target_${option.id}`}
+                  label={option.name}
+                  value={option.id}
+                  reverse={true}
+                  checked={formState.target_audience?.includes(option.id)}
+                  onChange={() => toggleTargetAudience(option.id)}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "16px",
+            }}
+          >
+            <Input
+              type="number"
+              name="quorum_required"
+              label="Quórum mínimo (%)"
+              value={formState.quorum_required}
+              onChange={handleChange}
+              error={errors}
+              required
+            />
+          </div>
         </section>
       )}
     </DataModal>

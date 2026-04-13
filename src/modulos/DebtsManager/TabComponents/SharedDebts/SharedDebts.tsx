@@ -14,9 +14,13 @@ import Button from "@/mk/components/forms/Button/Button";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import { formatNumber } from "@/mk/utils/numbers";
 import { useRouter } from "next/navigation";
-import { hasMaintenanceValue } from '@/mk/utils/utils';
-import PartialPaymentsRenderView from '@/modulos/PartialPayments/RenderView/RenderView';
-import { getStatusText, getStatusConfig, STATUS_FILTER_OPTIONS } from '../constants';
+import { hasMaintenanceValue } from "@/mk/utils/utils";
+import PartialPaymentsRenderView from "@/modulos/PartialPayments/RenderView/RenderView";
+import {
+  getStatusText,
+  getStatusConfig,
+  STATUS_FILTER_OPTIONS,
+} from "../constants";
 
 interface SharedDebtsProps {
   openView: boolean;
@@ -138,7 +142,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
 
   const getStatusOptions = () => [
     { id: "ALL", name: "Todos los estados" },
-    ...STATUS_FILTER_OPTIONS
+    ...STATUS_FILTER_OPTIONS,
   ];
 
   const getDistributionOptions = () => [
@@ -420,10 +424,12 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
             Mant. Valor
           </label>
         ),
-        list: hasMaintenanceValue(user) ? {
-          order: 9,
-          onRender: renderMaintenanceAmountCell
-        } : false,
+        list: hasMaintenanceValue(user)
+          ? {
+              order: 9,
+              onRender: renderMaintenanceAmountCell,
+            }
+          : false,
       },
       balance_due: {
         rules: [""],
@@ -492,7 +498,17 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     </Button>,
   ];
 
-  const { userCan, List, onEdit, onDel, extraData, onFilter, execute, reLoad, showToast } = useCrud({
+  const {
+    userCan,
+    List,
+    onEdit,
+    onDel,
+    extraData,
+    onFilter,
+    execute,
+    reLoad,
+    showToast,
+  } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -507,7 +523,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   }, [extraData, onExtraDataChange]);
 
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => { },
+    onSearch: () => {},
     searchs: {},
     setStore,
     mod,
@@ -521,7 +537,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     const todayDateOnly = new Date(
       today.getFullYear(),
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
     const dueDate = item?.due_at ? new Date(item.due_at) : null;
     const dueDateOnly = dueDate
@@ -540,15 +556,15 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     const totalBalance = debtAmount + totalPenalty;
 
     return (
-      <RenderItem item={item} onClick={() => { }} onLongPress={onLongPress}>
+      <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
         <ItemList
           title={`${item?.description || "Sin concepto"} - ${getStatusText(
-            finalStatus
+            finalStatus,
           )}`}
           subtitle={`Deuda: Bs ${debtAmount.toFixed(
-            2
+            2,
           )} | Multa: Bs ${totalPenalty.toFixed(
-            2
+            2,
           )} | Total: Bs ${totalBalance.toFixed(2)}`}
           variant="V1"
           active={selItem && selItem.id == item.id}
@@ -558,7 +574,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   };
 
   const onClickDetail = (row: any) => {
-    if (row?.status === 'I') {
+    if (row?.status === "I") {
       setPartialViewItem(row);
       setOpenPartialView(true);
       return;

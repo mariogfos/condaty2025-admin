@@ -1,0 +1,76 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cText);
+  margin: 0;
+}
+
+.description {
+  font-size: 14px;
+  color: var(--cTextMuted);
+  margin: 0;
+}
+
+.uploadArea {
+  padding: 16px;
+  background: var(--cHoverCompl);
+  border-radius: 8px;
+}
+
+.fileList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fileList h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cText);
+  margin: 0;
+}
+
+.fileList ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fileList li a {
+  color: var(--cPrimary);
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--cBorder);
+}
+
+.info {
+  padding: 16px;
+  background: var(--cHoverCompl);
+  border-radius: 8px;
+}
+
+.info p {
+  font-size: 13px;
+  color: var(--cTextMuted);
+  margin: 0;
+}

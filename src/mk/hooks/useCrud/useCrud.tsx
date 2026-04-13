@@ -1517,8 +1517,6 @@ const useCrud = ({
 
     return (
       <div className={styles.useCrud}>
-        {/* {JSON.stringify(mod.title)} */}
-        {/* {JSON.stringify(_data)}--- */}
         {(props.title || store?.title) && openList && !props.hideTitle && (
           <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>
             {props.title ?? store?.title}
@@ -1552,7 +1550,11 @@ const useCrud = ({
                   <Table
                     data={_data}
                     onRowClick={
-                      mod.hideActions?.view ? props.onRowClick : onView
+                      props.onRowClick
+                        ? props.onRowClick
+                        : mod.hideActions?.view
+                          ? () => {}
+                          : onView
                     }
                     header={header}
                     onTabletRow={props.onTabletRow}

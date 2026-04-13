@@ -1,0 +1,169 @@
+.container {
+    color: #fff;
+    font-family: inherit;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.subtext {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 8px;
+}
+
+.radioGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.radioCard {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.radioCard:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.radioCard.active {
+    background: rgba(0, 255, 128, 0.1);
+    border-color: #00ff80;
+}
+
+.radioCircle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    position: relative;
+}
+
+.active .radioCircle {
+    border-color: #00ff80;
+}
+
+.active .radioCircle::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: #00ff80;
+    border-radius: 50%;
+}
+
+.optionList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.optionItem {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.optionItem:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.optionItem.active {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #00ff8033;
+}
+
+.footer {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.questionInput {
+    min-height: 80px;
+}
+
+.optionInputs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.optionRow {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.removeBtn {
+    background: rgba(255, 50, 50, 0.1);
+    border: none;
+    color: #ff5050;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.removeBtn:hover {
+    background: rgba(255, 50, 50, 0.2);
+}
+
+.addBtn {
+    background: transparent;
+    border: none;
+    color: #00ff80;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 8px 0;
+    cursor: pointer;
+    width: fit-content;
+}
+
+.addBtn:hover {
+    opacity: 0.8;
+}
+
+.errorText {
+    color: #ff5050;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
