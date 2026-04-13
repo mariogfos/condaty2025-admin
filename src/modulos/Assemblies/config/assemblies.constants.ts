@@ -9,10 +9,10 @@ export const API_STATUS_LABELS: Record<string, string> = {
 };
 
 export const STATUS_STYLE: Record<string, { color: string; backgroundColor: string }> = {
-  S: { color: "var(--cWarning)", backgroundColor: "var(--cHoverCompl4)" },
-  P: { color: "#FFCF4A", backgroundColor: "rgba(255, 207, 74, 0.15)" },
-  C: { color: "var(--cSuccess)", backgroundColor: "var(--cHoverSuccess)" },
-  X: { color: "var(--cError)", backgroundColor: "var(--cHoverError)" },
+  S: { color: "#A78BFA", backgroundColor: "rgba(167, 139, 250, 0.15)" }, // Programada - Púrpura
+  P: { color: "#FFCF4A", backgroundColor: "rgba(255, 207, 74, 0.15)" },   // En progreso - Oro/Amarillo
+  C: { color: "var(--cSuccess)", backgroundColor: "var(--cHoverSuccess)" }, // Finalizada - Verde
+  X: { color: "var(--cError)", backgroundColor: "var(--cHoverError)" },     // Cancelada - Rojo
 };
 
 export const STATUS_OPTIONS = [

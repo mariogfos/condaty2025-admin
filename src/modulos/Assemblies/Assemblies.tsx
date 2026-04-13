@@ -75,28 +75,31 @@ const Assemblies = () => {
         <WidgetDashCard
           title="Programadas"
           data={pending}
+          color="#A78BFA"
           style={{ minWidth: "160px", maxWidth: "260px" }}
         />
         <WidgetDashCard
           title="En progreso"
           data={inProgress}
+          color="#FFCF4A"
           style={{ minWidth: "160px", maxWidth: "260px" }}
         />
         <WidgetDashCard
           title="Finalizadas"
           data={completed}
+          color="var(--cSuccess)"
           style={{ minWidth: "160px", maxWidth: "260px" }}
         />
         <WidgetDashCard
           title="Canceladas"
           data={canceled}
+          color="var(--cError)"
           style={{ minWidth: "160px", maxWidth: "260px" }}
         />
       </div>
 
       <div className={styles.listContainer}>
         <List
-          title="Asambleas"
           height={"calc(100vh - 420px)"}
           emptyMsg="Lista vacía. Cuando registres asambleas"
           emptyLine2="las verás aquí."
