@@ -245,7 +245,7 @@ const Layout = ({ children }: any) => {
         <Header
           isTablet={false}
           user={user}
-          path={path}
+          path={path || ""}
           router={router}
           client={client}
           title={store?.title + " / " + formattedToday}
