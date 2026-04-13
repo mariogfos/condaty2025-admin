@@ -389,44 +389,38 @@ const Body = ({
             onRenderCard(row, index, onRowClick)
           ) : (
             <div key={"row" + index} onClick={(e) => _onRowClick(row)}>
-              {header.map(
-                (item: any, i: number) => {
-                  if (item.onHide?.()) {
-                    return null;
-                  }
+              {header.map((item: any, i: number) => {
+                if (item.onHide?.()) {
+                  return null;
+                }
 
-                  const ignoreTranslation = shouldIgnoreValueTranslationContext(
-                    {
-                      label: item.label,
-                      key: item.key,
-                    },
-                  );
+                const ignoreTranslation = shouldIgnoreValueTranslationContext({
+                  label: item.label,
+                  key: item.key,
+                });
 
-                  return (
-                    <span
-                      key={item.key + i}
-                      className={styles[item.responsive] + " " + item.className}
-                      style={{
-                        ...item.style,
-                        ...getWidth(item.width),
-                      }}
-                      data-i18n-ignore={
-                        ignoreTranslation ? "true" : undefined
-                      }
-                    >
-                      {item.onRender &&
-                        item.onRender?.({
-                          value: row[item.key],
-                          key: item.key,
-                          item: row,
-                          i: index + 1,
-                          extraData,
-                        })}
-                      {!item.onRender && row[item.key]}
-                    </span>
-                  );
-                },
-              )}
+                return (
+                  <span
+                    key={item.key + i}
+                    className={styles[item.responsive] + " " + item.className}
+                    style={{
+                      ...item.style,
+                      ...getWidth(item.width),
+                    }}
+                    data-i18n-ignore={ignoreTranslation ? "true" : undefined}
+                  >
+                    {item.onRender &&
+                      item.onRender?.({
+                        value: row[item.key],
+                        key: item.key,
+                        item: row,
+                        i: index + 1,
+                        extraData,
+                      })}
+                    {!item.onRender && row[item.key]}
+                  </span>
+                );
+              })}
               {onButtonActions && (
                 <span
                   className={styles.onlyDesktop}

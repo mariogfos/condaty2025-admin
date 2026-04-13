@@ -28,8 +28,8 @@ export const getAssemblyConfig = (
     titleAdd: "Crear",
     hideActions: {
       view: false,
-      edit: true,
-      del: true,
+      edit: false,
+      del: false,
     },
     saveMsg: {
       add: "Asamblea creada con éxito",
