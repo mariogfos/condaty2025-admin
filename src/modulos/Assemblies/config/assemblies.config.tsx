@@ -36,6 +36,13 @@ export const getAssemblyConfig = (
       edit: "Asamblea actualizada con éxito",
       del: "Asamblea eliminada con éxito",
     },
+    onHideActions: (item: any) => {
+      const hasAttendances = (item.attendances_count || 0) > 0;
+      return {
+        hideEdit: hasAttendances,
+        hideDel: hasAttendances,
+      };
+    },
     renderForm: (props: any) => <RenderForm {...props} />,
   };
 
