@@ -13,6 +13,7 @@ import {
   IconUser,
   IconCheck,
 } from "@/components/layout/icons/IconsBiblioteca";
+import Radio from "@/mk/components/forms/Ratio/Radio";
 
 interface AssemblyAttendanceFormProps {
   open: boolean;
@@ -69,7 +70,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
         "GET",
         { searchBy: search, fullType: "L" },
         false,
-        true
+        true,
       );
       if (response?.data) {
         setResidents(response.data || []);
@@ -87,7 +88,10 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
   const handleRegister = async () => {
     if (!selectedResident) return;
     if (!selectedDptoId && (selectedResident.dpto?.length || 0) > 1) {
-      showToast("Por favor selecciona el departamento que representa.", "warning");
+      showToast(
+        "Por favor selecciona el departamento que representa.",
+        "warning",
+      );
       return;
     }
 
@@ -100,17 +104,19 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
           owner_id: selectedResident.id,
           modality_type: modality,
           dpto_id: selectedDptoId,
-        }
+        },
       );
 
-      if (response?.success || !response?.error) {
+      if (response?.success ) {
         showToast("Asistencia registrada correctamente", "success");
         onSuccess?.();
         onClose();
       } else {
         showToast(
-          response?.message || error?.data?.message || "Error al registrar asistencia",
-          "error"
+          response?.message ||
+            error?.data?.message ||
+            "Error al registrar asistencia",
+          "error",
         );
       }
     } catch (error) {
@@ -219,20 +225,18 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
             )}
 
             <div className={styles.fieldGroup}>
-              <label className={styles.label}>Modalidad</label>
+              <label className={styles.label}>Modalidad de Asistencia</label>
               <div className={styles.modalityOptions}>
-                <div
-                  className={`${styles.modalityCard} ${modality === "P" ? styles.active : ""}`}
-                  onClick={() => setModality("P")}
-                >
-                  <span>Presencial</span>
-                </div>
-                <div
-                  className={`${styles.modalityCard} ${modality === "V" ? styles.active : ""}`}
-                  onClick={() => setModality("V")}
-                >
-                  <span>Virtual</span>
-                </div>
+                <Radio
+                  label="Presencial"
+                  checked={modality === "P"}
+                  onChange={() => setModality("P")}
+                />
+                <Radio
+                  label="Virtual"
+                  checked={modality === "V"}
+                  onChange={() => setModality("V")}
+                />
               </div>
             </div>
 
@@ -248,7 +252,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
           </div>
         )}
 
-        <div className={styles.footer}>
+        {/* <div className={styles.footer}>
           <Button
             variant="secondary"
             onClick={onClose}
@@ -256,7 +260,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
           >
             Cancelar
           </Button>
-        </div>
+        </div> */}
       </div>
     </DataModal>
   );

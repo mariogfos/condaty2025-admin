@@ -67,7 +67,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
         "DELETE",
       );
 
-      if (response?.success || !response?.error) {
+      if (response?.success) {
         showToast("Asistencia eliminada", "success");
         loadAttendances();
         onAttendanceChange?.();
