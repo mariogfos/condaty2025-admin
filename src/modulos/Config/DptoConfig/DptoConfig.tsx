@@ -33,6 +33,10 @@ const DptoConfig = ({ client_config, onSave }: PropsType) => {
     has_financial_debt: Number(client_config?.has_financial_debt) === 1,
     financial_mode: client_config?.financial_mode || 0,
     has_soft_reservation: Boolean(client_config?.has_soft_reservation),
+    has_tasks_visible:
+      Number(client_config?.has_tasks_visible) === 1 ||
+      client_config?.has_tasks_visible === true ||
+      client_config?.has_tasks_visible === "Y",
     bookingRequiresPayment:
       client_config?.payment_time_limit !== null &&
       client_config?.payment_time_limit !== undefined &&
@@ -100,6 +104,13 @@ const DptoConfig = ({ client_config, onSave }: PropsType) => {
       setFormState((prev: any) => ({
         ...prev,
         has_soft_reservation: isEnabled,
+      }));
+    } else if (name === "has_tasks_visible") {
+      const isEnabled = value === "Y";
+
+      setFormState((prev: any) => ({
+        ...prev,
+        has_tasks_visible: isEnabled,
       }));
     }
   };
@@ -619,6 +630,31 @@ const DptoConfig = ({ client_config, onSave }: PropsType) => {
               onChange={handleSwitchChange}
               optionValue={["Y", "N"]}
               checked={formState.has_soft_reservation}
+            />
+          </div>
+        </div>
+
+        <div className={styles.sectionContainer}>
+          <div className={styles.switchContainer}>
+            <div>
+              <p className={styles.textTitle}>
+                Tareas visibles para residentes por defecto
+              </p>
+              <p className={styles.textSubtitle}>
+                Define la visibilidad predeterminada de las tareas nuevas para
+                los residentes. Si esta activa, las tareas se crean como
+                publicas. Si esta desactivada, las tareas se crean como
+                privadas.
+              </p>
+            </div>
+
+            <Switch
+              name="has_tasks_visible"
+              label=""
+              value={formState.has_tasks_visible ? "Y" : "N"}
+              onChange={handleSwitchChange}
+              optionValue={["Y", "N"]}
+              checked={formState.has_tasks_visible}
             />
           </div>
         </div>
