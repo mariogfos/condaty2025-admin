@@ -23,7 +23,7 @@ const AssemblyStatusActions: React.FC<AssemblyStatusActionsProps> = ({
   onStatusChange,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { execute: changeStatus, loading } = useAxios();
+  const { execute: changeStatus } = useAxios();
 
   const currentStatus = assembly.status as AssemblyStatus;
   const allowedTransitions = STATUS_FLOW[currentStatus] || [];
@@ -67,7 +67,7 @@ const AssemblyStatusActions: React.FC<AssemblyStatusActionsProps> = ({
           <Button
             key={status}
             variant="secondary"
-            size="small"
+            small={true}
             onClick={() => handleStatusChange(status)}
             disabled={isLoading}
           >

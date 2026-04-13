@@ -975,9 +975,10 @@ const Tasks = () => {
 
   const openTaskFromQueryParam = async (taskId: string) => {
     const clearOpenTaskParam = () => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() || "");
       params.delete("openTaskId");
-      const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+      const currentPath = pathname || "";
+      const nextUrl = params.toString() ? `${currentPath}?${params.toString()}` : currentPath;
       router.replace(nextUrl);
     };
 
@@ -1411,7 +1412,7 @@ const Tasks = () => {
   }, [viewMode]);
 
   useEffect(() => {
-    const taskId = searchParams.get("openTaskId");
+    const taskId = searchParams?.get("openTaskId");
     if (!taskId) {
       processedOpenTaskIdRef.current = null;
       return;
