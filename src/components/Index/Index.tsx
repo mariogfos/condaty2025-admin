@@ -32,6 +32,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import ContentRenderView from "@/modulos/Contents/RenderView/RenderView";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
+import { AssemblyDashboardCard } from "@/modulos/Assemblies/components/AssemblyDashboardCard/AssemblyDashboardCard";
 
 const paramsInitial = {
   fullType: "L",
@@ -292,6 +293,8 @@ const HomePage = () => {
                 />
               </div>
             </WidgetBase>
+
+            <AssemblyDashboardCard assembly={dashboard?.data?.assembly} />
 
             <div className={styles.solicitudesSection}>
               {!isMobile && (

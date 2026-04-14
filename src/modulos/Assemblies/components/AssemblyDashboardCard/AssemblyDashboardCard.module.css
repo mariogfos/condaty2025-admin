@@ -1,0 +1,103 @@
+.cardContainer {
+  margin-bottom: var(--spM);
+  transition: transform 0.2s ease;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.statusScheduled {
+  background: rgba(167, 139, 250, 0.15);
+  color: #A78BFA;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.statusActive {
+  background: rgba(0, 227, 140, 0.15);
+  color: var(--cSuccess);
+  border: 1px solid rgba(0, 227, 140, 0.3);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.statusActive .dot {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.5); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.subject {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cWhite);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: var(--cAccent);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: gap 0.2s ease;
+}
+
+.actionButton:hover {
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .subject {
+    font-size: 16px;
+  }
+}

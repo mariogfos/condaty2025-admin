@@ -347,3 +347,26 @@
   display: flex;
   align-items: center;
 }
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .container {
+    padding: 16px;
+  }
+
+  .metricsGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .breadcrumb {
+    display: none;
+  }
+
+  .mainSubject {
+    font-size: 20px;
+  }
+}

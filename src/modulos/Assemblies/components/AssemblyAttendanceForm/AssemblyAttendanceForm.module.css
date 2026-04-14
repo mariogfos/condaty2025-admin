@@ -201,3 +201,46 @@
   flex-direction: column;
   gap: 4px;
 }
+
+@media (max-width: 768px) {
+  .container {
+    padding: 4px 0;
+    gap: 12px;
+  }
+
+  .searchBar {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .searchInput {
+    min-width: 100%;
+    order: 1;
+  }
+
+  .searchBtn {
+    flex: 1;
+    order: 2;
+  }
+
+  .qrBtn {
+    flex: 1;
+    order: 3;
+  }
+
+  .registrationForm {
+    padding: 12px;
+  }
+
+  .residentItem {
+    padding: 10px 12px;
+  }
+
+  .resName {
+    font-size: 13px;
+  }
+
+  .resDetail {
+    font-size: 11px;
+  }
+}

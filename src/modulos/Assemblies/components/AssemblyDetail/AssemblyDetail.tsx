@@ -39,6 +39,7 @@ import AssemblySurveyForm from "@/modulos/Surveys/components/AssemblySurveyForm/
 import AssemblyAttendanceForm from "../AssemblyAttendanceForm/AssemblyAttendanceForm";
 import AssemblyAttendanceList from "../AssemblyAttendanceList/AssemblyAttendanceList";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { useScreenSize } from "@/mk/hooks/useScreenSize";
 
 const normalizeUrls = (value: any): string[] => {
   if (!value) return [];
@@ -97,12 +98,20 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [surveyToEdit, setSurveyToEdit] = useState<any>(null);
   const [surveyAction, setSurveyAction] = useState<"add" | "edit">("add");
   const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
+  const { isMobile } = useScreenSize();
   const { showToast } = useAuth();
 
   // Accordion states
   const [showDetails, setShowDetails] = useState(true);
   const [showDocs, setShowDocs] = useState(false);
-  const [showParticipants, setShowParticipants] = useState(false);
+  const [showParticipants, setShowParticipants] = useState(isMobile);
+
+  useEffect(() => {
+    if (isMobile) {
+      setShowParticipants(true);
+      setShowDetails(true);
+    }
+  }, [isMobile]);
 
   const loadAssembly = async () => {
     const data = await fetchAssemblyDetail(id);
@@ -283,17 +292,19 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="DESCRIPCIÓN"
             titleRight={
-              <button
-                className={styles.editButton}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEditDescription();
-                }}
-                disabled={!canEditBasicInfo}
-                style={{ opacity: canEditBasicInfo ? 1 : 0.5 }}
-              >
-                <IconEdit size={14} /> Editar
-              </button>
+              !isMobile && (
+                <button
+                  className={styles.editButton}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditDescription();
+                  }}
+                  disabled={!canEditBasicInfo}
+                  style={{ opacity: canEditBasicInfo ? 1 : 0.5 }}
+                >
+                  <IconEdit size={14} /> Editar
+                </button>
+              )
             }
             openable={false}
             variant="v2"
@@ -307,19 +318,21 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="VOTACIONES"
             titleRight={
-              <button
-                className={styles.actionBtn}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSurveyToEdit(null);
-                  setSurveyAction("add");
-                  setIsCreatingVoting(true);
-                }}
-                disabled={isFinished}
-                style={{ opacity: isFinished ? 0.5 : 1 }}
-              >
-                <IconAdd size={14} /> Nueva pregunta
-              </button>
+              !isMobile && (
+                <button
+                  className={styles.actionBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSurveyToEdit(null);
+                    setSurveyAction("add");
+                    setIsCreatingVoting(true);
+                  }}
+                  disabled={isFinished}
+                  style={{ opacity: isFinished ? 0.5 : 1 }}
+                >
+                  <IconAdd size={14} /> Nueva pregunta
+                </button>
+              )
             }
             openable={false}
             variant="v2"
@@ -341,7 +354,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                       style={{ display: "flex", gap: 12, alignItems: "center" }}
                     >
                       {/* Lifecycle Actions */}
-                      {!isFinished && (
+                      {!isFinished && !isMobile && (
                         <>
                           {(survey.status === "D" || survey.status === "P") && (
                             <IconCirclePlay
@@ -384,6 +397,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
 
                       {/* Edit/Delete (Only if no votes) */}
                       {!isFinished &&
+                        !isMobile &&
                         !survey.squestions?.[0]?.soptions?.some(
                           (o: any) => (o.votes || 0) > 0,
                         ) &&
@@ -490,17 +504,19 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="DETALLES"
             titleRight={
-              <button
-                className={styles.actionBtn}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEditingFull(true);
-                }}
-                disabled={!canEditBasicInfo}
-                style={{ opacity: canEditBasicInfo ? 1 : 0.5 }}
-              >
-                <IconEdit size={12} /> Editar
-              </button>
+              !isMobile && (
+                <button
+                  className={styles.actionBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditingFull(true);
+                  }}
+                  disabled={!canEditBasicInfo}
+                  style={{ opacity: canEditBasicInfo ? 1 : 0.5 }}
+                >
+                  <IconEdit size={12} /> Editar
+                </button>
+              )
             }
           >
             <div className={styles.detailRow}>
@@ -596,17 +612,19 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="DOCUMENTOS"
             titleRight={
-              <button
-                className={styles.actionBtn}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEditDocs();
-                }}
-                disabled={isFinished}
-                style={{ opacity: isFinished ? 0.5 : 1 }}
-              >
-                <IconAdd size={12} /> Subir
-              </button>
+              !isMobile && (
+                <button
+                  className={styles.actionBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditDocs();
+                  }}
+                  disabled={isFinished}
+                  style={{ opacity: isFinished ? 0.5 : 1 }}
+                >
+                  <IconAdd size={12} /> Subir
+                </button>
+              )
             }
           >
             <div className={styles.docList}>
