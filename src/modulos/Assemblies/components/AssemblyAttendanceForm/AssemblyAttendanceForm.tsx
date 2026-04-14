@@ -12,8 +12,15 @@ import {
   IconSearch,
   IconUser,
   IconCheck,
+  IconGenericQr,
 } from "@/components/layout/icons/IconsBiblioteca";
 import Radio from "@/mk/components/forms/Ratio/Radio";
+import dynamic from "next/dynamic";
+
+const QrScanner = dynamic(
+  () => import("@/mk/components/ui/QrScanner/QrScanner"),
+  { ssr: false },
+);
 
 interface AssemblyAttendanceFormProps {
   open: boolean;
@@ -35,6 +42,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
   const [modality, setModality] = useState<"P" | "V">("P");
   const [isSearching, setIsSearching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const { execute: fetchResidents } = useAxios();
   const { execute: saveAttendance } = useAxios();
@@ -47,6 +55,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
       setSelectedResident(null);
       setSelectedDptoId(null);
       setModality("P");
+      setIsScannerOpen(false);
     }
   }, [open]);
 
@@ -61,19 +70,33 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
     }
   }, [selectedResident]);
 
-  const handleSearch = async () => {
-    if (!search.trim()) return;
+  const handleSearch = async (searchTerm?: string) => {
+    const term = searchTerm !== undefined ? searchTerm : search;
+    if (!term.trim()) return;
     setIsSearching(true);
+
+    const params: any = { searchBy: term, fullType: "L" };
+    if (searchTerm !== undefined) {
+      params.searchById = term;
+    }
+
     try {
       const { data: response, error } = await fetchResidents(
         `/owners`,
         "GET",
-        { searchBy: search, fullType: "L" },
+        params,
         false,
         true,
       );
       if (response?.data) {
-        setResidents(response.data || []);
+        const results = Array.isArray(response.data)
+          ? response.data
+          : [response.data];
+        setResidents(results || []);
+        // Si solo hay un resultado, seleccionarlo automáticamente
+        if (results.length === 1) {
+          setSelectedResident(results[0]);
+        }
       }
       if (error) {
         showToast(error.data?.message || "Error al buscar residentes", "error");
@@ -83,6 +106,36 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleQrSuccess = (decodedText: string) => {
+    setIsScannerOpen(false);
+    const data = (decodedText + "||").split("|");
+
+    if (data[0] === "condaty" && data[1] === "qr") {
+      let codeId = data[3];
+      // Según lógica de Guard, tipo 'O' (Owner) tiene 10 dígitos de ltime al final
+      if (data[2] === "O" && codeId.length > 10) {
+        codeId = codeId.slice(0, -10);
+      }
+      setSearch(codeId);
+      handleSearch(codeId);
+    } else {
+      showToast("QR no reconocido como credencial de Condaty", "warning");
+    }
+  };
+
+  const handleScannerInitError = (err: any) => {
+    console.warn("Scanner Init Error:", err);
+    const errMsg = err?.toString() || "";
+    if (errMsg.includes("NotFoundError") || errMsg.includes("device not found")) {
+      showToast("No se encontró la cámara o está deshabilitada", "error");
+    } else if (errMsg.includes("NotAllowedError") || errMsg.includes("Permission denied")) {
+      showToast("Permiso de cámara denegado", "error");
+    } else {
+      showToast("Error al iniciar el escáner", "error");
+    }
+    setIsScannerOpen(false);
   };
 
   const handleRegister = async () => {
@@ -107,7 +160,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
         },
       );
 
-      if (response?.success ) {
+      if (response?.success) {
         showToast("Asistencia registrada correctamente", "success");
         onSuccess?.();
         onClose();
@@ -155,14 +208,45 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
             />
             <Button
               variant="primary"
-              onClick={handleSearch}
+              onClick={() => handleSearch()}
               disabled={isSearching}
               className={styles.searchBtn}
+              style={{ minWidth: "40px", padding: "0 8px" }}
             >
-              <IconSearch size={16} />
+              <IconSearch size={20} />
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setIsScannerOpen(!isScannerOpen)}
+              className={styles.qrBtn}
+              style={{
+                minWidth: "40px",
+                padding: "0 8px",
+                backgroundColor: isScannerOpen ? "var(--cPrimary)" : "transparent",
+                borderColor: "var(--cPrimary)",
+                color: isScannerOpen ? "#fff" : "var(--cPrimary)",
+              }}
+            >
+              <IconGenericQr size={20} />
             </Button>
           </div>
         </div>
+
+        {isScannerOpen && (
+          <div className={styles.scannerContainer}>
+            <QrScanner
+              onScanSuccess={handleQrSuccess}
+              onScanError={(err) => console.debug(err)}
+              onInitError={handleScannerInitError}
+              qrbox={280}
+              aspectRatio={1.0}
+              fps={10}
+            />
+            <p className={styles.scannerHint}>
+              Apunta la cámara al QR de la App del residente
+            </p>
+          </div>
+        )}
 
         <div className={styles.resultsList}>
           {isSearching ? (

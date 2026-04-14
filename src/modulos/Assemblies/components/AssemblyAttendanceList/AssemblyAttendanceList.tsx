@@ -19,12 +19,14 @@ interface AssemblyAttendanceListProps {
   assemblyId: string | number;
   refreshKey?: number;
   onAttendanceChange?: () => void;
+  readOnly?: boolean;
 }
 
 const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
   assemblyId,
   refreshKey,
   onAttendanceChange,
+  readOnly = false,
 }) => {
   const [attendances, setAttendances] = useState<AssemblyAttendance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,6 +59,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
   }, [assemblyId, refreshKey]);
 
   const handleDelete = async (attendanceId: number) => {
+    if (readOnly) return;
     if (!confirm("¿Estás seguro de que deseas eliminar esta asistencia?")) {
       return;
     }
@@ -126,8 +129,8 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                 <th>Departamento</th>
                 <th>Rol</th>
                 <th>Modalidad</th>
-                <th>Hora de ingreso</th>
-                <th style={{ width: 50 }}></th>
+                <th>Hora</th>
+                {!readOnly && <th style={{ width: 50 }}></th>}
               </tr>
             </thead>
             <tbody>
@@ -152,15 +155,17 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                     </span>
                   </td>
                   <td>{formatOnlyTime(attendance.joined_at)}</td>
-                  <td>
-                    <button
-                      className={styles.deleteBtn}
-                      onClick={() => handleDelete(attendance.id)}
-                      title="Eliminar asistencia"
-                    >
-                      <IconTrash size={16} />
-                    </button>
-                  </td>
+                  {!readOnly && (
+                    <td>
+                      <button
+                        className={styles.deleteBtn}
+                        onClick={() => handleDelete(attendance.id)}
+                        title="Eliminar asistencia"
+                      >
+                        <IconTrash size={16} />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

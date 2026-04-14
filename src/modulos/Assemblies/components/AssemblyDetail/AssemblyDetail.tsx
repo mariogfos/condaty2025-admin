@@ -117,13 +117,17 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     loadAssembly();
   }, [id, fetchAssemblyDetail, fetchAssemblyStats]);
 
+  const canEditBasicInfo = assembly?.status === "S";
+  const isFinished = assembly?.status === "C";
+
   const handleEditDescription = () => {
+    if (!canEditBasicInfo) return;
     setTempDescription(assembly?.description || "");
     setIsEditingDescription(true);
   };
 
   const handleSaveDescription = async () => {
-    if (!assembly) return;
+    if (!assembly || !canEditBasicInfo) return;
     setIsSaving(true);
     const success = await updateAssembly(assembly.id, {
       description: tempDescription,
@@ -131,17 +135,21 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     if (success) {
       setAssembly({ ...assembly, description: tempDescription });
       setIsEditingDescription(false);
+      showToast("Descripción actualizada con éxito", "success");
+    } else {
+      showToast("No se pudo actualizar la descripción", "error");
     }
     setIsSaving(false);
   };
 
   const handleEditDocs = () => {
+    if (isFinished) return;
     setTempDocs({ files: normalizeUrls(assembly?.files) });
     setIsEditingDocs(true);
   };
 
   const handleSaveDocs = async () => {
-    if (!assembly) return;
+    if (!assembly || isFinished) return;
     setIsSavingDocs(true);
     const payload = {
       files: buildFileObjects(tempDocs.files, "documento_asamblea"),
@@ -161,6 +169,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     surveyId: number | string,
     status: string,
   ) => {
+    if (isFinished) return;
     try {
       const { data } = await execute(`/surveys/${surveyId}/status`, "PUT", {
         status,
@@ -175,12 +184,14 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   };
 
   const handleEditSurvey = (survey: any) => {
+    if (isFinished) return;
     setSurveyToEdit(survey);
     setSurveyAction("edit");
     setIsCreatingVoting(true);
   };
 
   const handleDeleteSurvey = async (surveyId: number | string) => {
+    if (isFinished) return;
     if (!confirm("¿Estás seguro de eliminar esta votación?")) return;
     try {
       const { data } = await execute(`/surveys/${surveyId}`, "DELETE");
@@ -278,6 +289,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                   e.stopPropagation();
                   handleEditDescription();
                 }}
+                disabled={!canEditBasicInfo}
+                style={{ opacity: canEditBasicInfo ? 1 : 0.5 }}
               >
                 <IconEdit size={14} /> Editar
               </button>
@@ -302,6 +315,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                   setSurveyAction("add");
                   setIsCreatingVoting(true);
                 }}
+                disabled={isFinished}
+                style={{ opacity: isFinished ? 0.5 : 1 }}
               >
                 <IconAdd size={14} /> Nueva pregunta
               </button>
@@ -326,43 +341,52 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                       style={{ display: "flex", gap: 12, alignItems: "center" }}
                     >
                       {/* Lifecycle Actions */}
-                      {(survey.status === "D" || survey.status === "P") && (
-                        <IconCirclePlay
-                          size={22}
-                          color="var(--cSuccess)"
-                          style={{ cursor: "pointer" }}
-                          onClick={() => handleStatusChange(survey.id, "A")}
-                          title="Activar"
-                        />
-                      )}
-
-                      {survey.status === "A" && (
+                      {!isFinished && (
                         <>
-                          <div
-                            style={{
-                              width: 14,
-                              height: 16,
-                              borderLeft: "4px solid var(--cWarning)",
-                              borderRight: "4px solid var(--cWarning)",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => handleStatusChange(survey.id, "P")}
-                            title="Pausar"
-                          />
-                          <IconCircleCheck
-                            size={22}
-                            color="var(--cError)"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => handleStatusChange(survey.id, "C")}
-                            title="Finalizar"
-                          />
+                          {(survey.status === "D" || survey.status === "P") && (
+                            <IconCirclePlay
+                              size={22}
+                              color="var(--cSuccess)"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleStatusChange(survey.id, "A")}
+                              title="Activar"
+                            />
+                          )}
+
+                          {survey.status === "A" && (
+                            <>
+                              <div
+                                style={{
+                                  width: 14,
+                                  height: 16,
+                                  borderLeft: "4px solid var(--cWarning)",
+                                  borderRight: "4px solid var(--cWarning)",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() =>
+                                  handleStatusChange(survey.id, "P")
+                                }
+                                title="Pausar"
+                              />
+                              <IconCircleCheck
+                                size={22}
+                                color="var(--cError)"
+                                style={{ cursor: "pointer" }}
+                                onClick={() =>
+                                  handleStatusChange(survey.id, "C")
+                                }
+                                title="Finalizar"
+                              />
+                            </>
+                          )}
                         </>
                       )}
 
                       {/* Edit/Delete (Only if no votes) */}
-                      {!survey.squestions?.[0]?.soptions?.some(
-                        (o: any) => (o.votes || 0) > 0,
-                      ) &&
+                      {!isFinished &&
+                        !survey.squestions?.[0]?.soptions?.some(
+                          (o: any) => (o.votes || 0) > 0,
+                        ) &&
                         survey.status !== "C" && (
                           <>
                             <IconEdit
@@ -472,6 +496,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                   e.stopPropagation();
                   setIsEditingFull(true);
                 }}
+                disabled={!canEditBasicInfo}
+                style={{ opacity: canEditBasicInfo ? 1 : 0.5 }}
               >
                 <IconEdit size={12} /> Editar
               </button>
@@ -494,7 +520,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Modalidad:</span>
               <span className={styles.detailValue}>
-                {MODALITY_LABELS[assembly.modality as any] || ""}
+                {MODALITY_LABELS[assembly.modality as any] || "" || "No definida"}
               </span>
             </div>
 
@@ -557,8 +583,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                           dependent_of_homeowner: "Dependientes de prop.",
                           dependent_of_tenant: "Dependientes de inq.",
                         };
-                        return labels[id] || "";
+                        return labels[id.trim()] || "";
                       })
+                      .filter(Boolean)
                       .join(", ")
                   : "Todos"}
               </span>
@@ -575,6 +602,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                   e.stopPropagation();
                   handleEditDocs();
                 }}
+                disabled={isFinished}
+                style={{ opacity: isFinished ? 0.5 : 1 }}
               >
                 <IconAdd size={12} /> Subir
               </button>
@@ -619,6 +648,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                   e.stopPropagation();
                   setIsRegisteringParticipant(true);
                 }}
+                disabled={isFinished}
+                style={{ opacity: isFinished ? 0.5 : 1 }}
               >
                 <IconAdd size={12} /> Registrar
               </button>
@@ -627,6 +658,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             <AssemblyAttendanceList
               assemblyId={String(assembly.id)}
               refreshKey={attendanceRefreshKey}
+              readOnly={isFinished}
             />
           </Card>
         </div>
@@ -729,3 +761,4 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
 };
 
 export default AssemblyDetail;
+

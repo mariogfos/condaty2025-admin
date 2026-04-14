@@ -38,9 +38,10 @@ export const getAssemblyConfig = (
     },
     onHideActions: (item: any) => {
       const hasAttendances = (item.attendances_count || 0) > 0;
+      const notScheduled = item.status !== "S";
       return {
-        hideEdit: hasAttendances,
-        hideDel: hasAttendances,
+        hideEdit: hasAttendances || notScheduled,
+        hideDel: hasAttendances || notScheduled,
       };
     },
     renderForm: (props: any) => <RenderForm {...props} />,
