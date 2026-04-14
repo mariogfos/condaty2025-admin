@@ -47,10 +47,12 @@ const typeAlerts: any = {
   },
 };
 import { useScopedI18n } from "@/i18n/useScopedI18n";
+import { useScreenSize } from "@/mk/hooks/useScreenSize";
 
 const Layout = ({ children }: any) => {
   const { user, logout, store, setStore, showToast, userCan } = useAuth();
   const { localeTag, translate } = useScopedI18n("layout");
+  const { isMobile, isTablet, isDesktop } = useScreenSize();
 
   const [sideBarOpen, setSideBarOpen] = useState(false);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
@@ -68,8 +70,7 @@ const Layout = ({ children }: any) => {
 
   const path = usePathname();
   const router = useRouter();
-  const isTablet = false;
-  const isDesktop = true;
+
   const typeAlerts: any = {
     E: {
       name: translate("medicalEmergency"),
@@ -232,7 +233,9 @@ const Layout = ({ children }: any) => {
 
   const layoutClassName = `${styles.layout} ${
     isDesktop && !sideMenuOpen ? styles.layoutExpanded : ""
-  } ${isDesktop && sideMenuOpen ? styles.layoutCollapsed : ""}`;
+  } ${isDesktop && sideMenuOpen ? styles.layoutCollapsed : ""} ${
+    isMobile ? styles.layoutMobile : ""
+  }`;
 
   const onCloseAlert = () => {
     setOpenAlert({ open: false, item: null });
@@ -256,7 +259,7 @@ const Layout = ({ children }: any) => {
         />
       </section>
       <section>
-        {isDesktop && (
+        {!isMobile && isDesktop && (
           <SideMenu collapsed={sideMenuOpen} setCollapsed={setSideMenuOpen}>
             <MainMenu
               collapsed={sideMenuOpen}
@@ -266,7 +269,7 @@ const Layout = ({ children }: any) => {
             />
           </SideMenu>
         )}
-        {isTablet && (
+        {!isMobile && isTablet && (
           <Sidebar
             open={sideBarOpen}
             onClose={setSideBarOpen}

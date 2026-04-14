@@ -2,7 +2,7 @@
 import { CSSProperties, useEffect, useState } from "react";
 import DetailModal from "../DetailModal/DetailModal";
 import Button from "../../forms/Button/Button";
-import HeadTitle from "@/components/HeadTitle/HeadTitle";
+import { useScreenSize } from "@/mk/hooks/useScreenSize";
 import styles from "./dataModal.module.css";
 
 type PropsType = {
@@ -52,6 +52,7 @@ const DataModal = ({
   ignoreTranslation = false,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
+  const { isMobile } = useScreenSize();
 
   useEffect(() => {
     if (open) {
@@ -71,9 +72,14 @@ const DataModal = ({
   };
 
   const customStyle = { ...style } as CSSProperties;
-  if (minWidth) customStyle.minWidth = minWidth as any;
-  if (maxWidth) customStyle.maxWidth = maxWidth as any;
-  if (variant === "mini" && !customStyle.maxWidth) customStyle.maxWidth = 560;
+  if (minWidth && !isMobile) customStyle.minWidth = minWidth as any;
+  if (maxWidth) customStyle.maxWidth = isMobile ? "calc(100vw - 24px)" : (maxWidth as any);
+  if (isMobile) {
+    customStyle.minWidth = 0;
+  }
+  if (variant === "mini" && !customStyle.maxWidth)
+    customStyle.maxWidth = isMobile ? "calc(100vw - 24px)" : 560;
+
   if (fullScreen) {
     customStyle.width = "100vw";
     customStyle.maxWidth = "100vw";

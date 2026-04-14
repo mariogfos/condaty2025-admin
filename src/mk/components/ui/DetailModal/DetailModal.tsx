@@ -3,6 +3,7 @@
 import { CSSProperties, ReactNode, useEffect, useState } from "react";
 import Button from "../../forms/Button/Button";
 import { IconX } from "../../../../components/layout/icons/IconsBiblioteca";
+import { useScreenSize } from "@/mk/hooks/useScreenSize";
 import styles from "./detailModal.module.css";
 
 type PropsType = {
@@ -47,6 +48,7 @@ const DetailModal = ({
   fullScreen = false,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
+  const { isMobile } = useScreenSize();
 
   const _close = (a: any = false) => {
     setOpenModal(false);
@@ -64,8 +66,11 @@ const DetailModal = ({
   }, [open]);
 
   const customStyle = { ...style } as CSSProperties;
-  if (minWidth) customStyle.minWidth = minWidth as any;
-  if (maxWidth) customStyle.maxWidth = maxWidth as any;
+  if (minWidth && !isMobile) customStyle.minWidth = minWidth as any;
+  if (maxWidth) customStyle.maxWidth = isMobile ? "calc(100vw - 24px)" : (maxWidth as any);
+  if (isMobile) {
+    customStyle.minWidth = 0;
+  }
 
   return (
     <div
