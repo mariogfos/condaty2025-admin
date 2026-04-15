@@ -7,6 +7,8 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { AssemblyAttendance, ROLE_LABELS } from "../../types/assemblies.types";
 import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
 import { IconTrash } from "@/components/layout/icons/IconsBiblioteca";
+import { useScreenSize } from "@/mk/hooks/useScreenSize";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 // Helper para extraer solo la hora HH:MM
 const formatOnlyTime = (dateStr: string) => {
@@ -19,12 +21,14 @@ interface AssemblyAttendanceListProps {
   assemblyId: string | number;
   refreshKey?: number;
   onAttendanceChange?: () => void;
+  readOnly?: boolean;
 }
 
 const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
   assemblyId,
   refreshKey,
   onAttendanceChange,
+  readOnly = false,
 }) => {
   const [attendances, setAttendances] = useState<AssemblyAttendance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,6 +61,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
   }, [assemblyId, refreshKey]);
 
   const handleDelete = async (attendanceId: number) => {
+    if (readOnly) return;
     if (!confirm("¿Estás seguro de que deseas eliminar esta asistencia?")) {
       return;
     }
@@ -95,6 +100,8 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
     (a) => a.modality_type === "V",
   ).length;
 
+  const { isMobile } = useScreenSize();
+
   if (isLoading || !loaded) {
     return <div className={styles.loading}>Cargando asistentes...</div>;
   }
@@ -119,52 +126,108 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
         <div className={styles.empty}>No hay asistentes registrados aún.</div>
       ) : (
         <div className={styles.list}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Departamento</th>
-                <th>Rol</th>
-                <th>Modalidad</th>
-                <th>Hora de ingreso</th>
-                <th style={{ width: 50 }}></th>
-              </tr>
-            </thead>
-            <tbody>
+          {isMobile ? (
+            <div className={styles.cardsContainer}>
               {attendances.map((attendance) => (
-                <tr key={attendance.id}>
-                  <td>
-                    {attendance.owner
-                      ? `${attendance.owner.name} ${attendance.owner.last_name || ""}`
-                      : "Desconocido"}
-                  </td>
-                  <td>{attendance.dpto?.nro || "-"}</td>
-                  <td>
-                    {ROLE_LABELS[attendance.role as string] ||
-                      attendance.role ||
-                      "-"}
-                  </td>
-                  <td>
-                    <span
-                      className={`${styles.modalityBadge} ${attendance.modality_type === "P" ? styles.inPerson : styles.virtual}`}
-                    >
-                      {getModalityLabel(attendance.modality_type)}
+                <div key={attendance.id} className={styles.attendanceCard}>
+                  <div className={styles.cardHeader}>
+                    <Avatar
+                      src={attendance.owner?.url_avatar}
+                      name={`${attendance.owner?.name} ${attendance.owner?.last_name || ""}`}
+                      w={40}
+                      h={40}
+                    />
+                    <div className={styles.cardMainInfo}>
+                      <span className={styles.cardName}>
+                        {attendance.owner
+                          ? `${attendance.owner.name} ${attendance.owner.last_name || ""}`
+                          : "Desconocido"}
+                      </span>
+                      <span className={styles.cardSub}>
+                        Unidad {attendance.dpto?.nro || "-"} | CI:{" "}
+                        {attendance.owner?.ci || "-"}
+                      </span>
+                    </div>
+                    {!readOnly && (
+                      <button
+                        className={styles.deleteBtn}
+                        onClick={() => handleDelete(attendance.id)}
+                        title="Eliminar asistencia"
+                      >
+                        <IconTrash size={18} />
+                      </button>
+                    )}
+                  </div>
+                  <div className={styles.cardFooter}>
+                    <div className={styles.cardBadgeContainer}>
+                      <span className={styles.cardRole}>
+                        {ROLE_LABELS[attendance.role as string] ||
+                          attendance.role ||
+                          "-"}
+                      </span>
+                      <span
+                        className={`${styles.modalityBadge} ${attendance.modality_type === "P" ? styles.inPerson : styles.virtual}`}
+                      >
+                        {getModalityLabel(attendance.modality_type)}
+                      </span>
+                    </div>
+                    <span className={styles.cardTime}>
+                      {formatOnlyTime(attendance.joined_at)}
                     </span>
-                  </td>
-                  <td>{formatOnlyTime(attendance.joined_at)}</td>
-                  <td>
-                    <button
-                      className={styles.deleteBtn}
-                      onClick={() => handleDelete(attendance.id)}
-                      title="Eliminar asistencia"
-                    >
-                      <IconTrash size={16} />
-                    </button>
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Departamento</th>
+                  <th>Rol</th>
+                  <th>Modalidad</th>
+                  <th>Hora</th>
+                  {!readOnly && <th style={{ width: 50 }}></th>}
+                </tr>
+              </thead>
+              <tbody>
+                {attendances.map((attendance) => (
+                  <tr key={attendance.id}>
+                    <td>
+                      {attendance.owner
+                        ? `${attendance.owner.name} ${attendance.owner.last_name || ""}`
+                        : "Desconocido"}
+                    </td>
+                    <td>{attendance.dpto?.nro || "-"}</td>
+                    <td>
+                      {ROLE_LABELS[attendance.role as string] ||
+                        attendance.role ||
+                        "-"}
+                    </td>
+                    <td>
+                      <span
+                        className={`${styles.modalityBadge} ${attendance.modality_type === "P" ? styles.inPerson : styles.virtual}`}
+                      >
+                        {getModalityLabel(attendance.modality_type)}
+                      </span>
+                    </td>
+                    <td>{formatOnlyTime(attendance.joined_at)}</td>
+                    {!readOnly && (
+                      <td>
+                        <button
+                          className={styles.deleteBtn}
+                          onClick={() => handleDelete(attendance.id)}
+                          title="Eliminar asistencia"
+                        >
+                          <IconTrash size={16} />
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
     </div>

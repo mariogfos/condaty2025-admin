@@ -11,7 +11,6 @@ import {
 } from "../layout/icons/IconsBiblioteca";
 
 import HeadTitle from "../HeadTitle/HeadTitle";
-import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
@@ -20,9 +19,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { AppLocale } from "@/i18n/runtime";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
+import { useScreenSize } from "@/mk/hooks/useScreenSize";
 
 type PropsType = {
-  isTablet: boolean;
   user: any;
   path: string;
   router: any;
@@ -35,7 +34,6 @@ type PropsType = {
 };
 
 const Header = ({
-  isTablet,
   user,
   path,
   router,
@@ -43,179 +41,136 @@ const Header = ({
   setOpenSlider,
   openSlider,
   title,
-  right = () => {
-    return null;
-  },
-  customTitle = () => {
-    return null;
-  },
+  right = () => null,
+  customTitle = () => null,
 }: PropsType) => {
-  const isActive = (path: string) => router.pathname === path;
+  const { isMobile, isTablet } = useScreenSize();
   const { store, setStore } = useAuth();
   const { locale, setPreference } = useLanguage();
   const { translate } = useScopedI18n("header");
   const [count, setCount] = useState(0);
+  const [countChat, setCountChat] = useState(0);
 
-  const menuItems = [
-    { name: "Roles", route: "/roles" },
-    { name: "Categorias de roles", route: "/rolescategories" },
-    { name: "Permisos", route: "/rolesabilities" },
-  ];
+  const { dispatch: openChat } = useEvent("onOpenChat");
+
   const languageMenuItems = [
     { name: "Español", route: "es" },
     { name: "Português", route: "pt" },
     { name: "English", route: "en" },
   ];
-  const onNotif = useCallback((data: any) => {
-    // console.log("nueva counter", data);
+
+  const onNotif = useCallback(() => {
     setCount((old) => old + 1);
   }, []);
-  const onResetNotif = useCallback((data: any) => {
-    // console.log("nueva counter", data);
+
+  const onResetNotif = useCallback(() => {
     setCount(0);
   }, []);
-  useEvent("onReset", onResetNotif);
-  useEvent("onNotif", onNotif);
 
-  // const onOpenChat = useCallback((e: any) => {
-  //   setCountChat(0);
-  // }, []);
-
-  // useEvent("onOpenChat", onOpenChat);
-
-  const { dispatch: openChat } = useEvent("onOpenChat");
-  const [countChat, setCountChat] = useState(0);
-  const onChat = useCallback(
-    (e: any) => {
-      setCountChat((old) => old + 1);
-    },
-    [user?.id],
-  );
-
-  useEvent("onChatNewMsg", onChat);
-
-  const checkNotif = async () => {
-    let notifId = 0;
-    try {
-      notifId = parseInt(localStorage.getItem("notifId") || "0");
-    } catch (error) {
-      notifId = 0;
-    }
-    if (notifId < user?.notifId) {
-      setCount((old) => old + 1);
-    }
-  };
-  useEffect(() => {
-    if (count == 0) checkNotif();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onChat = useCallback(() => {
+    setCountChat((old) => old + 1);
   }, []);
 
-  const Title = () => {
-    return (
-      <div className={styles["header-title"]}>
-        <Avatar
-          name={getFullName(user)}
-          src={user?.url_avatar}
-          onClick={() => {
-            // router.push("/profile");
-            setStore({ openProfileModal: true });
-          }}
-        />
-        <p data-i18n-ignore="true">{getFullName(user)}</p>
-        <p data-i18n-ignore="true">{client?.name}</p>
-      </div>
-    );
-  };
+  useEvent("onReset", onResetNotif);
+  useEvent("onNotif", onNotif);
+  useEvent("onChatNewMsg", onChat);
 
-  const NotificationIcon = () => {
-    return (
-      <div className={styles.iconOuterContainer}>
-        <div className={styles.notificationContainer}>
-          <Link href="/notifications">
-            <div className={styles.notificationIcon}>
-              <IconNotification />
-              {store?.notif > 0 && (
-                <div className={styles.notificationBadge}>
-                  {store?.notif || 0}
-                </div>
-              )}
-            </div>
-          </Link>
-        </div>
-      </div>
-    );
-  };
+  useEffect(() => {
+    const checkNotif = async () => {
+      let notifId = 0;
+      try {
+        notifId = parseInt(localStorage.getItem("notifId") || "0");
+      } catch (error) {
+        notifId = 0;
+      }
+      if (notifId < user?.notifId) {
+        setCount((old) => old + 1);
+      }
+    };
+    if (count === 0) checkNotif();
+  }, [user?.notifId, count]);
 
-  const Round = ({ icon, href, onClick, bage }: any) => {
-    if (href)
-      return (
-        <div className={styles.notificationContainer}>
-          <Link onClick={onClick} href={href || "#"}>
-            <div className={styles.notificationIcon}>
-              {icon}
-              {bage > 0 && (
-                <div className={styles.notificationBadge}>{bage || 0}</div>
-              )}
-            </div>
-          </Link>
-        </div>
-      );
-    return (
+  const Title = () => (
+    <div className={styles["header-mobile-title"]}>
+      <Avatar
+        name={getFullName(user)}
+        src={user?.url_avatar}
+        onClick={() => setStore({ ...store, openProfileModal: true })}
+      />
+      <div className={styles.mobileGreeting}>
+        <p className={styles.mobileGreetingMain}>
+          {translate("greetingStart")} {getFullName(user)}
+        </p>
+        {!isMobile && <p className={styles.mobileGreetingSub}>{client?.name}</p>}
+      </div>
+    </div>
+  );
+
+  const NotificationIcon = () => (
+    <div className={styles.iconOuterContainer}>
       <div className={styles.notificationContainer}>
-        <div onClick={onClick}>
+        <Link href="/notifications">
           <div className={styles.notificationIcon}>
-            {icon}
-            {bage > 0 && (
-              <div className={styles.notificationBadge}>{bage || 0}</div>
+            <IconNotification />
+            {store?.notif > 0 && (
+              <div className={styles.notificationBadge}>{store?.notif || 0}</div>
             )}
           </div>
-        </div>
+        </Link>
+      </div>
+    </div>
+  );
+
+  const Round = ({ icon, href, onClick, bage }: any) => {
+    const content = (
+      <div className={styles.notificationIcon}>
+        {icon}
+        {bage > 0 && <div className={styles.notificationBadge}>{bage}</div>}
       </div>
     );
-  };
 
-  const ProfileIcon = () => {
     return (
-      <div>
-        <div style={{ cursor: "pointer" }}>
-          <Avatar
-            name={getFullName(user)}
-            h={40}
-            w={40}
-            src={user?.url_avatar}
-            onClick={() => {
-              setStore({ ...store, openProfileModal: true });
-            }}
-
-            // square={true}
-          />
-        </div>
+      <div className={styles.notificationContainer}>
+        {href ? (
+          <Link onClick={onClick} href={href}>
+            {content}
+          </Link>
+        ) : (
+          <div onClick={onClick} style={{ cursor: "pointer" }}>
+            {content}
+          </div>
+        )}
       </div>
     );
   };
 
-  if (isTablet)
+  const ProfileIcon = () => (
+    <div style={{ cursor: "pointer" }}>
+      <Avatar
+        name={getFullName(user)}
+        h={40}
+        w={40}
+        src={user?.url_avatar}
+        onClick={() => setStore({ ...store, openProfileModal: true })}
+      />
+    </div>
+  );
+
+  if (isTablet || isMobile) {
     return (
       <HeadTitle
         title={title}
-        customTitle={path == "/" ? <Title /> : customTitle()}
+        customTitle={path === "/" ? <Title /> : customTitle()}
         left={
-          path == "/" ? (
-            <IconMenu
-              onClick={() => setOpenSlider(!openSlider)}
-              circle
-              size={32}
-            />
+          path === "/" && !isMobile ? (
+            <IconMenu onClick={() => setOpenSlider(!openSlider)} circle size={32} />
           ) : null
         }
         right={
-          path == "/" ? (
+          path === "/" ? (
             <div className={styles.headerRightContainer}>
               <NotificationIcon />
-              {/* <Dropdown
-                  trigger={<IconSetting circle size={32} />}
-                  items={menuItems}
-                /> */}
+              {!isMobile && !isTablet && <ProfileIcon />}
             </div>
           ) : (
             right()
@@ -223,6 +178,7 @@ const Header = ({
         }
       />
     );
+  }
 
   return (
     <div className={styles["header-desktop"]}>
@@ -236,21 +192,11 @@ const Header = ({
       </div>
 
       <div className={styles["header-controls"]}>
-        {/* <NotificationIcon /> */}
         <Round
           icon={<IconNotification color="var(--cWhiteV1)" />}
           href="/notifications"
           bage={count}
         />
-        {/* <div
-          style={{
-            border: "1px solid var(--cWhiteV1)",
-            padding: "4px",
-            borderRadius: "50%",
-          }}
-        >
-          <IconMessage color="var(--cSuccess)" onClick={openChat} />
-        </div> */}
         <Round icon={<IconSetting color="var(--cWhiteV1)" />} href="/configs" />
         <Round
           icon={<IconMessage color="var(--cSuccess)" />}
@@ -262,12 +208,7 @@ const Header = ({
         />
         <Dropdown
           trigger={
-            <div
-              className={styles.notificationContainer}
-              data-i18n-ignore="true"
-              aria-label={translate("changeLanguage")}
-              title={translate("changeLanguage")}
-            >
+            <div className={styles.notificationContainer} title={translate("changeLanguage")}>
               <div className={styles.notificationIcon}>
                 <IconWorld color="var(--cWhiteV1)" />
               </div>
@@ -277,22 +218,10 @@ const Header = ({
           activeValue={locale}
           onClick={(value: string) => {
             setPreference(value as AppLocale);
-            if (typeof window !== "undefined") {
-              window.location.reload();
-            }
+            if (typeof window !== "undefined") window.location.reload();
           }}
           ignoreTranslation
         />
-        {/* <Dropdown
-          trigger={
-            <div className={styles.iconOuterContainer}>
-              <div className={styles.settingContainer}>
-                <IconSetting />
-              </div>
-            </div>
-          }
-          items={menuItems}
-        /> */}
         <ProfileIcon />
       </div>
     </div>

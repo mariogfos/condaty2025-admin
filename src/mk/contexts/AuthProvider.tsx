@@ -148,16 +148,16 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     minResponsive: "desktop" | "tablet" | "mobile" | null = "tablet",
   ) => {
     // console.log("userCan", ability, _action, minResponsive, window.innerWidth);
-    if (minResponsive != "mobile") {
-      if (minResponsive == "tablet" && window.innerWidth < 498) {
-        router.push("/");
-        // return false;
-      }
-      if (minResponsive == "desktop" && window.innerWidth < 998) {
-        router.push("/");
-        // return false;
-      }
-    }
+    // if (minResponsive != "mobile") {
+    //   if (minResponsive == "tablet" && window.innerWidth < 498) {
+    //     router.push("/");
+    //     // return false;
+    //   }
+    //   if (minResponsive == "desktop" && window.innerWidth < 998) {
+    //     router.push("/");
+    //     // return false;
+    //   }
+    // }
     let action = "";
     if (_action == "add") action = "C";
     if (_action == "edit") action = "U";

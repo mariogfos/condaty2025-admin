@@ -234,6 +234,15 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       newErrors.end_time = "La finalización debe ser posterior al inicio";
     }
 
+    if (formState.start_date) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selDate = new Date(`${formState.start_date}T00:00:00`);
+      if (selDate < today) {
+        newErrors.start_date = "La fecha no puede ser anterior a hoy";
+      }
+    }
+
     setErrors(newErrors);
     return newErrors;
   };

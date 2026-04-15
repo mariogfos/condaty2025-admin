@@ -192,3 +192,33 @@
   justify-content: center;
   align-items: center;
 }
+
+.header-mobile-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobileGreeting {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.mobileGreetingMain {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fafafa;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.mobileGreetingSub {
+  font-size: 11px;
+  color: #a6a6a6;
+  margin: 0;
+}
