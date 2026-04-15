@@ -246,7 +246,6 @@ const Layout = ({ children }: any) => {
     <main className={layoutClassName}>
       <section>
         <Header
-          isTablet={false}
           user={user}
           path={path || ""}
           router={router}
