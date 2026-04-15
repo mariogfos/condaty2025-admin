@@ -4,6 +4,7 @@ import DetailModal from "../DetailModal/DetailModal";
 import Button from "../../forms/Button/Button";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
 import styles from "./dataModal.module.css";
+import HeadTitle from "@/components/HeadTitle/HeadTitle";
 
 type PropsType = {
   children: any;
@@ -73,7 +74,8 @@ const DataModal = ({
 
   const customStyle = { ...style } as CSSProperties;
   if (minWidth && !isMobile) customStyle.minWidth = minWidth as any;
-  if (maxWidth) customStyle.maxWidth = isMobile ? "calc(100vw - 24px)" : (maxWidth as any);
+  if (maxWidth)
+    customStyle.maxWidth = isMobile ? "calc(100vw - 24px)" : (maxWidth as any);
   if (isMobile) {
     customStyle.minWidth = 0;
   }
