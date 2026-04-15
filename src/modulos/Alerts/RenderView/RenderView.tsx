@@ -251,7 +251,7 @@ interface RenderViewProps {
   open: boolean;
   onClose: () => void;
   item: Record<string, any>;
-  reLoad?: () => void;
+  reLoad?: Function;
 }
 
 // Dentro del componente RenderView

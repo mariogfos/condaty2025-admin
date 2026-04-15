@@ -68,7 +68,7 @@ interface ReservationDetailModalProps {
   onClose: () => void;
   item?: ReservationItem | Record<string, any>;
   reservationId?: string | number | null;
-  reLoad?: () => void;
+  reLoad?: Function;
 }
 
 const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
