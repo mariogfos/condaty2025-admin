@@ -55,7 +55,14 @@ export interface AssemblyAttendance {
   modality_type: "P" | "V"; // Presencial, Virtual
   represented_roles?: string[];
   // Relaciones cargadas
-  owner?: { id: number; name: string; last_name: string; dpto_id?: number };
+  owner?: {
+    id: number;
+    name: string;
+    last_name: string;
+    dpto_id?: number;
+    url_avatar?: string;
+    ci?: string;
+  };
   dpto?: { id: number; nro: string };
 }
 

@@ -131,10 +131,11 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
               {attendances.map((attendance) => (
                 <div key={attendance.id} className={styles.attendanceCard}>
                   <div className={styles.cardHeader}>
-                    <Avatar 
-                      src={attendance.owner?.url_avatar} 
-                      name={`${attendance.owner?.name} ${attendance.owner?.last_name || ""}`} 
-                      w={40} h={40} 
+                    <Avatar
+                      src={attendance.owner?.url_avatar}
+                      name={`${attendance.owner?.name} ${attendance.owner?.last_name || ""}`}
+                      w={40}
+                      h={40}
                     />
                     <div className={styles.cardMainInfo}>
                       <span className={styles.cardName}>
@@ -143,7 +144,8 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                           : "Desconocido"}
                       </span>
                       <span className={styles.cardSub}>
-                        Unidad {attendance.dpto?.nro || "-"} | CI: {attendance.owner?.ci || "-"}
+                        Unidad {attendance.dpto?.nro || "-"} | CI:{" "}
+                        {attendance.owner?.ci || "-"}
                       </span>
                     </div>
                     {!readOnly && (
@@ -159,7 +161,9 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                   <div className={styles.cardFooter}>
                     <div className={styles.cardBadgeContainer}>
                       <span className={styles.cardRole}>
-                        {ROLE_LABELS[attendance.role as string] || attendance.role || "-"}
+                        {ROLE_LABELS[attendance.role as string] ||
+                          attendance.role ||
+                          "-"}
                       </span>
                       <span
                         className={`${styles.modalityBadge} ${attendance.modality_type === "P" ? styles.inPerson : styles.virtual}`}
@@ -167,7 +171,9 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                         {getModalityLabel(attendance.modality_type)}
                       </span>
                     </div>
-                    <span className={styles.cardTime}>{formatOnlyTime(attendance.joined_at)}</span>
+                    <span className={styles.cardTime}>
+                      {formatOnlyTime(attendance.joined_at)}
+                    </span>
                   </div>
                 </div>
               ))}
