@@ -80,7 +80,7 @@ export const useAssemblies = (): UseAssembliesReturn => {
         );
         if (response?.success) {
           // En Condaty, el detalle suele venir en response.data.assembly o directo en response.data
-          const data = response.data?.data || response.data?.assembly || null;
+          const data = response.data?.data || response.data?.assembly || response.data || null;
           return data;
         }
         return null;
