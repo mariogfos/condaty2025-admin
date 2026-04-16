@@ -475,7 +475,9 @@ const RenderForm = ({
     <DataModal
       open={open}
       onClose={onClose}
-      title={formState.id ? "Editar Residente" : "Nuevo Residente"}
+      title={formState.id
+        ? `Editar ${formState.type_owner || "Residente"}`
+        : `Nuevo ${item?.type_owner || "Residente"}`}
       onSave={onSave}
       variant={"mini"}
     >
@@ -523,18 +525,34 @@ const RenderForm = ({
           required
           disabled={formState._emailDisabled}
         />
-        <Select
-          label="Tipo de Residente"
-          name="type_owner"
-          value={formState.type_owner}
-          options={TYPE_OWNERS}
-          optionLabel="name"
-          optionValue="type_owner"
-          onChange={handleChange}
-          error={errors}
-          required
-          disabled={disableTypeEditing}
-        />
+        {/* P.9: Mostrar el select de Tipo de usuario al inicio — antes del CI */}
+        {!disableTypeEditing && (
+          <Select
+            label="Tipo de usuario"
+            name="type_owner"
+            value={formState.type_owner}
+            options={TYPE_OWNERS}
+            optionLabel="name"
+            optionValue="type_owner"
+            onChange={handleChange}
+            error={errors}
+            required
+          />
+        )}
+        {disableTypeEditing && (
+          <Select
+            label="Tipo de usuario"
+            name="type_owner"
+            value={formState.type_owner}
+            options={TYPE_OWNERS}
+            optionLabel="name"
+            optionValue="type_owner"
+            onChange={handleChange}
+            error={errors}
+            required
+            disabled
+          />
+        )}
         {(formState.dptos || []).length > 0 && (
           <div className={styles.unitCardsWrapper}>
             {(formState.dptos || []).map((d, idx) => {

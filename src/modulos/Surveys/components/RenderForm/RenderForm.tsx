@@ -26,6 +26,8 @@ const RenderForm = ({
   const normalizeFormState = (s: any) => ({
     ...s,
     is_mandatory: s.is_mandatory === true || s.is_mandatory === "Y" ? "Y" : "N",
+    // P.18: Si ya tiene fecha programada, activar el switch para que no se borre al guardar
+    switch: s.switch ?? (s.scheduled_at ? "Y" : "N"),
   });
   const [formState, setFormState]: any = useState(
     normalizeFormState({ ...item }),
@@ -298,12 +300,6 @@ const RenderForm = ({
         {level === 2 && (
           <div className={styles.renderFormLevel2}>
             <section className={styles.surveyHeader}>
-              {formState.scheduled_at && formState.expires_at && (
-                <div className={styles.titleDate}>
-                  Programada para el {getDateTimeStrMes(formState.scheduled_at)}{" "}
-                  hasta el {getDateTimeStrMes(formState.expires_at)}{" "}
-                </div>
-              )}
               <div className={styles.titleFormLv2}>
                 <div>{formState.title}</div>{" "}
                 {formState.is_mandatory === "Y" && <div> • Obligatoria</div>}
@@ -311,6 +307,12 @@ const RenderForm = ({
               <div className={styles.subtitleFormLv2}>
                 {formState.description}
               </div>
+              {formState.scheduled_at && formState.expires_at && (
+                <div className={styles.titleDate}>
+                  📅 Programada: {getDateTimeStrMes(formState.scheduled_at)}{" "}
+                  — {getDateTimeStrMes(formState.expires_at)}
+                </div>
+              )}
             </section>
             <div className={styles.questionsSection}>
               <SurveyList formState={formState} setFormState={setFormState} />

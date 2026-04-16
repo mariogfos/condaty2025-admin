@@ -26,6 +26,7 @@ interface AssemblyAttendanceFormProps {
   open: boolean;
   onClose: () => void;
   assemblyId: string;
+  assemblyModality?: "P" | "V" | "H"; // P.27: Modalidad de la asamblea para restringir opciones
   onSuccess?: () => void;
 }
 
@@ -33,6 +34,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
   open,
   onClose,
   assemblyId,
+  assemblyModality,
   onSuccess,
 }) => {
   const [search, setSearch] = useState("");
@@ -54,10 +56,14 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
       setResidents([]);
       setSelectedResident(null);
       setSelectedDptoId(null);
-      setModality("P");
+      // P.27: Resetear modalidad al cerrar, usando la modalidad de la asamblea como default
+      setModality(assemblyModality === "V" ? "V" : "P");
       setIsScannerOpen(false);
+    } else {
+      // P.27: Al abrir, setear la modalidad predeterminada según la asamblea
+      setModality(assemblyModality === "V" ? "V" : "P");
     }
-  }, [open]);
+  }, [open, assemblyModality]);
 
   useEffect(() => {
     if (selectedResident) {
@@ -311,16 +317,21 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Modalidad de Asistencia</label>
               <div className={styles.modalityOptions}>
-                <Radio
-                  label="Presencial"
-                  checked={modality === "P"}
-                  onChange={() => setModality("P")}
-                />
-                <Radio
-                  label="Virtual"
-                  checked={modality === "V"}
-                  onChange={() => setModality("V")}
-                />
+                {/* P.27: Solo mostrar modalidades compatibles con la asamblea */}
+                {(!assemblyModality || assemblyModality === "P" || assemblyModality === "H") && (
+                  <Radio
+                    label="Presencial"
+                    checked={modality === "P"}
+                    onChange={() => setModality("P")}
+                  />
+                )}
+                {(!assemblyModality || assemblyModality === "V" || assemblyModality === "H") && (
+                  <Radio
+                    label="Virtual"
+                    checked={modality === "V"}
+                    onChange={() => setModality("V")}
+                  />
+                )}
               </div>
             </div>
 

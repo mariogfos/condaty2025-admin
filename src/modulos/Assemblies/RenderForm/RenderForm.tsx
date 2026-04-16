@@ -87,9 +87,23 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   const [level, setLevel] = useState(1);
   const [errors, setErrors] = useState<any>({});
 
+  // P.1: Calcula la duración en horas y minutos a partir de start_time y end_time
+  const calcDuration = (start: string, end: string): { hours: string; minutes: string } => {
+    if (!start || !end) return { hours: "", minutes: "" };
+    const [sh, sm] = start.split(":").map(Number);
+    let [eh, em] = end.split(":").map(Number);
+    let totalMinutes = eh * 60 + em - (sh * 60 + sm);
+    if (totalMinutes <= 0) totalMinutes += 24 * 60; // cruzó medianoche
+    return {
+      hours: String(Math.floor(totalMinutes / 60)),
+      minutes: String(totalMinutes % 60).padStart(2, "0"),
+    };
+  };
+
   const initialState = useMemo(() => {
     const start = splitDateTime(item?.start_time);
     const end = splitDateTime(item?.end_time);
+    const dur = item?.id ? calcDuration(start.time, end.time) : { hours: "", minutes: "00" };
 
     return {
       id: item?.id,
@@ -98,7 +112,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       type: item?.type || "O", // O=Ordinaria por defecto
       start_date: start.date,
       start_time: start.time,
-      end_time: end.time,
+      // P.1: Duración en lugar de hora de fin directa
+      duration_hours: dur.hours,
+      duration_minutes: dur.minutes,
       modality: item?.modality || "V", // V=Virtual por defecto
       meeting_url: item?.meeting_url || "",
       address: item?.address || item?.physical_address || "",
@@ -177,9 +193,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       errors: newErrors,
     });
     newErrors = checkRules({
-      value: formState.end_time,
+      value: formState.duration_hours,
       rules: ["required"],
-      key: "end_time",
+      key: "duration_hours",
       errors: newErrors,
     });
     newErrors = checkRules({
@@ -193,8 +209,12 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       newErrors.start_time = "La fecha y hora de inicio no es válida";
     }
 
-    if (!isValidDateTimeValue(formState.start_date, formState.end_time)) {
-      newErrors.end_time = "La fecha y hora de finalización no es válida";
+    // P.2: Validar que la fecha+hora completa no sea pasada
+    if (formState.start_date && formState.start_time) {
+      const startFull = new Date(`${formState.start_date}T${formState.start_time}`);
+      if (startFull < new Date()) {
+        newErrors.start_time = "La fecha y hora de inicio no puede ser pasada";
+      }
     }
 
     if (["V", "H"].includes(formState.modality)) {
@@ -226,21 +246,10 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       });
     }
 
-    if (
-      formState.start_time &&
-      formState.end_time &&
-      formState.start_time >= formState.end_time
-    ) {
-      newErrors.end_time = "La finalización debe ser posterior al inicio";
-    }
-
-    if (formState.start_date) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const selDate = new Date(`${formState.start_date}T00:00:00`);
-      if (selDate < today) {
-        newErrors.start_date = "La fecha no puede ser anterior a hoy";
-      }
+    // P.21a: Validar que el quórum esté entre 0 y 100
+    const quorum = Number(formState.quorum_required);
+    if (isNaN(quorum) || quorum < 0 || quorum > 100) {
+      newErrors.quorum_required = "El quórum debe ser entre 0 y 100";
     }
 
     setErrors(newErrors);
@@ -267,12 +276,27 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   const onSave = async () => {
     if (hasErrors(validateStep2())) return;
 
+    // P.1: Calcular end_time a partir de start_time + duración
+    const calcEndTimeFromDuration = () => {
+      if (!formState.start_date || !formState.start_time) return "";
+      const [sh, sm] = formState.start_time.split(":").map(Number);
+      const durationMins = Number(formState.duration_hours || 0) * 60 + Number(formState.duration_minutes || 0);
+      const endTotalMins = sh * 60 + sm + durationMins;
+      const endDay = endTotalMins >= 24 * 60
+        ? new Date(new Date(`${formState.start_date}T00:00:00`).getTime() + 24 * 60 * 60 * 1000)
+            .toISOString().split("T")[0]
+        : formState.start_date;
+      const h = Math.floor((endTotalMins % (24 * 60)) / 60);
+      const m = endTotalMins % 60;
+      return `${endDay}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+    };
+
     const payload = {
       subject: formState.subject,
       description: formState.description,
       type: formState.type,
       start_time: joinDateTime(formState.start_date, formState.start_time),
-      end_time: joinDateTime(formState.start_date, formState.end_time),
+      end_time: calcEndTimeFromDuration(),
       modality: formState.modality,
       files: buildFileObjects(formState.files, "documento_asamblea"),
       status: formState.status || "Scheduled",
@@ -483,15 +507,48 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               required
             />
 
-            <Input
-              type="time"
-              name="end_time"
-              label="Hora de finalización"
-              value={formState.end_time}
-              onChange={handleChange}
-              error={errors}
-              required
-            />
+            {/* P.1: Duración en lugar de hora de fin — permite cruzar medianoche */}
+            <div>
+              <label style={{ fontSize: 13, color: "var(--cWhiteV2)", display: "block", marginBottom: 6 }}>
+                Duración de la asamblea <span style={{ color: "var(--cError)" }}>*</span>
+              </label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                <Input
+                  type="number"
+                  name="duration_hours"
+                  label="Horas"
+                  value={formState.duration_hours}
+                  onChange={handleChange}
+                  error={errors}
+                  min={0}
+                  max={23}
+                  required
+                />
+                <Input
+                  type="number"
+                  name="duration_minutes"
+                  label="Min"
+                  value={formState.duration_minutes}
+                  onChange={handleChange}
+                  error={errors}
+                  min={0}
+                  max={59}
+                />
+              </div>
+              {formState.start_time && (formState.duration_hours || formState.duration_minutes) && (
+                <p style={{ fontSize: 12, color: "var(--cWhiteV2)", marginTop: 4 }}>
+                  ⏱ Finalizaría aprox. a las{" "}
+                  {(() => {
+                    const [sh, sm] = formState.start_time.split(":").map(Number);
+                    const total = sh * 60 + sm + (Number(formState.duration_hours || 0) * 60) + Number(formState.duration_minutes || 0);
+                    const h = Math.floor((total % (24 * 60)) / 60);
+                    const m = total % 60;
+                    const nextDay = total >= 24 * 60;
+                    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}${nextDay ? " (día siguiente)" : ""}`;
+                  })()}
+                </p>
+              )}
+            </div>
           </div>
 
           <h3 className={styles.sectionTitle}>
@@ -619,6 +676,8 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               value={formState.quorum_required}
               onChange={handleChange}
               error={errors}
+              min={0}
+              max={100}
               required
             />
           </div>

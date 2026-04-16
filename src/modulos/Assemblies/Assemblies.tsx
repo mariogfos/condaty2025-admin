@@ -40,6 +40,13 @@ const Assemblies = () => {
     paramsInitial,
     mod,
     fields,
+    // P.21b: Si se selecciona "Todos" (ALL) o vacío, no enviar el filtro al API
+    getFilter: (opt: string, value: string, oldFilter: any) => ({
+      filterBy: {
+        ...oldFilter.filterBy,
+        [opt]: value === "ALL" || value === "" ? "" : value,
+      },
+    }),
   });
 
   // Assign the real functions to the refs

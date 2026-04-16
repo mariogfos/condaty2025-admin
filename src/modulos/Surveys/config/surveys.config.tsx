@@ -23,6 +23,7 @@ export const getSurveyConfig = (
     modulo: "surveys",
     singular: "Encuesta",
     plural: "Encuestas",
+    titleAdd: "Crear",
     saveMsg: {
       add: "Encuesta creada con éxito",
       edit: "Encuesta actualizada con éxito",

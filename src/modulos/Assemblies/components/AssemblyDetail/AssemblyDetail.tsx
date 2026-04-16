@@ -677,6 +677,11 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               assemblyId={String(assembly.id)}
               refreshKey={attendanceRefreshKey}
               readOnly={isFinished}
+              onAttendanceChange={() => {
+                // P.23: Actualizar stats al eliminar asistente sin recargar toda la página
+                setAttendanceRefreshKey((prev) => prev + 1);
+                fetchAssemblyStats(id).then((s) => { if (s) setStats(s); });
+              }}
             />
           </Card>
         </div>
@@ -768,6 +773,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
         open={isRegisteringParticipant}
         onClose={() => setIsRegisteringParticipant(false)}
         assemblyId={String(id)}
+        assemblyModality={assembly?.modality as "P" | "V" | "H"}
         onSuccess={() => {
           setAttendanceRefreshKey((prev) => prev + 1);
           // Opcionalmente recargar stats si es necesario
