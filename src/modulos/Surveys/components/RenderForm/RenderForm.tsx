@@ -307,12 +307,12 @@ const RenderForm = ({
               <div className={styles.subtitleFormLv2}>
                 {formState.description}
               </div>
-              {formState.scheduled_at && formState.expires_at && (
+              {/* {formState.scheduled_at && formState.expires_at && (
                 <div className={styles.titleDate}>
                   📅 Programada: {getDateTimeStrMes(formState.scheduled_at)}{" "}
                   — {getDateTimeStrMes(formState.expires_at)}
                 </div>
-              )}
+              )} */}
             </section>
             <div className={styles.questionsSection}>
               <SurveyList formState={formState} setFormState={setFormState} />

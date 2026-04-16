@@ -40,9 +40,8 @@ export const getSurveyConfig = (
     permiso: "surveys",
     onHideActions: (item: any) => {
       return {
-        hideDel: item.status == SURVEY_STATUSES.CLOSED || item.total_voters > 0,
-        hideEdit:
-          item.status == SURVEY_STATUSES.CLOSED || item.total_voters > 0,
+        hideDel: ["C", "X"].includes(item.status) || item.total_voters > 0,
+        hideEdit: ["C", "X"].includes(item.status) || item.total_voters > 0,
       };
     },
     search: true,
