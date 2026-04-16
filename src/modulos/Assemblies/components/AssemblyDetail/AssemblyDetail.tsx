@@ -15,7 +15,9 @@ import {
   Assembly,
   AssemblySurvey,
   AssemblyStats,
+  AssemblyStatus,
 } from "../../types/assemblies.types";
+import { SurveyStatus } from "@/modulos/Surveys/types/surveys.types";
 import {
   IconEdit,
   IconAdd,
@@ -40,6 +42,8 @@ import AssemblyAttendanceForm from "../AssemblyAttendanceForm/AssemblyAttendance
 import AssemblyAttendanceList from "../AssemblyAttendanceList/AssemblyAttendanceList";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
+import useInstantMsg from "@/mk/hooks/useInstantMsg";
+import { useEvent } from "@/mk/hooks/useEvents";
 
 const normalizeUrls = (value: any): string[] => {
   if (!value) return [];
@@ -100,6 +104,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
   const { isMobile } = useScreenSize();
   const { showToast } = useAuth();
+  const { notifySegmented, notifyAll } = useInstantMsg();
 
   // Accordion states
   const [showDetails, setShowDetails] = useState(true);
@@ -126,8 +131,15 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     loadAssembly();
   }, [id, fetchAssemblyDetail, fetchAssemblyStats]);
 
-  const canEditBasicInfo = assembly?.status === "S";
-  const isFinished = assembly?.status === "C";
+  useEvent("assembly:status", loadAssembly);
+  useEvent("attendance-registered", () => {
+    setAttendanceRefreshKey((prev) => prev + 1);
+    loadAssembly();
+  });
+  useEvent("survey-stats", loadAssembly);
+
+  const canEditBasicInfo = assembly?.status === AssemblyStatus.Scheduled;
+  const isFinished = assembly?.status === AssemblyStatus.Completed;
 
   const handleEditDescription = () => {
     if (!canEditBasicInfo) return;
@@ -186,6 +198,29 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       if (data?.success || (data && !data.error)) {
         showToast("Estado actualizado correctamente", "success");
         loadAssembly();
+
+        const survey = assembly?.surveys?.find((s: any) => s.id == surveyId);
+        const oldStatus = survey?.status;
+        const isResuming = oldStatus === SurveyStatus.Paused && status === SurveyStatus.Active;
+        
+        if (status === SurveyStatus.Active && !isResuming) {
+          notifyAll("new-survey", {
+            id: surveyId,
+            title: survey?.title || "Nueva votación activa",
+            act: "new-survey",
+            source: "assembly",
+            is_mandatory: survey?.is_mandatory === "Y" || survey?.is_mandatory === true,
+          });
+        } else {
+          notifyAll("survey-status-change", {
+            id: surveyId,
+            status: status,
+            title: survey?.title || "Actualización de votación",
+            act: "survey-status-change",
+            source: "assembly",
+            is_mandatory: false,
+          });
+        }
       }
     } catch (e) {
       showToast("Error al actualizar el estado", "error");
@@ -215,6 +250,34 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       );
     }
   };
+
+  const [isFinishing, setIsFinishing] = React.useState(false);
+
+  const handleFinishAssembly = async () => {
+    if (isFinished || assembly?.status !== AssemblyStatus.InProgress) return;
+    if (!confirm("¿Estás seguro de que deseas finalizar esta asamblea? Esta acción no se puede deshacer.")) return;
+    setIsFinishing(true);
+    try {
+      const { data } = await execute(`/assemblies/${assembly.id}/status`, "PATCH", { status: AssemblyStatus.Completed });
+      if (data?.success || (data && !data.error)) {
+        showToast("Asamblea finalizada correctamente", "success");
+        loadAssembly();
+        // Notificar a todos (owners + admins) que la asamblea finalizó
+        notifyAll("assembly-status-change", {
+          id: assembly.id,
+          status: AssemblyStatus.Completed,
+          subject: assembly.subject,
+          act: "assembly-status-change",
+          source: "assembly",
+        });
+      }
+    } catch (e: any) {
+      showToast(e?.response?.data?.message || "Error al finalizar la asamblea", "error");
+    } finally {
+      setIsFinishing(false);
+    }
+  };
+
 
   if (loading && !assembly)
     return <div className={styles.container}>Cargando...</div>;
@@ -246,14 +309,36 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="ASUNTO"
             titleRight={
-              <StatusBadge
-                color={statusStyle.color}
-                backgroundColor={statusStyle.backgroundColor}
-                style={{ fontSize: 10 }}
-                containerStyle={{ width: "auto" }}
-              >
-                {API_STATUS_LABELS[assembly.status] || assembly.status}
-              </StatusBadge>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {assembly.status === AssemblyStatus.InProgress && (
+                  <button
+                    onClick={handleFinishAssembly}
+                    disabled={isFinishing}
+                    style={{
+                      padding: "4px 12px",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      borderRadius: 6,
+                      border: "none",
+                      cursor: isFinishing ? "not-allowed" : "pointer",
+                      backgroundColor: "#dc2626",
+                      color: "#fff",
+                      opacity: isFinishing ? 0.6 : 1,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {isFinishing ? "Finalizando..." : "Finalizar"}
+                  </button>
+                )}
+                <StatusBadge
+                  color={statusStyle.color}
+                  backgroundColor={statusStyle.backgroundColor}
+                  style={{ fontSize: 10 }}
+                  containerStyle={{ width: "auto" }}
+                >
+                  {API_STATUS_LABELS[assembly.status] || assembly.status}
+                </StatusBadge>
+              </div>
             }
             openable={false}
             variant="v2"

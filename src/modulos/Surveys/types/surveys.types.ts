@@ -1,4 +1,11 @@
-export type SurveyStatus = "D" | "S" | "A" | "P" | "C" | "X"; // Borrador, Programada, Activa, Pausada, Cerrada, Deshabilitada
+export enum SurveyStatus {
+  Draft = "D",
+  Scheduled = "S",
+  Active = "A",
+  Paused = "P",
+  Closed = "C",
+  Disabled = "X",
+}
 export type QuestionType = "S" | "M" | "E" | "T"; // Single, Multiple, Scale, Text
 
 export interface TargetCriteria {

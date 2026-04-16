@@ -8,34 +8,36 @@ import ScheduleSurveyModal from "./ScheduleSurveyModal";
 import useInstantMsg from "@/mk/hooks/useInstantMsg";
 import { CSSProperties } from "react";
 
+import { SurveyStatus } from "@/modulos/Surveys/types/surveys.types";
+
 type StatusAction = {
   label: string;
-  targetStatus: string;
+  targetStatus: SurveyStatus;
   variant?: "primary" | "secondary" | "terciary" | "danger";
   /** If true, intercept click and show the ScheduleSurveyModal before calling API */
   needsDates?: boolean;
 };
 
 const STATUS_ACTIONS: Record<string, StatusAction[]> = {
-  D: [
-    { label: "Publicar ahora", targetStatus: "A", variant: "primary" },
-    { label: "Programar", targetStatus: "S", variant: "secondary", needsDates: true },
+  [SurveyStatus.Draft]: [
+    { label: "Publicar ahora", targetStatus: SurveyStatus.Active, variant: "primary" },
+    { label: "Programar", targetStatus: SurveyStatus.Scheduled, variant: "secondary", needsDates: true },
   ],
-  A: [
-    { label: "Pausar", targetStatus: "P", variant: "secondary" },
-    { label: "Cerrar encuesta", targetStatus: "C", variant: "danger" },
+  [SurveyStatus.Active]: [
+    { label: "Pausar", targetStatus: SurveyStatus.Paused, variant: "secondary" },
+    { label: "Cerrar encuesta", targetStatus: SurveyStatus.Closed, variant: "danger" },
   ],
-  P: [
-    { label: "Reanudar", targetStatus: "A", variant: "primary" },
-    { label: "Cerrar encuesta", targetStatus: "C", variant: "danger" },
+  [SurveyStatus.Paused]: [
+    { label: "Reanudar", targetStatus: SurveyStatus.Active, variant: "primary" },
+    { label: "Cerrar encuesta", targetStatus: SurveyStatus.Closed, variant: "danger" },
   ],
-  S: [
-    { label: "Publicar ya", targetStatus: "A", variant: "primary" },
-    { label: "Editar programación", targetStatus: "S", variant: "secondary", needsDates: true },
-    { label: "Volver a borrador", targetStatus: "D", variant: "terciary" },
+  [SurveyStatus.Scheduled]: [
+    { label: "Publicar ya", targetStatus: SurveyStatus.Active, variant: "primary" },
+    { label: "Editar programación", targetStatus: SurveyStatus.Scheduled, variant: "secondary", needsDates: true },
+    { label: "Volver a borrador", targetStatus: SurveyStatus.Draft, variant: "terciary" },
   ],
-  C: [],
-  X: [],
+  [SurveyStatus.Closed]: [],
+  [SurveyStatus.Disabled]: [],
 };
 
 type Props = {
@@ -57,7 +59,7 @@ export default function SurveyStatusActions({
 }: Props) {
   const { execute } = useAxios();
   const { showToast } = useAuth();
-  const { notifySegmented } = useInstantMsg();
+  const { notifySegmented, notifyAll } = useInstantMsg();
   const [loading, setLoading] = useState<string | null>(null);
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
@@ -140,15 +142,23 @@ export default function SurveyStatusActions({
         onStatusChanged(data.data);
 
         // Smart notify: resolveChannel picks the right channel automatically.
-        // Single group → specific channel (e.g. "owners"). Multi-group → "all".
-        // Result: exactly 1 DB write regardless of how many groups are targeted.
-        if (targetStatus === "A") {
-          notifySegmented("new-survey", {
+        const isResuming = currentStatus === SurveyStatus.Paused && targetStatus === SurveyStatus.Active;
+
+        if (targetStatus === SurveyStatus.Active && !isResuming) {
+          notifyAll("new-survey", {
             id: surveyId,
             title: surveyData?.title || "Nueva encuesta disponible",
             act: "new-survey",
             is_mandatory: surveyData?.is_mandatory === "Y" || surveyData?.is_mandatory === true,
-          }, surveyData?.target_criteria);
+          });
+        } else {
+          notifyAll("survey-status-change", {
+            id: surveyId,
+            status: targetStatus,
+            title: surveyData?.title || "Actualización de encuesta",
+            act: "survey-status-change",
+            is_mandatory: false,
+          });
         }
       }
     } catch (e: any) {

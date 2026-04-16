@@ -16,6 +16,9 @@ export interface CustomWindowEventMap extends WindowEventMap {
   /* Module-scoped events (dispatched by notifications.ts in each module) */
   "survey:new": AppEvent<any>;
   "survey:closed": AppEvent<any>;
+  "assembly:status": AppEvent<any>;
+  "attendance-registered": AppEvent<any>;
+  "survey-stats": AppEvent<any>;
 }
 
 export const useEvent = <PayloadType = unknown,>(
