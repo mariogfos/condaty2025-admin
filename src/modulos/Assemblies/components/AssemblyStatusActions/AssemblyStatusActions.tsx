@@ -12,10 +12,10 @@ interface AssemblyStatusActionsProps {
 }
 
 const STATUS_FLOW: Record<AssemblyStatus, AssemblyStatus[]> = {
-  S: ["P", "X"], // Scheduled -> InProgress or Cancelled
-  P: ["C", "X"], // InProgress -> Completed or Cancelled
-  C: ["S"],      // Completed -> Scheduled (reabrir)
-  X: ["S"],     // Cancelled -> Scheduled (reabrir)
+  [AssemblyStatus.Scheduled]: [AssemblyStatus.InProgress, AssemblyStatus.Cancelled],
+  [AssemblyStatus.InProgress]: [AssemblyStatus.Completed, AssemblyStatus.Cancelled],
+  [AssemblyStatus.Completed]: [AssemblyStatus.Scheduled],
+  [AssemblyStatus.Cancelled]: [AssemblyStatus.Scheduled],
 };
 
 const AssemblyStatusActions: React.FC<AssemblyStatusActionsProps> = ({
@@ -71,10 +71,10 @@ const AssemblyStatusActions: React.FC<AssemblyStatusActionsProps> = ({
             onClick={() => handleStatusChange(status)}
             disabled={isLoading}
           >
-            {status === "P" && "Iniciar"}
-            {status === "C" && "Completar"}
-            {status === "X" && "Cancelar"}
-            {status === "S" && "Reagendar"}
+            {status === AssemblyStatus.InProgress && "Iniciar"}
+            {status === AssemblyStatus.Completed && "Completar"}
+            {status === AssemblyStatus.Cancelled && "Cancelar"}
+            {status === AssemblyStatus.Scheduled && "Reagendar"}
           </Button>
         ))}
       </div>
