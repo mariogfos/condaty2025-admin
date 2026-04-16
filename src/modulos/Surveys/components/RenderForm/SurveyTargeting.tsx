@@ -238,7 +238,13 @@ export default function SurveyTargeting({
             optionLabel="name"
             onChange={handleRolesChange}
             multiSelect
+            error={errors}
           />
+          {errors?.target_criteria && (
+            <p style={{ color: "var(--cError, #ef4444)", fontSize: "0.78rem", marginTop: 4 }}>
+              {errors.target_criteria}
+            </p>
+          )}
         </div>
         <div className={styles.audienceBadge}>
           Alcance estimado: {formatNumber(affCount || 0, 0)} personas
@@ -345,12 +351,18 @@ export default function SurveyTargeting({
             name="switch"
             optionValue={["Y", "N"]}
             value={formState.switch || "N"}
-            onChange={(e: any) =>
+            onChange={(e: any) => {
+              const isActivating = e.target.checked;
+              // P.24: Pre-rellenar con hora futura si no hay fecha programada
+              const nowPlus5 = new Date(Date.now() + 5 * 60 * 1000);
+              const pad = (n: number) => String(n).padStart(2, "0");
+              const defaultScheduled = `${nowPlus5.getFullYear()}-${pad(nowPlus5.getMonth() + 1)}-${pad(nowPlus5.getDate())}T${pad(nowPlus5.getHours())}:${pad(nowPlus5.getMinutes())}`;
               setFormState({
                 ...formState,
-                switch: e.target.checked ? "Y" : "N",
-              })
-            }
+                switch: isActivating ? "Y" : "N",
+                scheduled_at: isActivating && !formState.scheduled_at ? defaultScheduled : formState.scheduled_at,
+              });
+            }}
           />
           <div className={styles.switchText}>
             <p className={styles.title}>Programar encuesta</p>
