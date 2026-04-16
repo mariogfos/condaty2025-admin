@@ -2,7 +2,10 @@
 import { useEffect, useRef, useState } from "react";
 import ControlLabel, { PropsTypeInputBase } from "../ControlLabel";
 import styles from "./input.module.css";
-import { IconCalendarTwo } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconCalendarTwo,
+  IconClock,
+} from "@/components/layout/icons/IconsBiblioteca";
 
 interface PropsType extends PropsTypeInputBase {
   type?:
@@ -54,7 +57,7 @@ const Input = (props: PropsType) => {
   const cursorPositionRef = useRef<number | null>(null);
 
   const formatForDisplayWhileTyping = (
-    val: string | number | undefined
+    val: string | number | undefined,
   ): string => {
     if (val === undefined || val === null || String(val).trim() === "")
       return "";
@@ -125,7 +128,7 @@ const Input = (props: PropsType) => {
     ) {
       inputRef.current.setSelectionRange(
         cursorPositionRef.current,
-        cursorPositionRef.current
+        cursorPositionRef.current,
       );
       cursorPositionRef.current = null;
     }
@@ -282,7 +285,7 @@ const Input = (props: PropsType) => {
       styleInput={styleInput}
       className={`${styles.input} ${className} ${
         disabled ? styles.disabled : ""
-      } ${type === "date" ? styles.labelSmall : ""}
+      } ${type === "date" || type === "time" ? styles.labelSmall : ""}
       }`}
     >
       <input
@@ -309,6 +312,9 @@ const Input = (props: PropsType) => {
       />
       {type === "date" && (
         <IconCalendarTwo className={styles.iconCalendar} size={18} />
+      )}
+      {type === "time" && (
+        <IconClock className={styles.iconCalendar} size={18} />
       )}
     </ControlLabel>
   );

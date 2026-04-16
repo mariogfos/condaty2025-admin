@@ -88,7 +88,10 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   const [errors, setErrors] = useState<any>({});
 
   // P.1: Calcula la duración en horas y minutos a partir de start_time y end_time
-  const calcDuration = (start: string, end: string): { hours: string; minutes: string } => {
+  const calcDuration = (
+    start: string,
+    end: string,
+  ): { hours: string; minutes: string } => {
     if (!start || !end) return { hours: "", minutes: "" };
     const [sh, sm] = start.split(":").map(Number);
     let [eh, em] = end.split(":").map(Number);
@@ -103,7 +106,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   const initialState = useMemo(() => {
     const start = splitDateTime(item?.start_time);
     const end = splitDateTime(item?.end_time);
-    const dur = item?.id ? calcDuration(start.time, end.time) : { hours: "", minutes: "00" };
+    const dur = item?.id
+      ? calcDuration(start.time, end.time)
+      : { hours: "", minutes: "00" };
 
     return {
       id: item?.id,
@@ -211,7 +216,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
 
     // P.2: Validar que la fecha+hora completa no sea pasada
     if (formState.start_date && formState.start_time) {
-      const startFull = new Date(`${formState.start_date}T${formState.start_time}`);
+      const startFull = new Date(
+        `${formState.start_date}T${formState.start_time}`,
+      );
       if (startFull < new Date()) {
         newErrors.start_time = "La fecha y hora de inicio no puede ser pasada";
       }
@@ -280,15 +287,22 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
     const calcEndTimeFromDuration = () => {
       if (!formState.start_date || !formState.start_time) return "";
       const [sh, sm] = formState.start_time.split(":").map(Number);
-      const durationMins = Number(formState.duration_hours || 0) * 60 + Number(formState.duration_minutes || 0);
+      const durationMins =
+        Number(formState.duration_hours || 0) * 60 +
+        Number(formState.duration_minutes || 0);
       const endTotalMins = sh * 60 + sm + durationMins;
-      const endDay = endTotalMins >= 24 * 60
-        ? new Date(new Date(`${formState.start_date}T00:00:00`).getTime() + 24 * 60 * 60 * 1000)
-            .toISOString().split("T")[0]
-        : formState.start_date;
+      const endDay =
+        endTotalMins >= 24 * 60
+          ? new Date(
+              new Date(`${formState.start_date}T00:00:00`).getTime() +
+                24 * 60 * 60 * 1000,
+            )
+              .toISOString()
+              .split("T")[0]
+          : formState.start_date;
       const h = Math.floor((endTotalMins % (24 * 60)) / 60);
       const m = endTotalMins % 60;
-      return `${endDay}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+      return `${endDay}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
     };
 
     const payload = {
@@ -509,14 +523,20 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
 
             {/* P.1: Duración en lugar de hora de fin — permite cruzar medianoche */}
             <div>
-              <label style={{ fontSize: 13, color: "var(--cWhiteV2)", display: "block", marginBottom: 6 }}>
+              {/* <label style={{ fontSize: 13, color: "var(--cWhiteV2)", display: "block", marginBottom: 6 }}>
                 Duración de la asamblea <span style={{ color: "var(--cError)" }}>*</span>
-              </label>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              </label> */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 8,
+                }}
+              >
                 <Input
                   type="number"
                   name="duration_hours"
-                  label="Horas"
+                  label="Duración en Horas"
                   value={formState.duration_hours}
                   onChange={handleChange}
                   error={errors}
@@ -527,7 +547,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
                 <Input
                   type="number"
                   name="duration_minutes"
-                  label="Min"
+                  label="Minutos"
                   value={formState.duration_minutes}
                   onChange={handleChange}
                   error={errors}
@@ -535,19 +555,32 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
                   max={59}
                 />
               </div>
-              {formState.start_time && (formState.duration_hours || formState.duration_minutes) && (
-                <p style={{ fontSize: 12, color: "var(--cWhiteV2)", marginTop: 4 }}>
-                  ⏱ Finalizaría aprox. a las{" "}
-                  {(() => {
-                    const [sh, sm] = formState.start_time.split(":").map(Number);
-                    const total = sh * 60 + sm + (Number(formState.duration_hours || 0) * 60) + Number(formState.duration_minutes || 0);
-                    const h = Math.floor((total % (24 * 60)) / 60);
-                    const m = total % 60;
-                    const nextDay = total >= 24 * 60;
-                    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}${nextDay ? " (día siguiente)" : ""}`;
-                  })()}
-                </p>
-              )}
+              {formState.start_time &&
+                (formState.duration_hours || formState.duration_minutes) && (
+                  <p
+                    style={{
+                      fontSize: 12,
+                      color: "var(--cWhiteV2)",
+                      marginTop: 4,
+                    }}
+                  >
+                    ⏱ Finalizaría aprox. a las{" "}
+                    {(() => {
+                      const [sh, sm] = formState.start_time
+                        .split(":")
+                        .map(Number);
+                      const total =
+                        sh * 60 +
+                        sm +
+                        Number(formState.duration_hours || 0) * 60 +
+                        Number(formState.duration_minutes || 0);
+                      const h = Math.floor((total % (24 * 60)) / 60);
+                      const m = total % 60;
+                      const nextDay = total >= 24 * 60;
+                      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}${nextDay ? " (día siguiente)" : ""}`;
+                    })()}
+                  </p>
+                )}
             </div>
           </div>
 
