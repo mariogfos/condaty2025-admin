@@ -259,6 +259,18 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       newErrors.quorum_required = "El quórum debe ser entre 0 y 100";
     }
 
+    // P.23: Validar duración máxima de 12 horas (720 min)
+    const totalDurationMins =
+      Number(formState.duration_hours || 0) * 60 +
+      Number(formState.duration_minutes || 0);
+
+    if (totalDurationMins > 12 * 60) {
+      newErrors.duration_hours = "La duración no puede exceder las 12 horas";
+    }
+    if (totalDurationMins <= 0) {
+      newErrors.duration_hours = "La duración debe ser mayor a 0";
+    }
+
     setErrors(newErrors);
     return newErrors;
   };
