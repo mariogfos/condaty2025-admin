@@ -84,7 +84,8 @@ export const useInstantMsg = () => {
         fullChannel = `${prefix}${clientId}-${channel}`;
       }
 
-      console.log(`Broadcasting to ${fullChannel}:`, { event, payload, criteria });
+      console.log(`[useInstantMsg] Broadcasting to ${fullChannel}:`, { event, payload, criteria });
+      console.log(`[useInstantMsg] ID INSTANT_DB:`, process.env.NEXT_PUBLIC_INSTANTDB_APP_ID);
 
       const updateData: any = {
         from: `ADM-${user?.id || "system"}`,
@@ -108,8 +109,9 @@ export const useInstantMsg = () => {
       }
 
       await db.transact(db.tx.notif[id()].update(updateData));
+      console.log("[useInstantMsg] Transact enviado existosamente!");
     } catch (error) {
-      console.error("Error sending instant message:", error);
+      console.error("[useInstantMsg] Error sending instant message:", error);
     }
   };
 

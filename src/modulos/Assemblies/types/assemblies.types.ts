@@ -2,10 +2,30 @@
  * Tipos para el módulo de Asambleas
  */
 
-export type AssemblyStatus = "S" | "P" | "C" | "X"; // Scheduled, InProgress, Completed, Cancelled
-export type AssemblyType = "O" | "E" | "I"; // Ordinary, Extraordinary, Informative
-export type AssemblyModality = "V" | "P" | "H"; // Virtual, Presencial, Hybrid
-export type TargetAudience = "all_owners" | "residents" | "dependents";
+export enum AssemblyStatus {
+  Scheduled = "S",
+  InProgress = "P",
+  Completed = "C",
+  Cancelled = "X",
+}
+
+export enum AssemblyType {
+  Ordinary = "O",
+  Extraordinary = "E",
+  Informative = "I",
+}
+
+export enum AssemblyModality {
+  Virtual = "V",
+  Presencial = "P",
+  Hibrid = "H",
+}
+
+export enum TargetAudience {
+  AllOwners = "all_owners",
+  Residents = "residents",
+  Dependents = "dependents",
+}
 
 export interface Assembly {
   id: number;
@@ -41,6 +61,7 @@ export interface AssemblySurvey {
   title: string;
   status: string;
   order?: number;
+  is_mandatory?: boolean | string;
 }
 
 export interface AssemblyAttendance {
