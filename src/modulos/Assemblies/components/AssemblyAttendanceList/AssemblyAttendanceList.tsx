@@ -92,7 +92,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
     return modality === "P" ? "Presencial" : "Virtual";
   };
 
-  console.log("attendances", attendances);
+  // console.log("attendances", attendances);
   const inPersonCount = attendances?.filter(
     (a) => a.modality_type === "P",
   ).length;
@@ -126,59 +126,59 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
         <div className={styles.empty}>No hay asistentes registrados aún.</div>
       ) : (
         <div className={styles.list}>
-          {isMobile ? (
-            <div className={styles.cardsContainer}>
-              {attendances.map((attendance) => (
-                <div key={attendance.id} className={styles.attendanceCard}>
-                  <div className={styles.cardHeader}>
-                    <Avatar
-                      src={attendance.owner?.url_avatar}
-                      name={`${attendance.owner?.name} ${attendance.owner?.last_name || ""}`}
-                      w={40}
-                      h={40}
-                    />
-                    <div className={styles.cardMainInfo}>
-                      <span className={styles.cardName}>
-                        {attendance.owner
-                          ? `${attendance.owner.name} ${attendance.owner.last_name || ""}`
-                          : "Desconocido"}
-                      </span>
-                      <span className={styles.cardSub}>
-                        Unidad {attendance.dpto?.nro || "-"} | CI:{" "}
-                        {attendance.owner?.ci || "-"}
-                      </span>
-                    </div>
-                    {!readOnly && (
-                      <button
-                        className={styles.deleteBtn}
-                        onClick={() => handleDelete(attendance.id)}
-                        title="Eliminar asistencia"
-                      >
-                        <IconTrash size={18} />
-                      </button>
-                    )}
-                  </div>
-                  <div className={styles.cardFooter}>
-                    <div className={styles.cardBadgeContainer}>
-                      <span className={styles.cardRole}>
-                        {ROLE_LABELS[attendance.role as string] ||
-                          attendance.role ||
-                          "-"}
-                      </span>
-                      <span
-                        className={`${styles.modalityBadge} ${attendance.modality_type === "P" ? styles.inPerson : styles.virtual}`}
-                      >
-                        {getModalityLabel(attendance.modality_type)}
-                      </span>
-                    </div>
-                    <span className={styles.cardTime}>
-                      {formatOnlyTime(attendance.joined_at)}
+          {/* {isMobile ? ( */}
+          <div className={styles.cardsContainer}>
+            {attendances.map((attendance) => (
+              <div key={attendance.id} className={styles.attendanceCard}>
+                <div className={styles.cardHeader}>
+                  <Avatar
+                    src={attendance.owner?.url_avatar}
+                    name={`${attendance.owner?.name} ${attendance.owner?.last_name || ""}`}
+                    w={40}
+                    h={40}
+                  />
+                  <div className={styles.cardMainInfo}>
+                    <span className={styles.cardName}>
+                      {attendance.owner
+                        ? `${attendance.owner.name} ${attendance.owner.last_name || ""}`
+                        : "Desconocido"}
+                    </span>
+                    <span className={styles.cardSub}>
+                      Unidad {attendance.dpto?.nro || "-"} | CI:{" "}
+                      {attendance.owner?.ci || "-"}
                     </span>
                   </div>
+                  {!readOnly && (
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleDelete(attendance.id)}
+                      title="Eliminar asistencia"
+                    >
+                      <IconTrash size={18} />
+                    </button>
+                  )}
                 </div>
-              ))}
-            </div>
-          ) : (
+                <div className={styles.cardFooter}>
+                  <div className={styles.cardBadgeContainer}>
+                    <span className={styles.cardRole}>
+                      {ROLE_LABELS[attendance.role as string] ||
+                        attendance.role ||
+                        "-"}
+                    </span>
+                    <span
+                      className={`${styles.modalityBadge} ${attendance.modality_type === "P" ? styles.inPerson : styles.virtual}`}
+                    >
+                      {getModalityLabel(attendance.modality_type)}
+                    </span>
+                  </div>
+                  <span className={styles.cardTime}>
+                    {formatOnlyTime(attendance.joined_at)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* ) : (
             <table className={styles.table}>
               <thead>
                 <tr>
@@ -227,7 +227,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                 ))}
               </tbody>
             </table>
-          )}
+          )} */}
         </div>
       )}
     </div>

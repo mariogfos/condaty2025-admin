@@ -1,4 +1,5 @@
 import { ModuleNotifConfig } from "@/mk/notif/types";
+import { AssemblyStatus } from "./types/assemblies.types";
 
 /**
  * Assemblies Module — Notification Config (condaty-admin)
@@ -19,8 +20,10 @@ export const assemblyNotifications: ModuleNotifConfig = {
     "assembly-status-change": ({ payload, showToast, dispatch }) => {
       const subject = payload?.subject || "Asamblea";
       let msg = `📋 ${subject} actualizada`;
-      if (payload?.status === "C") msg = `✅ ${subject} finalizada`;
-      if (payload?.status === "A") msg = `▶️ ${subject} en progreso`;
+      if (payload?.status === AssemblyStatus.Completed)
+        msg = `✅ ${subject} finalizada`;
+      if (payload?.status === AssemblyStatus.InProgress)
+        msg = `▶️ ${subject} en progreso`;
 
       showToast(msg, "info");
 
