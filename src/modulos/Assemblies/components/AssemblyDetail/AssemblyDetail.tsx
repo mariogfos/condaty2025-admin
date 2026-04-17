@@ -299,9 +299,13 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     }
   };
 
+  if (loading && !assembly) {
+    return <div className={styles.container}>Cargando...</div>;
+  }
+
   if (!assembly) {
     if (error) return <div className={styles.container}>Error: {error}</div>;
-    return <div className={styles.container}>Cargando...</div>;
+    return <div className={styles.container}>No se encontró la asamblea</div>;
   }
 
   const statusStyle = STATUS_STYLE[assembly.status] || {
