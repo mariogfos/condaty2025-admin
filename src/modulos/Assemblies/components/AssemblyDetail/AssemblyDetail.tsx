@@ -129,7 +129,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
 
   useEffect(() => {
     loadAssembly();
-  }, [id, fetchAssemblyDetail, fetchAssemblyStats]);
+  }, [id]);
 
   useEvent("assembly:status", loadAssembly);
   useEvent("attendance-registered", () => {
@@ -279,11 +279,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   };
 
 
-  if (loading && !assembly)
+  if (!assembly) {
+    if (error) return <div className={styles.container}>Error: {error}</div>;
     return <div className={styles.container}>Cargando...</div>;
-  if (error) return <div className={styles.container}>Error: {error}</div>;
-  if (!assembly)
-    return <div className={styles.container}>No se encontró la asamblea</div>;
+  }
 
   const statusStyle = STATUS_STYLE[assembly.status] || {
     color: "#fff",
