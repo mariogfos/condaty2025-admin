@@ -280,15 +280,20 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
     }
 
     // P.23: Validar duración máxima de 12 horas (720 min)
-    const totalDurationMins =
-      Number(formState.duration_hours || 0) * 60 +
-      Number(formState.duration_minutes || 0);
+    if (
+      formState.duration_hours ||
+      (formState.duration_minutes && Number(formState.duration_minutes) > 0)
+    ) {
+      const totalDurationMins =
+        Number(formState.duration_hours || 0) * 60 +
+        Number(formState.duration_minutes || 0);
 
-    if (totalDurationMins > 12 * 60) {
-      newErrors.duration_hours = "La duración no puede exceder las 12 horas";
-    }
-    if (totalDurationMins <= 0) {
-      newErrors.duration_hours = "La duración debe ser mayor a 0";
+      if (totalDurationMins > 12 * 60) {
+        newErrors.duration_hours = "La duración no puede exceder las 12 horas";
+      }
+      if (totalDurationMins <= 0) {
+        newErrors.duration_hours = "La duración debe ser mayor a 0";
+      }
     }
 
     setErrors(newErrors);
@@ -595,7 +600,6 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
                   error={errors}
                   min={0}
                   max={23}
-                  required
                 />
                 <Input
                   type="number"
