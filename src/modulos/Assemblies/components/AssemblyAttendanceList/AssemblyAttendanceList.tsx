@@ -92,7 +92,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
     return modality === "P" ? "Presencial" : "Virtual";
   };
 
-  console.log("attendances", attendances);
+  // console.log("attendances", attendances);
   const inPersonCount = attendances?.filter(
     (a) => a.modality_type === "P",
   ).length;
