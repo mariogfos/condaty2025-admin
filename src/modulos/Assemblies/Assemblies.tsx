@@ -70,7 +70,7 @@ const Assemblies = () => {
 
   return (
     <div className={styles.assemblies}>
-      <h1 className={styles.title}>Asambleas</h1>
+      <h1 className={styles.title}>{mod.plural}</h1>
 
       <div className={styles.statsRow}>
         <WidgetDashCard
@@ -107,6 +107,7 @@ const Assemblies = () => {
 
       <div className={styles.listContainer}>
         <List
+          title={""}
           height={"calc(100vh - 420px)"}
           emptyMsg="Lista vacía. Cuando registres asambleas"
           emptyLine2="las verás aquí."
