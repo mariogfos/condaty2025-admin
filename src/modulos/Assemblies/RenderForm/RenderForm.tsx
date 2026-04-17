@@ -19,8 +19,8 @@ const TYPE_OPTIONS = [
 ];
 
 const MODALITY_OPTIONS = [
-  { id: "V", name: "Virtual" },
   { id: "P", name: "Presencial" },
+  { id: "V", name: "Virtual" },
   { id: "H", name: "Híbrida" },
 ];
 
@@ -120,7 +120,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       // P.1: Duración en lugar de hora de fin directa
       duration_hours: dur.hours,
       duration_minutes: dur.minutes,
-      modality: item?.modality || "V", // V=Virtual por defecto
+      modality: item?.modality || "P", // P=Presencial por defecto
       meeting_url: item?.meeting_url || "",
       address: item?.address || item?.physical_address || "",
       address_url: item?.address_url || "",
@@ -132,7 +132,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
         ? item.target_audience
         : item?.target_audience
           ? String(item.target_audience).split(",")
-          : ["owners"],
+          : TARGET_AUDIENCE_OPTIONS.map((o) => o.id),
     };
   }, [item]);
 
@@ -151,11 +151,36 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
 
   const toggleTargetAudience = (id: string) => {
     setFormState((prev: any) => {
-      const current = prev.target_audience || [];
-      const next = current.includes(id)
-        ? current.filter((item: string) => item !== id)
-        : [...current, id];
-      return { ...prev, target_audience: next };
+      let current = prev.target_audience || [];
+      const isSelecting = !current.includes(id);
+
+      if (isSelecting) {
+        current = [...current, id];
+        // Jerarquía: Al seleccionar dependiente, se debe seleccionar al titular
+        if (
+          id === "dependent_of_homeowner" &&
+          !current.includes("owner_homeowner")
+        ) {
+          current.push("owner_homeowner");
+        }
+        if (id === "dependent_of_tenant" && !current.includes("owner_tenant")) {
+          current.push("owner_tenant");
+        }
+      } else {
+        current = current.filter((item: string) => item !== id);
+        // Jerarquía: Al deseleccionar titular, se deselecciona al dependiente
+        if (id === "owner_homeowner") {
+          current = current.filter(
+            (item: string) => item !== "dependent_of_homeowner",
+          );
+        }
+        if (id === "owner_tenant") {
+          current = current.filter(
+            (item: string) => item !== "dependent_of_tenant",
+          );
+        }
+      }
+      return { ...prev, target_audience: current };
     });
   };
 
@@ -197,12 +222,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       key: "start_time",
       errors: newErrors,
     });
-    newErrors = checkRules({
-      value: formState.duration_hours,
-      rules: ["required"],
-      key: "duration_hours",
-      errors: newErrors,
-    });
+    // La duración ya no es obligatoria
     newErrors = checkRules({
       value: formState.modality,
       rules: ["required"],
@@ -292,8 +312,28 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
     }
   };
 
+  const validateStep3 = () => {
+    let newErrors: any = {};
+    if (!formState.target_audience || formState.target_audience.length === 0) {
+      newErrors.target_audience = "Debe seleccionar al menos una audiencia";
+    }
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const onSave = async () => {
-    if (hasErrors(validateStep2())) return;
+    if (hasErrors(validateStep1())) {
+      setLevel(1);
+      return;
+    }
+    if (hasErrors(validateStep2())) {
+      setLevel(2);
+      return;
+    }
+    if (hasErrors(validateStep3())) {
+      setLevel(3);
+      return;
+    }
 
     // P.1: Calcular end_time a partir de start_time + duración
     const calcEndTimeFromDuration = () => {
@@ -302,6 +342,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       const durationMins =
         Number(formState.duration_hours || 0) * 60 +
         Number(formState.duration_minutes || 0);
+
+      if (durationMins === 0) return "";
+
       const endTotalMins = sh * 60 + sm + durationMins;
       const endDay =
         endTotalMins >= 24 * 60
@@ -444,7 +487,15 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             <p className={styles.sectionSubtitle}>
               Define la información básica para identificar esta asamblea.
             </p>
-
+            <Select
+              name="type"
+              label="Tipo de asamblea"
+              value={formState.type}
+              options={TYPE_OPTIONS}
+              onChange={handleChange}
+              error={errors}
+              required
+            />
             <Input
               name="subject"
               label="Título o asunto"
@@ -463,16 +514,6 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               required
               isLimit
               maxLength={255}
-            />
-
-            <Select
-              name="type"
-              label="Tipo de asamblea"
-              value={formState.type}
-              options={TYPE_OPTIONS}
-              onChange={handleChange}
-              error={errors}
-              required
             />
           </section>
           <section className={styles.sectionCard}>
@@ -705,6 +746,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
                 />
               ))}
             </div>
+            {errors.target_audience && (
+              <p style={{ color: "var(--cError)", fontSize: 12, marginTop: 8 }}>
+                {errors.target_audience}
+              </p>
+            )}
           </div>
 
           <div

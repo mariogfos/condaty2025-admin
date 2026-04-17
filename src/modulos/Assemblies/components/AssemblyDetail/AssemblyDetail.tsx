@@ -44,6 +44,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
 import useInstantMsg from "@/mk/hooks/useInstantMsg";
 import { useEvent } from "@/mk/hooks/useEvents";
+import Button from "@/mk/components/forms/Button/Button";
 
 const normalizeUrls = (value: any): string[] => {
   if (!value) return [];
@@ -201,15 +202,17 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
 
         const survey = assembly?.surveys?.find((s: any) => s.id == surveyId);
         const oldStatus = survey?.status;
-        const isResuming = oldStatus === SurveyStatus.Paused && status === SurveyStatus.Active;
-        
+        const isResuming =
+          oldStatus === SurveyStatus.Paused && status === SurveyStatus.Active;
+
         if (status === SurveyStatus.Active && !isResuming) {
           notifyAll("new-survey", {
             id: surveyId,
             title: survey?.title || "Nueva votación activa",
             act: "new-survey",
             source: "assembly",
-            is_mandatory: survey?.is_mandatory === "Y" || survey?.is_mandatory === true,
+            is_mandatory:
+              survey?.is_mandatory === "Y" || survey?.is_mandatory === true,
           });
         } else {
           notifyAll("survey-status-change", {
@@ -253,31 +256,48 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
 
   const [isFinishing, setIsFinishing] = React.useState(false);
 
-  const handleFinishAssembly = async () => {
-    if (isFinished || assembly?.status !== AssemblyStatus.InProgress) return;
-    if (!confirm("¿Estás seguro de que deseas finalizar esta asamblea? Esta acción no se puede deshacer.")) return;
+  const handleFinishAssembly = async (status: AssemblyStatus) => {
+    if (!assembly) return;
+    if (isFinished || assembly?.status == status) return;
+    let statusLabel = "iniciar ahora";
+    if (status === AssemblyStatus.Completed) statusLabel = "finalizar";
+
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas ${statusLabel} esta asamblea? Esta acción no se puede deshacer.`,
+      )
+    )
+      return;
     setIsFinishing(true);
     try {
-      const { data } = await execute(`/assemblies/${assembly.id}/status`, "PATCH", { status: AssemblyStatus.Completed });
+      const { data } = await execute(
+        `/assemblies/${assembly.id}/status`,
+        "PATCH",
+        { status: status },
+      );
       if (data?.success || (data && !data.error)) {
-        showToast("Asamblea finalizada correctamente", "success");
+        statusLabel = "inicio";
+        if (status === AssemblyStatus.Completed) statusLabel = "finalizó";
+        showToast(`Asamblea ${statusLabel} correctamente`, "success");
         loadAssembly();
         // Notificar a todos (owners + admins) que la asamblea finalizó
         notifyAll("assembly-status-change", {
           id: assembly.id,
-          status: AssemblyStatus.Completed,
+          status: status,
           subject: assembly.subject,
           act: "assembly-status-change",
           source: "assembly",
         });
       }
     } catch (e: any) {
-      showToast(e?.response?.data?.message || "Error al finalizar la asamblea", "error");
+      showToast(
+        e?.response?.data?.message || "Error al finalizar la asamblea",
+        "error",
+      );
     } finally {
       setIsFinishing(false);
     }
   };
-
 
   if (!assembly) {
     if (error) return <div className={styles.container}>Error: {error}</div>;
@@ -310,24 +330,40 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             titleRight={
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {assembly.status === AssemblyStatus.InProgress && (
-                  <button
-                    onClick={handleFinishAssembly}
+                  <Button
+                    variant="danger"
+                    small
+                    onClick={() =>
+                      handleFinishAssembly(AssemblyStatus.Completed)
+                    }
                     disabled={isFinishing}
-                    style={{
-                      padding: "4px 12px",
-                      fontSize: 11,
-                      fontWeight: 600,
-                      borderRadius: 6,
-                      border: "none",
-                      cursor: isFinishing ? "not-allowed" : "pointer",
-                      backgroundColor: "#dc2626",
-                      color: "#fff",
-                      opacity: isFinishing ? 0.6 : 1,
-                      whiteSpace: "nowrap",
-                    }}
+                    // style={{
+                    //   padding: "4px 12px",
+                    //   fontSize: 11,
+                    //   fontWeight: 600,
+                    //   borderRadius: 6,
+                    //   border: "none",
+                    //   cursor: isFinishing ? "not-allowed" : "pointer",
+                    //   backgroundColor: "#dc2626",
+                    //   color: "#fff",
+                    //   opacity: isFinishing ? 0.6 : 1,
+                    //   whiteSpace: "nowrap",
+                    // }}
                   >
                     {isFinishing ? "Finalizando..." : "Finalizar"}
-                  </button>
+                  </Button>
+                )}
+                {assembly.status === AssemblyStatus.Scheduled && (
+                  <Button
+                    variant="primary"
+                    small
+                    onClick={() =>
+                      handleFinishAssembly(AssemblyStatus.InProgress)
+                    }
+                    disabled={isFinishing}
+                  >
+                    {isFinishing ? "Iniciando..." : "Iniciar Ahora"}
+                  </Button>
                 )}
                 <StatusBadge
                   color={statusStyle.color}
@@ -620,7 +656,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Modalidad:</span>
               <span className={styles.detailValue}>
-                {MODALITY_LABELS[assembly.modality as any] || "" || "No definida"}
+                {MODALITY_LABELS[assembly.modality as any] ||
+                  "" ||
+                  "No definida"}
               </span>
             </div>
 
@@ -764,7 +802,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               onAttendanceChange={() => {
                 // P.23: Actualizar stats al eliminar asistente sin recargar toda la página
                 setAttendanceRefreshKey((prev) => prev + 1);
-                fetchAssemblyStats(id).then((s) => { if (s) setStats(s); });
+                fetchAssemblyStats(id).then((s) => {
+                  if (s) setStats(s);
+                });
               }}
             />
           </Card>
@@ -869,4 +909,3 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
 };
 
 export default AssemblyDetail;
-
