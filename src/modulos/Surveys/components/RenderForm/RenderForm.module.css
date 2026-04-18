@@ -106,7 +106,7 @@
   margin-top: 12px;
   display: flex;
   gap: 12px;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .audienceBadge {
@@ -116,8 +116,12 @@
   border-radius: var(--bRadiusS);
   font-size: var(--sL);
   font-weight: var(--bSemibold);
-  padding: 10px 14px;
+  padding: 0 14px;
   white-space: nowrap;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .switchGrid {

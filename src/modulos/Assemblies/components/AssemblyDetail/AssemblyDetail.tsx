@@ -40,6 +40,7 @@ import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import AssemblySurveyForm from "@/modulos/Surveys/components/AssemblySurveyForm/AssemblySurveyForm";
 import AssemblyAttendanceForm from "../AssemblyAttendanceForm/AssemblyAttendanceForm";
 import AssemblyAttendanceList from "../AssemblyAttendanceList/AssemblyAttendanceList";
+import AssemblyManualVoteForm from "../AssemblyManualVoteForm/AssemblyManualVoteForm";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
 import useInstantMsg from "@/mk/hooks/useInstantMsg";
@@ -90,9 +91,13 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [assembly, setAssembly] = useState<Assembly | null>(null);
   const [stats, setStats] = useState<AssemblyStats | null>(null);
 
+  const [isAttendanceListOpen, setIsAttendanceListOpen] = useState(false);
+  const [isManualVoteOpen, setIsManualVoteOpen] = useState(false);
+  const [votingForSurvey, setVotingForSurvey] = useState<any>(null);
+  const [attendanceUpdated, setAttendanceUpdated] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [tempDescription, setTempDescription] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
   const [isEditingFull, setIsEditingFull] = useState(false);
   const [isEditingDocs, setIsEditingDocs] = useState(false);
   const [tempDocs, setTempDocs] = useState({ files: [] as string[] });
@@ -391,9 +396,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                 <span className={styles.metricLabel}>Participación</span>
                 <span className={styles.metricValue}>
                   {stats?.quorum?.attendees || assembly.attendances_count || 0}{" "}
-                  residentes /{" "}
+                  de{" "}
                   {stats?.quorum?.total_units || assembly.participation || "0"}{" "}
-                  unidades
+                  unidades totales
                 </span>
               </div>
               <div className={styles.metricItem}>
@@ -412,9 +417,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             </div>
           </Card>
 
-          {/* DESCRIPCIÓN Card */}
+          {/* ORDEN DEL DÍA Card */}
           <Card
-            title="DESCRIPCIÓN"
+            title="ORDEN DEL DÍA"
             titleRight={
               !isMobile && (
                 <button
@@ -434,7 +439,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             variant="v2"
           >
             <p className={styles.descriptionText}>
-              {assembly.description || "Sin descripción proporcionada."}
+              {assembly.description || "Sin orden del día proporcionado."}
             </p>
           </Card>
 
@@ -478,7 +483,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                       style={{ display: "flex", gap: 12, alignItems: "center" }}
                     >
                       {/* Lifecycle Actions */}
-                      {!isFinished && !isMobile && (
+                      {!isFinished && (
                         <>
                           {(survey.status === "D" || survey.status === "P") && (
                             <IconCirclePlay
@@ -491,37 +496,67 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                           )}
 
                           {survey.status === "A" && (
-                            <>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "16px",
+                              }}
+                            >
+                              <Button
+                                variant="terciary"
+                                onClick={() => {
+                                  setVotingForSurvey(survey);
+                                  setIsManualVoteOpen(true);
+                                }}
+                                style={{
+                                  height: "32px",
+                                  padding: "0 10px",
+                                  fontSize: "12px",
+                                }}
+                              >
+                                Votar manualmente
+                              </Button>
                               <div
                                 style={{
-                                  width: 14,
-                                  height: 16,
-                                  borderLeft: "4px solid var(--cWarning)",
-                                  borderRight: "4px solid var(--cWarning)",
-                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                  marginLeft: "8px",
+                                  borderLeft: "1px solid #e2e8f0",
+                                  paddingLeft: "16px",
                                 }}
-                                onClick={() =>
-                                  handleStatusChange(survey.id, "P")
-                                }
-                                title="Pausar"
-                              />
-                              <IconCircleCheck
-                                size={22}
-                                color="var(--cError)"
-                                style={{ cursor: "pointer" }}
-                                onClick={() =>
-                                  handleStatusChange(survey.id, "C")
-                                }
-                                title="Finalizar"
-                              />
-                            </>
+                              >
+                                <div
+                                  style={{
+                                    width: 12,
+                                    height: 14,
+                                    borderLeft: "3px solid var(--cWarning)",
+                                    borderRight: "3px solid var(--cWarning)",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() =>
+                                    handleStatusChange(survey.id, "P")
+                                  }
+                                  title="Pausar"
+                                />
+                                <IconCircleCheck
+                                  size={22}
+                                  color="var(--cError)"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() =>
+                                    handleStatusChange(survey.id, "C")
+                                  }
+                                  title="Finalizar"
+                                />
+                              </div>
+                            </div>
                           )}
                         </>
                       )}
 
                       {/* Edit/Delete (Only if no votes) */}
                       {!isFinished &&
-                        !isMobile &&
                         !survey.squestions?.[0]?.soptions?.some(
                           (o: any) => (o.votes || 0) > 0,
                         ) &&
@@ -804,11 +839,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               refreshKey={attendanceRefreshKey}
               readOnly={isFinished}
               onAttendanceChange={() => {
-                // P.23: Actualizar stats al eliminar asistente sin recargar toda la página
+                // P.23: Actualizar todo al cambiar asistencia (agrega o elimina)
                 setAttendanceRefreshKey((prev) => prev + 1);
-                fetchAssemblyStats(id).then((s) => {
-                  if (s) setStats(s);
-                });
+                loadAssembly();
               }}
             />
           </Card>
@@ -816,7 +849,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       </div>
 
       <DataModal
-        title="Editar Descripción"
+        title="Editar Orden del día"
         open={isEditingDescription}
         onClose={() => setIsEditingDescription(false)}
         onSave={handleSaveDescription}
@@ -829,12 +862,12 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <TextArea
             name="description"
-            label="Descripción de la Asamblea"
+            label="Orden del día de la Asamblea"
             value={tempDescription}
             onChange={(e) => setTempDescription(e.target.value)}
             fullHeight={true}
             style={{ minHeight: "400px" }}
-            placeholder="Escribe la descripción detallada aquí..."
+            placeholder="Escribe el orden del día detallado aquí..."
             required={false}
           />
         </div>
@@ -905,6 +938,18 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
         onSuccess={() => {
           setAttendanceRefreshKey((prev) => prev + 1);
           // Opcionalmente recargar stats si es necesario
+          loadAssembly();
+        }}
+      />
+      <AssemblyManualVoteForm
+        open={isManualVoteOpen}
+        onClose={() => {
+          setIsManualVoteOpen(false);
+          setVotingForSurvey(null);
+        }}
+        assemblyId={id}
+        survey={votingForSurvey}
+        onSuccess={() => {
           loadAssembly();
         }}
       />

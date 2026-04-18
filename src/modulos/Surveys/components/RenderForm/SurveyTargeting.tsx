@@ -227,29 +227,42 @@ export default function SurveyTargeting({
         Selecciona el grupo que recibirá la encuesta
       </p>
 
+      {/* <div style={{ marginBottom: 4 }}>
+        <p style={{ fontSize: "var(--sM)", color: "#878f9a", margin: "0 0 6px 4px" }}>
+          Selecciona uno o más grupos
+        </p>
+      </div> */}
       <div className={styles.targetTopRow}>
         <div style={{ flex: 1 }}>
           <Select
             name="target_roles"
-            label="Selecciona uno o más grupos"
+            label=""
+            placeholder="Selecciona uno o más grupos"
             value={selectedRoleIds.length ? selectedRoleIds : []}
             options={ROLES_OPTIONS}
             optionValue="id"
             optionLabel="name"
             onChange={handleRolesChange}
             multiSelect
-            error={errors}
+            error={{target_roles:errors.target_criteria}}
           />
-          {errors?.target_criteria && (
-            <p style={{ color: "var(--cError, #ef4444)", fontSize: "0.78rem", marginTop: 4 }}>
-              {errors.target_criteria}
-            </p>
-          )}
         </div>
         <div className={styles.audienceBadge}>
           Alcance estimado: {formatNumber(affCount || 0, 0)} personas
         </div>
       </div>
+      {/* {errors?.target_criteria && (
+        <p
+          style={{
+            color: "var(--cError, #ef4444)",
+            fontSize: "0.78rem",
+            marginTop: '-4px',
+            marginBottom:0
+          }}
+        >
+          {errors.target_criteria}
+        </p>
+      )} */}
 
       {/* Conditional: unit types (owner/resident only) */}
       {hasOwnerRole && extraData?.unit_types?.length > 0 && (
