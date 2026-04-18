@@ -512,7 +512,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
 
             <TextArea
               name="description"
-              label="Descripción o motivo"
+              label="Orden del día o motivo"
               value={formState.description}
               onChange={handleChange}
               error={errors}
