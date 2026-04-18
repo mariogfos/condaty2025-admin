@@ -693,7 +693,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             <Input
               type="text"
               name="address"
-              label="Dirección física"
+              label="Nombre del lugar"
               value={formState.address}
               onChange={handleChange}
               error={errors}
@@ -705,7 +705,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             <Input
               type="text"
               name="address_url"
-              label="URL de ubicación (Google Maps)"
+              label="URL de ubicación (Google Maps) opcional"
               value={formState.address_url}
               onChange={handleChange}
               error={errors}

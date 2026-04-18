@@ -40,6 +40,7 @@ import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import AssemblySurveyForm from "@/modulos/Surveys/components/AssemblySurveyForm/AssemblySurveyForm";
 import AssemblyAttendanceForm from "../AssemblyAttendanceForm/AssemblyAttendanceForm";
 import AssemblyAttendanceList from "../AssemblyAttendanceList/AssemblyAttendanceList";
+import AssemblyManualVoteForm from "../AssemblyManualVoteForm/AssemblyManualVoteForm";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
 import useInstantMsg from "@/mk/hooks/useInstantMsg";
@@ -90,9 +91,13 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [assembly, setAssembly] = useState<Assembly | null>(null);
   const [stats, setStats] = useState<AssemblyStats | null>(null);
 
+  const [isAttendanceListOpen, setIsAttendanceListOpen] = useState(false);
+  const [isManualVoteOpen, setIsManualVoteOpen] = useState(false);
+  const [votingForSurvey, setVotingForSurvey] = useState<any>(null);
+  const [attendanceUpdated, setAttendanceUpdated] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [tempDescription, setTempDescription] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
   const [isEditingFull, setIsEditingFull] = useState(false);
   const [isEditingDocs, setIsEditingDocs] = useState(false);
   const [tempDocs, setTempDocs] = useState({ files: [] as string[] });
@@ -478,7 +483,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                       style={{ display: "flex", gap: 12, alignItems: "center" }}
                     >
                       {/* Lifecycle Actions */}
-                      {!isFinished && !isMobile && (
+                      {!isFinished && (
                         <>
                           {(survey.status === "D" || survey.status === "P") && (
                             <IconCirclePlay
@@ -491,37 +496,67 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                           )}
 
                           {survey.status === "A" && (
-                            <>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "16px",
+                              }}
+                            >
+                              <Button
+                                variant="terciary"
+                                onClick={() => {
+                                  setVotingForSurvey(survey);
+                                  setIsManualVoteOpen(true);
+                                }}
+                                style={{
+                                  height: "32px",
+                                  padding: "0 10px",
+                                  fontSize: "12px",
+                                }}
+                              >
+                                Votar manualmente
+                              </Button>
                               <div
                                 style={{
-                                  width: 14,
-                                  height: 16,
-                                  borderLeft: "4px solid var(--cWarning)",
-                                  borderRight: "4px solid var(--cWarning)",
-                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                  marginLeft: "8px",
+                                  borderLeft: "1px solid #e2e8f0",
+                                  paddingLeft: "16px",
                                 }}
-                                onClick={() =>
-                                  handleStatusChange(survey.id, "P")
-                                }
-                                title="Pausar"
-                              />
-                              <IconCircleCheck
-                                size={22}
-                                color="var(--cError)"
-                                style={{ cursor: "pointer" }}
-                                onClick={() =>
-                                  handleStatusChange(survey.id, "C")
-                                }
-                                title="Finalizar"
-                              />
-                            </>
+                              >
+                                <div
+                                  style={{
+                                    width: 12,
+                                    height: 14,
+                                    borderLeft: "3px solid var(--cWarning)",
+                                    borderRight: "3px solid var(--cWarning)",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() =>
+                                    handleStatusChange(survey.id, "P")
+                                  }
+                                  title="Pausar"
+                                />
+                                <IconCircleCheck
+                                  size={22}
+                                  color="var(--cError)"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() =>
+                                    handleStatusChange(survey.id, "C")
+                                  }
+                                  title="Finalizar"
+                                />
+                              </div>
+                            </div>
                           )}
                         </>
                       )}
 
                       {/* Edit/Delete (Only if no votes) */}
                       {!isFinished &&
-                        !isMobile &&
                         !survey.squestions?.[0]?.soptions?.some(
                           (o: any) => (o.votes || 0) > 0,
                         ) &&
@@ -903,6 +938,18 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
         onSuccess={() => {
           setAttendanceRefreshKey((prev) => prev + 1);
           // Opcionalmente recargar stats si es necesario
+          loadAssembly();
+        }}
+      />
+      <AssemblyManualVoteForm
+        open={isManualVoteOpen}
+        onClose={() => {
+          setIsManualVoteOpen(false);
+          setVotingForSurvey(null);
+        }}
+        assemblyId={id}
+        survey={votingForSurvey}
+        onSuccess={() => {
           loadAssembly();
         }}
       />
