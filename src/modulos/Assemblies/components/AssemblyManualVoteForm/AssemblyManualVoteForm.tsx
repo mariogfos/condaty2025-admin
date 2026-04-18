@@ -50,7 +50,7 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
         "GET",
         {},
         false,
-        true
+        true,
       );
       if (response?.data) {
         setAttendees(response.data || []);
@@ -97,7 +97,7 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
         {
           owner_id: selectedAttendee.owner_id,
           soption_id: selectedOptionId,
-        }
+        },
       );
 
       if (response?.success) {
@@ -106,8 +106,10 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
         onClose();
       } else {
         showToast(
-          error?.data?.message || response?.message || "Error al registrar voto",
-          "error"
+          error?.data?.message ||
+            response?.message ||
+            "Error al registrar voto",
+          "error",
         );
       }
     } catch (error) {
@@ -136,14 +138,15 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
         </div>
 
         <div className={styles.stepSection}>
-          <label className={styles.sectionLabel}>1. Selecciona al participante</label>
+          <label className={styles.sectionLabel}>
+            1. Selecciona al participante
+          </label>
           <div className={styles.searchBar}>
             <Input
               name="search"
               value={search}
               onChange={(e: any) => setSearch(e.target.value)}
               placeholder="Buscar por nombre o unidad en asistentes..."
-              fullWidth
             />
           </div>
 
@@ -170,7 +173,8 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
                       {att.owner?.name} {att.owner?.last_name || ""}
                     </p>
                     <p className={styles.attDetail}>
-                      Unidad {att.dpto?.nro || "-"} | {ROLE_LABELS[att.role] || att.role}
+                      Unidad {att.dpto?.nro || "-"} |{" "}
+                      {ROLE_LABELS[att.role] || att.role}
                     </p>
                   </div>
                   {selectedAttendee?.id === att.id && (
@@ -180,7 +184,9 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
               ))
             ) : (
               <div className={styles.message}>
-                {search ? "No se encontraron coincidencias." : "No hay asistentes registrados."}
+                {search
+                  ? "No se encontraron coincidencias."
+                  : "No hay asistentes registrados."}
               </div>
             )}
           </div>
@@ -188,7 +194,9 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
 
         {selectedAttendee && (
           <div className={styles.stepSection}>
-            <label className={styles.sectionLabel}>2. Selecciona la opción de voto</label>
+            <label className={styles.sectionLabel}>
+              2. Selecciona la opción de voto
+            </label>
             <div className={styles.optionsGrid}>
               {question?.soptions?.map((opt: any) => (
                 <div
@@ -206,25 +214,34 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
               ))}
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 24 }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+                marginTop: 24,
+              }}
+            >
               <Button
                 variant="primary"
                 onClick={handleVote}
                 disabled={isSaving || !selectedOptionId}
-                style={{ 
-                  width: "100%", 
-                  height: 48, 
+                style={{
+                  width: "100%",
+                  height: 48,
                   backgroundColor: "var(--cSuccess)",
                   borderColor: "var(--cSuccess)",
                   fontSize: "16px",
-                  fontWeight: "bold"
+                  fontWeight: "bold",
                 }}
               >
-                {isSaving ? "Registrando voto..." : `Confirmar voto de ${selectedAttendee.owner?.name}`}
+                {isSaving
+                  ? "Registrando voto..."
+                  : `Confirmar voto de ${selectedAttendee.owner?.name}`}
               </Button>
-              
+
               <Button
-                variant="outline"
+                variant="cancel"
                 onClick={onClose}
                 disabled={isSaving}
                 style={{ width: "100%", height: 48, fontSize: "16px" }}
