@@ -517,8 +517,8 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               onChange={handleChange}
               error={errors}
               required
-              isLimit
-              maxLength={255}
+              // isLimit
+              // maxLength={255}
             />
           </section>
           <section className={styles.sectionCard}>
