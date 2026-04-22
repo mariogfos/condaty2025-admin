@@ -75,9 +75,9 @@ export const RESERVATION_STATUS_CONFIG = {
   },
   M: {
     label: "Mantenimiento",
-    backgroundColor: "#E9B01E33",
-    color: "#E9B01E",
-    class: "statusM",
+    backgroundColor: "#E4605533",
+    color: "#e11907ff",
+    class: "statusX",
   },
 } as const;
 
@@ -93,6 +93,7 @@ export const RESERVATION_STATUS_OPTIONS = [
   { id: "C", name: "Cancelada manualmente" },
   { id: "T", name: "Cancelada automática" },
   { id: "F", name: "Finalizada" },
+  { id: "M", name: "Mantenimiento" },
   // { id: "X", name: "Rechazada" },
 ];
 
