@@ -8,7 +8,8 @@ export type ReservationStatus =
   | "R"
   | "C"
   | "T"
-  | "F";
+  | "F"
+  | "M";
 
 // Configuración de estados de reserva con colores y etiquetas
 export const RESERVATION_STATUS_CONFIG = {
@@ -72,6 +73,12 @@ export const RESERVATION_STATUS_CONFIG = {
     color: "#E46055",
     class: "statusX",
   },
+  M: {
+    label: "Mantenimiento",
+    backgroundColor: "#E9B01E33",
+    color: "#E9B01E",
+    class: "statusM",
+  },
 } as const;
 
 // Opciones para filtros de estado
@@ -97,7 +104,7 @@ export const RESERVATION_STATUS_OPTIONS = [
 export const getUpdatedReservationStatus = (
   status?: ReservationStatus,
   dateEnd?: string,
-  endTime?: string
+  endTime?: string,
 ): ReservationStatus | undefined => {
   if (!status) return undefined;
 
