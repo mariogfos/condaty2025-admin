@@ -35,7 +35,9 @@ const TextArea = ({
   const wrapperStyle: React.CSSProperties = fullHeight
     ? { height: "100%", display: "flex", flexDirection: "column" }
     : {};
-  const containerStyle: React.CSSProperties = fullHeight ? { height: "100%" } : {};
+  const containerStyle: React.CSSProperties = fullHeight
+    ? { height: "100%" }
+    : {};
   const fieldStyle: React.CSSProperties = fullHeight
     ? { height: "100%", display: "flex", flexDirection: "column" }
     : {};
@@ -68,7 +70,7 @@ const TextArea = ({
           disabled={disabled}
           required={required}
           rows={fullHeight ? undefined : lines}
-          maxLength={maxLength} // Aplica el límite de caracteres
+          maxLength={isLimit ? maxLength : undefined} // Aplica el límite de caracteres
           onChange={handleChange}
           onFocus={onFocus}
           onBlur={onBlur}
