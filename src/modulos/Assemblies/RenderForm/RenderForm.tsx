@@ -128,6 +128,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       status: item?.status || "S", // S=Scheduled por defecto
       quorum_required: item?.quorum_required ?? 50,
       anonymous_voting: item?.anonymous_voting ?? false,
+      count_abstention: item?.count_abstention ?? false, // P.23: Contar abstenciones en resultados
       target_audience: Array.isArray(item?.target_audience)
         ? item.target_audience
         : item?.target_audience
@@ -388,6 +389,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
         ? formState.target_audience.join(",")
         : formState.target_audience,
       anonymous_voting: formState.anonymous_voting,
+      count_abstention: formState.count_abstention ?? false, // P.23: Contar abstenciones en resultados
     };
 
     const method = formState.id ? "PUT" : "POST";
@@ -775,6 +777,63 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               max={100}
               required
             />
+          </div>
+
+          {/* P.23: Toggle para contar abstenciones en resultados de votación */}
+          <div style={{ marginTop: 16 }}>
+            <Check
+              name="count_abstention"
+              value={formState.count_abstention}
+              label="Contar abstenciones en los resultados de votación"
+              reverse={true}
+              checked={formState.count_abstention ?? false}
+              onChange={() =>
+                setFormState((prev: any) => ({
+                  ...prev,
+                  count_abstention: !prev.count_abstention,
+                }))
+              }
+            />
+            <p
+              style={{
+                fontSize: 12,
+                color: "var(--cWhiteV2)",
+                marginTop: 6,
+                marginLeft: 0,
+              }}
+            >
+              Si está activo, las abstenciones aparecerán como una opción en las
+              gráficas (Sí 40%, No 40%, Abstención 20%). Si está inactivo, se
+              muestran solo como dato informativo debajo de la gráfica.
+            </p>
+          </div>
+
+          {/* Toggle para votación anónima */}
+          <div style={{ marginTop: 16 }}>
+            <Check
+              name="anonymous_voting"
+              value={formState.anonymous_voting}
+              label="Votación secreta (anónima)"
+              reverse={true}
+              checked={formState.anonymous_voting ?? false}
+              onChange={() =>
+                setFormState((prev: any) => ({
+                  ...prev,
+                  anonymous_voting: !prev.anonymous_voting,
+                }))
+              }
+            />
+            <p
+              style={{
+                fontSize: 12,
+                color: "var(--cWhiteV2)",
+                marginTop: 6,
+                marginLeft: 0,
+              }}
+            >
+              Los votos serán anónimos y no se podrán identificar respuestas
+              individuales.
+            </p>
           </div>
         </section>
       )}

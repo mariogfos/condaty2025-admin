@@ -445,7 +445,7 @@ const RenderView = (props: {
           )}
         </div>
 
-        {detailsLoaded && (
+        {/* {detailsLoaded && (
           <div
             style={{
               display: "grid",
@@ -454,7 +454,7 @@ const RenderView = (props: {
             }}
           >
             <MetricCard
-              label="Participantes"
+              label="Participantes2"
               value={`${formatNumber(realResponses || 0, 0)} / ${formatNumber(audience || 0, 0)}`}
             />
             <MetricCard
@@ -464,7 +464,7 @@ const RenderView = (props: {
             <MetricCard label="Representatividad" value={`${participation}%`} />
             <MetricCard label="Tiempo promedio" value="N/A" />
           </div>
-        )}
+        )} */}
 
         {detailsLoaded && stats && (
           <SurveyDashboard

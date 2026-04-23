@@ -12,14 +12,14 @@ vi.mock('@/components/DateRangeFilterModal/DateRangeFilterModal', () => ({
   default: () => <div data-testid="date-filter-modal">Date Filter Modal</div>,
 }));
 
-// Mock useCrud
+// Mock useCrud - includes 'data' for mod.plural
 const mockOnView = vi.fn();
 const mockReLoad = vi.fn();
 const mockOnFilter = vi.fn();
 const mockUserCan = vi.fn();
-const MockList = ({ onRowClick }: any) => (
-  <div data-testid="crud-list" onClick={() => onRowClick({ id: 1, title: 'Item 1' })}>
-    Mock List
+const MockList = ({ title, onRowClick }: any) => (
+  <div data-testid="crud-list" data-title={title} onClick={() => onRowClick({ id: 1, title: 'Item 1' })}>
+    Mock List - {title}
   </div>
 );
 
@@ -30,6 +30,7 @@ vi.mock('@/mk/hooks/useCrud/useCrud', () => ({
     onView: mockOnView,
     reLoad: mockReLoad,
     onFilter: mockOnFilter,
+    data: { message: { total: 10 } }, // Provide data for mod.plural
   })),
 }));
 
@@ -41,7 +42,8 @@ describe('Surveys Module (Integration)', () => {
 
   it('renderiza el título correctamente', () => {
     render(<Surveys />);
-    expect(screen.getByText('Encuestas')).toBeInTheDocument();
+    expect(screen.getByTestId('crud-list')).toBeInTheDocument();
+    expect(screen.getByTestId('crud-list').getAttribute('data-title')).toBe('Encuestas');
   });
 
   it('muestra NotAccess si el usuario no tiene permisos', () => {

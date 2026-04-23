@@ -103,7 +103,7 @@ describe('AssemblyDetail Component', () => {
     const editBtn = buttons.find(b => b.textContent?.includes('Editar'));
     if (!editBtn) throw new Error('Button not found');
     fireEvent.click(editBtn);
-    expect(screen.getByText('Editar Descripción')).toBeInTheDocument();
+    expect(screen.getByText('Editar Orden del día')).toBeInTheDocument();
   });
 
   it('muestra mensaje cuando no hay votaciones', async () => {
