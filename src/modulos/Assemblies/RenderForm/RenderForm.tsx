@@ -783,6 +783,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
           <div style={{ marginTop: 16 }}>
             <Check
               name="count_abstention"
+              value={formState.count_abstention}
               label="Contar abstenciones en los resultados de votación"
               reverse={true}
               checked={formState.count_abstention ?? false}
@@ -811,6 +812,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
           <div style={{ marginTop: 16 }}>
             <Check
               name="anonymous_voting"
+              value={formState.anonymous_voting}
               label="Votación secreta (anónima)"
               reverse={true}
               checked={formState.anonymous_voting ?? false}
