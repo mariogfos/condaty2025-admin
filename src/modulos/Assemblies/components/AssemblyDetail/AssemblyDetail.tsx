@@ -582,18 +582,31 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                   </div>
 
                   {survey.squestions?.map((q: any) => {
-                    const totalVotes =
+                    const abstention = q.abstention ?? null;
+                    const countAsOption = abstention?.count_as_option === true;
+
+                    // Denominador para porcentajes:
+                    // count_as_option=true → total_expected (abstención forma parte del 100%)
+                    // count_as_option=false o sin abstención → votos emitidos
+                    const totalVotesRaw =
                       q.soptions?.reduce(
                         (acc: number, opt: any) => acc + (opt.votes || 0),
                         0,
                       ) || 0;
 
+                    const denominator = countAsOption
+                      ? (abstention?.total_expected ?? totalVotesRaw)
+                      : totalVotesRaw;
+
+                    const totalLabel = countAsOption
+                      ? `${abstention?.total_voted ?? totalVotesRaw} votos válidos de ${abstention?.total_expected ?? 0} esperados`
+                      : `${totalVotesRaw} ${totalVotesRaw === 1 ? "voto" : "votos"} en total`;
+
                     return (
                       <div key={q.id}>
                         <div className={styles.votacionMeta}>
                           <span className={styles.votacionCount}>
-                            {totalVotes} {totalVotes === 1 ? "voto" : "votos"}{" "}
-                            en total
+                            {totalLabel}
                           </span>
                           <span className={styles.votacionStatus}>
                             {survey.status === "C"
@@ -606,12 +619,20 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                           </span>
                         </div>
 
+                        {/* Opciones de respuesta válidas */}
                         {q.soptions?.map((opt: any) => {
                           const votes = opt.votes || 0;
                           const percentage =
-                            totalVotes > 0
-                              ? Math.round((votes / totalVotes) * 100)
+                            denominator > 0
+                              ? Math.round((votes / denominator) * 100)
                               : 0;
+                          const isNo = opt.option_text?.toLowerCase().includes("no");
+                          const isNulo = opt.option_text?.toLowerCase().includes("nulo");
+                          const barColor = isNo
+                            ? "#EF4444"
+                            : isNulo
+                              ? "#444"
+                              : "linear-gradient(90deg, #8b5cf6, #3b82f6)";
 
                           return (
                             <div key={opt.id} className={styles.optionItem}>
@@ -625,23 +646,56 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               <div className={styles.progressContainer}>
                                 <div
                                   className={styles.progressBar}
-                                  style={{
-                                    width: `${percentage}%`,
-                                    background: opt.option_text
-                                      .toLowerCase()
-                                      .includes("no")
-                                      ? "#EF4444"
-                                      : opt.option_text
-                                            .toLowerCase()
-                                            .includes("nulo")
-                                        ? "#444"
-                                        : "linear-gradient(90deg, #8b5cf6, #3b82f6)",
-                                  }}
-                                ></div>
+                                  style={{ width: `${percentage}%`, background: barColor }}
+                                />
                               </div>
                             </div>
                           );
                         })}
+
+                        {/* Barra de abstención — solo cuando count_as_option=true */}
+                        {abstention && countAsOption && (
+                          <div className={styles.optionItem}>
+                            <div className={styles.optionHeader}>
+                              <span style={{ color: "#f97316", fontWeight: 600 }}>
+                                Abstenciones
+                              </span>
+                              <span style={{ color: "#f97316" }}>
+                                {abstention.abstention_rate}% ({abstention.abstentions}{" "}
+                                {abstention.abstentions === 1 ? "unidad" : "unidades"})
+                              </span>
+                            </div>
+                            <div className={styles.progressContainer}>
+                              <div
+                                className={styles.progressBar}
+                                style={{
+                                  width: `${abstention.abstention_rate}%`,
+                                  background: "linear-gradient(90deg, #f97316, #ef4444)",
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Footer informativo — solo cuando count_as_option=false */}
+                        {abstention && !countAsOption && abstention.total_expected > 0 && (
+                          <div className={styles.abstentionFooter}>
+                            <span className={styles.abstentionFooterItem}>
+                              ✔ Votos válidos:{" "}
+                              <strong>{abstention.total_voted}</strong>{" "}
+                              ({abstention.participation_rate}%)
+                            </span>
+                            <span className={styles.abstentionSeparator}>|</span>
+                            <span
+                              className={styles.abstentionFooterItem}
+                              style={{ color: "#f97316" }}
+                            >
+                              Abstenciones:{" "}
+                              <strong>{abstention.abstentions}</strong>{" "}
+                              ({abstention.abstention_rate}%)
+                            </span>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
