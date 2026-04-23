@@ -41,6 +41,7 @@ import AssemblySurveyForm from "@/modulos/Surveys/components/AssemblySurveyForm/
 import AssemblyAttendanceForm from "../AssemblyAttendanceForm/AssemblyAttendanceForm";
 import AssemblyAttendanceList from "../AssemblyAttendanceList/AssemblyAttendanceList";
 import AssemblyManualVoteForm from "../AssemblyManualVoteForm/AssemblyManualVoteForm";
+import VotersListModal from "@/modulos/Surveys/components/VotersListModal/VotersListModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
 import useInstantMsg from "@/mk/hooks/useInstantMsg";
@@ -108,6 +109,12 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [surveyToEdit, setSurveyToEdit] = useState<any>(null);
   const [surveyAction, setSurveyAction] = useState<"add" | "edit">("add");
   const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
+  const [votersModal, setVotersModal] = useState<{
+    open: boolean;
+    soptionId: number | string;
+    soptionText: string;
+    totalVoters: number;
+  } | null>(null);
   const { isMobile } = useScreenSize();
   const { showToast } = useAuth();
   const { notifySegmented, notifyAll } = useInstantMsg();
@@ -116,6 +123,28 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [showDetails, setShowDetails] = useState(true);
   const [showDocs, setShowDocs] = useState(false);
   const [showParticipants, setShowParticipants] = useState(isMobile);
+
+  // Ordenamiento de votaciones: activas primero por published_at, luego por created_at
+  const getSortedSurveys = (surveys: any[]) => {
+    if (!surveys?.length) return [];
+    return [...surveys].sort((a, b) => {
+      const isActiveA = a.status === 'A';
+      const isActiveB = b.status === 'A';
+      // Si una está activa y otra no, la activa va primero
+      if (isActiveA && !isActiveB) return -1;
+      if (!isActiveA && isActiveB) return 1;
+      // Ordenar activas por published_at descendente (última publicada primero)
+      if (isActiveA && isActiveB) {
+        const dateA = a.published_at ? new Date(a.published_at).getTime() : 0;
+        const dateB = b.published_at ? new Date(b.published_at).getTime() : 0;
+        return dateB - dateA;
+      }
+      // Ordenar inactivas por created_at descendente (última creada primero)
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return dateB - dateA;
+    });
+  };
 
   useEffect(() => {
     if (isMobile) {
@@ -468,7 +497,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           >
             {/* Dynamic Voting Questions */}
             {assembly.surveys && assembly.surveys.length > 0 ? (
-              assembly.surveys.map((survey: any) => (
+              getSortedSurveys(assembly.surveys).map((survey: any) => (
                 <div key={survey.id} className={styles.votacionCard}>
                   <div
                     style={{
@@ -638,10 +667,27 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                             <div key={opt.id} className={styles.optionItem}>
                               <div className={styles.optionHeader}>
                                 <span>{opt.option_text}</span>
-                                <span>
-                                  {percentage}% ({votes}{" "}
-                                  {votes === 1 ? "voto" : "votos"})
-                                </span>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                  <span>
+                                    {percentage}% ({votes}{" "}
+                                    {votes === 1 ? "voto" : "votos"})
+                                  </span>
+                                  {votes > 0 && (
+                                    <button
+                                      className={styles.verVotantesBtn}
+                                      onClick={() => {
+                                        setVotersModal({
+                                          open: true,
+                                          soptionId: opt.id,
+                                          soptionText: opt.option_text || "",
+                                          totalVoters: votes,
+                                        });
+                                      }}
+                                    >
+                                      ver
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                               <div className={styles.progressContainer}>
                                 <div
@@ -1007,6 +1053,17 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           loadAssembly();
         }}
       />
+
+      {/* Modal para ver lista de votantes por opción */}
+      {votersModal && (
+        <VotersListModal
+          open={votersModal.open}
+          onClose={() => setVotersModal(null)}
+          soptionId={votersModal.soptionId}
+          soptionText={votersModal.soptionText}
+          totalVoters={votersModal.totalVoters}
+        />
+      )}
     </div>
   );
 };

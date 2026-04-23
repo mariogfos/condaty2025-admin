@@ -1,8 +1,9 @@
 "use client";
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import styles from "./SurveyStatsView.module.css";
 import { formatNumber } from "@/mk/utils/numbers";
+import VotersListModal from "../VotersListModal/VotersListModal";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -22,6 +23,7 @@ type SOption = {
   option_text?: string;
   text?: string;
   votes?: number;
+  answers_count?: number;
 };
 
 type SQuestion = {
@@ -37,6 +39,13 @@ type SQuestion = {
   text_responses_sample?: string[];
 };
 
+type VotersModalState = {
+  open: boolean;
+  soptionId: number | string;
+  soptionText: string;
+  totalVoters: number;
+} | null;
+
 function QuestionChart({
   question,
   index,
@@ -44,6 +53,8 @@ function QuestionChart({
   question: SQuestion;
   index: number;
 }) {
+  const chartRef = useRef<any>(null);
+  const [votersModal, setVotersModal] = useState<VotersModalState>(null);
   const isText = question.type === "T";
   const options = question.options || question.soptions || [];
   const userResponse = question.user_response;
@@ -106,16 +117,40 @@ function QuestionChart({
       toolbar: { show: false },
       background: "transparent",
       animations: { enabled: true, speed: 500 },
+      events: {
+        click: (_event: any, _chartContext: any, config: any) => {
+          // ApexCharts passes { dataPointIndex, seriesIndex } in config
+          if (config.dataPointIndex >= 0 && config.dataPointIndex < options.length) {
+            const selectedOption = options[config.dataPointIndex];
+            const votesCount = selectedOption.votes ?? selectedOption.answers_count ?? 0;
+            if (votesCount > 0) {
+              setVotersModal({
+                open: true,
+                soptionId: selectedOption.id,
+                soptionText: selectedOption.option_text || selectedOption.text || "",
+                totalVoters: votesCount,
+              });
+            }
+          }
+        },
+      },
     },
     plotOptions: {
       bar: {
         horizontal: true,
         borderRadius: 6,
-        distributed: true,
+        distributed: false, // Removed: was breaking dataPointSelection click events
         dataLabels: { position: "right" },
       },
     },
-    colors: colors,
+    // Colors per bar (index-based), applied via dataLabels.style when distributed: false
+    // Bar fill colors (array = one per bar when distributed: false)
+    fill: {
+      colors: options.map((o, i) => {
+        if (isMyResponse(o.id)) return "var(--cPrimary)";
+        return CHART_COLORS[i % CHART_COLORS.length].replace("0.9", "0.85)");
+      }),
+    },
     dataLabels: {
       enabled: true,
       formatter: (val: number) =>
@@ -123,7 +158,10 @@ function QuestionChart({
       style: {
         fontSize: "11px",
         fontWeight: "bold",
-        colors: ["var(--cBlack)"],
+        // Array of colors = one per bar (required when distributed: false)
+        colors: options.map((o, i) =>
+          isMyResponse(o.id) ? "var(--cWhite)" : "var(--cWhiteV1)"
+        ),
       },
       dropShadow: {
         enabled: true,
@@ -172,11 +210,54 @@ function QuestionChart({
       {total === 0 && !userResponse ? (
         <p className={styles.textHint}>Sin votos aún para esta pregunta.</p>
       ) : (
-        <ReactApexChart
-          options={chartOptions}
-          series={[{ name: "Votos", data }]}
-          type="bar"
-          height={Math.max(120, options.length * 48)}
+        <>
+          <div className={styles.chartWrapper}>
+            <ReactApexChart
+              options={chartOptions}
+              series={[{ name: "Votos", data }]}
+              type="bar"
+              height={Math.max(120, options.length * 48)}
+            />
+          </div>
+          {/* Lista clickeable de opciones para ver quién votó */}
+          <div className={styles.votersList}>
+            {options.map((o: any) => {
+              const votesCount = o.votes ?? o.answers_count ?? 0;
+              if (votesCount === 0) return null;
+              return (
+                <button
+                  key={o.id}
+                  className={styles.voterOptionBtn}
+                  onClick={() => {
+                    setVotersModal({
+                      open: true,
+                      soptionId: o.id,
+                      soptionText: o.option_text || o.text || "",
+                      totalVoters: votesCount,
+                    });
+                  }}
+                >
+                  <span className={styles.voterOptionLabel}>
+                    {o.option_text || o.text}
+                  </span>
+                  <span className={styles.voterOptionCount}>
+                    {votesCount} voto{votesCount !== 1 ? "s" : ""}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Modal para mostrar lista de votantes */}
+      {votersModal && (
+        <VotersListModal
+          open={votersModal.open}
+          onClose={() => setVotersModal(null)}
+          soptionId={votersModal.soptionId}
+          soptionText={votersModal.soptionText}
+          totalVoters={votersModal.totalVoters}
         />
       )}
     </div>
