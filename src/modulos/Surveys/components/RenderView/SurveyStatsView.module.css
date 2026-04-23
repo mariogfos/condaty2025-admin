@@ -67,6 +67,47 @@
   color: var(--cWhiteV3);
 }
 
+.chartWrapper {
+  cursor: pointer;
+}
+
+.votersList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spS);
+  margin-top: var(--spS);
+}
+
+.voterOptionBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--spS);
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #d7fff014, #d7fff008);
+  border: 1px solid #d7fff030;
+  border-radius: var(--bRadius);
+  color: var(--cWhiteV1);
+  font-size: var(--sS);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.voterOptionBtn:hover {
+  background: linear-gradient(135deg, #d7fff028, #d7fff014);
+  border-color: var(--cPrimary);
+  color: var(--cWhite);
+  transform: translateY(-1px);
+}
+
+.voterOptionLabel {
+  font-weight: var(--bMedium);
+}
+
+.voterOptionCount {
+  color: var(--cPrimary);
+  font-weight: var(--bSemibold);
+}
+
 .textList {
   margin: 0;
   padding-left: 16px;
