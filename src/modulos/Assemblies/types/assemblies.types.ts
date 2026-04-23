@@ -27,6 +27,22 @@ export enum TargetAudience {
   Dependents = "dependents",
 }
 
+/** Bloque de abstención inyectado en cada pregunta al cerrar la votación de asamblea */
+export interface AbstentionStats {
+  /** Si true: la abstención aparece como opción en la gráfica con % sobre total_expected */
+  count_as_option: boolean;
+  /** Unidades (dptos) registradas como asistentes */
+  total_expected: number;
+  /** Dptos que efectivamente emitieron voto */
+  total_voted: number;
+  /** Abstenciones = total_expected - total_voted */
+  abstentions: number;
+  /** % de abstención sobre el universo esperado */
+  abstention_rate: number;
+  /** % de participación = 100 - abstention_rate */
+  participation_rate: number;
+}
+
 export interface Assembly {
   id: number;
   client_id: string;
@@ -47,6 +63,8 @@ export interface Assembly {
   quorum_required?: number;
   anonymous_voting?: boolean;
   target_audience?: TargetAudience;
+  /** Si true: la abstención se muestra como opción en las gráficas de votación */
+  count_abstention?: boolean;
   created_at?: string;
   updated_at?: string;
   // Relaciones cargadas
@@ -117,6 +135,7 @@ export interface AssemblyConfig {
   quorum_required: number;
   anonymous_voting: boolean;
   target_audience: TargetAudience;
+  count_abstention: boolean;
 }
 
 // Labels para mostrar en UI

@@ -86,7 +86,11 @@ const Reserva = () => {
   const onRenderOwnerList = ({ item }: any) => {
     const owner = item?.owner;
     const dpto = item?.dpto;
-    const ownerName = owner ? getFullName(owner) : "Residente no disponible";
+    const ownerName = owner
+      ? getFullName(owner)
+      : item.status == "M"
+        ? "Administración"
+        : "Residente no disponible";
     const dptoNro = dpto?.nro ? dpto.nro : "Sin Dpto.";
 
     return (

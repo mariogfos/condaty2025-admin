@@ -27,6 +27,9 @@ const AssemblyConfigForm: React.FC<AssemblyConfigFormProps> = ({
   const [anonymousVoting, setAnonymousVoting] = useState(
     assembly.anonymous_voting || false,
   );
+  const [countAbstention, setCountAbstention] = useState(
+    assembly.count_abstention || false,
+  );
   const [targetAudience, setTargetAudience] = useState<TargetAudience>(
     (assembly.target_audience as TargetAudience) || "all_owners",
   );
@@ -51,6 +54,7 @@ const AssemblyConfigForm: React.FC<AssemblyConfigFormProps> = ({
           quorum_required: quorumRequired,
           anonymous_voting: anonymousVoting,
           target_audience: targetAudience,
+          count_abstention: countAbstention,
         },
         false,
         true,
@@ -62,6 +66,7 @@ const AssemblyConfigForm: React.FC<AssemblyConfigFormProps> = ({
           quorum_required: quorumRequired,
           anonymous_voting: anonymousVoting,
           target_audience: targetAudience,
+          count_abstention: countAbstention,
         });
       }
     } catch (error) {
@@ -105,6 +110,23 @@ const AssemblyConfigForm: React.FC<AssemblyConfigFormProps> = ({
           </label>
           <span className={styles.hint}>
             Los administradores no podrán identificar votos específicos.
+          </span>
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label}>
+            <input
+              type="checkbox"
+              checked={countAbstention}
+              onChange={(e) => setCountAbstention(e.target.checked)}
+              className={styles.checkbox}
+            />
+            Contar abstenciones en los resultados
+          </label>
+          <span className={styles.hint}>
+            Si está activo, las abstenciones aparecerán como una opción en las
+            gráficas de votación (Sí 40%, No 40%, Abstención 20%). Si está
+            inactivo, se muestran solo como dato informativo debajo de la gráfica.
           </span>
         </div>
       </div>
