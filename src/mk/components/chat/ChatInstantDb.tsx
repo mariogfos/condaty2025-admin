@@ -19,10 +19,12 @@ import { getTimePMAM } from "@/mk/utils/date1";
 import Switch from "../forms/Switch/Switch";
 import Image from "next/image";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
+import { useScreenSize } from "@/mk/hooks/useScreenSize";
 
 const soundBell = new Audio("/sounds/bellding.mp3");
 
 export default function ChatInstantDb() {
+  const { isMobile } = useScreenSize();
   const {
     user,
     rooms,
@@ -201,80 +203,105 @@ export default function ChatInstantDb() {
   };
   return (
     <>
-      <div
-        className={styles.chatdrop + " " + (open && styles.open)}
-        onClick={() => setOpen(false)}
-      ></div>
-      <div
-        className={
-          open
-            ? styles.chatContainer + " close " + styles.close
-            : styles.chatContainer
-        }
-        inert={!open ? true : undefined}
-      >
-        {/* encabezado */}
-        <div className={styles.chatHeader}>
-          <div>
-            Activar notificaciones{" "}
-            <Switch
-              value={notifAudio ? "Y" : "N"}
-              name="notifAudio"
-              onChange={() => setNotifAudio(!notifAudio)}
-              checked={notifAudio}
-            />
-          </div>
+      {!isMobile && (
+        <>
           <div
-            onClick={handleOpenHeaderProfile}
-            style={{
-              cursor:
-                typeSearch !== roomGral && typeSearch.indexOf("chatBot") === -1
-                  ? "pointer"
-                  : "default",
-            }}
+            className={styles.chatdrop + " " + (open && styles.open)}
+            onClick={() => setOpen(false)}
+          ></div>
+          <div
+            className={
+              open
+                ? styles.chatContainer + " close " + styles.close
+                : styles.chatContainer
+            }
+            inert={!open ? true : undefined}
           >
-            <div>
-              {typeSearch == roomGral ? (
-                <IconGroup size={40} />
-              ) : typeSearch.indexOf("chatBot") != -1 ? (
-                <Image
-                  src="/assets/images/Condy.png"
-                  width={40}
-                  height={40}
-                  alt="Soporte Condy"
-                  style={{ borderRadius: "50%" }}
+            {/* encabezado */}
+            <div className={styles.chatHeader}>
+              <div>
+                Activar notificaciones{" "}
+                <Switch
+                  value={notifAudio ? "Y" : "N"}
+                  name="notifAudio"
+                  onChange={() => setNotifAudio(!notifAudio)}
+                  checked={notifAudio}
                 />
-              ) : (
-                <Avatar
-                  // src={getUrlImages(
-                  //   "/ADM-" +
-                  //     currentRoom?.value
-                  //       .replace("--", "")
-                  //       .replace(user.id, "") +
-                  //     ".webp?d=" +
-                  //     new Date().getTime(),
-                  // )}
-                  w={40}
-                  h={40}
-                  name={currentRoom?.text ?? ""}
-                />
-              )}
+              </div>
+              <div
+                onClick={handleOpenHeaderProfile}
+                style={{
+                  cursor:
+                    typeSearch !== roomGral && typeSearch.indexOf("chatBot") === -1
+                      ? "pointer"
+                      : "default",
+                }}
+              >
+                <div>
+                  {typeSearch == roomGral ? (
+                    <IconGroup size={40} />
+                  ) : typeSearch.indexOf("chatBot") != -1 ? (
+                    <Image
+                      src="/assets/images/Condy.png"
+                      width={40}
+                      height={40}
+                      alt="Soporte Condy"
+                      style={{ borderRadius: "50%" }}
+                    />
+                  ) : (
+                    <Avatar
+                      // src={getUrlImages(
+                      //   "/ADM-" +
+                      //     currentRoom?.value
+                      //       .replace("--", "")
+                      //       .replace(user.id, "") +
+                      //     ".webp?d=" +
+                      //     new Date().getTime(),
+                      // )}
+                      w={40}
+                      h={40}
+                      name={currentRoom?.text ?? ""}
+                    />
+                  )}
+                </div>
+                <div>{currentRoom && currentRoom.text}</div>
+              </div>
+              <div>
+                <IconX onClick={() => setOpen(false)} />
+              </div>
             </div>
-            <div>{currentRoom && currentRoom.text}</div>
-          </div>
-          <div>
-            <IconX onClick={() => setOpen(false)} />
-          </div>
-        </div>
-        <div className={styles.chatBodyContainer}>
-          <div>
-            <div>
-              {usersChat?.map((u: any, i: number) => {
-                if (u.id == user.id) return null;
-                return (
+            <div className={styles.chatBodyContainer}>
+              <div>
+                <div>
+                  {usersChat?.map((u: any, i: number) => {
+                    if (u.id == user.id) return null;
+                    return (
+                      <ChatContactItem
+                        key={"_" + i + "_" + u.id}
+                        u={u}
+                        user={user}
+                        uniquePresence={uniquePresence}
+                        openChat={_openNewChat}
+                        countMsg={countMsg}
+                        typing={typing}
+                        typeSearch={typeSearch}
+                      />
+                    );
+                  })}
+                </div>
+                <div>
+                  <div>Soporte</div>
+                  {/* <div
+                    style={{
+                      width: "214px",
+                      fontSize: "14px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "4px",
+                    }}
+                  > */}
                   <ChatContactItem
-                    key={"_" + i + "_" + u.id}
-                    u={u}
+                    u={{ id: "chatBot", name: "Condy", isBot: true }}
                     user={user}
                     uniquePresence={uniquePresence}
                     openChat={_openNewChat}
@@ -282,64 +309,43 @@ export default function ChatInstantDb() {
                     typing={typing}
                     typeSearch={typeSearch}
                   />
-                );
-              })}
-            </div>
-            <div>
-              <div>Soporte</div>
-              {/* <div
-                style={{
-                  width: "214px",
-                  fontSize: "14px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "4px",
-                }}
-              > */}
-              <ChatContactItem
-                u={{ id: "chatBot", name: "Condy", isBot: true }}
-                user={user}
-                uniquePresence={uniquePresence}
-                openChat={_openNewChat}
-                countMsg={countMsg}
-                typing={typing}
-                typeSearch={typeSearch}
-              />
-              {/* <Button
-                  variant="secondary"
-                  small
-                  style={{ justifyContent: "left", gap: "4px" }}
-                >
-                  <IconWhatsapp /> Contactarme por WhatsApp
-                </Button>
-                <Button
-                  variant="secondary"
-                  small
-                  style={{ justifyContent: "left", gap: "4px" }}
-                >
-                  <IconEmail /> Contactarme por E-mail
-                </Button> */}
-              {/* </div> */}
-              <div></div>
+                  {/* <Button
+                      variant="secondary"
+                      small
+                      style={{ justifyContent: "left", gap: "4px" }}
+                    >
+                      <IconWhatsapp /> Contactarme por WhatsApp
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      small
+                      style={{ justifyContent: "left", gap: "4px" }}
+                    >
+                      <IconEmail /> Contactarme por E-mail
+                    </Button> */}
+                  {/* </div> */}
+                  <div></div>
+                </div>
+              </div>
+              <div>
+                <ChatRoom
+                  user={user}
+                  roomId={typeSearch}
+                  chats={chats}
+                  sendMessage={_sendMsg}
+                  sendEmoticon={sendEmoticon}
+                  readMessage={readMessage}
+                  users={usersChat}
+                  typing={typing}
+                  sending={sending}
+                  isGroup={rooms.find((e) => e.value === typeSearch)?.isGroup}
+                  db={db}
+                />
+              </div>
             </div>
           </div>
-          <div>
-            <ChatRoom
-              user={user}
-              roomId={typeSearch}
-              chats={chats}
-              sendMessage={_sendMsg}
-              sendEmoticon={sendEmoticon}
-              readMessage={readMessage}
-              users={usersChat}
-              typing={typing}
-              sending={sending}
-              isGroup={rooms.find((e) => e.value === typeSearch)?.isGroup}
-              db={db}
-            />
-          </div>
-        </div>
-      </div>
+        </>
+      )}
 
       {/* Modal de perfil de usuario */}
       {selectedUserId && (

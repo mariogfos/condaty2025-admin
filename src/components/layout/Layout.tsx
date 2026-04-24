@@ -268,21 +268,6 @@ const Layout = ({ children }: any) => {
             />
           </SideMenu>
         )}
-        {!isMobile && isTablet && (
-          <Sidebar
-            open={sideBarOpen}
-            onClose={setSideBarOpen}
-            iconClose={false}
-          >
-            <MainMenu
-              setSideBarOpen={setSideBarOpen}
-              user={user}
-              collapsed={false}
-              setLogout={setOnLogout}
-              setOpenClient={setOpenClient}
-            />
-          </Sidebar>
-        )}
       </section>
       <section>{children}</section>
       <section>{/* Footer Here!! */}</section>
