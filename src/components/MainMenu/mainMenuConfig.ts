@@ -91,6 +91,11 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "partialPayments",
         perm: "bank_accounts",
       },
+      {
+        href: "/qr-dinamico",
+        labelKey: "QR Dinámico",
+        perm: "payments",
+      },
     ],
   },
   {

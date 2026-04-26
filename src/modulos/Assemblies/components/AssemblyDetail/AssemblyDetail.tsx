@@ -174,7 +174,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   useEvent("survey-stats", loadAssembly);
 
   const canEditBasicInfo = assembly?.status === AssemblyStatus.Scheduled;
-  const isFinished = assembly?.status === AssemblyStatus.Completed;
+  const isFinished = assembly?.status === AssemblyStatus.Completed || assembly?.status === AssemblyStatus.Cancelled;
 
   const handleEditDescription = () => {
     if (!canEditBasicInfo) return;
@@ -295,6 +295,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     if (isFinished || assembly?.status == status) return;
     let statusLabel = "iniciar ahora";
     if (status === AssemblyStatus.Completed) statusLabel = "finalizar";
+    if (status === AssemblyStatus.Cancelled) statusLabel = "cancelar";
 
     if (
       !confirm(
@@ -304,6 +305,18 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       return;
     setIsFinishing(true);
     try {
+      // Si se cancela la asamblea, finalizar todas las votaciones activas primero
+      if (status === AssemblyStatus.Cancelled && assembly.surveys) {
+        const activeSurveys = assembly.surveys.filter(
+          (s: any) => s.status === SurveyStatus.Active || s.status === SurveyStatus.Paused,
+        );
+        for (const survey of activeSurveys) {
+          await execute(`/surveys/${survey.id}/status`, "PUT", {
+            status: SurveyStatus.Closed,
+          });
+        }
+      }
+
       const { data } = await execute(
         `/assemblies/${assembly.id}/status`,
         "PATCH",
@@ -312,9 +325,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       if (data?.success || (data && !data.error)) {
         statusLabel = "inicio";
         if (status === AssemblyStatus.Completed) statusLabel = "finalizó";
+        if (status === AssemblyStatus.Cancelled) statusLabel = "canceló";
         showToast(`Asamblea ${statusLabel} correctamente`, "success");
         loadAssembly();
-        // Notificar a todos (owners + admins) que la asamblea finalizó
+        // Notificar a todos (owners + admins) que la asamblea cambió de estado
         notifyAll("assembly-status-change", {
           id: assembly.id,
           status: status,
@@ -368,28 +382,28 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             titleRight={
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {assembly.status === AssemblyStatus.InProgress && (
-                  <Button
-                    variant="danger"
-                    small
-                    onClick={() =>
-                      handleFinishAssembly(AssemblyStatus.Completed)
-                    }
-                    disabled={isFinishing}
-                    // style={{
-                    //   padding: "4px 12px",
-                    //   fontSize: 11,
-                    //   fontWeight: 600,
-                    //   borderRadius: 6,
-                    //   border: "none",
-                    //   cursor: isFinishing ? "not-allowed" : "pointer",
-                    //   backgroundColor: "#dc2626",
-                    //   color: "#fff",
-                    //   opacity: isFinishing ? 0.6 : 1,
-                    //   whiteSpace: "nowrap",
-                    // }}
-                  >
-                    {isFinishing ? "Finalizando..." : "Finalizar"}
-                  </Button>
+                  <>
+                    <Button
+                      variant="danger"
+                      small
+                      onClick={() =>
+                        handleFinishAssembly(AssemblyStatus.Cancelled)
+                      }
+                      disabled={isFinishing}
+                    >
+                      {isFinishing ? "Cancelando..." : "Cancelar"}
+                    </Button>
+                    <Button
+                      variant="primary"
+                      small
+                      onClick={() =>
+                        handleFinishAssembly(AssemblyStatus.Completed)
+                      }
+                      disabled={isFinishing}
+                    >
+                      {isFinishing ? "Finalizando..." : "Finalizar"}
+                    </Button>
+                  </>
                 )}
                 {assembly.status === AssemblyStatus.Scheduled && (
                   <Button
@@ -507,7 +521,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                       marginBottom: 8,
                     }}
                   >
-                    <h3 className={styles.votacionTitle}>{survey.title}</h3>
+                    <h3 className={styles.votacionTitle}>
+                      {survey.squestions?.[0]?.question_text || survey.title}
+                    </h3>
                     <div
                       style={{ display: "flex", gap: 12, alignItems: "center" }}
                     >
