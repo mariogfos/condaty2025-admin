@@ -233,7 +233,7 @@ const LoginView = ({
                   error={errors}
                   value={formState.email}
                   onChange={handleChange}
-                  maxLength={20}
+                  // maxLength={20}
                 />
               </div>
 
@@ -245,7 +245,7 @@ const LoginView = ({
                   error={errors}
                   value={formState.password}
                   onChange={handleChange}
-                  maxLength={10}
+                  // maxLength={20}
                 />
               </div>
               <div

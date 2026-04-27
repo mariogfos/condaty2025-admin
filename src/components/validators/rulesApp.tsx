@@ -163,7 +163,7 @@ export const validDateLess: ValidFunctionType = (
 export const validPassword: ValidFunctionType = (value, param) => {
   let [min, max]: any = param;
   if (!min) min = 4;
-  if (!max) max = 10;
+  if (!max) max = 20;
   const error =
     "La contraseña debe tener entre " + min + " y " + max + " caracteres";
   return value.length < min || value.length > max ? error : "";
