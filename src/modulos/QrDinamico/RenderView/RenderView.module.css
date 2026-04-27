@@ -1,0 +1,181 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal {
+  background: #1a1a2e;
+  border: 1px solid #d7fff018;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cWhite);
+  margin: 0;
+}
+
+.modalRef {
+  font-size: 12px;
+  color: var(--cWhiteV1);
+  font-family: monospace;
+  margin-top: 4px;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--cWhiteV1);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.closeBtn:hover { color: var(--cWhite); }
+
+/* ─── QR Image Section ───────────────────────────────────────────────────── */
+.qrSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  background: #fff;
+  border-radius: 12px;
+}
+
+.qrImage {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+
+.qrAmount {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.qrGloss {
+  font-size: 13px;
+  color: #555;
+}
+
+/* ─── Info Grid ──────────────────────────────────────────────────────────── */
+.infoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid #d7fff014;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.625rem 0.875rem;
+  border-bottom: 1px solid #d7fff00a;
+}
+
+.infoRow:last-child {
+  border-bottom: none;
+}
+
+.infoLabel {
+  font-size: 13px;
+  color: var(--cWhiteV1);
+}
+
+.infoValue {
+  font-size: 13px;
+  color: var(--cWhite);
+  font-weight: 500;
+  text-align: right;
+  max-width: 60%;
+  word-break: break-word;
+}
+
+/* ─── Actions ────────────────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.btnSecondary {
+  padding: 0.5rem 1rem;
+  background: #d7fff010;
+  border: 1px solid #d7fff020;
+  border-radius: 8px;
+  color: var(--cWhite);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnSecondary:hover { background: #d7fff020; }
+
+.btnDanger {
+  padding: 0.5rem 1rem;
+  background: rgba(242,61,45,0.12);
+  border: 1px solid rgba(242,61,45,0.3);
+  border-radius: 8px;
+  color: #F23D2D;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnDanger:hover { background: rgba(242,61,45,0.2); }
+.btnDanger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnOutline {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid #d7fff020;
+  border-radius: 8px;
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  cursor: pointer;
+}

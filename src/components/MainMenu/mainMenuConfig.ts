@@ -43,7 +43,7 @@ export const menuConfig: MenuConfigItem[] = [
     href: "/tasks",
     labelKey: "tasks",
     // perm: "tasks",
-     perm: "",
+    perm: "",
     icon: IconMonitorLine,
   },
   {
@@ -91,6 +91,11 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "partialPayments",
         perm: "bank_accounts",
       },
+      {
+        href: "/qr-dinamico",
+        labelKey: "QR Dinámico",
+        perm: "payments",
+      },
     ],
   },
   {
@@ -103,6 +108,11 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/assemblies", perm: "units", labelKey: "assemblies" },
       { href: "/documents", perm: "documents", labelKey: "documents" },
       { href: "/configs", perm: "settings", labelKey: "settings" },
+      {
+        href: "/cash-flow-report",
+        perm: "balance",
+        labelKey: "Reporte Mensual CashFlow",
+      },
     ],
   },
   {

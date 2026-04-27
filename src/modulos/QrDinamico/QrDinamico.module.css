@@ -1,0 +1,251 @@
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cWhite);
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* ─── Tabs ─────────────────────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid #d7fff014;
+  padding-bottom: 0;
+}
+
+.tab {
+  padding: 0.5rem 1rem;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--cWhiteV1);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  color: var(--cWhite);
+}
+
+.tabActive {
+  color: #00E38C;
+  border-bottom-color: #00E38C;
+}
+
+/* ─── Filters ───────────────────────────────────────────────────────────────── */
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filterSelect {
+  background: #d7fff008;
+  border: 1px solid #d7fff018;
+  border-radius: 8px;
+  color: var(--cWhite);
+  padding: 0.5rem 0.75rem;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  min-width: 140px;
+  transition: border-color 0.2s;
+}
+
+.filterSelect:hover {
+  border-color: #d7fff030;
+}
+
+.filterSelect option {
+  background: #1a1a2e;
+}
+
+/* ─── Table ─────────────────────────────────────────────────────────────────── */
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table thead tr {
+  background: #d7fff006;
+  border-bottom: 1px solid #d7fff014;
+}
+
+.table thead th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  color: var(--cWhiteV1);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #d7fff00a;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.table tbody tr:hover {
+  background: #d7fff008;
+}
+
+.table tbody td {
+  padding: 0.75rem 1rem;
+  color: var(--cWhite);
+  vertical-align: middle;
+}
+
+/* ─── State Badge ─────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ─── Actions ───────────────────────────────────────────────────────────────── */
+.actionBtn {
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.actionBtn:hover {
+  opacity: 0.85;
+}
+
+.btnCancel {
+  background: rgba(242, 61, 45, 0.12);
+  color: #F23D2D;
+  border: 1px solid rgba(242, 61, 45, 0.3);
+}
+
+.btnView {
+  background: rgba(0, 227, 140, 0.08);
+  color: #00E38C;
+  border: 1px solid rgba(0, 227, 140, 0.2);
+}
+
+/* ─── Generate Button ─────────────────────────────────────────────────────── */
+.generateBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: #00E38C;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.generateBtn:hover {
+  background: #00c97d;
+}
+
+/* ─── Empty State ─────────────────────────────────────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 0.75rem;
+  color: var(--cWhiteV1);
+}
+
+.emptyState p {
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ─── Pagination ─────────────────────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 13px;
+  color: var(--cWhiteV1);
+}
+
+.paginationBtn {
+  padding: 0.375rem 0.75rem;
+  background: #d7fff008;
+  border: 1px solid #d7fff018;
+  border-radius: 6px;
+  color: var(--cWhite);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.paginationBtn:hover:not(:disabled) {
+  background: #d7fff016;
+}
+
+.paginationBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─── Amount ─────────────────────────────────────────────────────────────── */
+.amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.currency {
+  font-size: 11px;
+  color: var(--cWhiteV1);
+  margin-left: 4px;
+}
