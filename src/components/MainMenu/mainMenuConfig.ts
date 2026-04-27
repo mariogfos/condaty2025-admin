@@ -43,7 +43,7 @@ export const menuConfig: MenuConfigItem[] = [
     href: "/tasks",
     labelKey: "tasks",
     // perm: "tasks",
-     perm: "",
+    perm: "",
     icon: IconMonitorLine,
   },
   {
@@ -108,6 +108,11 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/assemblies", perm: "units", labelKey: "assemblies" },
       { href: "/documents", perm: "documents", labelKey: "documents" },
       { href: "/configs", perm: "settings", labelKey: "settings" },
+      {
+        href: "/cash-flow-report",
+        perm: "balance",
+        labelKey: "Reporte Mensual CashFlow",
+      },
     ],
   },
   {
