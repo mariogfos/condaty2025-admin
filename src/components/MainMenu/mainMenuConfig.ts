@@ -89,6 +89,7 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/areas", perm: "areas", labelKey: "commonAreas" },
       { href: "/documents", perm: "documents", labelKey: "documents" },
       { href: "/configs", perm: "settings", labelKey: "settings" },
+      { href: "/cash-flow-report", perm: "balance", labelKey: "cashFlowReport" },
     ],
   },
   {
