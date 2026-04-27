@@ -80,8 +80,7 @@ const LoginView = ({
   };
 
   const formatMessage = (msg: string) => {
-    if (!msg)
-      return translate("verificationMessage");
+    if (!msg) return translate("verificationMessage");
     return msg.replace(
       /-+(.*?)-+/g,
       '<span style="font-weight: 800; color: #fff;">$1</span>',
@@ -177,7 +176,9 @@ const LoginView = ({
               )}
 
               {isBlocked ? (
-                <p className={styles.errorText}>{translate("verificationBlocked")}</p>
+                <p className={styles.errorText}>
+                  {translate("verificationBlocked")}
+                </p>
               ) : (
                 <>
                   {canResend ? (
@@ -232,7 +233,7 @@ const LoginView = ({
                   error={errors}
                   value={formState.email}
                   onChange={handleChange}
-                  maxLength={11}
+                  // maxLength={11}
                 />
               </div>
 
@@ -244,7 +245,7 @@ const LoginView = ({
                   error={errors}
                   value={formState.password}
                   onChange={handleChange}
-                  maxLength={10}
+                  // maxLength={10}
                 />
               </div>
               <div
@@ -253,7 +254,9 @@ const LoginView = ({
               >
                 {translate("forgotPassword")}
               </div>
-              <Button className={styles.button}>{translate("loginAction")}</Button>
+              <Button className={styles.button}>
+                {translate("loginAction")}
+              </Button>
               <div className={styles.termsContainer}>
                 {translate("termsPrefix")}
                 <a href="https://www.condaty.com/terminos">

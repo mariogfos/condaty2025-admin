@@ -163,7 +163,7 @@ export const validDateLess: ValidFunctionType = (
 export const validPassword: ValidFunctionType = (value, param) => {
   let [min, max]: any = param;
   if (!min) min = 4;
-  if (!max) max = 10;
+  if (!max) max = 20;
   const error =
     "La contraseña debe tener entre " + min + " y " + max + " caracteres";
   return value.length < min || value.length > max ? error : "";
@@ -210,7 +210,7 @@ export const validOptionsSurvey: ValidFunctionType = (value, param, field) => {
   const min = Number(field?.min_options ?? field?.nresp ?? field?.max ?? 1);
 
   if (!value || !Array.isArray(value) || value.length < min) {
-    return `Debe tener al menos ${min} opción${min !== 1 ? 'es' : ''}`;
+    return `Debe tener al menos ${min} opción${min !== 1 ? "es" : ""}`;
   }
 
   value.forEach((option: any) => {
