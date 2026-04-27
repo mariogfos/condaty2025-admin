@@ -41,6 +41,7 @@ import AssemblySurveyForm from "@/modulos/Surveys/components/AssemblySurveyForm/
 import AssemblyAttendanceForm from "../AssemblyAttendanceForm/AssemblyAttendanceForm";
 import AssemblyAttendanceList from "../AssemblyAttendanceList/AssemblyAttendanceList";
 import AssemblyManualVoteForm from "../AssemblyManualVoteForm/AssemblyManualVoteForm";
+import AssemblyActaManager from "../AssemblyActaManager/AssemblyActaManager";
 import VotersListModal from "@/modulos/Surveys/components/VotersListModal/VotersListModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
@@ -932,6 +933,18 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               )}
             </div>
           </Card>
+
+          {/* ACTA */}
+          {assembly.status === "C" && (
+            <Card title="ACTA DE LA ASAMBLEA">
+              <AssemblyActaManager
+                assembly={assembly}
+                onActaChange={(updatedAssembly) => {
+                  setAssembly(updatedAssembly);
+                }}
+              />
+            </Card>
+          )}
 
           {/* PARTICIPANTES */}
           <Card

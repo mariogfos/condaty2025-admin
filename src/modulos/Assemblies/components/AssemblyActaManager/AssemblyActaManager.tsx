@@ -5,7 +5,9 @@ import Button from "@/mk/components/forms/Button/Button";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import styles from "./AssemblyActaManager.module.css";
 import { Assembly } from "../../types/assemblies.types";
-import useAxios from "@/mk/hooks/useAxios";
+import { useAssemblies } from "../../hooks/useAssemblies";
+import { IconDOC } from "@/components/layout/icons/IconsBiblioteca";
+import { getDateStrMes } from "@/mk/utils/date";
 
 interface AssemblyActaManagerProps {
   assembly: Assembly;
@@ -16,39 +18,26 @@ const AssemblyActaManager: React.FC<AssemblyActaManagerProps> = ({
   assembly,
   onActaChange,
 }) => {
-  const [files, setFiles] = useState<string[]>(assembly.declarations || []);
+  const [formState, setFormState] = useState<{ acta_file: string[] }>({
+    acta_file: [],
+  });
   const [isSaving, setIsSaving] = useState(false);
-  const { execute: saveActa } = useAxios();
-
-  // Por ahora, el acta se maneja como "declarations" en la API
-  // En una versión futura, podría ser un campo específico "acta_file"
-
-  const handleFilesChange = (newFiles: string[]) => {
-    setFiles(newFiles);
-  };
+  const { uploadActa } = useAssemblies();
 
   const handleSave = async () => {
-    if (isSaving) return;
+    if (isSaving || formState.acta_file.length === 0) return;
 
     setIsSaving(true);
     try {
-      // Por ahora usamos el endpoint de update config para guardar el acta
-      // En el futuro, podría ser un endpoint específico
-      const response = await saveActa(
-        `/assemblies/${assembly.id}`,
-        "PUT",
-        {
-          declarations: files,
-        },
-        false,
-        true
-      );
+      const success = await uploadActa(assembly.id, formState.acta_file[0]);
 
-      if (response?.data) {
+      if (success) {
         onActaChange({
           ...assembly,
-          declarations: files,
+          acta_file: formState.acta_file[0],
+          acta_uploaded_at: new Date().toISOString(),
         });
+        setFormState({ acta_file: [] }); // Limpiar estado de subida
       }
     } catch (error) {
       console.error("Error saving acta:", error);
@@ -62,54 +51,52 @@ const AssemblyActaManager: React.FC<AssemblyActaManagerProps> = ({
       <div className={styles.section}>
         <h3>Acta de la asamblea</h3>
         <p className={styles.description}>
-          Sube el archivo del acta de la asamblea. Puede ser un PDF, documento, o cualquier archivo relevante.
+          Sube el archivo final del acta de la asamblea.
         </p>
 
         <div className={styles.uploadArea}>
           <UploadFileV3
-            formState={{ files }}
-            setFormState={(state: any, callback?: any) => {
-              if (callback) {
-                callback();
-              }
-            }}
-            name="files"
-            mode="all"
+            name="acta_file"
+            formState={formState}
+            setFormState={setFormState}
+            cant={1}
+            mode="documents"
             maxMB={10}
+            title="Arrastra el acta aquí"
+            subtitle="o haz clic para seleccionar (solo 1 archivo)"
           />
         </div>
 
-        {files.length > 0 && (
-          <div className={styles.fileList}>
-            <h4>Archivos subidos:</h4>
-            <ul>
-              {files.map((file, index) => (
-                <li key={index}>
-                  <a href={file} target="_blank" rel="noopener noreferrer">
-                    Ver archivo {index + 1}
-                  </a>
-                </li>
-              ))}
-            </ul>
+        {formState.acta_file.length > 0 && (
+          <div className={styles.actions}>
+            <Button
+              variant="primary"
+              onClick={handleSave}
+              disabled={isSaving}
+            >
+              {isSaving ? "Guardando..." : "Guardar acta"}
+            </Button>
           </div>
         )}
-      </div>
 
-      <div className={styles.actions}>
-        <Button
-          variant="primary"
-          onClick={handleSave}
-          disabled={isSaving}
-        >
-          {isSaving ? "Guardando..." : "Guardar acta"}
-        </Button>
-      </div>
-
-      <div className={styles.info}>
-        <p>
-          <strong>Nota:</strong> El acta se guarda en el campo "declaraciones" de la asamblea.
-          En futuras versiones, se podrá generar automáticamente desde audio transcrito con IA.
-        </p>
+        {assembly.acta_file && (
+          <div className={styles.currentActa}>
+            <h4>Acta Actual:</h4>
+            <div className={styles.fileCard}>
+              <IconDOC />
+              <div className={styles.fileInfo}>
+                <a href={assembly.acta_file} target="_blank" rel="noopener noreferrer">
+                  Ver documento
+                </a>
+                {assembly.acta_uploaded_at && (
+                  <span className={styles.uploadDate}>
+                    Subida el: {getDateStrMes(assembly.acta_uploaded_at)}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -29,48 +29,51 @@
   border-radius: 8px;
 }
 
-.fileList {
+.currentActa {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px;
+  background-color: var(--cWhite);
+  border: 1px solid var(--cBorder);
+  border-radius: 8px;
 }
 
-.fileList h4 {
+.currentActa h4 {
   font-size: 14px;
   font-weight: 600;
   color: var(--cText);
   margin: 0;
 }
 
-.fileList ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.fileCard {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.fileList li a {
-  color: var(--cPrimary);
-  font-size: 14px;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 16px;
-  border-top: 1px solid var(--cBorder);
-}
-
-.info {
-  padding: 16px;
-  background: var(--cHoverCompl);
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background-color: var(--cHoverCompl);
   border-radius: 8px;
 }
 
-.info p {
-  font-size: 13px;
+.fileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fileInfo a {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--cPrimary);
+  text-decoration: none;
+}
+
+.fileInfo a:hover {
+  text-decoration: underline;
+}
+
+.uploadDate {
+  font-size: 12px;
   color: var(--cTextMuted);
-  margin: 0;
 }
