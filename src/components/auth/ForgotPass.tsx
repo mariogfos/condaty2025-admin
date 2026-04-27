@@ -162,7 +162,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
           ...err,
           newPassword: translate("passwordMinLength"),
         };
-      if (formState.newPassword?.length > 10)
+      if (formState.newPassword?.length > 30)
         err = {
           ...err,
           newPassword: translate("passwordMaxLength"),
