@@ -24,6 +24,10 @@ interface UseAssembliesReturn {
     id: string | number,
     data: Partial<Assembly>,
   ) => Promise<boolean>;
+  uploadActa: (
+    id: string | number,
+    actaFileUrl: string,
+  ) => Promise<boolean>;
   execute: any;
   reLoad: any;
 }
@@ -172,6 +176,34 @@ export const useAssemblies = (): UseAssembliesReturn => {
     [],
   );
 
+  const uploadActa = useCallback(
+    async (id: string | number, actaFileUrl: string): Promise<boolean> => {
+      setLoading(true);
+      try {
+        const { data: response } = await execute(
+          `${modulePath}/${id}/acta`,
+          "POST",
+          { acta_file: actaFileUrl },
+          false,
+          true,
+        );
+        if (response?.success) {
+          showToast("Acta subida correctamente", "success");
+          return true;
+        }
+        showToast(response?.message || "Error al subir acta", "error");
+        return false;
+      } catch (err: any) {
+        console.error("Error uploading acta:", err);
+        showToast(err.message || "Error al subir acta", "error");
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
   return {
     assemblies,
     stats,
@@ -182,6 +214,7 @@ export const useAssemblies = (): UseAssembliesReturn => {
     fetchAssemblyStats,
     updateAssemblyStatus,
     updateAssembly,
+    uploadActa,
     execute,
     reLoad,
   };

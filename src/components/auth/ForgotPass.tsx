@@ -80,7 +80,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
     if (!formState.ci) {
       err = { ...err, ci: translate("enterDocument") };
     }
-    if (formState.ci && formState.ci.length > 11) {
+    if (formState.ci && formState.ci.length > 20) {
       err = {
         ...err,
         ci: translate("documentMaxLength"),
@@ -162,7 +162,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
           ...err,
           newPassword: translate("passwordMinLength"),
         };
-      if (formState.newPassword?.length > 10)
+      if (formState.newPassword?.length > 20)
         err = {
           ...err,
           newPassword: translate("passwordMaxLength"),
@@ -244,7 +244,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
             value={formState.ci}
             onChange={handleChangeInput}
             className="mYl"
-            maxLength={11}
+            // maxLength={11}
           />
           {(minutos || segundos > 0) && (
             <div className="cError">

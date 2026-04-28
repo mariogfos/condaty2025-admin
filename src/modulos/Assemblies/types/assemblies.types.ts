@@ -59,6 +59,8 @@ export interface Assembly {
   address_url?: string;
   files?: any[];
   declarations?: string[];
+  acta_file?: string;
+  acta_uploaded_at?: string;
   status: AssemblyStatus | string;
   quorum_required?: number;
   anonymous_voting?: boolean;

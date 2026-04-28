@@ -1,76 +1,62 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
 }
 
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.section h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--cText);
-  margin: 0;
-}
-
-.description {
-  font-size: 14px;
-  color: var(--cTextMuted);
-  margin: 0;
-}
-
-.uploadArea {
-  padding: 16px;
-  background: var(--cHoverCompl);
-  border-radius: 8px;
-}
-
-.fileList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.fileList h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--cText);
-  margin: 0;
-}
-
-.fileList ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.fileList li a {
-  color: var(--cPrimary);
-  font-size: 14px;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 16px;
-  border-top: 1px solid var(--cBorder);
-}
-
-.info {
-  padding: 16px;
-  background: var(--cHoverCompl);
-  border-radius: 8px;
-}
-
-.info p {
+.noActa {
+  padding: 10px 0;
+  color: #666;
   font-size: 13px;
-  color: var(--cTextMuted);
-  margin: 0;
+}
+
+.actaItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+}
+
+.actaItem:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--cAccent);
+}
+
+.actaInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.textContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.actaName {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+  font-weight: 500;
+}
+
+.actaDate {
+  font-size: 11px;
+  color: #888;
+}
+
+.actaDownload {
+  color: #888;
+  display: flex;
+  align-items: center;
 }

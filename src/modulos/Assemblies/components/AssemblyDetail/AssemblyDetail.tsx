@@ -41,6 +41,7 @@ import AssemblySurveyForm from "@/modulos/Surveys/components/AssemblySurveyForm/
 import AssemblyAttendanceForm from "../AssemblyAttendanceForm/AssemblyAttendanceForm";
 import AssemblyAttendanceList from "../AssemblyAttendanceList/AssemblyAttendanceList";
 import AssemblyManualVoteForm from "../AssemblyManualVoteForm/AssemblyManualVoteForm";
+import AssemblyActaManager from "../AssemblyActaManager/AssemblyActaManager";
 import VotersListModal from "@/modulos/Surveys/components/VotersListModal/VotersListModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
@@ -85,6 +86,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     fetchAssemblyDetail,
     fetchAssemblyStats,
     updateAssembly,
+    uploadActa,
     execute,
     loading,
     error,
@@ -109,6 +111,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const [surveyToEdit, setSurveyToEdit] = useState<any>(null);
   const [surveyAction, setSurveyAction] = useState<"add" | "edit">("add");
   const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
+  const [isEditingActa, setIsEditingActa] = useState(false);
+  const [tempActa, setTempActa] = useState({ acta_file: [] as string[] });
+  const [isSavingActa, setIsSavingActa] = useState(false);
   const [votersModal, setVotersModal] = useState<{
     open: boolean;
     soptionId: number | string;
@@ -219,6 +224,29 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       showToast("No se pudieron actualizar los documentos", "error");
     }
     setIsSavingDocs(false);
+  };
+
+  const handleEditActa = () => {
+    setTempActa({ acta_file: assembly?.acta_file ? [assembly.acta_file] : [] });
+    setIsEditingActa(true);
+  };
+
+  const handleSaveActa = async () => {
+    if (!assembly || tempActa.acta_file.length === 0) return;
+    setIsSavingActa(true);
+    const success = await uploadActa(assembly.id, tempActa.acta_file[0]);
+    if (success) {
+      setAssembly({
+        ...assembly,
+        acta_file: tempActa.acta_file[0],
+        acta_uploaded_at: new Date().toISOString(),
+      });
+      setIsEditingActa(false);
+      showToast("Acta subida correctamente", "success");
+    } else {
+      showToast("Error al subir el acta", "error");
+    }
+    setIsSavingActa(false);
   };
 
   const handleStatusChange = async (
@@ -933,6 +961,28 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             </div>
           </Card>
 
+          {/* ACTA */}
+          <Card
+            title="ACTA DE LA ASAMBLEA"
+            titleRight={
+              !isMobile && (
+                <button
+                  className={styles.actionBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditActa();
+                  }}
+                  disabled={!isFinished}
+                  style={{ opacity: !isFinished ? 0.5 : 1 }}
+                >
+                  <IconAdd size={12} /> Subir
+                </button>
+              )
+            }
+          >
+            <AssemblyActaManager assembly={assembly} />
+          </Card>
+
           {/* PARTICIPANTES */}
           <Card
             title="PARTICIPANTES"
@@ -1028,6 +1078,40 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               name="files"
               mode="all"
               maxMB={5}
+            />
+          </div>
+        )}
+      </DataModal>
+
+      <DataModal
+        title="Subir Acta de la Asamblea"
+        open={isEditingActa}
+        onClose={() => setIsEditingActa(false)}
+        onSave={handleSaveActa}
+        buttonText={isSavingActa ? "Subiendo..." : "Guardar acta"}
+        disabled={isSavingActa}
+        maxWidth={600}
+      >
+        {isEditingActa && (
+          <div style={{ padding: "10px 0" }}>
+            <p
+              style={{
+                fontSize: 14,
+                color: "#888",
+                marginBottom: 20,
+                lineHeight: 1.5,
+              }}
+            >
+              Sube el archivo final del acta de la asamblea. Este archivo estará
+              disponible para consulta por los residentes.
+            </p>
+            <UploadFileV3
+              formState={tempActa}
+              setFormState={setTempActa}
+              name="acta_file"
+              mode="documents"
+              maxMB={10}
+              cant={1}
             />
           </div>
         )}
