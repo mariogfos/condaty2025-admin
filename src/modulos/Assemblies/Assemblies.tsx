@@ -77,7 +77,6 @@ const Assemblies = () => {
           title="Total"
           data={total}
           style={{ minWidth: "160px", maxWidth: "260px" }}
-          icon={<IconCalendar color="var(--cInfo)" circle size={18} />}
         />
         <WidgetDashCard
           title="Programadas"

@@ -7,6 +7,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import DefaulterConfig from "./DefaulterConfig/DefaulterConfig";
 import PaymentsConfig from "./PaymentsConfig/PaymentsConfig";
 import DptoConfig from "./DptoConfig/DptoConfig";
+import QrDynamicConfig from "./QrDynamicConfig/QrDynamicConfig";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
@@ -56,6 +57,7 @@ const Config = () => {
             { value: "P", text: "Cuentas de pagos" },
             { value: "M", text: "Morosidad" },
             { value: "T", text: "Tipos de unidades" },
+            { value: "Q", text: "QR Dinámico" },
           ]}
           sel={typeSearch}
           setSel={setTypeSearch}
@@ -90,6 +92,7 @@ const Config = () => {
           </LoadingScreen>
         )}
         {typeSearch == "T" && <UnitsType />}
+        {typeSearch == "Q" && <QrDynamicConfig />}
       </div>
     </div>
   );
