@@ -133,8 +133,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const getSortedSurveys = (surveys: any[]) => {
     if (!surveys?.length) return [];
     return [...surveys].sort((a, b) => {
-      const isActiveA = a.status === 'A';
-      const isActiveB = b.status === 'A';
+      const isActiveA = a.status === "A";
+      const isActiveB = b.status === "A";
       // Si una está activa y otra no, la activa va primero
       if (isActiveA && !isActiveB) return -1;
       if (!isActiveA && isActiveB) return 1;
@@ -179,7 +179,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   useEvent("survey-stats", loadAssembly);
 
   const canEditBasicInfo = assembly?.status === AssemblyStatus.Scheduled;
-  const isFinished = assembly?.status === AssemblyStatus.Completed || assembly?.status === AssemblyStatus.Cancelled;
+  const isFinished =
+    assembly?.status === AssemblyStatus.Completed ||
+    assembly?.status === AssemblyStatus.Cancelled;
 
   const handleEditDescription = () => {
     if (!canEditBasicInfo) return;
@@ -336,7 +338,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       // Si se cancela la asamblea, finalizar todas las votaciones activas primero
       if (status === AssemblyStatus.Cancelled && assembly.surveys) {
         const activeSurveys = assembly.surveys.filter(
-          (s: any) => s.status === SurveyStatus.Active || s.status === SurveyStatus.Paused,
+          (s: any) =>
+            s.status === SurveyStatus.Active ||
+            s.status === SurveyStatus.Paused,
         );
         for (const survey of activeSurveys) {
           await execute(`/surveys/${survey.id}/status`, "PUT", {
@@ -699,8 +703,12 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                             denominator > 0
                               ? Math.round((votes / denominator) * 100)
                               : 0;
-                          const isNo = opt.option_text?.toLowerCase().includes("no");
-                          const isNulo = opt.option_text?.toLowerCase().includes("nulo");
+                          const isNo = opt.option_text
+                            ?.toLowerCase()
+                            .includes("no");
+                          const isNulo = opt.option_text
+                            ?.toLowerCase()
+                            .includes("nulo");
                           const barColor = isNo
                             ? "#EF4444"
                             : isNulo
@@ -711,7 +719,13 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                             <div key={opt.id} className={styles.optionItem}>
                               <div className={styles.optionHeader}>
                                 <span>{opt.option_text}</span>
-                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                  }}
+                                >
                                   <span>
                                     {percentage}% ({votes}{" "}
                                     {votes === 1 ? "voto" : "votos"})
@@ -736,7 +750,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               <div className={styles.progressContainer}>
                                 <div
                                   className={styles.progressBar}
-                                  style={{ width: `${percentage}%`, background: barColor }}
+                                  style={{
+                                    width: `${percentage}%`,
+                                    background: barColor,
+                                  }}
                                 />
                               </div>
                             </div>
@@ -747,12 +764,18 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                         {abstention && countAsOption && (
                           <div className={styles.optionItem}>
                             <div className={styles.optionHeader}>
-                              <span style={{ color: "#f97316", fontWeight: 600 }}>
+                              <span
+                                style={{ color: "#f97316", fontWeight: 600 }}
+                              >
                                 Abstenciones
                               </span>
                               <span style={{ color: "#f97316" }}>
-                                {abstention.abstention_rate}% ({abstention.abstentions}{" "}
-                                {abstention.abstentions === 1 ? "unidad" : "unidades"})
+                                {abstention.abstention_rate}% (
+                                {abstention.abstentions}{" "}
+                                {abstention.abstentions === 1
+                                  ? "unidad"
+                                  : "unidades"}
+                                )
                               </span>
                             </div>
                             <div className={styles.progressContainer}>
@@ -760,7 +783,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 className={styles.progressBar}
                                 style={{
                                   width: `${abstention.abstention_rate}%`,
-                                  background: "linear-gradient(90deg, #f97316, #ef4444)",
+                                  background:
+                                    "linear-gradient(90deg, #f97316, #ef4444)",
                                 }}
                               />
                             </div>
@@ -768,24 +792,28 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                         )}
 
                         {/* Footer informativo — solo cuando count_as_option=false */}
-                        {abstention && !countAsOption && abstention.total_expected > 0 && (
-                          <div className={styles.abstentionFooter}>
-                            <span className={styles.abstentionFooterItem}>
-                              ✔ Votos válidos:{" "}
-                              <strong>{abstention.total_voted}</strong>{" "}
-                              ({abstention.participation_rate}%)
-                            </span>
-                            <span className={styles.abstentionSeparator}>|</span>
-                            <span
-                              className={styles.abstentionFooterItem}
-                              style={{ color: "#f97316" }}
-                            >
-                              Abstenciones:{" "}
-                              <strong>{abstention.abstentions}</strong>{" "}
-                              ({abstention.abstention_rate}%)
-                            </span>
-                          </div>
-                        )}
+                        {abstention &&
+                          !countAsOption &&
+                          abstention.total_expected > 0 && (
+                            <div className={styles.abstentionFooter}>
+                              <span className={styles.abstentionFooterItem}>
+                                ✔ Votos válidos:{" "}
+                                <strong>{abstention.total_voted}</strong> (
+                                {abstention.participation_rate}%)
+                              </span>
+                              <span className={styles.abstentionSeparator}>
+                                |
+                              </span>
+                              <span
+                                className={styles.abstentionFooterItem}
+                                style={{ color: "#f97316" }}
+                              >
+                                Abstenciones:{" "}
+                                <strong>{abstention.abstentions}</strong> (
+                                {abstention.abstention_rate}%)
+                              </span>
+                            </div>
+                          )}
                       </div>
                     );
                   })}
@@ -1077,7 +1105,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               setFormState={setTempDocs}
               name="files"
               mode="all"
-              maxMB={5}
+              maxMB={30}
             />
           </div>
         )}
@@ -1110,7 +1138,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               setFormState={setTempActa}
               name="acta_file"
               mode="documents"
-              maxMB={10}
+              maxMB={30}
               cant={1}
             />
           </div>
