@@ -1,0 +1,134 @@
+.container {
+  padding: var(--sp-m) var(--sp-l);
+  max-width: 800px;
+}
+
+.loading {
+  text-align: center;
+  padding: var(--sp-xl);
+  color: var(--c-white-v1);
+}
+
+.mainTitle {
+  font-size: var(--s-l);
+  font-weight: var(--font-semibold);
+  color: var(--c-white);
+  margin-bottom: var(--sp-xs);
+}
+
+.headerSubtitle {
+  font-size: var(--s-s);
+  color: var(--c-white-v1);
+  margin-bottom: var(--sp-l);
+  line-height: 1.5;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-m);
+}
+
+.sectionContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-s);
+}
+
+.sectionTitle {
+  font-size: var(--s-m);
+  font-weight: var(--font-semibold);
+  color: var(--c-white);
+}
+
+.sectionSubtitle {
+  font-size: var(--s-s);
+  color: var(--c-white-v1);
+  margin-bottom: var(--sp-xs);
+}
+
+.sectionDescription {
+  font-size: var(--s-xs);
+  color: var(--c-white-v2);
+  margin-top: var(--sp-xs);
+}
+
+.toggleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--c-neutral-600);
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--c-white);
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggle input:checked + .toggleSlider {
+  background-color: var(--c-accent);
+}
+
+.toggle input:checked + .toggleSlider:before {
+  transform: translateX(24px);
+}
+
+.formGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-m);
+}
+
+.infoTitle {
+  font-size: var(--s-s);
+  font-weight: var(--font-semibold);
+  color: var(--c-white);
+  margin-bottom: var(--sp-xs);
+}
+
+.infoText {
+  font-size: var(--s-xs);
+  color: var(--c-white-v1);
+  line-height: 1.5;
+}
+
+.saveButtonContainer {
+  margin-top: var(--sp-l);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.saveButton {
+  min-width: 200px;
+}
