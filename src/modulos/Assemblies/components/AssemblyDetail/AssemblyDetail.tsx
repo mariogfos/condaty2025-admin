@@ -119,6 +119,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     soptionId: number | string;
     soptionText: string;
     totalVoters: number;
+    surveyId?: number | string;
   } | null>(null);
   const { isMobile } = useScreenSize();
   const { showToast } = useAuth();
@@ -769,13 +770,37 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               >
                                 Abstenciones
                               </span>
-                              <span style={{ color: "#f97316" }}>
-                                {abstention.abstention_rate}% (
-                                {abstention.abstentions}{" "}
-                                {abstention.abstentions === 1
-                                  ? "unidad"
-                                  : "unidades"}
-                                )
+                              <span
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <span style={{ color: "#f97316" }}>
+                                  {abstention.abstention_rate}% (
+                                  {abstention.abstentions}{" "}
+                                  {abstention.abstentions === 1
+                                    ? "unidad"
+                                    : "unidades"}
+                                  )
+                                </span>
+                                {abstention.abstentions > 0 && (
+                                  <button
+                                    className={styles.verVotantesBtn}
+                                    onClick={() => {
+                                      setVotersModal({
+                                        open: true,
+                                        soptionId: "abstention",
+                                        soptionText: "Abstenciones",
+                                        totalVoters: abstention.abstentions,
+                                        surveyId: survey.id,
+                                      });
+                                    }}
+                                  >
+                                    ver
+                                  </button>
+                                )}
                               </span>
                             </div>
                             <div className={styles.progressContainer}>
@@ -1190,6 +1215,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           soptionId={votersModal.soptionId}
           soptionText={votersModal.soptionText}
           totalVoters={votersModal.totalVoters}
+          surveyId={votersModal.surveyId}
         />
       )}
     </div>

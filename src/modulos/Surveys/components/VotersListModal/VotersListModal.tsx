@@ -21,6 +21,7 @@ type VotersListModalProps = {
   soptionId: number | string;
   soptionText: string;
   totalVoters: number;
+  surveyId?: number | string;
 };
 
 const VotersListModal: React.FC<VotersListModalProps> = ({
@@ -29,6 +30,7 @@ const VotersListModal: React.FC<VotersListModalProps> = ({
   soptionId,
   soptionText,
   totalVoters,
+  surveyId,
 }) => {
   const [voters, setVoters] = useState<Voter[]>([]);
   const { execute } = useAxios();
@@ -37,10 +39,13 @@ const VotersListModal: React.FC<VotersListModalProps> = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: response, loaded: loadedState } = await execute(
-        `/surveys/soptions/${soptionId}/voters`,
-        "GET",
-      );
+      // Build URL with optional survey_id param for abstention case
+      let url = `/surveys/soptions/${soptionId}/voters`;
+      if (soptionId === "abstention" && surveyId) {
+        url += `?survey_id=${surveyId}`;
+      }
+
+      const { data: response, loaded: loadedState } = await execute(url, "GET");
       setLoaded(loadedState);
 
       if (response.success) {
@@ -63,7 +68,7 @@ const VotersListModal: React.FC<VotersListModalProps> = ({
     }
     fetchedRef.current = soptionId;
     fetchData();
-  }, [open, soptionId, execute]);
+  }, [open, soptionId, surveyId, execute]);
 
   return (
     <DataModal
