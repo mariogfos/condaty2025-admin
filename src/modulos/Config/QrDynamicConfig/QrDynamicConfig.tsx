@@ -100,7 +100,7 @@ interface QrDynamicFormState {
 
 const QrDynamicConfig: React.FC = () => {
   const { showToast } = useAuth();
-  const { execute, loaded } = useAxios<QrConfigResponse>();
+  const { execute, loaded } = useAxios();
 
   const [formState, setFormState] = useState<QrDynamicFormState>({
     is_active: false,
@@ -132,11 +132,11 @@ const QrDynamicConfig: React.FC = () => {
     const res = await execute("/qr-dynamic/config", "GET");
     if (res?.success && res?.data) {
       const data = res.data;
-      
+
       // Determine is_active from mode
       const mode = data.client_mode ?? QrDynamicMode.DISABLED;
       const is_active = mode !== QrDynamicMode.DISABLED;
-      
+
       setFormState({
         // Toggle state derived from mode
         is_active,
@@ -163,7 +163,7 @@ const QrDynamicConfig: React.FC = () => {
 
   const handleChange = <K extends keyof QrDynamicFormState>(
     field: K,
-    value: QrDynamicFormState[K]
+    value: QrDynamicFormState[K],
   ) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
     // Clear error when user changes field
@@ -268,7 +268,10 @@ const QrDynamicConfig: React.FC = () => {
         showToast(res?.message || "Error al guardar", "error");
       }
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const err = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const errorMessage =
         err?.response?.data?.message ||
         err?.message ||
@@ -287,9 +290,18 @@ const QrDynamicConfig: React.FC = () => {
 
   // Map mode values to Select options
   const modeOptions = [
-    { id: QrDynamicMode.DISABLED, name: QrDynamicModeLabels[QrDynamicMode.DISABLED] },
-    { id: QrDynamicMode.GLOBAL, name: QrDynamicModeLabels[QrDynamicMode.GLOBAL] },
-    { id: QrDynamicMode.PROPIO, name: QrDynamicModeLabels[QrDynamicMode.PROPIO] },
+    {
+      id: QrDynamicMode.DISABLED,
+      name: QrDynamicModeLabels[QrDynamicMode.DISABLED],
+    },
+    {
+      id: QrDynamicMode.GLOBAL,
+      name: QrDynamicModeLabels[QrDynamicMode.GLOBAL],
+    },
+    {
+      id: QrDynamicMode.PROPIO,
+      name: QrDynamicModeLabels[QrDynamicMode.PROPIO],
+    },
   ];
 
   // Handle is_active toggle - maps to mode
@@ -356,14 +368,16 @@ const QrDynamicConfig: React.FC = () => {
           <h2 className={styles.sectionTitle}>Modo de Operación</h2>
           <p className={styles.sectionSubtitle}>
             Selecciona cómo obtener las credenciales: Global usa la
-            configuración del módulo, Personalizado usa credenciales propias
-            del cliente
+            configuración del módulo, Personalizado usa credenciales propias del
+            cliente
           </p>
           <Select
             name="mode"
             label="Modo"
             value={formState.mode}
-            onChange={(e) => handleModeChange(Number(e.target.value) as QrDynamicMode)}
+            onChange={(e) =>
+              handleModeChange(Number(e.target.value) as QrDynamicMode)
+            }
             options={modeOptions}
             error={errors}
           />
@@ -382,7 +396,9 @@ const QrDynamicConfig: React.FC = () => {
             name="environment"
             label="Ambiente del banco"
             value={formState.environment}
-            onChange={(e) => handleChange("environment", e.target.value as QrEnvironment)}
+            onChange={(e) =>
+              handleChange("environment", e.target.value as QrEnvironment)
+            }
             options={environmentOptions}
             error={errors}
           />
