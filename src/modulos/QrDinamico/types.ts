@@ -3,14 +3,51 @@
  * Tipos centralizados para el módulo de Pagos QR Dinámico (R-P-003 + R-G-010)
  */
 
-// ─── Enums (espejo del PaymentTypeEnum del API) ──────────────────────────────
+// ─── Enums (espejo del backend) ─────────────────────────────────────────────
 
+/**
+ * Modo de operación del QR dinámico.
+ * @see QrDynamicModeEnum (backend: app/Modules/QrDinamico/Enums/QrDynamicModeEnum.php)
+ * - 0: disabled  → QR deshabilitado globalmente
+ * - 1: global    → QR compartido por todos los propietarios
+ * - 2: own       → QR propio de cada propietario
+ */
+export enum QrDynamicMode {
+  DISABLED = 0,
+  GLOBAL = 1,
+  OWN = 2,
+}
+
+/**
+ * Entorno del QR dinámico.
+ * @see QrEnvironmentEnum (backend: app/Modules/QrDinamico/Enums/QrEnvironmentEnum.php)
+ * - 'S': sandbox  → entorno de pruebas
+ * - 'P': production → entorno de producción
+ */
+export enum QrEnvironment {
+  SANDBOX = 'S',
+  PRODUCTION = 'P',
+}
+
+/**
+ * Estado de la orden QR.
+ * @see QrOrderStateEnum (backend: app/Modules/QrDinamico/Enums/QrOrderStateEnum.php)
+ * - 1: registered → Orden registrada, pendiente de pago
+ * - 2: paid       → Orden pagada
+ * - 3: cancelled  → Orden anulada
+ */
 export enum QrOrderState {
   REGISTERED = 1,
   PAID = 2,
   CANCELLED = 3,
 }
 
+/**
+ * Tipo de pago asociado al QR.
+ * - 'T': EXPENSE    → Expensas
+ * - 'R': RESERVATION → Reservas
+ * - 'E': OUTLAY     → Egresos
+ */
 export enum PaymentType {
   EXPENSE = "T",
   RESERVATION = "R",
@@ -130,4 +167,25 @@ export const PAYMENT_TYPE_LABEL: Record<PaymentType, string> = {
   [PaymentType.EXPENSE]: "Expensas",
   [PaymentType.RESERVATION]: "Reservas",
   [PaymentType.OUTLAY]: "Egresos",
+};
+
+// ─── Helpers: QrDynamicMode ──────────────────────────────────────────────────
+
+export const QR_MODE_LABEL: Record<QrDynamicMode, string> = {
+  [QrDynamicMode.DISABLED]: "Deshabilitado",
+  [QrDynamicMode.GLOBAL]: "Global",
+  [QrDynamicMode.OWN]: "Propio",
+};
+
+export const QR_MODE_COLOR: Record<QrDynamicMode, { color: string; bg: string }> = {
+  [QrDynamicMode.DISABLED]: { color: "#6B7280", bg: "rgba(107,114,128,0.12)" },
+  [QrDynamicMode.GLOBAL]:   { color: "#3B82F6", bg: "rgba(59,130,246,0.12)"  },
+  [QrDynamicMode.OWN]:      { color: "#8B5CF6", bg: "rgba(139,92,246,0.12)"  },
+};
+
+// ─── Helpers: QrEnvironment ─────────────────────────────────────────────────
+
+export const QR_ENVIRONMENT_LABEL: Record<QrEnvironment, string> = {
+  [QrEnvironment.SANDBOX]:    "Sandbox",
+  [QrEnvironment.PRODUCTION]: "Producción",
 };
