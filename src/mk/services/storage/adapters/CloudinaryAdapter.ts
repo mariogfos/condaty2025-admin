@@ -21,7 +21,7 @@ export class CloudinaryAdapter implements IStorageAdapter {
     // Detectar tipo REAL
     const isImage = file.type.startsWith("image/");
     // const resourceType = isImage ? "image" : "raw";
-    const resourceType = "image";
+    const resourceType = isImage ? "image" : "raw";
 
     const formData = new FormData();
     formData.append("file", file);

@@ -92,6 +92,11 @@ export const menuConfig: MenuConfigItem[] = [
         perm: "bank_accounts",
       },
       {
+        href: "/bank-provider-tester",
+        labelKey: "bankTester",
+        perm: "balance",
+      },
+      {
         href: "/qr-dinamico",
         labelKey: "QR Dinámico",
         perm: "payments",
