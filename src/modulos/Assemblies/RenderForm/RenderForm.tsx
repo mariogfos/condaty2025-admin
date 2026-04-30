@@ -538,7 +538,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
                 name="files"
                 mode="all"
                 error={errors}
-                maxMB={5}
+                maxMB={30}
               />
             )}
           </section>
