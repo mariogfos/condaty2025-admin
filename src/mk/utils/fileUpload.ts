@@ -28,6 +28,10 @@ export const base64ToBlob = (b64: string, ext: string) => {
     else if (["jpg", "jpeg"].includes(iext)) mime = "image/jpeg";
     else if (iext === "png") mime = "image/png";
     else if (iext === "webp") mime = "image/webp";
+    else if (iext === "xlsx") mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    else if (iext === "xls") mime = "application/vnd.ms-excel";
+    else if (iext === "doc") mime = "application/vnd.ms-word";
+    else if (iext === "docx") mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     return new Blob([byteArray], { type: mime });
 };
 
