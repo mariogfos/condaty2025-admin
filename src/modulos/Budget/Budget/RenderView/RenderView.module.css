@@ -1,5 +1,5 @@
 .container {
-  background-color: #d7fff005;
+  background-color: var(--cBackground);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -9,7 +9,7 @@
   box-sizing: border-box;
   color: var(--cWhite);
   border-radius: 12px;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cBorder);
   min-width: 600px;
 }
 
@@ -39,7 +39,7 @@
   width: 100%;
   border: none;
   height: 0;
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-top: 1px solid var(--cBorder);
 }
 
 .detailsSection {

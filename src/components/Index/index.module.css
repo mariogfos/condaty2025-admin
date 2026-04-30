@@ -50,8 +50,8 @@
 }
 
 .summaryWidgetEqualHeight {
-  background-color: #d7fff005 !important;
-  border: 1px solid #d7fff014 !important;
+  background-color: var(--cBackground) !important;
+  border: 1px solid var(--cBorder) !important;
   border-radius: 12px !important;
 }
 
@@ -106,7 +106,7 @@
 }
 
 .widgetBase {
-  background-color: var(--cBlackV2) !important;
+  background-color: var(--cBackground) !important;
 }
 
 .widgetsResumeContainer {
@@ -145,10 +145,10 @@
 }
 
 .widgetAlerts {
-  background-color: #d7fff005;
+  background-color: var(--cBackground);
   padding: var(--spL, 1rem);
   border-radius: 12px;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cBorder);
   display: flex;
   flex-direction: column;
   gap: var(--spM, 1rem);
@@ -192,38 +192,21 @@
 }
 
 .levelLow {
-  /* Usamos el color base #00af90 -> rgb(0, 175, 144) con transparencia */
-  background-color: rgba(
-    0,
-    175,
-    144,
-    0.2
-  ); /* Ajusta el 0.2 (alfa) si quieres más o menos transparencia */
-  color: var(--cLowAlertText, #34a853);
-  /* Opcional: para un efecto neón más pronunciado en el texto y un pequeño resplandor */
-  /* text-shadow: 0 0 2px var(--cLowAlertText, #34a853); */
-  /* box-shadow: 0 0 8px rgba(0, 175, 144, 0.3); */
+  background-color: var(--cBackground-foreground);
+  border: 1px solid var(--cBorder);
+  color: var(--cSuccess);
 }
 
 .levelMedium {
-  /* Usamos el color base #e1c151 -> rgb(225, 193, 81) con transparencia */
-  background-color: rgba(225, 193, 81, 0.2); /* Ajusta el 0.2 (alfa) */
-  color: var(--cMediumAlertText, #e9b01e);
-  /* Opcional: para un efecto neón más pronunciado */
-  /* text-shadow: 0 0 2px var(--cMediumAlertText, #e9b01e); */
-  /* box-shadow: 0 0 8px rgba(225, 193, 81, 0.3); */
+  background-color: var(--cBackground-foreground);
+  border: 1px solid var(--cBorder);
+  color: var(--cWarning);
 }
 
 .levelHigh {
-  /* Usamos el color base #da5d5d -> rgb(218, 93, 93) con transparencia */
-  background-color: rgba(218, 93, 93, 0.2); /* Ajusta el 0.2 (alfa) */
-  color: var(
-    --cHightAlertText,
-    #e46055
-  ); /* Nota: el nombre original era --cHightAlertBg, asumo que querías --cHightAlertText o un color de texto similar */
-  /* Opcional: para un efecto neón más pronunciado */
-  /* text-shadow: 0 0 2px var(--cHightAlertText, #e46055); */
-  /* box-shadow: 0 0 8px rgba(218, 93, 93, 0.3); */
+  background-color: var(--cBackground-foreground);
+  border: 1px solid var(--cBorder);
+  color: var(--cError);
 }
 
 .itemRow {
@@ -240,7 +223,7 @@
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
-  background-color: #555;
+  background-color: var(--cBackground-foreground);
 }
 
 .itemImage {
@@ -258,7 +241,7 @@
   font-size: 16px;
   font-weight: 500;
   color: #fff;
-  background-color: #777;
+  background-color: var(--cBackground-foreground);
 }
 
 .itemTextInfo {
@@ -292,7 +275,7 @@
 .itemDateText {
   font-weight: 400;
   font-size: 10px;
-  color: #888;
+  color: var(--cWhiteV3);
 }
 
 .itemActionContainer {
@@ -345,9 +328,9 @@
 .preRegistroItem {
   margin-bottom: 1rem;
   padding: 1rem;
-  background-color: #d7fff005;
+  background-color: var(--cBackground);
   border-radius: 0.5rem;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cBorder);
 }
 
 .preRegistroItem:last-child {

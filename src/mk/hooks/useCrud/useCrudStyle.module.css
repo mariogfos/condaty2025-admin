@@ -58,8 +58,8 @@
       justify-content: center;
       align-items: center;
       border-radius: 8px;
-      background-color: rgba(18, 21, 25, 0.56);
-      border: 0.1px solid rgba(215, 255, 240, 0.22);
+      background-color: var(--cBackground);
+      border: 1px solid var(--cBorder);
       overflow: hidden;
     }
     & div:first-child {
@@ -78,20 +78,20 @@
   & > div {
     padding: 12px;
     color: var(--cWhiteV1);
-    background-color: var(--cBlackV1);
+    background-color: var(--cBackground);
     cursor: pointer;
   }
   & > div:nth-child(1) {
-    border: 1px solid var(--cBlackV1);
+    border: 1px solid var(--cBorder);
     border-radius: 8px 0px 0px 8px;
   }
   & > div:nth-child(2) {
-    border: 1px solid var(--cBlackV1);
+    border: 1px solid var(--cBorder);
     border-radius: 0px 8px 8px 0px;
   }
   .active {
     border: 1px solid var(--cAccent);
-    background-color: var(--cHoverSuccess);
+    background-color: var(--cBackground-foreground);
   }
 }
 
@@ -129,11 +129,11 @@
   padding: 12px 16px;
   font-size: 14px;
   font-weight: 400;
-  color: #878f9a;
+  color: var(--cWhiteV1);
   gap: 8px;
   border-radius: 12px;
-  border: 1px solid #d7fff014;
-  background-color: #d7fff005;
+  border: 1px solid var(--cBorder);
+  background-color: var(--cBackground);
   width: auto;
   display: inline-flex;
   align-items: center;
@@ -190,14 +190,14 @@
 .icons,
 .extraButtons > div > svg {
   cursor: pointer;
-  color: #878f9a;
-  background-color: #d7fff005;
-  border: 1px solid #d7fff014;
+  color: var(--cWhiteV1);
+  background-color: var(--cBackground);
+  border: 1px solid var(--cBorder);
   min-width: 44px;
   padding: 12px;
   height: 44px;
   border-radius: 12px;
   &:hover {
-    background-color: rgba(0, 227, 140, 0.12);
+    background-color: var(--cBackground-foreground);
   }
 }

@@ -19,7 +19,6 @@ import Authentication from "@/modulos/Profile/Authentication";
 import useAxios from "@/mk/hooks/useAxios";
 import EditProfile from "./EditProfile/EditProfile";
 import GuardEditForm from "./GuardEditForm/GuardEditForm";
-import Button from "@/mk/components/forms/Button/Button";
 import Image from "next/image";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
 import RenderForm from "@/modulos/Guards/RenderForm/RenderForm";
@@ -274,7 +273,6 @@ const ProfileModal = ({
         buttonText=""
         buttonCancel=""
         zIndex={zIndex}
-        style={{ backgroundColor: "#121519" }}
       >
         <div className={styles.ProfileModal}>
           <section>
@@ -284,22 +282,12 @@ const ProfileModal = ({
                 Gestiona tu información personal, rol y seguridad
               </span>
             </div>
-            <div>
+            <div className={styles.headerActions}>
               {edit && canEditThisProfile() && (
                 <button
                   type="button"
                   onClick={() => setOpenEdit(true)}
-                  style={{
-                    backgroundColor: "#d7fff005",
-                    padding: 8,
-                    borderRadius: "12px",
-                    cursor: "pointer",
-                    border: "1px solid #d7fff014",
-                    color: "inherit",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                  className={styles.iconActionButton}
                 >
                   <IconEdit className="" size={24} color={"var(--cWhite)"} />
                 </button>
@@ -307,17 +295,7 @@ const ProfileModal = ({
               {del && canDeleteThisProfile() && type === "guard" && (
                 <button
                   type="button"
-                  style={{
-                    backgroundColor: "#d7fff005",
-                    padding: 8,
-                    borderRadius: "12px",
-                    cursor: "pointer",
-                    border: "1px solid #d7fff014",
-                    color: "inherit",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                  className={styles.iconActionButton}
                   onClick={() => setOpenDel(true)}
                 >
                   <IconTrash size={24} color={"var(--cWhite)"} />
@@ -333,17 +311,7 @@ const ProfileModal = ({
               width={800}
               height={300}
               onError={() => setPortadaError(true)}
-              style={{
-                width: "100%",
-                height: 300,
-                borderTopLeftRadius: "var(--bRadiusS)",
-                borderTopRightRadius: "var(--bRadiusS)",
-                borderBottomLeftRadius: 0,
-                borderBottomRightRadius: 0,
-                borderBottom: "1px solid #d7fff014",
-                objectFit: "cover",
-                background: "#d7fff005",
-              }}
+              className={styles.coverImage}
               unoptimized
             />
             <div>
@@ -374,29 +342,16 @@ const ProfileModal = ({
                 )}
 
                 {data?.data[0]?.dptos && data?.data[0]?.dptos?.length > 0 && (
-                  <div
-                    style={{
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
+                  <div className={styles.unitOwnership}>
                     {IconType}
-                    <div style={{ color: "var(--cPrimary)" }}>
+                    <div className={styles.contactAccent}>
                       <strong>Propietario de : </strong>
                       {data?.data[0]?.dptos
                         ?.map((dpto: any) => (
                           <span
                             key={dpto.id}
                             onClick={() => navigateToUnitDetail(dpto.id)}
-                            style={{
-                              cursor: "pointer",
-                              textDecoration: "underline",
-                              marginRight: "4px",
-                            }}
+                            className={styles.unitLink}
                           >
                             {`${dpto?.type?.name || "Unidad"} ${dpto?.nro}`}
                           </span>
@@ -526,7 +481,7 @@ const ProfileModal = ({
                 <div className={styles.infoCard}>
                   <div className={styles.securityItem}>
                     <div className={styles.securityHeader}>
-                      <div style={{ display: "flex", flexDirection: "column" }}>
+                      <div className={styles.securityValueGroup}>
                         <span className={styles.fieldLabel}>Email</span>
                         <span className={styles.fieldValue}>
                           {data?.data[0]?.email || "-"}
@@ -543,15 +498,9 @@ const ProfileModal = ({
                   </div>
                   <div className={styles.securityItem}>
                     <div className={styles.securityHeader}>
-                      <div style={{ display: "flex", flexDirection: "column" }}>
+                      <div className={styles.securityValueGroup}>
                         <span className={styles.fieldLabel}>Contraseña</span>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                          }}
-                        >
+                        <div className={styles.passwordValue}>
                           <span className={styles.fieldValue}>*********</span>
                           <IconLook size={16} color="var(--cWhiteV1)" />
                         </div>
@@ -570,24 +519,17 @@ const ProfileModal = ({
             )}
           </section>
           {user?.id === data?.data[0]?.id && setOnLogout && (
-            <div style={{ display: "flex", justifyContent: "flex-start" }}>
-              <Button
+            <div className={styles.logoutRow}>
+              <button
+                type="button"
                 onClick={() => {
                   onClose();
                   setOnLogout(true);
                 }}
-                style={{
-                  backgroundColor: "transparent",
-                  color: "var(--cError)",
-                  border: "none",
-                  padding: "0px 0px",
-                  width: "auto",
-                  minWidth: "auto",
-                  textDecorationLine: "underline",
-                }}
+                className={styles.logoutButton}
               >
                 Cerrar Sesión
-              </Button>
+              </button>
             </div>
           )}
         </div>

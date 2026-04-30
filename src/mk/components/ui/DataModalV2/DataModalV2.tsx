@@ -100,7 +100,7 @@ const DataModalV2 = ({
         <Br
           style={{
             margin: "8px 0px",
-            backgroundColor: "var(--cBackground)",
+            backgroundColor: "var(--cModalDivider)",
             height: 1,
           }}
         />

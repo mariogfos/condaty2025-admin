@@ -2,9 +2,9 @@
   display: flex;
   gap: 20px;
   padding: 16px;
-  background-color: #d7fff005;
+  background-color: var(--cModalSection);
   border-radius: 12px;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
   width: 100%;
 }
 
@@ -19,7 +19,7 @@
 .imageWrapper {
   width: 380px;
   height: 300px;
-  background-color: #d7fff005;
+  background-color: var(--cModalSurfaceRaised);
   border-radius: var(--bRadiusS);
   overflow: hidden;
   display: flex;
@@ -38,9 +38,9 @@
 }
 
 .button {
-  background-color: #d7fff005;
+  background-color: var(--cModalSurfaceRaised);
   padding: 6px;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
   border-radius: 100%;
   display: flex;
   justify-content: center;
@@ -67,7 +67,7 @@
   flex-direction: column;
   gap: 6px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--cModalDivider);
 }
 
 .label {

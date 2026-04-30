@@ -128,6 +128,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
           localStorage.removeItem("condaty_client_id");
           setUser(false);
           setWaiting(-1, "-getUser");
+          setSplash(false);
           // setSplash(false);
           // router.reload();
           // router.reload();

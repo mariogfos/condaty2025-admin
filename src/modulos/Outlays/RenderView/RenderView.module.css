@@ -1,5 +1,5 @@
 .container {
-  background-color: #d7fff005;
+  background-color: var(--cModalSection);
   display: flex;
   flex-direction: column;
   padding: var(--spL);
@@ -8,7 +8,7 @@
   box-sizing: border-box;
   color: var(--cWhite);
   border-radius: 12px;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
   margin-bottom: var(--spM);
   &:last-of-type {
     margin-bottom: 0;
@@ -45,7 +45,7 @@
   width: 100%;
   border: none;
   height: 0;
-  border-top: 0.5px solid var(--cWhiteV5);
+  border-top: 1px solid var(--cModalDivider);
 }
 .detailsSection {
   display: flex;
@@ -98,7 +98,7 @@
 .canceledReason {
   color: var(--cError) !important;
   font-style: italic;
-  background-color: rgba(220, 53, 69, 0.1);
+  background-color: rgba(228, 96, 85, 0.12);
   padding: 8px 12px;
   border-radius: 4px;
   border-left: 3px solid var(--cError);
@@ -110,9 +110,9 @@
   padding-bottom: var(--spS);
 }
 .voucherButton {
-  background-color: #d7fff005;
+  background-color: var(--cModalSurfaceRaised);
   color: var(--cWhite);
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
   font-size: var(--sM);
   padding: var(--spM) var(--spXl);
   border-radius: var(--bRadiusS);
@@ -122,8 +122,8 @@
   cursor: pointer;
 }
 .voucherButton:hover {
-  background-color: rgba(0, 227, 140, 0.12);
-  border-color: #d7fff014;
+  background-color: rgba(0, 227, 140, 0.08);
+  border-color: var(--cModalBorder);
 }
 
 .messageContainer {
@@ -195,7 +195,7 @@
     gap: 12px;
   }
   .voucherButton {
-    background-color: #d7fff005;
+    background-color: var(--cModalSurfaceRaised);
     padding: var(--spS) var(--spM);
     font-size: var(--sS);
     width: 100%;

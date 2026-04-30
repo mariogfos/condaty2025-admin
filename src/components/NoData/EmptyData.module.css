@@ -4,15 +4,22 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-width: 100%;
+  gap: 4px;
 }
 
 .centered {
   justify-content: center;
   align-items: center;
+  text-align: center;
 }
 
 .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: var(--sXxl);
+  color: var(--cWhiteV3);
 }
 
 .message {
@@ -21,15 +28,20 @@
   margin-top: 12px;
   font-size: var(--sL);
   color: var(--cWhiteV1);
-
+  line-height: 1.35;
+  font-weight: var(--bMedium);
 }
+
 .line2 {
   margin: 0;
   padding: 0;
-  font-size: var(--sL);
-  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  line-height: 1.35;
+  color: var(--cWhiteV3);
 }
+
 .singleLine {
-  /* white-space: nowrap; */
+  width: 100%;
   overflow: hidden;
+  text-overflow: ellipsis;
 }

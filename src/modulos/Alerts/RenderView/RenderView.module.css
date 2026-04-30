@@ -4,10 +4,10 @@
   gap: var(--spM);
   align-self: stretch;
   /* background-color: var(--figma-main-bg, #333536); */
-  background-color: #d7fff005;
+  background-color: var(--cBackground);
   padding: var(--spL, 16px);
   border-radius: 12px;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cBorder);
 }
 
 .hlTopSection,
