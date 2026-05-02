@@ -14,7 +14,7 @@
 .label {
   font-size: 13px;
   font-weight: 600;
-  color: #888;
+  color: var(--cWhiteV4);
 }
 
 .searchBar {
@@ -34,10 +34,10 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: #000;
+  background: var(--cModalSection);
   padding: 10px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--cModalBorder);
   max-width: 320px;
   margin: 0 auto;
   width: 100%;
@@ -47,7 +47,7 @@
 .scannerHint {
   text-align: center;
   font-size: 12px;
-  color: #888;
+  color: var(--cWhiteV1);
   margin: 0;
 }
 
@@ -58,15 +58,15 @@
 .resultsList {
   max-height: 250px;
   overflow-y: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--cModalBorder);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--cModalSurfaceRaised);
 }
 
 .message {
   padding: 30px;
   text-align: center;
-  color: #666;
+  color: var(--cWhiteV1);
   font-size: 14px;
 }
 
@@ -77,15 +77,15 @@
   padding: 12px 16px;
   cursor: pointer;
   transition: all 0.2s;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--cModalDivider);
 }
 
 .residentItem:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--cBackground-foreground);
 }
 
 .residentItem.selected {
-  background: rgba(var(--cAccentRGB), 0.1);
+  background: var(--cHoverCompl10);
   border-left: 3px solid var(--cAccent);
 }
 
@@ -97,22 +97,23 @@
   font-size: 14px;
   font-weight: 600;
   margin: 0;
+  color: var(--cWhite);
 }
 
 .resDetail {
   font-size: 12px;
-  color: #888;
+  color: var(--cWhiteV1);
   margin: 2px 0 0 0;
 }
 
 .registrationForm {
   padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--cModalSection);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--cModalBorder);
 }
 
 .modalityOptions {
@@ -124,23 +125,24 @@
 
 .modalityCard {
   padding: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
   border-radius: 8px;
   text-align: center;
   cursor: pointer;
   font-size: 14px;
+  color: var(--cWhite);
   transition: all 0.2s;
 }
 
 .modalityCard:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--cBackground-foreground);
 }
 
 .modalityCard.active {
   background: var(--cAccent);
   border-color: var(--cAccent);
-  color: #fff;
+  color: var(--cBlack);
 }
 
 .registerBtn {
@@ -163,20 +165,20 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .dptoCard:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--cBackground-foreground);
 }
 
 .dptoCard.active {
   border-color: var(--cAccent);
-  background: rgba(var(--cAccentRGB), 0.1);
+  background: var(--cHoverCompl10);
 }
 
 .dptoContent {
@@ -187,11 +189,12 @@
 .dptoNro {
   font-size: 14px;
   font-weight: 600;
+  color: var(--cWhite);
 }
 
 .dptoRole {
   font-size: 11px;
-  color: #888;
+  color: var(--cWhiteV1);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }

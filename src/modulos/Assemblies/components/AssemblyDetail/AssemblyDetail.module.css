@@ -4,10 +4,10 @@
   flex-direction: column;
   gap: 20px;
   padding: 24px;
-  background-color: #0d0d0d;
+  background-color: var(--cBackground-muted);
   min-height: 100vh;
-  color: #fff;
-  font-family: "Inter", sans-serif;
+  color: var(--cWhite);
+  font-family: var(--fPrimary);
 }
 
 .breadcrumb {
@@ -15,7 +15,7 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #888;
+  color: var(--cWhiteV1);
   margin-bottom: 8px;
 }
 
@@ -24,11 +24,12 @@
 }
 
 .breadcrumb span:first-child:hover {
+  color: var(--cWhite);
   text-decoration: underline;
 }
 
 .breadcrumb .active {
-  color: #fff;
+  color: var(--cWhite);
   font-weight: 600;
 }
 
@@ -51,9 +52,8 @@
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--cBackground-foreground);
+  border: 1px solid var(--cModalBorder);
   border-radius: 12px;
   padding: 20px;
   position: relative;
@@ -69,7 +69,7 @@
 .cardTitle {
   font-size: 11px;
   font-weight: 700;
-  color: #888;
+  color: var(--cNeutral-100);
   letter-spacing: 1px;
   text-transform: uppercase;
   margin: 0;
@@ -78,9 +78,9 @@
 }
 
 .editButton {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
+  color: var(--cWhite);
   padding: 4px 12px;
   border-radius: 6px;
   font-size: 12px;
@@ -88,30 +88,35 @@
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .editButton:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--cBackground-foreground);
+  border-color: var(--cDivider);
 }
 
 .mainSubject {
   margin: 0 0 4px 0;
   font-size: 16px;
   font-weight: 500;
+  color: var(--cWhite);
 }
 
 .typeLabel {
   display: block;
   font-size: 13px;
-  color: #666;
+  color: var(--cWhiteV1);
   margin-bottom: 20px;
 }
 
 .statusBadge {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: var(--cHoverSuccess);
+  color: var(--cSuccess);
+  border: 1px solid var(--cSuccess);
   padding: 2px 12px;
   border-radius: 8px;
   font-size: 11px;
@@ -122,7 +127,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid var(--cModalDivider);
   padding-top: 20px;
 }
 
@@ -134,16 +139,17 @@
 
 .metricLabel {
   font-size: 12px;
-  color: #666;
+  color: var(--cWhiteV1);
 }
 
 .metricValue {
   font-size: 14px;
   font-weight: 300;
+  color: var(--cWhite);
 }
 
 .descriptionText {
-  color: #ccc;
+  color: var(--cWhiteV1);
   font-size: 14px;
   line-height: 1.6;
   margin: 0;
@@ -160,12 +166,13 @@
   font-size: 14px;
   font-weight: 600;
   margin: 0;
+  color: var(--cWhite);
 }
 
 .addQuestionBtn {
-  background: none;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #eee;
+  background: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
+  color: var(--cWhite);
   padding: 6px 14px;
   border-radius: 6px;
   font-size: 12px;
@@ -175,19 +182,21 @@
   cursor: pointer;
 }
 
-/* Votaciones card details */
 .votacionCard {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 24px;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .votacionCard:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--cBackground-foreground);
+  border-color: var(--cDivider);
 }
 
 .votacionTitle {
@@ -195,6 +204,7 @@
   font-weight: 600;
   margin: 0 0 8px 0;
   word-break: break-word;
+  color: var(--cWhite);
 }
 
 .votacionMeta {
@@ -206,11 +216,11 @@
 
 .votacionCount {
   font-size: 13px;
-  color: #666;
+  color: var(--cWhiteV1);
 }
 
 .votacionStatus {
-  color: #10b981;
+  color: var(--cSuccess);
   font-size: 12px;
   font-weight: 600;
 }
@@ -222,35 +232,36 @@
 .optionHeader {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   font-size: 14px;
   margin-bottom: 8px;
+  color: var(--cWhite);
 }
 
 .progressContainer {
   height: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--cBackground-foreground);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .progressBar {
   height: 100%;
-  background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+  background: linear-gradient(90deg, var(--cAccent), var(--cInfo));
   border-radius: 4px;
 }
 
-/* Footer informativo de abstenciones (modo count_as_option=false) */
 .abstentionFooter {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-top: 12px;
   padding: 8px 12px;
-  background: rgba(249, 115, 22, 0.06);
-  border: 1px solid rgba(249, 115, 22, 0.2);
+  background: var(--cHoverAlert);
+  border: 1px solid var(--cAlert);
   border-radius: 8px;
   font-size: 12px;
-  color: #aaa;
+  color: var(--cWhiteV1);
 }
 
 .abstentionFooterItem {
@@ -260,17 +271,15 @@
 }
 
 .abstentionFooterItem strong {
-  color: #fff;
+  color: var(--cWhite);
   font-weight: 600;
 }
 
 .abstentionSeparator {
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--cModalDivider);
   font-size: 14px;
 }
 
-
-/* Accordion sections on the right */
 .section {
   display: flex;
   flex-direction: column;
@@ -287,30 +296,32 @@
 .sectionTitle {
   font-size: 12px;
   font-weight: 700;
-  color: #888;
+  color: var(--cNeutral-100);
   letter-spacing: 1px;
 }
 
 .detailRow {
   display: flex;
   justify-content: space-between;
+  gap: 16px;
   margin-bottom: 12px;
   font-size: 13px;
 }
 
 .detailLabel {
-  color: #666;
+  color: var(--cWhiteV1);
 }
 
 .detailValue {
   text-align: right;
   max-width: 180px;
+  color: var(--cWhite);
 }
 
 .actionBtn {
-  background: none;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
+  color: var(--cWhite);
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 12px;
@@ -318,24 +329,33 @@
   align-items: center;
   gap: 6px;
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.actionBtn:hover {
+  background: var(--cBackground-foreground);
+  border-color: var(--cDivider);
 }
 
 .verVotantesBtn {
-  background: rgba(139, 92, 246, 0.15);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  color: #a78bfa;
+  background: var(--cHoverCompl3);
+  border: 1px solid var(--cInfo);
+  color: var(--cWhite);
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .verVotantesBtn:hover {
-  background: rgba(139, 92, 246, 0.25);
-  border-color: rgba(139, 92, 246, 0.5);
-  color: #c4b5fd;
+  background: rgba(66, 133, 250, 0.28);
+  border-color: var(--cInfo);
 }
 
 .modalContent {
@@ -350,6 +370,7 @@
 }
 
 .link:hover {
+  color: var(--accentv1);
   text-decoration: underline;
 }
 
@@ -364,16 +385,19 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
   border-radius: 8px;
   text-decoration: none;
   color: inherit;
-  transition: all 0.2s;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .docItem:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--cBackground-foreground);
   border-color: var(--cAccent);
 }
 
@@ -390,13 +414,33 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 180px;
+  color: var(--cWhite);
 }
 
 .docDownload {
-  color: #888;
+  color: var(--cWhiteV1);
   display: flex;
   align-items: center;
 }
+
+.emptyState {
+  padding: 10px 0;
+  color: var(--cWhiteV1);
+  font-size: 13px;
+}
+
+.helperText {
+  font-size: 14px;
+  color: var(--cWhiteV4);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.accentText {
+  color: var(--cAlert);
+  font-weight: 600;
+}
+
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
