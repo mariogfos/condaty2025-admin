@@ -4,9 +4,9 @@
   gap: 12px;
   padding: 16px;
   min-height: 400px;
-  background-color: #d7fff005;
+  background-color: var(--cModalSection);
   border-radius: 12px;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
 }
 
 .header {
@@ -62,7 +62,7 @@
 
 .imageWrapper {
   height: 400px;
-  background-color: #d7fff005;
+  background-color: var(--cModalSurfaceRaised);
   border-radius: var(--bRadiusS);
   overflow: hidden;
   display: flex;
@@ -93,9 +93,9 @@
 }
 
 .button {
-  background-color: #d7fff005;
+  background-color: var(--cModalSurfaceRaised);
   padding: 6px;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
   border-radius: 100%;
   display: flex;
   justify-content: center;
@@ -124,7 +124,7 @@
   align-items: center;
   gap: 12px;
   padding-bottom: 12px;
-  border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
+  border-bottom: 1px solid var(--cModalDivider);
 }
 
 .userInfo {
@@ -221,8 +221,8 @@
 /* Agregar estos estilos al archivo existente */
 
 .button {
-  background-color: #d7fff005;
-  border: 1px solid #d7fff014;
+  background-color: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
   border-radius: var(--bRadiusS);
   padding: 8px;
   cursor: pointer;
@@ -233,7 +233,7 @@
 }
 
 .button:hover {
-  background-color: rgba(0, 227, 140, 0.12);
+  background-color: rgba(0, 227, 140, 0.08);
 }
 
 .button:active {
@@ -285,7 +285,7 @@
         overflow: hidden;
         height: 300px;
         border-radius: 12px;
-        background-color: #d7fff005;
+        background-color: var(--cModalSurfaceRaised);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -301,9 +301,9 @@
         margin-top: 16px;
 
         .button {
-          background-color: #d7fff005;
+          background-color: var(--cModalSurfaceRaised);
           padding: 6px;
-          border: 1px solid #d7fff014;
+          border: 1px solid var(--cModalBorder);
           border-radius: 100%;
           display: flex;
           justify-content: center;
@@ -312,7 +312,7 @@
           transition: background-color 0.2s ease;
 
           &:hover {
-            background-color: rgba(0, 227, 140, 0.12);
+            background-color: rgba(0, 227, 140, 0.08);
           }
         }
       }

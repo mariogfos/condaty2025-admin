@@ -5,8 +5,8 @@
     right: 0;
     bottom: 0;
     z-index: 50;
-    background-color: #1a1a1a;
-    color: #ffffff;
+    background-color: var(--cBackground-muted);
+    color: var(--cWhite);
   }
   
   .flexCenter {
@@ -18,7 +18,7 @@
   }
   
   .logo {
-    color: #ff6b6b;
+    color: var(--cWhiteV1);
   }
   
   .spinDot {

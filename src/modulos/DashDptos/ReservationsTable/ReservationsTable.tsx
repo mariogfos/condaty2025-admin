@@ -120,6 +120,7 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
       key: "area",
       label: "Área social",
       responsive: "desktop",
+      width: "280px",
       onRender: areaInfoCell,
     },
 
@@ -127,12 +128,14 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
       key: "reservation_date",
       label: "Fecha de reserva",
       responsive: "desktop",
+      width: "170px",
       onRender: dateReserveCell,
     },
     {
       key: "status",
       label: "Estado",
       responsive: "desktop",
+      width: "210px",
       style: { textAlign: "center", justifyContent: "center" },
       onRender: statusCell,
     },

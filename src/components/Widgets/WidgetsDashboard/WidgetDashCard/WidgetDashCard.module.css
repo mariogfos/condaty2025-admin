@@ -1,10 +1,10 @@
 .container {
   min-width: 200px;
-  background-color: #d7fff005;
+  background-color: var(--cBackground);
   padding: 12px;
   border-radius: 12px;
   position: relative;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cBorder);
   gap: 16px;
   display: flex;
   align-items: center;
@@ -88,7 +88,7 @@
   align-items: center;
   font-size: 12px;
   font-weight: 400;
-  color: #878f9a;
+  color: var(--cWhiteV1);
   gap: 6px;
   min-width: 0;
 }
@@ -104,13 +104,13 @@
   flex: 0 0 auto;
   display: flex;
   justify-content: center;
-  color: #878f9a;
+  color: var(--cWhiteV1);
 }
 
 .iconWrap :global(svg) {
-  color: #878f9a;
+  color: var(--cWhiteV1);
 }
 
 .iconWrap :global(svg path) {
-  fill: #878f9a;
+  fill: var(--cWhiteV1);
 }

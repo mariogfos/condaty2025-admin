@@ -18,9 +18,6 @@ export const initSocket = async () => {
       appId: process.env.NEXT_PUBLIC_INSTANTDB_APP_ID as string,
       devtool: false,
     });
-    console.log("iniciando conexion a InstantDB");
-  } else {
-    console.log("recuperando conexion a InstantDB");
   }
 
   if (typeof window !== "undefined") {
@@ -40,7 +37,6 @@ export const initSocket = async () => {
     _notif.notif.forEach((e: any) => {
       del.push(db.tx.notif[e.id].delete());
     });
-    console.log("notif", del.length);
     if (del.length > 0) db.transact(del);
   }
 
@@ -224,13 +220,12 @@ const useNotifInstandDB = (
               notif: latest,
               payload: parsedPayload,
               dispatch: dispatchModuleEvent,
-              showToast: showToast || ((msg: string) => console.log("Toast (no-op):", msg)),
+              showToast: showToast || (() => {}),
             });
           }
         });
 
         // Still dispatch the global onNotif event so legacy handlers work
-        console.log("notif enviada (admin)");
         dispatch(latest);
         last = latest.created_at;
         localStorage.setItem("lastNotifInstantDB", last);

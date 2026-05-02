@@ -3,8 +3,8 @@
 
 }
 .cardEvent {
-  background-color: #d7fff005;
-  border: 1px solid #d7fff014;
+  background-color: var(--cBackground);
+  border: 1px solid var(--cBorder);
   border-radius: 12px;
   padding:var(--spS);
   width: 100%;
@@ -85,9 +85,9 @@
     & > div {
       flex: 1;
 
-      background-color: #d7fff005;
+      background-color: var(--cBackground);
       border-radius: 8px;
-      border: 1px solid #d7fff014;
+      border: 1px solid var(--cBorder);
       padding: 8px 0px;
       & > p:nth-child(1) {
         text-align: center;

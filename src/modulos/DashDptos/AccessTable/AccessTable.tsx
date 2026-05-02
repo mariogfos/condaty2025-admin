@@ -140,24 +140,28 @@ const AccessTable = ({ access }: AccessTableProps) => {
       key: "visit",
       label: "Visita",
       responsive: "desktop",
+      width: "260px",
       onRender: visitCell,
     },
     {
       key: "visited_to",
       label: "Visitó a",
       responsive: "desktop",
+      width: "240px",
       onRender: visitedToCell,
     },
     {
       key: "type",
       label: "Tipo de Acceso",
       responsive: "desktop",
+      width: "170px",
       onRender: typeCell,
     },
     {
       key: "entry_exit",
       label: "Ingreso/Salida",
       responsive: "desktop",
+      width: "180px",
       onRender: entryExitCell,
     },
   ];

@@ -1,7 +1,7 @@
 .widgetBase {
-  background-color: #212529;
+  background-color: var(--cBackground);
   border-radius: 16px;
-  border: 0.5px solid #393c3f;
+  border: 1px solid var(--cBorder);
   padding: var(--spL);
 }
 

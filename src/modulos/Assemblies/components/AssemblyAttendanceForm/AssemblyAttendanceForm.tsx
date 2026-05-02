@@ -228,9 +228,11 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
               style={{
                 minWidth: "40px",
                 padding: "0 8px",
-                backgroundColor: isScannerOpen ? "var(--cPrimary)" : "transparent",
-                borderColor: "var(--cPrimary)",
-                color: isScannerOpen ? "#fff" : "var(--cPrimary)",
+                backgroundColor: isScannerOpen
+                  ? "var(--cAccent)"
+                  : "transparent",
+                borderColor: "var(--cAccent)",
+                color: isScannerOpen ? "var(--cBlack)" : "var(--cAccent)",
               }}
             >
               <IconGenericQr size={20} />

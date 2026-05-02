@@ -1,10 +1,67 @@
+"use client";
 
+import { useCallback, useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import CreateReserva from "@/modulos/CreateReserva/CreateReserva";
+import { AxiosContext } from "@/mk/contexts/AxiosInstanceProvider";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import type { NewReservaExtraData } from "@/modulos/NewReserva/types";
 
-import CreateReserva from '@/modulos/CreateReserva/CreateReserva';
-import React from 'react'
+const CreateReservaPage = () => {
+  const router = useRouter();
+  const { contextInstance } = useContext(AxiosContext);
+  const { showToast } = useAuth();
+  const [extraData, setExtraData] = useState<NewReservaExtraData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-const createReserva = () => {
-  return <CreateReserva />
-}
+  const loadExtraData = useCallback(async () => {
+    if (!contextInstance) return;
 
-export default createReserva;
+    setLoading(true);
+    try {
+      const response = await contextInstance.request({
+        method: "GET",
+        url: "/reservations",
+        params: {
+          perPage: -1,
+          page: 1,
+          fullType: "EXTRA",
+        },
+      });
+
+      setExtraData((response?.data?.data || {}) as NewReservaExtraData);
+    } catch (_error) {
+      setExtraData(null);
+      showToast("No pudimos cargar los datos para crear la reserva", "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [contextInstance, showToast]);
+
+  useEffect(() => {
+    void loadExtraData();
+  }, [loadExtraData]);
+
+  if (loading) {
+    return <div style={{ color: "var(--cWhiteV1)" }}>Cargando flujo de reserva...</div>;
+  }
+
+  if (!extraData) {
+    return (
+      <div style={{ color: "var(--cWhiteV1)" }}>
+        No pudimos abrir el flujo de reserva en este momento.
+      </div>
+    );
+  }
+
+  return (
+    <CreateReserva
+      extraData={extraData}
+      setOpenList={() => {}}
+      onClose={() => router.push("/new-reserva")}
+      reLoad={() => {}}
+    />
+  );
+};
+
+export default CreateReservaPage;

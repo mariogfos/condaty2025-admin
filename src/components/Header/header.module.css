@@ -85,12 +85,12 @@
 .iconOuterContainer {
   width: 40px;
   height: 40px;
-  background-color: #d7fff005;
+  background-color: var(--cBackground);
   border-radius: 999px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cBorder);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -100,9 +100,9 @@
   cursor: pointer;
   width: 40px;
   height: 40px;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cBorder);
   border-radius: 100%;
-  background-color: #d7fff005;
+  background-color: var(--cBackground);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -115,7 +115,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #fafafa;
+  color: var(--cWhite);
   cursor: pointer;
   line-height: 0;
 }
@@ -220,6 +220,6 @@
 
 .mobileGreetingSub {
   font-size: 11px;
-  color: #a6a6a6;
+  color: var(--cWhiteV1);
   margin: 0;
 }

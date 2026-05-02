@@ -46,6 +46,7 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       key: 'paid_at',
       label: 'Fecha de pago',
       responsive: 'desktop',
+      width: '160px',
       onRender: ({ item }: any) => {
         return getDateStrMes(item?.paid_at) || '-/-';
       },
@@ -54,11 +55,13 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       key: 'payment_method',
       label: 'Método de pago',
       responsive: 'desktop',
+      width: '180px',
       onRender: paymentMethodCell,
     },
     {
       key: 'amount',
       label: 'Monto',
+      width: '150px',
       style: { textAlign: 'right', justifyContent: 'flex-end' },
       responsive: 'desktop',
       onRender: amountCell,
@@ -66,6 +69,7 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
     {
       key: 'status',
       label: 'Estado',
+      width: '210px',
       style: { textAlign: 'center', justifyContent: 'center' },
       responsive: 'desktop',
       onRender: statusCell,
