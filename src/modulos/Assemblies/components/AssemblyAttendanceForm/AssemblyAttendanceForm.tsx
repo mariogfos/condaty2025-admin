@@ -98,6 +98,20 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
         const results = Array.isArray(response.data)
           ? response.data
           : [response.data];
+        // Combinar y eliminar duplicados por id
+
+        results.forEach((items: any) => {
+          const dptosCombinados = Array.from(
+            new Map(
+              [...(items.dpto || []), ...(items.dptos || [])].map((item) => [
+                item.id,
+                item,
+              ]),
+            ).values(),
+          );
+          items.dpto = dptosCombinados;
+        });
+
         setResidents(results || []);
         // Si solo hay un resultado, seleccionarlo automáticamente
         if (results.length === 1) {
@@ -134,9 +148,15 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
   const handleScannerInitError = (err: any) => {
     console.warn("Scanner Init Error:", err);
     const errMsg = err?.toString() || "";
-    if (errMsg.includes("NotFoundError") || errMsg.includes("device not found")) {
+    if (
+      errMsg.includes("NotFoundError") ||
+      errMsg.includes("device not found")
+    ) {
       showToast("No se encontró la cámara o está deshabilitada", "error");
-    } else if (errMsg.includes("NotAllowedError") || errMsg.includes("Permission denied")) {
+    } else if (
+      errMsg.includes("NotAllowedError") ||
+      errMsg.includes("Permission denied")
+    ) {
       showToast("Permiso de cámara denegado", "error");
     } else {
       showToast("Error al iniciar el escáner", "error");
@@ -228,7 +248,9 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
               style={{
                 minWidth: "40px",
                 padding: "0 8px",
-                backgroundColor: isScannerOpen ? "var(--cPrimary)" : "transparent",
+                backgroundColor: isScannerOpen
+                  ? "var(--cPrimary)"
+                  : "transparent",
                 borderColor: "var(--cPrimary)",
                 color: isScannerOpen ? "#fff" : "var(--cPrimary)",
               }}
@@ -318,14 +340,18 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
               <label className={styles.label}>Modalidad de Asistencia</label>
               <div className={styles.modalityOptions}>
                 {/* P.27: Solo mostrar modalidades compatibles con la asamblea */}
-                {(!assemblyModality || assemblyModality === "P" || assemblyModality === "H") && (
+                {(!assemblyModality ||
+                  assemblyModality === "P" ||
+                  assemblyModality === "H") && (
                   <Radio
                     label="Presencial"
                     checked={modality === "P"}
                     onChange={() => setModality("P")}
                   />
                 )}
-                {(!assemblyModality || assemblyModality === "V" || assemblyModality === "H") && (
+                {(!assemblyModality ||
+                  assemblyModality === "V" ||
+                  assemblyModality === "H") && (
                   <Radio
                     label="Virtual"
                     checked={modality === "V"}
@@ -338,6 +364,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
             <Button
               variant="primary"
               onClick={handleRegister}
+              // disabled={isSaving || !selectedDptoId}
               disabled={isSaving || !selectedDptoId}
               className={styles.registerBtn}
               style={{ width: "100%" }}
