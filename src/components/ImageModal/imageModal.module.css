@@ -5,7 +5,7 @@
   right: 0;
   bottom: 0;
   background-color: var(--cHoverModal);
-  backdrop-filter: blur(5px);
+  background-color: var(--cHoverModal);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,7 +16,10 @@
   position: relative;
   max-width: 90vw;
   max-height: 90vh;
-  background: transparent;
+  background: var(--cBackground);
+  border: 1px solid var(--cBorder);
+  border-radius: 20px;
+  padding: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -33,13 +36,19 @@
 
 .closeButton {
   position: absolute !important;
-  top: 0 !important;
-  right: -52px !important;
+  top: -10px !important;
+  right: -10px !important;
   color: var(--cWhite) !important;
   cursor: pointer;
   transition: opacity 0.2s;
-  border: solid;
-  border-radius: 5px;
+  background-color: var(--cBackground-foreground);
+  border: 1px solid var(--cBorder);
+  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 .closeButton:hover {

@@ -102,6 +102,7 @@ const WidgetTableAffProv = ({ widget, data, type, filters }: any) => {
     {
       key: "name",
       label: type == "dpto" ? "Departamento" : "Municipio",
+      width: "220px",
     },
     {
       key: "afiliados",
@@ -124,7 +125,7 @@ const WidgetTableAffProv = ({ widget, data, type, filters }: any) => {
     {
       key: "distribucion",
       label: "Distribución en %",
-      width: "100px",
+      width: "140px",
       style: {
         textAlign: "center",
         padding: 0,

@@ -295,7 +295,7 @@ const useCrud = ({
         ...(mod.loadView !== true ? mod.loadView : {}),
       },
       false,
-      mod?.noWaiting,
+      true,
     );
     if (data?.success) {
       return data?.data;
@@ -1070,13 +1070,13 @@ const useCrud = ({
                   error={false}
                   inputStyle={{
                     height: 44,
-                    backgroundColor: "#d7fff005",
-                    border: "1px solid #d7fff014",
+                    backgroundColor: "var(--cModalSurfaceRaised)",
+                    border: "1px solid var(--cModalBorder)",
                     borderRadius: 12,
                     padding: "16px",
                     fontSize: 15,
                     fontWeight: 600,
-                    color: "#878f9a",
+                    color: "var(--cWhiteV1)",
                     ...(filterSel[f.key] &&
                       filterSel[f.key] != "" &&
                       filterSel[f.key] != "T" &&
@@ -1114,13 +1114,13 @@ const useCrud = ({
                 optionValue={f?.optionValue}
                 inputStyle={{
                   height: 44,
-                  backgroundColor: "#d7fff005",
-                  border: "1px solid #d7fff014",
+                  backgroundColor: "var(--cModalSurfaceRaised)",
+                  border: "1px solid var(--cModalBorder)",
                   borderRadius: 12,
                   padding: "16px",
                   fontSize: 15,
                   fontWeight: 600,
-                  color: "#878f9a",
+                  color: "var(--cWhiteV1)",
                   ...(filterSel[f.key] &&
                     filterSel[f.key] != "" &&
                     filterSel[f.key] != "T" &&
@@ -1530,7 +1530,7 @@ const useCrud = ({
             breakPoint={props.filterBreakPoint}
           />
         )}
-        <LoadingScreen type="TableSkeleton">
+        <LoadingScreen type="TableSkeleton" loaded={data !== null}>
           {openList && (
             <div
               style={{

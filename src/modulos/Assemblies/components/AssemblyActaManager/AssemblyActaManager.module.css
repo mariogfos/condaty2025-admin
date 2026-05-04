@@ -6,7 +6,7 @@
 
 .noActa {
   padding: 10px 0;
-  color: #666;
+  color: var(--cWhiteV1);
   font-size: 13px;
 }
 
@@ -15,16 +15,18 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
   border-radius: 8px;
   text-decoration: none;
   color: inherit;
-  transition: all 0.2s;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .actaItem:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--cBackground-foreground);
   border-color: var(--cAccent);
 }
 
@@ -48,15 +50,16 @@
   text-overflow: ellipsis;
   max-width: 180px;
   font-weight: 500;
+  color: var(--cWhite);
 }
 
 .actaDate {
   font-size: 11px;
-  color: #888;
+  color: var(--cWhiteV1);
 }
 
 .actaDownload {
-  color: #888;
+  color: var(--cWhiteV1);
   display: flex;
   align-items: center;
 }

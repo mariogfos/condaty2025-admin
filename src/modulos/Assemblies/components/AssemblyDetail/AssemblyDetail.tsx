@@ -390,8 +390,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   }
 
   const statusStyle = STATUS_STYLE[assembly.status] || {
-    color: "#fff",
-    backgroundColor: "#333",
+    color: "var(--cWhite)",
+    backgroundColor: "var(--cModalSurfaceRaised)",
   };
 
   return (
@@ -601,7 +601,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   alignItems: "center",
                                   gap: "8px",
                                   marginLeft: "8px",
-                                  borderLeft: "1px solid #e2e8f0",
+                                  borderLeft: "1px solid var(--cModalDivider)",
                                   paddingLeft: "16px",
                                 }}
                               >
@@ -642,7 +642,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                           <>
                             <IconEdit
                               size={18}
-                              color="#888"
+                              color="var(--cWhiteV3)"
                               style={{ cursor: "pointer" }}
                               onClick={() => handleEditSurvey(survey)}
                               title="Editar"
@@ -711,10 +711,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                             ?.toLowerCase()
                             .includes("nulo");
                           const barColor = isNo
-                            ? "#EF4444"
+                            ? "linear-gradient(90deg, var(--cError), var(--cAlert))"
                             : isNulo
-                              ? "#444"
-                              : "linear-gradient(90deg, #8b5cf6, #3b82f6)";
+                              ? "linear-gradient(90deg, var(--cNeutral-500), var(--cNeutral-700))"
+                              : "linear-gradient(90deg, var(--cAccent), var(--cInfo))";
 
                           return (
                             <div key={opt.id} className={styles.optionItem}>
@@ -766,7 +766,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                           <div className={styles.optionItem}>
                             <div className={styles.optionHeader}>
                               <span
-                                style={{ color: "#f97316", fontWeight: 600 }}
+                                className={styles.accentText}
                               >
                                 Abstenciones
                               </span>
@@ -777,7 +777,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   gap: 8,
                                 }}
                               >
-                                <span style={{ color: "#f97316" }}>
+                                <span className={styles.accentText}>
                                   {abstention.abstention_rate}% (
                                   {abstention.abstentions}{" "}
                                   {abstention.abstentions === 1
@@ -809,7 +809,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 style={{
                                   width: `${abstention.abstention_rate}%`,
                                   background:
-                                    "linear-gradient(90deg, #f97316, #ef4444)",
+                                    "linear-gradient(90deg, var(--cAlert), var(--cWarning))",
                                 }}
                               />
                             </div>
@@ -831,7 +831,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               </span>
                               <span
                                 className={styles.abstentionFooterItem}
-                                style={{ color: "#f97316" }}
+                                style={{ color: "var(--cAlert)" }}
                               >
                                 Abstenciones:{" "}
                                 <strong>{abstention.abstentions}</strong> (
@@ -845,9 +845,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                 </div>
               ))
             ) : (
-              <div
-                style={{ padding: "20px", textAlign: "center", color: "#666" }}
-              >
+              <div className={styles.emptyState}>
                 No hay votaciones registradas.
               </div>
             )}
@@ -1007,7 +1005,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                   </a>
                 ))
               ) : (
-                <div style={{ padding: "10px 0", color: "#666", fontSize: 13 }}>
+                <div className={styles.emptyState}>
                   No hay documentos subidos.
                 </div>
               )}
@@ -1115,12 +1113,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
         {isEditingDocs && (
           <div style={{ padding: "10px 0" }}>
             <p
-              style={{
-                fontSize: 14,
-                color: "#888",
-                marginBottom: 20,
-                lineHeight: 1.5,
-              }}
+              className={styles.helperText}
             >
               Sube o elimina documentos adjuntos para esta asamblea. Los cambios
               se aplicarán inmediatamente al guardar.
@@ -1148,12 +1141,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
         {isEditingActa && (
           <div style={{ padding: "10px 0" }}>
             <p
-              style={{
-                fontSize: 14,
-                color: "#888",
-                marginBottom: 20,
-                lineHeight: 1.5,
-              }}
+              className={styles.helperText}
             >
               Sube el archivo final del acta de la asamblea. Este archivo estará
               disponible para consulta por los residentes.

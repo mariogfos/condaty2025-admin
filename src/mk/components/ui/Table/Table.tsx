@@ -66,12 +66,25 @@ type PropsType = {
 };
 
 const getWidth = (width: any) => {
-  if (!width || width == "" || width == "100%") return { flex: "1" };
+  if (!width || width == "" || width == "100%") {
+    return {
+      flexGrow: 1,
+      flexShrink: 1,
+      flexBasis: "var(--table-cell-min-width)",
+      minWidth: "var(--table-cell-min-width)",
+    };
+  }
   width = ("" + width).replace("px", "");
   return {
     flex: `0 0 ${width}px`,
     width: `${width}px`,
+    minWidth: `${width}px`,
   };
+};
+
+const getCssSize = (value?: string) => {
+  if (!value) return undefined;
+  return /^\d+$/.test(value) ? `${value}px` : value;
 };
 
 const Table = ({
@@ -97,52 +110,63 @@ const Table = ({
   onSort,
 }: PropsType) => {
   const isMobile = false;
-  const [scrollbarWidth, setScrollbarWidth] = useState();
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+  const resolvedHeight = getCssSize(height);
   return (
     <div
       className={styles.table + " " + styles[className] + " " + className}
       style={style}
     >
-      {(!isMobile || !onTabletRow) && showHeader && !onRenderCard && (
-        <Head
-          header={header}
-          actionsWidth={actionsWidth}
-          onRenderHead={onRenderHead}
-          onButtonActions={onButtonActions}
-          scrollbarWidth={scrollbarWidth}
-          extraData={extraData}
-          sortCol={sortCol}
-          onSort={onSort}
-        />
-      )}
-      <div style={height ? { height: height, overflowY: "auto" } : {}}>
-        <Body
-          onTabletRow={onTabletRow}
-          onRenderCard={onRenderCard}
-          onRowClick={onRowClick}
-          data={data}
-          header={header}
-          actionsWidth={actionsWidth}
-          renderBody={onRenderBody}
-          onButtonActions={onButtonActions}
-          height={height}
-          setScrollbarWidth={setScrollbarWidth}
-          onRenderBody={onRenderBody}
-          extraData={extraData}
-          id={id}
-        />
+      <div className={styles.scrollArea}>
+        <div className={styles.canvas}>
+          {(!isMobile || !onTabletRow) && showHeader && !onRenderCard && (
+            <Head
+              header={header}
+              actionsWidth={actionsWidth}
+              onRenderHead={onRenderHead}
+              onButtonActions={onButtonActions}
+              scrollbarWidth={scrollbarWidth}
+              extraData={extraData}
+              sortCol={sortCol}
+              onSort={onSort}
+            />
+          )}
+          <div
+            className={
+              styles.bodyViewport +
+              (resolvedHeight ? " " + styles.withHeight : "")
+            }
+            style={resolvedHeight ? { height: resolvedHeight } : undefined}
+          >
+            <Body
+              onTabletRow={onTabletRow}
+              onRenderCard={onRenderCard}
+              onRowClick={onRowClick}
+              data={data}
+              header={header}
+              actionsWidth={actionsWidth}
+              renderBody={onRenderBody}
+              onButtonActions={onButtonActions}
+              height={resolvedHeight}
+              setScrollbarWidth={setScrollbarWidth}
+              onRenderBody={onRenderBody}
+              extraData={extraData}
+              id={id}
+            />
+          </div>
+          {sumarize && (
+            <Sumarize
+              header={header}
+              data={data}
+              actionsWidth={actionsWidth}
+              onRenderFoot={onRenderFoot}
+              onButtonActions={onButtonActions}
+              scrollbarWidth={scrollbarWidth}
+              extraData={extraData}
+            />
+          )}
+        </div>
       </div>
-      {sumarize && (
-        <Sumarize
-          header={header}
-          data={data}
-          actionsWidth={actionsWidth}
-          onRenderFoot={onRenderFoot}
-          onButtonActions={onButtonActions}
-          scrollbarWidth={scrollbarWidth}
-          extraData={extraData}
-        />
-      )}
       {footer && <footer>{footer}</footer>}
     </div>
   );
@@ -281,7 +305,13 @@ const Sumarize = memo(function Sumarize({
   }, [data]);
 
   return (
-    <summary style={{ width: `calc(100% - ${scrollbarWidth || 0}px)` }}>
+    <summary
+      style={
+        scrollbarWidth
+          ? { paddingRight: `${scrollbarWidth}px` }
+          : undefined
+      }
+    >
       {header.map((item: any, index: number) => (
         <div
           key={"foot" + index}
@@ -368,7 +398,7 @@ const Body = ({
       ref={divRef}
       style={
         height
-          ? { height: height, overflowY: "auto" }
+          ? { height: "100%", overflowY: "auto" }
           : {
               display: onRenderCard ? "grid" : "flex",
               flexDirection: onRenderCard ? "row" : "column",

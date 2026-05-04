@@ -229,8 +229,9 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
                 style={{
                   width: "100%",
                   height: 48,
-                  backgroundColor: "var(--cSuccess)",
-                  borderColor: "var(--cSuccess)",
+                  backgroundColor: "var(--cAccent)",
+                  borderColor: "var(--cAccent)",
+                  color: "var(--cBlack)",
                   fontSize: "16px",
                   fontWeight: "bold",
                 }}

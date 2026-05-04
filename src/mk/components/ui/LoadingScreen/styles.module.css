@@ -10,9 +10,10 @@
       padding: 8px;
       aspect-ratio: 1;
       border-radius: 50%;
-      background: var(--cPrimary);
-      --_m: conic-gradient(#0000 10%, #00e38c),
-        linear-gradient(#00e38c 0 0) content-box;
+      background: var(--cBackground-foreground);
+      border: 1px solid var(--cBorder);
+      --_m: conic-gradient(#0000 10%, var(--cWhiteV4)),
+        linear-gradient(var(--cWhiteV4) 0 0) content-box;
       -webkit-mask: var(--_m);
       mask: var(--_m);
       -webkit-mask-composite: source-out;

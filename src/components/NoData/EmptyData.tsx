@@ -2,7 +2,6 @@
 import styles from "./EmptyData.module.css";
 import { IconTableEmpty } from "../layout/icons/IconsBiblioteca";
 import { FC, ReactNode, useEffect, useRef } from "react";
-import { wrap } from "module";
 
 interface EmptyDataProps {
   icon?: ReactNode;
@@ -30,7 +29,7 @@ const EmptyData: FC<EmptyDataProps> = ({
   fontSize,
   singleLine = false,
   minFontSize = 12,
-  textWrap
+  textWrap,
 }) => {
   const containerStyle = {
     height: h,
@@ -46,7 +45,6 @@ const EmptyData: FC<EmptyDataProps> = ({
     if (!singleLine) return;
 
     const fitElement = (el: HTMLElement | null, wrap = false) => {
-      
       if (!el) return;
       // Asegurar no wrap y ocultar overflow
       if (!wrap) {
@@ -64,7 +62,11 @@ const EmptyData: FC<EmptyDataProps> = ({
       let i = 0;
       // Reset font-size para recalcular correctamente en cada corrida
       el.style.fontSize = `${current}px`;
-      while (el.scrollWidth > el.clientWidth && current > minFontSize && i < safety) {
+      while (
+        el.scrollWidth > el.clientWidth &&
+        current > minFontSize &&
+        i < safety
+      ) {
         current -= 0.5;
         el.style.fontSize = `${current}px`;
         i++;
@@ -98,13 +100,15 @@ const EmptyData: FC<EmptyDataProps> = ({
       >
         {message ?? "No Hay elementos"}
       </div>
-      <div
-        ref={line2Ref}
-        className={`${styles.line2} ${singleLine ? styles.singleLine : ""}`}
-        style={!singleLine && fontSize ? { fontSize } : undefined}
-      >
-        {line2 ?? null}
-      </div>
+      {line2 ? (
+        <div
+          ref={line2Ref}
+          className={`${styles.line2} ${singleLine ? styles.singleLine : ""}`}
+          style={!singleLine && fontSize ? { fontSize } : undefined}
+        >
+          {line2}
+        </div>
+      ) : null}
     </div>
   );
 };

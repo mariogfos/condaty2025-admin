@@ -16,6 +16,7 @@ import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 import { MONTHS, MONTHS_S } from "@/mk/utils/date1";
 import RenderDel from "@/modulos/Payments/RenderDel/RenderDel";
 import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
+import styles from "./RenderView.module.css";
 
 const LabelValue = ({
   label,
@@ -33,18 +34,15 @@ const LabelValue = ({
   const ignoreValueTranslation = shouldIgnoreValueTranslationContext({ label });
 
   return (
-    <div style={{ ...style, flex: 1 }}>
-      <p style={{ color: "var(--cWhiteV1)", ...styleLabel }}>{label}</p>
+    <div className={styles.labelValue} style={style}>
+      <p className={styles.labelText} style={styleLabel}>
+        {label}
+      </p>
       {typeof value == "string" ? (
         <p
           data-i18n-ignore={ignoreValueTranslation ? "true" : undefined}
-          style={{
-            color: "var(--cWhite)",
-            marginTop: 8,
-            fontWeight: "500",
-            fontSize: 16,
-            ...styleValue,
-          }}
+          className={styles.valueText}
+          style={styleValue}
         >
           {value}
         </p>
@@ -104,24 +102,14 @@ const RenderView = ({
       responsive: "onlyDesktop",
       onRender: ({ item }: any) =>
         item?.files?.length > 0 ? (
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <div
-              style={{
-                backgroundColor: "rgba(18, 21, 25, 0.72)",
-                border: "1px solid #d7fff014",
-                padding: 8,
-                borderRadius: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+          <div className={styles.receiptCell}>
+            <div className={styles.receiptIcon}>
               <IconGallery color="var(--cWhite)" />
             </div>
             <div>
-              <p style={{ color: "var(--cWhite)" }}>{item?.code}</p>
+              <p className={styles.receiptCode}>{item?.code}</p>
               <div
-                style={{ color: "var(--cAccent)", fontSize: 12 }}
+                className={styles.receiptLink}
                 onClick={(e: any) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -133,7 +121,7 @@ const RenderView = ({
             </div>
           </div>
         ) : (
-          <p style={{ color: "var(--cWhite)" }}>-/-</p>
+          <p className={styles.emptyValue}>-/-</p>
         ),
     },
     {
@@ -265,19 +253,19 @@ const RenderView = ({
         buttonText=""
         buttonCancel=""
         buttonExtra={
-          <div style={{ display: "flex", gap: 16, width: "100%" }}>
+          <div className={styles.actionsRow}>
             <Button
               disabled={loadingExport}
               onClick={() => getExport()}
               variant="secondary"
-              style={{ flex: 1 }}
+              className={styles.growButton}
             >
               Ver recibo
             </Button>
             {item?.status === "I" && (
               <Button
                 onClick={() => setOpenFormAccount(true)}
-                style={{ flex: 1 }}
+                className={styles.growButton}
               >
                 Registrar pago a cuenta
               </Button>
@@ -289,33 +277,12 @@ const RenderView = ({
         {loading ? (
           <Loading />
         ) : (
-          <div style={{ display: "flex", gap: 12, flexDirection: "column" }}>
-            <div
-              style={{
-                backgroundColor: "#d7fff005",
-                padding: 16,
-                borderRadius: 16,
-                border: "1px solid #d7fff014",
-              }}
-            >
-              <p
-                style={{
-                  color: "var(--cWhite)",
-                  marginTop: 8,
-                  fontSize: 36,
-                  fontWeight: 600,
-                  textAlign: "center",
-                }}
-              >
+          <div className={styles.root}>
+            <div className={`${styles.card} ${styles.summaryCard}`}>
+              <p className={styles.summaryAmount}>
                 {formatBs(totalAmount)}
               </p>
-              <p
-                style={{
-                  color: "var(--cWhiteV1)",
-                  fontSize: 16,
-                  textAlign: "center",
-                }}
-              >
+              <p className={styles.summarySubtitle}>
                 {item.type === 1 &&
                   "Pago de expensa - " +
                     MONTHS[item.debt.month] +
@@ -326,16 +293,7 @@ const RenderView = ({
                 {item.type === 0 && item.subcategory?.name}
               </p>
             </div>
-            <div
-              style={{
-                backgroundColor: "#d7fff005",
-                padding: 16,
-                borderRadius: 16,
-                border: "1px solid #d7fff014",
-                display: "flex",
-                gap: 16,
-              }}
-            >
+            <div className={`${styles.card} ${styles.infoGrid}`}>
               <LabelValue label="Deuda" value={formatBs(item?.amount)} />
               <LabelValue
                 label="Multa"
@@ -349,20 +307,15 @@ const RenderView = ({
               )}
             </div>
 
-            <div
-              style={{
-                backgroundColor: "#d7fff005",
-                padding: 16,
-                borderRadius: 16,
-                border: "1px solid #d7fff014",
-                gap: 16,
-              }}
-            >
-              <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+            <div className={styles.card}>
+              <div className={styles.metaGrid}>
                 <LabelValue
                   label="Estado"
                   value={statusText[item?.status]}
-                  styleValue={{ color: statusColor[item?.status] }}
+                  styleValue={{
+                    color: statusColor[item?.status],
+                    fontWeight: 600,
+                  }}
                 />
                 <LabelValue
                   label="Autorizado por:"
@@ -377,7 +330,7 @@ const RenderView = ({
                   value={getFullName(item?.dpto?.homeowner) || "-/-"}
                 />
               </div>
-              <div style={{ display: "flex", gap: 16 }}>
+              <div className={styles.metaGrid}>
                 <LabelValue
                   label="Unidad"
                   value={item?.dpto?.type?.name + " " + item?.dpto?.nro}
@@ -390,7 +343,7 @@ const RenderView = ({
                 <LabelValue label="" value={""} />
               </div>
             </div>
-            <div>
+            <div className={styles.tableWrapper}>
               <Table
                 style={{
                   borderBottomLeftRadius: 0,
@@ -406,28 +359,14 @@ const RenderView = ({
                 data={item?.history}
                 header={header}
               />
-              <div
-                style={{
-                  padding: 16,
-                  borderBottomLeftRadius: 12,
-                  borderBottomRightRadius: 12,
-                  border: "1px solid #d7fff014",
-                  borderTop: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                  gap: 80,
-                }}
-              >
-                <div style={{ textAlign: "right" }}>
+              <div className={styles.tableFooter}>
+                <div className={styles.tableFooterLabels}>
                   <p>Total pagado</p>
                   <p>Saldo restante</p>
                 </div>
-                <div>
-                  <p style={{ color: "var(--cWhite)" }}>
-                    {formatBs(totalPagado)}
-                  </p>
-                  <p style={{ color: "var(--cWhite)" }}>
+                <div className={styles.tableFooterValues}>
+                  <p className={styles.footerValue}>{formatBs(totalPagado)}</p>
+                  <p className={styles.footerValue}>
                     {formatBs(saldoRestante)}
                   </p>
                 </div>

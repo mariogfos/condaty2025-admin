@@ -1,5 +1,5 @@
 .container {
-  background-color: #d7fff005;
+  background-color: var(--cModalSection);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -9,7 +9,7 @@
   box-sizing: border-box;
   color: var(--cWhite);
   border-radius: 12px;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
   min-width: 600px;
   margin-bottom: var(--spM);
   &:last-of-type {
@@ -61,7 +61,7 @@
   width: 100%;
   border: none;
   height: 0;
-  border-top: 0.5px solid var(--cWhiteV5);
+  border-top: 1px solid var(--cModalDivider);
 }
 
 .detailsSection {
@@ -147,7 +147,7 @@
 
 .canceledReason {
   font-style: italic;
-  background-color: rgba(220, 53, 69, 0.1);
+  background-color: rgba(228, 96, 85, 0.12);
   padding: 8px 12px;
   border-radius: 4px;
   border-left: 3px solid var(--cError);
@@ -155,7 +155,7 @@
 
 .rechazedReason {
   font-style: italic;
-  background-color: rgba(243, 127, 61, 0.15);
+  background-color: rgba(243, 127, 61, 0.12);
   padding: 8px 12px;
   border-radius: 4px;
   border-left: 3px solid var(--cRandom16);
@@ -171,9 +171,9 @@
 }
 
 .voucherButton {
-  background-color: #d7fff005;
+  background-color: var(--cModalSurfaceRaised);
   color: var(--cWhite);
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
   font-size: var(--sL);
   padding: var(--spM) var(--spXl);
   border-radius: var(--bRadiusS);
@@ -190,8 +190,8 @@
 }
 
 .voucherButton:hover {
-  background-color: rgba(0, 227, 140, 0.12);
-  border-color: #d7fff014;
+  background-color: rgba(0, 227, 140, 0.08);
+  border-color: var(--cModalBorder);
 }
 
 .periodsDetailsSection {
@@ -218,7 +218,7 @@
 
 .periodsTableWrapper {
   width: 100%;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
   border-radius: var(--bRadiusM);
   overflow: hidden;
 }
@@ -247,7 +247,7 @@
 
 .periodsTableHeader,
 .periodsTableHeaderReservations {
-  background-color: rgba(18, 21, 25, 0.8);
+  background-color: var(--cModalSurfaceRaised);
   color: var(--cWhite);
   font-family: Roboto, sans-serif;
   font-weight: 600;
@@ -280,7 +280,7 @@
   font-family: Roboto, sans-serif;
   font-size: 16px;
   font-weight: 500;
-  background-color: rgba(18, 21, 25, 0.8);
+  background-color: var(--cModalSurfaceRaised);
   height: 48px;
 }
 
@@ -293,7 +293,7 @@
 .periodsTableBody
   .periodsTableRowReservations:nth-child(odd)
   .periodsTableCell {
-  background-color: rgba(18, 21, 25, 0.76);
+  background-color: var(--cModalSection);
   color: var(--cWhiteV1);
 }
 
@@ -490,8 +490,8 @@
     grid-template-columns: 1fr;
     gap: 0;
     padding: var(--spM);
-    border-bottom: 1px solid rgba(215, 255, 240, 0.12);
-    background-color: rgba(18, 21, 25, 0.76);
+    border-bottom: 1px solid var(--cModalDivider);
+    background-color: var(--cModalSection);
   }
 
   .periodsTableBody .periodsTableRow:last-child {
@@ -504,7 +504,7 @@
     text-align: left !important;
     padding: var(--spS) 0;
     border-right: none;
-    border-bottom: 1px dashed rgba(215, 255, 240, 0.12);
+    border-bottom: 1px dashed var(--cModalDivider);
     font-size: var(--sS);
     background-color: transparent;
     min-height: auto;

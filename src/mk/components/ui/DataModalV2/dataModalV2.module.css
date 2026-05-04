@@ -1,5 +1,5 @@
 .dataModal {
-  backdrop-filter: blur(5px);
+  background-color: var(--cHoverModal);
   position: fixed;
   top: 0;
   left: 0;
@@ -15,9 +15,10 @@
     display: flex;
     flex-direction: column;
     color: var(--cWhite);
-    background-color: var(--cBackground-muted);
+    background-color: var(--cModalSurface);
     border-radius: 24px;
-    border: 1px solid var(--cBorder);
+    border: 1px solid var(--cModalBorder);
+    box-shadow: 0 28px 64px rgba(0, 0, 0, 0.44);
     overflow: hidden;
     opacity: 0;
     transform: translateY(100%);
@@ -60,7 +61,7 @@
     }
     .headerDivider {
       height: 0.5px; /* Grosor de la línea, similar a borderWidth */
-      background-color: var(--cWhiteV1); /* Color del borde (#a7a7a7) */
+      background-color: var(--cBorder);
       width: 100%;
     }
     & > section {
@@ -121,12 +122,12 @@
   }
   .headerIcon {
     padding: 12px;
-    background-color: var(--cBackground);
+    background-color: var(--cModalSurfaceRaised);
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 100%;
-    border: 1px solid var(--cBackground-foreground);
+    border: 1px solid var(--cModalBorder);
   }
   .headerTitle {
     font-size: 18px;

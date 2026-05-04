@@ -1,5 +1,5 @@
 .container {
-  background-color: #d7fff005;
+  background-color: var(--cModalSection);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -9,7 +9,7 @@
   box-sizing: border-box;
   color: var(--cWhite);
   border-radius: 12px;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
   min-width: 600px;
 }
 
@@ -37,7 +37,7 @@
   justify-content: flex-end;
   gap: var(--spM);
   padding-bottom: var(--spL);
-  border-bottom: 1px solid var(--cWhiteV1);
+  border-bottom: 1px solid var(--cModalDivider);
 }
 
 .iconButton {
@@ -110,7 +110,7 @@
   width: 100%;
   border: none;
   height: 0;
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-top: 1px solid var(--cModalDivider);
 }
 
 .detailsSection {
@@ -187,9 +187,9 @@
   gap: var(--spL);
   width: 100%;
   padding: var(--spL);
-  background-color: rgba(18, 21, 25, 0.65);
+  background-color: var(--cModalSurfaceRaised);
   border-radius: var(--bRadiusS);
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
 }
 
 .advancedItem {
@@ -197,14 +197,14 @@
   flex-direction: column;
   gap: var(--spXs);
   padding: var(--spM);
-  background-color: #d7fff005;
+  background-color: var(--cModalSection);
   border-radius: var(--bRadiusS);
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
   transition: all 0.2s ease;
 }
 
 .advancedItem:hover {
-  border-color: #d7fff014;
+  border-color: var(--cModalBorder);
   background-color: rgba(0, 227, 140, 0.08);
 }
 
@@ -248,7 +248,7 @@
 
 .canceledReason {
   font-style: italic;
-  background-color: rgba(220, 53, 69, 0.1);
+  background-color: rgba(228, 96, 85, 0.12);
   padding: 8px 12px;
   border-radius: 4px;
   border-left: 3px solid var(--cError);

@@ -74,18 +74,19 @@ interface ReservationDetailModalProps {
 const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
   ({ open, onClose, item, reservationId, reLoad }) => {
     const { showToast } = useAuth();
+    const detailId = reservationId || item?.id;
+    const shouldFetchDetail = open && Boolean(detailId);
 
-    // Usar useAxios como hook directo, similar al componente de DebtsManager
     const { data } = useAxios(
-      "/reservations",
+      shouldFetchDetail ? "/reservations" : null,
       "GET",
       {
         fullType: "DET",
-        searchBy: reservationId || item?.id,
+        searchBy: detailId,
         page: 1,
         perPage: 1,
       },
-      open && (!!reservationId || !!item?.id), // Solo ejecutar si el modal está abierto y tenemos un ID
+      false,
     );
 
     // Usar los datos de la consulta DET si están disponibles, sino usar el item original
@@ -226,7 +227,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
           "PUT",
           payload,
           false,
-          false,
+          true,
         );
         if (reLoad) reLoad();
         onClose();
@@ -268,7 +269,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
           "PUT",
           payload,
           false,
-          false,
+          true,
         );
 
         setIsRejectModalOpen(false);
@@ -313,6 +314,8 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
           status: "C",
           reason: formState?.reason,
         },
+        false,
+        true,
       );
       if (data?.success) {
         setOpenModalCancel(false);
@@ -334,7 +337,8 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
           title="Detalle de la reserva"
           buttonText=""
           buttonCancel=""
-          style={{ width: "739px", maxWidth: "80%" }}
+          minWidth={739}
+          maxWidth={920}
           variant={"mini"}
         >
           <LoadingScreen
@@ -370,12 +374,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                     canCancel && (
                       <p
                         onClick={() => setOpenModalCancel(true)}
-                        style={{
-                          color: "var(--cError)",
-                          textAlign: "right",
-                          textDecorationLine: "underline",
-                          cursor: "pointer",
-                        }}
+                        className={styles.cancelLink}
                       >
                         Cancelar reserva
                       </p>
@@ -423,13 +422,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                   <div className={styles.mainDetailsContainer}>
                     <div className={styles.detailsColumn}>
                       <div className={styles.specificDetails}>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
+                        <div className={styles.inlineMetaHeader}>
                           <span className={styles.detailsHeader}>
                             Área social: {reservationDetail?.area?.title}
                           </span>
@@ -496,17 +489,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                 </div>
 
                 {actionError && (
-                  <div
-                    className={styles.errorText}
-                    style={{
-                      color: "red",
-                      marginTop: "10px",
-                      textAlign: "center",
-                      padding: "5px",
-                      border: "1px solid red",
-                      borderRadius: "4px",
-                    }}
-                  >
+                  <div className={styles.errorBox}>
                     Error: {actionError}
                   </div>
                 )}
@@ -568,10 +551,11 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
             buttonText="Cancelar reserva"
             buttonCancel="Salir"
             onClose={() => setOpenModalCancel(false)}
-            style={{ width: "686px" }}
+            minWidth={686}
+            maxWidth={760}
             onSave={onSaveCancel}
           >
-            <p style={{ marginBottom: 16 }}>
+            <p className={styles.modalParagraph}>
               Por favor, indica el motivo por el cual quieres cancelar esta
               reserva.
             </p>
@@ -596,7 +580,8 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
             title="Rechazar solicitud"
             buttonText=""
             buttonCancel=""
-            style={{ width: "486px", maxWidth: "80%" }}
+            minWidth={486}
+            maxWidth={560}
           >
             <div className={styles.divider}></div>
             <div className={styles.modalContentContainer}>
@@ -624,11 +609,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
               {rejectErrors.reason && (
                 <span
                   id="rejection-error-message"
-                  style={{
-                    color: "var(--cError, #e46055)",
-                    fontSize: "12px",
-                    marginTop: "4px",
-                  }}
+                  className={styles.rejectErrorMessage}
                 >
                   {rejectErrors.reason}
                 </span>
@@ -636,8 +617,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
             </div>
 
             <div
-              className={styles.actionButtonsContainer}
-              style={{ marginTop: "var(--spL, 16px)" }}
+              className={`${styles.actionButtonsContainer} ${styles.rejectActions}`}
             >
               <Button
                 className={styles.secondaryActionButton}

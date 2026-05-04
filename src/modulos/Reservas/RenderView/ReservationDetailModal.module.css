@@ -6,6 +6,31 @@
   gap: var(--spM, 12px); /* Usa variable o valor */
 }
 
+.container {
+  background-color: var(--cModalSection);
+  border: 1px solid var(--cModalBorder);
+  border-radius: var(--bRadiusM);
+  padding: var(--spL);
+}
+
+.notFoundContainer {
+  padding: var(--spXl) var(--spL);
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+.notFoundText {
+  color: var(--cWhite);
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  margin-bottom: var(--spS);
+}
+
+.notFoundSuggestion {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+}
+
 .modalHeader {
   display: flex;
   justify-content: space-between;
@@ -32,17 +57,17 @@
   border-radius: 50%;
 }
 .closeButton:hover {
-  background-color: var(--cHover, #ffffff0d);
+  background-color: var(--cBackground-foreground);
 }
 
 .reservationBlock {
   display: flex;
   flex-direction: column;
   gap: var(--spM, 12px);
-  background-color: #d7fff005; /* Variable */
+  background-color: var(--cModalSection);
   padding: var(--spM, 12px);
   border-radius: var(--bRadius, 12px);
-  border: 1px solid #d7fff014; /* Variable */
+  border: 1px solid var(--cModalBorder);
 }
 
 .requesterSection {
@@ -86,6 +111,10 @@
   display: flex;
   align-items: flex-start;
   gap: var(--spM, 12px);
+  background-color: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
+  border-radius: var(--bRadius, 12px);
+  padding: var(--spM);
 }
 
 .imageWrapper {
@@ -94,6 +123,8 @@
   flex-shrink: 0;
   border-radius: var(--bRadiusS, 8px); /* Variable */
   overflow: hidden;
+  background-color: var(--cModalSection);
+  border: 1px solid var(--cModalBorder);
 }
 
 .areaImage {
@@ -104,7 +135,7 @@
 }
 
 .imagePlaceholder {
-  background-color: rgba(18, 21, 25, 0.72); /* Fondo placeholder */
+  background-color: var(--cBackground-foreground);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -150,6 +181,15 @@
   display: flex;
   flex-direction: column;
   gap: var(--spS, 8px);
+  width: 100%;
+}
+
+.inlineMetaHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spM);
+  flex-wrap: wrap;
 }
 
 .detailsHeader {
@@ -162,6 +202,7 @@
   display: flex;
   /* flex-direction: column; */
   gap: var(--spS, 8px);
+  flex-wrap: wrap;
 }
 
 .detailItem {
@@ -169,6 +210,11 @@
   align-items: center;
   flex: 1;
   gap: var(--spXs, 4px);
+  min-width: 220px;
+  background-color: var(--cModalSection);
+  border: 1px solid var(--cModalBorder);
+  border-radius: var(--bRadiusS);
+  padding: 10px 12px;
 }
 
 .detailIcon {
@@ -203,6 +249,7 @@
   gap: var(--spS, 8px); /* Mantiene el espacio entre botones */
   margin-top: var(--spM, 12px);
   width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+  align-items: stretch;
 }
 
 .rejectButtonProportional {
@@ -249,6 +296,58 @@
   align-items: center;
   min-height: 200px; /* Altura mínima mientras carga */
 }
+
+.cancelLink {
+  color: var(--cError);
+  text-align: right;
+  text-decoration-line: underline;
+  cursor: pointer;
+}
+
+.cancelLink:hover {
+  color: #f07b71;
+}
+
+.timeLimitAlert {
+  background-color: rgba(233, 176, 30, 0.1);
+  border: 1px solid rgba(233, 176, 30, 0.28);
+  color: var(--cWhite);
+  border-radius: var(--bRadiusS);
+  padding: 12px 14px;
+  line-height: 1.45;
+}
+
+.errorBox {
+  color: var(--cError);
+  margin-top: 10px;
+  text-align: center;
+  padding: 10px 12px;
+  border: 1px solid rgba(228, 96, 85, 0.3);
+  border-radius: var(--bRadiusS);
+  background-color: rgba(228, 96, 85, 0.08);
+}
+
+.divider {
+  height: 1px;
+  width: 100%;
+  background-color: var(--cModalDivider);
+}
+
+.modalParagraph {
+  margin-bottom: 16px;
+  color: var(--cWhiteV1);
+  line-height: 1.45;
+}
+
+.rejectErrorMessage {
+  color: var(--cError, #e46055);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.rejectActions {
+  margin-top: var(--spL, 16px);
+}
 /* En TuComponentePadre.module.css */
 
 .confirmCancelButton {
@@ -275,74 +374,104 @@
   line-height: 1.4;
 }
 .statusBadge {
-  padding: 8px;
+  padding: 8px 12px;
   text-align: center;
-  border-radius: 4px;
+  border-radius: 999px;
   font-size: 14px;
+  font-weight: var(--bSemibold);
+  border: 1px solid transparent;
 }
 
 /* W: Esperando confirmación (Amarillo) */
 .statusW {
-  background-color: #E9B01E33;
-  color: #E9B01E;
+  background-color: rgba(233, 176, 30, 0.14);
+  color: var(--cWarning);
+  border-color: rgba(233, 176, 30, 0.22);
 }
 
 /* A: Pago pendiente (Amarillo) */
 .statusA {
-  background-color: #E9B01E33;
-  color: #E9B01E;
+  background-color: rgba(233, 176, 30, 0.14);
+  color: var(--cWarning);
+  border-color: rgba(233, 176, 30, 0.22);
 }
 
 /* Q: Pago por confirmar (Amarillo) */
 .statusQ {
-  background-color: #E9B01E33;
-  color: #E9B01E;
+  background-color: rgba(233, 176, 30, 0.14);
+  color: var(--cWarning);
+  border-color: rgba(233, 176, 30, 0.22);
 }
 
 /* N: Reservado (sin pago) (Verde) */
 .statusN {
-  background-color: #00E38C33;
-  color: #00E38C;
+  background-color: rgba(0, 227, 140, 0.1);
+  color: var(--cPrimary);
+  border-color: rgba(0, 227, 140, 0.22);
 }
 
 /* L: Reservado (pagado) (Verde) */
 .statusL {
-  background-color: #00E38C33;
-  color: #00E38C;
+  background-color: rgba(0, 227, 140, 0.1);
+  color: var(--cPrimary);
+  border-color: rgba(0, 227, 140, 0.22);
 }
 
 /* R: Reserva rechazada (Rojo) */
 .statusR {
-  background-color: #E4605533;
-  color: #E46055;
+  background-color: rgba(228, 96, 85, 0.1);
+  color: var(--cError);
+  border-color: rgba(228, 96, 85, 0.24);
 }
 
 /* C: Cancelada por usuario (Rojo) */
 .statusC {
-  background-color: #E4605533;
-  color: #E46055;
+  background-color: rgba(228, 96, 85, 0.1);
+  color: var(--cError);
+  border-color: rgba(228, 96, 85, 0.24);
 }
 
 /* T: Cancelada automática (Rojo) */
 .statusT {
-  background-color: #E4605533;
-  color: #E46055;
+  background-color: rgba(228, 96, 85, 0.1);
+  color: var(--cError);
+  border-color: rgba(228, 96, 85, 0.24);
 }
 
 /* F: Finalizada (Verde) */
 .statusF {
-  background-color: #00E38C33;
-  color: #00E38C;
+  background-color: rgba(0, 227, 140, 0.1);
+  color: var(--cPrimary);
+  border-color: rgba(0, 227, 140, 0.22);
 }
 
 .statusUnknown {
-  background-color: var(--cHoverLight, rgba(248, 249, 250, 0.5));
-  color: var(--cLightDark, rgb(108, 117, 125));
-  border: 1px solid var(--cLightDark, rgb(200, 200, 200));
+  background-color: var(--cModalSection);
+  color: var(--cWhiteV1);
+  border: 1px solid var(--cModalBorder);
 }
 
 .areaSeparator {
   /* Línea separadora */
   border: none;
-  border-top: 0.5px solid var(--cWhiteV1); /* Línea sutil */
+  border-top: 1px solid var(--cModalDivider); /* Línea sutil */
+}
+
+@media (max-width: 768px) {
+  .mainDetailsContainer {
+    flex-direction: column;
+  }
+
+  .imageWrapper {
+    width: 100%;
+    height: 220px;
+  }
+
+  .detailItem {
+    min-width: 100%;
+  }
+
+  .actionButtonsContainer {
+    flex-direction: column;
+  }
 }

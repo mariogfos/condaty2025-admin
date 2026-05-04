@@ -8,6 +8,27 @@ export type AxiosContextType = {
   setWaiting: Function;
 };
 export const AxiosContext = createContext({} as AxiosContextType);
+
+const resolveApiBaseUrl = (apiUrl?: string) => {
+  if (!apiUrl) return apiUrl;
+  if (typeof window === "undefined") return apiUrl;
+
+  try {
+    const resolvedUrl = new URL(apiUrl, window.location.origin);
+
+    if (
+      /^https?:$/.test(resolvedUrl.protocol) &&
+      resolvedUrl.origin !== window.location.origin
+    ) {
+      return "/api-proxy";
+    }
+  } catch (_error) {
+    return apiUrl;
+  }
+
+  return apiUrl;
+};
+
 const AxiosInstanceProvider = ({
   config = {},
   interceptors = null,
@@ -22,9 +43,10 @@ const AxiosInstanceProvider = ({
   };
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   if (!config.baseURL) {
-    config = { ...config, baseURL: API_URL };
+    config = { ...config, baseURL: resolveApiBaseUrl(API_URL) };
   }
   const instanceRef = useRef(axios.create(config));
+  instanceRef.current.defaults.baseURL = config.baseURL;
   instanceRef.current.defaults.withCredentials = true;
   useEffect(() => {
     setWaiting2(0, "useEffect AxiosProvider");

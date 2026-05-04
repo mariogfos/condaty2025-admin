@@ -151,7 +151,6 @@ const Payments = () => {
 
     renderView: (props: any) => <RenderView {...props} />,
     renderDel: (props: any) => <RenderDel {...props} />,
-    loadView: { fullType: 'DET' },
     hideActions: {
       view: false,
       add: false,
