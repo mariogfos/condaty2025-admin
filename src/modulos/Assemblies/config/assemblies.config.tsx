@@ -12,6 +12,7 @@ import {
   TYPE_OPTIONS,
   MODALITY_OPTIONS,
 } from "./assemblies.constants";
+import { IconDownload } from "@/components/layout/icons/IconsBiblioteca";
 
 export const getAssemblyConfig = (
   reLoad: any,
@@ -52,7 +53,7 @@ export const getAssemblyConfig = (
     subject: {
       rules: ["required"],
       api: "ae",
-      label: "Asunto",
+      label: "Asamblea",
       list: true,
     },
     description: {
@@ -168,6 +169,29 @@ export const getAssemblyConfig = (
       api: "ae",
       label: "Audiencia",
       list: false,
+    },
+    acta_file: {
+      rules: [],
+      api: "e",
+      label: "Acta",
+      list: {
+        width: "80px",
+        onRender: (props: any) => {
+          const actaFile = props?.item?.acta_file;
+          if (!actaFile) return null;
+          return (
+            <a
+              href={actaFile}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              style={{ display: "inline-flex", alignItems: "center" }}
+            >
+              <IconDownload size={18} color="var(--cAccent)" />
+            </a>
+          );
+        },
+      },
     },
   };
 

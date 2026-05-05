@@ -546,34 +546,218 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             {assembly.surveys && assembly.surveys.length > 0 ? (
               getSortedSurveys(assembly.surveys).map((survey: any) => (
                 <div key={survey.id} className={styles.votacionCard}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <h3 className={styles.votacionTitle}>
-                      {survey.squestions?.[0]?.question_text || survey.title}
-                    </h3>
-                    <div
-                      style={{ display: "flex", gap: 12, alignItems: "center" }}
+<div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        marginBottom: 8,
+                      }}
                     >
-                      {/* Lifecycle Actions */}
-                      {!isFinished && (
-                        <>
-                          {(survey.status === "D" || survey.status === "P") && (
-                            <IconCirclePlay
-                              size={22}
-                              color="var(--cSuccess)"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => handleStatusChange(survey.id, "A")}
-                              title="Activar"
-                            />
+                      <h3 className={styles.votacionTitle}>
+                        {survey.squestions?.[0]?.question_text || survey.title}
+                      </h3>
+                      <div
+                        style={{ display: "flex", gap: 12, alignItems: "center" }}
+                      >
+                        {/* Lifecycle Actions */}
+                        {!isFinished && (
+                          <>
+                            {/* D (Draft): only admin sees it, participants can't */}
+                            {survey.status === "D" && (
+                              <>
+                                <Button
+                                  variant="secondary"
+                                  small
+                                  onClick={() => handleStatusChange(survey.id, "V")}
+                                  style={{ fontSize: 11, padding: "4px 8px" }}
+                                >
+                                  Hacer visible
+                                </Button>
+                                <Button
+                                  variant="terciary"
+                                  small
+                                  onClick={() => handleStatusChange(survey.id, "S")}
+                                  style={{ fontSize: 11, padding: "4px 8px" }}
+                                >
+                                  Programar
+                                </Button>
+                              </>
+                            )}
+
+                            {/* V (Visible): Volver a borrador →D, Activar →A, Cancelar →X */}
+                            {survey.status === "V" && (
+                              <>
+                                <Button
+                                  variant="terciary"
+                                  small
+                                  onClick={() => handleStatusChange(survey.id, "D")}
+                                  style={{ fontSize: 11, padding: "4px 8px" }}
+                                >
+                                  Volver a borrador
+                                </Button>
+                                <Button
+                                  variant="primary"
+                                  small
+                                  onClick={() => handleStatusChange(survey.id, "A")}
+                                  style={{ fontSize: 11, padding: "4px 8px" }}
+                                >
+                                  Activar
+                                </Button>
+                                <Button
+                                  variant="danger"
+                                  small
+                                  onClick={() => handleStatusChange(survey.id, "X")}
+                                  style={{ fontSize: 11, padding: "4px 8px" }}
+                                >
+                                  Cancelar
+                                </Button>
+                              </>
+                            )}
+
+                            {/* A (Active): Pausar →P, Cerrar →C, Cancelar →X */}
+                            {survey.status === "A" && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "16px",
+                                }}
+                              >
+                                <Button
+                                  variant="terciary"
+                                  onClick={() => {
+                                    setVotingForSurvey(survey);
+                                    setIsManualVoteOpen(true);
+                                  }}
+                                  style={{
+                                    height: "32px",
+                                    padding: "0 10px",
+                                    fontSize: "12px",
+                                  }}
+                                >
+                                  Votar manualmente
+                                </Button>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                    marginLeft: "8px",
+                                    borderLeft: "1px solid var(--cModalDivider)",
+                                    paddingLeft: "16px",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      width: 12,
+                                      height: 14,
+                                      borderLeft: "3px solid var(--cWarning)",
+                                      borderRight: "3px solid var(--cWarning)",
+                                      cursor: "pointer",
+                                    }}
+                                    onClick={() =>
+                                      handleStatusChange(survey.id, "P")
+                                    }
+                                    title="Pausar"
+                                  />
+                                  <IconCircleCheck
+                                    size={22}
+                                    color="var(--cError)"
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() =>
+                                      handleStatusChange(survey.id, "C")
+                                    }
+                                    title="Finalizar"
+                                  />
+                                </div>
+                              </div>
+                            )}
+
+                            {/* P (Paused): Reanudar →A, Cerrar →C, Cancelar →X */}
+                            {survey.status === "P" && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "16px",
+                                }}
+                              >
+                                <Button
+                                  variant="primary"
+                                  small
+                                  onClick={() => handleStatusChange(survey.id, "A")}
+                                  style={{ fontSize: 11, padding: "4px 8px" }}
+                                >
+                                  Reanudar
+                                </Button>
+                                <Button
+                                  variant="danger"
+                                  small
+                                  onClick={() => handleStatusChange(survey.id, "C")}
+                                  style={{ fontSize: 11, padding: "4px 8px" }}
+                                >
+                                  Cerrar
+                                </Button>
+                                <Button
+                                  variant="terciary"
+                                  small
+                                  onClick={() => handleStatusChange(survey.id, "X")}
+                                  style={{ fontSize: 11, padding: "4px 8px" }}
+                                >
+                                  Cancelar
+                                </Button>
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {/* Edit/Delete (Only if no votes) */}
+                        {!isFinished &&
+                          !survey.squestions?.[0]?.soptions?.some(
+                            (o: any) => (o.votes || 0) > 0,
+                          ) &&
+                          survey.status !== "C" &&
+                          survey.status !== "V" &&
+                          survey.status !== "P" && (
+                            <>
+                              <IconEdit
+                                size={18}
+                                color="var(--cWhiteV3)"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => handleEditSurvey(survey)}
+                                title="Editar"
+                              />
+                              <IconTrash
+                                size={18}
+                                color="var(--cError)"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => handleDeleteSurvey(survey.id)}
+                                title="Eliminar"
+                              />
+                            </>
+                          )}
+                      </div>
+                    </div>
+
+                    {/* Participant visibility message - only admin sees this */}
+                    {survey.status === "D" && (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--cAlert)",
+                          marginBottom: 12,
+                          fontStyle: "italic",
+                        }}
+                      >
+                        Los participantes aún no pueden ver esta votación
+                      </div>
+                    )}
+                            </div>
                           )}
 
-                          {survey.status === "A" && (
+                          {/* P (Paused): Reanudar →A, Cerrar →C, Cancelar →X */}
+                          {survey.status === "P" && (
                             <div
                               style={{
                                 display: "flex",
@@ -582,52 +766,29 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               }}
                             >
                               <Button
-                                variant="terciary"
-                                onClick={() => {
-                                  setVotingForSurvey(survey);
-                                  setIsManualVoteOpen(true);
-                                }}
-                                style={{
-                                  height: "32px",
-                                  padding: "0 10px",
-                                  fontSize: "12px",
-                                }}
+                                variant="primary"
+                                small
+                                onClick={() => handleStatusChange(survey.id, "A")}
+                                style={{ fontSize: 11, padding: "4px 8px" }}
                               >
-                                Votar manualmente
+                                Reanudar
                               </Button>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "8px",
-                                  marginLeft: "8px",
-                                  borderLeft: "1px solid var(--cModalDivider)",
-                                  paddingLeft: "16px",
-                                }}
+                              <Button
+                                variant="danger"
+                                small
+                                onClick={() => handleStatusChange(survey.id, "C")}
+                                style={{ fontSize: 11, padding: "4px 8px" }}
                               >
-                                <div
-                                  style={{
-                                    width: 12,
-                                    height: 14,
-                                    borderLeft: "3px solid var(--cWarning)",
-                                    borderRight: "3px solid var(--cWarning)",
-                                    cursor: "pointer",
-                                  }}
-                                  onClick={() =>
-                                    handleStatusChange(survey.id, "P")
-                                  }
-                                  title="Pausar"
-                                />
-                                <IconCircleCheck
-                                  size={22}
-                                  color="var(--cError)"
-                                  style={{ cursor: "pointer" }}
-                                  onClick={() =>
-                                    handleStatusChange(survey.id, "C")
-                                  }
-                                  title="Finalizar"
-                                />
-                              </div>
+                                Cerrar
+                              </Button>
+                              <Button
+                                variant="tertiary"
+                                small
+                                onClick={() => handleStatusChange(survey.id, "X")}
+                                style={{ fontSize: 11, padding: "4px 8px" }}
+                              >
+                                Cancelar
+                              </Button>
                             </div>
                           )}
                         </>
@@ -693,7 +854,13 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 ? "Activa"
                                 : survey.status === "P"
                                   ? "Pausada"
-                                  : "Borrador"}
+                                  : survey.status === "V"
+                                    ? "Visible"
+                                    : survey.status === "S"
+                                      ? "Programada"
+                                      : survey.status === "X"
+                                        ? "Cancelada"
+                                        : "Borrador"}
                           </span>
                         </div>
 
@@ -809,7 +976,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 style={{
                                   width: `${abstention.abstention_rate}%`,
                                   background:
-                                    "linear-gradient(90deg, var(--cAlert), var(--cWarning))",
+                                    "linear-gradient(90deg, var(--cNeutral-500), var(--cNeutral-700))",
                                 }}
                               />
                             </div>
@@ -1055,6 +1222,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               assemblyId={String(assembly.id)}
               refreshKey={attendanceRefreshKey}
               readOnly={isFinished}
+              assemblyModality={assembly.modality as "P" | "V" | "H"}
               onAttendanceChange={() => {
                 // P.23: Actualizar todo al cambiar asistencia (agrega o elimina)
                 setAttendanceRefreshKey((prev) => prev + 1);

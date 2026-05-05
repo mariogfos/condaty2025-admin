@@ -22,6 +22,7 @@ interface AssemblyAttendanceListProps {
   refreshKey?: number;
   onAttendanceChange?: () => void;
   readOnly?: boolean;
+  assemblyModality?: "P" | "V" | "H";
 }
 
 const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
@@ -29,6 +30,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
   refreshKey,
   onAttendanceChange,
   readOnly = false,
+  assemblyModality,
 }) => {
   const [attendances, setAttendances] = useState<AssemblyAttendance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,6 +94,8 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
     return modality === "P" ? "Presencial" : "Virtual";
   };
 
+  const isInPersonOnly = assemblyModality === "P";
+
   // console.log("attendances", attendances);
   const inPersonCount = attendances?.filter(
     (a) => a.modality_type === "P",
@@ -117,9 +121,11 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
           Presencial: <br />
           <strong>{inPersonCount}</strong>
         </span>
-        <span className={styles.breakdown}>
-          Virtual: <br /> <strong>{virtualCount}</strong>
-        </span>
+        {!isInPersonOnly && (
+          <span className={styles.breakdown}>
+            Virtual: <br /> <strong>{virtualCount}</strong>
+          </span>
+        )}
       </div>
 
       {attendances.length === 0 ? (
