@@ -6,7 +6,7 @@ Este manual es tu guía completa para entender, desarrollar y mantener el sistem
 
 ---
 
-## 📋 Índice
+## 📋 Índice1
 
 1. [Visión General del Proyecto](#-visión-general-del-proyecto)
 2. [Configuración del Entorno](#-configuración-del-entorno)
