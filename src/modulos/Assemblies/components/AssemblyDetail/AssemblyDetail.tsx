@@ -414,7 +414,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             title="ASUNTO"
             titleRight={
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {assembly.status === AssemblyStatus.InProgress && (
+                {assembly.status === AssemblyStatus.InProgress && !isMobile && (
                   <>
                     <Button
                       variant="danger"
@@ -438,7 +438,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                     </Button>
                   </>
                 )}
-                {assembly.status === AssemblyStatus.Scheduled && (
+                {assembly.status === AssemblyStatus.Scheduled && !isMobile && (
                   <Button
                     variant="primary"
                     small
@@ -493,6 +493,35 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             </div>
           </Card>
 
+          {/* PARTICIPANTES - 2do card en mobile, 1ro en rightColumn en desktop */}
+          {isMobile && (
+            <Card
+              title="PARTICIPANTES"
+              titleRight={
+                <button
+                  className={styles.actionBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsRegisteringParticipant(true);
+                  }}
+                >
+                  <IconAdd size={12} /> Registrar
+                </button>
+              }
+            >
+              <AssemblyAttendanceList
+                assemblyId={String(assembly.id)}
+                refreshKey={attendanceRefreshKey}
+                readOnly={isFinished}
+                assemblyModality={assembly.modality as "P" | "V" | "H"}
+                onAttendanceChange={() => {
+                  setAttendanceRefreshKey((prev) => prev + 1);
+                  loadAssembly();
+                }}
+              />
+            </Card>
+          )}
+
           {/* ORDEN DEL DÍA Card */}
           <Card
             title="ORDEN DEL DÍA"
@@ -532,8 +561,6 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                     setSurveyAction("add");
                     setIsCreatingVoting(true);
                   }}
-                  disabled={isFinished}
-                  style={{ opacity: isFinished ? 0.5 : 1 }}
                 >
                   <IconAdd size={14} /> Nueva pregunta
                 </button>
@@ -1092,8 +1119,6 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                     e.stopPropagation();
                     handleEditDocs();
                   }}
-                  disabled={isFinished}
-                  style={{ opacity: isFinished ? 0.5 : 1 }}
                 >
                   <IconAdd size={12} /> Subir
                 </button>
@@ -1133,15 +1158,13 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="ACTA DE LA ASAMBLEA"
             titleRight={
-              !isMobile && (
+              !isMobile && isFinished && (
                 <button
                   className={styles.actionBtn}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleEditActa();
                   }}
-                  disabled={!isFinished}
-                  style={{ opacity: !isFinished ? 0.5 : 1 }}
                 >
                   <IconAdd size={12} /> Subir
                 </button>
@@ -1161,8 +1184,6 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                   e.stopPropagation();
                   setIsRegisteringParticipant(true);
                 }}
-                disabled={isFinished}
-                style={{ opacity: isFinished ? 0.5 : 1 }}
               >
                 <IconAdd size={12} /> Registrar
               </button>
