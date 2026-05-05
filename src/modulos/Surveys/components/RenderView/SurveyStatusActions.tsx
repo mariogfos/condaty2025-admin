@@ -20,26 +20,86 @@ type StatusAction = {
 
 const STATUS_ACTIONS: Record<string, StatusAction[]> = {
   [SurveyStatus.Draft]: [
-    { label: "Hacer visible", targetStatus: SurveyStatus.Voting, variant: "secondary" },
-    { label: "Programar", targetStatus: SurveyStatus.Scheduled, variant: "secondary", needsDates: true },
+    {
+      label: "Hacer visible",
+      targetStatus: SurveyStatus.Voting,
+      variant: "secondary",
+    },
+    {
+      label: "Programar",
+      targetStatus: SurveyStatus.Scheduled,
+      variant: "secondary",
+      needsDates: true,
+    },
   ],
   [SurveyStatus.Voting]: [
-    { label: "Volver a borrador", targetStatus: SurveyStatus.Draft, variant: "terciary" },
-    { label: "Activar ahora", targetStatus: SurveyStatus.Active, variant: "primary" },
-    { label: "Cancelar", targetStatus: SurveyStatus.Disabled, variant: "danger" },
+    {
+      label: "Volver a borrador",
+      targetStatus: SurveyStatus.Draft,
+      variant: "terciary",
+    },
+    {
+      label: "Activar ahora",
+      targetStatus: SurveyStatus.Active,
+      variant: "primary",
+    },
+    {
+      label: "Cancelar",
+      targetStatus: SurveyStatus.Disabled,
+      variant: "danger",
+    },
   ],
   [SurveyStatus.Active]: [
-    { label: "Pausar", targetStatus: SurveyStatus.Paused, variant: "secondary" },
-    { label: "Cerrar encuesta", targetStatus: SurveyStatus.Closed, variant: "danger" },
+    {
+      label: "Pausar",
+      targetStatus: SurveyStatus.Paused,
+      variant: "secondary",
+    },
+    {
+      label: "Cerrar encuesta",
+      targetStatus: SurveyStatus.Closed,
+      variant: "danger",
+    },
+    {
+      label: "Cancelar",
+      targetStatus: SurveyStatus.Disabled,
+      variant: "danger",
+    },
   ],
   [SurveyStatus.Paused]: [
-    { label: "Reanudar", targetStatus: SurveyStatus.Active, variant: "primary" },
-    { label: "Cerrar encuesta", targetStatus: SurveyStatus.Closed, variant: "danger" },
+    {
+      label: "Reanudar",
+      targetStatus: SurveyStatus.Active,
+      variant: "primary",
+    },
+    {
+      label: "Cerrar encuesta",
+      targetStatus: SurveyStatus.Closed,
+      variant: "danger",
+    },
+    {
+      label: "Cancelar",
+      targetStatus: SurveyStatus.Disabled,
+      variant: "danger",
+    },
   ],
   [SurveyStatus.Scheduled]: [
-    { label: "Publicar ya", targetStatus: SurveyStatus.Active, variant: "primary" },
-    { label: "Editar programación", targetStatus: SurveyStatus.Scheduled, variant: "secondary", needsDates: true },
-    { label: "Volver a borrador", targetStatus: SurveyStatus.Draft, variant: "terciary" },
+    {
+      label: "Publicar ya",
+      targetStatus: SurveyStatus.Active,
+      variant: "primary",
+    },
+    {
+      label: "Editar programación",
+      targetStatus: SurveyStatus.Scheduled,
+      variant: "secondary",
+      needsDates: true,
+    },
+    {
+      label: "Volver a borrador",
+      targetStatus: SurveyStatus.Draft,
+      variant: "terciary",
+    },
   ],
   [SurveyStatus.Closed]: [],
   [SurveyStatus.Disabled]: [],
@@ -71,7 +131,9 @@ export default function SurveyStatusActions({
 
   const actions = STATUS_ACTIONS[currentStatus] ?? [];
 
-  const getActionButtonStyle = (variant: StatusAction["variant"]): CSSProperties => {
+  const getActionButtonStyle = (
+    variant: StatusAction["variant"],
+  ): CSSProperties => {
     if (variant === "primary") {
       return {
         height: 34,
@@ -127,7 +189,7 @@ export default function SurveyStatusActions({
   const callChangeStatus = async (
     targetStatus: string,
     scheduledAt?: string,
-    expiresAt?: string | null
+    expiresAt?: string | null,
   ) => {
     setLoading(targetStatus);
     try {
@@ -140,21 +202,25 @@ export default function SurveyStatusActions({
         "PUT",
         payload,
         false,
-        true
+        true,
       );
       if (data?.success) {
         showToast(data.message || "Estado actualizado", "success");
         onStatusChanged(data.data);
 
         // Smart notify: resolveChannel picks the right channel automatically.
-        const isResuming = currentStatus === SurveyStatus.Paused && targetStatus === SurveyStatus.Active;
+        const isResuming =
+          currentStatus === SurveyStatus.Paused &&
+          targetStatus === SurveyStatus.Active;
 
         if (targetStatus === SurveyStatus.Active && !isResuming) {
           notifyAll("new-survey", {
             id: surveyId,
             title: surveyData?.title || "Nueva encuesta disponible",
             act: "new-survey",
-            is_mandatory: surveyData?.is_mandatory === "Y" || surveyData?.is_mandatory === true,
+            is_mandatory:
+              surveyData?.is_mandatory === "Y" ||
+              surveyData?.is_mandatory === true,
           });
         } else {
           notifyAll("survey-status-change", {
@@ -173,7 +239,10 @@ export default function SurveyStatusActions({
     }
   };
 
-  const handleScheduleConfirm = (scheduledAt: string, expiresAt: string | null) => {
+  const handleScheduleConfirm = (
+    scheduledAt: string,
+    expiresAt: string | null,
+  ) => {
     setScheduleModalOpen(false);
     if (pendingStatus) {
       callChangeStatus(pendingStatus, scheduledAt, expiresAt ?? undefined);
@@ -189,7 +258,7 @@ export default function SurveyStatusActions({
         "POST",
         {},
         false,
-        true
+        true,
       );
       if (data?.success) {
         showToast("Encuesta duplicada como borrador", "success");
@@ -204,7 +273,14 @@ export default function SurveyStatusActions({
 
   return (
     <>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}
+      >
         {actions.map((action) => (
           <Button
             key={`${action.targetStatus}-${action.label}`}
@@ -213,7 +289,9 @@ export default function SurveyStatusActions({
             onClick={() => handleActionClick(action)}
             style={getActionButtonStyle(action.variant ?? "secondary")}
           >
-            {loading === action.targetStatus && !action.needsDates ? "..." : action.label}
+            {loading === action.targetStatus && !action.needsDates
+              ? "..."
+              : action.label}
           </Button>
         ))}
         <Button

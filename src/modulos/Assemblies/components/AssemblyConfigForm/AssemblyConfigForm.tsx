@@ -98,7 +98,7 @@ const AssemblyConfigForm: React.FC<AssemblyConfigFormProps> = ({
           </span>
         </div>
 
-        <div className={styles.field}>
+        <div className={styles.field} style={{ display: "none" }}>
           <label className={styles.label}>
             <input
               type="checkbox"

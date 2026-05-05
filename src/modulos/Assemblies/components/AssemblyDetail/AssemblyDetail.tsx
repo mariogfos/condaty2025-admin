@@ -569,7 +569,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               <Button
                                 variant="secondary"
                                 small
-                                onClick={() => handleStatusChange(survey.id, "V")}
+                                onClick={() =>
+                                  handleStatusChange(survey.id, "V")
+                                }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
                                 Hacer visible
@@ -577,7 +579,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               <Button
                                 variant="terciary"
                                 small
-                                onClick={() => handleStatusChange(survey.id, "S")}
+                                onClick={() =>
+                                  handleStatusChange(survey.id, "S")
+                                }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
                                 Programar
@@ -591,7 +595,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               <Button
                                 variant="terciary"
                                 small
-                                onClick={() => handleStatusChange(survey.id, "D")}
+                                onClick={() =>
+                                  handleStatusChange(survey.id, "D")
+                                }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
                                 Volver a borrador
@@ -599,7 +605,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               <Button
                                 variant="primary"
                                 small
-                                onClick={() => handleStatusChange(survey.id, "A")}
+                                onClick={() =>
+                                  handleStatusChange(survey.id, "A")
+                                }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
                                 Activar
@@ -607,7 +615,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               <Button
                                 variant="danger"
                                 small
-                                onClick={() => handleStatusChange(survey.id, "X")}
+                                onClick={() =>
+                                  handleStatusChange(survey.id, "X")
+                                }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
                                 Cancelar
@@ -686,7 +696,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               <Button
                                 variant="primary"
                                 small
-                                onClick={() => handleStatusChange(survey.id, "A")}
+                                onClick={() =>
+                                  handleStatusChange(survey.id, "A")
+                                }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
                                 Reanudar
@@ -694,7 +706,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               <Button
                                 variant="danger"
                                 small
-                                onClick={() => handleStatusChange(survey.id, "C")}
+                                onClick={() =>
+                                  handleStatusChange(survey.id, "C")
+                                }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
                                 Cerrar
@@ -702,7 +716,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               <Button
                                 variant="terciary"
                                 small
-                                onClick={() => handleStatusChange(survey.id, "X")}
+                                onClick={() =>
+                                  handleStatusChange(survey.id, "X")
+                                }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
                                 Cancelar
@@ -736,7 +752,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               title="Eliminar"
                             />
                           </>
-)}
+                        )}
                     </div>
 
                     {/* Participant visibility message - only admin sees this when Draft */}
@@ -756,7 +772,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                     {/* Questions */}
                     {survey.squestions?.map((q: any) => {
                       const abstention = q.abstention ?? null;
-                      const countAsOption = abstention?.count_as_option === true;
+                      const countAsOption =
+                        abstention?.count_as_option === true;
 
                       // Denominador para porcentajes:
                       // count_as_option=true → total_expected (abstención forma parte del 100%)
@@ -866,9 +883,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                           {abstention && countAsOption && (
                             <div className={styles.optionItem}>
                               <div className={styles.optionHeader}>
-                                <span
-                                  className={styles.accentText}
-                                >
+                                <span className={styles.accentText}>
                                   Abstenciones
                                 </span>
                                 <span
@@ -1157,6 +1172,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               assemblyId={String(assembly.id)}
               refreshKey={attendanceRefreshKey}
               readOnly={isFinished}
+              assemblyModality={assembly.modality as "P" | "V" | "H"}
               onAttendanceChange={() => {
                 // P.23: Actualizar todo al cambiar asistencia (agrega o elimina)
                 setAttendanceRefreshKey((prev) => prev + 1);
@@ -1214,9 +1230,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       >
         {isEditingDocs && (
           <div style={{ padding: "10px 0" }}>
-            <p
-              className={styles.helperText}
-            >
+            <p className={styles.helperText}>
               Sube o elimina documentos adjuntos para esta asamblea. Los cambios
               se aplicarán inmediatamente al guardar.
             </p>
@@ -1242,9 +1256,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       >
         {isEditingActa && (
           <div style={{ padding: "10px 0" }}>
-            <p
-              className={styles.helperText}
-            >
+            <p className={styles.helperText}>
               Sube el archivo final del acta de la asamblea. Este archivo estará
               disponible para consulta por los residentes.
             </p>

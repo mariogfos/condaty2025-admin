@@ -47,6 +47,11 @@
   color: white;
 }
 
+.statusV {
+  background-color: #6366f1;
+  color: white;
+}
+
 .statusP {
   background-color: var(--cWarning, #f59e0b);
   color: white;
