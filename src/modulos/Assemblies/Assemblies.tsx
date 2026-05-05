@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./Assemblies.module.css";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { IconCalendar } from "@/components/layout/icons/IconsBiblioteca";
 import { getAssemblyConfig } from "./config/assemblies.config";
 import { Assembly } from "./types/assemblies.types";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 
 const paramsInitial = {
   fullType: "L",
@@ -20,6 +21,11 @@ const paramsInitial = {
 
 const Assemblies = () => {
   const router = useRouter();
+  const [dateRangeFilter, setDateRangeFilter] = useState<{
+    startDate: string;
+    endDate: string;
+  } | null>(null);
+  const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
 
   // Use refs to break circular dependency between config and useCrud
   const triggerReloadRef = React.useRef<any>(() => {});
@@ -36,7 +42,7 @@ const Assemblies = () => {
     [],
   );
 
-  const { userCan, List, data, reLoad, onEdit, onCloseView } = useCrud({
+  const { userCan, List, data, reLoad, onEdit, onCloseView, params, setParams } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -53,6 +59,77 @@ const Assemblies = () => {
   triggerReloadRef.current = reLoad;
   onEditRef.current = onEdit;
   onCloseViewRef.current = onCloseView;
+
+  // Handle date range filter save
+  const handleDateRangeSave = (range: { startDate: string; endDate: string }) => {
+    const newParams = { ...params, page: 1 };
+    if (range.startDate) {
+      newParams.start_date_from = range.startDate;
+    } else {
+      delete newParams.start_date_from;
+    }
+    if (range.endDate) {
+      newParams.start_date_to = range.endDate;
+    } else {
+      delete newParams.start_date_to;
+    }
+    setParams(newParams);
+    setDateRangeFilter(range);
+    setIsDateFilterOpen(false);
+  };
+
+  // Clear date range filter
+  const handleClearDateFilter = () => {
+    const newParams = { ...params, page: 1 };
+    delete newParams.start_date_from;
+    delete newParams.start_date_to;
+    setParams(newParams);
+    setDateRangeFilter(null);
+  };
+
+  // Date filter button component
+  const dateFilterButton = (
+    <button
+      onClick={() => setIsDateFilterOpen(true)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "8px 12px",
+        backgroundColor: dateRangeFilter ? "var(--cPrimary)" : "var(--cModalSurfaceRaised)",
+        border: `1px solid ${dateRangeFilter ? "var(--cPrimary)" : "var(--cModalBorder)"}`,
+        borderRadius: 8,
+        color: dateRangeFilter ? "var(--cWhite)" : "var(--cWhiteV1)",
+        fontSize: 13,
+        fontWeight: 600,
+        cursor: "pointer",
+        height: 44,
+      }}
+    >
+      <IconCalendar size={16} />
+      {dateRangeFilter
+        ? `${dateRangeFilter.startDate} - ${dateRangeFilter.endDate}`
+        : "Por fecha"}
+    </button>
+  );
+
+  const clearDateButton = dateRangeFilter ? (
+    <button
+      onClick={handleClearDateFilter}
+      style={{
+        padding: "8px 12px",
+        backgroundColor: "transparent",
+        border: "1px solid var(--cModalBorder)",
+        borderRadius: 8,
+        color: "var(--cWhiteV3)",
+        fontSize: 13,
+        cursor: "pointer",
+        height: 44,
+      }}
+    >
+      Limpiar
+    </button>
+  ) : null;
 
   const handleRowClick = (item: Assembly) => {
     console.log("click en fila", item);
@@ -105,6 +182,11 @@ const Assemblies = () => {
       </div>
 
       <div className={styles.listContainer}>
+        {/* Date range filter toolbar */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          {dateFilterButton}
+          {clearDateButton}
+        </div>
         <List
           title={""}
           height={"calc(100vh - 420px)"}
@@ -114,6 +196,17 @@ const Assemblies = () => {
           onRowClick={handleRowClick}
         />
       </div>
+
+      <DateRangeFilterModal
+        open={isDateFilterOpen}
+        onClose={() => setIsDateFilterOpen(false)}
+        onSave={handleDateRangeSave}
+        labelStart="Desde"
+        labelEnd="Hasta"
+        initialStartDate={dateRangeFilter?.startDate || ""}
+        initialEndDate={dateRangeFilter?.endDate || ""}
+        buttonText="Aplicar"
+      />
     </div>
   );
 };

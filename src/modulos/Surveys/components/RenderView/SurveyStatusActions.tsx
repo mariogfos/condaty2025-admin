@@ -20,8 +20,13 @@ type StatusAction = {
 
 const STATUS_ACTIONS: Record<string, StatusAction[]> = {
   [SurveyStatus.Draft]: [
-    { label: "Publicar ahora", targetStatus: SurveyStatus.Active, variant: "primary" },
+    { label: "Hacer visible", targetStatus: SurveyStatus.Voting, variant: "secondary" },
     { label: "Programar", targetStatus: SurveyStatus.Scheduled, variant: "secondary", needsDates: true },
+  ],
+  [SurveyStatus.Voting]: [
+    { label: "Volver a borrador", targetStatus: SurveyStatus.Draft, variant: "terciary" },
+    { label: "Activar ahora", targetStatus: SurveyStatus.Active, variant: "primary" },
+    { label: "Cancelar", targetStatus: SurveyStatus.Disabled, variant: "danger" },
   ],
   [SurveyStatus.Active]: [
     { label: "Pausar", targetStatus: SurveyStatus.Paused, variant: "secondary" },

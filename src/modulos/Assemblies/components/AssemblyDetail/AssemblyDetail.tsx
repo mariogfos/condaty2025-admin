@@ -563,16 +563,59 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                       {/* Lifecycle Actions */}
                       {!isFinished && (
                         <>
-                          {(survey.status === "D" || survey.status === "P") && (
-                            <IconCirclePlay
-                              size={22}
-                              color="var(--cSuccess)"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => handleStatusChange(survey.id, "A")}
-                              title="Activar"
-                            />
+                          {/* D (Draft): Hacer visible →V, Programar →S */}
+                          {survey.status === "D" && (
+                            <>
+                              <Button
+                                variant="secondary"
+                                small
+                                onClick={() => handleStatusChange(survey.id, "V")}
+                                style={{ fontSize: 11, padding: "4px 8px" }}
+                              >
+                                Hacer visible
+                              </Button>
+                              <Button
+                                variant="terciary"
+                                small
+                                onClick={() => handleStatusChange(survey.id, "S")}
+                                style={{ fontSize: 11, padding: "4px 8px" }}
+                              >
+                                Programar
+                              </Button>
+                            </>
                           )}
 
+                          {/* V (Visible): Volver a borrador →D, Activar →A, Cancelar →X */}
+                          {survey.status === "V" && (
+                            <>
+                              <Button
+                                variant="terciary"
+                                small
+                                onClick={() => handleStatusChange(survey.id, "D")}
+                                style={{ fontSize: 11, padding: "4px 8px" }}
+                              >
+                                Volver a borrador
+                              </Button>
+                              <Button
+                                variant="primary"
+                                small
+                                onClick={() => handleStatusChange(survey.id, "A")}
+                                style={{ fontSize: 11, padding: "4px 8px" }}
+                              >
+                                Activar
+                              </Button>
+                              <Button
+                                variant="danger"
+                                small
+                                onClick={() => handleStatusChange(survey.id, "X")}
+                                style={{ fontSize: 11, padding: "4px 8px" }}
+                              >
+                                Cancelar
+                              </Button>
+                            </>
+                          )}
+
+                          {/* A (Active): Pausar →P, Cerrar →C, Cancelar →X */}
                           {survey.status === "A" && (
                             <div
                               style={{
@@ -630,15 +673,53 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               </div>
                             </div>
                           )}
+
+                          {/* P (Paused): Reanudar →A, Cerrar →C, Cancelar →X */}
+                          {survey.status === "P" && (
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "16px",
+                              }}
+                            >
+                              <Button
+                                variant="primary"
+                                small
+                                onClick={() => handleStatusChange(survey.id, "A")}
+                                style={{ fontSize: 11, padding: "4px 8px" }}
+                              >
+                                Reanudar
+                              </Button>
+                              <Button
+                                variant="danger"
+                                small
+                                onClick={() => handleStatusChange(survey.id, "C")}
+                                style={{ fontSize: 11, padding: "4px 8px" }}
+                              >
+                                Cerrar
+                              </Button>
+                              <Button
+                                variant="terciary"
+                                small
+                                onClick={() => handleStatusChange(survey.id, "X")}
+                                style={{ fontSize: 11, padding: "4px 8px" }}
+                              >
+                                Cancelar
+                              </Button>
+                            </div>
+                          )}
                         </>
                       )}
 
-                      {/* Edit/Delete (Only if no votes) */}
+                      {/* Edit/Delete (Only if no votes and not D/V/P/C states) */}
                       {!isFinished &&
                         !survey.squestions?.[0]?.soptions?.some(
                           (o: any) => (o.votes || 0) > 0,
                         ) &&
-                        survey.status !== "C" && (
+                        survey.status !== "C" &&
+                        survey.status !== "V" &&
+                        survey.status !== "P" && (
                           <>
                             <IconEdit
                               size={18}
@@ -655,193 +736,214 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               title="Eliminar"
                             />
                           </>
-                        )}
+)}
                     </div>
-                  </div>
 
-                  {survey.squestions?.map((q: any) => {
-                    const abstention = q.abstention ?? null;
-                    const countAsOption = abstention?.count_as_option === true;
+                    {/* Participant visibility message - only admin sees this when Draft */}
+                    {survey.status === "D" && (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--cAlert)",
+                          marginBottom: 12,
+                          fontStyle: "italic",
+                        }}
+                      >
+                        Los participantes aún no pueden ver esta votación
+                      </div>
+                    )}
 
-                    // Denominador para porcentajes:
-                    // count_as_option=true → total_expected (abstención forma parte del 100%)
-                    // count_as_option=false o sin abstención → votos emitidos
-                    const totalVotesRaw =
-                      q.soptions?.reduce(
-                        (acc: number, opt: any) => acc + (opt.votes || 0),
-                        0,
-                      ) || 0;
+                    {/* Questions */}
+                    {survey.squestions?.map((q: any) => {
+                      const abstention = q.abstention ?? null;
+                      const countAsOption = abstention?.count_as_option === true;
 
-                    const denominator = countAsOption
-                      ? (abstention?.total_expected ?? totalVotesRaw)
-                      : totalVotesRaw;
+                      // Denominador para porcentajes:
+                      // count_as_option=true → total_expected (abstención forma parte del 100%)
+                      // count_as_option=false o sin abstención → votos emitidos
+                      const totalVotesRaw =
+                        q.soptions?.reduce(
+                          (acc: number, opt: any) => acc + (opt.votes || 0),
+                          0,
+                        ) || 0;
 
-                    const totalLabel = countAsOption
-                      ? `${abstention?.total_voted ?? totalVotesRaw} votos válidos de ${abstention?.total_expected ?? 0} esperados`
-                      : `${totalVotesRaw} ${totalVotesRaw === 1 ? "voto" : "votos"} en total`;
+                      const denominator = countAsOption
+                        ? (abstention?.total_expected ?? totalVotesRaw)
+                        : totalVotesRaw;
 
-                    return (
-                      <div key={q.id}>
-                        <div className={styles.votacionMeta}>
-                          <span className={styles.votacionCount}>
-                            {totalLabel}
-                          </span>
-                          <span className={styles.votacionStatus}>
-                            {survey.status === "C"
-                              ? "Finalizada"
-                              : survey.status === "A"
-                                ? "Activa"
-                                : survey.status === "P"
-                                  ? "Pausada"
-                                  : "Borrador"}
-                          </span>
-                        </div>
+                      const totalLabel = countAsOption
+                        ? `${abstention?.total_voted ?? totalVotesRaw} votos válidos de ${abstention?.total_expected ?? 0} esperados`
+                        : `${totalVotesRaw} ${totalVotesRaw === 1 ? "voto" : "votos"} en total`;
 
-                        {/* Opciones de respuesta válidas */}
-                        {q.soptions?.map((opt: any) => {
-                          const votes = opt.votes || 0;
-                          const percentage =
-                            denominator > 0
-                              ? Math.round((votes / denominator) * 100)
-                              : 0;
-                          const isNo = opt.option_text
-                            ?.toLowerCase()
-                            .includes("no");
-                          const isNulo = opt.option_text
-                            ?.toLowerCase()
-                            .includes("nulo");
-                          const barColor = isNo
-                            ? "linear-gradient(90deg, var(--cError), var(--cAlert))"
-                            : isNulo
-                              ? "linear-gradient(90deg, var(--cNeutral-500), var(--cNeutral-700))"
-                              : "linear-gradient(90deg, var(--cAccent), var(--cInfo))";
+                      return (
+                        <div key={q.id}>
+                          <div className={styles.votacionMeta}>
+                            <span className={styles.votacionCount}>
+                              {totalLabel}
+                            </span>
+                            <span className={styles.votacionStatus}>
+                              {survey.status === "C"
+                                ? "Finalizada"
+                                : survey.status === "A"
+                                  ? "Activa"
+                                  : survey.status === "P"
+                                    ? "Pausada"
+                                    : survey.status === "V"
+                                      ? "Visible"
+                                      : survey.status === "S"
+                                        ? "Programada"
+                                        : survey.status === "X"
+                                          ? "Cancelada"
+                                          : "Borrador"}
+                            </span>
+                          </div>
 
-                          return (
-                            <div key={opt.id} className={styles.optionItem}>
+                          {/* Opciones de respuesta válidas */}
+                          {q.soptions?.map((opt: any) => {
+                            const votes = opt.votes || 0;
+                            const percentage =
+                              denominator > 0
+                                ? Math.round((votes / denominator) * 100)
+                                : 0;
+                            const isNo = opt.option_text
+                              ?.toLowerCase()
+                              .includes("no");
+                            const isNulo = opt.option_text
+                              ?.toLowerCase()
+                              .includes("nulo");
+                            const barColor = isNo
+                              ? "linear-gradient(90deg, var(--cError), var(--cAlert))"
+                              : isNulo
+                                ? "linear-gradient(90deg, var(--cNeutral-500), var(--cNeutral-700))"
+                                : "linear-gradient(90deg, var(--cAccent), var(--cInfo))";
+
+                            return (
+                              <div key={opt.id} className={styles.optionItem}>
+                                <div className={styles.optionHeader}>
+                                  <span>{opt.option_text}</span>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 8,
+                                    }}
+                                  >
+                                    <span>
+                                      {percentage}% ({votes}{" "}
+                                      {votes === 1 ? "voto" : "votos"})
+                                    </span>
+                                    {votes > 0 && (
+                                      <button
+                                        className={styles.verVotantesBtn}
+                                        onClick={() => {
+                                          setVotersModal({
+                                            open: true,
+                                            soptionId: opt.id,
+                                            soptionText: opt.option_text || "",
+                                            totalVoters: votes,
+                                          });
+                                        }}
+                                      >
+                                        ver
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className={styles.progressContainer}>
+                                  <div
+                                    className={styles.progressBar}
+                                    style={{
+                                      width: `${percentage}%`,
+                                      background: barColor,
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })}
+
+                          {/* Barra de abstención — solo cuando count_as_option=true */}
+                          {abstention && countAsOption && (
+                            <div className={styles.optionItem}>
                               <div className={styles.optionHeader}>
-                                <span>{opt.option_text}</span>
-                                <div
+                                <span
+                                  className={styles.accentText}
+                                >
+                                  Abstenciones
+                                </span>
+                                <span
                                   style={{
                                     display: "flex",
                                     alignItems: "center",
                                     gap: 8,
                                   }}
                                 >
-                                  <span>
-                                    {percentage}% ({votes}{" "}
-                                    {votes === 1 ? "voto" : "votos"})
+                                  <span className={styles.accentText}>
+                                    {abstention.abstention_rate}% (
+                                    {abstention.abstentions}{" "}
+                                    {abstention.abstentions === 1
+                                      ? "unidad"
+                                      : "unidades"}
+                                    )
                                   </span>
-                                  {votes > 0 && (
+                                  {abstention.abstentions > 0 && (
                                     <button
                                       className={styles.verVotantesBtn}
                                       onClick={() => {
                                         setVotersModal({
                                           open: true,
-                                          soptionId: opt.id,
-                                          soptionText: opt.option_text || "",
-                                          totalVoters: votes,
+                                          soptionId: "abstention",
+                                          soptionText: "Abstenciones",
+                                          totalVoters: abstention.abstentions,
+                                          surveyId: survey.id,
                                         });
                                       }}
                                     >
                                       ver
                                     </button>
                                   )}
-                                </div>
+                                </span>
                               </div>
                               <div className={styles.progressContainer}>
                                 <div
                                   className={styles.progressBar}
                                   style={{
-                                    width: `${percentage}%`,
-                                    background: barColor,
+                                    width: `${abstention.abstention_rate}%`,
+                                    background:
+                                      "linear-gradient(90deg, var(--cAlert), var(--cWarning))",
                                   }}
                                 />
                               </div>
                             </div>
-                          );
-                        })}
-
-                        {/* Barra de abstención — solo cuando count_as_option=true */}
-                        {abstention && countAsOption && (
-                          <div className={styles.optionItem}>
-                            <div className={styles.optionHeader}>
-                              <span
-                                className={styles.accentText}
-                              >
-                                Abstenciones
-                              </span>
-                              <span
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 8,
-                                }}
-                              >
-                                <span className={styles.accentText}>
-                                  {abstention.abstention_rate}% (
-                                  {abstention.abstentions}{" "}
-                                  {abstention.abstentions === 1
-                                    ? "unidad"
-                                    : "unidades"}
-                                  )
-                                </span>
-                                {abstention.abstentions > 0 && (
-                                  <button
-                                    className={styles.verVotantesBtn}
-                                    onClick={() => {
-                                      setVotersModal({
-                                        open: true,
-                                        soptionId: "abstention",
-                                        soptionText: "Abstenciones",
-                                        totalVoters: abstention.abstentions,
-                                        surveyId: survey.id,
-                                      });
-                                    }}
-                                  >
-                                    ver
-                                  </button>
-                                )}
-                              </span>
-                            </div>
-                            <div className={styles.progressContainer}>
-                              <div
-                                className={styles.progressBar}
-                                style={{
-                                  width: `${abstention.abstention_rate}%`,
-                                  background:
-                                    "linear-gradient(90deg, var(--cAlert), var(--cWarning))",
-                                }}
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Footer informativo — solo cuando count_as_option=false */}
-                        {abstention &&
-                          !countAsOption &&
-                          abstention.total_expected > 0 && (
-                            <div className={styles.abstentionFooter}>
-                              <span className={styles.abstentionFooterItem}>
-                                ✔ Votos válidos:{" "}
-                                <strong>{abstention.total_voted}</strong> (
-                                {abstention.participation_rate}%)
-                              </span>
-                              <span className={styles.abstentionSeparator}>
-                                |
-                              </span>
-                              <span
-                                className={styles.abstentionFooterItem}
-                                style={{ color: "var(--cAlert)" }}
-                              >
-                                Abstenciones:{" "}
-                                <strong>{abstention.abstentions}</strong> (
-                                {abstention.abstention_rate}%)
-                              </span>
-                            </div>
                           )}
-                      </div>
-                    );
-                  })}
+
+                          {/* Footer informativo — solo cuando count_as_option=false */}
+                          {abstention &&
+                            !countAsOption &&
+                            abstention.total_expected > 0 && (
+                              <div className={styles.abstentionFooter}>
+                                <span className={styles.abstentionFooterItem}>
+                                  ✔ Votos válidos:{" "}
+                                  <strong>{abstention.total_voted}</strong> (
+                                  {abstention.participation_rate}%)
+                                </span>
+                                <span className={styles.abstentionSeparator}>
+                                  |
+                                </span>
+                                <span
+                                  className={styles.abstentionFooterItem}
+                                  style={{ color: "var(--cAlert)" }}
+                                >
+                                  Abstenciones:{" "}
+                                  <strong>{abstention.abstentions}</strong> (
+                                  {abstention.abstention_rate}%)
+                                </span>
+                              </div>
+                            )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               ))
             ) : (

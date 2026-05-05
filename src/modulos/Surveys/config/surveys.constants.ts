@@ -2,6 +2,7 @@ import { SurveyItemData } from "../types/surveys.types";
 
 export const SURVEY_STATUSES: Record<string, string> = {
   D: "Borrador",
+  V: "Visible",
   S: "Programada",
   A: "Activa",
   P: "Pausada",

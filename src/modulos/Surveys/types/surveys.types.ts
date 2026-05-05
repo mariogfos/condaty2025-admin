@@ -1,5 +1,6 @@
 export enum SurveyStatus {
   Draft = "D",
+  Voting = "V", // Visible - can see but not vote
   Scheduled = "S",
   Active = "A",
   Paused = "P",
