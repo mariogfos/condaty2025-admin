@@ -13,18 +13,18 @@ const resolveApiBaseUrl = (apiUrl?: string) => {
   if (!apiUrl) return apiUrl;
   if (typeof window === "undefined") return apiUrl;
 
-  try {
-    const resolvedUrl = new URL(apiUrl, window.location.origin);
+  // try {
+  //   const resolvedUrl = new URL(apiUrl, window.location.origin);
 
-    if (
-      /^https?:$/.test(resolvedUrl.protocol) &&
-      resolvedUrl.origin !== window.location.origin
-    ) {
-      return "/api-proxy";
-    }
-  } catch (_error) {
-    return apiUrl;
-  }
+  //   if (
+  //     /^https?:$/.test(resolvedUrl.protocol) &&
+  //     resolvedUrl.origin !== window.location.origin
+  //   ) {
+  //     return "/api-proxy";
+  //   }
+  // } catch (_error) {
+  //   return apiUrl;
+  // }
 
   return apiUrl;
 };
