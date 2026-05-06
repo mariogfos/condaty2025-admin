@@ -1,12 +1,23 @@
 export enum SurveyStatus {
   Draft = "D",
-  Voting = "V", // Visible, participants can see but NOT vote
+  Visible = "V", // Visible, participants can see but NOT vote
   Scheduled = "S",
   Active = "A",
   Paused = "P",
   Closed = "C",
   Disabled = "X",
 }
+
+export const SurveyStatusMap = {
+  [SurveyStatus.Draft]: "Borrador",
+  [SurveyStatus.Visible]: "Visible",
+  [SurveyStatus.Scheduled]: "Programada",
+  [SurveyStatus.Active]: "Activa",
+  [SurveyStatus.Paused]: "Pausada",
+  [SurveyStatus.Closed]: "Cerrada",
+  [SurveyStatus.Disabled]: "Deshabilitada",
+};
+
 export type QuestionType = "S" | "M" | "E" | "T"; // Single, Multiple, Scale, Text
 
 export interface TargetCriteria {

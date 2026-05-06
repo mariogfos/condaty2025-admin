@@ -292,7 +292,8 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
                     {res.name} {res.last_name}
                   </p>
                   <p className={styles.resDetail}>
-                    Unidad: {res.all_units || "S/N"} | CI: {res.ci || "-"}
+                    Unidad: {res.all_units || "S/N"} | CI: {res.ci || "-"} |{" "}
+                    {res.type_owner}
                   </p>
                 </div>
                 {selectedResident?.id === res.id && (

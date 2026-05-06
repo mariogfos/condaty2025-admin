@@ -1,6 +1,6 @@
 // condaty-admin/src/modulos/Surveys/types/mySurveys.types.ts
 
-export type SurveyFilterType = 'P' | 'R' | 'E'; // Pending, Responded, Expired
+export type SurveyFilterType = "P" | "R" | "E"; // Pending, Responded, Expired
 
 export interface MySurveyCount {
   P: number;
@@ -12,7 +12,7 @@ export interface SurveyQuestion {
   id: string;
   question_text: string;
   description?: string;
-  type: 'S' | 'M' | 'E' | 'T';
+  type: "S" | "M" | "E" | "T";
   min_options?: number;
   max_options?: number;
   is_required: boolean;
@@ -31,7 +31,7 @@ export interface SurveyDetail {
   id: string;
   title: string;
   description?: string;
-  status: 'D' | 'S' | 'A' | 'P' | 'C' | 'X';
+  status: "D" | "V" | "S" | "A" | "P" | "C" | "X";
   is_mandatory: boolean;
   expires_at?: string;
   questions_count: number;
@@ -42,7 +42,7 @@ export interface SurveyListItem {
   id: string;
   title: string;
   description?: string;
-  status: 'A' | 'C';
+  status: "A" | "C";
   is_mandatory: boolean;
   expires_at?: string;
   questions_count: number;

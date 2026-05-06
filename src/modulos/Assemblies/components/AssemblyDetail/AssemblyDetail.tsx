@@ -1,4 +1,3 @@
-// src/modulos/Assemblies/components/AssemblyDetail/AssemblyDetail.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -17,7 +16,10 @@ import {
   AssemblyStats,
   AssemblyStatus,
 } from "../../types/assemblies.types";
-import { SurveyStatus } from "@/modulos/Surveys/types/surveys.types";
+import {
+  SurveyStatus,
+  SurveyStatusMap,
+} from "@/modulos/Surveys/types/surveys.types";
 import {
   IconEdit,
   IconAdd,
@@ -29,6 +31,9 @@ import {
   IconArrowLeft,
   IconDownload,
   IconDOC,
+  IconEye,
+  IconEyeOff,
+  IconCancelCircle,
 } from "@/components/layout/icons/IconsBiblioteca";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
@@ -576,34 +581,60 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                   <div
                     style={{
                       display: "flex",
+                      flexDirection: "column",
                       justifyContent: "space-between",
                       alignItems: "flex-start",
                       marginBottom: 8,
                     }}
                   >
-                    <h3 className={styles.votacionTitle}>
-                      {survey.squestions?.[0]?.question_text || survey.title}
-                    </h3>
                     <div
-                      style={{ display: "flex", gap: 12, alignItems: "center" }}
+                      style={{
+                        display: "flex",
+                        gap: 12,
+                        alignItems: "start",
+                        justifyContent: "space-between",
+                        width: "100%",
+                      }}
                     >
-                      {/* Lifecycle Actions */}
-                      {!isFinished && (
-                        <>
-                          {/* D (Draft): Hacer visible →V, Programar →S */}
-                          {survey.status === "D" && (
-                            <>
-                              <Button
+                      <h3 className={styles.votacionTitle}>
+                        {survey.squestions?.[0]?.question_text || survey.title}
+                      </h3>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 12,
+                          alignItems: "center",
+                          flexShrink: 1,
+                          color: "var(--cText)",
+                          padding: "4px 8px",
+                          borderRadius: 4,
+                        }}
+                      >
+                        {/* Lifecycle Actions */}
+                        {!isFinished && (
+                          <>
+                            {/* D (Draft): Hacer visible →V, Programar →S */}
+                            {survey.status === SurveyStatus.Draft && (
+                              <>
+                                {/* <Button
                                 variant="secondary"
                                 small
                                 onClick={() =>
                                   handleStatusChange(survey.id, "V")
                                 }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
-                              >
-                                Hacer visible
-                              </Button>
-                              <Button
+                              > */}
+                                <IconEyeOff
+                                  size={22}
+                                  color="var(--cPrimary)"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() =>
+                                    handleStatusChange(survey.id, "V")
+                                  }
+                                  title="Hacer visible"
+                                />
+                                {/* </Button> */}
+                                {/* <Button
                                 variant="terciary"
                                 small
                                 onClick={() =>
@@ -612,14 +643,23 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
                                 Programar
-                              </Button>
-                            </>
-                          )}
+                              </Button> */}
+                              </>
+                            )}
 
-                          {/* V (Visible): Volver a borrador →D, Activar →A, Cancelar →X */}
-                          {survey.status === "V" && (
-                            <>
-                              <Button
+                            {/* V (Visible): Volver a borrador →D, Activar →A, Cancelar →X */}
+                            {survey.status === SurveyStatus.Visible && (
+                              <>
+                                <IconEye
+                                  size={22}
+                                  color="var(--cPrimary)"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() =>
+                                    handleStatusChange(survey.id, "D")
+                                  }
+                                  title="Volver a borrador"
+                                />
+                                {/* <Button
                                 variant="terciary"
                                 small
                                 onClick={() =>
@@ -628,8 +668,17 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
                                 Volver a borrador
-                              </Button>
-                              <Button
+                              </Button> */}
+                                <IconCirclePlay
+                                  size={22}
+                                  color="var(--cPrimary)"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() =>
+                                    handleStatusChange(survey.id, "A")
+                                  }
+                                  title="Activar"
+                                />
+                                {/* <Button
                                 variant="primary"
                                 small
                                 onClick={() =>
@@ -638,8 +687,17 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
                                 Activar
-                              </Button>
-                              <Button
+                              </Button> */}
+                                <IconCancelCircle
+                                  size={26}
+                                  color="var(--cError)"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() =>
+                                    handleStatusChange(survey.id, "X")
+                                  }
+                                  title="Cancelar"
+                                />
+                                {/* <Button
                                 variant="danger"
                                 small
                                 onClick={() =>
@@ -648,142 +706,141 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
                                 Cancelar
-                              </Button>
-                            </>
-                          )}
+                              </Button> */}
+                              </>
+                            )}
 
-                          {/* A (Active): Pausar →P, Cerrar →C, Cancelar →X */}
-                          {survey.status === "A" && (
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "16px",
-                              }}
-                            >
-                              <Button
-                                variant="terciary"
-                                onClick={() => {
-                                  setVotingForSurvey(survey);
-                                  setIsManualVoteOpen(true);
-                                }}
-                                style={{
-                                  height: "32px",
-                                  padding: "0 10px",
-                                  fontSize: "12px",
-                                }}
-                              >
-                                Votar manualmente
-                              </Button>
+                            {/* A (Active): Pausar →P, Cerrar →C, Cancelar →X */}
+                            {survey.status === SurveyStatus.Active && (
                               <div
                                 style={{
                                   display: "flex",
                                   alignItems: "center",
-                                  gap: "8px",
-                                  marginLeft: "8px",
-                                  borderLeft: "1px solid var(--cModalDivider)",
-                                  paddingLeft: "16px",
+                                  gap: "16px",
                                 }}
                               >
+                                <Button
+                                  variant="terciary"
+                                  onClick={() => {
+                                    setVotingForSurvey(survey);
+                                    setIsManualVoteOpen(true);
+                                  }}
+                                  style={{
+                                    height: "32px",
+                                    padding: "0 10px",
+                                    fontSize: "12px",
+                                  }}
+                                >
+                                  Votar manualmente
+                                </Button>
                                 <div
                                   style={{
-                                    width: 12,
-                                    height: 14,
-                                    borderLeft: "3px solid var(--cWarning)",
-                                    borderRight: "3px solid var(--cWarning)",
-                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                    marginLeft: "8px",
+                                    borderLeft:
+                                      "1px solid var(--cModalDivider)",
+                                    paddingLeft: "16px",
                                   }}
+                                >
+                                  <div
+                                    style={{
+                                      width: 12,
+                                      height: 14,
+                                      borderLeft: "3px solid var(--cWarning)",
+                                      borderRight: "3px solid var(--cWarning)",
+                                      cursor: "pointer",
+                                    }}
+                                    onClick={() =>
+                                      handleStatusChange(survey.id, "P")
+                                    }
+                                    title="Pausar"
+                                  />
+                                  <IconCircleCheck
+                                    size={22}
+                                    color="var(--cError)"
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() =>
+                                      handleStatusChange(survey.id, "C")
+                                    }
+                                    title="Finalizar"
+                                  />
+                                </div>
+                              </div>
+                            )}
+
+                            {/* P (Paused): Reanudar →A, Cerrar →C, Cancelar →X */}
+                            {survey.status === SurveyStatus.Paused && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "16px",
+                                }}
+                              >
+                                <Button
+                                  variant="primary"
+                                  small
                                   onClick={() =>
-                                    handleStatusChange(survey.id, "P")
+                                    handleStatusChange(survey.id, "A")
                                   }
-                                  title="Pausar"
-                                />
-                                <IconCircleCheck
-                                  size={22}
-                                  color="var(--cError)"
-                                  style={{ cursor: "pointer" }}
+                                  style={{ fontSize: 11, padding: "4px 8px" }}
+                                >
+                                  Reanudar
+                                </Button>
+                                <Button
+                                  variant="danger"
+                                  small
                                   onClick={() =>
                                     handleStatusChange(survey.id, "C")
                                   }
-                                  title="Finalizar"
-                                />
+                                  style={{ fontSize: 11, padding: "4px 8px" }}
+                                >
+                                  Cerrar
+                                </Button>
+                                <Button
+                                  variant="terciary"
+                                  small
+                                  onClick={() =>
+                                    handleStatusChange(survey.id, "X")
+                                  }
+                                  style={{ fontSize: 11, padding: "4px 8px" }}
+                                >
+                                  Cancelar
+                                </Button>
                               </div>
-                            </div>
-                          )}
-
-                          {/* P (Paused): Reanudar →A, Cerrar →C, Cancelar →X */}
-                          {survey.status === "P" && (
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "16px",
-                              }}
-                            >
-                              <Button
-                                variant="primary"
-                                small
-                                onClick={() =>
-                                  handleStatusChange(survey.id, "A")
-                                }
-                                style={{ fontSize: 11, padding: "4px 8px" }}
-                              >
-                                Reanudar
-                              </Button>
-                              <Button
-                                variant="danger"
-                                small
-                                onClick={() =>
-                                  handleStatusChange(survey.id, "C")
-                                }
-                                style={{ fontSize: 11, padding: "4px 8px" }}
-                              >
-                                Cerrar
-                              </Button>
-                              <Button
-                                variant="terciary"
-                                small
-                                onClick={() =>
-                                  handleStatusChange(survey.id, "X")
-                                }
-                                style={{ fontSize: 11, padding: "4px 8px" }}
-                              >
-                                Cancelar
-                              </Button>
-                            </div>
-                          )}
-                        </>
-                      )}
-
-                      {/* Edit/Delete (Only if no votes and not D/V/P/C states) */}
-                      {!isFinished &&
-                        !survey.squestions?.[0]?.soptions?.some(
-                          (o: any) => (o.votes || 0) > 0,
-                        ) &&
-                        survey.status !== "C" &&
-                        survey.status !== "V" &&
-                        survey.status !== "P" && (
-                          <>
-                            <IconEdit
-                              size={18}
-                              color="var(--cWhiteV3)"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => handleEditSurvey(survey)}
-                              title="Editar"
-                            />
-                            <IconTrash
-                              size={18}
-                              color="var(--cError)"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => handleDeleteSurvey(survey.id)}
-                              title="Eliminar"
-                            />
+                            )}
                           </>
                         )}
-                    </div>
 
+                        {/* Edit/Delete (Only if no votes and not D/V/P/C states) */}
+                        {!isFinished &&
+                          !survey.squestions?.[0]?.soptions?.some(
+                            (o: any) => (o.votes || 0) > 0,
+                          ) &&
+                          survey.status === SurveyStatus.Draft && (
+                            <>
+                              <IconEdit
+                                size={18}
+                                color="var(--cWhiteV3)"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => handleEditSurvey(survey)}
+                                title="Editar"
+                              />
+                              <IconTrash
+                                size={18}
+                                color="var(--cError)"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => handleDeleteSurvey(survey.id)}
+                                title="Eliminar"
+                              />
+                            </>
+                          )}
+                      </div>
+                    </div>
                     {/* Participant visibility message - only admin sees this when Draft */}
-                    {survey.status === "D" && (
+                    {survey.status === SurveyStatus.Draft && (
                       <div
                         style={{
                           fontSize: 12,
@@ -793,6 +850,18 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                         }}
                       >
                         Los participantes aún no pueden ver esta votación
+                      </div>
+                    )}
+                    {survey.status === SurveyStatus.Visible && (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--cAlert)",
+                          marginBottom: 12,
+                          fontStyle: "italic",
+                        }}
+                      >
+                        Los participantes pueden VER pero no VOTAR aún.
                       </div>
                     )}
 
@@ -826,19 +895,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                               {totalLabel}
                             </span>
                             <span className={styles.votacionStatus}>
-                              {survey.status === "C"
-                                ? "Finalizada"
-                                : survey.status === "A"
-                                  ? "Activa"
-                                  : survey.status === "P"
-                                    ? "Pausada"
-                                    : survey.status === "V"
-                                      ? "Visible"
-                                      : survey.status === "S"
-                                        ? "Programada"
-                                        : survey.status === "X"
-                                          ? "Cancelada"
-                                          : "Borrador"}
+                              {SurveyStatusMap[survey.status as SurveyStatus]}
                             </span>
                           </div>
 
@@ -1158,7 +1215,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="ACTA DE LA ASAMBLEA"
             titleRight={
-              !isMobile && isFinished && (
+              !isMobile &&
+              isFinished && (
                 <button
                   className={styles.actionBtn}
                   onClick={(e) => {
@@ -1175,32 +1233,34 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           </Card>
 
           {/* PARTICIPANTES */}
-          <Card
-            title="PARTICIPANTES"
-            titleRight={
-              <button
-                className={styles.actionBtn}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsRegisteringParticipant(true);
+          {!isMobile && (
+            <Card
+              title="PARTICIPANTES"
+              titleRight={
+                <button
+                  className={styles.actionBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsRegisteringParticipant(true);
+                  }}
+                >
+                  <IconAdd size={12} /> Registrar
+                </button>
+              }
+            >
+              <AssemblyAttendanceList
+                assemblyId={String(assembly.id)}
+                refreshKey={attendanceRefreshKey}
+                readOnly={isFinished}
+                assemblyModality={assembly.modality as "P" | "V" | "H"}
+                onAttendanceChange={() => {
+                  // P.23: Actualizar todo al cambiar asistencia (agrega o elimina)
+                  setAttendanceRefreshKey((prev) => prev + 1);
+                  loadAssembly();
                 }}
-              >
-                <IconAdd size={12} /> Registrar
-              </button>
-            }
-          >
-            <AssemblyAttendanceList
-              assemblyId={String(assembly.id)}
-              refreshKey={attendanceRefreshKey}
-              readOnly={isFinished}
-              assemblyModality={assembly.modality as "P" | "V" | "H"}
-              onAttendanceChange={() => {
-                // P.23: Actualizar todo al cambiar asistencia (agrega o elimina)
-                setAttendanceRefreshKey((prev) => prev + 1);
-                loadAssembly();
-              }}
-            />
-          </Card>
+              />
+            </Card>
+          )}
         </div>
       </div>
 
