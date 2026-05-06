@@ -22,7 +22,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
   [SurveyStatus.Draft]: [
     {
       label: "Hacer visible",
-      targetStatus: SurveyStatus.Voting,
+      targetStatus: SurveyStatus.Visible,
       variant: "secondary",
     },
     {
@@ -32,7 +32,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
       needsDates: true,
     },
   ],
-  [SurveyStatus.Voting]: [
+  [SurveyStatus.Visible]: [
     {
       label: "Volver a borrador",
       targetStatus: SurveyStatus.Draft,
