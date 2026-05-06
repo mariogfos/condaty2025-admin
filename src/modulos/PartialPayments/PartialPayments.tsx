@@ -119,7 +119,7 @@ const PartialPayments = () => {
       { id: "I", name: "Pago parcial" },
       // { id: "X", name: "Anulado" },
     ],
-    []
+    [],
   );
   const fields = useMemo(() => {
     return {
@@ -271,13 +271,14 @@ const PartialPayments = () => {
             return (
               <p>
                 {formatBs(
-                  parseFloat(item?.remaining_amount) +
-                    parseFloat(item?.penalty_amount) +
-                    parseFloat(
-                      hasMaintenanceValue(user)
-                        ? item?.maintenance_amount || "0"
-                        : "0"
-                    )
+                  parseFloat(item?.remaining_amount),
+                  //  +
+                  //   parseFloat(item?.penalty_amount) +
+                  //   parseFloat(
+                  //     hasMaintenanceValue(user)
+                  //       ? item?.maintenance_amount || "0"
+                  //       : "0"
+                  //   )
                 )}
               </p>
             );

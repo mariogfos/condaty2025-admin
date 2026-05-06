@@ -9,6 +9,7 @@ import {
   STATUS_STYLE,
   TYPE_LABELS,
   MODALITY_LABELS,
+  COLOR_BARS,
 } from "../../config/assemblies.constants";
 import {
   Assembly,
@@ -945,23 +946,36 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                           </div>
 
                           {/* Opciones de respuesta válidas */}
-                          {q.soptions?.map((opt: any) => {
+                          {q.soptions?.map((opt: any, index: number) => {
                             const votes = opt.votes || 0;
                             const percentage =
                               denominator > 0
                                 ? Math.round((votes / denominator) * 100)
                                 : 0;
-                            const isNo = opt.option_text
-                              ?.toLowerCase()
-                              .includes("no");
-                            const isNulo = opt.option_text
-                              ?.toLowerCase()
-                              .includes("nulo");
+
+                            const isNo =
+                              opt.option_text?.toLowerCase().includes("no") ||
+                              opt.option_text
+                                ?.toLowerCase()
+                                .includes("desacuerdo") ||
+                              opt.option_text
+                                ?.toLowerCase()
+                                .includes("negativo") ||
+                              opt.option_text?.toLowerCase().includes("nulo");
+
+                            const isYes =
+                              opt.option_text?.toLowerCase().includes("si") ||
+                              opt.option_text
+                                ?.toLowerCase()
+                                .includes("de acuerdo") ||
+                              opt.option_text?.toLowerCase().includes("ok");
+
                             const barColor = isNo
                               ? "linear-gradient(90deg, var(--cError), var(--cAlert))"
-                              : isNulo
-                                ? "linear-gradient(90deg, var(--cNeutral-500), var(--cNeutral-700))"
-                                : "linear-gradient(90deg, var(--cAccent), var(--cInfo))";
+                              : isYes
+                                ? "linear-gradient(90deg, var(--cAccent), var(--cWhite))"
+                                : COLOR_BARS[index];
+                            // : "linear-gradient(90deg, var(--cAccent), var(--cInfo))";
 
                             return (
                               <div key={opt.id} className={styles.optionItem}>
@@ -1054,7 +1068,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   style={{
                                     width: `${abstention.abstention_rate}%`,
                                     background:
-                                      "linear-gradient(90deg, var(--cAlert), var(--cWarning))",
+                                      "linear-gradient(90deg, var(--cNeutral-300), var(--cNeutral-500))",
                                   }}
                                 />
                               </div>
@@ -1066,7 +1080,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                             !countAsOption &&
                             abstention.total_expected > 0 && (
                               <div className={styles.abstentionFooter}>
-                                <span className={styles.abstentionFooterItem}>
+                                <span
+                                  className={styles.abstentionFooterItem}
+                                  style={{ color: "var(--cAlert)" }}
+                                >
                                   ✔ Votos válidos:{" "}
                                   <strong>{abstention.total_voted}</strong> (
                                   {abstention.participation_rate}%)
@@ -1074,10 +1091,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 <span className={styles.abstentionSeparator}>
                                   |
                                 </span>
-                                <span
-                                  className={styles.abstentionFooterItem}
-                                  style={{ color: "var(--cAlert)" }}
-                                >
+                                <span className={styles.abstentionFooterItem}>
                                   Abstenciones:{" "}
                                   <strong>{abstention.abstentions}</strong> (
                                   {abstention.abstention_rate}%)

@@ -260,8 +260,8 @@
   gap: 10px;
   margin-top: 12px;
   padding: 8px 12px;
-  background: var(--cHoverAlert);
-  border: 1px solid var(--cAlert);
+  background: var(--cHoverNeutral-300);
+  border: 1px solid var(--cNeutral-300);
   border-radius: 8px;
   font-size: 12px;
   color: var(--cWhiteV1);
@@ -279,7 +279,7 @@
 }
 
 .abstentionSeparator {
-  color: var(--cModalDivider);
+  color: var(--cNeutral-300);
   font-size: 14px;
 }
 
