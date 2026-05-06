@@ -213,6 +213,7 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 24px;
+  justify-content: space-between;
 }
 
 .votacionCount {
@@ -224,6 +225,7 @@
   color: var(--cSuccess);
   font-size: 12px;
   font-weight: 600;
+  flex-grow: 1;
 }
 
 .optionItem {

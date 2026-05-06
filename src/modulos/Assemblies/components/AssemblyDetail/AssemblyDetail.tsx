@@ -719,7 +719,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   gap: "16px",
                                 }}
                               >
-                                <Button
+                                {/* <Button
                                   variant="terciary"
                                   onClick={() => {
                                     setVotingForSurvey(survey);
@@ -732,7 +732,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   }}
                                 >
                                   Votar manualmente
-                                </Button>
+                                </Button> */}
                                 <div
                                   style={{
                                     display: "flex",
@@ -779,7 +779,16 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   gap: "16px",
                                 }}
                               >
-                                <Button
+                                <IconCirclePlay
+                                  size={22}
+                                  color="var(--cWarning)"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() =>
+                                    handleStatusChange(survey.id, "A")
+                                  }
+                                  title="Reanudar"
+                                />
+                                {/* <Button
                                   variant="primary"
                                   small
                                   onClick={() =>
@@ -788,8 +797,17 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   style={{ fontSize: 11, padding: "4px 8px" }}
                                 >
                                   Reanudar
-                                </Button>
-                                <Button
+                                </Button> */}
+                                <IconCircleCheck
+                                  size={22}
+                                  color="var(--cError)"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() =>
+                                    handleStatusChange(survey.id, "C")
+                                  }
+                                  title="Finalizar"
+                                />
+                                {/* <Button
                                   variant="danger"
                                   small
                                   onClick={() =>
@@ -798,8 +816,17 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   style={{ fontSize: 11, padding: "4px 8px" }}
                                 >
                                   Cerrar
-                                </Button>
-                                <Button
+                                </Button> */}
+                                <IconCancelCircle
+                                  size={26}
+                                  color="var(--cError)"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() =>
+                                    handleStatusChange(survey.id, "C")
+                                  }
+                                  title="Cancelar"
+                                />
+                                {/* <Button
                                   variant="terciary"
                                   small
                                   onClick={() =>
@@ -808,7 +835,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   style={{ fontSize: 11, padding: "4px 8px" }}
                                 >
                                   Cancelar
-                                </Button>
+                                </Button> */}
                               </div>
                             )}
                           </>
@@ -889,14 +916,32 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                         : `${totalVotesRaw} ${totalVotesRaw === 1 ? "voto" : "votos"} en total`;
 
                       return (
-                        <div key={q.id}>
+                        <div key={q.id} style={{ width: "100%" }}>
                           <div className={styles.votacionMeta}>
                             <span className={styles.votacionCount}>
                               {totalLabel}
                             </span>
-                            <span className={styles.votacionStatus}>
+                            <div className={styles.votacionStatus}>
                               {SurveyStatusMap[survey.status as SurveyStatus]}
-                            </span>
+                            </div>
+                            {survey.status === SurveyStatus.Active && (
+                              <span>
+                                <Button
+                                  variant="terciary"
+                                  onClick={() => {
+                                    setVotingForSurvey(survey);
+                                    setIsManualVoteOpen(true);
+                                  }}
+                                  style={{
+                                    height: "32px",
+                                    padding: "0 10px",
+                                    fontSize: "12px",
+                                  }}
+                                >
+                                  Votar manualmente
+                                </Button>
+                              </span>
+                            )}
                           </div>
 
                           {/* Opciones de respuesta válidas */}
