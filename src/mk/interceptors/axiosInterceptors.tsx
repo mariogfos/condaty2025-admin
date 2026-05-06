@@ -1,6 +1,8 @@
 "use client";
 import { logError } from "../utils/logs";
 
+const LOGIN_SCREEN_ROUTE = "/";
+
 const axiosInterceptors = (instance: any) => {
   instance.interceptors.request.use(
     (config: any) => {
@@ -36,7 +38,7 @@ const axiosInterceptors = (instance: any) => {
         localStorage.removeItem(
           (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
         );
-        window.location.href = "/" + process.env.NEXT_PUBLIC_AUTH_LOGIN;
+        window.location.href = LOGIN_SCREEN_ROUTE;
       }
       return response;
     },
@@ -45,7 +47,7 @@ const axiosInterceptors = (instance: any) => {
         localStorage.removeItem(
           (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
         );
-        window.location.href = "/login";
+        window.location.href = LOGIN_SCREEN_ROUTE;
       }
       logError("Network error:", error);
       return Promise.reject(error);

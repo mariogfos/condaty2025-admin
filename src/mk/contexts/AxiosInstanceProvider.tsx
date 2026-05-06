@@ -9,24 +9,29 @@ export type AxiosContextType = {
 };
 export const AxiosContext = createContext({} as AxiosContextType);
 
+const LOCAL_API_FALLBACK_PORT = "8000";
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
+
+const buildLocalApiFallback = () => {
+  if (typeof window === "undefined") return undefined;
+  if (!LOCAL_HOSTS.has(window.location.hostname)) return undefined;
+
+  const fallbackUrl = new URL(window.location.origin);
+  fallbackUrl.port = LOCAL_API_FALLBACK_PORT;
+  fallbackUrl.pathname = "/api";
+  fallbackUrl.search = "";
+  fallbackUrl.hash = "";
+
+  return fallbackUrl.toString().replace(/\/$/, "");
+};
+
 const resolveApiBaseUrl = (apiUrl?: string) => {
-  if (!apiUrl) return apiUrl;
-  if (typeof window === "undefined") return apiUrl;
+  const normalizedApiUrl = apiUrl?.trim();
+  if (!normalizedApiUrl) {
+    return buildLocalApiFallback();
+  }
 
-  // try {
-  //   const resolvedUrl = new URL(apiUrl, window.location.origin);
-
-  //   if (
-  //     /^https?:$/.test(resolvedUrl.protocol) &&
-  //     resolvedUrl.origin !== window.location.origin
-  //   ) {
-  //     return "/api-proxy";
-  //   }
-  // } catch (_error) {
-  //   return apiUrl;
-  // }
-
-  return apiUrl;
+  return normalizedApiUrl;
 };
 
 const AxiosInstanceProvider = ({

@@ -14,8 +14,6 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@dayflow/core": "^3.5.2",
-    "@dayflow/react": "^3.5.2",
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@instantdb/admin": "^0.17.12",
     "@instantdb/react": "^0.21.22",

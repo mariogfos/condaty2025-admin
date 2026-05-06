@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import CreateReserva from "@/modulos/CreateReserva/CreateReserva";
 import { AxiosContext } from "@/mk/contexts/AxiosInstanceProvider";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import type { NewReservaExtraData } from "@/modulos/NewReserva/types";
+import type { ReservationExtraData } from "@/modulos/Reservas/types";
 
 const CreateReservaPage = () => {
   const router = useRouter();
   const { contextInstance } = useContext(AxiosContext);
   const { showToast } = useAuth();
-  const [extraData, setExtraData] = useState<NewReservaExtraData | null>(null);
+  const [extraData, setExtraData] = useState<ReservationExtraData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadExtraData = useCallback(async () => {
@@ -29,7 +29,7 @@ const CreateReservaPage = () => {
         },
       });
 
-      setExtraData((response?.data?.data || {}) as NewReservaExtraData);
+      setExtraData((response?.data?.data || {}) as ReservationExtraData);
     } catch (_error) {
       setExtraData(null);
       showToast("No pudimos cargar los datos para crear la reserva", "error");
@@ -58,7 +58,7 @@ const CreateReservaPage = () => {
     <CreateReserva
       extraData={extraData}
       setOpenList={() => {}}
-      onClose={() => router.push("/new-reserva")}
+      onClose={() => router.push("/calendar")}
       reLoad={() => {}}
     />
   );

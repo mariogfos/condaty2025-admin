@@ -79,24 +79,32 @@ const Section = ({
       <ul>
         {_options.map
           ? _options.map((option: any, key: any) => (
+              (() => {
+                const isGroupLabel = Boolean(option?.isGroupLabel);
+                const isSelected = isGroupLabel
+                  ? false
+                  : Array.isArray(selectValue)
+                    ? selectValue.includes(option[optionValue])
+                    : selectValue === option[optionValue];
+
+                return (
               <li
                 data-i18n-ignore={
                   ignoreOptionsTranslation || option.translate === false
                     ? "true"
                     : undefined
                 }
-                className={
-                  Array.isArray(selectValue)
-                    ? selectValue.includes(option[optionValue])
-                      ? styles["selected"]
-                      : ""
-                    : selectValue === option[optionValue]
-                      ? styles["selected"]
-                      : ""
-                }
+                className={[
+                  isSelected ? styles["selected"] : "",
+                  isGroupLabel ? styles.groupOption : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 key={`li${name}${option[optionValue] || key}`}
                 onClick={
-                  !multiSelect
+                  isGroupLabel
+                    ? undefined
+                    : !multiSelect
                     ? (e) => {
                         handleSelectClickElement(option[optionValue] || key);
                         e.stopPropagation();
@@ -110,7 +118,7 @@ const Section = ({
                 }
               >
                 <div style={{ alignItems: "center", gap: "8px" }}>
-                  {option["img"] && (
+                  {option["img"] && !isGroupLabel && (
                     <Avatar
                       className={styles.avatar}
                       name={option[optionLabel] ?? option.label}
@@ -119,7 +127,7 @@ const Section = ({
                       w={32}
                     />
                   )}
-                  {multiSelect ? (
+                  {multiSelect && !isGroupLabel ? (
                     Array.isArray(selectValue) &&
                     selectValue.includes(option[optionValue]) ? (
                       <IconCheckSquare size={18} />
@@ -127,11 +135,16 @@ const Section = ({
                       <IconCheckOff size={18} />
                     )
                   ) : null}
-                  <div style={{ flexGrow: 1, flexBasis: 0 }}>
+                  <div
+                    className={isGroupLabel ? styles.groupLabelText : ""}
+                    style={{ flexGrow: 1, flexBasis: 0 }}
+                  >
                     {option[optionLabel] || option.label}
                   </div>
                 </div>
               </li>
+                );
+              })()
             ))
           : Object.keys(_options).map((key) => (
               <li
@@ -366,6 +379,7 @@ const Select = ({
       .toUpperCase();
 
   const filteredOptions = options.filter((option: any) => {
+    if (option?.isGroupLabel) return true;
     const label = option[optionLabel] || option.label || "";
     return normalizeText(String(label)).includes(normalizeText(search));
   });
