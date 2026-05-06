@@ -5,6 +5,7 @@ import {
   memo,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -285,24 +286,19 @@ const Sumarize = memo(function Sumarize({
   scrollbarWidth?: number;
   extraData?: any;
 }) {
-  // const { store } = useStore();
-  const [sumas, setSumas]: any = useState({});
-  const onSumarize = (item: any, row: any, i: number) => {
-    if (item.sumarize) {
-      setSumas((prev: any) => ({
-        ...prev,
-        [item.key]: (prev[item.key] || 0) + row[item.key] * 1,
-      }));
-    }
-    return true;
-  };
-  useEffect(() => {
-    if (!data || !header) return;
-    setSumas({});
-    data.map((item: any, i: number) => {
-      header.map((h: any) => onSumarize(h, item, i));
+  const sumas = useMemo(() => {
+    if (!data || !header) return {};
+
+    const totals: Record<string, number> = {};
+    data.forEach((row: any) => {
+      header.forEach((item: any) => {
+        if (!item.sumarize) return;
+        totals[item.key] = (totals[item.key] || 0) + Number(row[item.key] || 0);
+      });
     });
-  }, [data]);
+
+    return totals;
+  }, [data, header]);
 
   return (
     <summary

@@ -1,36 +1,51 @@
 "use client";
+
 import React, { memo } from "react";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import Button from "@/mk/components/forms/Button/Button";
-import useAxios from "@/mk/hooks/useAxios";
-import { getFullName } from "@/mk/utils/string";
-import {
-  format,
-  parseISO,
-  formatDistanceToNowStrict,
-  format as formatDateFns,
-} from "date-fns";
+import { format, format as formatDateFns, formatDistanceToNowStrict, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import styles from "./ReservationDetailModal.module.css";
-import {
-  IconCalendar,
-  IconClock,
-  IconCash,
-  IconGroup,
-} from "@/components/layout/icons/IconsBiblioteca";
+import Button from "@/mk/components/forms/Button/Button";
 import Input from "@/mk/components/forms/Input/Input";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
-import { useAuth } from "@/mk/contexts/AuthProvider";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import useAxios from "@/mk/hooks/useAxios";
+import { getFullName } from "@/mk/utils/string";
+import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
+import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
 import {
   RESERVATION_STATUS_CONFIG,
   getUpdatedReservationStatus,
   type ReservationStatus,
 } from "../constants/reservationConstants";
-import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
+import styles from "./ReservationDetailModal.module.css";
 
-interface ReservationItem {
+type ReservationActor = {
+  id?: string | number;
+  name?: string | null;
+  middle_name?: string | null;
+  last_name?: string | null;
+  mother_last_name?: string | null;
+  url_avatar?: string | null;
+};
+
+type ReservationArea = {
+  title?: string | null;
+  description?: string | null;
+  images?: string[] | null;
+  price?: string | number | null;
+  is_free?: string | null;
+  booking_mode?: string | null;
+  cancellation_policy?: string | null;
+  usage_rules?: string | null;
+};
+
+type ReservationDpto = {
+  nro?: string | null;
+  description?: string | null;
+};
+
+type ReservationItem = {
   id?: string | number;
   area_id?: string;
   owner_id?: string;
@@ -45,23 +60,28 @@ interface ReservationItem {
   paid_at?: string | null;
   approved_at?: string | null;
   is_approved?: string;
-  approved_by?: string;
-  canceled_by?: string | null;
+  approved_by?: string | number | null;
+  canceled_by?: string | number | null;
   canceled_at?: string | null;
   is_canceled?: string;
-  obs?: string;
-  reason?: string;
-  start_time?: string;
-  end_time?: string;
-  status?: ReservationStatus;
-  created_at?: string;
-  updated_at?: string;
+  obs?: string | null;
+  reason?: string | null;
+  start_time?: string | null;
+  end_time?: string | null;
+  status?: ReservationStatus | "X" | string;
+  created_at?: string | null;
+  updated_at?: string | null;
   deleted_at?: string | null;
-  periods?: any[];
-  area?: any;
-  dpto?: any;
-  owner?: any;
-}
+  periods?: Array<{ time_from?: string | null; time_to?: string | null }> | null;
+  area?: ReservationArea | null;
+  dpto?: ReservationDpto | null;
+  owner?: ReservationActor | null;
+  approved_user?: ReservationActor | null;
+  canceled_user?: ReservationActor | null;
+  debt_dpto?: {
+    payment_id?: string | number | null;
+  } | null;
+};
 
 interface ReservationDetailModalProps {
   open: boolean;
@@ -70,6 +90,139 @@ interface ReservationDetailModalProps {
   reservationId?: string | number | null;
   reLoad?: Function;
 }
+
+const TERMINAL_STATUSES = new Set(["R", "C", "T", "F", "X", "M"]);
+const REASON_LABELS: Record<string, string> = {
+  R: "Motivo del rechazo",
+  C: "Motivo de la cancelación",
+  T: "Motivo de la cancelación",
+  M: "Motivo del mantenimiento",
+  X: "Motivo",
+};
+
+const getActorName = (actor?: ReservationActor | string | null, fallback = "") => {
+  if (!actor) return fallback;
+  if (typeof actor === "string") return actor || fallback;
+
+  const fullName = getFullName({
+    name: actor.name || undefined,
+    middle_name: actor.middle_name || undefined,
+    last_name: actor.last_name || undefined,
+    mother_last_name: actor.mother_last_name || undefined,
+  });
+
+  return fullName || fallback;
+};
+
+const formatDateTimeValue = (value?: string | null) => {
+  if (!value) return "-";
+
+  try {
+    return format(parseISO(value), "d 'de' MMM yyyy, HH:mm", { locale: es });
+  } catch {
+    return value;
+  }
+};
+
+const formatRequestMoment = (value?: string | null) => {
+  if (!value) return "-";
+
+  try {
+    return `${formatDistanceToNowStrict(parseISO(value), {
+      addSuffix: true,
+      locale: es,
+    })} · ${formatDateTimeValue(value)}`;
+  } catch {
+    return formatDateTimeValue(value);
+  }
+};
+
+const getFormattedReservationDate = (dateStr?: string | null) => {
+  if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return "Fecha inválida";
+
+  try {
+    return format(parseISO(`${dateStr}T00:00:00`), "EEEE, d 'de' MMMM yyyy", {
+      locale: es,
+    });
+  } catch {
+    return "Fecha inválida";
+  }
+};
+
+const getFormattedReservationTime = (
+  periods: ReservationItem["periods"],
+  startTime?: string | null,
+  endTime?: string | null,
+) => {
+  const safePeriods = Array.isArray(periods) ? [...periods] : [];
+  const sortedPeriods = safePeriods.sort((left, right) =>
+    String(left?.time_from || "").localeCompare(String(right?.time_from || "")),
+  );
+
+  if (sortedPeriods.length > 0) {
+    return sortedPeriods
+      .map((period) => {
+        const periodStart = String(period?.time_from || "00:00:00").slice(0, 5);
+        const periodEnd = String(period?.time_to || "00:00:00").slice(0, 5);
+        return `${periodStart} - ${periodEnd}`;
+      })
+      .join(" / ");
+  }
+
+  if (startTime || endTime) {
+    return `${String(startTime || "00:00:00").slice(0, 5)} - ${String(
+      endTime || startTime || "00:00:00",
+    ).slice(0, 5)}`;
+  }
+
+  return "Horario no especificado";
+};
+
+const getPriceDetails = (
+  area: ReservationArea | null | undefined,
+  totalAmount: string | number | undefined | null,
+) => {
+  const safeTotalAmount = totalAmount ?? 0;
+  if (!area) return "No disponible";
+
+  const price = Number.parseFloat(String(area.price || 0));
+  const total = Number.parseFloat(String(safeTotalAmount));
+  const isFreeExplicit = area.is_free === "A";
+  const isPriceZero = Number.isNaN(price) || price <= 0;
+
+  if (isFreeExplicit || isPriceZero) {
+    return total > 0 ? `Gratis · Total Bs ${total.toFixed(2)}` : "Gratis";
+  }
+
+  return `Bs ${price.toFixed(2)}`;
+};
+
+const getStatusClassName = (statusKey?: string) => {
+  switch (statusKey) {
+    case "W":
+      return styles.statusW;
+    case "A":
+      return styles.statusA;
+    case "Q":
+      return styles.statusQ;
+    case "N":
+      return styles.statusN;
+    case "L":
+      return styles.statusL;
+    case "R":
+      return styles.statusR;
+    case "C":
+      return styles.statusC;
+    case "T":
+      return styles.statusT;
+    case "F":
+      return styles.statusF;
+    case "M":
+      return styles.statusM;
+    default:
+      return styles.statusUnknown;
+  }
+};
 
 const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
   ({ open, onClose, item, reservationId, reLoad }) => {
@@ -89,33 +242,8 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       false,
     );
 
-    // Usar los datos de la consulta DET si están disponibles, sino usar el item original
-    const reservationDetail = data?.data?.reservation || item || {};
-    const timeLimit = data?.data?.timeLimit;
-
-    const renderTimeLimit = (text: string) => {
-      if (!text) return null;
-      const parts = text.split("-");
-      if (parts.length < 3) return text;
-
-      return (
-        <span>
-          {parts.map((part, index) => {
-            // El texto entre guiones estará en los índices impares (1, 3, 5...)
-            // Ejemplo: "Texto normal -rojo- normal" -> ["Texto normal ", "rojo", " normal"]
-            if (index % 2 === 1) {
-              return (
-                <span key={index} style={{ color: "var(--cError)" }}>
-                  {part}
-                </span>
-              );
-            }
-            return <span key={index}>{part}</span>;
-          })}
-        </span>
-      );
-    };
-
+    const reservationDetail = (data?.data?.reservation || item || {}) as ReservationItem;
+    const timeLimit = data?.data?.timeLimit as string | undefined;
     const { execute: executeAction } = useAxios();
 
     const [isActionLoading, setIsActionLoading] = React.useState(false);
@@ -128,108 +256,178 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     const [errors, setErrors] = React.useState({});
     const [showPaymentModal, setShowPaymentModal] = React.useState(false);
 
-    const getFormattedRequestTime = (isoDate: string): string => {
-      if (!isoDate) return "Fecha inválida";
-      try {
-        return formatDistanceToNowStrict(parseISO(isoDate), {
-          addSuffix: true,
-          locale: es,
-        });
-      } catch {
-        return "Fecha inválida";
-      }
-    };
+    const statusKey = getUpdatedReservationStatus(
+      reservationDetail?.status as ReservationStatus | undefined,
+      reservationDetail?.date_end || undefined,
+      reservationDetail?.end_time || undefined,
+    );
+    const currentStatus = statusKey
+      ? RESERVATION_STATUS_CONFIG[statusKey as keyof typeof RESERVATION_STATUS_CONFIG]
+      : null;
 
-    const getFormattedReservationDate = (dateStr: string): string => {
-      if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr))
-        return "Fecha inválida";
-      try {
-        const date = parseISO(dateStr + "T00:00:00");
-        return format(date, "EEEE, d 'de' MMMM", { locale: es });
-      } catch {
-        return "Fecha inválida";
-      }
-    };
+    const isMaintenance = statusKey === "M";
+    const ownerName = getActorName(
+      reservationDetail?.owner,
+      isMaintenance ? "Mantenimiento administrativo" : "Residente no disponible",
+    );
+    const approvedUserName = getActorName(
+      reservationDetail?.approved_user,
+      isMaintenance ? "Administración" : "",
+    );
+    const canceledUserName = getActorName(reservationDetail?.canceled_user, "");
+    const dptoLabel = reservationDetail?.dpto?.nro
+      ? `Unidad ${reservationDetail.dpto.nro}`
+      : reservationDetail?.dpto?.description || "Sin unidad";
+    const paymentId = reservationDetail?.debt_dpto?.payment_id;
+    const canShowPayment = Boolean(paymentId);
+    const canReviewRequest = reservationDetail?.status === "W";
+    const canCancelReservation =
+      Boolean(statusKey) &&
+      !TERMINAL_STATUSES.has(String(statusKey)) &&
+      statusKey !== "W";
+    const showTimeLimit =
+      Boolean(timeLimit) && (statusKey === "A" || statusKey === "Q");
+    const reasonText = reservationDetail?.reason?.trim() || "";
+    const obsText = reservationDetail?.obs?.trim() || "";
+    const cancellationPolicy = reservationDetail?.area?.cancellation_policy?.trim() || "";
+    const usageRules = reservationDetail?.area?.usage_rules?.trim() || "";
+    const areaName = reservationDetail?.area?.title || "Área social";
+    const approvalLabel =
+      statusKey === "R"
+        ? "Revisado por"
+        : isMaintenance
+          ? "Registrado por"
+          : "Aprobado por";
+    const approvalValue =
+      approvedUserName || reservationDetail?.approved_at
+        ? [approvedUserName || "Administración", formatDateTimeValue(reservationDetail?.approved_at)]
+            .filter((value) => value && value !== "-")
+            .join(" · ")
+        : "";
+    const cancellationValue =
+      reservationDetail?.canceled_at || canceledUserName
+        ? [
+            canceledUserName || "Administración",
+            formatDateTimeValue(reservationDetail?.canceled_at),
+          ]
+            .filter((value) => value && value !== "-")
+            .join(" · ")
+        : "";
 
-    const getFormattedReservationTime = (
-      periods: any[] | undefined | null,
-    ): string => {
-      if (!periods || periods.length === 0) return "Horario no especificado";
-      try {
-        const validPeriods = Array.isArray(periods) ? periods : [];
-        const sortedPeriods = [...validPeriods].sort((a, b) =>
-          (a.time_from || "").localeCompare(b.time_from || ""),
-        );
-        const formattedPeriodStrings = sortedPeriods.map((period) => {
-          const startTime = (period.time_from || "00:00:00").substring(0, 5);
-          const endTime = (period.time_to || "00:00:00").substring(0, 5);
-          return `${startTime} - ${endTime}`;
-        });
-        return formattedPeriodStrings.join(" / ");
-      } catch (error) {
-        console.error("Error formateando horario de reserva:", error);
-        return "Horario inválido";
-      }
-    };
+    const detailRows = [
+      {
+        label: "Área social",
+        value: areaName,
+      },
+      {
+        label: "Fecha del evento",
+        value: getFormattedReservationDate(reservationDetail?.date_at),
+      },
+      {
+        label: "Horario",
+        value: getFormattedReservationTime(
+          reservationDetail?.periods,
+          reservationDetail?.start_time,
+          reservationDetail?.end_time,
+        ),
+      },
+      {
+        label: "Personas",
+        value: `${reservationDetail?.people_count ?? 0} persona${
+          reservationDetail?.people_count === 1 ? "" : "s"
+        }`,
+      },
+      {
+        label: "Precio",
+        value: getPriceDetails(reservationDetail?.area, reservationDetail?.amount),
+      },
+      {
+        label: "Solicitada",
+        value: formatRequestMoment(reservationDetail?.created_at),
+      },
+      ...(approvalValue
+        ? [
+            {
+              label: approvalLabel,
+              value: approvalValue,
+            },
+          ]
+        : []),
+      ...(cancellationValue
+        ? [
+            {
+              label: "Cancelada por",
+              value: cancellationValue,
+            },
+          ]
+        : []),
+      ...(canShowPayment
+        ? [
+            {
+              label: "Pago",
+              value: "Comprobante disponible",
+            },
+          ]
+        : []),
+    ];
 
-    const getPriceDetails = (
-      area: any | undefined | null,
-      totalAmount: string | number | undefined | null,
-    ): string => {
-      const safeTotalAmount = totalAmount ?? 0;
-      if (!area) return "Detalles de precio no disponibles";
+    const detailNotes = [
+      ...(reasonText && REASON_LABELS[String(statusKey || "")] != null
+        ? [
+            {
+              label: REASON_LABELS[String(statusKey || "")],
+              value: reasonText,
+            },
+          ]
+        : []),
+      ...(obsText && obsText !== reasonText
+        ? [
+            {
+              label: "Observaciones",
+              value: obsText,
+            },
+          ]
+        : []),
+      ...(cancellationPolicy
+        ? [
+            {
+              label: "Política de cancelación",
+              value: cancellationPolicy,
+            },
+          ]
+        : []),
+      ...(usageRules
+        ? [
+            {
+              label: "Reglas de uso",
+              value: usageRules,
+            },
+          ]
+        : []),
+    ];
 
-      const price = parseFloat(area.price);
-      const total = parseFloat(String(safeTotalAmount));
-
-      // if (isNaN(price)) return "Precio base inválido";
-      // if (isNaN(total)) return "Monto total inválido";
-
-      const isFreeExplicit = area.is_free === "A";
-      const isPriceZero = price <= 0;
-
-      if (isFreeExplicit || isPriceZero) {
-        if (total > 0) {
-          return `Gratis - Total: Bs ${total.toFixed(2)}`;
-        } else {
-          return "Gratis";
-        }
-      } else {
-        return `Bs ${price.toFixed(2)}`;
-      }
-    };
-
-    const getStatusInfo = (status?: ReservationStatus) => {
-      const currentStatus = getUpdatedReservationStatus(
-        status,
-        reservationDetail?.date_end,
-        reservationDetail?.end_time,
-      );
-
-      return currentStatus ? RESERVATION_STATUS_CONFIG[currentStatus] : null;
-    };
-
-    // --- Handlers de Acción ---
     const handleAcceptClick = async () => {
       if (!reservationDetail?.id || isActionLoading) return;
+
       setIsActionLoading(true);
       setActionError(null);
+
       const now = new Date();
       const formattedDate = formatDateFns(now, "yyyy-MM-dd HH:mm:ss");
-      const payload = {
-        approved_at: formattedDate,
-        is_approved: "Y",
-        obs: "Aprobado",
-      };
+
       try {
         await executeAction(
           `/reservations/${reservationDetail.id}`,
           "PUT",
-          payload,
+          {
+            approved_at: formattedDate,
+            is_approved: "Y",
+            obs: "Aprobado",
+          },
           false,
           true,
         );
-        if (reLoad) reLoad();
+        reLoad?.();
         onClose();
       } catch (error: any) {
         setActionError(
@@ -256,25 +454,23 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         setRejectErrors({ reason: "Debe ingresar un motivo para el rechazo." });
         return;
       }
-      setRejectErrors({});
 
+      setRejectErrors({});
       setIsActionLoading(true);
       setActionError(null);
-
-      const payload = { is_approved: "N", reason: rejectionReason.trim() };
 
       try {
         await executeAction(
           `/reservations/${reservationDetail.id}`,
           "PUT",
-          payload,
+          { is_approved: "N", reason: rejectionReason.trim() },
           false,
           true,
         );
 
         setIsRejectModalOpen(false);
         onClose();
-        if (reLoad) reLoad();
+        reLoad?.();
       } catch (error: any) {
         setActionError(
           error?.response?.data?.message ||
@@ -287,28 +483,28 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       }
     };
 
-    const handleChangeInput = (e: any) => {
-      let value = e.target.value;
-      setFormState({ ...formState, [e.target.name]: value });
+    const handleChangeInput = (event: any) => {
+      setFormState({ ...formState, [event.target.name]: event.target.value });
     };
 
     const validateReason = () => {
-      let errs: any = {};
-      errs = checkRules({
+      let nextErrors: any = {};
+      nextErrors = checkRules({
         value: formState.reason,
         rules: ["required"],
         key: "reason",
-        errors: errs,
+        errors: nextErrors,
       });
 
-      setErrors(errs);
-      return errs;
+      setErrors(nextErrors);
+      return nextErrors;
     };
 
     const onSaveCancel = async () => {
       if (hasErrors(validateReason())) return;
-      const { data } = await executeAction(
-        "/reservations/" + reservationDetail?.id,
+
+      const response = await executeAction(
+        `/reservations/${reservationDetail?.id}`,
         "PUT",
         {
           status: "C",
@@ -317,17 +513,16 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         false,
         true,
       );
-      if (data?.success) {
+
+      if (response?.data?.success) {
         setOpenModalCancel(false);
-        showToast(data?.message || "Reserva cancelada", "success");
+        showToast(response?.data?.message || "Reserva cancelada", "success");
         onClose();
-        if (reLoad) reLoad();
+        reLoad?.();
       } else {
-        showToast(data?.message || "Ocurrió un error", "error");
+        showToast(response?.data?.message || "Ocurrió un error", "error");
       }
     };
-
-    const currentStatus = getStatusInfo(reservationDetail?.status);
 
     return (
       <>
@@ -339,7 +534,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
           buttonCancel=""
           minWidth={739}
           maxWidth={920}
-          variant={"mini"}
+          variant="mini"
         >
           <LoadingScreen
             onlyLoading={Object.keys(reservationDetail).length === 0 && open}
@@ -352,199 +547,154 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                     No se encontró información de la reserva.
                   </p>
                   <p className={styles.notFoundSuggestion}>
-                    Por favor, verifica los detalles o intenta de nuevo más
-                    tarde.
+                    Verifica los detalles o intenta de nuevo más tarde.
                   </p>
                 </div>
               </div>
             ) : (
               <div className={styles.modalContent}>
-                {(() => {
-                  // Obtener el estado actualizado para la lógica de cancelación
-                  const updatedStatus = getUpdatedReservationStatus(
-                    reservationDetail.status,
-                    reservationDetail?.date_end,
-                    reservationDetail?.end_time,
-                  );
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryTop}>
+                    <div className={styles.summaryIdentity}>
+                      {isMaintenance ? (
+                        <div className={styles.systemBadge}>ADM</div>
+                      ) : (
+                        <Avatar
+                          src={reservationDetail?.owner?.url_avatar || ""}
+                          name={ownerName}
+                          w={48}
+                          h={48}
+                        />
+                      )}
 
-                  const canCancel =
-                    updatedStatus &&
-                    ["R", "C", "T", "F", "X"].includes(updatedStatus) === false;
-                  return (
-                    canCancel && (
-                      <p
-                        onClick={() => setOpenModalCancel(true)}
-                        className={styles.cancelLink}
-                      >
-                        Cancelar reserva
-                      </p>
-                    )
-                  );
-                })()}
-
-                <div className={styles.reservationBlock}>
-                  <div className={styles.requesterSection}>
-                    <div className={styles.requesterInfoContainer}>
-                      <Avatar
-                        src={reservationDetail?.owner?.url_avatar}
-                        name={getFullName(reservationDetail.owner)}
-                        w={40}
-                        h={40}
-                      />
-                      <div className={styles.requesterText}>
-                        <span className={styles.requesterName}>
-                          {getFullName(reservationDetail.owner)}
-                        </span>
-                        {reservationDetail.dpto && (
-                          <span className={styles.requesterApt}>
-                            Dpto:{" "}
-                            {reservationDetail.dpto.nro ||
-                              reservationDetail.dpto.description ||
-                              "-"}
-                          </span>
-                        )}
+                      <div className={styles.summaryText}>
+                        <p className={styles.summaryEyebrow}>
+                          {isMaintenance ? "Bloqueo administrativo" : "Solicitante"}
+                        </p>
+                        <h3 className={styles.summaryTitle}>
+                          {isMaintenance ? "Mantenimiento administrativo" : ownerName}
+                        </h3>
+                        <p className={styles.summarySubtitle}>
+                          {isMaintenance
+                            ? approvalValue || "Registrado por administración"
+                            : `${dptoLabel} · ${formatRequestMoment(
+                                reservationDetail?.created_at,
+                              )}`}
+                        </p>
                       </div>
                     </div>
-                    <span className={styles.requestTime}>
-                      Solicitado:{" "}
-                      {reservationDetail.created_at
-                        ? getFormattedRequestTime(reservationDetail.created_at)
-                        : ""}
+
+                    <span
+                      className={`${styles.statusBadge} ${getStatusClassName(
+                        String(statusKey || reservationDetail?.status || ""),
+                      )}`}
+                    >
+                      {currentStatus?.label || "Estado desconocido"}
                     </span>
                   </div>
-                  <hr className={styles.areaSeparator} />
-                  {timeLimit && (
-                    <div className={styles.timeLimitAlert}>
-                      {renderTimeLimit(timeLimit)}
-                    </div>
-                  )}
 
-                  <div className={styles.mainDetailsContainer}>
-                    <div className={styles.detailsColumn}>
-                      <div className={styles.specificDetails}>
-                        <div className={styles.inlineMetaHeader}>
-                          <span className={styles.detailsHeader}>
-                            Área social: {reservationDetail?.area?.title}
-                          </span>
-                          <div
-                            className={`${styles.statusBadge} ${
-                              currentStatus
-                                ? styles[currentStatus.class]
-                                : styles.statusUnknown
-                            }`}
-                          >
-                            {currentStatus
-                              ? currentStatus.label
-                              : "Estado desconocido"}
-                          </div>
-                        </div>
-                        <div className={styles.detailsList}>
-                          <div className={styles.detailItem}>
-                            <IconCalendar
-                              size={18}
-                              className={styles.detailIcon}
-                            />
-                            <span className={styles.detailText}>
-                              {reservationDetail.date_at
-                                ? getFormattedReservationDate(
-                                    reservationDetail.date_at,
-                                  )
-                                : ""}
-                            </span>
-                          </div>
-                          <div className={styles.detailItem}>
-                            <IconClock
-                              size={18}
-                              className={styles.detailIcon}
-                            />
-                            <span className={styles.detailText}>
-                              {getFormattedReservationTime(
-                                reservationDetail.periods,
-                              )}
-                            </span>
-                          </div>
-                          <div className={styles.detailItem}>
-                            <IconGroup
-                              size={18}
-                              className={styles.detailIcon}
-                            />
-                            <span className={styles.detailText}>
-                              {reservationDetail.people_count ?? 0} persona
-                              {reservationDetail.people_count !== 1 ? "s" : ""}
-                            </span>
-                          </div>
-                          <div className={styles.detailItem}>
-                            <IconCash size={18} className={styles.detailIcon} />
-                            <span className={styles.priceDetailText}>
-                              {getPriceDetails(
-                                reservationDetail.area,
-                                reservationDetail.amount,
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                  <div className={styles.areaSummary}>
+                    <p className={styles.summaryEyebrow}>Área social</p>
+                    <h4 className={styles.areaTitle}>{areaName}</h4>
+                    {reservationDetail?.area?.description ? (
+                      <p className={styles.areaDescription}>
+                        {reservationDetail.area.description}
+                      </p>
+                    ) : null}
                   </div>
+
+                  {showTimeLimit ? (
+                    <div className={styles.timeLimitAlert}>{timeLimit}</div>
+                  ) : null}
+
+                  <div className={styles.infoGrid}>
+                    {detailRows.map((row) => (
+                      <div key={row.label} className={styles.infoItem}>
+                        <span className={styles.infoLabel}>{row.label}</span>
+                        <span className={styles.infoValue}>{row.value}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {detailNotes.length > 0 ? (
+                    <div className={styles.noteStack}>
+                      {detailNotes.map((note) => (
+                        <div key={note.label} className={styles.noteBlock}>
+                          <p className={styles.noteLabel}>{note.label}</p>
+                          <p className={styles.noteValue}>{note.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
 
-                {actionError && (
-                  <div className={styles.errorBox}>
-                    Error: {actionError}
-                  </div>
-                )}
+                {actionError ? (
+                  <div className={styles.errorBox}>Error: {actionError}</div>
+                ) : null}
 
-                {reservationDetail.status === "W" && (
+                {canReviewRequest ? (
                   <div className={styles.actionButtonsContainer}>
                     <Button
+                      className={styles.secondaryActionButton}
                       onClick={handleRejectClick}
                       variant="secondary"
                       disabled={isActionLoading}
-                      className={styles.rejectButtonProportional}
                     >
                       Rechazar solicitud
                     </Button>
                     <Button
+                      className={styles.primaryActionButton}
                       onClick={handleAcceptClick}
                       variant="primary"
                       disabled={isActionLoading}
-                      className={styles.approveButtonProportional}
                     >
                       Aprobar solicitud
                     </Button>
                   </div>
-                )}
+                ) : null}
 
-                {reservationDetail.status === "Q" &&
-                  reservationDetail?.debt_dpto?.payment_id && (
-                    <div className={styles.actionButtonsContainer}>
+                {!canReviewRequest && (canCancelReservation || canShowPayment) ? (
+                  <div className={styles.actionButtonsContainer}>
+                    {canCancelReservation ? (
                       <Button
+                        className={styles.secondaryActionButton}
+                        onClick={() => setOpenModalCancel(true)}
+                        variant="secondary"
+                        disabled={isActionLoading}
+                      >
+                        Cancelar reserva
+                      </Button>
+                    ) : null}
+
+                    {canShowPayment ? (
+                      <Button
+                        className={styles.primaryActionButton}
                         onClick={() => setShowPaymentModal(true)}
                         variant="primary"
-                        className={styles.approveButtonProportional}
                       >
                         Ver pago
                       </Button>
-                    </div>
-                  )}
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             )}
           </LoadingScreen>
         </DataModal>
 
-        {showPaymentModal && (
+        {showPaymentModal ? (
           <PaymentRenderView
             open={showPaymentModal}
             onClose={() => {
-              if (reLoad) reLoad();
+              reLoad?.();
               setShowPaymentModal(false);
             }}
-            payment_id={reservationDetail?.debt_dpto?.payment_id}
+            payment_id={paymentId as string | number}
             noWaiting={true}
           />
-        )}
+        ) : null}
 
-        {openModalCancel && (
+        {openModalCancel ? (
           <DataModal
             title="Cancelar reserva"
             open={openModalCancel}
@@ -555,22 +705,23 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
             maxWidth={760}
             onSave={onSaveCancel}
           >
-            <p className={styles.modalParagraph}>
-              Por favor, indica el motivo por el cual quieres cancelar esta
-              reserva.
-            </p>
-            <Input
-              label="Motivo"
-              name="reason"
-              value={formState?.reason}
-              onChange={handleChangeInput}
-              required
-              error={errors}
-            />
+            <div className={styles.modalBody}>
+              <p className={styles.modalParagraph}>
+                Indica el motivo por el cual quieres cancelar esta reserva.
+              </p>
+              <Input
+                label="Motivo"
+                name="reason"
+                value={formState?.reason}
+                onChange={handleChangeInput}
+                required
+                error={errors}
+              />
+            </div>
           </DataModal>
-        )}
+        ) : null}
 
-        {isRejectModalOpen && (
+        {isRejectModalOpen ? (
           <DataModal
             open={isRejectModalOpen}
             onClose={() => {
@@ -583,18 +734,16 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
             minWidth={486}
             maxWidth={560}
           >
-            <div className={styles.divider}></div>
-            <div className={styles.modalContentContainer}>
-              <p>
-                Por favor indica el motivo para que el residente pueda
-                comprender e intente solicitar esta área social de manera
-                correcta
+            <div className={styles.modalBody}>
+              <p className={styles.modalParagraph}>
+                Indica el motivo para que el residente pueda comprender por qué
+                se rechazó esta solicitud.
               </p>
               <Input
                 name="reason"
                 value={rejectionReason}
-                onChange={(e) => {
-                  setRejectionReason(e.target.value);
+                onChange={(event) => {
+                  setRejectionReason(event.target.value);
                   if (rejectErrors.reason) {
                     setRejectErrors({});
                   }
@@ -606,14 +755,14 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                   rejectErrors.reason ? "rejection-error-message" : undefined
                 }
               />
-              {rejectErrors.reason && (
+              {rejectErrors.reason ? (
                 <span
                   id="rejection-error-message"
                   className={styles.rejectErrorMessage}
                 >
                   {rejectErrors.reason}
                 </span>
-              )}
+              ) : null}
             </div>
 
             <div
@@ -633,11 +782,11 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                 variant="primary"
                 disabled={isActionLoading}
               >
-                Confirmar Rechazo
+                Confirmar rechazo
               </Button>
             </div>
           </DataModal>
-        )}
+        ) : null}
       </>
     );
   },

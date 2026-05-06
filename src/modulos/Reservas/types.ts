@@ -2,9 +2,13 @@ import type { ReservationStatus } from "@/modulos/Reservas/constants/reservation
 
 export type ReservationListItem = {
   id: number | string;
+  area_id?: number | string | null;
+  owner_id?: number | string | null;
+  dpto_id?: number | string | null;
   status?: ReservationStatus | "X" | string;
   amount?: string | number | null;
   obs?: string | null;
+  reason?: string | null;
   created_at?: string | null;
   date_at?: string | null;
   date_end?: string | null;
@@ -17,12 +21,12 @@ export type ReservationListItem = {
         time_to?: string | null;
       }>
     | null;
-  area?: NewReservaArea | null;
-  owner?: NewReservaResident | null;
-  dpto?: NewReservaUnit | null;
+  area?: ReservationArea | null;
+  owner?: ReservationResident | null;
+  dpto?: ReservationUnit | null;
 };
 
-export type NewReservaResident = {
+export type ReservationResident = {
   id?: number | string;
   name?: string | null;
   middle_name?: string | null;
@@ -32,20 +36,20 @@ export type NewReservaResident = {
   email?: string | null;
 };
 
-export type NewReservaUnit = {
+export type ReservationUnit = {
   id: number | string;
   nro?: string | null;
   defaulter?: string | null;
-  homeowner?: NewReservaResident | null;
-  tenant?: NewReservaResident | null;
+  homeowner?: ReservationResident | null;
+  tenant?: ReservationResident | null;
   titular?: {
     id?: number | string;
     owner_id?: number | string;
-    owner?: NewReservaResident | null;
+    owner?: ReservationResident | null;
   } | null;
 };
 
-export type NewReservaArea = {
+export type ReservationArea = {
   id: number | string;
   title?: string | null;
   description?: string | null;
@@ -61,32 +65,16 @@ export type NewReservaArea = {
   penalty_or_debt_restriction?: string | null;
   requires_approval?: string | null;
   show_real_time_availability?: string | null;
+  show_in_calendar?: string | null;
   images?: string[] | null;
 };
 
-export type NewReservaExtraData = {
-  areas?: NewReservaArea[];
-  dptos?: NewReservaUnit[];
+export type ReservationExtraData = {
+  areas?: ReservationArea[];
+  dptos?: ReservationUnit[];
 };
-
-export type ReservationCalendarKey =
-  | "pending"
-  | "confirmed"
-  | "cancelled"
-  | "maintenance";
 
 export type ReservationVisibleRange = {
   start: Date;
   end: Date;
-};
-
-export type ReservationCalendarMeta = {
-  reservation: ReservationListItem;
-  areaName: string;
-  residentName: string;
-  unitLabel: string;
-  statusKey: ReservationCalendarKey;
-  statusLabel: string;
-  dateKey: string;
-  searchText: string;
 };
