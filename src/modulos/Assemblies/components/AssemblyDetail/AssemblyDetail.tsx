@@ -1531,7 +1531,6 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           setIsCancellationModalOpen(false);
         }}
         buttonText="Confirmar Cancelación"
-        buttonVariant="danger"
       >
         <div style={{ padding: "20px" }}>
           <p style={{ marginBottom: "16px", color: "var(--cWhiteV1)" }}>
@@ -1539,11 +1538,12 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             finalizará todas las votaciones activas y no se puede deshacer.
           </p>
           <TextArea
+            name="cancellation_reason"
             label="Motivo de la cancelación"
             placeholder="Indique brevemente por qué se cancela la asamblea..."
             value={cancellationReason}
             onChange={(e) => setCancellationReason(e.target.value)}
-            rows={4}
+            lines={4}
             required
           />
         </div>

@@ -105,7 +105,7 @@ export interface AssemblyAttendance {
     url_avatar?: string;
     ci?: string;
   };
-  dpto?: { id: number; nro: string };
+  dpto?: { id: number; nro: string; is_arrears?: boolean };
 }
 
 export const ROLE_LABELS: Record<string, string> = {
