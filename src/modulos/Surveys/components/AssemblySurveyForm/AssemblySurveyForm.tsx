@@ -56,6 +56,8 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
     },
     question: "",
     options: ["", ""],
+    is_weighted: false,
+    weighted_by_area: false,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -78,6 +80,8 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
             "",
             "",
           ],
+          is_weighted: editItem.is_weighted ?? false,
+          weighted_by_area: editItem.weighted_by_area ?? false,
         });
       } else {
         setFormState({
@@ -90,6 +94,8 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
           },
           question: "",
           options: ["", ""],
+          is_weighted: false,
+          weighted_by_area: false,
         });
       }
       setErrors({});
@@ -169,6 +175,8 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
         title: formState.question.substring(0, 50), // API Title
         type: "assembly",
         target_criteria: formState.target_criteria,
+        is_weighted: formState.is_weighted,
+        weighted_by_area: formState.weighted_by_area,
         squestions: [
           {
             id: action === "edit" ? editItem.squestions?.[0]?.id : undefined,
@@ -288,6 +296,49 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
                     </div>
                 </div>
             </div> */}
+
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>Ponderación del voto</label>
+              <p className={styles.subtext}>
+                Elige cómo se calculará el peso de cada voto.
+              </p>
+              <div className={styles.optionList}>
+                {[
+                  {
+                    id: "unit",
+                    label: "Por Unidad (1 voto = 1 unidad)",
+                    weighted: false,
+                    area: false,
+                  },
+                  {
+                    id: "area",
+                    label: "Por M2 (Ponderado por superficie)",
+                    weighted: true,
+                    area: true,
+                  },
+                ].map((opt) => {
+                  const isActive =
+                    formState.is_weighted === opt.weighted &&
+                    formState.weighted_by_area === opt.area;
+                  return (
+                    <div
+                      key={opt.id}
+                      className={`${styles.optionItem} ${isActive ? styles.active : ""}`}
+                      onClick={() =>
+                        setFormState({
+                          ...formState,
+                          is_weighted: opt.weighted,
+                          weighted_by_area: opt.area,
+                        })
+                      }
+                    >
+                      <div className={styles.radioCircle} />
+                      <span>{opt.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
             <div className={styles.fieldGroup}>
               <label className={styles.label}>

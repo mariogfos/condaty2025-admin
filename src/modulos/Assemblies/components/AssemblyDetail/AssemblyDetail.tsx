@@ -589,7 +589,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="ORDEN DEL DÍA"
             titleRight={
-              !isMobile && !isFinished && canEditBasicInfo && (
+              !isMobile &&
+              !isFinished &&
+              canEditBasicInfo && (
                 <button
                   className={styles.editButton}
                   onClick={(e) => {
@@ -613,7 +615,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="VOTACIONES"
             titleRight={
-              !isMobile && !isFinished && (
+              !isMobile &&
+              !isFinished && (
                 <button
                   className={styles.actionBtn}
                   onClick={(e) => {
@@ -1081,7 +1084,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                           {abstention && countAsOption && (
                             <div className={styles.optionItem}>
                               <div className={styles.optionHeader}>
-                                <span className={styles.accentText}>
+                                <span
+                                //className={styles.accentText}
+                                >
                                   Abstenciones
                                 </span>
                                 <span
@@ -1091,7 +1096,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                     gap: 8,
                                   }}
                                 >
-                                  <span className={styles.accentText}>
+                                  <span
+                                  //className={styles.accentText}
+                                  >
                                     {abstention.abstention_rate}% (
                                     {abstention.abstentions}{" "}
                                     {abstention.abstentions === 1
@@ -1173,7 +1180,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="DETALLES"
             titleRight={
-              !isMobile && !isFinished && canEditBasicInfo && (
+              !isMobile &&
+              !isFinished &&
+              canEditBasicInfo && (
                 <button
                   className={styles.actionBtn}
                   onClick={(e) => {
@@ -1281,7 +1290,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="DOCUMENTOS"
             titleRight={
-              !isMobile && !isFinished && (
+              !isMobile &&
+              !isFinished && (
                 <button
                   className={styles.actionBtn}
                   onClick={(e) => {
