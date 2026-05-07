@@ -49,7 +49,7 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
   const [formState, setFormState] = useState({
     title: "",
     target_criteria: {
-      roles: {} as Record<string, string>,
+      roles: {} as Record<string, any>,
       vote_per_unit: true,
       only_current: false,
       only_arrears: false,
@@ -108,9 +108,9 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
     });
   };
 
-  const rolesToArray = (roles: Record<string, string>) => {
-    return Object.entries(roles)
-      .filter(([, v]) => v === "1")
+  const rolesToArray = (roles: Record<string, any>) => {
+    return Object.entries(roles || {})
+      .filter(([, v]) => v === "1" || v === 1 || v === true)
       .map(([k]) => k);
   };
 
