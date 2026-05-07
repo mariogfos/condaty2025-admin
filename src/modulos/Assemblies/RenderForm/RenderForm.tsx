@@ -402,7 +402,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       if (setItem) setItem(formState);
       reLoad();
       onClose();
-      setLevel(1);
+      // setLevel(1);
       return;
     }
 
@@ -410,7 +410,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
   };
 
   const closeModal = () => {
-    setLevel(1);
+    // setLevel(1);
     onClose();
   };
 
@@ -797,7 +797,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             <p
               style={{
                 fontSize: 12,
-                color: "var(--cWhiteV2)",
+                color: "var(--cWhiteV1)",
                 marginTop: 6,
                 marginLeft: 0,
               }}
@@ -809,7 +809,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
           </div>
 
           {/* Toggle para votación anónima */}
-          <div style={{ marginTop: 16 }}>
+          {/* <div style={{ marginTop: 16 }}>
             <Check
               name="anonymous_voting"
               value={formState.anonymous_voting}
@@ -834,7 +834,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
               Los votos serán anónimos y no se podrán identificar respuestas
               individuales.
             </p>
-          </div>
+          </div> */}
         </section>
       )}
     </DataModal>
