@@ -5,7 +5,11 @@ import Input from "@/mk/components/forms/Input/Input";
 import Button from "@/mk/components/forms/Button/Button";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import { IconTrash, IconAdd, IconArrowLeft } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconTrash,
+  IconAdd,
+  IconArrowLeft,
+} from "@/components/layout/icons/IconsBiblioteca";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const ROLES_OPTIONS = [
@@ -114,7 +118,7 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
     const newErrors: Record<string, string> = {};
     const rolesArr = rolesToArray(formState.target_criteria.roles);
     if (rolesArr.length === 0) {
-        newErrors.roles = "Selecciona al menos un grupo";
+      newErrors.roles = "Selecciona al menos un grupo";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -123,11 +127,11 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
   const validateStep2 = () => {
     const newErrors: Record<string, string> = {};
     if (!formState.question.trim()) {
-        newErrors.question = "La pregunta es requerida";
+      newErrors.question = "La pregunta es requerida";
     }
-    const validOptions = formState.options.filter(opt => opt.trim() !== "");
+    const validOptions = formState.options.filter((opt) => opt.trim() !== "");
     if (validOptions.length < 2) {
-        newErrors.options = "Se requieren al menos 2 opciones";
+      newErrors.options = "Se requieren al menos 2 opciones";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -135,7 +139,7 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
 
   const handleNext = () => {
     if (validateStep1()) {
-        setLevel(2);
+      setLevel(2);
     }
   };
 
@@ -243,22 +247,28 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
         {level === 1 && (
           <div className={styles.step}>
             <div className={styles.fieldGroup}>
-                <label className={styles.label}>¿Quiénes recibirán esta pregunta?</label>
-                <p className={styles.subtext}>Selecciona qué grupos de usuarios podrán verla y responderla.</p>
-                <Select
-                    name="roles"
-                    options={ROLES_OPTIONS}
-                    value={rolesToArray(formState.target_criteria.roles)}
-                    onChange={handleRolesChange}
-                    optionValue="id"
-                    optionLabel="name"
-                    multiSelect
-                    placeholder="Selecciona uno o más grupos"
-                />
-                {errors.roles && <p className={styles.errorText}>{errors.roles}</p>}
+              <label className={styles.label}>
+                ¿Quiénes recibirán esta pregunta?
+              </label>
+              <p className={styles.subtext}>
+                Selecciona qué grupos de usuarios podrán verla y responderla.
+              </p>
+              <Select
+                name="roles"
+                options={ROLES_OPTIONS}
+                value={rolesToArray(formState.target_criteria.roles)}
+                onChange={handleRolesChange}
+                optionValue="id"
+                optionLabel="name"
+                multiSelect
+                placeholder="Selecciona uno o más grupos"
+              />
+              {errors.roles && (
+                <p className={styles.errorText}>{errors.roles}</p>
+              )}
             </div>
 
-            <div className={styles.fieldGroup}>
+            {/* <div className={styles.fieldGroup}>
                 <label className={styles.label}>¿La respuesta será por unidad o por persona?</label>
                 <p className={styles.subtext}>Residentes</p>
                 <div className={styles.radioGrid}>
@@ -277,91 +287,158 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
                         <span>Un voto por persona</span>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             <div className={styles.fieldGroup}>
-                <label className={styles.label}>¿Qué unidades podrán participar?</label>
-                <p className={styles.subtext}>Elige si todas las unidades podrán responder o solo algunas según su estado de pago.</p>
-                <div className={styles.optionList}>
-                    {[
-                        { id: "all", label: "Todas las unidades", cr: { only_current: false, only_arrears: false } },
-                        { id: "current", label: "Solo unidades al día", cr: { only_current: true, only_arrears: false } },
-                        { id: "arrears", label: "Solo unidades con mora", cr: { only_current: false, only_arrears: true } },
-                    ].map((opt) => {
-                        const isActive = formState.target_criteria.only_current === opt.cr.only_current && formState.target_criteria.only_arrears === opt.cr.only_arrears;
-                        return (
-                            <div 
-                                key={opt.id}
-                                className={`${styles.optionItem} ${isActive ? styles.active : ""}`}
-                                onClick={() => setFormState({...formState, target_criteria: {...formState.target_criteria, ...opt.cr}})}
-                            >
-                                <div className={styles.radioCircle} />
-                                <span>{opt.label}</span>
-                            </div>
-                        );
-                    })}
-                </div>
+              <label className={styles.label}>
+                ¿Qué unidades podrán participar?
+              </label>
+              <p className={styles.subtext}>
+                Elige si todas las unidades podrán responder o solo algunas
+                según su estado de pago.
+              </p>
+              <div className={styles.optionList}>
+                {[
+                  {
+                    id: "all",
+                    label: "Todas las unidades",
+                    cr: { only_current: false, only_arrears: false },
+                  },
+                  {
+                    id: "current",
+                    label: "Solo unidades al día",
+                    cr: { only_current: true, only_arrears: false },
+                  },
+                  {
+                    id: "arrears",
+                    label: "Solo unidades con mora",
+                    cr: { only_current: false, only_arrears: true },
+                  },
+                ].map((opt) => {
+                  const isActive =
+                    formState.target_criteria.only_current ===
+                      opt.cr.only_current &&
+                    formState.target_criteria.only_arrears ===
+                      opt.cr.only_arrears;
+                  return (
+                    <div
+                      key={opt.id}
+                      className={`${styles.optionItem} ${isActive ? styles.active : ""}`}
+                      onClick={() =>
+                        setFormState({
+                          ...formState,
+                          target_criteria: {
+                            ...formState.target_criteria,
+                            ...opt.cr,
+                          },
+                        })
+                      }
+                    >
+                      <div className={styles.radioCircle} />
+                      <span>{opt.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             <div className={styles.footer}>
-                <Button variant="secondary" onClick={onClose} style={{ flex: 1 }}>Cancelar</Button>
-                <Button variant="primary" onClick={handleNext} style={{ flex: 1 }}>Siguiente</Button>
+              <Button variant="secondary" onClick={onClose} style={{ flex: 1 }}>
+                Cancelar
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleNext}
+                style={{ flex: 1 }}
+              >
+                Siguiente
+              </Button>
             </div>
           </div>
         )}
 
         {level === 2 && (
           <div className={styles.step}>
-             <div className={styles.fieldGroup}>
-                <label className={styles.label}>¿Cuál será la pregunta?</label>
-                <p className={styles.subtext}>Escribe la pregunta que verán los participantes.</p>
-                <TextArea
-                    name="question"
-                    value={formState.question}
-                    onChange={(e: any) => setFormState({...formState, question: e.target.value})}
-                    placeholder="¿Aumentamos el monto de las expensas un 15%?"
-                    className={styles.questionInput}
-                />
-                {errors.question && <p className={styles.errorText}>{errors.question}</p>}
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>¿Cuál será la pregunta?</label>
+              <p className={styles.subtext}>
+                Escribe la pregunta que verán los participantes.
+              </p>
+              <TextArea
+                name="question"
+                value={formState.question}
+                onChange={(e: any) =>
+                  setFormState({ ...formState, question: e.target.value })
+                }
+                placeholder="¿Aumentamos el monto de las expensas un 15%?"
+                className={styles.questionInput}
+              />
+              {errors.question && (
+                <p className={styles.errorText}>{errors.question}</p>
+              )}
             </div>
 
             <div className={styles.fieldGroup}>
-                <label className={styles.label}>¿Qué opciones podrán elegir?</label>
-                <p className={styles.subtext}>Agrega las opciones que los participantes podrán seleccionar.</p>
-                <div className={styles.optionInputs}>
-                    {formState.options.map((option, idx) => (
-                        <div key={idx} className={styles.optionRow}>
-                            <div style={{ flex: 1 }}>
-                                <Input
-                                    name={`option_${idx}`}
-                                    type="text"
-                                    value={option}
-                                    onChange={(e: any) => handleOptionChange(idx, e.target.value)}
-                                    placeholder="Ingresa una opción..."
-                                    className={styles.optionInput}
-                                />
-                            </div>
-                            {formState.options.length > 2 && (
-                                <button className={styles.removeBtn} onClick={() => removeOption(idx)}>
-                                    <IconTrash size={16} />
-                                </button>
-                            )}
-                        </div>
-                    ))}
-                    {errors.options && <p className={styles.errorText}>{errors.options}</p>}
-                    <button className={styles.addBtn} onClick={addOption}>
-                        <IconAdd size={16} /> Añadir opción
-                    </button>
-                </div>
+              <label className={styles.label}>
+                ¿Qué opciones podrán elegir?
+              </label>
+              <p className={styles.subtext}>
+                Agrega las opciones que los participantes podrán seleccionar.
+              </p>
+              <div className={styles.optionInputs}>
+                {formState.options.map((option, idx) => (
+                  <div key={idx} className={styles.optionRow}>
+                    <div style={{ flex: 1 }}>
+                      <Input
+                        name={`option_${idx}`}
+                        type="text"
+                        value={option}
+                        onChange={(e: any) =>
+                          handleOptionChange(idx, e.target.value)
+                        }
+                        placeholder="Ingresa una opción..."
+                        className={styles.optionInput}
+                      />
+                    </div>
+                    {formState.options.length > 2 && (
+                      <button
+                        className={styles.removeBtn}
+                        onClick={() => removeOption(idx)}
+                      >
+                        <IconTrash size={16} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {errors.options && (
+                  <p className={styles.errorText}>{errors.options}</p>
+                )}
+                <button className={styles.addBtn} onClick={addOption}>
+                  <IconAdd size={16} /> Añadir opción
+                </button>
+              </div>
             </div>
 
             <div className={styles.footer}>
-                <Button variant="secondary" onClick={() => setLevel(1)} style={{ flex: 1 }}>
-                    Anterior
-                </Button>
-                <Button variant="primary" onClick={handleSave} disabled={isSaving} style={{ flex: 1 }}>
-                    {isSaving ? "Guardando..." : (action === "edit" ? "Actualizar pregunta" : "Crear pregunta")}
-                </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setLevel(1)}
+                style={{ flex: 1 }}
+              >
+                Anterior
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSave}
+                disabled={isSaving}
+                style={{ flex: 1 }}
+              >
+                {isSaving
+                  ? "Guardando..."
+                  : action === "edit"
+                    ? "Actualizar pregunta"
+                    : "Crear pregunta"}
+              </Button>
             </div>
           </div>
         )}
