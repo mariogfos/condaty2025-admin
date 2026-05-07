@@ -8,6 +8,7 @@ import styles from "./RenderView.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatBs } from "@/mk/utils/numbers";
+import { parseExpenseDescription } from "../utils/expenseDescription";
 interface Category {
   id: number | string;
   name: string;
@@ -119,6 +120,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   const { categoryName, subCategoryName } = item
     ? getCategoryNames()
     : { categoryName: "", subCategoryName: "" };
+  const parsedDescription = parseExpenseDescription(item?.description);
 
   const getStatusStyle = (status: string) => {
     if (status === "A") return styles.statusPaid;
@@ -183,7 +185,6 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
       </DataModal>
     );
   }
-  console.log(item);
   return (
     <DataModal
       open={open}
@@ -248,14 +249,18 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
           <div className={styles.detailsColumn}>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Concepto</span>
-              <span className={styles.infoValue}>
-                {((item.description || "-/-").match(/.{1,20}/g) || []).map(
-                  (line, idx) => (
-                    <span key={idx}>{line}</span>
-                  ),
-                )}
+              <span className={`${styles.infoValue} ${styles.multilineValue}`}>
+                {parsedDescription.concept}
               </span>
             </div>
+            {parsedDescription.reference && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Referencia</span>
+                <span className={`${styles.infoValue} ${styles.multilineValue}`}>
+                  {parsedDescription.reference}
+                </span>
+              </div>
+            )}
             {item.type && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Método de Pago</span>
@@ -278,6 +283,38 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
           </div>
           {/* Columna Derecha */}
           <div className={styles.detailsColumn}>
+            {parsedDescription.holderName && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Titular de devolución</span>
+                <span className={`${styles.infoValue} ${styles.multilineValue}`}>
+                  {parsedDescription.holderName}
+                </span>
+              </div>
+            )}
+            {parsedDescription.accountNumber && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Cuenta destino</span>
+                <span className={`${styles.infoValue} ${styles.multilineValue}`}>
+                  {parsedDescription.accountNumber}
+                </span>
+              </div>
+            )}
+            {parsedDescription.bankName && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Banco destino</span>
+                <span className={`${styles.infoValue} ${styles.multilineValue}`}>
+                  {parsedDescription.bankName}
+                </span>
+              </div>
+            )}
+            {parsedDescription.documentId && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>CI titular</span>
+                <span className={`${styles.infoValue} ${styles.multilineValue}`}>
+                  {parsedDescription.documentId}
+                </span>
+              </div>
+            )}
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Estado</span>
               <span

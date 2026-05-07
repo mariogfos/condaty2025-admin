@@ -1682,25 +1682,30 @@ const useCrud = ({
             {runtime.openView && (
               <>
                 {runtime.mod.renderView ? (
-                  runtime.mod.renderView({
-                    open: runtime.openView,
-                    onClose: runtime.onCloseView,
-                    item: runtime.formState,
-                    onConfirm: runtime.onSave,
-                    extraData: runtime.extraData,
-                    execute: runtime.execute,
-                    onEdit: runtime.onEdit,
-                    onAdd: runtime.onAdd,
-                    openList: runtime.openList,
-                    setOpenList: runtime.setOpenList,
-                    reLoad: runtime.reLoad,
-                    showToast: runtime.showToast,
-                    setItem: runtime.setFormState,
-                    onDel: (itemToDelete: any) => {
-                      runtime.onCloseView();
-                      runtime.onDel(itemToDelete || runtime.formState);
-                    },
-                  })
+                  (() => {
+                    const CustomRenderView = runtime.mod.renderView;
+                    return (
+                      <CustomRenderView
+                        open={runtime.openView}
+                        onClose={runtime.onCloseView}
+                        item={runtime.formState}
+                        onConfirm={runtime.onSave}
+                        extraData={runtime.extraData}
+                        execute={runtime.execute}
+                        onEdit={runtime.onEdit}
+                        onAdd={runtime.onAdd}
+                        openList={runtime.openList}
+                        setOpenList={runtime.setOpenList}
+                        reLoad={runtime.reLoad}
+                        showToast={runtime.showToast}
+                        setItem={runtime.setFormState}
+                        onDel={(itemToDelete: any) => {
+                          runtime.onCloseView();
+                          runtime.onDel(itemToDelete || runtime.formState);
+                        }}
+                      />
+                    );
+                  })()
                 ) : (
                   <CurrentDetail
                     open={runtime.openView}
@@ -1714,29 +1719,34 @@ const useCrud = ({
             {runtime.open && (
               <>
                 {runtime.mod.renderForm ? (
-                  runtime.mod.renderForm({
-                    open: runtime.open,
-                    openView: runtime.openView,
-                    onClose: runtime.onCloseCrud,
-                    item: runtime.formState,
-                    setItem: runtime.setFormState,
-                    onSave: runtime.onSave,
-                    extraData: runtime.extraData,
-                    execute: runtime.execute,
-                    errors: runtime.errors,
-                    setErrors: runtime.setErrors,
-                    reLoad: runtime.reLoad,
-                    user: runtime.user,
-                    onEdit: runtime.onEdit,
-                    onDel: runtime.onDel,
-                    onAdd: runtime.onAdd,
-                    onView: runtime.onView,
-                    action: runtime.action,
-                    openList: runtime.openList,
-                    setOpenList: runtime.setOpenList,
-                    showToast: runtime.showToast,
-                    getItemApi: runtime.getItemApi,
-                  })
+                  (() => {
+                    const CustomRenderForm = runtime.mod.renderForm;
+                    return (
+                      <CustomRenderForm
+                        open={runtime.open}
+                        openView={runtime.openView}
+                        onClose={runtime.onCloseCrud}
+                        item={runtime.formState}
+                        setItem={runtime.setFormState}
+                        onSave={runtime.onSave}
+                        extraData={runtime.extraData}
+                        execute={runtime.execute}
+                        errors={runtime.errors}
+                        setErrors={runtime.setErrors}
+                        reLoad={runtime.reLoad}
+                        user={runtime.user}
+                        onEdit={runtime.onEdit}
+                        onDel={runtime.onDel}
+                        onAdd={runtime.onAdd}
+                        onView={runtime.onView}
+                        action={runtime.action}
+                        openList={runtime.openList}
+                        setOpenList={runtime.setOpenList}
+                        showToast={runtime.showToast}
+                        getItemApi={runtime.getItemApi}
+                      />
+                    );
+                  })()
                 ) : (
                   <CurrentForm
                     open={runtime.open}
@@ -1766,24 +1776,29 @@ const useCrud = ({
             {runtime.openDel && (
               <>
                 {runtime.mod.renderDel ? (
-                  runtime.mod.renderDel({
-                    open: runtime.openDel,
-                    onClose: runtime.onCloseDel,
-                    item: runtime.formState,
-                    setItem: runtime.setFormState,
-                    onSave: runtime.onSave,
-                    extraData: runtime.extraData,
-                    execute: runtime.execute,
-                    errors: runtime.errors,
-                    setErrors: runtime.setErrors,
-                    reLoad: runtime.reLoad,
-                    user: runtime.user,
-                    onEdit: runtime.onEdit,
-                    onDel: runtime.onDel,
-                    onAdd: runtime.onAdd,
-                    openList: runtime.openList,
-                    setOpenList: runtime.setOpenList,
-                  })
+                  (() => {
+                    const CustomRenderDel = runtime.mod.renderDel;
+                    return (
+                      <CustomRenderDel
+                        open={runtime.openDel}
+                        onClose={runtime.onCloseDel}
+                        item={runtime.formState}
+                        setItem={runtime.setFormState}
+                        onSave={runtime.onSave}
+                        extraData={runtime.extraData}
+                        execute={runtime.execute}
+                        errors={runtime.errors}
+                        setErrors={runtime.setErrors}
+                        reLoad={runtime.reLoad}
+                        user={runtime.user}
+                        onEdit={runtime.onEdit}
+                        onDel={runtime.onDel}
+                        onAdd={runtime.onAdd}
+                        openList={runtime.openList}
+                        setOpenList={runtime.setOpenList}
+                      />
+                    );
+                  })()
                 ) : (
                   <CurrentFormDelete
                     open={runtime.openDel}

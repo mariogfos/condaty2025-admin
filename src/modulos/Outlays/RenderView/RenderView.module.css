@@ -83,6 +83,9 @@
   word-break: break-word;
   overflow-wrap: break-word;
 }
+.multilineValue {
+  line-height: 1.4;
+}
 .infoValue span {
   display: block;
 }

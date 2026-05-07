@@ -12,7 +12,11 @@ interface MainMenuHeaderProps {
 const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
   const client = user?.clients?.find((c: any) => c.id == user?.client_id);
   return (
-    <div className={styles.menuHeader}>
+    <div
+      className={`${styles.menuHeader} ${
+        collapsed ? styles.menuHeaderCollapsed : ""
+      }`}
+    >
       {!collapsed && (
         <>
           <div
@@ -32,7 +36,7 @@ const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
         </>
       )}
       {collapsed && (
-        <div>
+        <div className={styles.collapsedAvatarWrap}>
           <Avatar
             src={client?.url_banner?.[0]}
             name={getFullName(user)}

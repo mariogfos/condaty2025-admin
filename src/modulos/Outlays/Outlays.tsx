@@ -13,10 +13,10 @@ import RenderView from "./RenderView/RenderView";
 import RenderDel from "./RenderDel/RenderDel";
 
 import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
-import { getFullName } from "@/mk/utils/string";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import PerformBudget from "./PerformBudget/PerformBudget";
+import { getExpenseDescriptionSummary } from "./utils/expenseDescription";
 
 const Outlays = () => {
   const router = useRouter();
@@ -123,7 +123,9 @@ const Outlays = () => {
         api: "ae",
         label: "Fecha de pago",
         form: { type: "date" },
+        order: 1,
         list: {
+          order: 1,
           onRender: (props: any) => {
             return getDateStrMes(props.item.date_at);
           },
@@ -148,9 +150,33 @@ const Outlays = () => {
       user: {
         api: "",
         label: "Responsable",
+      },
+      description: {
+        rules: ["required"],
+        api: "ae",
+        label: "Concepto",
+        order: 2,
+        form: { type: "text" },
         list: {
+          order: 2,
+          width: 280,
           onRender: (props: any) => {
-            return getFullName(props.item.user);
+            const description = getExpenseDescriptionSummary(
+              props.item.description,
+            );
+
+            return (
+              <div
+                title={props.item.description || description}
+                style={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {description}
+              </div>
+            );
           },
         },
       },
@@ -158,6 +184,7 @@ const Outlays = () => {
         rules: ["required"],
         api: "ae",
         label: "Categoría",
+        order: 3,
         form: {
           type: "select",
           options: (items: any) => {
@@ -189,6 +216,7 @@ const Outlays = () => {
           },
         },
         list: {
+          order: 3,
           onRender: (props: any) => {
             const category = props.item.category;
             if (!category) {
@@ -207,12 +235,14 @@ const Outlays = () => {
         rules: ["required"],
         api: "ae",
         label: "Subcategoría",
+        order: 4,
         form: {
           type: "select",
           disabled: (formState: { category_id: any }) => !formState.category_id,
           options: () => [],
         },
         list: {
+          order: 4,
           onRender: (props: any) => {
             const category = props.item.category;
             if (!category) {
@@ -226,12 +256,6 @@ const Outlays = () => {
           },
         },
       },
-      description: {
-        rules: ["required"],
-        api: "ae",
-        label: "Concepto",
-        form: { type: "text" },
-      },
       type: {
         rules: ["required"],
         api: "ae",
@@ -240,6 +264,7 @@ const Outlays = () => {
       status: {
         rules: [""],
         api: "ae",
+        order: 5,
         label: (
           <span
             style={{ display: "block", textAlign: "center", width: "100%" }}
@@ -249,6 +274,7 @@ const Outlays = () => {
           </span>
         ),
         list: {
+          order: 5,
           onRender: (props: any) => {
             interface StatusConfig {
               [key: string]: {
@@ -309,6 +335,7 @@ const Outlays = () => {
       amount: {
         rules: ["required"],
         api: "ae",
+        order: 6,
         label: (
           <span
             style={{ display: "block", textAlign: "right", width: "100%" }}
@@ -319,6 +346,7 @@ const Outlays = () => {
         ),
         form: { type: "number" },
         list: {
+          order: 6,
           onRender: (props: any) => (
             <div style={{ width: "100%", textAlign: "right" }}>
               {"Bs " + formatNumber(props.item.amount)}
