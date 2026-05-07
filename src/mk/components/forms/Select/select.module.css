@@ -87,6 +87,26 @@
   gap: 8px;
 }
 
+.groupOption {
+  cursor: default;
+  padding-top: 14px;
+  padding-bottom: 6px;
+  color: rgba(255, 255, 255, 0.48);
+  background: transparent;
+}
+
+.groupOption:hover {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.48);
+}
+
+.groupLabelText {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 /*
 .select {
   position: relative;

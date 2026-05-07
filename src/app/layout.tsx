@@ -1,7 +1,6 @@
 // import { Geist, Geist_Mono } from "next/font/google";
 import "../styles/theme.css";
 import "../styles/utils.css";
-import "@dayflow/core/dist/styles.css";
 import AxiosInstanceProvider from "@/mk/contexts/AxiosInstanceProvider";
 import axiosInterceptors from "@/mk/interceptors/axiosInterceptors";
 import AuthProvider from "@/mk/contexts/AuthProvider";

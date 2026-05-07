@@ -37,6 +37,7 @@ const MainMenu = ({
     const pathMap: Record<string, string> = {
       "/payments": "paymentsBage",
       "/reservas": "reservasBage",
+      "/calendar": "reservasBage",
       "/alerts": "alertsBage",
       "/reels": "reelsBage",
     };

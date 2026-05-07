@@ -7,6 +7,7 @@ import {
   memo,
   useCallback,
   useRef,
+  useMemo,
 } from "react";
 import useAxios from "../useAxios";
 import { capitalize, getUrlImages } from "../../utils/string";
@@ -1427,318 +1428,380 @@ const useCrud = ({
     setSortCol({ col, asc: nAsc });
     setParams({ ...params, sortBy: col, orderBy: nAsc ? "asc" : "desc" });
   };
-  const List = memo((props: any) => {
-    const getHeader = () => {
-      const head: Object[] = [];
-      const lFilter: Object[] = [];
+  const listRuntimeRef = useRef<any>(null);
+  listRuntimeRef.current = {
+    data,
+    searchs,
+    params,
+    mod,
+    fields,
+    extraData,
+    store,
+    openList,
+    openView,
+    open,
+    openImport,
+    openDel,
+    formState,
+    errors,
+    user,
+    action,
+    sortCol,
+    extraButtons,
+    execute,
+    showToast,
+    reLoad,
+    setFormState,
+    setErrors,
+    setOpenImport,
+    setOpenList,
+    setParams,
+    onView,
+    onEdit,
+    onDel,
+    onAdd,
+    onSave,
+    onCloseView,
+    onCloseCrud,
+    onCloseDel,
+    onChangePage,
+    onSort,
+    onButtonActions,
+    renderField: _onRender,
+    getItemApi,
+    AddMenu,
+    Detail,
+    Form,
+    FormDelete,
+  };
 
-      for (const key in fields) {
-        const field = fields[key];
-        if (field.filter) {
-          const colF: any = {
-            key,
-            label: field.filter?.label ?? field.list?.label ?? field.label,
-            width: field.filter?.width ?? field.list?.width ?? "auto",
-            order:
-              field.filter?.order ?? field?.list?.order ?? field?.order ?? 1000,
-            options: field.filter?.extraData
-              ? extraData[field.filter?.extraData]
-              : (field.filter?.options(extraData) ?? field.form.options ?? []),
-            optionLabel: field?.filter?.optionLabel,
-            optionValue: field?.filter?.optionValue,
-          };
-          lFilter.push(colF);
+  const listComponentRef = useRef<any>(null);
+  if (!listComponentRef.current) {
+    listComponentRef.current = function UseCrudList(props: any) {
+      const runtime = listRuntimeRef.current;
+      const CurrentAddMenu = runtime.AddMenu;
+      const CurrentDetail = runtime.Detail;
+      const CurrentForm = runtime.Form;
+      const CurrentFormDelete = runtime.FormDelete;
+
+      const { header, filters }: { header: any[]; filters: any[] } = useMemo(
+        () => {
+          const head: any[] = [];
+          const lFilter: any[] = [];
+
+          for (const key in runtime.fields) {
+            const field = runtime.fields[key];
+            if (field.filter) {
+              const colF: any = {
+                key,
+                label: field.filter?.label ?? field.list?.label ?? field.label,
+                width: field.filter?.width ?? field.list?.width ?? "auto",
+                order:
+                  field.filter?.order ??
+                  field?.list?.order ??
+                  field?.order ??
+                  1000,
+                options: field.filter?.extraData
+                  ? runtime.extraData[field.filter?.extraData]
+                  : (field.filter?.options(runtime.extraData) ??
+                    field.form.options ??
+                    []),
+                optionLabel: field?.filter?.optionLabel,
+                optionValue: field?.filter?.optionValue,
+              };
+              lFilter.push(colF);
+            }
+            if (!field.list) continue;
+            const col: any = {
+              key,
+              responsive: "",
+              label: field.list.label ?? field.label,
+              className: field.list.className ?? "",
+              width: field.list?.width,
+              onRender: runtime.renderField(field, true),
+              order: field.list.order ?? field.order ?? 1000,
+              style: field.list.style ?? field.style ?? {},
+              sumarize: field.list.sumarize ?? field.sumarize ?? false,
+              sortabled: field.list.sortabled ?? field.sortabled ?? false,
+            };
+            head.push(col);
+          }
+
+          head.sort((a: any, b: any) => a.order - b.order);
           lFilter.sort((a: any, b: any) => a.order - b.order);
+
+          return { header: head, filters: lFilter };
+        },
+        [runtime.fields, runtime.extraData, runtime.renderField],
+      );
+
+      const filteredData = useMemo(() => {
+        if (
+          runtime.data?.data &&
+          runtime.mod.onSearch &&
+          runtime.searchs.searchBy
+        ) {
+          return runtime.mod.onSearch(runtime.data.data, runtime.searchs);
         }
-        if (!field.list) continue;
-        const col: any = {
-          key,
-          responsive: "",
-          label: field.list.label ?? field.label,
-          className: field.list.className ?? "",
-          width: field.list?.width,
-          onRender: _onRender(field, true),
-          order: field.list.order ?? field.order ?? 1000,
-          style: field.list.style ?? field.style ?? {},
-          sumarize: field.list.sumarize ?? field.sumarize ?? false,
-          sortabled: field.list.sortabled ?? field.sortabled ?? false,
-        };
-        head.push(col);
-      }
-      head.sort((a: any, b: any) => a.order - b.order);
-      setLfilter(lFilter);
-      return head;
-    };
+        return runtime.data?.data;
+      }, [runtime.data, runtime.mod, runtime.searchs]);
 
-    const [header, setHeader]: any = useState([]);
-    const [lFilter, setLfilter]: any = useState([]);
-    const [_data, set_data]: any = useState(data?.data);
-    useEffect(() => {
-      setHeader(getHeader());
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fields]);
-
-    useEffect(() => {
-      if (data?.data && mod.onSearch && searchs.searchBy) {
-        const d = mod.onSearch(data.data, searchs);
-        set_data(d);
-      } else {
-        set_data(data?.data);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchs, data]);
-
-    let emptyContent;
-    if (props.onRenderEmpty) {
-      emptyContent = props.onRenderEmpty();
-    } else if (
-      (params?.filterBy && params?.filterBy.length > 0) ||
-      (searchs && searchs.searchBy)
-    ) {
-      emptyContent = (
-        <EmptyData
-          h={props?.height ?? undefined}
-          icon={<IconEmptySearch size={60} />}
-          message="No se encontraron coincidencias. Ajusta tus filtros o"
-          line2="prueba con una búsqueda diferente"
-        />
-      );
-    } else {
-      emptyContent = (
-        <EmptyData
-          h={props?.height ?? undefined}
-          message={props.emptyMsg ?? undefined}
-          line2={props.emptyLine2 ?? undefined}
-          icon={props.emptyIcon ?? undefined}
-          size={props.emptyIconSize ?? undefined}
-        />
-      );
-    }
-
-    return (
-      <div className={styles.useCrud}>
-        {(props.title || store?.title) && openList && !props.hideTitle && (
-          <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>
-            {props.title ?? store?.title}
-          </p>
-        )}
-        {openList && (
-          <AddMenu
-            filters={lFilter}
-            extraButtons={extraButtons}
-            data={_data}
-            breakPoint={props.filterBreakPoint}
+      let emptyContent;
+      if (props.onRenderEmpty) {
+        emptyContent = props.onRenderEmpty();
+      } else if (
+        (runtime.params?.filterBy && runtime.params?.filterBy.length > 0) ||
+        (runtime.searchs && runtime.searchs.searchBy)
+      ) {
+        emptyContent = (
+          <EmptyData
+            h={props?.height ?? undefined}
+            icon={<IconEmptySearch size={60} />}
+            message="No se encontraron coincidencias. Ajusta tus filtros o"
+            line2="prueba con una búsqueda diferente"
           />
-        )}
-        <LoadingScreen type="TableSkeleton" loaded={data !== null}>
-          {openList && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                gap: "var(--spM)",
-              }}
-            >
-              <section
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  flexGrow: 1,
-                }}
-              >
-                {_data?.length > 0 ? (
-                  <Table
-                    data={_data}
-                    onRowClick={
-                      props.onRowClick
-                        ? props.onRowClick
-                        : mod.hideActions?.view
-                          ? () => {}
-                          : onView
-                    }
-                    header={header}
-                    onTabletRow={props.onTabletRow}
-                    onRenderBody={props.onRenderBody}
-                    onRenderFoot={props.onRenderFoot}
-                    onRenderHead={props.onRenderHead}
-                    onRenderCard={props.onRenderCard}
-                    onButtonActions={
-                      mod.hideActions?.edit && mod.hideActions?.del
-                        ? undefined
-                        : onButtonActions
-                    }
-                    height={props?.height || undefined}
-                    className="striped"
-                    actionsWidth={"120px"}
-                    sumarize={props.sumarize}
-                    extraData={extraData}
-                    onSort={onSort}
-                    sortCol={sortCol}
-                    // scrollTo={scrollTo}
-                    id={mod?.modulo}
-                  />
-                ) : data === null ? null : (
-                  <section
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      minHeight: props?.height || "280px",
-                    }}
-                  >
-                    {emptyContent}
-                  </section>
-                )}
-                {props?.paginationHide ? null : (
-                  <div>
-                    <Pagination
-                      currentPage={params.page}
-                      onPageChange={onChangePage}
-                      setParams={setParams}
-                      params={params}
-                      totalPages={Math.ceil(
-                        (mod.onSearch
-                          ? _data.length
-                          : (data?.message?.total ?? 1)) /
-                          (params.perPage ?? 1),
-                      )}
-                      previousLabel=""
-                      nextLabel=""
-                      total={
-                        mod.onSearch
-                          ? _data.length
-                          : (data?.message?.total ?? 0)
-                      }
-                    />
-                  </div>
-                )}
-              </section>
-              {props.renderRight ? props.renderRight() : null}
-            </div>
-          )}
-          {openView && (
-            <>
-              {mod.renderView ? (
-                mod.renderView({
-                  open: openView,
-                  onClose: onCloseView,
-                  item: formState,
-                  onConfirm: onSave,
-                  extraData,
-                  execute,
-                  onEdit,
-                  onAdd,
-                  openList,
-                  setOpenList,
-                  reLoad: reLoad,
-                  showToast: showToast,
-                  setItem: setFormState,
-                  onDel: (itemToDelete: any) => {
-                    // Envolvemos para asegurar que se pasa el item correcto
-                    onCloseView(); // Opcional: cerrar la vista actual antes de abrir el confirmador de borrado
-                    onDel(itemToDelete || formState); // Llama al onDel del hook
-                  },
-                })
-              ) : (
-                <Detail
-                  open={openView}
-                  onClose={onCloseView}
-                  item={formState}
-                  onConfirm={onSave}
-                />
-              )}
-            </>
-          )}
-          {open && (
-            <>
-              {mod.renderForm ? (
-                mod.renderForm({
-                  open: open,
-                  openView: openView,
-                  onClose: onCloseCrud,
-                  item: formState,
-                  setItem: setFormState,
-                  onSave: onSave,
-                  extraData,
-                  execute,
-                  errors,
-                  setErrors,
-                  reLoad,
-                  user,
-                  onEdit,
-                  onDel,
-                  onAdd,
-                  onView,
-                  action,
-                  openList,
-                  setOpenList,
-                  showToast: showToast,
-                  getItemApi,
-                })
-              ) : (
-                <Form
-                  open={open}
-                  onClose={onCloseCrud}
-                  item={formState}
-                  onConfirm={onSave}
-                />
-              )}
-            </>
-          )}
-          {openImport && (
-            <ImportDataModal
-              open={openImport}
-              onClose={() => {
-                if (mod.onCloseImport) mod.onCloseImport();
-                setOpenImport(false);
-              }}
-              mod={mod}
-              showToast={showToast}
-              reLoad={reLoad}
-              execute={execute}
-              //getExtraData={getExtraData}
-              extraData={extraData}
-              requiredCols={mod.importRequiredCols || null}
-              client_id={store?.client?.id}
+        );
+      } else {
+        emptyContent = (
+          <EmptyData
+            h={props?.height ?? undefined}
+            message={props.emptyMsg ?? undefined}
+            line2={props.emptyLine2 ?? undefined}
+            icon={props.emptyIcon ?? undefined}
+            size={props.emptyIconSize ?? undefined}
+          />
+        );
+      }
+
+      return (
+        <div className={styles.useCrud}>
+          {(props.title || runtime.store?.title) &&
+            runtime.openList &&
+            !props.hideTitle && (
+              <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>
+                {props.title ?? runtime.store?.title}
+              </p>
+            )}
+          {runtime.openList && (
+            <CurrentAddMenu
+              filters={filters}
+              extraButtons={runtime.extraButtons}
+              data={filteredData}
+              breakPoint={props.filterBreakPoint}
             />
           )}
-          {openDel && (
-            <>
-              {mod.renderDel ? (
-                mod.renderDel({
-                  open: openDel,
-                  onClose: onCloseDel,
-                  item: formState,
-                  setItem: setFormState,
-                  onSave: onSave,
-                  extraData,
-                  execute,
-                  errors,
-                  setErrors,
-                  reLoad,
-                  user,
-                  onEdit,
-                  onDel,
-                  onAdd,
-                  openList,
-                  setOpenList,
-                })
-              ) : (
-                <FormDelete
-                  open={openDel}
-                  onClose={onCloseDel}
-                  item={formState}
-                  onConfirm={onSave}
-                  message={mod.messageDel}
-                />
-              )}
-            </>
-          )}
-        </LoadingScreen>
-      </div>
-    );
-  });
-  List.displayName = "List";
+          <LoadingScreen
+            type="TableSkeleton"
+            loaded={runtime.data !== null}
+          >
+            {runtime.openList && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: "var(--spM)",
+                }}
+              >
+                <section
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    flexGrow: 1,
+                  }}
+                >
+                  {filteredData?.length > 0 ? (
+                    <Table
+                      data={filteredData}
+                      onRowClick={
+                        props.onRowClick
+                          ? props.onRowClick
+                          : runtime.mod.hideActions?.view
+                            ? () => {}
+                            : runtime.onView
+                      }
+                      header={header}
+                      onTabletRow={props.onTabletRow}
+                      onRenderBody={props.onRenderBody}
+                      onRenderFoot={props.onRenderFoot}
+                      onRenderHead={props.onRenderHead}
+                      onRenderCard={props.onRenderCard}
+                      onButtonActions={
+                        runtime.mod.hideActions?.edit &&
+                        runtime.mod.hideActions?.del
+                          ? undefined
+                          : runtime.onButtonActions
+                      }
+                      height={props?.height || undefined}
+                      className="striped"
+                      actionsWidth={"120px"}
+                      sumarize={props.sumarize}
+                      extraData={runtime.extraData}
+                      onSort={runtime.onSort}
+                      sortCol={runtime.sortCol}
+                      id={runtime.mod?.modulo}
+                    />
+                  ) : runtime.data === null ? null : (
+                    <section
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        flexGrow: 1,
+                        minHeight: props?.height || "280px",
+                      }}
+                    >
+                      {emptyContent}
+                    </section>
+                  )}
+                  {props?.paginationHide ? null : (
+                    <div>
+                      <Pagination
+                        currentPage={runtime.params.page}
+                        onPageChange={runtime.onChangePage}
+                        setParams={runtime.setParams}
+                        params={runtime.params}
+                        totalPages={Math.ceil(
+                          (runtime.mod.onSearch
+                            ? (filteredData?.length ?? 0)
+                            : (runtime.data?.message?.total ?? 1)) /
+                            (runtime.params.perPage ?? 1),
+                        )}
+                        previousLabel=""
+                        nextLabel=""
+                        total={
+                          runtime.mod.onSearch
+                            ? (filteredData?.length ?? 0)
+                            : (runtime.data?.message?.total ?? 0)
+                        }
+                      />
+                    </div>
+                  )}
+                </section>
+                {props.renderRight ? props.renderRight() : null}
+              </div>
+            )}
+            {runtime.openView && (
+              <>
+                {runtime.mod.renderView ? (
+                  runtime.mod.renderView({
+                    open: runtime.openView,
+                    onClose: runtime.onCloseView,
+                    item: runtime.formState,
+                    onConfirm: runtime.onSave,
+                    extraData: runtime.extraData,
+                    execute: runtime.execute,
+                    onEdit: runtime.onEdit,
+                    onAdd: runtime.onAdd,
+                    openList: runtime.openList,
+                    setOpenList: runtime.setOpenList,
+                    reLoad: runtime.reLoad,
+                    showToast: runtime.showToast,
+                    setItem: runtime.setFormState,
+                    onDel: (itemToDelete: any) => {
+                      runtime.onCloseView();
+                      runtime.onDel(itemToDelete || runtime.formState);
+                    },
+                  })
+                ) : (
+                  <CurrentDetail
+                    open={runtime.openView}
+                    onClose={runtime.onCloseView}
+                    item={runtime.formState}
+                    onConfirm={runtime.onSave}
+                  />
+                )}
+              </>
+            )}
+            {runtime.open && (
+              <>
+                {runtime.mod.renderForm ? (
+                  runtime.mod.renderForm({
+                    open: runtime.open,
+                    openView: runtime.openView,
+                    onClose: runtime.onCloseCrud,
+                    item: runtime.formState,
+                    setItem: runtime.setFormState,
+                    onSave: runtime.onSave,
+                    extraData: runtime.extraData,
+                    execute: runtime.execute,
+                    errors: runtime.errors,
+                    setErrors: runtime.setErrors,
+                    reLoad: runtime.reLoad,
+                    user: runtime.user,
+                    onEdit: runtime.onEdit,
+                    onDel: runtime.onDel,
+                    onAdd: runtime.onAdd,
+                    onView: runtime.onView,
+                    action: runtime.action,
+                    openList: runtime.openList,
+                    setOpenList: runtime.setOpenList,
+                    showToast: runtime.showToast,
+                    getItemApi: runtime.getItemApi,
+                  })
+                ) : (
+                  <CurrentForm
+                    open={runtime.open}
+                    onClose={runtime.onCloseCrud}
+                    item={runtime.formState}
+                    onConfirm={runtime.onSave}
+                  />
+                )}
+              </>
+            )}
+            {runtime.openImport && (
+              <ImportDataModal
+                open={runtime.openImport}
+                onClose={() => {
+                  if (runtime.mod.onCloseImport) runtime.mod.onCloseImport();
+                  runtime.setOpenImport(false);
+                }}
+                mod={runtime.mod}
+                showToast={runtime.showToast}
+                reLoad={runtime.reLoad}
+                execute={runtime.execute}
+                extraData={runtime.extraData}
+                requiredCols={runtime.mod.importRequiredCols || null}
+                client_id={runtime.store?.client?.id}
+              />
+            )}
+            {runtime.openDel && (
+              <>
+                {runtime.mod.renderDel ? (
+                  runtime.mod.renderDel({
+                    open: runtime.openDel,
+                    onClose: runtime.onCloseDel,
+                    item: runtime.formState,
+                    setItem: runtime.setFormState,
+                    onSave: runtime.onSave,
+                    extraData: runtime.extraData,
+                    execute: runtime.execute,
+                    errors: runtime.errors,
+                    setErrors: runtime.setErrors,
+                    reLoad: runtime.reLoad,
+                    user: runtime.user,
+                    onEdit: runtime.onEdit,
+                    onDel: runtime.onDel,
+                    onAdd: runtime.onAdd,
+                    openList: runtime.openList,
+                    setOpenList: runtime.setOpenList,
+                  })
+                ) : (
+                  <CurrentFormDelete
+                    open={runtime.openDel}
+                    onClose={runtime.onCloseDel}
+                    item={runtime.formState}
+                    onConfirm={runtime.onSave}
+                    message={runtime.mod.messageDel}
+                  />
+                )}
+              </>
+            )}
+          </LoadingScreen>
+        </div>
+      );
+    };
+    listComponentRef.current.displayName = "List";
+  }
+  const List = listComponentRef.current;
   return {
     user,
     showToast,

@@ -161,6 +161,11 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "reservations",
         badgeKey: "reservasBage",
       },
+      {
+        href: "/calendar",
+        perm: "reservations",
+        labelKey: "calendar",
+      },
     ],
   },
   {
