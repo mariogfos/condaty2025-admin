@@ -2,6 +2,7 @@
 import React from "react";
 import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
+import { getPeriodOptions } from "@/mk/utils/periodFilterOptions";
 import RenderForm from "../RenderForm/RenderForm";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import styles from "../Assemblies.module.css";
@@ -74,6 +75,10 @@ export const getAssemblyConfig = (
           return found?.name || rowType || "-";
         },
       },
+      filter: {
+        label: "Tipo",
+        options: () => [{ id: "ALL", name: "Todos" }, ...TYPE_OPTIONS],
+      },
     },
     modality: {
       rules: ["required"],
@@ -87,6 +92,10 @@ export const getAssemblyConfig = (
           return found?.name || rowModality || "-";
         },
       },
+      filter: {
+        label: "Modalidad",
+        options: () => [{ id: "ALL", name: "Todos" }, ...MODALITY_OPTIONS],
+      },
     },
     start_time: {
       rules: ["required"],
@@ -99,6 +108,11 @@ export const getAssemblyConfig = (
           if (!rawDateTime) return "-";
           return formatToDayDDMMYYYYHHMM(rawDateTime, false);
         },
+      },
+      filter: {
+        key: "start_time",
+        label: "Período",
+        options: getPeriodOptions,
       },
     },
     end_time: {
