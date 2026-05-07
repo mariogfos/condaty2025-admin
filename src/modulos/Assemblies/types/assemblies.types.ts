@@ -62,6 +62,7 @@ export interface Assembly {
   acta_file?: string;
   acta_uploaded_at?: string;
   status: AssemblyStatus | string;
+  cancellation_observation?: string;
   quorum_required?: number;
   anonymous_voting?: boolean;
   target_audience?: TargetAudience;

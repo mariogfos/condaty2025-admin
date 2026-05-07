@@ -131,6 +131,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const { showToast } = useAuth();
   const { notifySegmented, notifyAll } = useInstantMsg();
 
+  const [isCancellationModalOpen, setIsCancellationModalOpen] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState("");
+
   // Accordion states
   const [showDetails, setShowDetails] = useState(true);
   const [showDocs, setShowDocs] = useState(false);
@@ -327,7 +330,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
 
   const [isFinishing, setIsFinishing] = React.useState(false);
 
-  const handleFinishAssembly = async (status: AssemblyStatus) => {
+  const handleFinishAssembly = async (
+    status: AssemblyStatus,
+    observation?: string,
+  ) => {
     if (!assembly) return;
     if (isFinished || assembly?.status == status) return;
     let statusLabel = "iniciar ahora";
@@ -335,6 +341,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     if (status === AssemblyStatus.Cancelled) statusLabel = "cancelar";
 
     if (
+      status !== AssemblyStatus.Cancelled &&
       !confirm(
         `¿Estás seguro de que deseas ${statusLabel} esta asamblea? Esta acción no se puede deshacer.`,
       )
@@ -342,6 +349,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       return;
     setIsFinishing(true);
     try {
+      const payload: any = { status: status };
+      if (status === AssemblyStatus.Cancelled && observation) {
+        payload.cancellation_observation = observation;
+      }
       // Si se cancela la asamblea, finalizar todas las votaciones activas primero
       if (status === AssemblyStatus.Cancelled && assembly.surveys) {
         const activeSurveys = assembly.surveys.filter(
@@ -359,7 +370,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       const { data } = await execute(
         `/assemblies/${assembly.id}/status`,
         "PATCH",
-        { status: status },
+        payload,
       );
       if (data?.success || (data && !data.error)) {
         statusLabel = "inicio";
@@ -425,9 +436,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                     <Button
                       variant="danger"
                       small
-                      onClick={() =>
-                        handleFinishAssembly(AssemblyStatus.Cancelled)
-                      }
+                      onClick={() => setIsCancellationModalOpen(true)}
                       disabled={isFinishing}
                     >
                       {isFinishing ? "Cancelando..." : "Cancelar"}
@@ -445,16 +454,27 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                   </>
                 )}
                 {assembly.status === AssemblyStatus.Scheduled && !isMobile && (
-                  <Button
-                    variant="primary"
-                    small
-                    onClick={() =>
-                      handleFinishAssembly(AssemblyStatus.InProgress)
-                    }
-                    disabled={isFinishing}
-                  >
-                    {isFinishing ? "Iniciando..." : "Iniciar Ahora"}
-                  </Button>
+                  <>
+                    <Button
+                      variant="danger"
+                      small
+                      onClick={() => setIsCancellationModalOpen(true)}
+                      disabled={isFinishing}
+                      style={{ marginRight: 8 }}
+                    >
+                      {isFinishing ? "Cancelando..." : "Cancelar"}
+                    </Button>
+                    <Button
+                      variant="primary"
+                      small
+                      onClick={() =>
+                        handleFinishAssembly(AssemblyStatus.InProgress)
+                      }
+                      disabled={isFinishing}
+                    >
+                      {isFinishing ? "Iniciando..." : "Iniciar Ahora"}
+                    </Button>
+                  </>
                 )}
                 <StatusBadge
                   color={statusStyle.color}
@@ -497,6 +517,41 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                 </span>
               </div>
             </div>
+
+            {assembly.status === AssemblyStatus.Cancelled &&
+              assembly.cancellation_observation && (
+                <div
+                  style={{
+                    marginTop: "16px",
+                    padding: "12px",
+                    backgroundColor: "rgba(239, 68, 68, 0.1)",
+                    border: "1px solid rgba(239, 68, 68, 0.2)",
+                    borderRadius: "8px",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "var(--cError)",
+                      marginBottom: "4px",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Motivo de cancelación
+                  </span>
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      color: "var(--cWhite)",
+                      margin: 0,
+                    }}
+                  >
+                    {assembly.cancellation_observation}
+                  </p>
+                </div>
+              )}
           </Card>
 
           {/* PARTICIPANTES - 2do card en mobile, 1ro en rightColumn en desktop */}
@@ -504,15 +559,17 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             <Card
               title="PARTICIPANTES"
               titleRight={
-                <button
-                  className={styles.actionBtn}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsRegisteringParticipant(true);
-                  }}
-                >
-                  <IconAdd size={12} /> Registrar
-                </button>
+                !isFinished && (
+                  <button
+                    className={styles.actionBtn}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsRegisteringParticipant(true);
+                    }}
+                  >
+                    <IconAdd size={12} /> Registrar
+                  </button>
+                )
               }
             >
               <AssemblyAttendanceList
@@ -532,15 +589,13 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="ORDEN DEL DÍA"
             titleRight={
-              !isMobile && (
+              !isMobile && !isFinished && canEditBasicInfo && (
                 <button
                   className={styles.editButton}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleEditDescription();
                   }}
-                  disabled={!canEditBasicInfo}
-                  style={{ opacity: canEditBasicInfo ? 1 : 0.5 }}
                 >
                   <IconEdit size={14} /> Editar
                 </button>
@@ -558,7 +613,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="VOTACIONES"
             titleRight={
-              !isMobile && (
+              !isMobile && !isFinished && (
                 <button
                   className={styles.actionBtn}
                   onClick={(e) => {
@@ -1118,15 +1173,13 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="DETALLES"
             titleRight={
-              !isMobile && (
+              !isMobile && !isFinished && canEditBasicInfo && (
                 <button
                   className={styles.actionBtn}
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsEditingFull(true);
                   }}
-                  disabled={!canEditBasicInfo}
-                  style={{ opacity: canEditBasicInfo ? 1 : 0.5 }}
                 >
                   <IconEdit size={12} /> Editar
                 </button>
@@ -1228,7 +1281,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           <Card
             title="DOCUMENTOS"
             titleRight={
-              !isMobile && (
+              !isMobile && !isFinished && (
                 <button
                   className={styles.actionBtn}
                   onClick={(e) => {
@@ -1275,7 +1328,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             title="ACTA DE LA ASAMBLEA"
             titleRight={
               !isMobile &&
-              isFinished && (
+              assembly.status === AssemblyStatus.Completed && (
                 <button
                   className={styles.actionBtn}
                   onClick={(e) => {
@@ -1296,15 +1349,17 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             <Card
               title="PARTICIPANTES"
               titleRight={
-                <button
-                  className={styles.actionBtn}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsRegisteringParticipant(true);
-                  }}
-                >
-                  <IconAdd size={12} /> Registrar
-                </button>
+                !isFinished && (
+                  <button
+                    className={styles.actionBtn}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsRegisteringParticipant(true);
+                    }}
+                  >
+                    <IconAdd size={12} /> Registrar
+                  </button>
+                )
               }
             >
               <AssemblyAttendanceList
@@ -1448,6 +1503,41 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           loadAssembly();
         }}
       />
+
+      {/* Modal de Cancelación */}
+      <DataModal
+        open={isCancellationModalOpen}
+        onClose={() => {
+          setIsCancellationModalOpen(false);
+          setCancellationReason("");
+        }}
+        title="Cancelar Asamblea"
+        onSave={() => {
+          if (!cancellationReason.trim()) {
+            showToast("Debe indicar el motivo de la cancelación", "error");
+            return;
+          }
+          handleFinishAssembly(AssemblyStatus.Cancelled, cancellationReason);
+          setIsCancellationModalOpen(false);
+        }}
+        buttonText="Confirmar Cancelación"
+        buttonVariant="danger"
+      >
+        <div style={{ padding: "20px" }}>
+          <p style={{ marginBottom: "16px", color: "var(--cWhiteV1)" }}>
+            ¿Estás seguro de que deseas cancelar esta asamblea? Esta acción
+            finalizará todas las votaciones activas y no se puede deshacer.
+          </p>
+          <TextArea
+            label="Motivo de la cancelación"
+            placeholder="Indique brevemente por qué se cancela la asamblea..."
+            value={cancellationReason}
+            onChange={(e) => setCancellationReason(e.target.value)}
+            rows={4}
+            required
+          />
+        </div>
+      </DataModal>
 
       {/* Modal para ver lista de votantes por opción */}
       {votersModal && (
