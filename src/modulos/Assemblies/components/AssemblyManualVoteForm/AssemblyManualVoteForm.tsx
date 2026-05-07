@@ -173,8 +173,19 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
                       {att.owner?.name} {att.owner?.last_name || ""}
                     </p>
                     <p className={styles.attDetail}>
-                      Unidad {att.dpto?.nro || "-"} |{" "}
-                      {ROLE_LABELS[att.role] || att.role}
+                      Unidad {att.dpto?.nro || "-"}{" "}
+                      {att.dpto?.is_arrears && (
+                        <span
+                          style={{
+                            color: "#ff4d4f",
+                            fontWeight: "bold",
+                            fontSize: "0.8em",
+                          }}
+                        >
+                          (Mora)
+                        </span>
+                      )}{" "}
+                      | {ROLE_LABELS[att.role] || att.role}
                     </p>
                   </div>
                   {selectedAttendee?.id === att.id && (

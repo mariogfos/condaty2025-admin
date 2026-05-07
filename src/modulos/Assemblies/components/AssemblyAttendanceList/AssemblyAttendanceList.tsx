@@ -150,8 +150,19 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                         : "Desconocido"}
                     </span>
                     <span className={styles.cardSub}>
-                      Unidad {attendance.dpto?.nro || "-"} | CI:{" "}
-                      {attendance.owner?.ci || "-"}
+                      Unidad {attendance.dpto?.nro || "-"}{" "}
+                      {attendance.dpto?.is_arrears && (
+                        <span
+                          style={{
+                            color: "#ff4d4f",
+                            fontWeight: "bold",
+                            fontSize: "0.8em",
+                          }}
+                        >
+                          (Mora)
+                        </span>
+                      )}{" "}
+                      | CI: {attendance.owner?.ci || "-"}
                     </span>
                   </div>
                   {!readOnly && (
@@ -204,7 +215,20 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                         ? `${attendance.owner.name} ${attendance.owner.last_name || ""}`
                         : "Desconocido"}
                     </td>
-                    <td>{attendance.dpto?.nro || "-"}</td>
+                    <td>
+                      {attendance.dpto?.nro || "-"}{" "}
+                      {attendance.dpto?.is_arrears && (
+                        <span
+                          style={{
+                            color: "#ff4d4f",
+                            fontWeight: "bold",
+                            fontSize: "0.8em",
+                          }}
+                        >
+                          (Mora)
+                        </span>
+                      )}
+                    </td>
                     <td>
                       {ROLE_LABELS[attendance.role as string] ||
                         attendance.role ||

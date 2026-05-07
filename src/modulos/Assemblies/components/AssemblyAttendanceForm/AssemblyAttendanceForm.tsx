@@ -292,8 +292,16 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
                     {res.name} {res.last_name}
                   </p>
                   <p className={styles.resDetail}>
-                    Unidad: {res.all_units || "S/N"} | CI: {res.ci || "-"} |{" "}
-                    {res.type_owner}
+                    Unidad:{" "}
+                    {res.dpto?.length > 0
+                      ? res.dpto
+                          .map(
+                            (d: any) =>
+                              `${d.nro}${d.is_arrears ? " (Mora)" : ""}`,
+                          )
+                          .join(", ")
+                      : res.all_units || "S/N"}{" "}
+                    | CI: {res.ci || "-"} | {res.type_owner}
                   </p>
                 </div>
                 {selectedResident?.id === res.id && (
@@ -323,7 +331,20 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
                       onClick={() => setSelectedDptoId(d.id)}
                     >
                       <div className={styles.dptoContent}>
-                        <span className={styles.dptoNro}>Unidad {d.nro}</span>
+                        <span className={styles.dptoNro}>
+                          Unidad {d.nro}{" "}
+                          {d.is_arrears && (
+                            <span
+                              style={{
+                                color: "#ff4d4f",
+                                fontWeight: "bold",
+                                fontSize: "0.8em",
+                              }}
+                            >
+                              (Mora)
+                            </span>
+                          )}
+                        </span>
                         <span className={styles.dptoRole}>
                           {getRoleLabel(selectedResident, d)}
                         </span>
