@@ -23,7 +23,7 @@ const useAxios = (
   url: string | null = null,
   method: MethodType = "GET",
   payload: object = {},
-  noWaiting = false
+  noWaiting = false,
 ): UseAxiosType => {
   const [data, setData] = useState<any>(null);
   const [error, setError]: any = useState("");
@@ -41,7 +41,7 @@ const useAxios = (
   const reLoad = async (
     _payload: any = null,
     noWaiting = false,
-    prevent = false
+    prevent = false,
   ) => {
     if (prevent && countAxios == 0) return;
     const pay = {
@@ -55,12 +55,18 @@ const useAxios = (
     _method: MethodType = method,
     payload: any = {},
     Act: boolean = false,
-    notWaiting = false
+    notWaiting = false,
   ) => {
     setError("");
     if (!notWaiting) {
       setLoaded(false);
       setWaiting(1, "execute:" + _url);
+    }
+    if (
+      process.env.NEXT_PUBLIC_DEBUG &&
+      Number(process.env.NEXT_PUBLIC_DEBUG) > 0
+    ) {
+      payload = { _debug: process.env.NEXT_PUBLIC_DEBUG, ...payload };
     }
     if (_method == "GET" && payload) {
       _url = _url + "?" + new URLSearchParams(payload).toString();
@@ -68,6 +74,7 @@ const useAxios = (
 
     let data = null;
     let error: null | { message: string; status: number; data: any } = null;
+
     try {
       const response = await instance?.request({
         signal: controllerRef.current.signal,
