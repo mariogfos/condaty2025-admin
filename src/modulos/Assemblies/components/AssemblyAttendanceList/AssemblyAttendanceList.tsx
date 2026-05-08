@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import styles from "./AssemblyAttendanceList.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { AssemblyAttendance, ROLE_LABELS } from "../../types/assemblies.types";
+import { AssemblyAttendance, AssemblyAttendanceUnit, ROLE_LABELS } from "../../types/assemblies.types";
 import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
 import { IconTrash } from "@/components/layout/icons/IconsBiblioteca";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
@@ -49,7 +49,25 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
         true,
       );
       if (response?.data) {
-        setAttendances(response.data || []);
+        // Group attendees by owner_id to avoid duplicates when owner has multiple units
+        const groupedAttendances = (response.data || []).reduce(
+          (acc: AssemblyAttendance[], att: AssemblyAttendance) => {
+            const existing = acc.find((a) => a.owner_id === att.owner_id);
+            if (existing) {
+              if (!existing.units) {
+                existing.units = [
+                  { dpto: existing.dpto!, role: existing.role! },
+                ];
+              }
+              existing.units.push({ dpto: att.dpto!, role: att.role! });
+            } else {
+              acc.push({ ...att, units: [{ dpto: att.dpto!, role: att.role! }] });
+            }
+            return acc;
+          },
+          [],
+        );
+        setAttendances(groupedAttendances);
       }
     } catch (error) {
       console.error("Error loading attendances:", error);
@@ -62,25 +80,28 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
     loadAttendances();
   }, [assemblyId, refreshKey]);
 
-  const handleDelete = async (attendanceId: number) => {
+  const handleDelete = async (ownerId: string, _attendanceId?: number) => {
     if (readOnly) return;
-    if (!confirm("¿Estás seguro de que deseas eliminar esta asistencia?")) {
+    if (!confirm("¿Estás seguro de que deseas eliminar todas las assistencias de este participante?")) {
       return;
     }
 
     try {
       const { data: response, error } = await deleteAttendance(
-        `/assemblies/${assemblyId}/attendances/${attendanceId}`,
+        `/assemblies/${assemblyId}/attendances`,
         "DELETE",
+        { owner_id: ownerId },
+        false,
+        true,
       );
 
       if (response?.success) {
-        showToast("Asistencia eliminada", "success");
+        showToast("Asistencias eliminadas", "success");
         loadAttendances();
         onAttendanceChange?.();
       } else {
         showToast(
-          error?.data?.message || "Error al eliminar asistencia",
+          error?.data?.message || "Error al eliminar assistencias",
           "error",
         );
       }
@@ -135,7 +156,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
           {/* {isMobile ? ( */}
           <div className={styles.cardsContainer}>
             {attendances.map((attendance) => (
-              <div key={attendance.id} className={styles.attendanceCard}>
+              <div key={attendance.owner_id} className={styles.attendanceCard}>
                 <div className={styles.cardHeader}>
                   <Avatar
                     src={attendance.owner?.url_avatar}
@@ -150,25 +171,37 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                         : "Desconocido"}
                     </span>
                     <span className={styles.cardSub}>
-                      Unidad {attendance.dpto?.nro || "-"}{" "}
-                      {attendance.dpto?.is_arrears && (
-                        <span
-                          style={{
-                            color: "#ff4d4f",
-                            fontWeight: "bold",
-                            fontSize: "0.8em",
-                          }}
-                        >
-                          (Mora)
-                        </span>
-                      )}{" "}
-                      | CI: {attendance.owner?.ci || "-"}
+                      {attendance.units && attendance.units.length > 1 ? (
+                        attendance.units.map((u: AssemblyAttendanceUnit, idx: number) => (
+                          <span key={idx}>
+                            {idx > 0 && ", "}
+                            Und. {u.dpto.nro} ({ROLE_LABELS[u.role as string] || u.role})
+                            {u.dpto.is_arrears && " [Mora]"}
+                          </span>
+                        ))
+                      ) : (
+                        <>
+                          Unidad {attendance.dpto?.nro || "-"}{" "}
+                          {attendance.dpto?.is_arrears && (
+                            <span
+                              style={{
+                                color: "#ff4d4f",
+                                fontWeight: "bold",
+                                fontSize: "0.8em",
+                              }}
+                            >
+                              (Mora)
+                            </span>
+                          )}{" "}
+                          | CI: {attendance.owner?.ci || "-"}
+                        </>
+                      )}
                     </span>
                   </div>
                   {!readOnly && (
                     <button
                       className={styles.deleteBtn}
-                      onClick={() => handleDelete(attendance.id)}
+                      onClick={() => handleDelete(attendance.owner_id, attendance.id)}
                       title="Eliminar asistencia"
                     >
                       <IconTrash size={18} />
@@ -246,7 +279,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                       <td>
                         <button
                           className={styles.deleteBtn}
-                          onClick={() => handleDelete(attendance.id)}
+onClick={() => handleDelete(attendance.owner_id, attendance.id)}
                           title="Eliminar asistencia"
                         >
                           <IconTrash size={16} />
