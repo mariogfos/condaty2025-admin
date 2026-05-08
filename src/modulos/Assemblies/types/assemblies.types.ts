@@ -85,6 +85,11 @@ export interface AssemblySurvey {
   is_mandatory?: boolean | string;
 }
 
+export interface AssemblyAttendanceUnit {
+  dpto: { id: number; nro: string; is_arrears?: boolean };
+  role: string;
+}
+
 export interface AssemblyAttendance {
   id: number;
   assembly_id: number;
@@ -106,6 +111,8 @@ export interface AssemblyAttendance {
     ci?: string;
   };
   dpto?: { id: number; nro: string; is_arrears?: boolean };
+  // Agrupación por owner_id (para cuando un owner tiene múltiples unidades)
+  units?: AssemblyAttendanceUnit[];
 }
 
 export const ROLE_LABELS: Record<string, string> = {

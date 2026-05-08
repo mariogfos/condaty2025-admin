@@ -82,6 +82,99 @@ const buildFileObjects = (urls: string[], prefix: string) => {
   }));
 };
 
+const renderTargetBadges = (survey: any) => {
+  const criteria = survey.target_criteria;
+  if (!criteria) return null;
+
+  const badges: React.ReactNode[] = [];
+
+  // const roleLabels: Record<string, string> = {
+  //   owner_homeowner: "Propietario",
+  //   owner_tenant: "Inquilino",
+  //   owner_titular: "Inquilino",
+  //   owner_dependiente: "Dependiente",
+  //   resident: "Residente",
+  //   dependent_of_homeowner: "Dep. Propietario",
+  //   dependent_of_tenant: "Dep. Inquilino",
+  //   owner_homeowner_resident: "Prop. Residente",
+  //   owner_homeowner_non_resident: "Prop. No Residente",
+  // };
+
+  // Base badge style: light gray background, black text
+  const baseBadgeStyle = {
+    backgroundColor: "#e0e0e0",
+    color: "#333",
+    padding: "2px 6px",
+    borderRadius: 4,
+    fontSize: 10,
+    fontWeight: 500,
+  };
+
+  // Roles badges
+  const roles = criteria.roles || {};
+  Object.entries(roles).forEach(([key, enabled]) => {
+    if (enabled == 1 || enabled === true) {
+      badges.push(
+        <span key={key} style={baseBadgeStyle}>
+          {[key] || key}
+        </span>,
+      );
+    }
+  });
+
+  // Additional filters
+  if (criteria.only_arrears) {
+    badges.push(
+      <span
+        key="only_arrears"
+        style={{
+          ...baseBadgeStyle,
+          backgroundColor: "#ffcdd2",
+          color: "#c62828",
+        }}
+      >
+        Solo en Mora
+      </span>,
+    );
+  }
+
+  if (criteria.only_current) {
+    badges.push(
+      <span
+        key="only_current"
+        style={{
+          ...baseBadgeStyle,
+          backgroundColor: "#c8e6c9",
+          color: "#2e7d32",
+        }}
+      >
+        Al día
+      </span>,
+    );
+  }
+
+  // if (criteria.vote_per_unit) {
+  //   badges.push(
+  //     <span
+  //       key="vote_per_unit"
+  //       style={{
+  //         ...baseBadgeStyle,
+  //         backgroundColor: "#fff9c4",
+  //         color: "#f57f17",
+  //       }}
+  //     >
+  //       1 voto x unidad
+  //     </span>,
+  //   );
+  // }
+
+  return badges.length > 0 ? (
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 4 }}>
+      {badges}
+    </div>
+  ) : null;
+};
+
 interface AssemblyDetailProps {
   id: string | number;
 }
@@ -1160,6 +1253,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 </span>
                               </div>
                             )}
+
+                          {renderTargetBadges(survey)}
                         </div>
                       );
                     })}

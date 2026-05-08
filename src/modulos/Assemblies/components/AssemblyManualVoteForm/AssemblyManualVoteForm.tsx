@@ -53,8 +53,22 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
         true,
       );
       if (response?.data) {
-        setAttendees(response.data || []);
-        setFilteredAttendees(response.data || []);
+        // Group attendees by owner_id to avoid duplicates when owner has multiple units
+        const groupedAttendees = (response.data || []).reduce((acc: any[], att: any) => {
+          const existing = acc.find(a => a.owner_id === att.owner_id);
+          if (existing) {
+            // Add this dpto to the existing owner's unit list
+            if (!existing.units) {
+              existing.units = [{ dpto: existing.dpto, role: existing.role }];
+            }
+            existing.units.push({ dpto: att.dpto, role: att.role });
+          } else {
+            acc.push({ ...att, units: [{ dpto: att.dpto, role: att.role }] });
+          }
+          return acc;
+        }, []);
+        setAttendees(groupedAttendees);
+        setFilteredAttendees(groupedAttendees);
       }
     } catch (error) {
       console.error("Error loading attendees:", error);
@@ -156,9 +170,9 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
             ) : filteredAttendees.length > 0 ? (
               filteredAttendees.map((att: any) => (
                 <div
-                  key={att.id}
+                  key={att.owner_id}
                   className={`${styles.attendeeItem} ${
-                    selectedAttendee?.id === att.id ? styles.selected : ""
+                    selectedAttendee?.owner_id === att.owner_id ? styles.selected : ""
                   }`}
                   onClick={() => setSelectedAttendee(att)}
                 >
@@ -173,22 +187,34 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
                       {att.owner?.name} {att.owner?.last_name || ""}
                     </p>
                     <p className={styles.attDetail}>
-                      Unidad {att.dpto?.nro || "-"}{" "}
-                      {att.dpto?.is_arrears && (
-                        <span
-                          style={{
-                            color: "#ff4d4f",
-                            fontWeight: "bold",
-                            fontSize: "0.8em",
-                          }}
-                        >
-                          (Mora)
-                        </span>
-                      )}{" "}
-                      | {ROLE_LABELS[att.role] || att.role}
+                      {att.units && att.units.length > 1 ? (
+                        att.units.map((u: any, idx: number) => (
+                          <span key={idx}>
+                            {idx > 0 && ", "}
+                            Und. {u.dpto.nro} ({ROLE_LABELS[u.role] || u.role})
+                            {u.dpto.is_arrears && " [Mora]"}
+                          </span>
+                        ))
+                      ) : (
+                        <>
+                          Unidad {att.dpto?.nro || "-"}{" "}
+                          {att.dpto?.is_arrears && (
+                            <span
+                              style={{
+                                color: "#ff4d4f",
+                                fontWeight: "bold",
+                                fontSize: "0.8em",
+                              }}
+                            >
+                              (Mora)
+                            </span>
+                          )}{" "}
+                          | {ROLE_LABELS[att.role] || att.role}
+                        </>
+                      )}
                     </p>
                   </div>
-                  {selectedAttendee?.id === att.id && (
+                  {selectedAttendee?.owner_id === att.owner_id && (
                     <IconCheck size={18} color="var(--cSuccess)" />
                   )}
                 </div>

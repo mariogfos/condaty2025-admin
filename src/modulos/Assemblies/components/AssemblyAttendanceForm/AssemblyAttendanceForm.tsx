@@ -166,14 +166,8 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
 
   const handleRegister = async () => {
     if (!selectedResident) return;
-    if (!selectedDptoId && (selectedResident.dpto?.length || 0) > 1) {
-      showToast(
-        "Por favor selecciona el departamento que representa.",
-        "warning",
-      );
-      return;
-    }
-
+    // P.27: Allow registration with null dpto_id when owner has multiple units -
+    // backend handles vote duplication for each qualifying unit
     setIsSaving(true);
     try {
       const { data: response, error } = await saveAttendance(
@@ -295,10 +289,11 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
                     Unidad:{" "}
                     {res.dpto?.length > 0
                       ? res.dpto
-                          .map(
-                            (d: any) =>
-                              `${d.nro}${d.is_arrears ? " (Mora)" : ""}`,
-                          )
+                          .map((d: any) => {
+                            const role = getRoleLabel(res, d);
+                            const mora = d.is_arrears ? " [Mora]" : "";
+                            return `${d.nro} (${role})${mora}`;
+                          })
                           .join(", ")
                       : res.all_units || "S/N"}{" "}
                     | CI: {res.ci || "-"} | {res.type_owner}
@@ -320,44 +315,6 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
 
         {selectedResident && (
           <div className={styles.registrationForm}>
-            {selectedResident.dpto && selectedResident.dpto.length > 1 && (
-              <div className={styles.fieldGroup}>
-                <label className={styles.label}>Unidad que representa</label>
-                <div className={styles.dptoSelection}>
-                  {selectedResident.dpto.map((d: any) => (
-                    <div
-                      key={d.id}
-                      className={`${styles.dptoCard} ${selectedDptoId === d.id ? styles.active : ""}`}
-                      onClick={() => setSelectedDptoId(d.id)}
-                    >
-                      <div className={styles.dptoContent}>
-                        <span className={styles.dptoNro}>
-                          Unidad {d.nro}{" "}
-                          {d.is_arrears && (
-                            <span
-                              style={{
-                                color: "#ff4d4f",
-                                fontWeight: "bold",
-                                fontSize: "0.8em",
-                              }}
-                            >
-                              (Mora)
-                            </span>
-                          )}
-                        </span>
-                        <span className={styles.dptoRole}>
-                          {getRoleLabel(selectedResident, d)}
-                        </span>
-                      </div>
-                      {selectedDptoId === d.id && (
-                        <IconCheck size={14} color="var(--cSuccess)" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Modalidad de Asistencia</label>
               <div className={styles.modalityOptions}>
@@ -386,8 +343,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
             <Button
               variant="primary"
               onClick={handleRegister}
-              // disabled={isSaving || !selectedDptoId}
-              disabled={isSaving || !selectedDptoId}
+              disabled={isSaving || !selectedResident}
               className={styles.registerBtn}
               style={{ width: "100%" }}
             >
