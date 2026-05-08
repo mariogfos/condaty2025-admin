@@ -88,17 +88,17 @@ const renderTargetBadges = (survey: any) => {
 
   const badges: React.ReactNode[] = [];
 
-  // const roleLabels: Record<string, string> = {
-  //   owner_homeowner: "Propietario",
-  //   owner_tenant: "Inquilino",
-  //   owner_titular: "Inquilino",
-  //   owner_dependiente: "Dependiente",
-  //   resident: "Residente",
-  //   dependent_of_homeowner: "Dep. Propietario",
-  //   dependent_of_tenant: "Dep. Inquilino",
-  //   owner_homeowner_resident: "Prop. Residente",
-  //   owner_homeowner_non_resident: "Prop. No Residente",
-  // };
+  const roleLabels: Record<string, string> = {
+    owner_homeowner: "Propietario",
+    owner_tenant: "Inquilino",
+    owner_titular: "Inquilino",
+    owner_dependiente: "Dependiente",
+    resident: "Residente",
+    dependent_of_homeowner: "Dep. Propietario",
+    dependent_of_tenant: "Dep. Inquilino",
+    owner_homeowner_resident: "Prop. Residente",
+    owner_homeowner_non_resident: "Prop. No Residente",
+  };
 
   // Base badge style: light gray background, black text
   const baseBadgeStyle = {
@@ -116,7 +116,7 @@ const renderTargetBadges = (survey: any) => {
     if (enabled == 1 || enabled === true) {
       badges.push(
         <span key={key} style={baseBadgeStyle}>
-          {[key] || key}
+          {roleLabels[key] || key}
         </span>,
       );
     }

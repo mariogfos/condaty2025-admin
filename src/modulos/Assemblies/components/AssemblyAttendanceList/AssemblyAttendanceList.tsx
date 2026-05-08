@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import styles from "./AssemblyAttendanceList.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { AssemblyAttendance, AssemblyAttendanceUnit, ROLE_LABELS } from "../../types/assemblies.types";
+import {
+  AssemblyAttendance,
+  AssemblyAttendanceUnit,
+  ROLE_LABELS,
+} from "../../types/assemblies.types";
 import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
 import { IconTrash } from "@/components/layout/icons/IconsBiblioteca";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
@@ -61,7 +65,10 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
               }
               existing.units.push({ dpto: att.dpto!, role: att.role! });
             } else {
-              acc.push({ ...att, units: [{ dpto: att.dpto!, role: att.role! }] });
+              acc.push({
+                ...att,
+                units: [{ dpto: att.dpto!, role: att.role! }],
+              });
             }
             return acc;
           },
@@ -80,9 +87,16 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
     loadAttendances();
   }, [assemblyId, refreshKey]);
 
-  const handleDelete = async (ownerId: string, _attendanceId?: number) => {
+  const handleDelete = async (
+    ownerId: string | number,
+    _attendanceId?: number,
+  ) => {
     if (readOnly) return;
-    if (!confirm("¿Estás seguro de que deseas eliminar todas las assistencias de este participante?")) {
+    if (
+      !confirm(
+        "¿Estás seguro de que deseas eliminar todas las assistencias de este participante?",
+      )
+    ) {
       return;
     }
 
@@ -172,13 +186,16 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                     </span>
                     <span className={styles.cardSub}>
                       {attendance.units && attendance.units.length > 1 ? (
-                        attendance.units.map((u: AssemblyAttendanceUnit, idx: number) => (
-                          <span key={idx}>
-                            {idx > 0 && ", "}
-                            Und. {u.dpto.nro} ({ROLE_LABELS[u.role as string] || u.role})
-                            {u.dpto.is_arrears && " [Mora]"}
-                          </span>
-                        ))
+                        attendance.units.map(
+                          (u: AssemblyAttendanceUnit, idx: number) => (
+                            <span key={idx}>
+                              {idx > 0 && ", "}
+                              Und. {u.dpto.nro} (
+                              {ROLE_LABELS[u.role as string] || u.role})
+                              {u.dpto.is_arrears && " [Mora]"}
+                            </span>
+                          ),
+                        )
                       ) : (
                         <>
                           Unidad {attendance.dpto?.nro || "-"}{" "}
@@ -201,7 +218,9 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                   {!readOnly && (
                     <button
                       className={styles.deleteBtn}
-                      onClick={() => handleDelete(attendance.owner_id, attendance.id)}
+                      onClick={() =>
+                        handleDelete(attendance.owner_id, attendance.id)
+                      }
                       title="Eliminar asistencia"
                     >
                       <IconTrash size={18} />
