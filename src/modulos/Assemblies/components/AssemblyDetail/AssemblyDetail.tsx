@@ -1063,8 +1063,11 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                         ? (abstention?.total_expected ?? totalVotesRaw)
                         : totalVotesRaw;
 
-                      const totalLabel = countAsOption
-                        ? `${abstention?.total_voted ?? totalVotesRaw} votos válidos de ${abstention?.total_expected ?? 0} esperados`
+                      const estimatedAudience = survey.estimated_audience || abstention?.total_expected || 0;
+                      const totalVoters = survey.total_voters || abstention?.total_voted || totalVotesRaw;
+
+                      const totalLabel = (estimatedAudience > 0)
+                        ? `${totalVoters} ${totalVoters === 1 ? "voto" : "votos"} de ${estimatedAudience} esperados`
                         : `${totalVotesRaw} ${totalVotesRaw === 1 ? "voto" : "votos"} en total`;
 
                       return (
