@@ -599,8 +599,8 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               <div className={styles.metricItem}>
                 <span className={styles.metricLabel}>Quórum</span>
                 <span className={styles.metricValue}>
-                  {stats?.quorum?.quorum_percentage || 0}% /{" "}
-                  {assembly.quorum_required || 0}%
+                  {stats?.quorum?.quorum_percentage?.toFixed(1) || 0}% /{" "}
+                  {assembly.quorum_required?.toFixed(1) || 0}%
                 </span>
               </div>
               <div className={styles.metricItem}>
@@ -1063,12 +1063,19 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                         ? (abstention?.total_expected ?? totalVotesRaw)
                         : totalVotesRaw;
 
-                      const estimatedAudience = survey.estimated_audience || abstention?.total_expected || 0;
-                      const totalVoters = survey.total_voters || abstention?.total_voted || totalVotesRaw;
+                      const estimatedAudience =
+                        survey.estimated_audience ||
+                        abstention?.total_expected ||
+                        0;
+                      const totalVoters =
+                        survey.total_voters ||
+                        abstention?.total_voted ||
+                        totalVotesRaw;
 
-                      const totalLabel = (estimatedAudience > 0)
-                        ? `${totalVoters} ${totalVoters === 1 ? "voto" : "votos"} de ${estimatedAudience} esperados`
-                        : `${totalVotesRaw} ${totalVotesRaw === 1 ? "voto" : "votos"} en total`;
+                      const totalLabel =
+                        estimatedAudience > 0
+                          ? `${totalVoters} ${totalVoters === 1 ? "voto" : "votos"} de ${estimatedAudience} esperados`
+                          : `${totalVotesRaw} ${totalVotesRaw === 1 ? "voto" : "votos"} en total`;
 
                       return (
                         <div key={q.id} style={{ width: "100%" }}>
@@ -1104,7 +1111,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                             const votes = opt.votes || 0;
                             const percentage =
                               denominator > 0
-                                ? Math.round((votes / denominator) * 100)
+                                ? ((votes / denominator) * 100).toFixed(1)
                                 : 0;
 
                             const isNo =
@@ -1143,7 +1150,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                     }}
                                   >
                                     <span>
-                                      {percentage}% ({votes}{" "}
+                                      {Number(percentage).toFixed(1)}% ({votes}{" "}
                                       {votes === 1 ? "voto" : "votos"})
                                     </span>
                                     {votes > 0 && (
@@ -1183,7 +1190,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 <span
                                 //className={styles.accentText}
                                 >
-                                  Abstenciones
+                                  {survey.status === SurveyStatus.Closed
+                                    ? "Abstenciones"
+                                    : "Por votar"}
                                 </span>
                                 <span
                                   style={{
@@ -1195,11 +1204,11 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   <span
                                   //className={styles.accentText}
                                   >
-                                    {abstention.abstention_rate}% (
+                                    {abstention.abstention_rate.toFixed(1)}% (
                                     {abstention.abstentions}{" "}
                                     {abstention.abstentions === 1
-                                      ? "unidad"
-                                      : "unidades"}
+                                      ? "voto"
+                                      : "votos"}
                                     )
                                   </span>
                                   {abstention.abstentions > 0 && (
@@ -1224,7 +1233,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 <div
                                   className={styles.progressBar}
                                   style={{
-                                    width: `${abstention.abstention_rate}%`,
+                                    width: `${abstention.abstention_rate.toFixed(1)}%`,
                                     background:
                                       "linear-gradient(90deg, var(--cNeutral-300), var(--cNeutral-500))",
                                   }}
@@ -1244,7 +1253,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 >
                                   ✔ Votos válidos:{" "}
                                   <strong>{abstention.total_voted}</strong> (
-                                  {abstention.participation_rate}%)
+                                  {abstention.participation_rate.toFixed(1)}% )
                                 </span>
                                 <span className={styles.abstentionSeparator}>
                                   |
@@ -1252,7 +1261,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 <span className={styles.abstentionFooterItem}>
                                   Abstenciones:{" "}
                                   <strong>{abstention.abstentions}</strong> (
-                                  {abstention.abstention_rate}%)
+                                  {abstention.abstention_rate.toFixed(1)}% )
                                 </span>
                               </div>
                             )}
