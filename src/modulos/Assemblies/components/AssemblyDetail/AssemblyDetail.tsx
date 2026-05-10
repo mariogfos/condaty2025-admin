@@ -88,16 +88,26 @@ const renderTargetBadges = (survey: any) => {
 
   const badges: React.ReactNode[] = [];
 
+  const OWNER_ROLES = [
+    "owner_homeowner",
+    "owner_homeowner_resident",
+    "owner_homeowner_non_resident",
+    "owner_titular",
+    "resident",
+    "owner_dependiente",
+    "dependent_of_homeowner",
+    "dependent_of_tenant",
+  ];
+
   const roleLabels: Record<string, string> = {
     owner_homeowner: "Propietario",
-    owner_tenant: "Inquilino",
-    owner_titular: "Inquilino",
-    owner_dependiente: "Dependiente",
-    resident: "Residente",
-    dependent_of_homeowner: "Dep. Propietario",
-    dependent_of_tenant: "Dep. Inquilino",
     owner_homeowner_resident: "Prop. Residente",
     owner_homeowner_non_resident: "Prop. No Residente",
+    owner_titular: "Inquilino",
+    resident: "Residentes",
+    owner_dependiente: "Dependiente",
+    dependent_of_homeowner: "Dep. Propietario",
+    dependent_of_tenant: "Dep. Inquilino",
   };
 
   // Base badge style: light gray background, black text
