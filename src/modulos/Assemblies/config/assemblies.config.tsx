@@ -194,15 +194,17 @@ export const getAssemblyConfig = (
           const actaFile = props?.item?.acta_file;
           if (!actaFile) return null;
           return (
-            <a
-              href={actaFile}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              style={{ display: "inline-flex", alignItems: "center" }}
-            >
-              <IconDownload size={18} color="var(--cAccent)" />
-            </a>
+            <div className={styles.statusCell}>
+              <a
+                href={actaFile}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                style={{ display: "inline-flex", alignItems: "center" }}
+              >
+                <IconDownload size={18} color="var(--cAccent)" />
+              </a>
+            </div>
           );
         },
       },
