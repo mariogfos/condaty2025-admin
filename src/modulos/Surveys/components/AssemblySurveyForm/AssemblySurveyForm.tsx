@@ -16,7 +16,7 @@ const ROLES_OPTIONS = [
   { id: "owner_homeowner", name: "Propietarios (dueños)" },
   { id: "owner_homeowner_resident", name: "Propietarios residentes" },
   { id: "owner_homeowner_non_resident", name: "Propietarios no residentes" },
-  { id: "owner_titular", name: "Inquilinos" },
+  { id: "owner_tenant", name: "Inquilinos" },
   { id: "resident", name: "Todos los residentes" },
   { id: "owner_dependiente", name: "Dependientes" },
   { id: "dependent_of_homeowner", name: "Dependientes de propietarios" },

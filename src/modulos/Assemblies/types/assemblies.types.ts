@@ -116,7 +116,6 @@ export interface AssemblyAttendance {
 }
 
 export const ROLE_LABELS: Record<string, string> = {
-  owner_titular: "Titular",
   owner_homeowner: "Propietario",
   owner_tenant: "Inquilino",
   dependent_of_homeowner: "Dependiente de Prop.",

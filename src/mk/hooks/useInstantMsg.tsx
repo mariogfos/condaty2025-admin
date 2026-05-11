@@ -14,10 +14,8 @@ const ROLE_TO_CHANNEL: Record<string, string> = {
   owner: "owners",
   owner_homeowner: "owners",
   owner_tenant: "owners",
-  owner_titular: "owners",
   homeowner: "owners",
   tenant: "owners",
-  titular: "owners",
   // Guard roles
   guard: "guards",
   guardia: "guards",

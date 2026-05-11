@@ -78,7 +78,7 @@ Accept: application/json
 | `owner_homeowner` | Propietario (dueño del departamento) |
 | `owner_homeowner_resident` | Propietario que RESIDE en el condominio |
 | `owner_homeowner_non_resident` | Propietario que NO reside en el condominio |
-| `owner_titular` | Inquilino/Arrendatario |
+| `owner_tenant` | Inquilino/Arrendatario |
 | `resident` | Cualquier persona que resida (propietario + inquilino) |
 | `owner_dependiente` | Dependiente de cualquier titular |
 | `dependent_of_homeowner` | Dependiente de un propietario |
@@ -122,7 +122,7 @@ GET /api/surveys?fullType=CRUD
       "status_label": "Activa",
       "is_mandatory": false,
       "target_criteria": {
-        "roles": ["owner_titular"],
+        "roles": ["owner_tenant"],
         "only_arrears": false,
         "only_current": false,
         "vote_per_unit": true,
@@ -295,7 +295,7 @@ Content-Type: application/json
   "description": "Descripción opcional",
   "is_mandatory": false,
   "target_criteria": {
-    "roles": ["owner_titular", "owner_homeowner"],
+    "roles": ["owner_tenant", "owner_homeowner"],
     "unit_types": [1, 2, 3],
     "only_arrears": false,
     "only_current": true,
@@ -668,7 +668,7 @@ POST /api/surveys/calculate-audience
 {
   "client_id": "uuid-del-cliente",
   "target_criteria": {
-    "roles": ["owner_titular", "owner_homeowner"],
+    "roles": ["owner_tenant", "owner_homeowner"],
     "unit_types": [1, 2],
     "only_arrears": false,
     "only_current": true,

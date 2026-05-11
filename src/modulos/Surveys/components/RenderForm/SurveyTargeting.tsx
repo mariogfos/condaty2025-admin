@@ -20,7 +20,7 @@ const ROLES_OPTIONS = [
   },
 
   // Inquilinos/Residentes
-  { id: "owner_titular", name: "Inquilinos", hasUnits: true },
+  { id: "owner_tenant", name: "Inquilinos", hasUnits: true },
   { id: "resident", name: "Todos los residentes", hasUnits: true },
 
   // Dependientes
@@ -47,7 +47,7 @@ const OWNER_ROLES = [
   "owner_homeowner",
   "owner_homeowner_resident",
   "owner_homeowner_non_resident",
-  "owner_titular",
+  "owner_tenant",
   "resident",
   "owner_dependiente",
   "dependent_of_homeowner",

@@ -73,7 +73,7 @@ const ROLE_LABELS: Record<string, string> = {
   owner_homeowner: "Propietarios",
   owner_homeowner_resident: "Propietarios residentes",
   owner_homeowner_non_resident: "Propietarios no residentes",
-  owner_titular: "Inquilinos",
+  owner_tenant: "Inquilinos",
   resident: "Residentes",
 
   // Dependientes
