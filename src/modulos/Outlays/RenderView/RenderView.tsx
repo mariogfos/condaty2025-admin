@@ -50,6 +50,15 @@ interface DetailOutlayProps {
   extraData?: ExtraData;
   onDel?: (item: OutlayItem) => void;
 }
+
+interface DetailItem {
+  key: string;
+  label: string;
+  value: React.ReactNode;
+  multiline?: boolean;
+  valueClassName?: string;
+}
+
 const typeAccountMap: Record<string, string> = {
   C: "Cuenta corriente",
   S: "Caja de ahorro",
@@ -128,6 +137,22 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
     return "";
   };
 
+  const getBankAccountSummary = () => {
+    const aliasHolder = item?.bank_account?.alias_holder;
+    const bankName = item?.bank_account?.bank_entity?.name;
+
+    if (aliasHolder && bankName) return `${aliasHolder} - (${bankName})`;
+    return aliasHolder || bankName || "-/-";
+  };
+
+  const getAccountNumberSummary = () => {
+    const accountType = typeAccountMap[item?.bank_account?.account_type || ""];
+    const accountNumber = item?.bank_account?.account_number;
+
+    if (accountType && accountNumber) return `${accountType} - ${accountNumber}`;
+    return accountNumber || accountType || "-/-";
+  };
+
   const handleAnularClick = () => {
     if (item && onDel) {
       onDel(item);
@@ -169,7 +194,6 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
         title="Información del Egreso"
         buttonText=""
         buttonCancel=""
-        minWidth={860}
         maxWidth={980}
       >
         <div className={styles.container}>
@@ -185,6 +209,128 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
       </DataModal>
     );
   }
+
+  const currentItem = item;
+
+  const detailItems = [
+    {
+      key: "category",
+      label: "Categoría",
+      value: categoryName,
+    },
+    {
+      key: "subcategory",
+      label: "Subcategoría",
+      value: subCategoryName,
+    },
+    {
+      key: "registeredBy",
+      label: "Registrado por",
+      value: currentItem.user
+        ? getFullName({
+            ...currentItem.user,
+            middle_name: currentItem.user.middle_name || undefined,
+            last_name: currentItem.user.last_name || undefined,
+            mother_last_name: currentItem.user.mother_last_name || undefined,
+          })
+        : "-/-",
+    },
+    currentItem.status === "X" && currentItem.canceled_by
+      ? {
+          key: "canceledBy",
+          label: "Anulado por",
+          value: getFullName({
+            ...currentItem.canceled_by,
+            middle_name: currentItem.canceled_by.middle_name || undefined,
+            last_name: currentItem.canceled_by.last_name || undefined,
+            mother_last_name:
+              currentItem.canceled_by.mother_last_name || undefined,
+          }),
+        }
+      : null,
+    {
+      key: "concept",
+      label: "Concepto",
+      value: parsedDescription.concept,
+      multiline: true,
+    },
+    parsedDescription.reference
+      ? {
+          key: "reference",
+          label: "Referencia",
+          value: parsedDescription.reference,
+          multiline: true,
+        }
+      : null,
+    currentItem.type
+      ? {
+          key: "paymentMethod",
+          label: "Método de Pago",
+          value: getPaymentMethodText(currentItem.type),
+        }
+      : null,
+    currentItem.bank_account_id
+      ? {
+          key: "bankAccount",
+          label: "Cuenta bancaria",
+          value: getBankAccountSummary(),
+        }
+      : null,
+    parsedDescription.holderName
+      ? {
+          key: "holderName",
+          label: "Titular de devolución",
+          value: parsedDescription.holderName,
+          multiline: true,
+        }
+      : null,
+    parsedDescription.accountNumber
+      ? {
+          key: "accountNumber",
+          label: "Cuenta destino",
+          value: parsedDescription.accountNumber,
+          multiline: true,
+        }
+      : null,
+    parsedDescription.bankName
+      ? {
+          key: "bankName",
+          label: "Banco destino",
+          value: parsedDescription.bankName,
+          multiline: true,
+        }
+      : null,
+    parsedDescription.documentId
+      ? {
+          key: "documentId",
+          label: "CI titular",
+          value: parsedDescription.documentId,
+          multiline: true,
+        }
+      : null,
+    {
+      key: "status",
+      label: "Estado",
+      value: getStatusText(currentItem.status),
+      valueClassName: getStatusStyle(currentItem.status),
+    },
+    currentItem.status === "X" && currentItem.canceled_obs
+      ? {
+          key: "canceledReason",
+          label: "Motivo de anulación",
+          value: currentItem.canceled_obs,
+          valueClassName: styles.canceledReason,
+        }
+      : null,
+    currentItem.bank_account_id
+      ? {
+          key: "accountNumberSummary",
+          label: "Número de cuenta",
+          value: getAccountNumberSummary(),
+        }
+      : null,
+  ].filter(Boolean) as DetailItem[];
+
   return (
     <DataModal
       open={open}
@@ -192,170 +338,44 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
       title="Detalle del Egreso"
       buttonText=""
       buttonCancel=""
-      minWidth={860}
       maxWidth={980}
       headerDivider={false}
     >
       <div className={styles.container}>
         <div className={styles.headerSection}>
-          <div className={styles.amountDisplay}>{formatBs(item.amount)}</div>
+          <div className={styles.amountDisplay}>{formatBs(currentItem.amount)}</div>
           <div className={styles.dateDisplay}>
-            {formatToDayFdMYH(item.date_at)}
+            {formatToDayFdMYH(currentItem.date_at)}
           </div>
         </div>
       </div>
       <div className={styles.container}>
-        {/* Contenedor de la sección de detalles, usará flex para centrar las columnas */}
         <section className={styles.detailsSection}>
-          {/* Columna Izquierda */}
-          <div className={styles.detailsColumn}>
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Categoría</span>
-              <span className={styles.infoValue}>{categoryName}</span>
-            </div>
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Subcategoría</span>
-              <span className={styles.infoValue}>{subCategoryName}</span>
-            </div>
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Registrado por</span>
-              <span className={styles.infoValue}>
-                {item.user
-                  ? getFullName({
-                      ...item.user,
-                      middle_name: item.user.middle_name || undefined,
-                      last_name: item.user.last_name || undefined,
-                      mother_last_name: item.user.mother_last_name || undefined,
-                    })
-                  : "-/-"}
-              </span>
-            </div>
-            {item.status === "X" && item.canceled_by && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Anulado por</span>
-                <span className={styles.infoValue}>
-                  {getFullName({
-                    ...item.canceled_by,
-                    middle_name: item.canceled_by.middle_name || undefined,
-                    last_name: item.canceled_by.last_name || undefined,
-                    mother_last_name:
-                      item.canceled_by.mother_last_name || undefined,
-                  })}
-                </span>
-              </div>
-            )}
-          </div>
-          {/* Columna Central */}
-          <div className={styles.detailsColumn}>
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Concepto</span>
-              <span className={`${styles.infoValue} ${styles.multilineValue}`}>
-                {parsedDescription.concept}
-              </span>
-            </div>
-            {parsedDescription.reference && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Referencia</span>
-                <span className={`${styles.infoValue} ${styles.multilineValue}`}>
-                  {parsedDescription.reference}
-                </span>
-              </div>
-            )}
-            {item.type && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Método de Pago</span>
-                <span className={styles.infoValue}>
-                  {getPaymentMethodText(item.type)}
-                </span>
-              </div>
-            )}
-            {item?.bank_account_id && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Cuenta bancaria</span>
-                <span className={styles.infoValue}>
-                  {item.bank_account?.alias_holder +
-                    " - (" +
-                    item.bank_account?.bank_entity?.name +
-                    ")" || "-/-"}
-                </span>
-              </div>
-            )}
-          </div>
-          {/* Columna Derecha */}
-          <div className={styles.detailsColumn}>
-            {parsedDescription.holderName && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Titular de devolución</span>
-                <span className={`${styles.infoValue} ${styles.multilineValue}`}>
-                  {parsedDescription.holderName}
-                </span>
-              </div>
-            )}
-            {parsedDescription.accountNumber && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Cuenta destino</span>
-                <span className={`${styles.infoValue} ${styles.multilineValue}`}>
-                  {parsedDescription.accountNumber}
-                </span>
-              </div>
-            )}
-            {parsedDescription.bankName && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Banco destino</span>
-                <span className={`${styles.infoValue} ${styles.multilineValue}`}>
-                  {parsedDescription.bankName}
-                </span>
-              </div>
-            )}
-            {parsedDescription.documentId && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>CI titular</span>
-                <span className={`${styles.infoValue} ${styles.multilineValue}`}>
-                  {parsedDescription.documentId}
-                </span>
-              </div>
-            )}
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Estado</span>
+          {detailItems.map((detail) => (
+            <div key={detail.key} className={styles.infoBlock}>
+              <span className={styles.infoLabel}>{detail.label}</span>
               <span
-                className={`${styles.infoValue} ${getStatusStyle(item.status)}`}
+                className={[
+                  styles.infoValue,
+                  detail.multiline ? styles.multilineValue : "",
+                  detail.valueClassName || "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               >
-                {getStatusText(item.status)}
+                {detail.value}
               </span>
             </div>
-
-            {item.status === "X" && item.canceled_obs && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Motivo de anulación</span>
-                <span
-                  className={`${styles.infoValue} ${styles.canceledReason}`}
-                >
-                  {item.canceled_obs}
-                </span>
-              </div>
-            )}
-
-            {item?.bank_account_id && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Número de cuenta</span>
-                <span className={styles.infoValue}>
-                  {typeAccountMap[item.bank_account?.account_type || ""] +
-                    " - " +
-                    item.bank_account?.account_number || "-/-"}
-                </span>
-              </div>
-            )}
-          </div>
+          ))}
         </section>
       </div>
 
       <div className={styles.voucherButtonContainer}>
-        {item && onDel && item.status !== "X" && (
+        {onDel && currentItem.status !== "X" && (
           <Button
             variant="danger"
             onClick={handleAnularClick}
             className={styles.textButtonDanger}
-            style={{ marginRight: 8 }}
           >
             Anular egreso
           </Button>
@@ -364,20 +384,19 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
         <Button
           variant="secondary"
           className={styles.voucherButton}
-          style={{ marginRight: item.ext ? 8 : 0 }}
           onClick={handleGenerateReceipt}
         >
           Descargar nota de egreso
         </Button>
 
-        {item.ext && (
+        {currentItem.ext && (
           <Button
             variant="secondary"
             className={styles.voucherButton}
             onClick={() =>
               openFileInNewTab(
-                `/EXPENSE-${item.id}.${item.ext}?d=${
-                  item.updated_at || Date.now()
+                `/EXPENSE-${currentItem.id}.${currentItem.ext}?d=${
+                  currentItem.updated_at || Date.now()
                 }`,
               )
             }

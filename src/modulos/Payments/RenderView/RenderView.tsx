@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useCallback,
   CSSProperties,
+  useRef,
 } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
@@ -21,12 +22,14 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { formatBs } from "@/mk/utils/numbers";
 import Input from "@/mk/components/forms/Input/Input";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
+import Table from "@/mk/components/ui/Table/Table";
 import { it } from "date-fns/locale";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 interface PaymentDetail {
   id: string | number;
   status: string;
+  __openRejectModal?: boolean;
   user?: any;
   confirm_obs?: string;
   confirmed_by?: any;
@@ -80,6 +83,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   const [errors, setErrors] = useState<{ confirm_obs?: string }>({});
   const [item, setItem] = useState<PaymentDetail | null>(propItem || null);
   const { execute } = useAxios();
+  const executeRef = useRef(execute);
   const { user, showToast } = useAuth();
   const [openVoucherModal, setOpenVoucherModal] = useState(false);
   const [voucherValue, setVoucherValue] = useState("");
@@ -87,19 +91,32 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    executeRef.current = execute;
+  }, [execute]);
+
+  useEffect(() => {
     if (open) {
       setItem(propItem || null);
+      setOnRechazar(Boolean(propItem?.__openRejectModal));
+      setErrors({});
+      setFormState({ confirm_obs: "" });
     }
   }, [propItem, open]);
 
   useEffect(() => {
-    const isDetailed = !!item?.details;
+    const idToFetch = propItem?.id || payment_id;
+
+    if (!open || !idToFetch) {
+      return;
+    }
+
+    let cancelled = false;
 
     const fetchPaymentData = async () => {
       setLoading(true);
-      const idToFetch = item?.id || payment_id;
-      if (idToFetch && open) {
-        const { data } = await execute(
+
+      try {
+        const { data } = await executeRef.current(
           "/payments",
           "GET",
           {
@@ -111,19 +128,25 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
           false,
           true,
         );
+
+        if (cancelled) return;
+
         if (data?.data) {
           setItem(data.data);
-          setLoading(false);
-        } else {
+        }
+      } finally {
+        if (!cancelled) {
           setLoading(false);
         }
       }
     };
 
-    if (open && !isDetailed) {
-      fetchPaymentData();
-    }
-  }, [open, item, payment_id]);
+    fetchPaymentData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, payment_id, propItem?.id]);
 
   const handleGenerateReceipt = async (item: any) => {
     showToast("Generando recibo...", "info");
@@ -424,14 +447,18 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     registradoPorDisplay = getFullName(item.user);
   }
 
+  const confirmedBy = (item as any)?.confirmed_by || (item as any)?.confirmedBy;
+  const canceledBy = (item as any)?.canceled_by || (item as any)?.canceledBy;
+  const bankAccount = (item as any)?.bank_account || (item as any)?.bankAccount;
+
   let aprobadoPorDisplay = "-/-";
-  if (item.confirmed_by && typeof item.confirmed_by === "object") {
-    aprobadoPorDisplay = getFullName(item.confirmed_by);
+  if (confirmedBy && typeof confirmedBy === "object") {
+    aprobadoPorDisplay = getFullName(confirmedBy);
   }
 
   let anuladoPorDisplay = "-/-";
-  if (item.canceled_by && typeof item.canceled_by === "object") {
-    anuladoPorDisplay = getFullName(item.canceled_by);
+  if (canceledBy && typeof canceledBy === "object") {
+    anuladoPorDisplay = getFullName(canceledBy);
   }
 
   let infoBlockContent = null;
@@ -456,7 +483,64 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   }
 
   const hasVoucherUrls = voucherUrls.length > 0;
-  const showBankAccount = !!(item.status === "P" && item.bank_account);
+  const showBankAccount = !!bankAccount;
+  const paymentDetails = Array.isArray(item?.details)
+    ? item.details.filter((detail: any) => detail?.debt_dpto)
+    : [];
+  const showMaintenanceColumn = hasMaintenanceValue(user);
+  const paymentDetailsTableHeight = `${Math.min(
+    Math.max(paymentDetails.length || 1, 1),
+    4,
+  ) * 56}`;
+  const paymentDetailsHeader = [
+    {
+      key: "type",
+      label: "Tipo",
+      width: "160px",
+      onRender: ({ item: detail }: any) => getDebtType(detail?.debt_dpto?.type),
+    },
+    {
+      key: "concept",
+      label: "Concepto",
+      width: "100%",
+      onRender: ({ item: detail }: any) => getConceptByType(detail),
+    },
+    {
+      key: "amount",
+      label: "Monto",
+      width: "124px",
+      className: styles.amountColumn,
+      onRender: ({ item: detail }: any) =>
+        formatBs(getDetailAmount(detail, "amount")),
+    },
+    {
+      key: "penalty_amount",
+      label: "Multa",
+      width: "124px",
+      className: styles.amountColumn,
+      onRender: ({ item: detail }: any) =>
+        formatBs(getDetailAmount(detail, "penalty_amount")),
+    },
+    ...(showMaintenanceColumn
+      ? [
+          {
+            key: "maintenance_amount",
+            label: "Mant. Valor",
+            width: "140px",
+            className: styles.amountColumn,
+            onRender: ({ item: detail }: any) =>
+              formatBs(getDetailAmount(detail, "maintenance_amount")),
+          },
+        ]
+      : []),
+    {
+      key: "subtotal",
+      label: "Subtotal",
+      width: "132px",
+      className: styles.amountColumn,
+      onRender: ({ item: detail }: any) => formatBs(getSubtotal(detail)),
+    },
+  ];
 
   const handleDownloadVouchers = async () => {
     if (!hasVoucherUrls) return;
@@ -617,14 +701,16 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     <div className={styles.infoBlock}>
                       <span className={styles.infoLabel}>Cuenta bancaria</span>
                       <span className={styles.infoValue}>
-                        {(item.bank_account?.bank_entity?.name || "-/-") +
+                        {(bankAccount?.bank_entity?.name ||
+                          bankAccount?.bankEntity?.name ||
+                          "-/-") +
                           " - " +
-                          (item.bank_account?.account_number || "-/-")}
+                          (bankAccount?.account_number || "-/-")}
                       </span>
                     </div>
                   )}
 
-                  {item.confirmed_by && item.status === "R" && (
+                  {confirmedBy && item.status === "R" && (
                     <div className={styles.infoBlock}>
                       <span className={styles.infoLabel}>{aprobadoLabel}</span>
                       <span className={styles.infoValue}>
@@ -705,7 +791,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     </div>
                   ) : (
                     <>
-                      {item.confirmed_by && item.status !== "R" && (
+                      {confirmedBy && item.status !== "R" && (
                         <div className={styles.infoBlock}>
                           <span className={styles.infoLabel}>
                             {aprobadoLabel}
@@ -762,9 +848,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               </section>
             </div>
 
-            {Array.isArray(item.details) &&
-              item.details.length > 0 &&
-              item.details.some((detail: any) => detail?.debt_dpto) && (
+            {paymentDetails.length > 0 && (
                 <div
                   style={{ marginBottom: 12 }}
                   // className={styles.container}
@@ -777,107 +861,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     </div>
 
                     <div className={styles.periodsTableWrapper}>
-                      <div className={styles.periodsTable}>
-                        {
-                          // calc columns dynamically so grid layout adapts when Mant. Valor column is hidden
-                          (() => {
-                            const showMant = hasMaintenanceValue(user);
-                            const columns = showMant
-                              ? "1.2fr 2fr 0.8fr 0.8fr 0.8fr 1fr"
-                              : "1.2fr 2fr 0.8fr 0.8fr 1fr";
-
-                            return (
-                              <div
-                                className={styles.periodsTableHeader}
-                                style={{ gridTemplateColumns: columns }}
-                              >
-                                <div className={styles.periodsTableCell}>
-                                  Tipo
-                                </div>
-                                <div className={styles.periodsTableCell}>
-                                  Concepto
-                                </div>
-                                <div className={styles.periodsTableCell}>
-                                  Monto
-                                </div>
-                                <div className={styles.periodsTableCell}>
-                                  Multa
-                                </div>
-                                {showMant && (
-                                  <div className={styles.periodsTableCell}>
-                                    Mant. Valor
-                                  </div>
-                                )}
-                                <div className={styles.periodsTableCell}>
-                                  Subtotal
-                                </div>
-                              </div>
-                            );
-                          })()
-                        }
-                        <div className={styles.periodsTableBody}>
-                          {item.details?.map((periodo: any, index: number) => {
-                            const debtType = periodo?.debt_dpto?.type;
-
-                            return (
-                              <div
-                                className={styles.periodsTableRow}
-                                key={periodo?.id ?? index}
-                                style={{
-                                  gridTemplateColumns: hasMaintenanceValue(user)
-                                    ? "1.2fr 2fr 0.8fr 0.8fr 0.8fr 1fr"
-                                    : "1.2fr 2fr 0.8fr 0.8fr 1fr",
-                                }}
-                              >
-                                <div
-                                  className={styles.periodsTableCell}
-                                  data-label="Tipo"
-                                >
-                                  {getDebtType(debtType)}
-                                </div>
-                                <div
-                                  className={styles.periodsTableCell}
-                                  data-label="Concepto"
-                                >
-                                  {getConceptByType(periodo)}
-                                </div>
-                                <div
-                                  className={styles.periodsTableCell}
-                                  data-label="Monto"
-                                >
-                                  {formatBs(periodo?.debt_dpto?.amount || 0)}
-                                </div>
-                                <div
-                                  className={styles.periodsTableCell}
-                                  data-label="Multa"
-                                >
-                                  {formatBs(
-                                    periodo?.debt_dpto?.penalty_amount || 0,
-                                  )}
-                                </div>
-
-                                {hasMaintenanceValue(user) && (
-                                  <div
-                                    className={styles.periodsTableCell}
-                                    data-label="Mant. Valor"
-                                  >
-                                    {formatBs(
-                                      periodo?.debt_dpto?.maintenance_amount ||
-                                        0,
-                                    )}
-                                  </div>
-                                )}
-                                <div
-                                  className={styles.periodsTableCell}
-                                  data-label="Subtotal"
-                                >
-                                  {formatBs(getSubtotal(periodo))}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
+                      <Table
+                        className="striped"
+                        height={paymentDetailsTableHeight}
+                        data={paymentDetails}
+                        header={paymentDetailsHeader as any}
+                      />
                     </div>
                   </div>
                 </div>
@@ -993,7 +982,7 @@ export default RenderView;
 
 // Función para obtener el tipo de deuda
 const getDebtType = (type: number) => {
-  switch (type) {
+  switch (Number(type)) {
     case 0:
       return "Individual";
     case 1:
@@ -1013,7 +1002,7 @@ const getDebtType = (type: number) => {
 
 // Función para obtener el concepto basado en el tipo
 const getConceptByType = (periodo: any) => {
-  const type = periodo?.debt_dpto?.type;
+  const type = Number(periodo?.debt_dpto?.type);
 
   switch (type) {
     case 0: // Individual
@@ -1047,8 +1036,11 @@ const getConceptByType = (periodo: any) => {
     }
     case 2: {
       // Reservas
-      const penaltyAmount = parseFloat(periodo?.debt_dpto?.penalty_amount) || 0;
-      const areaTitle = periodo?.debt_dpto?.reservation?.area?.title || "-/-";
+      const penaltyAmount = getDetailAmount(periodo, "penalty_amount");
+      const areaTitle =
+        periodo?.debt_dpto?.reservation?.area?.title ||
+        periodo?.debt_dpto?.debt?.reservation?.area?.title ||
+        "-/-";
 
       if (penaltyAmount > 0) {
         return `Multa: ${areaTitle}`;
@@ -1058,18 +1050,32 @@ const getConceptByType = (periodo: any) => {
     }
     case 3: // Multa por Cancelación
       return `Multa por Cancelación: ${
-        periodo?.debt_dpto?.debt?.reservation_penalty?.area?.title || "-/-"
+        periodo?.debt_dpto?.penaltyReservation?.area?.title ||
+        periodo?.debt_dpto?.debt?.reservation_penalty?.area?.title ||
+        "-/-"
       }`;
     default:
       return periodo?.subcategory?.name || "-/-";
   }
 };
 
+const getDetailAmount = (
+  periodo: any,
+  field: "amount" | "penalty_amount" | "maintenance_amount",
+) => {
+  const debtDptoValue = parseFloat(String(periodo?.debt_dpto?.[field] ?? ""));
+  if (Number.isFinite(debtDptoValue)) {
+    return debtDptoValue;
+  }
+
+  const detailValue = parseFloat(String(periodo?.[field] ?? ""));
+  return Number.isFinite(detailValue) ? detailValue : 0;
+};
+
 // Función para calcular el subtotal incluyendo mantenimiento de valor
 const getSubtotal = (periodo: any) => {
-  const amount = parseFloat(periodo?.debt_dpto?.amount) || 0;
-  const penaltyAmount = parseFloat(periodo?.debt_dpto?.penalty_amount) || 0;
-  const maintenanceAmount =
-    parseFloat(periodo?.debt_dpto?.maintenance_amount) || 0;
+  const amount = getDetailAmount(periodo, "amount");
+  const penaltyAmount = getDetailAmount(periodo, "penalty_amount");
+  const maintenanceAmount = getDetailAmount(periodo, "maintenance_amount");
   return amount + penaltyAmount + maintenanceAmount;
 };

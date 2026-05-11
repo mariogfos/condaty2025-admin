@@ -136,7 +136,7 @@ const TableFinance = ({
 
   const tableMinWidth = useMemo(() => {
     if (isTwoColumnLayout) {
-      return 560;
+      return 0;
     }
 
     return Math.max(760, 260 + meses.length * 92 + 180);
@@ -149,7 +149,13 @@ const TableFinance = ({
       </div>
       <div className={styles.tableResponsiveWrapper}>
         <div
-          className={getContainerClass() + " " + styles.tableFinance}
+          className={
+            getContainerClass() +
+            " " +
+            styles.tableFinance +
+            " " +
+            (isTwoColumnLayout ? styles.twoColumnTable : "")
+          }
           style={
             {
               "--table-finance-min-width": `${tableMinWidth}px`,

@@ -3,7 +3,6 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import React, { useMemo } from "react";
 import useCrudUtils from "../shared/useCrudUtils";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import styles from "./Condominios.module.css";
 import RenderForm from "./RenderForm/RenderForm";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { getDateTimeStrMes } from "@/mk/utils/date";
@@ -152,11 +151,7 @@ const Condominios = () => {
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
-  return (
-    <div className={styles.Roles}>
-      <List height={"calc(100vh - 360px)"} />
-    </div>
-  );
+  return <List height={"100%"} />;
 };
 
 export default Condominios;

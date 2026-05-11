@@ -517,7 +517,7 @@ const Notifications = () => {
   return (
     <div className={styles.notificationsContainer}>
       <List
-        height={"calc(100vh - 300px)"}
+        height={"100%"}
         onTabletRow={renderItem}
         onRowClick={handleRowClick}
         emptyMsg="Lista vacía. Una vez comiencen las interacciones"

@@ -531,7 +531,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           />
           {/* Fin de las tarjetas */}
         </div>
-        <List height={"calc(100vh - 480px)"} />
+        <List height={"100%"} />
       </LoadingScreen>
 
       <DateRangeFilterModal

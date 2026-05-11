@@ -78,9 +78,9 @@ const Defaulters = () => {
         rules: [],
         api: "ae",
         label: "Unidad",
-        width: "170px",
+        width: "128px",
         list: {
-          width: "83px",
+          width: "128px",
         },
       },
       titular: {
@@ -393,7 +393,7 @@ const Defaulters = () => {
         />
         <div className={styles.listContainer}>
           <List
-            height={"calc(100vh - 390px)"}
+            height={"100%"}
             renderRight={
               data?.data && data.data.length > 0 ? renderRightPanel : undefined
             }

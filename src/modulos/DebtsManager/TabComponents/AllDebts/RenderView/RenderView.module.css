@@ -97,8 +97,8 @@
 .statusRow {
   padding-top: var(--sL);
   padding-bottom: var(--sL);
-  border-bottom: 0.5px solid var(--cWhiteV1);
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-bottom: 1px solid var(--cWhiteV1);
+  border-top: 1px solid var(--cWhiteV1);
 }
 
 .infoItem {
@@ -273,7 +273,7 @@
   width: 100%;
   border: none;
   height: 0;
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-top: 1px solid var(--cWhiteV1);
 }
 
 .detailsSection {
@@ -304,7 +304,7 @@
   color: var(--cWhiteV1);
   font-size: var(--sL);
   font-weight: var(--bRegular);
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   text-align: left;
 }
 
@@ -316,7 +316,7 @@
   overflow-wrap: break-word;
   min-width: 0;
   text-align: left;
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
 }
 
 .infoValue div {
@@ -436,7 +436,7 @@
   cursor: pointer;
   min-width: 220px;
   max-width: 100%;
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
 }
 
 .voucherButton:hover {

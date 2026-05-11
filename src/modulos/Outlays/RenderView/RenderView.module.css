@@ -48,26 +48,19 @@
   border-top: 1px solid var(--cModalDivider);
 }
 .detailsSection {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   align-items: flex-start;
-  gap: var(--spXl, 48px);
+  gap: var(--spL) var(--spXl, 48px);
   width: 100%;
   box-sizing: border-box;
-}
-.detailsColumn {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spXl);
-  flex: 1;
 }
 .infoBlock {
   display: flex;
   flex-direction: column;
   gap: var(--spXs);
   text-align: left;
-  max-width: 280px;
+  min-width: 0;
 }
 .infoLabel {
   color: var(--cWhiteV1);
@@ -108,7 +101,9 @@
 }
 .voucherButtonContainer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  gap: 12px;
   width: 100%;
   padding-bottom: var(--spS);
 }
@@ -171,31 +166,15 @@
     margin: var(--spM) 0;
   }
   .detailsSection {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: var(--spXl, 48px);
-    width: 100%;
-    box-sizing: border-box;
-  }
-  .detailsColumn {
-    width: 100%;
-    align-items: center;
+    grid-template-columns: 1fr;
     gap: var(--spM);
-    &:last-of-type {
-      width: 100%;
-    }
   }
   .infoBlock {
-    max-width: 90%;
-    align-items: center;
-    text-align: center;
+    text-align: left;
   }
   .voucherButtonContainer {
-    display: flex;
     flex-direction: column;
-    gap: 12px;
+    align-items: stretch;
   }
   .voucherButton {
     background-color: var(--cModalSurfaceRaised);

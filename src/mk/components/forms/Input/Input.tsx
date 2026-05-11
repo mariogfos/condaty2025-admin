@@ -262,6 +262,7 @@ const Input = (props: PropsType) => {
 
   const currentDisplayValue = type === "currency" ? displayValue : value || "";
   const inputType = type === "currency" ? "text" : type;
+  const hasTrailingIcon = type === "date" || type === "time";
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (type === "number" && (e.key === "e" || e.key === "E")) {
       e.preventDefault();
@@ -269,6 +270,34 @@ const Input = (props: PropsType) => {
     }
     onKeyDown(e);
   };
+
+  const focusInput = () => {
+    if (disabled || readOnly) return;
+    inputRef.current?.focus();
+  };
+
+  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement | null;
+
+    if (target?.closest("input, button, a, textarea, select")) {
+      return;
+    }
+
+    focusInput();
+  };
+
+  if (type === "hidden") {
+    return (
+      <input
+        id={name}
+        type="hidden"
+        name={name}
+        value={currentDisplayValue}
+        readOnly={readOnly}
+        disabled={disabled}
+      />
+    );
+  }
 
   return (
     <ControlLabel
@@ -283,9 +312,11 @@ const Input = (props: PropsType) => {
       suffix={suffix}
       style={props.style}
       styleInput={styleInput}
+      onContainerClick={handleContainerClick}
       className={`${styles.input} ${className} ${
         disabled ? styles.disabled : ""
-      } ${type === "date" || type === "time" ? styles.labelSmall : ""}
+      } ${!label ? styles.noLabel : ""} ${
+        hasTrailingIcon ? styles.hasTrailingIcon : ""
       }`}
     >
       <input
@@ -302,9 +333,9 @@ const Input = (props: PropsType) => {
         readOnly={readOnly}
         disabled={disabled}
         required={required}
-        style={{ paddingTop: !label ? 0 : 8, ...styleInput }}
+        style={styleInput}
         aria-autocomplete="none"
-        autoComplete={autoComplete || "new-password"}
+        autoComplete={autoComplete || "off"}
         checked={checked}
         maxLength={maxLength || (type === "currency" ? 50 : 255)}
         min={min}

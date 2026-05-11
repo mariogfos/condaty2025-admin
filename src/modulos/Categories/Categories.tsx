@@ -300,7 +300,7 @@ const Categories = ({ type: propType = "" }) => {
       </div>
       <List
         onRenderBody={renderCardFunction}
-        height={"calc(100vh - 400px)"}
+        height={"100%"}
         emptyMsg="Sin categorías."
         emptyLine2="Crea categorías para organizar tus movimientos financieros."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}

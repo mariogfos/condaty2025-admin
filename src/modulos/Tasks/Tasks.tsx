@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useAxios from "@/mk/hooks/useAxios";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
@@ -176,6 +176,34 @@ const EMPTY_CATEGORY_FORM: CategoryFormState = {
 const truncateText = (text: string = "") => {
   if (!text) return "";
   return text.length > 120 ? `${text.slice(0, 120)}...` : text;
+};
+
+const TASKS_TABLE_BATCH_SIZE = 40;
+const TASKS_PREFETCH_ROWS = 20;
+
+const mergeTaskRows = (currentRows: TaskItem[], incomingRows: TaskItem[]) => {
+  if (!currentRows.length) return incomingRows;
+  if (!incomingRows.length) return currentRows;
+
+  const merged = [...currentRows];
+  const indexById = new Map<string, number>();
+
+  merged.forEach((task, index) => {
+    indexById.set(String(task.id), index);
+  });
+
+  incomingRows.forEach((task) => {
+    const existingIndex = indexById.get(String(task.id));
+    if (existingIndex === undefined) {
+      indexById.set(String(task.id), merged.length);
+      merged.push(task);
+      return;
+    }
+
+    merged[existingIndex] = task;
+  });
+
+  return merged;
 };
 
 const getCategoryTextColor = (hex?: string) => {
@@ -505,6 +533,7 @@ const Tasks = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [loadingMoreTasks, setLoadingMoreTasks] = useState(false);
   const [changingDetailStatus, setChangingDetailStatus] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -538,6 +567,7 @@ const Tasks = () => {
   const [adminOptions, setAdminOptions] = useState<SelectOption[]>([]);
   const [guardOptions, setGuardOptions] = useState<SelectOption[]>([]);
   const [ownerOptions, setOwnerOptions] = useState<SelectOption[]>([]);
+  const tableLoadSentinelRef = useRef<HTMLDivElement | null>(null);
 
   const buildTaskQueryParams = (
     sourceFilters: TaskFilters,
@@ -578,24 +608,42 @@ const Tasks = () => {
     return params;
   };
 
-  const loadTasks = async (page: number = 1, sourceFilters: TaskFilters = filters) => {
-    setLoading(true);
+  const loadTasks = async (
+    page: number = 1,
+    sourceFilters: TaskFilters = filters,
+    options: { append?: boolean } = {},
+  ) => {
+    const append = Boolean(options.append && page > 1);
+
+    if (append) {
+      setLoadingMoreTasks(true);
+    } else {
+      setLoading(true);
+    }
     const { data } = await execute(
       "/tasks",
       "GET",
-      buildTaskQueryParams(sourceFilters, page, 20),
+      buildTaskQueryParams(sourceFilters, page, TASKS_TABLE_BATCH_SIZE),
       false,
       true,
     );
     const rows = getRowsFromResponse(data);
     const pagination = getPaginationFromResponse(data);
 
-    setTasks(rows);
+    setTasks((old) => (append ? mergeTaskRows(old, rows) : rows));
     setCurrentPage(pagination.current_page || page || 1);
     setLastPage(pagination.last_page || 1);
     setTotalItems(pagination.total || rows.length || 0);
     setLoading(false);
+    setLoadingMoreTasks(false);
   };
+
+  const loadMoreTaskRows = useCallback(() => {
+    if (viewMode !== "table" || loading || loadingMoreTasks) return;
+    if (currentPage >= lastPage) return;
+
+    void loadTasks(currentPage + 1, filters, { append: true });
+  }, [currentPage, filters, lastPage, loading, loadingMoreTasks, viewMode]);
 
   const loadKanban = async (sourceFilters: TaskFilters = filters) => {
     setLoading(true);
@@ -1178,7 +1226,7 @@ const Tasks = () => {
       setOpenModal(false);
       showToast(data?.message || "Tarea guardada", "success");
       if (viewMode === "table") {
-        loadTasks(currentPage, filters);
+        loadTasks(1, filters);
       } else {
         loadKanban(filters);
       }
@@ -1412,6 +1460,36 @@ const Tasks = () => {
   }, [viewMode]);
 
   useEffect(() => {
+    if (viewMode !== "table") return;
+    if (!tableLoadSentinelRef.current) return;
+    if (loading || loadingMoreTasks || currentPage >= lastPage) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          loadMoreTaskRows();
+        }
+      },
+      {
+        root: null,
+        rootMargin: `0px 0px ${TASKS_PREFETCH_ROWS * 52}px 0px`,
+        threshold: 0.01,
+      },
+    );
+
+    observer.observe(tableLoadSentinelRef.current);
+
+    return () => observer.disconnect();
+  }, [
+    currentPage,
+    lastPage,
+    loadMoreTaskRows,
+    loading,
+    loadingMoreTasks,
+    viewMode,
+  ]);
+
+  useEffect(() => {
     const taskId = searchParams?.get("openTaskId");
     if (!taskId) {
       processedOpenTaskIdRef.current = null;
@@ -1456,7 +1534,7 @@ const Tasks = () => {
             variant={viewMode === "table" ? "primary" : "secondary"}
             onClick={() => {
               setViewMode("table");
-              loadTasks(currentPage, filters);
+              loadTasks(1, filters);
             }}
             className={styles.smallButton}
           >
@@ -1492,10 +1570,10 @@ const Tasks = () => {
           <p>{translate("emptyMsg")}</p>
           <p>{translate("emptyLine2")}</p>
         </div>
-      ) : viewMode === "table" ? (
-        <>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
+	      ) : viewMode === "table" ? (
+	        <>
+	          <div className={styles.tableWrap}>
+	            <table className={styles.table}>
             <thead>
               <tr>
                 <th>{translate("title")}</th>
@@ -1507,8 +1585,8 @@ const Tasks = () => {
                 <th>{translate("dueDate")}</th>
               </tr>
             </thead>
-            <tbody>
-              {tasks.map((task) => {
+	            <tbody>
+	              {tasks.map((task) => {
                 const priorityMeta = getPriorityMeta(task.priority, translate);
                 const statusMeta = getStatusMeta(task.status, translate);
                 const creator = resolveTaskCreator(task);
@@ -1587,37 +1665,33 @@ const Tasks = () => {
                         <span className={styles.dashCenter}>-</span>
                       )}
                     </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-            </table>
-          </div>
-          <div className={styles.paginationBar}>
-            <span className={styles.paginationInfo}>
-              {`Página ${currentPage} de ${lastPage} (${totalItems} registros)`}
-            </span>
-            <div className={styles.paginationActions}>
-              <Button
-                variant="secondary"
-                className={styles.smallButton}
-                disabled={loading || currentPage <= 1}
-                onClick={() => loadTasks(Math.max(1, currentPage - 1))}
-              >
-                {"<"} {translate("previous")}
-              </Button>
-              <Button
-                variant="secondary"
-                className={styles.smallButton}
-                disabled={loading || currentPage >= lastPage}
-                onClick={() => loadTasks(Math.min(lastPage, currentPage + 1))}
-              >
-                {translate("next")} {">"}
-              </Button>
-            </div>
-          </div>
-        </>
-      ) : (
+	                  </tr>
+	                );
+	              })}
+                  {loadingMoreTasks
+                    ? Array.from(
+                        { length: TASKS_TABLE_BATCH_SIZE },
+                        (_, index) => (
+                          <tr
+                            key={`task-skeleton-${currentPage}-${index}`}
+                            className={styles.loadingRow}
+                          >
+                            <td colSpan={7}>
+                              <div className={styles.loadingRowInner}>
+                                <div className={styles.loadingLineLong} />
+                                <div className={styles.loadingLineShort} />
+                              </div>
+                            </td>
+                          </tr>
+                        ),
+                      )
+                    : null}
+	            </tbody>
+	            </table>
+	          </div>
+              <div ref={tableLoadSentinelRef} className={styles.loadMoreSentinel} />
+	        </>
+	      ) : (
         <div className={styles.kanbanWrap}>
           {kanbanGroups.map((group) => {
             const columnTasks = group.items || [];

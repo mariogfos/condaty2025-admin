@@ -2,6 +2,34 @@ import { CSSProperties, useMemo } from "react";
 import stylesTextArea from "./TextArea/textArea.module.css";
 import stylesInput from "./Input/input.module.css";
 
+export const getFieldErrorMessage = (error: any, name: string) => {
+  if (!error || !name) return "";
+
+  const raw = error?.[name];
+  if (raw === undefined || raw === null || raw === false) return "";
+
+  if (typeof raw === "string") return raw.trim();
+  if (Array.isArray(raw)) {
+    return raw
+      .map((item) =>
+        typeof item === "string" ? item.trim() : String(item ?? "").trim(),
+      )
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  if (typeof raw === "object") {
+    const values = Object.values(raw)
+      .map((item) =>
+        typeof item === "string" ? item.trim() : String(item ?? "").trim(),
+      )
+      .filter(Boolean);
+    return values.join(" ");
+  }
+
+  return String(raw).trim();
+};
+
 export interface PropsTypeInputBase {
   name: string;
   value: any;
@@ -31,9 +59,11 @@ export interface PropsTypeInputBase {
 interface PropsType extends PropsTypeInputBase {
   children?: any;
   styleContainer?: CSSProperties;
+  onContainerClick?: (e: any) => void;
 }
 
 const ControlLabel = (props: PropsType) => {
+  const fieldError = getFieldErrorMessage(props.error, props.name);
   const label: any = useMemo(() => {
     if (props.required === false && props.label) return props.label + " (opc)";
     return props.label;
@@ -52,11 +82,12 @@ const ControlLabel = (props: PropsType) => {
         className={
           props.className +
           " " +
-          (props.error?.[props.name] && stylesInput.error) +
+          (fieldError && stylesInput.error) +
           " " +
-          (props.error?.[props.name] && stylesTextArea.error)
+          (fieldError && stylesTextArea.error)
         }
         style={props.style}
+        onClick={props.onContainerClick}
       >
         {props.iconLeft && <span>{props.iconLeft}</span>}
         {props.prefix && <span>{props.prefix}</span>}
@@ -67,9 +98,7 @@ const ControlLabel = (props: PropsType) => {
         {props.iconRight && <span>{props.iconRight}</span>}
         {props.suffix && <span>{props.suffix}</span>}
       </div>
-      {!props.error ? null : (
-        <p className={stylesInput.error}>{props.error[props.name] || " "}</p>
-      )}
+      {!fieldError ? null : <p className={stylesInput.error}>{fieldError}</p>}
     </div>
   );
 };

@@ -74,6 +74,7 @@ const DebtsManager = () => {
   const extraButtons = [
     <Button
       key="categories-button"
+      variant="secondary"
       onClick={goToCategories}
       className={styles.categoriesButton}
     >
@@ -146,8 +147,7 @@ const DebtsManager = () => {
             variant="rounded"
           />
         </div>
-
-        {renderTabContent()}
+        <div className={styles.tabContent}>{renderTabContent()}</div>
       </div>
 
       <RenderView

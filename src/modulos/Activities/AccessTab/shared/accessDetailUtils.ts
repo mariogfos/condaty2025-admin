@@ -1,6 +1,13 @@
 import { getFullName } from "@/mk/utils/string";
 
 type AnyRecord = Record<string, any>;
+type DecisionSourceKind = "guard" | "resident";
+
+interface AccessDecisionSource {
+  kind: DecisionSourceKind;
+  label: string;
+  text: string;
+}
 
 const URL_KEYS = [
   "secureUrl",
@@ -129,7 +136,101 @@ export const getAccessTypeLabel = (type: string, detail: AnyRecord) => {
   return typeMap[type] || "-/-";
 };
 
+const QR_AUTHORIZED_TYPES = new Set(["I", "G", "F"]);
+const RESIDENT_AUTHORIZED_TYPES = new Set(["O", "P"]);
+
+const hasValue = (value: unknown) =>
+  value !== null && value !== undefined && value !== "";
+
+const buildDecisionSource = (
+  kind: DecisionSourceKind,
+  label: string,
+): AccessDecisionSource => ({
+  kind,
+  label,
+  text: kind === "guard" ? "Guardia" : "Residente",
+});
+
+const getAccessApprovalSource = (
+  access?: AnyRecord | null,
+): AccessDecisionSource | null => {
+  if (!access) return null;
+
+  if (hasValue(access.approved_guard_id)) {
+    return buildDecisionSource("guard", "Aprobado por");
+  }
+
+  if (access.type === "C") {
+    if (access.confirm === "Y" && hasValue(access.confirm_at)) {
+      return buildDecisionSource("resident", "Aprobado por");
+    }
+
+    return null;
+  }
+
+  if (access.type && QR_AUTHORIZED_TYPES.has(access.type)) {
+    return buildDecisionSource("resident", "Aprobado por");
+  }
+
+  if (!access.type || RESIDENT_AUTHORIZED_TYPES.has(access.type)) {
+    return buildDecisionSource("resident", "Aprobado por");
+  }
+
+  return null;
+};
+
+const getAccessRejectionSource = (
+  access?: AnyRecord | null,
+): AccessDecisionSource | null => {
+  if (!access) return null;
+
+  if (hasValue(access.rejected_guard_id)) {
+    return buildDecisionSource("guard", "Rechazado por");
+  }
+
+  if (access.confirm === "N" && hasValue(access.confirm_at)) {
+    return buildDecisionSource("resident", "Rechazado por");
+  }
+
+  return null;
+};
+
+const sameDateTimeValue = (
+  left?: string | null,
+  right?: string | null,
+): boolean => {
+  if (!left || !right) return false;
+
+  const leftTime = new Date(left).getTime();
+  const rightTime = new Date(right).getTime();
+
+  if (Number.isFinite(leftTime) && Number.isFinite(rightTime)) {
+    return leftTime === rightTime;
+  }
+
+  return String(left) === String(right);
+};
+
+const isUnregisteredExit = (access?: AnyRecord | null): boolean => {
+  if (!access?.in_at || !access?.out_at) return false;
+
+  const sameTime = sameDateTimeValue(access.in_at, access.out_at);
+  const obsOut = String(access.obs_out ?? "").trim().toLowerCase();
+
+  return (
+    sameTime &&
+    (!obsOut || obsOut === "no se registro la salida de esta persona en porteria.")
+  );
+};
+
 export const getAccessStatusInfo = (detail: AnyRecord) => {
+  const approvalSource = getAccessApprovalSource(detail);
+  const rejectionSource = getAccessRejectionSource(detail);
+
+  if (isUnregisteredExit(detail)) {
+    return { label: "Sin salida", tone: "warning" as const };
+  }
+
   if (detail?.out_at) {
     return { label: "Completado", tone: "success" as const };
   }
@@ -138,15 +239,15 @@ export const getAccessStatusInfo = (detail: AnyRecord) => {
     return { label: "Por salir", tone: "info" as const };
   }
 
-  if (detail?.confirm === "N" || detail?.rejected_guard_id != null) {
+  if (rejectionSource) {
     return { label: "Rechazado", tone: "danger" as const };
   }
 
-  if (!detail?.confirm_at) {
-    return { label: "Por confirmar", tone: "warning" as const };
+  if (detail?.confirm === "Y" || approvalSource) {
+    return { label: "Por entrar", tone: "accent" as const };
   }
 
-  return { label: "Por entrar", tone: "accent" as const };
+  return { label: "Por confirmar", tone: "warning" as const };
 };
 
 export const getMovementMode = (detail: AnyRecord) => {
@@ -160,14 +261,16 @@ export const getMovementMode = (detail: AnyRecord) => {
 };
 
 export const getRequestActorInfo = (detail: AnyRecord) => {
-  const approvedByGuard =
-    detail?.confirm === "G" || detail?.rejected_guard_id != null;
-  const actor = approvedByGuard ? detail?.guardia : detail?.owner;
+  const rejectionSource = getAccessRejectionSource(detail);
+  const approvalSource = getAccessApprovalSource(detail);
+  const decisionSource = rejectionSource || approvalSource;
+  const actor = decisionSource?.kind === "guard" ? detail?.guardia : detail?.owner;
   const actorName = getEntityName(actor);
+  const fallbackLabel = rejectionSource ? "Rechazado por" : "Aprobado por";
 
   if (!actorName) {
     return {
-      label: detail?.confirm === "N" ? "Rechazado por" : "Aprobado por",
+      label: decisionSource?.label || fallbackLabel,
       actor,
       actorName: "",
       roleText: "",
@@ -175,10 +278,10 @@ export const getRequestActorInfo = (detail: AnyRecord) => {
   }
 
   return {
-    label: detail?.confirm === "N" ? "Rechazado por" : "Aprobado por",
+    label: decisionSource?.label || fallbackLabel,
     actor,
     actorName,
-    roleText: approvedByGuard ? "Guardia" : "Residente",
+    roleText: decisionSource?.text || "Residente",
   };
 };
 

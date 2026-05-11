@@ -4,6 +4,7 @@ export default function GraphAdapterBar(
   oDef: any = {}
 ) {
   const xLabels = data.labels;
+  const chartFontFamily = 'Inter, sans-serif';
 
   const o = {
     chart: {
@@ -24,7 +25,7 @@ export default function GraphAdapterBar(
           colors: '#A7A7A7',
           fontSize: '16px',
           fontWeight: 500,
-          fontFamily: 'Roboto, Arial,',
+          fontFamily: chartFontFamily,
         },
       },
     },

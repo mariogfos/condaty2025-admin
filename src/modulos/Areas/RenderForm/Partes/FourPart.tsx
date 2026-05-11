@@ -17,6 +17,14 @@ const status: any = {
   X: "Inactiva",
 };
 
+const formatCoordinateValue = (value: any) => {
+  if (value === null || value === undefined || value === "") {
+    return "No configurada";
+  }
+
+  return String(value);
+};
+
 const FourPart = ({ item }: { item: any }) => {
   const [indexVisible, setIndexVisible] = useState(0);
   const [openDays, setOpenDays] = useState(false);
@@ -175,6 +183,14 @@ const FourPart = ({ item }: { item: any }) => {
             <KeyValue
               title={"Cantidad máx. de personas"}
               value={item?.max_capacity}
+            />
+            <KeyValue
+              title={"Latitud"}
+              value={formatCoordinateValue(item?.latitude)}
+            />
+            <KeyValue
+              title={"Longitud"}
+              value={formatCoordinateValue(item?.longitude)}
             />
             <KeyValue
               title={"Restricción por mora"}

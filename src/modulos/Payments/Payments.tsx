@@ -15,6 +15,9 @@ import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFil
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import { PaymentStatus, getPaymentStatusConfig } from '@/types/payment';
+import type { TableRowContextMenuConfig } from '@/mk/components/ui/Table/Table';
+import { Ban, CheckCircle2, Eye, FileImage } from 'lucide-react';
+import { getUrlImages } from '@/mk/utils/string';
 
 const renderDptosCell = (props: any) => <div>{String(props.item.dptos).replace(/,/g, '')}</div>;
 
@@ -70,6 +73,28 @@ const renderStatusCell = (props: any) => {
 };
 
 const renderAmountCell = (props: any) => <FormatBsAlign value={props.item.amount} alignRight />;
+
+const getPaymentVoucherUrls = (item: any) => {
+  const urls = Array.isArray(item?.url_file)
+    ? item.url_file
+        .map((url: any) =>
+          String(url || '')
+            .replace(/[`'"\s]/g, '')
+            .trim()
+        )
+        .filter(Boolean)
+    : [];
+
+  if (urls.length > 0) {
+    return urls;
+  }
+
+  if (item?.ext && item?.id) {
+    return [getUrlImages(`/PAYMENT-${item.id}.${item.ext}?d=${item.updated_at || ''}`)];
+  }
+
+  return [];
+};
 
 const renderConceptCell = (props: any) => {
   const item = props.item ?? {};
@@ -151,6 +176,7 @@ const Payments = () => {
 
     renderView: (props: any) => <RenderView {...props} />,
     renderDel: (props: any) => <RenderDel {...props} />,
+    reportPreset: 'payments-income',
     hideActions: {
       view: false,
       add: false,
@@ -335,6 +361,7 @@ const Payments = () => {
   const extraButtons = [
     <Button
       key="categories-button"
+      variant="secondary"
       onClick={() => goToCategories('I')}
       className={styles.categoriesButton}
     >
@@ -342,7 +369,7 @@ const Payments = () => {
     </Button>,
   ];
 
-  const { List, onFilter } = useCrud({
+  const { List, onFilter, onView, onDel, execute, reLoad, showToast } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -350,17 +377,116 @@ const Payments = () => {
     getFilter: handleGetFilter,
   });
 
+  const approvePayment = async (row: any) => {
+    if (!row?.id) return;
+
+    const { data, error } = await execute(
+      '/payment-confirm',
+      'POST',
+      {
+        id: row.id,
+        confirm: 'P',
+        confirm_obs: '',
+      },
+      false,
+      true
+    );
+
+    if (data?.success === true) {
+      showToast(data?.message || 'Pago aprobado con éxito', 'success');
+      await reLoad();
+      return;
+    }
+
+    showToast(
+      error?.data?.message || error?.message || 'No se pudo aprobar el pago',
+      'error'
+    );
+  };
+
+  const rowContextMenu = useMemo<TableRowContextMenuConfig<any>>(
+    () => ({
+      items: (row) => {
+        const voucherUrls = getPaymentVoucherUrls(row);
+        const canCancel = row?.status === 'P' && Boolean(row?.user);
+
+        if (row?.status === 'S') {
+          return [
+            {
+              label: 'Ver comprobante',
+              icon: FileImage,
+              disabled: voucherUrls.length === 0,
+              onClick: () => {
+                if (voucherUrls.length === 0) return;
+                window.open(voucherUrls[0], '_blank', 'noopener,noreferrer');
+              },
+            },
+            {
+              label: 'Aprobar pago',
+              icon: CheckCircle2,
+              onClick: () => approvePayment(row),
+            },
+            {
+              label: 'Rechazar pago',
+              icon: Ban,
+              danger: true,
+              onClick: () => onView({ ...row, __openRejectModal: true }),
+            },
+          ];
+        }
+
+        const primaryLabel =
+          row?.status === 'X' ? 'Ver anulación' : 'Ver detalle';
+
+        const items: any[] = [
+          {
+            label: primaryLabel,
+            icon: Eye,
+            onClick: () => onView(row),
+          },
+        ];
+
+        if (voucherUrls.length > 0) {
+          items.push({
+            label:
+              voucherUrls.length > 1
+                ? 'Ver comprobantes'
+                : 'Ver comprobante',
+            icon: FileImage,
+            onClick: () => {
+              window.open(voucherUrls[0], '_blank', 'noopener,noreferrer');
+            },
+          });
+        }
+
+        if (canCancel) {
+          items.push({ separator: true });
+          items.push({
+            label: 'Anular ingreso',
+            icon: Ban,
+            danger: true,
+            onClick: () => onDel(row),
+          });
+        }
+
+        return items;
+      },
+    }),
+    [approvePayment, onDel, onView]
+  );
+
   // Verificación de permisos DESPUÉS de todos los hooks
   if (!userCan(mod.permiso, 'R')) return <NotAccess />;
 
   return (
     <div className={styles.container}>
       <List
-        height={'calc(100vh - 350px)'}
+        height={"100%"}
         emptyMsg="Lista de ingresos vacía. Cuando empieces a registrar los pagos"
         emptyLine2="de expensas y otros ingresos, los verás aquí."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
         filterBreakPoint={1700}
+        rowContextMenu={rowContextMenu}
       />
       <DateRangeFilterModal
         open={openCustomFilter}

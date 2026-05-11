@@ -3,8 +3,17 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  height: 82px;
-  padding: 16px 24px;
+  min-height: 88px;
+  padding: 14px 16px 16px;
+  border-bottom: 1px solid var(--cBorder);
+}
+
+.headerLead {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex: 1;
 }
 
 .header-title {
@@ -17,16 +26,18 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  flex: 1;
   min-width: 0;
+  gap: 4px;
+  flex: 1;
 }
 
 .header-greeting h1 {
-  color: #fafafa;
-  font-size: 24px;
-  font-weight: 600;
+  color: var(--cWhite);
+  font-family: var(--fPrimary);
+  font-size: calc(var(--title-sm-size) - 2px);
+  font-weight: var(--bBold);
+  line-height: 1.02;
   margin: 0;
-  margin-top: -1px;
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
@@ -34,19 +45,17 @@
 }
 
 .header-greeting p {
-  color: #a6a6a6;
-  font-size: 16px;
-  font-weight: 400;
+  color: var(--cWhiteV1);
+  font-size: var(--body-sm-size);
+  font-weight: var(--bRegular);
   margin: 0;
-  line-height: 1.5;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.45;
+  max-width: min(100%, 640px);
+  white-space: normal;
 }
 
 .header-title p {
-  color: #fafafa;
+  color: var(--cWhite);
   font-size: 14px;
   font-weight: 600;
   margin-top: 4px;
@@ -59,7 +68,7 @@
 .header-title p:last-child {
   font-size: 10px;
   font-weight: 400;
-  color: #a6a6a6;
+  color: var(--cWhiteV1);
 }
 
 .tooltip {
@@ -69,13 +78,13 @@
 .headerRightContainer {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
 }
 
 .header-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
   flex-shrink: 0;
   position: relative;
   z-index: 2;
@@ -83,8 +92,8 @@
 
 /* Contenedor exterior - con borde según Figma */
 .iconOuterContainer {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   background-color: var(--cBackground);
   border-radius: 999px;
   display: flex;
@@ -98,8 +107,8 @@
 /* Estilos para el contenedor de notificaciones */
 .notificationContainer {
   cursor: pointer;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border: 1px solid var(--cBorder);
   border-radius: 100%;
   background-color: var(--cBackground);
@@ -107,6 +116,15 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.notificationAction {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 /* Icono de notificación */
@@ -122,8 +140,8 @@
 
 /* Contenedor del icono de perfil */
 .profileContainer {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -132,14 +150,17 @@
 /* Estilos para el indicador de notificaciones */
 .notificationBadge {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 16px;
-  height: 16px;
-  background-color: var(--error, #ff5252);
-  color: white;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background-color: var(--cError);
+  color: var(--cWhite);
   border-radius: 50%;
-  font-size: 8px;
+  border: 1px solid var(--cBackground-muted);
+  font-size: 9px;
+  font-weight: var(--bSemibold);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -147,36 +168,40 @@
 
 /* Estilo para el icono de configuración */
 .tooltip svg {
-  color: #fafafa;
-  width: 21.52px;
-  height: 21.52px;
+  color: var(--cWhite);
+  width: 24px;
+  height: 24px;
 }
 
 /* Media queries */
 @media (max-width: 768px) {
   .header-desktop {
-    padding: 12px 16px;
-    height: 64px;
+    min-height: 72px;
+    padding: 10px 16px 12px;
+  }
+
+  .headerLead {
+    gap: 12px;
   }
 
   .iconOuterContainer {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 6px;
   }
 
   .notificationContainer {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
   }
 
   .notificationIcon svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
 
   .header-greeting h1 {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .header-greeting p {
@@ -209,8 +234,8 @@
 
 .mobileGreetingMain {
   font-size: 14px;
-  font-weight: 600;
-  color: #fafafa;
+  font-weight: var(--bBold);
+  color: var(--cWhite);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;

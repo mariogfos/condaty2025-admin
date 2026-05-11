@@ -91,7 +91,10 @@
 .style {
   display: flex;
   flex-direction: column;
+  flex: 1 1 0;
   gap: var(--spM);
+  min-height: 0;
+  height: 100%;
   width: 100%;
 }
 
@@ -203,4 +206,23 @@
 .singleUnit {
   font-size: 14px;
   color: var(--cWhite);
+}
+
+.amountColumn {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.amountColumn :global(button) {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.statusColumn {
+  justify-content: center;
+  text-align: center;
+}
+
+.statusColumn > div {
+  margin-inline: auto;
 }

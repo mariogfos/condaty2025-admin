@@ -83,11 +83,7 @@ const UnitsType = () => {
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
-  return (
-    <div>
-      <List height={"calc(100vh - 350px)"} />
-    </div>
-  );
+  return <List height={"100%"} />;
 };
 
 export default UnitsType;

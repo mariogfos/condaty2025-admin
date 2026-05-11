@@ -201,7 +201,14 @@ const RenderForm = ({
         required={true}
         disabled={!!formState.id}
       />
-      <div style={{ display: "flex", gap: 12 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
+          gap: 12,
+          width: "100%",
+        }}
+      >
         <Input
           label="Dimensiones en m²"
           name="dimension"

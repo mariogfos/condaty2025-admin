@@ -1,0 +1,894 @@
+.reportRoot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(0, 227, 140, 0.3) 0%,
+      rgba(0, 227, 140, 0.18) 22%,
+      rgba(0, 227, 140, 0.07) 36%,
+      transparent 54%
+    ),
+    var(--cNeutral-900);
+  color: var(--cWhite);
+}
+
+.topLeftActions,
+.topCenterControls,
+.topRightActions {
+  position: fixed;
+  top: 24px;
+  z-index: 30;
+}
+
+.topLeftActions {
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.topCenterControls {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.topRightActions {
+  right: 24px;
+}
+
+.toolbarPills,
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toolbarPills {
+  justify-content: center;
+}
+
+.pillSelect {
+  --controlRadius: 999px;
+  --controlHeight: 52px;
+}
+
+.toolbarField {
+  position: relative;
+  min-width: 0;
+}
+
+.toolbarPillButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 204px;
+  max-width: 340px;
+  height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--controlSecondaryBorder);
+  border-radius: 999px;
+  background: var(--controlSecondaryBg);
+  color: var(--cWhite);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.toolbarPillButton:hover {
+  background: var(--controlSecondaryHoverBg);
+  border-color: var(--controlSecondaryHoverBorder);
+}
+
+.toolbarPillButton:focus-visible {
+  outline: none;
+  border-color: var(--cAccent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cAccent) 18%, transparent);
+}
+
+.toolbarPillText {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.toolbarPillLabel {
+  font-size: calc(var(--controlLabelSize) - 2px);
+  font-weight: var(--controlLabelWeight);
+  color: var(--controlLabelColor);
+}
+
+.toolbarPillValue {
+  width: 100%;
+  overflow: hidden;
+  color: var(--cWhite);
+  font-size: calc(var(--controlFontSize) - 2px);
+  font-weight: var(--controlFontWeight);
+  line-height: 1.2;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolbarPillChevron {
+  flex-shrink: 0;
+  color: var(--cWhiteV2);
+  transition: transform 0.2s ease;
+}
+
+.toolbarPillChevronOpen {
+  transform: rotate(180deg);
+}
+
+.toolbarPanel {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: min(360px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--controlSecondaryBorder);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--cNeutral-800) 96%, black 4%);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+}
+
+.toolbarPanelRight {
+  right: 0;
+  left: auto;
+}
+
+.compactToolbarPanel {
+  width: 160px;
+  min-width: 160px;
+  padding: 10px;
+  gap: 8px;
+}
+
+.panelHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: var(--title-xxs-size);
+  font-weight: var(--font-weight-bold);
+  color: var(--cWhite);
+}
+
+.panelText {
+  margin: 0;
+  font-size: calc(var(--controlLabelSize) - 2px);
+  line-height: 1.45;
+  color: var(--controlLabelColor);
+}
+
+.rangePresetList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rangePresetButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--controlSecondaryBorder);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--controlSecondaryBg) 82%, black 18%);
+  color: var(--cWhiteV1);
+  cursor: pointer;
+  font-size: var(--body-sm-size);
+  font-weight: var(--font-weight-medium);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.rangePresetButton:hover {
+  border-color: var(--cWhiteV4);
+  background: color-mix(in srgb, var(--controlSecondaryBg) 92%, black 8%);
+}
+
+.rangePresetButtonActive {
+  border-color: var(--cAccent);
+  background: color-mix(in srgb, var(--cAccent) 14%, transparent);
+  color: var(--cWhite);
+}
+
+.rangePresetButtonDisabled,
+.rangePresetButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.54;
+}
+
+.dateGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.caption {
+  margin: 0;
+  font-size: var(--body-xs-size);
+  line-height: 1.45;
+  color: var(--controlLabelColor);
+}
+
+.columnList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(56vh, 420px);
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.columnOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--cWhiteV2);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--cWhite) 2%, transparent);
+  transition:
+    border-color 80ms ease,
+    background-color 80ms ease,
+    opacity 80ms ease;
+}
+
+.columnOptionActive {
+  border-color: var(--cWhiteV2);
+  background: color-mix(in srgb, var(--cWhite) 2%, transparent);
+}
+
+.columnOptionDragging {
+  opacity: 0.84;
+}
+
+.columnDragHandle {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--cWhiteV3);
+  cursor: grab;
+}
+
+.columnOptionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.columnOptionIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--cAccent);
+}
+
+.columnOptionLabel {
+  overflow: hidden;
+  font-size: var(--body-sm-size);
+  font-weight: var(--font-weight-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.downloadMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.downloadMenuOption {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--controlSecondaryBorder);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--controlSecondaryBg) 82%, black 18%);
+  color: var(--cWhite);
+  cursor: pointer;
+  font-size: calc(var(--controlFontSize) - 2px);
+  font-weight: var(--controlFontWeight);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.downloadMenuOption:hover {
+  border-color: var(--controlSecondaryHoverBorder);
+  background: color-mix(in srgb, var(--controlSecondaryHoverBg) 88%, black 12%);
+}
+
+.downloadMenuOptionDisabled {
+  color: var(--cWhiteV3);
+}
+
+.circleButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--controlSecondaryBorder);
+  border-radius: 999px;
+  background: var(--controlSecondaryBg);
+  color: var(--cWhite);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.circleButton:hover {
+  background: var(--controlSecondaryHoverBg);
+  border-color: var(--controlSecondaryHoverBorder);
+}
+
+.circleButton:active {
+  transform: scale(0.98);
+}
+
+.circleButton:disabled {
+  cursor: not-allowed;
+  color: var(--cWhiteV3);
+  background: color-mix(in srgb, var(--controlSecondaryBg) 90%, transparent);
+  border-color: color-mix(
+    in srgb,
+    var(--controlSecondaryBorder) 72%,
+    transparent
+  );
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  max-width: 260px;
+  min-height: 48px;
+  padding: 8px 14px;
+  border: 1px solid var(--controlSecondaryBorder);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--controlSecondaryBg) 92%, black 8%);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.statusPillLoading {
+  border-color: color-mix(in srgb, var(--cAccent) 62%, var(--controlSecondaryBorder) 38%);
+}
+
+.debugStatusPill {
+  min-width: 0;
+  max-width: 260px;
+  min-height: 44px;
+  opacity: 0.9;
+}
+
+.statusPillIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--cAccent);
+}
+
+.statusPillText {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.statusPillTitle {
+  overflow: hidden;
+  font-size: var(--body-sm-size);
+  font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statusPillHint {
+  overflow: hidden;
+  color: var(--cWhiteV3);
+  font-size: var(--body-xs-size);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spin {
+  animation: reportSpin 1s linear infinite;
+}
+
+.previewViewport {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  padding: 108px 24px 24px;
+}
+
+.printViewport {
+  display: none;
+}
+
+.previewScroller {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: min(100%, 1480px);
+  margin: 0 auto;
+}
+
+.paperShell {
+  width: min(100%, var(--page-preview-width));
+  max-width: 100%;
+  display: block;
+}
+
+.paperPage {
+  display: flex;
+  width: 100%;
+  min-height: auto;
+  flex-direction: column;
+  gap: 16px;
+  aspect-ratio: var(--page-aspect-ratio);
+  box-sizing: border-box;
+  padding: clamp(24px, 2.4vw, 30px);
+  border-radius: 4px;
+  background: #fcfcfd;
+  color: #16181c;
+  box-shadow:
+    0 18px 52px rgba(0, 0, 0, 0.22),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.paperHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.paperHeading {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.paperTitle {
+  margin: 0;
+  font-size: clamp(22px, 2vw, 32px);
+  font-weight: 780;
+  letter-spacing: -0.02em;
+  color: #11161c;
+}
+
+.paperSubtitle {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #5f6975;
+}
+
+.paperBrand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 176px;
+  min-width: 176px;
+  height: 72px;
+  padding: 0;
+  border-radius: 18px;
+  background: rgba(23, 25, 29, 0.04);
+  overflow: hidden;
+}
+
+.paperBrandImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.paperBrandFallback {
+  color: #11161c;
+  font-size: 14px;
+  font-weight: 760;
+  letter-spacing: 0.04em;
+}
+
+.paperMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.paperReference {
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.paperDivider {
+  width: 100%;
+  height: 1px;
+  background: rgba(17, 24, 39, 0.1);
+}
+
+.tableBlock {
+  min-height: 0;
+  flex: 1;
+}
+
+.reportTable {
+  display: grid;
+  width: 100%;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  background: rgba(250, 251, 252, 0.98);
+}
+
+.headerRow,
+.bodyRow {
+  display: contents;
+}
+
+.headerCell {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  min-height: 40px;
+  padding: 10px 12px;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 720;
+  line-height: 1.25;
+  color: #7b8490;
+}
+
+.headerCellContent {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  width: 100%;
+}
+
+.headerCellTitle {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bodyCell {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #202631;
+}
+
+.cellValue {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cellDivider {
+  border-left: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.rowEven {
+  background: rgba(245, 247, 250, 0.92);
+}
+
+.rowOdd {
+  background: rgba(250, 251, 252, 0.98);
+}
+
+.alignRight {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.alignRight .headerCellContent,
+.alignRight .cellValue {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.alignCenter {
+  justify-content: center;
+  text-align: center;
+}
+
+.alignCenter .headerCellContent,
+.alignCenter .cellValue {
+  justify-content: center;
+  text-align: center;
+}
+
+.skeletonCell {
+  background: rgba(247, 248, 250, 0.96) !important;
+}
+
+.skeletonLine {
+  display: block;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(222, 227, 235, 0.62) 0%,
+      rgba(239, 242, 247, 0.96) 50%,
+      rgba(222, 227, 235, 0.62) 100%
+    );
+  background-size: 220% 100%;
+  animation: skeletonShimmer 1.2s linear infinite;
+}
+
+.noRows {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.emptyPreview,
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 60vh;
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 760;
+  color: var(--cWhite);
+}
+
+.emptyDescription {
+  margin: 0;
+  max-width: 480px;
+  color: var(--cWhiteV1);
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -20% 0;
+  }
+}
+
+@keyframes reportSpin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (width <= 1280px) {
+  .topCenterControls {
+    max-width: calc(100vw - 260px);
+  }
+
+  .toolbarPills {
+    flex-wrap: wrap;
+  }
+}
+
+@media (width <= 1080px) {
+  .reportRoot {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 16px;
+  }
+
+  .topLeftActions,
+  .topCenterControls,
+  .topRightActions {
+    position: static;
+    transform: none;
+  }
+
+  .topCenterControls,
+  .topRightActions {
+    margin-top: 12px;
+  }
+
+  .toolbarPills,
+  .actionRow {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .statusPill {
+    max-width: none;
+    width: min(100%, 520px);
+  }
+
+  .previewViewport {
+    overflow: visible;
+    padding: 24px 0 0;
+  }
+}
+
+@media (width <= 768px) {
+  .reportRoot {
+    padding: 12px;
+  }
+
+  .toolbarPillButton,
+  .toolbarField,
+  .toolbarPanel,
+  .pillSelect {
+    width: 100%;
+    max-width: none;
+  }
+
+  .toolbarPillButton {
+    min-width: 0;
+  }
+
+  .toolbarPills {
+    width: 100%;
+  }
+
+  .dateGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .previewViewport {
+    padding-top: 18px;
+  }
+
+  .paperPage {
+    aspect-ratio: auto;
+    min-height: auto;
+  }
+
+  .paperHeader,
+  .paperMeta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .paperBrand {
+    width: min(100%, 176px);
+    min-width: 0;
+  }
+}
+
+@media print {
+  .reportRoot {
+    display: block;
+    height: auto;
+    overflow: visible;
+    background: #ffffff;
+  }
+
+  .topLeftActions,
+  .topCenterControls,
+  .topRightActions {
+    display: none !important;
+  }
+
+  .previewViewport {
+    display: none !important;
+  }
+
+  .printViewport {
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
+  }
+
+  .printPageShell {
+    display: block;
+    width: var(--page-print-width);
+    height: var(--page-print-height);
+    margin: 0;
+    overflow: hidden;
+    break-before: page;
+    page-break-before: always;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .printPageShell:first-child {
+    break-before: auto;
+    page-break-before: auto;
+  }
+
+  .printPageShell:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .printPage {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    flex-direction: column;
+    gap: 16px;
+    box-sizing: border-box;
+    padding: var(--page-print-margin);
+    background: #ffffff;
+    color: #16181c;
+    overflow: hidden;
+  }
+}

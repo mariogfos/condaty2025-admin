@@ -12,6 +12,7 @@ import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
+
 const paramsInitial = {
   perPage: -1,
   page: 1,
@@ -50,21 +51,25 @@ const Config = () => {
 
   return (
     <div className={styles.Config}>
-      <div>
-        <TabsButtons
-          tabs={[
-            { value: "C", text: "Condominio" },
-            { value: "P", text: "Cuentas de pagos" },
-            { value: "M", text: "Morosidad" },
-            { value: "T", text: "Tipos de unidades" },
-            { value: "Q", text: "QR Dinámico" },
-          ]}
-          sel={typeSearch}
-          setSel={setTypeSearch}
-        />
+      <div className={styles.tabBar}>
+        <div className={styles.tabBarInner}>
+          <TabsButtons
+            tabs={[
+              { value: "C", text: "Condominio" },
+              { value: "R", text: "Reglas Operativas" },
+              { value: "P", text: "Cuentas de pagos" },
+              { value: "M", text: "Morosidad" },
+              { value: "Q", text: "QR Dinámico" },
+              { value: "T", text: "Tipos de unidades" },
+            ]}
+            sel={typeSearch}
+            setSel={setTypeSearch}
+            variant="pill"
+          />
+        </div>
       </div>
 
-      <div>
+      <div className={styles.contentPanel}>
         {typeSearch == "M" && (
           <LoadingScreen>
             <DefaulterConfig
@@ -91,7 +96,20 @@ const Config = () => {
             />
           </LoadingScreen>
         )}
-        {typeSearch == "T" && <UnitsType />}
+        {typeSearch == "R" && (
+          <LoadingScreen>
+            <DptoConfig
+              client_config={client_config?.data?.[0]}
+              onSave={onSave}
+              mode="rules"
+            />
+          </LoadingScreen>
+        )}
+        {typeSearch == "T" && (
+          <div className={styles.tablePanel}>
+            <UnitsType />
+          </div>
+        )}
         {typeSearch == "Q" && <QrDynamicConfig />}
       </div>
     </div>

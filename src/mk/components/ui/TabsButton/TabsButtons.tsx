@@ -7,7 +7,7 @@ type PropsType = {
   setSel: Function;
   val?: string;
   text?: string;
-  variant?: "default" | "rounded"; // Nueva prop para la variación
+  variant?: "default" | "rounded" | "pill";
 };
 const TabsButtons = ({
   sel,
@@ -17,11 +17,17 @@ const TabsButtons = ({
   text = "text",
   variant = "default", // Valor por defecto
 }: PropsType) => {
-  const containerClass = variant === "rounded"
-    ? styles.tabsButtonRounded
-    : styles.tabsButton;
+  const containerClass =
+    variant === "pill"
+      ? styles.tabsButtonPill
+      : variant === "rounded"
+        ? styles.tabsButtonRounded
+        : styles.tabsButton;
 
   const buttonClass = (isSelected: boolean) => {
+    if (variant === "pill") {
+      return isSelected ? styles.selectedPill : styles.buttonPill;
+    }
     if (variant === "rounded") {
       return isSelected ? styles.selectedRounded : styles.buttonRounded;
     }

@@ -1,96 +1,232 @@
 .select {
   position: relative;
   width: 100%;
-  & > div:hover {
-    cursor: pointer;
-  }
-
-  & > div > div > div > label {
-    cursor: pointer;
-  }
-  /* z-index: 30; */
-  /* & > section {
-    background-color: var(--cBlackV2);
-    border: var(--bWidth) solid var(--cWhiteV3);
-    border-radius: var(--bRadius);
-    position: absolute;
-    top: 100px;
-    width: calc(100% - var(--spS) * 2);
-    padding: var(--spS);
-    & > ul {
-      overflow-y: auto;
-      max-height: 250px;
-      padding: var(--spS) var(--spS);
-      & li {
-        list-style: none;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        padding: var(--spS) var(--spS);
-      }
-      & li:hover,
-      & li.selected {
-        background-color: #00e38c0d;
-      }
-    }
-  } */
+  min-width: 0;
+  font-family: var(--fPrimary);
 }
 
-.select input[type="text"] {
+.autoWidth {
+  width: min(100%, var(--controlMaxWidth));
+  max-width: min(100%, var(--controlMaxWidth));
+  min-width: var(--controlMinWidth);
+  display: inline-flex;
+}
+
+.selectTrigger {
+  appearance: none;
+  width: 100%;
+  min-width: var(--controlMinWidth);
+  max-width: 100%;
+  min-height: var(--controlHeight);
+  max-height: var(--controlHeight);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px var(--controlPaddingX);
+  border-radius: var(--controlRadius);
+  border: 1px solid var(--controlSecondaryBorder);
+  background-color: var(--controlSecondaryBg);
+  color: var(--controlSecondaryText);
+  font-family: var(--fPrimary);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.autoWidth .selectTrigger {
+  width: 100%;
+  max-width: 100%;
+}
+
+.selectTrigger:hover {
+  background-color: var(--controlSecondaryBg);
+  border-color: var(--controlSecondaryHoverBorder);
+  color: var(--controlSecondaryHoverText);
+}
+
+.selectTrigger:focus-visible {
+  outline: none;
+  border-color: var(--cPrimary);
+  box-shadow: 0 0 0 3px rgba(0, 227, 140, 0.12);
+}
+
+.isOpen .selectTrigger {
+  border-color: var(--cPrimary);
+  background-color: var(--controlSecondaryBg);
+  color: var(--controlSecondaryHoverText);
+  box-shadow: 0 0 0 3px rgba(0, 227, 140, 0.12);
+}
+
+.hasError .selectTrigger {
+  border-color: var(--cError);
+}
+
+.isDisabled .selectTrigger {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.triggerBody {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: calc(var(--controlGap) - 2px);
+  overflow: hidden;
+}
+
+.noLabel .triggerBody {
+  justify-content: center;
+}
+
+.triggerLabel {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  color: var(--controlLabelColor);
+  font-size: calc(var(--controlLabelSize) - 2px);
+  font-weight: var(--controlLabelWeight);
+  line-height: 1.1;
+  letter-spacing: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.triggerValue {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  color: var(--controlSecondaryText);
+  font-size: calc(var(--controlFontSize) - 2px);
+  font-weight: var(--controlFontWeight);
+  line-height: 1.2;
+  letter-spacing: var(--controlLetterSpacing);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.isFilled .triggerValue {
+  color: var(--cWhite);
+}
+
+.autoWidth .triggerValue {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.placeholderValue {
+  color: var(--cWhiteV3);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--controlSecondaryText);
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+  color: var(--controlSecondaryHoverText);
+}
+
+.errorText {
+  margin: 6px 4px 0;
+  color: var(--cError);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.searchBox {
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--cModalDivider);
+}
+
+.searchBox > div {
+  margin-bottom: 0;
+}
+
+.hidden {
+  display: none;
+}
+
 .selectOptions {
   cursor: pointer;
-  background-color: rgba(18, 21, 25, 0.96);
-  border: 1px solid #d7fff014;
-  border-radius: 12px;
+  z-index: 1300;
+  width: max-content;
+  max-width: min(calc(100vw - 24px), 420px);
+  padding: 8px;
+  background-color: rgba(18, 21, 25, 0.98);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 16px;
+  box-shadow:
+    0 20px 32px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
   position: fixed;
-  top: 20px;
-  width: calc(100% - var(--spS) * 2);
-  padding: 0;
   color: var(--cWhiteV1);
 
   & > ul {
     overflow-y: auto;
-    max-height: 250px;
-    padding: var(--spS) 0;
+    max-height: min(320px, calc(100vh - 140px));
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 
     & li {
       list-style: none;
       width: 100%;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: var(--spS) var(--spS);
-      color: #878f9a;
+      padding: 10px 12px;
+      border-radius: 10px;
+      min-height: 40px;
+      color: var(--cWhiteV1);
+      transition:
+        background-color 0.18s ease,
+        color 0.18s ease;
     }
 
     & li:hover,
     & li.selected {
-      background-color: rgba(0, 227, 140, 0.14);
+      background-color: var(--cBackground-foreground);
       color: var(--cWhite);
-    }
-
-    & div {
-      display: flex;
     }
   }
 }
 
-.selectOptions ul li > div {
+.optionContent {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  min-width: 0;
+}
+
+.optionContent > div:last-child {
+  min-width: 0;
+  word-break: break-word;
 }
 
 .groupOption {
   cursor: default;
   padding-top: 14px;
-  padding-bottom: 6px;
+  padding-bottom: 8px;
   color: rgba(255, 255, 255, 0.48);
   background: transparent;
 }
@@ -106,41 +242,3 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-
-/*
-.select {
-  position: relative;
-  width: 100%;
-
-  & > section {
-  background-color: var(--cBlackV1);
-  color: var(--cBlackV2);
-  border: var(--bWidth) solid var(--cWhiteV3);
-  border-radius: var(--bRadius);
-  position: absolute;
-  top: 100px;
-  width: calc(100% - var(--spS) * 2);
-  padding: var(--spS);
-  & > ul {
-  overflow-y: auto;
-  max-height: 250px;
-  padding: var(--spS) var(--spS);
-  & li {
-  list-style: none;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: var(--spS) var(--spS);
-  }
-  & li:hover,
-  & li.selected {
-  background-color: var(--cWhiteV3);
-  color:var(--cWhite)
-  }
-  }
-  }
-  }
-
-  Reaccionar
-
-  Responder */

@@ -1,98 +1,179 @@
 .useCrud {
-  gap: 1px;
-  & > div > section {
-    /* height: calc(100vh - 280px); */
-    overflow-y: auto;
-    & > section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100%;
-      justify-content: center;
-      & > p {
-        font-size: 20px;
-        font-weight: 900;
-      }
-    }
-  }
-  & > section {
-    /* height: calc(100vh - 280px); */
-    overflow-y: auto;
-    & > section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100%;
-      justify-content: center;
-      & > p {
-        font-size: 20px;
-        font-weight: 900;
-      }
-    }
-  }
-  & > nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--spL);
-    overflow: visible;
-    margin-bottom: var(--spL);
-    & > div > div > div {
-      margin-bottom: 0px;
-    }
-    & > div:first-child {
-      flex-grow: 1;
-      & > div {
-        margin-bottom: 0px;
-      }
-    }
-  }
-  & .actions {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    gap: var(--spM);
-    color: var(--cWhiteV3);
-    & > div {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 8px;
-      background-color: var(--cBackground);
-      border: 1px solid var(--cBorder);
-      overflow: hidden;
-    }
-    & div:first-child {
-      color: var(--cWhiteV1);
-    }
-    & div:last-child {
-      color: var(--cWhiteV1);
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  gap: 16px;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.titleText {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: var(--title-sm-size);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.15;
+}
+
+.toolbarRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.toolbarSearch {
+  width: min(100%, 360px);
+  max-width: 360px;
+  min-width: 280px;
+  flex: 0 1 360px;
+}
+
+.toolbarSearch > div,
+.toolbarSearch > div > div {
+  margin-bottom: 0;
+}
+
+.toolbarControls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.toolbarFilters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 320px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.toolbarActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  margin-left: auto;
+  max-width: 100%;
+}
+
+.contentRow {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  align-items: stretch;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.contentMain {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.contentSide {
+  display: flex;
+  flex: 0 0 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.emptyState > section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.emptyState > section > p {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.paginationRow {
+  margin-top: 12px;
+}
+
+.actions {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: var(--spM);
+  color: var(--cWhiteV3);
+}
+
+.actions > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  background-color: var(--cBackground);
+  border: 1px solid var(--cBorder);
+  overflow: hidden;
+}
+
+.actions div:first-child,
+.actions div:last-child {
+  color: var(--cWhiteV1);
 }
 
 .listAndCard {
   display: flex;
   align-items: center;
   height: 100%;
-  & > div {
-    padding: 12px;
-    color: var(--cWhiteV1);
-    background-color: var(--cBackground);
-    cursor: pointer;
-  }
-  & > div:nth-child(1) {
-    border: 1px solid var(--cBorder);
-    border-radius: 8px 0px 0px 8px;
-  }
-  & > div:nth-child(2) {
-    border: 1px solid var(--cBorder);
-    border-radius: 0px 8px 8px 0px;
-  }
-  .active {
-    border: 1px solid var(--cAccent);
-    background-color: var(--cBackground-foreground);
-  }
+}
+
+.listAndCard > div {
+  padding: 12px;
+  color: var(--cWhiteV1);
+  background-color: var(--cBackground);
+  cursor: pointer;
+}
+
+.listAndCard > div:nth-child(1) {
+  border: 1px solid var(--cBorder);
+  border-radius: 8px 0 0 8px;
+}
+
+.listAndCard > div:nth-child(2) {
+  border: 1px solid var(--cBorder);
+  border-radius: 0 8px 8px 0;
+}
+
+.listAndCard .active {
+  border: 1px solid var(--cAccent);
+  background-color: var(--cBackground-foreground);
 }
 
 .formDelete {
@@ -101,39 +182,82 @@
   font-size: var(--sM);
 }
 
+.formLayout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 12px 16px;
+  width: 100%;
+  align-items: start;
+}
+
+.formGroup {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 12px 16px;
+  width: 100%;
+  min-width: 0;
+  align-items: start;
+}
+
+.formGroupBorder {
+  border: 1px solid var(--cModalBorder);
+  border-radius: 16px;
+  padding: 16px;
+  background-color: color-mix(
+    in srgb,
+    var(--cModalSurfaceRaised) 74%,
+    transparent
+  );
+}
+
+.formGroupTop {
+  grid-column: 1 / -1;
+  margin-bottom: 4px;
+}
+
+.formField {
+  min-width: 0;
+}
+
 .addButton {
-  height: 44px !important;
-  padding: 12px 24px;
-  font-size: 15px;
-  font-weight: 600 !important;
+  min-height: var(--controlHeight) !important;
+  padding: var(--controlPaddingY) 24px;
+  font-size: var(--controlFontSize);
+  font-weight: 750 !important;
+  letter-spacing: var(--controlLetterSpacing);
   color: #212121 !important;
   background-color: #00e38c !important;
-  border-radius: 12px;
+  border-radius: var(--controlRadius);
   cursor: pointer;
   transition: background-color 0.3s;
   width: auto;
-  min-width: 170px;
+  min-width: var(--controlMinWidth);
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
+
 .extraButtons {
   display: flex;
   gap: var(--spM);
   align-items: center;
   flex-wrap: wrap;
 }
+
 .extraButtons > div > button,
 .extraButtons > button {
-  height: 44px;
-  padding: 12px 16px;
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--cWhiteV1);
+  min-height: var(--controlHeight);
+  min-width: var(--controlMinWidth);
+  padding: var(--controlPaddingY) var(--controlPaddingX);
+  font-size: var(--controlFontSize);
+  font-weight: var(--controlFontWeight);
+  letter-spacing: var(--controlLetterSpacing);
+  color: var(--controlSecondaryText);
   gap: 8px;
-  border-radius: 12px;
-  border: 1px solid var(--cBorder);
-  background-color: var(--cBackground);
+  border-radius: var(--controlRadius);
+  border: 1px solid var(--controlSecondaryBorder);
+  background-color: var(--controlSecondaryBg);
   width: auto;
   display: inline-flex;
   align-items: center;
@@ -151,37 +275,6 @@
   width: 100%;
 }
 
-@media (max-width: 1024px) {
-  .useCrud .filters {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .addButton {
-    width: 100%;
-    min-width: 0;
-    display: block;
-  }
-}
-
-@media (max-width: 600px) {
-  .useCrud .filters {
-    grid-template-columns: 1fr;
-  }
-  .addButton {
-    width: 100%;
-    min-width: 0;
-    display: block;
-  }
-}
-
-/* .iconsMenu {
-  background-color: var(--cWhiteV2);
-  height: 48px;
-  padding: 0px 10px;
-  border-radius: var(--bRadiusS);
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-} */
 .disabled {
   opacity: 0.3;
   cursor: not-allowed;
@@ -193,11 +286,95 @@
   color: var(--cWhiteV1);
   background-color: var(--cBackground);
   border: 1px solid var(--cBorder);
-  min-width: 44px;
+  min-width: var(--controlHeight);
   padding: 12px;
-  height: 44px;
-  border-radius: 12px;
-  &:hover {
-    background-color: var(--cBackground-foreground);
+  height: var(--controlHeight);
+  border-radius: var(--controlRadius);
+}
+
+.icons:hover,
+.extraButtons > div > svg:hover {
+  background-color: var(--cBackground-foreground);
+}
+
+@media (max-width: 1024px) {
+  .toolbarRow,
+  .toolbarControls,
+  .toolbarFilters {
+    width: 100%;
+  }
+
+  .toolbarControls {
+    justify-content: flex-start;
+  }
+
+  .toolbarActions {
+    width: auto;
+    justify-content: flex-end;
+    margin-left: auto;
+  }
+
+  .contentRow {
+    flex-direction: column;
+  }
+
+  .contentSide {
+    width: 100%;
+  }
+
+  .useCrud .filters {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .addButton {
+    width: 100%;
+    min-width: 0;
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .titleText {
+    font-size: var(--title-xs-size);
+  }
+
+  .toolbarSearch,
+  .toolbarControls,
+  .toolbarFilters,
+  .toolbarActions,
+  .extraButtons {
+    width: 100%;
+  }
+
+  .toolbarSearch {
+    max-width: none;
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .toolbarControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbarFilters,
+  .toolbarActions {
+    justify-content: flex-end;
+  }
+
+  .toolbarActions {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .useCrud .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .addButton {
+    width: 100%;
+    min-width: 0;
+    display: block;
   }
 }

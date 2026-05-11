@@ -273,9 +273,9 @@ const SecondPart = ({
     }
   }, [openModal]);
   return (
-    <div onClick={() => setOpenDrop(false)}>
+    <div className={styles.partStack} onClick={() => setOpenDrop(false)}>
       <p className={styles.title}>Define el tipo de reserva</p>
-      <div style={{ display: "flex", width: "100%", gap: 8 }}>
+      <div className={styles.radioRow}>
         <Radio
           disabled={formState?.id}
           checked={formState?.booking_mode == "day"}
@@ -331,36 +331,11 @@ const SecondPart = ({
       {formState?.available_hours &&
         formState?.booking_mode &&
         sortedDays()?.length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              overflowX: "scroll",
-              gap: 8,
-              marginTop: 12,
-              // scrollbarWidth: "thin",
-              scrollbarColor: "var(--cBackground-muted) var(--cBackground)",
-            }}
-          >
+          <div className={styles.availabilityScroller}>
             {sortedDays().map((day: any, index: any) => (
-              <div
-                key={index}
-                style={{
-                  maxWidth: 210,
-                  minWidth: 210,
-                  border: "1px solid var(--cBorder)",
-                  borderRadius: 8,
-                  padding: 12,
-                  backgroundColor: "var(--cBackground)",
-                  position: "relative",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <p style={{ fontSize: 14 }}>{day}</p>
+              <div key={index} className={styles.availabilityCard}>
+                <div className={styles.availabilityCardHeader}>
+                  <p className={styles.availabilityDay}>{day}</p>
                   <IconOptions
                     color="var(--cWhiteV1)"
                     onClick={(e: any) => {
@@ -370,24 +345,9 @@ const SecondPart = ({
                     }}
                   />
                   {openDrop && day == selectedDays[0] && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        backgroundColor: "var(--cWhiteV2)",
-                        border: "1px solid var(--cWhiteV1)",
-                        padding: 12,
-                        borderRadius: 12,
-                        bottom: 2,
-                        right: 6,
-                        display: "flex",
-                        flexDirection: "column",
-                        color: "var(--cWhiteV1)",
-                        gap: 4,
-                        zIndex: 1000,
-                      }}
-                    >
+                    <div className={styles.optionsMenu}>
                       <p
-                        style={{ padding: 4, cursor: "pointer" }}
+                        className={styles.optionsItem}
                         onClick={() => {
                           setOpenModal({ open: true, edit: true });
                           setOpenDrop(!openDrop);
@@ -397,7 +357,7 @@ const SecondPart = ({
                       </p>
 
                       <p
-                        style={{ padding: 4, cursor: "pointer" }}
+                        className={styles.optionsItem}
                         onClick={() => {
                           onDel(day);
                           setOpenDrop(!openDrop);
@@ -408,43 +368,16 @@ const SecondPart = ({
                     </div>
                   )}
                 </div>
-                <p
-                  style={{
-                    marginBottom: 8,
-                    fontSize: 12,
-                    color: "var(--cWhiteV1)",
-                  }}
-                >
+                <p className={styles.availabilityMeta}>
                   {formState?.booking_mode == "hour"
                     ? "Periodos de horas"
                     : "Horario disponible"}
                 </p>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 8,
-                    overflowX: "auto",
-                    width: "100%",
-                    scrollbarWidth: "thin",
-                    scrollbarColor:
-                      "var(--cBackground-muted) var(--cBackground)",
-                  }}
-                >
+                <div className={styles.periodsScroller}>
                   {formState?.available_hours[day]?.map(
                     (period: any, index: any) => (
-                      <div
-                        key={index}
-                        style={{
-                          border: "1px solid var(--cBorder)",
-                          flex: "0 0 auto",
-                          padding: "8px",
-                          borderRadius: 8,
-                          backgroundColor: "transparent",
-                        }}
-                      >
-                        <p style={{ color: "var(--cWhiteV1)", fontSize: 14 }}>
-                          {period}
-                        </p>
+                      <div key={index} className={styles.periodChip}>
+                        <p className={styles.periodChipText}>{period}</p>
                       </div>
                     )
                   )}
@@ -489,15 +422,8 @@ const SecondPart = ({
         error={errors}
       />
       <Br />
-      <div
-        style={{
-          display: "flex",
-          gap: 12,
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <div>
+      <div className={styles.switchRow}>
+        <div className={styles.switchContent}>
           <p className={styles.title}>
             ¿El área social tiene un costo por uso?
           </p>
@@ -580,7 +506,7 @@ const SecondPart = ({
           variant={"mini"}
         >
           <p className={styles.title}>Periodo de disponibilidad</p>
-          <div style={{ display: "flex", gap: 12 }}>
+          <div className={styles.modalFieldGrid}>
             <Select
               label="Hora de inicio"
               name="start_hour"
@@ -619,49 +545,20 @@ const SecondPart = ({
               <p className={styles.title} style={{ marginTop: 12 }}>
                 Periodos actuales
               </p>
-              <div
-                style={{
-                  display: "flex",
-                  gap: 8,
-                  flexWrap: "wrap",
-                  width: "100%",
-                }}
-              >
+              <div className={styles.daysPreviewGrid}>
                 {selectedDays
                   .sort((a: any, b: any) => days.indexOf(a) - days.indexOf(b))
                   .map((day: any) => (
-                    <div
-                      key={day}
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 8,
-                      }}
-                    >
-                      <p style={{ fontSize: 14 }}>{day}</p>
+                    <div key={day} className={styles.daysPreviewColumn}>
+                      <p className={styles.daysPreviewLabel}>{day}</p>
 
                       {periods.map((period: any, index: any) => (
-                        <div
-                          key={index}
-                          style={{
-                            border: "0.5px solid var(--cWhiteV1) ",
-                            padding: 8,
-                            borderRadius: 8,
-                          }}
-                        >
-                          <p style={{ color: "var(--cWhiteV1)", fontSize: 14 }}>
-                            {period}
-                          </p>
+                        <div key={index} className={styles.daysPreviewChip}>
+                          <p className={styles.periodChipText}>{period}</p>
                         </div>
                       ))}
                       {formState?.booking_mode == "day" && (
-                        <div
-                          style={{
-                            border: "0.5px solid var(--cWhiteV1) ",
-                            padding: 8,
-                            borderRadius: 8,
-                          }}
-                        >
+                        <div className={styles.daysPreviewChip}>
                           {formState?.start_hour + "-" + formState?.end_hour}
                         </div>
                       )}

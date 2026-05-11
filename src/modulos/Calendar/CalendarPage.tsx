@@ -34,6 +34,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import Select from "@/mk/components/forms/Select/Select";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { capitalize, capitalizeWords } from "@/mk/utils/string";
 import { RESERVATION_STATUS_OPTIONS } from "@/modulos/Reservas/constants/reservationConstants";
 import { getUrlImages } from "@/mk/utils/string";
@@ -55,17 +56,19 @@ import {
 } from "./helpers";
 import styles from "./CalendarPage.module.css";
 
-const MAX_EVENTS_PER_DAY = 3;
+const DEFAULT_DAY_ENTRY_SLOTS = 3;
+const DAY_ENTRY_ROW_HEIGHT = 24;
+const DAY_CELL_CONTENT_OFFSET = 44;
 
 const FILTER_INPUT_STYLE = {
   height: 44,
-  backgroundColor: "var(--cModalSurfaceRaised)",
-  border: "1px solid var(--cModalBorder)",
+  backgroundColor: "var(--cTableHeader)",
+  border: "1px solid var(--cTableBorder)",
   borderRadius: 12,
   padding: "16px",
   fontSize: 15,
   fontWeight: 600,
-  color: "var(--cWhiteV1)",
+  color: "var(--cWhite)",
 };
 
 const FILTER_STYLE = {
@@ -107,10 +110,12 @@ const CalendarPage = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [detailItem, setDetailItem] = useState<ReservationListItem | null>(null);
+  const [dayEntrySlots, setDayEntrySlots] = useState(DEFAULT_DAY_ENTRY_SLOTS);
 
   const deferredSearch = useDeferredValue(searchText);
   const requestKeyRef = useRef("");
   const hasLoadedAreasRef = useRef(false);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const canView = userCan("reservations", "R");
   const canCreate = userCan("reservations", "C");
@@ -345,6 +350,42 @@ const CalendarPage = () => {
     );
   }, [selectedDate]);
 
+  useEffect(() => {
+    const gridElement = gridRef.current;
+    if (!gridElement) return;
+
+    const updateDayEntrySlots = () => {
+      const rect = gridElement.getBoundingClientRect();
+      if (!rect.height || !calendarRowCount) {
+        setDayEntrySlots(DEFAULT_DAY_ENTRY_SLOTS);
+        return;
+      }
+
+      const cellHeight = rect.height / Math.max(calendarRowCount, 1);
+      const availableHeight = Math.max(0, cellHeight - DAY_CELL_CONTENT_OFFSET);
+      const nextSlots = Math.max(
+        1,
+        Math.min(6, Math.floor(availableHeight / DAY_ENTRY_ROW_HEIGHT)),
+      );
+
+      setDayEntrySlots((current) => (current === nextSlots ? current : nextSlots));
+    };
+
+    const frame = window.requestAnimationFrame(updateDayEntrySlots);
+    const observer = new ResizeObserver(() => {
+      window.requestAnimationFrame(updateDayEntrySlots);
+    });
+
+    observer.observe(gridElement);
+    window.addEventListener("resize", updateDayEntrySlots);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", updateDayEntrySlots);
+    };
+  }, [calendarRowCount, filteredReservations.length, loading]);
+
   const handlePeriodSelect = useCallback(
     (event: { target: { value: string } }) => {
       const [yearValue, monthValue] = String(event.target.value || "").split("-");
@@ -494,7 +535,7 @@ const CalendarPage = () => {
               variant="secondary"
               onClick={handleRefresh}
               disabled={loading || refreshing}
-              style={{ height: 44, width: "auto" }}
+              style={{ height: 48, width: "auto" }}
             >
               {refreshing ? "Actualizando..." : "Actualizar"}
             </Button>
@@ -502,7 +543,7 @@ const CalendarPage = () => {
               <Button
                 variant="primary"
                 onClick={() => router.push("/create-reservas")}
-                style={{ height: 44, width: "auto", fontWeight: 700 }}
+                style={{ height: 48, width: "auto", fontWeight: 700 }}
               >
                 Nueva reserva
               </Button>
@@ -548,6 +589,7 @@ const CalendarPage = () => {
           </div>
 
           <div
+            ref={gridRef}
             className={styles.grid}
             style={{
               gridTemplateRows: `repeat(${calendarRowCount}, minmax(0, 1fr))`,
@@ -556,8 +598,12 @@ const CalendarPage = () => {
             {monthDays.map((day) => {
               const dayKey = formatDateKey(day);
               const dayEntries = entriesByDay.get(dayKey) || [];
-              const visibleEntries = dayEntries.slice(0, MAX_EVENTS_PER_DAY);
-              const hiddenCount = dayEntries.length - visibleEntries.length;
+              const shouldShowMoreIndicator = dayEntries.length > dayEntrySlots;
+              const maxVisibleEntries = shouldShowMoreIndicator
+                ? Math.max(dayEntrySlots - 1, 0)
+                : dayEntrySlots;
+              const visibleEntries = dayEntries.slice(0, maxVisibleEntries);
+              const hiddenCount = Math.max(0, dayEntries.length - visibleEntries.length);
               const isCurrentMonth = isSameMonth(day, currentMonth);
               const isSelected =
                 selectedDate ? dayKey === formatDateKey(selectedDate) : false;
@@ -662,14 +708,21 @@ const CalendarPage = () => {
                           </p>
                         </div>
                       </div>
-                      <span
-                        className={styles.statusBadge}
+                      <StatusBadge
+                        color={entry.color}
+                        backgroundColor={entry.backgroundColor}
+                        containerStyle={{
+                          width: "auto",
+                          height: "auto",
+                          justifyContent: "flex-end",
+                          alignItems: "flex-start",
+                        }}
                         style={{
-                          color: entry.color,
+                          fontSize: 11,
                         }}
                       >
                         {entry.statusLabel}
-                      </span>
+                      </StatusBadge>
                     </div>
 
                     {showReason ? (

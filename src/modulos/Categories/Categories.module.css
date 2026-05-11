@@ -1,4 +1,9 @@
 .container {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
   width: 100%;
 }
 
@@ -19,7 +24,7 @@
   width: 100% !important;
   display: block;
   box-sizing: border-box;
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-top: 1px solid var(--cWhiteV1);
   transition: background-color 0.2s;
 }
 .categoryHeader {
@@ -120,7 +125,7 @@
   width: 100%;
   box-sizing: border-box;
   border-top: none;
-  border-bottom: 0.5px solid var(--cWhiteV1);
+  border-bottom: 1px solid var(--cWhiteV1);
   gap: 16px;
 }
 
@@ -157,7 +162,7 @@
 .addSubcategoryButton {
   background-color: transparent;
   font-size: 14px;
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   font-weight: var(--bRegular);
   border: none;
   display: flex;

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,-50..200&display=swap");
 
 :root {
   --accent: #00e38c;
@@ -57,6 +57,7 @@
   --cNeutral-700: #2b333d;
   --cNeutral-800: #1b2229;
   --cNeutral-900: #121519;
+  --cNeutral-950: #0d1116;
 
   /* sidebar */
   --cSidebar: var(--cNeutral-800);
@@ -97,6 +98,18 @@
   --cHoverInfo: #596376;
   --cHoverError: #da5d5d33;
   --cHoverWarning: #e1c15133;
+  --cStatusSuccess: #58d892;
+  --cStatusSuccessSoft: rgba(88, 216, 146, 0.08);
+  --cStatusInfo: #78a9ff;
+  --cStatusInfoSoft: rgba(120, 169, 255, 0.08);
+  --cStatusWarning: #f2bf56;
+  --cStatusWarningSoft: rgba(242, 191, 86, 0.08);
+  --cStatusDanger: #ff8d7a;
+  --cStatusDangerSoft: rgba(255, 141, 122, 0.08);
+  --cStatusProgress: #b98fff;
+  --cStatusProgressSoft: rgba(185, 143, 255, 0.08);
+  --cStatusNeutral: #c2cad4;
+  --cStatusNeutralSoft: rgba(194, 202, 212, 0.06);
 
   /* Paleta de toast*/
   --cToastError: #6e4b48;
@@ -159,14 +172,37 @@
   --cMediumAlert: #f37f3d;
   --cLowAlert: "#FDD671";
 
-  /* Tamaños de los textos fluido */
-  --sXxl: 24px;
-  --sXl: 20px;
-  --sL: 16px;
-  --sM: 14px;
-  --sS: 12px;
-  --sXs: 10px;
-  --sXxs: 8px;
+  /* Pesos tipograficos */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Tamanos tipograficos */
+  --title-xxs-size: 18px;
+  --title-xs-size: 20px;
+  --title-sm-size: 24px;
+  --title-md-size: 32px;
+  --title-lg-size: 40px;
+  --title-xl-size: 48px;
+  --title-xxl-size: 68px;
+
+  --body-xxs-size: 11px;
+  --body-xs-size: 12px;
+  --body-sm-size: 14px;
+  --body-md-size: 16px;
+  --body-lg-size: 18px;
+  --body-xl-size: 20px;
+  --body-xxl-size: 24px;
+
+  /* Tamaños legacy conectados a la nueva escala */
+  --sXxl: var(--body-xxl-size);
+  --sXl: var(--body-xl-size);
+  --sL: var(--body-md-size);
+  --sM: var(--body-sm-size);
+  --sS: var(--body-xs-size);
+  --sXs: calc(var(--body-xxs-size) - 1px);
+  --sXxs: calc(var(--body-xxs-size) - 3px);
   /* Espaciados */
   --spXs: 4px;
   --spS: 8px;
@@ -175,20 +211,50 @@
   --spXl: 24px;
   --spXxl: 32px;
   /* Fuentes */
-  --fPrimary: "Roboto", sans-serif;
-  --fSecondary: "Roboto", sans-serif;
+  --fPrimary: var(--font-app-sans), "Inter", sans-serif;
+  --fSecondary: var(--font-app-sans), "Inter", sans-serif;
+  --fMaterial: "Material Symbols Rounded";
   /* Border */
   --bRadiusS: 8px;
   --bRadius: 12px;
   --bRadiusM: 16px;
   --bRadiusL: 20px;
   --bWidth: 1px;
-  /* Bolds */
+  /* Pesos legacy */
   --bLight: 300;
-  --bRegular: 400;
-  --bMedium: 500;
-  --bSemibold: 600;
-  --bBold: 700;
+  --bRegular: var(--font-weight-regular);
+  --bMedium: var(--font-weight-medium);
+  --bSemibold: var(--font-weight-semibold);
+  --bBold: var(--font-weight-bold);
+  /* Controls */
+  --controlMinWidth: 160px;
+  --controlMaxWidth: 260px;
+  --controlHeight: 48px;
+  --controlRadius: 12px;
+  --controlPaddingX: 16px;
+  --controlPaddingY: 12px;
+  --controlGap: 4px;
+  --controlFontSize: 15px;
+  --controlFontWeight: var(--font-weight-medium);
+  --controlLabelSize: 13px;
+  --controlLabelWeight: var(--font-weight-regular);
+  --controlLabelColor: var(--cWhiteV1);
+  --controlLabelFocusColor: var(--cWhite);
+  --controlLetterSpacing: -0.01em;
+  --controlSecondaryBg: color-mix(
+    in srgb,
+    var(--cNeutral-900) 72%,
+    var(--cNeutral-800) 28%
+  );
+  --controlSecondaryBorder: var(--cBorder);
+  --controlSecondaryText: var(--cWhiteV1);
+  --controlSecondaryHoverBg: color-mix(
+    in srgb,
+    var(--controlSecondaryBg) 92%,
+    var(--cWhite) 8%
+  );
+  --controlSecondaryHoverBorder: var(--cNeutral-500);
+  --controlSecondaryHoverText: var(--cWhite);
   /* button search size */
   /* --btn-width: 8rem; */
   --responsive-tablet: 768px;
@@ -211,21 +277,23 @@
 
   /* Paleta de colores nueva semantic */
 
-  --cBackground-muted: var(--cNeutral-900);
+  --cBackground-muted: var(--cNeutral-950);
   --cBackground: var(--cNeutral-800);
   --cBackground-foreground: #232b34;
   --cBorder: #313b46;
   --cDivider: var(--cNeutral-600);
-  --cTableSurface: #151a20;
-  --cTableSurfaceAlt: #1b222b;
-  --cTableHeader: #1d2530;
-  --cTableHover: #242d38;
-  --cTableBorder: #35414f;
-  --cModalSurface: #10161d;
-  --cModalSurfaceRaised: #18212b;
-  --cModalSection: #151c24;
-  --cModalBorder: #2b3642;
-  --cModalDivider: #25303b;
+  --cTableSurface: #10151b;
+  --cTableSurfaceAlt: #12181f;
+  --cTableHeader: #151b23;
+  --cTableHover: #1a212a;
+  --cTableBorder: #2c3642;
+  --cTableRow: #131920;
+  --cTableRowAlt: #171e26;
+  --cModalSurface: #0d1218;
+  --cModalSurfaceRaised: #121922;
+  --cModalSection: #0f151d;
+  --cModalBorder: #222c37;
+  --cModalDivider: #1c2530;
   --cBrand-primary: #00e38c;
 }
 
@@ -244,6 +312,7 @@ body {
   font-size: var(--sM);
   font-family: var(--fPrimary);
   font-weight: var(--bRegular);
+  font-optical-sizing: auto;
   color: var(--cWhite);
   background-color: var(--cBackground-muted);
 }

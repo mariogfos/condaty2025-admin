@@ -289,8 +289,6 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       Boolean(timeLimit) && (statusKey === "A" || statusKey === "Q");
     const reasonText = reservationDetail?.reason?.trim() || "";
     const obsText = reservationDetail?.obs?.trim() || "";
-    const cancellationPolicy = reservationDetail?.area?.cancellation_policy?.trim() || "";
-    const usageRules = reservationDetail?.area?.usage_rules?.trim() || "";
     const areaName = reservationDetail?.area?.title || "Área social";
     const approvalLabel =
       statusKey === "R"
@@ -385,22 +383,6 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
             {
               label: "Observaciones",
               value: obsText,
-            },
-          ]
-        : []),
-      ...(cancellationPolicy
-        ? [
-            {
-              label: "Política de cancelación",
-              value: cancellationPolicy,
-            },
-          ]
-        : []),
-      ...(usageRules
-        ? [
-            {
-              label: "Reglas de uso",
-              value: usageRules,
             },
           ]
         : []),

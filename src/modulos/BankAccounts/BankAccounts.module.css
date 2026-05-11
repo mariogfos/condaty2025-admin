@@ -1,41 +1,121 @@
 .renderView {
-  min-width: 800px;
+  width: 100%;
+  min-width: 0;
   margin-bottom: 0 !important;
-  & > div {
-    display: flex;
-    padding: var(--spL);
-    gap: var(--spL);
-    align-items: center;
-    @media (max-width: 750px) {
-      flex-direction: column;
-    }
-    & > div {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: var(--spL);
-    }
-    & > section {
-      padding: var(--spM);
-      border-radius: 8px;
-      width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-      & > div {
-        display: flex;
-        flex-direction: column;
-        justify-self: start;
-        font-size: var(--sL);
-        font-size: var(--sM);
-        & > p:nth-child(odd) {
-          padding-bottom: 3px;
-          color: var(--cWhiteV1);
-        }
-        & > p:nth-child(even) {
-          color: var(--cWhite);
-        }
-      }
-    }
+.detailActionsRow {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+}
+
+.bankDetailCard {
+  width: 100%;
+  padding: 20px;
+  border-radius: 16px;
+  background-color: var(--cModalSection);
+  border: 1px solid var(--cModalBorder);
+}
+
+.bankDetailTopGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 20px;
+  align-items: start;
+}
+
+.bankDetailGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 20px 24px;
+}
+
+.bankDetailField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.bankDetailLabel {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: var(--body-md-size);
+  font-weight: var(--font-weight-regular);
+}
+
+.bankDetailValue {
+  color: var(--cWhite);
+  font-size: var(--body-md-size);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.bankDetailBadgeWrap {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+}
+
+.bankQrCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--cModalBorder);
+  background-color: color-mix(
+    in srgb,
+    var(--cModalSurfaceRaised) 72%,
+    transparent
+  );
+}
+
+.bankQrHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bankQrHint {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: var(--body-sm-size);
+  line-height: 1.45;
+}
+
+.bankQrPreview {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--cModalBorder);
+  background-color: var(--cModalSurfaceRaised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bankQrImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bankQrPlaceholder {
+  color: var(--cWhiteV1);
+  font-size: var(--body-sm-size);
+}
+
+@media (max-width: 900px) {
+  .bankDetailTopGrid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -91,16 +171,28 @@
 .style {
   display: flex;
   flex-direction: column;
+  flex: 1 1 0;
   gap: var(--spM);
+  min-height: 0;
+  height: 100%;
   width: 100%;
+}
+
+.statusColumn {
+  justify-content: center;
+  text-align: center;
+}
+
+.statusColumn > div {
+  margin-inline: auto;
 }
 
 .boxContent {
   display: flex;
   flex-direction: row;
   gap: var(--spM);
-  background-color: #d7fff005;
-  border: 1px solid #d7fff014;
+  background-color: var(--cModalSection);
+  border: 1px solid var(--cModalBorder);
   border-radius: 12px;
   justify-content: space-between;
 }
@@ -109,7 +201,7 @@
   display: flex;
   gap: var(--spM);
   justify-content: center;
-  border-top: 0.3px solid rgba(215, 255, 240, 0.12);
+  border-top: 1px solid var(--cModalDivider);
   padding-bottom: 0 !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
@@ -139,15 +231,15 @@
   display: flex;
   flex-direction: column;
   gap: var(--spS);
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
   border-radius: 12px;
-  background-color: #d7fff005;
+  background-color: var(--cModalSection);
   width: 50%;
   padding-bottom: 4px;
 }
 
 .infoSection_details {
-  border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
+  border-bottom: 1px solid var(--cModalDivider);
   padding-bottom: 8px;
   &:last-of-type {
     border-bottom: none;
@@ -164,8 +256,8 @@
   height: 72px;
   padding: var(--spM);
   border-radius: var(--bRadiusM);
-  background-color: #d7fff005;
-  border: 1px solid #d7fff014;
+  background-color: var(--cModalSection);
+  border: 1px solid var(--cModalBorder);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -186,10 +278,10 @@
 
 .unitCard {
   padding: var(--spM);
-  background-color: #d7fff005;
+  background-color: var(--cModalSection);
   border-radius: 0;
-  border-top: 1px solid #d7fff014;
-  border-bottom: 1px solid #d7fff014;
+  border-top: 1px solid var(--cModalDivider);
+  border-bottom: 1px solid var(--cModalDivider);
   opacity: 0.1;
 }
 

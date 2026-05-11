@@ -76,7 +76,7 @@
   background-color: #d7fff005; /* bg-[#333536] */
   padding: var(--spM, 12px); /* p-3 */
   border-radius: var(--bRadius, 12px); /* rounded-xl */
-  border: 1px solid #d7fff014; /* border-[0.5px] border-solid border-[#a7a7a7] */
+  border: 1px solid #d7fff014;
   align-self: stretch;
 }
 
@@ -263,7 +263,7 @@
 .cancelButton {
   composes: commonButton;
   /* width: 281px; /* w-[281px] - Mejor no fijar ancho, usar flex-grow si es necesario */
-  border: 1px solid #d7fff014; /* border-[0.5px] border-solid border-[#a7a7a7] */
+  border: 1px solid #d7fff014;
   color: var(--cWhiteV1, #a7a7a7); /* text-[#a7a7a7] */
   background-color: transparent;
   flex-grow: 1; /* Darle flexibilidad */

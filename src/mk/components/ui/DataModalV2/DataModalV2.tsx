@@ -3,6 +3,7 @@ import { CSSProperties, useEffect, useState } from "react";
 import Button from "../../forms/Button/Button";
 import styles from "./dataModalV2.module.css";
 import Br from "@/components/Detail/Br";
+import { useScreenSize } from "@/mk/hooks/useScreenSize";
 
 type PropsType = {
   children: any;
@@ -50,6 +51,7 @@ const DataModalV2 = ({
   subtitle = "",
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
+  const { isMobile, width } = useScreenSize();
 
   const _close = (a: any = false) => {
     setOpenModal(false);
@@ -68,11 +70,26 @@ const DataModalV2 = ({
     }
   }, [open]);
 
-  if (minWidth) {
-    style.minWidth = minWidth;
+  const customStyle = { ...style } as CSSProperties;
+  const numericMinWidth =
+    typeof minWidth === "number"
+      ? minWidth
+      : typeof minWidth === "string" && /^\d+(\.\d+)?(px)?$/.test(minWidth.trim())
+        ? Number(minWidth.replace("px", "").trim())
+        : null;
+  const shouldCollapseMinWidth =
+    isMobile ||
+    (numericMinWidth !== null && width <= numericMinWidth + 72);
+
+  if (minWidth && !shouldCollapseMinWidth) {
+    customStyle.minWidth = minWidth as any;
   }
   if (maxWidth) {
-    style.maxWidth = maxWidth;
+    customStyle.maxWidth = isMobile ? "calc(100vw - 24px)" : (maxWidth as any);
+  }
+  if (shouldCollapseMinWidth) {
+    customStyle.minWidth = 0;
+    customStyle.width = "100%";
   }
   return (
     <div
@@ -88,7 +105,7 @@ const DataModalV2 = ({
           " " +
           (variant ? styles[variant] : "")
         }
-        style={style}
+        style={customStyle}
       >
         <div className={styles.header}>
           {icon && <div className={styles.headerIcon}>{icon}</div>}

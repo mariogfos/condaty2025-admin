@@ -1,4 +1,3 @@
-import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./button.module.css";
 import { CSSProperties } from "react";
 
@@ -28,7 +27,6 @@ const Button = ({
   small = false,
   style,
 }: PropsType) => {
-  const { waiting } = useAuth();
   return (
     <button
       style={style}
@@ -42,7 +40,7 @@ const Button = ({
         className
       }
       onClick={onClick}
-      disabled={disabled || waiting > 0}
+      disabled={disabled}
     >
       {children}
     </button>

@@ -4,14 +4,7 @@
   justify-content: center;
   background-color: transparent;
   gap: 12px;
-  margin-bottom: var(--spS);
-  margin-top: var(--spS);
-
-  /* @media (min-width: 992px) {
-
-    width: 96px;
-
-  } */
+  margin-block: var(--spS);
 }
 
 .inputCode {
@@ -19,39 +12,50 @@
   height: 56px;
   text-align: center;
   font-size: 1.25rem;
-  padding: var(--spS);
-  border: 1px solid #ccc;
-  background-color: transparent;
-  border-radius: var(--spS);
-  transition: border-color 0.3s ease;
+  font-weight: var(--font-weight-semibold);
+  padding: 0;
+  border: 1px solid var(--controlSecondaryBorder);
+  background-color: var(--controlSecondaryBg);
+  border-radius: var(--controlRadius);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
   color: var(--cWhite);
-
-  &:focus {
-    outline: none;
-    color: var(--cWhite);
-    background-color: transparent;
-    border-color: var(--cWhite);
-    box-shadow: 0 0 0 3px rgba(#4caf50, 0.2);
-  }
+  outline: none;
 }
+
+.inputCode:hover {
+  border-color: var(--controlSecondaryHoverBorder);
+  background-color: var(--controlSecondaryHoverBg);
+}
+
+.inputCode::placeholder {
+  color: var(--cWhiteV3);
+}
+
+.inputCode:focus {
+  border-color: var(--cPrimary);
+  background-color: var(--controlSecondaryBg);
+  box-shadow: 0 0 0 3px rgba(0, 227, 140, 0.12);
+}
+
 .inputCodeErr {
   color: var(--cError);
   border-color: var(--cError);
-  width: 56px;
-  height: 56px;
-  text-align: center;
-  font-size: 1.25rem;
-  padding: var(--spS);
-  border: 1px solid #ccc;
-  background-color: transparent;
-  border-radius: var(--spS);
-  transition: border-color 0.3s ease;
 }
+
+.inputCodeErr:focus {
+  box-shadow: 0 0 0 3px rgba(255, 91, 91, 0.12);
+}
+
 .inputCode[type="number"]::-webkit-inner-spin-button,
 .inputCode[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 .inputCode[type="number"] {
   -moz-appearance: textfield;
 }

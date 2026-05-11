@@ -1,4 +1,5 @@
-// import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
+import "./globals.css";
 import "../styles/theme.css";
 import "../styles/utils.css";
 import AxiosInstanceProvider from "@/mk/contexts/AxiosInstanceProvider";
@@ -12,15 +13,11 @@ import { ImageModalProvider } from "@/contexts/ImageModalContext";
 import AppLanguageLayer from "@/i18n/AppLanguageLayer";
 // import { ReactScan } from "@/mk/utils/reactscan/ReactScan";
 
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+const appSans = Inter({
+  subsets: ["latin"],
+  variable: "--font-app-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: process.env.NEXT_PUBLIC_APP_NAME || "Condaty",
@@ -40,9 +37,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html
+      lang="es"
+      className={appSans.variable}
+      suppressHydrationWarning
+    >
       {/* <ReactScan /> */}
-      <body cz-shortcut-listen="true">
+      <body className={appSans.className} cz-shortcut-listen="true">
         <AxiosInstanceProvider interceptors={axiosInterceptors}>
           <AppLanguageLayer>
             <AuthProvider>

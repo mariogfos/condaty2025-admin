@@ -35,7 +35,7 @@ const InputCode = ({
     const code = inputRefs.current.map((input) => input.value).join("");
     setCode(code.trim());
   };
-  let color = error[name] ? "var(--cError)" : "var(--cWhite)";
+  let color = error?.[name] ? "var(--cError)" : "var(--cWhite)";
   useEffect(() => {
     inputRefs.current.forEach((input, index) => {
       const handleKeyDown = (e: KeyboardEvent) => {
@@ -100,17 +100,9 @@ const InputCode = ({
                 ref={(el: any) => (inputRefs.current[i] = el!)}
                 name={`code${i + 1}`}
                 id={`code${i + 1}`}
-                className={`${styles["inputCode"]} ${className}`}
-                style={{
-                  color:
-                    error && error[name]
-                      ? "var(--cError) !important"
-                      : "#ffffff",
-                  borderColor:
-                    error && error[name]
-                      ? "var(--cError) !important"
-                      : "rgba(255, 255, 255, 0.5)",
-                }}
+                className={`${styles.inputCode} ${
+                  error && error[name] ? styles.inputCodeErr : ""
+                } ${className}`}
                 required={required}
                 placeholder={placeholder}
                 autoComplete="off"

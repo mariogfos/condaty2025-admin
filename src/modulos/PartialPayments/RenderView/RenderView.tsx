@@ -151,6 +151,7 @@ const RenderView = ({
       key: "amount",
       width: "120px",
       label: "Subtotal",
+      className: styles.amountColumn,
       responsive: "onlyDesktop",
       onRender: ({ item }: any) => formatBs(item?.amount),
     },
@@ -193,6 +194,9 @@ const RenderView = ({
     Number(item?.penalty_amount) +
     Number(hasMaintenanceValue(user) ? item?.maintenance_amount || "0" : "0");
   const saldoRestante = Number(totalAmount) - Number(totalPagado);
+  const historyRows = Array.isArray(item?.history) ? item.history.length : 0;
+  const historyVisibleRows = Math.min(Math.max(historyRows || 1, 1), 4);
+  const historyTableHeight = `${historyVisibleRows * 56}`;
 
   const downloadAllVouchers = (files: any) => {
     let urls = [];
@@ -329,8 +333,6 @@ const RenderView = ({
                   label="Propietario:"
                   value={getFullName(item?.dpto?.homeowner) || "-/-"}
                 />
-              </div>
-              <div className={styles.metaGrid}>
                 <LabelValue
                   label="Unidad"
                   value={item?.dpto?.type?.name + " " + item?.dpto?.nro}
@@ -340,7 +342,6 @@ const RenderView = ({
                   label="Titular:"
                   value={getFullName(item?.dpto?.tenant) || "-/-"}
                 />
-                <LabelValue label="" value={""} />
               </div>
             </div>
             <div className={styles.tableWrapper}>
@@ -348,11 +349,9 @@ const RenderView = ({
                 style={{
                   borderBottomLeftRadius: 0,
                   borderBottomRightRadius: 0,
-                  height: "auto",
-                  // backgroundColor: "red",
                 }}
                 className="striped"
-                height="150"
+                height={historyTableHeight}
                 onRowClick={(item: any) => {
                   setOpenDetail({ open: true, item });
                 }}

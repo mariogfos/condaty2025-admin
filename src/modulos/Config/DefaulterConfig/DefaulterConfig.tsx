@@ -1,5 +1,6 @@
 import Input from "@/mk/components/forms/Input/Input";
-import React, { useState } from "react";
+import Button from "@/mk/components/forms/Button/Button";
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "./DefaulterConfig.module.css";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import { IconQuestion } from "@/components/layout/icons/IconsBiblioteca";
@@ -9,7 +10,7 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 
 interface DefaulterConfigProps {
   client_config: any;
-  onSave?: any;
+  onSave?: (e: object) => Promise<void> | void;
 }
 
 const limit_msgs: any = {
@@ -72,17 +73,29 @@ const lcheckMora = [
 ];
 
 const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
-  const [formState, setFormState] = useState({
-    limit_type: client_config?.limit_type || "",
-    soft_limit: client_config?.soft_limit || "",
-    hard_limit: client_config?.hard_limit || "",
-    penalty_limit: client_config?.penalty_limit || "",
-    penalty_type: client_config?.penalty_type || "",
-    penalty_data: client_config?.penalty_data || "",
-    button_mora: client_config?.button_mora || "0",
-    check_mora: client_config?.check_mora || "0",
-  });
+  const initialState = useMemo(
+    () => ({
+      limit_type: client_config?.limit_type || "",
+      soft_limit: client_config?.soft_limit || "",
+      hard_limit: client_config?.hard_limit || "",
+      penalty_limit: client_config?.penalty_limit || "",
+      penalty_type: client_config?.penalty_type || "",
+      penalty_data: client_config?.penalty_data || "",
+      button_mora: client_config?.button_mora || "0",
+      check_mora: client_config?.check_mora || "0",
+    }),
+    [client_config],
+  );
+  const [formState, setFormState] = useState(initialState);
   const [errors, setErrors] = useState({});
+  const [editMode, setEditMode] = useState(false);
+  const isDirty = JSON.stringify(formState) !== JSON.stringify(initialState);
+
+  useEffect(() => {
+    setFormState(initialState);
+    setErrors({});
+    setEditMode(false);
+  }, [initialState]);
 
   const validate = () => {
     let errors: any = {};
@@ -194,17 +207,59 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
     }));
   };
 
-  const _onSave = () => {
+  const _onSave = async () => {
     if (hasErrors(validate())) return;
-    onSave(formState);
+    await onSave?.(formState);
+    setEditMode(false);
+  };
+  const handleEditClick = () => {
+    setEditMode(true);
+  };
+  const handleDiscardChanges = () => {
+    setErrors({});
+    if (isDirty) {
+      setFormState(initialState);
+    }
+    setEditMode(false);
   };
   return (
     <div className={styles.defaulterContainer}>
-      <div>
-        <h1 className={styles.headerTitle}>Gestión de morosidad</h1>
-        <p className={styles.headerSubtitle}>
-          Configura las acciones que se tomarán con los morosos del condominio
-        </p>
+      <div className={styles.headerRow}>
+        <div className={styles.headerContent}>
+          <h1 className={styles.headerTitle}>Gestión de morosidad</h1>
+          <p className={styles.headerSubtitle}>
+            Configura las acciones que se tomarán con los morosos del condominio
+          </p>
+        </div>
+
+        <div className={styles.headerButtons}>
+          {!editMode ? (
+            <Button
+              variant="secondary"
+              className={styles.editButton}
+              onClick={handleEditClick}
+            >
+              Editar
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="secondary"
+                className={styles.editButton}
+                onClick={handleDiscardChanges}
+              >
+                Descartar cambios
+              </Button>
+              <Button
+                className={styles.saveButton}
+                onClick={_onSave}
+                disabled={!isDirty}
+              >
+                Guardar cambios
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className={styles.formContainer}>
@@ -234,6 +289,7 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
               value={formState?.limit_type}
               onChange={handleInputChange}
               options={lLimit_type}
+              disabled={!editMode}
             />
           </div>
         </div>
@@ -266,6 +322,7 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
                   onChange={handleInputChange}
                   maxLength={2}
                   min={0}
+                  disabled={!editMode}
                 />
               </div>
             </div>
@@ -297,6 +354,7 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
                   onChange={handleInputChange}
                   maxLength={2}
                   min={0}
+                  disabled={!editMode}
                 />
               </div>
             </div>
@@ -328,12 +386,13 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
               value={formState?.check_mora || 0}
               onChange={handleInputChange}
               options={lcheckMora}
+              disabled={!editMode}
             />
           </div>
         </div>
         <div className={styles.sectionContainer}>
           <div className={styles.switchContainer}>
-            <div>
+            <div className={styles.switchContent}>
               <p className={styles.textTitle}>
                 Mostrar Boton de Avisar en la App de Guardia
               </p>
@@ -350,6 +409,7 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
               onChange={handleInputChange}
               optionValue={["1", "0"]}
               checked={formState?.button_mora == 1}
+              disabled={!editMode}
             />
           </div>
         </div>
@@ -384,6 +444,7 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
               onChange={handleInputChange}
               maxLength={2}
               min={0}
+              disabled={!editMode}
             />
           </div>
         </div>
@@ -417,16 +478,17 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
               { id: 2, name: "Valor Fijo" },
               { id: 3, name: "Personalizado" },
             ]}
+            disabled={!editMode}
           />
           {formState?.penalty_type == 0 && (
-            <p className={styles.sectionSubtitle}>
+            <p className={styles.fieldHint}>
               No se aplicará ningún recargo por mora
             </p>
           )}
 
           {formState?.penalty_type == 1 && (
             <>
-              <p className={styles.sectionSubtitle}>
+              <p className={styles.fieldHint}>
                 Define un porcentaje sobre el monto pendiente al momento del
                 retraso.
               </p>
@@ -442,12 +504,13 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
                 min={0}
                 max={100}
                 suffix="%"
+                disabled={!editMode}
               />
             </>
           )}
           {formState?.penalty_type == 2 && (
             <>
-              <p className={styles.sectionSubtitle}>
+              <p className={styles.fieldHint}>
                 Define un monto fijo como multa única por mora.
               </p>
               <Input
@@ -460,12 +523,13 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
                 onChange={handleInputChange}
                 maxLength={10}
                 min={0}
+                disabled={!editMode}
               />
             </>
           )}
           {formState?.penalty_type == 3 && (
             <>
-              <p className={styles.sectionSubtitle}>
+              <p className={styles.fieldHint}>
                 Define el monto de multa que se aplicará después de la fecha del
                 día 10 del mes de la deuda
               </p>
@@ -478,8 +542,9 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
                 value={formState?.penalty_data?.first_amount}
                 onChange={handleInputChange}
                 maxLength={100}
+                disabled={!editMode}
               />
-              <p className={styles.sectionSubtitle}>
+              <p className={styles.fieldHint}>
                 Define el monto de multa que se aplicará por retraso en el pago
                 al finalizar el mes
               </p>
@@ -492,15 +557,10 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
                 value={formState?.penalty_data?.second_amount}
                 onChange={handleInputChange}
                 maxLength={100}
+                disabled={!editMode}
               />
             </>
           )}
-        </div>
-
-        <div className={styles.saveButtonContainer}>
-          <button className={`${styles.saveButton}`} onClick={_onSave}>
-            Guardar datos
-          </button>
         </div>
       </div>
     </div>

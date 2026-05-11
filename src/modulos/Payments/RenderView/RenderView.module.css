@@ -93,7 +93,7 @@
   color: var(--cWhiteV1);
   font-size: var(--sL);
   font-weight: var(--bRegular);
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   text-align: left;
 }
 
@@ -105,7 +105,7 @@
   overflow-wrap: break-word;
   min-width: 0;
   text-align: left;
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
 }
 
 .infoValue div {
@@ -186,7 +186,7 @@
   cursor: pointer;
   min-width: 220px;
   max-width: 100%;
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
 }
 
 .voucherButton:hover {
@@ -214,6 +214,11 @@
   font-weight: var(--bRegular);
   margin: 0;
   padding-left: var(--spXs);
+}
+
+.amountColumn {
+  justify-content: flex-end;
+  text-align: right;
 }
 
 .periodsTableWrapper {
@@ -249,7 +254,7 @@
 .periodsTableHeaderReservations {
   background-color: var(--cModalSurfaceRaised);
   color: var(--cWhite);
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   font-weight: 600;
   font-size: 16px;
 }
@@ -277,7 +282,7 @@
 .periodsTableHeader .periodsTableCell,
 .periodsTableHeaderReservations .periodsTableCell {
   color: var(--cWhite);
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   font-size: 16px;
   font-weight: 500;
   background-color: var(--cModalSurfaceRaised);
@@ -286,7 +291,7 @@
 
 .periodsTableBody .periodsTableRow,
 .periodsTableBody .periodsTableRowReservations {
-  border-top: 0.5px solid var(--cWhiteV5);
+  border-top: 1px solid var(--cWhiteV5);
 }
 
 .periodsTableBody .periodsTableRow:nth-child(odd) .periodsTableCell,

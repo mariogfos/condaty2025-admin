@@ -313,9 +313,9 @@ const Reserva = () => {
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div>
+    <>
       <List
-        height={"calc(100vh - 360px)"}
+        height={"100%"}
         emptyMsg="Sin reservas pendientes. cuando los residentes comiencen"
         emptyLine2="a solicitar reservas de áreas sociales lo verás reflejado aquí."
         emptyIcon={<IconCalendar size={80} color="var(--cWhiteV1)" />}
@@ -331,7 +331,7 @@ const Reserva = () => {
         errorStart={customDateErrors.startDate}
         errorEnd={customDateErrors.endDate}
       />
-    </div>
+    </>
   );
 };
 

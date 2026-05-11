@@ -1,4 +1,10 @@
 .container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   width: 100%;
 }
 
@@ -18,8 +24,11 @@
 .listContainer {
   display: flex;
   flex-direction: column;
-  margin-top: var(--spL);
-  flex-wrap: wrap;
+  flex: 1 1 0;
+  min-height: 0;
+  margin-top: 0;
+  overflow: hidden;
+  width: 100%;
 }
 
 .exportButton {
@@ -33,46 +42,53 @@
 }
 
 .rightPanel {
-  width: 40%;
   display: flex;
-  /* height: fit-content; */
-  height: calc(100vh - 333px);
-  overflow-y: auto;
   flex-direction: column;
-  padding-left: var(--spL);
-  padding-right: var(--spL);
-  background-color: #d7fff005;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.12);
+  width: min(100%, 360px);
+  max-width: 360px;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--spL);
+  background-color: var(--cTableSurface);
   border-radius: 12px;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cTableBorder);
   & > div:nth-child(1) {
     margin-bottom: var(--spL);
     display: flex;
-    font-size: var(--spL);
-    margin-top: var(--spL);
+    font-size: var(--sL);
     width: 100%;
     color: var(--cWhite);
   }
   & > div:nth-child(2) {
     width: 100%;
     display: flex;
+    margin-bottom: var(--spL);
   }
   & > div > section:nth-child(1) {
     display: flex;
     gap: 8px;
     width: 100%;
     flex: 1;
+    flex-wrap: wrap;
   }
 }
 .widgetResumeCard {
-  margin-bottom: var(--spL);
+  margin-bottom: 0;
+  width: min(100%, 280px) !important;
+  min-height: 72px;
+  height: auto;
+  flex: 0 0 auto !important;
+  align-self: flex-start;
 }
 .graphPanel {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 380px;
+  flex: 1 1 280px;
+  min-height: 280px;
+  overflow: hidden;
 }
 
 .widgetsPanel {
@@ -106,20 +122,21 @@
 /* Media queries para dispositivos móviles */
 @media (max-width: 1200px) {
   .rightPanel {
-    width: 350px;
+    width: min(100%, 340px);
   }
 }
 
 @media (max-width: 992px) {
   .rightPanel {
-    width: 300px;
+    width: min(100%, 320px);
   }
 }
 
 @media (max-width: 768px) {
   .rightPanel {
     width: 100%;
-    padding-left: 0;
+    max-width: none;
+    padding: var(--spL);
     margin-top: var(--spL);
   }
 }

@@ -8,6 +8,7 @@ import { shouldIgnoreValueTranslationContext } from '@/i18n/translationGuards';
 import PaymentRenderView from '../../../Payments/RenderView/RenderView';
 import { formatBs } from '@/mk/utils/numbers';
 import { getTitular } from '@/mk/utils/adapters';
+import Table from '@/mk/components/ui/Table/Table';
 
 const RenderView = (props: {
   open: boolean;
@@ -95,6 +96,41 @@ const RenderView = (props: {
     );
   };
   const titular = getTitular(item.dpto);
+  const pendingPeriods = Array.isArray(item?.pendingPeriods) ? item.pendingPeriods : [];
+  const pendingPeriodsTableHeight = `${Math.min(
+    Math.max(pendingPeriods.length || 1, 1),
+    4,
+  ) * 56}`;
+  const pendingPeriodsHeader = [
+    {
+      key: 'period',
+      label: 'Periodo',
+      width: '100%',
+      onRender: ({ item: period }: any) => `${MONTHS_S[period.month]}/${period.year}`,
+    },
+    {
+      key: 'amount',
+      label: 'Monto',
+      width: '124px',
+      className: styles.amountColumn,
+      onRender: ({ item: period }: any) => formatBs(period.amount),
+    },
+    {
+      key: 'penalty',
+      label: 'Multa',
+      width: '124px',
+      className: styles.amountColumn,
+      onRender: ({ item: period }: any) => formatBs(period.penalty || 0),
+    },
+    {
+      key: 'subtotal',
+      label: 'Subtotal',
+      width: '132px',
+      className: styles.amountColumn,
+      onRender: ({ item: period }: any) =>
+        formatBs(parseFloat(period.amount) + parseFloat(period.penalty || 0)),
+    },
+  ];
 
   return (
     <>
@@ -155,44 +191,32 @@ const RenderView = (props: {
           </section>
 
           {/* Sección de periodos por pagar si existen */}
-          {item?.pendingPeriods && item?.pendingPeriods.length > 0 && (
+          {pendingPeriods.length > 0 && (
             <>
               <hr className={styles.sectionDivider} />
 
               <div className={styles.periodsSection}>
                 <div className={styles.periodsTitle}>Periodos por pagar</div>
 
-                <div className={styles.tableContainer}>
-                  <div className={styles.tableHeader}>
-                    <div className={styles.headerCell}>Periodo</div>
-                    <div className={styles.headerCell}>Monto</div>
-                    <div className={styles.headerCell}>Multa</div>
-                    <div className={styles.headerCell}>Subtotal</div>
+                <div className={styles.tableWrapper}>
+                  <Table
+                    className="striped"
+                    style={{
+                      borderBottomLeftRadius: 0,
+                      borderBottomRightRadius: 0,
+                    }}
+                    height={pendingPeriodsTableHeight}
+                    data={pendingPeriods}
+                    header={pendingPeriodsHeader as any}
+                  />
+                  <div className={styles.tableFooter}>
+                    <div className={styles.tableFooterLabels}>
+                      <p>Total pagado</p>
+                    </div>
+                    <div className={styles.tableFooterValues}>
+                      <p className={styles.footerValue}>{formatBs(item?.amount)}</p>
+                    </div>
                   </div>
-
-                  <div className={styles.tableBody}>
-                    {item?.pendingPeriods.map((periodo: any, index: number) => (
-                      <div key={`${periodo.month}-${periodo.year}`} className={styles.tableRow}>
-                        <div className={styles.tableCell} data-label="Periodo">
-                          {MONTHS_S[periodo.month]}/{periodo.year}
-                        </div>
-                        <div className={styles.tableCell} data-label="Monto">
-                          {formatBs(periodo.amount)}
-                        </div>
-                        <div className={styles.tableCell} data-label="Multa">
-                          {formatBs(periodo.penalty || 0)}
-                        </div>
-                        <div className={styles.tableCell} data-label="Subtotal">
-                          {formatBs(parseFloat(periodo.amount) + parseFloat(periodo.penalty || 0))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className={styles.totalPaid}>
-                  Total pagado:{' '}
-                  <span className={styles.totalAmountValue}>{formatBs(item?.amount)}</span>
                 </div>
               </div>
             </>

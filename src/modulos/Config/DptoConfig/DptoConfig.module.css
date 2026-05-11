@@ -1,123 +1,603 @@
 .Config {
   width: 100%;
-  max-width: 785px;
+  max-width: 1240px;
+  margin-inline: auto;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 16px;
+}
+
+.compactMode {
+  max-width: 860px;
+  gap: 12px;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.headerAction {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.headerButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.headerButtons > * {
+  flex: 0 0 auto;
 }
 
 .mainTitle {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--title-sm-size);
+  font-weight: var(--font-weight-bold);
   color: var(--cWhite);
+  margin: 0;
 }
 
-.formContainer {
-  display: flex;
-  flex-direction: column;
-
-  padding: 1rem;
-  background-color: #d7fff005;
-  border-radius: 12px;
-  border: 1px solid #d7fff014;
-}
-
-.uploadSection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.uploadHelpText {
-  font-size: 14px;
-  color: #a7a7a7;
-}
-
-.inputContainer {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.inputHalf {
-  flex: 1;
-}
-
-.textTitle {
-  color: var(--cWhite, #ffffff);
-  font-size: 16px;
-  font-weight: normal;
-  margin-bottom: 0.25rem;
-}
-
-.textSubtitle {
-  color: var(--cWhiteV1, #a7a7a7);
-  font-size: 14px;
-  margin-bottom: 0.75rem;
-}
-
-.sectionContainer {
-  display: flex;
-  flex-direction: column;
-
-  border-radius: 1rem;
-}
-
-.dateSelectors {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.dateSelector {
-  flex: 1;
-}
-
-.saveButtonContainer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1.5rem;
+.mainSubtitle {
+  color: var(--cWhiteV1);
+  font-size: var(--body-sm-size);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 640px;
 }
 
 .saveButton {
-  background-color: #00e38c;
-  color: #212121;
-  font-weight: 600;
-  font-size: 16px;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
   width: auto;
-  min-width: 328px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.editButton {
+  width: auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.layoutGrid,
+.rulesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.rulesGrid {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.rulesGrid > .formCard {
+  width: 100%;
+}
+
+.formCard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background-color: var(--cModalSurface);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 16px;
+  min-width: 0;
+}
+
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.accordionHeader {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.accordionHeaderContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.accordionChevron {
+  flex: 0 0 auto;
+  color: var(--cWhiteV1);
+  transition: transform 0.2s ease;
+}
+
+.accordionChevronOpen {
+  transform: rotate(180deg);
+}
+
+.accordionDivider {
+  height: 1px;
+  width: 100%;
+  background-color: var(--cModalBorder);
+  margin-top: 16px;
+}
+
+.accordionBody {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.22s ease;
+}
+
+.accordionBodyOpen {
+  grid-template-rows: 1fr;
+}
+
+.accordionBody > div {
+  min-height: 0;
+  overflow: hidden;
+  padding-top: 0;
+}
+
+.accordionBodyOpen > div {
+  padding-top: 16px;
+}
+
+.textTitle {
+  color: var(--cWhite);
+  font-size: var(--body-md-size);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.textSubtitle {
+  color: var(--cWhiteV1);
+  font-size: var(--body-sm-size);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.coverPreview {
+  position: relative;
+  width: 100%;
+}
+
+.coverFrame {
+  position: relative;
+  width: 100%;
+  min-height: 216px;
+  border-radius: 20px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 24% 22%, rgba(0, 227, 140, 0.16), transparent 38%),
+    linear-gradient(180deg, var(--cModalSurfaceRaised), color-mix(in srgb, var(--cModalSection) 90%, black 10%));
+  border: 1px solid var(--cModalBorder);
+}
+
+.coverActions {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+
+.coverAvatarAnchor {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 50%);
+  z-index: 2;
+}
+
+.coverImage {
+  width: 100%;
+  height: 100%;
+  min-height: 216px;
+  object-fit: cover;
+  display: block;
+}
+
+.coverPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cWhiteV1);
+  font-size: var(--body-md-size);
+}
+
+.profilePreviewRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 52px;
+  padding-inline: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.profileLogoShell {
+  position: relative;
+  width: 136px;
+  height: 136px;
+  border-radius: 32px;
+  overflow: hidden;
+  border: 4px solid var(--cModalSection);
+  background-color: color-mix(in srgb, var(--cModalSurfaceRaised) 38%, black 62%);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
+  flex: 0 0 auto;
+}
+
+.profileLogoOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(7, 10, 14, 0.58);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.profileLogoShell:hover .profileLogoOverlay,
+.profileLogoShell:focus-within .profileLogoOverlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.profileLogoImage,
+.printLogoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profileLogoPlaceholder,
+.printLogoPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cWhite);
+  font-size: 28px;
+  font-weight: var(--font-weight-bold);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(0, 227, 140, 0.16), transparent 44%),
+    color-mix(in srgb, var(--cModalSurfaceRaised) 92%, black 8%);
+}
+
+.printLogoPlaceholder {
+  color: var(--cBlack);
+  background: #ffffff;
+}
+
+.profilePreviewMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  align-items: center;
   text-align: center;
-  border: none;
+  padding-top: 0;
+}
+
+.profilePreviewTitle {
+  color: var(--cWhite);
+  font-size: var(--title-xs-size);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+  margin: 0;
+  word-break: break-word;
+}
+
+.profilePreviewSubtitle {
+  color: var(--cWhiteV1);
+  font-size: var(--body-md-size);
+  margin: 0;
+}
+
+.assetActionTitle {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: var(--body-md-size);
+  font-weight: var(--font-weight-semibold);
+}
+
+.assetActionSubtitle {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: var(--body-sm-size);
+  line-height: 1.45;
+}
+
+.assetActionButtons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.assetIconButton {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--controlSecondaryBorder);
+  background-color: var(--controlSecondaryBg);
+  color: var(--cWhite);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.assetIconButton:disabled,
+.profileActionButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.assetIconButton:hover {
+  background-color: var(--controlSecondaryHoverBg);
+  border-color: var(--controlSecondaryHoverBorder);
+}
+
+.profileActionButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background-color: rgba(16, 21, 28, 0.88);
+  color: var(--cWhite);
   cursor: pointer;
 }
 
-/* Agregar estos estilos al archivo DptoConfig.module.css */
+.assetDeleteButton {
+  color: var(--cError);
+  border-color: color-mix(in srgb, var(--cError) 48%, transparent);
+  background-color: color-mix(in srgb, var(--cError) 18%, transparent);
+}
 
-.characterCount {
-  text-align: right;
+.assetDeleteButton:hover {
+  border-color: color-mix(in srgb, var(--cError) 64%, transparent);
+  background-color: color-mix(in srgb, var(--cError) 24%, transparent);
+}
+
+.assetError {
+  margin: 0;
+  color: var(--cError);
   font-size: 12px;
-  color: var(--cWhiteV1);
+}
+
+.assetError:not(:empty) {
+  min-height: 14px;
   margin-top: 4px;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.printLogoModule {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--cModalBorder);
+  background-color: color-mix(
+    in srgb,
+    var(--cModalSurfaceRaised) 72%,
+    transparent
+  );
+}
+
+.printLogoThumb {
+  width: 84px;
+  height: 84px;
+  border-radius: 20px;
+  overflow: hidden;
+  flex: 0 0 auto;
+  border: 1px solid var(--cModalBorder);
+  background-color: #ffffff;
+}
+
+.printLogoText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.printLogoActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.sectionDivider {
+  height: 1px;
+  width: 100%;
+  background-color: var(--cModalBorder);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
+}
+
+.fullSpan {
+  grid-column: 1 / -1;
+  min-width: 0;
 }
 
 .textareaContainer {
   width: 100%;
 }
 
-.fieldHint {
-  font-size: 12px;
-  color: var(--cWhiteV1);
-  margin-top: 4px;
+.dateSelectors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 16px;
 }
 
-.disabledButton {
-  opacity: 0.5;
-  cursor: not-allowed;
+.dateSelector {
+  min-width: 0;
+}
+
+.settingsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .switchContainer {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 16px;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 16px;
+  background-color: color-mix(
+    in srgb,
+    var(--cModalSurfaceRaised) 72%,
+    transparent
+  );
+  border: 1px solid var(--cModalBorder);
+}
+
+.switchContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.compactMode .formCard {
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+}
+
+.compactMode .cardHeader,
+.compactMode .accordionHeaderContent,
+.compactMode .switchContent,
+.compactMode .printLogoText {
+  gap: 3px;
+}
+
+.compactMode .accordionHeader {
+  gap: 12px;
+}
+
+.compactMode .accordionDivider {
+  margin-top: 12px;
+}
+
+.compactMode .accordionBodyOpen > div {
+  padding-top: 12px;
+}
+
+.compactMode .settingsStack,
+.compactMode .formGrid,
+.compactMode .dateSelectors {
+  gap: 12px;
+}
+
+.compactMode .switchContainer {
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+}
+
+@media (max-width: 960px) {
+  .headerRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerAction,
+  .headerButtons,
+  .saveButton,
+  .editButton {
+    width: 100%;
+  }
+
+  .headerButtons {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 860px) {
+  .profilePreviewRow {
+    margin-top: 36px;
+    padding-inline: 12px;
+  }
+
+  .profileLogoShell {
+    width: 112px;
+    height: 112px;
+    border-radius: 28px;
+  }
+
+  .switchContainer {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  .coverFrame,
+  .coverImage {
+    min-height: 178px;
+  }
+
+  .profilePreviewRow {
+    margin-top: 28px;
+  }
+
+  .printLogoModule {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+  }
+
+  .printLogoActions {
+    align-items: flex-start;
+  }
 }

@@ -7,7 +7,7 @@ import MainMenuHeader from "./MainMenuHeader";
 import MainmenuItem from "./MainMenuItem";
 import MainmenuDropdown from "./MainmenuDropdown";
 import { menuConfig } from "./mainMenuConfig";
-import { IconDepartments, IconLogout } from "../layout/icons/IconsBiblioteca";
+import { IconDepartments, IconLogout } from "../layout/icons/LucideIcons";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 type PropsType = {
   user: any;
@@ -78,7 +78,7 @@ const MainMenu = ({
               key={item.labelKey}
               href={item.href}
               label={translate(item.labelKey)}
-              icon={<item.icon />}
+              icon={<item.icon size={17} />}
               bage={store?.[item.badgeKey]}
               collapsed={collapsed}
             />
@@ -96,7 +96,7 @@ const MainMenu = ({
             <MainmenuDropdown
               key={item.key}
               label={translate(item.labelKey)}
-              icon={<item.icon />}
+              icon={<item.icon size={17} />}
               items={visibleSubs.map((sub: any) => ({
                 ...sub,
                 label: translate(sub.labelKey),
@@ -124,7 +124,7 @@ const MainMenu = ({
           href="#"
           onclick={() => setOpenClient(true)}
           label={translate("switchCondominium")}
-          icon={<IconDepartments />}
+          icon={<IconDepartments size={17} />}
           collapsed={collapsed}
         />
       )}
@@ -133,7 +133,7 @@ const MainMenu = ({
         onclick={() => setLogout(true)}
         label={translate("signOut")}
         labelColor="var(--cError)"
-        icon={<IconLogout color={"var(--cError)"} />}
+        icon={<IconLogout color={"var(--cError)"} size={17} />}
         collapsed={collapsed}
       />
     </section>

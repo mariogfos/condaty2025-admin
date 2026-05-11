@@ -19,7 +19,8 @@ body {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--fPrimary);
+  font-weight: var(--bRegular);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -28,6 +29,13 @@ body {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
 
 a {
