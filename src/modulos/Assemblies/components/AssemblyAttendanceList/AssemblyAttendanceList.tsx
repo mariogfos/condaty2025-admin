@@ -207,14 +207,13 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
             Virtual: <br /> <strong>{virtualCount}</strong>
           </span>
         )}
-        <IconDownload
-          size={24}
-          color="var(--cPrimary)"
-          title="Exportar lista de asistentes a PDF"
-          onClick={() => {
-            if (isExporting || attendances.length === 0) handleExportPdf();
-          }}
-        />
+        <Button
+          variant="secondary"
+          onClick={handleExportPdf}
+          disabled={isExporting || attendances.length === 0}
+        >
+          <IconDownload size={18} title="Exportar lista de asistentes a PDF" />
+        </Button>
       </div>
 
       {attendances.length === 0 ? (
