@@ -1052,13 +1052,8 @@ const useCrud = ({
       return;
     }
     axiosReload(params, mod?.noWaiting);
-  }, [
-    axiosReload,
-    fetchInfiniteCrudData,
-    mod?.noWaiting,
-    params,
-    useInfiniteList,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params, useInfiniteList, mod?.noWaiting]);
 
   const [extraData, setExtraData]: any = useState({});
   const getExtraData = async () => {
