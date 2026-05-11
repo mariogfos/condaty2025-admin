@@ -360,12 +360,26 @@ const useCrud = ({
   // const [data, setData]: any = useState(null);
   // const [loaded, setLoaded] = useState(false);
   // const { reLoad, execute } = useAxios();
-  const { data, reLoad, execute, loaded, error, responseMeta } = useAxios(
-    "/" + mod.modulo,
+  const {
+    data: axiosData,
+    reLoad: axiosReload,
+    execute,
+    loaded: axiosLoaded,
+    error: axiosError,
+  } = useAxios(
+    useInfiniteList ? null : "/" + mod.modulo,
     "GET",
-    params,
+    useInfiniteList ? {} : params,
     mod?.noWaiting,
   );
+  const [manualData, setManualData] = useState<any>(null);
+  const [manualLoaded, setManualLoaded] = useState(!useInfiniteList);
+  const [manualError, setManualError]: any = useState("");
+  const latestRequestIdRef = useRef(0);
+  const lastResolvedParamsRef = useRef<Record<string, any>>(params);
+  const data = useInfiniteList ? manualData : axiosData;
+  const loaded = useInfiniteList ? manualLoaded : axiosLoaded;
+  const error = useInfiniteList ? manualError : axiosError;
   const [listRows, setListRows] = useState<any[]>([]);
   const [listTotal, setListTotal] = useState(0);
   const [listHasMore, setListHasMore] = useState(false);
@@ -404,6 +418,35 @@ const useCrud = ({
     setIsAppendingList(false);
     setIsResetListLoading(true);
   }, [useInfiniteList]);
+
+  const fetchInfiniteCrudData = useCallback(
+    async (requestParams: Record<string, any>, noWaiting = mod?.noWaiting) => {
+      const nextRequestParams = { ...(requestParams || {}) };
+      const requestId = latestRequestIdRef.current + 1;
+      latestRequestIdRef.current = requestId;
+      setManualError("");
+      setManualLoaded(false);
+
+      const result = await execute(
+        "/" + mod.modulo,
+        "GET",
+        nextRequestParams,
+        false,
+        noWaiting,
+      );
+
+      if (requestId !== latestRequestIdRef.current) {
+        return result;
+      }
+
+      lastResolvedParamsRef.current = nextRequestParams;
+      setManualData(result.data);
+      setManualError(result.error);
+      setManualLoaded(true);
+      return result;
+    },
+    [execute, mod?.modulo, mod?.noWaiting],
+  );
 
   const resolvedData = useMemo(() => {
     if (!data) return data;
@@ -446,7 +489,7 @@ const useCrud = ({
   const reloadCrudList = useCallback(
     (_payload: any = null, noWaiting = false, prevent = false) => {
       if (!useInfiniteList) {
-        return reLoad(_payload, noWaiting, prevent);
+        return axiosReload(_payload, noWaiting, prevent);
       }
 
       beginListReset();
@@ -466,7 +509,13 @@ const useCrud = ({
         setParams(nextParams);
       });
     },
-    [beginListReset, params, paramsInitial?.perPage, reLoad, useInfiniteList],
+    [
+      axiosReload,
+      beginListReset,
+      params,
+      paramsInitial?.perPage,
+      useInfiniteList,
+    ],
   );
 
   const loadMoreRows = useCallback(() => {
@@ -504,7 +553,7 @@ const useCrud = ({
   useEffect(() => {
     if (!useInfiniteList || !data) return;
 
-    const responseParams = responseMeta?.payload || params;
+    const responseParams = lastResolvedParamsRef.current || params;
     const incomingRows = getListRowsFromResponse(data, responseParams);
     const responsePage = Number(responseParams?.page || 1);
     const querySignature = getParamsQuerySignature(responseParams);
@@ -544,7 +593,7 @@ const useCrud = ({
       pendingReloadResolveRef.current(data);
       pendingReloadResolveRef.current = null;
     }
-  }, [data, params, paramsInitial?.perPage, responseMeta, useInfiniteList]);
+  }, [data, getListRowsFromResponse, params, paramsInitial?.perPage, useInfiniteList]);
 
   useEffect(() => {
     if (!error || !useInfiniteList) return;
@@ -787,7 +836,7 @@ const useCrud = ({
       if (useInfiniteList) {
         await reloadCrudList(null, mod?.noWaiting);
       } else {
-        reLoad(params, mod?.noWaiting);
+        axiosReload(params, mod?.noWaiting);
       }
       showToast(mod.saveMsg?.[action] || response?.message, "success");
     } else {
@@ -993,13 +1042,23 @@ const useCrud = ({
 
   const didInitFetchRef = useRef(false);
   useEffect(() => {
+    if (useInfiniteList) {
+      fetchInfiniteCrudData(params, mod?.noWaiting);
+      return;
+    }
+
     if (!didInitFetchRef.current) {
       didInitFetchRef.current = true;
       return;
     }
-    reLoad(params, mod?.noWaiting);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params]);
+    axiosReload(params, mod?.noWaiting);
+  }, [
+    axiosReload,
+    fetchInfiniteCrudData,
+    mod?.noWaiting,
+    params,
+    useInfiniteList,
+  ]);
 
   const [extraData, setExtraData]: any = useState({});
   const getExtraData = async () => {

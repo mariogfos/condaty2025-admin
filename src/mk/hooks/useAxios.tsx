@@ -12,7 +12,6 @@ export type UseAxiosType = {
   data: any;
   error: any;
   loaded: boolean;
-  responseMeta: any;
   execute: Function;
   reLoad: Function;
   waiting: number;
@@ -29,7 +28,6 @@ const useAxios = (
   const [data, setData] = useState<any>(null);
   const [error, setError]: any = useState("");
   const [loaded, setLoaded] = useState(false);
-  const [responseMeta, setResponseMeta] = useState<any>(null);
   const [countAxios, setCountAxios] = useState(0);
   const { contextInstance, waiting, setWaiting }: any =
     useContext(AxiosContext);
@@ -60,12 +58,6 @@ const useAxios = (
     notWaiting = false,
   ) => {
     setError("");
-    const requestMeta = {
-      url: _url,
-      method: _method,
-      payload: payload ? { ...payload } : {},
-      requestedAt: Date.now(),
-    };
     if (!notWaiting) {
       setLoaded(false);
       setWaiting(1, "execute:" + _url);
@@ -92,7 +84,6 @@ const useAxios = (
       });
       if (Act) {
         setData(response.data);
-        setResponseMeta(requestMeta);
       }
 
       // setData(response.data);
@@ -133,7 +124,6 @@ const useAxios = (
     data,
     error,
     loaded,
-    responseMeta,
     execute,
     reLoad,
     waiting,
