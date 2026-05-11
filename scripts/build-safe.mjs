@@ -4,10 +4,24 @@ import fs from "node:fs/promises";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
+const resolveDistDir = () => {
+  if (process.env.NEXT_DIST_DIR) {
+    return process.env.NEXT_DIST_DIR;
+  }
+
+  // Vercel and most CI providers expect the default Next.js output directory.
+  if (process.env.VERCEL || process.env.CI) {
+    return ".next";
+  }
+
+  return ".next-build";
+};
+
 const run = async () => {
   const tsconfigPath = new URL("../tsconfig.json", import.meta.url);
   const originalTsconfig = await fs.readFile(tsconfigPath, "utf8");
   const workspacePath = fileURLToPath(new URL("..", import.meta.url));
+  const distDir = resolveDistDir();
 
   try {
     const exitCode = await new Promise((resolve, reject) => {
@@ -16,7 +30,7 @@ const run = async () => {
         stdio: "inherit",
         env: {
           ...process.env,
-          NEXT_DIST_DIR: ".next-build",
+          NEXT_DIST_DIR: distDir,
         },
       });
 
