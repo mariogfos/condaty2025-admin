@@ -10,9 +10,15 @@ import {
   ROLE_LABELS,
 } from "../../types/assemblies.types";
 import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
-import { IconTrash } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconTrash,
+  IconDownload,
+} from "@/components/layout/icons/IconsBiblioteca";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { useMemo } from "react";
+import { getUrlImages } from "@/mk/utils/string";
+import Button from "@/mk/components/forms/Button/Button";
 
 // Helper para extraer solo la hora HH:MM
 const formatOnlyTime = (dateStr: string) => {
@@ -40,7 +46,9 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const { execute: fetchAttendances, loaded } = useAxios();
   const { execute: deleteAttendance } = useAxios();
+  const { execute: exportAttendances } = useAxios();
   const { showToast } = useAuth();
+  const [isExporting, setIsExporting] = useState(false);
 
   const loadAttendances = async () => {
     setIsLoading(true);
@@ -125,6 +133,44 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
     }
   };
 
+  const handleExportPdf = async () => {
+    if (attendances.length === 0) {
+      showToast("No hay asistentes para exportar", "error");
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const { data: response, error } = await exportAttendances(
+        `/assemblies/${assemblyId}/export-attendances`,
+        "GET",
+        {},
+        false,
+        true,
+      );
+
+      if (response?.success && response?.data?.path) {
+        // Trigger download
+        const fullUrl = getUrlImages("/" + response.data.path);
+        const link = document.createElement("a");
+        link.href = fullUrl;
+        link.setAttribute("target", "_blank");
+        link.download = `asistencia_asamblea_${assemblyId}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("PDF generado con éxito", "success");
+      } else {
+        showToast(error?.data?.message || "Error al generar el PDF", "error");
+      }
+    } catch (err) {
+      console.error("Error exporting attendances:", err);
+      showToast("Error crítico al exportar", "error");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const getModalityLabel = (modality: string) => {
     return modality === "P" ? "Presencial" : "Virtual";
   };
@@ -161,6 +207,14 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
             Virtual: <br /> <strong>{virtualCount}</strong>
           </span>
         )}
+        <IconDownload
+          size={24}
+          color="var(--cPrimary)"
+          title="Exportar lista de asistentes a PDF"
+          onClick={() => {
+            if (isExporting || attendances.length === 0) handleExportPdf();
+          }}
+        />
       </div>
 
       {attendances.length === 0 ? (

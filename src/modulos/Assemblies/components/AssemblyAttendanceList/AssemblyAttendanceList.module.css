@@ -181,3 +181,52 @@
   color: var(--cWhiteV1);
   font-variant-numeric: tabular-nums;
 }
+
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--cAccent);
+  color: var(--cWhite);
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: fit-content;
+  align-self: center;
+}
+
+.exportBtn:hover:not(:disabled) {
+  background: var(--cAccentHover, var(--cPrimary));
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.exportBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.exportBtn :global(svg) {
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .exportBtn {
+    grid-column: span 2;
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+    padding: 8px;
+  }
+}
