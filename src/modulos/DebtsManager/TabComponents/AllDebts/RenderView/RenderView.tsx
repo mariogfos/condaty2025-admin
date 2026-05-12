@@ -1,22 +1,27 @@
-'use client';
-import React, { useState } from 'react';
-import styles from './RenderView.module.css';
-import { formatNumber } from '@/mk/utils/numbers';
-import Button from '@/mk/components/forms/Button/Button';
-import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import useAxios from '@/mk/hooks/useAxios';
-import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import ExpenseDetailModal from '@/modulos/Expenses/ExpensesDetails/RenderView/RenderView';
-import ReservationDetailModal from '@/modulos/Reservas/RenderView/RenderView';
-import PaymentRenderView from '@/modulos/Payments/RenderView/RenderView';
-import PaymentRenderForm from '@/modulos/Payments/RenderForm/RenderForm';
-import { getDateStrMesShort } from '@/mk/utils/date';
-import { getFullName } from '@/mk/utils/string';
-import { getTitular } from '@/mk/utils/adapters';
-import { hasMaintenanceValue } from '@/mk/utils/utils';
-import { getStatusText, getStatusConfig, getDetailButtonText as getDetailButtonTextFromConstants, getAvailableActions as getAvailableActionsFromConstants } from '../../constants';
+"use client";
+import React, { useState } from "react";
+import styles from "./RenderView.module.css";
+import { formatNumber } from "@/mk/utils/numbers";
+import Button from "@/mk/components/forms/Button/Button";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import useAxios from "@/mk/hooks/useAxios";
+import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import ExpenseDetailModal from "@/modulos/Expenses/ExpensesDetails/RenderView/RenderView";
+import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
+import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
+import PaymentRenderForm from "@/modulos/Payments/RenderForm/RenderForm";
+import { getDateStrMesShort } from "@/mk/utils/date";
+import { getFullName } from "@/mk/utils/string";
+import { getTitular } from "@/mk/utils/adapters";
+import { hasMaintenanceValue } from "@/mk/utils/utils";
+import {
+  getStatusText,
+  getStatusConfig,
+  getDetailButtonText as getDetailButtonTextFromConstants,
+  getAvailableActions as getAvailableActionsFromConstants,
+} from "../../constants";
 
 interface RenderViewProps {
   open: boolean;
@@ -30,7 +35,6 @@ interface RenderViewProps {
   hideEditAndDeleteButtons?: boolean;
   onReload?: () => void;
 }
-
 
 const RenderView: React.FC<RenderViewProps> = ({
   open,
@@ -56,35 +60,32 @@ const RenderView: React.FC<RenderViewProps> = ({
   const today = new Date();
 
   const { data, execute, loaded } = useAxios(
-    '/debt-dptos',
-    'GET',
+    "/debt-dptos",
+    "GET",
     {
       searchBy: item?.id,
-      fullType: 'DET',
+      fullType: "DET",
       perPage: -1,
       page: 1,
-      extraData: true
+      extraData: true,
     },
-    open && !!item?.id
+    open && !!item?.id,
   );
 
   if (!open || !item) return null;
 
-
   const debtDetail = data?.data?.[0] || item;
   const debtType = debtDetail?.type || debtDetail?.debt?.type || 0;
 
-
   const hasApiData = data?.data?.[0];
-
 
   const resolveStatus = (status: string, dueDate?: string) => {
     let finalStatus = status;
     const today = new Date();
-    const todayString = today.toISOString().split('T')[0];
+    const todayString = today.toISOString().split("T")[0];
     const dueAtString = dueDate;
-    if (dueAtString && dueAtString < todayString && status === 'A') {
-      finalStatus = 'M';
+    if (dueAtString && dueAtString < todayString && status === "A") {
+      finalStatus = "M";
     }
     return finalStatus;
   };
@@ -106,10 +107,14 @@ const RenderView: React.FC<RenderViewProps> = ({
 
   const getBalanceTitle = (status: string) => {
     switch (status) {
-      case 'P': return 'Saldo cobrado';
-      case 'M': return 'Saldo a cobrar';
-      case 'A': return 'Saldo a cobrar';
-      default: return 'Saldo a cobrar';
+      case "P":
+        return "Saldo cobrado";
+      case "M":
+        return "Saldo a cobrar";
+      case "A":
+        return "Saldo a cobrar";
+      default:
+        return "Saldo a cobrar";
     }
   };
 
@@ -140,23 +145,26 @@ const RenderView: React.FC<RenderViewProps> = ({
     }
   };
 
-  const handleShowToast = (msg: string, type: 'info' | 'success' | 'error' | 'warning') => {
+  const handleShowToast = (
+    msg: string,
+    type: "info" | "success" | "error" | "warning",
+  ) => {
     authShowToast(msg, type);
   };
 
   const reloadItem = async () => {
     try {
       const response = await execute(
-        '/debt-dptos',
-        'GET',
+        "/debt-dptos",
+        "GET",
         {
           searchBy: currentItem.id,
-          fullType: 'DET',
+          fullType: "DET",
           perPage: -1,
           page: 1,
         },
         false,
-        true
+        true,
       );
       if (response?.data?.success) {
         setCurrentItem(response.data.data[0] || currentItem);
@@ -166,7 +174,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         onReload();
       }
     } catch (error) {
-      handleShowToast('Error al actualizar los datos', 'error');
+      handleShowToast("Error al actualizar los datos", "error");
     }
   };
 
@@ -180,13 +188,17 @@ const RenderView: React.FC<RenderViewProps> = ({
   const getPaymentFormData = () => {
     const currentExtraData = data?.extraData || extraData;
 
-    const calculatedTotalBalance = debtAmount + penaltyAmount + maintenanceAmount;
-    const subcategoryId = debtDetail?.subcategory_id || debtDetail?.subcategory?.id;
-    const categoryId = debtDetail?.subcategory?.padre?.id || debtDetail?.subcategory?.category_id;
+    const calculatedTotalBalance =
+      debtAmount + penaltyAmount + maintenanceAmount;
+    const subcategoryId =
+      debtDetail?.subcategory_id || debtDetail?.subcategory?.id;
+    const categoryId =
+      debtDetail?.subcategory?.padre?.id ||
+      debtDetail?.subcategory?.category_id;
     let finalCategoryId = categoryId;
     if (!finalCategoryId && subcategoryId && currentExtraData?.categories) {
       const foundCategory = currentExtraData.categories.find((cat: any) =>
-        cat.hijos?.some((hijo: any) => hijo.id === subcategoryId)
+        cat.hijos?.some((hijo: any) => hijo.id === subcategoryId),
       );
       finalCategoryId = foundCategory?.id;
     }
@@ -196,29 +208,31 @@ const RenderView: React.FC<RenderViewProps> = ({
     const isReservationsDebt = debtType === 2 || debtType === 3; // Tipo 2 y 3 = Reservas
     const isSharedDebt = debtType === 4; // Tipo 4 = Deudas compartidas
 
-    const isForgivenessDebt = debtDetail?.description?.toLowerCase().includes('condonación') ||
-      debtDetail?.debt?.description?.toLowerCase().includes('condonación') ||
-      debtDetail?.subcategory?.name?.toLowerCase().includes('condonación');
+    const isForgivenessDebt =
+      debtDetail?.description?.toLowerCase().includes("condonación") ||
+      debtDetail?.debt?.description?.toLowerCase().includes("condonación") ||
+      debtDetail?.subcategory?.name?.toLowerCase().includes("condonación");
 
-    const shouldLockFields = isIndividualDebt || isExpensasDebt || isReservationsDebt || isSharedDebt;
+    const shouldLockFields =
+      isIndividualDebt || isExpensasDebt || isReservationsDebt || isSharedDebt;
 
-    let paymentType = 'I';
+    let paymentType = "I";
 
     if (isForgivenessDebt) {
-      paymentType = 'F'; // Condonación
+      paymentType = "F"; // Condonación
     } else if (isExpensasDebt) {
-      paymentType = 'E'; // Expensas
+      paymentType = "E"; // Expensas
     } else if (isReservationsDebt) {
-      paymentType = 'R'; // Reservas
+      paymentType = "R"; // Reservas
     } else if (isIndividualDebt || isSharedDebt) {
-      paymentType = 'O'; // Otras deudas
+      paymentType = "O"; // Otras deudas
     }
 
     const titular = getTitular(debtDetail?.dpto);
     const owner_id = titular?.id;
 
     return {
-      paid_at: new Date().toISOString().split('T')[0],
+      paid_at: new Date().toISOString().split("T")[0],
       dpto_id: debtDetail?.dpto?.nro,
       category_id: finalCategoryId,
       subcategory_id: subcategoryId,
@@ -229,12 +243,12 @@ const RenderView: React.FC<RenderViewProps> = ({
       type: paymentType,
       debt_dpto_id: debtDetail?.id,
       concept: [
-        debtDetail?.subcategory?.name || 'Pago',
-        `Pago de ${debtDetail?.subcategory?.name || 'deuda'} - Unidad ${debtDetail?.dpto?.nro}`
+        debtDetail?.subcategory?.name || "Pago",
+        `Pago de ${debtDetail?.subcategory?.name || "deuda"} - Unidad ${debtDetail?.dpto?.nro}`,
       ],
       owner: debtDetail?.dpto?.homeowner,
       owner_id: owner_id,
-      status: 'S'
+      status: "S",
     };
   };
 
@@ -244,7 +258,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return '-/-';
+    if (!dateString) return "-/-";
     return getDateStrMesShort(dateString);
   };
 
@@ -266,12 +280,17 @@ const RenderView: React.FC<RenderViewProps> = ({
         buttonCancel=""
         variant="mini"
       >
-        <LoadingScreen onlyLoading={Object.keys(debtDetail).length === 0} type="CardSkeleton">
+        <LoadingScreen
+          onlyLoading={Object.keys(debtDetail).length === 0}
+          type="CardSkeleton"
+        >
           <div className={styles.content}>
             {/* Saldo principal */}
             <div className={styles.balanceSection}>
               <div className={styles.balanceLabel}>{balanceTitle}</div>
-              <div className={styles.balanceAmount}>Bs {formatNumber(totalBalance)}</div>
+              <div className={styles.balanceAmount}>
+                Bs {formatNumber(totalBalance)}
+              </div>
             </div>
 
             {/* Información principal */}
@@ -283,7 +302,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                     color={color}
                     backgroundColor={bgColor}
                     containerStyle={{
-                      justifyContent: 'flex-start',
+                      justifyContent: "flex-start",
                     }}
                   >
                     {statusText}
@@ -292,30 +311,34 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.statusItem}>
                   <span className={styles.label}>Fecha de inicio:</span>
                   <span className={styles.value}>
-                    {formatDate(debtDetail?.debt?.begin_at || debtDetail?.created_at)}
+                    {formatDate(
+                      debtDetail?.debt?.begin_at || debtDetail?.created_at,
+                    )}
                   </span>
                 </div>
                 <div className={styles.statusItem}>
                   <span className={styles.label}>Vencimiento:</span>
                   <span className={styles.value}>
-                    {formatDate(debtDetail?.debt?.due_at || debtDetail?.due_at || '-/-')}
+                    {formatDate(debtDetail?.due_at || "-/-")}
                   </span>
                 </div>
               </div>
 
               {/* Información adicional para estado cobrado */}
-              {debtDetail?.status === 'P' && (
+              {debtDetail?.status === "P" && (
                 <div className={styles.infoRow}>
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Método de pago:</span>
                     <span className={styles.value}>
-                      {getPaymentTypeText(debtDetail?.payment?.method) || '-/-'}
+                      {getPaymentTypeText(debtDetail?.payment?.method) || "-/-"}
                     </span>
                   </div>
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Fecha de pago:</span>
                     <span className={styles.value}>
-                      {formatDate(debtDetail?.payment?.paid_at || debtDetail?.paid_at)}
+                      {formatDate(
+                        debtDetail?.payment?.paid_at || debtDetail?.paid_at,
+                      )}
                     </span>
                   </div>
                 </div>
@@ -324,32 +347,42 @@ const RenderView: React.FC<RenderViewProps> = ({
               <div className={styles.infoRow}>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Unidad</span>
-                  <span className={styles.value}>{debtDetail?.dpto?.nro || '-/-'}</span>
+                  <span className={styles.value}>
+                    {debtDetail?.dpto?.nro || "-/-"}
+                  </span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Categoría</span>
                   <span className={styles.value}>
-                    {debtDetail?.subcategory?.padre?.name || '-/-'}
+                    {debtDetail?.subcategory?.padre?.name || "-/-"}
                   </span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Deuda</span>
-                  <span className={styles.value}>Bs {formatNumber(debtAmount)}</span>
+                  <span className={styles.value}>
+                    Bs {formatNumber(debtAmount)}
+                  </span>
                 </div>
               </div>
 
               <div className={styles.infoRow}>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Propietario</span>
-                  <span className={styles.value}>{getFullName(debtDetail?.dpto?.homeowner)}</span>
+                  <span className={styles.value}>
+                    {getFullName(debtDetail?.dpto?.homeowner)}
+                  </span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Subcategoría</span>
-                  <span className={styles.value}>{debtDetail?.subcategory?.name || '-/-'}</span>
+                  <span className={styles.value}>
+                    {debtDetail?.subcategory?.name || "-/-"}
+                  </span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Multa</span>
-                  <span className={styles.value}>Bs {formatNumber(penaltyAmount)}</span>
+                  <span className={styles.value}>
+                    Bs {formatNumber(penaltyAmount)}
+                  </span>
                 </div>
               </div>
 
@@ -357,7 +390,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Titular</span>
                   <span className={styles.value}>
-                    {debtDetail?.dpto?.holder === 'H'
+                    {debtDetail?.dpto?.holder === "H"
                       ? getFullName(debtDetail?.dpto?.homeowner)
                       : getFullName(debtDetail?.dpto?.tenant)}
                   </span>
@@ -368,7 +401,9 @@ const RenderView: React.FC<RenderViewProps> = ({
                   {hasMaintenanceValue(user) && (
                     <>
                       <span className={styles.label}>Mant. de valor</span>
-                      <span className={styles.value}>Bs {formatNumber(maintenanceAmount)}</span>
+                      <span className={styles.value}>
+                        Bs {formatNumber(maintenanceAmount)}
+                      </span>
                     </>
                   )}
                 </div>
@@ -377,7 +412,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Tipo</span>
                     <span className={styles.value}>
-                      {debtDetail?.debt?.distribution || 'Dividido por igual'}
+                      {debtDetail?.debt?.distribution || "Dividido por igual"}
                     </span>
                   </div>
                 )}
@@ -415,14 +450,20 @@ const RenderView: React.FC<RenderViewProps> = ({
               )}
 
               {actions.showRegistrarPago && debtDetail?.status != "F" && (
-                <Button onClick={() => setShowPaymentForm(true)} className={styles.primaryButton}>
+                <Button
+                  onClick={() => setShowPaymentForm(true)}
+                  className={styles.primaryButton}
+                >
                   Registrar Pago
                 </Button>
               )}
 
               {/* Botón de ver pago para estado cobrado */}
               {actions.showVerPago && currentItem?.payment_id && (
-                <Button onClick={() => setShowPaymentModal(true)} className={styles.actionButton}>
+                <Button
+                  onClick={() => setShowPaymentModal(true)}
+                  className={styles.actionButton}
+                >
                   Ver pago
                 </Button>
               )}

@@ -93,8 +93,8 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   const getDisplayStatus = (item: any) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (item.status === "A" && item.debt?.due_at) {
-      const dueDate = new Date(item.debt.due_at);
+    if (item.status === "A" && item.due_at) {
+      const dueDate = new Date(item.due_at);
       if (today > dueDate) {
         return { text: "En mora", code: "M" };
       }

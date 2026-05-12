@@ -1,13 +1,13 @@
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import styles from './RenderView.module.css';
-import { getFullName } from '@/mk/utils/string';
-import { getDateStrMes, MONTHS_S } from '@/mk/utils/date';
-import { useState } from 'react';
-import { shouldIgnoreValueTranslationContext } from '@/i18n/translationGuards';
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import styles from "./RenderView.module.css";
+import { getFullName } from "@/mk/utils/string";
+import { getDateStrMes, MONTHS_S } from "@/mk/utils/date";
+import { useState } from "react";
+import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
 
-import PaymentRenderView from '../../../Payments/RenderView/RenderView';
-import { formatBs } from '@/mk/utils/numbers';
-import { getTitular } from '@/mk/utils/adapters';
+import PaymentRenderView from "../../../Payments/RenderView/RenderView";
+import { formatBs } from "@/mk/utils/numbers";
+import { getTitular } from "@/mk/utils/adapters";
 
 const RenderView = (props: {
   open: boolean;
@@ -20,16 +20,16 @@ const RenderView = (props: {
 
   const reloadItem = async () => {
     const { data } = await props.execute(
-      '/debt-dptos',
-      'GET',
+      "/debt-dptos",
+      "GET",
       {
-        fullType: 'DET',
+        fullType: "DET",
         searchBy: item.id,
         page: 1,
         perPage: 1,
       },
       false,
-      true
+      true,
     );
     if (data.success) {
       setItem({ ...data.data });
@@ -38,35 +38,35 @@ const RenderView = (props: {
   const getStatus = (item: any) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (item.status === 'A' && item.debt?.due_at) {
-      const dueDate = new Date(item.debt.due_at);
+    if (item.status === "A" && item.due_at) {
+      const dueDate = new Date(item.due_at);
       if (today > dueDate) {
-        return { text: 'En mora', code: 'M' };
+        return { text: "En mora", code: "M" };
       }
     }
     switch (item.status) {
-      case 'A':
-        return { text: 'Por cobrar', code: 'A' };
-      case 'P':
-        return { text: 'Cobrado', code: 'P' };
-      case 'S':
-        return { text: 'Por confirmar', code: 'S' };
-      case 'M':
-        return { text: 'En mora', code: 'M' };
-      case 'F':
-        return { text: 'Condonada', code: 'F' };
+      case "A":
+        return { text: "Por cobrar", code: "A" };
+      case "P":
+        return { text: "Cobrado", code: "P" };
+      case "S":
+        return { text: "Por confirmar", code: "S" };
+      case "M":
+        return { text: "En mora", code: "M" };
+      case "F":
+        return { text: "Condonada", code: "F" };
       default:
-        return { text: item.status || 'Desconocido', code: item.status || '' };
+        return { text: item.status || "Desconocido", code: item.status || "" };
     }
   };
 
   const colorStatus: any = {
-    A: 'var(--cInfo)',
-    M: 'var(--cError)',
-    S: 'var(--cWarning)',
-    P: 'var(--cSuccess)',
-    E: 'var(--cInfo)',
-    F: 'var(--cInfo)',
+    A: "var(--cInfo)",
+    M: "var(--cError)",
+    S: "var(--cWarning)",
+    P: "var(--cSuccess)",
+    E: "var(--cInfo)",
+    F: "var(--cInfo)",
   };
 
   type InfoBlockProps = {
@@ -76,17 +76,24 @@ const RenderView = (props: {
     className?: string;
   };
 
-  const InfoBlock = ({ value, label, colorValue, className }: InfoBlockProps) => {
-    const ignoreValueTranslation = shouldIgnoreValueTranslationContext({ label });
+  const InfoBlock = ({
+    value,
+    label,
+    colorValue,
+    className,
+  }: InfoBlockProps) => {
+    const ignoreValueTranslation = shouldIgnoreValueTranslationContext({
+      label,
+    });
 
     return (
       <div className={`${styles.infoBlock} ${className}`}>
         <span className={styles.infoLabel}>{label}</span>
         <span
-          data-i18n-ignore={ignoreValueTranslation ? 'true' : undefined}
+          data-i18n-ignore={ignoreValueTranslation ? "true" : undefined}
           className={styles.infoValue}
           style={{
-            color: colorValue || 'var(--cWhite)',
+            color: colorValue || "var(--cWhite)",
           }}
         >
           {value}
@@ -103,10 +110,12 @@ const RenderView = (props: {
         onClose={props?.onClose}
         title="Detalle de expensa"
         buttonText={
-          (item?.status == 'P' || item?.status == 'S') && item?.payment_id ? 'Ver pago' : ''
+          (item?.status == "P" || item?.status == "S") && item?.payment_id
+            ? "Ver pago"
+            : ""
         }
         onSave={
-          (item?.status == 'P' || item?.status == 'S') && item?.payment_id
+          (item?.status == "P" || item?.status == "S") && item?.payment_id
             ? () => setOpenPayment(true)
             : undefined
         }
@@ -115,28 +124,41 @@ const RenderView = (props: {
       >
         <div className={styles.container}>
           <div className={styles.headerSection}>
-            <div className={styles.totalAmount}>{formatBs(
-              (parseFloat(item?.amount || '0') || 0) +
-              (parseFloat(item?.maintenance_amount || '0') || 0) +
-              (parseFloat(item?.penalty_amount || '0') || 0)
-            )}</div>
-            <div className={styles.paymentDate}>{getDateStrMes(item?.paid_at) || '-/-'}</div>
+            <div className={styles.totalAmount}>
+              {formatBs(
+                (parseFloat(item?.amount || "0") || 0) +
+                  (parseFloat(item?.maintenance_amount || "0") || 0) +
+                  (parseFloat(item?.penalty_amount || "0") || 0),
+              )}
+            </div>
+            <div className={styles.paymentDate}>
+              {getDateStrMes(item?.paid_at) || "-/-"}
+            </div>
           </div>
 
           <hr className={styles.sectionDivider} />
 
           <section className={styles.detailsSection}>
             <div className={styles.detailsColumn}>
-              <InfoBlock label="Unidad" value={item?.dpto?.nro || 'Sin unidad'} />
+              <InfoBlock
+                label="Unidad"
+                value={item?.dpto?.nro || "Sin unidad"}
+              />
 
               <InfoBlock
                 label="Periodo"
-                value={MONTHS_S[item?.debt?.month] + '/' + item?.debt?.year}
+                value={MONTHS_S[item?.debt?.month] + "/" + item?.debt?.year}
               />
 
-              <InfoBlock label="Fecha de plazo" value={getDateStrMes(item?.debt?.due_at)} />
+              <InfoBlock
+                label="Fecha de plazo"
+                value={getDateStrMes(item?.due_at)}
+              />
 
-              <InfoBlock label="Titular" value={getFullName(titular) || '-/-'} />
+              <InfoBlock
+                label="Titular"
+                value={getFullName(titular) || "-/-"}
+              />
             </div>
 
             <div className={styles.detailsColumn}>
@@ -146,11 +168,20 @@ const RenderView = (props: {
                 colorValue={colorStatus[getStatus(item).code]}
               />
 
-              <InfoBlock label="Fecha de pago" value={getDateStrMes(item?.paid_at) || '-/-'} />
+              <InfoBlock
+                label="Fecha de pago"
+                value={getDateStrMes(item?.paid_at) || "-/-"}
+              />
 
-              <InfoBlock label="Descripción" value={item?.dpto?.description || '-/-'} />
+              <InfoBlock
+                label="Descripción"
+                value={item?.dpto?.description || "-/-"}
+              />
 
-              <InfoBlock label="Propietario" value={getFullName(item?.dpto?.homeowner) || '-/-'} />
+              <InfoBlock
+                label="Propietario"
+                value={getFullName(item?.dpto?.homeowner) || "-/-"}
+              />
             </div>
           </section>
 
@@ -172,7 +203,10 @@ const RenderView = (props: {
 
                   <div className={styles.tableBody}>
                     {item?.pendingPeriods.map((periodo: any, index: number) => (
-                      <div key={`${periodo.month}-${periodo.year}`} className={styles.tableRow}>
+                      <div
+                        key={`${periodo.month}-${periodo.year}`}
+                        className={styles.tableRow}
+                      >
                         <div className={styles.tableCell} data-label="Periodo">
                           {MONTHS_S[periodo.month]}/{periodo.year}
                         </div>
@@ -183,7 +217,10 @@ const RenderView = (props: {
                           {formatBs(periodo.penalty || 0)}
                         </div>
                         <div className={styles.tableCell} data-label="Subtotal">
-                          {formatBs(parseFloat(periodo.amount) + parseFloat(periodo.penalty || 0))}
+                          {formatBs(
+                            parseFloat(periodo.amount) +
+                              parseFloat(periodo.penalty || 0),
+                          )}
                         </div>
                       </div>
                     ))}
@@ -191,14 +228,14 @@ const RenderView = (props: {
                 </div>
 
                 <div className={styles.totalPaid}>
-                  Total pagado:{' '}
-                  <span className={styles.totalAmountValue}>{formatBs(item?.amount)}</span>
+                  Total pagado:{" "}
+                  <span className={styles.totalAmountValue}>
+                    {formatBs(item?.amount)}
+                  </span>
                 </div>
               </div>
             </>
           )}
-
-
         </div>
       </DataModal>
       {/* Modal de detalles de pago */}
