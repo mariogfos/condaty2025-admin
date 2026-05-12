@@ -1,0 +1,60 @@
+name: Update Module Memory
+
+on:
+  push:
+    branches:
+      - main
+      - makroz
+    paths:
+      - 'app/Modules/**'
+  pull_request:
+    types: [closed]
+    paths:
+      - 'app/Modules/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-memory:
+    name: Update Module Memory Files
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed modules
+        id: changed-modules
+        run: |
+          CHANGED_MODULES=$(git diff --name-only ${{ github.event.before }} HEAD | \
+            grep 'app/Modules/' | \
+            cut -d/ -f3 | \
+            sort -u | \
+            tr '\n' ' ')
+          echo "modules=$CHANGED_MODULES" >> $GITHUB_OUTPUT
+          echo "Changed modules: $CHANGED_MODULES"
+
+      - name: Update Module Memory
+        if: steps.changed-modules.outputs.modules != ''
+        run: |
+          for MODULE in ${{ steps.changed-modules.outputs.modules }}; do
+            echo "Updating memory for module: $MODULE"
+            bash .agent/hooks/update-module-memory.sh \
+              "." \
+              ".agent/projects/condaty/modules/${MODULE}/.module-memory.json"
+          done
+
+      - name: Create PR with changes
+        if: success() && github.event.pull_request.merged == true
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: update module memory files"
+          title: "docs: update module memory for modified modules"
+          branch: chore/update-module-memory
+          delete-branch: true
+          path: .agent/projects/condaty/modules/
