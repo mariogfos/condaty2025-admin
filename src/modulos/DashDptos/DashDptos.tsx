@@ -35,7 +35,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const { showToast } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnTo = searchParams.get("returnTo");
+  const returnTo = searchParams?.get("returnTo") || "";
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
