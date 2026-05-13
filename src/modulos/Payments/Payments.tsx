@@ -158,7 +158,7 @@ const Payments = () => {
       del: true,
     },
     filter: true,
-    export: true,
+    export: ['pdf', 'xlsx'],
     titleAdd: 'Nuevo',
     titleDel: 'Anular',
     saveMsg: {

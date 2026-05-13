@@ -539,6 +539,7 @@ const useCrud = ({
 
     if (file?.success) {
       // Si viene secureUrl (Cloudinary), usar directo; sino, usar el método anterior con path
+      console.log("filesucces", file);
       const url = file.data?.secureUrl
         ? file.data.secureUrl
         : getUrlImages("/" + (file.data?.path || ""));
@@ -557,21 +558,32 @@ const useCrud = ({
       })();
 
       try {
+        console.log("url", url);
         const response = await fetch(url);
+        console.log("paso 2");
         const blob = await response.blob();
+        console.log("paso 3");
         const blobUrl = window.URL.createObjectURL(blob);
+        console.log("paso 4");
 
         const link = document.createElement("a");
+        console.log("paso 5");
         link.href = blobUrl;
         link.download = suggestedName;
         document.body.appendChild(link);
+        console.log("paso 6");
         link.click();
+        console.log("paso 7");
         document.body.removeChild(link);
+        console.log("paso 8");
 
         window.URL.revokeObjectURL(blobUrl);
+        console.log("paso 9");
         callBack(url); // Mantener callback por compatibilidad
+        console.log("paso 10");
       } catch (error) {
         // Fallback: si falla la descarga, abrir directamente la URL
+        console.log("error de descarga directa");
         window.location.href = url;
       } finally {
         setIsExporting(false);
@@ -1484,8 +1496,8 @@ const useCrud = ({
       const CurrentForm = runtime.Form;
       const CurrentFormDelete = runtime.FormDelete;
 
-      const { header, filters }: { header: any[]; filters: any[] } = useMemo(
-        () => {
+      const { header, filters }: { header: any[]; filters: any[] } =
+        useMemo(() => {
           const head: any[] = [];
           const lFilter: any[] = [];
 
@@ -1531,9 +1543,7 @@ const useCrud = ({
           lFilter.sort((a: any, b: any) => a.order - b.order);
 
           return { header: head, filters: lFilter };
-        },
-        [runtime.fields, runtime.extraData, runtime.renderField],
-      );
+        }, [runtime.fields, runtime.extraData, runtime.renderField]);
 
       const filteredData = useMemo(() => {
         if (
@@ -1590,10 +1600,7 @@ const useCrud = ({
               breakPoint={props.filterBreakPoint}
             />
           )}
-          <LoadingScreen
-            type="TableSkeleton"
-            loaded={runtime.data !== null}
-          >
+          <LoadingScreen type="TableSkeleton" loaded={runtime.data !== null}>
             {runtime.openList && (
               <div
                 style={{
