@@ -282,7 +282,6 @@ const QrDynamicConfig: React.FC = () => {
     }
   };
 
-  // Map internal environment values to Select options
   const environmentOptions = [
     { id: "S", name: QrEnvironmentLabels.S },
     { id: "P", name: QrEnvironmentLabels.P },
@@ -426,7 +425,7 @@ const QrDynamicConfig: React.FC = () => {
                   }
                   value={formState.username}
                   onChange={(e) => handleChange("username", e.target.value)}
-                  placeholder="Ej: 5052069"
+                  placeholder="Código de cliente del banco"
                   error={errors.username}
                 />
 
@@ -455,7 +454,7 @@ const QrDynamicConfig: React.FC = () => {
                   onChange={(e) =>
                     handleChange("account_reference", e.target.value)
                   }
-                  placeholder="Ej: FORCE_TEST"
+                  placeholder="Referencia de cuenta proporcionada por el banco"
                   error={errors.account_reference}
                 />
 
