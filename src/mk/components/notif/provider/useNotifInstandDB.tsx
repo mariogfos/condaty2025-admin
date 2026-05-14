@@ -1,15 +1,60 @@
+"use client";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { id, init } from "@instantdb/react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useEvent } from "@/mk/hooks/useEvents";
 import { MODULE_REGISTRY } from "@/mk/notif/notifRegistry";
 
-let last: any = 0;
-try {
-  last = localStorage.getItem("lastNotifInstantDB") ?? 0;
-} catch (error) {
-  last = 0;
-}
+const readStoredLastNotif = () => {
+  if (typeof window === "undefined") return 0;
+
+  try {
+    const storedValue = Number(localStorage.getItem("lastNotifInstantDB") ?? 0);
+    return Number.isFinite(storedValue) ? storedValue : 0;
+  } catch {
+    return 0;
+  }
+};
+
+const persistLastNotif = (value: number) => {
+  if (typeof window === "undefined") return;
+
+  try {
+    localStorage.setItem("lastNotifInstantDB", String(value));
+  } catch {
+    // Ignore localStorage errors in private mode or blocked contexts.
+  }
+};
+
+const PROCESSED_NOTIF_TTL_MS = 2 * 60 * 1000;
+const processedNotifKeys = new Map<string, number>();
+
+const buildNotifKey = (notif: any) =>
+  String(
+    notif?.id ??
+      `${notif?.channel ?? "unknown"}:${notif?.event ?? "unknown"}:${notif?.created_at ?? 0}`,
+  );
+
+const pruneProcessedNotifKeys = (now = Date.now()) => {
+  processedNotifKeys.forEach((processedAt, key) => {
+    if (now - processedAt > PROCESSED_NOTIF_TTL_MS) {
+      processedNotifKeys.delete(key);
+    }
+  });
+};
+
+const hasProcessedNotif = (notifKey: string) => {
+  pruneProcessedNotifKeys();
+  return processedNotifKeys.has(notifKey);
+};
+
+const markNotifProcessed = (notifKey: string) => {
+  pruneProcessedNotifKeys();
+  processedNotifKeys.set(notifKey, Date.now());
+};
+
+let last = readStoredLastNotif();
 
 let db: any = null;
 export const initSocket = async () => {
@@ -180,60 +225,75 @@ const useNotifInstandDB = (
     (notifData: any) => {
       if (!notifData?.notif?.length) return;
       const latest = notifData.notif[0];
+      const latestCreatedAt = Number(latest?.created_at ?? 0);
+      const latestKey = buildNotifKey(latest);
 
-      if (latest.created_at === -1) {
-        localStorage.setItem("lastNotifInstantDB", "0");
+      if (latestCreatedAt === -1) {
+        last = 0;
+        persistLastNotif(0);
+        processedNotifKeys.clear();
         setLastNotif(0);
         return;
       }
 
-      if (lastNotif !== null && lastNotif < latest.created_at) {
-        // Granular role-based filter for admin
-        if (!isNotifForAdmin(latest, userRoleCode)) {
-          last = latest.created_at;
-          localStorage.setItem("lastNotifInstantDB", last);
-          setLastNotif(last);
-          return;
+      if (!latestCreatedAt) return;
+
+      if (latestCreatedAt <= last || hasProcessedNotif(latestKey)) {
+        if (latestCreatedAt > last) {
+          last = latestCreatedAt;
+          persistLastNotif(last);
         }
-
-        // Parse payload once — it is a JSON string stored by useInstantMsg
-        const parsedPayload = (() => {
-          try {
-            return typeof latest.payload === "string"
-              ? JSON.parse(latest.payload)
-              : latest.payload;
-          } catch {
-            return latest.payload;
-          }
-        })();
-
-        // Helper that modules use to dispatch scoped window events
-        const dispatchModuleEvent = (eventName: string, data: any) => {
-          window.dispatchEvent(new CustomEvent(eventName, { detail: data }));
-        };
-
-        // Run all matching module registry handlers
-        MODULE_REGISTRY.forEach((moduleConfig) => {
-          const handler = moduleConfig.events[latest.event];
-          if (handler) {
-            handler({
-              notif: latest,
-              payload: parsedPayload,
-              dispatch: dispatchModuleEvent,
-              showToast: showToast || (() => {}),
-            });
-          }
-        });
-
-        // Still dispatch the global onNotif event so legacy handlers work
-        dispatch(latest);
-        last = latest.created_at;
-        localStorage.setItem("lastNotifInstantDB", last);
+        setLastNotif(last);
+        return;
       }
+
+      // Reserve the notification before dispatching side effects so
+      // duplicated subscribers/re-renders do not replay the same toast.
+      last = latestCreatedAt;
+      markNotifProcessed(latestKey);
+      persistLastNotif(last);
+
+      // Granular role-based filter for admin
+      if (!isNotifForAdmin(latest, userRoleCode)) {
+        setLastNotif(last);
+        return;
+      }
+
+      // Parse payload once — it is a JSON string stored by useInstantMsg
+      const parsedPayload = (() => {
+        try {
+          return typeof latest.payload === "string"
+            ? JSON.parse(latest.payload)
+            : latest.payload;
+        } catch {
+          return latest.payload;
+        }
+      })();
+
+      // Helper that modules use to dispatch scoped window events
+      const dispatchModuleEvent = (eventName: string, data: any) => {
+        window.dispatchEvent(new CustomEvent(eventName, { detail: data }));
+      };
+
+      // Run all matching module registry handlers
+      MODULE_REGISTRY.forEach((moduleConfig) => {
+        const handler = moduleConfig.events[latest.event];
+        if (handler) {
+          handler({
+            notif: latest,
+            payload: parsedPayload,
+            dispatch: dispatchModuleEvent,
+            showToast: showToast || (() => {}),
+          });
+        }
+      });
+
+      // Still dispatch the global onNotif event so legacy handlers work
+      dispatch(latest);
       setLastNotif(last);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lastNotif, userRoleCode, showToast]
+    [userRoleCode, showToast]
   );
 
   useEffect(() => {

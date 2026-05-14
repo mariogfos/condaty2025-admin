@@ -8,7 +8,6 @@ import AuthProvider from "@/mk/contexts/AuthProvider";
 import Layout from "@/components/layout/Layout";
 import { Metadata, Viewport } from "next";
 import ChatInstantDb from "@/mk/components/chat/ChatInstantDb";
-import NotifInstantDb from "@/mk/components/notif/ActiveNotificationDB";
 import { ImageModalProvider } from "@/contexts/ImageModalContext";
 import AppLanguageLayer from "@/i18n/AppLanguageLayer";
 // import { ReactScan } from "@/mk/utils/reactscan/ReactScan";
@@ -48,7 +47,6 @@ export default function RootLayout({
           <AppLanguageLayer>
             <AuthProvider>
               <ImageModalProvider>
-                <NotifInstantDb />
                 <div
                   id="portal-root"
                   style={{
