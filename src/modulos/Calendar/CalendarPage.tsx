@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import {
   IconArrowLeft,
   IconArrowRight,
+  IconFilter,
 } from "@/components/layout/icons/IconsBiblioteca";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
@@ -34,6 +35,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import Select from "@/mk/components/forms/Select/Select";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { capitalize, capitalizeWords } from "@/mk/utils/string";
 import { RESERVATION_STATUS_OPTIONS } from "@/modulos/Reservas/constants/reservationConstants";
@@ -92,6 +94,10 @@ const DEFAULT_VISIBLE_STATUS_IDS = RESERVATION_STATUS_OPTIONS.map((option) =>
     statusId !== "X",
 );
 const STATUS_WITH_REASON = new Set(["M", "C", "T", "R", "X"]);
+const DEFAULT_PERIOD_ID = format(startOfMonth(new Date()), "yyyy-MM");
+const DEFAULT_STATUS_FILTER_KEY = [...DEFAULT_VISIBLE_STATUS_IDS]
+  .sort()
+  .join(",");
 
 const CalendarPage = () => {
   const router = useRouter();
@@ -111,6 +117,7 @@ const CalendarPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [detailItem, setDetailItem] = useState<ReservationListItem | null>(null);
   const [dayEntrySlots, setDayEntrySlots] = useState(DEFAULT_DAY_ENTRY_SLOTS);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const deferredSearch = useDeferredValue(searchText);
   const requestKeyRef = useRef("");
@@ -343,6 +350,30 @@ const CalendarPage = () => {
     ];
   }, [currentMonth]);
 
+  const areaOptions = useMemo(
+    () => [
+      { id: "ALL", name: "Todas las áreas" },
+      ...visibleAreaOptions.map((area) => ({
+        id: String(area.id),
+        name: capitalizeWords(area.title || `Área ${area.id}`),
+      })),
+    ],
+    [visibleAreaOptions],
+  );
+
+  const activeStatusFilterKey = useMemo(
+    () => [...selectedStatuses].sort().join(","),
+    [selectedStatuses],
+  );
+
+  const hasCompactFiltersApplied = useMemo(
+    () =>
+      format(currentMonth, "yyyy-MM") !== DEFAULT_PERIOD_ID ||
+      selectedAreaId !== "ALL" ||
+      activeStatusFilterKey !== DEFAULT_STATUS_FILTER_KEY,
+    [activeStatusFilterKey, currentMonth, selectedAreaId],
+  );
+
   const selectedDayLabel = useMemo(() => {
     if (!selectedDate) return "Selecciona un dia";
     return capitalize(
@@ -484,50 +515,60 @@ const CalendarPage = () => {
 
         <div className={styles.toolbarControls}>
           <div className={styles.filtersRow}>
-            <div className={styles.toolbarFieldMedium}>
-              <Select
-                name="calendarPeriod"
-                label="Periodo"
-                value={format(currentMonth, "yyyy-MM")}
-                options={periodOptions}
-                onChange={handlePeriodSelect}
-                inputStyle={FILTER_INPUT_STYLE}
-                style={FILTER_STYLE}
-              />
+            <div className={styles.inlineFilters}>
+              <div className={styles.toolbarFieldMedium}>
+                <Select
+                  name="calendarPeriod"
+                  label="Periodo"
+                  value={format(currentMonth, "yyyy-MM")}
+                  options={periodOptions}
+                  onChange={handlePeriodSelect}
+                  inputStyle={FILTER_INPUT_STYLE}
+                  style={FILTER_STYLE}
+                />
+              </div>
+
+              <div className={styles.toolbarFieldMedium}>
+                <Select
+                  name="calendarArea"
+                  label="Área"
+                  value={selectedAreaId}
+                  options={areaOptions}
+                  onChange={(event: { target: { value: string } }) =>
+                    setSelectedAreaId(event.target.value)
+                  }
+                  inputStyle={FILTER_INPUT_STYLE}
+                  style={FILTER_STYLE}
+                />
+              </div>
+
+              <div className={styles.toolbarFieldLarge}>
+                <Select
+                  name="calendarStatuses"
+                  label="Estados"
+                  value={selectedStatuses}
+                  options={RESERVATION_STATUS_OPTIONS}
+                  onChange={handleStatusesChange}
+                  inputStyle={FILTER_INPUT_STYLE}
+                  style={FILTER_STYLE}
+                  multiSelect
+                />
+              </div>
             </div>
 
-            <div className={styles.toolbarFieldMedium}>
-              <Select
-                name="calendarArea"
-                label="Área"
-                value={selectedAreaId}
-                options={[
-                  { id: "ALL", name: "Todas las áreas" },
-                  ...visibleAreaOptions.map((area) => ({
-                    id: String(area.id),
-                    name: capitalizeWords(area.title || `Área ${area.id}`),
-                  })),
-                ]}
-                onChange={(event: { target: { value: string } }) =>
-                  setSelectedAreaId(event.target.value)
-                }
-                inputStyle={FILTER_INPUT_STYLE}
-                style={FILTER_STYLE}
-              />
-            </div>
-
-            <div className={styles.toolbarFieldLarge}>
-              <Select
-                name="calendarStatuses"
-                label="Estados"
-                value={selectedStatuses}
-                options={RESERVATION_STATUS_OPTIONS}
-                onChange={handleStatusesChange}
-                inputStyle={FILTER_INPUT_STYLE}
-                style={FILTER_STYLE}
-                multiSelect
-              />
-            </div>
+            <button
+              type="button"
+              className={[
+                styles.compactFilterButton,
+                hasCompactFiltersApplied ? styles.compactFilterButtonActive : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              onClick={() => setFiltersOpen(true)}
+              aria-label="Abrir filtros del calendario"
+            >
+              <IconFilter size={20} />
+            </button>
           </div>
 
           <div className={styles.actionsRow}>
@@ -551,6 +592,48 @@ const CalendarPage = () => {
           </div>
         </div>
       </div>
+
+      <DataModal
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        title="Filtros"
+        buttonText=""
+        buttonCancel="Cerrar"
+        variant="mini"
+      >
+        <div className={styles.compactFilterModalBody}>
+          <Select
+            name="calendarPeriodCompact"
+            label="Periodo"
+            value={format(currentMonth, "yyyy-MM")}
+            options={periodOptions}
+            onChange={handlePeriodSelect}
+            inputStyle={FILTER_INPUT_STYLE}
+            style={FILTER_STYLE}
+          />
+          <Select
+            name="calendarAreaCompact"
+            label="Área"
+            value={selectedAreaId}
+            options={areaOptions}
+            onChange={(event: { target: { value: string } }) =>
+              setSelectedAreaId(event.target.value)
+            }
+            inputStyle={FILTER_INPUT_STYLE}
+            style={FILTER_STYLE}
+          />
+          <Select
+            name="calendarStatusesCompact"
+            label="Estados"
+            value={selectedStatuses}
+            options={RESERVATION_STATUS_OPTIONS}
+            onChange={handleStatusesChange}
+            inputStyle={FILTER_INPUT_STYLE}
+            style={FILTER_STYLE}
+            multiSelect
+          />
+        </div>
+      </DataModal>
 
       <div className={styles.contentGrid}>
         <div className={styles.calendarShell}>

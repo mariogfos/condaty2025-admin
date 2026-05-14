@@ -1583,6 +1583,38 @@ const useCrud = ({
         setFilterSel({ ...filterSel, [name]: e.target.value });
         onFilter(name, e.target.value);
       };
+      const resolvedBreakPoint = useMemo(() => {
+        if (typeof breakPoint === "number" && breakPoint > 1) {
+          return breakPoint;
+        }
+
+        const fieldFilterCount = Array.isArray(filters) ? filters.length : 0;
+        const totalFilterCount = fieldFilterCount + (menuFilter ? 1 : 0);
+
+        if (totalFilterCount === 0) {
+          return 1;
+        }
+
+        const actionCount =
+          (mod.import ? 1 : 0) +
+          ((mod.export === true ||
+            (Array.isArray(mod.export) && mod.export.length > 0))
+            ? 1
+            : 0) +
+          (mod.listAndCard ? 1 : 0) +
+          (Array.isArray(extraButtons) ? extraButtons.length : 0) +
+          (mod.hideActions?.add ? 0 : 1);
+
+        if (totalFilterCount >= 3 || actionCount >= 4) {
+          return 1520;
+        }
+
+        if (totalFilterCount >= 2 || actionCount >= 3) {
+          return 1360;
+        }
+
+        return 1180;
+      }, [breakPoint, extraButtons, filters, menuFilter, mod]);
       // console.log('export:',mod.export);
 
       return (
@@ -1604,7 +1636,7 @@ const useCrud = ({
                 {mod.filter && (
                   <FilterResponsive
                     filters={filters}
-                    breakPoint={breakPoint}
+                    breakPoint={resolvedBreakPoint}
                     onChange={onChange}
                   />
                 )}
@@ -1697,7 +1729,7 @@ const useCrud = ({
               )}
 
               {mod.hideActions?.add ? null : (
-                <div>
+                <div className={styles.addButtonWrap}>
                   <Button
                     className={styles.addButton}
                     onClick={onClick || onAdd}

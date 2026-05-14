@@ -245,6 +245,10 @@
   flex-wrap: wrap;
 }
 
+.addButtonWrap {
+  display: flex;
+}
+
 .extraButtons > div > button,
 .extraButtons > button {
   min-height: var(--controlHeight);
@@ -333,7 +337,21 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .toolbarSearch {
+    max-width: 300px;
+    min-width: 220px;
+    flex: 1 1 240px;
+  }
+
+  .toolbarFilters,
+  .toolbarActions,
+  .extraButtons {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 640px) {
   .titleText {
     font-size: var(--title-xs-size);
   }
@@ -359,15 +377,21 @@
 
   .toolbarFilters,
   .toolbarActions {
-    justify-content: flex-end;
+    justify-content: flex-start;
   }
 
   .toolbarActions {
     margin-left: 0;
+    align-items: flex-start;
+  }
+
+  .addButtonWrap {
+    flex: 1 1 180px;
+    min-width: 0;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 560px) {
   .useCrud .filters {
     grid-template-columns: 1fr;
   }

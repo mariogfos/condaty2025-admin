@@ -192,19 +192,31 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  
+  flex-wrap: wrap;
+}
+
+.searchField {
+  flex: 1 1 320px;
+  min-width: min(100%, 320px);
 }
 
 .dataSearchCustom {
-  flex: 1;
+  width: 100%;
 }
 
 .dataSearchCustom input {
-  min-width: 320px;
+  min-width: 0;
   font-size: var(--spL);
   border-radius: 8px;
   padding: 0 16px;
   box-sizing: border-box;
+}
+
+.createCategoryButton {
+  width: auto !important;
+  min-width: 192px;
+  margin: 0 !important;
+  white-space: nowrap;
 }
 
 .addButton {
@@ -271,4 +283,40 @@
   gap: 8px;
   margin-left: auto;
   flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .headerTitle {
+    font-size: var(--title-sm-size);
+  }
+
+  .searchField {
+    flex-basis: 260px;
+    min-width: 240px;
+  }
+
+  .dataSearchCustom input {
+    font-size: var(--controlFontSize);
+  }
+}
+
+@media (max-width: 640px) {
+  .backLink {
+    flex-wrap: wrap;
+  }
+
+  .searchContainer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchField,
+  .createCategoryButton {
+    width: 100% !important;
+    min-width: 0;
+  }
+
+  .createCategoryButton {
+    white-space: normal;
+  }
 }

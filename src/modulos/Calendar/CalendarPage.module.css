@@ -58,11 +58,57 @@
   min-width: 0;
 }
 
+.inlineFilters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
 .actionsRow {
   flex: 0 0 auto;
   justify-content: flex-end;
   margin-left: auto;
   max-width: 100%;
+}
+
+.compactFilterButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--controlHeight);
+  min-width: var(--controlHeight);
+  height: var(--controlHeight);
+  padding: 0;
+  border: 1px solid var(--controlSecondaryBorder);
+  border-radius: var(--controlRadius);
+  background: var(--controlSecondaryBg);
+  color: var(--controlSecondaryText);
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.compactFilterButton:hover,
+.compactFilterButton:focus-visible {
+  background: var(--controlSecondaryHoverBg);
+  border-color: var(--controlSecondaryHoverBorder);
+  color: var(--controlSecondaryHoverText);
+}
+
+.compactFilterButtonActive {
+  color: var(--cPrimary);
+  border-color: color-mix(in srgb, var(--cPrimary) 58%, transparent);
+}
+
+.compactFilterModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .toolbarFieldSmall {
@@ -446,6 +492,16 @@
   }
 }
 
+@media (max-width: 1540px) {
+  .inlineFilters {
+    display: none;
+  }
+
+  .compactFilterButton {
+    display: inline-flex;
+  }
+}
+
 @media (max-width: 1024px) {
   .page {
     height: auto;
@@ -467,7 +523,21 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .searchField {
+    max-width: 300px;
+    min-width: 220px;
+    flex: 1 1 240px;
+  }
+
+  .toolbarControls,
+  .filtersRow,
+  .actionsRow {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 640px) {
   .header,
   .toolbar {
     align-items: stretch;
@@ -486,7 +556,12 @@
 
   .actionsRow {
     margin-left: 0;
-    justify-content: flex-end;
+    justify-content: flex-start;
+  }
+
+  .actionsRow > button {
+    flex: 1 1 160px;
+    min-width: 0;
   }
 
   .toolbarFieldSmall,
