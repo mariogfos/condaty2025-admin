@@ -144,10 +144,16 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   }, [open, payment_id, propItem?.id]);
 
   const handleGenerateReceipt = async (item: any) => {
+    const paymentId = item?.id;
+    if (paymentId == null) {
+      showToast("No se encontró el pago para generar el recibo.", "error");
+      return;
+    }
+
     showToast("Generando recibo...", "info");
 
     const { data: file, error } = await execute(
-      paymentsApi.receipt(item?.id),
+      paymentsApi.receipt(paymentId),
       "POST",
       {},
       false,
@@ -167,6 +173,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   };
 
   const handleShareReceiptWhatsApp = async () => {
+    const paymentId = item?.id;
+    if (paymentId == null) {
+      showToast("No se encontró el pago para compartir el recibo.", "error");
+      return;
+    }
+
     const phone = String(item?.owner?.phone || "");
     const waLinkBase = generateWhatsAppLink(phone);
     if (!waLinkBase) {
@@ -175,7 +187,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     }
     showToast("Generando recibo...", "info");
     const { data: file, error } = await execute(
-      paymentsApi.receipt(item?.id),
+      paymentsApi.receipt(paymentId),
       "POST",
       {},
       false,
@@ -217,8 +229,15 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         return;
       }
     }
+
+    const paymentId = item?.id ?? payment_id;
+    if (paymentId == null) {
+      showToast("No se encontró el pago para confirmar la operación.", "error");
+      return;
+    }
+
     const { data: payment, error } = await execute(
-      paymentsApi.confirm(item?.id),
+      paymentsApi.confirm(paymentId),
       "POST",
       {
         confirm: rechazado ? "P" : "R",

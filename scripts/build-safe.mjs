@@ -5,13 +5,13 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const resolveDistDir = () => {
-  if (process.env.NEXT_DIST_DIR) {
-    return process.env.NEXT_DIST_DIR;
-  }
-
   // Vercel and most CI providers expect the default Next.js output directory.
   if (process.env.VERCEL || process.env.CI) {
     return ".next";
+  }
+
+  if (process.env.NEXT_DIST_DIR) {
+    return process.env.NEXT_DIST_DIR;
   }
 
   return ".next-build";

@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
+const isManagedBuild = Boolean(process.env.VERCEL || process.env.CI);
+const distDir = isManagedBuild ? ".next" : process.env.NEXT_DIST_DIR || ".next";
+
 const nextConfig: NextConfig = {
-  distDir: process.env.NEXT_DIST_DIR || ".next",
+  distDir,
   eslint: {
     ignoreDuringBuilds: true,
   },
