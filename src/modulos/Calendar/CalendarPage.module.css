@@ -25,14 +25,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  width: 100%;
+  min-width: 0;
 }
 
 .searchField {
   width: min(100%, 360px);
   max-width: 360px;
-  min-width: 280px;
-  flex: 0 1 360px;
+  min-width: 0;
+  flex: 1 1 320px;
 }
 
 .toolbarControls {
@@ -41,7 +43,7 @@
   justify-content: flex-start;
   gap: 12px;
   flex: 1 1 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: 0;
 }
 
@@ -50,12 +52,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .filtersRow {
   flex: 1 1 320px;
-  min-width: 0;
 }
 
 .inlineFilters {
@@ -64,7 +66,7 @@
   gap: 12px;
   flex: 1 1 auto;
   min-width: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .actionsRow {
@@ -72,6 +74,12 @@
   justify-content: flex-end;
   margin-left: auto;
   max-width: 100%;
+}
+
+.toolbarActionButton {
+  flex: 0 0 auto;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .compactFilterButton {
@@ -492,13 +500,32 @@
   }
 }
 
-@media (max-width: 1540px) {
+@media (max-width: 1680px) {
   .inlineFilters {
     display: none;
   }
 
   .compactFilterButton {
     display: inline-flex;
+  }
+}
+
+@media (max-width: 1180px) {
+  .searchField {
+    max-width: 300px;
+    flex-basis: 260px;
+  }
+
+  .toolbar,
+  .toolbarControls,
+  .filtersRow,
+  .actionsRow {
+    gap: 8px;
+  }
+
+  .toolbarActionButton {
+    padding-inline: 14px;
+    font-size: calc(var(--controlFontSize) - 1px);
   }
 }
 
@@ -525,9 +552,8 @@
 
 @media (max-width: 900px) {
   .searchField {
-    max-width: 300px;
-    min-width: 220px;
-    flex: 1 1 240px;
+    max-width: 260px;
+    flex-basis: 220px;
   }
 
   .toolbarControls,
@@ -541,6 +567,7 @@
   .header,
   .toolbar {
     align-items: stretch;
+    flex-wrap: wrap;
   }
 
   .toolbarControls,
@@ -552,11 +579,13 @@
   .toolbarControls {
     flex-direction: column;
     align-items: stretch;
+    flex-wrap: wrap;
   }
 
   .actionsRow {
     margin-left: 0;
     justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .actionsRow > button {

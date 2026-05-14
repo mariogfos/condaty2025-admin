@@ -575,6 +575,7 @@ const CalendarPage = () => {
             <Button
               variant="secondary"
               onClick={handleRefresh}
+              className={styles.toolbarActionButton}
               disabled={loading || refreshing}
               style={{ height: 48, width: "auto" }}
             >
@@ -584,6 +585,7 @@ const CalendarPage = () => {
               <Button
                 variant="primary"
                 onClick={() => router.push("/create-reservas")}
+                className={styles.toolbarActionButton}
                 style={{ height: 48, width: "auto", fontWeight: 700 }}
               >
                 Nueva reserva

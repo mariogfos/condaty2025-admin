@@ -1606,14 +1606,14 @@ const useCrud = ({
           (mod.hideActions?.add ? 0 : 1);
 
         if (totalFilterCount >= 3 || actionCount >= 4) {
-          return 1520;
+          return 1680;
         }
 
         if (totalFilterCount >= 2 || actionCount >= 3) {
-          return 1360;
+          return 1480;
         }
 
-        return 1180;
+        return 1260;
       }, [breakPoint, extraButtons, filters, menuFilter, mod]);
       // console.log('export:',mod.export);
 

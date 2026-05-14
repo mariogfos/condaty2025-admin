@@ -29,15 +29,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   width: 100%;
+  min-width: 0;
 }
 
 .toolbarSearch {
   width: min(100%, 360px);
   max-width: 360px;
-  min-width: 280px;
-  flex: 0 1 360px;
+  min-width: 0;
+  flex: 1 1 320px;
 }
 
 .toolbarSearch > div,
@@ -51,7 +52,7 @@
   justify-content: flex-start;
   gap: 12px;
   flex: 1 1 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: 0;
 }
 
@@ -60,7 +61,7 @@
   align-items: center;
   gap: 12px;
   flex: 1 1 320px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: 0;
 }
 
@@ -70,7 +71,7 @@
   justify-content: flex-end;
   gap: 12px;
   flex: 0 0 auto;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   margin-left: auto;
   max-width: 100%;
 }
@@ -339,9 +340,8 @@
 
 @media (max-width: 900px) {
   .toolbarSearch {
-    max-width: 300px;
-    min-width: 220px;
-    flex: 1 1 240px;
+    max-width: 280px;
+    flex: 1 1 220px;
   }
 
   .toolbarFilters,
@@ -357,9 +357,6 @@
   }
 
   .toolbarSearch,
-  .toolbarControls,
-  .toolbarFilters,
-  .toolbarActions,
   .extraButtons {
     width: 100%;
   }
@@ -373,11 +370,14 @@
   .toolbarControls {
     flex-direction: column;
     align-items: stretch;
+    flex-wrap: wrap;
   }
 
   .toolbarFilters,
   .toolbarActions {
     justify-content: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
   }
 
   .toolbarActions {
