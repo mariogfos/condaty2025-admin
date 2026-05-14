@@ -60,7 +60,7 @@ const getAutoStatusIcon = (label: string) => {
   }
 
   if (
-    /(alerta|alto|media|medio|panic|pánico|moroso|warning|riesgo)/.test(
+    /(alerta|alto|media|medio|panic|pánico|warning|riesgo|mora|moroso)/.test(
       normalized,
     )
   ) {
@@ -135,12 +135,12 @@ const getToneKey = (label: string, color?: string): StatusToneKey => {
   }
 
   if (
-    normalizedColor.includes("cwarning") ||
-    /(pendiente|por confirmar|por pagar|review|revision|revisión|espera|borrador|draft|moroso|alerta|medio|media|warning|riesgo)/.test(
+    normalizedColor.includes("cerror") ||
+    /(mora|moroso|rechazad|fallid|failed|cancelad|expired|vencid|bloquead|error|anulad)/.test(
       normalized,
     )
   ) {
-    return "warning";
+    return "danger";
   }
 
   if (
@@ -150,6 +150,15 @@ const getToneKey = (label: string, color?: string): StatusToneKey => {
     )
   ) {
     return "danger";
+  }
+
+  if (
+    normalizedColor.includes("cwarning") ||
+    /(pendiente|por confirmar|por pagar|review|revision|revisión|espera|borrador|draft|alerta|medio|media|warning|riesgo)/.test(
+      normalized,
+    )
+  ) {
+    return "warning";
   }
 
   if (

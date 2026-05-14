@@ -1,0 +1,66 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  min-height: 0;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.tabs {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.tabs::-webkit-scrollbar {
+  height: 0;
+}
+
+.tableArea {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 280px;
+}
+
+.clickableTable :global(main > div) {
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+}

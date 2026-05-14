@@ -230,6 +230,9 @@
   background-color: #d7fff005 !important;
   border: 1px solid #d7fff014 !important;
   border-radius: 12px !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 620px;
 }
 
 .accessContent,
@@ -265,6 +268,10 @@
 @media (max-width: 1400px) {
   .accountContent {
     height: 400px;
+  }
+
+  .historyWidgetCard {
+    min-height: 520px;
   }
 
   .accessContent,

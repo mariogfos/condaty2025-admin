@@ -21,6 +21,22 @@
   min-width: 0;
 }
 
+.supporting-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+  margin-top: var(--spM);
+}
+
+.upload-section,
+.voucher-section,
+.obs-section,
+.voucher-input,
+.obs-input {
+  width: 100%;
+  min-width: 0;
+}
+
 .section-title {
   color: var(--cWhite);
   font-size: var(--sL);
@@ -313,6 +329,10 @@
 @media (max-width: 720px) {
   .input-row {
     grid-template-columns: 1fr;
+  }
+
+  .supporting-fields {
+    gap: 12px;
   }
 
   .deudas-title-row {

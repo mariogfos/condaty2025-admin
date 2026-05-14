@@ -316,13 +316,21 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const lastLoadedDeudas = useRef<string>("");
   const exten = ["jpg", "jpeg", "png", "webp"];
 
+  const findSelectedDpto = useCallback(
+    (dptoKey: string | number) =>
+      extraData?.dptos?.find(
+        (dpto) =>
+          String(dpto.nro) === String(dptoKey) ||
+          String(dpto.id) === String(dptoKey)
+      ),
+    [extraData?.dptos]
+  );
+
   const getDeudas = useCallback(
     async (nroDpto: string | number, paymentmethod: string) => {
       if (!nroDpto || !paymentmethod || paymentmethod === "I") return;
 
-      const selectedDpto = extraData?.dptos?.find(
-        (dpto) => dpto.nro === nroDpto
-      );
+      const selectedDpto = findSelectedDpto(nroDpto);
       const realDptoId = selectedDpto?.id;
 
       if (!realDptoId) return;
@@ -359,7 +367,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         setIsLoadingDeudas(false);
       }
     },
-    [execute, extraData?.dptos]
+    [execute, findSelectedDpto]
   );
 
   const filteredCategories = useMemo(() => {
@@ -802,9 +810,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     let owner_id = formState.owner_id;
     if (!owner_id) {
-      const selectedDpto = extraData?.dptos?.find(
-        (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
-      );
+      const selectedDpto = findSelectedDpto(formState.dpto_id || "");
       const titular = getTitular(selectedDpto);
       owner_id = titular?.id;
     }
