@@ -23,9 +23,9 @@ import { formatBs } from "@/mk/utils/numbers";
 import Input from "@/mk/components/forms/Input/Input";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import Table from "@/mk/components/ui/Table/Table";
-import { it } from "date-fns/locale";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
+import { paymentsApi } from "../api";
 interface PaymentDetail {
   id: string | number;
   status: string;
@@ -117,14 +117,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
 
       try {
         const { data } = await executeRef.current(
-          "/payments",
+          paymentsApi.detail(idToFetch),
           "GET",
-          {
-            fullType: "DET",
-            searchBy: idToFetch,
-            page: 1,
-            perPage: 1,
-          },
+          {},
           false,
           true,
         );
@@ -152,11 +147,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     showToast("Generando recibo...", "info");
 
     const { data: file, error } = await execute(
-      item?.is_partial
-        ? "/payment-recibo-parcial-individual"
-        : "/payment-recibo",
+      paymentsApi.receipt(item?.id),
       "POST",
-      { id: item?.id },
+      {},
       false,
       true,
     );
@@ -182,9 +175,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     }
     showToast("Generando recibo...", "info");
     const { data: file, error } = await execute(
-      "/payment-recibo",
+      paymentsApi.receipt(item?.id),
       "POST",
-      { id: item?.id },
+      {},
       false,
       true,
     );
@@ -225,10 +218,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       }
     }
     const { data: payment, error } = await execute(
-      "/payment-confirm",
+      paymentsApi.confirm(item?.id),
       "POST",
       {
-        id: item?.id,
         confirm: rechazado ? "P" : "R",
         confirm_obs: formState.confirm_obs,
       },
@@ -257,14 +249,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     const idToFetch = item?.id || payment_id;
     if (!idToFetch) return null;
     const { data } = await execute(
-      "/payments",
+      paymentsApi.detail(idToFetch),
       "GET",
-      {
-        fullType: "DET",
-        searchBy: idToFetch,
-        page: 1,
-        perPage: 1,
-      },
+      {},
       false,
       true,
     );
@@ -286,8 +273,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     const body: any = { voucher: String(voucherValue || "") };
 
     const { data, error } = await execute(
-      `/payments/${paymentId}`,
-      "PUT",
+      paymentsApi.voucher(paymentId),
+      "POST",
       body,
       false,
       true,
@@ -332,7 +319,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       R: "Rechazado",
       A: "Por pagar",
       M: "Moroso",
-      E: "Por subir comprobante",
       X: "Anulado",
     };
     return statusMap[status] || status;

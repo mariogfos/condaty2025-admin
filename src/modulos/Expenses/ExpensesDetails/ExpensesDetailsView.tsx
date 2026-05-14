@@ -58,13 +58,12 @@ const renderStatusCell = ({ item }: { item: any }, getDisplayStatus: Function) =
     P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' }, // Cobrado
     S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' }, // Por confirmar
     R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' }, // Rechazado
-    E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' }, // Por defecto
     M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' }, // En mora
     F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Finalizado
   };
 
   const displayStatus = getDisplayStatus(item);
-  const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig.E;
+  const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig.A;
 
   return (
     <StatusBadge

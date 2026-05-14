@@ -5,6 +5,7 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import styles from "./RenderDel.module.css";
 import { checkRules } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { paymentsApi } from "../api";
 
 interface RenderDelProps {
   open: boolean;
@@ -97,7 +98,7 @@ const RenderDel = memo(
 
       try {
         const { data: response } = await execute(
-          `/payments/${item?.id}`,
+          paymentsApi.cancel(item?.id),
           "DELETE",
           params
         );

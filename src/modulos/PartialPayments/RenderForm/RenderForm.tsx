@@ -24,6 +24,7 @@ import styles from "./RenderForm.module.css";
 import UploadFile2 from "@/mk/components/forms/UploadFile2";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
+import { paymentsApi } from "@/modulos/Payments/api";
 
 interface Dpto {
   id: string | number;
@@ -329,10 +330,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       setIsLoadingDeudas(true);
       try {
         const { data } = await execute(
-          "/payments",
+          paymentsApi.adminPartialDebts,
           "GET",
           {
-            fullType: "DEBT",
             dptoId: realDptoId,
             type: paymentmethod,
           },
@@ -665,6 +665,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
   };
 
   const getSubtotal = (periodo: Deuda) => {
+    const totalRemainingAmount = Number((periodo as any)?.total_remaining_amount);
+    if (Number.isFinite(totalRemainingAmount) && totalRemainingAmount > 0) {
+      return Math.round(totalRemainingAmount * 100) / 100;
+    }
+
     const amount = parseFloat(String(periodo?.amount)) || 0;
     const penaltyAmount = parseFloat(String(periodo?.penalty_amount)) || 0;
     const maintenanceAmount =
@@ -876,7 +881,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     if (isDebtBasedPayment && selectedPeriodo.length > 0) {
       params.debt_dpto_id = selectedPeriodo[0].id;
-      endpoint = "/partialpayments";
+      endpoint = paymentsApi.partial;
     } else if (!isDebtBasedPayment) {
       endpoint = "/payments";
       params.nro_id = formState.dpto_id;

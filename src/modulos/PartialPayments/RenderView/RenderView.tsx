@@ -15,6 +15,7 @@ import { hasMaintenanceValue } from "@/mk/utils/utils";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 import { MONTHS, MONTHS_S } from "@/mk/utils/date1";
 import RenderDel from "@/modulos/Payments/RenderDel/RenderDel";
+import { paymentsApi } from "@/modulos/Payments/api";
 import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
 import styles from "./RenderView.module.css";
 
@@ -160,12 +161,9 @@ const RenderView = ({
     if (propItem?.id) {
       setLoading(true);
       const { data: res } = await execute(
-        `/partialpayments`,
+        paymentsApi.partialSummary(propItem?.id),
         "GET",
-        {
-          fullType: "DET",
-          debtDptoId: propItem?.id,
-        },
+        {},
         false,
         true,
       );
@@ -220,11 +218,9 @@ const RenderView = ({
   const getExport = async () => {
     setLoadingExport(true);
     const { data: file, error } = await execute(
-      `/payment-recibo-parcial`,
+      paymentsApi.partialReceipt(propItem?.id),
       "POST",
-      {
-        id: propItem?.id,
-      },
+      {},
       false,
       true,
     );
@@ -389,18 +385,13 @@ const RenderView = ({
           onClose={() => setOpenFormAccount(false)}
           item={{
             dpto_id: item?.dpto?.nro,
-            // amount: item?.remaining_amount,
             amount:
-              parseFloat(item?.remaining_amount) +
-              parseFloat(item?.penalty_amount) +
-              parseFloat(
-                hasMaintenanceValue(user)
-                  ? item?.maintenance_amount || "0"
-                  : "0",
-              ),
+              Number(item?.available_partial_amount ?? item?.total_remaining_amount ?? 0),
             debt_dpto_id: item?.id ?? propItem?.id,
             bank_account_id: item?.subcategory?.bank_account_id,
             type: "O",
+            max_amount:
+              Number(item?.available_partial_amount ?? item?.total_remaining_amount ?? 0),
           }}
           reLoad={() => {
             getDetail();

@@ -36,12 +36,6 @@ export const PAYMENT_STATUS_MAP = {
     color: "var(--cError)",
     backgroundColor: "var(--cHoverError)",
   },
-  E: {
-    label: "Por subir comprobante",
-    longLabel: "Por subir comprobante",
-    color: "var(--cInfo)",
-    backgroundColor: "var(--cHoverCompl3)",
-  },
 } as const;
 
 export type PaymentStatus = keyof typeof PAYMENT_STATUS_MAP;

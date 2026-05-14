@@ -6,6 +6,7 @@ import Select from '@/mk/components/forms/Select/Select';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import UploadFile2 from '@/mk/components/forms/UploadFile2';
 import Toast from '@/mk/components/ui/Toast/Toast';
+import { paymentsApi } from '@/modulos/Payments/api';
 import styles from './RenderFormAccount.module.css';
 
 interface RenderFormAccountProps {
@@ -135,7 +136,7 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
       debt_dpto_id: formState.debt_dpto_id ?? formState.dpto_id,
     };
 
-    const { data, error } = await execute('/partialpayments', 'POST', params);
+    const { data, error } = await execute(paymentsApi.partial, 'POST', params);
     if (data?.success) {
       showToast('Pago a cuenta registrado', 'success');
       reLoad();

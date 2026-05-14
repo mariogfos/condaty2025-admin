@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './RenderView.module.css';
 import { formatNumber } from '@/mk/utils/numbers';
 import Button from '@/mk/components/forms/Button/Button';
@@ -17,6 +17,7 @@ import { getFullName } from '@/mk/utils/string';
 import { getTitular } from '@/mk/utils/adapters';
 import { hasMaintenanceValue } from '@/mk/utils/utils';
 import { getStatusText, getStatusConfig, getDetailButtonText as getDetailButtonTextFromConstants, getAvailableActions as getAvailableActionsFromConstants } from '../../constants';
+import { paymentsApi } from '@/modulos/Payments/api';
 
 interface RenderViewProps {
   open: boolean;
@@ -51,6 +52,9 @@ const RenderView: React.FC<RenderViewProps> = ({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [currentItem, setCurrentItem] = useState(item);
+  const [resolvedPaymentId, setResolvedPaymentId] = useState<string | number | null>(
+    item?.payment_id || null,
+  );
 
   // Declarar la variable today
   const today = new Date();
@@ -67,9 +71,6 @@ const RenderView: React.FC<RenderViewProps> = ({
     },
     open && !!item?.id
   );
-
-  if (!open || !item) return null;
-
 
   const debtDetail = data?.data?.[0] || item;
   const debtType = debtDetail?.type || debtDetail?.debt?.type || 0;
@@ -144,6 +145,39 @@ const RenderView: React.FC<RenderViewProps> = ({
     authShowToast(msg, type);
   };
 
+  useEffect(() => {
+    setCurrentItem(item);
+    setResolvedPaymentId(item?.payment_id || null);
+  }, [item]);
+
+  useEffect(() => {
+    if (!open || !item?.id) return;
+
+    let cancelled = false;
+
+    const fetchResolvedPayment = async () => {
+      const response = await execute(
+        paymentsApi.resolvedPayment(item.id),
+        'GET',
+        {},
+        false,
+        true,
+      );
+
+      if (!cancelled && response?.data?.success) {
+        setResolvedPaymentId(response.data.data?.payment_id || null);
+      }
+    };
+
+    fetchResolvedPayment();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, item?.id, execute]);
+
+  if (!open || !item) return null;
+
   const reloadItem = async () => {
     try {
       const response = await execute(
@@ -160,6 +194,17 @@ const RenderView: React.FC<RenderViewProps> = ({
       );
       if (response?.data?.success) {
         setCurrentItem(response.data.data[0] || currentItem);
+      }
+
+      const resolvedResponse = await execute(
+        paymentsApi.resolvedPayment(currentItem.id),
+        'GET',
+        {},
+        false,
+        true,
+      );
+      if (resolvedResponse?.data?.success) {
+        setResolvedPaymentId(resolvedResponse.data.data?.payment_id || null);
       }
 
       if (onReload) {
@@ -421,7 +466,7 @@ const RenderView: React.FC<RenderViewProps> = ({
               )}
 
               {/* Botón de ver pago para estado cobrado */}
-              {actions.showVerPago && currentItem?.payment_id && (
+              {actions.showVerPago && resolvedPaymentId && (
                 <Button onClick={() => setShowPaymentModal(true)} className={styles.actionButton}>
                   Ver pago
                 </Button>
@@ -469,7 +514,7 @@ const RenderView: React.FC<RenderViewProps> = ({
             reloadItem();
             setShowPaymentModal(false);
           }}
-          payment_id={currentItem?.payment_id}
+          payment_id={resolvedPaymentId as string | number}
           noWaiting={true}
         />
       )}

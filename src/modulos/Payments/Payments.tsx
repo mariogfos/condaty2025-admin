@@ -18,6 +18,7 @@ import { PaymentStatus, getPaymentStatusConfig } from '@/types/payment';
 import type { TableRowContextMenuConfig } from '@/mk/components/ui/Table/Table';
 import { Ban, CheckCircle2, Eye, FileImage } from 'lucide-react';
 import { getUrlImages } from '@/mk/utils/string';
+import { paymentsApi } from './api';
 
 const renderDptosCell = (props: any) => <div>{String(props.item.dptos).replace(/,/g, '')}</div>;
 
@@ -220,7 +221,6 @@ const Payments = () => {
     { id: 'P', name: 'Cobrado' },
     { id: 'S', name: 'Por confirmar' },
     { id: 'R', name: 'Rechazado' },
-    { id: 'E', name: 'Por subir comprobante' },
     { id: 'X', name: 'Anulado' },
   ];
 
@@ -381,10 +381,9 @@ const Payments = () => {
     if (!row?.id) return;
 
     const { data, error } = await execute(
-      '/payment-confirm',
+      paymentsApi.confirm(row.id),
       'POST',
       {
-        id: row.id,
         confirm: 'P',
         confirm_obs: '',
       },

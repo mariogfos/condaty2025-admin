@@ -24,6 +24,7 @@ import styles from "./RenderForm.module.css";
 import UploadFile from "@/mk/components/forms/UploadFile2";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
+import { paymentsApi } from "../api";
 
 interface Dpto {
   id: string | number;
@@ -327,10 +328,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       setIsLoadingDeudas(true);
       try {
         const { data } = await execute(
-          "/payments",
+          paymentsApi.adminDebts,
           "GET",
           {
-            fullType: "DEBT",
             dptoId: realDptoId,
             type: paymentmethod,
           },
@@ -652,6 +652,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
   };
 
   const getSubtotal = (periodo: Deuda) => {
+    const totalRemainingAmount = Number((periodo as any)?.total_remaining_amount);
+    if (Number.isFinite(totalRemainingAmount) && totalRemainingAmount > 0) {
+      return Math.round(totalRemainingAmount * 100) / 100;
+    }
+
     const amount = parseFloat(String(periodo?.amount)) || 0;
     const penaltyAmount = parseFloat(String(periodo?.penalty_amount)) || 0;
     const maintenanceAmount =
@@ -894,7 +899,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
       };
     }
     try {
-      const { data, error } = await execute("/payments", "POST", params);
+      const endpoint = isDebtBasedPayment ? paymentsApi.full : "/payments";
+      const { data, error } = await execute(endpoint, "POST", params);
 
       if (data?.success) {
         showToast("Pago agregado con éxito", "success");

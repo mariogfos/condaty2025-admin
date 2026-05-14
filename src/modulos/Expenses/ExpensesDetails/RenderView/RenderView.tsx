@@ -2,13 +2,14 @@ import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import styles from './RenderView.module.css';
 import { getFullName } from '@/mk/utils/string';
 import { getDateStrMes, MONTHS_S } from '@/mk/utils/date';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { shouldIgnoreValueTranslationContext } from '@/i18n/translationGuards';
 
 import PaymentRenderView from '../../../Payments/RenderView/RenderView';
 import { formatBs } from '@/mk/utils/numbers';
 import { getTitular } from '@/mk/utils/adapters';
 import Table from '@/mk/components/ui/Table/Table';
+import { paymentsApi } from '../../../Payments/api';
 
 const RenderView = (props: {
   open: boolean;
@@ -18,6 +19,33 @@ const RenderView = (props: {
 }) => {
   const [openPayment, setOpenPayment] = useState(false);
   const [item, setItem] = useState(props.item);
+  const [resolvedPaymentId, setResolvedPaymentId] = useState<string | number | null>(
+    props.item?.payment_id || null,
+  );
+
+  const refreshResolvedPayment = async (debtId: string | number) => {
+    const { data } = await props.execute(
+      paymentsApi.resolvedPayment(debtId),
+      'GET',
+      {},
+      false,
+      true
+    );
+
+    if (data?.success) {
+      setResolvedPaymentId(data?.data?.payment_id || null);
+    }
+  };
+
+  useEffect(() => {
+    setItem(props.item);
+    setResolvedPaymentId(props.item?.payment_id || null);
+  }, [props.item]);
+
+  useEffect(() => {
+    if (!props.open || !props.item?.id) return;
+    refreshResolvedPayment(props.item.id);
+  }, [props.open, props.item?.id]);
 
   const reloadItem = async () => {
     const { data } = await props.execute(
@@ -35,6 +63,7 @@ const RenderView = (props: {
     if (data.success) {
       setItem({ ...data.data });
     }
+    await refreshResolvedPayment(item.id);
   };
   const getStatus = (item: any) => {
     const today = new Date();
@@ -66,7 +95,6 @@ const RenderView = (props: {
     M: 'var(--cError)',
     S: 'var(--cWarning)',
     P: 'var(--cSuccess)',
-    E: 'var(--cInfo)',
     F: 'var(--cInfo)',
   };
 
@@ -138,14 +166,8 @@ const RenderView = (props: {
         open={props.open}
         onClose={props?.onClose}
         title="Detalle de expensa"
-        buttonText={
-          (item?.status == 'P' || item?.status == 'S') && item?.payment_id ? 'Ver pago' : ''
-        }
-        onSave={
-          (item?.status == 'P' || item?.status == 'S') && item?.payment_id
-            ? () => setOpenPayment(true)
-            : undefined
-        }
+        buttonText={resolvedPaymentId ? 'Ver pago' : ''}
+        onSave={resolvedPaymentId ? () => setOpenPayment(true) : undefined}
         buttonCancel=""
         variant={"mini"}
       >
@@ -233,7 +255,7 @@ const RenderView = (props: {
             reloadItem();
             setOpenPayment(false);
           }}
-          payment_id={item.payment_id}
+          payment_id={resolvedPaymentId as string | number}
           noWaiting={true}
         />
       )}

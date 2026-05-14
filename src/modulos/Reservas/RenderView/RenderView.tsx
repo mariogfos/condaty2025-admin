@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { format, format as formatDateFns, formatDistanceToNowStrict, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import Button from "@/mk/components/forms/Button/Button";
@@ -19,6 +19,7 @@ import {
   type ReservationStatus,
 } from "../constants/reservationConstants";
 import styles from "./ReservationDetailModal.module.css";
+import { paymentsApi } from "@/modulos/Payments/api";
 
 type ReservationActor = {
   id?: string | number;
@@ -255,6 +256,9 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     const [formState, setFormState] = React.useState<any>({});
     const [errors, setErrors] = React.useState({});
     const [showPaymentModal, setShowPaymentModal] = React.useState(false);
+    const [resolvedPaymentId, setResolvedPaymentId] = React.useState<string | number | null>(
+      null,
+    );
 
     const statusKey = getUpdatedReservationStatus(
       reservationDetail?.status as ReservationStatus | undefined,
@@ -278,8 +282,9 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     const dptoLabel = reservationDetail?.dpto?.nro
       ? `Unidad ${reservationDetail.dpto.nro}`
       : reservationDetail?.dpto?.description || "Sin unidad";
-    const paymentId = reservationDetail?.debt_dpto?.payment_id;
-    const canShowPayment = Boolean(paymentId);
+    const resolvedDebtId =
+      (reservationDetail?.debt_dpto as any)?.id || reservationDetail?.debt_id;
+    const canShowPayment = Boolean(resolvedPaymentId);
     const canReviewRequest = reservationDetail?.status === "W";
     const canCancelReservation =
       Boolean(statusKey) &&
@@ -368,6 +373,36 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
           ]
         : []),
     ];
+
+    useEffect(() => {
+      setResolvedPaymentId(reservationDetail?.debt_dpto?.payment_id || null);
+    }, [reservationDetail?.debt_dpto?.payment_id]);
+
+    useEffect(() => {
+      if (!open || !resolvedDebtId) return;
+
+      let cancelled = false;
+
+      const fetchResolvedPayment = async () => {
+        const { data } = await executeAction(
+          paymentsApi.resolvedPayment(resolvedDebtId),
+          "GET",
+          {},
+          false,
+          true,
+        );
+
+        if (!cancelled && data?.success) {
+          setResolvedPaymentId(data?.data?.payment_id || null);
+        }
+      };
+
+      fetchResolvedPayment();
+
+      return () => {
+        cancelled = true;
+      };
+    }, [open, resolvedDebtId, executeAction]);
 
     const detailNotes = [
       ...(reasonText && REASON_LABELS[String(statusKey || "")] != null
@@ -671,7 +706,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
               reLoad?.();
               setShowPaymentModal(false);
             }}
-            payment_id={paymentId as string | number}
+            payment_id={resolvedPaymentId as string | number}
             noWaiting={true}
           />
         ) : null}
