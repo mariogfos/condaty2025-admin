@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Table from "@/mk/components/ui/Table/Table";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import EmptyData from "@/components/NoData/EmptyData";
@@ -13,6 +13,7 @@ import {
   getStatusConfig as getDebtStatusConfig,
   getStatusText as getDebtStatusText,
 } from "@/modulos/DebtsManager/TabComponents/constants";
+import { paymentsApi } from "@/modulos/Payments/api";
 import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
 import PartialPaymentRenderView from "@/modulos/PartialPayments/RenderView/RenderView";
 import DebtRenderView from "@/modulos/DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
@@ -192,6 +193,8 @@ const getPaymentConceptLabel = (payment: any) => {
 const getPaymentAmount = (payment: any) =>
   Number(payment?.amount ?? 0) + Number(payment?.penalty_amount ?? 0);
 
+const ACTIVE_DEBT_STATUSES = new Set(["A", "M", "S", "I"]);
+
 const UnitFinanceHistory = ({
   execute,
   extraData,
@@ -203,7 +206,10 @@ const UnitFinanceHistory = ({
   unitNumber,
 }: UnitFinanceHistoryProps) => {
   const { showToast, user } = useAuth();
+  const executeRef = useRef(execute);
   const [activeTab, setActiveTab] = useState("payments");
+  const [paymentRows, setPaymentRows] = useState<any[]>(payments || []);
+  const [isLoadingPaymentDetails, setIsLoadingPaymentDetails] = useState(false);
   const [debts, setDebts] = useState<any[]>([]);
   const [isLoadingDebts, setIsLoadingDebts] = useState(false);
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | number | null>(
@@ -211,6 +217,76 @@ const UnitFinanceHistory = ({
   );
   const [selectedDebt, setSelectedDebt] = useState<any | null>(null);
   const [selectedPartialDebt, setSelectedPartialDebt] = useState<any | null>(null);
+
+  useEffect(() => {
+    executeRef.current = execute;
+  }, [execute]);
+
+  useEffect(() => {
+    setPaymentRows(Array.isArray(payments) ? payments : []);
+  }, [payments]);
+
+  useEffect(() => {
+    const sourcePayments = Array.isArray(payments) ? payments : [];
+    if (sourcePayments.length === 0) {
+      setPaymentRows([]);
+      setIsLoadingPaymentDetails(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadPaymentDetails = async () => {
+      setIsLoadingPaymentDetails(true);
+
+      try {
+        const enrichedPayments = await Promise.all(
+          sourcePayments.map(async (payment) => {
+            const paymentId = payment?.payment_id || payment?.id;
+            if (!paymentId) {
+              return payment;
+            }
+
+            try {
+              const { data } = await executeRef.current(
+                paymentsApi.detail(paymentId),
+                "GET",
+                {},
+                false,
+                true,
+              );
+
+              if (data?.data) {
+                return {
+                  ...payment,
+                  ...data.data,
+                  payment_id: payment?.payment_id || data.data?.id || paymentId,
+                };
+              }
+            } catch (error) {
+              return payment;
+            }
+
+            return payment;
+          }),
+        );
+
+        if (!cancelled) {
+          setPaymentRows(enrichedPayments);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingPaymentDetails(false);
+        }
+      }
+    };
+
+    void loadPaymentDetails();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [payments]);
 
   const loadDebts = useCallback(async () => {
     if (!unitId && !unitNumber) {
@@ -265,11 +341,15 @@ const UnitFinanceHistory = ({
               ? incomingRows
               : [];
 
-        const sortedRows = [...resolvedRows].sort((left, right) =>
-          String(left?.due_at || left?.debt?.due_at || left?.created_at || "").localeCompare(
-            String(
-              right?.due_at || right?.debt?.due_at || right?.created_at || "",
-            ),
+        const activeRows = resolvedRows.filter((row: any) =>
+          ACTIVE_DEBT_STATUSES.has(resolveDebtStatus(row)),
+        );
+
+        const sortedRows = [...activeRows].sort((left, right) =>
+          String(
+            right?.due_at || right?.debt?.due_at || right?.created_at || "",
+          ).localeCompare(
+            String(left?.due_at || left?.debt?.due_at || left?.created_at || ""),
           ),
         );
 
@@ -300,6 +380,40 @@ const UnitFinanceHistory = ({
     await reLoad({ extraData: true });
   }, [loadDebts, reLoad]);
 
+  const getPaymentTypeLabel = useCallback((payment: any) => {
+    const details = Array.isArray(payment?.details) ? payment.details : [];
+
+    if (details.length > 0) {
+      const types = details
+        .map((detail: any) => {
+          const debtType = Number(detail?.debt_dpto?.type ?? -1);
+          if (Number.isFinite(debtType) && debtType >= 0) {
+            return getDebtTypeLabel({ type: debtType });
+          }
+
+          return (
+            detail?.subcategory?.padre?.name ||
+            detail?.subcategory?.name ||
+            detail?.description ||
+            ""
+          );
+        })
+        .filter(Boolean);
+
+      const uniqueTypes = [...new Set(types)];
+      if (uniqueTypes.length > 0) {
+        return uniqueTypes.join(" / ");
+      }
+    }
+
+    return (
+      payment?.subcategory?.padre?.name ||
+      payment?.subcategory?.name ||
+      payment?.category?.name ||
+      "-/-"
+    );
+  }, []);
+
   const paymentsHeader = useMemo(
     () => [
       {
@@ -308,6 +422,13 @@ const UnitFinanceHistory = ({
         responsive: "desktop",
         width: "150px",
         onRender: ({ item }: any) => getDateStrMes(item?.paid_at) || "-/-",
+      },
+      {
+        key: "type",
+        label: "Tipo",
+        responsive: "desktop",
+        width: "190px",
+        onRender: ({ item }: any) => getPaymentTypeLabel(item),
       },
       {
         key: "concept_period",
@@ -348,7 +469,7 @@ const UnitFinanceHistory = ({
         },
       },
     ],
-    [],
+    [getPaymentTypeLabel],
   );
 
   const debtsHeader = useMemo(
@@ -412,15 +533,15 @@ const UnitFinanceHistory = ({
 
   const tabs = useMemo(
     () => [
-      { value: "payments", text: "Pagos", numero: payments?.length || 0 },
+      { value: "payments", text: "Pagos", numero: paymentRows.length || 0 },
       { value: "debts", text: "Deudas", numero: debts?.length || 0 },
     ],
-    [debts.length, payments?.length],
+    [debts.length, paymentRows.length],
   );
 
   const subtitle = useMemo(() => {
     if (activeTab === "payments") {
-      return `${payments?.length || 0} pagos registrados para esta unidad${
+      return `${paymentRows.length || 0} pagos registrados para esta unidad${
         unitDescription ? ` · ${unitDescription}` : ""
       }`;
     }
@@ -428,7 +549,7 @@ const UnitFinanceHistory = ({
     return `${debts.length} deudas vinculadas a esta unidad${
       unitDescription ? ` · ${unitDescription}` : ""
     }`;
-  }, [activeTab, debts.length, payments?.length, unitDescription]);
+  }, [activeTab, debts.length, paymentRows.length, unitDescription]);
 
   return (
     <>
@@ -449,12 +570,12 @@ const UnitFinanceHistory = ({
 
         <div className={styles.tableArea}>
           {activeTab === "payments" ? (
-            !loaded ? (
+            !loaded || isLoadingPaymentDetails ? (
               <TableSkeleton />
-            ) : payments?.length > 0 ? (
+            ) : paymentRows.length > 0 ? (
               <Table
                 className={styles.clickableTable}
-                data={payments}
+                data={paymentRows}
                 header={paymentsHeader as any}
                 height="100%"
                 onRowClick={(row: any) =>

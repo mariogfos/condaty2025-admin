@@ -30,7 +30,8 @@
 .tabs {
   width: 100%;
   overflow-x: auto;
-  padding-bottom: 2px;
+  margin-top: -8px;
+  padding: 8px 0 2px;
 }
 
 .tabs::-webkit-scrollbar {
