@@ -672,7 +672,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     let total;
 
-    if (periodo.debt?.method === 3) {
+    if (Number(periodo?.type ?? periodo?.debt?.type) === 3) {
       total = penaltyAmount + maintenanceAmount;
     } else {
       total = amount + penaltyAmount + maintenanceAmount;
