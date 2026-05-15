@@ -45,8 +45,8 @@ const VotersListModal: React.FC<VotersListModalProps> = ({
         url += `?survey_id=${surveyId}`;
       }
 
-      const { data: response, loaded: loadedState } = await execute(url, "GET");
-      setLoaded(loadedState);
+      const { data: response } = await execute(url, "GET");
+      setLoaded(true);
 
       if (response.success) {
         // console.error("[VotersListModal] API error:", error);
@@ -90,19 +90,19 @@ const VotersListModal: React.FC<VotersListModalProps> = ({
           </p>
         </div>
 
-        {loaded && (
+        {!loaded && (
           <div className={styles.loading}>
             <p>Cargando votantes...</p>
           </div>
         )}
 
-        {!loaded && voters.length === 0 && (
+        {loaded && voters.length === 0 && (
           <div className={styles.empty}>
             <p>No hay votantes para esta opción</p>
           </div>
         )}
 
-        {!loaded && voters.length > 0 && (
+        {loaded && voters.length > 0 && (
           <div className={styles.votersList}>
             {voters.map((voter, index) => (
               <div key={index} className={styles.voterItem}>
