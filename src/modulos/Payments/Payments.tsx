@@ -1,52 +1,54 @@
-'use client';
-import React, { useState, useMemo, useEffect } from 'react';
-import useCrud from '@/mk/hooks/useCrud/useCrud';
-import NotAccess from '@/components/auth/NotAccess/NotAccess';
-import styles from './Payments.module.css';
-import { getDateStrMes, MONTHS } from '@/mk/utils/date';
-import Button from '@/mk/components/forms/Button/Button';
-import { useRouter } from 'next/navigation';
-import RenderForm from './RenderForm/RenderForm';
-import RenderView from './RenderView/RenderView';
-import RenderDel from './RenderDel/RenderDel';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
-import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
-import { PaymentStatus, getPaymentStatusConfig } from '@/types/payment';
-import type { TableRowContextMenuConfig } from '@/mk/components/ui/Table/Table';
-import { Ban, CheckCircle2, Eye, FileImage } from 'lucide-react';
-import { getUrlImages } from '@/mk/utils/string';
-import { paymentsApi } from './api';
+"use client";
+import React, { useState, useMemo, useEffect } from "react";
+import useCrud from "@/mk/hooks/useCrud/useCrud";
+import NotAccess from "@/components/auth/NotAccess/NotAccess";
+import styles from "./Payments.module.css";
+import { getDateStrMes, MONTHS } from "@/mk/utils/date";
+import Button from "@/mk/components/forms/Button/Button";
+import { useRouter } from "next/navigation";
+import RenderForm from "./RenderForm/RenderForm";
+import RenderView from "./RenderView/RenderView";
+import RenderDel from "./RenderDel/RenderDel";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { PaymentStatus, getPaymentStatusConfig } from "@/types/payment";
+import type { TableRowContextMenuConfig } from "@/mk/components/ui/Table/Table";
+import { Ban, CheckCircle2, Eye, FileImage } from "lucide-react";
+import { getUrlImages } from "@/mk/utils/string";
+import { paymentsApi } from "./api";
 
-const renderDptosCell = (props: any) => <div>{String(props.item.dptos).replace(/,/g, '')}</div>;
+const renderDptosCell = (props: any) => (
+  <div>{String(props.item.dptos).replace(/,/g, "")}</div>
+);
 
 const renderPaidAtCell = (props: any) => (
-  <div>{getDateStrMes(props.item.paid_at, false, true) || 'No pagado'}</div>
+  <div>{getDateStrMes(props.item.paid_at, false, true) || "No pagado"}</div>
 );
 
 const renderCategoryCell = (props: any) => (
-  <div>{props.item.category?.padre?.name || 'Sin categoría padre'}</div>
+  <div>{props.item.category?.padre?.name || "Sin categoría padre"}</div>
 );
 
 const renderSubcategoryCell = (props: any) => {
   const category = props.item.category;
-  if (!category) return '-/-';
-  if (category.padre && typeof category.padre === 'object') {
-    return category.name || '-/-';
+  if (!category) return "-/-";
+  if (category.padre && typeof category.padre === "object") {
+    return category.name || "-/-";
   } else {
-    return '-/-';
+    return "-/-";
   }
 };
 
 const renderMethodCell = (props: any) => {
   const methodMap: Record<string, string> = {
-    T: 'Transferencia bancaria',
-    E: 'Efectivo',
-    C: 'Cheque',
-    Q: 'Pago QR',
-    O: 'Pago en oficina',
+    T: "Transferencia bancaria",
+    E: "Efectivo",
+    C: "Cheque",
+    Q: "Pago QR",
+    O: "Pago en oficina",
   };
   return <div>{methodMap[props.item.method] || props.item.method}</div>;
 };
@@ -73,15 +75,17 @@ const renderStatusCell = (props: any) => {
   );
 };
 
-const renderAmountCell = (props: any) => <FormatBsAlign value={props.item.amount} alignRight />;
+const renderAmountCell = (props: any) => (
+  <FormatBsAlign value={props.item.amount} alignRight />
+);
 
 const getPaymentVoucherUrls = (item: any) => {
   const urls = Array.isArray(item?.url_file)
     ? item.url_file
         .map((url: any) =>
-          String(url || '')
-            .replace(/[`'"\s]/g, '')
-            .trim()
+          String(url || "")
+            .replace(/[`'"\s]/g, "")
+            .trim(),
         )
         .filter(Boolean)
     : [];
@@ -91,7 +95,11 @@ const getPaymentVoucherUrls = (item: any) => {
   }
 
   if (item?.ext && item?.id) {
-    return [getUrlImages(`/PAYMENT-${item.id}.${item.ext}?d=${item.updated_at || ''}`)];
+    return [
+      getUrlImages(
+        `/PAYMENT-${item.id}.${item.ext}?d=${item.updated_at || ""}`,
+      ),
+    ];
   }
 
   return [];
@@ -101,19 +109,22 @@ const renderConceptCell = (props: any) => {
   const item = props.item ?? {};
   const details = Array.isArray(item.details) ? (item.details as any[]) : [];
 
-  const truncate = (s: string, max = 30) => (s.length > max ? s.slice(0, max) + '…' : s);
+  const truncate = (s: string, max = 30) =>
+    s.length > max ? s.slice(0, max) + "…" : s;
 
   const linesFromDetails: string[] = details.map((d: any) => {
-    const base = d?.subcategory?.padre?.name || d?.subcategory?.name || '-/-';
+    const base = d?.subcategory?.padre?.name || d?.subcategory?.name || "-/-";
     const debtObj = d?.debt_dpto?.debt;
     const resArea = d?.debt_dpto?.reservation?.area;
 
     if (debtObj) {
-      const period = debtObj?.period ?? debtObj?.periodo ?? debtObj?.month ?? debtObj?.mes;
+      const period =
+        debtObj?.period ?? debtObj?.periodo ?? debtObj?.month ?? debtObj?.mes;
       const year = debtObj?.year ?? debtObj?.anio ?? debtObj?.y ?? debtObj?.yr;
       const toMonthName = (m: any) => {
         const num = Number(m);
-        if (!Number.isNaN(num) && num >= 1 && num <= 12) return MONTHS[num] || undefined;
+        if (!Number.isNaN(num) && num >= 1 && num <= 12)
+          return MONTHS[num] || undefined;
         const s = String(m);
         const match = s.match(/^(\d{4})-(\d{1,2})(?:-\d{1,2})?$/);
         if (match) {
@@ -123,36 +134,74 @@ const renderConceptCell = (props: any) => {
         return undefined;
       };
       const periodName =
-        period !== undefined && period !== null ? toMonthName(period) ?? String(period) : undefined;
-      const parts = [periodName, year].filter(v => v !== undefined && v !== null).map(String);
-      const extra = parts.length ? parts.join(' ') : '';
+        period !== undefined && period !== null
+          ? (toMonthName(period) ?? String(period))
+          : undefined;
+      const parts = [periodName, year]
+        .filter((v) => v !== undefined && v !== null)
+        .map(String);
+      const extra = parts.length ? parts.join(" ") : "";
       return extra ? `${base} · ${extra}` : base;
     }
 
     if (resArea) {
       const areaText = resArea?.title ?? resArea?.name ?? resArea?.id;
-      const txt = areaText ? truncate(String(areaText)) : '';
+      const txt = areaText ? truncate(String(areaText)) : "";
       return txt ? `${base} · ${txt}` : base;
     }
 
-    const subName = d?.subcategory?.name ? truncate(String(d?.subcategory?.name)) : '';
+    const subName = d?.subcategory?.name
+      ? truncate(String(d?.subcategory?.name))
+      : "";
     return subName ? `${base} · ${subName}` : base;
   });
 
   if (linesFromDetails.length > 0) {
-    const text = linesFromDetails.join(' | ');
-    return <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</div>;
+    const text = linesFromDetails.join(" | ");
+    return (
+      <div
+        style={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {text}
+      </div>
+    );
   }
 
-  const concepts: string[] = Array.isArray(item.concept) ? (item.concept as string[]) : [];
+  const concepts: string[] = Array.isArray(item.concept)
+    ? (item.concept as string[])
+    : [];
   if (concepts.length > 0) {
-    const text = concepts.join(' | ');
-    return <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</div>;
+    const text = concepts.join(" | ");
+    return (
+      <div
+        style={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {text}
+      </div>
+    );
   }
 
   if (item.concepto) {
     const text = String(item.concepto);
-    return <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</div>;
+    return (
+      <div
+        style={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {text}
+      </div>
+    );
   }
 
   return <div>-/-</div>;
@@ -168,16 +217,16 @@ const Payments = () => {
   }>({});
 
   const mod = {
-    modulo: 'payments',
-    singular: 'Ingreso',
-    plural: 'Ingresos',
-    permiso: 'payments',
+    modulo: "payments",
+    singular: "Ingreso",
+    plural: "Ingresos",
+    permiso: "payments",
     extraData: true,
     renderForm: RenderForm,
 
     renderView: (props: any) => <RenderView {...props} />,
     renderDel: (props: any) => <RenderDel {...props} />,
-    reportPreset: 'payments-income',
+    reportPreset: "payments-income",
     hideActions: {
       view: false,
       add: false,
@@ -185,92 +234,92 @@ const Payments = () => {
       del: true,
     },
     filter: true,
-    export: true,
-    titleAdd: 'Nuevo',
-    titleDel: 'Anular',
+    export: ["xls"],
+    titleAdd: "Nuevo",
+    titleDel: "Anular",
     saveMsg: {
-      add: 'Ingreso creado con éxito',
-      edit: 'Ingreso actualizado con éxito',
-      del: 'Ingreso anulado con éxito',
+      add: "Ingreso creado con éxito",
+      edit: "Ingreso actualizado con éxito",
+      del: "Ingreso anulado con éxito",
     },
   };
   const getPeriodOptions = () => [
-    { id: 'ALL', name: 'Todos' },
-    { id: 'd', name: 'Hoy' },
-    { id: 'ld', name: 'Ayer' },
-    { id: 'w', name: 'Esta semana' },
-    { id: 'lw', name: 'Semana anterior' },
-    { id: 'm', name: 'Este mes' },
-    { id: 'lm', name: 'Mes anterior' },
-    { id: 'y', name: 'Este año' },
-    { id: 'ly', name: 'Año anterior' },
-    { id: 'custom', name: 'Personalizado' },
+    { id: "ALL", name: "Todos" },
+    { id: "d", name: "Hoy" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana anterior" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
+    { id: "custom", name: "Personalizado" },
   ];
 
   const getPaymentMethodOptions = () => [
-    { id: 'ALL', name: 'Todos' },
-    { id: 'T', name: 'Transferencia bancaria' },
-    { id: 'E', name: 'Efectivo' },
-    { id: 'C', name: 'Cheque' },
-    { id: 'Q', name: 'Pago QR' },
-    { id: 'O', name: 'Pago en oficina' },
+    { id: "ALL", name: "Todos" },
+    { id: "T", name: "Transferencia bancaria" },
+    { id: "E", name: "Efectivo" },
+    { id: "C", name: "Cheque" },
+    { id: "Q", name: "Pago QR" },
+    { id: "O", name: "Pago en oficina" },
   ];
 
   const getStatusOptions = () => [
-    { id: 'ALL', name: 'Todos' },
-    { id: 'P', name: 'Cobrado' },
-    { id: 'S', name: 'Por confirmar' },
-    { id: 'R', name: 'Rechazado' },
-    { id: 'X', name: 'Anulado' },
+    { id: "ALL", name: "Todos" },
+    { id: "P", name: "Cobrado" },
+    { id: "S", name: "Por confirmar" },
+    { id: "R", name: "Rechazado" },
+    { id: "X", name: "Anulado" },
   ];
 
   const paramsInitial = {
     perPage: 20,
     page: 1,
-    fullType: 'L',
-    searchBy: '',
+    fullType: "L",
+    searchBy: "",
   };
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       paid_at: {
         rules: [],
-        api: 'ae',
-        label: 'Fecha de cobro',
+        api: "ae",
+        label: "Fecha de cobro",
         form: {
-          type: 'date',
+          type: "date",
         },
         list: {
           width: 260,
           onRender: renderPaidAtCell,
         },
         filter: {
-          key: 'paid_at',
-          label: 'Periodo',
+          key: "paid_at",
+          label: "Periodo",
 
           options: getPeriodOptions,
         },
       },
 
       dptos: {
-        api: 'ae',
-        label: 'Unidad',
+        api: "ae",
+        label: "Unidad",
         list: {
           width: 140,
           onRender: renderDptosCell,
         },
       },
       method: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Método de pago',
+        rules: ["required"],
+        api: "ae",
+        label: "Método de pago",
         form: {
-          type: 'select',
+          type: "select",
           options: [
-            { id: 'T', name: 'Transferencia' },
-            { id: 'E', name: 'Efectivo' },
-            { id: 'C', name: 'Cheque' },
+            { id: "T", name: "Transferencia" },
+            { id: "E", name: "Efectivo" },
+            { id: "C", name: "Cheque" },
           ],
         },
         list: {
@@ -278,18 +327,18 @@ const Payments = () => {
           onRender: renderMethodCell,
         },
         filter: {
-          label: 'Método de pago',
+          label: "Método de pago",
 
           options: getPaymentMethodOptions,
         },
       },
       concepto: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Concepto',
+        rules: ["required"],
+        api: "ae",
+        label: "Concepto",
         form: {
-          type: 'text',
-          placeholder: 'Ej: Pago de servicios',
+          type: "text",
+          placeholder: "Ej: Pago de servicios",
         },
         list: {
           width: 300,
@@ -299,58 +348,66 @@ const Payments = () => {
 
       status: {
         rules: [],
-        api: 'ae',
-        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
+        api: "ae",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Estado
+          </span>
+        ),
         list: {
           width: 160,
           onRender: renderStatusCell,
         },
         filter: {
-          label: 'Estado',
+          label: "Estado",
           options: getStatusOptions,
         },
       },
 
       amount: {
-        rules: ['required', 'number'],
-        api: 'ae',
+        rules: ["required", "number"],
+        api: "ae",
         label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto total</span>
+          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+            Monto total
+          </span>
         ),
         form: {
-          type: 'number',
-          placeholder: 'Ej: 100.00',
+          type: "number",
+          placeholder: "Ej: 100.00",
         },
         list: {
           onRender: renderAmountCell,
         },
       },
     }),
-    []
+    [],
   );
 
-  const goToCategories = (type = '') => {
+  const goToCategories = (type = "") => {
     if (type) {
       router.push(`/categories?type=${type}`);
     } else {
-      router.push('/categories');
+      router.push("/categories");
     }
   };
 
   useEffect(() => {
-    setStore({ ...store, title: 'Ingresos' });
+    setStore({ ...store, title: "Ingresos" });
   }, []);
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === 'paid_at' && value === 'custom') {
+    if (opt === "paid_at" && value === "custom") {
       setCustomDateErrors({});
       setOpenCustomFilter(true);
       delete currentFilters[opt];
       return { filterBy: currentFilters };
     }
 
-    if (value === '' || value === null || value === undefined) {
+    if (value === "" || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
@@ -362,44 +419,46 @@ const Payments = () => {
     <Button
       key="categories-button"
       variant="secondary"
-      onClick={() => goToCategories('I')}
+      onClick={() => goToCategories("I")}
       className={styles.categoriesButton}
     >
       Categorías
     </Button>,
   ];
 
-  const { List, onFilter, onView, onDel, execute, reLoad, showToast } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-    extraButtons,
-    getFilter: handleGetFilter,
-  });
+  const { List, onFilter, onView, onDel, execute, reLoad, showToast } = useCrud(
+    {
+      paramsInitial,
+      mod,
+      fields,
+      extraButtons,
+      getFilter: handleGetFilter,
+    },
+  );
 
   const approvePayment = async (row: any) => {
     if (!row?.id) return;
 
     const { data, error } = await execute(
       paymentsApi.confirm(row.id),
-      'POST',
+      "POST",
       {
-        confirm: 'P',
-        confirm_obs: '',
+        confirm: "P",
+        confirm_obs: "",
       },
       false,
-      true
+      true,
     );
 
     if (data?.success === true) {
-      showToast(data?.message || 'Pago aprobado con éxito', 'success');
+      showToast(data?.message || "Pago aprobado con éxito", "success");
       await reLoad();
       return;
     }
 
     showToast(
-      error?.data?.message || error?.message || 'No se pudo aprobar el pago',
-      'error'
+      error?.data?.message || error?.message || "No se pudo aprobar el pago",
+      "error",
     );
   };
 
@@ -407,26 +466,26 @@ const Payments = () => {
     () => ({
       items: (row) => {
         const voucherUrls = getPaymentVoucherUrls(row);
-        const canCancel = row?.status === 'P' && Boolean(row?.user);
+        const canCancel = row?.status === "P" && Boolean(row?.user);
 
-        if (row?.status === 'S') {
+        if (row?.status === "S") {
           return [
             {
-              label: 'Ver comprobante',
+              label: "Ver comprobante",
               icon: FileImage,
               disabled: voucherUrls.length === 0,
               onClick: () => {
                 if (voucherUrls.length === 0) return;
-                window.open(voucherUrls[0], '_blank', 'noopener,noreferrer');
+                window.open(voucherUrls[0], "_blank", "noopener,noreferrer");
               },
             },
             {
-              label: 'Aprobar pago',
+              label: "Aprobar pago",
               icon: CheckCircle2,
               onClick: () => approvePayment(row),
             },
             {
-              label: 'Rechazar pago',
+              label: "Rechazar pago",
               icon: Ban,
               danger: true,
               onClick: () => onView({ ...row, __openRejectModal: true }),
@@ -435,7 +494,7 @@ const Payments = () => {
         }
 
         const primaryLabel =
-          row?.status === 'X' ? 'Ver anulación' : 'Ver detalle';
+          row?.status === "X" ? "Ver anulación" : "Ver detalle";
 
         const items: any[] = [
           {
@@ -448,12 +507,10 @@ const Payments = () => {
         if (voucherUrls.length > 0) {
           items.push({
             label:
-              voucherUrls.length > 1
-                ? 'Ver comprobantes'
-                : 'Ver comprobante',
+              voucherUrls.length > 1 ? "Ver comprobantes" : "Ver comprobante",
             icon: FileImage,
             onClick: () => {
-              window.open(voucherUrls[0], '_blank', 'noopener,noreferrer');
+              window.open(voucherUrls[0], "_blank", "noopener,noreferrer");
             },
           });
         }
@@ -461,7 +518,7 @@ const Payments = () => {
         if (canCancel) {
           items.push({ separator: true });
           items.push({
-            label: 'Anular ingreso',
+            label: "Anular ingreso",
             icon: Ban,
             danger: true,
             onClick: () => onDel(row),
@@ -471,11 +528,11 @@ const Payments = () => {
         return items;
       },
     }),
-    [approvePayment, onDel, onView]
+    [approvePayment, onDel, onView],
   );
 
   // Verificación de permisos DESPUÉS de todos los hooks
-  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <div className={styles.container}>
@@ -495,20 +552,26 @@ const Payments = () => {
         }}
         onSave={({ startDate, endDate }) => {
           let err: { startDate?: string; endDate?: string } = {};
-          if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
-          if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
+          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
           if (startDate && endDate && startDate > endDate)
-            err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
-          if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
-            err.startDate = 'El periodo personalizado debe estar dentro del mismo año';
-            err.endDate = 'El periodo personalizado debe estar dentro del mismo año';
+            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
           }
           if (Object.keys(err).length > 0) {
             setCustomDateErrors(err);
             return;
           }
           const customDateFilterString = `${startDate},${endDate}`;
-          onFilter('paid_at', customDateFilterString);
+          onFilter("paid_at", customDateFilterString);
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}

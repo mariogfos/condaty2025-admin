@@ -474,7 +474,9 @@ const useCrud = ({
     }
 
     const message =
-      typeof data.message === "object" && data.message !== null ? data.message : {};
+      typeof data.message === "object" && data.message !== null
+        ? data.message
+        : {};
 
     return {
       ...data,
@@ -537,7 +539,10 @@ const useCrud = ({
     setParams((old: any) => ({
       ...old,
       page: Number(old?.page || 1) + 1,
-      perPage: getNormalizedPerPage(old?.perPage ?? paramsInitial?.perPage, true),
+      perPage: getNormalizedPerPage(
+        old?.perPage ?? paramsInitial?.perPage,
+        true,
+      ),
     }));
   }, [
     data,
@@ -570,11 +575,14 @@ const useCrud = ({
       ) || INFINITE_BATCH_SIZE,
     );
     const hasKnownTotal = hasExplicitResponseTotal(data) && total >= 0;
-    const isDetailQuery = String(responseParams?.fullType || "").toUpperCase() === "DET";
+    const isDetailQuery =
+      String(responseParams?.fullType || "").toUpperCase() === "DET";
 
     setListTotal(hasKnownTotal ? total : 0);
     setListRows((old) => {
-      const mergedRows = shouldReset ? incomingRows : mergeRowsById(old, incomingRows);
+      const mergedRows = shouldReset
+        ? incomingRows
+        : mergeRowsById(old, incomingRows);
       const nextHasMore = isDetailQuery
         ? false
         : hasKnownTotal
@@ -593,7 +601,13 @@ const useCrud = ({
       pendingReloadResolveRef.current(data);
       pendingReloadResolveRef.current = null;
     }
-  }, [data, getListRowsFromResponse, params, paramsInitial?.perPage, useInfiniteList]);
+  }, [
+    data,
+    getListRowsFromResponse,
+    params,
+    paramsInitial?.perPage,
+    useInfiniteList,
+  ]);
 
   useEffect(() => {
     if (!error || !useInfiniteList) return;
@@ -918,9 +932,7 @@ const useCrud = ({
     setParams((old: any) => ({
       ...old,
       page: 1,
-      perPage: useInfiniteList
-        ? getNormalizedPerPage(perPage, true)
-        : perPage,
+      perPage: useInfiniteList ? getNormalizedPerPage(perPage, true) : perPage,
     }));
   };
 
@@ -972,9 +984,7 @@ const useCrud = ({
       "GET",
       {
         ...params,
-        ...(Number(params?.perPage ?? -1) > 0
-          ? { page: 1, perPage: -1 }
-          : {}),
+        ...(Number(params?.perPage ?? -1) > 0 ? { page: 1, perPage: -1 } : {}),
         fullType: "L", // Agregar fullType: "L"
         _export: type ?? "pdf", // Usar ?? para valor por defecto
         exportCols: mod?.exportCols || params.cols || "",
@@ -988,6 +998,7 @@ const useCrud = ({
 
     if (file?.success) {
       // Si viene secureUrl (Cloudinary), usar directo; sino, usar el método anterior con path
+      console.log("filesucces", file);
       const url = file.data?.secureUrl
         ? file.data.secureUrl
         : getUrlImages("/" + (file.data?.path || ""));
@@ -1006,21 +1017,32 @@ const useCrud = ({
       })();
 
       try {
+        console.log("url", url);
         const response = await fetch(url);
+        console.log("paso 2");
         const blob = await response.blob();
+        console.log("paso 3");
         const blobUrl = window.URL.createObjectURL(blob);
+        console.log("paso 4");
 
         const link = document.createElement("a");
+        console.log("paso 5");
         link.href = blobUrl;
         link.download = suggestedName;
         document.body.appendChild(link);
+        console.log("paso 6");
         link.click();
+        console.log("paso 7");
         document.body.removeChild(link);
+        console.log("paso 8");
 
         window.URL.revokeObjectURL(blobUrl);
+        console.log("paso 9");
         callBack(url); // Mantener callback por compatibilidad
+        console.log("paso 10");
       } catch (error) {
         // Fallback: si falla la descarga, abrir directamente la URL
+        console.log("error de descarga directa");
         window.location.href = url;
       } finally {
         setIsExporting(false);
@@ -1597,8 +1619,8 @@ const useCrud = ({
 
         const actionCount =
           (mod.import ? 1 : 0) +
-          ((mod.export === true ||
-            (Array.isArray(mod.export) && mod.export.length > 0))
+          (mod.export === true ||
+          (Array.isArray(mod.export) && mod.export.length > 0)
             ? 1
             : 0) +
           (mod.listAndCard ? 1 : 0) +
@@ -1659,7 +1681,9 @@ const useCrud = ({
                 <IconExport
                   title="Exportar reporte"
                   className={
-                    styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
+                    styles.icons +
+                    " " +
+                    (data?.length == 0 ? styles.disabled : "")
                   }
                   onClick={
                     data?.length > 0
@@ -1671,26 +1695,24 @@ const useCrud = ({
                   }
                 />
               )}
-              {
-                mod.export?.length > 0 && (
-                  <Dropdown
-                    trigger={
-                      <IconExport
-                        title="Exportar reporte"
-                        className={
-                          styles.icons +
-                          " " +
-                          (data?.length == 0 ? styles.disabled : "")
-                        }
-                      />
-                    }
-                    items={mod.export}
-                    onClick={
-                      data?.length > 0 ? (e: string) => onExport(e) : () => {}
-                    }
-                  />
-                )
-              }
+              {mod.export?.length > 0 && (
+                <Dropdown
+                  trigger={
+                    <IconExport
+                      title="Exportar reporte"
+                      className={
+                        styles.icons +
+                        " " +
+                        (data?.length == 0 ? styles.disabled : "")
+                      }
+                    />
+                  }
+                  items={mod.export}
+                  onClick={
+                    data?.length > 0 ? (e: string) => onExport(e) : () => {}
+                  }
+                />
+              )}
               {mod.listAndCard && (
                 <div className={styles.listAndCard}>
                   <div
@@ -1952,8 +1974,8 @@ const useCrud = ({
       const CurrentForm = runtime.Form;
       const CurrentFormDelete = runtime.FormDelete;
 
-      const { header, filters }: { header: any[]; filters: any[] } = useMemo(
-        () => {
+      const { header, filters }: { header: any[]; filters: any[] } =
+        useMemo(() => {
           const head: any[] = [];
           const lFilter: any[] = [];
 
@@ -1980,14 +2002,10 @@ const useCrud = ({
               lFilter.push(colF);
             }
             if (!field.list) continue;
-            const hasExplicitListSortable = Object.prototype.hasOwnProperty.call(
-              field.list,
-              "sortabled",
-            );
-            const hasExplicitFieldSortable = Object.prototype.hasOwnProperty.call(
-              field,
-              "sortabled",
-            );
+            const hasExplicitListSortable =
+              Object.prototype.hasOwnProperty.call(field.list, "sortabled");
+            const hasExplicitFieldSortable =
+              Object.prototype.hasOwnProperty.call(field, "sortabled");
             const explicitSortable = hasExplicitListSortable
               ? field.list.sortabled
               : hasExplicitFieldSortable
@@ -2012,9 +2030,7 @@ const useCrud = ({
           lFilter.sort((a: any, b: any) => a.order - b.order);
 
           return { header: head, filters: lFilter };
-        },
-        [runtime.fields, runtime.extraData, runtime.renderField],
-      );
+        }, [runtime.fields, runtime.extraData, runtime.renderField]);
 
       const filteredData = useMemo(() => {
         if (
@@ -2082,7 +2098,9 @@ const useCrud = ({
 
         return [...filteredData].sort((left, right) => {
           const leftValue = resolveComparableValue(left?.[runtime.sortCol.col]);
-          const rightValue = resolveComparableValue(right?.[runtime.sortCol.col]);
+          const rightValue = resolveComparableValue(
+            right?.[runtime.sortCol.col],
+          );
 
           if (leftValue === rightValue) return 0;
           if (leftValue === "") return 1;
@@ -2106,7 +2124,8 @@ const useCrud = ({
         shouldRecoverViewport,
       );
       const shouldRequestTableSkeleton =
-        runtime.isResetListLoading || (!runtime.loaded && runtime.data === null);
+        runtime.isResetListLoading ||
+        (!runtime.loaded && runtime.data === null);
       const [showTableSkeleton, setShowTableSkeleton] = useState(
         shouldRequestTableSkeleton,
       );
@@ -2199,7 +2218,8 @@ const useCrud = ({
                     onRenderHead={props.onRenderHead}
                     onRenderCard={props.onRenderCard}
                     onButtonActions={
-                      runtime.mod.hideActions?.edit && runtime.mod.hideActions?.del
+                      runtime.mod.hideActions?.edit &&
+                      runtime.mod.hideActions?.del
                         ? undefined
                         : runtime.onButtonActions
                     }
@@ -2259,135 +2279,137 @@ const useCrud = ({
                 )}
               </section>
               {props.renderRight ? (
-                <aside className={styles.contentSide}>{props.renderRight()}</aside>
+                <aside className={styles.contentSide}>
+                  {props.renderRight()}
+                </aside>
               ) : null}
             </div>
           )}
-            {runtime.openView && (
-              <>
-                {runtime.mod.renderView ? (
-                  <CrudRendererHost
-                    renderer={runtime.mod.renderView}
-                    rendererProps={{
-                      open: runtime.openView,
-                      onClose: runtime.onCloseView,
-                      item: runtime.formState,
-                      onConfirm: runtime.onSave,
-                      extraData: runtime.extraData,
-                      execute: runtime.execute,
-                      onEdit: runtime.onEdit,
-                      onAdd: runtime.onAdd,
-                      openList: runtime.openList,
-                      setOpenList: runtime.setOpenList,
-                      reLoad: runtime.reLoad,
-                      showToast: runtime.showToast,
-                      setItem: runtime.setFormState,
-                      onDel: (itemToDelete: any) => {
-                        runtime.onCloseView();
-                        runtime.onDel(itemToDelete || runtime.formState);
-                      },
-                    }}
-                  />
-                ) : (
-                  <CurrentDetail
-                    open={runtime.openView}
-                    onClose={runtime.onCloseView}
-                    item={runtime.formState}
-                    onConfirm={runtime.onSave}
-                  />
-                )}
-              </>
-            )}
-            {runtime.open && (
-              <>
-                {runtime.mod.renderForm ? (
-                  <CrudRendererHost
-                    renderer={runtime.mod.renderForm}
-                    rendererProps={{
-                      open: runtime.open,
-                      openView: runtime.openView,
-                      onClose: runtime.onCloseCrud,
-                      item: runtime.formState,
-                      setItem: runtime.setFormState,
-                      onSave: runtime.onSave,
-                      extraData: runtime.extraData,
-                      execute: runtime.execute,
-                      errors: runtime.errors,
-                      setErrors: runtime.setErrors,
-                      reLoad: runtime.reLoad,
-                      user: runtime.user,
-                      onEdit: runtime.onEdit,
-                      onDel: runtime.onDel,
-                      onAdd: runtime.onAdd,
-                      onView: runtime.onView,
-                      action: runtime.action,
-                      openList: runtime.openList,
-                      setOpenList: runtime.setOpenList,
-                      showToast: runtime.showToast,
-                      getItemApi: runtime.getItemApi,
-                    }}
-                  />
-                ) : (
-                  <CurrentForm
-                    open={runtime.open}
-                    onClose={runtime.onCloseCrud}
-                    item={runtime.formState}
-                    onConfirm={runtime.onSave}
-                  />
-                )}
-              </>
-            )}
-            {runtime.openImport && (
-              <ImportDataModal
-                open={runtime.openImport}
-                onClose={() => {
-                  if (runtime.mod.onCloseImport) runtime.mod.onCloseImport();
-                  runtime.setOpenImport(false);
-                }}
-                mod={runtime.mod}
-                showToast={runtime.showToast}
-                reLoad={runtime.reLoad}
-                execute={runtime.execute}
-                extraData={runtime.extraData}
-                requiredCols={runtime.mod.importRequiredCols || null}
-                client_id={runtime.store?.client?.id}
-              />
-            )}
-            {runtime.openDel && (
-              <>
-                {runtime.mod.renderDel ? (
-                  <CrudRendererHost
-                    renderer={runtime.mod.renderDel}
-                    rendererProps={{
-                      open: runtime.openDel,
-                      onClose: runtime.onCloseDel,
-                      item: runtime.formState,
-                      setItem: runtime.setFormState,
-                      onSave: runtime.onSave,
-                      extraData: runtime.extraData,
-                      execute: runtime.execute,
-                      errors: runtime.errors,
-                      setErrors: runtime.setErrors,
-                      reLoad: runtime.reLoad,
-                      user: runtime.user,
-                      onEdit: runtime.onEdit,
-                      onDel: runtime.onDel,
-                      onAdd: runtime.onAdd,
-                      openList: runtime.openList,
-                      setOpenList: runtime.setOpenList,
-                    }}
-                  />
-                ) : (
-                  <CurrentFormDelete
-                    open={runtime.openDel}
-                    onClose={runtime.onCloseDel}
-                    item={runtime.formState}
-                    onConfirm={runtime.onSave}
-                    message={runtime.mod.messageDel}
-                  />
-                )}
-              </>
-            )}
+          {runtime.openView && (
+            <>
+              {runtime.mod.renderView ? (
+                <CrudRendererHost
+                  renderer={runtime.mod.renderView}
+                  rendererProps={{
+                    open: runtime.openView,
+                    onClose: runtime.onCloseView,
+                    item: runtime.formState,
+                    onConfirm: runtime.onSave,
+                    extraData: runtime.extraData,
+                    execute: runtime.execute,
+                    onEdit: runtime.onEdit,
+                    onAdd: runtime.onAdd,
+                    openList: runtime.openList,
+                    setOpenList: runtime.setOpenList,
+                    reLoad: runtime.reLoad,
+                    showToast: runtime.showToast,
+                    setItem: runtime.setFormState,
+                    onDel: (itemToDelete: any) => {
+                      runtime.onCloseView();
+                      runtime.onDel(itemToDelete || runtime.formState);
+                    },
+                  }}
+                />
+              ) : (
+                <CurrentDetail
+                  open={runtime.openView}
+                  onClose={runtime.onCloseView}
+                  item={runtime.formState}
+                  onConfirm={runtime.onSave}
+                />
+              )}
+            </>
+          )}
+          {runtime.open && (
+            <>
+              {runtime.mod.renderForm ? (
+                <CrudRendererHost
+                  renderer={runtime.mod.renderForm}
+                  rendererProps={{
+                    open: runtime.open,
+                    openView: runtime.openView,
+                    onClose: runtime.onCloseCrud,
+                    item: runtime.formState,
+                    setItem: runtime.setFormState,
+                    onSave: runtime.onSave,
+                    extraData: runtime.extraData,
+                    execute: runtime.execute,
+                    errors: runtime.errors,
+                    setErrors: runtime.setErrors,
+                    reLoad: runtime.reLoad,
+                    user: runtime.user,
+                    onEdit: runtime.onEdit,
+                    onDel: runtime.onDel,
+                    onAdd: runtime.onAdd,
+                    onView: runtime.onView,
+                    action: runtime.action,
+                    openList: runtime.openList,
+                    setOpenList: runtime.setOpenList,
+                    showToast: runtime.showToast,
+                    getItemApi: runtime.getItemApi,
+                  }}
+                />
+              ) : (
+                <CurrentForm
+                  open={runtime.open}
+                  onClose={runtime.onCloseCrud}
+                  item={runtime.formState}
+                  onConfirm={runtime.onSave}
+                />
+              )}
+            </>
+          )}
+          {runtime.openImport && (
+            <ImportDataModal
+              open={runtime.openImport}
+              onClose={() => {
+                if (runtime.mod.onCloseImport) runtime.mod.onCloseImport();
+                runtime.setOpenImport(false);
+              }}
+              mod={runtime.mod}
+              showToast={runtime.showToast}
+              reLoad={runtime.reLoad}
+              execute={runtime.execute}
+              extraData={runtime.extraData}
+              requiredCols={runtime.mod.importRequiredCols || null}
+              client_id={runtime.store?.client?.id}
+            />
+          )}
+          {runtime.openDel && (
+            <>
+              {runtime.mod.renderDel ? (
+                <CrudRendererHost
+                  renderer={runtime.mod.renderDel}
+                  rendererProps={{
+                    open: runtime.openDel,
+                    onClose: runtime.onCloseDel,
+                    item: runtime.formState,
+                    setItem: runtime.setFormState,
+                    onSave: runtime.onSave,
+                    extraData: runtime.extraData,
+                    execute: runtime.execute,
+                    errors: runtime.errors,
+                    setErrors: runtime.setErrors,
+                    reLoad: runtime.reLoad,
+                    user: runtime.user,
+                    onEdit: runtime.onEdit,
+                    onDel: runtime.onDel,
+                    onAdd: runtime.onAdd,
+                    openList: runtime.openList,
+                    setOpenList: runtime.setOpenList,
+                  }}
+                />
+              ) : (
+                <CurrentFormDelete
+                  open={runtime.openDel}
+                  onClose={runtime.onCloseDel}
+                  item={runtime.formState}
+                  onConfirm={runtime.onSave}
+                  message={runtime.mod.messageDel}
+                />
+              )}
+            </>
+          )}
         </div>
       );
     };

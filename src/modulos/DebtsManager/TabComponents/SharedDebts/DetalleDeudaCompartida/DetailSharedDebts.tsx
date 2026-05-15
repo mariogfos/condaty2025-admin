@@ -92,7 +92,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     let finalStatus = item?.status;
     const today = new Date();
     const todayString = today.toISOString().split("T")[0];
-    const dueAtString = item?.debt?.due_at || item?.due_at;
+    const dueAtString = item?.due_at;
     if (dueAtString && dueAtString < todayString && item?.status === "A") {
       finalStatus = "M";
     }
@@ -344,8 +344,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       if (response?.data?.success) {
         return response.data.data;
       }
-    } catch (error) {
-    }
+    } catch (error) {}
     return null;
   };
 
@@ -391,7 +390,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       } else {
         showToast(
           response?.data?.message || "Error al actualizar la deuda",
-          "error"
+          "error",
         );
       }
     } catch (error) {
@@ -453,10 +452,10 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               variant="detail"
               label="DISTRIBUCIÓN & ASIGNACIÓN"
               mainContent={getAmountTypeText(
-                extraData?.debt?.amount_type || "F"
+                extraData?.debt?.amount_type || "F",
               )}
               subtitle={getSegmentationText(
-                extraData?.debt?.segmentation || "T"
+                extraData?.debt?.segmentation || "T",
               )}
             />
 
@@ -537,13 +536,13 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
             execute as (
               url: string,
               method: string,
-              params: any
+              params: any,
             ) => Promise<any>
           }
           showToast={
             showToast as (
               msg: string,
-              type?: "info" | "success" | "error" | "warning"
+              type?: "info" | "success" | "error" | "warning",
             ) => void
           }
           reLoad={reLoad as () => void}

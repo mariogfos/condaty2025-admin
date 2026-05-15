@@ -132,9 +132,8 @@ const QrDynamicConfig: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [initialSnapshot, setInitialSnapshot] = useState<QrDynamicFormState | null>(
-    null,
-  );
+  const [initialSnapshot, setInitialSnapshot] =
+    useState<QrDynamicFormState | null>(null);
 
   const isDirty = useMemo(() => {
     if (!initialSnapshot) return false;
@@ -309,7 +308,6 @@ const QrDynamicConfig: React.FC = () => {
     }
   };
 
-  // Map internal environment values to Select options
   const environmentOptions = [
     { id: "S", name: QrEnvironmentLabels.S },
     { id: "P", name: QrEnvironmentLabels.P },
@@ -443,8 +441,8 @@ const QrDynamicConfig: React.FC = () => {
             <h2 className={styles.sectionTitle}>Modo de Operación</h2>
             <p className={styles.sectionSubtitle}>
               Selecciona cómo obtener las credenciales: Global usa la
-              configuración del módulo, Personalizado usa credenciales propias del
-              cliente
+              configuración del módulo, Personalizado usa credenciales propias
+              del cliente
             </p>
             <Select
               name="mode"
