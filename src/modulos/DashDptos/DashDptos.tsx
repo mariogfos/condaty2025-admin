@@ -268,11 +268,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
               execute={execute}
               extraData={dashData?.extraData}
               loaded={loaded}
-              payments={datas?.payments || []}
               reLoad={reLoad}
               unitDescription={datas?.data?.description}
               unitId={datas?.data?.id}
-              unitNumber={datas?.data?.nro}
             />
           </WidgetBase>
         </div>

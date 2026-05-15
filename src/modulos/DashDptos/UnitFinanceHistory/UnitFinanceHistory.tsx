@@ -25,11 +25,9 @@ type UnitFinanceHistoryProps = {
   execute: Function;
   extraData?: any;
   loaded: boolean;
-  payments: any[];
   reLoad: Function;
   unitDescription?: string;
   unitId?: string | number;
-  unitNumber?: string | number;
 };
 
 const getMonthPeriodLabel = (monthValue: any, yearValue: any) => {
@@ -100,7 +98,7 @@ const getDebtTypeLabel = (row: any) => {
 
 const getDebtBalance = (row: any) => {
   const outstanding = Number(
-    row?.available_partial_amount ?? row?.total_remaining_amount,
+    row?.total_remaining_amount ?? row?.available_partial_amount,
   );
 
   if (Number.isFinite(outstanding) && outstanding > 0) {
@@ -140,6 +138,16 @@ const normalizeDebtRow = (row: any) => ({
   status: getDebtStatusCode(row) || row?.status || "A",
 });
 
+const getIsPartialDebtFlag = (row: any) => {
+  const rawValue =
+    row?.is_partial ??
+    row?.debt?.is_partial ??
+    row?.debt_dpto?.is_partial ??
+    null;
+
+  return rawValue === true || rawValue === 1 || rawValue === "1";
+};
+
 const isPartialDebtRow = (row: any) => {
   const normalizedStatus = getDebtStatusCode(row);
 
@@ -147,31 +155,7 @@ const isPartialDebtRow = (row: any) => {
     return true;
   }
 
-  const hasExplicitPartialAmount =
-    row?.available_partial_amount !== undefined &&
-    row?.available_partial_amount !== null &&
-    row?.available_partial_amount !== "";
-
-  if (!hasExplicitPartialAmount) {
-    return false;
-  }
-
-  const outstanding = Number(
-    row?.available_partial_amount ?? row?.total_remaining_amount,
-  );
-  const totalAmount = Number(row?.amount ?? 0);
-  const penaltyAmount = Number(row?.penalty_amount ?? 0);
-  const maintenanceAmount = Number(row?.maintenance_amount ?? 0);
-  const totalBalance =
-    Math.round((totalAmount + penaltyAmount + maintenanceAmount) * 100) / 100;
-
-  return (
-    Number.isFinite(outstanding) &&
-    Number.isFinite(totalBalance) &&
-    outstanding > 0 &&
-    totalBalance > 0 &&
-    outstanding < totalBalance
-  );
+  return getIsPartialDebtFlag(row);
 };
 
 const resolveDebtStatus = (row: any) => {
@@ -260,19 +244,18 @@ const UnitFinanceHistory = ({
   execute,
   extraData,
   loaded,
-  payments,
   reLoad,
   unitDescription,
   unitId,
-  unitNumber,
 }: UnitFinanceHistoryProps) => {
   const { showToast, user } = useAuth();
   const executeRef = useRef(execute);
+  const reLoadRef = useRef(reLoad);
+  const showToastRef = useRef(showToast);
   const [activeTab, setActiveTab] = useState("payments");
-  const [paymentRows, setPaymentRows] = useState<any[]>(payments || []);
-  const [isLoadingPaymentDetails, setIsLoadingPaymentDetails] = useState(false);
+  const [paymentRows, setPaymentRows] = useState<any[]>([]);
   const [debts, setDebts] = useState<any[]>([]);
-  const [isLoadingDebts, setIsLoadingDebts] = useState(false);
+  const [isLoadingFinancialState, setIsLoadingFinancialState] = useState(false);
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | number | null>(
     null,
   );
@@ -284,125 +267,40 @@ const UnitFinanceHistory = ({
   }, [execute]);
 
   useEffect(() => {
-    setPaymentRows(Array.isArray(payments) ? payments : []);
-  }, [payments]);
+    reLoadRef.current = reLoad;
+  }, [reLoad]);
 
   useEffect(() => {
-    const sourcePayments = Array.isArray(payments) ? payments : [];
-    if (sourcePayments.length === 0) {
+    showToastRef.current = showToast;
+  }, [showToast]);
+
+  const loadFinancialState = useCallback(async () => {
+    if (!unitId) {
       setPaymentRows([]);
-      setIsLoadingPaymentDetails(false);
-      return;
-    }
-
-    let cancelled = false;
-
-    const loadPaymentDetails = async () => {
-      setIsLoadingPaymentDetails(true);
-
-      try {
-        const enrichedPayments = await Promise.all(
-          sourcePayments.map(async (payment) => {
-            const paymentId = payment?.payment_id || payment?.id;
-            if (!paymentId) {
-              return payment;
-            }
-
-            try {
-              const { data } = await executeRef.current(
-                paymentsApi.detail(paymentId),
-                "GET",
-                {},
-                false,
-                true,
-              );
-
-              if (data?.data) {
-                return {
-                  ...payment,
-                  ...data.data,
-                  payment_id: payment?.payment_id || data.data?.id || paymentId,
-                };
-              }
-            } catch (error) {
-              return payment;
-            }
-
-            return payment;
-          }),
-        );
-
-        if (!cancelled) {
-          setPaymentRows(enrichedPayments);
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoadingPaymentDetails(false);
-        }
-      }
-    };
-
-    void loadPaymentDetails();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [payments]);
-
-  const loadDebts = useCallback(async () => {
-    if (!unitId && !unitNumber) {
       setDebts([]);
       return;
     }
 
-    setIsLoadingDebts(true);
+    setIsLoadingFinancialState(true);
 
     try {
-      const { data, error } = await execute(
-        "/debt-dptos",
+      const { data, error } = await executeRef.current(
+        paymentsApi.unitFinancialState(unitId),
         "GET",
-        {
-          dpto_id: unitId,
-          fullType: "L",
-          page: 1,
-          perPage: -1,
-          searchBy: unitNumber,
-        },
+        {},
         false,
         true,
       );
 
       if (data?.success) {
-        const incomingRows = Array.isArray(data?.data) ? data.data : [];
-        const normalizedUnitId = String(unitId ?? "");
-        const normalizedUnitNumber = String(unitNumber ?? "");
+        const incomingPayments = Array.isArray(data?.data?.payments)
+          ? data.data.payments
+          : [];
+        const incomingDebts = Array.isArray(data?.data?.debts)
+          ? data.data.debts
+          : [];
 
-        const rowUnitKeys = incomingRows
-          .map((row: any) =>
-            String(row?.dpto?.id ?? row?.dpto_id ?? row?.dpto?.nro ?? row?.nro ?? ""),
-          )
-          .filter(Boolean);
-
-        const filteredRows = incomingRows.filter((row: any) => {
-          const rowUnitId = String(row?.dpto?.id ?? row?.dpto_id ?? "");
-          const rowUnitNumber = String(row?.dpto?.nro ?? row?.nro ?? "");
-
-          return (
-            (normalizedUnitId && rowUnitId === normalizedUnitId) ||
-            (normalizedUnitNumber && rowUnitNumber === normalizedUnitNumber)
-          );
-        });
-
-        const uniqueUnitKeys = [...new Set(rowUnitKeys)];
-
-        const resolvedRows =
-          filteredRows.length > 0
-            ? filteredRows
-            : uniqueUnitKeys.length <= 1
-              ? incomingRows
-              : [];
-
-        const activeRows = resolvedRows.filter((row: any) =>
+        const activeRows = incomingDebts.filter((row: any) =>
           ACTIVE_DEBT_STATUSES.has(resolveDebtStatus(row)),
         );
 
@@ -414,32 +312,40 @@ const UnitFinanceHistory = ({
           ),
         );
 
+        setPaymentRows(incomingPayments);
         setDebts(sortedRows);
       } else {
+        setPaymentRows([]);
         setDebts([]);
         if (error?.message || data?.message) {
-          showToast(
-            error?.message || data?.message || "No se pudieron cargar las deudas",
+          showToastRef.current(
+            error?.message ||
+              data?.message ||
+              "No se pudo cargar el estado financiero de la unidad",
             "error",
           );
         }
       }
     } catch (error) {
+      setPaymentRows([]);
       setDebts([]);
-      showToast("No se pudieron cargar las deudas de la unidad", "error");
+      showToastRef.current(
+        "No se pudo cargar el estado financiero de la unidad",
+        "error",
+      );
     } finally {
-      setIsLoadingDebts(false);
+      setIsLoadingFinancialState(false);
     }
-  }, [execute, showToast, unitId, unitNumber]);
+  }, [unitId]);
 
   useEffect(() => {
-    void loadDebts();
-  }, [loadDebts]);
+    void loadFinancialState();
+  }, [loadFinancialState]);
 
   const handleRefreshFinancialData = useCallback(async () => {
-    await loadDebts();
-    await reLoad({ extraData: true });
-  }, [loadDebts, reLoad]);
+    await loadFinancialState();
+    await reLoadRef.current({ extraData: true });
+  }, [loadFinancialState]);
 
   const getPaymentTypeLabel = useCallback((payment: any) => {
     const details = Array.isArray(payment?.details) ? payment.details : [];
@@ -631,7 +537,7 @@ const UnitFinanceHistory = ({
 
         <div className={styles.tableArea}>
           {activeTab === "payments" ? (
-            !loaded || isLoadingPaymentDetails ? (
+            !loaded || isLoadingFinancialState ? (
               <TableSkeleton />
             ) : paymentRows.length > 0 ? (
               <Table
@@ -653,7 +559,7 @@ const UnitFinanceHistory = ({
                 />
               </div>
             )
-          ) : isLoadingDebts ? (
+          ) : !loaded || isLoadingFinancialState ? (
             <TableSkeleton />
           ) : debts.length > 0 ? (
             <Table

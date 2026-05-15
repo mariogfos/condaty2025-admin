@@ -1,6 +1,8 @@
 export const PAYMENTS_V2_BASE = "/payments-v2";
 
 export const paymentsApi = {
+  unitFinancialState: (dptoId: string | number) =>
+    `${PAYMENTS_V2_BASE}/units/${dptoId}/financial-state`,
   adminDebts: `${PAYMENTS_V2_BASE}/admin/debts`,
   adminPartialDebts: `${PAYMENTS_V2_BASE}/admin/partial-debts`,
   full: `${PAYMENTS_V2_BASE}/full`,

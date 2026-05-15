@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './RenderView.module.css';
 import { formatNumber } from '@/mk/utils/numbers';
 import Button from '@/mk/components/forms/Button/Button';
@@ -32,6 +32,9 @@ interface RenderViewProps {
   onReload?: () => void;
 }
 
+const getResolvedPaymentId = (item: any) =>
+  item?.resolved_payment_id ?? item?.payment_id ?? null;
+
 
 const RenderView: React.FC<RenderViewProps> = ({
   open,
@@ -53,7 +56,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [currentItem, setCurrentItem] = useState(item);
   const [resolvedPaymentId, setResolvedPaymentId] = useState<string | number | null>(
-    item?.payment_id || null,
+    getResolvedPaymentId(item),
   );
 
   // Declarar la variable today
@@ -74,6 +77,7 @@ const RenderView: React.FC<RenderViewProps> = ({
 
   const debtDetail = data?.data?.[0] || item;
   const debtType = debtDetail?.type || debtDetail?.debt?.type || 0;
+  const executeRef = useRef(execute);
 
 
   const hasApiData = data?.data?.[0];
@@ -146,8 +150,12 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   useEffect(() => {
+    executeRef.current = execute;
+  }, [execute]);
+
+  useEffect(() => {
     setCurrentItem(item);
-    setResolvedPaymentId(item?.payment_id || null);
+    setResolvedPaymentId(getResolvedPaymentId(item));
   }, [item]);
 
   useEffect(() => {
@@ -156,7 +164,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     let cancelled = false;
 
     const fetchResolvedPayment = async () => {
-      const response = await execute(
+      const response = await executeRef.current(
         paymentsApi.resolvedPayment(item.id),
         'GET',
         {},
@@ -174,13 +182,13 @@ const RenderView: React.FC<RenderViewProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [open, item?.id, execute]);
+  }, [open, item?.id]);
 
   if (!open || !item) return null;
 
   const reloadItem = async () => {
     try {
-      const response = await execute(
+      const response = await executeRef.current(
         '/debt-dptos',
         'GET',
         {
@@ -196,7 +204,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         setCurrentItem(response.data.data[0] || currentItem);
       }
 
-      const resolvedResponse = await execute(
+      const resolvedResponse = await executeRef.current(
         paymentsApi.resolvedPayment(currentItem.id),
         'GET',
         {},
