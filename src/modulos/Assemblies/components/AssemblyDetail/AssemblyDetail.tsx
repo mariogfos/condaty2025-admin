@@ -370,9 +370,13 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   ) => {
     if (isFinished) return;
     try {
-      const { data } = await execute(`/surveys/${surveyId}/status`, "PUT", {
-        status,
-      });
+      const { data, error } = await execute(
+        `/surveys/${surveyId}/status`,
+        "PUT",
+        {
+          status,
+        },
+      );
       if (data?.success || (data && !data.error)) {
         showToast("Estado actualizado correctamente", "success");
         loadAssembly();
@@ -401,6 +405,14 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             is_mandatory: false,
           });
         }
+      } else {
+        showToast(
+          data?.data?.message ||
+            data?.message ||
+            error?.data?.message ||
+            "Error al actualizar el estado",
+          "error",
+        );
       }
     } catch (e) {
       showToast("Error al actualizar el estado", "error");
