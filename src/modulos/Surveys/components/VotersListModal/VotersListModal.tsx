@@ -45,8 +45,8 @@ const VotersListModal: React.FC<VotersListModalProps> = ({
         url += `?survey_id=${surveyId}`;
       }
 
-      const { data: response, loaded: loadedState } = await execute(url, "GET");
-      setLoaded(loadedState);
+      const { data: response } = await execute(url, "GET");
+      setLoaded(true);
 
       if (response.success) {
         // console.error("[VotersListModal] API error:", error);
