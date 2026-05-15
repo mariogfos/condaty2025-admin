@@ -34,11 +34,7 @@ import styles from "./ReportsPage.module.css";
 
 type ReportFormat = "pdf" | "excel";
 
-type RangePresetId =
-  | "year-to-date"
-  | "this-month"
-  | "last-30-days"
-  | "custom";
+type RangePresetId = "year-to-date" | "this-month" | "last-30-days" | "custom";
 
 type ReportColumn = {
   id: string;
@@ -162,8 +158,7 @@ const resolveRangePresetId = (
   endDate: string,
 ): RangePresetId => {
   const match = getDateRangePresets().find(
-    (preset) =>
-      preset.startDate === startDate && preset.endDate === endDate,
+    (preset) => preset.startDate === startDate && preset.endDate === endDate,
   );
 
   return match?.id || "custom";
@@ -290,9 +285,7 @@ const buildGridTemplateColumns = (columns: ReportColumn[]) => {
 
 const buildApiPath = (path: string, params?: Record<string, any>) => {
   const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "").trim();
-  const normalizedBase = baseUrl.endsWith("/")
-    ? baseUrl.slice(0, -1)
-    : baseUrl;
+  const normalizedBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const url = normalizedBase
     ? `${normalizedBase}${normalizedPath}`
@@ -312,10 +305,7 @@ const buildApiPath = (path: string, params?: Record<string, any>) => {
   return `${url}?${searchParams.toString()}`;
 };
 
-const resolveApiErrorMessage = (
-  response: any,
-  fallback: string,
-) => {
+const resolveApiErrorMessage = (response: any, fallback: string) => {
   const status = Number(response?.error?.status || 0);
   const message =
     response?.data?.message ||
@@ -486,10 +476,10 @@ const ReportsPage = () => {
   const draggingColumnIdRef = useRef<string | null>(null);
 
   const viewerState = useMemo<ReportViewerState>(
-    () => decodeReportViewerState(searchParams.get("state")),
+    () => decodeReportViewerState(searchParams?.get("state") || ""),
     [searchParams],
   );
-  const reportKey = searchParams.get("preset") || "";
+  const reportKey = searchParams?.get("preset") || "";
   const baseParams = useMemo(
     () => sanitizeBaseParams(viewerState.params),
     [viewerState.params],
@@ -514,7 +504,9 @@ const ReportsPage = () => {
   const [loadingMorePages, setLoadingMorePages] = useState(false);
   const [pagesError, setPagesError] = useState("");
   const [actionError, setActionError] = useState("");
-  const [actionLoading, setActionLoading] = useState<null | "pdf" | "excel">(null);
+  const [actionLoading, setActionLoading] = useState<null | "pdf" | "excel">(
+    null,
+  );
   const [refreshNonce, setRefreshNonce] = useState(0);
   const [selectedColumnIds, setSelectedColumnIds] = useState<string[]>([]);
   const [loadedColumnIds, setLoadedColumnIds] = useState<string[]>([]);
@@ -543,11 +535,7 @@ const ReportsPage = () => {
           endDate,
         }),
       ),
-    [
-      baseParams,
-      endDate,
-      startDate,
-    ],
+    [baseParams, endDate, startDate],
   );
 
   const summaryRequestParams = useMemo(
@@ -607,13 +595,7 @@ const ReportsPage = () => {
         pageMode,
         selectedColumnIds: requestColumnIds,
       }),
-    [
-      baseParams,
-      endDate,
-      pageMode,
-      requestColumnIdsKey,
-      startDate,
-    ],
+    [baseParams, endDate, pageMode, requestColumnIdsKey, startDate],
   );
 
   const dataRequestParams = useMemo(
@@ -671,10 +653,10 @@ const ReportsPage = () => {
 
       const fallback =
         payload.selectedColumnIds.length > 0
-        ? payload.selectedColumnIds
-        : payload.availableColumns
-            .filter((column) => column.default)
-            .map((column) => column.id);
+          ? payload.selectedColumnIds
+          : payload.availableColumns
+              .filter((column) => column.default)
+              .map((column) => column.id);
 
       return arraysEqual(current, fallback) ? current : fallback;
     });
@@ -723,14 +705,14 @@ const ReportsPage = () => {
 
       const payload = response?.data?.data;
       const failed =
-        response?.error ||
-        response?.data?.success === false ||
-        !payload;
+        response?.error || response?.data?.success === false || !payload;
 
       if (failed) {
         setSummary(null);
         setLoadingSummary(false);
-        setSummaryError(resolveApiErrorMessage(response, "No se pudo preparar el reporte."));
+        setSummaryError(
+          resolveApiErrorMessage(response, "No se pudo preparar el reporte."),
+        );
         return;
       }
 
@@ -758,7 +740,9 @@ const ReportsPage = () => {
 
   const availableColumnsById = useMemo(
     () =>
-      new Map((summary?.availableColumns || []).map((column) => [column.id, column])),
+      new Map(
+        (summary?.availableColumns || []).map((column) => [column.id, column]),
+      ),
     [summary?.availableColumns],
   );
 
@@ -839,9 +823,7 @@ const ReportsPage = () => {
 
       const payload = response?.data?.data as PagesPayload | undefined;
       const failed =
-        response?.error ||
-        response?.data?.success === false ||
-        !payload;
+        response?.error || response?.data?.success === false || !payload;
 
       if (failed) {
         setPagesError(
@@ -878,7 +860,14 @@ const ReportsPage = () => {
       setLoadingPages(false);
       setLoadingMorePages(false);
     },
-    [dataRequestParams, hasValidDateRange, previewPageBatch, reportKey, requestColumnIds, summary],
+    [
+      dataRequestParams,
+      hasValidDateRange,
+      previewPageBatch,
+      reportKey,
+      requestColumnIds,
+      summary,
+    ],
   );
 
   useEffect(() => {
@@ -1041,7 +1030,11 @@ const ReportsPage = () => {
       return "No se pudo cargar el reporte";
     }
 
-    if (loadingSummary || (loadingPages && renderedPages.length === 0) || loadingMorePages) {
+    if (
+      loadingSummary ||
+      (loadingPages && renderedPages.length === 0) ||
+      loadingMorePages
+    ) {
       return "Cargando reporte...";
     }
 
@@ -1066,7 +1059,8 @@ const ReportsPage = () => {
     if (pagesError) return "La vista previa no termino de cargar.";
     if (actionError) return "Hubo un problema al descargar el archivo.";
     if (!summary) return "Estamos preparando la informacion.";
-    if (summary.totalRows === 0) return "No encontramos registros para este rango.";
+    if (summary.totalRows === 0)
+      return "No encontramos registros para este rango.";
 
     return `${summary.totalRows} registros en total`;
   }, [actionError, pagesError, summary, summaryError]);
@@ -1100,7 +1094,8 @@ const ReportsPage = () => {
     if (pagesError) return pagesError;
     if (actionError) return actionError;
     if (!summary) return "El viewer espera un reporte configurado.";
-    if (summary.totalRows === 0) return "No hay filas para este rango y filtros.";
+    if (summary.totalRows === 0)
+      return "No hay filas para este rango y filtros.";
 
     const previewHint = `${loadedRowsCount} de ${summary.totalRows} filas cargadas`;
     if (!effectivePdf.available) {
@@ -1134,94 +1129,103 @@ const ReportsPage = () => {
     setRefreshNonce((current) => current + 1);
   }, []);
 
-  const handleDownload = useCallback(async (format: ReportFormat) => {
-    if (!summary || !reportKey) return;
+  const handleDownload = useCallback(
+    async (format: ReportFormat) => {
+      if (!summary || !reportKey) return;
 
-    setActionError("");
-    setOpenPopover(null);
+      setActionError("");
+      setOpenPopover(null);
 
-    if (format === "pdf") {
-      if (!effectivePdf.available) {
-        setActionError(effectivePdf.reason || "PDF no disponible.");
+      if (format === "pdf") {
+        if (!effectivePdf.available) {
+          setActionError(effectivePdf.reason || "PDF no disponible.");
+          return;
+        }
+
+        const popup = window.open("", "_blank");
+        if (!popup) {
+          setActionError("No se pudo abrir la ventana del PDF.");
+          return;
+        }
+
+        popup.document.write(
+          "<!doctype html><html><body style='font-family:sans-serif;padding:24px'>Generando PDF...</body></html>",
+        );
+
+        setActionLoading("pdf");
+
+        try {
+          const response = await fetch(
+            buildApiPath(`/reports/${reportKey}/document`, {
+              ...dataRequestParams,
+              autoprint: true,
+            }),
+            {
+              credentials: "include",
+            },
+          );
+
+          const html = await response.text();
+
+          if (!response.ok) {
+            popup.close();
+            setActionError(html || "No se pudo preparar el PDF.");
+            return;
+          }
+
+          popup.document.open();
+          popup.document.write(html);
+          popup.document.close();
+        } catch (_error) {
+          popup.close();
+          setActionError("No se pudo preparar el PDF.");
+        } finally {
+          setActionLoading(null);
+        }
+
         return;
       }
 
-      const popup = window.open("", "_blank");
-      if (!popup) {
-        setActionError("No se pudo abrir la ventana del PDF.");
-        return;
-      }
-
-      popup.document.write(
-        "<!doctype html><html><body style='font-family:sans-serif;padding:24px'>Generando PDF...</body></html>",
-      );
-
-      setActionLoading("pdf");
+      setActionLoading("excel");
 
       try {
         const response = await fetch(
-          buildApiPath(`/reports/${reportKey}/document`, {
-            ...dataRequestParams,
-            autoprint: true,
-          }),
+          buildApiPath(`/reports/${reportKey}/xlsx`, dataRequestParams),
           {
             credentials: "include",
           },
         );
 
-        const html = await response.text();
-
         if (!response.ok) {
-          popup.close();
-          setActionError(html || "No se pudo preparar el PDF.");
+          const message = await response.text();
+          setActionError(message || "No se pudo descargar el Excel.");
+          setActionLoading(null);
           return;
         }
 
-        popup.document.open();
-        popup.document.write(html);
-        popup.document.close();
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = `${summary.fileBaseName}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(downloadUrl);
       } catch (_error) {
-        popup.close();
-        setActionError("No se pudo preparar el PDF.");
+        setActionError("No se pudo descargar el Excel.");
       } finally {
         setActionLoading(null);
       }
-
-      return;
-    }
-
-    setActionLoading("excel");
-
-    try {
-      const response = await fetch(
-        buildApiPath(`/reports/${reportKey}/xlsx`, dataRequestParams),
-        {
-          credentials: "include",
-        },
-      );
-
-      if (!response.ok) {
-        const message = await response.text();
-        setActionError(message || "No se pudo descargar el Excel.");
-        setActionLoading(null);
-        return;
-      }
-
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = `${summary.fileBaseName}.xlsx`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(downloadUrl);
-    } catch (_error) {
-      setActionError("No se pudo descargar el Excel.");
-    } finally {
-      setActionLoading(null);
-    }
-  }, [dataRequestParams, effectivePdf.available, effectivePdf.reason, reportKey, summary]);
+    },
+    [
+      dataRequestParams,
+      effectivePdf.available,
+      effectivePdf.reason,
+      reportKey,
+      summary,
+    ],
+  );
 
   if (!reportKey) {
     return (
@@ -1249,7 +1253,11 @@ const ReportsPage = () => {
         >
           <span className={styles.statusPillIcon}>
             {loadingSummary || loadingPages || loadingMorePages ? (
-              <LoaderCircle size={18} strokeWidth={1.7} className={styles.spin} />
+              <LoaderCircle
+                size={18}
+                strokeWidth={1.7}
+                className={styles.spin}
+              />
             ) : (
               <FileText size={18} strokeWidth={1.7} />
             )}
@@ -1314,7 +1322,9 @@ const ReportsPage = () => {
             value={buildTriggerLabel(startDate, endDate)}
             open={openPopover === "range"}
             onToggle={() =>
-              setOpenPopover((current) => (current === "range" ? null : "range"))
+              setOpenPopover((current) =>
+                current === "range" ? null : "range",
+              )
             }
             onClose={() => setOpenPopover(null)}
           >
@@ -1470,7 +1480,11 @@ const ReportsPage = () => {
                 disabled={isDownloadDisabled}
               >
                 {actionLoading ? (
-                  <LoaderCircle size={18} strokeWidth={1.8} className={styles.spin} />
+                  <LoaderCircle
+                    size={18}
+                    strokeWidth={1.8}
+                    className={styles.spin}
+                  />
                 ) : (
                   <Download size={18} strokeWidth={1.8} />
                 )}
@@ -1509,7 +1523,9 @@ const ReportsPage = () => {
       <main ref={previewViewportRef} className={styles.previewViewport}>
         {summaryError ? (
           <div className={styles.emptyPreview}>
-            <h1 className={styles.emptyTitle}>No se pudo preparar el reporte</h1>
+            <h1 className={styles.emptyTitle}>
+              No se pudo preparar el reporte
+            </h1>
             <p className={styles.emptyDescription}>{summaryError}</p>
           </div>
         ) : !summary || !pageSpec ? (
@@ -1617,18 +1633,16 @@ const ReportsPage = () => {
                           <div
                             key={`${page.pageNumber}-${row.id}-${column.id}`}
                             className={`${styles.bodyCell} ${
-                              rowIndex % 2 === 0 ? styles.rowEven : styles.rowOdd
-                            } ${
-                              columnIndex > 0 ? styles.cellDivider : ""
-                            } ${
+                              rowIndex % 2 === 0
+                                ? styles.rowEven
+                                : styles.rowOdd
+                            } ${columnIndex > 0 ? styles.cellDivider : ""} ${
                               column.align === "right"
                                 ? styles.alignRight
                                 : column.align === "center"
                                   ? styles.alignCenter
                                   : ""
-                            } ${
-                              page.__skeleton ? styles.skeletonCell : ""
-                            }`}
+                            } ${page.__skeleton ? styles.skeletonCell : ""}`}
                           >
                             {page.__skeleton ? (
                               <span
@@ -1718,7 +1732,9 @@ const ReportsPage = () => {
                             <div
                               key={`loading-row-${rowIndex}-${column.id}`}
                               className={`${styles.bodyCell} ${
-                                rowIndex % 2 === 0 ? styles.rowEven : styles.rowOdd
+                                rowIndex % 2 === 0
+                                  ? styles.rowEven
+                                  : styles.rowOdd
                               } ${styles.skeletonCell} ${
                                 columnIndex > 0 ? styles.cellDivider : ""
                               } ${
