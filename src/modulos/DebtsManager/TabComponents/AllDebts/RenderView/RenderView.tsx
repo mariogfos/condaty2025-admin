@@ -281,9 +281,6 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   const handleClose = () => {
-    if (onReload) {
-      onReload();
-    }
     onClose();
   };
 
