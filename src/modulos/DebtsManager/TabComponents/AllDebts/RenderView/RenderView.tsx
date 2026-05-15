@@ -356,9 +356,6 @@ const RenderView: React.FC<RenderViewProps> = ({
   const penaltyAmount = parseFloat(debtDetail?.penalty_amount) || 0;
   const maintenanceAmount = parseFloat(debtDetail?.maintenance_amount) || 0;
   const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
-
-=======
->>>>>>> origin/dev
   const finalStatus = resolveStatus(debtDetail?.status, debtDetail?.due_at);
   const statusText = getStatusText(finalStatus);
   const { color } = getStatusStyle(finalStatus, debtDetail?.due_at);

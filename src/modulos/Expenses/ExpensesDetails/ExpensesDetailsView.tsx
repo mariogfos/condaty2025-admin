@@ -55,22 +55,12 @@ const renderStatusCell = (
   getDisplayStatus: Function,
 ) => {
   const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
-<<<<<<< HEAD
     A: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" }, // Por cobrar
     P: { color: "var(--cSuccess)", bgColor: "var(--cHoverCompl2)" }, // Cobrado
     S: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl4)" }, // Por confirmar
     R: { color: "var(--cMediumAlert)", bgColor: "var(--cMediumAlertHover)" }, // Rechazado
-    E: { color: "var(--cWhite)", bgColor: "var(--cHoverCompl1)" }, // Por defecto
     M: { color: "var(--cError)", bgColor: "var(--cHoverError)" }, // En mora
     F: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" }, // Finalizado
-=======
-    A: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Por cobrar
-    P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' }, // Cobrado
-    S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' }, // Por confirmar
-    R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' }, // Rechazado
-    M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' }, // En mora
-    F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Finalizado
->>>>>>> origin/dev
   };
 
   const displayStatus = getDisplayStatus(item);
