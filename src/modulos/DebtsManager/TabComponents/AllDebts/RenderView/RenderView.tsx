@@ -35,6 +35,13 @@ interface RenderViewProps {
 const getResolvedPaymentId = (item: any) =>
   item?.resolved_payment_id ?? item?.payment_id ?? null;
 
+const hasEnoughDebtDetail = (item: any) =>
+  Boolean(
+    item?.dpto &&
+      (item?.subcategory || item?.subcategory_id) &&
+      (item?.type != null || item?.debt || item?.description),
+  );
+
 
 const RenderView: React.FC<RenderViewProps> = ({
   open,
@@ -81,6 +88,9 @@ const RenderView: React.FC<RenderViewProps> = ({
 
 
   const hasApiData = data?.data?.[0];
+  const shouldShowLoading = Boolean(
+    open && item?.id && !loaded && !hasApiData && !hasEnoughDebtDetail(item),
+  );
 
 
   const resolveStatus = (status: string, dueDate?: string) => {
@@ -319,7 +329,10 @@ const RenderView: React.FC<RenderViewProps> = ({
         buttonCancel=""
         variant="mini"
       >
-        <LoadingScreen onlyLoading={Object.keys(debtDetail).length === 0} type="CardSkeleton">
+        <LoadingScreen
+          onlyLoading={shouldShowLoading || Object.keys(debtDetail).length === 0}
+          type="CardSkeleton"
+        >
           <div className={styles.content}>
             {/* Saldo principal */}
             <div className={styles.balanceSection}>

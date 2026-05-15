@@ -116,6 +116,7 @@ interface Deuda {
     };
   };
   debt?: {
+    type?: number;
     month?: number;
     year?: number;
     method?: number;

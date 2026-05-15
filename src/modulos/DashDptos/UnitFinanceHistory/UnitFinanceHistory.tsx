@@ -124,10 +124,10 @@ const getDebtStatusCode = (row: any) =>
     .toUpperCase();
 
 const getDebtRowId = (row: any) =>
-  row?.id ??
   row?.debt_dpto_id ??
+  row?.debt_dpto?.id ??
+  row?.id ??
   row?.debtDptoId ??
-  row?.debt?.id ??
   row?.debt_id ??
   row?.shared_id ??
   null;
@@ -135,6 +135,7 @@ const getDebtRowId = (row: any) =>
 const normalizeDebtRow = (row: any) => ({
   ...row,
   id: getDebtRowId(row),
+  debt_dpto_id: row?.debt_dpto_id ?? row?.debt_dpto?.id ?? getDebtRowId(row),
   status: getDebtStatusCode(row) || row?.status || "A",
 });
 
