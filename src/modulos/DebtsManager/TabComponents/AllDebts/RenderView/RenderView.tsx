@@ -1,23 +1,32 @@
-'use client';
-import React, { useEffect, useRef, useState } from 'react';
-import styles from './RenderView.module.css';
-import paymentStyles from '@/modulos/Payments/RenderView/RenderView.module.css';
-import { formatBs } from '@/mk/utils/numbers';
-import Button from '@/mk/components/forms/Button/Button';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import useAxios from '@/mk/hooks/useAxios';
-import Loading from '@/mk/components/ui/LoadingScreen/Loading/Loading';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import ExpenseDetailModal from '@/modulos/Expenses/ExpensesDetails/RenderView/RenderView';
-import ReservationDetailModal from '@/modulos/Reservas/RenderView/RenderView';
-import PaymentRenderView from '@/modulos/Payments/RenderView/RenderView';
-import PaymentRenderForm from '@/modulos/Payments/RenderForm/RenderForm';
-import { MONTHS_ES, formatToDayDDMMYYYY, formatToDayFdMYH } from '@/mk/utils/date';
-import { getFullName } from '@/mk/utils/string';
-import { getTitular } from '@/mk/utils/adapters';
-import { hasMaintenanceValue } from '@/mk/utils/utils';
-import { getStatusText, getStatusConfig, getDetailButtonText as getDetailButtonTextFromConstants, getAvailableActions as getAvailableActionsFromConstants } from '../../constants';
-import { paymentsApi } from '@/modulos/Payments/api';
+"use client";
+import React, { useEffect, useRef, useState } from "react";
+import styles from "./RenderView.module.css";
+import paymentStyles from "@/modulos/Payments/RenderView/RenderView.module.css";
+import { formatBs } from "@/mk/utils/numbers";
+import Button from "@/mk/components/forms/Button/Button";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import useAxios from "@/mk/hooks/useAxios";
+import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import ExpenseDetailModal from "@/modulos/Expenses/ExpensesDetails/RenderView/RenderView";
+import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
+import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
+import PaymentRenderForm from "@/modulos/Payments/RenderForm/RenderForm";
+import {
+  MONTHS_ES,
+  formatToDayDDMMYYYY,
+  formatToDayFdMYH,
+} from "@/mk/utils/date";
+import { getFullName } from "@/mk/utils/string";
+import { getTitular } from "@/mk/utils/adapters";
+import { hasMaintenanceValue } from "@/mk/utils/utils";
+import {
+  getStatusText,
+  getStatusConfig,
+  getDetailButtonText as getDetailButtonTextFromConstants,
+  getAvailableActions as getAvailableActionsFromConstants,
+} from "../../constants";
+import { paymentsApi } from "@/modulos/Payments/api";
 
 interface RenderViewProps {
   open: boolean;
@@ -38,10 +47,9 @@ const getResolvedPaymentId = (item: any) =>
 const hasEnoughDebtDetail = (item: any) =>
   Boolean(
     item?.dpto &&
-      (item?.subcategory || item?.subcategory_id) &&
-      (item?.type != null || item?.debt || item?.description),
+    (item?.subcategory || item?.subcategory_id) &&
+    (item?.type != null || item?.debt || item?.description),
   );
-
 
 const RenderView: React.FC<RenderViewProps> = ({
   open,
@@ -62,9 +70,9 @@ const RenderView: React.FC<RenderViewProps> = ({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [currentItem, setCurrentItem] = useState(item);
-  const [resolvedPaymentId, setResolvedPaymentId] = useState<string | number | null>(
-    getResolvedPaymentId(item),
-  );
+  const [resolvedPaymentId, setResolvedPaymentId] = useState<
+    string | number | null
+  >(getResolvedPaymentId(item));
 
   // Declarar la variable today
   const today = new Date();
@@ -120,19 +128,19 @@ const RenderView: React.FC<RenderViewProps> = ({
   const getDebtTypeText = (type: number) => {
     switch (Number(type)) {
       case 0:
-        return 'Otras deudas';
+        return "Otras deudas";
       case 1:
-        return 'Expensas';
+        return "Expensas";
       case 2:
-        return 'Reservas';
+        return "Reservas";
       case 3:
-        return 'Reserva con multa';
+        return "Reserva con multa";
       case 4:
-        return 'Deuda compartida';
+        return "Deuda compartida";
       case 5:
-        return 'Condonación';
+        return "Condonación";
       default:
-        return '-/-';
+        return "-/-";
     }
   };
 
@@ -144,14 +152,14 @@ const RenderView: React.FC<RenderViewProps> = ({
         if (month && year) {
           return `${MONTHS_ES[Number(month) - 1] || month} ${year}`;
         }
-        return detail?.description || detail?.subcategory?.name || '-/-';
+        return detail?.description || detail?.subcategory?.name || "-/-";
       }
       case 2:
         return (
           detail?.reservation?.area?.title ||
           detail?.debt?.reservation?.area?.title ||
           detail?.description ||
-          '-/-'
+          "-/-"
         );
       case 3:
         return (
@@ -159,16 +167,16 @@ const RenderView: React.FC<RenderViewProps> = ({
           detail?.debt?.reservation_penalty?.area?.title ||
           detail?.penalty_reservation?.area?.title ||
           detail?.description ||
-          '-/-'
+          "-/-"
         );
       case 4:
-        return detail?.shared?.description || detail?.description || '-/-';
+        return detail?.shared?.description || detail?.description || "-/-";
       default:
         return (
           detail?.description ||
           detail?.debt?.description ||
           detail?.subcategory?.name ||
-          '-/-'
+          "-/-"
         );
     }
   };
@@ -224,7 +232,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     const fetchResolvedPayment = async () => {
       const response = await executeRef.current(
         paymentsApi.resolvedPayment(item.id),
-        'GET',
+        "GET",
         {},
         false,
         true,
@@ -247,8 +255,8 @@ const RenderView: React.FC<RenderViewProps> = ({
   const reloadItem = async () => {
     try {
       const response = await executeRef.current(
-        '/debt-dptos',
-        'GET',
+        "/debt-dptos",
+        "GET",
         {
           searchBy: currentItem.id,
           fullType: "DET",
@@ -264,7 +272,7 @@ const RenderView: React.FC<RenderViewProps> = ({
 
       const resolvedResponse = await executeRef.current(
         paymentsApi.resolvedPayment(currentItem.id),
-        'GET',
+        "GET",
         {},
         false,
         true,
@@ -356,24 +364,29 @@ const RenderView: React.FC<RenderViewProps> = ({
   const penaltyAmount = parseFloat(debtDetail?.penalty_amount) || 0;
   const maintenanceAmount = parseFloat(debtDetail?.maintenance_amount) || 0;
   const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
+
   const finalStatus = resolveStatus(debtDetail?.status, debtDetail?.due_at);
   const statusText = getStatusText(finalStatus);
   const { color } = getStatusStyle(finalStatus, debtDetail?.due_at);
   const actions = getAvailableActions(debtDetail?.status, debtType);
   const detailButtonText = getDetailButtonText(debtType);
   const showDistribution = debtType === 4;
-  const ownerDisplay = getFullName(debtDetail?.dpto?.homeowner) || '-/-';
-  const tenantDisplay = getFullName(debtDetail?.dpto?.tenant) || '-/-';
+  const ownerDisplay = getFullName(debtDetail?.dpto?.homeowner) || "-/-";
+  const tenantDisplay = getFullName(debtDetail?.dpto?.tenant) || "-/-";
   const holderDisplay =
-    debtDetail?.dpto?.holder === 'T' ? tenantDisplay : ownerDisplay;
-  const unitDisplay = [debtDetail?.dpto?.nro, debtDetail?.dpto?.description]
-    .filter(Boolean)
-    .join(' - ') || '-/-';
-  const categoryDisplay = debtDetail?.subcategory?.padre?.name || '-/-';
-  const subcategoryDisplay = debtDetail?.subcategory?.name || '-/-';
+    debtDetail?.dpto?.holder === "T" ? tenantDisplay : ownerDisplay;
+  const unitDisplay =
+    [debtDetail?.dpto?.nro, debtDetail?.dpto?.description]
+      .filter(Boolean)
+      .join(" - ") || "-/-";
+  const categoryDisplay = debtDetail?.subcategory?.padre?.name || "-/-";
+  const subcategoryDisplay = debtDetail?.subcategory?.name || "-/-";
   const conceptDisplay = getConceptText(debtDetail);
   const debtDescription =
-    debtDetail?.debt?.description || debtDetail?.description || conceptDisplay || '-/-';
+    debtDetail?.debt?.description ||
+    debtDetail?.description ||
+    conceptDisplay ||
+    "-/-";
   const startDateDisplay = formatToDayDDMMYYYY(
     debtDetail?.debt?.begin_at || debtDetail?.created_at,
   );
@@ -383,16 +396,20 @@ const RenderView: React.FC<RenderViewProps> = ({
   const paidAtDisplay = formatToDayDDMMYYYY(
     debtDetail?.payment?.paid_at || debtDetail?.paid_at,
   );
-  const headerSubtitle = finalStatus === 'P'
-    ? `Pagada el ${formatToDayFdMYH(
-        debtDetail?.payment?.paid_at || debtDetail?.paid_at,
-        true,
-        false,
-        true,
-      )}`
-    : [conceptDisplay !== '-/-' ? conceptDisplay : null, dueDateDisplay !== '-/-' ? `Vence el ${dueDateDisplay}` : null]
-        .filter(Boolean)
-        .join(' · ');
+  const headerSubtitle =
+    finalStatus === "P"
+      ? `Pagada el ${formatToDayFdMYH(
+          debtDetail?.payment?.paid_at || debtDetail?.paid_at,
+          true,
+          false,
+          true,
+        )}`
+      : [
+          conceptDisplay !== "-/-" ? conceptDisplay : null,
+          dueDateDisplay !== "-/-" ? `Vence el ${dueDateDisplay}` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ");
 
   return (
     <>
@@ -416,53 +433,38 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={paymentStyles.amountDisplay}>
                   {formatBs(totalBalance)}
                 </div>
-                <div className={styles.statusItem}>
-                  <span className={styles.label}>Fecha de inicio:</span>
-                  <span className={styles.value}>
-                    {formatDate(
-                      debtDetail?.debt?.begin_at || debtDetail?.created_at,
-                    )}
-                  </span>
-                </div>
-                <div className={styles.statusItem}>
-                  <span className={styles.label}>Vencimiento:</span>
-                  <span className={styles.value}>
-                    {formatDate(debtDetail?.due_at || "-/-")}
-                  </span>
-                </div>
-              </div>
                 <div className={paymentStyles.dateDisplay}>
-                  {headerSubtitle || '-/-'}
+                  {headerSubtitle || "-/-"}
                 </div>
               </div>
             </div>
 
-              {/* Información adicional para estado cobrado */}
-              {debtDetail?.status === "P" && (
-                <div className={styles.infoRow}>
-                  <div className={styles.infoItem}>
-                    <span className={styles.label}>Método de pago:</span>
-                    <span className={styles.value}>
-                      {getPaymentTypeText(debtDetail?.payment?.method) || "-/-"}
-                    </span>
             <div className={paymentStyles.container}>
               <section className={paymentStyles.detailsSection}>
                 <div className={paymentStyles.detailsColumn}>
                   <div className={paymentStyles.infoBlock}>
                     <span className={paymentStyles.infoLabel}>Unidad</span>
-                    <span className={paymentStyles.infoValue}>{unitDisplay}</span>
+                    <span className={paymentStyles.infoValue}>
+                      {unitDisplay}
+                    </span>
                   </div>
                   <div className={paymentStyles.infoBlock}>
                     <span className={paymentStyles.infoLabel}>Propietario</span>
-                    <span className={paymentStyles.infoValue}>{ownerDisplay}</span>
+                    <span className={paymentStyles.infoValue}>
+                      {ownerDisplay}
+                    </span>
                   </div>
                   <div className={paymentStyles.infoBlock}>
                     <span className={paymentStyles.infoLabel}>Titular</span>
-                    <span className={paymentStyles.infoValue}>{holderDisplay}</span>
+                    <span className={paymentStyles.infoValue}>
+                      {holderDisplay}
+                    </span>
                   </div>
                   <div className={paymentStyles.infoBlock}>
                     <span className={paymentStyles.infoLabel}>Categoría</span>
-                    <span className={paymentStyles.infoValue}>{categoryDisplay}</span>
+                    <span className={paymentStyles.infoValue}>
+                      {categoryDisplay}
+                    </span>
                   </div>
                 </div>
 
@@ -474,16 +476,26 @@ const RenderView: React.FC<RenderViewProps> = ({
                     </span>
                   </div>
                   <div className={paymentStyles.infoBlock}>
-                    <span className={paymentStyles.infoLabel}>Concepto / Periodo</span>
-                    <span className={paymentStyles.infoValue}>{conceptDisplay}</span>
+                    <span className={paymentStyles.infoLabel}>
+                      Concepto / Periodo
+                    </span>
+                    <span className={paymentStyles.infoValue}>
+                      {conceptDisplay}
+                    </span>
                   </div>
                   <div className={paymentStyles.infoBlock}>
-                    <span className={paymentStyles.infoLabel}>Fecha de inicio</span>
-                    <span className={paymentStyles.infoValue}>{startDateDisplay}</span>
+                    <span className={paymentStyles.infoLabel}>
+                      Fecha de inicio
+                    </span>
+                    <span className={paymentStyles.infoValue}>
+                      {startDateDisplay}
+                    </span>
                   </div>
                   <div className={paymentStyles.infoBlock}>
                     <span className={paymentStyles.infoLabel}>Vencimiento</span>
-                    <span className={paymentStyles.infoValue}>{dueDateDisplay}</span>
+                    <span className={paymentStyles.infoValue}>
+                      {dueDateDisplay}
+                    </span>
                   </div>
                 </div>
 
@@ -499,51 +511,72 @@ const RenderView: React.FC<RenderViewProps> = ({
                   </div>
                   <div className={paymentStyles.infoBlock}>
                     <span className={paymentStyles.infoLabel}>Deuda</span>
-                    <span className={paymentStyles.infoValue}>{formatBs(debtAmount)}</span>
+                    <span className={paymentStyles.infoValue}>
+                      {formatBs(debtAmount)}
+                    </span>
                   </div>
                   <div className={paymentStyles.infoBlock}>
                     <span className={paymentStyles.infoLabel}>Multa</span>
-                    <span className={paymentStyles.infoValue}>{formatBs(penaltyAmount)}</span>
+                    <span className={paymentStyles.infoValue}>
+                      {formatBs(penaltyAmount)}
+                    </span>
                   </div>
                   {hasMaintenanceValue(user) ? (
                     <div className={paymentStyles.infoBlock}>
-                      <span className={paymentStyles.infoLabel}>Mant. de valor</span>
+                      <span className={paymentStyles.infoLabel}>
+                        Mant. de valor
+                      </span>
                       <span className={paymentStyles.infoValue}>
                         {formatBs(maintenanceAmount)}
                       </span>
                     </div>
                   ) : null}
                   <div className={paymentStyles.infoBlock}>
-                    <span className={paymentStyles.infoLabel}>Saldo pendiente</span>
+                    <span className={paymentStyles.infoLabel}>
+                      Saldo pendiente
+                    </span>
                     <span className={paymentStyles.infoValue}>
                       {formatBs(totalBalance)}
                     </span>
                   </div>
-                  {debtDetail?.status === 'P' ? (
+                  {debtDetail?.status === "P" ? (
                     <>
                       <div className={paymentStyles.infoBlock}>
-                        <span className={paymentStyles.infoLabel}>Método de pago</span>
+                        <span className={paymentStyles.infoLabel}>
+                          Método de pago
+                        </span>
                         <span className={paymentStyles.infoValue}>
-                          {getPaymentTypeText(debtDetail?.payment?.method) || '-/-'}
+                          {getPaymentTypeText(debtDetail?.payment?.method) ||
+                            "-/-"}
                         </span>
                       </div>
                       <div className={paymentStyles.infoBlock}>
-                        <span className={paymentStyles.infoLabel}>Fecha de pago</span>
-                        <span className={paymentStyles.infoValue}>{paidAtDisplay}</span>
+                        <span className={paymentStyles.infoLabel}>
+                          Fecha de pago
+                        </span>
+                        <span className={paymentStyles.infoValue}>
+                          {paidAtDisplay}
+                        </span>
                       </div>
                     </>
                   ) : null}
                   {showDistribution ? (
                     <div className={paymentStyles.infoBlock}>
-                      <span className={paymentStyles.infoLabel}>Distribución</span>
+                      <span className={paymentStyles.infoLabel}>
+                        Distribución
+                      </span>
                       <span className={paymentStyles.infoValue}>
-                        {debtDetail?.debt?.distribution || 'Dividido por igual'}
+                        {debtDetail?.debt?.distribution || "Dividido por igual"}
                       </span>
                     </div>
                   ) : null}
                   <div className={paymentStyles.infoBlock}>
-                    <span className={paymentStyles.infoLabel}>Subcategoría</span>
-                    <span className={paymentStyles.infoValue}>{subcategoryDisplay}</span>
+                    <span className={paymentStyles.infoLabel}>
+                      Subcategoría
+                    </span>
+                    <span className={paymentStyles.infoValue}>
+                      {subcategoryDisplay}
+                    </span>
                   </div>
                 </div>
               </section>
@@ -554,8 +587,10 @@ const RenderView: React.FC<RenderViewProps> = ({
               <div className={styles.detailsContent}>{debtDescription}</div>
             </div>
 
-            <div className={`${paymentStyles.voucherButtonContainer} ${styles.actionsWrap}`}>
-              {actions.showRegistrarPago && debtDetail?.status !== 'F' && (
+            <div
+              className={`${paymentStyles.voucherButtonContainer} ${styles.actionsWrap}`}
+            >
+              {actions.showRegistrarPago && debtDetail?.status !== "F" && (
                 <Button
                   onClick={() => setShowPaymentForm(true)}
                   className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
