@@ -54,19 +54,22 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
       );
       if (response?.data) {
         // Group attendees by owner_id to avoid duplicates when owner has multiple units
-        const groupedAttendees = (response.data || []).reduce((acc: any[], att: any) => {
-          const existing = acc.find(a => a.owner_id === att.owner_id);
-          if (existing) {
-            // Add this dpto to the existing owner's unit list
-            if (!existing.units) {
-              existing.units = [{ dpto: existing.dpto, role: existing.role }];
+        const groupedAttendees = (response.data || []).reduce(
+          (acc: any[], att: any) => {
+            const existing = acc.find((a) => a.owner_id === att.owner_id);
+            if (existing) {
+              // Add this dpto to the existing owner's unit list
+              if (!existing.units) {
+                existing.units = [{ dpto: existing.dpto, role: existing.role }];
+              }
+              existing.units.push({ dpto: att.dpto, role: att.role });
+            } else {
+              acc.push({ ...att, units: [{ dpto: att.dpto, role: att.role }] });
             }
-            existing.units.push({ dpto: att.dpto, role: att.role });
-          } else {
-            acc.push({ ...att, units: [{ dpto: att.dpto, role: att.role }] });
-          }
-          return acc;
-        }, []);
+            return acc;
+          },
+          [],
+        );
         setAttendees(groupedAttendees);
         setFilteredAttendees(groupedAttendees);
       }
@@ -120,8 +123,9 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
         onClose();
       } else {
         showToast(
-          error?.data?.message ||
+          response?.data?.message ||
             response?.message ||
+            error?.data?.message ||
             "Error al registrar voto",
           "error",
         );
@@ -172,7 +176,9 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
                 <div
                   key={att.owner_id}
                   className={`${styles.attendeeItem} ${
-                    selectedAttendee?.owner_id === att.owner_id ? styles.selected : ""
+                    selectedAttendee?.owner_id === att.owner_id
+                      ? styles.selected
+                      : ""
                   }`}
                   onClick={() => setSelectedAttendee(att)}
                 >
