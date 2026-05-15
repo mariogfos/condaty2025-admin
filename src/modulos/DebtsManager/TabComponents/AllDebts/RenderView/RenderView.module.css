@@ -152,7 +152,29 @@
   border-radius: 8px;
   color: var(--cWhiteV1);
   line-height: 1.6;
-  margin-bottom: var(--sL);
+  border: 1px solid var(--cModalBorder);
+}
+
+.sectionHeading {
+  color: var(--cWhite);
+  font-size: var(--sM);
+  font-weight: var(--bRegular);
+  margin: 0 0 var(--spM) 0;
+  padding-left: var(--spXs);
+}
+
+.statusValue {
+  font-weight: var(--bSemibold);
+}
+
+.actionsWrap {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.actionButtonStretch {
+  flex: 1 1 240px;
+  min-width: 220px;
 }
 
 .actions {

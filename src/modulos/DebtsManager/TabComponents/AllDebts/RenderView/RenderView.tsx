@@ -1,18 +1,18 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './RenderView.module.css';
-import { formatNumber } from '@/mk/utils/numbers';
+import paymentStyles from '@/modulos/Payments/RenderView/RenderView.module.css';
+import { formatBs } from '@/mk/utils/numbers';
 import Button from '@/mk/components/forms/Button/Button';
-import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import useAxios from '@/mk/hooks/useAxios';
-import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
+import Loading from '@/mk/components/ui/LoadingScreen/Loading/Loading';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import ExpenseDetailModal from '@/modulos/Expenses/ExpensesDetails/RenderView/RenderView';
 import ReservationDetailModal from '@/modulos/Reservas/RenderView/RenderView';
 import PaymentRenderView from '@/modulos/Payments/RenderView/RenderView';
 import PaymentRenderForm from '@/modulos/Payments/RenderForm/RenderForm';
-import { getDateStrMesShort } from '@/mk/utils/date';
+import { MONTHS_ES, formatToDayDDMMYYYY, formatToDayFdMYH } from '@/mk/utils/date';
 import { getFullName } from '@/mk/utils/string';
 import { getTitular } from '@/mk/utils/adapters';
 import { hasMaintenanceValue } from '@/mk/utils/utils';
@@ -119,12 +119,59 @@ const RenderView: React.FC<RenderViewProps> = ({
     return getStatusConfig(status, dueDate);
   };
 
-  const getBalanceTitle = (status: string) => {
-    switch (status) {
-      case 'P': return 'Saldo cobrado';
-      case 'M': return 'Saldo a cobrar';
-      case 'A': return 'Saldo a cobrar';
-      default: return 'Saldo a cobrar';
+  const getDebtTypeText = (type: number) => {
+    switch (Number(type)) {
+      case 0:
+        return 'Otras deudas';
+      case 1:
+        return 'Expensas';
+      case 2:
+        return 'Reservas';
+      case 3:
+        return 'Reserva con multa';
+      case 4:
+        return 'Deuda compartida';
+      case 5:
+        return 'Condonación';
+      default:
+        return '-/-';
+    }
+  };
+
+  const getConceptText = (detail: any) => {
+    switch (Number(detail?.type ?? detail?.debt?.type ?? 0)) {
+      case 1: {
+        const month = detail?.debt?.month ?? detail?.shared?.month;
+        const year = detail?.debt?.year ?? detail?.shared?.year;
+        if (month && year) {
+          return `${MONTHS_ES[Number(month) - 1] || month} ${year}`;
+        }
+        return detail?.description || detail?.subcategory?.name || '-/-';
+      }
+      case 2:
+        return (
+          detail?.reservation?.area?.title ||
+          detail?.debt?.reservation?.area?.title ||
+          detail?.description ||
+          '-/-'
+        );
+      case 3:
+        return (
+          detail?.penaltyReservation?.area?.title ||
+          detail?.debt?.reservation_penalty?.area?.title ||
+          detail?.penalty_reservation?.area?.title ||
+          detail?.description ||
+          '-/-'
+        );
+      case 4:
+        return detail?.shared?.description || detail?.description || '-/-';
+      default:
+        return (
+          detail?.description ||
+          detail?.debt?.description ||
+          detail?.subcategory?.name ||
+          '-/-'
+        );
     }
   };
 
@@ -306,18 +353,43 @@ const RenderView: React.FC<RenderViewProps> = ({
   const maintenanceAmount = parseFloat(debtDetail?.maintenance_amount) || 0;
   const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '-/-';
-    return getDateStrMesShort(dateString);
-  };
-
   const finalStatus = resolveStatus(debtDetail?.status, debtDetail?.due_at);
   const statusText = getStatusText(finalStatus);
-  const { color, bgColor } = getStatusStyle(finalStatus, debtDetail?.due_at);
-  const balanceTitle = getBalanceTitle(debtDetail?.status);
+  const { color } = getStatusStyle(finalStatus, debtDetail?.due_at);
   const actions = getAvailableActions(debtDetail?.status, debtType);
   const detailButtonText = getDetailButtonText(debtType);
   const showDistribution = debtType === 4;
+  const ownerDisplay = getFullName(debtDetail?.dpto?.homeowner) || '-/-';
+  const tenantDisplay = getFullName(debtDetail?.dpto?.tenant) || '-/-';
+  const holderDisplay =
+    debtDetail?.dpto?.holder === 'T' ? tenantDisplay : ownerDisplay;
+  const unitDisplay = [debtDetail?.dpto?.nro, debtDetail?.dpto?.description]
+    .filter(Boolean)
+    .join(' - ') || '-/-';
+  const categoryDisplay = debtDetail?.subcategory?.padre?.name || '-/-';
+  const subcategoryDisplay = debtDetail?.subcategory?.name || '-/-';
+  const conceptDisplay = getConceptText(debtDetail);
+  const debtDescription =
+    debtDetail?.debt?.description || debtDetail?.description || conceptDisplay || '-/-';
+  const startDateDisplay = formatToDayDDMMYYYY(
+    debtDetail?.debt?.begin_at || debtDetail?.created_at,
+  );
+  const dueDateDisplay = formatToDayDDMMYYYY(
+    debtDetail?.debt?.due_at || debtDetail?.due_at,
+  );
+  const paidAtDisplay = formatToDayDDMMYYYY(
+    debtDetail?.payment?.paid_at || debtDetail?.paid_at,
+  );
+  const headerSubtitle = finalStatus === 'P'
+    ? `Pagada el ${formatToDayFdMYH(
+        debtDetail?.payment?.paid_at || debtDetail?.paid_at,
+        true,
+        false,
+        true,
+      )}`
+    : [conceptDisplay !== '-/-' ? conceptDisplay : null, dueDateDisplay !== '-/-' ? `Vence el ${dueDateDisplay}` : null]
+        .filter(Boolean)
+        .join(' · ');
 
   return (
     <>
@@ -328,185 +400,183 @@ const RenderView: React.FC<RenderViewProps> = ({
         buttonText=""
         buttonCancel=""
         variant="mini"
+        headerDivider={false}
+        minWidth={860}
+        maxWidth={980}
       >
-        <LoadingScreen
-          onlyLoading={shouldShowLoading || Object.keys(debtDetail).length === 0}
-          type="CardSkeleton"
-        >
-          <div className={styles.content}>
-            {/* Saldo principal */}
-            <div className={styles.balanceSection}>
-              <div className={styles.balanceLabel}>{balanceTitle}</div>
-              <div className={styles.balanceAmount}>Bs {formatNumber(totalBalance)}</div>
+        {shouldShowLoading || Object.keys(debtDetail).length === 0 ? (
+          <Loading />
+        ) : (
+          <>
+            <div className={paymentStyles.container}>
+              <div className={paymentStyles.headerSection}>
+                <div className={paymentStyles.amountDisplay}>
+                  {formatBs(totalBalance)}
+                </div>
+                <div className={paymentStyles.dateDisplay}>
+                  {headerSubtitle || '-/-'}
+                </div>
+              </div>
             </div>
 
-            {/* Información principal */}
-            <div className={styles.infoGrid}>
-              <div className={`${styles.infoRow} ${styles.statusRow}`}>
-                <div className={styles.statusItem}>
-                  <span className={styles.label}>Estado:</span>
-                  <StatusBadge
-                    color={color}
-                    backgroundColor={bgColor}
-                    containerStyle={{
-                      justifyContent: 'flex-start',
-                    }}
-                  >
-                    {statusText}
-                  </StatusBadge>
-                </div>
-                <div className={styles.statusItem}>
-                  <span className={styles.label}>Fecha de inicio:</span>
-                  <span className={styles.value}>
-                    {formatDate(debtDetail?.debt?.begin_at || debtDetail?.created_at)}
-                  </span>
-                </div>
-                <div className={styles.statusItem}>
-                  <span className={styles.label}>Vencimiento:</span>
-                  <span className={styles.value}>
-                    {formatDate(debtDetail?.debt?.due_at || debtDetail?.due_at || '-/-')}
-                  </span>
-                </div>
-              </div>
-
-              {/* Información adicional para estado cobrado */}
-              {debtDetail?.status === 'P' && (
-                <div className={styles.infoRow}>
-                  <div className={styles.infoItem}>
-                    <span className={styles.label}>Método de pago:</span>
-                    <span className={styles.value}>
-                      {getPaymentTypeText(debtDetail?.payment?.method) || '-/-'}
-                    </span>
+            <div className={paymentStyles.container}>
+              <section className={paymentStyles.detailsSection}>
+                <div className={paymentStyles.detailsColumn}>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Unidad</span>
+                    <span className={paymentStyles.infoValue}>{unitDisplay}</span>
                   </div>
-                  <div className={styles.infoItem}>
-                    <span className={styles.label}>Fecha de pago:</span>
-                    <span className={styles.value}>
-                      {formatDate(debtDetail?.payment?.paid_at || debtDetail?.paid_at)}
-                    </span>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Propietario</span>
+                    <span className={paymentStyles.infoValue}>{ownerDisplay}</span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Titular</span>
+                    <span className={paymentStyles.infoValue}>{holderDisplay}</span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Categoría</span>
+                    <span className={paymentStyles.infoValue}>{categoryDisplay}</span>
                   </div>
                 </div>
-              )}
 
-              <div className={styles.infoRow}>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Unidad</span>
-                  <span className={styles.value}>{debtDetail?.dpto?.nro || '-/-'}</span>
+                <div className={paymentStyles.detailsColumn}>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Tipo</span>
+                    <span className={paymentStyles.infoValue}>
+                      {getDebtTypeText(debtType)}
+                    </span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Concepto / Periodo</span>
+                    <span className={paymentStyles.infoValue}>{conceptDisplay}</span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Fecha de inicio</span>
+                    <span className={paymentStyles.infoValue}>{startDateDisplay}</span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Vencimiento</span>
+                    <span className={paymentStyles.infoValue}>{dueDateDisplay}</span>
+                  </div>
                 </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Categoría</span>
-                  <span className={styles.value}>
-                    {debtDetail?.subcategory?.padre?.name || '-/-'}
-                  </span>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Deuda</span>
-                  <span className={styles.value}>Bs {formatNumber(debtAmount)}</span>
-                </div>
-              </div>
 
-              <div className={styles.infoRow}>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Propietario</span>
-                  <span className={styles.value}>{getFullName(debtDetail?.dpto?.homeowner)}</span>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Subcategoría</span>
-                  <span className={styles.value}>{debtDetail?.subcategory?.name || '-/-'}</span>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Multa</span>
-                  <span className={styles.value}>Bs {formatNumber(penaltyAmount)}</span>
-                </div>
-              </div>
-
-              <div className={styles.infoRow}>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Titular</span>
-                  <span className={styles.value}>
-                    {debtDetail?.dpto?.holder === 'H'
-                      ? getFullName(debtDetail?.dpto?.homeowner)
-                      : getFullName(debtDetail?.dpto?.tenant)}
-                  </span>
-                </div>
-                {/* Item vacío en el medio */}
-                <div className={styles.infoItem}>{/* Espacio vacío */}</div>
-                <div className={styles.infoItem}>
-                  {hasMaintenanceValue(user) && (
+                <div className={paymentStyles.detailsColumn}>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Estado</span>
+                    <span
+                      className={`${paymentStyles.infoValue} ${styles.statusValue}`}
+                      style={{ color }}
+                    >
+                      {statusText}
+                    </span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Deuda</span>
+                    <span className={paymentStyles.infoValue}>{formatBs(debtAmount)}</span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Multa</span>
+                    <span className={paymentStyles.infoValue}>{formatBs(penaltyAmount)}</span>
+                  </div>
+                  {hasMaintenanceValue(user) ? (
+                    <div className={paymentStyles.infoBlock}>
+                      <span className={paymentStyles.infoLabel}>Mant. de valor</span>
+                      <span className={paymentStyles.infoValue}>
+                        {formatBs(maintenanceAmount)}
+                      </span>
+                    </div>
+                  ) : null}
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Saldo pendiente</span>
+                    <span className={paymentStyles.infoValue}>
+                      {formatBs(totalBalance)}
+                    </span>
+                  </div>
+                  {debtDetail?.status === 'P' ? (
                     <>
-                      <span className={styles.label}>Mant. de valor</span>
-                      <span className={styles.value}>Bs {formatNumber(maintenanceAmount)}</span>
+                      <div className={paymentStyles.infoBlock}>
+                        <span className={paymentStyles.infoLabel}>Método de pago</span>
+                        <span className={paymentStyles.infoValue}>
+                          {getPaymentTypeText(debtDetail?.payment?.method) || '-/-'}
+                        </span>
+                      </div>
+                      <div className={paymentStyles.infoBlock}>
+                        <span className={paymentStyles.infoLabel}>Fecha de pago</span>
+                        <span className={paymentStyles.infoValue}>{paidAtDisplay}</span>
+                      </div>
                     </>
-                  )}
-                </div>
-                {/* Solo mostrar distribución para type 4 */}
-                {showDistribution && (
-                  <div className={styles.infoItem}>
-                    <span className={styles.label}>Tipo</span>
-                    <span className={styles.value}>
-                      {debtDetail?.debt?.distribution || 'Dividido por igual'}
-                    </span>
+                  ) : null}
+                  {showDistribution ? (
+                    <div className={paymentStyles.infoBlock}>
+                      <span className={paymentStyles.infoLabel}>Distribución</span>
+                      <span className={paymentStyles.infoValue}>
+                        {debtDetail?.debt?.distribution || 'Dividido por igual'}
+                      </span>
+                    </div>
+                  ) : null}
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Subcategoría</span>
+                    <span className={paymentStyles.infoValue}>{subcategoryDisplay}</span>
                   </div>
-                )}
-              </div>
+                </div>
+              </section>
             </div>
 
-            {/* Detalles */}
-            <h3 className={styles.detailsTitle}>Detalles</h3>
-            <div className={styles.detailsSection}>
-              <div className={styles.detailsContent}>
-                {debtDetail?.debt?.description || debtDetail?.description}
-              </div>
+            <div className={paymentStyles.container}>
+              <div className={styles.sectionHeading}>Detalles de la deuda</div>
+              <div className={styles.detailsContent}>{debtDescription}</div>
             </div>
 
-            {/* Botones de acción */}
-            <div className={styles.actions}>
-              {actions.showAnular && onDel && !hideEditAndDeleteButtons && (
+            <div className={`${paymentStyles.voucherButtonContainer} ${styles.actionsWrap}`}>
+              {actions.showRegistrarPago && debtDetail?.status !== 'F' && (
                 <Button
-                  onClick={() => onDel(debtDetail)}
-                  variant="secondary"
-                  className={styles.actionButton}
+                  onClick={() => setShowPaymentForm(true)}
+                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
                 >
-                  Anular
-                </Button>
-              )}
-
-              {actions.showEditar && onEdit && !hideEditAndDeleteButtons && (
-                <Button
-                  onClick={() => onEdit(debtDetail)}
-                  variant="secondary"
-                  className={styles.actionButton}
-                >
-                  Editar
-                </Button>
-              )}
-
-              {actions.showRegistrarPago && debtDetail?.status != "F" && (
-                <Button onClick={() => setShowPaymentForm(true)} className={styles.primaryButton}>
                   Registrar Pago
                 </Button>
               )}
-
-              {/* Botón de ver pago para estado cobrado */}
               {actions.showVerPago && resolvedPaymentId && (
-                <Button onClick={() => setShowPaymentModal(true)} className={styles.actionButton}>
+                <Button
+                  onClick={() => setShowPaymentModal(true)}
+                  variant="secondary"
+                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+                >
                   Ver pago
                 </Button>
               )}
-
-              {/* Botón de detalle específico según el tipo */}
               {detailButtonText && (
                 <Button
                   onClick={() => handleDetailButtonClick(debtType)}
                   variant="secondary"
-                  className={styles.actionButton}
+                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
                   disabled={!hasApiData}
                 >
                   {detailButtonText}
                 </Button>
               )}
+              {actions.showEditar && onEdit && !hideEditAndDeleteButtons && (
+                <Button
+                  onClick={() => onEdit(debtDetail)}
+                  variant="secondary"
+                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+                >
+                  Editar
+                </Button>
+              )}
+              {actions.showAnular && onDel && !hideEditAndDeleteButtons && (
+                <Button
+                  onClick={() => onDel(debtDetail)}
+                  variant="secondary"
+                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+                >
+                  Anular
+                </Button>
+              )}
             </div>
-          </div>
-        </LoadingScreen>
+          </>
+        )}
       </DataModal>
 
       {/* Modales de detalle - solo para los que son modales */}
