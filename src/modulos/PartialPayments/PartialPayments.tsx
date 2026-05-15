@@ -12,6 +12,8 @@ import { MONTHS } from "../../mk/utils/date";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 
 const paramsInitial = {
   perPage: 20,
@@ -29,6 +31,15 @@ const statusColorPartialPayment: any = {
   P: { color: "var(--cSuccess)", bg: "var(--cHoverSuccess)" },
   X: { color: "var(--cError)", bg: "var(--cHoverError)" },
 };
+const amountColumnStyle = {
+  justifyContent: "flex-end",
+  textAlign: "right",
+} as const;
+const centeredColumnStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+} as const;
 const periodOptions = [
   { id: "ALL", name: "Todos" },
   { id: "d", name: "Hoy" },
@@ -170,20 +181,16 @@ const PartialPayments = () => {
         form: false,
         list: {
           width: "180px",
+          className: styles.statusColumn,
+          style: centeredColumnStyle,
           onRender: ({ item }: Record<string, any>) => {
             return (
-              <div
-                style={{
-                  padding: "6px 8px",
-                  backgroundColor:
-                    statusColorPartialPayment[item?.status || ""]?.bg,
-                  color: statusColorPartialPayment[item?.status || ""]?.color,
-                  borderRadius: 20,
-                  fontSize: 14,
-                }}
+              <StatusBadge
+                color={statusColorPartialPayment[item?.status || ""]?.color}
+                backgroundColor={statusColorPartialPayment[item?.status || ""]?.bg}
               >
                 {statusPartialPayment[item?.status || ""]}
-              </div>
+              </StatusBadge>
             );
           },
         },
@@ -202,8 +209,10 @@ const PartialPayments = () => {
           required: true,
         },
         list: {
+          className: styles.amountColumn,
+          style: amountColumnStyle,
           onRender: ({ item }: Record<string, any>) => {
-            return <p>{formatBs(item?.amount)}</p>;
+            return <FormatBsAlign value={item?.amount} alignRight />;
           },
         },
         // filter: {
@@ -222,8 +231,10 @@ const PartialPayments = () => {
           required: true,
         },
         list: {
+          className: styles.amountColumn,
+          style: amountColumnStyle,
           onRender: ({ item }: Record<string, any>) => {
-            return <p>{formatBs(item?.paid_amount)}</p>;
+            return <FormatBsAlign value={item?.paid_amount} alignRight />;
           },
         },
       },
@@ -236,8 +247,10 @@ const PartialPayments = () => {
           required: true,
         },
         list: {
+          className: styles.amountColumn,
+          style: amountColumnStyle,
           onRender: ({ item }: Record<string, any>) => {
-            return <p>{formatBs(item?.penalty_amount)}</p>;
+            return <FormatBsAlign value={item?.penalty_amount} alignRight />;
           },
         },
       },
@@ -251,8 +264,10 @@ const PartialPayments = () => {
         },
         list: hasMaintenanceValue(user)
           ? {
+              className: styles.amountColumn,
+              style: amountColumnStyle,
               onRender: ({ item }: Record<string, any>) => {
-                return <p>{formatBs(item?.maintenance_amount)}</p>;
+                return <FormatBsAlign value={item?.maintenance_amount} alignRight />;
               },
             }
           : false,
@@ -267,21 +282,10 @@ const PartialPayments = () => {
           required: true,
         },
         list: {
+          className: styles.amountColumn,
+          style: amountColumnStyle,
           onRender: ({ item }: Record<string, any>) => {
-            return (
-              <p>
-                {formatBs(
-                  parseFloat(item?.remaining_amount),
-                  //  +
-                  //   parseFloat(item?.penalty_amount) +
-                  //   parseFloat(
-                  //     hasMaintenanceValue(user)
-                  //       ? item?.maintenance_amount || "0"
-                  //       : "0"
-                  //   )
-                )}
-              </p>
-            );
+            return <FormatBsAlign value={parseFloat(item?.remaining_amount)} alignRight />;
           },
         },
       },
@@ -328,7 +332,7 @@ const PartialPayments = () => {
   return (
     <div className={styles.style}>
       <List
-        height={"calc(100vh - 345px)"}
+        height={"100%"}
         emptyMsg="Lista de pagos parciales vacía. Aquí verás a todos los pagos parciales"
         emptyLine2="del condominio una vez los registres."
       />

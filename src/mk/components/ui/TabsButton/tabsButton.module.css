@@ -48,36 +48,54 @@
 
 /* Nueva variación rounded - corregida */
 .tabsButtonRounded {
-  display: flex;
-  gap: 0; /* Cambiar de var(--spS) a 0 para eliminar el espaciado */
-
+  display: inline-flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 8px;
+  width: max-content;
+  min-width: 100%;
+  margin-inline: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
 }
 
 .buttonRounded {
   position: relative;
-  border: 1px solid transparent;
-  background: transparent;
+  border: 1px solid var(--controlSecondaryBorder);
+  background: var(--controlSecondaryBg);
   cursor: pointer;
-  transition: color 0.3s ease-in-out;
-  padding: 10px 16px;
-  border-radius:  var( --sXs); /* Solo redondear el lado izquierdo del primer botón */
-  color: #878f9a;
+  transition:
+    color 0.2s ease-in-out,
+    background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out;
+  padding: 12px 24px;
+  border-radius: 18px;
+  color: var(--cWhiteV1);
   white-space: nowrap;
   width: auto;
   flex: none;
 }
 
+.buttonRounded:hover {
+  background-color: var(--controlSecondaryHoverBg);
+  border-color: var(--controlSecondaryHoverBorder);
+  color: var(--cWhite);
+}
 
 .selectedRounded {
   position: relative;
-  border: 1px solid #d7fff014;
-  background: transparent;
+  border: 1px solid var(--cAccent);
+  background: color-mix(in srgb, var(--controlSecondaryBg) 78%, var(--cAccent) 22%);
   cursor: pointer;
-  transition: color 0.3s ease-in-out;
-  padding: 10px 16px;
-  border-radius:  var( --sXs); /* Solo redondear el lado izquierdo del primer botón */
+  transition:
+    color 0.2s ease-in-out,
+    background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out;
+  padding: 12px 24px;
+  border-radius: 18px;
   color: var(--cWhite);
-  background-color: rgba(0, 227, 140, 0.14);
   white-space: nowrap;
   width: auto;
   flex: none;
@@ -86,6 +104,70 @@
 
 .buttonRounded > span,
 .selectedRounded > span {
+  position: absolute;
+  background-color: var(--cError);
+  color: var(--cWhite, #ffffff);
+  border-radius: 100%;
+  top: -4px;
+  right: 0;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.tabsButtonPill {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 8px;
+  width: max-content;
+  min-width: max-content;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.buttonPill,
+.selectedPill {
+  position: relative;
+  cursor: pointer;
+  transition:
+    color 0.2s ease-in-out,
+    background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out;
+  padding: 12px 24px;
+  border-radius: 999px;
+  white-space: nowrap;
+  width: auto;
+  flex: none;
+}
+
+.buttonPill {
+  border: 1px solid var(--controlSecondaryBorder);
+  background: var(--controlSecondaryBg);
+  color: var(--cWhiteV1);
+}
+
+.buttonPill:hover {
+  background-color: var(--controlSecondaryHoverBg);
+  border-color: var(--controlSecondaryHoverBorder);
+  color: var(--cWhite);
+}
+
+.selectedPill {
+  border: 1px solid var(--cAccent);
+  background: color-mix(in srgb, var(--controlSecondaryBg) 78%, var(--cAccent) 22%);
+  color: var(--cWhite);
+  font-weight: 700;
+}
+
+.buttonPill > span,
+.selectedPill > span {
   position: absolute;
   background-color: var(--cError);
   color: var(--cWhite, #ffffff);

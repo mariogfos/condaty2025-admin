@@ -23,7 +23,6 @@ import {
   detectLargeFilesAndStrip,
   uploadLargeFiles,
 } from "../../utils/fileUpload";
-import LoadingScreen from "../../components/ui/LoadingScreen/LoadingScreen";
 import Table, { RenderColType } from "../../components/ui/Table/Table";
 import DataModal from "../../components/ui/DataModal/DataModal";
 import DetailModal from "../../components/ui/DetailModal/DetailModal";
@@ -52,6 +51,8 @@ import EmptyData from "@/components/NoData/EmptyData";
 import { IconEmptySearch } from "@/components/layout/icons/IconsBiblioteca";
 import useMediaQuery from "../useMediaQuery";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
+import { encodeReportViewerState } from "@/modulos/Reports/reportViewerState";
+import { shouldUseNewReportsViewer } from "@/modulos/Reports/reportFeatureFlags";
 
 export type ModCrudType = {
   modulo: string;
@@ -84,6 +85,8 @@ export type ModCrudType = {
   titleEdit?: string;
   titleDel?: string;
   textSaveButtom?: string;
+  getListRows?: (response: any, params?: Record<string, any>) => any[];
+  reportPreset?: string;
 };
 
 export type TypeRenderForm = {
@@ -167,7 +170,138 @@ type UseCrudType = {
   findOptions: Function;
   getExtraData: Function;
   openCard: boolean;
+  listTotal?: number;
+  listHasMore?: boolean;
+  isAppendingList?: boolean;
+  isResetListLoading?: boolean;
+  infiniteBatchSize?: number;
+  infinitePrefetchRows?: number;
+  onLoadMore?: Function;
+  sortCol?: { col: string; asc: boolean };
+  onSort?: Function;
 };
+
+type CrudRendererHostProps = {
+  renderer?: Function;
+  rendererProps: Record<string, any>;
+};
+
+const INFINITE_BATCH_SIZE = 40;
+const INFINITE_PREFETCH_ROWS = 20;
+const MIN_TABLE_SKELETON_MS = 300;
+const PAGINATION_GUTTER_RECOVERY = 72;
+
+const getNormalizedPerPage = (perPage: any, enableInfinite = false) => {
+  const parsed = Number(perPage);
+
+  if (!enableInfinite || !Number.isFinite(parsed) || parsed <= 0) {
+    return perPage;
+  }
+
+  return Math.max(parsed, INFINITE_BATCH_SIZE);
+};
+
+const getParamsQuerySignature = (source: Record<string, any> = {}) => {
+  const { page, ...rest } = source || {};
+  const ordered = Object.keys(rest)
+    .sort()
+    .reduce<Record<string, any>>((acc, key) => {
+      acc[key] = rest[key];
+      return acc;
+    }, {});
+
+  return JSON.stringify(ordered);
+};
+
+const getResponseTotal = (response: any, fallback = 0) => {
+  const total = Number(response?.message?.total ?? response?.total ?? fallback);
+  return Number.isFinite(total) ? total : fallback;
+};
+
+const hasExplicitResponseTotal = (response: any) => {
+  const total = response?.message?.total ?? response?.total;
+  if (total === undefined || total === null || total === "") return false;
+
+  return Number.isFinite(Number(total));
+};
+
+const getExpandedListHeight = (
+  height: string | number | undefined,
+  expandViewport = false,
+) => {
+  if (!height && height !== 0) return undefined;
+
+  const normalized =
+    typeof height === "number" ? `${height}px` : String(height).trim();
+
+  if (!expandViewport) return normalized;
+
+  if (
+    normalized === "100%" ||
+    normalized.endsWith("%") ||
+    /^calc\(\s*100%\s*[+-]/i.test(normalized)
+  ) {
+    return normalized;
+  }
+
+  return `calc(${normalized} + ${PAGINATION_GUTTER_RECOVERY}px)`;
+};
+
+const mergeRowsById = (currentRows: any[] = [], incomingRows: any[] = []) => {
+  if (!currentRows.length) return incomingRows;
+  if (!incomingRows.length) return currentRows;
+
+  const merged = [...currentRows];
+  const indexById = new Map<string, number>();
+
+  merged.forEach((row, index) => {
+    if (row?.id !== undefined && row?.id !== null) {
+      indexById.set(String(row.id), index);
+    }
+  });
+
+  incomingRows.forEach((row) => {
+    if (row?.id === undefined || row?.id === null) {
+      merged.push(row);
+      return;
+    }
+
+    const existingIndex = indexById.get(String(row.id));
+    if (existingIndex === undefined) {
+      indexById.set(String(row.id), merged.length);
+      merged.push(row);
+      return;
+    }
+
+    merged[existingIndex] = row;
+  });
+
+  return merged;
+};
+
+const CrudRendererHost = memo(
+  ({ renderer, rendererProps }: CrudRendererHostProps) => {
+    if (!renderer) return null;
+
+    // Keep a stable host so inline renderers from callers don't remount modal state.
+    if (typeof renderer === "function") {
+      return renderer(rendererProps);
+    }
+
+    if (
+      typeof renderer === "object" &&
+      renderer !== null &&
+      "type" in renderer &&
+      typeof (renderer as { type?: unknown }).type === "function"
+    ) {
+      return (renderer as { type: Function }).type(rendererProps);
+    }
+
+    const RendererComponent = renderer as any;
+    return <RendererComponent {...rendererProps} />;
+  },
+);
+CrudRendererHost.displayName = "CrudRendererHost";
 
 const useCrud = ({
   paramsInitial,
@@ -190,13 +324,26 @@ const useCrud = ({
   const [open, setOpen] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [openDel, setOpenDel] = useState(false);
+  const useInfiniteList =
+    Number(paramsInitial?.perPage ?? -1) > 0 && mod?.pagination !== false;
   let extraParams: any = localStorage.getItem(mod.modulo + "Params");
   if (extraParams) extraParams = JSON.parse(extraParams);
   localStorage.removeItem(mod.modulo + "Params");
   // console.log("Etradata00", mod.extraData);
   const [params, setParams] = useState({
-    ...paramsInitial,
-    ...(extraParams || {}),
+    ...{
+      ...paramsInitial,
+      ...(extraParams || {}),
+      ...(useInfiniteList
+        ? {
+            page: 1,
+            perPage: getNormalizedPerPage(
+              extraParams?.perPage ?? paramsInitial?.perPage,
+              true,
+            ),
+          }
+        : {}),
+    },
     ...(mod?.extraData ? { extraData: JSON.stringify(mod?.extraData) } : {}),
   });
   const [searchs, setSearchs]: any = useState(extraParams || {});
@@ -213,12 +360,267 @@ const useCrud = ({
   // const [data, setData]: any = useState(null);
   // const [loaded, setLoaded] = useState(false);
   // const { reLoad, execute } = useAxios();
-  const { data, reLoad, execute, loaded } = useAxios(
-    "/" + mod.modulo,
+  const {
+    data: axiosData,
+    reLoad: axiosReload,
+    execute,
+    loaded: axiosLoaded,
+    error: axiosError,
+  } = useAxios(
+    useInfiniteList ? null : "/" + mod.modulo,
     "GET",
-    params,
+    useInfiniteList ? {} : params,
     mod?.noWaiting,
   );
+  const [manualData, setManualData] = useState<any>(null);
+  const [manualLoaded, setManualLoaded] = useState(!useInfiniteList);
+  const [manualError, setManualError]: any = useState("");
+  const latestRequestIdRef = useRef(0);
+  const lastResolvedParamsRef = useRef<Record<string, any>>(params);
+  const data = useInfiniteList ? manualData : axiosData;
+  const loaded = useInfiniteList ? manualLoaded : axiosLoaded;
+  const error = useInfiniteList ? manualError : axiosError;
+  const [listRows, setListRows] = useState<any[]>([]);
+  const [listTotal, setListTotal] = useState(0);
+  const [listHasMore, setListHasMore] = useState(false);
+  const [isAppendingList, setIsAppendingList] = useState(false);
+  const [isResetListLoading, setIsResetListLoading] = useState(false);
+  const loadedQueryRef = useRef("");
+  const pendingReloadResolveRef = useRef<((value?: any) => void) | null>(null);
+  const loadMoreLockRef = useRef(false);
+  const infiniteBatchSize = useInfiniteList
+    ? getNormalizedPerPage(params.perPage ?? paramsInitial?.perPage, true)
+    : Number(params.perPage ?? paramsInitial?.perPage ?? 0);
+  const infinitePrefetchRows = Math.max(
+    INFINITE_PREFETCH_ROWS,
+    Math.round(Number(infiniteBatchSize || INFINITE_BATCH_SIZE) * 0.5),
+  );
+  const getListRowsFromResponse = useCallback(
+    (response: any, sourceParams: Record<string, any> = params) => {
+      if (mod.getListRows) {
+        const customRows = mod.getListRows(response, sourceParams);
+        return Array.isArray(customRows) ? customRows : [];
+      }
+
+      return Array.isArray(response?.data) ? response.data : [];
+    },
+    [mod, params],
+  );
+
+  const beginListReset = useCallback(() => {
+    if (!useInfiniteList) return;
+
+    loadedQueryRef.current = "";
+    setListRows([]);
+    setListTotal(0);
+    setListHasMore(false);
+    loadMoreLockRef.current = false;
+    setIsAppendingList(false);
+    setIsResetListLoading(true);
+  }, [useInfiniteList]);
+
+  const fetchInfiniteCrudData = useCallback(
+    async (requestParams: Record<string, any>, noWaiting = mod?.noWaiting) => {
+      const nextRequestParams = { ...(requestParams || {}) };
+      const requestId = latestRequestIdRef.current + 1;
+      latestRequestIdRef.current = requestId;
+      setManualError("");
+      setManualLoaded(false);
+
+      const result = await execute(
+        "/" + mod.modulo,
+        "GET",
+        nextRequestParams,
+        false,
+        noWaiting,
+      );
+
+      if (requestId !== latestRequestIdRef.current) {
+        return result;
+      }
+
+      lastResolvedParamsRef.current = nextRequestParams;
+      setManualData(result.data);
+      setManualError(result.error);
+      setManualLoaded(true);
+      return result;
+    },
+    [execute, mod?.modulo, mod?.noWaiting],
+  );
+
+  const resolvedData = useMemo(() => {
+    if (!data) return data;
+
+    if (!useInfiniteList) {
+      const normalizedRows = getListRowsFromResponse(data);
+
+      if (!Array.isArray(data?.data) && normalizedRows.length > 0) {
+        const message =
+          typeof data.message === "object" && data.message !== null
+            ? data.message
+            : {};
+
+        return {
+          ...data,
+          data: normalizedRows,
+          message: {
+            ...message,
+            total: getResponseTotal(data, normalizedRows.length),
+          },
+        };
+      }
+
+      return data;
+    }
+
+    const message =
+      typeof data.message === "object" && data.message !== null
+        ? data.message
+        : {};
+
+    return {
+      ...data,
+      data: listRows,
+      message: {
+        ...message,
+        total: listTotal || getResponseTotal(data, listRows.length),
+      },
+    };
+  }, [data, getListRowsFromResponse, listRows, listTotal, useInfiniteList]);
+
+  const reloadCrudList = useCallback(
+    (_payload: any = null, noWaiting = false, prevent = false) => {
+      if (!useInfiniteList) {
+        return axiosReload(_payload, noWaiting, prevent);
+      }
+
+      beginListReset();
+
+      const nextParams = {
+        ...params,
+        ...(_payload || {}),
+        page: 1,
+        perPage: getNormalizedPerPage(
+          (_payload || {}).perPage ?? params.perPage ?? paramsInitial?.perPage,
+          true,
+        ),
+      };
+
+      return new Promise((resolve) => {
+        pendingReloadResolveRef.current = resolve;
+        setParams(nextParams);
+      });
+    },
+    [
+      axiosReload,
+      beginListReset,
+      params,
+      paramsInitial?.perPage,
+      useInfiniteList,
+    ],
+  );
+
+  const loadMoreRows = useCallback(() => {
+    if (
+      !useInfiniteList ||
+      !listHasMore ||
+      isAppendingList ||
+      isResetListLoading ||
+      loadMoreLockRef.current
+    ) {
+      return;
+    }
+
+    const currentTotal = listTotal || getResponseTotal(data, listRows.length);
+    if (currentTotal > 0 && listRows.length >= currentTotal) return;
+
+    loadMoreLockRef.current = true;
+    setIsAppendingList(true);
+    setParams((old: any) => ({
+      ...old,
+      page: Number(old?.page || 1) + 1,
+      perPage: getNormalizedPerPage(
+        old?.perPage ?? paramsInitial?.perPage,
+        true,
+      ),
+    }));
+  }, [
+    data,
+    isAppendingList,
+    isResetListLoading,
+    listHasMore,
+    listRows.length,
+    listTotal,
+    paramsInitial?.perPage,
+    useInfiniteList,
+  ]);
+
+  useEffect(() => {
+    if (!useInfiniteList || !data) return;
+
+    const responseParams = lastResolvedParamsRef.current || params;
+    const incomingRows = getListRowsFromResponse(data, responseParams);
+    const responsePage = Number(responseParams?.page || 1);
+    const querySignature = getParamsQuerySignature(responseParams);
+    const currentQuerySignature = getParamsQuerySignature(params);
+    if (querySignature !== currentQuerySignature) return;
+
+    const shouldReset =
+      responsePage <= 1 || loadedQueryRef.current !== querySignature;
+    const total = getResponseTotal(data, incomingRows.length);
+    const responsePerPage = Number(
+      getNormalizedPerPage(
+        responseParams?.perPage ?? paramsInitial?.perPage,
+        true,
+      ) || INFINITE_BATCH_SIZE,
+    );
+    const hasKnownTotal = hasExplicitResponseTotal(data) && total >= 0;
+    const isDetailQuery =
+      String(responseParams?.fullType || "").toUpperCase() === "DET";
+
+    setListTotal(hasKnownTotal ? total : 0);
+    setListRows((old) => {
+      const mergedRows = shouldReset
+        ? incomingRows
+        : mergeRowsById(old, incomingRows);
+      const nextHasMore = isDetailQuery
+        ? false
+        : hasKnownTotal
+          ? mergedRows.length < total
+          : incomingRows.length >= Math.max(1, responsePerPage);
+
+      setListHasMore(nextHasMore);
+      return mergedRows;
+    });
+    loadedQueryRef.current = querySignature;
+    loadMoreLockRef.current = false;
+    setIsAppendingList(false);
+    setIsResetListLoading(false);
+
+    if (pendingReloadResolveRef.current) {
+      pendingReloadResolveRef.current(data);
+      pendingReloadResolveRef.current = null;
+    }
+  }, [
+    data,
+    getListRowsFromResponse,
+    params,
+    paramsInitial?.perPage,
+    useInfiniteList,
+  ]);
+
+  useEffect(() => {
+    if (!error || !useInfiniteList) return;
+
+    loadMoreLockRef.current = false;
+    setIsAppendingList(false);
+    setIsResetListLoading(false);
+
+    if (pendingReloadResolveRef.current) {
+      pendingReloadResolveRef.current();
+      pendingReloadResolveRef.current = null;
+    }
+  }, [error, useInfiniteList]);
 
   const onChange = useCallback((e: any) => {
     let value = e.target.value;
@@ -445,7 +847,11 @@ const useCrud = ({
 
       onCloseCrud();
       setOpenDel(false);
-      reLoad(params, mod?.noWaiting);
+      if (useInfiniteList) {
+        await reloadCrudList(null, mod?.noWaiting);
+      } else {
+        axiosReload(params, mod?.noWaiting);
+      }
       showToast(mod.saveMsg?.[action] || response?.message, "success");
     } else {
       showToast(response?.message, "error");
@@ -460,7 +866,20 @@ const useCrud = ({
     setSearchs(searchBy);
     // console.log("apappaa", searchBy, mod?.searchLocal);
     if (!mod.onSearch) {
-      setParams({ ...params, ...searchBy, page: 1 });
+      beginListReset();
+      setParams((old: any) => ({
+        ...old,
+        ...searchBy,
+        page: 1,
+        ...(useInfiniteList
+          ? {
+              perPage: getNormalizedPerPage(
+                old?.perPage ?? paramsInitial?.perPage,
+                true,
+              ),
+            }
+          : {}),
+      }));
     }
     setOldSearch(searchBy);
   };
@@ -483,24 +902,46 @@ const useCrud = ({
     } else {
       delete newParams.filterBy;
     }
-    setParams(newParams);
+    beginListReset();
+    setParams(
+      useInfiniteList
+        ? {
+            ...newParams,
+            perPage: getNormalizedPerPage(
+              newParams.perPage ?? paramsInitial?.perPage,
+              true,
+            ),
+          }
+        : newParams,
+    );
     setOldFilter(filterBy);
   };
 
   const onChangePage = (page: number) => {
-    setParams({ ...params, page });
+    if (useInfiniteList && page <= 1) {
+      beginListReset();
+    }
+    setParams((old: any) => ({ ...old, page }));
   };
 
   const onChangePerPage = (e: any) => {
     let perPage = e.target.value;
     if (params.perPage == perPage) return;
     if (!perPage) perPage = -1;
-    setParams({ ...params, perPage });
+    beginListReset();
+    setParams((old: any) => ({
+      ...old,
+      page: 1,
+      perPage: useInfiniteList ? getNormalizedPerPage(perPage, true) : perPage,
+    }));
   };
 
   const getTotalPages = () => {
     let total = 0;
-    total = Math.ceil((data?.total || 1) / (params?.perPage || 1));
+    total = Math.ceil(
+      (getResponseTotal(resolvedData, resolvedData?.data?.length ?? 1) || 1) /
+        (params?.perPage || 1),
+    );
     return total;
   };
 
@@ -510,6 +951,23 @@ const useCrud = ({
   };
 
   type ExportType = "pdf" | "xls" | "csv";
+  const useNewReportsViewer = shouldUseNewReportsViewer(mod?.reportPreset);
+
+  const openReportViewer = () => {
+    if (!useNewReportsViewer || typeof window === "undefined") return;
+
+    const nextState = encodeReportViewerState({
+      params: {
+        ...params,
+        fullType: params?.fullType || "L",
+      },
+    });
+    const nextUrl = `/reports?preset=${encodeURIComponent(
+      mod.reportPreset,
+    )}&state=${nextState}`;
+
+    window.open(nextUrl, "_blank", "noopener,noreferrer");
+  };
 
   const onExport = async (
     type?: string, // Cambiar el tipo a string opcional
@@ -526,6 +984,7 @@ const useCrud = ({
       "GET",
       {
         ...params,
+        ...(Number(params?.perPage ?? -1) > 0 ? { page: 1, perPage: -1 } : {}),
         fullType: "L", // Agregar fullType: "L"
         _export: type ?? "pdf", // Usar ?? para valor por defecto
         exportCols: mod?.exportCols || params.cols || "",
@@ -539,6 +998,7 @@ const useCrud = ({
 
     if (file?.success) {
       // Si viene secureUrl (Cloudinary), usar directo; sino, usar el método anterior con path
+      console.log("filesucces", file);
       const url = file.data?.secureUrl
         ? file.data.secureUrl
         : getUrlImages("/" + (file.data?.path || ""));
@@ -557,21 +1017,32 @@ const useCrud = ({
       })();
 
       try {
+        console.log("url", url);
         const response = await fetch(url);
+        console.log("paso 2");
         const blob = await response.blob();
+        console.log("paso 3");
         const blobUrl = window.URL.createObjectURL(blob);
+        console.log("paso 4");
 
         const link = document.createElement("a");
+        console.log("paso 5");
         link.href = blobUrl;
         link.download = suggestedName;
         document.body.appendChild(link);
+        console.log("paso 6");
         link.click();
+        console.log("paso 7");
         document.body.removeChild(link);
+        console.log("paso 8");
 
         window.URL.revokeObjectURL(blobUrl);
+        console.log("paso 9");
         callBack(url); // Mantener callback por compatibilidad
+        console.log("paso 10");
       } catch (error) {
         // Fallback: si falla la descarga, abrir directamente la URL
+        console.log("error de descarga directa");
         window.location.href = url;
       } finally {
         setIsExporting(false);
@@ -593,13 +1064,18 @@ const useCrud = ({
 
   const didInitFetchRef = useRef(false);
   useEffect(() => {
+    if (useInfiniteList) {
+      fetchInfiniteCrudData(params, mod?.noWaiting);
+      return;
+    }
+
     if (!didInitFetchRef.current) {
       didInitFetchRef.current = true;
       return;
     }
-    reLoad(params, mod?.noWaiting);
+    axiosReload(params, mod?.noWaiting);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params]);
+  }, [params, useInfiniteList, mod?.noWaiting]);
 
   const [extraData, setExtraData]: any = useState({});
   const getExtraData = async () => {
@@ -870,6 +1346,7 @@ const useCrud = ({
     useEffect(() => {
       let it = { ...item };
       setFormStateForm(it);
+      setErrorForm({});
     }, [item]);
 
     const onChangeForm = useCallback(
@@ -879,6 +1356,7 @@ const useCrud = ({
           return;
         }
         let value = e.target.value;
+        const fieldName = e.target.name;
 
         if (_onChange) {
           if (
@@ -898,7 +1376,13 @@ const useCrud = ({
           )
             return;
         }
-        setFormStateForm((old: any) => ({ ...old, [e.target.name]: value }));
+        setFormStateForm((old: any) => ({ ...old, [fieldName]: value }));
+        setErrorForm((old: any) => {
+          if (!old?.[fieldName]) return old;
+          const next = { ...old };
+          delete next[fieldName];
+          return next;
+        });
       },
       [formStateForm],
     );
@@ -939,45 +1423,23 @@ const useCrud = ({
         }
         maxWidth={560}
       >
-        <div
-          style={{
-            display: "flex",
-            width: "100%",
-            flexWrap: "wrap",
-
-            justifyContent: "space-between",
-          }}
-        >
+        <div className={styles.formLayout}>
           {header.map((field: any, index: number) => (
             <Fragment key={field.key + index}>
               {field.items && (
                 <div
-                  className={field.openTag?.className}
-                  style={{
-                    display: "block",
-                    justifyContent: "space-around",
-                    flexWrap: "wrap",
-                    gap: "var(--spS)",
-                    width: "100%",
-                    ...(field.openTag?.border
-                      ? {
-                          border: "1px solid var(--cWhiteV1)",
-                          borderRadius: "var(--bRadiusS)",
-                          padding: "var(--spM)",
-                        }
-                      : {}),
-                    ...field.openTag?.style,
-                  }}
+                  className={[
+                    styles.formGroup,
+                    field.openTag?.border ? styles.formGroupBorder : "",
+                    field.openTag?.className || "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  style={field.openTag?.style}
                 >
                   {/* {JSON.stringify(field.openTag)} */}
                   {field.openTag?.onTop && (
-                    <div
-                      style={{
-                        width: "100%",
-                        flex: "100%",
-                        marginBottom: "var(--spS)",
-                      }}
-                    >
+                    <div className={styles.formGroupTop}>
                       {field.openTag.onTop({
                         item: formStateForm,
                         key: field.key,
@@ -990,7 +1452,7 @@ const useCrud = ({
                       <RenderField
                         field={{
                           ...field,
-                          style: { ...field.style, flex: "1" },
+                          style: { ...field.style, minWidth: 0 },
                         }}
                         i={index}
                         formStateForm={formStateForm}
@@ -1005,16 +1467,18 @@ const useCrud = ({
                 </div>
               )}
               {!field.items && (
-                <RenderField
-                  field={field}
-                  i={index}
-                  formStateForm={formStateForm}
-                  setFormStateForm={setFormStateForm}
-                  onChangeForm={onChangeForm}
-                  onBlurForm={onBlurForm}
-                  errorForm={errorForm}
-                  setErrorForm={setErrorForm}
-                />
+                <div className={styles.formField}>
+                  <RenderField
+                    field={field}
+                    i={index}
+                    formStateForm={formStateForm}
+                    setFormStateForm={setFormStateForm}
+                    onChangeForm={onChangeForm}
+                    onBlurForm={onBlurForm}
+                    errorForm={errorForm}
+                    setErrorForm={setErrorForm}
+                  />
+                </div>
               )}
             </Fragment>
           ))}
@@ -1029,7 +1493,17 @@ const useCrud = ({
   const FilterResponsive = ({ filters, onChange, breakPoint }: any) => {
     const isBreak = useMediaQuery("(max-width: " + breakPoint + "px)");
 
-    const selectWidth = "auto";
+    const getFilterInputStyle = (filterKey: string) => ({
+      backgroundColor: "var(--controlSecondaryBg)",
+      borderColor:
+        filterSel[filterKey] &&
+        filterSel[filterKey] != "" &&
+        filterSel[filterKey] != "T" &&
+        filterSel[filterKey] != "ALL"
+          ? "var(--cPrimary)"
+          : "var(--controlSecondaryBorder)",
+      color: "var(--controlSecondaryText)",
+    });
 
     const BreakFilter = () => {
       const [open, setOpen] = useState(false);
@@ -1069,26 +1543,9 @@ const useCrud = ({
                   optionLabel={f?.optionLabel}
                   optionValue={f?.optionValue}
                   error={false}
-                  inputStyle={{
-                    height: 44,
-                    backgroundColor: "var(--cModalSurfaceRaised)",
-                    border: "1px solid var(--cModalBorder)",
-                    borderRadius: 12,
-                    padding: "16px",
-                    fontSize: 15,
-                    fontWeight: 600,
-                    color: "var(--cWhiteV1)",
-                    ...(filterSel[f.key] &&
-                      filterSel[f.key] != "" &&
-                      filterSel[f.key] != "T" &&
-                      filterSel[f.key] != "ALL" && {
-                        border: "1px solid var(--cPrimary)",
-                      }),
-                  }}
+                  inputStyle={getFilterInputStyle(f.key)}
                   style={{
-                    height: 44,
-                    border: "none",
-                    backgroundColor: "transparent",
+                    width: "100%",
                   }}
                 />
               ))}
@@ -1113,28 +1570,11 @@ const useCrud = ({
                 value={filterSel[f.key] || ""}
                 optionLabel={f?.optionLabel}
                 optionValue={f?.optionValue}
-                inputStyle={{
-                  height: 44,
-                  backgroundColor: "var(--cModalSurfaceRaised)",
-                  border: "1px solid var(--cModalBorder)",
-                  borderRadius: 12,
-                  padding: "16px",
-                  fontSize: 15,
-                  fontWeight: 600,
-                  color: "var(--cWhiteV1)",
-                  ...(filterSel[f.key] &&
-                    filterSel[f.key] != "" &&
-                    filterSel[f.key] != "T" &&
-                    filterSel[f.key] != "ALL" && {
-                      border: "1px solid var(--cPrimary)",
-                    }),
-                }}
+                inputStyle={getFilterInputStyle(f.key)}
                 style={{
-                  width: selectWidth,
-                  minWidth: selectWidth,
-                  height: 44,
-                  border: "none",
-                  backgroundColor: "transparent",
+                  width: "fit-content",
+                  minWidth: "var(--controlMinWidth)",
+                  maxWidth: "100%",
                 }}
               />
             ))}
@@ -1165,20 +1605,44 @@ const useCrud = ({
         setFilterSel({ ...filterSel, [name]: e.target.value });
         onFilter(name, e.target.value);
       };
+      const resolvedBreakPoint = useMemo(() => {
+        if (typeof breakPoint === "number" && breakPoint > 1) {
+          return breakPoint;
+        }
+
+        const fieldFilterCount = Array.isArray(filters) ? filters.length : 0;
+        const totalFilterCount = fieldFilterCount + (menuFilter ? 1 : 0);
+
+        if (totalFilterCount === 0) {
+          return 1;
+        }
+
+        const actionCount =
+          (mod.import ? 1 : 0) +
+          (mod.export === true ||
+          (Array.isArray(mod.export) && mod.export.length > 0)
+            ? 1
+            : 0) +
+          (mod.listAndCard ? 1 : 0) +
+          (Array.isArray(extraButtons) ? extraButtons.length : 0) +
+          (mod.hideActions?.add ? 0 : 1);
+
+        if (totalFilterCount >= 3 || actionCount >= 4) {
+          return 1680;
+        }
+
+        if (totalFilterCount >= 2 || actionCount >= 3) {
+          return 1480;
+        }
+
+        return 1260;
+      }, [breakPoint, extraButtons, filters, menuFilter, mod]);
       // console.log('export:',mod.export);
 
       return (
-        <nav
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "var(--spS)",
-          }}
-        >
-          {mod.search && mod.search.hide === true ? (
-            <div></div>
-          ) : (
-            <div style={{ flex: 1, minWidth: 200 }}>
+        <nav className={styles.toolbarRow}>
+          {mod.search && mod.search.hide === true ? null : (
+            <div className={styles.toolbarSearch}>
               <DataSearch
                 value={searchs.searchBy || ""}
                 name={mod.modulo + "Search"}
@@ -1187,115 +1651,118 @@ const useCrud = ({
               />
             </div>
           )}
-          {menuFilter || null}
-
-          {mod.filter && (
-            <FilterResponsive
-              filters={filters}
-              breakPoint={breakPoint}
-              onChange={onChange}
-            />
-          )}
-          {mod.import && (
-            <IconImport
-              title="Importar"
-              className={
-                styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
-              }
-              onClick={data?.length > 0 ? onImport : () => {}}
-            />
-          )}
-          {mod.export === true && (
-            <IconExport
-              title="Exportar reporte"
-              className={
-                styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
-              }
-              onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
-            />
-          )}
-          {
-            mod.export?.length > 0 && (
-              <Dropdown
-                trigger={
-                  <IconExport
-                    title="Exportar reporte"
-                    className={
-                      styles.icons +
-                      " " +
-                      (data?.length == 0 ? styles.disabled : "")
-                    }
+          <div className={styles.toolbarControls}>
+            {(menuFilter || mod.filter) && (
+              <div className={styles.toolbarFilters}>
+                {menuFilter || null}
+                {mod.filter && (
+                  <FilterResponsive
+                    filters={filters}
+                    breakPoint={resolvedBreakPoint}
+                    onChange={onChange}
                   />
-                }
-                items={mod.export}
-                onClick={
-                  data?.length > 0 ? (e: string) => onExport(e) : () => {}
-                }
-              />
-            )
+                )}
+              </div>
+            )}
 
-            // mod.export.map((item: string) => (
-            //   <IconExport
-            //   key={item}
-            //     title="Exportar reporte"
-            //     className={
-            //       styles.icons +
-            //       " " +
-            //       (data?.length == 0 ? styles.disabled : "")
-            //     }
-            //     onClick={data?.length > 0 ? () => onExport(item) : () => {}}
-            //   />
-            // ))
-          }
-          {mod.listAndCard && (
-            <div className={styles.listAndCard}>
-              <div
-                className={!openCard ? styles.active : ""}
-                onClick={() => setOpenCard(false)}
-              >
-                <IconMenu
+            <div className={styles.toolbarActions}>
+              {mod.import && (
+                <IconImport
+                  title="Importar"
                   className={
                     styles.icons +
                     " " +
                     (data?.length == 0 ? styles.disabled : "")
                   }
+                  onClick={data?.length > 0 ? onImport : () => {}}
                 />
-              </div>
-              <div
-                className={openCard ? styles.active : ""}
-                onClick={() => setOpenCard(true)}
-              >
-                <IconGrilla
+              )}
+              {mod.export === true && (
+                <IconExport
+                  title="Exportar reporte"
                   className={
                     styles.icons +
                     " " +
                     (data?.length == 0 ? styles.disabled : "")
                   }
+                  onClick={
+                    data?.length > 0
+                      ? () =>
+                          useNewReportsViewer
+                            ? openReportViewer()
+                            : onExport("pdf")
+                      : () => {}
+                  }
                 />
-              </div>
-            </div>
-          )}
+              )}
+              {mod.export?.length > 0 && (
+                <Dropdown
+                  trigger={
+                    <IconExport
+                      title="Exportar reporte"
+                      className={
+                        styles.icons +
+                        " " +
+                        (data?.length == 0 ? styles.disabled : "")
+                      }
+                    />
+                  }
+                  items={mod.export}
+                  onClick={
+                    data?.length > 0 ? (e: string) => onExport(e) : () => {}
+                  }
+                />
+              )}
+              {mod.listAndCard && (
+                <div className={styles.listAndCard}>
+                  <div
+                    className={!openCard ? styles.active : ""}
+                    onClick={() => setOpenCard(false)}
+                  >
+                    <IconMenu
+                      className={
+                        styles.icons +
+                        " " +
+                        (data?.length == 0 ? styles.disabled : "")
+                      }
+                    />
+                  </div>
+                  <div
+                    className={openCard ? styles.active : ""}
+                    onClick={() => setOpenCard(true)}
+                  >
+                    <IconGrilla
+                      className={
+                        styles.icons +
+                        " " +
+                        (data?.length == 0 ? styles.disabled : "")
+                      }
+                    />
+                  </div>
+                </div>
+              )}
 
-          {extraButtons && extraButtons.length > 0 && (
-            <div className={styles.extraButtons}>
-              {extraButtons.map((button, index) => (
-                <div key={`extra-button-${index}`}>{button}</div>
-              ))}
-            </div>
-          )}
+              {extraButtons && extraButtons.length > 0 && (
+                <div className={styles.extraButtons}>
+                  {extraButtons.map((button, index) => (
+                    <div key={`extra-button-${index}`}>{button}</div>
+                  ))}
+                </div>
+              )}
 
-          {mod.hideActions?.add ? null : (
-            <div>
-              <Button
-                className={styles.addButton}
-                onClick={onClick || onAdd}
-                style={{ height: 44 }}
-                variant="primary"
-              >
-                {mod.titleAdd + " " + mod.singular}
-              </Button>
+              {mod.hideActions?.add ? null : (
+                <div className={styles.addButtonWrap}>
+                  <Button
+                    className={styles.addButton}
+                    onClick={onClick || onAdd}
+                    variant="primary"
+                  >
+                    {mod.titleAdd + " " + mod.singular}
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </nav>
       );
     },
@@ -1424,13 +1891,28 @@ const useCrud = ({
 
   const [sortCol, setSortCol] = useState({ col: "", asc: true });
   const onSort = (col: string, asc: boolean) => {
-    const nAsc: boolean = sortCol.col === col ? !sortCol.asc : asc;
-    setSortCol({ col, asc: nAsc });
-    setParams({ ...params, sortBy: col, orderBy: nAsc ? "asc" : "desc" });
+    setSortCol({ col, asc });
+    beginListReset();
+    setParams((old: any) => ({
+      ...old,
+      page: 1,
+      sortBy: col,
+      orderBy: asc ? "asc" : "desc",
+      ...(useInfiniteList
+        ? {
+            perPage: getNormalizedPerPage(
+              old?.perPage ?? paramsInitial?.perPage,
+              true,
+            ),
+          }
+        : {}),
+    }));
   };
   const listRuntimeRef = useRef<any>(null);
   listRuntimeRef.current = {
-    data,
+    data: resolvedData,
+    loaded,
+    error,
     searchs,
     params,
     mod,
@@ -1450,7 +1932,7 @@ const useCrud = ({
     extraButtons,
     execute,
     showToast,
-    reLoad,
+    reLoad: reloadCrudList,
     setFormState,
     setErrors,
     setOpenImport,
@@ -1466,6 +1948,7 @@ const useCrud = ({
     onCloseDel,
     onChangePage,
     onSort,
+    onLoadMore: loadMoreRows,
     onButtonActions,
     renderField: _onRender,
     getItemApi,
@@ -1473,6 +1956,13 @@ const useCrud = ({
     Detail,
     Form,
     FormDelete,
+    useInfiniteList,
+    infiniteBatchSize,
+    infinitePrefetchRows,
+    isAppendingList,
+    isResetListLoading,
+    listTotal,
+    listHasMore,
   };
 
   const listComponentRef = useRef<any>(null);
@@ -1484,8 +1974,8 @@ const useCrud = ({
       const CurrentForm = runtime.Form;
       const CurrentFormDelete = runtime.FormDelete;
 
-      const { header, filters }: { header: any[]; filters: any[] } = useMemo(
-        () => {
+      const { header, filters }: { header: any[]; filters: any[] } =
+        useMemo(() => {
           const head: any[] = [];
           const lFilter: any[] = [];
 
@@ -1512,6 +2002,15 @@ const useCrud = ({
               lFilter.push(colF);
             }
             if (!field.list) continue;
+            const hasExplicitListSortable =
+              Object.prototype.hasOwnProperty.call(field.list, "sortabled");
+            const hasExplicitFieldSortable =
+              Object.prototype.hasOwnProperty.call(field, "sortabled");
+            const explicitSortable = hasExplicitListSortable
+              ? field.list.sortabled
+              : hasExplicitFieldSortable
+                ? field.sortabled
+                : undefined;
             const col: any = {
               key,
               responsive: "",
@@ -1522,7 +2021,7 @@ const useCrud = ({
               order: field.list.order ?? field.order ?? 1000,
               style: field.list.style ?? field.style ?? {},
               sumarize: field.list.sumarize ?? field.sumarize ?? false,
-              sortabled: field.list.sortabled ?? field.sortabled ?? false,
+              sortabled: explicitSortable ?? !runtime.useInfiniteList,
             };
             head.push(col);
           }
@@ -1531,9 +2030,7 @@ const useCrud = ({
           lFilter.sort((a: any, b: any) => a.order - b.order);
 
           return { header: head, filters: lFilter };
-        },
-        [runtime.fields, runtime.extraData, runtime.renderField],
-      );
+        }, [runtime.fields, runtime.extraData, runtime.renderField]);
 
       const filteredData = useMemo(() => {
         if (
@@ -1545,6 +2042,115 @@ const useCrud = ({
         }
         return runtime.data?.data;
       }, [runtime.data, runtime.mod, runtime.searchs]);
+
+      const sortedData = useMemo(() => {
+        if (!Array.isArray(filteredData)) return filteredData;
+        if (runtime.useInfiniteList) return filteredData;
+        if (!runtime.sortCol?.col) return filteredData;
+
+        const resolveComparableValue = (value: any): any => {
+          if (value === undefined || value === null) return "";
+          if (typeof value === "number") return value;
+          if (typeof value === "boolean") return value ? 1 : 0;
+
+          if (value instanceof Date) return value.getTime();
+
+          if (Array.isArray(value)) {
+            return value.map(resolveComparableValue).join(" ");
+          }
+
+          if (typeof value === "object") {
+            const candidate =
+              value.name ??
+              value.label ??
+              value.title ??
+              value.text ??
+              value.description ??
+              value.code ??
+              value.id;
+
+            return resolveComparableValue(candidate);
+          }
+
+          const normalized = String(value).trim();
+          const numeric = Number(
+            normalized
+              .replace(/\s+/g, "")
+              .replace(/[^0-9,.-]/g, "")
+              .replace(/,(?=\d{3}\b)/g, ""),
+          );
+
+          if (
+            normalized !== "" &&
+            !Number.isNaN(numeric) &&
+            /^[-+]?[\d\s.,]+$/.test(normalized)
+          ) {
+            return numeric;
+          }
+
+          const dateValue = Date.parse(normalized);
+          if (!Number.isNaN(dateValue) && /[-/:\d]/.test(normalized)) {
+            return dateValue;
+          }
+
+          return normalized.toLocaleLowerCase();
+        };
+
+        return [...filteredData].sort((left, right) => {
+          const leftValue = resolveComparableValue(left?.[runtime.sortCol.col]);
+          const rightValue = resolveComparableValue(
+            right?.[runtime.sortCol.col],
+          );
+
+          if (leftValue === rightValue) return 0;
+          if (leftValue === "") return 1;
+          if (rightValue === "") return -1;
+
+          const comparison = leftValue > rightValue ? 1 : -1;
+          return runtime.sortCol.asc ? comparison : comparison * -1;
+        });
+      }, [filteredData, runtime.sortCol, runtime.useInfiniteList]);
+      const hasSortableColumns = useMemo(
+        () => header.some((item) => item.sortabled),
+        [header],
+      );
+
+      const shouldRecoverViewport =
+        props?.paginationHide ||
+        runtime.useInfiniteList ||
+        runtime.params?.perPage === -1;
+      const resolvedListHeight = getExpandedListHeight(
+        props?.height,
+        shouldRecoverViewport,
+      );
+      const shouldRequestTableSkeleton =
+        runtime.isResetListLoading ||
+        (!runtime.loaded && runtime.data === null);
+      const [showTableSkeleton, setShowTableSkeleton] = useState(
+        shouldRequestTableSkeleton,
+      );
+      const skeletonStartedAtRef = useRef(
+        shouldRequestTableSkeleton ? Date.now() : 0,
+      );
+      const skeletonRowCount = 20;
+
+      useEffect(() => {
+        if (shouldRequestTableSkeleton) {
+          skeletonStartedAtRef.current = Date.now();
+          setShowTableSkeleton(true);
+          return;
+        }
+
+        if (!showTableSkeleton) return;
+
+        const elapsed = Date.now() - skeletonStartedAtRef.current;
+        const timeout = window.setTimeout(
+          () => setShowTableSkeleton(false),
+          Math.max(0, MIN_TABLE_SKELETON_MS - elapsed),
+        );
+
+        return () => window.clearTimeout(timeout);
+      }, [shouldRequestTableSkeleton, showTableSkeleton]);
 
       let emptyContent;
       if (props.onRenderEmpty) {
@@ -1578,239 +2184,232 @@ const useCrud = ({
           {(props.title || runtime.store?.title) &&
             runtime.openList &&
             !props.hideTitle && (
-              <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>
-                {props.title ?? runtime.store?.title}
-              </p>
+              <header className={styles.titleRow}>
+                <p className={styles.titleText}>
+                  {props.title ?? runtime.store?.title}
+                </p>
+              </header>
             )}
           {runtime.openList && (
             <CurrentAddMenu
               filters={filters}
               extraButtons={runtime.extraButtons}
-              data={filteredData}
+              data={sortedData}
               breakPoint={props.filterBreakPoint}
             />
           )}
-          <LoadingScreen
-            type="TableSkeleton"
-            loaded={runtime.data !== null}
-          >
-            {runtime.openList && (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  gap: "var(--spM)",
-                }}
-              >
-                <section
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    flexGrow: 1,
-                  }}
-                >
-                  {filteredData?.length > 0 ? (
-                    <Table
-                      data={filteredData}
-                      onRowClick={
-                        props.onRowClick
-                          ? props.onRowClick
-                          : runtime.mod.hideActions?.view
-                            ? () => {}
-                            : runtime.onView
+          {runtime.openList && (
+            <div className={styles.contentRow}>
+              <section className={styles.contentMain}>
+                {showTableSkeleton || filteredData?.length > 0 ? (
+                  <Table
+                    data={showTableSkeleton ? [] : sortedData}
+                    onRowClick={
+                      props.onRowClick
+                        ? props.onRowClick
+                        : runtime.mod.hideActions?.view
+                          ? () => {}
+                          : runtime.onView
+                    }
+                    header={header}
+                    onTabletRow={props.onTabletRow}
+                    onRenderBody={props.onRenderBody}
+                    onRenderFoot={props.onRenderFoot}
+                    onRenderHead={props.onRenderHead}
+                    onRenderCard={props.onRenderCard}
+                    onButtonActions={
+                      runtime.mod.hideActions?.edit &&
+                      runtime.mod.hideActions?.del
+                        ? undefined
+                        : runtime.onButtonActions
+                    }
+                    height={resolvedListHeight}
+                    className="striped"
+                    actionsWidth={"120px"}
+                    sumarize={props.sumarize}
+                    extraData={runtime.extraData}
+                    onSort={hasSortableColumns ? runtime.onSort : undefined}
+                    sortCol={runtime.sortCol}
+                    id={runtime.mod?.modulo}
+                    useInfiniteScroll={runtime.useInfiniteList}
+                    hasMore={runtime.useInfiniteList && runtime.listHasMore}
+                    isLoadingMore={runtime.isAppendingList}
+                    onLoadMore={runtime.onLoadMore}
+                    infiniteBatchSize={runtime.infiniteBatchSize}
+                    prefetchRows={runtime.infinitePrefetchRows}
+                    showSkeletonRows={showTableSkeleton}
+                    skeletonRowCount={skeletonRowCount}
+                    rowContextMenu={props.rowContextMenu}
+                  />
+                ) : runtime.data === null ? null : (
+                  <section
+                    className={styles.emptyState}
+                    style={{
+                      minHeight: resolvedListHeight || "280px",
+                    }}
+                  >
+                    {emptyContent}
+                  </section>
+                )}
+                {showTableSkeleton ||
+                props?.paginationHide ||
+                runtime.useInfiniteList ||
+                runtime.params?.perPage === -1 ? null : (
+                  <div className={styles.paginationRow}>
+                    <Pagination
+                      currentPage={runtime.params.page}
+                      onPageChange={runtime.onChangePage}
+                      setParams={runtime.setParams}
+                      params={runtime.params}
+                      totalPages={Math.ceil(
+                        (runtime.mod.onSearch
+                          ? (filteredData?.length ?? 0)
+                          : (runtime.data?.message?.total ?? 1)) /
+                          (runtime.params.perPage ?? 1),
+                      )}
+                      previousLabel=""
+                      nextLabel=""
+                      total={
+                        runtime.mod.onSearch
+                          ? (filteredData?.length ?? 0)
+                          : (runtime.data?.message?.total ?? 0)
                       }
-                      header={header}
-                      onTabletRow={props.onTabletRow}
-                      onRenderBody={props.onRenderBody}
-                      onRenderFoot={props.onRenderFoot}
-                      onRenderHead={props.onRenderHead}
-                      onRenderCard={props.onRenderCard}
-                      onButtonActions={
-                        runtime.mod.hideActions?.edit &&
-                        runtime.mod.hideActions?.del
-                          ? undefined
-                          : runtime.onButtonActions
-                      }
-                      height={props?.height || undefined}
-                      className="striped"
-                      actionsWidth={"120px"}
-                      sumarize={props.sumarize}
-                      extraData={runtime.extraData}
-                      onSort={runtime.onSort}
-                      sortCol={runtime.sortCol}
-                      id={runtime.mod?.modulo}
                     />
-                  ) : runtime.data === null ? null : (
-                    <section
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        flexGrow: 1,
-                        minHeight: props?.height || "280px",
-                      }}
-                    >
-                      {emptyContent}
-                    </section>
-                  )}
-                  {props?.paginationHide ? null : (
-                    <div>
-                      <Pagination
-                        currentPage={runtime.params.page}
-                        onPageChange={runtime.onChangePage}
-                        setParams={runtime.setParams}
-                        params={runtime.params}
-                        totalPages={Math.ceil(
-                          (runtime.mod.onSearch
-                            ? (filteredData?.length ?? 0)
-                            : (runtime.data?.message?.total ?? 1)) /
-                            (runtime.params.perPage ?? 1),
-                        )}
-                        previousLabel=""
-                        nextLabel=""
-                        total={
-                          runtime.mod.onSearch
-                            ? (filteredData?.length ?? 0)
-                            : (runtime.data?.message?.total ?? 0)
-                        }
-                      />
-                    </div>
-                  )}
-                </section>
-                {props.renderRight ? props.renderRight() : null}
-              </div>
-            )}
-            {runtime.openView && (
-              <>
-                {runtime.mod.renderView ? (
-                  (() => {
-                    const CustomRenderView = runtime.mod.renderView;
-                    return (
-                      <CustomRenderView
-                        open={runtime.openView}
-                        onClose={runtime.onCloseView}
-                        item={runtime.formState}
-                        onConfirm={runtime.onSave}
-                        extraData={runtime.extraData}
-                        execute={runtime.execute}
-                        onEdit={runtime.onEdit}
-                        onAdd={runtime.onAdd}
-                        openList={runtime.openList}
-                        setOpenList={runtime.setOpenList}
-                        reLoad={runtime.reLoad}
-                        showToast={runtime.showToast}
-                        setItem={runtime.setFormState}
-                        onDel={(itemToDelete: any) => {
-                          runtime.onCloseView();
-                          runtime.onDel(itemToDelete || runtime.formState);
-                        }}
-                      />
-                    );
-                  })()
-                ) : (
-                  <CurrentDetail
-                    open={runtime.openView}
-                    onClose={runtime.onCloseView}
-                    item={runtime.formState}
-                    onConfirm={runtime.onSave}
-                  />
+                  </div>
                 )}
-              </>
-            )}
-            {runtime.open && (
-              <>
-                {runtime.mod.renderForm ? (
-                  (() => {
-                    const CustomRenderForm = runtime.mod.renderForm;
-                    return (
-                      <CustomRenderForm
-                        open={runtime.open}
-                        openView={runtime.openView}
-                        onClose={runtime.onCloseCrud}
-                        item={runtime.formState}
-                        setItem={runtime.setFormState}
-                        onSave={runtime.onSave}
-                        extraData={runtime.extraData}
-                        execute={runtime.execute}
-                        errors={runtime.errors}
-                        setErrors={runtime.setErrors}
-                        reLoad={runtime.reLoad}
-                        user={runtime.user}
-                        onEdit={runtime.onEdit}
-                        onDel={runtime.onDel}
-                        onAdd={runtime.onAdd}
-                        onView={runtime.onView}
-                        action={runtime.action}
-                        openList={runtime.openList}
-                        setOpenList={runtime.setOpenList}
-                        showToast={runtime.showToast}
-                        getItemApi={runtime.getItemApi}
-                      />
-                    );
-                  })()
-                ) : (
-                  <CurrentForm
-                    open={runtime.open}
-                    onClose={runtime.onCloseCrud}
-                    item={runtime.formState}
-                    onConfirm={runtime.onSave}
-                  />
-                )}
-              </>
-            )}
-            {runtime.openImport && (
-              <ImportDataModal
-                open={runtime.openImport}
-                onClose={() => {
-                  if (runtime.mod.onCloseImport) runtime.mod.onCloseImport();
-                  runtime.setOpenImport(false);
-                }}
-                mod={runtime.mod}
-                showToast={runtime.showToast}
-                reLoad={runtime.reLoad}
-                execute={runtime.execute}
-                extraData={runtime.extraData}
-                requiredCols={runtime.mod.importRequiredCols || null}
-                client_id={runtime.store?.client?.id}
-              />
-            )}
-            {runtime.openDel && (
-              <>
-                {runtime.mod.renderDel ? (
-                  (() => {
-                    const CustomRenderDel = runtime.mod.renderDel;
-                    return (
-                      <CustomRenderDel
-                        open={runtime.openDel}
-                        onClose={runtime.onCloseDel}
-                        item={runtime.formState}
-                        setItem={runtime.setFormState}
-                        onSave={runtime.onSave}
-                        extraData={runtime.extraData}
-                        execute={runtime.execute}
-                        errors={runtime.errors}
-                        setErrors={runtime.setErrors}
-                        reLoad={runtime.reLoad}
-                        user={runtime.user}
-                        onEdit={runtime.onEdit}
-                        onDel={runtime.onDel}
-                        onAdd={runtime.onAdd}
-                        openList={runtime.openList}
-                        setOpenList={runtime.setOpenList}
-                      />
-                    );
-                  })()
-                ) : (
-                  <CurrentFormDelete
-                    open={runtime.openDel}
-                    onClose={runtime.onCloseDel}
-                    item={runtime.formState}
-                    onConfirm={runtime.onSave}
-                    message={runtime.mod.messageDel}
-                  />
-                )}
-              </>
-            )}
-          </LoadingScreen>
+              </section>
+              {props.renderRight ? (
+                <aside className={styles.contentSide}>
+                  {props.renderRight()}
+                </aside>
+              ) : null}
+            </div>
+          )}
+          {runtime.openView && (
+            <>
+              {runtime.mod.renderView ? (
+                <CrudRendererHost
+                  renderer={runtime.mod.renderView}
+                  rendererProps={{
+                    open: runtime.openView,
+                    onClose: runtime.onCloseView,
+                    item: runtime.formState,
+                    onConfirm: runtime.onSave,
+                    extraData: runtime.extraData,
+                    execute: runtime.execute,
+                    onEdit: runtime.onEdit,
+                    onAdd: runtime.onAdd,
+                    openList: runtime.openList,
+                    setOpenList: runtime.setOpenList,
+                    reLoad: runtime.reLoad,
+                    showToast: runtime.showToast,
+                    setItem: runtime.setFormState,
+                    onDel: (itemToDelete: any) => {
+                      runtime.onCloseView();
+                      runtime.onDel(itemToDelete || runtime.formState);
+                    },
+                  }}
+                />
+              ) : (
+                <CurrentDetail
+                  open={runtime.openView}
+                  onClose={runtime.onCloseView}
+                  item={runtime.formState}
+                  onConfirm={runtime.onSave}
+                />
+              )}
+            </>
+          )}
+          {runtime.open && (
+            <>
+              {runtime.mod.renderForm ? (
+                <CrudRendererHost
+                  renderer={runtime.mod.renderForm}
+                  rendererProps={{
+                    open: runtime.open,
+                    openView: runtime.openView,
+                    onClose: runtime.onCloseCrud,
+                    item: runtime.formState,
+                    setItem: runtime.setFormState,
+                    onSave: runtime.onSave,
+                    extraData: runtime.extraData,
+                    execute: runtime.execute,
+                    errors: runtime.errors,
+                    setErrors: runtime.setErrors,
+                    reLoad: runtime.reLoad,
+                    user: runtime.user,
+                    onEdit: runtime.onEdit,
+                    onDel: runtime.onDel,
+                    onAdd: runtime.onAdd,
+                    onView: runtime.onView,
+                    action: runtime.action,
+                    openList: runtime.openList,
+                    setOpenList: runtime.setOpenList,
+                    showToast: runtime.showToast,
+                    getItemApi: runtime.getItemApi,
+                  }}
+                />
+              ) : (
+                <CurrentForm
+                  open={runtime.open}
+                  onClose={runtime.onCloseCrud}
+                  item={runtime.formState}
+                  onConfirm={runtime.onSave}
+                />
+              )}
+            </>
+          )}
+          {runtime.openImport && (
+            <ImportDataModal
+              open={runtime.openImport}
+              onClose={() => {
+                if (runtime.mod.onCloseImport) runtime.mod.onCloseImport();
+                runtime.setOpenImport(false);
+              }}
+              mod={runtime.mod}
+              showToast={runtime.showToast}
+              reLoad={runtime.reLoad}
+              execute={runtime.execute}
+              extraData={runtime.extraData}
+              requiredCols={runtime.mod.importRequiredCols || null}
+              client_id={runtime.store?.client?.id}
+            />
+          )}
+          {runtime.openDel && (
+            <>
+              {runtime.mod.renderDel ? (
+                <CrudRendererHost
+                  renderer={runtime.mod.renderDel}
+                  rendererProps={{
+                    open: runtime.openDel,
+                    onClose: runtime.onCloseDel,
+                    item: runtime.formState,
+                    setItem: runtime.setFormState,
+                    onSave: runtime.onSave,
+                    extraData: runtime.extraData,
+                    execute: runtime.execute,
+                    errors: runtime.errors,
+                    setErrors: runtime.setErrors,
+                    reLoad: runtime.reLoad,
+                    user: runtime.user,
+                    onEdit: runtime.onEdit,
+                    onDel: runtime.onDel,
+                    onAdd: runtime.onAdd,
+                    openList: runtime.openList,
+                    setOpenList: runtime.setOpenList,
+                  }}
+                />
+              ) : (
+                <CurrentFormDelete
+                  open={runtime.openDel}
+                  onClose={runtime.onCloseDel}
+                  item={runtime.formState}
+                  onConfirm={runtime.onSave}
+                  message={runtime.mod.messageDel}
+                />
+              )}
+            </>
+          )}
         </div>
       );
     };
@@ -1856,10 +2455,10 @@ const useCrud = ({
     setParams,
     searchs,
     setSearchs,
-    data,
+    data: resolvedData,
     loaded,
     setAction,
-    reLoad,
+    reLoad: reloadCrudList,
     execute,
     userCan,
     store,
@@ -1869,6 +2468,15 @@ const useCrud = ({
     findOptions,
     getExtraData,
     openCard,
+    listTotal,
+    listHasMore,
+    isAppendingList,
+    isResetListLoading,
+    infiniteBatchSize,
+    infinitePrefetchRows,
+    onLoadMore: loadMoreRows,
+    sortCol,
+    onSort,
   };
 };
 

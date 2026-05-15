@@ -57,14 +57,8 @@ const Outlays = () => {
     renderForm: RenderForm,
     titleAdd: "Nuevo",
     titleDel: "Anular",
-    renderView: (props: any) => (
-      <RenderView
-        {...props}
-        outlay_id={props?.item?.id}
-        extraData={extraData}
-      />
-    ),
-    renderDel: (props: any) => <RenderDel {...props} />,
+    renderView: RenderView,
+    renderDel: RenderDel,
     hideActions: {
       edit: true,
       del: true,
@@ -390,6 +384,7 @@ const Outlays = () => {
   const extraButtons = [
     <Button
       key="categories-button"
+      variant="secondary"
       onClick={() => goToCategories("E")}
       className={styles.categoriesButton}
     >
@@ -438,7 +433,7 @@ const Outlays = () => {
   return (
     <div className={styles.outlays}>
       <List
-        height={"calc(100vh - 350px)"}
+        height={"100%"}
         emptyMsg="Lista de egresos vacía. Cuando ingreses los gastos del condominio, "
         emptyLine2="aparecerán en esta sección."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}

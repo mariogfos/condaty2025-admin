@@ -1,4 +1,10 @@
 .container {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   width: 100%;
 }
 .title {
@@ -13,26 +19,13 @@
   margin-bottom: 20px;
 }
 .categoriesButton {
-  border: 1px solid var(--cWhiteV1) !important;
-  color: var(--cWhiteV1) !important;
-  background-color: transparent !important;
-  font-size: clamp(12px, 3vw, 14px);
-  border-radius: var(--bRadius) !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-  flex-shrink: 0;
-  height: 48px !important;
-  min-height: 48px !important;
-  max-height: 48px !important;
+  min-width: var(--controlMinWidth);
+  width: auto !important;
   margin: 0 !important;
-  white-space: normal !important;
-  word-break: break-word !important;
-  text-align: center;
+  white-space: nowrap;
 }
 .categoriesButton:hover {
-  background-color: var(--cHover) !important;
+  opacity: 1;
 }
 .viewButton {
   color: var(--cInfo);
@@ -60,11 +53,14 @@
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+@media (max-width: 640px) {
   .graphButton,
   .categoriesButton {
     width: 100%;
     margin-bottom: 10px;
-    font-size: clamp(11px, 4vw, 13px);
+    min-width: 0;
   }
 }
 .statusBadge {

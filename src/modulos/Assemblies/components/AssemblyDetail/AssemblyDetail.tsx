@@ -1083,9 +1083,10 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                         totalVotesRaw;
 
                       const totalLabel =
-                        estimatedAudience > 0
-                          ? `${totalVoters} ${totalVoters === 1 ? "voto" : "votos"} de ${estimatedAudience} esperados`
-                          : `${totalVotesRaw} ${totalVotesRaw === 1 ? "voto" : "votos"} en total`;
+                        // estimatedAudience > 0
+                        // ?
+                        `${totalVoters} ${totalVoters === 1 ? "voto" : "votos"} de ${estimatedAudience} esperados`;
+                      // : `${totalVotesRaw} ${totalVotesRaw === 1 ? "voto" : "votos"} en total`;
 
                       return (
                         <div key={q.id} style={{ width: "100%" }}>

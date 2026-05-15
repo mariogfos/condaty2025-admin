@@ -81,7 +81,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     let finalStatus = item?.status;
     const today = new Date();
     const todayString = today.toISOString().split("T")[0];
-    const dueAtString = item?.debt?.due_at || item?.due_at;
+    const dueAtString = item?.due_at;
     if (dueAtString && dueAtString < todayString && item?.status === "A") {
       finalStatus = "M";
     }
@@ -553,7 +553,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     // Obtener fecha actual solo como string YYYY-MM-DD
     const today = new Date();
     const todayString = today.toISOString().split("T")[0];
-    const dueAtString = item?.debt?.due_at || item?.due_at;
+    const dueAtString = item?.due_at;
     if (dueAtString && dueAtString < todayString && item?.status === "A") {
       finalStatus = "M";
     }
@@ -579,7 +579,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
   return (
     <>
       <List
-        height={"calc(100vh - 560px)"}
+        height={"100%"}
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de todas las deudas vacía. Una vez generes las cuotas"

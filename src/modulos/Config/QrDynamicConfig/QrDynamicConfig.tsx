@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "./QrDynamicConfig.module.css";
 import Button from "@/mk/components/forms/Button/Button";
 import Select from "@/mk/components/forms/Select/Select";
@@ -94,6 +94,14 @@ interface QrDynamicFormState {
   has_webhook_username: boolean;
 }
 
+const getComparableQrState = (state: QrDynamicFormState) => ({
+  ...state,
+  username: "",
+  password: "",
+  api_key: "",
+  webhook_password: "",
+});
+
 // ============================================================================
 // Component
 // ============================================================================
@@ -123,6 +131,18 @@ const QrDynamicConfig: React.FC = () => {
   const [newWebhookPassword, setNewWebhookPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [initialSnapshot, setInitialSnapshot] =
+    useState<QrDynamicFormState | null>(null);
+
+  const isDirty = useMemo(() => {
+    if (!initialSnapshot) return false;
+    return (
+      JSON.stringify(getComparableQrState(formState)) !==
+        JSON.stringify(getComparableQrState(initialSnapshot)) ||
+      Boolean(newPassword || newApiKey || newWebhookPassword)
+    );
+  }, [formState, initialSnapshot, newApiKey, newPassword, newWebhookPassword]);
 
   useEffect(() => {
     loadQrConfig();
@@ -137,7 +157,7 @@ const QrDynamicConfig: React.FC = () => {
       const mode = data.client_mode ?? QrDynamicMode.DISABLED;
       const is_active = mode !== QrDynamicMode.DISABLED;
 
-      setFormState({
+      const nextState: QrDynamicFormState = {
         // Toggle state derived from mode
         is_active,
         // Environment from client or module default
@@ -157,7 +177,12 @@ const QrDynamicConfig: React.FC = () => {
         has_username: data.client_has_credentials,
         has_api_key: data.client_has_credentials,
         has_webhook_username: !!data.client_webhook_username,
-      });
+      };
+
+      setFormState(nextState);
+      setInitialSnapshot(nextState);
+      setErrors({});
+      setEditMode(false);
     }
   };
 
@@ -263,7 +288,8 @@ const QrDynamicConfig: React.FC = () => {
         setNewPassword("");
         setNewApiKey("");
         setNewWebhookPassword("");
-        loadQrConfig(); // Reload to update has_* flags
+        await loadQrConfig(); // Reload to update has_* flags
+        setEditMode(false);
       } else {
         showToast(res?.message || "Error al guardar", "error");
       }
@@ -282,7 +308,6 @@ const QrDynamicConfig: React.FC = () => {
     }
   };
 
-  // Map internal environment values to Select options
   const environmentOptions = [
     { id: "S", name: QrEnvironmentLabels.S },
     { id: "P", name: QrEnvironmentLabels.P },
@@ -317,6 +342,21 @@ const QrDynamicConfig: React.FC = () => {
     handleChange("is_active", newMode !== QrDynamicMode.DISABLED);
   };
 
+  const handleEditClick = () => {
+    setEditMode(true);
+  };
+
+  const handleDiscardChanges = () => {
+    if (initialSnapshot && isDirty) {
+      setFormState(initialSnapshot);
+    }
+    setNewPassword("");
+    setNewApiKey("");
+    setNewWebhookPassword("");
+    setErrors({});
+    setEditMode(false);
+  };
+
   if (!loaded) {
     return (
       <div className={styles.container}>
@@ -330,19 +370,50 @@ const QrDynamicConfig: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <div>
-        <h1 className={styles.mainTitle}>QR Dinámico</h1>
-        <p className={styles.headerSubtitle}>
-          Configura la conexión con el banco para generar códigos QR dinámicos
-          de pago. Esta configuración aplica a todos los condominios que no
-          tengan modo &quot;directo&quot; configurado.
-        </p>
+      <div className={styles.headerRow}>
+        <div className={styles.headerBlock}>
+          <h1 className={styles.mainTitle}>QR Dinámico</h1>
+          <p className={styles.headerSubtitle}>
+            Configura la conexión con el banco para generar códigos QR dinámicos
+            de pago. Esta configuración aplica a todos los condominios que no
+            tengan modo &quot;directo&quot; configurado.
+          </p>
+        </div>
+
+        <div className={styles.headerButtons}>
+          {!editMode ? (
+            <Button
+              variant="secondary"
+              className={styles.editButton}
+              onClick={handleEditClick}
+            >
+              Editar
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="secondary"
+                className={styles.editButton}
+                onClick={handleDiscardChanges}
+              >
+                Descartar cambios
+              </Button>
+              <Button
+                className={styles.saveButton}
+                onClick={handleSave}
+                disabled={!isDirty || isSaving}
+              >
+                {isSaving ? "Guardando..." : "Guardar cambios"}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className={styles.formContainer}>
         {/* Estado */}
         <div className={styles.sectionContainer}>
-          <Card>
+          <Card className={styles.surfaceCard}>
             <div className={styles.toggleRow}>
               <div>
                 <h3 className={styles.sectionTitle}>Activar QR Dinámico</h3>
@@ -356,6 +427,7 @@ const QrDynamicConfig: React.FC = () => {
                 value={formState.is_active ? "Y" : "N"}
                 checked={formState.is_active}
                 onChange={(e) => handleIsActiveChange(e.target.checked)}
+                disabled={!editMode}
               />
             </div>
           </Card>
@@ -365,43 +437,49 @@ const QrDynamicConfig: React.FC = () => {
 
         {/* Modo */}
         <div className={styles.sectionContainer}>
-          <h2 className={styles.sectionTitle}>Modo de Operación</h2>
-          <p className={styles.sectionSubtitle}>
-            Selecciona cómo obtener las credenciales: Global usa la
-            configuración del módulo, Personalizado usa credenciales propias del
-            cliente
-          </p>
-          <Select
-            name="mode"
-            label="Modo"
-            value={formState.mode}
-            onChange={(e) =>
-              handleModeChange(Number(e.target.value) as QrDynamicMode)
-            }
-            options={modeOptions}
-            error={errors}
-          />
+          <div className={styles.surfaceCard}>
+            <h2 className={styles.sectionTitle}>Modo de Operación</h2>
+            <p className={styles.sectionSubtitle}>
+              Selecciona cómo obtener las credenciales: Global usa la
+              configuración del módulo, Personalizado usa credenciales propias
+              del cliente
+            </p>
+            <Select
+              name="mode"
+              label="Modo"
+              value={formState.mode}
+              onChange={(e) =>
+                handleModeChange(Number(e.target.value) as QrDynamicMode)
+              }
+              options={modeOptions}
+              error={errors}
+              disabled={!editMode}
+            />
+          </div>
         </div>
 
         <Br />
 
         {/* Entorno */}
         <div className={styles.sectionContainer}>
-          <h2 className={styles.sectionTitle}>Entorno</h2>
-          <p className={styles.sectionSubtitle}>
-            Selecciona el ambiente del banco: Sandbox para pruebas, Producción
-            para operaciones reales
-          </p>
-          <Select
-            name="environment"
-            label="Ambiente del banco"
-            value={formState.environment}
-            onChange={(e) =>
-              handleChange("environment", e.target.value as QrEnvironment)
-            }
-            options={environmentOptions}
-            error={errors}
-          />
+          <div className={styles.surfaceCard}>
+            <h2 className={styles.sectionTitle}>Entorno</h2>
+            <p className={styles.sectionSubtitle}>
+              Selecciona el ambiente del banco: Sandbox para pruebas, Producción
+              para operaciones reales
+            </p>
+            <Select
+              name="environment"
+              label="Ambiente del banco"
+              value={formState.environment}
+              onChange={(e) =>
+                handleChange("environment", e.target.value as QrEnvironment)
+              }
+              options={environmentOptions}
+              error={errors}
+              disabled={!editMode}
+            />
+          </div>
         </div>
 
         <Br />
@@ -410,72 +488,78 @@ const QrDynamicConfig: React.FC = () => {
         {isOwnMode && (
           <>
             <div className={styles.sectionContainer}>
-              <h2 className={styles.sectionTitle}>Credenciales del Banco</h2>
-              <p className={styles.sectionSubtitle}>
-                Ingresa las credenciales proporcionadas por el banco para la
-                integración QR
-              </p>
+              <div className={styles.surfaceCard}>
+                <h2 className={styles.sectionTitle}>Credenciales del Banco</h2>
+                <p className={styles.sectionSubtitle}>
+                  Ingresa las credenciales proporcionadas por el banco para la
+                  integración QR
+                </p>
 
-              <div className={styles.formGrid}>
-                <Input
-                  name="username"
-                  label={
-                    formState.has_username
-                      ? "Usuario (dejar vacío para mantener)"
-                      : "Usuario (Código de Cliente)"
-                  }
-                  value={formState.username}
-                  onChange={(e) => handleChange("username", e.target.value)}
-                  placeholder="Ej: 5052069"
-                  error={errors.username}
-                />
+                <div className={styles.formGrid}>
+                  <Input
+                    name="username"
+                    label={
+                      formState.has_username
+                        ? "Usuario (dejar vacío para mantener)"
+                        : "Usuario (Código de Cliente)"
+                    }
+                    value={formState.username}
+                    onChange={(e) => handleChange("username", e.target.value)}
+                    placeholder="Ej: 5052069"
+                    error={errors.username}
+                    disabled={!editMode}
+                  />
 
-                <Input
-                  name="password"
-                  label={
-                    formState.has_username
-                      ? "Nueva Contraseña (dejar vacío para mantener)"
-                      : "Contraseña"
-                  }
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder={
-                    formState.has_username
-                      ? "Ingresa solo si deseas cambiarla"
-                      : "Contraseña del banco"
-                  }
-                  error={errors.password}
-                />
+                  <Input
+                    name="password"
+                    label={
+                      formState.has_username
+                        ? "Nueva Contraseña (dejar vacío para mantener)"
+                        : "Contraseña"
+                    }
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder={
+                      formState.has_username
+                        ? "Ingresa solo si deseas cambiarla"
+                        : "Contraseña del banco"
+                    }
+                    error={errors.password}
+                    disabled={!editMode}
+                  />
 
-                <Input
-                  name="account_reference"
-                  label="Referencia de Cuenta (Account Reference)"
-                  value={formState.account_reference}
-                  onChange={(e) =>
-                    handleChange("account_reference", e.target.value)
-                  }
-                  placeholder="Ej: FORCE_TEST"
-                  error={errors.account_reference}
-                />
+                  <Input
+                    name="account_reference"
+                    label="Referencia de Cuenta (Account Reference)"
+                    value={formState.account_reference}
+                    onChange={(e) =>
+                      handleChange("account_reference", e.target.value)
+                    }
+                    placeholder="Ej: FORCE_TEST"
+                    error={errors.account_reference}
+                    disabled={!editMode}
+                  />
 
-                <Input
-                  name="api_key"
-                  label={
-                    formState.has_api_key
-                      ? "API Key (dejar vacío para mantener)"
-                      : "API Key del Banco"
-                  }
-                  type="password"
-                  value={newApiKey}
-                  onChange={(e) => setNewApiKey(e.target.value)}
-                  placeholder={
-                    formState.has_api_key
-                      ? "Ingresa solo si deseas cambiarla"
-                      : "API Key del banco (Larga)"
-                  }
-                  error={errors.api_key}
-                />
+                  <Input
+                    name="api_key"
+                    label={
+                      formState.has_api_key
+                        ? "API Key (dejar vacío para mantener)"
+                        : "API Key del Banco"
+                    }
+                    type="password"
+                    value={newApiKey}
+                    onChange={(e) => setNewApiKey(e.target.value)}
+                    placeholder={
+                      formState.has_api_key
+                        ? "Ingresa solo si deseas cambiarla"
+                        : "API Key del banco (Larga)"
+                    }
+                    error={errors.api_key}
+                    disabled={!editMode}
+                  />
+                </div>
               </div>
             </div>
 
@@ -521,16 +605,6 @@ const QrDynamicConfig: React.FC = () => {
             </Card>
           </div>
         )}
-
-        <div className={styles.saveButtonContainer}>
-          <Button
-            className={styles.saveButton}
-            onClick={handleSave}
-            disabled={isSaving}
-          >
-            {isSaving ? "Guardando..." : "Guardar Configuración"}
-          </Button>
-        </div>
       </div>
     </div>
   );

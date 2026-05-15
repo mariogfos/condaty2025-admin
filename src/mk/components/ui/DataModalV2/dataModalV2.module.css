@@ -24,9 +24,9 @@
     transform: translateY(100%);
     transition: all 0.3s;
     width: 85%;
-    max-height: calc(100% - 50px);
-    padding: var(--spL);
-    gap: var(--spS);
+    max-height: calc(100dvh - 24px);
+    padding: clamp(16px, 2vw, 24px);
+    gap: 12px;
     /* @media (width>768px) {
       width: 50%;
     } */
@@ -60,54 +60,42 @@
       }
     }
     .headerDivider {
-      height: 0.5px; /* Grosor de la línea, similar a borderWidth */
+      height: 1px; /* Grosor de la línea, similar a borderWidth */
       background-color: var(--cBorder);
       width: 100%;
     }
     & > section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
       overflow-y: auto;
       flex-grow: 1;
       color: var(--cWhiteV1);
-      margin-top: var(--spS);
-      margin-bottom: var(--spS);
+      margin-top: 4px;
+      margin-bottom: 4px;
+      min-height: 0;
     }
     & > footer {
       display: flex;
-      /* flex-direction: column;  Mantenemos esto para el móvil inicialmente */
-      gap: 8px; /* Espacio entre botones si están en columna o si hay más de dos */
+      flex-wrap: wrap;
+      gap: 8px;
 
-      /* Para pantallas móviles (botones en columna, ocupan todo el ancho por defecto) */
       & > button {
-        /* Estilo general para los botones en el footer si es necesario */
-        width: 100%; /* Hacemos que ocupen todo el ancho en vista de columna */
+        width: 100%;
       }
 
       @media (width > 768px) {
-        flex-direction: row-reverse; /* Botones en fila, Cancelar a la izquierda, Guardar a la derecha */
-        justify-content: space-between; /* Mantenemos esto si solo hay dos botones y quieres que el espacio sobrante se distribuya */
-
-        /* Seleccionamos los botones por su orden o props.
-           Dado que usas row-reverse, el primer hijo en el DOM (buttonText)
-           será el último visualmente (a la derecha).
-           Y el segundo hijo en el DOM (buttonCancel) será el primero visualmente (a la izquierda).
-        */
+        flex-direction: row-reverse;
+        justify-content: flex-start;
 
         & > button:nth-child(1) {
-          /* Este será el botón "Guardar" (buttonText) debido al row-reverse */
-          flex-basis: calc(
-            65% - 4px
-          ); /* 70% menos la mitad del gap para el espaciado */
-          /* Opcional: para asegurar que pueda crecer/encogerse si es necesario */
+          flex-basis: calc(65% - 4px);
           flex-grow: 1;
           flex-shrink: 1;
         }
 
         & > button:nth-child(2) {
-          /* Este será el botón "Cancelar" (buttonCancel) */
-          flex-basis: calc(
-            35% - 4px
-          ); /* 30% menos la mitad del gap para el espaciado */
-          /* Opcional: para asegurar que pueda crecer/encogerse si es necesario */
+          flex-basis: calc(35% - 4px);
           flex-grow: 1;
           flex-shrink: 1;
         }
@@ -130,8 +118,8 @@
     border: 1px solid var(--cModalBorder);
   }
   .headerTitle {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 24px;
+    font-weight: 700;
     color: var(--cWhite);
   }
   .headerSubtitle {
@@ -139,5 +127,18 @@
     font-weight: 400;
     margin-top: 4px;
     color: var(--cWhiteV1);
+  }
+}
+
+@media (max-width: 768px) {
+  .dataModal {
+    padding: 12px;
+
+    & > main {
+      width: 100%;
+      max-width: calc(100vw - 24px);
+      max-height: calc(100dvh - 24px);
+      border-radius: 20px;
+    }
   }
 }

@@ -1,138 +1,168 @@
-'use client';
-import { useEffect, useState } from 'react';
-import Input from '../Input/Input';
-import {
-  IconSearch,
-  IconX,
-} from '../../../../components/layout/icons/IconsBiblioteca';
-// import Button from "../Button/Button";
-import styles from "./dataSearch.module.css";
+"use client";
+import { Search, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PropsTypeInputBase } from "../ControlLabel";
 import idioma from "@/mk/utils/traductor/es";
 import Tooltip from "../../ui/Tooltip/Tooltip";
+import styles from "./dataSearch.module.css";
 
 interface PropsType extends PropsTypeInputBase {
   setSearch: Function;
   textButton?: string;
-  searchMsg?: string; // Nuevo prop
+  searchMsg?: string;
 }
 
 const DataSearch = ({
   setSearch,
   name,
   value,
-  label = '',
+  label = "",
+  placeholder = "",
   textButton = idioma.search,
-  className = '',
-  searchMsg = '', // Nuevo prop
+  className = "",
+  searchMsg = "",
+  disabled = false,
+  readOnly = false,
+  style = {},
+  onBlur = () => {},
 }: PropsType) => {
-  const [searchBy, setSearchBy] = useState('');
-  const [oldSearch, setOldSearch] = useState('');
-  const [focused, setFocused] = useState(false); // Nuevo estado
-
-  const onSearch = (v: any = false) => {
-    let s = searchBy.trim();
-    if (v !== false) {
-      s = v.trim();
-      setSearchBy(s);
-    }
-
-    if (s == oldSearch) return;
-
-    setSearch(s);
-    setOldSearch(s);
-  };
-
-  const onChange = (e: any) => {
-    setSearchBy(e.target.value);
-  };
+  const normalizedValue = value == null ? "" : String(value);
+  const [searchBy, setSearchBy] = useState(normalizedValue);
+  const [oldSearch, setOldSearch] = useState(normalizedValue);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    setSearchBy(value);
-    setOldSearch(value);
-  }, [value]);
+    setSearchBy(normalizedValue);
+    setOldSearch(normalizedValue);
+  }, [normalizedValue]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      onSearch();
-    }
+  const submitSearch = (nextValue?: string) => {
+    const resolvedValue = (nextValue ?? searchBy).trim();
+
+    if (resolvedValue === oldSearch) return;
+
+    setSearchBy(resolvedValue);
+    setOldSearch(resolvedValue);
+    setSearch(resolvedValue);
   };
 
-  return (
-    <div style={{ position: "relative" }}>
-      <Tooltip title={searchMsg} fullWidth={true}>
-        <Input
+  const clearSearch = () => {
+    setSearchBy("");
+    if (oldSearch === "") return;
+    setOldSearch("");
+    setSearch("");
+  };
+
+  const disabledState = disabled || readOnly;
+  const hasValue = searchBy.trim().length > 0;
+  const placeholderText = useMemo(
+    () => placeholder || `${textButton}...`,
+    [placeholder, textButton],
+  );
+  const focusInput = () => {
+    if (disabledState) return;
+
+    inputRef.current?.focus();
+
+    const cursorAt = inputRef.current?.value.length ?? 0;
+    inputRef.current?.setSelectionRange(cursorAt, cursorAt);
+  };
+
+  const field = (
+    <div
+      className={[
+        styles.searchField,
+        className,
+        disabledState ? styles.isDisabled : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      style={style}
+      onClick={(event) => {
+        const target = event.target as HTMLElement | null;
+        if (
+          !target ||
+          target.closest("button") ||
+          target.tagName === "INPUT" ||
+          target.closest("input")
+        ) {
+          return;
+        }
+
+        focusInput();
+      }}
+    >
+      <div className={styles.searchBody}>
+        {label ? <span className={styles.searchLabel}>{label}</span> : null}
+        <input
+          ref={inputRef}
           name={name}
-          className={styles.dataSearch + " " + className}
-          required={false}
-          label={label}
-          placeholder={textButton + "..."}
-          onKeyDown={handleKeyDown}
+          type="search"
           value={searchBy}
-          onChange={onChange}
-          iconLeft={
-            !value && !searchBy ? (
-              <IconSearch
-                // size={24}
-                color={"var(--cWhiteV1)"}
-                style={{ marginRight: "var(--spS)" }}
-              />
-            ) : (
-              <div onClick={() => onSearch("")} style={{ cursor: "pointer" }}>
-                <IconX color={"var(--cWhiteV1)"} className="error" />
-              </div>
-            )
-          }
-          iconRight={
-            searchBy && (
-              <div
-                onClick={() => onSearch()}
-                style={{
-                  backgroundColor: "var(--cPrimary)",
-                  padding: "4px",
-                  borderRadius: "100%",
-                  display: "flex",
-                  marginRight: "8px",
-                  // width: "22px",
-                  // height: "22px",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxSizing: "border-box",
-                  cursor: "pointer",
-                }}
-              >
-                <IconSearch
-                  color="var(--cBlack)"
-                  size={16}
-                  // style={{ boxSizing: "content-box }}
-                />
-              </div>
-            )
-          }
-          onFocus={() => setFocused(true)}
-          onBlur={() => setTimeout(() => setFocused(false), 200)}
+          disabled={disabledState}
+          readOnly={readOnly}
+          placeholder={placeholderText}
           autoComplete="off"
-        />
-      </Tooltip>
-      {/* {focused && searchMsg && (
-        <div
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: '-8px',
-            transform: 'translate(-50%, -100%)',
-            fontSize: 14,
-            zIndex: 9999,
-            textAlign: 'end',
-            marginTop: 0,
+          spellCheck={false}
+          onChange={(event) => setSearchBy(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              submitSearch();
+            }
+
+            if (event.key === "Escape" && hasValue) {
+              event.preventDefault();
+              clearSearch();
+            }
           }}
+          onBlur={(event) => onBlur?.(event)}
+        />
+      </div>
+
+      {hasValue ? (
+        <button
+          type="button"
+          className={styles.clearButton}
+          onClick={clearSearch}
+          aria-label="Limpiar búsqueda"
         >
-          <span />
+          <X size={16} strokeWidth={1.8} />
+        </button>
+      ) : null}
+
+      <button
+        type="button"
+        className={[
+          styles.submitButton,
+          hasValue ? styles.submitButtonActive : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        onClick={() => submitSearch()}
+        disabled={disabledState}
+        aria-label="Buscar"
+      >
+        <Search size={16} strokeWidth={1.3} />
+      </button>
+    </div>
+  );
+
+  return (
+    <div className={styles.searchRoot}>
+      {searchMsg ? (
+        <Tooltip
+          title={searchMsg}
+          position="top-left"
+          singleLine={false}
+          maxWidth={360}
+          className={styles.tooltipAnchor}
+        >
+          {field}
         </Tooltip>
+      ) : (
+        field
       )}
-          {searchMsg}
-        </div>
-      )} */}
     </div>
   );
 };

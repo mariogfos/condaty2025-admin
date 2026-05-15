@@ -1,12 +1,45 @@
 .statusBadge {
-  font-weight: 400;
-  padding: 6px var(--spM);
-  border-radius: 999px;
+  --status-badge-bg: var(--cStatusNeutralSoft);
+  --status-badge-text: var(--cStatusNeutral);
+  font-family: var(--fPrimary);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  padding: 5px 8px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
   text-align: center;
   width: fit-content;
-  min-height: 28px;
+  min-height: 24px;
   white-space: nowrap;
+  color: var(--status-badge-text);
+  background-color: var(--status-badge-bg);
+}
+
+.indicator {
+  min-width: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--status-badge-text);
+}
+
+.icon {
+  display: block;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background-color: currentColor;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
 }

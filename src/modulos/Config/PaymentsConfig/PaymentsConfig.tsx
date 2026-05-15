@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "./PaymentsConfig.module.css";
 import Button from "@/mk/components/forms/Button/Button";
 import Br from "@/components/Detail/Br";
@@ -7,17 +7,33 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 
 interface PropsType {
   bankAccounts: any[];
-  onSave: (e: object) => void;
+  onSave: (e: object) => Promise<void> | void;
   client_config: any;
 }
 
 const PaymentsConfig = ({ bankAccounts, onSave, client_config }: PropsType) => {
-  const [formState, setFormState]: any = useState({
-    main_account_id: client_config?.main_account_id || "",
-    reserve_account_id: client_config?.reserve_account_id || "",
-    expense_account_id: client_config?.expense_account_id || "",
-  });
+  const initialState = useMemo(
+    () => ({
+      main_account_id: client_config?.main_account_id || "",
+      reserve_account_id: client_config?.reserve_account_id || "",
+      expense_account_id: client_config?.expense_account_id || "",
+    }),
+    [
+      client_config?.expense_account_id,
+      client_config?.main_account_id,
+      client_config?.reserve_account_id,
+    ],
+  );
+  const [formState, setFormState]: any = useState(initialState);
   const [errors, setErrors]: any = useState({});
+  const [editMode, setEditMode] = useState(false);
+  const isDirty = JSON.stringify(formState) !== JSON.stringify(initialState);
+
+  useEffect(() => {
+    setFormState(initialState);
+    setErrors({});
+    setEditMode(false);
+  }, [initialState]);
 
   const getBankAccounts = useMemo(
     () =>
@@ -34,12 +50,7 @@ const PaymentsConfig = ({ bankAccounts, onSave, client_config }: PropsType) => {
           };
         },
       ),
-    [
-      bankAccounts,
-      formState?.main_account_id,
-      formState?.reserve_account_id,
-      formState?.expense_account_id,
-    ],
+    [bankAccounts],
   );
   const validate = () => {
     let errors: any = {};
@@ -71,21 +82,63 @@ const PaymentsConfig = ({ bankAccounts, onSave, client_config }: PropsType) => {
     setErrors(errors);
     return errors;
   };
-  const _onSave = () => {
+  const _onSave = async () => {
     if (hasErrors(validate())) return;
-    onSave(formState);
+    await onSave(formState);
+    setEditMode(false);
   };
   const handleChange = (e: any) => {
     setFormState({ ...formState, [e.target.name]: e.target.value });
   };
+  const handleEditClick = () => {
+    setEditMode(true);
+  };
+  const handleDiscardChanges = () => {
+    setErrors({});
+    if (isDirty) {
+      setFormState(initialState);
+    }
+    setEditMode(false);
+  };
   return (
     <div className={styles.paymentsContainer}>
-      <div>
-        <h1 className={styles.mainTitle}>Cuentas de pago</h1>
-        <p className={styles.headerSubtitle}>
-          Configura los métodos de pagos con los cuales los residentes podrán
-          pagar sus cuotas, deudas y demás transacciones del condominio
-        </p>
+      <div className={styles.headerRow}>
+        <div className={styles.headerContent}>
+          <h1 className={styles.mainTitle}>Cuentas de pago</h1>
+          <p className={styles.headerSubtitle}>
+            Configura los métodos de pagos con los cuales los residentes podrán
+            pagar sus cuotas, deudas y demás transacciones del condominio
+          </p>
+        </div>
+
+        <div className={styles.headerButtons}>
+          {!editMode ? (
+            <Button
+              variant="secondary"
+              className={styles.editButton}
+              onClick={handleEditClick}
+            >
+              Editar
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="secondary"
+                className={styles.editButton}
+                onClick={handleDiscardChanges}
+              >
+                Descartar cambios
+              </Button>
+              <Button
+                className={styles.saveButton}
+                onClick={_onSave}
+                disabled={!isDirty}
+              >
+                Guardar cambios
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className={styles.formContainer}>
@@ -105,6 +158,7 @@ const PaymentsConfig = ({ bankAccounts, onSave, client_config }: PropsType) => {
             value={formState?.main_account_id}
             onChange={handleChange}
             options={getBankAccounts}
+            disabled={!editMode}
           />
         </div>
 
@@ -124,6 +178,7 @@ const PaymentsConfig = ({ bankAccounts, onSave, client_config }: PropsType) => {
             value={formState?.reserve_account_id}
             onChange={handleChange}
             options={getBankAccounts}
+            disabled={!editMode}
           />
         </div>
 
@@ -145,13 +200,8 @@ const PaymentsConfig = ({ bankAccounts, onSave, client_config }: PropsType) => {
             value={formState?.expense_account_id}
             onChange={handleChange}
             options={getBankAccounts}
+            disabled={!editMode}
           />
-        </div>
-
-        <div className={styles.saveButtonContainer}>
-          <Button className={`${styles.saveButton} `} onClick={_onSave}>
-            Guardar
-          </Button>
         </div>
       </div>
     </div>

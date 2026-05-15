@@ -61,11 +61,14 @@
       }
     }
     .headerDivider {
-      height: 0.5px; /* Grosor de la línea, similar a borderWidth */
+      height: 1px; /* Grosor de la línea, similar a borderWidth */
       background-color: var(--cModalDivider);
       width: 100%;
     }
     & > section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
       overflow-y: auto;
       flex-grow: 1;
       color: var(--cWhiteV1);

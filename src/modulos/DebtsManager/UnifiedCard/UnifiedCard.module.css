@@ -1,8 +1,8 @@
 .card {
-  background-color: var(--cBackground);
-  border-radius: var(--bRadius);
-  padding: var(--spXl);
-  border: 1px solid var(--cBorder);
+  background-color: var(--cTableSurface);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid var(--cModalBorder);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -10,9 +10,9 @@
 }
 
 .summaryCard {
-  background-color: #d7fff005;
-  border: 1px solid #d7fff014;
-  border-radius: 12px;
+  background-color: var(--cTableSurface);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 16px;
 }
 
 .detailCard {
@@ -21,8 +21,8 @@
 }
 
 .active.summaryCard {
-  border: 1px solid rgba(0, 227, 140, 0.4);
-  background-color: rgba(0, 227, 140, 0.08);
+  border: 1px solid color-mix(in srgb, var(--cAccent) 48%, transparent);
+  background-color: color-mix(in srgb, var(--cAccent) 10%, var(--cTableSurface) 90%);
 }
 
 .header {
@@ -38,7 +38,7 @@
 .title {
   font-size: 12px;
   font-weight: 400;
-  color: #878f9a;
+  color: var(--cWhiteV1);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0;
@@ -70,13 +70,11 @@
   font-weight: 700;
   color: var(--cWhite);
   line-height: 1.2;
-  text-shadow: 1px 1px 2px var(--cBlackV3);
 }
 
 .count {
   font-size: 14px;
-  color: #878f9a;
-  text-shadow: 1px 1px 2px var(--cBlackV3);
+  color: var(--cWhiteV1);
 }
 
 .mainContent {

@@ -1,4 +1,10 @@
 .roles {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   width: 100%;
 }
 .dashboardTitle {

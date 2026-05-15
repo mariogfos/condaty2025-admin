@@ -7,6 +7,7 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 
 const paramsInitial = {
   perPage: 20,
@@ -22,6 +23,11 @@ const renderTitleCell = ({ item }: Record<string, any>) => {
     </div>
   );
 };
+const centeredColumnStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+} as const;
 
 const BankAccounts = () => {
   const mod: ModCrudType = {
@@ -106,26 +112,24 @@ const BankAccounts = () => {
       status: {
         rules: [],
         api: "ae",
+        label: "Estado",
         form: false,
         list: {
           width: "180px",
+          className: styles.statusColumn,
+          style: centeredColumnStyle,
           onRender: ({ item }: Record<string, any>) => {
             return (
-              <div
-                style={{
-                  padding: "4px 8px",
-                  backgroundColor:
-                    item.status === "A"
-                      ? "var(--cHoverSuccess)"
-                      : "var(--cHoverError)",
-                  color:
-                    item.status === "A" ? "var(--cSuccess)" : "var(--cError)",
-                  borderRadius: 12,
-                  fontSize: 14,
-                }}
+              <StatusBadge
+                color={item.status === "A" ? "var(--cSuccess)" : "var(--cError)"}
+                backgroundColor={
+                  item.status === "A"
+                    ? "var(--cHoverSuccess)"
+                    : "var(--cHoverError)"
+                }
               >
                 {item.status === "A" ? "Habilitada" : "Deshabilitada"}
-              </div>
+              </StatusBadge>
             );
           },
         },
@@ -206,7 +210,7 @@ const BankAccounts = () => {
   return (
     <div className={styles.style}>
       <List
-        height={"calc(100vh - 345px)"}
+        height={"100%"}
         emptyMsg="Lista de cuentas bancarias vacía. Aquí verás a todas las cuentas bancarias"
         emptyLine2="del condominio una vez los registres."
       />

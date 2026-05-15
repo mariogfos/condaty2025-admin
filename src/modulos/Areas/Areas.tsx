@@ -334,9 +334,9 @@ const Areas = () => {
   }, []);
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div>
+    <>
       <List
-        height={"calc(100vh - 350px)"}
+        height={"100%"}
         //   emptyMsg="¡Sin áreas sociales! Una vez registres las diferentes áreas"
         //   emptyLine2="del condominio las verás aquí."
         //   emptyIcon={<IconDepartment2 size={80} color="var(--cWhiteV1)"
@@ -351,7 +351,7 @@ const Areas = () => {
           areas={extraData?.areas}
         />
       )}
-    </div>
+    </>
   );
 };
 

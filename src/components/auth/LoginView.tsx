@@ -130,12 +130,9 @@ const LoginView = ({
 
               <div className={styles.verificationButtons}>
                 <Button
+                  variant="secondary"
                   className={styles.buttonSecondary}
                   onClick={() => onTrustDevice && onTrustDevice(false)}
-                  style={{
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                    color: "white",
-                  }}
                 >
                   {translate("trustNo")}
                 </Button>
@@ -200,12 +197,9 @@ const LoginView = ({
 
               <div className={styles.verificationButtons}>
                 <Button
+                  variant="secondary"
                   className={styles.buttonSecondary}
                   onClick={onBack}
-                  style={{
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                    color: "white",
-                  }}
                 >
                   {translate("back")}
                 </Button>

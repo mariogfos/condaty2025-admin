@@ -13,13 +13,13 @@ import {
   IconMultas,
   IconUnidades,
   IconWallet,
-} from '@/components/layout/icons/IconsBiblioteca';
-import RenderView from './RenderView/RenderView';
-import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
-import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
-import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
+} from "@/components/layout/icons/IconsBiblioteca";
+import RenderView from "./RenderView/RenderView";
+import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
@@ -36,7 +36,7 @@ const renderPaidAtCell = ({ item }: { item: any }) => (
 );
 
 const renderDueAtCell = ({ item }: { item: any }) => (
-  <div>{getDateStrMes(item?.debt?.due_at) || "-/-"}</div>
+  <div>{getDateStrMes(item?.due_at) || "-/-"}</div>
 );
 
 const renderAmountCell = ({ item }: { item: any }) => (
@@ -50,27 +50,34 @@ const renderMaintenanceAmountCell = ({ item }: { item: any }) => (
   <FormatBsAlign value={item?.maintenance_amount} alignRight />
 );
 
-
-
-const renderStatusCell = ({ item }: { item: any }, getDisplayStatus: Function) => {
+const renderStatusCell = (
+  { item }: { item: any },
+  getDisplayStatus: Function,
+) => {
   const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
+<<<<<<< HEAD
+    A: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" }, // Por cobrar
+    P: { color: "var(--cSuccess)", bgColor: "var(--cHoverCompl2)" }, // Cobrado
+    S: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl4)" }, // Por confirmar
+    R: { color: "var(--cMediumAlert)", bgColor: "var(--cMediumAlertHover)" }, // Rechazado
+    E: { color: "var(--cWhite)", bgColor: "var(--cHoverCompl1)" }, // Por defecto
+    M: { color: "var(--cError)", bgColor: "var(--cHoverError)" }, // En mora
+    F: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" }, // Finalizado
+=======
     A: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Por cobrar
     P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' }, // Cobrado
     S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' }, // Por confirmar
     R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' }, // Rechazado
-    E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' }, // Por defecto
     M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' }, // En mora
     F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Finalizado
+>>>>>>> origin/dev
   };
 
   const displayStatus = getDisplayStatus(item);
-  const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig.E;
+  const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig.A;
 
   return (
-    <StatusBadge
-      color={color}
-      backgroundColor={bgColor}
-    >
+    <StatusBadge color={color} backgroundColor={bgColor}>
       {displayStatus.text}
     </StatusBadge>
   );
@@ -95,24 +102,24 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   const getDisplayStatus = (item: any) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (item.status === "A" && item.debt?.due_at) {
-      const dueDate = new Date(item.debt.due_at);
+    if (item.status === "A" && item.due_at) {
+      const dueDate = new Date(item.due_at);
       if (today > dueDate) {
         return { text: "En mora", code: "M" };
       }
     }
 
     switch (item.status) {
-      case 'A':
-        return { text: 'Por cobrar', code: 'A' };
-      case 'P':
-        return { text: 'Cobrada', code: 'P' };
-      case 'S':
-        return { text: 'Por confirmar', code: 'S' };
-      case 'M':
-        return { text: 'En mora', code: 'M' };
-      case 'F':
-        return { text: 'Condonada', code: 'F' };
+      case "A":
+        return { text: "Por cobrar", code: "A" };
+      case "P":
+        return { text: "Cobrada", code: "P" };
+      case "S":
+        return { text: "Por confirmar", code: "S" };
+      case "M":
+        return { text: "En mora", code: "M" };
+      case "F":
+        return { text: "Condonada", code: "F" };
       default:
         return { text: item.status || "Desconocido", code: item.status || "" };
     }
@@ -191,102 +198,122 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
 
   const fields = useMemo(() => {
     return {
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       unit: {
-        rules: [''],
-        api: '',
-        label: 'Unidad',
+        rules: [""],
+        api: "",
+        label: "Unidad",
         list: {
           onRender: renderUnitCell,
         },
       },
       address: {
-        rules: [''],
-        api: '',
-        label: 'Dirección',
+        rules: [""],
+        api: "",
+        label: "Dirección",
         list: {
           onRender: renderAddressCell,
         },
       },
       paid_at: {
-        rules: [''],
-        api: '',
-        label: 'Fecha de pago',
+        rules: [""],
+        api: "",
+        label: "Fecha de pago",
         list: {
           onRender: renderPaidAtCell,
         },
         filter: {
-          key: 'paid_at',
-          label: 'Periodo',
+          key: "paid_at",
+          label: "Periodo",
           options: getPeriodOptions,
         },
       },
       due_at: {
-        rules: [''],
-        api: '',
-        label: 'Fecha de plazo',
+        rules: [""],
+        api: "",
+        label: "Fecha de plazo",
         list: {
           onRender: renderDueAtCell,
         },
       },
       amount: {
-        rules: ['required'],
-        api: 'e',
-        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Expensa</span>,
+        rules: ["required"],
+        api: "e",
+        label: (
+          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+            Expensa
+          </span>
+        ),
         list: {
           onRender: renderAmountCell,
         },
         form: {
-          type: 'text',
-          label: 'Monto',
+          type: "text",
+          label: "Monto",
         },
       },
       obs: {
-        rules: ['required'],
-        api: 'e',
-        label: 'Motivo del cambio',
+        rules: ["required"],
+        api: "e",
+        label: "Motivo del cambio",
         form: {
-          type: 'text',
-          label: 'Motivo del cambio',
+          type: "text",
+          label: "Motivo del cambio",
         },
       },
       penalty_amount: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</span>,
+        rules: [""],
+        api: "",
+        label: (
+          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+            Multa
+          </span>
+        ),
         list: {
           onRender: renderPenaltyAmountCell,
         },
       },
       maintenance_amount: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. de valor</span>,
-        list: hasMaintenanceValue(user) ? {
-          onRender: renderMaintenanceAmountCell,
-        } : false,
+        rules: [""],
+        api: "",
+        label: (
+          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+            Mant. de valor
+          </span>
+        ),
+        list: hasMaintenanceValue(user)
+          ? {
+              onRender: renderMaintenanceAmountCell,
+            }
+          : false,
       },
       status: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
+        rules: [""],
+        api: "",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Estado
+          </span>
+        ),
         list: {
           onRender: (props: any) => renderStatusCell(props, getDisplayStatus),
         },
         filter: {
-          label: 'Estado',
-          width: '278px',
+          label: "Estado",
+          width: "278px",
           options: () => {
             return [
-              { id: 'ALL', name: 'Todos' },
-              { id: 'A', name: 'Por cobrar' },
-              { id: 'P', name: 'Cobrada' },
-              { id: 'F', name: 'Condonada' },
-              { id: 'S', name: 'Por confirmar' },
-              { id: 'M', name: 'En mora' },
+              { id: "ALL", name: "Todos" },
+              { id: "A", name: "Por cobrar" },
+              { id: "P", name: "Cobrada" },
+              { id: "F", name: "Condonada" },
+              { id: "S", name: "Por confirmar" },
+              { id: "M", name: "En mora" },
             ];
           },
-          optionLabel: 'name',
+          optionLabel: "name",
         },
       },
     };
@@ -531,7 +558,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           />
           {/* Fin de las tarjetas */}
         </div>
-        <List height={"calc(100vh - 480px)"} />
+        <List height={"100%"} />
       </LoadingScreen>
 
       <DateRangeFilterModal

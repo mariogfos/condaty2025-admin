@@ -8,7 +8,7 @@ import React, {
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import styles from "./mainmenu.module.css";
-import { IconArrowDown, IconArrowUp } from "../layout/icons/IconsBiblioteca";
+import { IconArrowDown, IconArrowUp } from "../layout/icons/LucideIcons";
 
 interface MenuItem {
   href: string;
@@ -125,7 +125,7 @@ const MainmenuDropdown = ({
           {!collapsed && <p>{label}</p>}
           {hasItemWithBadge && <Badge />}
         </div>
-        {!collapsed && (isOpen ? <IconArrowUp /> : <IconArrowDown />)}
+        {!collapsed && (isOpen ? <IconArrowUp size={16} /> : <IconArrowDown size={16} />)}
       </div>
 
       {isOpen && (

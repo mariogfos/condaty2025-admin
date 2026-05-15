@@ -1,33 +1,41 @@
 .button {
   display: inline-block;
-  /* border-radius: var(--bRadius); */
-  border-radius: var(--bRadiusS);
-  border-width: 0;
+  border-radius: var(--controlRadius);
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.3s;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-weight: var(--bMedium);
-  font-size: var(--sL);
-  height: 48px;
+  gap: var(--spS);
+  min-height: var(--controlHeight);
+  padding: var(--controlPaddingY) var(--controlPaddingX);
+  font-weight: var(--controlFontWeight);
+  font-size: var(--controlFontSize);
+  letter-spacing: var(--controlLetterSpacing);
+  line-height: 1.2;
   color: var(--cBlack);
   background-color: transparent;
-  padding-left: var(--spL);
-  padding-right: var(--spL);
   &.small {
-    font-size: var(--sS);
-    height: 28px;
+    min-height: 36px;
+    padding: 8px 12px;
+    font-size: 13px;
   }
   &.primary {
     background-color: var(--cPrimary);
-    font-weight: 500;
+    border-color: var(--cPrimary);
+    color: var(--cBlack);
+    font-weight: 750;
   }
   &.secondary {
-    border: 1px solid #d7fff014;
-    color: #878f9a;
-    background-color: #d7fff005;
+    border-color: var(--controlSecondaryBorder);
+    color: var(--controlSecondaryText);
+    background-color: var(--controlSecondaryBg);
   }
 
   &.terciary {
@@ -37,15 +45,17 @@
 
   &.accent {
     background-color: var(--cAccent);
+    border-color: var(--cAccent);
   }
   &.cancel {
     background-color: var(--cError);
+    border-color: var(--cError);
     color: var(--cWhite);
   }
 
   &.danger {
     background-color: var(--dangerBg);
-    border-radius: var(--bRadiusS);
+    border-color: transparent;
     color: var(--cWhite);
     &:hover,
     &:focus {
@@ -59,19 +69,61 @@
   }
 
   &:hover {
-    opacity: 0.8;
+    opacity: 1;
+  }
+
+  &.primary:hover,
+  &.accent:hover {
+    background-color: var(--accentv1);
+    border-color: var(--accentv1);
+  }
+
+  &.secondary:hover {
+    background-color: var(--controlSecondaryHoverBg);
+    border-color: var(--controlSecondaryHoverBorder);
+    color: var(--controlSecondaryHoverText);
   }
 
   &:active {
-    transform: scale(0.9);
+    transform: scale(0.98);
   }
 
   &:disabled,
   &:disabled:hover,
   &:disabled:active {
-    opacity: 50%;
     cursor: not-allowed;
-    font-weight: var(--bRegular) !important;
     transform: none !important;
+  }
+
+  &.primary:disabled,
+  &.primary:disabled:hover,
+  &.primary:disabled:active {
+    background-color: color-mix(
+      in srgb,
+      var(--cPrimary) 18%,
+      var(--cBackground-foreground) 82%
+    );
+    border-color: color-mix(
+      in srgb,
+      var(--cPrimary) 14%,
+      var(--cBackground-foreground) 86%
+    );
+    color: var(--cWhiteV3);
+  }
+
+  &.secondary:disabled,
+  &.secondary:disabled:hover,
+  &.secondary:disabled:active {
+    background-color: color-mix(
+      in srgb,
+      var(--controlSecondaryBg) 88%,
+      var(--cBackground) 12%
+    );
+    border-color: color-mix(
+      in srgb,
+      var(--controlSecondaryBorder) 72%,
+      transparent
+    );
+    color: var(--cWhiteV3);
   }
 }

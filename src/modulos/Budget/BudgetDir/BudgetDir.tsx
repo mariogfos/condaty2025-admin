@@ -2,7 +2,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import styles from "./BudgetDir.module.css";
 import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
@@ -281,9 +280,7 @@ const BudgetDir = () => {
   }, [data, loaded, showToast]);
 
   return (
-    <div className={styles.container}>
-      <List height={"calc(100vh - 360px)"} filterBreakPoint={1700} />
-    </div>
+    <List height={"100%"} filterBreakPoint={1700} />
   );
 };
 

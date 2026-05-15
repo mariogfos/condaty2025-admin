@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import styles from "./Budget.module.css";
 import { getFullName } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import SendBudgetApprovalModal from "../ApprovalModal/BudgetApprovalModal";
@@ -333,9 +332,9 @@ const Budget = () => {
   }, []);
 
   return (
-    <div className={styles.container}>
+    <>
       <List
-        height={"calc(100vh - 360px)"}
+        height={"100%"}
         emptyMsg="Lista de presupuesto vacía. Una vez crees los items "
         emptyLine2="para tu presupuesto, los verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
@@ -350,7 +349,7 @@ const Budget = () => {
         onConfirm={handleConfirmSendToApproval}
         isLoading={isSending}
       />
-    </div>
+    </>
   );
 };
 

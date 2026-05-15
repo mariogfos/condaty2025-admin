@@ -46,17 +46,47 @@ const StateBadge = ({ state }: { state: QrOrderState }) => {
   );
 };
 
+const QR_BATCH_SIZE = 40;
+const QR_PREFETCH_ROWS = 20;
+
+const mergeOrders = (currentOrders: QrOrder[], incomingOrders: QrOrder[]) => {
+  if (!currentOrders.length) return incomingOrders;
+  if (!incomingOrders.length) return currentOrders;
+
+  const merged = [...currentOrders];
+  const indexById = new Map<string, number>();
+
+  merged.forEach((order, index) => {
+    indexById.set(String(order.id), index);
+  });
+
+  incomingOrders.forEach((order) => {
+    const existingIndex = indexById.get(String(order.id));
+    if (existingIndex === undefined) {
+      indexById.set(String(order.id), merged.length);
+      merged.push(order);
+      return;
+    }
+
+    merged[existingIndex] = order;
+  });
+
+  return merged;
+};
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 const QrDinamico = () => {
   const { userCan, setStore, store } = useAuth();
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('orders');
-  const [filters, setFilters] = useState<QrOrderFilters>({ per_page: 20, page: 1 });
+  const [filters, setFilters] = useState<QrOrderFilters>({ per_page: QR_BATCH_SIZE, page: 1 });
   const [orders, setOrders] = useState<QrOrder[]>([]);
   const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0 });
+  const [loadingMoreOrders, setLoadingMoreOrders] = useState(false);
 
   const [showGenerate, setShowGenerate] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<QrOrder | null>(null);
+  const ordersLoadSentinelRef = React.useRef<HTMLDivElement | null>(null);
 
   // ─── API calls ──────────────────────────────────────────────────────────────
   const { execute: fetchOrders, loaded: ordersLoaded } = useAxios();
@@ -68,22 +98,34 @@ const QrDinamico = () => {
     if (f.payment_type) params.set('payment_type', f.payment_type);
     if (f.date_from) params.set('date_from', f.date_from);
     if (f.date_to) params.set('date_to', f.date_to);
-    params.set('per_page', String(f.per_page ?? 20));
+    params.set('per_page', String(f.per_page ?? QR_BATCH_SIZE));
     params.set('page', String(f.page ?? 1));
     return params.toString();
   }, []);
 
-  const loadOrders = useCallback(async (f: QrOrderFilters = filters) => {
+  const loadOrders = useCallback(async (
+    f: QrOrderFilters = filters,
+    options: { append?: boolean } = {},
+  ) => {
+    const append = Boolean(options.append && Number(f.page || 1) > 1);
     const qs = buildQueryString(f);
-    const res = await fetchOrders(`qr-dynamic/orders?${qs}`, 'GET');
-    if (res?.success) {
-      setOrders(res.data.items ?? []);
+    if (append) {
+      setLoadingMoreOrders(true);
+    }
+    const response = await fetchOrders(`qr-dynamic/orders?${qs}`, 'GET');
+    const payload = response?.data;
+
+    if (payload?.success) {
+      setOrders((old) =>
+        append ? mergeOrders(old, payload.data.items ?? []) : (payload.data.items ?? []),
+      );
       setPagination({
-        current_page: res.data.pagination.current_page,
-        last_page:    res.data.pagination.last_page,
-        total:        res.data.pagination.total,
+        current_page: payload.data.pagination.current_page,
+        last_page: payload.data.pagination.last_page,
+        total: payload.data.pagination.total,
       });
     }
+    setLoadingMoreOrders(false);
   }, [fetchOrders, buildQueryString, filters]);
 
   useEffect(() => {
@@ -94,29 +136,73 @@ const QrDinamico = () => {
 
   // ─── Handlers ───────────────────────────────────────────────────────────────
   const handleFilterChange = (key: keyof QrOrderFilters, value: any) => {
-    const newFilters = { ...filters, [key]: value, page: 1 };
+    const newFilters = { ...filters, [key]: value, page: 1, per_page: QR_BATCH_SIZE };
     setFilters(newFilters);
     loadOrders(newFilters);
   };
 
-  const handlePageChange = (page: number) => {
-    const newFilters = { ...filters, page };
-    setFilters(newFilters);
-    loadOrders(newFilters);
-  };
+  const loadMoreOrders = useCallback(() => {
+    if (loadingMoreOrders || !ordersLoaded) return;
+    if (pagination.current_page >= pagination.last_page) return;
+
+    const nextFilters = {
+      ...filters,
+      page: pagination.current_page + 1,
+      per_page: QR_BATCH_SIZE,
+    };
+
+    setFilters(nextFilters);
+    void loadOrders(nextFilters, { append: true });
+  }, [filters, loadOrders, loadingMoreOrders, ordersLoaded, pagination.current_page, pagination.last_page]);
 
   const handleCancel = async (order: QrOrder) => {
     if (!confirm(`¿Anular el QR ${order.reference}? Esta acción no se puede deshacer.`)) return;
     const res = await cancelOrder(`qr-dynamic/orders/${order.id}/cancel`, 'POST');
-    if (res?.success) {
-      loadOrders();
+    if (res?.data?.success) {
+      const freshFilters = { ...filters, page: 1, per_page: QR_BATCH_SIZE };
+      setFilters(freshFilters);
+      loadOrders(freshFilters);
     }
   };
 
   const handleGenerateSuccess = () => {
     setShowGenerate(false);
-    loadOrders();
+    const freshFilters = { ...filters, page: 1, per_page: QR_BATCH_SIZE };
+    setFilters(freshFilters);
+    loadOrders(freshFilters);
   };
+
+  useEffect(() => {
+    if (activeTab !== 'orders') return;
+    if (!ordersLoadSentinelRef.current) return;
+    if (!ordersLoaded || loadingMoreOrders || pagination.current_page >= pagination.last_page) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          loadMoreOrders();
+        }
+      },
+      {
+        root: null,
+        rootMargin: `0px 0px ${QR_PREFETCH_ROWS * 52}px 0px`,
+        threshold: 0.01,
+      },
+    );
+
+    observer.observe(ordersLoadSentinelRef.current);
+
+    return () => observer.disconnect();
+  }, [
+    activeTab,
+    loadMoreOrders,
+    loadingMoreOrders,
+    ordersLoaded,
+    pagination.current_page,
+    pagination.last_page,
+  ]);
 
   // ─── Perms ──────────────────────────────────────────────────────────────────
   if (!userCan('payments', 'R')) return <NotAccess />;
@@ -220,9 +306,9 @@ const QrDinamico = () => {
                   <th style={{ textAlign: 'center' }}>Acciones</th>
                 </tr>
               </thead>
-              <tbody>
-                {!ordersLoaded && (
-                  <tr>
+	              <tbody>
+	                {!ordersLoaded && orders.length === 0 && (
+	                  <tr>
                     <td colSpan={8}>
                       <div className={styles.emptyState}><p>Cargando...</p></div>
                     </td>
@@ -238,8 +324,8 @@ const QrDinamico = () => {
                     </td>
                   </tr>
                 )}
-                {orders.map((order) => (
-                  <tr key={order.id} onClick={() => setSelectedOrder(order)}>
+	                {orders.map((order) => (
+	                  <tr key={order.id} onClick={() => setSelectedOrder(order)}>
                     <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{order.reference}</td>
                     <td>{order.payment_type ? PAYMENT_TYPE_LABEL[order.payment_type] : '—'}</td>
                     <td>{formatDate(order.order_date)}</td>
@@ -268,38 +354,30 @@ const QrDinamico = () => {
                           </button>
                         )}
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          {pagination.total > 0 && (
-            <div className={styles.pagination}>
-              <span>Total: {pagination.total}</span>
-              <button
-                id="btn-prev-page"
-                className={styles.paginationBtn}
-                disabled={pagination.current_page <= 1}
-                onClick={() => handlePageChange(pagination.current_page - 1)}
-              >
-                ← Anterior
-              </button>
-              <span>{pagination.current_page} / {pagination.last_page}</span>
-              <button
-                id="btn-next-page"
-                className={styles.paginationBtn}
-                disabled={pagination.current_page >= pagination.last_page}
-                onClick={() => handlePageChange(pagination.current_page + 1)}
-              >
-                Siguiente →
-              </button>
-            </div>
-          )}
-        </>
-      )}
+	                    </td>
+	                  </tr>
+	                ))}
+	                {loadingMoreOrders
+	                  ? Array.from({ length: QR_BATCH_SIZE }, (_, index) => (
+	                      <tr
+	                        key={`qr-order-skeleton-${pagination.current_page}-${index}`}
+	                        className={styles.loadingRow}
+	                      >
+	                        <td colSpan={8}>
+	                          <div className={styles.loadingRowInner}>
+	                            <div className={styles.loadingLineLong} />
+	                            <div className={styles.loadingLineShort} />
+	                          </div>
+	                        </td>
+	                      </tr>
+	                    ))
+	                  : null}
+	              </tbody>
+	            </table>
+	          </div>
+              <div ref={ordersLoadSentinelRef} className={styles.loadMoreSentinel} />
+	        </>
+	      )}
 
       {/* ── Tab: Conciliation ────────────────────────────────────────────────── */}
       {activeTab === 'conciliation' && <Conciliation />}

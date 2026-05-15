@@ -3,6 +3,9 @@
   color: var(--cWhite);
   width: 100%;
   align-items: center;
+  min-height: 72px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--cBorder);
 
   /* top: 0; */
   /* left: 0; */
@@ -28,7 +31,7 @@
 
     & > p {
       font-size: var(--sL);
-      font-weight: 600;
+      font-weight: var(--bBold);
       cursor: pointer;
       transition: opacity 0.15s ease, text-decoration-color 0.15s ease;
     }

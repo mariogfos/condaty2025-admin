@@ -11,6 +11,8 @@ import useAxios from "@/mk/hooks/useAxios";
 import RenderView from "./RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { getAccessStatusInfo } from "./shared/accessDetailUtils";
 
 interface AccessesTabProps {
   paramsInitial: any;
@@ -30,6 +32,29 @@ const periodOptions = [
   { id: "ly", name: "Año anterior" },
   { id: "custom", name: "Personalizado" },
 ];
+
+const accessStatusTonePalette = {
+  success: {
+    color: "var(--cStatusSuccess)",
+    backgroundColor: "var(--cStatusSuccessSoft)",
+  },
+  info: {
+    color: "var(--cStatusInfo)",
+    backgroundColor: "var(--cStatusInfoSoft)",
+  },
+  warning: {
+    color: "var(--cStatusWarning)",
+    backgroundColor: "var(--cStatusWarningSoft)",
+  },
+  danger: {
+    color: "var(--cStatusDanger)",
+    backgroundColor: "var(--cStatusDangerSoft)",
+  },
+  accent: {
+    color: "var(--cStatusProgress)",
+    backgroundColor: "var(--cStatusProgressSoft)",
+  },
+} as const;
 
 const AccessesTab: React.FC<AccessesTabProps> = ({
   paramsInitial,
@@ -58,6 +83,17 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
       currentFilters[opt] = value;
     }
     return { filterBy: currentFilters };
+  };
+  const getSearchParams = (searchTerm: string) => {
+    const resolvedTerm = String(searchTerm || "").trim();
+    const normalizedIdCandidate = resolvedTerm.replace(/^#/, "");
+    const isAccessIdSearch = /^\d+$/.test(normalizedIdCandidate);
+
+    return {
+      searchBy: isAccessIdSearch ? normalizedIdCandidate : resolvedTerm,
+      searchById: isAccessIdSearch ? normalizedIdCandidate : "",
+      fullType: isAccessIdSearch ? "DET" : "L",
+    };
   };
   const onSaveFilterModal = ({ startDate, endDate }: any) => {
     let err: { startDate?: string; endDate?: string } = {};
@@ -112,6 +148,21 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         del: true,
       },
       search: true,
+      getListRows: (response: any, requestParams?: Record<string, any>) => {
+        if (requestParams?.fullType !== "DET") {
+          return Array.isArray(response?.data) ? response.data : [];
+        }
+
+        if (Array.isArray(response?.data)) {
+          return response.data;
+        }
+
+        if (response?.data?.access) {
+          return [response.data.access];
+        }
+
+        return response?.data ? [response.data] : [];
+      },
       renderView: (props: any) => <RenderView {...props} />,
     };
   }, []);
@@ -196,9 +247,9 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
           onRender: (props: any) => {
             return (
               <div>
-                {props.item.confirm === "N"
-                  ? "-/-"
-                  : getDateTimeStrMesShort(props?.item?.in_at)}
+                {props?.item?.in_at
+                  ? getDateTimeStrMesShort(props.item.in_at)
+                  : "-/-"}
               </div>
             );
           },
@@ -222,6 +273,27 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
                   ? getDateTimeStrMesShort(props.item.out_at)
                   : "-/-"}
               </div>
+            );
+          },
+        },
+      },
+      status: {
+        rules: [],
+        api: "",
+        label: "Estado",
+        list: {
+          width: "140px",
+          onRender: (props: any) => {
+            const statusInfo = getAccessStatusInfo(props.item);
+            const toneStyle = accessStatusTonePalette[statusInfo.tone];
+
+            return (
+              <StatusBadge
+                color={toneStyle.color}
+                backgroundColor={toneStyle.backgroundColor}
+              >
+                {statusInfo.label}
+              </StatusBadge>
             );
           },
         },
@@ -280,6 +352,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
     paramsInitial,
     mod: modAccess,
     fields: fieldsAccess,
+    getSearch: getSearchParams,
     getFilter: handleGetFilter,
   });
 
@@ -295,7 +368,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
   return (
     <>
       <List
-        height={"calc(100vh - 350px)"}
+        height={"100%"}
         emptyMsg="No existen accesos registrados. El historial de visitantes se mostrará"
         emptyLine2="aquí una vez el guardia registre un acceso."
         emptyIcon={<IconExitHome size={80} color="var(--cWhiteV1)" />}

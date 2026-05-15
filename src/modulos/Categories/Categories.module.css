@@ -1,4 +1,9 @@
 .container {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
   width: 100%;
 }
 
@@ -19,7 +24,7 @@
   width: 100% !important;
   display: block;
   box-sizing: border-box;
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-top: 1px solid var(--cWhiteV1);
   transition: background-color 0.2s;
 }
 .categoryHeader {
@@ -120,7 +125,7 @@
   width: 100%;
   box-sizing: border-box;
   border-top: none;
-  border-bottom: 0.5px solid var(--cWhiteV1);
+  border-bottom: 1px solid var(--cWhiteV1);
   gap: 16px;
 }
 
@@ -157,7 +162,7 @@
 .addSubcategoryButton {
   background-color: transparent;
   font-size: 14px;
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   font-weight: var(--bRegular);
   border: none;
   display: flex;
@@ -187,19 +192,31 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  
+  flex-wrap: wrap;
+}
+
+.searchField {
+  flex: 1 1 320px;
+  min-width: min(100%, 320px);
 }
 
 .dataSearchCustom {
-  flex: 1;
+  width: 100%;
 }
 
 .dataSearchCustom input {
-  min-width: 320px;
+  min-width: 0;
   font-size: var(--spL);
   border-radius: 8px;
   padding: 0 16px;
   box-sizing: border-box;
+}
+
+.createCategoryButton {
+  width: auto !important;
+  min-width: 192px;
+  margin: 0 !important;
+  white-space: nowrap;
 }
 
 .addButton {
@@ -266,4 +283,40 @@
   gap: 8px;
   margin-left: auto;
   flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .headerTitle {
+    font-size: var(--title-sm-size);
+  }
+
+  .searchField {
+    flex-basis: 260px;
+    min-width: 240px;
+  }
+
+  .dataSearchCustom input {
+    font-size: var(--controlFontSize);
+  }
+}
+
+@media (max-width: 640px) {
+  .backLink {
+    flex-wrap: wrap;
+  }
+
+  .searchContainer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchField,
+  .createCategoryButton {
+    width: 100% !important;
+    min-width: 0;
+  }
+
+  .createCategoryButton {
+    white-space: normal;
+  }
 }

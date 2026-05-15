@@ -448,7 +448,7 @@ const Users = () => {
         })}
       </div>
       <List
-        height={"calc(100vh - 465px)"}
+        height={"100%"}
         // onTabletRow={renderItem}
         emptyMsg="¡Sin personal registrados! Aquí verás la lista de todo"
         emptyLine2="tu personal administrativo."

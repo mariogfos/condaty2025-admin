@@ -39,7 +39,7 @@
   width: 100%;
   border: none;
   height: 0;
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-top: 1px solid var(--cWhiteV1);
 }
 
 .detailsSection {
@@ -70,7 +70,7 @@
   color: var(--cWhiteV1);
   font-size: var(--sL);
   font-weight: var(--bRegular);
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   text-align: left;
 }
 
@@ -82,7 +82,7 @@
   overflow-wrap: break-word;
   min-width: 0;
   text-align: left;
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
 }
 
 .periodsDetailsSection {
@@ -109,7 +109,7 @@
 
 .periodsTableWrapper {
   width: 100%;
-  border: 0.5px solid var(--cWhiteV1);
+  border: 1px solid var(--cWhiteV1);
   border-radius: var(--bRadiusM);
   overflow: hidden;
 }
@@ -131,13 +131,13 @@
 .periodsTableHeader {
   background-color: var(--cBlackV2);
   color: var(--cWhite);
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   font-weight: 600;
   font-size: 16px;
 }
 
 .periodsTableBody .periodsTableRow:not(:last-child) {
-  border-bottom: 0.5px solid var(--cWhiteV2);
+  border-bottom: 1px solid var(--cWhiteV2);
 }
 
 .periodsTableCell {
@@ -147,7 +147,7 @@
   padding: 0 1rem;
   text-align: left;
   box-sizing: border-box;
-  border-bottom: 0.5px solid var(--cWhiteV2);
+  border-bottom: 1px solid var(--cWhiteV2);
 }
 
 .periodsTableBody .periodsTableCell {
@@ -157,7 +157,7 @@
 
 .periodsTableHeader .periodsTableCell {
   color: var(--cWhite);
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   font-size: 16px;
   font-weight: 600;
   background-color: var(--cBlackV2);
@@ -165,7 +165,7 @@
 }
 
 .periodsTableBody .periodsTableRow {
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-top: 1px solid var(--cWhiteV1);
 }
 
 .periodsTableBody .periodsTableRow:nth-child(odd) .periodsTableCell {

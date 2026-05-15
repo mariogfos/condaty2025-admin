@@ -16,6 +16,7 @@
 /coverage
 # next.js
 /.next/
+/.next-build/
 /out/
 /nogit
 nogit/
@@ -61,6 +62,7 @@ WARP.md
 # Ignore code scanner and editor settings
 /.vscode/
 /.scannerwork/
+/.codex/
 
 # env 
 /.env.development

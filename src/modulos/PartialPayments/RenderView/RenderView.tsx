@@ -15,6 +15,7 @@ import { hasMaintenanceValue } from "@/mk/utils/utils";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 import { MONTHS, MONTHS_S } from "@/mk/utils/date1";
 import RenderDel from "@/modulos/Payments/RenderDel/RenderDel";
+import { paymentsApi } from "@/modulos/Payments/api";
 import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
 import styles from "./RenderView.module.css";
 
@@ -151,6 +152,7 @@ const RenderView = ({
       key: "amount",
       width: "120px",
       label: "Subtotal",
+      className: styles.amountColumn,
       responsive: "onlyDesktop",
       onRender: ({ item }: any) => formatBs(item?.amount),
     },
@@ -159,12 +161,9 @@ const RenderView = ({
     if (propItem?.id) {
       setLoading(true);
       const { data: res } = await execute(
-        `/partialpayments`,
+        paymentsApi.partialSummary(propItem?.id),
         "GET",
-        {
-          fullType: "DET",
-          debtDptoId: propItem?.id,
-        },
+        {},
         false,
         true,
       );
@@ -193,6 +192,9 @@ const RenderView = ({
     Number(item?.penalty_amount) +
     Number(hasMaintenanceValue(user) ? item?.maintenance_amount || "0" : "0");
   const saldoRestante = Number(totalAmount) - Number(totalPagado);
+  const historyRows = Array.isArray(item?.history) ? item.history.length : 0;
+  const historyVisibleRows = Math.min(Math.max(historyRows || 1, 1), 4);
+  const historyTableHeight = `${historyVisibleRows * 56}`;
 
   const downloadAllVouchers = (files: any) => {
     let urls = [];
@@ -216,11 +218,9 @@ const RenderView = ({
   const getExport = async () => {
     setLoadingExport(true);
     const { data: file, error } = await execute(
-      `/payment-recibo-parcial`,
+      paymentsApi.partialReceipt(propItem?.id),
       "POST",
-      {
-        id: propItem?.id,
-      },
+      {},
       false,
       true,
     );
@@ -329,8 +329,6 @@ const RenderView = ({
                   label="Propietario:"
                   value={getFullName(item?.dpto?.homeowner) || "-/-"}
                 />
-              </div>
-              <div className={styles.metaGrid}>
                 <LabelValue
                   label="Unidad"
                   value={item?.dpto?.type?.name + " " + item?.dpto?.nro}
@@ -340,7 +338,6 @@ const RenderView = ({
                   label="Titular:"
                   value={getFullName(item?.dpto?.tenant) || "-/-"}
                 />
-                <LabelValue label="" value={""} />
               </div>
             </div>
             <div className={styles.tableWrapper}>
@@ -348,11 +345,9 @@ const RenderView = ({
                 style={{
                   borderBottomLeftRadius: 0,
                   borderBottomRightRadius: 0,
-                  height: "auto",
-                  // backgroundColor: "red",
                 }}
                 className="striped"
-                height="150"
+                height={historyTableHeight}
                 onRowClick={(item: any) => {
                   setOpenDetail({ open: true, item });
                 }}
@@ -390,18 +385,13 @@ const RenderView = ({
           onClose={() => setOpenFormAccount(false)}
           item={{
             dpto_id: item?.dpto?.nro,
-            // amount: item?.remaining_amount,
             amount:
-              parseFloat(item?.remaining_amount) +
-              parseFloat(item?.penalty_amount) +
-              parseFloat(
-                hasMaintenanceValue(user)
-                  ? item?.maintenance_amount || "0"
-                  : "0",
-              ),
+              Number(item?.available_partial_amount ?? item?.total_remaining_amount ?? 0),
             debt_dpto_id: item?.id ?? propItem?.id,
             bank_account_id: item?.subcategory?.bank_account_id,
             type: "O",
+            max_amount:
+              Number(item?.available_partial_amount ?? item?.total_remaining_amount ?? 0),
           }}
           reLoad={() => {
             getDetail();

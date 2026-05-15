@@ -8,13 +8,13 @@ flex-direction: column;
     align-items: center;
     /* background-color: aqua; */
     & > div:nth-child(1) {
-      color:var(--cBlack);
+      color:var(--cWhite);
       margin-bottom:var(--spS);
       font-size: var(--sXxl);
       font-weight: var(--bBold);
     }
     & > div:nth-child(2) {
-        color:var(--cBlackV2);
+        color:var(--cWhiteV1);
         font-size: var(--sM);
         font-weight: var(--bRegular);
         margin-bottom: 40px;
@@ -26,7 +26,7 @@ flex-direction: column;
       }  
 }
 & > div {
-  color:var(--cBlackV2);
+  color:var(--cWhiteV1);
   margin-top:8px;
 }
 }

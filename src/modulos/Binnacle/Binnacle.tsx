@@ -213,9 +213,9 @@ const Binnacle = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
-    <div>
+    <>
       <List
-        height={"calc(100vh - 330px)"}
+        height={"100%"}
         emptyMsg="Lista de bitácora vacía. Cuando los guardias registren"
         emptyLine2="sus reportes los verás aquí."
         emptyIcon={<IconPencilPaper size={80} color="var(--cWhiteV1)" />}
@@ -230,7 +230,7 @@ const Binnacle = () => {
         errorStart={customDateErrors.startDate}
         errorEnd={customDateErrors.endDate}
       />
-    </div>
+    </>
   );
 };
 

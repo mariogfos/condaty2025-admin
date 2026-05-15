@@ -311,9 +311,9 @@ const Expenses = () => {
     );
   else
     return (
-      <div>
+      <>
         <List
-          height={'calc(100vh - 350px)'}
+          height={"100%"}
           onTabletRow={renderItem}
           onRowClick={onClickDetail}
           emptyMsg="Lista de expensas vacía. Una vez generes las cuotas"
@@ -321,7 +321,7 @@ const Expenses = () => {
           emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
           filterBreakPoint={800}
         />
-      </div>
+      </>
     );
 };
 

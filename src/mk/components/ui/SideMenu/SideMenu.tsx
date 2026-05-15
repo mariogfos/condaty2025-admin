@@ -36,7 +36,7 @@ const SideMenu = ({ children, collapsed, setCollapsed }: PropsType) => {
               className={styles.toggleIcon}
               style={{
                 background: 'var(--cBlackV2)',
-                border: '0.5px solid var(--cAccent)',
+                border: '1px solid var(--cAccent)',
               }}
               color={'var(--cAccent)'}
               circle
@@ -48,7 +48,7 @@ const SideMenu = ({ children, collapsed, setCollapsed }: PropsType) => {
               className={styles.toggleIcon}
               style={{
                 background: 'var(--cBlackV2)',
-                border: '0.5px solid var(--cAccent)',
+                border: '1px solid var(--cAccent)',
               }}
               color={'var(--cAccent)'}
               circle

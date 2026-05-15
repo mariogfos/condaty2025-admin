@@ -8,7 +8,7 @@ import {
   IconNotification,
   IconMessage,
   IconWorld,
-} from "../layout/icons/IconsBiblioteca";
+} from "../layout/icons/LucideIcons";
 
 import HeadTitle from "../HeadTitle/HeadTitle";
 import Link from "next/link";
@@ -52,6 +52,7 @@ const Header = ({
   const [countChat, setCountChat] = useState(0);
 
   const { dispatch: openChat } = useEvent("onOpenChat");
+  const notificationCount = Math.max(Number(count || 0), Number(store?.notif || 0));
 
   const languageMenuItems = [
     { name: "Español", route: "es" },
@@ -109,11 +110,11 @@ const Header = ({
   const NotificationIcon = () => (
     <div className={styles.iconOuterContainer}>
       <div className={styles.notificationContainer}>
-        <Link href="/notifications">
+        <Link href="/notifications" className={styles.notificationAction}>
           <div className={styles.notificationIcon}>
-            <IconNotification />
-            {store?.notif > 0 && (
-              <div className={styles.notificationBadge}>{store?.notif || 0}</div>
+            <IconNotification size={22} strokeWidth={1.4} />
+            {notificationCount > 0 && (
+              <div className={styles.notificationBadge}>{notificationCount}</div>
             )}
           </div>
         </Link>
@@ -132,11 +133,15 @@ const Header = ({
     return (
       <div className={styles.notificationContainer}>
         {href ? (
-          <Link onClick={onClick} href={href}>
+          <Link onClick={onClick} href={href} className={styles.notificationAction}>
             {content}
           </Link>
         ) : (
-          <div onClick={onClick} style={{ cursor: "pointer" }}>
+          <div
+            onClick={onClick}
+            className={styles.notificationAction}
+            style={{ cursor: "pointer" }}
+          >
             {content}
           </div>
         )}
@@ -163,7 +168,7 @@ const Header = ({
         customTitle={path === "/" ? <Title /> : customTitle()}
         left={
           path === "/" && !isMobile ? (
-            <IconMenu onClick={() => setOpenSlider(!openSlider)} circle size={32} />
+            <IconMenu onClick={() => setOpenSlider(!openSlider)} circle size={38} />
           ) : null
         }
         right={
@@ -182,24 +187,30 @@ const Header = ({
 
   return (
     <div className={styles["header-desktop"]}>
-      <div className={styles["header-greeting"]} data-i18n-ignore="true">
-        <h1>
-          {translate("greetingStart")}{" "}
-          <span data-i18n-ignore="true">{getFullName(user)}</span>
-          {translate("greetingEnd")}
-        </h1>
-        <p>{translate("greetingSubtitle")}</p>
+      <div className={styles.headerLead}>
+        <ProfileIcon />
+        <div className={styles["header-greeting"]} data-i18n-ignore="true">
+          <h1>
+            {translate("greetingStart")}{" "}
+            <span data-i18n-ignore="true">{getFullName(user)}</span>
+            {translate("greetingEnd")}
+          </h1>
+          <p>{translate("greetingSubtitle")}</p>
+        </div>
       </div>
 
       <div className={styles["header-controls"]}>
         <Round
-          icon={<IconNotification color="var(--cWhiteV1)" />}
+          icon={<IconNotification color="var(--cWhiteV1)" size={22} strokeWidth={1.4} />}
           href="/notifications"
-          bage={count}
+          bage={notificationCount}
         />
-        <Round icon={<IconSetting color="var(--cWhiteV1)" />} href="/configs" />
         <Round
-          icon={<IconMessage color="var(--cSuccess)" />}
+          icon={<IconSetting color="var(--cWhiteV1)" size={22} strokeWidth={1.4} />}
+          href="/configs"
+        />
+        <Round
+          icon={<IconMessage color="var(--cSuccess)" size={22} strokeWidth={1.4} />}
           onClick={(e: any) => {
             openChat(e);
             setCountChat(0);
@@ -210,7 +221,7 @@ const Header = ({
           trigger={
             <div className={styles.notificationContainer} title={translate("changeLanguage")}>
               <div className={styles.notificationIcon}>
-                <IconWorld color="var(--cWhiteV1)" />
+                <IconWorld color="var(--cWhiteV1)" size={22} strokeWidth={1.4} />
               </div>
             </div>
           }
@@ -222,7 +233,6 @@ const Header = ({
           }}
           ignoreTranslation
         />
-        <ProfileIcon />
       </div>
     </div>
   );

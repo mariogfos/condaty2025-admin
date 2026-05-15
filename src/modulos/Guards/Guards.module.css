@@ -1,8 +1,15 @@
 .Guards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+
   .title {
     font-size: var(--sXxl);
     font-weight: var(--bSemibold);
-    margin-bottom: var(--spL);
+    margin-bottom: 0;
     color: var(--cWhite);
   }
 }

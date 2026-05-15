@@ -1,0 +1,74 @@
+name: Rule Check
+
+on:
+  push:
+    branches:
+      - main
+      - makroz
+      - develop
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  rule-check:
+    name: Verify Agency Rules
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed
+        uses: tj-actions/changed-files@v44
+        with:
+          separator: "\n"
+
+      - name: Show changed files
+        run: |
+          echo "Changed files:"
+          echo "${{ steps.changed.outputs.all_changed_files }}"
+
+      - name: Run Pre-commit Rule Check
+        env:
+          STAGED_FILES: ${{ steps.changed.outputs.all_changed_files }}
+        run: |
+          echo "$STAGED_FILES" | xargs -I {} bash .agent/hooks/pre-commit-check-rules.sh .
+
+      - name: Check for rule violations
+        run: |
+          if grep -q "VIOLATION" <<< "$STAGED_FILES"; then
+            echo "🔴 Rule violations detected!"
+            exit 1
+          fi
+
+  team-activity:
+    name: Update Team Activity
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update Team Activity
+        run: |
+          bash .agent/hooks/update-team-activity.sh \
+            . \
+            .agent/projects/condaty/team-activity/TEAM_CHANGES.md
+
+      - name: Create PR with changes
+        if: success()
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: update team activity log"
+          title: "docs: update team activity log"
+          branch: chore/update-team-activity
+          delete-branch: true
+          file-path: .agent/projects/condaty/team-activity/TEAM_CHANGES.md

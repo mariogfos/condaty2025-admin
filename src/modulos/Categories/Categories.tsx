@@ -274,7 +274,7 @@ const Categories = ({ type: propType = "" }) => {
       <BackNavigation type={originalType as "I" | "E" | "D"} />
       <p className={styles.headerTitle}>Categorías de {categoryTypeText}</p>
       <div className={styles.searchContainer}>
-        <div style={{ flex: 1 }}>
+        <div className={styles.searchField}>
           <DataSearch
             value={searchs.searchBy || ""}
             name="categoriesSearch"
@@ -286,6 +286,7 @@ const Categories = ({ type: propType = "" }) => {
           />
         </div>
         <Button
+          className={styles.createCategoryButton}
           onClick={handleAddPrincipalCategory}
           style={{
             padding: "8px 16px",
@@ -300,7 +301,7 @@ const Categories = ({ type: propType = "" }) => {
       </div>
       <List
         onRenderBody={renderCardFunction}
-        height={"calc(100vh - 400px)"}
+        height={"100%"}
         emptyMsg="Sin categorías."
         emptyLine2="Crea categorías para organizar tus movimientos financieros."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}

@@ -22,6 +22,14 @@ const status: any = {
   X: "Inactiva",
 };
 
+const formatCoordinateValue = (value: any) => {
+  if (value === null || value === undefined || value === "") {
+    return "No configurada";
+  }
+
+  return String(value);
+};
+
 const RenderView = ({ open, item, onClose, reLoad }: any) => {
   const [indexVisible, setIndexVisible] = useState(0);
   const [openDays, setOpenDays] = useState(false);
@@ -183,6 +191,14 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
                 value={item?.max_capacity}
               />
               <KeyValue
+                title={"Latitud"}
+                value={formatCoordinateValue(item?.latitude)}
+              />
+              <KeyValue
+                title={"Longitud"}
+                value={formatCoordinateValue(item?.longitude)}
+              />
+              <KeyValue
                 title={"Restricción por mora"}
                 value={item?.penalty_or_debt_restriction == "A" ? "Sí" : "No"}
               />
@@ -257,7 +273,7 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
                     backgroundColor: "var(--cWhiteV2)",
                     padding: 12,
                     borderRadius: 8,
-                    border: "0.5px solid var(--cWhiteV1)",
+                    border: "1px solid var(--cWhiteV1)",
                     maxWidth: 210,
                     minWidth: 210,
                   }}
@@ -290,7 +306,7 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
                         style={{
                           padding: 8,
                           borderRadius: 8,
-                          border: "0.5px solid var(--cWhiteV1)",
+                          border: "1px solid var(--cWhiteV1)",
                           flex: "0 0 auto",
                         }}
                       >

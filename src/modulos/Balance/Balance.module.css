@@ -267,7 +267,7 @@
 .legendItem span {
   color: var(--cWhiteV1, #a7a7a7);
   font-size: var(--sL); /* 14px */
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
 }
 .exportButtonCustom {
   background-color: transparent;
@@ -295,7 +295,7 @@
   fill: currentColor;
 }
 .legendItem {
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   font-size: 1em;
   display: flex;
   align-items: center;
@@ -307,7 +307,7 @@
 }
 .legendAmountLight {
   color: var(--cBlack, #000) !important;
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   margin-left: 0.25em;
 }
 .legendAmount.exportando {

@@ -24,6 +24,7 @@ import styles from "./RenderForm.module.css";
 import UploadFile from "@/mk/components/forms/UploadFile2";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
+import { paymentsApi } from "../api";
 
 interface Dpto {
   id: string | number;
@@ -115,6 +116,7 @@ interface Deuda {
     };
   };
   debt?: {
+    type?: number;
     month?: number;
     year?: number;
     method?: number;
@@ -313,13 +315,21 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const lastLoadedDeudas = useRef<string>("");
   const exten = ["jpg", "pdf", "png", "jpeg", "doc", "docx", "webp"];
 
+  const findSelectedDpto = useCallback(
+    (dptoKey: string | number) =>
+      extraData?.dptos?.find(
+        (dpto) =>
+          String(dpto.nro) === String(dptoKey) ||
+          String(dpto.id) === String(dptoKey)
+      ),
+    [extraData?.dptos]
+  );
+
   const getDeudas = useCallback(
     async (nroDpto: string | number, paymentmethod: string) => {
       if (!nroDpto || !paymentmethod || paymentmethod === "I") return;
 
-      const selectedDpto = extraData?.dptos?.find(
-        (dpto) => dpto.nro === nroDpto
-      );
+      const selectedDpto = findSelectedDpto(nroDpto);
       const realDptoId = selectedDpto?.id;
 
       if (!realDptoId) return;
@@ -327,10 +337,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       setIsLoadingDeudas(true);
       try {
         const { data } = await execute(
-          "/payments",
+          paymentsApi.adminDebts,
           "GET",
           {
-            fullType: "DEBT",
             dptoId: realDptoId,
             type: paymentmethod,
           },
@@ -357,7 +366,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         setIsLoadingDeudas(false);
       }
     },
-    [execute, extraData?.dptos]
+    [execute, findSelectedDpto]
   );
 
   const filteredCategories = useMemo(() => {
@@ -652,6 +661,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
   };
 
   const getSubtotal = (periodo: Deuda) => {
+    const totalRemainingAmount = Number((periodo as any)?.total_remaining_amount);
+    if (Number.isFinite(totalRemainingAmount) && totalRemainingAmount > 0) {
+      return Math.round(totalRemainingAmount * 100) / 100;
+    }
+
     const amount = parseFloat(String(periodo?.amount)) || 0;
     const penaltyAmount = parseFloat(String(periodo?.penalty_amount)) || 0;
     const maintenanceAmount =
@@ -659,7 +673,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     let total;
 
-    if (periodo.debt?.method === 3) {
+    if (Number(periodo?.type ?? periodo?.debt?.type) === 3) {
       total = penaltyAmount + maintenanceAmount;
     } else {
       total = amount + penaltyAmount + maintenanceAmount;
@@ -801,9 +815,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     let owner_id = formState.owner_id;
     if (!owner_id) {
-      const selectedDpto = extraData?.dptos?.find(
-        (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
-      );
+      const selectedDpto = findSelectedDpto(formState.dpto_id || "");
       const titular = getTitular(selectedDpto);
       owner_id = titular?.id;
     }
@@ -894,7 +906,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
       };
     }
     try {
-      const { data, error } = await execute("/payments", "POST", params);
+      const endpoint = isDebtBasedPayment ? paymentsApi.full : "/payments";
+      const { data, error } = await execute(endpoint, "POST", params);
 
       if (data?.success) {
         showToast("Pago agregado con éxito", "success");
@@ -1253,63 +1266,62 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               )}
 
-              <div
-                className={styles["upload-section"]}
-                style={{ marginBottom: 16 }}
-              >
-                <UploadFile 
-                  cant={8}
-                  name="url_file"
-                  ext={exten.join(",")}
-                  type="I"
-                  setFormState={setFormState}
-                  formState={formState}
-                  required={true}
-                  label="Cargar un archivo o arrastrar y soltar"
-                />
-              </div>
-
-              <div className={styles["voucher-section"]}>
-                <div className={styles["voucher-input"]}>
-                  <Input
-                    type="text"
-                    label="Número de respaldo de pago"
-                    name="voucher"
-                    onChange={(e) => {
-                      const value = e.target.value
-                        .replace(/[^a-zA-Z0-9]/g, "")
-                        .substring(0, 50);
-                      const newEvent = {
-                        ...e,
-                        target: { ...e.target, name: "voucher", value },
-                      };
-                      handleChangeInput(newEvent);
-                    }}
-                    value={formState.voucher || ""}
-                    error={errors}
-                    maxLength={50}
+              <div className={styles["supporting-fields"]}>
+                <div className={styles["upload-section"]}>
+                  <UploadFile
+                    cant={8}
+                    name="url_file"
+                    ext={exten.join(",")}
+                    type="I"
+                    setFormState={setFormState}
+                    formState={formState}
+                    required={true}
+                    label="Cargar un archivo o arrastrar y soltar"
                   />
                 </div>
-              </div>
 
-              <div className={styles["obs-section"]}>
-                <div className={styles["obs-input"]}>
-                  <TextArea
-                    label="Observaciones"
-                    name="obs"
-                    onChange={(e) => {
-                      const value = e.target.value.substring(0, 250);
-                      const newEvent = {
-                        ...e,
-                        target: { ...e.target, name: "obs", value },
-                      };
-                      handleChangeInput(newEvent);
-                    }}
-                    value={formState.obs}
-                    required={false}
-                    maxLength={250}
-                    error={errors}
-                  />
+                <div className={styles["voucher-section"]}>
+                  <div className={styles["voucher-input"]}>
+                    <Input
+                      type="text"
+                      label="Número de respaldo de pago"
+                      name="voucher"
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .replace(/[^a-zA-Z0-9]/g, "")
+                          .substring(0, 50);
+                        const newEvent = {
+                          ...e,
+                          target: { ...e.target, name: "voucher", value },
+                        };
+                        handleChangeInput(newEvent);
+                      }}
+                      value={formState.voucher || ""}
+                      error={errors}
+                      maxLength={50}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles["obs-section"]}>
+                  <div className={styles["obs-input"]}>
+                    <TextArea
+                      label="Observaciones"
+                      name="obs"
+                      onChange={(e) => {
+                        const value = e.target.value.substring(0, 250);
+                        const newEvent = {
+                          ...e,
+                          target: { ...e.target, name: "obs", value },
+                        };
+                        handleChangeInput(newEvent);
+                      }}
+                      value={formState.obs}
+                      required={false}
+                      maxLength={250}
+                      error={errors}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

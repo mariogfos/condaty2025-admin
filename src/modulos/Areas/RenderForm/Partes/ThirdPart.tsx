@@ -10,9 +10,9 @@ interface PropsType {
 }
 const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
   return (
-    <>
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <div style={{ flex: 1 }}>
+    <div className={styles.partStack}>
+      <div className={styles.switchRow}>
+        <div className={styles.switchContent}>
           <p className={styles.title}>¿Restringir reserva por mora?</p>
           <p className={styles.subtitle}>
             Activa el botón si quieres que los residentes morosos no puedan
@@ -34,11 +34,13 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
         />
       </div>
       <Br />
-      <p className={styles.title}>Políticas de uso</p>
-      <p className={styles.subtitle}>
-        Describe las reglas y restricciones de uso y proporciona directrices
-        para el uso adecuado del área social.
-      </p>
+      <div className={styles.sectionBlock}>
+        <p className={styles.title}>Políticas de uso</p>
+        <p className={styles.subtitle}>
+          Describe las reglas y restricciones de uso y proporciona directrices
+          para el uso adecuado del área social.
+        </p>
+      </div>
       <TextArea
         label="Descripción"
         name="usage_rules"
@@ -47,11 +49,13 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
         error={errors}
       />
       <Br />
-      <p className={styles.title}>Política de reembolso</p>
-      <p className={styles.subtitle}>
-        Describe las políticas de reembolso para reservas rechazadas (cómo,
-        cuándo y qué porcentaje se devuelve al residente).
-      </p>
+      <div className={styles.sectionBlock}>
+        <p className={styles.title}>Política de reembolso</p>
+        <p className={styles.subtitle}>
+          Describe las políticas de reembolso para reservas rechazadas (cómo,
+          cuándo y qué porcentaje se devuelve al residente).
+        </p>
+      </div>
       <TextArea
         label="Descripción"
         name="cancellation_policy"
@@ -60,15 +64,8 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
         error={errors}
       />
       <Br />
-      <div
-        style={{
-          display: "flex",
-          gap: 12,
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <div>
+      <div className={styles.switchRow}>
+        <div className={styles.switchContent}>
           <p className={styles.title}>¿Aprobación de administración?</p>
           <p className={styles.subtitle}>
             Si activas esta opción, cada solicitud de reserva pasará por tu
@@ -90,7 +87,7 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
         />
       </div>
       <Br />
-    </>
+    </div>
   );
 };
 

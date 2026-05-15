@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { CSSProperties } from "react";
 import styles from "./headTitle.module.css";
-import { IconArrowLeft } from "../layout/icons/IconsBiblioteca";
+import { IconArrowLeft } from "../layout/icons/LucideIcons";
 
 type PropsType = {
   title?: string | null;

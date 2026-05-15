@@ -3,7 +3,6 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import React, { useMemo } from "react";
 import useCrudUtils from "../shared/useCrudUtils";
-import styles from "./Superadmins.module.css";
 import RenderForm from "./RenderForm/RenderForm";
 import { getFullName } from "@/mk/utils/string";
 import RenderDel from "./RenderDel/RenderDel";
@@ -137,11 +136,7 @@ const Superadmins = () => {
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
-  return (
-    <div className={styles.Roles}>
-      <List height={"calc(100vh - 360px)"} />
-    </div>
-  );
+  return <List height={"100%"} />;
 };
 
 export default Superadmins;
