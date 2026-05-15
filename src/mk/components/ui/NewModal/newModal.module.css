@@ -61,7 +61,7 @@
       }
     }
     .headerDivider {
-      height: 0.5px; /* Grosor de la línea, similar a borderWidth */
+      height: 1px; /* Grosor de la línea, similar a borderWidth */
       background-color: var(--cBorder);
       width: 100%;
     }
@@ -138,7 +138,7 @@
 
 .modalTitle {
   color: var(--cWhite);
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   font-size: 18px;
   font-style: normal;
   font-weight: 600;
@@ -148,7 +148,7 @@
 
 .modalSubtitle {
   color: var(--cWhiteV1);
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   font-size: 12.6px;
   font-style: normal;
   font-weight: 400;

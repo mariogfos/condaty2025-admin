@@ -58,7 +58,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
         {variant === 'summary' && (
           <div className={styles.summaryContent}>
             <div className={styles.amount}>{amount}</div>
-            {count && <div className={styles.count}>/{count}</div>}
+            {count && <div className={styles.count}>{count}</div>}
           </div>
         )}
 
@@ -66,7 +66,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
           <>
             <div className={styles.summaryContent}>
               <div className={styles.amount}>{mainContent}</div>
-              {subtitle && <div className={styles.count}>/{subtitle}</div>}
+              {subtitle && <div className={styles.count}>{subtitle}</div>}
             </div>
           </>
         )}

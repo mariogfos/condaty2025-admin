@@ -336,8 +336,8 @@ const Dptos = () => {
                   </StatusBadge>
                 ) : (
                   <StatusBadge
-                    color="var(--cWhite)"
-                    backgroundColor="var(--cHover)"
+                    color="#b89bff"
+                    backgroundColor="#7f5dff"
                   >
                     Disponible
                   </StatusBadge>
@@ -514,7 +514,7 @@ const Dptos = () => {
       <div className={styles.listContainer}>
         <List
           onTabletRow={renderItem}
-          height={"calc(100vh - 450px)"}
+          height={"100%"}
           onRowClick={handleRowClick}
           emptyMsg="Lista vacía. Una vez registres las diferentes unidades"
           emptyLine2="del condominio las verás aquí."

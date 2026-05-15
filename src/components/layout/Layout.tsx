@@ -23,6 +23,7 @@ import {
 import ChooseClient from "../ChooseClient/ChooseClient";
 import ProfileModal from "../ProfileModal/ProfileModal";
 import SurveyAnswerForm from "@/modulos/Surveys/components/SurveyAnswerForm";
+import { logError } from "@/mk/utils/logs";
 
 const typeAlerts: any = {
   E: {
@@ -70,6 +71,7 @@ const Layout = ({ children }: any) => {
 
   const path = usePathname();
   const router = useRouter();
+  const isImmersiveRoute = (path || "").startsWith("/reports");
 
   const typeAlerts: any = {
     E: {
@@ -177,37 +179,61 @@ const Layout = ({ children }: any) => {
   const onNotif = useCallback(
     (e: any) => {
       if (!user?.id) return;
-      console.log(user, "user");
+
+      const payload =
+        typeof e?.payload === "string"
+          ? (() => {
+              try {
+                return JSON.parse(e.payload);
+              } catch (error) {
+                logError("Error parsing realtime notification payload", {
+                  error,
+                  payload: e?.payload,
+                  event: e?.event,
+                });
+                return e.payload;
+              }
+            })()
+          : e?.payload;
+      const notifAction = payload?.info?.act || payload?.act || e?.event;
+      const notifTitle = payload?.title || payload?.msg?.title;
+
       if (e.event == "ping") {
         showToast("Llegó un PING", "info");
       }
-      if (e.event == "newPreregister" || e.payload == "newVoucher") {
-        showToast(e.payload.title, "info");
-      }
-      if (e.event == "budget-approval" || e.event == "change-budget") {
-        showToast(e.payload.title, "info");
+
+      if (notifAction === "newPreregister" && notifTitle) {
+        showToast(notifTitle, "info");
       }
 
-      if (e.event == "alerts" && e.payload?.level >= 2) {
-        showToast("¡Se registró una nueva alerta!", "warning");
-      }
-      if (e.event == "newContent") {
-        showToast("¡Revisa tu muro, tienes un nuevo comunicado!", "info");
+      if (
+        (e.event == "budget-approval" || e.event == "change-budget") &&
+        notifTitle
+      ) {
+        showToast(notifTitle, "info");
       }
 
-      if (e.event == "admins" && e.payload.act == "newVoucher") {
+      if (notifAction === "newVoucher") {
         showToast(
           "¡Revisa tus ingresos, tienes un nuevo comprobante de pago!",
           "info",
         );
       }
 
+      if (e.event == "alerts" && payload?.level >= 2) {
+        showToast("¡Se registró una nueva alerta!", "warning");
+      }
+
+      if (notifAction === "newContent") {
+        showToast("¡Revisa tu muro, tienes un nuevo comunicado!", "info");
+      }
+
       if (
         e.event == "alerts" &&
-        e.payload?.level == 4 &&
+        payload?.level == 4 &&
         !userCan("aprovebudgets", "U")
       ) {
-        setOpenAlert({ open: true, item: e.payload });
+        setOpenAlert({ open: true, item: payload });
         if (audioEnabled) {
           soundBell
             ?.play()
@@ -217,8 +243,6 @@ const Layout = ({ children }: any) => {
         }
       }
       if (e.event == "new-survey") {
-        const payload =
-          typeof e.payload === "string" ? JSON.parse(e.payload) : e.payload;
         const isMandatory =
           payload?.is_mandatory === "Y" || payload?.is_mandatory === true;
         if (isMandatory) {
@@ -242,6 +266,14 @@ const Layout = ({ children }: any) => {
     soundBell?.pause();
     soundBell?.load();
   };
+  if (isImmersiveRoute) {
+    return (
+      <main className={styles.immersiveLayout}>
+        <section className={styles.immersiveContent}>{children}</section>
+      </main>
+    );
+  }
+
   return (
     <main className={layoutClassName}>
       <section>

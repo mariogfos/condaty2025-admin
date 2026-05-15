@@ -3,16 +3,13 @@ import {
   IconPayments,
   IconMonitorLine,
   IconGroup,
-  IconComunicationDialog,
-  IconCalendar,
-  IconSecurity,
   IconBackOffice,
   IconFinance,
   IconAdministracion,
   IconCommunication,
   IconSecurityV2,
   IconUmbrella,
-} from "../layout/icons/IconsBiblioteca";
+} from "../layout/icons/LucideIcons";
 
 export type MenuConfigItem =
   | {

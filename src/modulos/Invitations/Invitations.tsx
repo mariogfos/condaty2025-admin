@@ -112,11 +112,7 @@ const Invitations = () => {
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
-  return (
-    <div className={styles.Roles}>
-      <List height={"calc(100vh - 360px)"} />
-    </div>
-  );
+  return <List height={"100%"} />;
 };
 
 export default Invitations;

@@ -1,134 +1,160 @@
 .container {
-  padding: var(--sp-m) var(--sp-l);
-  max-width: 800px;
+  width: 100%;
+  max-width: 860px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .loading {
   text-align: center;
-  padding: var(--sp-xl);
-  color: var(--c-white-v1);
+  padding: var(--spXl);
+  color: var(--cWhiteV1);
+}
+
+.headerBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .mainTitle {
-  font-size: var(--s-l);
-  font-weight: var(--font-semibold);
-  color: var(--c-white);
-  margin-bottom: var(--sp-xs);
+  font-size: var(--title-sm-size);
+  font-weight: var(--font-weight-bold);
+  color: var(--cWhite);
+  margin: 0;
 }
 
 .headerSubtitle {
-  font-size: var(--s-s);
-  color: var(--c-white-v1);
-  margin-bottom: var(--sp-l);
-  line-height: 1.5;
+  font-size: var(--body-sm-size);
+  color: var(--cWhiteV1);
+  margin: 0;
+  line-height: 1.6;
+  max-width: 760px;
 }
 
 .formContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-m);
+  gap: 16px;
 }
 
 .sectionContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-s);
+  gap: 12px;
+}
+
+.surfaceCard {
+  background-color: var(--cModalSurface);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .sectionTitle {
-  font-size: var(--s-m);
-  font-weight: var(--font-semibold);
-  color: var(--c-white);
+  font-size: var(--body-md-size);
+  font-weight: var(--font-weight-medium);
+  color: var(--cWhite);
+  margin: 0;
 }
 
 .sectionSubtitle {
-  font-size: var(--s-s);
-  color: var(--c-white-v1);
-  margin-bottom: var(--sp-xs);
+  font-size: var(--body-sm-size);
+  color: var(--cWhiteV1);
+  margin: 0;
+  line-height: 1.5;
 }
 
 .sectionDescription {
-  font-size: var(--s-xs);
-  color: var(--c-white-v2);
-  margin-top: var(--sp-xs);
+  font-size: var(--body-sm-size);
+  color: var(--cWhiteV1);
+  margin-top: 4px;
+  line-height: 1.5;
 }
 
 .toggleRow {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-}
-
-.toggle {
-  position: relative;
-  display: inline-block;
-  width: 48px;
-  height: 24px;
-}
-
-.toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggleSlider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--c-neutral-600);
-  transition: 0.3s;
-  border-radius: 24px;
-}
-
-.toggleSlider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: var(--c-white);
-  transition: 0.3s;
-  border-radius: 50%;
-}
-
-.toggle input:checked + .toggleSlider {
-  background-color: var(--c-accent);
-}
-
-.toggle input:checked + .toggleSlider:before {
-  transform: translateX(24px);
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .formGrid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-m);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 16px;
 }
 
 .infoTitle {
-  font-size: var(--s-s);
-  font-weight: var(--font-semibold);
-  color: var(--c-white);
-  margin-bottom: var(--sp-xs);
+  font-size: var(--body-md-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--cWhite);
+  margin: 0 0 4px;
 }
 
 .infoText {
-  font-size: var(--s-xs);
-  color: var(--c-white-v1);
-  line-height: 1.5;
+  font-size: var(--body-sm-size);
+  color: var(--cWhiteV1);
+  line-height: 1.6;
+  margin: 0;
 }
 
-.saveButtonContainer {
-  margin-top: var(--sp-l);
+.headerButtons {
+  margin-top: 4px;
   display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+  margin-left: auto;
+}
+
+.headerButtons > * {
+  flex: 0 0 auto;
 }
 
 .saveButton {
-  min-width: 200px;
+  width: auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.editButton {
+  width: auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .headerRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toggleRow {
+    flex-direction: column;
+  }
+
+  .headerButtons,
+  .saveButton,
+  .editButton {
+    width: 100%;
+  }
+
+  .headerButtons {
+    justify-content: stretch;
+    flex-direction: column;
+  }
 }

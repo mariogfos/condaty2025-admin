@@ -471,7 +471,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   return (
     <>
       <List
-        height={'calc(100vh - 580px)'}
+        height={"100%"}
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de deudas individuales vacía. Una vez generes las cuotas"

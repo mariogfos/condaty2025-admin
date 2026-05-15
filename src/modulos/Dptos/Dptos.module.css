@@ -4,6 +4,12 @@
   gap: 10px;
 }
 .departamentos {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   width: 100%;
 }
 
@@ -28,13 +34,13 @@
   flex-wrap: wrap;
   gap: var(--spM);
   width: 100%;
-  margin-bottom: var(--spL);
 }
 
 .listContainer {
   display: flex;
   flex-direction: column;
-  margin-top: var(--spL);
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 .statusCellCenter {

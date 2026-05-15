@@ -135,7 +135,7 @@ const Assemblies = () => {
       <div className={styles.listContainer}>
         <List
           title={""}
-          height={"calc(100vh - 360px)"}
+          height={"100%"}
           emptyMsg="Lista vacía. Cuando registres asambleas"
           emptyLine2="las verás aquí."
           emptyIcon={<IconCalendar size={80} color="var(--cWhiteV1)" />}

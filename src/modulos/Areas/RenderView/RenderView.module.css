@@ -30,7 +30,7 @@
         .button {
           background-color: transparent;
           padding: 6px;
-          border: 0.5px solid var(--cWhiteV1);
+          border: 1px solid var(--cWhiteV1);
           border-radius: 100%;
           display: flex;
           justify-content: center;

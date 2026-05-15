@@ -55,7 +55,7 @@
     background-color: var(--cBlackV2);
     padding: 8px;
     border-radius: 12px;
-    border: 0.5px solid var(--cWhiteV1);
+    border: 1px solid var(--cWhiteV1);
   }
 
   & > div {

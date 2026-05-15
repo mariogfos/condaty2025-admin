@@ -9,7 +9,7 @@
   box-sizing: border-box;
   color: var(--cWhite);
   border-radius: var(--bRadiusM);
-  border: 0.5px solid var(--cWhiteV1);
+  border: 1px solid var(--cWhiteV1);
 }
 
 .headerSection {
@@ -151,6 +151,6 @@
   width: 100%;
   border: none;
   height: 0;
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-top: 1px solid var(--cWhiteV1);
   margin: var(--spS) 0;
 }

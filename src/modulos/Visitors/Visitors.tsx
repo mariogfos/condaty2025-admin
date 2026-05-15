@@ -127,7 +127,7 @@ const Visitors = () => {
 
   return (
     <List
-      height={"calc(100vh - 350px)"}
+      height={"100%"}
       emptyMsg="No hay visitantes registrados aún."
       emptyLine2="Cuando se registren accesos, se mostrarán aquí."
       emptyIcon={<IconExitHome size={80} color="var(--cWhiteV1)" />}

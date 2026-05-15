@@ -13,9 +13,74 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import FourPart from "./Partes/FourPart";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 
+const hasCoordinateValue = (value: unknown) => {
+  if (value === 0 || value === "0") {
+    return true;
+  }
+
+  return value !== null && value !== undefined && String(value).trim() !== "";
+};
+
+const normalizeCoordinateValue = (value: unknown) => {
+  if (!hasCoordinateValue(value)) {
+    return "";
+  }
+
+  return String(value).trim().replace(/\s/g, "").replace(",", ".");
+};
+
+const parseCoordinateValue = (value: unknown) => {
+  const normalized = normalizeCoordinateValue(value);
+
+  if (!normalized) {
+    return null;
+  }
+
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const buildCoordinatesValue = (latitude: unknown, longitude: unknown) => {
+  const latitudeValue = hasCoordinateValue(latitude)
+    ? String(latitude).trim()
+    : "";
+  const longitudeValue = hasCoordinateValue(longitude)
+    ? String(longitude).trim()
+    : "";
+
+  if (!latitudeValue || !longitudeValue) {
+    return "";
+  }
+
+  return `${latitudeValue}, ${longitudeValue}`;
+};
+
+const extractCoordinatesPair = (value: unknown) => {
+  const raw = String(value ?? "").trim();
+  if (!raw) {
+    return null;
+  }
+
+  const parts = raw
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length !== 2) {
+    return null;
+  }
+
+  return {
+    latitude: parts[0],
+    longitude: parts[1],
+  };
+};
+
 const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   const [formState, setFormState]: any = useState({
     ...item,
+    coordinates:
+      item?.coordinates || buildCoordinatesValue(item?.latitude, item?.longitude),
     booking_mode: item?.booking_mode || "day",
     has_price: item?.price ? "S" : "N",
     requires_approval: item?.requires_approval || "X",
@@ -31,6 +96,19 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   }, []);
 
   const handleChange = (e: any) => {
+    if (e.target.name === "coordinates") {
+      const coordinates = e.target.value;
+      const parsedCoordinates = extractCoordinatesPair(coordinates);
+
+      setFormState({
+        ...formState,
+        coordinates,
+        latitude: parsedCoordinates?.latitude ?? "",
+        longitude: parsedCoordinates?.longitude ?? "",
+      });
+      return;
+    }
+
     setFormState({
       ...formState,
       [e.target.name]: e.target.value,
@@ -39,6 +117,15 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
 
   const validateLevel1 = () => {
     let errors: any = {};
+    const coordinatesValue = String(formState?.coordinates ?? "").trim();
+    const parsedCoordinates = extractCoordinatesPair(coordinatesValue);
+    const latitudeValue = normalizeCoordinateValue(
+      parsedCoordinates?.latitude ?? formState?.latitude,
+    );
+    const longitudeValue = normalizeCoordinateValue(
+      parsedCoordinates?.longitude ?? formState?.longitude,
+    );
+    const hasCoordinates = coordinatesValue !== "";
 
     // errors = checkRules({
     //   value: formState?.avatar,
@@ -80,6 +167,26 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
       key: "status",
       errors,
     });
+
+    if (hasCoordinates && !parsedCoordinates) {
+      errors.coordinates =
+        "Ingresa las coordenadas en formato latitud, longitud";
+    }
+
+    if (hasCoordinates && parsedCoordinates) {
+      errors = checkRules({
+        value: latitudeValue,
+        rules: ["required", "number", "between:-90,90"],
+        key: "latitude",
+        errors,
+      });
+      errors = checkRules({
+        value: longitudeValue,
+        rules: ["required", "number", "between:-180,180"],
+        key: "longitude",
+        errors,
+      });
+    }
 
     setErrors(errors);
     return errors;
@@ -161,9 +268,8 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     setLevel(level + 1);
   };
   const onSave = async () => {
-    setOpenList(true);
     let method = formState.id ? "PUT" : "POST";
-    const { data } = await execute(
+    const { data, error } = await execute(
       "/areas" + (formState.id ? "/" + formState.id : ""),
       method,
       {
@@ -171,6 +277,8 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         images: formState?.images,
         title: formState?.title,
         description: formState?.description,
+        latitude: parseCoordinateValue(formState?.latitude),
+        longitude: parseCoordinateValue(formState?.longitude),
         max_capacity: formState?.max_capacity,
         status: formState?.status,
         requires_approval: formState?.requires_approval,
@@ -196,7 +304,13 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
       reLoad();
       showToast(data.message, "success");
     } else {
-      showToast(data.message, "error");
+      showToast(
+        error?.data?.message ||
+          error?.message ||
+          data?.message ||
+          "No se pudo guardar el área social",
+        "error",
+      );
     }
   };
 
@@ -210,24 +324,12 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   return (
     <div className={styles.RenderForm}>
       <HeaderBack label="Volver a lista de áreas sociales" onClick={_onClose} />
-      <div
-        style={{
-          width: "800px",
-          margin: "0 auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-        }}
-      >
-        <p style={{ fontSize: 24, fontWeight: 600 }}>Creación de área social</p>
-        <StepProgressBar currentStep={level} totalSteps={4} />
-        <Card
-          style={{
-            backgroundColor: "#d7fff005",
-            border: "1px solid #d7fff014",
-            borderRadius: 12,
-          }}
-        >
+      <div className={styles.formShell}>
+        <div className={styles.headerBlock}>
+          <p className={styles.pageTitle}>Creación de área social</p>
+          <StepProgressBar currentStep={level} totalSteps={4} />
+        </div>
+        <Card className={styles.formCard}>
           {level === 1 && (
             <FirstPart
               errors={errors}
@@ -253,23 +355,10 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
             />
           )}
           {level === 4 && <FourPart item={formState} />}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              justifyContent: "end",
-              marginTop: 24,
-            }}
-          >
+          <div className={styles.footerActions}>
             {level > 1 && (
               <div
-                style={{
-                  padding: 10,
-                  borderRadius: 10,
-                  border: "1px solid #d7fff014",
-                  backgroundColor: "#d7fff005",
-                }}
+                className={styles.backAction}
                 onClick={() => {
                   setLevel(level - 1);
                 }}
@@ -277,7 +366,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
                 <IconArrowLeft color="var(--cWhiteV1)" />
               </div>
             )}
-            <Button style={{ width: 304 }} onClick={onNext}>
+            <Button className={styles.continueButton} onClick={onNext}>
               Continuar
             </Button>
           </div>

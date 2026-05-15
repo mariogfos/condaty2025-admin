@@ -30,66 +30,70 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: var(--spL);
-  padding: var(--spM);
+  gap: 16px;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
 }
 
 .summarySection {
-  border-radius: var(--bRadius);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 .categoriesButton {
-  border: 1px solid var(--cWhiteV1) !important;
-  color: var(--cWhiteV1) !important;
-  background-color: transparent !important;
-  font-size: clamp(12px, 3vw, 14px);
-  border-radius: var(--bRadius) !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-  flex-shrink: 0;
-  height: 48px !important;
-  min-height: 48px !important;
-  max-height: 48px !important;
+  min-width: var(--controlMinWidth);
+  width: auto !important;
   margin: 0 !important;
-  white-space: normal !important;
-  word-break: break-word !important;
-  text-align: center;
+  white-space: nowrap;
 }
 
 .summaryHeader {
-  margin-bottom: var(--spL);
+  margin-bottom: 0;
 }
 
 .summaryTitle {
-  font-size: var(--sXxl);
-  font-weight: var(--bBold);
+  font-size: var(--title-sm-size);
+  font-weight: var(--font-weight-bold);
   color: var(--cWhite);
-  letter-spacing: 1px;
   margin: 0;
-  text-shadow: 1px 1px 2px var(--cBlackV3);
 }
 
 .summaryCards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--spL);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
 }
 
 .tabsSection {
-  background-color: #d7fff005;
-  border: 1px solid #d7fff014;
-  border-radius: 12px;
-  width: fit-content; /* Solo el ancho necesario para los tabs */
-  margin-bottom: var(--spM);
+  background-color: var(--cModalSection);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 16px;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 0;
   padding: 4px;
+  align-self: flex-start;
 }
 
 .listSection {
-  background: #d7fff005;
-  border: 1px solid #d7fff014;
-  padding: var(--sM);
-  border-radius: 12px;
+  background: var(--cModalSection);
+  border: 1px solid var(--cModalBorder);
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.tabContent {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
 }
 
 @media (max-width: 1280px) {

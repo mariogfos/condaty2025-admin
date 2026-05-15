@@ -5,9 +5,6 @@ import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import EmptyData from "@/components/NoData/EmptyData";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { useState } from "react";
-import Pagination from "@/mk/components/ui/Pagination/Pagination";
-import Select from "@/mk/components/forms/Select/Select";
 import { IconExitHome } from "@/components/layout/icons/IconsBiblioteca";
 
 interface HistoryAccessProps {
@@ -17,20 +14,6 @@ interface HistoryAccessProps {
 }
 
 const HistoryAccess = ({ accessData, open, close }: HistoryAccessProps) => {
-  const [params, setParams] = useState({
-    perPage: 20,
-    page: 1,
-  });
-
-  // Calcula el índice inicial y final para la paginación
-  const startIndex = (params.page - 1) * params.perPage;
-  const endIndex = startIndex + params.perPage;
-  const paginatedData = accessData.slice(startIndex, endIndex);
-
-  const onChangePage = (page: number) => {
-    setParams({ ...params, page });
-  };
-
   return (
     <DataModal
       title="Historial de visitas"
@@ -48,7 +31,7 @@ const HistoryAccess = ({ accessData, open, close }: HistoryAccessProps) => {
         </div>
 
         <div className={styles.visitsList}>
-          {paginatedData?.map((visita, index) => (
+          {accessData?.map((visita, index) => (
             <div key={index} className={styles.visitRow}>
               <div className={styles.visitorInfo}>
                 <Avatar
@@ -100,19 +83,6 @@ const HistoryAccess = ({ accessData, open, close }: HistoryAccessProps) => {
               />
             </div>
           )}
-        </div>
-
-        <div className={styles.paginationContainer}>
-          <Pagination
-            currentPage={params.page}
-            onPageChange={onChangePage}
-            setParams={setParams}
-            params={params}
-            totalPages={Math.ceil(accessData.length / params.perPage)}
-            total={accessData.length}
-            previousLabel=""
-            nextLabel=""
-          />
         </div>
       </div>
     </DataModal>

@@ -24,6 +24,7 @@ import styles from "./RenderForm.module.css";
 import UploadFile2 from "@/mk/components/forms/UploadFile2";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
+import { paymentsApi } from "@/modulos/Payments/api";
 
 interface Dpto {
   id: string | number;
@@ -115,6 +116,7 @@ interface Deuda {
     };
   };
   debt?: {
+    type?: number;
     month?: number;
     year?: number;
     method?: number;
@@ -315,13 +317,21 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const lastLoadedDeudas = useRef<string>("");
   const exten = ["jpg", "jpeg", "png", "webp"];
 
+  const findSelectedDpto = useCallback(
+    (dptoKey: string | number) =>
+      extraData?.dptos?.find(
+        (dpto) =>
+          String(dpto.nro) === String(dptoKey) ||
+          String(dpto.id) === String(dptoKey)
+      ),
+    [extraData?.dptos]
+  );
+
   const getDeudas = useCallback(
     async (nroDpto: string | number, paymentmethod: string) => {
       if (!nroDpto || !paymentmethod || paymentmethod === "I") return;
 
-      const selectedDpto = extraData?.dptos?.find(
-        (dpto) => dpto.nro === nroDpto
-      );
+      const selectedDpto = findSelectedDpto(nroDpto);
       const realDptoId = selectedDpto?.id;
 
       if (!realDptoId) return;
@@ -329,10 +339,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       setIsLoadingDeudas(true);
       try {
         const { data } = await execute(
-          "/payments",
+          paymentsApi.adminPartialDebts,
           "GET",
           {
-            fullType: "DEBT",
             dptoId: realDptoId,
             type: paymentmethod,
           },
@@ -359,7 +368,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         setIsLoadingDeudas(false);
       }
     },
-    [execute, extraData?.dptos]
+    [execute, findSelectedDpto]
   );
 
   const filteredCategories = useMemo(() => {
@@ -665,6 +674,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
   };
 
   const getSubtotal = (periodo: Deuda) => {
+    const totalRemainingAmount = Number((periodo as any)?.total_remaining_amount);
+    if (Number.isFinite(totalRemainingAmount) && totalRemainingAmount > 0) {
+      return Math.round(totalRemainingAmount * 100) / 100;
+    }
+
     const amount = parseFloat(String(periodo?.amount)) || 0;
     const penaltyAmount = parseFloat(String(periodo?.penalty_amount)) || 0;
     const maintenanceAmount =
@@ -672,7 +686,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     let total;
 
-    if (periodo.debt?.method === 3) {
+    if (Number(periodo?.type ?? periodo?.debt?.type) === 3) {
       total = penaltyAmount + maintenanceAmount;
     } else {
       total = amount + penaltyAmount + maintenanceAmount;
@@ -797,9 +811,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     let owner_id = formState.owner_id;
     if (!owner_id) {
-      const selectedDpto = extraData?.dptos?.find(
-        (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
-      );
+      const selectedDpto = findSelectedDpto(formState.dpto_id || "");
       const titular = getTitular(selectedDpto);
       owner_id = titular?.id;
     }
@@ -876,7 +888,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     if (isDebtBasedPayment && selectedPeriodo.length > 0) {
       params.debt_dpto_id = selectedPeriodo[0].id;
-      endpoint = "/partialpayments";
+      endpoint = paymentsApi.partial;
     } else if (!isDebtBasedPayment) {
       endpoint = "/payments";
       params.nro_id = formState.dpto_id;

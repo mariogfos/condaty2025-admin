@@ -253,7 +253,7 @@ export const messages = {
       greetingStart: "¡Hola",
       greetingEnd: "!",
       greetingSubtitle:
-        "Es un gusto tenerte de nuevo con nosotros, te deseamos una excelente jornada laboral",
+        "Que alegria tenerte de vuelta. Que tengas un excelente dia.",
       changeLanguage: "Cambiar idioma",
     },
     auth: {
@@ -582,7 +582,7 @@ export const messages = {
       greetingStart: "Olá",
       greetingEnd: "!",
       greetingSubtitle:
-        "Bom ter você de volta. Tenha um excelente dia de trabalho",
+        "Que bom ter você de volta. Tenha um excelente dia hoje.",
       changeLanguage: "Mudar idioma",
     },
     auth: {
@@ -909,7 +909,7 @@ export const messages = {
       greetingStart: "Hello",
       greetingEnd: "!",
       greetingSubtitle:
-        "Great to have you back. Have an excellent workday",
+        "Great to have you back. Have an excellent day today.",
       changeLanguage: "Change language",
     },
     auth: {

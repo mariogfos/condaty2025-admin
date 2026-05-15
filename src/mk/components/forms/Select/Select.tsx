@@ -1,13 +1,13 @@
 "use client";
 import {
-  IconArrowDown,
   IconCheckOff,
   IconCheckSquare,
 } from "@/components/layout/icons/IconsBiblioteca";
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import { IconArrowDown } from "@/components/layout/icons/LucideIcons";
+import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import Input from "../Input/Input";
 import styles from "./select.module.css";
-import { PropsTypeInputBase } from "../ControlLabel";
+import { PropsTypeInputBase, getFieldErrorMessage } from "../ControlLabel";
 import { createPortal } from "react-dom";
 import { useOnClickOutside } from "@/mk/hooks/useOnClickOutside";
 import { Avatar } from "../../ui/Avatar/Avatar";
@@ -26,6 +26,11 @@ interface PropsType extends PropsTypeInputBase {
   filterStyle?: CSSProperties;
 }
 
+const getDisplayLabel = (option: any, optionLabel: string, optionValue: string) => {
+  if (!option) return "";
+  return option[optionLabel] || option.label || String(option[optionValue] ?? "");
+};
+
 const Section = ({
   selectRef1,
   position,
@@ -42,7 +47,7 @@ const Section = ({
   optionLabel,
   handleSelectClickElement,
   handleSelectMultiClickElement,
-  setOpenOptions,
+  onClose,
   selectRef,
   ignoreOptionsTranslation,
 }: any) => {
@@ -50,7 +55,7 @@ const Section = ({
     selectRef1,
     () => {
       onChangeSearch({ target: { value: "" } });
-      setOpenOptions(false);
+      onClose();
     },
     selectRef,
   );
@@ -62,10 +67,10 @@ const Section = ({
       style={{
         top: `${position?.top || 0}px`,
         left: `${position?.left || 0}px`,
-        width: `${position?.width || 0}px`,
+        minWidth: `${position?.width || 0}px`,
       }}
     >
-      <div className={filter ? "" : "hidden"}>
+      <div className={filter ? styles.searchBox : styles.hidden}>
         <Input
           type="text"
           value={search}
@@ -117,11 +122,11 @@ const Section = ({
                       }
                 }
               >
-                <div style={{ alignItems: "center", gap: "8px" }}>
+                <div className={styles.optionContent}>
                   {option["img"] && !isGroupLabel && (
                     <Avatar
                       className={styles.avatar}
-                      name={option[optionLabel] ?? option.label}
+                      name={getDisplayLabel(option, optionLabel, optionValue)}
                       src={option["img"]}
                       h={32}
                       w={32}
@@ -139,7 +144,7 @@ const Section = ({
                     className={isGroupLabel ? styles.groupLabelText : ""}
                     style={{ flexGrow: 1, flexBasis: 0 }}
                   >
-                    {option[optionLabel] || option.label}
+                    {getDisplayLabel(option, optionLabel, optionValue)}
                   </div>
                 </div>
               </li>
@@ -190,6 +195,7 @@ const Select = ({
   );
   const [openOptions, setOpenOptions] = useState(false);
   const [search, setSearch] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
   const [selectedNames, setSelectedNames]: any = useState("");
   const [position, setPosition]: any = useState(null);
@@ -198,6 +204,12 @@ const Select = ({
     label,
     key: name,
   });
+  const fieldError = getFieldErrorMessage(error, name);
+  const safeOptions = Array.isArray(options) ? options : [];
+  const isAutoWidth =
+    style?.width === "auto" ||
+    style?.width === "fit-content" ||
+    style?.minWidth === "auto";
 
   // esto se esta dejando cuando para verlo despues cuando se aplique el otro tipo de busqueda 06/11/2025
 
@@ -235,11 +247,10 @@ const Select = ({
         : [];
 
       if (
-        Array.isArray(options) &&
-        options.length > 0 &&
+        safeOptions.length > 0 &&
         currentSelectedValues.length > 0
       ) {
-        const selectedFullOptions = options.filter((option: any) =>
+        const selectedFullOptions = safeOptions.filter((option: any) =>
           currentSelectedValues.includes(option[optionValue]),
         );
 
@@ -265,7 +276,7 @@ const Select = ({
         setSelectedNames("");
       }
     }
-  }, [selectValue, options, multiSelect, optionLabel, optionValue]);
+  }, [multiSelect, optionLabel, optionValue, safeOptions, selectValue]);
 
   useEffect(() => {
     const parentWithClass = findParentWithClass(
@@ -333,25 +344,41 @@ const Select = ({
     }
   }, [value, multiSelect]);
 
-  if (!options) return null;
+  const selectedOption = useMemo(() => {
+    if (multiSelect || safeOptions.length === 0) return null;
+    return (
+      safeOptions.find((option: any) => option?.[optionValue] == value) || null
+    );
+  }, [multiSelect, optionValue, safeOptions, value]);
 
-  let valueText: any = "";
-  if (readOnly) {
-    if (options.filter) {
-      valueText = options.filter((o: any) => o[optionValue] === value)[0];
-      if (valueText) {
-        valueText = valueText[optionLabel];
-      }
-    } else {
-      valueText = options[value]?.label || "";
-    }
-  }
+  const currentValueLabel = multiSelect
+    ? selectedNames
+    : getDisplayLabel(selectedOption, optionLabel, optionValue);
+
+  const hasValue = Boolean(currentValueLabel);
+  const triggerText = hasValue
+    ? currentValueLabel
+    : placeholder || "Seleccionar";
+  const triggerStyle = {
+    ...inputStyle,
+    ...((isFocused || openOptions) && !disabled && !readOnly
+      ? {
+          borderColor: "var(--cPrimary)",
+          boxShadow: "0 0 0 3px rgba(0, 227, 140, 0.12)",
+        }
+      : {}),
+  };
+
+  const closeOptions = () => {
+    setOpenOptions(false);
+    setSearch("");
+    onBlur?.({ target: { name, value: selectValue } });
+  };
 
   const handleSelectClickElement = (element: any) => {
     setSelectValue(element);
-    setOpenOptions(false);
     onChange({ target: { name: name, value: element } });
-    setSearch("");
+    closeOptions();
   };
 
   const handleSelectMultiClickElement = (element: any) => {
@@ -378,7 +405,7 @@ const Select = ({
       .replace(/[\u0300-\u036f]/g, "")
       .toUpperCase();
 
-  const filteredOptions = options.filter((option: any) => {
+  const filteredOptions = safeOptions.filter((option: any) => {
     if (option?.isGroupLabel) return true;
     const label = option[optionLabel] || option.label || "";
     return normalizeText(String(label)).includes(normalizeText(search));
@@ -394,37 +421,60 @@ const Select = ({
   return (
     <div
       ref={selectRef}
-      className={`${styles.select} ${className}`}
+      className={[
+        styles.select,
+        className,
+        openOptions ? styles.isOpen : "",
+        disabled || readOnly ? styles.isDisabled : "",
+        fieldError ? styles.hasError : "",
+        isAutoWidth ? styles.autoWidth : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       style={style}
     >
-      <div onClick={disabled ? () => {} : handleSelectClickIcon}>
-        <Input
-          type={"text"}
-          value={
-            multiSelect
-              ? selectedNames
-              : options.find
-                ? options.find((i: any) => i[optionValue] == value)
-                  ? options.find((i: any) => i[optionValue] == value)[
-                      optionLabel
-                    ]
-                  : ""
-                : options[value]?.label
-          }
-          onChange={onChange}
-          readOnly={true}
-          label={label}
-          name={name}
-          iconRight={<IconArrowDown className={openOptions ? "rotate" : ""} />}
-          placeholder={placeholder}
-          required={required}
-          onBlur={onBlur}
-          disabled={disabled}
-          error={error ?? undefined}
-          style={{ ...inputStyle, cursor: "pointer" }}
-          styleInput={{ cursor: "pointer" }}
+      <button
+        type="button"
+        onClick={disabled || readOnly ? undefined : handleSelectClickIcon}
+        className={[
+          styles.selectTrigger,
+          !label ? styles.noLabel : "",
+          hasValue ? styles.isFilled : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        style={triggerStyle}
+        disabled={disabled}
+        aria-expanded={openOptions}
+        aria-haspopup="listbox"
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+      >
+        <div className={styles.triggerBody}>
+          {label && <span className={styles.triggerLabel}>{label}</span>}
+          <span
+            className={[
+              styles.triggerValue,
+              !hasValue ? styles.placeholderValue : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            title={triggerText}
+          >
+            {triggerText}
+          </span>
+        </div>
+        <IconArrowDown
+          size={18}
+          className={[
+            styles.chevron,
+            openOptions ? styles.chevronOpen : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
         />
-      </div>
+      </button>
+      {fieldError ? <p className={styles.errorText}>{fieldError}</p> : null}
       {openOptions &&
         createPortal(
           <Section
@@ -443,7 +493,7 @@ const Select = ({
             optionLabel={optionLabel}
             handleSelectClickElement={handleSelectClickElement}
             handleSelectMultiClickElement={handleSelectMultiClickElement}
-            setOpenOptions={setOpenOptions}
+            onClose={closeOptions}
             selectRef={selectRef}
             ignoreOptionsTranslation={ignoreOptionsTranslation}
           />,

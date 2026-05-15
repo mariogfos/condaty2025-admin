@@ -23,56 +23,118 @@
 
 .toolbar {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  width: 100%;
+  min-width: 0;
 }
 
 .searchField {
   width: min(100%, 360px);
   max-width: 360px;
-  min-width: 280px;
-  flex: 0 1 360px;
+  min-width: 0;
+  flex: 1 1 320px;
 }
 
 .toolbarControls {
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: flex-start;
   gap: 12px;
-  flex: 1;
-  flex-wrap: wrap;
+  flex: 1 1 0;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .filtersRow,
 .actionsRow {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .filtersRow {
-  flex: 0 1 auto;
+  flex: 1 1 320px;
+}
+
+.inlineFilters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: nowrap;
 }
 
 .actionsRow {
   flex: 0 0 auto;
+  justify-content: flex-end;
+  margin-left: auto;
+  max-width: 100%;
+}
+
+.toolbarActionButton {
+  flex: 0 0 auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.compactFilterButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--controlHeight);
+  min-width: var(--controlHeight);
+  height: var(--controlHeight);
+  padding: 0;
+  border: 1px solid var(--controlSecondaryBorder);
+  border-radius: var(--controlRadius);
+  background: var(--controlSecondaryBg);
+  color: var(--controlSecondaryText);
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.compactFilterButton:hover,
+.compactFilterButton:focus-visible {
+  background: var(--controlSecondaryHoverBg);
+  border-color: var(--controlSecondaryHoverBorder);
+  color: var(--controlSecondaryHoverText);
+}
+
+.compactFilterButtonActive {
+  color: var(--cPrimary);
+  border-color: color-mix(in srgb, var(--cPrimary) 58%, transparent);
+}
+
+.compactFilterModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .toolbarFieldSmall {
   width: 150px;
   min-width: 150px;
+  max-width: var(--controlMaxWidth);
 }
 
 .toolbarFieldMedium {
   width: 220px;
   min-width: 220px;
+  max-width: var(--controlMaxWidth);
 }
 
 .toolbarFieldLarge {
-  width: 250px;
-  min-width: 250px;
+  width: var(--controlMaxWidth);
+  min-width: 220px;
+  max-width: var(--controlMaxWidth);
 }
 
 .contentGrid {
@@ -93,11 +155,9 @@
   min-height: 0;
   height: 100%;
   overflow: hidden;
-  border: 1px solid var(--cModalBorder);
+  border: 1px solid var(--cTableBorder);
   border-radius: 20px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
-    #111315;
+  background: var(--cTableSurface);
 }
 
 .loadingState {
@@ -107,8 +167,8 @@
   z-index: 2;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(12, 15, 18, 0.88);
-  color: #bfd5ff;
+  background: color-mix(in srgb, var(--cTableHeader) 92%, transparent);
+  color: var(--cWhiteV4);
   font-size: 12px;
   font-weight: 700;
 }
@@ -119,8 +179,8 @@
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--cModalBorder);
-  background: rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid var(--cTableBorder);
+  background: var(--cTableHeader);
 }
 
 .calendarMonthTitle {
@@ -157,8 +217,8 @@
 .weekdays {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  border-bottom: 1px solid var(--cModalBorder);
-  background: rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid var(--cTableBorder);
+  background: var(--cTableHeader);
 }
 
 .weekday {
@@ -181,9 +241,9 @@
 .dayCell {
   min-height: 0;
   padding: 8px;
-  border-right: 1px solid var(--cModalBorder);
-  border-bottom: 1px solid var(--cModalBorder);
-  background: transparent;
+  border-right: 1px solid var(--cTableBorder);
+  border-bottom: 1px solid var(--cTableBorder);
+  background: var(--cTableRow);
   color: inherit;
   cursor: pointer;
   outline: none;
@@ -196,7 +256,7 @@
 
 .dayCell:hover,
 .dayCell:focus-visible {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--cTableHover);
 }
 
 .dayCell:hover:has(.entryChip:hover),
@@ -205,7 +265,8 @@
 }
 
 .dayCellMuted {
-  color: rgba(255, 255, 255, 0.34);
+  color: color-mix(in srgb, var(--cWhiteV1) 46%, transparent);
+  background: var(--cTableSurfaceAlt);
 }
 
 .daySelected {
@@ -262,7 +323,7 @@
 .dayEntries {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 2px;
 }
 
 .entryChip {
@@ -270,13 +331,14 @@
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 6px 8px;
+  min-height: 24px;
+  padding: 5px 8px;
   border: 0;
   border-radius: 8px;
   background: transparent;
   color: var(--cWhite);
   font: inherit;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.2;
   text-align: left;
@@ -293,24 +355,28 @@
 }
 
 .entryDot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--entry-dot-color);
   flex-shrink: 0;
 }
 
 .moreEntries {
-  color: rgba(255, 255, 255, 0.62);
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--cWhiteV1);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
+  padding: 0 8px;
 }
 
 .dayPanel {
   min-width: 400px;
   padding: 14px;
   gap: 12px;
-  background: rgba(10, 12, 16, 0.9);
+  background: var(--cTableSurface);
 }
 
 .dayPanelHeader {
@@ -350,9 +416,9 @@
   flex-direction: column;
   gap: 6px;
   padding: 11px 12px;
-  border: 0;
+  border: 1px solid var(--cTableBorder);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.055);
+  background: var(--cTableRowAlt);
   color: var(--cWhite);
   font: inherit;
   cursor: pointer;
@@ -361,7 +427,7 @@
 
 .dayListItem:hover,
 .dayListItem:focus-visible {
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--cTableHover);
 }
 
 .dayListTop {
@@ -414,17 +480,6 @@
   line-height: 1.45;
 }
 
-.statusBadge {
-  flex-shrink: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  font-size: 11px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
 .emptyDay {
   display: flex;
   align-items: center;
@@ -442,6 +497,35 @@
 @media (max-width: 1180px) {
   .contentGrid {
     grid-template-columns: minmax(0, 1fr) minmax(360px, 420px);
+  }
+}
+
+@media (max-width: 1680px) {
+  .inlineFilters {
+    display: none;
+  }
+
+  .compactFilterButton {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 1180px) {
+  .searchField {
+    max-width: 300px;
+    flex-basis: 260px;
+  }
+
+  .toolbar,
+  .toolbarControls,
+  .filtersRow,
+  .actionsRow {
+    gap: 8px;
+  }
+
+  .toolbarActionButton {
+    padding-inline: 14px;
+    font-size: calc(var(--controlFontSize) - 1px);
   }
 }
 
@@ -466,10 +550,24 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .searchField {
+    max-width: 260px;
+    flex-basis: 220px;
+  }
+
+  .toolbarControls,
+  .filtersRow,
+  .actionsRow {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 640px) {
   .header,
   .toolbar {
     align-items: stretch;
+    flex-wrap: wrap;
   }
 
   .toolbarControls,
@@ -481,6 +579,18 @@
   .toolbarControls {
     flex-direction: column;
     align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .actionsRow {
+    margin-left: 0;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .actionsRow > button {
+    flex: 1 1 160px;
+    min-width: 0;
   }
 
   .toolbarFieldSmall,
@@ -516,7 +626,8 @@
 
   .entryChip {
     font-size: 11px;
-    padding: 5px 6px;
+    min-height: 22px;
+    padding: 4px 6px;
   }
 
   .dayListReason {
@@ -537,13 +648,7 @@
     min-height: 420px;
   }
 
-  .dayCount,
-  .moreEntries {
+  .dayCount {
     display: none;
-  }
-
-  .statusBadge {
-    font-size: 9px;
-    padding: 4px 6px;
   }
 }

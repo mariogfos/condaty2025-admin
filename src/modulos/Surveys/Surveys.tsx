@@ -86,7 +86,7 @@ const Surveys = () => {
     <div className={styles.surveysContainer}>
       {/* <h1 className={styles.title}>Encuestas</h1> */}
       <List
-        height={"calc(100vh - 310px)"}
+        height={"100%"}
         onRowClick={handleRowClick}
         title={mod.plural}
       />

@@ -1,14 +1,261 @@
 .RenderForm {
-  .title {
-    color: var(--cWhite);
-    font-size: 16px;
-    margin-bottom: 4px;
-    font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 24px;
+}
+
+.formShell {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 0 24px;
+}
+
+.headerBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pageTitle {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.formCard {
+  gap: 16px;
+  background-color: var(--cModalSurface);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 16px;
+}
+
+.partStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 400;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.radioRow {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.switchRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.switchContent {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.availabilityScroller {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-color: var(--cBackground-muted) var(--cBackground);
+}
+
+.availabilityCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 210px;
+  max-width: 210px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--cBorder);
+  background-color: var(--cBackground);
+}
+
+.availabilityCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.availabilityDay {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.availabilityMeta {
+  margin: 0 0 8px;
+  color: var(--cWhiteV1);
+  font-size: 12px;
+}
+
+.periodsScroller {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cBackground-muted) var(--cBackground);
+}
+
+.periodChip {
+  flex: 0 0 auto;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--cBorder);
+  background-color: transparent;
+}
+
+.periodChipText {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+}
+
+.optionsMenu {
+  position: absolute;
+  right: 6px;
+  bottom: 2px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--cBorder);
+  background-color: var(--cBlackV2);
+  color: var(--cWhiteV1);
+}
+
+.optionsItem {
+  margin: 0;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.modalFieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.daysPreviewGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.daysPreviewColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.daysPreviewLabel {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: 14px;
+}
+
+.daysPreviewChip {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--cBorder);
+  color: var(--cWhiteV1);
+}
+
+.footerActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.backAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--cModalBorder);
+  background-color: var(--cModalSection);
+  cursor: pointer;
+}
+
+.continueButton {
+  width: min(100%, 304px);
+}
+
+@media (max-width: 860px) {
+  .fieldGrid,
+  .modalFieldGrid {
+    grid-template-columns: 1fr;
   }
-  .subtitle {
-    color: var(--cWhiteV1);
-    font-size: 14px;
-    margin-bottom: 12px;
-    font-weight: 400;
+}
+
+@media (max-width: 640px) {
+  .formShell {
+    width: 100%;
+    gap: 14px;
+  }
+
+  .footerActions {
+    flex-wrap: wrap;
+  }
+
+  .continueButton {
+    width: 100%;
   }
 }

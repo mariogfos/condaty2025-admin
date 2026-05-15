@@ -2,9 +2,7 @@
 import { useState } from "react";
 import { getDateStrMes } from "@/mk/utils/date";
 import EmptyData from "@/components/NoData/EmptyData";
-import Select from "@/mk/components/forms/Select/Select";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import styles from "./HistoryPayments.module.css";
 import { IconPagos } from "@/components/layout/icons/IconsBiblioteca";
@@ -32,29 +30,17 @@ const HistoryPayments = ({
   open,
   close,
 }: HistoryPaymentsProps) => {
-  const [params, setParams] = useState({
-    perPage: 20,
-    page: 1,
-  });
-
   const [typeSearch, setTypeSearch] = useState("P");
   const [openPagar, setOpenPagar] = useState(false);
   const [openComprobante, setOpenComprobante] = useState(false);
   const [idPago, setIdPago] = useState<string | null>(null);
-
-  // Calcula el índice inicial y final para la paginación
-  const startIndex = (params.page - 1) * params.perPage;
-  const endIndex = startIndex + params.perPage;
 
   // Filtra los datos según el tab seleccionado
   const filteredData = paymentsData.filter(
     (pago) =>
       (typeSearch === "P" && pago?.status === "P") ||
       (typeSearch === "X" && pago?.status !== "P")
-  );
-
-  // Pagina los datos filtrados
-  const paginatedData = filteredData.slice(startIndex, endIndex);
+      );
 
   return (
     <DataModal
@@ -85,7 +71,7 @@ const HistoryPayments = ({
             </div>
 
             <div className={styles.gridBody}>
-              {paginatedData.map((pago, index) => (
+              {filteredData.map((pago, index) => (
                 <div
                   key={index}
                   className={styles.gridRow}
@@ -132,29 +118,12 @@ const HistoryPayments = ({
                 </div>
               ))}
 
-              {paginatedData.length === 0 && (
+              {filteredData.length === 0 && (
                 <div className={styles.emptyState}>
                   <EmptyData message="No hay registros de pagos" icon={<IconPagos size={40} color="var(--cWhiteV1)" />} />
                 </div>
               )}
             </div>
-          </div>
-        </div>
-
-        <div className={styles.footer}>
-          <div className={styles.paginationWrapper}>
-            <div className={styles.totalItems}>
-              Total {filteredData.length} items
-            </div>
-            <Pagination
-              currentPage={params.page}
-              onPageChange={(page) => setParams({ ...params, page })}
-              totalPages={Math.ceil(filteredData.length / params.perPage)}
-              previousLabel=""
-              nextLabel=""
-              params={params}
-              setParams={setParams}
-            />
           </div>
         </div>
       </div>

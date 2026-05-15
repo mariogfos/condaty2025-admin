@@ -29,7 +29,7 @@
   gap: var(--spXS, 4px);
   padding: var(--spS, 8px);
   border-radius: var(--bRadiusS, 8px);
-  border: 0.5px solid;
+  border: 1px solid;
   align-self: flex-start;
   margin-bottom: var(--spS);
 }
@@ -302,7 +302,7 @@
   gap: var(--spS);
 }
 .gInfoSeparator {
-  height: 0.5px;
+  height: 1px;
   background-color: rgba(215, 255, 240, 0.12);
   opacity: 1;
   margin: var(--spS) 0;

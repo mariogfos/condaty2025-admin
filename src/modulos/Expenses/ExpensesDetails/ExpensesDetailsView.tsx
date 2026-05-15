@@ -55,6 +55,7 @@ const renderStatusCell = (
   getDisplayStatus: Function,
 ) => {
   const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
+<<<<<<< HEAD
     A: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" }, // Por cobrar
     P: { color: "var(--cSuccess)", bgColor: "var(--cHoverCompl2)" }, // Cobrado
     S: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl4)" }, // Por confirmar
@@ -62,10 +63,18 @@ const renderStatusCell = (
     E: { color: "var(--cWhite)", bgColor: "var(--cHoverCompl1)" }, // Por defecto
     M: { color: "var(--cError)", bgColor: "var(--cHoverError)" }, // En mora
     F: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" }, // Finalizado
+=======
+    A: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Por cobrar
+    P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' }, // Cobrado
+    S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' }, // Por confirmar
+    R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' }, // Rechazado
+    M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' }, // En mora
+    F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Finalizado
+>>>>>>> origin/dev
   };
 
   const displayStatus = getDisplayStatus(item);
-  const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig.E;
+  const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig.A;
 
   return (
     <StatusBadge color={color} backgroundColor={bgColor}>
@@ -549,7 +558,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           />
           {/* Fin de las tarjetas */}
         </div>
-        <List height={"calc(100vh - 480px)"} />
+        <List height={"100%"} />
       </LoadingScreen>
 
       <DateRangeFilterModal

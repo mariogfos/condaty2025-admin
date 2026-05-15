@@ -57,7 +57,7 @@ const TextArea = ({
     <div className={styles.textAreaWrapper} style={wrapperStyle}>
       <ControlLabel
         {...props}
-        className={`${styles.textArea} ${className} ${fullHeight ? styles.fullHeight : ""}`}
+        className={`${styles.textArea} ${className} ${fullHeight ? styles.fullHeight : ""} ${disabled ? styles.disabled : ""}`}
         style={fieldStyle}
         styleContainer={containerStyle}
       >

@@ -2,64 +2,11 @@
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "../BankAccounts.module.css";
 import Button from "@/mk/components/forms/Button/Button";
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { formatNumber } from "@/mk/utils/numbers";
-import { Card } from "@/mk/components/ui/Card/Card";
 import RenderForm from "../RenderForm/RenderForm";
 import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
-interface SectionValuesProps {
-  left: { label: string; value: string | ReactNode };
-  right: { label: string; value: string | ReactNode };
-}
-
-const SectionValues = ({ left, right }: SectionValuesProps) => {
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        width: "100%",
-      }}
-    >
-      <div style={{ flex: 1 }}>
-        <p style={{ fontSize: 14, fontWeight: 600 }}>{left.label}</p>
-        <div style={{ marginTop: 4 }}>
-          {typeof left.value === "string" ? (
-            <p
-              style={{
-                color: "var(--cWhite)",
-                fontWeight: 600,
-                fontSize: 16,
-              }}
-            >
-              {left.value}
-            </p>
-          ) : (
-            left.value
-          )}
-        </div>
-      </div>
-      <div style={{ flex: 1 }}>
-        <p style={{ fontSize: 14, fontWeight: 600 }}>{right.label}</p>
-        <div style={{ marginTop: 4 }}>
-          {typeof right.value === "string" ? (
-            <p
-              style={{
-                color: "var(--cWhite)",
-                fontWeight: 600,
-                fontSize: 16,
-              }}
-            >
-              {right.value}
-            </p>
-          ) : (
-            right.value
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 
 const RenderView = (props: any) => {
   const {
@@ -75,6 +22,12 @@ const RenderView = (props: any) => {
   const [openConfirm, setOpenConfirm] = useState(false);
   const [item, setItem]: any = useState({});
   const [loading, setLoading] = useState(false);
+  const qrImage =
+    item?.images?.[0] ||
+    item?.images?.url ||
+    item?.image ||
+    item?.url_image ||
+    "";
   const getDetail = async () => {
     if (data?.id) {
       setLoading(true);
@@ -128,20 +81,26 @@ const RenderView = (props: any) => {
       <DataModal
         open={open}
         onClose={onClose}
-        title={"Detalle de la solicitud"}
+        title={"Detalle de la cuenta"}
         buttonText=""
         buttonCancel=""
         buttonExtra={
-          <div style={{ display: "flex", width: "100%", gap: 8 }}>
+          <div className={styles.detailActionsRow}>
             <Button variant="secondary" onClick={() => setOpenForm(true)}>
               Editar datos
             </Button>
             <Button
-              // onClick={handleUpdateStatus}
+              variant={item?.status === "A" ? "cancel" : "primary"}
               onClick={() => setOpenConfirm(true)}
               style={{
                 backgroundColor:
-                  item?.status === "A" ? "var(--cError)" : "var(--cAccent)",
+                  item?.status === "A"
+                    ? "color-mix(in srgb, var(--cError) 92%, white 8%)"
+                    : undefined,
+                borderColor:
+                  item?.status === "A"
+                    ? "color-mix(in srgb, var(--cError) 72%, black 28%)"
+                    : undefined,
               }}
             >
               {item?.status === "A"
@@ -156,69 +115,58 @@ const RenderView = (props: any) => {
         {loading ? (
           <SkeletonAdapterComponent type="CardSkeleton" />
         ) : (
-          <Card
-            style={{
-              marginBottom: 12,
-              backgroundColor: "#d7fff005",
-              border: "1px solid #d7fff014",
-              borderRadius: 12,
-            }}
-          >
-            <SectionValues
-              left={{ label: "Alias", value: item?.alias_holder }}
-              right={{ label: "Titular", value: item?.holder }}
-            />
-            <SectionValues
-              left={{
-                label: "Entidad bancaria",
-                value: item?.bank_entity?.name || "No especificada",
-              }}
-              right={{ label: "CI / NIT", value: item?.ci_holder }}
-            />
-            <SectionValues
-              left={{
-                label: "Nº de cuenta",
-                value: item?.account_number,
-              }}
-              right={{
-                label: "Estado",
-                value: (
-                  <div
-                    style={{
-                      padding: "4px 8px",
-                      backgroundColor:
+          <div className={styles.bankDetailCard}>
+            <div className={styles.bankDetailTopGrid}>
+              <div className={styles.bankDetailGrid}>
+                <div className={styles.bankDetailField}>
+                  <p className={styles.bankDetailLabel}>Alias</p>
+                  <div className={styles.bankDetailValue}>{item?.alias_holder || "-/-"}</div>
+                </div>
+                <div className={styles.bankDetailField}>
+                  <p className={styles.bankDetailLabel}>Titular</p>
+                  <div className={styles.bankDetailValue}>{item?.holder || "-/-"}</div>
+                </div>
+
+                <div className={styles.bankDetailField}>
+                  <p className={styles.bankDetailLabel}>Entidad bancaria</p>
+                  <div className={styles.bankDetailValue}>
+                    {item?.bank_entity?.name || "No especificada"}
+                  </div>
+                </div>
+                <div className={styles.bankDetailField}>
+                  <p className={styles.bankDetailLabel}>CI / NIT</p>
+                  <div className={styles.bankDetailValue}>{item?.ci_holder || "-/-"}</div>
+                </div>
+
+                <div className={styles.bankDetailField}>
+                  <p className={styles.bankDetailLabel}>Nro. de cuenta</p>
+                  <div className={styles.bankDetailValue}>{item?.account_number || "-/-"}</div>
+                </div>
+                <div className={styles.bankDetailField}>
+                  <p className={styles.bankDetailLabel}>Estado</p>
+                  <div className={styles.bankDetailBadgeWrap}>
+                    <StatusBadge
+                      color={item?.status === "A" ? "var(--cSuccess)" : "var(--cError)"}
+                      backgroundColor={
                         item?.status === "A"
                           ? "var(--cHoverSuccess)"
-                          : "var(--cHoverError)",
-                      color:
-                        item?.status === "A"
-                          ? "var(--cSuccess)"
-                          : "var(--cError)",
-                      borderRadius: 12,
-                      fontSize: 14,
-                      width: "min-content",
-                    }}
-                  >
-                    {item?.status === "A" ? "Habilitada" : "Deshabilitada"}
+                          : "var(--cHoverError)"
+                      }
+                    >
+                      {item?.status === "A" ? "Habilitada" : "Deshabilitada"}
+                    </StatusBadge>
                   </div>
-                ),
-              }}
-            />
-            <SectionValues
-              left={{
-                label: "Tipo de Moneda",
-                value: item?.currency_type?.name,
-              }}
-              right={{
-                label: "Asignada a",
-                value: (
-                  <p
-                    style={{
-                      color: "var(--cWhite)",
-                      fontWeight: 600,
-                      fontSize: 16,
-                    }}
-                  >
+                </div>
+
+                <div className={styles.bankDetailField}>
+                  <p className={styles.bankDetailLabel}>Tipo de moneda</p>
+                  <div className={styles.bankDetailValue}>
+                    {item?.currency_type?.name || "-/-"}
+                  </div>
+                </div>
+                <div className={styles.bankDetailField}>
+                  <p className={styles.bankDetailLabel}>Asignada a</p>
+                  <div className={styles.bankDetailValue}>
                     {["Expensa", "Reserva", "Principal"]
                       .filter((label, index) => {
                         const flags = [
@@ -229,21 +177,44 @@ const RenderView = (props: any) => {
                         return flags[index] > 0;
                       })
                       .join(", ") || "-/-"}
+                  </div>
+                </div>
+
+                <div className={styles.bankDetailField}>
+                  <p className={styles.bankDetailLabel}>Saldo inicial</p>
+                  <div className={styles.bankDetailValue}>
+                    {item?.initial_amount !== undefined &&
+                    item?.initial_amount !== null
+                      ? `${formatNumber(item.initial_amount, 2)} ${
+                          item?.currency_type?.code || ""
+                        }`
+                      : "-/-"}
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.bankQrCard}>
+                <div className={styles.bankQrHeader}>
+                  <p className={styles.bankDetailLabel}>QR de la cuenta</p>
+                  <p className={styles.bankQrHint}>
+                    Código visible para pagos y comprobantes.
                   </p>
-                ),
-              }}
-            />
-            <SectionValues
-              left={{
-                label: "Saldo inicial",
-                value:
-                  item?.initial_amount !== undefined && item?.initial_amount !== null
-                    ? `${formatNumber(item.initial_amount, 2)} ${item?.currency_type?.code || ''}`
-                    : "-/-",
-              }}
-              right={{ label: "", value: "" }}
-            />
-          </Card>
+                </div>
+
+                <div className={styles.bankQrPreview}>
+                  {qrImage ? (
+                    <img
+                      src={qrImage}
+                      alt="QR de la cuenta bancaria"
+                      className={styles.bankQrImage}
+                    />
+                  ) : (
+                    <div className={styles.bankQrPlaceholder}>Sin QR</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </DataModal>
       {openConfirm && (
@@ -254,15 +225,22 @@ const RenderView = (props: any) => {
           }
           buttonText=""
           buttonExtra={
-            <div style={{ display: "flex", width: "100%", gap: 8 }}>
+            <div className={styles.detailActionsRow}>
               <Button variant="secondary" onClick={() => setOpenConfirm(false)}>
                 Cancelar
               </Button>
               <Button
+                variant={item?.status === "A" ? "cancel" : "primary"}
                 onClick={handleUpdateStatus}
                 style={{
                   backgroundColor:
-                    item?.status === "A" ? "var(--cError)" : "var(--cAccent)",
+                    item?.status === "A"
+                      ? "color-mix(in srgb, var(--cError) 92%, white 8%)"
+                      : undefined,
+                  borderColor:
+                    item?.status === "A"
+                      ? "color-mix(in srgb, var(--cError) 72%, black 28%)"
+                      : undefined,
                 }}
               >
                 {item?.status === "A" ? "Deshabilitar cuenta" : "Confirmar"}

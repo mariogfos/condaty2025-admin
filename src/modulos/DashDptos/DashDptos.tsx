@@ -9,14 +9,12 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
 import HistoryOwnership from "./HistoryOwnership/HistoryOwnership";
-import RenderView from "../Payments/RenderView/RenderView";
 import OwnersRenderView from "../Owners/RenderView/RenderView";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import WidgetBase from "@/components/Widgets/WidgetBase/WidgetBase";
 import RenderForm from "../Dptos/RenderForm";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 import UnitInfo from "./UnitInfo/UnitInfo";
-import PaymentsTable from "./PaymentsTable/PaymentsTable";
 import AccessTable from "./AccessTable/AccessTable";
 import ReservationsTable from "./ReservationsTable/ReservationsTable";
 import TitleRender from "./TitleRender/TitleRender";
@@ -26,6 +24,7 @@ import {
   WidgetSkeleton,
 } from "@/mk/components/ui/Skeleton/Skeleton";
 import OwnersRenderForm from "../Owners/RenderForm/RenderForm";
+import UnitFinanceHistory from "./UnitFinanceHistory/UnitFinanceHistory";
 
 interface DashDptosProps {
   id: string | number;
@@ -39,11 +38,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [openComprobante, setOpenComprobante] = useState(false);
   const [formState, setFormState] = useState<any>({ isTitular: "I" });
   const [errorsT, setErrorsT] = useState<any>({});
   const [openTitularHist, setOpenTitularHist] = useState(false);
-  const [idPago, setIdPago] = useState<string | null>(null);
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
   const [openDel, setOpenDel] = useState(false);
   const [openDelTitular, setOpenDelTitular] = useState(false);
@@ -263,27 +260,18 @@ const DashDptos = ({ id }: DashDptosProps) => {
           )}
 
           <WidgetBase
-            title={
-              <TitleRender
-                title="Historial de pagos"
-                onClick={() => {
-                  setParamsCrud("payments", "searchBy", datas?.data?.nro);
-                  router.push("/payments");
-                }}
-              />
-            }
-            subtitle={`Últimos ${datas?.payments?.length || 0} pagos`}
             variant="V1"
             className={styles.historyWidgetCard}
             style={{ flex: 1, minWidth: "300px" }}
           >
-            <div className={styles.accountContent}>
-              {!loaded ? (
-                <TableSkeleton />
-              ) : (
-                <PaymentsTable payments={datas?.payments} />
-              )}
-            </div>
+            <UnitFinanceHistory
+              execute={execute}
+              extraData={dashData?.extraData}
+              loaded={loaded}
+              reLoad={reLoad}
+              unitDescription={datas?.data?.description}
+              unitId={datas?.data?.id}
+            />
           </WidgetBase>
         </div>
 
@@ -405,18 +393,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
             ownershipData={datas?.titularHist || datas?.tenantHist || []}
             open={openTitularHist}
             close={() => setOpenTitularHist(false)}
-          />
-        )}
-
-        {openComprobante && idPago && (
-          <RenderView
-            open={openComprobante}
-            onClose={() => {
-              setOpenComprobante(false);
-              setIdPago(null);
-            }}
-            extraData={datas}
-            payment_id={idPago}
           />
         )}
 

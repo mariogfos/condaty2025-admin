@@ -15,7 +15,6 @@ export const DEBT_STATUS_CONFIG: { [key: string]: { color: string; bgColor: stri
   P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
   S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
   R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
-  E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
   M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
   C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
   F: { color: '#1E8AE9', bgColor: '#517FE133' },
@@ -116,7 +115,7 @@ export const getStatusConfig = (status: string, dueDate?: string): { color: stri
     finalStatus = 'M';
   }
 
-  return DEBT_STATUS_CONFIG[finalStatus] || DEBT_STATUS_CONFIG.E;
+  return DEBT_STATUS_CONFIG[finalStatus] || DEBT_STATUS_CONFIG.A;
 };
 
 
@@ -153,13 +152,20 @@ export const getAvailableActions = (status: string, type: number) => {
     return {
       showAnular: false,
       showEditar: false,
-      showRegistrarPago: !(status === 'P' || status === 'S' || status === 'F'),
-      showVerPago: status === 'P' || status === 'S'
+      showRegistrarPago: !(status === 'P' || status === 'S' || status === 'I' || status === 'F'),
+      showVerPago: status === 'P' || status === 'S' || status === 'I'
     };
   }
 
   switch (status) {
     case 'P':
+      return {
+        showAnular: false,
+        showEditar: false,
+        showRegistrarPago: false,
+        showVerPago: true
+      };
+    case 'I':
       return {
         showAnular: false,
         showEditar: false,

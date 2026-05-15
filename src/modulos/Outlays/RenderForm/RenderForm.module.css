@@ -5,6 +5,7 @@
   width: 100%;
   margin: 0 auto;
   padding: 0;
+  gap: 12px;
 }
 .form-title {
   font-size: 1.2rem;
@@ -15,6 +16,9 @@
 }
 .section {
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 .section-title {
   font-size: 1rem;
@@ -25,6 +29,10 @@
 .input-container:last-child {
   margin-bottom: 0;
 }
+
+.input-container {
+  min-width: 0;
+}
 .char-count {
   font-size: 0.75rem;
   color: #888;
@@ -34,6 +42,7 @@
   display: flex;
   gap: 12px;
   margin-bottom: 0;
+  align-items: start;
 }
 .column {
   flex: 1;

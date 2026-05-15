@@ -4,6 +4,7 @@ export default function GraphAdapterLine(
   oDef: any = {}
 ) {
   const xLabels = data.labels;
+  const chartFontFamily = 'Inter, sans-serif';
   const l = {
     stroke: {
       curve: 'smooth',
@@ -16,7 +17,7 @@ export default function GraphAdapterLine(
           colors: '#A7A7A7',
           fontSize: '12px',
           fontWeight: 400,
-          fontFamily: 'Poppins, Arial,',
+          fontFamily: chartFontFamily,
         },
       },
     },

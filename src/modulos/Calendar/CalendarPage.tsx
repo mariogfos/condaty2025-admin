@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import {
   IconArrowLeft,
   IconArrowRight,
+  IconFilter,
 } from "@/components/layout/icons/IconsBiblioteca";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
@@ -34,6 +35,8 @@ import Button from "@/mk/components/forms/Button/Button";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import Select from "@/mk/components/forms/Select/Select";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { capitalize, capitalizeWords } from "@/mk/utils/string";
 import { RESERVATION_STATUS_OPTIONS } from "@/modulos/Reservas/constants/reservationConstants";
 import { getUrlImages } from "@/mk/utils/string";
@@ -55,17 +58,19 @@ import {
 } from "./helpers";
 import styles from "./CalendarPage.module.css";
 
-const MAX_EVENTS_PER_DAY = 3;
+const DEFAULT_DAY_ENTRY_SLOTS = 3;
+const DAY_ENTRY_ROW_HEIGHT = 24;
+const DAY_CELL_CONTENT_OFFSET = 44;
 
 const FILTER_INPUT_STYLE = {
   height: 44,
-  backgroundColor: "var(--cModalSurfaceRaised)",
-  border: "1px solid var(--cModalBorder)",
+  backgroundColor: "var(--cTableHeader)",
+  border: "1px solid var(--cTableBorder)",
   borderRadius: 12,
   padding: "16px",
   fontSize: 15,
   fontWeight: 600,
-  color: "var(--cWhiteV1)",
+  color: "var(--cWhite)",
 };
 
 const FILTER_STYLE = {
@@ -89,6 +94,10 @@ const DEFAULT_VISIBLE_STATUS_IDS = RESERVATION_STATUS_OPTIONS.map((option) =>
     statusId !== "X",
 );
 const STATUS_WITH_REASON = new Set(["M", "C", "T", "R", "X"]);
+const DEFAULT_PERIOD_ID = format(startOfMonth(new Date()), "yyyy-MM");
+const DEFAULT_STATUS_FILTER_KEY = [...DEFAULT_VISIBLE_STATUS_IDS]
+  .sort()
+  .join(",");
 
 const CalendarPage = () => {
   const router = useRouter();
@@ -107,10 +116,13 @@ const CalendarPage = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [detailItem, setDetailItem] = useState<ReservationListItem | null>(null);
+  const [dayEntrySlots, setDayEntrySlots] = useState(DEFAULT_DAY_ENTRY_SLOTS);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const deferredSearch = useDeferredValue(searchText);
   const requestKeyRef = useRef("");
   const hasLoadedAreasRef = useRef(false);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const canView = userCan("reservations", "R");
   const canCreate = userCan("reservations", "C");
@@ -338,12 +350,72 @@ const CalendarPage = () => {
     ];
   }, [currentMonth]);
 
+  const areaOptions = useMemo(
+    () => [
+      { id: "ALL", name: "Todas las áreas" },
+      ...visibleAreaOptions.map((area) => ({
+        id: String(area.id),
+        name: capitalizeWords(area.title || `Área ${area.id}`),
+      })),
+    ],
+    [visibleAreaOptions],
+  );
+
+  const activeStatusFilterKey = useMemo(
+    () => [...selectedStatuses].sort().join(","),
+    [selectedStatuses],
+  );
+
+  const hasCompactFiltersApplied = useMemo(
+    () =>
+      format(currentMonth, "yyyy-MM") !== DEFAULT_PERIOD_ID ||
+      selectedAreaId !== "ALL" ||
+      activeStatusFilterKey !== DEFAULT_STATUS_FILTER_KEY,
+    [activeStatusFilterKey, currentMonth, selectedAreaId],
+  );
+
   const selectedDayLabel = useMemo(() => {
     if (!selectedDate) return "Selecciona un dia";
     return capitalize(
       format(selectedDate, "EEEE d 'de' MMMM yyyy", { locale: es }),
     );
   }, [selectedDate]);
+
+  useEffect(() => {
+    const gridElement = gridRef.current;
+    if (!gridElement) return;
+
+    const updateDayEntrySlots = () => {
+      const rect = gridElement.getBoundingClientRect();
+      if (!rect.height || !calendarRowCount) {
+        setDayEntrySlots(DEFAULT_DAY_ENTRY_SLOTS);
+        return;
+      }
+
+      const cellHeight = rect.height / Math.max(calendarRowCount, 1);
+      const availableHeight = Math.max(0, cellHeight - DAY_CELL_CONTENT_OFFSET);
+      const nextSlots = Math.max(
+        1,
+        Math.min(6, Math.floor(availableHeight / DAY_ENTRY_ROW_HEIGHT)),
+      );
+
+      setDayEntrySlots((current) => (current === nextSlots ? current : nextSlots));
+    };
+
+    const frame = window.requestAnimationFrame(updateDayEntrySlots);
+    const observer = new ResizeObserver(() => {
+      window.requestAnimationFrame(updateDayEntrySlots);
+    });
+
+    observer.observe(gridElement);
+    window.addEventListener("resize", updateDayEntrySlots);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", updateDayEntrySlots);
+    };
+  }, [calendarRowCount, filteredReservations.length, loading]);
 
   const handlePeriodSelect = useCallback(
     (event: { target: { value: string } }) => {
@@ -443,58 +515,69 @@ const CalendarPage = () => {
 
         <div className={styles.toolbarControls}>
           <div className={styles.filtersRow}>
-            <div className={styles.toolbarFieldMedium}>
-              <Select
-                name="calendarPeriod"
-                label="Periodo"
-                value={format(currentMonth, "yyyy-MM")}
-                options={periodOptions}
-                onChange={handlePeriodSelect}
-                inputStyle={FILTER_INPUT_STYLE}
-                style={FILTER_STYLE}
-              />
+            <div className={styles.inlineFilters}>
+              <div className={styles.toolbarFieldMedium}>
+                <Select
+                  name="calendarPeriod"
+                  label="Periodo"
+                  value={format(currentMonth, "yyyy-MM")}
+                  options={periodOptions}
+                  onChange={handlePeriodSelect}
+                  inputStyle={FILTER_INPUT_STYLE}
+                  style={FILTER_STYLE}
+                />
+              </div>
+
+              <div className={styles.toolbarFieldMedium}>
+                <Select
+                  name="calendarArea"
+                  label="Área"
+                  value={selectedAreaId}
+                  options={areaOptions}
+                  onChange={(event: { target: { value: string } }) =>
+                    setSelectedAreaId(event.target.value)
+                  }
+                  inputStyle={FILTER_INPUT_STYLE}
+                  style={FILTER_STYLE}
+                />
+              </div>
+
+              <div className={styles.toolbarFieldLarge}>
+                <Select
+                  name="calendarStatuses"
+                  label="Estados"
+                  value={selectedStatuses}
+                  options={RESERVATION_STATUS_OPTIONS}
+                  onChange={handleStatusesChange}
+                  inputStyle={FILTER_INPUT_STYLE}
+                  style={FILTER_STYLE}
+                  multiSelect
+                />
+              </div>
             </div>
 
-            <div className={styles.toolbarFieldMedium}>
-              <Select
-                name="calendarArea"
-                label="Área"
-                value={selectedAreaId}
-                options={[
-                  { id: "ALL", name: "Todas las áreas" },
-                  ...visibleAreaOptions.map((area) => ({
-                    id: String(area.id),
-                    name: capitalizeWords(area.title || `Área ${area.id}`),
-                  })),
-                ]}
-                onChange={(event: { target: { value: string } }) =>
-                  setSelectedAreaId(event.target.value)
-                }
-                inputStyle={FILTER_INPUT_STYLE}
-                style={FILTER_STYLE}
-              />
-            </div>
-
-            <div className={styles.toolbarFieldLarge}>
-              <Select
-                name="calendarStatuses"
-                label="Estados"
-                value={selectedStatuses}
-                options={RESERVATION_STATUS_OPTIONS}
-                onChange={handleStatusesChange}
-                inputStyle={FILTER_INPUT_STYLE}
-                style={FILTER_STYLE}
-                multiSelect
-              />
-            </div>
+            <button
+              type="button"
+              className={[
+                styles.compactFilterButton,
+                hasCompactFiltersApplied ? styles.compactFilterButtonActive : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              onClick={() => setFiltersOpen(true)}
+              aria-label="Abrir filtros del calendario"
+            >
+              <IconFilter size={20} />
+            </button>
           </div>
 
           <div className={styles.actionsRow}>
             <Button
               variant="secondary"
               onClick={handleRefresh}
+              className={styles.toolbarActionButton}
               disabled={loading || refreshing}
-              style={{ height: 44, width: "auto" }}
+              style={{ height: 48, width: "auto" }}
             >
               {refreshing ? "Actualizando..." : "Actualizar"}
             </Button>
@@ -502,7 +585,8 @@ const CalendarPage = () => {
               <Button
                 variant="primary"
                 onClick={() => router.push("/create-reservas")}
-                style={{ height: 44, width: "auto", fontWeight: 700 }}
+                className={styles.toolbarActionButton}
+                style={{ height: 48, width: "auto", fontWeight: 700 }}
               >
                 Nueva reserva
               </Button>
@@ -510,6 +594,48 @@ const CalendarPage = () => {
           </div>
         </div>
       </div>
+
+      <DataModal
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        title="Filtros"
+        buttonText=""
+        buttonCancel="Cerrar"
+        variant="mini"
+      >
+        <div className={styles.compactFilterModalBody}>
+          <Select
+            name="calendarPeriodCompact"
+            label="Periodo"
+            value={format(currentMonth, "yyyy-MM")}
+            options={periodOptions}
+            onChange={handlePeriodSelect}
+            inputStyle={FILTER_INPUT_STYLE}
+            style={FILTER_STYLE}
+          />
+          <Select
+            name="calendarAreaCompact"
+            label="Área"
+            value={selectedAreaId}
+            options={areaOptions}
+            onChange={(event: { target: { value: string } }) =>
+              setSelectedAreaId(event.target.value)
+            }
+            inputStyle={FILTER_INPUT_STYLE}
+            style={FILTER_STYLE}
+          />
+          <Select
+            name="calendarStatusesCompact"
+            label="Estados"
+            value={selectedStatuses}
+            options={RESERVATION_STATUS_OPTIONS}
+            onChange={handleStatusesChange}
+            inputStyle={FILTER_INPUT_STYLE}
+            style={FILTER_STYLE}
+            multiSelect
+          />
+        </div>
+      </DataModal>
 
       <div className={styles.contentGrid}>
         <div className={styles.calendarShell}>
@@ -548,6 +674,7 @@ const CalendarPage = () => {
           </div>
 
           <div
+            ref={gridRef}
             className={styles.grid}
             style={{
               gridTemplateRows: `repeat(${calendarRowCount}, minmax(0, 1fr))`,
@@ -556,8 +683,12 @@ const CalendarPage = () => {
             {monthDays.map((day) => {
               const dayKey = formatDateKey(day);
               const dayEntries = entriesByDay.get(dayKey) || [];
-              const visibleEntries = dayEntries.slice(0, MAX_EVENTS_PER_DAY);
-              const hiddenCount = dayEntries.length - visibleEntries.length;
+              const shouldShowMoreIndicator = dayEntries.length > dayEntrySlots;
+              const maxVisibleEntries = shouldShowMoreIndicator
+                ? Math.max(dayEntrySlots - 1, 0)
+                : dayEntrySlots;
+              const visibleEntries = dayEntries.slice(0, maxVisibleEntries);
+              const hiddenCount = Math.max(0, dayEntries.length - visibleEntries.length);
               const isCurrentMonth = isSameMonth(day, currentMonth);
               const isSelected =
                 selectedDate ? dayKey === formatDateKey(selectedDate) : false;
@@ -662,14 +793,21 @@ const CalendarPage = () => {
                           </p>
                         </div>
                       </div>
-                      <span
-                        className={styles.statusBadge}
+                      <StatusBadge
+                        color={entry.color}
+                        backgroundColor={entry.backgroundColor}
+                        containerStyle={{
+                          width: "auto",
+                          height: "auto",
+                          justifyContent: "flex-end",
+                          alignItems: "flex-start",
+                        }}
                         style={{
-                          color: entry.color,
+                          fontSize: 11,
                         }}
                       >
                         {entry.statusLabel}
-                      </span>
+                      </StatusBadge>
                     </div>
 
                     {showReason ? (

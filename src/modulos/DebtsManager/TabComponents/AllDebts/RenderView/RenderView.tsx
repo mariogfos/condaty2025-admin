@@ -1,27 +1,23 @@
-"use client";
-import React, { useState } from "react";
-import styles from "./RenderView.module.css";
-import { formatNumber } from "@/mk/utils/numbers";
-import Button from "@/mk/components/forms/Button/Button";
-import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import useAxios from "@/mk/hooks/useAxios";
-import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import ExpenseDetailModal from "@/modulos/Expenses/ExpensesDetails/RenderView/RenderView";
-import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
-import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
-import PaymentRenderForm from "@/modulos/Payments/RenderForm/RenderForm";
-import { getDateStrMesShort } from "@/mk/utils/date";
-import { getFullName } from "@/mk/utils/string";
-import { getTitular } from "@/mk/utils/adapters";
-import { hasMaintenanceValue } from "@/mk/utils/utils";
-import {
-  getStatusText,
-  getStatusConfig,
-  getDetailButtonText as getDetailButtonTextFromConstants,
-  getAvailableActions as getAvailableActionsFromConstants,
-} from "../../constants";
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+import styles from './RenderView.module.css';
+import paymentStyles from '@/modulos/Payments/RenderView/RenderView.module.css';
+import { formatBs } from '@/mk/utils/numbers';
+import Button from '@/mk/components/forms/Button/Button';
+import DataModal from '@/mk/components/ui/DataModal/DataModal';
+import useAxios from '@/mk/hooks/useAxios';
+import Loading from '@/mk/components/ui/LoadingScreen/Loading/Loading';
+import { useAuth } from '@/mk/contexts/AuthProvider';
+import ExpenseDetailModal from '@/modulos/Expenses/ExpensesDetails/RenderView/RenderView';
+import ReservationDetailModal from '@/modulos/Reservas/RenderView/RenderView';
+import PaymentRenderView from '@/modulos/Payments/RenderView/RenderView';
+import PaymentRenderForm from '@/modulos/Payments/RenderForm/RenderForm';
+import { MONTHS_ES, formatToDayDDMMYYYY, formatToDayFdMYH } from '@/mk/utils/date';
+import { getFullName } from '@/mk/utils/string';
+import { getTitular } from '@/mk/utils/adapters';
+import { hasMaintenanceValue } from '@/mk/utils/utils';
+import { getStatusText, getStatusConfig, getDetailButtonText as getDetailButtonTextFromConstants, getAvailableActions as getAvailableActionsFromConstants } from '../../constants';
+import { paymentsApi } from '@/modulos/Payments/api';
 
 interface RenderViewProps {
   open: boolean;
@@ -35,6 +31,17 @@ interface RenderViewProps {
   hideEditAndDeleteButtons?: boolean;
   onReload?: () => void;
 }
+
+const getResolvedPaymentId = (item: any) =>
+  item?.resolved_payment_id ?? item?.payment_id ?? null;
+
+const hasEnoughDebtDetail = (item: any) =>
+  Boolean(
+    item?.dpto &&
+      (item?.subcategory || item?.subcategory_id) &&
+      (item?.type != null || item?.debt || item?.description),
+  );
+
 
 const RenderView: React.FC<RenderViewProps> = ({
   open,
@@ -55,6 +62,9 @@ const RenderView: React.FC<RenderViewProps> = ({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [currentItem, setCurrentItem] = useState(item);
+  const [resolvedPaymentId, setResolvedPaymentId] = useState<string | number | null>(
+    getResolvedPaymentId(item),
+  );
 
   // Declarar la variable today
   const today = new Date();
@@ -72,12 +82,14 @@ const RenderView: React.FC<RenderViewProps> = ({
     open && !!item?.id,
   );
 
-  if (!open || !item) return null;
-
   const debtDetail = data?.data?.[0] || item;
   const debtType = debtDetail?.type || debtDetail?.debt?.type || 0;
+  const executeRef = useRef(execute);
 
   const hasApiData = data?.data?.[0];
+  const shouldShowLoading = Boolean(
+    open && item?.id && !loaded && !hasApiData && !hasEnoughDebtDetail(item),
+  );
 
   const resolveStatus = (status: string, dueDate?: string) => {
     let finalStatus = status;
@@ -105,16 +117,59 @@ const RenderView: React.FC<RenderViewProps> = ({
     return getStatusConfig(status, dueDate);
   };
 
-  const getBalanceTitle = (status: string) => {
-    switch (status) {
-      case "P":
-        return "Saldo cobrado";
-      case "M":
-        return "Saldo a cobrar";
-      case "A":
-        return "Saldo a cobrar";
+  const getDebtTypeText = (type: number) => {
+    switch (Number(type)) {
+      case 0:
+        return 'Otras deudas';
+      case 1:
+        return 'Expensas';
+      case 2:
+        return 'Reservas';
+      case 3:
+        return 'Reserva con multa';
+      case 4:
+        return 'Deuda compartida';
+      case 5:
+        return 'Condonación';
       default:
-        return "Saldo a cobrar";
+        return '-/-';
+    }
+  };
+
+  const getConceptText = (detail: any) => {
+    switch (Number(detail?.type ?? detail?.debt?.type ?? 0)) {
+      case 1: {
+        const month = detail?.debt?.month ?? detail?.shared?.month;
+        const year = detail?.debt?.year ?? detail?.shared?.year;
+        if (month && year) {
+          return `${MONTHS_ES[Number(month) - 1] || month} ${year}`;
+        }
+        return detail?.description || detail?.subcategory?.name || '-/-';
+      }
+      case 2:
+        return (
+          detail?.reservation?.area?.title ||
+          detail?.debt?.reservation?.area?.title ||
+          detail?.description ||
+          '-/-'
+        );
+      case 3:
+        return (
+          detail?.penaltyReservation?.area?.title ||
+          detail?.debt?.reservation_penalty?.area?.title ||
+          detail?.penalty_reservation?.area?.title ||
+          detail?.description ||
+          '-/-'
+        );
+      case 4:
+        return detail?.shared?.description || detail?.description || '-/-';
+      default:
+        return (
+          detail?.description ||
+          detail?.debt?.description ||
+          detail?.subcategory?.name ||
+          '-/-'
+        );
     }
   };
 
@@ -152,11 +207,48 @@ const RenderView: React.FC<RenderViewProps> = ({
     authShowToast(msg, type);
   };
 
+  useEffect(() => {
+    executeRef.current = execute;
+  }, [execute]);
+
+  useEffect(() => {
+    setCurrentItem(item);
+    setResolvedPaymentId(getResolvedPaymentId(item));
+  }, [item]);
+
+  useEffect(() => {
+    if (!open || !item?.id) return;
+
+    let cancelled = false;
+
+    const fetchResolvedPayment = async () => {
+      const response = await executeRef.current(
+        paymentsApi.resolvedPayment(item.id),
+        'GET',
+        {},
+        false,
+        true,
+      );
+
+      if (!cancelled && response?.data?.success) {
+        setResolvedPaymentId(response.data.data?.payment_id || null);
+      }
+    };
+
+    fetchResolvedPayment();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, item?.id]);
+
+  if (!open || !item) return null;
+
   const reloadItem = async () => {
     try {
-      const response = await execute(
-        "/debt-dptos",
-        "GET",
+      const response = await executeRef.current(
+        '/debt-dptos',
+        'GET',
         {
           searchBy: currentItem.id,
           fullType: "DET",
@@ -170,6 +262,17 @@ const RenderView: React.FC<RenderViewProps> = ({
         setCurrentItem(response.data.data[0] || currentItem);
       }
 
+      const resolvedResponse = await executeRef.current(
+        paymentsApi.resolvedPayment(currentItem.id),
+        'GET',
+        {},
+        false,
+        true,
+      );
+      if (resolvedResponse?.data?.success) {
+        setResolvedPaymentId(resolvedResponse.data.data?.payment_id || null);
+      }
+
       if (onReload) {
         onReload();
       }
@@ -179,9 +282,6 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   const handleClose = () => {
-    if (onReload) {
-      onReload();
-    }
     onClose();
   };
 
@@ -257,18 +357,45 @@ const RenderView: React.FC<RenderViewProps> = ({
   const maintenanceAmount = parseFloat(debtDetail?.maintenance_amount) || 0;
   const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "-/-";
-    return getDateStrMesShort(dateString);
-  };
-
+=======
+>>>>>>> origin/dev
   const finalStatus = resolveStatus(debtDetail?.status, debtDetail?.due_at);
   const statusText = getStatusText(finalStatus);
-  const { color, bgColor } = getStatusStyle(finalStatus, debtDetail?.due_at);
-  const balanceTitle = getBalanceTitle(debtDetail?.status);
+  const { color } = getStatusStyle(finalStatus, debtDetail?.due_at);
   const actions = getAvailableActions(debtDetail?.status, debtType);
   const detailButtonText = getDetailButtonText(debtType);
   const showDistribution = debtType === 4;
+  const ownerDisplay = getFullName(debtDetail?.dpto?.homeowner) || '-/-';
+  const tenantDisplay = getFullName(debtDetail?.dpto?.tenant) || '-/-';
+  const holderDisplay =
+    debtDetail?.dpto?.holder === 'T' ? tenantDisplay : ownerDisplay;
+  const unitDisplay = [debtDetail?.dpto?.nro, debtDetail?.dpto?.description]
+    .filter(Boolean)
+    .join(' - ') || '-/-';
+  const categoryDisplay = debtDetail?.subcategory?.padre?.name || '-/-';
+  const subcategoryDisplay = debtDetail?.subcategory?.name || '-/-';
+  const conceptDisplay = getConceptText(debtDetail);
+  const debtDescription =
+    debtDetail?.debt?.description || debtDetail?.description || conceptDisplay || '-/-';
+  const startDateDisplay = formatToDayDDMMYYYY(
+    debtDetail?.debt?.begin_at || debtDetail?.created_at,
+  );
+  const dueDateDisplay = formatToDayDDMMYYYY(
+    debtDetail?.debt?.due_at || debtDetail?.due_at,
+  );
+  const paidAtDisplay = formatToDayDDMMYYYY(
+    debtDetail?.payment?.paid_at || debtDetail?.paid_at,
+  );
+  const headerSubtitle = finalStatus === 'P'
+    ? `Pagada el ${formatToDayFdMYH(
+        debtDetail?.payment?.paid_at || debtDetail?.paid_at,
+        true,
+        false,
+        true,
+      )}`
+    : [conceptDisplay !== '-/-' ? conceptDisplay : null, dueDateDisplay !== '-/-' ? `Vence el ${dueDateDisplay}` : null]
+        .filter(Boolean)
+        .join(' · ');
 
   return (
     <>
@@ -279,34 +406,18 @@ const RenderView: React.FC<RenderViewProps> = ({
         buttonText=""
         buttonCancel=""
         variant="mini"
+        headerDivider={false}
+        minWidth={860}
+        maxWidth={980}
       >
-        <LoadingScreen
-          onlyLoading={Object.keys(debtDetail).length === 0}
-          type="CardSkeleton"
-        >
-          <div className={styles.content}>
-            {/* Saldo principal */}
-            <div className={styles.balanceSection}>
-              <div className={styles.balanceLabel}>{balanceTitle}</div>
-              <div className={styles.balanceAmount}>
-                Bs {formatNumber(totalBalance)}
-              </div>
-            </div>
-
-            {/* Información principal */}
-            <div className={styles.infoGrid}>
-              <div className={`${styles.infoRow} ${styles.statusRow}`}>
-                <div className={styles.statusItem}>
-                  <span className={styles.label}>Estado:</span>
-                  <StatusBadge
-                    color={color}
-                    backgroundColor={bgColor}
-                    containerStyle={{
-                      justifyContent: "flex-start",
-                    }}
-                  >
-                    {statusText}
-                  </StatusBadge>
+        {shouldShowLoading || Object.keys(debtDetail).length === 0 ? (
+          <Loading />
+        ) : (
+          <>
+            <div className={paymentStyles.container}>
+              <div className={paymentStyles.headerSection}>
+                <div className={paymentStyles.amountDisplay}>
+                  {formatBs(totalBalance)}
                 </div>
                 <div className={styles.statusItem}>
                   <span className={styles.label}>Fecha de inicio:</span>
@@ -323,6 +434,11 @@ const RenderView: React.FC<RenderViewProps> = ({
                   </span>
                 </div>
               </div>
+                <div className={paymentStyles.dateDisplay}>
+                  {headerSubtitle || '-/-'}
+                </div>
+              </div>
+            </div>
 
               {/* Información adicional para estado cobrado */}
               {debtDetail?.status === "P" && (
@@ -332,156 +448,164 @@ const RenderView: React.FC<RenderViewProps> = ({
                     <span className={styles.value}>
                       {getPaymentTypeText(debtDetail?.payment?.method) || "-/-"}
                     </span>
+            <div className={paymentStyles.container}>
+              <section className={paymentStyles.detailsSection}>
+                <div className={paymentStyles.detailsColumn}>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Unidad</span>
+                    <span className={paymentStyles.infoValue}>{unitDisplay}</span>
                   </div>
-                  <div className={styles.infoItem}>
-                    <span className={styles.label}>Fecha de pago:</span>
-                    <span className={styles.value}>
-                      {formatDate(
-                        debtDetail?.payment?.paid_at || debtDetail?.paid_at,
-                      )}
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Propietario</span>
+                    <span className={paymentStyles.infoValue}>{ownerDisplay}</span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Titular</span>
+                    <span className={paymentStyles.infoValue}>{holderDisplay}</span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Categoría</span>
+                    <span className={paymentStyles.infoValue}>{categoryDisplay}</span>
+                  </div>
+                </div>
+
+                <div className={paymentStyles.detailsColumn}>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Tipo</span>
+                    <span className={paymentStyles.infoValue}>
+                      {getDebtTypeText(debtType)}
                     </span>
                   </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Concepto / Periodo</span>
+                    <span className={paymentStyles.infoValue}>{conceptDisplay}</span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Fecha de inicio</span>
+                    <span className={paymentStyles.infoValue}>{startDateDisplay}</span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Vencimiento</span>
+                    <span className={paymentStyles.infoValue}>{dueDateDisplay}</span>
+                  </div>
                 </div>
-              )}
 
-              <div className={styles.infoRow}>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Unidad</span>
-                  <span className={styles.value}>
-                    {debtDetail?.dpto?.nro || "-/-"}
-                  </span>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Categoría</span>
-                  <span className={styles.value}>
-                    {debtDetail?.subcategory?.padre?.name || "-/-"}
-                  </span>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Deuda</span>
-                  <span className={styles.value}>
-                    Bs {formatNumber(debtAmount)}
-                  </span>
-                </div>
-              </div>
-
-              <div className={styles.infoRow}>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Propietario</span>
-                  <span className={styles.value}>
-                    {getFullName(debtDetail?.dpto?.homeowner)}
-                  </span>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Subcategoría</span>
-                  <span className={styles.value}>
-                    {debtDetail?.subcategory?.name || "-/-"}
-                  </span>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Multa</span>
-                  <span className={styles.value}>
-                    Bs {formatNumber(penaltyAmount)}
-                  </span>
-                </div>
-              </div>
-
-              <div className={styles.infoRow}>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Titular</span>
-                  <span className={styles.value}>
-                    {debtDetail?.dpto?.holder === "H"
-                      ? getFullName(debtDetail?.dpto?.homeowner)
-                      : getFullName(debtDetail?.dpto?.tenant)}
-                  </span>
-                </div>
-                {/* Item vacío en el medio */}
-                <div className={styles.infoItem}>{/* Espacio vacío */}</div>
-                <div className={styles.infoItem}>
-                  {hasMaintenanceValue(user) && (
-                    <>
-                      <span className={styles.label}>Mant. de valor</span>
-                      <span className={styles.value}>
-                        Bs {formatNumber(maintenanceAmount)}
+                <div className={paymentStyles.detailsColumn}>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Estado</span>
+                    <span
+                      className={`${paymentStyles.infoValue} ${styles.statusValue}`}
+                      style={{ color }}
+                    >
+                      {statusText}
+                    </span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Deuda</span>
+                    <span className={paymentStyles.infoValue}>{formatBs(debtAmount)}</span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Multa</span>
+                    <span className={paymentStyles.infoValue}>{formatBs(penaltyAmount)}</span>
+                  </div>
+                  {hasMaintenanceValue(user) ? (
+                    <div className={paymentStyles.infoBlock}>
+                      <span className={paymentStyles.infoLabel}>Mant. de valor</span>
+                      <span className={paymentStyles.infoValue}>
+                        {formatBs(maintenanceAmount)}
                       </span>
-                    </>
-                  )}
-                </div>
-                {/* Solo mostrar distribución para type 4 */}
-                {showDistribution && (
-                  <div className={styles.infoItem}>
-                    <span className={styles.label}>Tipo</span>
-                    <span className={styles.value}>
-                      {debtDetail?.debt?.distribution || "Dividido por igual"}
+                    </div>
+                  ) : null}
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Saldo pendiente</span>
+                    <span className={paymentStyles.infoValue}>
+                      {formatBs(totalBalance)}
                     </span>
                   </div>
-                )}
-              </div>
+                  {debtDetail?.status === 'P' ? (
+                    <>
+                      <div className={paymentStyles.infoBlock}>
+                        <span className={paymentStyles.infoLabel}>Método de pago</span>
+                        <span className={paymentStyles.infoValue}>
+                          {getPaymentTypeText(debtDetail?.payment?.method) || '-/-'}
+                        </span>
+                      </div>
+                      <div className={paymentStyles.infoBlock}>
+                        <span className={paymentStyles.infoLabel}>Fecha de pago</span>
+                        <span className={paymentStyles.infoValue}>{paidAtDisplay}</span>
+                      </div>
+                    </>
+                  ) : null}
+                  {showDistribution ? (
+                    <div className={paymentStyles.infoBlock}>
+                      <span className={paymentStyles.infoLabel}>Distribución</span>
+                      <span className={paymentStyles.infoValue}>
+                        {debtDetail?.debt?.distribution || 'Dividido por igual'}
+                      </span>
+                    </div>
+                  ) : null}
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>Subcategoría</span>
+                    <span className={paymentStyles.infoValue}>{subcategoryDisplay}</span>
+                  </div>
+                </div>
+              </section>
             </div>
 
-            {/* Detalles */}
-            <h3 className={styles.detailsTitle}>Detalles</h3>
-            <div className={styles.detailsSection}>
-              <div className={styles.detailsContent}>
-                {debtDetail?.debt?.description || debtDetail?.description}
-              </div>
+            <div className={paymentStyles.container}>
+              <div className={styles.sectionHeading}>Detalles de la deuda</div>
+              <div className={styles.detailsContent}>{debtDescription}</div>
             </div>
 
-            {/* Botones de acción */}
-            <div className={styles.actions}>
-              {actions.showAnular && onDel && !hideEditAndDeleteButtons && (
-                <Button
-                  onClick={() => onDel(debtDetail)}
-                  variant="secondary"
-                  className={styles.actionButton}
-                >
-                  Anular
-                </Button>
-              )}
-
-              {actions.showEditar && onEdit && !hideEditAndDeleteButtons && (
-                <Button
-                  onClick={() => onEdit(debtDetail)}
-                  variant="secondary"
-                  className={styles.actionButton}
-                >
-                  Editar
-                </Button>
-              )}
-
-              {actions.showRegistrarPago && debtDetail?.status != "F" && (
+            <div className={`${paymentStyles.voucherButtonContainer} ${styles.actionsWrap}`}>
+              {actions.showRegistrarPago && debtDetail?.status !== 'F' && (
                 <Button
                   onClick={() => setShowPaymentForm(true)}
-                  className={styles.primaryButton}
+                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
                 >
                   Registrar Pago
                 </Button>
               )}
-
-              {/* Botón de ver pago para estado cobrado */}
-              {actions.showVerPago && currentItem?.payment_id && (
+              {actions.showVerPago && resolvedPaymentId && (
                 <Button
                   onClick={() => setShowPaymentModal(true)}
-                  className={styles.actionButton}
+                  variant="secondary"
+                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
                 >
                   Ver pago
                 </Button>
               )}
-
-              {/* Botón de detalle específico según el tipo */}
               {detailButtonText && (
                 <Button
                   onClick={() => handleDetailButtonClick(debtType)}
                   variant="secondary"
-                  className={styles.actionButton}
+                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
                   disabled={!hasApiData}
                 >
                   {detailButtonText}
                 </Button>
               )}
+              {actions.showEditar && onEdit && !hideEditAndDeleteButtons && (
+                <Button
+                  onClick={() => onEdit(debtDetail)}
+                  variant="secondary"
+                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+                >
+                  Editar
+                </Button>
+              )}
+              {actions.showAnular && onDel && !hideEditAndDeleteButtons && (
+                <Button
+                  onClick={() => onDel(debtDetail)}
+                  variant="secondary"
+                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+                >
+                  Anular
+                </Button>
+              )}
             </div>
-          </div>
-        </LoadingScreen>
+          </>
+        )}
       </DataModal>
 
       {/* Modales de detalle - solo para los que son modales */}
@@ -510,7 +634,7 @@ const RenderView: React.FC<RenderViewProps> = ({
             reloadItem();
             setShowPaymentModal(false);
           }}
-          payment_id={currentItem?.payment_id}
+          payment_id={resolvedPaymentId as string | number}
           noWaiting={true}
         />
       )}

@@ -3,7 +3,6 @@ export const statusForgiveness: any = {
   P: "Cobrado",
   X: "Anulada",
   M: "Vencida",
-  E: "Por subir comprobante",
   S: "Por confirmar",
   W: "Por confirmar Dir.",
   I: "Pago parcial",
@@ -14,7 +13,6 @@ export const statusForgivenessFilter: any = [
   { id: "P", name: "Cobrado" },
   { id: "X", name: "Anulada" },
   { id: "M", name: "Vencida" },
-  // { id: "E", name: "Por subir comprobante" },
   { id: "S", name: "Por confirmar" },
   { id: "W", name: "Por confirmar Dir." },
   { id: "I", name: "Pago parcial" },
@@ -25,7 +23,6 @@ export const colorStatusForgiveness: any = {
   P: { color: "var(--cSuccess)", bg: "var(--cHoverSuccess)" },
   X: { color: "var(--cError)", bg: "var(--cHoverError)" },
   M: { color: "var(--cError)", bg: "var(--cHoverError)" },
-  E: { color: "var(--cInfo)", bg: "var(--cHoverInfo)" },
   S: { color: "var(--cInfo)", bg: "#39ACEC33" },
   W: { color: "#1E8AE9", bg: "#517FE133" },
   I: {

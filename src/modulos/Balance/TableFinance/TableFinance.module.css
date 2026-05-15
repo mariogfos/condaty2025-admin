@@ -7,13 +7,33 @@
 
 .tableContainer {
   margin-top: 0;
-  width: max-content;
+  width: 100%;
   min-width: 100%;
   background-color: var(--cTableSurface);
 }
 
 .tableFinance {
   min-width: var(--table-finance-min-width, 920px);
+}
+
+.twoColumnTable {
+  width: 100%;
+  min-width: 100%;
+}
+
+.twoColumnTable .tableHeaderRow,
+.twoColumnTable .dataRow,
+.twoColumnTable .tableTotalRow,
+.twoColumnTable .tableTotalRowContainer {
+  width: 100%;
+  min-width: 100%;
+}
+
+.twoColumnTable .titleHeaderCell,
+.twoColumnTable .categoryNameCell,
+.twoColumnTable .subCategoryNameCell,
+.twoColumnTable .totalLabelCell {
+  min-width: 0;
 }
 
 .tableHeaderRow {

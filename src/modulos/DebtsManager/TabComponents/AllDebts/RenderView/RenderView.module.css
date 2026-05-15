@@ -97,8 +97,8 @@
 .statusRow {
   padding-top: var(--sL);
   padding-bottom: var(--sL);
-  border-bottom: 0.5px solid var(--cWhiteV1);
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-bottom: 1px solid var(--cWhiteV1);
+  border-top: 1px solid var(--cWhiteV1);
 }
 
 .infoItem {
@@ -152,7 +152,29 @@
   border-radius: 8px;
   color: var(--cWhiteV1);
   line-height: 1.6;
-  margin-bottom: var(--sL);
+  border: 1px solid var(--cModalBorder);
+}
+
+.sectionHeading {
+  color: var(--cWhite);
+  font-size: var(--sM);
+  font-weight: var(--bRegular);
+  margin: 0 0 var(--spM) 0;
+  padding-left: var(--spXs);
+}
+
+.statusValue {
+  font-weight: var(--bSemibold);
+}
+
+.actionsWrap {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.actionButtonStretch {
+  flex: 1 1 240px;
+  min-width: 220px;
 }
 
 .actions {
@@ -273,7 +295,7 @@
   width: 100%;
   border: none;
   height: 0;
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-top: 1px solid var(--cWhiteV1);
 }
 
 .detailsSection {
@@ -304,7 +326,7 @@
   color: var(--cWhiteV1);
   font-size: var(--sL);
   font-weight: var(--bRegular);
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
   text-align: left;
 }
 
@@ -316,7 +338,7 @@
   overflow-wrap: break-word;
   min-width: 0;
   text-align: left;
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
 }
 
 .infoValue div {
@@ -436,7 +458,7 @@
   cursor: pointer;
   min-width: 220px;
   max-width: 100%;
-  font-family: Roboto, sans-serif;
+  font-family: var(--fPrimary);
 }
 
 .voucherButton:hover {

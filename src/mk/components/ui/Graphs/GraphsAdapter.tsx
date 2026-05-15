@@ -18,6 +18,7 @@ const GraphsAdapter = ({
   const chartConfig = useMemo(() => {
     if (!data) return null;
 
+    const chartFontFamily = 'Inter, sans-serif';
     const iconDownload = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M4 15.504V16.5C4 17.2956 4.31607 18.0587 4.87868 18.6213C5.44129 19.1839 6.20435 19.5 7 19.5H17C17.7956 19.5 18.5587 19.1839 19.1213 18.6213C19.6839 18.0587 20 17.2956 20 16.5V15.5M12 4V15M12 15L15.5 11.5M12 15L8.5 11.5" stroke="white" fill="transparent" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
@@ -67,7 +68,7 @@ const GraphsAdapter = ({
       },
       legend: {
         show: false,
-        fontFamily: 'Inter',
+        fontFamily: chartFontFamily,
         labels: {
           colors: colorWhite,
           useSeriesColors: false,
@@ -105,7 +106,7 @@ const GraphsAdapter = ({
             color: colorWhite,
             fontSize: '16px',
             fontWeight: 400,
-            fontFamily: 'Roboto',
+            fontFamily: chartFontFamily,
           },
         },
       },
@@ -117,7 +118,7 @@ const GraphsAdapter = ({
         intersect: true,
         style: {
           fontSize: '12px',
-          fontFamily: 'Roboto',
+          fontFamily: chartFontFamily,
         },
         custom: function ({ series, seriesIndex, dataPointIndex, w }: any) {
           const seriesName = w.globals.seriesNames[seriesIndex];
@@ -147,7 +148,7 @@ const GraphsAdapter = ({
           style: {
             colors: [colorWhite],
             fontSize: '14px',
-            fontFamily: 'Roboto, sans-serif',
+            fontFamily: chartFontFamily,
           },
           formatter: (value: any) => {
             return formatBs(value);
@@ -167,7 +168,7 @@ const GraphsAdapter = ({
         style: {
           fontSize: '32px',
           fontWeight: 900,
-          fontFamily: 'Roboto',
+          fontFamily: chartFontFamily,
           color: '#a7a7a7',
         },
       },

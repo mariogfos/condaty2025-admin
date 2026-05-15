@@ -11,9 +11,9 @@ import {
 import useAxios from "../hooks/useAxios";
 import { useRouter } from "next/navigation";
 import Login from "../components/auth/Login";
-import useToast, { ToastType } from "../hooks/useToast";
+import useToast, { ToastItem } from "../hooks/useToast";
 import Splash from "../../components/req/Splash";
-import Toast from "../components/ui/Toast/Toast";
+import ToastViewport from "../components/ui/Toast/ToastViewport";
 export interface AuthContextType {
   user: any;
   error: any;
@@ -38,13 +38,9 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
   const [store, setStore] = useState<any>(null);
   const storeRef = useRef<any>(null);
   const [splash, setSplash] = useState(true);
-  const [toast, setToast] = useState<ToastType>({
-    msg: "",
-    type: "success",
-    time: 3000,
-  });
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
   const router: any = useRouter();
-  const { showToast } = useToast(toast, setToast);
+  const { showToast } = useToast(setToasts);
 
   const _setStore = useCallback(async (newStore: object) => {
     setStore((old: object | Function) => {
@@ -254,7 +250,12 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
   if (splash)
     return (
       <>
-        <Toast toast={toast} showToast={setToast} />
+        <ToastViewport
+          toasts={toasts}
+          onDismiss={(id) =>
+            setToasts((prev) => prev.filter((toast) => toast.id !== id))
+          }
+        />
         <Splash />
       </>
     );
@@ -262,7 +263,12 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
   return (
     <AuthContext.Provider value={result}>
       {loaded || <Splash />}
-      <Toast toast={toast} showToast={setToast} />
+      <ToastViewport
+        toasts={toasts}
+        onDismiss={(id) =>
+          setToasts((prev) => prev.filter((toast) => toast.id !== id))
+        }
+      />
       {!noAuth && !user ? <Login /> : children}
       {/* {children} */}
     </AuthContext.Provider>

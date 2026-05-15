@@ -515,7 +515,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
         <div className={styles.listContainer}>
           <List
-            height={"calc(100vh - 560px)"}
+            height={"100%"}
             emptyMsg="No hay detalles de deuda compartida disponibles"
             emptyLine2="Los detalles aparecerán aquí cuando estén disponibles."
             emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}

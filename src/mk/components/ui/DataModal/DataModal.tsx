@@ -53,7 +53,7 @@ const DataModal = ({
   ignoreTranslation = false,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
-  const { isMobile } = useScreenSize();
+  const { isMobile, width } = useScreenSize();
 
   useEffect(() => {
     if (open) {
@@ -73,11 +73,22 @@ const DataModal = ({
   };
 
   const customStyle = { ...style } as CSSProperties;
-  if (minWidth && !isMobile) customStyle.minWidth = minWidth as any;
+  const numericMinWidth =
+    typeof minWidth === "number"
+      ? minWidth
+      : typeof minWidth === "string" && /^\d+(\.\d+)?(px)?$/.test(minWidth.trim())
+        ? Number(minWidth.replace("px", "").trim())
+        : null;
+  const shouldCollapseMinWidth =
+    isMobile ||
+    (numericMinWidth !== null && width <= numericMinWidth + 72);
+
+  if (minWidth && !shouldCollapseMinWidth) customStyle.minWidth = minWidth as any;
   if (maxWidth)
     customStyle.maxWidth = isMobile ? "calc(100vw - 24px)" : (maxWidth as any);
-  if (isMobile) {
+  if (shouldCollapseMinWidth) {
     customStyle.minWidth = 0;
+    customStyle.width = "100%";
   }
   if (variant === "mini" && !customStyle.maxWidth)
     customStyle.maxWidth = isMobile ? "calc(100vw - 24px)" : 560;

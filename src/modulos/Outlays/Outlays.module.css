@@ -1,10 +1,16 @@
 .outlays {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   width: 100%;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: var(--title-sm-size);
+  font-weight: var(--bBold);
   margin-bottom: 5px;
   color: var(--cWhite, white);
 }
@@ -16,28 +22,14 @@
 }
 
 .categoriesButton {
-  border: 1px solid var(--cLightv3, #a0a0a0) !important;
-  color: var(--cLightv3, #a0a0a0) !important;
-  background-color: transparent !important;
-  font-size: 14px;
-  padding: 8px 16px !important;
-  border-radius: 12px !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 120px;
-  height: 48px !important;
-  min-height: 48px !important;
-  max-height: 48px !important;
+  min-width: var(--controlMinWidth);
+  width: auto !important;
+  white-space: nowrap;
   margin: 0 !important;
 }
 
 .graphButton:hover {
   opacity: 0.9;
-}
-
-.categoriesButton:hover {
-  background-color: rgba(160, 160, 160, 0.1) !important;
 }
 
 .viewButton {
@@ -63,20 +55,23 @@
     flex-direction: column;
     align-items: flex-start;
   }
+}
 
+@media (max-width: 640px) {
   .graphButton,
   .categoriesButton {
-    width: 100%;
+    width: 100% !important;
     margin-bottom: 10px;
+    min-width: 0;
   }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (min-width: 641px) and (max-width: 1024px) {
   .graphButton {
     width: 32%;
   }
 
   .categoriesButton {
-    width: 32%;
+    width: auto !important;
   }
 }

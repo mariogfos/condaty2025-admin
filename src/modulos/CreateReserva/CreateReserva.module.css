@@ -109,7 +109,7 @@
 }
 .imagePagination button {
   background: transparent;
-  border: 0.5px solid var(--cWhite);
+  border: 1px solid var(--cWhite);
   color: var(--cWhite);
   padding: 9px;
   margin: 0;
@@ -137,7 +137,7 @@
 }
 .areaSeparator {
   border: none;
-  border-top: 0.5px solid var(--cWhiteV1);
+  border-top: 1px solid var(--cWhiteV1);
   margin: 0;
 }
 .detailBlock {
@@ -297,7 +297,7 @@
 }
 .periodButton {
   padding: 8px;
-  border: 0.5px solid var(--cWhiteV1);
+  border: 1px solid var(--cWhiteV1);
   background-color: transparent;
   border-radius: var(--bRadiusS);
   cursor: pointer;

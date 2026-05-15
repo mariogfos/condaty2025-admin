@@ -1,7 +1,12 @@
 .container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  height: 100%;
   width: 100%;
   padding: var(--spM);
-  overflow-y: auto;
+  overflow: hidden;
   /* Asegurar que el contenedor principal permita que los tooltips se muestren */
   position: relative;
   z-index: 1;
@@ -86,6 +91,10 @@
 }
 
 .listContainer {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-height: 0;
   padding: 0;
   overflow: visible; /* Cambiar de hidden a visible para permitir que el tooltip se muestre */
   /* Asegurar que el contenedor de la lista tenga un z-index bajo */
