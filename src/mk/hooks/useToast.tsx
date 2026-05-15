@@ -13,6 +13,8 @@ export type ToastItem = ToastType & {
 
 const DEFAULT_TOAST_TYPE: ToastKind = "success";
 const DEFAULT_TOAST_TIME = 5000;
+const MAX_TOAST_QUEUE = 4;
+const TOAST_DUPLICATE_WINDOW_MS = 1500;
 let toastCounter = 0;
 
 const TOAST_TYPES = new Set<ToastKind>(["success", "error", "warning", "info"]);
@@ -55,6 +57,48 @@ const normalizeToastArgs = (
   };
 };
 
+const getComparableToastMessage = (message: unknown) => {
+  if (typeof message === "string") {
+    const trimmed = message.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  if (typeof message === "number") {
+    return String(message);
+  }
+
+  return null;
+};
+
+const getToastDedupKey = (toast: Pick<ToastType, "msg" | "type">) => {
+  const comparableMessage = getComparableToastMessage(toast.msg);
+  if (!comparableMessage) return null;
+
+  return `${toast.type || DEFAULT_TOAST_TYPE}:${comparableMessage}`;
+};
+
+export const appendToastItem = (
+  prev: ToastItem[] = [],
+  nextToast: ToastItem,
+) => {
+  const nextDedupKey = getToastDedupKey(nextToast);
+
+  if (nextDedupKey) {
+    const hasRecentDuplicate = prev.some((toast) => {
+      const currentKey = getToastDedupKey(toast);
+      if (currentKey !== nextDedupKey) return false;
+
+      return nextToast.createdAt - toast.createdAt < TOAST_DUPLICATE_WINDOW_MS;
+    });
+
+    if (hasRecentDuplicate) {
+      return prev;
+    }
+  }
+
+  return [...prev, nextToast].slice(-MAX_TOAST_QUEUE);
+};
+
 const useToast = (setToastQueue?: Function) => {
   const showToast = (
     message = "",
@@ -70,10 +114,12 @@ const useToast = (setToastQueue?: Function) => {
       return;
     }
 
-    setToastQueue((prev: ToastItem[] = []) => [
-      ...prev,
-      createToastItem(normalized.message, normalized.type, normalized.time),
-    ]);
+    setToastQueue((prev: ToastItem[] = []) =>
+      appendToastItem(
+        prev,
+        createToastItem(normalized.message, normalized.type, normalized.time),
+      ),
+    );
   };
 
   return { showToast };

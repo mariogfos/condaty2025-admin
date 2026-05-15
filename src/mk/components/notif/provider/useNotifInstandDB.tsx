@@ -269,6 +269,10 @@ const useNotifInstandDB = (
           return latest.payload;
         }
       })();
+      const normalizedLatest = {
+        ...latest,
+        payload: parsedPayload,
+      };
 
       // Helper that modules use to dispatch scoped window events
       const dispatchModuleEvent = (eventName: string, data: any) => {
@@ -280,7 +284,7 @@ const useNotifInstandDB = (
         const handler = moduleConfig.events[latest.event];
         if (handler) {
           handler({
-            notif: latest,
+            notif: normalizedLatest,
             payload: parsedPayload,
             dispatch: dispatchModuleEvent,
             showToast: showToast || (() => {}),
@@ -289,7 +293,7 @@ const useNotifInstandDB = (
       });
 
       // Still dispatch the global onNotif event so legacy handlers work
-      dispatch(latest);
+      dispatch(normalizedLatest);
       setLastNotif(last);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

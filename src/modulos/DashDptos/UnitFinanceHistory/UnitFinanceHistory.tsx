@@ -114,15 +114,76 @@ const getDebtBalance = (row: any) => {
   return Math.round((debtAmount + penaltyAmount + maintenanceAmount) * 100) / 100;
 };
 
+const getDebtStatusCode = (row: any) =>
+  String(
+    row?.status ??
+      row?.debt_status ??
+      row?.debt?.status ??
+      row?.debt_dpto?.status ??
+      "",
+  )
+    .trim()
+    .toUpperCase();
+
+const getDebtRowId = (row: any) =>
+  row?.id ??
+  row?.debt_dpto_id ??
+  row?.debtDptoId ??
+  row?.debt?.id ??
+  row?.debt_id ??
+  row?.shared_id ??
+  null;
+
+const normalizeDebtRow = (row: any) => ({
+  ...row,
+  id: getDebtRowId(row),
+  status: getDebtStatusCode(row) || row?.status || "A",
+});
+
+const isPartialDebtRow = (row: any) => {
+  const normalizedStatus = getDebtStatusCode(row);
+
+  if (normalizedStatus === "I") {
+    return true;
+  }
+
+  const hasExplicitPartialAmount =
+    row?.available_partial_amount !== undefined &&
+    row?.available_partial_amount !== null &&
+    row?.available_partial_amount !== "";
+
+  if (!hasExplicitPartialAmount) {
+    return false;
+  }
+
+  const outstanding = Number(
+    row?.available_partial_amount ?? row?.total_remaining_amount,
+  );
+  const totalAmount = Number(row?.amount ?? 0);
+  const penaltyAmount = Number(row?.penalty_amount ?? 0);
+  const maintenanceAmount = Number(row?.maintenance_amount ?? 0);
+  const totalBalance =
+    Math.round((totalAmount + penaltyAmount + maintenanceAmount) * 100) / 100;
+
+  return (
+    Number.isFinite(outstanding) &&
+    Number.isFinite(totalBalance) &&
+    outstanding > 0 &&
+    totalBalance > 0 &&
+    outstanding < totalBalance
+  );
+};
+
 const resolveDebtStatus = (row: any) => {
+  const normalizedStatus = getDebtStatusCode(row);
   const dueAtString = row?.debt?.due_at || row?.due_at || "";
   const todayString = new Date().toISOString().split("T")[0];
 
-  if (row?.status === "A" && dueAtString && dueAtString < todayString) {
+  if (normalizedStatus === "A" && dueAtString && dueAtString < todayString) {
     return "M";
   }
 
-  return row?.status || "A";
+  return normalizedStatus || "A";
 };
 
 const getPaymentConceptLabel = (payment: any) => {
@@ -601,12 +662,19 @@ const UnitFinanceHistory = ({
               header={debtsHeader as any}
               height="100%"
               onRowClick={(row: any) => {
-                if (row?.status === "I") {
-                  setSelectedPartialDebt(row);
+                const normalizedRow = normalizeDebtRow(row);
+
+                if (!normalizedRow?.id) {
+                  showToast("No se pudo abrir el detalle de la deuda", "error");
                   return;
                 }
 
-                setSelectedDebt(row);
+                if (isPartialDebtRow(normalizedRow)) {
+                  setSelectedPartialDebt(normalizedRow);
+                  return;
+                }
+
+                setSelectedDebt(normalizedRow);
               }}
             />
           ) : (

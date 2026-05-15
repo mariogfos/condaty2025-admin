@@ -101,4 +101,26 @@ describe("useNotifInstandDB", () => {
     expect(mockDispatch).toHaveBeenCalledTimes(1);
     expect(localStorage.getItem("lastNotifInstantDB")).toBe("123456");
   });
+
+  it("dispatches parsed payload objects to legacy onNotif listeners", async () => {
+    const { default: useNotifInstandDB } = await import("../useNotifInstandDB");
+    const showToast = vi.fn();
+
+    renderHook(() => useNotifInstandDB([], showToast));
+
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledTimes(1);
+    });
+
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: "assembly-status-change",
+        payload: {
+          id: 77,
+          subject: "pruebas",
+          status: "P",
+        },
+      }),
+    );
+  });
 });
