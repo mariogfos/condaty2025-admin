@@ -14,6 +14,7 @@ type PropsType = {
   left?: any;
   right?: any;
   customTitle?: any;
+  leftAriaLabel?: string;
   colorBack?: string;
   colorTitle?: string;
 };
@@ -27,6 +28,7 @@ const HeadTitle = ({
   left = null,
   right = null,
   customTitle = null,
+  leftAriaLabel = "Volver",
   colorBack = "var(--cWhite)",
   colorTitle = "var(--cWhite)",
 }: PropsType) => {
@@ -45,7 +47,7 @@ const HeadTitle = ({
   return (
     <div style={style} className={styles.headTitle + ' ' + className}>
       {left !== false && (
-        <span role="button" aria-label="Volver">
+        <span role="button" aria-label={leftAriaLabel}>
           {left !== null ? left : <IconArrowLeft onClick={goBack} color={colorBack} size={24} />}
         </span>
       )}

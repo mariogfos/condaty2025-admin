@@ -176,6 +176,10 @@ const Layout = ({ children }: any) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    setSideBarOpen(false);
+  }, [path]);
+
   const onNotif = useCallback(
     (e: any) => {
       if (!user?.id) return;
@@ -299,6 +303,17 @@ const Layout = ({ children }: any) => {
               setOpenClient={setOpenClient}
             />
           </SideMenu>
+        )}
+        {isMobile && (
+          <Sidebar open={sideBarOpen} onClose={setSideBarOpen}>
+            <MainMenu
+              collapsed={false}
+              user={user}
+              setLogout={setOnLogout}
+              setSideBarOpen={setSideBarOpen}
+              setOpenClient={setOpenClient}
+            />
+          </Sidebar>
         )}
       </section>
       <section>{children}</section>

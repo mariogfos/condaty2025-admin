@@ -1,5 +1,7 @@
 .headTitle {
   display: flex;
+  justify-content: space-between;
+  gap: 12px;
   color: var(--cWhite);
   width: 100%;
   align-items: center;
@@ -15,6 +17,7 @@
     cursor: pointer;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
     transition: opacity 0.15s ease, transform 0.15s ease;
   }
 
@@ -25,15 +28,19 @@
 
   & > div {
     width: 100%;
+    min-width: 0;
+    flex: 1 1 auto;
     display: flex;
     align-items: center;
-    text-align: center;
+    justify-content: flex-start;
+    text-align: left;
 
     & > p {
       font-size: var(--sL);
       font-weight: var(--bBold);
       cursor: pointer;
       transition: opacity 0.15s ease, text-decoration-color 0.15s ease;
+      min-width: 0;
     }
 
     & > p:hover {

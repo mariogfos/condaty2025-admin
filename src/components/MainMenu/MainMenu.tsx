@@ -81,6 +81,7 @@ const MainMenu = ({
               icon={<item.icon size={17} />}
               bage={store?.[item.badgeKey]}
               collapsed={collapsed}
+              setSideBarOpen={setSideBarOpen}
             />
           );
         }
@@ -126,6 +127,7 @@ const MainMenu = ({
           label={translate("switchCondominium")}
           icon={<IconDepartments size={17} />}
           collapsed={collapsed}
+          setSideBarOpen={setSideBarOpen}
         />
       )}
       <MainmenuItem
@@ -135,6 +137,7 @@ const MainMenu = ({
         labelColor="var(--cError)"
         icon={<IconLogout color={"var(--cError)"} size={17} />}
         collapsed={collapsed}
+        setSideBarOpen={setSideBarOpen}
       />
     </section>
   );

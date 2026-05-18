@@ -48,6 +48,7 @@ const Header = ({
   const { store, setStore } = useAuth();
   const { locale, setPreference } = useLanguage();
   const { translate } = useScopedI18n("header");
+  const isHome = path === "/";
   const [count, setCount] = useState(0);
   const [countChat, setCountChat] = useState(0);
 
@@ -165,14 +166,15 @@ const Header = ({
     return (
       <HeadTitle
         title={title}
-        customTitle={path === "/" ? <Title /> : customTitle()}
+        customTitle={isHome ? <Title /> : customTitle()}
+        leftAriaLabel={isHome ? "Abrir menú" : "Volver"}
         left={
-          path === "/" && !isMobile ? (
+          isHome ? (
             <IconMenu onClick={() => setOpenSlider(!openSlider)} circle size={38} />
           ) : null
         }
         right={
-          path === "/" ? (
+          isHome ? (
             <div className={styles.headerRightContainer}>
               <NotificationIcon />
               {!isMobile && !isTablet && <ProfileIcon />}

@@ -79,6 +79,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .header-controls {
@@ -223,6 +224,8 @@
   align-items: center;
   gap: 12px;
   padding-top: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .mobileGreeting {
@@ -230,6 +233,7 @@
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
+  min-width: 0;
 }
 
 .mobileGreetingMain {
