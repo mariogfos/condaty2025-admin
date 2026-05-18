@@ -372,6 +372,481 @@
   padding: 0 8px;
 }
 
+.flowModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 18px;
+  border-top: 1px solid
+    color-mix(in srgb, var(--cTableBorder) 54%, var(--cTableHeader));
+}
+
+.flowHeaderCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  width: 100%;
+  max-width: 220px;
+  margin: 0 auto;
+}
+
+.flowEyebrow {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.flowStepper {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.flowStepBar {
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cTableBorder) 78%, transparent);
+}
+
+.flowStepBarActive {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--cAccent) 92%, white 8%),
+    color-mix(in srgb, var(--cAccent) 54%, white 46%)
+  );
+}
+
+.flowStepMeta {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.flowHeaderTitle {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: 20px;
+  line-height: 1.1;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.flowContent {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.flowContent > * + * {
+  border-top: 1px solid
+    color-mix(in srgb, var(--cTableBorder) 54%, var(--cTableHeader));
+  padding-top: 14px;
+}
+
+.flowSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sectionDescription {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.areaChoiceGrid,
+.modeChoiceGrid,
+.modalFieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.modalDateField {
+  min-height: var(--controlHeight);
+  max-height: var(--controlHeight);
+  padding: 8px var(--controlPaddingX);
+}
+
+.modalDateField > div > label {
+  font-size: calc(var(--controlLabelSize) - 2px);
+  line-height: 1.1;
+}
+
+.modalDateField > div > input {
+  font-size: calc(var(--controlFontSize) - 2px);
+  font-weight: var(--controlFontWeight);
+  line-height: 1.2;
+}
+
+.areaChoiceCard,
+.modeChoiceCard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--cTableBorder);
+  border-radius: 16px;
+  background: var(--cTableRowAlt);
+  color: var(--cWhite);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.areaChoiceCard:hover,
+.areaChoiceCard:focus-visible,
+.modeChoiceCard:hover,
+.modeChoiceCard:focus-visible {
+  border-color: color-mix(in srgb, var(--cAccent) 28%, var(--cTableBorder));
+  background: color-mix(in srgb, var(--cTableHover) 84%, transparent);
+}
+
+.areaChoiceCard:active,
+.modeChoiceCard:active {
+  transform: scale(0.995);
+}
+
+.areaChoiceCardSelected,
+.modeChoiceCardSelected {
+  border-color: color-mix(in srgb, var(--cAccent) 62%, transparent);
+  background: color-mix(in srgb, var(--cAccent) 14%, var(--cTableRowAlt));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cAccent) 38%, transparent);
+}
+
+.areaChoiceCardLoading,
+.areaChoiceCardLoading:hover,
+.areaChoiceCardLoading:focus-visible {
+  cursor: wait;
+  transform: none;
+}
+
+.areaChoiceCardDisabled,
+.areaChoiceCardDisabled:hover,
+.areaChoiceCardDisabled:focus-visible {
+  opacity: 0.52;
+  cursor: not-allowed;
+  transform: none;
+  border-color: var(--cTableBorder);
+  background: var(--cTableRowAlt);
+}
+
+.areaChoiceTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.areaChoiceText {
+  min-width: 0;
+  flex: 1;
+}
+
+.areaChoiceTitle {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.areaChoiceMeta {
+  margin: 4px 0 0;
+  color: var(--cWhiteV1);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.areaChoiceSkeletonMeta {
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cTableHeader) 78%, #0c1015);
+}
+
+.areaChoiceSkeletonMeta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 45%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: areaCardSkeletonShimmer 1.2s ease-in-out infinite;
+}
+
+.areaChoiceSkeletonMeta {
+  width: min(100%, 190px);
+  height: 12px;
+  margin-top: 6px;
+}
+
+@keyframes areaCardSkeletonShimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.slotGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slotGroupStack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.slotGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slotGroupLabel,
+.slotGroupLabelMuted,
+.slotGroupLabelDanger {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.slotGroupLabel {
+  color: var(--cWhite);
+}
+
+.slotGroupLabelMuted {
+  color: var(--cWhiteV1);
+}
+
+.slotGroupLabelDanger {
+  color: color-mix(in srgb, var(--cStatusDanger) 88%, white 12%);
+}
+
+.slotChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--cTableBorder);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cWhite);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.slotChip:hover,
+.slotChip:focus-visible {
+  border-color: color-mix(in srgb, var(--cAccent) 42%, transparent);
+  background: color-mix(in srgb, var(--cAccent) 12%, transparent);
+}
+
+.slotChipSelected {
+  border-color: color-mix(in srgb, var(--cAccent) 64%, transparent);
+  background: color-mix(in srgb, var(--cAccent) 18%, transparent);
+  color: var(--cWhite);
+}
+
+.slotChipMuted,
+.slotChipDanger {
+  cursor: default;
+}
+
+.slotChipMuted {
+  color: rgba(255, 255, 255, 0.56);
+  border-color: color-mix(in srgb, var(--cTableBorder) 76%, transparent);
+  background: color-mix(in srgb, var(--cTableHeader) 42%, transparent);
+}
+
+.slotChipDanger {
+  color: color-mix(in srgb, var(--cStatusDanger) 90%, white 10%);
+  border-color: color-mix(in srgb, var(--cStatusDanger) 30%, transparent);
+  background: color-mix(in srgb, var(--cStatusDanger) 12%, transparent);
+}
+
+.slotPreviewCard {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid color-mix(in srgb, var(--cAccent) 36%, var(--cTableBorder));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--cAccent) 12%, var(--cTableRowAlt));
+  color: var(--cWhite);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.summaryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--cTableBorder);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent 42%),
+    color-mix(in srgb, var(--cTableRowAlt) 92%, transparent);
+}
+
+.summaryRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.summaryRow span {
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.summaryRow strong {
+  color: var(--cWhite);
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 600;
+  text-align: right;
+}
+
+.reviewTable {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid color-mix(in srgb, var(--cTableBorder) 62%, transparent);
+  border-radius: 16px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--cTableHeader) 82%, #0e1217);
+}
+
+.reviewTableCompact {
+  width: min(100%, 460px);
+  align-self: flex-start;
+}
+
+.reviewRow {
+  display: grid;
+  grid-template-columns: minmax(116px, 156px) minmax(0, 1fr);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--cTableBorder) 54%, var(--cTableHeader));
+}
+
+.reviewRow:last-child {
+  border-bottom: 0;
+}
+
+.reviewKey {
+  padding: 8px 10px;
+  border-right: 1px solid
+    color-mix(in srgb, var(--cTableBorder) 54%, var(--cTableHeader));
+  background: rgba(0, 0, 0, 0.12);
+  color: var(--cWhiteV1);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.reviewValue {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 10px;
+  color: var(--cWhite);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.inlineNotice {
+  padding: 12px 14px;
+  border: 1px dashed color-mix(in srgb, var(--cAccent) 34%, var(--cTableBorder));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--cTableHeader) 62%, transparent);
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.modeChoiceCard strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.modeChoiceCard span {
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.flowFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid
+    color-mix(in srgb, var(--cTableBorder) 54%, var(--cTableHeader));
+}
+
+.flowFooterHint {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: 12px;
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+.flowFooterActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
 .dayPanel {
   min-width: 400px;
   padding: 14px;
@@ -548,6 +1023,10 @@
     min-width: 0;
     min-height: 280px;
   }
+
+  .flowHeaderCenter {
+    width: min(220px, 100%);
+  }
 }
 
 @media (max-width: 900px) {
@@ -560,6 +1039,12 @@
   .filtersRow,
   .actionsRow {
     gap: 8px;
+  }
+
+  .areaChoiceGrid,
+  .modeChoiceGrid,
+  .modalFieldGrid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -636,6 +1121,55 @@
 
   .dayPanel {
     padding: 12px;
+  }
+
+  .flowModalBody {
+    gap: 18px;
+  }
+
+  .flowHeaderCenter {
+    width: 100%;
+  }
+
+  .flowHeaderTitle {
+    font-size: 18px;
+  }
+
+  .flowFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .flowFooterHint {
+    max-width: none;
+  }
+
+  .flowFooterActions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .flowFooterActions > button {
+    flex: 1 1 160px;
+    min-width: 0;
+  }
+
+  .summaryRow {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .summaryRow strong {
+    text-align: left;
+  }
+
+  .reviewRow {
+    grid-template-columns: 1fr;
+  }
+
+  .reviewKey {
+    border-right: 0;
+    border-bottom: 1px solid var(--cTableBorder);
   }
 }
 

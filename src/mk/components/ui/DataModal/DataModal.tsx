@@ -1,5 +1,5 @@
 "use client";
-import { CSSProperties, useEffect, useState } from "react";
+import { CSSProperties, ReactNode, useEffect, useState } from "react";
 import DetailModal from "../DetailModal/DetailModal";
 import Button from "../../forms/Button/Button";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
@@ -12,6 +12,8 @@ type PropsType = {
   open: boolean;
   onSave?: (e: any) => void;
   title?: string;
+  titleClassName?: string;
+  headerCenter?: ReactNode;
   className?: string;
   buttonText?: string;
   buttonCancel?: string;
@@ -37,6 +39,8 @@ const DataModal = ({
   open,
   onSave = () => {},
   title = "",
+  titleClassName = "",
+  headerCenter = null,
   className = "",
   buttonText = "Guardar",
   buttonCancel = "Cancelar",
@@ -163,6 +167,8 @@ const DataModal = ({
         onClose={onClose}
         onSave={onSave}
         title={title}
+        titleClassName={titleClassName}
+        headerCenter={headerCenter}
         className={className}
         buttonText={buttonText}
         buttonCancel={buttonCancel}
