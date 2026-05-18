@@ -12,11 +12,7 @@ import {
 } from "date-fns";
 import { getFullName } from "@/mk/utils/string";
 import { capitalizeWords } from "@/mk/utils/string";
-import {
-  RESERVATION_STATUS_CONFIG,
-  getUpdatedReservationStatus,
-  type ReservationStatus,
-} from "@/modulos/Reservas/constants/reservationConstants";
+import { RESERVATION_STATUS_CONFIG } from "@/modulos/Reservas/constants/reservationConstants";
 import type {
   ReservationArea,
   ReservationListItem,
@@ -24,6 +20,7 @@ import type {
   ReservationUnit,
   ReservationVisibleRange,
 } from "@/modulos/Reservas/types";
+import { resolveReservationDisplayStatus } from "@/modulos/Reservas/utils/reservationStatus";
 
 const WEEK_STARTS_ON_SUNDAY = { weekStartsOn: 0 as const };
 
@@ -416,12 +413,13 @@ export const buildAreaAvailabilitySnapshot = (
 };
 
 export const getReservationStatusMeta = (reservation: ReservationListItem) => {
-  const nextStatus = getUpdatedReservationStatus(
-    reservation.status as ReservationStatus | undefined,
-    reservation.date_end || undefined,
-    reservation.end_time || undefined,
-  );
-  const statusKey = String(nextStatus || reservation.status || "");
+  const statusKey = resolveReservationDisplayStatus({
+    status: reservation.status,
+    dateEnd: reservation.date_end,
+    endTime: reservation.end_time,
+    debtStatus: reservation.debt_dpto?.status,
+    paymentStatus: reservation.debt_dpto?.payment?.status,
+  });
 
   const config =
     RESERVATION_STATUS_CONFIG[
@@ -482,7 +480,7 @@ export const matchesReservationFilters = (
     getAreaName(reservation.area),
     getResidentName(
       resident,
-      reservation.status === "M" ? "Administracion" : "Residente no disponible",
+      statusMeta.status === "M" ? "Administracion" : "Residente no disponible",
     ),
     getUnitLabel(reservation.dpto),
     reservation.obs,
@@ -517,13 +515,13 @@ export const buildCalendarEntries = (
 
     const areaName = getAreaName(reservation.area);
     const resident = reservation.owner || getResidentFromUnit(reservation.dpto);
+    const statusMeta = getReservationStatusMeta(reservation);
     const residentName = getResidentName(
       resident,
-      reservation.status === "M" ? "Administracion" : "Residente no disponible",
+      statusMeta.status === "M" ? "Administracion" : "Residente no disponible",
     );
     const unitLabel = getUnitLabel(reservation.dpto);
     const timeLabel = formatReservationTimeRange(reservation);
-    const statusMeta = getReservationStatusMeta(reservation);
     const chipLabel = `${areaName} ${timeLabel}`;
 
     eachDayOfInterval({
@@ -533,7 +531,7 @@ export const buildCalendarEntries = (
       const dayKey = formatDateKey(day);
       const list = entries.get(dayKey) || [];
       const sortValue =
-        reservation.status === "M"
+        statusMeta.status === "M"
           ? -1
           : Number.parseInt(
               (getTimeBounds(reservation).startTime || "23:59").replace(":", ""),

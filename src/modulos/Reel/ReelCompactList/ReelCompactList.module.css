@@ -1,8 +1,8 @@
 .compactListContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--spL);
-  height: 300px;
+  gap: var(--spM);
+  height: auto;
 }
 
 .contentCardCompact {
@@ -10,7 +10,7 @@
   /* background: var(--cBlackV3); */
   background-color: #d7fff005;
   border-radius: var(--bRadiusL);
-  padding: var(--spM);
+  padding: var(--spS) var(--spM);
   box-shadow:
     0 10px 30px -10px rgba(0, 0, 0, 0.4),
     0 1px 3px rgba(0, 0, 0, 0.1);
@@ -26,7 +26,7 @@
 /* Layout para noticias */
 .newsContentBody {
   display: flex;
-  gap: var(--spM);
+  gap: var(--spS);
   align-items: flex-start;
   flex-grow: 1;
 }
@@ -41,16 +41,16 @@
 
 /* Contenedor de imagen fijo al 40% */
 .newsMediaContent {
-  flex: 0 0 40%;
-  width: 40%;
-  max-width: 40%;
+  flex: 0 0 34%;
+  width: 34%;
+  max-width: 34%;
 }
 
 /* Contenedor de imagen con tamaño fijo */
 .newsImageContainer {
   position: relative;
   width: 100%;
-  height: 200px; /* Altura más pequeña para modo compacto */
+  height: 144px;
   background-color: #d7fff005;
   border-radius: var(--bRadiusM);
   overflow: hidden;
@@ -121,7 +121,7 @@
 .newsDescription {
   font-size: var(--sM);
   color: var(--cWhiteV1);
-  line-height: 1.65;
+  line-height: 1.55;
   margin: 0;
   word-wrap: break-word;
   white-space: pre-wrap;
@@ -132,8 +132,8 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  padding-bottom: var(--spS);
-  margin-bottom: var(--spM);
+  padding-bottom: var(--spXs);
+  margin-bottom: var(--spS);
   border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
 }
 
@@ -209,8 +209,8 @@
 }
 
 .contentFooter {
-  margin-top: var(--spM);
-  padding-top: var(--spS);
+  margin-top: var(--spS);
+  padding-top: var(--spXs);
   border-top: 0.3px solid rgba(215, 255, 240, 0.12);
   display: flex;
   flex-direction: column;
@@ -321,16 +321,17 @@
 
   /* Contenedor de imagen fijo al 70% del ancho del card */
   .newsMediaContent {
-    flex: 0 0 70%;
-    width: 70%;
-    max-width: 70%;
+    flex: 0 0 64%;
+    width: 64%;
+    max-width: 64%;
     order: -1; /* Imagen siempre arriba en móvil */
   }
 
   /* Contenedor de imagen más pequeño en móvil */
   .newsImageContainer {
-    width: 200px;
-    height: 200px;
+    width: 100%;
+    max-width: 220px;
+    height: 156px;
     margin: 0 auto; /* Centrar el contenedor */
   }
 

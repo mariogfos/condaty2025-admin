@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useEffect } from "react";
+import React, { memo, useCallback, useEffect } from "react";
 import { format, format as formatDateFns, formatDistanceToNowStrict, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import Button from "@/mk/components/forms/Button/Button";
@@ -15,9 +15,13 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
 import {
   RESERVATION_STATUS_CONFIG,
-  getUpdatedReservationStatus,
   type ReservationStatus,
 } from "../constants/reservationConstants";
+import {
+  formatReservationPaymentTimeLimitMessage,
+  resolveReservationDisplayStatus,
+  shouldShowReservationPaymentTimeLimit,
+} from "../utils/reservationStatus";
 import styles from "./ReservationDetailModal.module.css";
 import { paymentsApi } from "@/modulos/Payments/api";
 
@@ -81,6 +85,7 @@ type ReservationItem = {
   canceled_user?: ReservationActor | null;
   debt_dpto?: {
     payment_id?: string | number | null;
+    status?: string | null;
   } | null;
 };
 
@@ -231,7 +236,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     const detailId = reservationId || item?.id;
     const shouldFetchDetail = open && Boolean(detailId);
 
-    const { data } = useAxios(
+    const { data, reLoad: reloadReservationDetail } = useAxios(
       shouldFetchDetail ? "/reservations" : null,
       "GET",
       {
@@ -245,6 +250,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
 
     const reservationDetail = (data?.data?.reservation || item || {}) as ReservationItem;
     const timeLimit = data?.data?.timeLimit as string | undefined;
+    const formattedTimeLimit = formatReservationPaymentTimeLimitMessage(timeLimit);
     const { execute: executeAction } = useAxios();
 
     const [isActionLoading, setIsActionLoading] = React.useState(false);
@@ -260,11 +266,21 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       null,
     );
 
-    const statusKey = getUpdatedReservationStatus(
-      reservationDetail?.status as ReservationStatus | undefined,
-      reservationDetail?.date_end || undefined,
-      reservationDetail?.end_time || undefined,
-    );
+    const handlePaymentModalClose = useCallback(() => {
+      setShowPaymentModal(false);
+      void reloadReservationDetail(null, true);
+    }, [reloadReservationDetail]);
+
+    const handleReservationDetailReload = useCallback(() => {
+      void reloadReservationDetail(null, true);
+    }, [reloadReservationDetail]);
+
+    const statusKey = resolveReservationDisplayStatus({
+      status: reservationDetail?.status as ReservationStatus | undefined,
+      dateEnd: reservationDetail?.date_end || undefined,
+      endTime: reservationDetail?.end_time || undefined,
+      debtStatus: reservationDetail?.debt_dpto?.status || undefined,
+    });
     const currentStatus = statusKey
       ? RESERVATION_STATUS_CONFIG[statusKey as keyof typeof RESERVATION_STATUS_CONFIG]
       : null;
@@ -291,7 +307,8 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       !TERMINAL_STATUSES.has(String(statusKey)) &&
       statusKey !== "W";
     const showTimeLimit =
-      Boolean(timeLimit) && (statusKey === "A" || statusKey === "Q");
+      Boolean(formattedTimeLimit) &&
+      shouldShowReservationPaymentTimeLimit(statusKey);
     const reasonText = reservationDetail?.reason?.trim() || "";
     const obsText = reservationDetail?.obs?.trim() || "";
     const areaName = reservationDetail?.area?.title || "Área social";
@@ -621,7 +638,9 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                   </div>
 
                   {showTimeLimit ? (
-                    <div className={styles.timeLimitAlert}>{timeLimit}</div>
+                    <div className={styles.timeLimitAlert}>
+                      {formattedTimeLimit}
+                    </div>
                   ) : null}
 
                   <div className={styles.infoGrid}>
@@ -702,10 +721,8 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         {showPaymentModal ? (
           <PaymentRenderView
             open={showPaymentModal}
-            onClose={() => {
-              reLoad?.();
-              setShowPaymentModal(false);
-            }}
+            onClose={handlePaymentModalClose}
+            reLoad={handleReservationDetailReload}
             payment_id={resolvedPaymentId as string | number}
             noWaiting={true}
           />

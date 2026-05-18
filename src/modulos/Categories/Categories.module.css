@@ -1,4 +1,10 @@
 .container {
+  --category-surface: rgba(18, 21, 25, 0.72);
+  --category-surface-strong: rgba(12, 15, 18, 0.92);
+  --category-divider: rgba(215, 255, 240, 0.08);
+}
+
+.container {
   display: flex;
   flex-direction: column;
   flex: 1 1 0;
@@ -14,18 +20,21 @@
   margin: 0 0 16px 0;
 }
 .cardEven {
-  background-color: var(--cBlackV2);
+  background-color: var(--category-surface);
 }
 .cardOdd {
-  background-color: var(--cWhiteV2);
+  background-color: var(--category-surface);
 }
 .categoryCard {
   overflow: hidden;
   width: 100% !important;
   display: block;
   box-sizing: border-box;
-  border-top: 1px solid var(--cWhiteV1);
-  transition: background-color 0.2s;
+  border: 1px solid var(--category-divider);
+  border-radius: 14px;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
 }
 .categoryHeader {
   padding: 16px;
@@ -36,6 +45,9 @@
   transition: background-color 0.2s;
   width: 100%;
   box-sizing: border-box;
+}
+.categoryHeader:hover {
+  background-color: rgba(255, 255, 255, 0.02);
 }
 .categoryTitle {
   display: flex;
@@ -104,7 +116,7 @@
   transform: rotate(180deg);
 }
 .subcategoriesContainer {
-  background-color: var(--cWhiteV2);
+  background-color: var(--category-surface-strong);
   width: 100%;
   box-sizing: border-box;
 }
@@ -118,14 +130,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
-  background-color: var(--cWhiteV2);
+  background-color: var(--category-surface-strong);
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
   width: 100%;
   box-sizing: border-box;
   border-top: none;
-  border-bottom: 1px solid var(--cWhiteV1);
+  border-bottom: 1px solid var(--category-divider);
   gap: 16px;
 }
 
@@ -244,8 +256,8 @@
   color: var(--cDarkv2);
 }
 .categoryCard.accordionOpen {
-  border: 1px solid var(--cWhite);
-  border-radius: 1px;
+  border-color: rgba(215, 255, 240, 0.14);
+  background-color: var(--category-surface-strong);
 }
 .subcategoryRow {
   display: flex;

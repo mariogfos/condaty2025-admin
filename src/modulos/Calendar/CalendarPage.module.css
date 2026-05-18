@@ -955,6 +955,14 @@
   line-height: 1.45;
 }
 
+.dayListDeadline {
+  margin: 0;
+  padding-left: 48px;
+  color: rgba(233, 176, 30, 0.92);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .emptyDay {
   display: flex;
   align-items: center;

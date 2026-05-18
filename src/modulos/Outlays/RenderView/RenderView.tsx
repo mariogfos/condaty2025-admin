@@ -35,6 +35,7 @@ interface OutlayItem {
   status: "A" | "X" | string;
   type?: string;
   ext?: string;
+  url_file?: (string | null)[];
   updated_at?: string;
   user?: User | null;
   canceled_by?: User | null;
@@ -126,6 +127,32 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
     return statusMap[status] || status;
   };
 
+  if (!item) {
+    return (
+      <DataModal
+        open={open}
+        onClose={onClose}
+        title="Información del Egreso"
+        buttonText=""
+        buttonCancel=""
+        maxWidth={980}
+      >
+        <div className={styles.container}>
+          <div className={styles.messageContainer}>
+            <p className={styles.messageText}>
+              No se encontró información del egreso.
+            </p>
+            <p className={styles.messageSuggestion}>
+              Por favor, verifica los detalles o intenta de nuevo más tarde.
+            </p>
+          </div>
+        </div>
+      </DataModal>
+    );
+  }
+
+  const currentItem = item;
+
   const { categoryName, subCategoryName } = item
     ? getCategoryNames()
     : { categoryName: "", subCategoryName: "" };
@@ -159,9 +186,104 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
     }
   };
 
+  const getOutlayVoucherUrls = () => {
+    const urls = Array.isArray(currentItem.url_file)
+      ? currentItem.url_file
+          .map((url) =>
+            String(url || "")
+              .replace(/[`'"\s]/g, "")
+              .trim(),
+          )
+          .filter(Boolean)
+      : [];
+
+    if (urls.length > 0) {
+      return urls;
+    }
+
+    if (currentItem.ext) {
+      return [
+        getUrlImages(
+          `/EXPENSE-${currentItem.id}.${currentItem.ext}?d=${
+            currentItem.updated_at || Date.now()
+          }`,
+        ),
+      ];
+    }
+
+    return [];
+  };
+
   const openFileInNewTab = (path: string) => {
     const fileUrl = getUrlImages(path);
     window.open(fileUrl, "_blank");
+  };
+
+  const voucherUrls = getOutlayVoucherUrls();
+  const hasVoucherUrls = voucherUrls.length > 0;
+
+  const handleDownloadVouchers = async () => {
+    if (!hasVoucherUrls) return;
+
+    try {
+      showToast("Descargando comprobantes...", "info");
+      const container = document.createElement("div");
+      container.style.display = "none";
+      document.body.appendChild(container);
+
+      for (let index = 0; index < voucherUrls.length; index++) {
+        const url = voucherUrls[index];
+
+        try {
+          const response = await fetch(url, { mode: "cors" });
+          if (!response.ok) continue;
+
+          const blob = await response.blob();
+          const blobUrl = window.URL.createObjectURL(blob);
+          let fileName = `comprobante-egreso-${index + 1}`;
+
+          try {
+            const parsedUrl = new URL(url);
+            const lastSegment = parsedUrl.pathname.split("/").pop() || "";
+            if (lastSegment) fileName = lastSegment;
+          } catch {}
+
+          if (!/\.[a-zA-Z0-9]+$/.test(fileName)) {
+            const ext = (blob.type.split("/")[1] || "file").replace(
+              /[^a-zA-Z0-9]/g,
+              "",
+            );
+            fileName = `${fileName}.${ext}`;
+          }
+
+          const anchor = document.createElement("a");
+          anchor.href = blobUrl;
+          anchor.download = fileName;
+          container.appendChild(anchor);
+          anchor.click();
+          window.URL.revokeObjectURL(blobUrl);
+          anchor.remove();
+        } catch {}
+      }
+
+      setTimeout(() => {
+        container.remove();
+      }, 500);
+      showToast("Descarga finalizada", "success");
+    } catch {
+      showToast("No se pudieron descargar los comprobantes", "error");
+    }
+  };
+
+  const handleViewOrDownloadVouchers = () => {
+    if (!hasVoucherUrls) return;
+
+    if (voucherUrls.length === 1) {
+      window.open(voucherUrls[0], "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    handleDownloadVouchers();
   };
 
   const handleGenerateReceipt = async () => {
@@ -185,32 +307,6 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
       );
     }
   };
-
-  if (!item) {
-    return (
-      <DataModal
-        open={open}
-        onClose={onClose}
-        title="Información del Egreso"
-        buttonText=""
-        buttonCancel=""
-        maxWidth={980}
-      >
-        <div className={styles.container}>
-          <div className={styles.messageContainer}>
-            <p className={styles.messageText}>
-              No se encontró información del egreso.
-            </p>
-            <p className={styles.messageSuggestion}>
-              Por favor, verifica los detalles o intenta de nuevo más tarde.
-            </p>
-          </div>
-        </div>
-      </DataModal>
-    );
-  }
-
-  const currentItem = item;
 
   const detailItems = [
     {
@@ -389,19 +485,13 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
           Descargar nota de egreso
         </Button>
 
-        {currentItem.ext && (
+        {hasVoucherUrls && (
           <Button
             variant="secondary"
             className={styles.voucherButton}
-            onClick={() =>
-              openFileInNewTab(
-                `/EXPENSE-${currentItem.id}.${currentItem.ext}?d=${
-                  currentItem.updated_at || Date.now()
-                }`,
-              )
-            }
+            onClick={handleViewOrDownloadVouchers}
           >
-            Ver comprobante
+            {voucherUrls.length > 1 ? "Descargar comprobantes" : "Ver comprobante"}
           </Button>
         )}
       </div>

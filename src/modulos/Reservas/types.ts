@@ -15,6 +15,14 @@ export type ReservationListItem = {
   start_time?: string | null;
   end_time?: string | null;
   people_count?: number | null;
+  time_limit?: string | null;
+  debt_dpto?: {
+    payment_id?: number | string | null;
+    status?: string | null;
+    payment?: {
+      status?: string | null;
+    } | null;
+  } | null;
   periods?:
     | Array<{
         time_from?: string | null;

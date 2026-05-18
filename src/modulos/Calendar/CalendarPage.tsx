@@ -48,6 +48,10 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { capitalize, capitalizeWords } from "@/mk/utils/string";
 import { RESERVATION_STATUS_OPTIONS } from "@/modulos/Reservas/constants/reservationConstants";
+import {
+  formatReservationPaymentTimeLimitMessage,
+  shouldShowReservationPaymentTimeLimit,
+} from "@/modulos/Reservas/utils/reservationStatus";
 import { getUrlImages } from "@/mk/utils/string";
 import type {
   ReservationArea,
@@ -302,6 +306,9 @@ const CalendarPage = () => {
   const [modalAreaAvailabilityLoading, setModalAreaAvailabilityLoading] =
     useState(false);
   const [reservationSubmitting, setReservationSubmitting] = useState(false);
+  const [selectedDayTimeLimits, setSelectedDayTimeLimits] = useState<
+    Record<string, string>
+  >({});
   const [maintenanceStep, setMaintenanceStep] = useState(0);
   const [maintenanceDraft, setMaintenanceDraft] = useState<MaintenanceDraft>({
     areaId: "",
@@ -315,6 +322,7 @@ const CalendarPage = () => {
   const hasLoadedAreasRef = useRef(false);
   const reservationAvailabilityRequestRef = useRef(0);
   const modalAreaAvailabilityRequestRef = useRef(0);
+  const selectedDayTimeLimitRequestRef = useRef(0);
   const gridRef = useRef<HTMLDivElement>(null);
 
   const canView = userCan("reservations", "R");
@@ -489,6 +497,75 @@ const CalendarPage = () => {
   const selectedDayEntries = selectedDayKey
     ? entriesByDay.get(selectedDayKey) || []
     : [];
+
+  useEffect(() => {
+    if (!contextInstance || selectedDayEntries.length === 0) {
+      setSelectedDayTimeLimits({});
+      return;
+    }
+
+    const pendingEntries = selectedDayEntries.filter((entry) =>
+      shouldShowReservationPaymentTimeLimit(entry.status),
+    );
+
+    if (pendingEntries.length === 0) {
+      setSelectedDayTimeLimits({});
+      return;
+    }
+
+    const requestId = selectedDayTimeLimitRequestRef.current + 1;
+    selectedDayTimeLimitRequestRef.current = requestId;
+    let cancelled = false;
+
+    const loadTimeLimits = async () => {
+      try {
+        const responses = await Promise.all(
+          pendingEntries.map((entry) =>
+            contextInstance.request({
+              method: "GET",
+              url: "/reservations",
+              params: {
+                fullType: "DET",
+                searchBy: entry.reservation.id,
+                page: 1,
+                perPage: 1,
+              },
+            }),
+          ),
+        );
+
+        if (cancelled || selectedDayTimeLimitRequestRef.current !== requestId) {
+          return;
+        }
+
+        const nextMap = pendingEntries.reduce<Record<string, string>>(
+          (accumulator, entry, index) => {
+            const rawTimeLimit = responses[index]?.data?.data?.timeLimit;
+            const formatted = formatReservationPaymentTimeLimitMessage(rawTimeLimit);
+
+            if (formatted) {
+              accumulator[String(entry.reservation.id)] = formatted;
+            }
+
+            return accumulator;
+          },
+          {},
+        );
+
+        setSelectedDayTimeLimits(nextMap);
+      } catch (_error) {
+        if (!cancelled && selectedDayTimeLimitRequestRef.current === requestId) {
+          setSelectedDayTimeLimits({});
+        }
+      }
+    };
+
+    void loadTimeLimits();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [contextInstance, selectedDayEntries]);
 
   const visibleAreaOptions = useMemo(() => {
     const areaMap = new Map<string, ReservationArea>();
@@ -1784,6 +1861,12 @@ const CalendarPage = () => {
       const reason = entry.reservation.reason?.trim() || "";
       const showReason =
         reason.length > 0 && STATUS_WITH_REASON.has(entry.status);
+      const timeLimitMessage =
+        selectedDayTimeLimits[String(entry.reservation.id)] ||
+        formatReservationPaymentTimeLimitMessage(entry.reservation.time_limit);
+      const showTimeLimit =
+        timeLimitMessage.length > 0 &&
+        shouldShowReservationPaymentTimeLimit(entry.status);
 
       return (
         <button
@@ -1828,10 +1911,13 @@ const CalendarPage = () => {
           {showReason ? (
             <p className={styles.dayListReason}>Motivo: {reason}</p>
           ) : null}
+          {showTimeLimit ? (
+            <p className={styles.dayListDeadline}>{timeLimitMessage}</p>
+          ) : null}
         </button>
       );
     },
-    [getAreaAvatarSrc],
+    [getAreaAvatarSrc, selectedDayTimeLimits],
   );
 
   const renderFlowHeaderCenter = useCallback(

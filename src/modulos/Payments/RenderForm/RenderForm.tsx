@@ -21,7 +21,7 @@ import {
 import Toast from "@/mk/components/ui/Toast/Toast";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css";
-import UploadFile from "@/mk/components/forms/UploadFile2";
+import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
 import { paymentsApi } from "../api";
@@ -173,7 +173,7 @@ interface SelectedPeriodo {
 interface FormState {
   paid_at?: string;
   file?: string | null;
-  url_file?: string | null;
+  url_file?: string[] | null;
   filename?: string | null;
   ext?: string | null;
   dpto_id?: string | number;
@@ -240,6 +240,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       paid_at: item?.paid_at || new Date().toISOString().split("T")[0],
       type: item?.type || "",
       file: item?.file || null,
+      url_file: Array.isArray(item?.url_file) ? item.url_file : [],
       filename: item?.filename || null,
       ext: item?.ext || null,
       dpto_id: item?.dpto_id || "",
@@ -313,8 +314,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
   );
 
   const lastLoadedDeudas = useRef<string>("");
-  const exten = ["jpg", "pdf", "png", "jpeg", "doc", "docx", "webp"];
-
   const findSelectedDpto = useCallback(
     (dptoKey: string | number) =>
       extraData?.dptos?.find(
@@ -1266,18 +1265,21 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               )}
 
-              <div className={styles["supporting-fields"]}>
+                <div className={styles["supporting-fields"]}>
                 <div className={styles["upload-section"]}>
-                  <UploadFile
-                    cant={8}
-                    name="url_file"
-                    ext={exten.join(",")}
-                    type="I"
-                    setFormState={setFormState}
-                    formState={formState}
-                    required={true}
-                    label="Cargar un archivo o arrastrar y soltar"
-                  />
+                  {open && (
+                    <UploadFileV3
+                      cant={8}
+                      name="url_file"
+                      setFormState={setFormState}
+                      formState={formState}
+                      mode="all"
+                      maxMB={20}
+                      error={errors}
+                      title="Cargar comprobantes"
+                      subtitle="Adjunta imágenes, PDF o archivos de oficina"
+                    />
+                  )}
                 </div>
 
                 <div className={styles["voucher-section"]}>

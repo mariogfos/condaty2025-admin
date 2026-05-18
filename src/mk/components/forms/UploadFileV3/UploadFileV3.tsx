@@ -31,7 +31,7 @@ interface UploadFileV3Props {
   onUploadStateChange?: (v: boolean) => void;
   maxMB?: number;
   mode?: "documents" | "images" | "all";
-  error?: Record<string, string>;
+  error?: Record<string, string | undefined>;
   title?: string;
   subtitle?: string;
 }
