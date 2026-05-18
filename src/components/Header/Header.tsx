@@ -109,17 +109,15 @@ const Header = ({
   );
 
   const NotificationIcon = () => (
-    <div className={styles.iconOuterContainer}>
-      <div className={styles.notificationContainer}>
-        <Link href="/notifications" className={styles.notificationAction}>
-          <div className={styles.notificationIcon}>
-            <IconNotification size={22} strokeWidth={1.4} />
-            {notificationCount > 0 && (
-              <div className={styles.notificationBadge}>{notificationCount}</div>
-            )}
-          </div>
-        </Link>
-      </div>
+    <div className={styles.notificationContainer}>
+      <Link href="/notifications" className={styles.notificationAction}>
+        <div className={styles.notificationIcon}>
+          <IconNotification size={22} strokeWidth={1.4} />
+          {notificationCount > 0 && (
+            <div className={styles.notificationBadge}>{notificationCount}</div>
+          )}
+        </div>
+      </Link>
     </div>
   );
 

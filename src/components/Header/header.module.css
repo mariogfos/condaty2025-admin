@@ -91,20 +91,6 @@
   z-index: 2;
 }
 
-/* Contenedor exterior - con borde según Figma */
-.iconOuterContainer {
-  width: 48px;
-  height: 48px;
-  background-color: var(--cBackground);
-  border-radius: 999px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid var(--cBorder);
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
 /* Estilos para el contenedor de notificaciones */
 .notificationContainer {
   cursor: pointer;
@@ -185,12 +171,6 @@
     gap: 12px;
   }
 
-  .iconOuterContainer {
-    width: 40px;
-    height: 40px;
-    border-radius: 6px;
-  }
-
   .notificationContainer {
     width: 40px;
     height: 40px;
@@ -222,10 +202,12 @@
 .header-mobile-title {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
-  padding-top: 8px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
   min-width: 0;
-  flex: 1 1 auto;
 }
 
 .mobileGreeting {
