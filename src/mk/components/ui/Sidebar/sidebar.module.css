@@ -5,43 +5,45 @@
   left: 0;
   right: 0;
   bottom: 0;
+  background: rgba(5, 9, 18, 0.6);
   backdrop-filter: blur(5px);
-  z-index: 99;
+  z-index: 140;
 
-  &>nav {
+  & > nav {
     position: fixed;
     top: 0;
     left: -768px;
     bottom: 0;
-    width: 300px;
+    width: min(320px, calc(100vw - 24px));
+    max-width: 100%;
     background-color: var(--cBlack);
     border-right: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 0px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.34);
     transition: background-color 0.3s ease, color 0.3s ease, padding 0.3s ease, left 0.3s ease;
     padding: var(--spM) 0;
 
     @media (min-width: 768px) {
-      width: 448px;
+      width: 420px;
     }
 
-    &>div {
+    & > div {
       display: flex;
     }
 
-    &>section {
-      height: 100vmax;
+    & > header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 16px 16px;
+    }
+
+    & > section {
+      height: calc(100% - 56px);
+      overflow-y: auto;
     }
   }
 
-  &>nav.open {
+  & > nav.open {
     left: 0;
-  }
-
-  &>header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spM);
-    border-bottom: var(--bWidth) solid var(--cBlackV2);
   }
 }

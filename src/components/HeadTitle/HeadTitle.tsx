@@ -14,6 +14,7 @@ type PropsType = {
   left?: any;
   right?: any;
   customTitle?: any;
+  leftAriaLabel?: string;
   colorBack?: string;
   colorTitle?: string;
 };
@@ -27,6 +28,7 @@ const HeadTitle = ({
   left = null,
   right = null,
   customTitle = null,
+  leftAriaLabel = "Volver",
   colorBack = "var(--cWhite)",
   colorTitle = "var(--cWhite)",
 }: PropsType) => {
@@ -43,16 +45,17 @@ const HeadTitle = ({
     router.back();
   };
   return (
-    <div style={style} className={styles.headTitle + ' ' + className}>
-      {left !== false && (
-        <span role="button" aria-label="Volver">
-          {left !== null ? left : <IconArrowLeft onClick={goBack} color={colorBack} size={24} />}
-        </span>
-      )}
+    <div style={style} className={styles.headTitle + " " + className}>
+      <div className={styles.sideSlot}>
+        {left !== false && (
+          <span className={styles.actionSlot} role="button" aria-label={leftAriaLabel}>
+            {left !== null ? left : <IconArrowLeft onClick={goBack} color={colorBack} size={24} />}
+          </span>
+        )}
+      </div>
       <div
+        className={styles.titleSlot}
         style={{
-          marginLeft: left === false ? undefined : 'var(--spM)',
-          marginRight: left === false ? undefined : 'var(--spM)',
           color: colorTitle,
         }}
       >
@@ -69,7 +72,9 @@ const HeadTitle = ({
           </p>
         )}
       </div>
-      <span>{right}</span>
+      <div className={styles.sideSlot}>
+        {right ? <span className={styles.actionSlot}>{right}</span> : null}
+      </div>
     </div>
   );
 };

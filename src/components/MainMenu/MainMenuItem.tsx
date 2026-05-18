@@ -11,6 +11,7 @@ interface MainmenuItemProps {
   onclick?: () => void;
   collapsed?: boolean;
   bage?: number | any;
+  setSideBarOpen?: (open: boolean) => void;
 }
 
 const MainmenuItem: React.FC<MainmenuItemProps> = ({
@@ -21,15 +22,21 @@ const MainmenuItem: React.FC<MainmenuItemProps> = ({
   icon,
   onclick,
   collapsed,
+  setSideBarOpen,
 }) => {
   const pathname = usePathname();
+  const handleClick = () => {
+    setSideBarOpen?.(false);
+    onclick?.();
+  };
+
   return (
     <div className={styles.menuItem}>
       <Link
         className={`${pathname === href ? `${styles.active}` : ""} ${
           collapsed ? `${styles.collapsed}` : ""
         }`}
-        onClick={onclick}
+        onClick={handleClick}
         href={href}
       >
         <p style={{ color: pathname === href ? "var(--cAccent)" : undefined }}>

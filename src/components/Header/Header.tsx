@@ -48,6 +48,7 @@ const Header = ({
   const { store, setStore } = useAuth();
   const { locale, setPreference } = useLanguage();
   const { translate } = useScopedI18n("header");
+  const isHome = path === "/";
   const [count, setCount] = useState(0);
   const [countChat, setCountChat] = useState(0);
 
@@ -108,17 +109,15 @@ const Header = ({
   );
 
   const NotificationIcon = () => (
-    <div className={styles.iconOuterContainer}>
-      <div className={styles.notificationContainer}>
-        <Link href="/notifications" className={styles.notificationAction}>
-          <div className={styles.notificationIcon}>
-            <IconNotification size={22} strokeWidth={1.4} />
-            {notificationCount > 0 && (
-              <div className={styles.notificationBadge}>{notificationCount}</div>
-            )}
-          </div>
-        </Link>
-      </div>
+    <div className={styles.notificationContainer}>
+      <Link href="/notifications" className={styles.notificationAction}>
+        <div className={styles.notificationIcon}>
+          <IconNotification size={22} strokeWidth={1.4} />
+          {notificationCount > 0 && (
+            <div className={styles.notificationBadge}>{notificationCount}</div>
+          )}
+        </div>
+      </Link>
     </div>
   );
 
@@ -165,14 +164,15 @@ const Header = ({
     return (
       <HeadTitle
         title={title}
-        customTitle={path === "/" ? <Title /> : customTitle()}
+        customTitle={isHome ? <Title /> : customTitle()}
+        leftAriaLabel={isHome ? "Abrir menú" : "Volver"}
         left={
-          path === "/" && !isMobile ? (
+          isHome ? (
             <IconMenu onClick={() => setOpenSlider(!openSlider)} circle size={38} />
           ) : null
         }
         right={
-          path === "/" ? (
+          isHome ? (
             <div className={styles.headerRightContainer}>
               <NotificationIcon />
               {!isMobile && !isTablet && <ProfileIcon />}
