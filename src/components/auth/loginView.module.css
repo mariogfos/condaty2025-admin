@@ -172,6 +172,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
+  gap: 0.875rem;
 }
 
 /* inputContainer sin estilos específicos aquí, se aplican dentro del componente Input/InputPassword */
@@ -185,7 +186,7 @@
   font-weight: var(--bMedium);
   color: var(--cWhiteV1);
   cursor: pointer;
-  margin-top: 0.5rem;
+  margin-top: 0.125rem;
   margin-bottom: 1.5rem;
   text-decoration: underline;
   opacity: 1;

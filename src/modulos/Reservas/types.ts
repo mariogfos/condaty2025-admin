@@ -15,6 +15,14 @@ export type ReservationListItem = {
   start_time?: string | null;
   end_time?: string | null;
   people_count?: number | null;
+  time_limit?: string | null;
+  debt_dpto?: {
+    payment_id?: number | string | null;
+    status?: string | null;
+    payment?: {
+      status?: string | null;
+    } | null;
+  } | null;
   periods?:
     | Array<{
         time_from?: string | null;
@@ -26,6 +34,12 @@ export type ReservationListItem = {
   dpto?: ReservationUnit | null;
 };
 
+export type ReservationResidentDependent = {
+  id?: number | string;
+  owner_id?: number | string;
+  owner?: ReservationResident | null;
+};
+
 export type ReservationResident = {
   id?: number | string;
   name?: string | null;
@@ -34,11 +48,19 @@ export type ReservationResident = {
   mother_last_name?: string | null;
   url_avatar?: string | null;
   email?: string | null;
+  dependientes?: ReservationResidentDependent[] | null;
 };
 
 export type ReservationUnit = {
   id: number | string;
   nro?: string | null;
+  description?: string | null;
+  type_id?: number | string | null;
+  type?: {
+    id?: number | string;
+    name?: string | null;
+    description?: string | null;
+  } | null;
   defaulter?: string | null;
   homeowner?: ReservationResident | null;
   tenant?: ReservationResident | null;
@@ -55,9 +77,11 @@ export type ReservationArea = {
   description?: string | null;
   max_capacity?: number | null;
   available_days?: string[] | null;
+  available_hours?: Record<string, string[]> | null;
   price?: string | number | null;
   is_free?: string | null;
   booking_mode?: string | null;
+  max_reservations_per_day?: number | null;
   max_booking_duration?: number | null;
   usage_rules?: string | null;
   special_restrictions?: string | null;

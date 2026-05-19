@@ -1,12 +1,12 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Input from "@/mk/components/forms/Input/Input";
 import styles from "./RenderForm.module.css";
 import Toast from "@/mk/components/ui/Toast/Toast";
-import UploadFileMultiple from "@/mk/components/forms/UploadFile/UploadFileMultiple";
+import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import { checkRules } from "@/mk/utils/validate/Rules";
 
 interface Category {
@@ -40,7 +40,7 @@ interface OutlayFormState {
   description?: string;
   amount?: string | number;
   type?: string;
-  avatar?: (File | string)[] | null;
+  url_file?: string[] | null;
   filename?: string | null;
   ext?: string | null;
   bank_account_id?: number | null;
@@ -87,7 +87,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       ...(item || {}),
       date_at: (item && item.date_at) || formattedDate,
       type: (item && item.type) || "",
-      file: (item && item.avatar) || null,
+      url_file: Array.isArray((item as any)?.url_file)
+        ? ((item as any).url_file as string[])
+        : [],
     };
   });
   const [filteredSubcategories, setFilteredSubcategories] = useState<
@@ -100,19 +102,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
     msg: string;
     type: "info" | "success" | "error" | "warning";
   }>({ msg: "", type: "info" });
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [_errors, set_Errors] = useState<Errors>({});
-  const exten = ["jpg", "pdf", "png", "jpeg", "doc", "docx", "xls", "xlsx"];
 
   useEffect(() => {
     if (!open) {
       setIsInitialized(false);
       _setFormState((prev) => ({
         ...prev,
-        file: null,
+        url_file: [],
       }));
-
-      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
     if (!isInitialized && open) {
@@ -122,7 +120,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
         ...(item || {}),
         date_at: (item && item.date_at) || formattedDate,
         type: (item && item.type) || "",
-        avatar: (item && item.avatar) || null,
+        url_file: Array.isArray((item as any)?.url_file)
+          ? ((item as any).url_file as string[])
+          : [],
       });
       setIsInitialized(true);
     }
@@ -273,10 +273,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       subcategory_id: "",
       description: "",
       amount: "",
-      file: null,
+      url_file: [],
     }));
     setFilteredSubcategories([]);
-    if (fileInputRef.current) fileInputRef.current.value = "";
     set_Errors({});
     onClose();
   }, [onClose, set_Errors]);
@@ -299,7 +298,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description,
       amount,
       type,
-      avatar,
+      url_file,
     } = _formState;
 
     const searchSubcategory: any = extraData?.subcategories?.find(
@@ -329,7 +328,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description,
       amount: parseFloat(String(amount || "0")),
       type,
-      avatar,
+      url_file: Array.isArray(url_file) ? url_file : [],
       bank_account_id: bank_account_id || null,
     };
 
@@ -510,25 +509,19 @@ const RenderForm: React.FC<RenderFormProps> = ({
           {/* Comprobante */}
           <div className={styles.section}>
             <div className={styles["input-container"]}>
-              <UploadFileMultiple
-                name="avatar"
-                value={_formState.avatar}
-                onChange={(e) => {
-                  // e.target.value es un array de archivos
-                  _setFormState((prev) => ({
-                    ...prev,
-                    avatar: e.target.value,
-                  }));
-                }}
-                label={"Subir comprobantes (imágenes o documentos)"}
-                error={_errors}
-                ext={exten}
-                setError={set_Errors}
-                img={true}
-                maxFiles={10}
-                prefix={"OUTLAY"}
-                item={_formState}
-              />
+              {open && (
+                <UploadFileV3
+                  name="url_file"
+                  formState={_formState}
+                  setFormState={_setFormState}
+                  mode="all"
+                  cant={10}
+                  maxMB={20}
+                  error={_errors}
+                  title="Cargar comprobantes"
+                  subtitle="Adjunta imágenes, PDF o archivos de oficina"
+                />
+              )}
             </div>
           </div>
           {/* Concepto del pago */}

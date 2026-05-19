@@ -12,11 +12,7 @@ import {
 } from "date-fns";
 import { getFullName } from "@/mk/utils/string";
 import { capitalizeWords } from "@/mk/utils/string";
-import {
-  RESERVATION_STATUS_CONFIG,
-  getUpdatedReservationStatus,
-  type ReservationStatus,
-} from "@/modulos/Reservas/constants/reservationConstants";
+import { RESERVATION_STATUS_CONFIG } from "@/modulos/Reservas/constants/reservationConstants";
 import type {
   ReservationArea,
   ReservationListItem,
@@ -24,6 +20,7 @@ import type {
   ReservationUnit,
   ReservationVisibleRange,
 } from "@/modulos/Reservas/types";
+import { resolveReservationDisplayStatus } from "@/modulos/Reservas/utils/reservationStatus";
 
 const WEEK_STARTS_ON_SUNDAY = { weekStartsOn: 0 as const };
 
@@ -59,6 +56,33 @@ export type CalendarReservationEntry = {
   sortValue: number;
 };
 
+export type ReservationCalendarDayAvailability = {
+  available: string[];
+  unavailable: string[];
+  maintenance: string[];
+  reserved: boolean;
+};
+
+export type CalendarAreaAvailability = {
+  areaId: string;
+  areaName: string;
+  bookingMode: string;
+  isAvailable: boolean;
+  slots: string[];
+  source: "live" | "schedule";
+  note: string;
+};
+
+const WEEKDAY_NAMES = [
+  "Domingo",
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+];
+
 export const normalizeSearchText = (value?: string | null) =>
   (value || "")
     .normalize("NFD")
@@ -67,6 +91,8 @@ export const normalizeSearchText = (value?: string | null) =>
     .toLowerCase();
 
 export const formatDateKey = (date: Date) => format(date, "yyyy-MM-dd");
+
+export const getWeekdayName = (date: Date) => WEEKDAY_NAMES[date.getDay()] || "Domingo";
 
 export const getVisibleMonthRange = (
   anchorDate: Date,
@@ -122,8 +148,16 @@ export const getResidentName = (
   return fullName || fallback;
 };
 
-export const getUnitLabel = (unit?: ReservationUnit | null) =>
-  unit?.nro ? `Unidad ${unit.nro}` : "Sin unidad";
+export const getUnitLabel = (unit?: ReservationUnit | null) => {
+  if (!unit) return "Sin unidad";
+
+  const unitTypeLabel = capitalizeWords(
+    String(unit.type?.name || unit.description || "Unidad").trim(),
+  );
+  const unitNumber = String(unit.nro || "").trim();
+
+  return unitNumber ? `${unitTypeLabel} ${unitNumber}` : unitTypeLabel;
+};
 
 export const getAreaName = (area?: ReservationArea | null) =>
   capitalizeWords(area?.title?.trim() || "Area social");
@@ -150,6 +184,34 @@ const getTimeBounds = (reservation: ReservationListItem) => {
 };
 
 const normalizeTime = (time: string) => (time.length === 5 ? `${time}:00` : time);
+
+const normalizeAvailabilitySlot = (value: string) => {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return "";
+
+  const rangeMatch = trimmed.match(
+    /^(\d{2}:\d{2})(?::\d{2})?\s*-\s*(\d{2}:\d{2})(?::\d{2})?$/,
+  );
+
+  if (rangeMatch) {
+    return `${rangeMatch[1]} - ${rangeMatch[2]}`;
+  }
+
+  return trimmed;
+};
+
+const toNormalizedSlotList = (value: unknown) =>
+  Array.isArray(value)
+    ? value
+        .map((item) => normalizeAvailabilitySlot(String(item || "")))
+        .filter(Boolean)
+        .sort((left, right) => left.localeCompare(right))
+    : [];
+
+const asPlainObject = (value: unknown): Record<string, any> =>
+  value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, any>)
+    : {};
 
 const hasSyntheticFullDayTimes = (
   startTime?: string | null,
@@ -219,13 +281,145 @@ export const formatReservationTimeRange = (reservation: ReservationListItem) => 
   return `${safeStart} - ${safeEnd}`;
 };
 
+export const extractDayAvailabilityFromCalendarResponse = (
+  payload: unknown,
+  day: Date | string,
+): ReservationCalendarDayAvailability => {
+  const date = typeof day === "string" ? new Date(`${day}T00:00:00`) : day;
+  const rawRoot = asPlainObject(payload);
+  const nestedData = asPlainObject(rawRoot.data);
+  const root =
+    Object.keys(nestedData).length > 0 &&
+    !rawRoot.days &&
+    !rawRoot.available &&
+    !rawRoot.unavailable
+      ? nestedData
+      : rawRoot;
+
+  const days = asPlainObject(root.days);
+  const dayNode = asPlainObject(days[String(date.getDate())]);
+  const source = Object.keys(dayNode).length > 0 ? dayNode : root;
+  const reservedDays = Array.isArray(root.reserved)
+    ? root.reserved.map((item: unknown) => String(item))
+    : [];
+
+  return {
+    available: toNormalizedSlotList(source.available),
+    unavailable: toNormalizedSlotList(source.unavailable),
+    maintenance: toNormalizedSlotList(source.maintenance),
+    reserved: reservedDays.includes(formatDateKey(date)),
+  };
+};
+
+export const buildAreaAvailabilitySnapshot = (
+  area: ReservationArea,
+  day: Date,
+  liveAvailability?: ReservationCalendarDayAvailability,
+): CalendarAreaAvailability => {
+  const weekdayName = getWeekdayName(day);
+  const configuredSlots = toNormalizedSlotList(area.available_hours?.[weekdayName]);
+  const scheduledDays = Array.isArray(area.available_days) ? area.available_days : [];
+  const isScheduledDay =
+    scheduledDays.length > 0
+      ? scheduledDays.includes(weekdayName)
+      : configuredSlots.length > 0 || area.booking_mode !== "hour";
+  const areaName = getAreaName(area);
+
+  if (liveAvailability) {
+    const normalizedLiveSlots = toNormalizedSlotList(liveAvailability.available);
+
+    if (normalizedLiveSlots.length > 0) {
+      return {
+        areaId: String(area.id),
+        areaName,
+        bookingMode: String(area.booking_mode || "day"),
+        isAvailable: true,
+        slots: normalizedLiveSlots,
+        source: "live",
+        note: "Disponibilidad en tiempo real",
+      };
+    }
+
+    if (
+      area.booking_mode !== "hour" &&
+      isScheduledDay &&
+      !liveAvailability.reserved &&
+      liveAvailability.unavailable.length === 0 &&
+      liveAvailability.maintenance.length === 0
+    ) {
+      return {
+        areaId: String(area.id),
+        areaName,
+        bookingMode: String(area.booking_mode || "day"),
+        isAvailable: true,
+        slots: configuredSlots.length > 0 ? configuredSlots : ["Todo el dia"],
+        source: "schedule",
+        note: "Disponibilidad configurada",
+      };
+    }
+
+    return {
+      areaId: String(area.id),
+      areaName,
+      bookingMode: String(area.booking_mode || "day"),
+      isAvailable: false,
+      slots: [],
+      source: "live",
+      note:
+        liveAvailability.maintenance.length > 0
+          ? "En mantenimiento"
+          : liveAvailability.reserved
+            ? "Ya tiene una reserva para esta fecha"
+          : "Sin turnos disponibles",
+    };
+  }
+
+  if (!isScheduledDay) {
+    return {
+      areaId: String(area.id),
+      areaName,
+      bookingMode: String(area.booking_mode || "day"),
+      isAvailable: false,
+      slots: [],
+      source: "schedule",
+      note: "No disponible este dia",
+    };
+  }
+
+  if (area.booking_mode === "hour") {
+    return {
+      areaId: String(area.id),
+      areaName,
+      bookingMode: "hour",
+      isAvailable: configuredSlots.length > 0,
+      slots: configuredSlots,
+      source: "schedule",
+      note:
+        configuredSlots.length > 0
+          ? "Disponibilidad configurada"
+          : "Sin turnos configurados",
+    };
+  }
+
+  return {
+    areaId: String(area.id),
+    areaName,
+    bookingMode: String(area.booking_mode || "day"),
+    isAvailable: true,
+    slots: configuredSlots.length > 0 ? configuredSlots : ["Todo el dia"],
+    source: "schedule",
+    note: "Disponibilidad configurada",
+  };
+};
+
 export const getReservationStatusMeta = (reservation: ReservationListItem) => {
-  const nextStatus = getUpdatedReservationStatus(
-    reservation.status as ReservationStatus | undefined,
-    reservation.date_end || undefined,
-    reservation.end_time || undefined,
-  );
-  const statusKey = String(nextStatus || reservation.status || "");
+  const statusKey = resolveReservationDisplayStatus({
+    status: reservation.status,
+    dateEnd: reservation.date_end,
+    endTime: reservation.end_time,
+    debtStatus: reservation.debt_dpto?.status,
+    paymentStatus: reservation.debt_dpto?.payment?.status,
+  });
 
   const config =
     RESERVATION_STATUS_CONFIG[
@@ -286,7 +480,7 @@ export const matchesReservationFilters = (
     getAreaName(reservation.area),
     getResidentName(
       resident,
-      reservation.status === "M" ? "Administracion" : "Residente no disponible",
+      statusMeta.status === "M" ? "Administracion" : "Residente no disponible",
     ),
     getUnitLabel(reservation.dpto),
     reservation.obs,
@@ -321,15 +515,14 @@ export const buildCalendarEntries = (
 
     const areaName = getAreaName(reservation.area);
     const resident = reservation.owner || getResidentFromUnit(reservation.dpto);
+    const statusMeta = getReservationStatusMeta(reservation);
     const residentName = getResidentName(
       resident,
-      reservation.status === "M" ? "Administracion" : "Residente no disponible",
+      statusMeta.status === "M" ? "Administracion" : "Residente no disponible",
     );
     const unitLabel = getUnitLabel(reservation.dpto);
     const timeLabel = formatReservationTimeRange(reservation);
-    const statusMeta = getReservationStatusMeta(reservation);
-    const chipLabel =
-      timeLabel === "Todo el dia" ? areaName : `${timeLabel} ${areaName}`;
+    const chipLabel = `${areaName} ${timeLabel}`;
 
     eachDayOfInterval({
       start: startOfDay(start),
@@ -338,7 +531,7 @@ export const buildCalendarEntries = (
       const dayKey = formatDateKey(day);
       const list = entries.get(dayKey) || [];
       const sortValue =
-        reservation.status === "M"
+        statusMeta.status === "M"
           ? -1
           : Number.parseInt(
               (getTimeBounds(reservation).startTime || "23:59").replace(":", ""),

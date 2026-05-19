@@ -12,7 +12,9 @@ type PropsType = {
   open: boolean;
   onSave?: (e: any) => void;
   title?: ReactNode;
+  titleClassName?: string;
   subtitle?: ReactNode;
+  headerCenter?: ReactNode;
   className?: string;
   buttonText?: string;
   buttonCancel?: string;
@@ -33,7 +35,9 @@ const DetailModal = ({
   open,
   onSave = () => {},
   title = "",
+  titleClassName = "",
   subtitle = "",
+  headerCenter = null,
   className = "",
   buttonText = "",
   buttonCancel = "",
@@ -94,11 +98,20 @@ const DetailModal = ({
       >
         <header className={styles.header}>
           <div className={styles.titleWrap}>
-            {title ? <div className={styles.title}>{title}</div> : null}
+            {title ? (
+              <div
+                className={[styles.title, titleClassName].filter(Boolean).join(" ")}
+              >
+                {title}
+              </div>
+            ) : null}
             {subtitle ? (
               <div className={styles.subtitle}>{subtitle}</div>
             ) : null}
           </div>
+          {headerCenter ? (
+            <div className={styles.headerCenter}>{headerCenter}</div>
+          ) : null}
           {iconClose ? (
             <button
               className={styles.closeButton}
