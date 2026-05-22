@@ -12,7 +12,6 @@ import {
 } from "react";
 import {
   addMonths,
-  addDays,
   endOfDay,
   format,
   isSameMonth,
@@ -23,7 +22,7 @@ import {
   subMonths,
 } from "date-fns";
 import { es } from "date-fns/locale";
-import { CalendarPlus, Wrench } from "lucide-react";
+import { CalendarPlus, Wrench, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   IconArrowLeft,
@@ -259,7 +258,7 @@ const CalendarPage = () => {
   const { showToast, userCan } = useAuth();
 
   const [currentMonth, setCurrentMonth] = useState(() => startOfMonth(new Date()));
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedAreaId, setSelectedAreaId] = useState("ALL");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(
     DEFAULT_VISIBLE_STATUS_IDS,
@@ -427,8 +426,11 @@ const CalendarPage = () => {
 
   useEffect(() => {
     setSelectedDate((current) => {
+      if (!current) {
+        return null;
+      }
+
       if (
-        current &&
         isWithinInterval(current, {
           start: visibleRange.start,
           end: endOfDay(visibleRange.end),
@@ -437,14 +439,9 @@ const CalendarPage = () => {
         return current;
       }
 
-      const today = new Date();
-      if (isSameMonth(today, currentMonth)) {
-        return today;
-      }
-
-      return startOfMonth(currentMonth);
+      return null;
     });
-  }, [currentMonth, visibleRange.end, visibleRange.start]);
+  }, [visibleRange.end, visibleRange.start]);
 
   const normalizedQuery = useMemo(
     () => normalizeSearchText(deferredSearch),
@@ -497,6 +494,7 @@ const CalendarPage = () => {
   const selectedDayEntries = selectedDayKey
     ? entriesByDay.get(selectedDayKey) || []
     : [];
+  const isDayPanelOpen = Boolean(selectedDate);
 
   useEffect(() => {
     if (!contextInstance || selectedDayEntries.length === 0) {
@@ -697,7 +695,7 @@ const CalendarPage = () => {
     [calendarActionModal, formatDayLabel],
   );
   const minimumActionDate = useMemo(
-    () => format(addDays(startOfDay(new Date()), 1), "yyyy-MM-dd"),
+    () => format(startOfDay(new Date()), "yyyy-MM-dd"),
     [],
   );
 
@@ -1198,7 +1196,7 @@ const CalendarPage = () => {
     : !selectedReservationOwnerId
       ? "La unidad seleccionada no tiene un titular asociado."
       : reservationAvailabilityLoading
-        ? "Actualizando disponibilidad..."
+        ? ""
         : reservationLiveCanBook === false ||
             selectedReservationAreaAvailability?.isAvailable === false
           ? reservationAvailabilityMessage ||
@@ -1799,7 +1797,7 @@ const CalendarPage = () => {
   );
 
   const canOpenDayActionMenu = useCallback(
-    (day: Date) => day.getTime() > endOfDay(new Date()).getTime(),
+    (day: Date) => day.getTime() >= startOfDay(new Date()).getTime(),
     [],
   );
 
@@ -2045,49 +2043,14 @@ const CalendarPage = () => {
           </div>
         </div>
 
-        <DataModal
-          open={filtersOpen}
-          onClose={() => setFiltersOpen(false)}
-          title="Filtros"
-          buttonText=""
-          buttonCancel="Cerrar"
-          variant="mini"
+        <div
+          className={[
+            styles.contentGrid,
+            !isDayPanelOpen ? styles.contentGridPanelClosed : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
         >
-          <div className={styles.compactFilterModalBody}>
-            <Select
-              name="calendarPeriodCompact"
-              label="Periodo"
-              value={format(currentMonth, "yyyy-MM")}
-              options={periodOptions}
-              onChange={handlePeriodSelect}
-              inputStyle={FILTER_INPUT_STYLE}
-              style={FILTER_STYLE}
-            />
-            <Select
-              name="calendarAreaCompact"
-              label="Área"
-              value={selectedAreaId}
-              options={areaOptions}
-              onChange={(event: { target: { value: string } }) =>
-                setSelectedAreaId(event.target.value)
-              }
-              inputStyle={FILTER_INPUT_STYLE}
-              style={FILTER_STYLE}
-            />
-            <Select
-              name="calendarStatusesCompact"
-              label="Estados"
-              value={selectedStatuses}
-              options={RESERVATION_STATUS_OPTIONS}
-              onChange={handleStatusesChange}
-              inputStyle={FILTER_INPUT_STYLE}
-              style={FILTER_STYLE}
-              multiSelect
-            />
-          </div>
-        </DataModal>
-
-        <div className={styles.contentGrid}>
           <div className={styles.calendarShell}>
             {loading ? (
               <div className={styles.loadingState}>Cargando calendario...</div>
@@ -2161,6 +2124,10 @@ const CalendarPage = () => {
                       .join(" ")}
                     onClick={(event) => {
                       handleDaySelect(day);
+                      closeDayActionMenu();
+                    }}
+                    onContextMenu={(event) => {
+                      event.preventDefault();
                       if (canOpenDayActionMenu(day)) {
                         openDayActionMenu(day, event.currentTarget, {
                           x: event.clientX,
@@ -2174,6 +2141,14 @@ const CalendarPage = () => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
                         handleDaySelect(day);
+                        closeDayActionMenu();
+                      }
+
+                      if (
+                        event.key === "ContextMenu" ||
+                        (event.shiftKey && event.key === "F10")
+                      ) {
+                        event.preventDefault();
                         if (canOpenDayActionMenu(day)) {
                           openDayActionMenu(day, event.currentTarget);
                         } else {
@@ -2219,572 +2194,614 @@ const CalendarPage = () => {
             </div>
           </div>
 
-          <aside className={styles.dayPanel}>
-            <div className={styles.dayPanelHeader}>
-              <div>
-                <h3 className={styles.dayPanelTitle}>{selectedDayLabel}</h3>
-              </div>
-              {selectedDate ? (
-                <span className={styles.dayPanelSummary}>
-                  {selectedDayEntries.length} reservas
-                </span>
-              ) : null}
-            </div>
+          {isDayPanelOpen ? (
+            <aside className={styles.dayPanel}>
+              <div className={styles.dayPanelHeader}>
+                <div className={styles.dayPanelHeaderInfo}>
+                  <h3 className={styles.dayPanelTitle}>{selectedDayLabel}</h3>
+                  <span className={styles.dayPanelSummary}>
+                    {selectedDayEntries.length} reservas
+                  </span>
+                </div>
 
-            {selectedDayEntries.length > 0 ? (
-              <div className={styles.dayList}>
-                {selectedDayEntries.map((entry) =>
-                  renderReservationCard(
-                    entry,
-                    `detail-${entry.dayKey}-${entry.reservation.id}`,
-                  ),
+                <button
+                  type="button"
+                  className={styles.dayPanelCloseButton}
+                  onClick={() => setSelectedDate(null)}
+                  aria-label="Cerrar reservas del día"
+                  title="Cerrar"
+                >
+                  <X size={18} strokeWidth={2.2} />
+                </button>
+              </div>
+
+              <div className={styles.dayPanelBody}>
+                {selectedDayEntries.length > 0 ? (
+                  <div className={styles.dayList}>
+                    {selectedDayEntries.map((entry) =>
+                      renderReservationCard(
+                        entry,
+                        `detail-${entry.dayKey}-${entry.reservation.id}`,
+                      ),
+                    )}
+                  </div>
+                ) : (
+                  <div className={styles.emptyDay}>
+                    No hay reservas para este día con los filtros actuales.
+                  </div>
                 )}
               </div>
-            ) : (
-              <div className={styles.emptyDay}>
-                No hay reservas para este día con los filtros actuales.
-              </div>
-            )}
-          </aside>
+            </aside>
+          ) : null}
         </div>
-
-        {detailItem ? (
-          <ReservationDetailModal
-            open
-            item={detailItem}
-            onClose={() => setDetailItem(null)}
-            reLoad={handleRefresh}
-          />
-        ) : null}
-
-        {calendarActionModal ? (
-          <DataModal
-            open
-            onClose={() => setCalendarActionModal(null)}
-            title={
-              calendarActionModal.action === "create_reservation"
-                ? reservationStep === 0
-                  ? "Nueva reserva"
-                  : "Confirmación"
-                : maintenanceStep === 0
-                  ? "Mantenimiento"
-                  : "Confirmación"
-            }
-            titleClassName={styles.flowHeaderTitle}
-            headerCenter={
-              calendarActionModal.action === "create_reservation"
-                ? renderFlowHeaderCenter(reservationStep)
-                : renderFlowHeaderCenter(maintenanceStep)
-            }
-            buttonText=""
-            buttonCancel=""
-            variant="mini"
-            maxWidth={760}
-            className="contScrollable"
-          >
-            {calendarActionModal.action === "create_reservation" ? (
-              <div className={styles.flowModalBody}>
-                {reservationStep === 0 ? (
-                  <div className={styles.flowContent}>
-                    <div className={styles.flowSection}>
-                      <div className={styles.sectionHeading}>
-                        <h4 className={styles.sectionTitle}>Áreas sociales</h4>
-                        <p className={styles.sectionDescription}>
-                          Selecciona el área que se reservará.
-                        </p>
-                      </div>
-
-                      <div className={styles.areaChoiceGrid}>
-                        {modalAreaChoices.map((choice) => {
-                          const isSelected =
-                            reservationDraft.areaId === choice.areaId;
-
-                          return (
-                            <button
-                              key={`reservation-area-${choice.areaId}`}
-                              type="button"
-                              className={[
-                                styles.areaChoiceCard,
-                                isSelected ? styles.areaChoiceCardSelected : "",
-                                modalAreaAvailabilityLoading
-                                  ? styles.areaChoiceCardLoading
-                                  : "",
-                                !choice.isSelectable
-                                  ? styles.areaChoiceCardDisabled
-                                  : "",
-                              ]
-                                .filter(Boolean)
-                                .join(" ")}
-                              onClick={() => handleReservationAreaSelect(choice.areaId)}
-                              disabled={
-                                modalAreaAvailabilityLoading || !choice.isSelectable
-                              }
-                            >
-                              <div className={styles.areaChoiceTop}>
-                                <Avatar
-                                  name={choice.areaName}
-                                  src={getAreaAvatarSrc(choice.area)}
-                                  w={42}
-                                  h={42}
-                                  square={false}
-                                />
-                                <div className={styles.areaChoiceText}>
-                                  <p className={styles.areaChoiceTitle}>
-                                    {choice.areaName}
-                                  </p>
-                                  {modalAreaAvailabilityLoading ? (
-                                    <div
-                                      className={styles.areaChoiceSkeletonMeta}
-                                      aria-hidden="true"
-                                    />
-                                  ) : (
-                                    <p className={styles.areaChoiceMeta}>
-                                      {getReservationAreaMeta(choice)}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className={styles.flowSection}>
-                      <div className={styles.sectionHeading}>
-                        <h4 className={styles.sectionTitle}>Datos de la reserva</h4>
-                      </div>
-
-                      <div className={styles.modalFieldGrid}>
-                        <Input
-                          type="date"
-                          name="reservationDate"
-                          label="Fecha"
-                          value={calendarActionModalDayKey}
-                          min={minimumActionDate}
-                          onChange={handleReservationDateChange}
-                          className={styles.modalDateField}
-                        />
-                        <Select
-                          name="unitOptionId"
-                          label="Unidad"
-                          value={reservationDraft.unitOptionId}
-                          options={unitOptions}
-                          onChange={handleReservationDraftChange}
-                          filter
-                          placeholder="Selecciona una unidad"
-                        />
-                      </div>
-
-                      {reservationStatusNotice && !shouldShowReservationSlotSection ? (
-                        <div className={styles.inlineNotice}>
-                          {reservationStatusNotice}
-                        </div>
-                      ) : null}
-                    </div>
-
-                    {selectedReservationAreaChoice && shouldShowReservationSlotSection ? (
-                      <div className={styles.flowSection}>
-                        <div className={styles.sectionHeading}>
-                          <h4 className={styles.sectionTitle}>Turnos disponibles</h4>
-                        </div>
-
-                          <div className={styles.slotGroupStack}>
-                            {reservationStatusNotice && reservationDraft.unitOptionId ? (
-                              <div className={styles.inlineNotice}>
-                                {reservationStatusNotice}
-                              </div>
-                            ) : null}
-
-                            {selectedReservationAreaAvailability?.slots.length ? (
-                              <div className={styles.slotGroup}>
-                                <div className={styles.slotGrid}>
-                                  {selectedReservationAreaAvailability.slots.map((slot) => (
-                                    <button
-                                      key={`slot-${slot}`}
-                                      type="button"
-                                      className={[
-                                        styles.slotChip,
-                                        reservationDraft.slot === slot
-                                          ? styles.slotChipSelected
-                                          : "",
-                                      ]
-                                        .filter(Boolean)
-                                        .join(" ")}
-                                      onClick={() =>
-                                        setReservationDraft((current) => ({
-                                          ...current,
-                                          slot,
-                                        }))
-                                      }
-                                    >
-                                      {slot}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            ) : reservationDraft.unitOptionId &&
-                              !reservationAvailabilityLoading ? (
-                              <div className={styles.inlineNotice}>
-                                {reservationAvailabilityMessage ||
-                                  selectedReservationAreaAvailability?.note ||
-                                  "No hay turnos disponibles para la fecha seleccionada."}
-                              </div>
-                            ) : null}
-
-                            {reservationBlockedSlots.length > 0 ? (
-                              <div className={styles.slotGroup}>
-                                <span className={styles.slotGroupLabelMuted}>
-                                  Ocupados o no disponibles
-                                </span>
-                                <div className={styles.slotGrid}>
-                                  {reservationBlockedSlots.map((slot) => (
-                                    <span
-                                      key={`blocked-slot-${slot}`}
-                                      className={[
-                                        styles.slotChip,
-                                        styles.slotChipMuted,
-                                      ]
-                                        .filter(Boolean)
-                                        .join(" ")}
-                                    >
-                                      {slot}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            ) : null}
-
-                            {reservationMaintenanceSlots.length > 0 ? (
-                              <div className={styles.slotGroup}>
-                                <span className={styles.slotGroupLabelDanger}>
-                                  Mantenimiento
-                                </span>
-                                <div className={styles.slotGrid}>
-                                  {reservationMaintenanceSlots.map((slot) => (
-                                    <span
-                                      key={`maintenance-slot-${slot}`}
-                                      className={[
-                                        styles.slotChip,
-                                        styles.slotChipDanger,
-                                      ]
-                                        .filter(Boolean)
-                                        .join(" ")}
-                                    >
-                                      {slot}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            ) : null}
-                          </div>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : (
-                  <div className={styles.flowContent}>
-                    <div className={styles.reviewTable}>
-                      {[
-                        ["Fecha", calendarActionModalDayLabel],
-                        ["Área social", selectedReservationAreaChoice?.areaName || "Sin área"],
-                        [
-                          "Unidad",
-                          selectedReservationUnit
-                            ? getUnitLabel(selectedReservationUnit)
-                            : "Sin unidad",
-                        ],
-                        ["Responsable", selectedReservationResidentLabel],
-                        ["Horario", reservationResolvedSlotLabel],
-                        ["Capacidad", `${reservationAppliedPeopleCount} personas`],
-                        ["Reserva", reservationPriceLabel],
-                      ].map(([label, value]) => (
-                        <div key={String(label)} className={styles.reviewRow}>
-                          <div className={styles.reviewKey}>{label}</div>
-                          <div className={styles.reviewValue}>{value}</div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <TextArea
-                      name="note"
-                      label="Observación"
-                      value={reservationDraft.note}
-                      onChange={handleReservationDraftChange}
-                      placeholder="Ej. cumpleaños familiar, reunión privada, limpieza posterior"
-                      lines={4}
-                    />
-                  </div>
-                )}
-
-                  <div className={styles.flowFooter}>
-                    <p className={styles.flowFooterHint}>
-                      {reservationStep === 0
-                        ? "Selecciona el área y la unidad para continuar."
-                        : "Confirma la información para registrar la reserva."}
-                    </p>
-                    <div className={styles.flowFooterActions}>
-                    {reservationStep > 0 ? (
-                      <Button
-                        variant="secondary"
-                        onClick={() => {
-                          setReservationStep(0);
-                        }}
-                        style={{ height: 46, width: "auto" }}
-                      >
-                        Atrás
-                      </Button>
-                    ) : null}
-                    <Button
-                      variant="primary"
-                      disabled={
-                        reservationSubmitting ||
-                        (reservationStep === 0 ? !canContinueReservation : false)
-                      }
-                      onClick={() => {
-                        if (reservationStep === 0) {
-                          setReservationStep(1);
-                          return;
-                        }
-
-                        void handleReservationPreviewSave();
-                      }}
-                      style={{ height: 46, width: "auto" }}
-                    >
-                      {reservationStep === 0
-                        ? "Continuar"
-                        : reservationSubmitting
-                          ? "Guardando..."
-                          : "Reservar"}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className={styles.flowModalBody}>
-                {maintenanceStep === 0 ? (
-                  <div className={styles.flowContent}>
-                    <div className={styles.flowSection}>
-                      <div className={styles.sectionHeading}>
-                        <h4 className={styles.sectionTitle}>Área</h4>
-                        <p className={styles.sectionDescription}>
-                          Selecciona el área que quedará bloqueada por
-                          mantenimiento.
-                        </p>
-                      </div>
-
-                      <div className={styles.areaChoiceGrid}>
-                        {modalAreaChoices.map((choice) => {
-                          const isSelected =
-                            maintenanceDraft.areaId === choice.areaId;
-
-                          return (
-                            <button
-                              key={`maintenance-area-${choice.areaId}`}
-                              type="button"
-                              className={[
-                                styles.areaChoiceCard,
-                                isSelected ? styles.areaChoiceCardSelected : "",
-                                modalAreaAvailabilityLoading
-                                  ? styles.areaChoiceCardLoading
-                                  : "",
-                                !choice.isSelectable
-                                  ? styles.areaChoiceCardDisabled
-                                  : "",
-                              ]
-                                .filter(Boolean)
-                                .join(" ")}
-                              onClick={() =>
-                                setMaintenanceDraft((current) => ({
-                                  ...current,
-                                  areaId: choice.areaId,
-                                }))
-                              }
-                              disabled={
-                                modalAreaAvailabilityLoading || !choice.isSelectable
-                              }
-                            >
-                              <div className={styles.areaChoiceTop}>
-                                <Avatar
-                                  name={choice.areaName}
-                                  src={getAreaAvatarSrc(choice.area)}
-                                  w={42}
-                                  h={42}
-                                  square={false}
-                                />
-                                <div className={styles.areaChoiceText}>
-                                  <p className={styles.areaChoiceTitle}>
-                                    {choice.areaName}
-                                  </p>
-                                  {modalAreaAvailabilityLoading ? (
-                                    <div
-                                      className={styles.areaChoiceSkeletonMeta}
-                                      aria-hidden="true"
-                                    />
-                                  ) : (
-                                    <p className={styles.areaChoiceMeta}>
-                                      {getReservationAreaMeta(choice)}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className={styles.flowSection}>
-                      <div className={styles.sectionHeading}>
-                        <h4 className={styles.sectionTitle}>Alcance</h4>
-                        <p className={styles.sectionDescription}>
-                          Define si el bloqueo aplica solo al día seleccionado o
-                          a varios días.
-                        </p>
-                      </div>
-
-                      <div className={styles.modeChoiceGrid}>
-                        <button
-                          type="button"
-                          className={[
-                            styles.modeChoiceCard,
-                            maintenanceDraft.scope === "day"
-                              ? styles.modeChoiceCardSelected
-                              : "",
-                          ]
-                            .filter(Boolean)
-                            .join(" ")}
-                          onClick={() =>
-                            setMaintenanceDraft((current) => ({
-                              ...current,
-                              scope: "day",
-                              endDate: calendarActionModal.row.dayKey,
-                            }))
-                          }
-                        >
-                          <strong>Solo este día</strong>
-                          <span>Bloqueo breve y puntual.</span>
-                        </button>
-                        <button
-                          type="button"
-                          className={[
-                            styles.modeChoiceCard,
-                            maintenanceDraft.scope === "range"
-                              ? styles.modeChoiceCardSelected
-                              : "",
-                          ]
-                            .filter(Boolean)
-                            .join(" ")}
-                          onClick={() =>
-                            setMaintenanceDraft((current) => ({
-                              ...current,
-                              scope: "range",
-                              endDate:
-                                current.endDate || calendarActionModal.row.dayKey,
-                            }))
-                          }
-                        >
-                          <strong>Varios días</strong>
-                          <span>Cuando el mantenimiento toma más tiempo.</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className={styles.flowContent}>
-                    <div
-                      className={[
-                        styles.reviewTable,
-                        styles.reviewTableCompact,
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                    >
-                      {[
-                        ["Área", selectedMaintenanceAreaChoice?.areaName || "Sin área"],
-                        ["Inicio", calendarActionModalDayLabel],
-                        [
-                          "Alcance",
-                          maintenanceDraft.scope === "day"
-                            ? "Solo este día"
-                            : `Hasta ${maintenanceDraft.endDate || calendarActionModal.row.dayKey}`,
-                        ],
-                      ].map(([label, value]) => (
-                        <div key={String(label)} className={styles.reviewRow}>
-                          <div className={styles.reviewKey}>{label}</div>
-                          <div className={styles.reviewValue}>{value}</div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {maintenanceDraft.scope === "range" ? (
-                      <div className={styles.modalFieldGrid}>
-                        <Input
-                          type="date"
-                          name="endDate"
-                          label="Fecha final"
-                          value={maintenanceDraft.endDate}
-                          min={calendarActionModal.row.dayKey}
-                          onChange={handleMaintenanceDraftChange}
-                        />
-                      </div>
-                    ) : null}
-
-                    <TextArea
-                      name="reason"
-                      label="Motivo"
-                      value={maintenanceDraft.reason}
-                      onChange={handleMaintenanceDraftChange}
-                      placeholder="Ej. limpieza profunda, reparación, pintura, revisión técnica"
-                      lines={5}
-                    />
-
-                    <div className={styles.inlineNotice}>
-                      El registro de mantenimiento desde este calendario estará
-                      disponible próximamente.
-                    </div>
-                  </div>
-                )}
-
-                <div className={styles.flowFooter}>
-                  <p className={styles.flowFooterHint}>
-                    {maintenanceStep === 0
-                      ? "Selecciona el área y el alcance para continuar."
-                      : "Revisa la información antes de guardar el bloqueo."}
-                  </p>
-                  <div className={styles.flowFooterActions}>
-                    {maintenanceStep > 0 ? (
-                      <Button
-                        variant="secondary"
-                        onClick={() => {
-                          setMaintenanceStep(0);
-                        }}
-                        style={{ height: 46, width: "auto" }}
-                      >
-                        Atrás
-                      </Button>
-                    ) : null}
-                    <Button
-                      variant="primary"
-                      onClick={() => {
-                        if (maintenanceStep === 0) {
-                          setMaintenanceStep(1);
-                          return;
-                        }
-
-                        handleMaintenancePreviewSave();
-                      }}
-                      disabled={maintenanceStep === 0 ? !canContinueMaintenance : false}
-                      style={{ height: 46, width: "auto" }}
-                    >
-                      {maintenanceStep === 0 ? "Continuar" : "Guardar mantenimiento"}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </DataModal>
-        ) : null}
       </section>
+
+      <DataModal
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        title="Filtros"
+        buttonText=""
+        buttonCancel="Cerrar"
+        variant="mini"
+      >
+        <div className={styles.compactFilterModalBody}>
+          <Select
+            name="calendarPeriodCompact"
+            label="Periodo"
+            value={format(currentMonth, "yyyy-MM")}
+            options={periodOptions}
+            onChange={handlePeriodSelect}
+            inputStyle={FILTER_INPUT_STYLE}
+            style={FILTER_STYLE}
+          />
+          <Select
+            name="calendarAreaCompact"
+            label="Área"
+            value={selectedAreaId}
+            options={areaOptions}
+            onChange={(event: { target: { value: string } }) =>
+              setSelectedAreaId(event.target.value)
+            }
+            inputStyle={FILTER_INPUT_STYLE}
+            style={FILTER_STYLE}
+          />
+          <Select
+            name="calendarStatusesCompact"
+            label="Estados"
+            value={selectedStatuses}
+            options={RESERVATION_STATUS_OPTIONS}
+            onChange={handleStatusesChange}
+            inputStyle={FILTER_INPUT_STYLE}
+            style={FILTER_STYLE}
+            multiSelect
+          />
+        </div>
+      </DataModal>
+
+      {detailItem ? (
+        <ReservationDetailModal
+          open
+          item={detailItem}
+          onClose={() => setDetailItem(null)}
+          reLoad={handleRefresh}
+        />
+      ) : null}
+
+      {calendarActionModal ? (
+        <DataModal
+          open
+          onClose={() => setCalendarActionModal(null)}
+          title={
+            calendarActionModal.action === "create_reservation"
+              ? reservationStep === 0
+                ? "Nueva reserva"
+                : "Confirmación"
+              : maintenanceStep === 0
+                ? "Mantenimiento"
+                : "Confirmación"
+          }
+          titleClassName={styles.flowHeaderTitle}
+          headerCenter={
+            calendarActionModal.action === "create_reservation"
+              ? renderFlowHeaderCenter(reservationStep)
+              : renderFlowHeaderCenter(maintenanceStep)
+          }
+          buttonText=""
+          buttonCancel=""
+          variant="mini"
+          maxWidth={760}
+          className="contScrollable"
+        >
+          {calendarActionModal.action === "create_reservation" ? (
+            <div className={styles.flowModalBody}>
+              {reservationStep === 0 ? (
+                <div className={styles.flowContent}>
+                  <div className={styles.flowSection}>
+                    <div className={styles.sectionHeading}>
+                      <h4 className={styles.sectionTitle}>Áreas sociales</h4>
+                      <p className={styles.sectionDescription}>
+                        Selecciona el área que se reservará.
+                      </p>
+                    </div>
+
+                    <div className={styles.areaChoiceGrid}>
+                      {modalAreaChoices.map((choice) => {
+                        const isSelected = reservationDraft.areaId === choice.areaId;
+
+                        return (
+                          <button
+                            key={`reservation-area-${choice.areaId}`}
+                            type="button"
+                            className={[
+                              styles.areaChoiceCard,
+                              isSelected ? styles.areaChoiceCardSelected : "",
+                              modalAreaAvailabilityLoading
+                                ? styles.areaChoiceCardLoading
+                                : "",
+                              !choice.isSelectable
+                                ? styles.areaChoiceCardDisabled
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
+                            onClick={() => handleReservationAreaSelect(choice.areaId)}
+                            disabled={
+                              modalAreaAvailabilityLoading || !choice.isSelectable
+                            }
+                          >
+                            <div className={styles.areaChoiceTop}>
+                              <Avatar
+                                name={choice.areaName}
+                                src={getAreaAvatarSrc(choice.area)}
+                                w={42}
+                                h={42}
+                                square={false}
+                              />
+                              <div className={styles.areaChoiceText}>
+                                <p className={styles.areaChoiceTitle}>
+                                  {choice.areaName}
+                                </p>
+                                {modalAreaAvailabilityLoading ? (
+                                  <div
+                                    className={styles.areaChoiceSkeletonMeta}
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  <p className={styles.areaChoiceMeta}>
+                                    {getReservationAreaMeta(choice)}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className={styles.flowSection}>
+                    <div className={styles.sectionHeading}>
+                      <h4 className={styles.sectionTitle}>Datos de la reserva</h4>
+                    </div>
+
+                    <div className={styles.modalFieldGrid}>
+                      <Input
+                        type="date"
+                        name="reservationDate"
+                        label="Fecha"
+                        value={calendarActionModalDayKey}
+                        min={minimumActionDate}
+                        onChange={handleReservationDateChange}
+                        className={styles.modalDateField}
+                      />
+                      <Select
+                        name="unitOptionId"
+                        label="Unidad"
+                        value={reservationDraft.unitOptionId}
+                        options={unitOptions}
+                        onChange={handleReservationDraftChange}
+                        filter
+                        placeholder="Selecciona una unidad"
+                      />
+                    </div>
+
+                    {reservationStatusNotice && !shouldShowReservationSlotSection ? (
+                      <div className={styles.inlineNotice}>
+                        {reservationStatusNotice}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {selectedReservationAreaChoice && shouldShowReservationSlotSection ? (
+                    <div className={styles.flowSection}>
+                      <div className={styles.sectionHeading}>
+                        <h4 className={styles.sectionTitle}>Turnos disponibles</h4>
+                      </div>
+
+                      <div className={styles.slotGroupStack}>
+                        {reservationStatusNotice && reservationDraft.unitOptionId ? (
+                          <div className={styles.inlineNotice}>
+                            {reservationStatusNotice}
+                          </div>
+                        ) : null}
+
+                        {selectedReservationAreaAvailability?.slots.length ? (
+                          <div className={styles.slotGroup}>
+                            <div className={styles.slotGrid}>
+                              {selectedReservationAreaAvailability.slots.map((slot) => (
+                                <button
+                                  key={`slot-${slot}`}
+                                  type="button"
+                                  className={[
+                                    styles.slotChip,
+                                    reservationDraft.slot === slot
+                                      ? styles.slotChipSelected
+                                      : "",
+                                  ]
+                                    .filter(Boolean)
+                                    .join(" ")}
+                                  onClick={() =>
+                                    setReservationDraft((current) => ({
+                                      ...current,
+                                      slot,
+                                    }))
+                                  }
+                                >
+                                  {slot}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ) : reservationDraft.unitOptionId &&
+                          !reservationAvailabilityLoading ? (
+                          <div className={styles.inlineNotice}>
+                            {reservationAvailabilityMessage ||
+                              selectedReservationAreaAvailability?.note ||
+                              "No hay turnos disponibles para la fecha seleccionada."}
+                          </div>
+                        ) : null}
+
+                        {reservationBlockedSlots.length > 0 ? (
+                          <div className={styles.slotGroup}>
+                            <span className={styles.slotGroupLabelMuted}>
+                              Ocupados o no disponibles
+                            </span>
+                            <div className={styles.slotGrid}>
+                              {reservationBlockedSlots.map((slot) => (
+                                <span
+                                  key={`blocked-slot-${slot}`}
+                                  className={[styles.slotChip, styles.slotChipMuted]
+                                    .filter(Boolean)
+                                    .join(" ")}
+                                >
+                                  {slot}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {reservationMaintenanceSlots.length > 0 ? (
+                          <div className={styles.slotGroup}>
+                            <span className={styles.slotGroupLabelDanger}>
+                              Mantenimiento
+                            </span>
+                            <div className={styles.slotGrid}>
+                              {reservationMaintenanceSlots.map((slot) => (
+                                <span
+                                  key={`maintenance-slot-${slot}`}
+                                  className={[styles.slotChip, styles.slotChipDanger]
+                                    .filter(Boolean)
+                                    .join(" ")}
+                                >
+                                  {slot}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <div className={styles.flowContent}>
+                  <div className={styles.reviewTable}>
+                    {[
+                      ["Fecha", calendarActionModalDayLabel],
+                      ["Área social", selectedReservationAreaChoice?.areaName || "Sin área"],
+                      [
+                        "Unidad",
+                        selectedReservationUnit
+                          ? getUnitLabel(selectedReservationUnit)
+                          : "Sin unidad",
+                      ],
+                      ["Responsable", selectedReservationResidentLabel],
+                      ["Horario", reservationResolvedSlotLabel],
+                      ["Capacidad", `${reservationAppliedPeopleCount} personas`],
+                      ["Reserva", reservationPriceLabel],
+                    ].map(([label, value]) => (
+                      <div key={String(label)} className={styles.reviewRow}>
+                        <div className={styles.reviewKey}>{label}</div>
+                        <div className={styles.reviewValue}>{value}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <TextArea
+                    name="note"
+                    label="Observación"
+                    value={reservationDraft.note}
+                    onChange={handleReservationDraftChange}
+                    placeholder="Ej. cumpleaños familiar, reunión privada, limpieza posterior"
+                    lines={4}
+                  />
+                </div>
+              )}
+
+              <div className={styles.flowFooter}>
+                <p className={styles.flowFooterHint}>
+                  {reservationStep === 0
+                    ? "Selecciona el área y la unidad para continuar."
+                    : "Confirma la información para registrar la reserva."}
+                </p>
+                <div className={styles.flowFooterActions}>
+                  {reservationStep > 0 ? (
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setReservationStep(0);
+                      }}
+                      style={{ height: 46, width: "auto" }}
+                    >
+                      Atrás
+                    </Button>
+                  ) : null}
+                  <Button
+                    variant="primary"
+                    disabled={
+                      reservationSubmitting ||
+                      (reservationStep === 0 ? !canContinueReservation : false)
+                    }
+                    onClick={() => {
+                      if (reservationStep === 0) {
+                        setReservationStep(1);
+                        return;
+                      }
+
+                      void handleReservationPreviewSave();
+                    }}
+                    style={{ height: 46, width: "auto" }}
+                  >
+                    {reservationStep === 0
+                      ? "Continuar"
+                      : reservationSubmitting
+                        ? "Guardando..."
+                        : "Reservar"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className={styles.flowModalBody}>
+              {maintenanceStep === 0 ? (
+                <div className={styles.flowContent}>
+                  <div className={styles.flowSection}>
+                    <div className={styles.sectionHeading}>
+                      <h4 className={styles.sectionTitle}>Área</h4>
+                      <p className={styles.sectionDescription}>
+                        Selecciona el área que quedará bloqueada por mantenimiento.
+                      </p>
+                    </div>
+
+                    <div className={styles.areaChoiceGrid}>
+                      {modalAreaChoices.map((choice) => {
+                        const isSelected = maintenanceDraft.areaId === choice.areaId;
+
+                        return (
+                          <button
+                            key={`maintenance-area-${choice.areaId}`}
+                            type="button"
+                            className={[
+                              styles.areaChoiceCard,
+                              isSelected ? styles.areaChoiceCardSelected : "",
+                              modalAreaAvailabilityLoading
+                                ? styles.areaChoiceCardLoading
+                                : "",
+                              !choice.isSelectable
+                                ? styles.areaChoiceCardDisabled
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
+                            onClick={() =>
+                              setMaintenanceDraft((current) => ({
+                                ...current,
+                                areaId: choice.areaId,
+                              }))
+                            }
+                            disabled={
+                              modalAreaAvailabilityLoading || !choice.isSelectable
+                            }
+                          >
+                            <div className={styles.areaChoiceTop}>
+                              <Avatar
+                                name={choice.areaName}
+                                src={getAreaAvatarSrc(choice.area)}
+                                w={42}
+                                h={42}
+                                square={false}
+                              />
+                              <div className={styles.areaChoiceText}>
+                                <p className={styles.areaChoiceTitle}>
+                                  {choice.areaName}
+                                </p>
+                                {modalAreaAvailabilityLoading ? (
+                                  <div
+                                    className={styles.areaChoiceSkeletonMeta}
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  <p className={styles.areaChoiceMeta}>
+                                    {getReservationAreaMeta(choice)}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className={styles.flowSection}>
+                    <div className={styles.sectionHeading}>
+                      <h4 className={styles.sectionTitle}>Alcance</h4>
+                      <p className={styles.sectionDescription}>
+                        Define si el bloqueo aplica solo al día seleccionado o a
+                        varios días.
+                      </p>
+                    </div>
+
+                    <div className={styles.modeChoiceGrid}>
+                      <button
+                        type="button"
+                        className={[
+                          styles.modeChoiceCard,
+                          maintenanceDraft.scope === "day"
+                            ? styles.modeChoiceCardSelected
+                            : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                        onClick={() =>
+                          setMaintenanceDraft((current) => ({
+                            ...current,
+                            scope: "day",
+                            endDate: calendarActionModal.row.dayKey,
+                          }))
+                        }
+                      >
+                        <strong>Solo este día</strong>
+                        <span>Bloqueo breve y puntual.</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={[
+                          styles.modeChoiceCard,
+                          maintenanceDraft.scope === "range"
+                            ? styles.modeChoiceCardSelected
+                            : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                        onClick={() =>
+                          setMaintenanceDraft((current) => ({
+                            ...current,
+                            scope: "range",
+                            endDate:
+                              current.endDate || calendarActionModal.row.dayKey,
+                          }))
+                        }
+                      >
+                        <strong>Varios días</strong>
+                        <span>Cuando el mantenimiento toma más tiempo.</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.flowContent}>
+                  <div
+                    className={[styles.reviewTable, styles.reviewTableCompact]
+                      .filter(Boolean)
+                      .join(" ")}
+                  >
+                    {[
+                      ["Área", selectedMaintenanceAreaChoice?.areaName || "Sin área"],
+                      ["Inicio", calendarActionModalDayLabel],
+                      [
+                        "Alcance",
+                        maintenanceDraft.scope === "day"
+                          ? "Solo este día"
+                          : `Hasta ${maintenanceDraft.endDate || calendarActionModal.row.dayKey}`,
+                      ],
+                    ].map(([label, value]) => (
+                      <div key={String(label)} className={styles.reviewRow}>
+                        <div className={styles.reviewKey}>{label}</div>
+                        <div className={styles.reviewValue}>{value}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {maintenanceDraft.scope === "range" ? (
+                    <div className={styles.modalFieldGrid}>
+                      <Input
+                        type="date"
+                        name="endDate"
+                        label="Fecha final"
+                        value={maintenanceDraft.endDate}
+                        min={calendarActionModal.row.dayKey}
+                        onChange={handleMaintenanceDraftChange}
+                      />
+                    </div>
+                  ) : null}
+
+                  <TextArea
+                    name="reason"
+                    label="Motivo"
+                    value={maintenanceDraft.reason}
+                    onChange={handleMaintenanceDraftChange}
+                    placeholder="Ej. limpieza profunda, reparación, pintura, revisión técnica"
+                    lines={5}
+                  />
+
+                  <div className={styles.inlineNotice}>
+                    El registro de mantenimiento desde este calendario estará
+                    disponible próximamente.
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.flowFooter}>
+                <p className={styles.flowFooterHint}>
+                  {maintenanceStep === 0
+                    ? "Selecciona el área y el alcance para continuar."
+                    : "Revisa la información antes de guardar el bloqueo."}
+                </p>
+                <div className={styles.flowFooterActions}>
+                  {maintenanceStep > 0 ? (
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setMaintenanceStep(0);
+                      }}
+                      style={{ height: 46, width: "auto" }}
+                    >
+                      Atrás
+                    </Button>
+                  ) : null}
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      if (maintenanceStep === 0) {
+                        setMaintenanceStep(1);
+                        return;
+                      }
+
+                      handleMaintenancePreviewSave();
+                    }}
+                    disabled={maintenanceStep === 0 ? !canContinueMaintenance : false}
+                    style={{ height: 46, width: "auto" }}
+                  >
+                    {maintenanceStep === 0 ? "Continuar" : "Guardar mantenimiento"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DataModal>
+      ) : null}
 
       {dayActionMenu ? (
         <ContextMenu

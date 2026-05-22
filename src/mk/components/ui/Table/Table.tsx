@@ -163,14 +163,30 @@ const isAmountColumn = (item: NonNullable<PropsType["header"]>[number]) => {
   return /(amount|monto|importe|saldo|total)/.test(haystack);
 };
 
-const isPreferredFillColumn = (item: NonNullable<PropsType["header"]>[number]) => {
+const getPreferredFillRank = (
+  item: NonNullable<PropsType["header"]>[number],
+) => {
   const haystack = `${String(item.key || "").toLowerCase()} ${getTextLabel(
     item.label,
   ).toLowerCase()}`.replace(/\s+/g, "");
 
-  return /description|descripcion|concept|concepto|detail|detalle|title|titulo|name|nombre|category|categoria|subcategory|subcategoria|observation|observacion|comment|comentario/.test(
-    haystack,
-  );
+  if (
+    /description|descripcion|concept|concepto|detail|detalle|observation|observacion|comment|comentario/.test(
+      haystack,
+    )
+  ) {
+    return 3;
+  }
+
+  if (/category|categoria|subcategory|subcategoria/.test(haystack)) {
+    return 2;
+  }
+
+  if (/title|titulo|name|nombre/.test(haystack)) {
+    return 1;
+  }
+
+  return 0;
 };
 
 const getHeaderFitWidth = (item: NonNullable<PropsType["header"]>[number]) => {
@@ -301,12 +317,25 @@ const getResolvedFillIndex = (header: NonNullable<PropsType["header"]>) => {
   const explicitFill = visibleColumns.find(({ item }) => isFillColumn(item));
   if (explicitFill) return explicitFill.index;
 
-  const preferredFill = visibleColumns.find(
-    ({ item }) =>
-      !isCompactColumn(item) &&
-      !isNarrowFixedColumn(item) &&
-      isPreferredFillColumn(item),
-  );
+  const preferredFill = visibleColumns.reduce<{
+    index: number;
+    rank: number;
+  } | null>((bestMatch, { item, index }) => {
+    if (isCompactColumn(item) || isNarrowFixedColumn(item)) {
+      return bestMatch;
+    }
+
+    const rank = getPreferredFillRank(item);
+    if (rank <= 0) {
+      return bestMatch;
+    }
+
+    if (!bestMatch || rank > bestMatch.rank) {
+      return { index, rank };
+    }
+
+    return bestMatch;
+  }, null);
   if (preferredFill) return preferredFill.index;
 
   const firstFlexible = visibleColumns.find(

@@ -62,14 +62,27 @@ interface QrConfigData {
   client_mode: QrDynamicMode | null;
   client_mode_label: string | null;
   client_is_dynamic_enabled: boolean;
-  client_bank_id: number | null;
+  client_bank_id: string | null;
   client_has_credentials: boolean;
-  client_webhook_username: string | null;
+  // Available banks for selection
+  available_banks: Array<{
+    id: string;
+    bank_code: string;
+    bank_name: string;
+    is_active: boolean;
+  }>;
 }
 
 // ============================================================================
 // Form State Types
 // ============================================================================
+
+interface BankOption {
+  id: string;
+  bank_code: string;
+  bank_name: string;
+  is_active: boolean;
+}
 
 interface QrDynamicFormState {
   // Config toggle
@@ -79,19 +92,15 @@ interface QrDynamicFormState {
   // Mode: 0=disabled, 1=global, 2=own
   mode: QrDynamicMode;
   // Bank ID
-  bank_id: number | null;
+  bank_id: string | null;
   // Credentials (sent only when provided)
   username: string;
   password: string;
   api_key: string;
   account_reference: string;
-  // Webhook credentials
-  webhook_username: string;
-  webhook_password: string;
   // Flags indicating if credentials exist on backend
   has_username: boolean;
   has_api_key: boolean;
-  has_webhook_username: boolean;
 }
 
 const getComparableQrState = (state: QrDynamicFormState) => ({
@@ -99,7 +108,6 @@ const getComparableQrState = (state: QrDynamicFormState) => ({
   username: "",
   password: "",
   api_key: "",
-  webhook_password: "",
 });
 
 // ============================================================================
@@ -119,39 +127,38 @@ const QrDynamicConfig: React.FC = () => {
     password: "",
     api_key: "",
     account_reference: "",
-    webhook_username: "",
-    webhook_password: "",
     has_username: false,
     has_api_key: false,
-    has_webhook_username: false,
   });
 
   const [newPassword, setNewPassword] = useState("");
   const [newApiKey, setNewApiKey] = useState("");
-  const [newWebhookPassword, setNewWebhookPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [initialSnapshot, setInitialSnapshot] =
     useState<QrDynamicFormState | null>(null);
+  const [availableBanks, setAvailableBanks] = useState<BankOption[]>([]);
 
   const isDirty = useMemo(() => {
     if (!initialSnapshot) return false;
     return (
       JSON.stringify(getComparableQrState(formState)) !==
         JSON.stringify(getComparableQrState(initialSnapshot)) ||
-      Boolean(newPassword || newApiKey || newWebhookPassword)
+      Boolean(newPassword || newApiKey)
     );
-  }, [formState, initialSnapshot, newApiKey, newPassword, newWebhookPassword]);
+  }, [formState, initialSnapshot, newApiKey, newPassword]);
 
   useEffect(() => {
     loadQrConfig();
   }, []);
 
   const loadQrConfig = async () => {
-    const res = await execute("/qr-dynamic/config", "GET");
+    const { data: res } = await execute("/qr-dynamic/config", "GET");
+    console.log("res", res);
     if (res?.success && res?.data) {
       const data = res.data;
+      console.log("loadconfig data", data);
 
       // Determine is_active from mode
       const mode = data.client_mode ?? QrDynamicMode.DISABLED;
@@ -171,18 +178,19 @@ const QrDynamicConfig: React.FC = () => {
         password: "",
         api_key: "",
         account_reference: "",
-        webhook_username: "",
-        webhook_password: "",
         // Flags from API
         has_username: data.client_has_credentials,
         has_api_key: data.client_has_credentials,
-        has_webhook_username: !!data.client_webhook_username,
       };
-
+      console.log("loadconfig", nextState, data);
       setFormState(nextState);
       setInitialSnapshot(nextState);
       setErrors({});
       setEditMode(false);
+
+      if (data.available_banks) {
+        setAvailableBanks(data.available_banks);
+      }
     }
   };
 
@@ -272,22 +280,13 @@ const QrDynamicConfig: React.FC = () => {
         payload.account_reference = formState.account_reference;
       }
 
-      if (formState.webhook_username) {
-        payload.webhook_username = formState.webhook_username;
-      }
-
-      if (newWebhookPassword) {
-        payload.webhook_password = newWebhookPassword;
-      }
-
-      const res = await execute("/qr-dynamic/config", "PUT", payload);
+      const { data: res } = await execute("/qr-dynamic/config", "PUT", payload);
 
       if (res?.success) {
         showToast("Configuración guardada correctamente", "success");
         // Clear sensitive fields after save
         setNewPassword("");
         setNewApiKey("");
-        setNewWebhookPassword("");
         await loadQrConfig(); // Reload to update has_* flags
         setEditMode(false);
       } else {
@@ -352,7 +351,6 @@ const QrDynamicConfig: React.FC = () => {
     }
     setNewPassword("");
     setNewApiKey("");
-    setNewWebhookPassword("");
     setErrors({});
     setEditMode(false);
   };
@@ -401,7 +399,7 @@ const QrDynamicConfig: React.FC = () => {
               <Button
                 className={styles.saveButton}
                 onClick={handleSave}
-                disabled={!isDirty || isSaving}
+                disabled={isSaving}
               >
                 {isSaving ? "Guardando..." : "Guardar cambios"}
               </Button>
@@ -496,6 +494,21 @@ const QrDynamicConfig: React.FC = () => {
                 </p>
 
                 <div className={styles.formGrid}>
+                  {availableBanks.length > 0 && (
+                    <Select
+                      name="bank_id"
+                      label={"Banco" + formState.bank_id}
+                      value={formState.bank_id}
+                      onChange={(e) => handleChange("bank_id", e.target.value)}
+                      options={availableBanks.map((bank) => ({
+                        id: bank.id,
+                        name: bank.bank_name,
+                      }))}
+                      error={errors}
+                      disabled={!editMode}
+                    />
+                  )}
+
                   <Input
                     name="username"
                     label={

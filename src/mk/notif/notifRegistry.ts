@@ -1,6 +1,7 @@
 import { ModuleNotifConfig } from "./types";
 import { surveyNotifications } from "@/modulos/Surveys/notifications";
 import { assemblyNotifications } from "@/modulos/Assemblies/notifications";
+import { paymentNotifications } from "@/modulos/QrDinamico/notifications";
 
 /**
  * Global Module Notification Registry — condaty-admin
@@ -13,6 +14,7 @@ import { assemblyNotifications } from "@/modulos/Assemblies/notifications";
 export const MODULE_REGISTRY: ModuleNotifConfig[] = [
   surveyNotifications,
   assemblyNotifications,
+  paymentNotifications,
   // reservasNotifications,   ← future modules: add one line here
   // alertasNotifications,
 ];
