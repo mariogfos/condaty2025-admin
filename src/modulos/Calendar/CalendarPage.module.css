@@ -147,6 +147,10 @@
   min-height: 0;
 }
 
+.contentGridPanelClosed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .calendarShell,
 .dayPanel {
   position: relative;
@@ -849,17 +853,26 @@
 
 .dayPanel {
   min-width: 400px;
-  padding: 14px;
-  gap: 12px;
+  padding: 0;
   background: var(--cTableSurface);
 }
 
 .dayPanelHeader {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
-  padding-bottom: 4px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--cTableBorder);
+  background: var(--cTableHeader);
+}
+
+.dayPanelHeaderInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
 }
 
 .dayPanelTitle {
@@ -874,6 +887,36 @@
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
+}
+
+.dayPanelCloseButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--cWhiteV1);
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.dayPanelCloseButton:hover,
+.dayPanelCloseButton:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--cWhite);
+}
+
+.dayPanelBody {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  padding: 14px;
 }
 
 .dayList {
@@ -1128,6 +1171,18 @@
   }
 
   .dayPanel {
+    min-width: 0;
+  }
+
+  .dayPanelHeader {
+    padding: 12px;
+  }
+
+  .dayPanelHeaderInfo {
+    gap: 8px;
+  }
+
+  .dayPanelBody {
     padding: 12px;
   }
 
@@ -1192,5 +1247,9 @@
 
   .dayCount {
     display: none;
+  }
+
+  .dayPanelHeaderInfo {
+    flex-wrap: wrap;
   }
 }
