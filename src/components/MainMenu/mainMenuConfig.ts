@@ -88,16 +88,16 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "partialPayments",
         perm: "bank_accounts",
       },
-      {
-        href: "/bank-provider-tester",
-        labelKey: "bankTester",
-        perm: "balance",
-      },
-      {
-        href: "/qr-dinamico",
-        labelKey: "QR Dinámico",
-        perm: "payments",
-      },
+      // {
+      //   href: "/bank-provider-tester",
+      //   labelKey: "bankTester",
+      //   perm: "balance",
+      // },
+      // {
+      //   href: "/qr-dinamico",
+      //   labelKey: "QR Dinámico",
+      //   perm: "payments",
+      // },
     ],
   },
   {

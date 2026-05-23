@@ -59,7 +59,7 @@ const Config = () => {
               { value: "R", text: "Reglas Operativas" },
               { value: "P", text: "Cuentas de pagos" },
               { value: "M", text: "Morosidad" },
-              { value: "Q", text: "QR Dinámico" },
+              // { value: "Q", text: "QR Dinámico" },
               { value: "T", text: "Tipos de unidades" },
             ]}
             sel={typeSearch}
