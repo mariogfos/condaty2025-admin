@@ -25,8 +25,8 @@ export enum QrDynamicMode {
  * - 'P': production → entorno de producción
  */
 export enum QrEnvironment {
-  SANDBOX = 'S',
-  PRODUCTION = 'P',
+  SANDBOX = "S",
+  PRODUCTION = "P",
 }
 
 /**
@@ -177,15 +177,18 @@ export const QR_MODE_LABEL: Record<QrDynamicMode, string> = {
   [QrDynamicMode.OWN]: "Propio",
 };
 
-export const QR_MODE_COLOR: Record<QrDynamicMode, { color: string; bg: string }> = {
+export const QR_MODE_COLOR: Record<
+  QrDynamicMode,
+  { color: string; bg: string }
+> = {
   [QrDynamicMode.DISABLED]: { color: "#6B7280", bg: "rgba(107,114,128,0.12)" },
-  [QrDynamicMode.GLOBAL]:   { color: "#3B82F6", bg: "rgba(59,130,246,0.12)"  },
-  [QrDynamicMode.OWN]:      { color: "#8B5CF6", bg: "rgba(139,92,246,0.12)"  },
+  [QrDynamicMode.GLOBAL]: { color: "#3B82F6", bg: "rgba(59,130,246,0.12)" },
+  [QrDynamicMode.OWN]: { color: "#8B5CF6", bg: "rgba(139,92,246,0.12)" },
 };
 
 // ─── Helpers: QrEnvironment ─────────────────────────────────────────────────
 
 export const QR_ENVIRONMENT_LABEL: Record<QrEnvironment, string> = {
-  [QrEnvironment.SANDBOX]:    "Sandbox",
+  [QrEnvironment.SANDBOX]: "Sandbox",
   [QrEnvironment.PRODUCTION]: "Producción",
 };

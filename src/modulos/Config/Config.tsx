@@ -7,7 +7,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import DefaulterConfig from "./DefaulterConfig/DefaulterConfig";
 import PaymentsConfig from "./PaymentsConfig/PaymentsConfig";
 import DptoConfig from "./DptoConfig/DptoConfig";
-import QrDynamicConfig from "./QrDynamicConfig/QrDynamicConfig";
+import QrDynamicConfig from "../QrDinamico/QrDynamicConfig/QrDynamicConfig";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
@@ -110,7 +110,15 @@ const Config = () => {
             <UnitsType />
           </div>
         )}
-        {typeSearch == "Q" && <QrDynamicConfig />}
+        {typeSearch == "Q" && (
+          <LoadingScreen>
+            <QrDynamicConfig
+              client_config={client_config?.data?.[0]}
+              onSave={onSave}
+              availableBanks={client_config?.extraData?.available_banks || []}
+            />
+          </LoadingScreen>
+        )}
       </div>
     </div>
   );
