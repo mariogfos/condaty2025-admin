@@ -5,29 +5,15 @@ import styles from "./QrDynamicConfig.module.css";
 import Button from "@/mk/components/forms/Button/Button";
 import Select from "@/mk/components/forms/Select/Select";
 import Input from "@/mk/components/forms/Input/Input";
-import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Card } from "@/mk/components/ui/Card/Card";
 import Br from "@/components/Detail/Br";
 import Switch from "@/mk/components/forms/Switch/Switch";
+import { QR_ENVIRONMENT_LABEL, QrDynamicMode, QrEnvironment } from "../types";
 
 // ============================================================================
-// Types & Enums (matching backend QrEnvironmentEnum and QrDynamicModeEnum)
+// Types & Enums
 // ============================================================================
-
-/**
- * QrEnvironmentEnum: 'S'=sandbox, 'P'=production
- */
-export type QrEnvironment = "S" | "P";
-
-/**
- * QrDynamicModeEnum: 0=disabled, 1=global, 2=own
- */
-export enum QrDynamicMode {
-  DISABLED = 0,
-  GLOBAL = 1,
-  PROPIO = 2,
-}
 
 export const QrEnvironmentLabels: Record<QrEnvironment, string> = {
   S: "Sandbox (Pruebas)",
@@ -37,45 +23,8 @@ export const QrEnvironmentLabels: Record<QrEnvironment, string> = {
 export const QrDynamicModeLabels: Record<QrDynamicMode, string> = {
   [QrDynamicMode.DISABLED]: "Manual (QR desactivado)",
   [QrDynamicMode.GLOBAL]: "Global (services del módulo)",
-  [QrDynamicMode.PROPIO]: "Personalizado (credenciales propias)",
+  [QrDynamicMode.OWN]: "Personalizado (credenciales propias)",
 };
-
-// ============================================================================
-// API Response Types (matching GET /qr-dynamic/config)
-// ============================================================================
-
-interface QrConfigResponse {
-  success: boolean;
-  data: QrConfigData;
-}
-
-interface QrConfigData {
-  // Module-level config
-  module_environment: QrEnvironment;
-  module_environment_label: string;
-  module_is_sandbox: boolean;
-  module_default_bank_code: string;
-  // Client-specific config
-  has_client_config: boolean;
-  client_environment: QrEnvironment | null;
-  client_environment_label: string | null;
-  client_mode: QrDynamicMode | null;
-  client_mode_label: string | null;
-  client_is_dynamic_enabled: boolean;
-  client_bank_id: string | null;
-  client_has_credentials: boolean;
-  // Available banks for selection
-  available_banks: Array<{
-    id: string;
-    bank_code: string;
-    bank_name: string;
-    is_active: boolean;
-  }>;
-}
-
-// ============================================================================
-// Form State Types
-// ============================================================================
 
 interface BankOption {
   id: string;
@@ -85,50 +34,69 @@ interface BankOption {
 }
 
 interface QrDynamicFormState {
-  // Config toggle
-  is_active: boolean;
-  // Environment: 'S' or 'P' (maps to sandbox/production)
-  environment: QrEnvironment;
-  // Mode: 0=disabled, 1=global, 2=own
-  mode: QrDynamicMode;
-  // Bank ID
-  bank_id: string | null;
-  // Credentials (sent only when provided)
-  username: string;
-  password: string;
-  api_key: string;
-  account_reference: string;
-  // Flags indicating if credentials exist on backend
-  has_username: boolean;
-  has_api_key: boolean;
+  qr_dynamic_environment: QrEnvironment;
+  qr_dynamic_mode: QrDynamicMode;
+  qr_dynamic_bank_id: string | null;
+  qr_dynamic_api_key: string;
+  qr_dynamic_username: string;
+  qr_dynamic_password: string;
+  qr_dynamic_account_reference: string;
+  qr_dynamic_api_key_sandbox: string;
+  qr_dynamic_username_sandbox: string;
+  qr_dynamic_password_sandbox: string;
+  qr_dynamic_account_reference_sandbox: string;
 }
 
 const getComparableQrState = (state: QrDynamicFormState) => ({
   ...state,
-  username: "",
+  qr_dynamic_username: state.qr_dynamic_username || "",
+  qr_dynamic_account_reference: state.qr_dynamic_account_reference || "",
   password: "",
   api_key: "",
 });
+
+interface QrDynamicConfigProps {
+  client_config?: any;
+  onSave: (formState: any) => Promise<void>;
+  availableBanks: BankOption[];
+}
 
 // ============================================================================
 // Component
 // ============================================================================
 
-const QrDynamicConfig: React.FC = () => {
+const QrDynamicConfig: React.FC<QrDynamicConfigProps> = ({
+  client_config,
+  onSave,
+  availableBanks,
+}) => {
   const { showToast } = useAuth();
-  const { execute, loaded } = useAxios();
 
   const [formState, setFormState] = useState<QrDynamicFormState>({
-    is_active: false,
-    environment: "S",
-    mode: QrDynamicMode.DISABLED,
-    bank_id: null,
-    username: "",
-    password: "",
-    api_key: "",
-    account_reference: "",
-    has_username: false,
-    has_api_key: false,
+    qr_dynamic_environment: QrEnvironment.SANDBOX,
+    qr_dynamic_mode: QrDynamicMode.DISABLED,
+    qr_dynamic_bank_id: null,
+    qr_dynamic_api_key: "",
+    qr_dynamic_username: "",
+    qr_dynamic_password: "",
+    qr_dynamic_account_reference: "",
+    // Sandbox - credenciales para testing
+    qr_dynamic_api_key_sandbox: "",
+    qr_dynamic_username_sandbox: "",
+    qr_dynamic_password_sandbox: "",
+    qr_dynamic_account_reference_sandbox: "",
+    // is_active: false,
+    // environment: "S",
+    // mode: QrDynamicMode.DISABLED,
+    // bank_id: null,
+    // username: "",
+    // usernameandbox: "",
+    // password: "",
+    // passwordSandbox: "",
+    // api_key: "",
+    // api_keySandbox: "",
+    // account_reference: "",
+    // account_referenceSandbox: "",
   });
 
   const [newPassword, setNewPassword] = useState("");
@@ -138,7 +106,6 @@ const QrDynamicConfig: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [initialSnapshot, setInitialSnapshot] =
     useState<QrDynamicFormState | null>(null);
-  const [availableBanks, setAvailableBanks] = useState<BankOption[]>([]);
 
   const isDirty = useMemo(() => {
     if (!initialSnapshot) return false;
@@ -149,57 +116,42 @@ const QrDynamicConfig: React.FC = () => {
     );
   }, [formState, initialSnapshot, newApiKey, newPassword]);
 
+  // Load and map from client_config props when it changes
   useEffect(() => {
-    loadQrConfig();
-  }, []);
-
-  const loadQrConfig = async () => {
-    const { data: res } = await execute("/qr-dynamic/config", "GET");
-    console.log("res", res);
-    if (res?.success && res?.data) {
-      const data = res.data;
-      console.log("loadconfig data", data);
-
-      // Determine is_active from mode
-      const mode = data.client_mode ?? QrDynamicMode.DISABLED;
-      const is_active = mode !== QrDynamicMode.DISABLED;
-
+    if (client_config) {
+      const mode = client_config.qr_dynamic_mode ?? QrDynamicMode.DISABLED;
       const nextState: QrDynamicFormState = {
-        // Toggle state derived from mode
-        is_active,
-        // Environment from client or module default
-        environment: data.client_environment ?? data.module_environment,
-        // Mode from client config
-        mode,
-        // Bank ID
-        bank_id: data.client_bank_id,
-        // Credentials - never sent back, always empty on load
-        username: "",
-        password: "",
-        api_key: "",
-        account_reference: "",
-        // Flags from API
-        has_username: data.client_has_credentials,
-        has_api_key: data.client_has_credentials,
+        qr_dynamic_environment:
+          client_config.qr_dynamic_environment ?? QrEnvironment.SANDBOX,
+        qr_dynamic_mode: mode,
+        qr_dynamic_bank_id: client_config.qr_dynamic_bank_id
+          ? String(client_config.qr_dynamic_bank_id)
+          : null,
+        qr_dynamic_username: client_config.qr_dynamic_username_active ?? "",
+        qr_dynamic_password: "",
+        qr_dynamic_api_key: "",
+        qr_dynamic_account_reference:
+          client_config.qr_dynamic_account_reference_active ?? "",
+        qr_dynamic_api_key_sandbox: "",
+        qr_dynamic_username_sandbox: "",
+        qr_dynamic_password_sandbox: "",
+        qr_dynamic_account_reference_sandbox: "",
       };
-      console.log("loadconfig", nextState, data);
+
       setFormState(nextState);
       setInitialSnapshot(nextState);
       setErrors({});
+      setNewPassword("");
+      setNewApiKey("");
       setEditMode(false);
-
-      if (data.available_banks) {
-        setAvailableBanks(data.available_banks);
-      }
     }
-  };
+  }, [client_config]);
 
   const handleChange = <K extends keyof QrDynamicFormState>(
     field: K,
     value: QrDynamicFormState[K],
   ) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user changes field
     if (errors[field]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -212,30 +164,33 @@ const QrDynamicConfig: React.FC = () => {
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Mode-specific validation
-    if (formState.mode === QrDynamicMode.PROPIO) {
-      // Username is required in PROPIO mode
-      if (!formState.username && !formState.has_username) {
-        newErrors.username = "El usuario es requerido";
+    if (formState.qr_dynamic_mode === QrDynamicMode.OWN) {
+      if (!formState.qr_dynamic_username) {
+        newErrors.qr_dynamic_username = "El usuario es requerido";
+      }
+      if (!formState.qr_dynamic_password) {
+        newErrors.qr_dynamic_password = "La contraseña es requerida";
+      }
+      if (!formState.qr_dynamic_account_reference) {
+        newErrors.qr_dynamic_account_reference =
+          "La referencia de cuenta es requerida";
+      }
+      if (!formState.qr_dynamic_api_key) {
+        newErrors.qr_dynamic_api_key = "La API Key es requerida";
       }
 
-      // Password required if not already set
-      if (!formState.has_username && !newPassword && !formState.password) {
-        newErrors.password = "La contraseña es requerida";
+      if (!formState.qr_dynamic_username_sandbox) {
+        newErrors.qr_dynamic_username_sandbox = "El usuario es requerido";
       }
-
-      if (newPassword && newPassword.length < 4) {
-        newErrors.password = "La contraseña debe tener al menos 4 caracteres";
+      if (!formState.qr_dynamic_password_sandbox) {
+        newErrors.qr_dynamic_password_sandbox = "La contraseña es requerida";
       }
-
-      // Account reference required in PROPIO mode
-      if (!formState.account_reference) {
-        newErrors.account_reference = "La referencia de cuenta es requerida";
+      if (!formState.qr_dynamic_account_reference_sandbox) {
+        newErrors.qr_dynamic_account_reference_sandbox =
+          "La referencia de cuenta es requerida";
       }
-
-      // API Key required if not already set
-      if (!formState.has_api_key && !newApiKey && !formState.api_key) {
-        newErrors.api_key = "La API Key es requerida";
+      if (!formState.qr_dynamic_api_key_sandbox) {
+        newErrors.qr_dynamic_api_key_sandbox = "La API Key es requerida";
       }
     }
 
@@ -252,67 +207,54 @@ const QrDynamicConfig: React.FC = () => {
     setIsSaving(true);
 
     try {
-      // Build payload matching PUT /qr-dynamic/config contract
       const payload: Record<string, unknown> = {
-        environment: formState.environment,
-        mode: formState.mode,
+        qr_dynamic_environment: formState.qr_dynamic_environment,
+        qr_dynamic_mode: formState.qr_dynamic_mode,
       };
 
-      // Only include bank_id if set
-      if (formState.bank_id) {
-        payload.bank_id = formState.bank_id;
+      if (formState.qr_dynamic_bank_id) {
+        payload.qr_dynamic_bank_id = formState.qr_dynamic_bank_id;
       }
 
-      // Only include credentials if provided (new values)
       if (newPassword) {
-        payload.password = newPassword;
+        payload.qr_dynamic_password = newPassword;
       }
 
       if (newApiKey) {
-        payload.api_key = newApiKey;
+        payload.qr_dynamic_api_key = newApiKey;
       }
 
-      if (formState.username) {
-        payload.username = formState.username;
+      if (formState.qr_dynamic_username) {
+        payload.qr_dynamic_username = formState.qr_dynamic_username;
       }
 
-      if (formState.account_reference) {
-        payload.account_reference = formState.account_reference;
+      if (formState.qr_dynamic_account_reference) {
+        payload.qr_dynamic_account_reference =
+          formState.qr_dynamic_account_reference;
       }
 
-      const { data: res } = await execute("/qr-dynamic/config", "PUT", payload);
-
-      if (res?.success) {
-        showToast("Configuración guardada correctamente", "success");
-        // Clear sensitive fields after save
-        setNewPassword("");
-        setNewApiKey("");
-        await loadQrConfig(); // Reload to update has_* flags
-        setEditMode(false);
-      } else {
-        showToast(res?.message || "Error al guardar", "error");
-      }
+      await onSave(payload);
+      setNewPassword("");
+      setNewApiKey("");
+      setEditMode(false);
     } catch (error: unknown) {
-      const err = error as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const errorMessage =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Error al guardar configuración";
-      showToast(errorMessage, "error");
+      console.error(error);
     } finally {
       setIsSaving(false);
     }
   };
 
   const environmentOptions = [
-    { id: "S", name: QrEnvironmentLabels.S },
-    { id: "P", name: QrEnvironmentLabels.P },
+    {
+      id: QrEnvironment.SANDBOX,
+      name: QR_ENVIRONMENT_LABEL[QrEnvironment.SANDBOX],
+    },
+    {
+      id: QrEnvironment.PRODUCTION,
+      name: QR_ENVIRONMENT_LABEL[QrEnvironment.PRODUCTION],
+    },
   ];
 
-  // Map mode values to Select options
   const modeOptions = [
     {
       id: QrDynamicMode.DISABLED,
@@ -323,22 +265,18 @@ const QrDynamicConfig: React.FC = () => {
       name: QrDynamicModeLabels[QrDynamicMode.GLOBAL],
     },
     {
-      id: QrDynamicMode.PROPIO,
-      name: QrDynamicModeLabels[QrDynamicMode.PROPIO],
+      id: QrDynamicMode.OWN,
+      name: QrDynamicModeLabels[QrDynamicMode.OWN],
     },
   ];
 
-  // Handle is_active toggle - maps to mode
   const handleIsActiveChange = (checked: boolean) => {
-    const newMode = checked ? QrDynamicMode.PROPIO : QrDynamicMode.DISABLED;
-    handleChange("mode", newMode);
-    handleChange("is_active", checked);
+    const newMode = checked ? QrDynamicMode.GLOBAL : QrDynamicMode.DISABLED;
+    handleChange("qr_dynamic_mode", newMode);
   };
 
-  // Handle mode change - sync is_active
   const handleModeChange = (newMode: QrDynamicMode) => {
-    handleChange("mode", newMode);
-    handleChange("is_active", newMode !== QrDynamicMode.DISABLED);
+    handleChange("qr_dynamic_mode", newMode);
   };
 
   const handleEditClick = () => {
@@ -355,16 +293,8 @@ const QrDynamicConfig: React.FC = () => {
     setEditMode(false);
   };
 
-  if (!loaded) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Cargando configuración...</div>
-      </div>
-    );
-  }
-
-  const isOwnMode = formState.mode === QrDynamicMode.PROPIO;
-  const isGlobalMode = formState.mode === QrDynamicMode.GLOBAL;
+  const isOwnMode = formState.qr_dynamic_mode === QrDynamicMode.OWN;
+  const isGlobalMode = formState.qr_dynamic_mode === QrDynamicMode.GLOBAL;
 
   return (
     <div className={styles.container}>
@@ -421,9 +351,9 @@ const QrDynamicConfig: React.FC = () => {
                 </p>
               </div>
               <Switch
-                name="is_active"
-                value={formState.is_active ? "Y" : "N"}
-                checked={formState.is_active}
+                name="qr_dynamic_is_active"
+                value={formState.qr_dynamic_mode > 0 ? "Y" : "N"}
+                checked={formState.qr_dynamic_mode > 0}
                 onChange={(e) => handleIsActiveChange(e.target.checked)}
                 disabled={!editMode}
               />
@@ -443,11 +373,11 @@ const QrDynamicConfig: React.FC = () => {
               del cliente
             </p>
             <Select
-              name="mode"
+              name="qr_dynamic_mode"
               label="Modo"
-              value={formState.mode}
+              value={formState.qr_dynamic_mode}
               onChange={(e) =>
-                handleModeChange(Number(e.target.value) as QrDynamicMode)
+                handleModeChange(e.target.value as QrDynamicMode)
               }
               options={modeOptions}
               error={errors}
@@ -467,11 +397,14 @@ const QrDynamicConfig: React.FC = () => {
               para operaciones reales
             </p>
             <Select
-              name="environment"
+              name="qr_dynamic_environment"
               label="Ambiente del banco"
-              value={formState.environment}
+              value={formState.qr_dynamic_environment}
               onChange={(e) =>
-                handleChange("environment", e.target.value as QrEnvironment)
+                handleChange(
+                  "qr_dynamic_environment",
+                  e.target.value as QrEnvironment,
+                )
               }
               options={environmentOptions}
               error={errors}
@@ -497,9 +430,14 @@ const QrDynamicConfig: React.FC = () => {
                   {availableBanks.length > 0 && (
                     <Select
                       name="bank_id"
-                      label={"Banco" + formState.bank_id}
-                      value={formState.bank_id}
-                      onChange={(e) => handleChange("bank_id", e.target.value)}
+                      label="Banco"
+                      value={formState.qr_dynamic_bank_id || ""}
+                      onChange={(e) =>
+                        handleChange(
+                          "qr_dynamic_bank_id",
+                          e.target.value || null,
+                        )
+                      }
                       options={availableBanks.map((bank) => ({
                         id: bank.id,
                         name: bank.bank_name,
@@ -510,66 +448,51 @@ const QrDynamicConfig: React.FC = () => {
                   )}
 
                   <Input
-                    name="username"
-                    label={
-                      formState.has_username
-                        ? "Usuario (dejar vacío para mantener)"
-                        : "Usuario (Código de Cliente)"
+                    name="qr_dynamic_username"
+                    label="Usuario (Código de Cliente)"
+                    value={formState.qr_dynamic_username}
+                    onChange={(e) =>
+                      handleChange("qr_dynamic_username", e.target.value)
                     }
-                    value={formState.username}
-                    onChange={(e) => handleChange("username", e.target.value)}
                     placeholder="Ej: 5052069"
-                    error={errors.username}
+                    error={errors}
                     disabled={!editMode}
                   />
 
                   <Input
                     name="password"
-                    label={
-                      formState.has_username
-                        ? "Nueva Contraseña (dejar vacío para mantener)"
-                        : "Contraseña"
-                    }
+                    label={"Contraseña"}
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder={
-                      formState.has_username
-                        ? "Ingresa solo si deseas cambiarla"
-                        : "Contraseña del banco"
-                    }
-                    error={errors.password}
+                    placeholder={"Contraseña del banco"}
+                    error={errors}
                     disabled={!editMode}
                   />
 
                   <Input
-                    name="account_reference"
+                    name="qr_dynamic_account_reference"
                     label="Referencia de Cuenta (Account Reference)"
-                    value={formState.account_reference}
+                    value={formState.qr_dynamic_account_reference}
                     onChange={(e) =>
-                      handleChange("account_reference", e.target.value)
+                      handleChange(
+                        "qr_dynamic_account_reference",
+                        e.target.value,
+                      )
                     }
                     placeholder="Ej: FORCE_TEST"
-                    error={errors.account_reference}
+                    error={errors}
                     disabled={!editMode}
                   />
 
                   <Input
-                    name="api_key"
-                    label={
-                      formState.has_api_key
-                        ? "API Key (dejar vacío para mantener)"
-                        : "API Key del Banco"
-                    }
+                    name="qr_dynamic_api_key"
+                    label={"API Key del Banco"}
                     type="password"
                     value={newApiKey}
                     onChange={(e) => setNewApiKey(e.target.value)}
-                    placeholder={
-                      formState.has_api_key
-                        ? "Ingresa solo si deseas cambiarla"
-                        : "API Key del banco (Larga)"
-                    }
-                    error={errors.api_key}
+                    placeholder={"API Key del banco"}
+                    error={errors}
                     disabled={!editMode}
                   />
                 </div>
@@ -581,7 +504,7 @@ const QrDynamicConfig: React.FC = () => {
         )}
 
         {/* Info según entorno */}
-        {formState.environment === "S" && (
+        {formState.qr_dynamic_environment === "S" && (
           <div className={styles.sectionContainer}>
             <Card style={{ backgroundColor: "rgba(245, 158, 11, 0.1)" }}>
               <h3 className={styles.infoTitle}>Modo Sandbox Activo</h3>
@@ -594,7 +517,7 @@ const QrDynamicConfig: React.FC = () => {
           </div>
         )}
 
-        {formState.environment === "P" && (
+        {formState.qr_dynamic_environment === "P" && (
           <div className={styles.sectionContainer}>
             <Card style={{ backgroundColor: "rgba(0, 227, 140, 0.1)" }}>
               <h3 className={styles.infoTitle}>Modo Producción</h3>
