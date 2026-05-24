@@ -274,6 +274,16 @@ const Input = (props: PropsType) => {
   const focusInput = () => {
     if (disabled || readOnly) return;
     inputRef.current?.focus();
+    if (
+      (type === "date" || type === "time" || type === "datetime-local") &&
+      typeof inputRef.current?.showPicker === "function"
+    ) {
+      try {
+        inputRef.current.showPicker();
+      } catch (err) {
+        console.error("Failed to show picker:", err);
+      }
+    }
   };
 
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -327,6 +337,18 @@ const Input = (props: PropsType) => {
         onChange={type === "currency" ? handleCurrencyChange : onChange}
         onFocus={onFocus}
         onBlur={type === "currency" ? handleCurrencyBlur : onBlur}
+        onClick={(e) => {
+          if (
+            (type === "date" || type === "time" || type === "datetime-local") &&
+            typeof inputRef.current?.showPicker === "function"
+          ) {
+            try {
+              inputRef.current.showPicker();
+            } catch (err) {
+              console.error("Failed to show picker:", err);
+            }
+          }
+        }}
         name={name}
         value={currentDisplayValue}
         onKeyDown={handleKeyDown}
