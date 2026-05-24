@@ -587,7 +587,9 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                       }
                       disabled={isFinishing}
                     >
-                      {isFinishing ? "Iniciando..." : "Iniciar Ahora"}
+                      <div style={{ whiteSpace: "nowrap" }}>
+                        {isFinishing ? "Iniciando..." : "Iniciar Ahora"}
+                      </div>
                     </Button>
                   </>
                 )}
