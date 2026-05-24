@@ -131,22 +131,15 @@
   color: var(--cWhite);
 }
 
-.hasTrailingIcon > div > input[type="date"]::-webkit-calendar-picker-indicator {
+.hasTrailingIcon > div > input[type="date"]::-webkit-calendar-picker-indicator,
+.hasTrailingIcon > div > input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+.hasTrailingIcon > div > input[type="time"]::-webkit-calendar-picker-indicator {
   position: absolute;
   inset: 0;
   width: auto;
   height: auto;
   color: transparent;
   background: transparent;
-  cursor: pointer;
-}
-
-.hasTrailingIcon
-  > div
-  > input[type="datetime-local"]::-webkit-calendar-picker-indicator,
-.hasTrailingIcon > div > input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  opacity: 0;
   cursor: pointer;
 }
 
