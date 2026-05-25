@@ -152,7 +152,11 @@ const isNotifForAdmin = (notif: any, userRoleCode: string): boolean => {
   return true;
 };
 
-export type ShowToastFn = (message: string, type?: "info" | "success" | "warning" | "error") => void;
+export type ShowToastFn = (
+  message: string,
+  type?: "info" | "success" | "warning" | "error",
+  time?: number,
+) => void;
 
 const useNotifInstandDB = (
   channels: { channel: string }[] | undefined = [],
@@ -279,6 +283,13 @@ const useNotifInstandDB = (
         window.dispatchEvent(new CustomEvent(eventName, { detail: data }));
       };
 
+      let didModuleShowToast = false;
+      const showModuleToast: ShowToastFn = (message, type, time) => {
+        if (!showToast) return;
+        didModuleShowToast = true;
+        showToast(message, type, time);
+      };
+
       // Run all matching module registry handlers
       MODULE_REGISTRY.forEach((moduleConfig) => {
         const handler = moduleConfig.events[latest.event];
@@ -287,13 +298,13 @@ const useNotifInstandDB = (
             notif: normalizedLatest,
             payload: parsedPayload,
             dispatch: dispatchModuleEvent,
-            showToast: showToast || (() => {}),
+            showToast: showModuleToast,
           });
         }
       });
 
       // Still dispatch the global onNotif event so legacy handlers work
-      dispatch(normalizedLatest);
+      dispatch({ ...normalizedLatest, toastHandled: didModuleShowToast });
       setLastNotif(last);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

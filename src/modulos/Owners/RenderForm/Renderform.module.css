@@ -1,24 +1,21 @@
 .fieldSet {
   width: 100%;
-
   display: flex;
   flex-direction: column;
-
+  gap: 12px;
 }
 
 .sectionHeader h3 {
   color: var(--cWhite);
   font-size: var(--sL);
   font-weight: var(--bMedium);
-  margin-bottom: var(--spM);
-
-
+  margin-bottom: 0;
 }
 
 .sectionHeader p {
   color: var(--cWhiteV1);
   font-size: var(--sM);
-  margin-bottom: var(--spS);
+  margin-bottom: 0;
 }
 .backButtonContent {
   width: 100%;

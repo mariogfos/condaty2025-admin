@@ -17,6 +17,63 @@ interface PropsType {
   mode?: "condo" | "rules";
 }
 
+const DEFAULT_PAYMENT_METHODS_CONFIG = {
+  expenses: ["Q", "T"],
+  reservations: ["Q", "T"],
+  fines: ["Q", "T"],
+  others: ["Q", "T"],
+};
+
+const paymentDebtTypes = [
+  { id: "expenses", name: "Expensas" },
+  { id: "reservations", name: "Reservas" },
+  { id: "fines", name: "Multas" },
+  { id: "others", name: "Otras deudas" },
+] as const;
+
+const paymentMethodOptions = [
+  { id: "Q", name: "QR" },
+  { id: "T", name: "Transferencia" },
+  { id: "W", name: "WhatsApp" },
+] as const;
+
+type PaymentDebtType = (typeof paymentDebtTypes)[number]["id"];
+type PaymentMethod = (typeof paymentMethodOptions)[number]["id"];
+
+const normalizePaymentMethodsConfig = (value: any) => {
+  const parsed =
+    typeof value === "string"
+      ? (() => {
+          try {
+            return JSON.parse(value);
+          } catch {
+            return {};
+          }
+        })()
+      : value || {};
+
+  return paymentDebtTypes.reduce((acc, debtType) => {
+    const methods = Array.isArray(parsed?.[debtType.id])
+      ? parsed[debtType.id]
+      : DEFAULT_PAYMENT_METHODS_CONFIG[debtType.id];
+
+    acc[debtType.id] = Array.from(
+      new Set(
+        methods
+          .map((method: any) => String(method).toUpperCase())
+          .filter((method: any) =>
+            paymentMethodOptions.some((option) => option.id === method),
+          ),
+      ),
+    );
+    return acc;
+  }, {} as Record<PaymentDebtType, string[]>);
+};
+
+const hasWhatsAppPaymentMethod = (
+  config: Record<PaymentDebtType, string[]>,
+) => paymentDebtTypes.some((debtType) => config[debtType.id]?.includes("W"));
+
 const getSingleUrl = (value: unknown) => {
   if (Array.isArray(value)) {
     return value[0] || "";
@@ -64,6 +121,10 @@ const createFormState = (client_config: Record<string, any>) => ({
     Number(client_config?.payment_time_limit) > 0
       ? client_config.payment_time_limit
       : "",
+  payment_methods_config: normalizePaymentMethodsConfig(
+    client_config?.payment_methods_config,
+  ),
+  payment_whatsapp_phone: client_config?.payment_whatsapp_phone || "",
 });
 
 const getComparableState = (formState: Record<string, any>) => ({
@@ -71,6 +132,9 @@ const getComparableState = (formState: Record<string, any>) => ({
   url_logo: getSingleUrl(formState.url_logo),
   url_logo_print: getSingleUrl(formState.url_logo_print),
   url_banner: getSingleUrl(formState.url_banner),
+  payment_methods_config: normalizePaymentMethodsConfig(
+    formState.payment_methods_config,
+  ),
   payment_time_limit: formState.bookingRequiresPayment
     ? formState.payment_time_limit || ""
     : null,
@@ -212,6 +276,39 @@ const DptoConfig = ({
     }
   };
 
+  const handlePaymentMethodSwitch =
+    (debtType: PaymentDebtType, method: PaymentMethod) =>
+    ({ target: { value } }: any) => {
+      const isEnabled = value === "Y";
+
+      setFormState((prev: any) => {
+        const currentConfig = normalizePaymentMethodsConfig(
+          prev.payment_methods_config,
+        );
+        const currentMethods = currentConfig[debtType] || [];
+        const nextMethods = isEnabled
+          ? Array.from(new Set([...currentMethods, method]))
+          : currentMethods.filter((item) => item !== method);
+
+        return {
+          ...prev,
+          payment_methods_config: {
+            ...currentConfig,
+            [debtType]: nextMethods,
+          },
+        };
+      });
+    };
+
+  const handleWhatsAppPhoneChange = (e: any) => {
+    const value = String(e.target.value || "").replace(/\D/g, "");
+
+    setFormState((prev: any) => ({
+      ...prev,
+      payment_whatsapp_phone: value,
+    }));
+  };
+
   const handleTimeChange = (e: any) => {
     const value = e.target.value;
 
@@ -345,6 +442,36 @@ const DptoConfig = ({
       });
     }
 
+    const paymentMethodsConfig = normalizePaymentMethodsConfig(
+      formState.payment_methods_config,
+    );
+
+    paymentDebtTypes.forEach((debtType) => {
+      if ((paymentMethodsConfig[debtType.id] || []).length === 0) {
+        nextErrors[`payment_methods_config_${debtType.id}`] =
+          "Selecciona al menos un método de pago";
+      }
+    });
+
+    if (hasWhatsAppPaymentMethod(paymentMethodsConfig)) {
+      nextErrors = checkRules({
+        value: formState.payment_whatsapp_phone,
+        rules: ["required"],
+        key: "payment_whatsapp_phone",
+        errors: nextErrors,
+        data: formState,
+      });
+
+      if (
+        formState.payment_whatsapp_phone &&
+        (formState.payment_whatsapp_phone.length < 8 ||
+          formState.payment_whatsapp_phone.length > 20)
+      ) {
+        nextErrors.payment_whatsapp_phone =
+          "Incluye código de país, entre 8 y 20 dígitos y sin +";
+      }
+    }
+
     setErrors(nextErrors);
     return nextErrors;
   };
@@ -400,6 +527,11 @@ const DptoConfig = ({
   const condoTypeLabel =
     condoTypeOptions.find((option) => option.id === formState.type)?.name ||
     "Condominio";
+  const paymentMethodsConfig = normalizePaymentMethodsConfig(
+    formState.payment_methods_config,
+  );
+  const whatsappPaymentEnabled =
+    hasWhatsAppPaymentMethod(paymentMethodsConfig);
 
   return (
     <div className={`${styles.Config} ${isRulesMode ? styles.compactMode : ""}`}>
@@ -926,6 +1058,82 @@ const DptoConfig = ({
                   disabled={!editMode}
                 />
               </div>
+
+              <div className={styles.sectionDivider} />
+
+              <div className={styles.cardHeader}>
+                <p className={styles.textTitle}>Métodos de pago por deuda</p>
+                <p className={styles.textSubtitle}>
+                  Configura qué alternativas verá el residente según el tipo de
+                  deuda seleccionada.
+                </p>
+              </div>
+
+              <div className={styles.paymentMethodsMatrix}>
+                {paymentDebtTypes.map((debtType) => (
+                  <div className={styles.paymentMethodRow} key={debtType.id}>
+                    <div className={styles.paymentMethodHeader}>
+                      <p className={styles.textTitle}>{debtType.name}</p>
+                    </div>
+
+                    <div className={styles.paymentMethodToggles}>
+                      {paymentMethodOptions.map((method) => (
+                        <div
+                          className={styles.paymentMethodToggle}
+                          key={`${debtType.id}-${method.id}`}
+                        >
+                          <span>{method.name}</span>
+                          <Switch
+                            name={`${debtType.id}_${method.id}`}
+                            label=""
+                            value={
+                              paymentMethodsConfig[debtType.id]?.includes(
+                                method.id,
+                              )
+                                ? "Y"
+                                : "N"
+                            }
+                            onChange={handlePaymentMethodSwitch(
+                              debtType.id,
+                              method.id,
+                            )}
+                            optionValue={["Y", "N"]}
+                            checked={Boolean(
+                              paymentMethodsConfig[debtType.id]?.includes(
+                                method.id,
+                              ),
+                            )}
+                            disabled={!editMode}
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    {errors?.[`payment_methods_config_${debtType.id}`] && (
+                      <p className={styles.paymentMethodError}>
+                        {errors[`payment_methods_config_${debtType.id}`]}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {whatsappPaymentEnabled && (
+                <Input
+                  type="text"
+                  label="Número de WhatsApp para pagos"
+                  name="payment_whatsapp_phone"
+                  error={errors}
+                  value={formState.payment_whatsapp_phone}
+                  onChange={handleWhatsAppPhoneChange}
+                  className="dark-input"
+                  maxLength={20}
+                  placeholder="59170000000"
+                  disabled={!editMode}
+                />
+              )}
+
+              <div className={styles.sectionDivider} />
 
               <div className={styles.switchContainer}>
                 <div className={styles.switchContent}>

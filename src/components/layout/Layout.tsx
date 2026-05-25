@@ -24,6 +24,8 @@ import ChooseClient from "../ChooseClient/ChooseClient";
 import ProfileModal from "../ProfileModal/ProfileModal";
 import SurveyAnswerForm from "@/modulos/Surveys/components/SurveyAnswerForm";
 import { logError } from "@/mk/utils/logs";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
+import { useScreenSize } from "@/mk/hooks/useScreenSize";
 
 const typeAlerts: any = {
   E: {
@@ -47,8 +49,23 @@ const typeAlerts: any = {
     color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
   },
 };
-import { useScopedI18n } from "@/i18n/useScopedI18n";
-import { useScreenSize } from "@/mk/hooks/useScreenSize";
+
+const getStringValue = (value: unknown) =>
+  typeof value === "string" ? value.trim() : "";
+
+const getFallbackToastMessage = (payload: any) => {
+  const title =
+    getStringValue(payload?.msg?.title) ||
+    getStringValue(payload?.title) ||
+    getStringValue(payload?.subject);
+  const body =
+    getStringValue(payload?.msg?.body) ||
+    getStringValue(payload?.body) ||
+    getStringValue(payload?.message);
+
+  if (title && body && title !== body) return `${title}: ${body}`;
+  return title || body;
+};
 
 const Layout = ({ children }: any) => {
   const { user, logout, store, setStore, showToast, userCan } = useAuth();
@@ -183,6 +200,14 @@ const Layout = ({ children }: any) => {
   const onNotif = useCallback(
     (e: any) => {
       if (!user?.id) return;
+      let toastShown = Boolean(e?.toastHandled);
+      const notify = (
+        message: string,
+        type: "info" | "success" | "warning" | "error" = "info",
+      ) => {
+        toastShown = true;
+        showToast(message, type);
+      };
 
       const payload =
         typeof e?.payload === "string"
@@ -203,33 +228,33 @@ const Layout = ({ children }: any) => {
       const notifTitle = payload?.title || payload?.msg?.title;
 
       if (e.event == "ping") {
-        showToast("Llegó un PING", "info");
+        notify("Llegó un PING", "info");
       }
 
       if (notifAction === "newPreregister" && notifTitle) {
-        showToast(notifTitle, "info");
+        notify(notifTitle, "info");
       }
 
       if (
         (e.event == "budget-approval" || e.event == "change-budget") &&
         notifTitle
       ) {
-        showToast(notifTitle, "info");
+        notify(notifTitle, "info");
       }
 
       if (notifAction === "newVoucher") {
-        showToast(
+        notify(
           "¡Revisa tus ingresos, tienes un nuevo comprobante de pago!",
           "info",
         );
       }
 
       if (e.event == "alerts" && payload?.level >= 2) {
-        showToast("¡Se registró una nueva alerta!", "warning");
+        notify("¡Se registró una nueva alerta!", "warning");
       }
 
       if (notifAction === "newContent") {
-        showToast("¡Revisa tu muro, tienes un nuevo comunicado!", "info");
+        notify("¡Revisa tu muro, tienes un nuevo comunicado!", "info");
       }
 
       if (
@@ -252,6 +277,11 @@ const Layout = ({ children }: any) => {
         if (isMandatory) {
           setSelectedSurvey({ ...payload, is_mandatory: true });
         }
+      }
+
+      if (!toastShown) {
+        const fallbackMessage = getFallbackToastMessage(payload);
+        if (fallbackMessage) notify(fallbackMessage, "info");
       }
     },
     [soundBell, showToast, audioEnabled, user, userCan],

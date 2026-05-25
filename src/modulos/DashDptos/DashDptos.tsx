@@ -70,15 +70,50 @@ const DashDptos = ({ id }: DashDptosProps) => {
     null,
   );
 
+  const getOwnerChangeOptions = (type: "H" | "T" | null) => {
+    const extra = dashData?.extraData ?? {};
+    const baseList: any[] =
+      type === "H" ? extra.homeowners || [] : extra.tenants || [];
+
+    if (type !== "T") return baseList;
+
+    const currentHomeowner = datas?.homeowner || datas?.data?.homeowner;
+    const residentCandidates = [
+      ...(currentHomeowner?.id ? [currentHomeowner] : []),
+      ...(extra.homeowners || []),
+      ...baseList,
+    ];
+
+    return residentCandidates.filter(
+      (owner, index, owners) =>
+        owner?.id &&
+        owners.findIndex(
+          (candidate) => String(candidate?.id) === String(owner.id),
+        ) === index,
+    );
+  };
+
+  const getOwnerOptionLabel = (owner: any) => {
+    const currentHomeowner = datas?.homeowner || datas?.data?.homeowner;
+    const ciLabel = owner?.ci ? ` - C.I. ${owner.ci}` : "";
+    const ownerUnitNumber =
+      Array.isArray(owner?.dpto) && owner.dpto.length > 0
+        ? owner.dpto[0]?.nro
+        : String(owner?.id) === String(currentHomeowner?.id)
+          ? datas?.data?.nro
+          : "";
+    const dptoLabel = ownerUnitNumber ? ` - Unidad ${ownerUnitNumber}` : "";
+
+    return `${getFullName(owner)}${ciLabel}${dptoLabel}`;
+  };
+
   const onSave = async () => {
     if (!formState.owner_id || !currentChangeType) {
       setErrorsT({ owner_id: "Este campo es obligatorio" });
       return;
     }
 
-    const extra = dashData?.extraData ?? {};
-    const list: any[] =
-      currentChangeType === "H" ? extra.homeowners || [] : extra.tenants || [];
+    const list = getOwnerChangeOptions(currentChangeType);
     const selectedOwner = list.find(
       (owner: any) => String(owner.id) === String(formState.owner_id),
     );
@@ -363,20 +398,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 setFormState({ ...formState, owner_id: e.target.value })
               }
               options={(() => {
-                const extra = dashData?.extraData ?? {};
-                const list: any[] =
-                  currentChangeType === "H"
-                    ? extra.homeowners || []
-                    : extra.tenants || [];
+                const list = getOwnerChangeOptions(currentChangeType);
                 return list.map((owner: any) => {
-                  const ciLabel = owner?.ci ? ` - C.I. ${owner.ci}` : "";
-                  const dptoLabel =
-                    Array.isArray(owner?.dpto) && owner.dpto.length > 0
-                      ? ` - Unidad ${owner.dpto[0]?.nro ?? ""}`
-                      : "";
                   return {
                     ...owner,
-                    name: `${getFullName(owner)}${ciLabel}${dptoLabel}`,
+                    name: getOwnerOptionLabel(owner),
                   };
                 });
               })()}

@@ -510,6 +510,67 @@
   min-width: 0;
 }
 
+.paymentMethodsMatrix {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.paymentMethodRow {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.8fr) minmax(0, 2fr);
+  gap: 12px;
+  align-items: center;
+  padding-block: 10px;
+  border-bottom: 1px solid var(--cModalBorder);
+}
+
+.paymentMethodRow:last-child {
+  border-bottom: 0;
+}
+
+.paymentMethodHeader {
+  min-width: 0;
+}
+
+.paymentMethodToggles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.paymentMethodToggle {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background-color: color-mix(
+    in srgb,
+    var(--cModalSurfaceRaised) 56%,
+    transparent
+  );
+  border: 1px solid var(--cModalBorder);
+  color: var(--cWhiteV1);
+  font-size: var(--body-sm-size);
+}
+
+.paymentMethodToggle span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.paymentMethodError {
+  grid-column: 2;
+  margin: -4px 0 0;
+  color: var(--cError);
+  font-size: var(--body-xs-size);
+}
+
 .compactMode .formCard {
   gap: 12px;
   padding: 12px;
@@ -547,6 +608,14 @@
   border-radius: 14px;
 }
 
+.compactMode .paymentMethodRow {
+  grid-template-columns: 1fr;
+}
+
+.compactMode .paymentMethodError {
+  grid-column: 1;
+}
+
 @media (max-width: 960px) {
   .headerRow {
     flex-direction: column;
@@ -579,6 +648,18 @@
 
   .switchContainer {
     flex-direction: column;
+  }
+
+  .paymentMethodRow {
+    grid-template-columns: 1fr;
+  }
+
+  .paymentMethodToggles {
+    grid-template-columns: 1fr;
+  }
+
+  .paymentMethodError {
+    grid-column: 1;
   }
 }
 
