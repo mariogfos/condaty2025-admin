@@ -61,6 +61,7 @@ import type {
 } from "@/modulos/Reservas/types";
 import {
   CALENDAR_WEEK_DAYS,
+  type CalendarReservationEntry,
   buildAreaAvailabilitySnapshot,
   buildCalendarEntries,
   buildMonthGrid,
@@ -119,6 +120,7 @@ const DEFAULT_STATUS_FILTER_KEY = [...DEFAULT_VISIBLE_STATUS_IDS]
   .join(",");
 const CALENDAR_FLOW_TOTAL_STEPS = 2;
 const NON_BLOCKING_CALENDAR_STATUSES = new Set(["C", "T", "R", "X"]);
+const EMPTY_SELECTED_DAY_ENTRIES: CalendarReservationEntry[] = [];
 
 type CalendarDayActionRow = {
   day: Date;
@@ -491,14 +493,24 @@ const CalendarPage = () => {
   );
 
   const selectedDayKey = selectedDate ? formatDateKey(selectedDate) : "";
-  const selectedDayEntries = selectedDayKey
-    ? entriesByDay.get(selectedDayKey) || []
-    : [];
+  const selectedDayEntries = useMemo(
+    () =>
+      selectedDayKey
+        ? entriesByDay.get(selectedDayKey) || EMPTY_SELECTED_DAY_ENTRIES
+        : EMPTY_SELECTED_DAY_ENTRIES,
+    [entriesByDay, selectedDayKey],
+  );
   const isDayPanelOpen = Boolean(selectedDate);
+
+  const resetSelectedDayTimeLimits = useCallback(() => {
+    setSelectedDayTimeLimits((current) =>
+      Object.keys(current).length === 0 ? current : {},
+    );
+  }, []);
 
   useEffect(() => {
     if (!contextInstance || selectedDayEntries.length === 0) {
-      setSelectedDayTimeLimits({});
+      resetSelectedDayTimeLimits();
       return;
     }
 
@@ -507,7 +519,7 @@ const CalendarPage = () => {
     );
 
     if (pendingEntries.length === 0) {
-      setSelectedDayTimeLimits({});
+      resetSelectedDayTimeLimits();
       return;
     }
 
@@ -553,7 +565,7 @@ const CalendarPage = () => {
         setSelectedDayTimeLimits(nextMap);
       } catch (_error) {
         if (!cancelled && selectedDayTimeLimitRequestRef.current === requestId) {
-          setSelectedDayTimeLimits({});
+          resetSelectedDayTimeLimits();
         }
       }
     };
@@ -563,7 +575,7 @@ const CalendarPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [contextInstance, selectedDayEntries]);
+  }, [contextInstance, resetSelectedDayTimeLimits, selectedDayEntries]);
 
   const visibleAreaOptions = useMemo(() => {
     const areaMap = new Map<string, ReservationArea>();
