@@ -235,8 +235,11 @@ const Notifications = () => {
         );
       }
 
-      //if (actValue === "newVoucher" || actValue === "newPayment") {
-      if (actValue === "admins") {
+      if (
+        ["admins", "newVoucher", "newPayment", "confirmPayment"].includes(
+          actValue,
+        )
+      ) {
         return (
           <div
             style={{
@@ -456,6 +459,16 @@ const Notifications = () => {
       if (notificationAct === "newVoucher") {
         if (hasPaymentsPerm) {
           setOpenPayment({ open: true, id: parsedMessage.info.id });
+        }
+      }
+      if (
+        notificationAct === "confirmPayment" ||
+        notificationAct === "newPayment"
+      ) {
+        if (hasPaymentsPerm && parsedMessage.info?.id) {
+          setOpenPayment({ open: true, id: parsedMessage.info.id });
+        } else if (hasPaymentsPerm) {
+          router.push("/payments");
         }
       }
       if (notificationAct === "newAdmin") {
