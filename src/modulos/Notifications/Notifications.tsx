@@ -396,12 +396,8 @@ const Notifications = () => {
     fields,
   });
 
-  // Requerir permisos específicos para que la página se renderice
   const hasPaymentsPerm = userCan("payments", "R");
   const hasReservationsPerm = userCan("reservations", "R");
-
-  // Si no tiene ambos permisos, no renderizamos la página
-  if (!hasPaymentsPerm || !hasReservationsPerm) return <NotAccess />;
 
   // ELIMINAR filteredData - no es necesario
   // const filteredData = useMemo(() => { ... });
@@ -447,7 +443,7 @@ const Notifications = () => {
         parsedMessage?.info?.task_id || parsedMessage?.info?.id || "";
 
       // Navegar según el tipo de notificación
-      if (notificationAct?.info?.act === "new-survey") {
+      if (notificationAct === "new-survey") {
         setSelectedSurvey(parsedMessage.info);
       }
 

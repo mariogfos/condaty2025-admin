@@ -21,7 +21,11 @@ export interface ModuleNotifHandlerArgs {
    * Show a toast notification to the user.
    * Mirrors the `showToast` function available in Layout.tsx.
    */
-  showToast: (message: string, type?: "info" | "success" | "warning" | "error") => void;
+  showToast: (
+    message: string,
+    type?: "info" | "success" | "warning" | "error",
+    time?: number,
+  ) => void;
 }
 
 export type ModuleNotifHandler = (args: ModuleNotifHandlerArgs) => void;
