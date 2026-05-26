@@ -17,7 +17,10 @@ export type ReservationListItem = {
   people_count?: number | null;
   time_limit?: string | null;
   debt_dpto?: {
+    id?: number | string | null;
     payment_id?: number | string | null;
+    resolved_payment_id?: number | string | null;
+    resolved_payment_status?: string | null;
     status?: string | null;
     payment?: {
       status?: string | null;

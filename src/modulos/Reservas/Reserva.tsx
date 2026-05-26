@@ -13,13 +13,12 @@ import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFil
 import CreateReserva from "../CreateReserva/CreateReserva";
 import { IconCalendar } from "@/components/layout/icons/IconsBiblioteca";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 import {
   RESERVATION_STATUS_CONFIG,
   RESERVATION_STATUS_OPTIONS,
-  getUpdatedReservationStatus,
   type ReservationStatus,
 } from "./constants/reservationConstants";
+import { resolveReservationDisplayStatus } from "./utils/reservationStatus";
 
 const mod = {
   modulo: "reservations",
@@ -210,17 +209,20 @@ const Reserva = () => {
         list: {
           // width: 180,
           onRender: (props: any) => {
-            let status = props?.item?.status as ReservationStatus | undefined;
-
-            // Usar la función utilitaria para obtener el estado actualizado
-            status = getUpdatedReservationStatus(
-              status,
-              props?.item?.date_end,
-              props?.item?.end_time,
-            );
+            const status = resolveReservationDisplayStatus({
+              status: props?.item?.status as ReservationStatus | undefined,
+              dateEnd: props?.item?.date_end,
+              endTime: props?.item?.end_time,
+              debtStatus: props?.item?.debt_dpto?.status,
+              paymentStatus:
+                props?.item?.debt_dpto?.resolved_payment_status ||
+                props?.item?.debt_dpto?.payment?.status,
+            });
 
             const currentStatus = status
-              ? RESERVATION_STATUS_CONFIG[status]
+              ? RESERVATION_STATUS_CONFIG[
+                  status as keyof typeof RESERVATION_STATUS_CONFIG
+                ]
               : null;
 
             return (

@@ -84,8 +84,14 @@ type ReservationItem = {
   approved_user?: ReservationActor | null;
   canceled_user?: ReservationActor | null;
   debt_dpto?: {
+    id?: string | number | null;
     payment_id?: string | number | null;
+    resolved_payment_id?: string | number | null;
+    resolved_payment_status?: string | null;
     status?: string | null;
+    payment?: {
+      status?: string | null;
+    } | null;
   } | null;
 };
 
@@ -265,6 +271,8 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     const [resolvedPaymentId, setResolvedPaymentId] = React.useState<string | number | null>(
       null,
     );
+    const [resolvedPaymentStatus, setResolvedPaymentStatus] =
+      React.useState<string | null>(null);
 
     const handlePaymentModalClose = useCallback(() => {
       setShowPaymentModal(false);
@@ -280,6 +288,11 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       dateEnd: reservationDetail?.date_end || undefined,
       endTime: reservationDetail?.end_time || undefined,
       debtStatus: reservationDetail?.debt_dpto?.status || undefined,
+      paymentStatus:
+        resolvedPaymentStatus ||
+        reservationDetail?.debt_dpto?.resolved_payment_status ||
+        reservationDetail?.debt_dpto?.payment?.status ||
+        undefined,
     });
     const currentStatus = statusKey
       ? RESERVATION_STATUS_CONFIG[statusKey as keyof typeof RESERVATION_STATUS_CONFIG]
@@ -392,8 +405,22 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     ];
 
     useEffect(() => {
-      setResolvedPaymentId(reservationDetail?.debt_dpto?.payment_id || null);
-    }, [reservationDetail?.debt_dpto?.payment_id]);
+      setResolvedPaymentId(
+        reservationDetail?.debt_dpto?.resolved_payment_id ||
+          reservationDetail?.debt_dpto?.payment_id ||
+          null,
+      );
+      setResolvedPaymentStatus(
+        reservationDetail?.debt_dpto?.resolved_payment_status ||
+          reservationDetail?.debt_dpto?.payment?.status ||
+          null,
+      );
+    }, [
+      reservationDetail?.debt_dpto?.payment?.status,
+      reservationDetail?.debt_dpto?.payment_id,
+      reservationDetail?.debt_dpto?.resolved_payment_id,
+      reservationDetail?.debt_dpto?.resolved_payment_status,
+    ]);
 
     useEffect(() => {
       if (!open || !resolvedDebtId) return;
@@ -411,6 +438,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
 
         if (!cancelled && data?.success) {
           setResolvedPaymentId(data?.data?.payment_id || null);
+          setResolvedPaymentStatus(data?.data?.payment_status || null);
         }
       };
 

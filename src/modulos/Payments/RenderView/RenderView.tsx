@@ -607,32 +607,16 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       handleDownloadVouchers();
     }
   };
+  const canReviewPayment = item?.status === "S";
 
   return (
     <>
       <DataModal
         open={open}
         title="Detalle del ingreso"
-        buttonText={item?.status !== "S" ? "" : "Aprobar Pago"}
+        buttonText=""
         buttonCancel={""}
-        onSave={() => {
-          if (item?.status === "S") {
-            onConfirm(true);
-          }
-        }}
         onClose={onClose}
-        buttonExtra={
-          item.status === "S" ? (
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setOnRechazar(true);
-              }}
-            >
-              Rechazar pago
-            </Button>
-          ) : undefined
-        }
         variant={"mini"}
         style={style}
         headerDivider={false}
@@ -916,6 +900,26 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   onClick={handleViewOrDownloadVouchers}
                 >
                   Ver comprobante
+                </Button>
+              )}
+              {canReviewPayment && (
+                <Button
+                  variant="secondary"
+                  className={styles.voucherButton}
+                  onClick={() => {
+                    setOnRechazar(true);
+                  }}
+                >
+                  Rechazar pago
+                </Button>
+              )}
+              {canReviewPayment && (
+                <Button
+                  variant="primary"
+                  className={styles.voucherButton}
+                  onClick={() => onConfirm(true)}
+                >
+                  Aprobar pago
                 </Button>
               )}
             </div>

@@ -3,7 +3,9 @@ import {
   buildAreaAvailabilitySnapshot,
   buildCalendarEntries,
   extractDayAvailabilityFromCalendarResponse,
+  getReservationStatusMeta,
 } from "../helpers";
+import { shouldShowReservationPaymentTimeLimit } from "@/modulos/Reservas/utils/reservationStatus";
 import type { ReservationListItem } from "@/modulos/Reservas/types";
 
 describe("buildCalendarEntries", () => {
@@ -82,6 +84,30 @@ describe("buildCalendarEntries", () => {
       maintenance: ["12:00 - 13:00"],
       reserved: true,
     });
+  });
+
+  it("muestra por confirmar cuando una reserva pendiente ya tiene pago enviado", () => {
+    const reservation: ReservationListItem = {
+      id: 3,
+      status: "A",
+      date_at: "2026-05-18",
+      date_end: "2026-05-18",
+      start_time: "09:00",
+      end_time: "10:00",
+      debt_dpto: {
+        payment_id: 99,
+        status: "A",
+        payment: {
+          status: "S",
+        },
+      },
+    };
+
+    expect(getReservationStatusMeta(reservation)).toMatchObject({
+      status: "Q",
+      label: "Pago por confirmar",
+    });
+    expect(shouldShowReservationPaymentTimeLimit("Q")).toBe(false);
   });
 
   it("prioriza los turnos disponibles en tiempo real para el area", () => {

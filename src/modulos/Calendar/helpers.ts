@@ -418,7 +418,9 @@ export const getReservationStatusMeta = (reservation: ReservationListItem) => {
     dateEnd: reservation.date_end,
     endTime: reservation.end_time,
     debtStatus: reservation.debt_dpto?.status,
-    paymentStatus: reservation.debt_dpto?.payment?.status,
+    paymentStatus:
+      reservation.debt_dpto?.resolved_payment_status ||
+      reservation.debt_dpto?.payment?.status,
   });
 
   const config =

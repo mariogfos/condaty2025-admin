@@ -43,7 +43,10 @@ export const resolveReservationDisplayStatus = ({
   const nextPaymentStatus = String(paymentStatus || "").trim();
   const nextDebtStatus = String(debtStatus || "").trim();
 
-  if (nextPaymentStatus === "P" || nextDebtStatus === "P") {
+  if (
+    (nextPaymentStatus === "P" && nextDebtStatus !== "I") ||
+    nextDebtStatus === "P"
+  ) {
     return "L";
   }
 
@@ -59,7 +62,7 @@ export const resolveReservationDisplayStatus = ({
 };
 
 export const shouldShowReservationPaymentTimeLimit = (status?: string | null) =>
-  status === "A" || status === "Q";
+  status === "A";
 
 export const formatReservationPaymentTimeLimitMessage = (
   value?: string | null,
