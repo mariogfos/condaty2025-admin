@@ -40,9 +40,7 @@ export const resolveChannel = (criteria: any): string => {
   if (activeRoles.length === 0) return "all";
 
   // Determine which app-channels are involved
-  const channels = new Set(
-    activeRoles.map((r) => ROLE_TO_CHANNEL[r] ?? "all")
-  );
+  const channels = new Set(activeRoles.map((r) => ROLE_TO_CHANNEL[r] ?? "all"));
 
   // If any role mapped to "all" (unknown), or multiple channels → use "all"
   if (channels.size > 1 || channels.has("all")) return "all";
@@ -65,7 +63,12 @@ export const useInstantMsg = () => {
    * @param payload Data to send
    * @param criteria Optional criteria for granular segmentation
    */
-  const sendMsg = async (channel: string, event: string, payload: any, criteria: any = null) => {
+  const sendMsg = async (
+    channel: string,
+    event: string,
+    payload: any,
+    criteria: any = null,
+  ) => {
     try {
       const db = await initSocket();
       if (!db) {
@@ -82,12 +85,20 @@ export const useInstantMsg = () => {
         fullChannel = `${prefix}${clientId}-${channel}`;
       }
 
-      console.log(`[useInstantMsg] Broadcasting to ${fullChannel}:`, { event, payload, criteria });
-      console.log(`[useInstantMsg] ID INSTANT_DB:`, process.env.NEXT_PUBLIC_INSTANTDB_APP_ID);
+      console.log(`[useInstantMsg] Broadcasting to ${fullChannel}:`, {
+        event,
+        payload,
+        criteria,
+      });
+      console.log(
+        `[useInstantMsg] ID INSTANT_DB:`,
+        process.env.NEXT_PUBLIC_INSTANTDB_APP_ID,
+      );
 
       const updateData: any = {
         from: `ADM-${user?.id || "system"}`,
-        payload: typeof payload === "string" ? payload : JSON.stringify(payload),
+        payload:
+          typeof payload === "string" ? payload : JSON.stringify(payload),
         channel: fullChannel,
         event,
         created_at: Date.now(),
@@ -107,7 +118,7 @@ export const useInstantMsg = () => {
       }
 
       await db.transact(db.tx.notif[id()].update(updateData));
-      console.log("[useInstantMsg] Transact enviado existosamente!");
+      //console.log("[useInstantMsg] Transact enviado existosamente!");
     } catch (error) {
       console.error("[useInstantMsg] Error sending instant message:", error);
     }
@@ -121,7 +132,11 @@ export const useInstantMsg = () => {
    * @example
    * notifySegmented("new-survey", payload, survey.target_criteria)
    */
-  const notifySegmented = (event: string, payload: any, criteria: any = null) => {
+  const notifySegmented = (
+    event: string,
+    payload: any,
+    criteria: any = null,
+  ) => {
     const channel = resolveChannel(criteria);
     return sendMsg(channel, event, payload, criteria);
   };

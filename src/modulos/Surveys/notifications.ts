@@ -24,14 +24,14 @@ export const surveyNotifications: ModuleNotifConfig = {
       dispatch("survey:new", { ...payload, is_mandatory: isMandatory });
     },
     "survey-status-change": ({ payload, showToast, dispatch }) => {
-      const term = payload?.type === "assembly" ? "Votación" : "Encuesta";
+      const term = payload?.source === "assembly" ? "Votación" : "Encuesta";
       if (["A", "P", "C"].includes(payload?.status)) {
         let sub = `${term} actualizada`;
         if (payload.status === "P") sub = `${term} pausada`;
         if (payload.status === "C") sub = `${term} cerrada`;
         if (payload.status === "A") sub = `${term} reanudada`; // Siempre reanudada; el inicio usa new-survey
         showToast(
-          term === "Votación"
+          payload?.source === "assembly"
             ? `📢 ${sub}`
             : `📢 ${sub}: ${payload.title || ""}`,
           "info",
