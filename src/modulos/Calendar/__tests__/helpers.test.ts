@@ -6,6 +6,7 @@ import {
   getReservationStatusMeta,
 } from "../helpers";
 import { shouldShowReservationPaymentTimeLimit } from "@/modulos/Reservas/utils/reservationStatus";
+import { mergeResolvedPaymentIntoReservation } from "@/modulos/Reservas/utils/reservationPayment";
 import type { ReservationListItem } from "@/modulos/Reservas/types";
 
 describe("buildCalendarEntries", () => {
@@ -125,6 +126,32 @@ describe("buildCalendarEntries", () => {
     };
 
     expect(getReservationStatusMeta(reservation)).toMatchObject({
+      status: "Q",
+      label: "Por confirmar",
+    });
+    expect(shouldShowReservationPaymentTimeLimit("Q")).toBe(false);
+  });
+
+  it("muestra por confirmar cuando el pago resuelto se carga despues de la lista", () => {
+    const reservation: ReservationListItem = {
+      id: 5,
+      status: "A",
+      date_at: "2026-05-18",
+      date_end: "2026-05-18",
+      start_time: "09:00",
+      end_time: "10:00",
+      debt_dpto: {
+        id: 500,
+        status: "A",
+      },
+    };
+
+    const resolvedReservation = mergeResolvedPaymentIntoReservation(reservation, {
+      paymentId: 101,
+      paymentStatus: "S",
+    });
+
+    expect(getReservationStatusMeta(resolvedReservation)).toMatchObject({
       status: "Q",
       label: "Por confirmar",
     });

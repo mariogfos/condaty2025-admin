@@ -60,7 +60,7 @@ export const resolveReservationDisplayStatus = ({
   if (
     nextPaymentStatus === "S" ||
     nextDebtStatus === "S" ||
-    hasPaymentEvidence(paymentId)
+    (!nextPaymentStatus && hasPaymentEvidence(paymentId))
   ) {
     return "Q";
   }

@@ -51,6 +51,12 @@ import {
   formatReservationPaymentTimeLimitMessage,
   shouldShowReservationPaymentTimeLimit,
 } from "@/modulos/Reservas/utils/reservationStatus";
+import {
+  fetchResolvedPaymentForReservation,
+  mergeResolvedPaymentIntoReservation,
+  shouldFetchReservationResolvedPayment,
+  type ResolvedReservationPayment,
+} from "@/modulos/Reservas/utils/reservationPayment";
 import { getUrlImages } from "@/mk/utils/string";
 import type {
   ReservationArea,
@@ -269,6 +275,8 @@ const CalendarPage = () => {
   const [areas, setAreas] = useState<ReservationArea[]>([]);
   const [units, setUnits] = useState<ReservationUnit[]>([]);
   const [reservations, setReservations] = useState<ReservationListItem[]>([]);
+  const [resolvedPaymentByReservationId, setResolvedPaymentByReservationId] =
+    useState<Record<string, ResolvedReservationPayment>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [detailItem, setDetailItem] = useState<ReservationListItem | null>(null);
@@ -450,9 +458,20 @@ const CalendarPage = () => {
     [deferredSearch],
   );
 
+  const reservationsWithResolvedPayments = useMemo(
+    () =>
+      reservations.map((reservation) =>
+        mergeResolvedPaymentIntoReservation(
+          reservation,
+          resolvedPaymentByReservationId[String(reservation.id)],
+        ),
+      ),
+    [reservations, resolvedPaymentByReservationId],
+  );
+
   const filteredReservations = useMemo(
     () =>
-      reservations.filter((reservation) =>
+      reservationsWithResolvedPayments.filter((reservation) =>
         matchesReservationFilters(
           reservation,
           selectedAreaId,
@@ -460,16 +479,21 @@ const CalendarPage = () => {
           normalizedQuery,
         ),
       ),
-    [normalizedQuery, reservations, selectedAreaId, selectedStatuses],
+    [
+      normalizedQuery,
+      reservationsWithResolvedPayments,
+      selectedAreaId,
+      selectedStatuses,
+    ],
   );
 
   const blockingReservations = useMemo(
     () =>
-      reservations.filter((reservation) => {
+      reservationsWithResolvedPayments.filter((reservation) => {
         const nextStatus = getReservationStatusMeta(reservation).status;
         return !NON_BLOCKING_CALENDAR_STATUSES.has(nextStatus);
       }),
-    [reservations],
+    [reservationsWithResolvedPayments],
   );
 
   const entriesByDay = useMemo(
@@ -507,6 +531,63 @@ const CalendarPage = () => {
       Object.keys(current).length === 0 ? current : {},
     );
   }, []);
+
+  useEffect(() => {
+    if (!contextInstance || reservations.length === 0) return;
+
+    const pendingReservations = reservations.filter((reservation) => {
+      const reservationId = String(reservation.id);
+      return (
+        !resolvedPaymentByReservationId[reservationId] &&
+        shouldFetchReservationResolvedPayment(reservation)
+      );
+    });
+
+    if (pendingReservations.length === 0) return;
+
+    let cancelled = false;
+
+    const loadResolvedPayments = async () => {
+      const results = await Promise.allSettled(
+        pendingReservations.map(async (reservation) => ({
+          reservationId: String(reservation.id),
+          payment: await fetchResolvedPaymentForReservation(
+            contextInstance,
+            reservation,
+          ),
+        })),
+      );
+
+      if (cancelled) return;
+
+      const nextPayments = results.reduce<Record<string, ResolvedReservationPayment>>(
+        (accumulator, result) => {
+          if (result.status !== "fulfilled") return accumulator;
+          const { reservationId, payment } = result.value;
+
+          if (payment.paymentId || payment.paymentStatus) {
+            accumulator[reservationId] = payment;
+          }
+
+          return accumulator;
+        },
+        {},
+      );
+
+      if (Object.keys(nextPayments).length === 0) return;
+
+      setResolvedPaymentByReservationId((current) => ({
+        ...current,
+        ...nextPayments,
+      }));
+    };
+
+    void loadResolvedPayments();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [contextInstance, reservations, resolvedPaymentByReservationId]);
 
   useEffect(() => {
     if (!contextInstance || selectedDayEntries.length === 0) {

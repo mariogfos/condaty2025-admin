@@ -21,6 +21,7 @@ import type {
   ReservationVisibleRange,
 } from "@/modulos/Reservas/types";
 import { resolveReservationDisplayStatus } from "@/modulos/Reservas/utils/reservationStatus";
+import { getReservationDisplayStatusInput } from "@/modulos/Reservas/utils/reservationPayment";
 
 const WEEK_STARTS_ON_SUNDAY = { weekStartsOn: 0 as const };
 
@@ -413,18 +414,9 @@ export const buildAreaAvailabilitySnapshot = (
 };
 
 export const getReservationStatusMeta = (reservation: ReservationListItem) => {
-  const statusKey = resolveReservationDisplayStatus({
-    status: reservation.status,
-    dateEnd: reservation.date_end,
-    endTime: reservation.end_time,
-    debtStatus: reservation.debt_dpto?.status,
-    paymentStatus:
-      reservation.debt_dpto?.resolved_payment_status ||
-      reservation.debt_dpto?.payment?.status,
-    paymentId:
-      reservation.debt_dpto?.resolved_payment_id ||
-      reservation.debt_dpto?.payment_id,
-  });
+  const statusKey = resolveReservationDisplayStatus(
+    getReservationDisplayStatusInput(reservation),
+  );
 
   const config =
     RESERVATION_STATUS_CONFIG[

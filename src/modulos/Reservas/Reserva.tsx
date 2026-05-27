@@ -2,7 +2,7 @@
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrudUtils from "../shared/useCrudUtils";
-import { useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
@@ -16,9 +16,15 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import {
   RESERVATION_STATUS_CONFIG,
   RESERVATION_STATUS_OPTIONS,
-  type ReservationStatus,
 } from "./constants/reservationConstants";
 import { resolveReservationDisplayStatus } from "./utils/reservationStatus";
+import {
+  fetchResolvedPaymentForReservation,
+  getReservationDisplayStatusInput,
+  shouldFetchReservationResolvedPayment,
+  type ResolvedReservationPayment,
+} from "./utils/reservationPayment";
+import { AxiosContext } from "@/mk/contexts/AxiosInstanceProvider";
 
 const mod = {
   modulo: "reservations",
@@ -53,6 +59,52 @@ const paramsInitial = {
   page: 1,
   fullType: "L",
   searchBy: "",
+};
+
+const ReservationStatusBadge = ({ item }: { item: any }) => {
+  const { contextInstance }: any = useContext(AxiosContext);
+  const [resolvedPayment, setResolvedPayment] =
+    useState<ResolvedReservationPayment | null>(null);
+
+  useEffect(() => {
+    setResolvedPayment(null);
+
+    if (!contextInstance || !shouldFetchReservationResolvedPayment(item)) return;
+
+    let cancelled = false;
+
+    const loadResolvedPayment = async () => {
+      const payment = await fetchResolvedPaymentForReservation(contextInstance, item);
+
+      if (!cancelled) {
+        setResolvedPayment(payment);
+      }
+    };
+
+    void loadResolvedPayment();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [contextInstance, item]);
+
+  const status = resolveReservationDisplayStatus(
+    getReservationDisplayStatusInput(item, resolvedPayment),
+  );
+  const currentStatus = status
+    ? RESERVATION_STATUS_CONFIG[status as keyof typeof RESERVATION_STATUS_CONFIG]
+    : null;
+
+  return (
+    <StatusBadge
+      backgroundColor={
+        currentStatus ? currentStatus.backgroundColor : "var(--cHoverLight)"
+      }
+      color={currentStatus ? currentStatus.color : "var(--cLightDark)"}
+    >
+      {currentStatus ? currentStatus.label : "Estado desconocido"}
+    </StatusBadge>
+  );
 };
 
 const Reserva = () => {
@@ -209,39 +261,7 @@ const Reserva = () => {
         list: {
           // width: 180,
           onRender: (props: any) => {
-            const status = resolveReservationDisplayStatus({
-              status: props?.item?.status as ReservationStatus | undefined,
-              dateEnd: props?.item?.date_end,
-              endTime: props?.item?.end_time,
-              debtStatus: props?.item?.debt_dpto?.status,
-              paymentStatus:
-                props?.item?.debt_dpto?.resolved_payment_status ||
-                props?.item?.debt_dpto?.payment?.status,
-              paymentId:
-                props?.item?.debt_dpto?.resolved_payment_id ||
-                props?.item?.debt_dpto?.payment_id,
-            });
-
-            const currentStatus = status
-              ? RESERVATION_STATUS_CONFIG[
-                  status as keyof typeof RESERVATION_STATUS_CONFIG
-                ]
-              : null;
-
-            return (
-              <StatusBadge
-                backgroundColor={
-                  currentStatus
-                    ? currentStatus.backgroundColor
-                    : "var(--cHoverLight)"
-                }
-                color={
-                  currentStatus ? currentStatus.color : "var(--cLightDark)"
-                }
-              >
-                {currentStatus ? currentStatus.label : "Estado desconocido"}
-              </StatusBadge>
-            );
+            return <ReservationStatusBadge item={props?.item} />;
           },
         },
         filter: {
