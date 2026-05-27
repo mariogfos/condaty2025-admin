@@ -17,7 +17,7 @@ export const surveyNotifications: ModuleNotifConfig = {
     "new-survey": ({ payload, showToast, dispatch }) => {
       const isMandatory =
         payload?.is_mandatory === "Y" || payload?.is_mandatory === true;
-      const term = payload?.type === "assembly" ? "Votación" : "Encuesta";
+      const term = payload?.source === "assembly" ? "Votación" : "Encuesta";
       const title = payload?.title ?? "Nueva " + term + " disponible";
       showToast(`📋 ${title}`, "info");
       // Dispatch a scoped event — MisEncuestas.tsx and Layout.tsx listen to this
