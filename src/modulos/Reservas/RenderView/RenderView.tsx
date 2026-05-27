@@ -293,6 +293,11 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         reservationDetail?.debt_dpto?.resolved_payment_status ||
         reservationDetail?.debt_dpto?.payment?.status ||
         undefined,
+      paymentId:
+        resolvedPaymentId ||
+        reservationDetail?.debt_dpto?.resolved_payment_id ||
+        reservationDetail?.debt_dpto?.payment_id ||
+        undefined,
     });
     const currentStatus = statusKey
       ? RESERVATION_STATUS_CONFIG[statusKey as keyof typeof RESERVATION_STATUS_CONFIG]

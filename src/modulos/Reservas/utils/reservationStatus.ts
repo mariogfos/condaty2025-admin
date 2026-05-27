@@ -20,6 +20,12 @@ type ReservationStatusInput = {
   endTime?: string | null;
   debtStatus?: string | null;
   paymentStatus?: string | null;
+  paymentId?: string | number | null;
+};
+
+const hasPaymentEvidence = (paymentId?: string | number | null) => {
+  const normalized = String(paymentId ?? "").trim().toLowerCase();
+  return normalized !== "" && normalized !== "0" && normalized !== "null";
 };
 
 export const resolveReservationDisplayStatus = ({
@@ -28,6 +34,7 @@ export const resolveReservationDisplayStatus = ({
   endTime,
   debtStatus,
   paymentStatus,
+  paymentId,
 }: ReservationStatusInput): string => {
   const updatedStatus = getUpdatedReservationStatus(
     status as ReservationStatus | undefined,
@@ -50,7 +57,11 @@ export const resolveReservationDisplayStatus = ({
     return "L";
   }
 
-  if (nextPaymentStatus === "S" || nextDebtStatus === "S") {
+  if (
+    nextPaymentStatus === "S" ||
+    nextDebtStatus === "S" ||
+    hasPaymentEvidence(paymentId)
+  ) {
     return "Q";
   }
 

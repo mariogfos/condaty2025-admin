@@ -33,6 +33,11 @@ const ToastCard = ({
   const Icon = TOAST_ICON[toast.type || "info"];
   const [isVisible, setIsVisible] = useState(false);
   const hasEnteredRef = useRef(false);
+  const onDismissRef = useRef(onDismiss);
+
+  useEffect(() => {
+    onDismissRef.current = onDismiss;
+  }, [onDismiss]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -55,25 +60,25 @@ const ToastCard = ({
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [toast.time]);
+  }, [toast.id, toast.time]);
 
   useEffect(() => {
     if (!hasEnteredRef.current || isVisible) return;
 
     const timeout = window.setTimeout(() => {
-      onDismiss(toast.id);
+      onDismissRef.current(toast.id);
     }, 180);
 
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [isVisible, onDismiss, toast.id]);
+  }, [isVisible, toast.id]);
 
   return (
     <div
       className={`${styles.toastCard} ${styles[`toast-${toast.type || "info"}`]}`}
       style={{
-        transform: `translate3d(-50%, ${depth * 10 + (isVisible ? 0 : -18)}px, 0) scale(${1 - depth * 0.025})`,
+        transform: `translate3d(0, ${isVisible ? 0 : -18}px, 0) scale(${1 - depth * 0.01})`,
         opacity: isVisible ? `${1 - depth * 0.12}` : "0",
         zIndex: 12000 - depth,
       }}

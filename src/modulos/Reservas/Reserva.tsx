@@ -217,6 +217,9 @@ const Reserva = () => {
               paymentStatus:
                 props?.item?.debt_dpto?.resolved_payment_status ||
                 props?.item?.debt_dpto?.payment?.status,
+              paymentId:
+                props?.item?.debt_dpto?.resolved_payment_id ||
+                props?.item?.debt_dpto?.payment_id,
             });
 
             const currentStatus = status

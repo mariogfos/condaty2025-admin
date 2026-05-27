@@ -421,6 +421,9 @@ export const getReservationStatusMeta = (reservation: ReservationListItem) => {
     paymentStatus:
       reservation.debt_dpto?.resolved_payment_status ||
       reservation.debt_dpto?.payment?.status,
+    paymentId:
+      reservation.debt_dpto?.resolved_payment_id ||
+      reservation.debt_dpto?.payment_id,
   });
 
   const config =

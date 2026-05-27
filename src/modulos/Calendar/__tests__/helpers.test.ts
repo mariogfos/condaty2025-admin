@@ -105,7 +105,28 @@ describe("buildCalendarEntries", () => {
 
     expect(getReservationStatusMeta(reservation)).toMatchObject({
       status: "Q",
-      label: "Pago por confirmar",
+      label: "Por confirmar",
+    });
+    expect(shouldShowReservationPaymentTimeLimit("Q")).toBe(false);
+  });
+
+  it("muestra por confirmar cuando solo viene el identificador del pago enviado", () => {
+    const reservation: ReservationListItem = {
+      id: 4,
+      status: "A",
+      date_at: "2026-05-18",
+      date_end: "2026-05-18",
+      start_time: "09:00",
+      end_time: "10:00",
+      debt_dpto: {
+        payment_id: 100,
+        status: "A",
+      },
+    };
+
+    expect(getReservationStatusMeta(reservation)).toMatchObject({
+      status: "Q",
+      label: "Por confirmar",
     });
     expect(shouldShowReservationPaymentTimeLimit("Q")).toBe(false);
   });

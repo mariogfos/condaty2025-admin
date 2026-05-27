@@ -26,7 +26,7 @@ export const RESERVATION_STATUS_CONFIG = {
     class: "statusA",
   },
   Q: {
-    label: "Pago por confirmar",
+    label: "Por confirmar",
     backgroundColor: "#E9B01E33",
     color: "#E9B01E",
     class: "statusQ",
@@ -86,7 +86,7 @@ export const RESERVATION_STATUS_OPTIONS = [
   { id: "ALL", name: "Todos" },
   { id: "W", name: "Esperando confirmación" },
   { id: "A", name: "Pago pendiente" },
-  { id: "Q", name: "Pago por confirmar" },
+  { id: "Q", name: "Por confirmar" },
   { id: "N", name: "Reservado (sin pago)" },
   { id: "L", name: "Reservado (pagado)" },
   { id: "R", name: "Reserva rechazada" },
