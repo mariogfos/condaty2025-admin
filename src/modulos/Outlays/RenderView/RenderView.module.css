@@ -103,10 +103,17 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: stretch;
   gap: 12px;
   width: 100%;
   padding-bottom: var(--spS);
 }
+
+.voucherButtonContainer > button {
+  flex: 1 1 220px;
+  width: auto;
+}
+
 .voucherButton {
   background-color: var(--cModalSurfaceRaised);
   color: var(--cWhite);

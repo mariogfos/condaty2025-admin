@@ -1,0 +1,83 @@
+.permissions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.category {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #d7fff014;
+  border-radius: 12px;
+  background-color: #d7fff005;
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--cWhite);
+}
+
+.categoryTitle {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.abilityList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.abilityRow {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid #d7fff014;
+  border-radius: 10px;
+  background-color: #d7fff005;
+}
+
+.abilityName {
+  min-width: 0;
+  color: var(--cWhite);
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.checks {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
+  color: var(--cWhiteV1);
+}
+
+.toggle {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 760px) {
+  .abilityRow {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .toggle {
+    justify-content: flex-start;
+  }
+}

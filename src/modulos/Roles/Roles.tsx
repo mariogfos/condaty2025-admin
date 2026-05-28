@@ -22,6 +22,12 @@ const mod: ModCrudType = {
   plural: "roles",
   permiso: "roles",
   extraData: true,
+  formModal: {
+    minWidth: 900,
+    maxWidth: 1040,
+    style: { width: "min(1040px, calc(100vw - 90px))" },
+    className: styles.roleModalSection,
+  },
   onHideActions: (item: any) => {
     return {
       hideEdit: item.is_fixed == "1",
@@ -64,7 +70,7 @@ const Roles = () => {
   }: TypeRenderForm) => {
     // console.log("renderPermisos", extraData);
     return (
-      <div style={{ width: "100%", gap:"16px" }}>
+      <div className={styles.permissionsField}>
         <Permisos
           data={item}
           options={extraData?.abilities || [{ id: 1, name: "CRUD" }]}
@@ -84,7 +90,7 @@ const Roles = () => {
         api: "ae",
         label: "Rol",
         list: { width: "250" },
-        form: { type: "text", label: "Nombre del rol" },
+        form: { type: "text", label: "Nombre del rol", order: 10 },
         hide: true,
       },
       code: {
@@ -92,7 +98,7 @@ const Roles = () => {
         api: "ae",
         label: "Código",
         list: { width: "250" },
-        form: { type: "text", label: "Código del rol" },
+        form: { type: "text", label: "Código del rol", order: 20 },
         hide: true,
       },
       description: {
@@ -100,7 +106,11 @@ const Roles = () => {
         api: "ae",
         label: "Descripción",
         list: true,
-        form: { type: "text" },
+        form: {
+          type: "text",
+          order: 30,
+          containerStyle: { gridColumn: "1 / -1" },
+        },
       },
 
       // area_id:{
@@ -124,7 +134,11 @@ const Roles = () => {
         api: "ae",
         label: "Habilidades",
         list: false,
-        form: { onRender: renderPermisos },
+        form: {
+          onRender: renderPermisos,
+          order: 40,
+          containerStyle: { gridColumn: "1 / -1" },
+        },
         onRenderView: renderPermisos,
       },
     };

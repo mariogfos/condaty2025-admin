@@ -256,10 +256,17 @@
 
 .voucherButtonContainer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  align-items: stretch;
+  gap: var(--spM);
   width: 100%;
   position: relative;
-  row-gap: 1rem;
+}
+
+.voucherButtonContainer > button {
+  flex: 1 1 220px;
+  width: auto;
 }
 
 .voucherButton {

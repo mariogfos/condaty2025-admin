@@ -1,10 +1,10 @@
 "use client";
 import Button from "@/mk/components/forms/Button/Button";
 import Switch from "@/mk/components/forms/Switch/Switch";
-import { Card } from "@/mk/components/ui/Card/Card";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useEffect, useState } from "react";
 import Check from "@/mk/components/forms/Check/Check";
+import styles from "./Permisos.module.css";
 
 const Permisos = ({
   field = "",
@@ -93,30 +93,13 @@ const Permisos = ({
   };
 
   return (
-    <div>
+    <div className={styles.permissions}>
       {/* <legend>Permisos</legend> */}
 
       {extraData?.ability_categories?.map((cat: any) => (
-        <Card
-          key={cat.id}
-          style={{
-            backgroundColor: "#d7fff005",
-            border: "1px solid #d7fff014",
-            borderRadius: "12px",
-            marginBottom: "16px",
-            gap: "12px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              color: "var(--cWhite)",
-              fontWeight: "500",
-              fontSize: "16px",
-            }}
-          >
-            <div>{cat.name}</div>
+        <section key={cat.id} className={styles.category}>
+          <header className={styles.categoryHeader}>
+            <div className={styles.categoryTitle}>{cat.name}</div>
             {setItem && (
               <div>
                 <Button
@@ -128,110 +111,83 @@ const Permisos = ({
                 </Button>
               </div>
             )}
-          </div>
-          {options
-            ?.filter((o: any) => o.ability_category_id == cat.id)
-            .map((item: any) => (
-              <Card
-                key={item.id}
-                style={{
-                  backgroundColor: "#d7fff005",
-                  border: "1px solid #d7fff014",
-                  borderRadius: "12px",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    justifyItems: "center",
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        color: "var(--cWhite)",
-                        marginBottom: "8px",
-                        fontWeight: "400",
-                      }}
-                    >
-                      {item.description}
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "10px",
-                        color: "var(cWhiteV2)",
-                      }}
-                    >
-                      <Check
-                        name={item.name + "_R"}
-                        checked={(permisos[item.name] + "").indexOf("R") > -1}
-                        value={
-                          (permisos[item.name] + "").indexOf("R") > -1
-                            ? "Y"
-                            : "N"
-                        }
-                        onChange={onSelItem}
-                        disabled={!setItem}
-                        label="Ver"
-                        reverse={true}
-                      />
-                      <Check
-                        name={item.name + "_C"}
-                        checked={(permisos[item.name] + "").indexOf("C") > -1}
-                        value={
-                          (permisos[item.name] + "").indexOf("C") > -1
-                            ? "Y"
-                            : "N"
-                        }
-                        onChange={onSelItem}
-                        disabled={!setItem}
-                        label="Crear"
-                        reverse={true}
-                      />
-                      <Check
-                        name={item.name + "_U"}
-                        checked={(permisos[item.name] + "").indexOf("U") > -1}
-                        value={
-                          (permisos[item.name] + "").indexOf("U") > -1
-                            ? "Y"
-                            : "N"
-                        }
-                        onChange={onSelItem}
-                        disabled={!setItem}
-                        label="Editar"
-                        reverse={true}
-                      />
-                      <Check
-                        name={item.name + "_D"}
-                        checked={(permisos[item.name] + "").indexOf("D") > -1}
-                        value={
-                          (permisos[item.name] + "").indexOf("D") > -1
-                            ? "Y"
-                            : "N"
-                        }
-                        onChange={onSelItem}
-                        disabled={!setItem}
-                        label="Eliminar"
-                        reverse={true}
-                      />
-                    </div>
+          </header>
+          <div className={styles.abilityList}>
+            {options
+              ?.filter((o: any) => o.ability_category_id == cat.id)
+              .map((item: any) => (
+                <div key={item.id} className={styles.abilityRow}>
+                  <div className={styles.abilityName}>{item.description}</div>
+                  <div className={styles.checks}>
+                    <Check
+                      name={item.name + "_R"}
+                      checked={(permisos[item.name] + "").indexOf("R") > -1}
+                      value={
+                        (permisos[item.name] + "").indexOf("R") > -1
+                          ? "Y"
+                          : "N"
+                      }
+                      onChange={onSelItem}
+                      disabled={!setItem}
+                      label="Ver"
+                      reverse={true}
+                    />
+                    <Check
+                      name={item.name + "_C"}
+                      checked={(permisos[item.name] + "").indexOf("C") > -1}
+                      value={
+                        (permisos[item.name] + "").indexOf("C") > -1
+                          ? "Y"
+                          : "N"
+                      }
+                      onChange={onSelItem}
+                      disabled={!setItem}
+                      label="Crear"
+                      reverse={true}
+                    />
+                    <Check
+                      name={item.name + "_U"}
+                      checked={(permisos[item.name] + "").indexOf("U") > -1}
+                      value={
+                        (permisos[item.name] + "").indexOf("U") > -1
+                          ? "Y"
+                          : "N"
+                      }
+                      onChange={onSelItem}
+                      disabled={!setItem}
+                      label="Editar"
+                      reverse={true}
+                    />
+                    <Check
+                      name={item.name + "_D"}
+                      checked={(permisos[item.name] + "").indexOf("D") > -1}
+                      value={
+                        (permisos[item.name] + "").indexOf("D") > -1
+                          ? "Y"
+                          : "N"
+                      }
+                      onChange={onSelItem}
+                      disabled={!setItem}
+                      label="Eliminar"
+                      reverse={true}
+                    />
                   </div>
 
                   {setItem && (
-                    <Switch
-                      name={item.name}
-                      onChange={onSelAll}
-                      optionValue={["Y", "N"]}
-                      value={isCRUD(item) ? "Y" : "N"}
-                      checked={isCRUD(item)}
-                    />
+                    <div className={styles.toggle}>
+                      <Switch
+                        name={item.name}
+                        onChange={onSelAll}
+                        optionValue={["Y", "N"]}
+                        value={isCRUD(item) ? "Y" : "N"}
+                        checked={isCRUD(item)}
+                      />
+                    </div>
                   )}
                 </div>
-              </Card>
-            ))}
-        </Card>
+              ))}
+          </div>
+        </section>
       ))}
       {/* {options?.map((item: any) => (
 

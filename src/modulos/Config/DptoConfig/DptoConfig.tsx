@@ -563,7 +563,6 @@ const DptoConfig = ({
                   variant="secondary"
                   className={styles.editButton}
                   onClick={handleDiscardChanges}
-                  disabled={!isDirty}
                 >
                   Descartar cambios
                 </Button>

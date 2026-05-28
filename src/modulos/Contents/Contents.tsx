@@ -568,7 +568,14 @@ const Contents = () => {
               size={18}
             />
           }
-          style={{ minWidth: "160px", maxWidth: "268px", marginBottom: "16px" }}
+          style={{
+            minWidth: "160px",
+            maxWidth: "268px",
+            marginBottom: "16px",
+            flexGrow: 0,
+            flexBasis: "auto",
+            alignSelf: "flex-start",
+          }}
         />
       )}
       <List

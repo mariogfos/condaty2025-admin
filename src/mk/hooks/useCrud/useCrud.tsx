@@ -85,6 +85,12 @@ export type ModCrudType = {
   titleEdit?: string;
   titleDel?: string;
   textSaveButtom?: string;
+  formModal?: {
+    minWidth?: string | number;
+    maxWidth?: string | number;
+    className?: string;
+    style?: React.CSSProperties;
+  };
   getListRows?: (response: any, params?: Record<string, any>) => any[];
   reportPreset?: string;
 };
@@ -1279,6 +1285,8 @@ const useCrud = ({
           openTag: field.openTag || null,
           closeTag: field.closeTag || null,
           style: { ...field.form.style },
+          containerClassName: field.form.containerClassName || "",
+          containerStyle: field.form.containerStyle || undefined,
           rules: field.form.rules || field.rules || null,
           // style: {
           //   ...field.form.style,
@@ -1421,7 +1429,10 @@ const useCrud = ({
             ? onConfirm(formStateForm, setErrorForm)
             : onSave(formStateForm, setErrorForm)
         }
-        maxWidth={560}
+        className={mod.formModal?.className || ""}
+        style={mod.formModal?.style}
+        minWidth={mod.formModal?.minWidth}
+        maxWidth={mod.formModal?.maxWidth ?? 560}
       >
         <div className={styles.formLayout}>
           {header.map((field: any, index: number) => (
@@ -1467,7 +1478,12 @@ const useCrud = ({
                 </div>
               )}
               {!field.items && (
-                <div className={styles.formField}>
+                <div
+                  className={[styles.formField, field.containerClassName]
+                    .filter(Boolean)
+                    .join(" ")}
+                  style={field.containerStyle}
+                >
                   <RenderField
                     field={field}
                     i={index}
@@ -2225,7 +2241,7 @@ const useCrud = ({
                     }
                     height={resolvedListHeight}
                     className="striped"
-                    actionsWidth={"120px"}
+                    actionsWidth={props.actionsWidth ?? "120px"}
                     sumarize={props.sumarize}
                     extraData={runtime.extraData}
                     onSort={hasSortableColumns ? runtime.onSort : undefined}

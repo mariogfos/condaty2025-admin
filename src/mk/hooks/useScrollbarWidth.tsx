@@ -12,12 +12,36 @@ const useScrollbarWidth = (ref: any) => {
   }, [ref]);
 
   useEffect(() => {
-    setTimeout(() => {
-      calculateScrollbarWidth();
-    }, 10);
+    const element = ref.current;
+    if (!element) return;
 
-    window.addEventListener("resize", calculateScrollbarWidth);
-    return () => window.removeEventListener("resize", calculateScrollbarWidth);
+    let frame = 0;
+    const scheduleCalculation = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(calculateScrollbarWidth);
+    };
+
+    scheduleCalculation();
+
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(scheduleCalculation)
+        : null;
+    resizeObserver?.observe(element);
+
+    const mutationObserver =
+      typeof MutationObserver !== "undefined"
+        ? new MutationObserver(scheduleCalculation)
+        : null;
+    mutationObserver?.observe(element, { childList: true, subtree: true });
+
+    window.addEventListener("resize", scheduleCalculation);
+    return () => {
+      cancelAnimationFrame(frame);
+      resizeObserver?.disconnect();
+      mutationObserver?.disconnect();
+      window.removeEventListener("resize", scheduleCalculation);
+    };
   }, [calculateScrollbarWidth, ref]);
 
   return scrollbarWidth;

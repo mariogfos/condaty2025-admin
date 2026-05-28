@@ -56,7 +56,7 @@ const UnitsType = () => {
         api: "ae",
         label: "Nombre",
         list: {
-          width: 200,
+          width: "240px",
         },
         form: { type: "text" },
       },
@@ -64,7 +64,9 @@ const UnitsType = () => {
         rules: [""],
         api: "ae",
         label: "Campos extras",
-        list: true,
+        list: {
+          width: "100%",
+        },
         onRender: renderExtraFields,
       },
     };

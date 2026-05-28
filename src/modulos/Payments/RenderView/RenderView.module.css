@@ -165,10 +165,16 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: stretch;
   width: 100%;
   position: relative;
   /* row-gap: 1rem; */
   gap: var(--spM);
+}
+
+.voucherButtonContainer > button {
+  flex: 1 1 220px;
+  width: auto;
 }
 
 .voucherButton {
