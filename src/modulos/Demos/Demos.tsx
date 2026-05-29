@@ -181,6 +181,103 @@ const DemosModule = () => {
       }
     }
 
+    if (step === 3) {
+      if (formData.numUsers < 1 || formData.numUsers > 20) {
+        errors.numUsers = "La cantidad de administradores debe estar entre 1 y 20.";
+      }
+      if (formData.numHomeowners < 0 || formData.numHomeowners > 5000) {
+        errors.numHomeowners = "La cantidad de propietarios debe estar entre 0 y 5000.";
+      }
+      if (formData.numOwners < 0 || formData.numOwners > 5000) {
+        errors.numOwners = "La cantidad de residentes debe estar entre 0 y 5000.";
+      }
+      if (formData.numDependents < 0 || formData.numDependents > 5000) {
+        errors.numDependents = "La cantidad de dependientes debe estar entre 0 y 5000.";
+      }
+      if (formData.numGuards < 0 || formData.numGuards > 100) {
+        errors.numGuards = "La cantidad de guardias debe estar entre 0 y 100.";
+      }
+    }
+
+    if (step === 4) {
+      if (formData.numDptos < 1 || formData.numDptos > 5000) {
+        errors.numDptos = "La cantidad de unidades debe estar entre 1 y 5000.";
+      }
+    }
+
+    if (step === 5) {
+      if (formData.debtPeriods.trim()) {
+        const periods = formData.debtPeriods.split(",");
+        for (const p of periods) {
+          const trimmed = p.trim();
+          if (!trimmed) continue;
+          
+          const regex = /^(\d{4})-(\d{2}):(\d+)$/;
+          const match = trimmed.match(regex);
+          if (!match) {
+            errors.debtPeriods = "Formato inválido. Debe ser AAAA-MM:pagados (ej: 2026-04:300) separados por comas.";
+            break;
+          }
+          
+          const month = parseInt(match[2]);
+          if (month < 1 || month > 12) {
+            errors.debtPeriods = "El mes del periodo debe estar entre 01 y 12.";
+            break;
+          }
+          
+          const paidCount = parseInt(match[3]);
+          if (paidCount > formData.numDptos) {
+            errors.debtPeriods = `La cantidad de pagos (${paidCount}) no puede superar a la cantidad de unidades (${formData.numDptos}).`;
+            break;
+          }
+        }
+      }
+
+      if (formData.expensePeriods.trim()) {
+        const periods = formData.expensePeriods.split(",");
+        for (const p of periods) {
+          const trimmed = p.trim();
+          if (!trimmed) continue;
+          
+          const regex = /^(\d{4})-(\d{2}):(\d+)$/;
+          const match = trimmed.match(regex);
+          if (!match) {
+            errors.expensePeriods = "Formato inválido. Debe ser AAAA-MM:egresos (ej: 2026-04:5) separados por comas.";
+            break;
+          }
+          
+          const month = parseInt(match[2]);
+          if (month < 1 || month > 12) {
+            errors.expensePeriods = "El mes del periodo debe estar entre 01 y 12.";
+            break;
+          }
+        }
+      }
+    }
+
+    if (step === 6) {
+      if (formData.accessPeriods.trim()) {
+        const periods = formData.accessPeriods.split(",");
+        for (const p of periods) {
+          const trimmed = p.trim();
+          if (!trimmed) continue;
+          
+          const regex = /^(\d{4})-(\d{2}):(\d+)$/;
+          const match = trimmed.match(regex);
+          if (!match) {
+            errors.accessPeriods = "Formato inválido. Debe ser AAAA-MM:cantidad (ej: 2026-05:10) separados por comas.";
+            break;
+          }
+          
+          const month = parseInt(match[2]);
+          if (month < 1 || month > 12) {
+            errors.accessPeriods = "El mes del periodo debe estar entre 01 y 12.";
+            break;
+          }
+        }
+      }
+    }
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -221,6 +318,9 @@ const DemosModule = () => {
 
   // Enviar formulario y arrancar polling de progreso
   const handleGenerate = async () => {
+    if (!validateStep(6)) {
+      return;
+    }
     setGenerating(true);
     setValidationErrors({});
 
@@ -514,7 +614,7 @@ const DemosModule = () => {
                         label="Cantidad de Administradores (ADM)"
                         type="number"
                         min={1}
-                        max={10}
+                        max={20}
                         value={formData.numUsers.toString()}
                         onChange={(e: any) =>
                           handleChange(
@@ -522,6 +622,7 @@ const DemosModule = () => {
                             parseInt(e.target.value) || 1,
                           )
                         }
+                        error={validationErrors.numUsers}
                       />
                     </div>
 
@@ -539,6 +640,7 @@ const DemosModule = () => {
                             parseInt(e.target.value) || 0,
                           )
                         }
+                        error={validationErrors.numHomeowners}
                       />
                     </div>
 
@@ -556,6 +658,7 @@ const DemosModule = () => {
                             parseInt(e.target.value) || 0,
                           )
                         }
+                        error={validationErrors.numOwners}
                       />
                     </div>
 
@@ -573,6 +676,7 @@ const DemosModule = () => {
                             parseInt(e.target.value) || 0,
                           )
                         }
+                        error={validationErrors.numDependents}
                       />
                     </div>
 
@@ -582,7 +686,7 @@ const DemosModule = () => {
                         label="Personal de Seguridad (Guardias)"
                         type="number"
                         min={0}
-                        max={10}
+                        max={100}
                         value={formData.numGuards.toString()}
                         onChange={(e: any) =>
                           handleChange(
@@ -590,6 +694,7 @@ const DemosModule = () => {
                             parseInt(e.target.value) || 0,
                           )
                         }
+                        error={validationErrors.numGuards}
                       />
                     </div>
 
@@ -631,6 +736,7 @@ const DemosModule = () => {
                       onChange={(e: any) =>
                         handleChange("numDptos", parseInt(e.target.value) || 1)
                       }
+                      error={validationErrors.numDptos}
                     />
                   </div>
 
@@ -668,6 +774,7 @@ const DemosModule = () => {
                       onChange={(e: any) =>
                         handleChange("debtPeriods", e.target.value)
                       }
+                      error={validationErrors.debtPeriods}
                     />
                     <small className={styles.helpText}>
                       Se generará automáticamente exactamente 1 expensa ordinaria mensual por cada unidad para los meses indicados. El número después de los dos puntos es la cantidad de esas deudas que se simularán como PAGADAS en ese mes (ej. si tenés 500 unidades, 2026-04:300 creará 500 expensas y 300 de ellas se marcarán como pagadas).
@@ -683,6 +790,7 @@ const DemosModule = () => {
                       onChange={(e: any) =>
                         handleChange("expensePeriods", e.target.value)
                       }
+                      error={validationErrors.expensePeriods}
                     />
                     <small className={styles.helpText}>
                       Indica cuántos gastos o egresos individuales se registrarán para el condominio en cada mes especificado (ej. 2026-04:5 creará 5 transacciones de gasto en Abril).
@@ -709,6 +817,7 @@ const DemosModule = () => {
                       onChange={(e: any) =>
                         handleChange("accessPeriods", e.target.value)
                       }
+                      error={validationErrors.accessPeriods}
                     />
                     <small className={styles.helpText}>
                       Simulará registros de ingresos/salidas en portería con
