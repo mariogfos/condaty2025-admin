@@ -94,9 +94,23 @@ const DemosModule = () => {
     null,
   );
 
+  // Estado del polling de progreso
+  const [progressVisible, setProgressVisible] = useState(false);
+  const [progressPercent, setProgressPercent] = useState(0);
+  const [progressStep, setProgressStep] = useState("Iniciando...");
+  const [pollingDemoId, setPollingDemoId] = useState<string | null>(null);
+  const pollingRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+
   const [deleteTarget, setDeleteTarget] = useState<DemoItem | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleting, setDeleting] = useState(false);
+
+  // Limpiar polling al desmontar
+  React.useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, []);
 
   /**
    * Extrae el mensaje de error de las posibles estructuras que devuelve el API:
@@ -134,6 +148,7 @@ const DemosModule = () => {
     loaded,
   } = useAxios("/demos", "GET", {});
   const { execute: generateDemoApi } = useAxios();
+  const { execute: pollProgressApi } = useAxios();
   const { execute: deleteDemoApi } = useAxios();
 
   const demosList: DemoItem[] = demosResponse?.data ?? [];
@@ -191,27 +206,66 @@ const DemosModule = () => {
     }
   };
 
-  // Enviar formulario de generación de demostración
+  // Enviar formulario y arrancar polling de progreso
   const handleGenerate = async () => {
     setGenerating(true);
     setValidationErrors({});
 
     try {
       const { data, error } = await generateDemoApi("/demos", "POST", formData);
-      if (data && data.success) {
-        setLastGeneratedDemo(data.data);
-        setGenerationSuccess(true);
-        reLoadDemos();
-        showToast("Condominio de demo generado con éxito.", "success");
+
+      if (data && data.success && data.data?.id) {
+        const demoId = data.data.id;
+        setPollingDemoId(demoId);
+        setProgressPercent(0);
+        setProgressStep("En cola, esperando worker...");
+        setProgressVisible(true);
+        setGenerating(false);
+
+        // Arrancar polling cada 2 segundos
+        pollingRef.current = setInterval(async () => {
+          try {
+            const { data: pollData } = await pollProgressApi(
+              `/demos/${demoId}/progress`,
+              "GET",
+            );
+
+            if (!pollData) return;
+
+            setProgressPercent(pollData.progress ?? 0);
+            setProgressStep(pollData.step ?? "Procesando...");
+
+            if (pollData.status === "done") {
+              clearInterval(pollingRef.current!);
+              pollingRef.current = null;
+              setProgressVisible(false);
+              setLastGeneratedDemo(pollData.data);
+              setGenerationSuccess(true);
+              reLoadDemos();
+              showToast("¡Demo generado correctamente!", "success");
+            } else if (pollData.status === "failed") {
+              clearInterval(pollingRef.current!);
+              pollingRef.current = null;
+              setProgressVisible(false);
+              showToast(
+                pollData.error ?? "El job de generación falló.",
+                "error",
+              );
+            }
+          } catch {
+            // Ignorar errores de red transitorios durante polling
+          }
+        }, 2000);
+
       } else {
         showToast(extractApiError(error, data), "error");
+        setGenerating(false);
       }
     } catch (e: any) {
       showToast(
         e?.response?.data?.message || e?.message || "Error inesperado.",
         "error",
       );
-    } finally {
       setGenerating(false);
     }
   };
@@ -744,11 +798,11 @@ const DemosModule = () => {
               ) : (
                 <Button
                   onClick={handleGenerate}
-                  disabled={generating}
+                  disabled={generating || progressVisible}
                   className={styles.generateBtn}
                 >
                   {generating ? (
-                    <>Generando datos...</>
+                    <>Enviando...</>
                   ) : (
                     <>
                       <Play size={18} className={styles.iconMargin} />
@@ -843,6 +897,75 @@ const DemosModule = () => {
               </div>
             )}
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL DE PROGRESO DE GENERACIÓN ASÍNCRONA */}
+      <AnimatePresence>
+        {progressVisible && (
+          <div className={styles.modalOverlay}>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className={styles.modalContent}
+              style={{ maxWidth: "480px", textAlign: "center" }}
+            >
+              <div className={styles.modalHeader} style={{ justifyContent: "center" }}>
+                <Sparkles size={40} style={{ color: "var(--cPrimary)" }} />
+                <h2 style={{ marginTop: "12px" }}>Generando Demo</h2>
+              </div>
+              <div className={styles.modalBody}>
+                <p style={{ marginBottom: "20px", color: "var(--cWhiteV1)" }}>
+                  {progressStep}
+                </p>
+
+                {/* Barra de progreso */}
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.1)",
+                    borderRadius: "999px",
+                    height: "12px",
+                    overflow: "hidden",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <motion.div
+                    animate={{ width: `${progressPercent}%` }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    style={{
+                      height: "100%",
+                      background:
+                        "linear-gradient(90deg, var(--cPrimary), var(--cEmerald))",
+                      borderRadius: "999px",
+                    }}
+                  />
+                </div>
+
+                <p
+                  style={{
+                    fontSize: "0.85rem",
+                    color: "var(--cWhiteV2)",
+                    marginBottom: "0",
+                  }}
+                >
+                  {progressPercent}% completado
+                </p>
+
+                <p
+                  style={{
+                    fontSize: "0.78rem",
+                    color: "var(--cWhiteV3)",
+                    marginTop: "16px",
+                  }}
+                >
+                  El proceso corre en segundo plano. Podés navegar por la app
+                  mientras tanto — este modal se cerrará automáticamente al
+                  finalizar.
+                </p>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
