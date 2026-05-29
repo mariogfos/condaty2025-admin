@@ -196,7 +196,20 @@ const DemosModule = () => {
   };
 
   const handleChange = (name: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "debtPeriods") {
+      const parts = value.split(',');
+      let sumPayments = 0;
+      parts.forEach((p: string) => {
+        const colonPart = p.split(':');
+        if (colonPart[1]) {
+          sumPayments += parseInt(colonPart[1]) || 0;
+        }
+      });
+      setFormData((prev) => ({ ...prev, debtPeriods: value, numPayments: sumPayments }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
     if (validationErrors[name]) {
       setValidationErrors((prev) => {
         const copy = { ...prev };
@@ -518,7 +531,7 @@ const DemosModule = () => {
                         label="Cantidad de Propietarios (Owners)"
                         type="number"
                         min={0}
-                        max={50}
+                        max={5000}
                         value={formData.numHomeowners.toString()}
                         onChange={(e: any) =>
                           handleChange(
@@ -535,7 +548,7 @@ const DemosModule = () => {
                         label="Residentes Titulares (Resid.)"
                         type="number"
                         min={0}
-                        max={50}
+                        max={5000}
                         value={formData.numOwners.toString()}
                         onChange={(e: any) =>
                           handleChange(
@@ -552,7 +565,7 @@ const DemosModule = () => {
                         label="Dependientes Residentes"
                         type="number"
                         min={0}
-                        max={50}
+                        max={5000}
                         value={formData.numDependents.toString()}
                         onChange={(e: any) =>
                           handleChange(
@@ -613,7 +626,7 @@ const DemosModule = () => {
                       label="Cantidad de Unidades (Casas/Dptos)"
                       type="number"
                       min={1}
-                      max={100}
+                      max={5000}
                       value={formData.numDptos.toString()}
                       onChange={(e: any) =>
                         handleChange("numDptos", parseInt(e.target.value) || 1)
@@ -649,49 +662,31 @@ const DemosModule = () => {
                   <div className={styles.formGroup}>
                     <Input
                       name="debtPeriods"
-                      label="Periodos de Deudas (Format YYYY-MM:cantidad)"
-                      placeholder="Ej. 2026-04:1,2026-05:1"
+                      label="Periodos de Expensas (Formato: AAAA-MM:cantidad_pagos)"
+                      placeholder="Ej. 2026-04:300,2026-05:400"
                       value={formData.debtPeriods}
                       onChange={(e: any) =>
                         handleChange("debtPeriods", e.target.value)
                       }
                     />
                     <small className={styles.helpText}>
-                      Generará campañas de cobro mensuales para estos meses con
-                      la cantidad especificada.
-                    </small>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <Input
-                      name="numPayments"
-                      label="Cantidad de Pagos confirmados a simular"
-                      type="number"
-                      min={0}
-                      value={formData.numPayments.toString()}
-                      onChange={(e: any) =>
-                        handleChange(
-                          "numPayments",
-                          parseInt(e.target.value) || 0,
-                        )
-                      }
-                    />
-                    <small className={styles.helpText}>
-                      Pagarán y confirmarán de forma aleatoria las deudas
-                      creadas.
+                      Se generará automáticamente exactamente 1 expensa ordinaria mensual por cada unidad para los meses indicados. El número después de los dos puntos es la cantidad de esas deudas que se simularán como PAGADAS en ese mes (ej. si tenés 500 unidades, 2026-04:300 creará 500 expensas y 300 de ellas se marcarán como pagadas).
                     </small>
                   </div>
 
                   <div className={styles.formGroup}>
                     <Input
                       name="expensePeriods"
-                      label="Periodos de Egresos (Gastos)"
-                      placeholder="Ej. 2026-04:2,2026-05:2"
+                      label="Periodos de Egresos / Gastos (Formato: AAAA-MM:cantidad_gastos)"
+                      placeholder="Ej. 2026-04:5,2026-05:10"
                       value={formData.expensePeriods}
                       onChange={(e: any) =>
                         handleChange("expensePeriods", e.target.value)
                       }
                     />
+                    <small className={styles.helpText}>
+                      Indica cuántos gastos o egresos individuales se registrarán para el condominio en cada mes especificado (ej. 2026-04:5 creará 5 transacciones de gasto en Abril).
+                    </small>
                   </div>
                 </div>
               )}
