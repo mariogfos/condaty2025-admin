@@ -94,9 +94,23 @@ const DemosModule = () => {
     null,
   );
 
+  // Estado del polling de progreso
+  const [progressVisible, setProgressVisible] = useState(false);
+  const [progressPercent, setProgressPercent] = useState(0);
+  const [progressStep, setProgressStep] = useState("Iniciando...");
+  const [pollingDemoId, setPollingDemoId] = useState<string | null>(null);
+  const pollingRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+
   const [deleteTarget, setDeleteTarget] = useState<DemoItem | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleting, setDeleting] = useState(false);
+
+  // Limpiar polling al desmontar
+  React.useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, []);
 
   /**
    * Extrae el mensaje de error de las posibles estructuras que devuelve el API:
@@ -134,6 +148,7 @@ const DemosModule = () => {
     loaded,
   } = useAxios("/demos", "GET", {});
   const { execute: generateDemoApi } = useAxios();
+  const { execute: pollProgressApi } = useAxios();
   const { execute: deleteDemoApi } = useAxios();
 
   const demosList: DemoItem[] = demosResponse?.data ?? [];
@@ -181,7 +196,20 @@ const DemosModule = () => {
   };
 
   const handleChange = (name: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "debtPeriods") {
+      const parts = value.split(',');
+      let sumPayments = 0;
+      parts.forEach((p: string) => {
+        const colonPart = p.split(':');
+        if (colonPart[1]) {
+          sumPayments += parseInt(colonPart[1]) || 0;
+        }
+      });
+      setFormData((prev) => ({ ...prev, debtPeriods: value, numPayments: sumPayments }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
     if (validationErrors[name]) {
       setValidationErrors((prev) => {
         const copy = { ...prev };
@@ -191,27 +219,66 @@ const DemosModule = () => {
     }
   };
 
-  // Enviar formulario de generación de demostración
+  // Enviar formulario y arrancar polling de progreso
   const handleGenerate = async () => {
     setGenerating(true);
     setValidationErrors({});
 
     try {
       const { data, error } = await generateDemoApi("/demos", "POST", formData);
-      if (data && data.success) {
-        setLastGeneratedDemo(data.data);
-        setGenerationSuccess(true);
-        reLoadDemos();
-        showToast("Condominio de demo generado con éxito.", "success");
+
+      if (data && data.success && data.data?.id) {
+        const demoId = data.data.id;
+        setPollingDemoId(demoId);
+        setProgressPercent(0);
+        setProgressStep("En cola, esperando worker...");
+        setProgressVisible(true);
+        setGenerating(false);
+
+        // Arrancar polling cada 2 segundos
+        pollingRef.current = setInterval(async () => {
+          try {
+            const { data: pollData } = await pollProgressApi(
+              `/demos/${demoId}/progress`,
+              "GET",
+            );
+
+            if (!pollData) return;
+
+            setProgressPercent(pollData.progress ?? 0);
+            setProgressStep(pollData.step ?? "Procesando...");
+
+            if (pollData.status === "done") {
+              clearInterval(pollingRef.current!);
+              pollingRef.current = null;
+              setProgressVisible(false);
+              setLastGeneratedDemo(pollData.data);
+              setGenerationSuccess(true);
+              reLoadDemos();
+              showToast("¡Demo generado correctamente!", "success");
+            } else if (pollData.status === "failed") {
+              clearInterval(pollingRef.current!);
+              pollingRef.current = null;
+              setProgressVisible(false);
+              showToast(
+                pollData.error ?? "El job de generación falló.",
+                "error",
+              );
+            }
+          } catch {
+            // Ignorar errores de red transitorios durante polling
+          }
+        }, 2000);
+
       } else {
         showToast(extractApiError(error, data), "error");
+        setGenerating(false);
       }
     } catch (e: any) {
       showToast(
         e?.response?.data?.message || e?.message || "Error inesperado.",
         "error",
       );
-    } finally {
       setGenerating(false);
     }
   };
@@ -464,7 +531,7 @@ const DemosModule = () => {
                         label="Cantidad de Propietarios (Owners)"
                         type="number"
                         min={0}
-                        max={50}
+                        max={5000}
                         value={formData.numHomeowners.toString()}
                         onChange={(e: any) =>
                           handleChange(
@@ -481,7 +548,7 @@ const DemosModule = () => {
                         label="Residentes Titulares (Resid.)"
                         type="number"
                         min={0}
-                        max={50}
+                        max={5000}
                         value={formData.numOwners.toString()}
                         onChange={(e: any) =>
                           handleChange(
@@ -498,7 +565,7 @@ const DemosModule = () => {
                         label="Dependientes Residentes"
                         type="number"
                         min={0}
-                        max={50}
+                        max={5000}
                         value={formData.numDependents.toString()}
                         onChange={(e: any) =>
                           handleChange(
@@ -559,7 +626,7 @@ const DemosModule = () => {
                       label="Cantidad de Unidades (Casas/Dptos)"
                       type="number"
                       min={1}
-                      max={100}
+                      max={5000}
                       value={formData.numDptos.toString()}
                       onChange={(e: any) =>
                         handleChange("numDptos", parseInt(e.target.value) || 1)
@@ -595,49 +662,31 @@ const DemosModule = () => {
                   <div className={styles.formGroup}>
                     <Input
                       name="debtPeriods"
-                      label="Periodos de Deudas (Format YYYY-MM:cantidad)"
-                      placeholder="Ej. 2026-04:1,2026-05:1"
+                      label="Periodos de Expensas (Formato: AAAA-MM:cantidad_pagos)"
+                      placeholder="Ej. 2026-04:300,2026-05:400"
                       value={formData.debtPeriods}
                       onChange={(e: any) =>
                         handleChange("debtPeriods", e.target.value)
                       }
                     />
                     <small className={styles.helpText}>
-                      Generará campañas de cobro mensuales para estos meses con
-                      la cantidad especificada.
-                    </small>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <Input
-                      name="numPayments"
-                      label="Cantidad de Pagos confirmados a simular"
-                      type="number"
-                      min={0}
-                      value={formData.numPayments.toString()}
-                      onChange={(e: any) =>
-                        handleChange(
-                          "numPayments",
-                          parseInt(e.target.value) || 0,
-                        )
-                      }
-                    />
-                    <small className={styles.helpText}>
-                      Pagarán y confirmarán de forma aleatoria las deudas
-                      creadas.
+                      Se generará automáticamente exactamente 1 expensa ordinaria mensual por cada unidad para los meses indicados. El número después de los dos puntos es la cantidad de esas deudas que se simularán como PAGADAS en ese mes (ej. si tenés 500 unidades, 2026-04:300 creará 500 expensas y 300 de ellas se marcarán como pagadas).
                     </small>
                   </div>
 
                   <div className={styles.formGroup}>
                     <Input
                       name="expensePeriods"
-                      label="Periodos de Egresos (Gastos)"
-                      placeholder="Ej. 2026-04:2,2026-05:2"
+                      label="Periodos de Egresos / Gastos (Formato: AAAA-MM:cantidad_gastos)"
+                      placeholder="Ej. 2026-04:5,2026-05:10"
                       value={formData.expensePeriods}
                       onChange={(e: any) =>
                         handleChange("expensePeriods", e.target.value)
                       }
                     />
+                    <small className={styles.helpText}>
+                      Indica cuántos gastos o egresos individuales se registrarán para el condominio en cada mes especificado (ej. 2026-04:5 creará 5 transacciones de gasto en Abril).
+                    </small>
                   </div>
                 </div>
               )}
@@ -744,11 +793,11 @@ const DemosModule = () => {
               ) : (
                 <Button
                   onClick={handleGenerate}
-                  disabled={generating}
+                  disabled={generating || progressVisible}
                   className={styles.generateBtn}
                 >
                   {generating ? (
-                    <>Generando datos...</>
+                    <>Enviando...</>
                   ) : (
                     <>
                       <Play size={18} className={styles.iconMargin} />
@@ -843,6 +892,75 @@ const DemosModule = () => {
               </div>
             )}
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL DE PROGRESO DE GENERACIÓN ASÍNCRONA */}
+      <AnimatePresence>
+        {progressVisible && (
+          <div className={styles.modalOverlay}>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className={styles.modalContent}
+              style={{ maxWidth: "480px", textAlign: "center" }}
+            >
+              <div className={styles.modalHeader} style={{ justifyContent: "center" }}>
+                <Sparkles size={40} style={{ color: "var(--cPrimary)" }} />
+                <h2 style={{ marginTop: "12px" }}>Generando Demo</h2>
+              </div>
+              <div className={styles.modalBody}>
+                <p style={{ marginBottom: "20px", color: "var(--cWhiteV1)" }}>
+                  {progressStep}
+                </p>
+
+                {/* Barra de progreso */}
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.1)",
+                    borderRadius: "999px",
+                    height: "12px",
+                    overflow: "hidden",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <motion.div
+                    animate={{ width: `${progressPercent}%` }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    style={{
+                      height: "100%",
+                      background:
+                        "linear-gradient(90deg, var(--cPrimary), var(--cEmerald))",
+                      borderRadius: "999px",
+                    }}
+                  />
+                </div>
+
+                <p
+                  style={{
+                    fontSize: "0.85rem",
+                    color: "var(--cWhiteV2)",
+                    marginBottom: "0",
+                  }}
+                >
+                  {progressPercent}% completado
+                </p>
+
+                <p
+                  style={{
+                    fontSize: "0.78rem",
+                    color: "var(--cWhiteV3)",
+                    marginTop: "16px",
+                  }}
+                >
+                  El proceso corre en segundo plano. Podés navegar por la app
+                  mientras tanto — este modal se cerrará automáticamente al
+                  finalizar.
+                </p>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
