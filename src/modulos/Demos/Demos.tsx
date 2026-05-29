@@ -760,7 +760,7 @@ const DemosModule = () => {
                 <div className={styles.credentialsBox}>
                   <h4>Credenciales del Administrador Principal</h4>
                   <p>
-                    <strong>Usuario (Email):</strong> <code>{lastGeneratedDemo.config?.email_mode === 'alias' ? 'admin+' + lastGeneratedDemo.ci_prefix + '1@...' : 'admin-' + lastGeneratedDemo.ci_prefix + '-*@fake.condaty.test'}</code>
+                    <strong>Usuario (C.I.):</strong> <code>{lastGeneratedDemo.ci_prefix}00001</code>
                     <br />
                     <strong>Contraseña:</strong> <code>12345678</code>
                   </p>
