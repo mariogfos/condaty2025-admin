@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import useAxios from "@/mk/hooks/useAxios";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 import Button from "@/mk/components/forms/Button/Button";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
@@ -82,6 +83,8 @@ const DemosModule = () => {
     emailBase: "",
   });
 
+  const { showToast } = useAuth();
+
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [generating, setGenerating] = useState(false);
   const [generationSuccess, setGenerationSuccess] = useState(false);
@@ -90,6 +93,37 @@ const DemosModule = () => {
   const [deleteTarget, setDeleteTarget] = useState<DemoItem | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleting, setDeleting] = useState(false);
+
+  /**
+   * Extrae el mensaje de error de las posibles estructuras que devuelve el API:
+   * - 422 Validación: { message, errors: { field: [msgs] } }
+   * - 500 Excepción: { success: false, message, error: "detalle técnico" }
+   * - Error de red / desconocido: error.message
+   */
+  const extractApiError = (error: any, data: any): string => {
+    // Error de red o timeout
+    if (!error && !data) return "Error de conexión con el servidor.";
+
+    // Intentar leer el cuerpo de la respuesta del API
+    const body = error?.data ?? data;
+
+    if (body) {
+      // 422: errors por campo
+      if (body.errors && typeof body.errors === "object") {
+        const fieldErrors = Object.values(body.errors).flat() as string[];
+        return fieldErrors[0] ?? body.message ?? "Error de validación.";
+      }
+      // 500: message + detalle técnico en error
+      if (body.message) {
+        return body.error
+          ? `${body.message}\n${body.error}`
+          : body.message;
+      }
+    }
+
+    // Fallback: mensaje del objeto error de useAxios
+    return error?.message ?? "Ocurrió un error inesperado.";
+  };
 
   // Hook useAxios para peticiones del API
   const { data: demosResponse, reLoad: reLoadDemos, loaded } = useAxios("/demos", "GET", {});
@@ -162,13 +196,12 @@ const DemosModule = () => {
         setLastGeneratedDemo(data.data);
         setGenerationSuccess(true);
         reLoadDemos();
-      } else if (error) {
-        alert(error?.data?.message || error?.message || "Ocurrió un error inesperado al generar el demo.");
+        showToast("Condominio de demo generado con éxito.", "success");
       } else {
-        alert(data?.message || "Ocurrió un error inesperado al generar el demo.");
+        showToast(extractApiError(error, data), "error");
       }
     } catch (e: any) {
-      alert("Error: " + (e?.response?.data?.message || e.message));
+      showToast(e?.response?.data?.message || e?.message || "Error inesperado.", "error");
     } finally {
       setGenerating(false);
     }
@@ -178,7 +211,7 @@ const DemosModule = () => {
   const handleDeleteDemo = async () => {
     if (!deleteTarget) return;
     if (deleteConfirmText.toLowerCase() !== "eliminar") {
-      alert("Por favor escriba ELIMINAR para confirmar la acción.");
+      showToast("Escribí ELIMINAR para confirmar la acción.", "warning");
       return;
     }
 
@@ -189,13 +222,12 @@ const DemosModule = () => {
         setDeleteTarget(null);
         setDeleteConfirmText("");
         reLoadDemos();
-      } else if (error) {
-        alert(error?.data?.message || error?.message || "Ocurrió un error al eliminar el demo.");
+        showToast("Demo eliminado correctamente.", "success");
       } else {
-        alert("Ocurrió un error al eliminar el demo.");
+        showToast(extractApiError(error, data), "error");
       }
     } catch (e: any) {
-      alert("Error: " + (e?.response?.data?.message || e.message));
+      showToast(e?.response?.data?.message || e?.message || "Error inesperado.", "error");
     } finally {
       setDeleting(false);
     }
