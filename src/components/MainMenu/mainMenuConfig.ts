@@ -50,6 +50,7 @@ export const menuConfig: MenuConfigItem[] = [
     key: "Backoffice",
     items: [
       { href: "/superadmins", perm: "superadmins", labelKey: "superadmins" },
+      { href: "/demos", perm: "superadmins", labelKey: "demos" },
       { href: "/condominios", perm: "condominios", labelKey: "condominiums" },
       { href: "/invitations", perm: "campanas", labelKey: "qrInvitations" },
       { href: "/uploads", perm: "cargamasiva", labelKey: "bulkUpload" },

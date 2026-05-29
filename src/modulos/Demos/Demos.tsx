@@ -762,7 +762,7 @@ const DemosModule = () => {
                   <p>
                     <strong>Usuario (Email):</strong> <code>{lastGeneratedDemo.config?.email_mode === 'alias' ? 'admin+' + lastGeneratedDemo.ci_prefix + '1@...' : 'admin-' + lastGeneratedDemo.ci_prefix + '-*@fake.condaty.test'}</code>
                     <br />
-                    <strong>Contraseña:</strong> <code>password</code>
+                    <strong>Contraseña:</strong> <code>12345678</code>
                   </p>
                   <small style={{ display: "block", color: "var(--cWhiteV1)", marginTop: "8px" }}>
                     *Puedes ver las credenciales exactas de todos los usuarios en la lista de residentes y administradores dentro del condominio de pruebas.
