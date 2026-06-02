@@ -1,7 +1,6 @@
 // esto? revisar todo las funciones que estan como props para sacar a fuera
 import React, { useEffect, useMemo, useState } from "react";
 import styles from "../Activities.module.css";
-import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
@@ -12,7 +11,10 @@ import RenderView from "./RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import { getAccessStatusInfo } from "./shared/accessDetailUtils";
+import {
+  formatAccessDateTimeShort,
+  getAccessStatusInfo,
+} from "./shared/accessDetailUtils";
 
 interface AccessesTabProps {
   paramsInitial: any;
@@ -248,7 +250,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
             return (
               <div>
                 {props?.item?.in_at
-                  ? getDateTimeStrMesShort(props.item.in_at)
+                  ? formatAccessDateTimeShort(props.item.in_at)
                   : "-/-"}
               </div>
             );
@@ -270,7 +272,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
             return (
               <div>
                 {props.item.out_at
-                  ? getDateTimeStrMesShort(props.item.out_at)
+                  ? formatAccessDateTimeShort(props.item.out_at)
                   : "-/-"}
               </div>
             );

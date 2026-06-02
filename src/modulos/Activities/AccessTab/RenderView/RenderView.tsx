@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import DetailModal from "@/mk/components/ui/DetailModal/DetailModal";
 import styles from "./RenderView.module.css";
-import { formatToDayFdMYH } from "@/mk/utils/date";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { Image } from "@/mk/components/ui/Image/Image";
 import useAxios from "@/mk/hooks/useAxios";
@@ -23,6 +22,7 @@ import ModalAccessExpand from "../ModalAccessExpand/ModalAccessExpand";
 import {
   collectUniqueImages,
   flattenAccessDevices,
+  formatAccessDetailDate,
   getAccessStatusInfo,
   getAccessTypeLabel,
   getEntityAvatar,
@@ -51,11 +51,7 @@ const toneClassMap: Record<Tone, string> = {
   accent: styles.toneAccent,
 };
 
-const formatDetailDate = (dateStr: string | null = "") => {
-  const formatted = formatToDayFdMYH(dateStr, true, true, false) || "";
-  if (!formatted) return "-/-";
-  return formatted.replace(/ del (\d{4}) - /, ", $1 - ");
-};
+const formatDetailDate = formatAccessDetailDate;
 
 const DetailBadge = ({
   label,

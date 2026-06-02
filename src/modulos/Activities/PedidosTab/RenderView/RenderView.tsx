@@ -4,6 +4,7 @@ import styles from "./RenderView.module.css";
 import { getFullName } from "@/mk/utils/string";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import Button from "@/mk/components/forms/Button/Button";
+import { formatAccessDateTime } from "../../AccessTab/shared/accessDetailUtils";
 import {
   IconDelivery,
   IconEmail,
@@ -156,7 +157,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.label}>Ingreso:</div>
                 <div className={styles.valueAccent}>
                   <IconArrowRight size={16} className={styles.ingressIcon} />
-                  {getDateTimeStrMes(item.access?.in_at) || "No registrado"}
+                  {formatAccessDateTime(item.access?.in_at) || "No registrado"}
                 </div>
               </div>
 
@@ -165,7 +166,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                   <div className={styles.label}>Salida:</div>
                   <div className={styles.valueError}>
                     <IconArrowLeft size={16} className={styles.egressIcon} />
-                    {getDateTimeStrMes(item.access?.out_at) || "No registrado"}
+                    {formatAccessDateTime(item.access?.out_at) || "No registrado"}
                   </div>
                 </div>
               )}

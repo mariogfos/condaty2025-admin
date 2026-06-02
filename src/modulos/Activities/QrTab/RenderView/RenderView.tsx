@@ -4,6 +4,7 @@ import styles from "./RenderView.module.css";
 import { getFullName } from "@/mk/utils/string";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import Button from "@/mk/components/forms/Button/Button";
+import { formatAccessDateTime } from "../../AccessTab/shared/accessDetailUtils";
 import {
   IconGroupsQr,
   IconSingleQr,
@@ -133,11 +134,11 @@ const RenderView: React.FC<RenderViewProps> = ({
                       {guest.access ? (
                         <div className={styles.guestAccessed}>
                           <IconArrowRight size={12} className={styles.accessIcon} />
-                          {getDateTimeStrMes(guest.access?.in_at)}
+                          {formatAccessDateTime(guest.access?.in_at)}
                           {guest.access?.out_at && (
                             <>
                               <IconArrowLeft size={12} className={styles.exitIcon} />
-                              {getDateTimeStrMes(guest.access?.out_at)}
+                              {formatAccessDateTime(guest.access?.out_at)}
                             </>
                           )}
                         </div>
@@ -160,12 +161,12 @@ const RenderView: React.FC<RenderViewProps> = ({
                   <div className={styles.accessInfo}>
                     <div className={styles.accessEntry}>
                       <IconArrowRight size={12} className={styles.accessIcon} />
-                      {getDateTimeStrMes(item.access[0]?.in_at) || "No registrada"}
+                      {formatAccessDateTime(item.access[0]?.in_at) || "No registrada"}
                     </div>
                     {item.access[0]?.out_at && (
                       <div className={styles.accessExit}>
                         <IconArrowLeft size={12} className={styles.exitIcon} />
-                        {getDateTimeStrMes(item.access[0]?.out_at) || "No registrada"}
+                        {formatAccessDateTime(item.access[0]?.out_at) || "No registrada"}
                       </div>
                     )}
                   </div>

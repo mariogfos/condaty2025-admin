@@ -3,7 +3,6 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DetailModal from "@/mk/components/ui/DetailModal/DetailModal";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import useAxios from "@/mk/hooks/useAxios";
-import { formatToDayFdMYH } from "@/mk/utils/date";
 import { Image } from "@/mk/components/ui/Image/Image";
 import styles from "./ModalAccessExpand.module.css";
 import {
@@ -14,6 +13,7 @@ import {
 import {
   collectUniqueImages,
   flattenAccessDevices,
+  formatAccessDetailDate,
   getAccessHeadline,
   getAccessStatusInfo,
   getAccessTypeLabel,
@@ -49,11 +49,7 @@ const toneClassMap: Record<Tone, string> = {
   accent: styles.toneAccent,
 };
 
-const formatDetailDate = (dateStr: string | null = "") => {
-  const formatted = formatToDayFdMYH(dateStr, true, true, false) || "";
-  if (!formatted) return "-/-";
-  return formatted.replace(/ del (\d{4}) - /, ", $1 - ");
-};
+const formatDetailDate = formatAccessDetailDate;
 
 const Badge = ({
   label,

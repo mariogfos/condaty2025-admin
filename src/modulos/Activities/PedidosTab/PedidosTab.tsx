@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useMemo, useState } from "react";
 import styles from "../Activities.module.css";
-import { getDateStrMes, getDateTimeStrMes, getUTCNow } from "@/mk/utils/date";
+import { getDateStrMes, getUTCNow } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
@@ -16,6 +16,7 @@ import {
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderView from "./RenderView/RenderView";
+import { formatAccessDateTime } from "../AccessTab/shared/accessDetailUtils";
 
 
 interface PedidosTabProps {
@@ -193,7 +194,7 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
             return (
               <div className={styles.valueAccent}>
                 {props.item.access?.in_at
-                  ? getDateTimeStrMes(props.item.access.in_at) + " >" 
+                  ? formatAccessDateTime(props.item.access.in_at) + " >" 
                   : "No registrada"}
               </div>
             );
@@ -222,7 +223,7 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
             return (
               <div className={styles.valueError}>
                 {props.item.access?.out_at
-                  ? "< " + getDateTimeStrMes(props.item.access.out_at)
+                  ? "< " + formatAccessDateTime(props.item.access.out_at)
                   : "No registrada"}
               </div>
             );

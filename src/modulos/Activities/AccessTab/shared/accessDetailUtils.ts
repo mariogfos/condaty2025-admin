@@ -1,4 +1,9 @@
 import { getFullName } from "@/mk/utils/string";
+import {
+  formatToDayFdMYH,
+  getDateTimeStrMes,
+  getDateTimeStrMesShort,
+} from "@/mk/utils/date";
 
 type AnyRecord = Record<string, any>;
 type DecisionSourceKind = "guard" | "resident";
@@ -141,6 +146,33 @@ const RESIDENT_AUTHORIZED_TYPES = new Set(["O", "P"]);
 
 const hasValue = (value: unknown) =>
   value !== null && value !== undefined && value !== "";
+
+const normalizeLegacyAccessDate = (dateStr: string | null = "") => {
+  if (!dateStr) return "";
+  return String(dateStr)
+    .replace("T", " ")
+    .replace(/\.\d+Z?$/, "")
+    .replace(/Z$/, "")
+    .trim();
+};
+
+export const formatAccessDateTime = (dateStr: string | null = "") =>
+  getDateTimeStrMes(normalizeLegacyAccessDate(dateStr));
+
+export const formatAccessDateTimeShort = (dateStr: string | null = "") =>
+  getDateTimeStrMesShort(normalizeLegacyAccessDate(dateStr));
+
+export const formatAccessDetailDate = (dateStr: string | null = "") => {
+  const formatted = formatToDayFdMYH(
+    normalizeLegacyAccessDate(dateStr),
+    false,
+    true,
+    false,
+  ) || "";
+
+  if (!formatted) return "-/-";
+  return formatted.replace(/ del (\d{4}) - /, ", $1 - ");
+};
 
 const buildDecisionSource = (
   kind: DecisionSourceKind,
