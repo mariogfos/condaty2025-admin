@@ -86,6 +86,18 @@ interface Deuda {
   begin_at?: string;
   due_at?: string;
   description?: string;
+  // Snapshot canónico del backend (Modules/Payments/DebtPaymentStateService).
+  // Ver PAYMENT_DEBT_CONTRACT.md en el backend.
+  total_remaining_amount?: number | null;
+  penalty_remaining_amount?: number | null;
+  maintenance_remaining_amount?: number | null;
+  available_partial_amount?: number | null;
+  confirmed_paid_amount?: number | null;
+  pending_partial_amount?: number | null;
+  resolved_payment_id?: string | null;
+  resolved_payment_status?: string | null;
+  resolved_payment_method?: string | null;
+  is_partial?: boolean;
   subcategory?: object | any;
   penalty_reservation?: {
     id?: string;
@@ -364,6 +376,13 @@ const RenderForm: React.FC<RenderFormProps> = ({
           }
         }
       } catch (err) {
+        console.error(
+          "[PartialPayments] getDeudas failed (dptoId=%s, type=%s):",
+          nroDpto,
+          paymentmethod,
+          err
+        );
+        showToast("Error al cargar las deudas de la unidad", "error");
       } finally {
         setIsLoadingDeudas(false);
       }
@@ -440,23 +459,27 @@ const RenderForm: React.FC<RenderFormProps> = ({
   }, [open, item, getDeudas]);
 
   useEffect(() => {
+    // NOTA: NO incluimos `deudas.length` ni `isLoadingDeudas` en las deps
+    // para evitar loops infinitos: el effect los lee via refs/states pero
+    // no debe re-dispararse por su propia actualización. La guard
+    // `lastLoadedDeudas` ya evita llamadas duplicadas.
     if (formState.dpto_id && formState.type && formState.type !== "I") {
       const deudasKey = `${formState.dpto_id}_${formState.type}`;
-      if (deudasKey !== lastLoadedDeudas.current || deudas.length === 0) {
+      if (deudasKey !== lastLoadedDeudas.current) {
         lastLoadedDeudas.current = deudasKey;
         setSelectedPeriodo([]);
         setPeriodoTotal(0);
         getDeudas(formState.dpto_id, formState.type);
       }
     } else {
-      if (deudas.length > 0 || isLoadingDeudas) {
+      if (lastLoadedDeudas.current !== "") {
         setDeudas([]);
         setSelectedPeriodo([]);
         setPeriodoTotal(0);
         lastLoadedDeudas.current = "";
       }
     }
-  }, [formState.dpto_id, formState.type, getDeudas, deudas.length]);
+  }, [formState.dpto_id, formState.type, getDeudas]);
 
   useEffect(() => {
     if (
@@ -674,7 +697,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
   };
 
   const getSubtotal = (periodo: Deuda) => {
-    const totalRemainingAmount = Number((periodo as any)?.total_remaining_amount);
+    // Prioriza el snapshot canónico del backend (total_remaining_amount
+    // ya contempla penalty + maintenance restantes). Si el backend no lo
+    // devuelve, cae al cálculo local amount + penalty + maintenance.
+    const totalRemainingAmount = Number(periodo?.total_remaining_amount);
     if (Number.isFinite(totalRemainingAmount) && totalRemainingAmount > 0) {
       return Math.round(totalRemainingAmount * 100) / 100;
     }
@@ -917,7 +943,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
           setErrors(data.errors);
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("[PartialPayments] _onSavePago failed:", error);
+      showToast("Error de red al guardar el pago. Intente nuevamente.", "error");
+    }
   }, [
     formState,
     extraData?.dptos,
