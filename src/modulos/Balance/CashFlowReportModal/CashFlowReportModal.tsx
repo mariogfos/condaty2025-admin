@@ -102,7 +102,7 @@ const CashFlowReportModal: React.FC<CashFlowReportModalProps> = ({
       const startDate = formState.start_date;
       const endDate = formState.end_date;
 
-      const url = `${apiUrl}/export-cash-flow?start_date=${startDate}&end_date=${endDate}`;
+      const url = `${apiUrl}/payments-v2/export-cash-flow?start_date=${startDate}&end_date=${endDate}`;
 
       const apiInstance = getApiInstance();
 
