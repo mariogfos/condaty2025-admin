@@ -14,7 +14,7 @@ import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import RenderView from '../AllDebts/RenderView/RenderView';
-import PartialPaymentsRenderView from '@/modulos/PartialPayments/RenderView/RenderView';
+import PartialPaymentsRenderView from '@/modulos/Payments/PartialPaymentDetail';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal'; import { hasMaintenanceValue } from '@/mk/utils/utils';
 import { getStatusText, getStatusConfig, STATUS_FILTER_OPTIONS } from '../constants';
 

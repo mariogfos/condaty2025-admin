@@ -8,7 +8,6 @@ import { IconGallery } from "@/components/layout/icons/IconsBiblioteca";
 import RenderViewPayment from "@/modulos/Payments/RenderView/RenderView";
 import { getPaymentStatusConfig } from "@/types/payment";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import RenderFormAccount from "../RenderFormAccount/RenderFormAccount";
 import { getDateStrMes } from "../../../mk/utils/date";
 import { getFullName, getUrlImages } from "../../../mk/utils/string";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
@@ -17,7 +16,7 @@ import { MONTHS, MONTHS_S } from "@/mk/utils/date1";
 import RenderDel from "@/modulos/Payments/RenderDel/RenderDel";
 import { paymentsApi } from "@/modulos/Payments/api";
 import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
-import styles from "./RenderView.module.css";
+import styles from "./PartialPaymentDetail.module.css";
 
 const LabelValue = ({
   label,
@@ -78,7 +77,6 @@ const RenderView = ({
     open: false,
     item: null,
   });
-  const [openFormAccount, setOpenFormAccount] = useState(false);
   const [loading, setLoading] = useState(false);
   const [item, setItem]: any = useState({});
   const [openConfimDel, setOpenConfimDel] = useState(false);
@@ -262,14 +260,6 @@ const RenderView = ({
             >
               Ver recibo
             </Button>
-            {item?.status === "I" && (
-              <Button
-                onClick={() => setOpenFormAccount(true)}
-                className={styles.growButton}
-              >
-                Registrar pago a cuenta
-              </Button>
-            )}
           </div>
         }
         variant={"mini"}
@@ -377,28 +367,6 @@ const RenderView = ({
           payment_id={openDetail.item?.payment_id as string}
           // item={openDetail?.item}
           onDel={onDelPayment}
-        />
-      )}
-      {openFormAccount && (
-        <RenderFormAccount
-          open={openFormAccount}
-          onClose={() => setOpenFormAccount(false)}
-          item={{
-            dpto_id: item?.dpto?.nro,
-            amount:
-              Number(item?.available_partial_amount ?? item?.total_remaining_amount ?? 0),
-            debt_dpto_id: item?.id ?? propItem?.id,
-            bank_account_id: item?.subcategory?.bank_account_id,
-            type: "O",
-            max_amount:
-              Number(item?.available_partial_amount ?? item?.total_remaining_amount ?? 0),
-          }}
-          reLoad={() => {
-            getDetail();
-          }}
-          execute={execute}
-          showToast={showToast}
-          extraData={extraData}
         />
       )}
       {openConfimDel && (

@@ -15,7 +15,7 @@ import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFil
 import { formatNumber } from "@/mk/utils/numbers";
 import { useRouter } from "next/navigation";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
-import PartialPaymentsRenderView from "@/modulos/PartialPayments/RenderView/RenderView";
+import PartialPaymentsRenderView from "@/modulos/Payments/PartialPaymentDetail";
 import {
   getStatusText,
   getStatusConfig,

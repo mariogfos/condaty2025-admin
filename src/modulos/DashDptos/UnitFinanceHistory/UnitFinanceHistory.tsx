@@ -15,7 +15,7 @@ import {
 } from "@/modulos/DebtsManager/TabComponents/constants";
 import { paymentsApi } from "@/modulos/Payments/api";
 import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
-import PartialPaymentRenderView from "@/modulos/PartialPayments/RenderView/RenderView";
+import PartialPaymentRenderView from "@/modulos/Payments/PartialPaymentDetail";
 import DebtRenderView from "@/modulos/DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { IconCategories, IconPagos } from "@/components/layout/icons/IconsBiblioteca";

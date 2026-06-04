@@ -5,7 +5,7 @@ import useCrudUtils from "../../../shared/useCrudUtils";
 import { getDateStrMesShort } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
-import PartialPaymentsRenderView from "@/modulos/PartialPayments/RenderView/RenderView";
+import PartialPaymentsRenderView from "@/modulos/Payments/PartialPaymentDetail";
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
