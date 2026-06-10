@@ -19,6 +19,7 @@ import PartialPaymentRenderView from "@/modulos/PartialPayments/RenderView/Rende
 import DebtRenderView from "@/modulos/DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { IconCategories, IconPagos } from "@/components/layout/icons/IconsBiblioteca";
+import { formatNumber } from "@/mk/utils/numbers";
 import styles from "./UnitFinanceHistory.module.css";
 
 type UnitFinanceHistoryProps = {
@@ -262,6 +263,14 @@ const UnitFinanceHistory = ({
   );
   const [selectedDebt, setSelectedDebt] = useState<any | null>(null);
   const [selectedPartialDebt, setSelectedPartialDebt] = useState<any | null>(null);
+
+  const totalPaymentsAmount = useMemo(() => {
+    return paymentRows.reduce((acc, row) => acc + getPaymentAmount(row), 0);
+  }, [paymentRows]);
+
+  const totalDebtsAmount = useMemo(() => {
+    return debts.reduce((acc, row) => acc + getDebtBalance(row), 0);
+  }, [debts]);
 
   useEffect(() => {
     executeRef.current = execute;
@@ -523,8 +532,23 @@ const UnitFinanceHistory = ({
     <>
       <div className={styles.panel}>
         <div className={styles.header}>
-          <h3 className={styles.title}>Estado financiero de la unidad</h3>
-          <p className={styles.subtitle}>{subtitle}</p>
+          <div className={styles.headerTitleArea}>
+            <h3 className={styles.title}>Estado financiero de la unidad</h3>
+            <p className={styles.subtitle}>{subtitle}</p>
+          </div>
+          <div className={`${styles.totalBadge} ${activeTab === "payments" ? styles.paymentsTotal : styles.debtsTotal}`}>
+            {activeTab === "payments" ? (
+              <>
+                <span className={styles.totalLabel}>Total Pagos:</span>
+                <span className={styles.totalValue}>Bs {formatNumber(totalPaymentsAmount)}</span>
+              </>
+            ) : (
+              <>
+                <span className={styles.totalLabel}>Total Deudas:</span>
+                <span className={styles.totalValue}>Bs {formatNumber(totalDebtsAmount)}</span>
+              </>
+            )}
+          </div>
         </div>
 
         <div className={styles.tabs}>
