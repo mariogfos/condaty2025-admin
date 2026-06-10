@@ -18,7 +18,25 @@ const SurveyScaleChoice = ({
 
   const [formStateScaleChoice, setFormStateScaleChoice]: any = useState(
     editingQuestion
-      ? { ...editingQuestion }
+      ? {
+          ...editingQuestion,
+          soptions: editingQuestion.soptions && editingQuestion.soptions.length >= 2
+            ? [
+                {
+                  ...editingQuestion.soptions[0],
+                  option_text: editingQuestion.label_first || editingQuestion.soptions[0].option_text
+                },
+                ...editingQuestion.soptions.slice(1, -1),
+                {
+                  ...editingQuestion.soptions[editingQuestion.soptions.length - 1],
+                  option_text: editingQuestion.label_last || editingQuestion.soptions[editingQuestion.soptions.length - 1].option_text
+                }
+              ]
+            : [
+                { id: -1, option_text: editingQuestion.label_first || "", order: 0 },
+                { id: -2, option_text: editingQuestion.label_last || "", order: 1 }
+              ]
+        }
       : {
           soptions: [
             { id: -1, option_text: "", order: 0 },
@@ -124,9 +142,9 @@ const SurveyScaleChoice = ({
       errors,
     });
     errors = checkRules({
-      value: formStateScaleChoice.soptions[1].option_text,
+      value: formStateScaleChoice.soptions[formStateScaleChoice.soptions.length - 1].option_text,
       rules: ["required"],
-      key: "soptions.1",
+      key: `soptions.${formStateScaleChoice.soptions.length - 1}`,
       errors,
     });
 
@@ -139,6 +157,8 @@ const SurveyScaleChoice = ({
 
     const updatedQuestion = {
       ...formStateScaleChoice,
+      label_first: formStateScaleChoice.soptions[0].option_text,
+      label_last: formStateScaleChoice.soptions[formStateScaleChoice.soptions.length - 1].option_text,
       order:
         editingIndex !== undefined
           ? editingIndex
@@ -176,7 +196,7 @@ const SurveyScaleChoice = ({
       <div className={styles.widgetscale}>
         <div>
           <h1>Escuchamos tus necesidades</h1>
-          <p>Encuesta para mejorar la forma de vida en nuestro país</p>
+          <p>Encuesta para mejorar la vida en nuestro Condominio</p>
           <p>• Opción en escala</p>
         </div>
         <div>

@@ -91,7 +91,7 @@ const SurveyOpenTextChoice = ({
     >
       <div className={styles.surveyOpenTextChoice} style={{ width: "100%" }}>
         <p>Escuchamos tus necesidades</p>
-        <p>Encuesta para mejorar la forma de vida en nuestro país</p>
+        <p>Encuesta para mejorar la vida en nuestro Condominio</p>
         <p>• Opción de caja de texto</p>
         <div>
           <p>Pregunta</p>

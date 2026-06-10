@@ -164,8 +164,8 @@ export const ScaleQuestionComponent: React.FC<{
       <ScaleChoice
         minOptions={question.min_options}
         maxOptions={question.max_options}
-        minLabel={question.soptions[0]?.option_text}
-        maxLabel={question.soptions[question.soptions.length - 1]?.option_text}
+        minLabel={(question as any).label_first || question.soptions[0]?.option_text}
+        maxLabel={(question as any).label_last || question.soptions[question.soptions.length - 1]?.option_text}
         onChange={() => {}}
         readOnly={true}
       />
