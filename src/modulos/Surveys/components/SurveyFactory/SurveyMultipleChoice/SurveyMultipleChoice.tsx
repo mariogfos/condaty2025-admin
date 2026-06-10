@@ -141,7 +141,7 @@ const SurveyMultipleChoice = ({
     >
       <div className={styles.surveyMultipleChoice}>
         <p>Escuchamos tus necesidades</p>
-        <p>Encuesta para mejorar la forma de vida en nuestro país</p>
+        <p>Encuesta para mejorar la vida en nuestro Condominio</p>
         <p>• Opción múltiple</p>
         <section>
           <div>

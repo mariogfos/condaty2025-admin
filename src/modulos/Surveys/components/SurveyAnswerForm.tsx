@@ -100,7 +100,9 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
     options: any[],
   ) => {
     // Buscar la opción que coincida con el valor seleccionado
-    const option = options.find((o) => parseInt(o.option_text) === value);
+    const option = options.find(
+      (o) => o.order === value || parseInt(o.option_text) === value,
+    );
 
     if (option) {
       setAnswers((prev) => ({
@@ -271,8 +273,9 @@ const SurveyAnswerForm: React.FC<SurveyAnswerFormProps> = ({
                 <ScaleChoice
                   minOptions={question.min_options}
                   maxOptions={question.max_options}
-                  minLabel={question.soptions?.[0]?.option_text}
+                  minLabel={question.label_first || question.soptions?.[0]?.option_text}
                   maxLabel={
+                    question.label_last ||
                     question.soptions?.[question.soptions.length - 1]
                       ?.option_text
                   }

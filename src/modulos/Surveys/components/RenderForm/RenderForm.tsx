@@ -23,12 +23,31 @@ const RenderForm = ({
   action,
   extraData,
 }: any) => {
-  const normalizeFormState = (s: any) => ({
-    ...s,
-    is_mandatory: s.is_mandatory === true || s.is_mandatory === "Y" ? "Y" : "N",
-    // P.18: Si ya tiene fecha programada, activar el switch para que no se borre al guardar
-    switch: s.switch ?? (s.scheduled_at ? "Y" : "N"),
-  });
+  const normalizeFormState = (s: any) => {
+    let target_criteria = s.target_criteria;
+    if (target_criteria) {
+      let roles = target_criteria.roles;
+      if (Array.isArray(roles)) {
+        const rolesObj: any = {};
+        roles.forEach((r: string) => {
+          rolesObj[r] = "1";
+        });
+        target_criteria = { ...target_criteria, roles: rolesObj };
+      } else if (roles && typeof roles === "object") {
+        const rolesObj: any = {};
+        Object.entries(roles).forEach(([k, v]) => {
+          rolesObj[k] = (v === "1" || v === 1 || v === true) ? "1" : "0";
+        });
+        target_criteria = { ...target_criteria, roles: rolesObj };
+      }
+    }
+    return {
+      ...s,
+      target_criteria,
+      is_mandatory: s.is_mandatory === true || s.is_mandatory === "Y" ? "Y" : "N",
+      switch: s.switch ?? (s.scheduled_at ? "Y" : "N"),
+    };
+  };
   const [formState, setFormState]: any = useState(
     normalizeFormState({ ...item }),
   );
