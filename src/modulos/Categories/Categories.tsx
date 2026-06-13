@@ -58,14 +58,19 @@ const Categories = ({ type: propType = "" }) => {
   // Usar el tipo de la URL si existe, sino el prop
   const type = urlType || propType;
 
-  const typeToUse = type === "E" ? "E" : "I"; // 'D' y 'I' usan datos de 'I'
+  // Adaptar tipos legacy ('I', 'E') a numéricos (1 = Ingresos, 2 = Egresos) para v3
+  const typeToUse = type === "E" || String(type) === "2" ? 2 : 1;
   const originalType = type; // Mantener el tipo original tal como viene
 
   const getCategoryTypeText = () => {
     switch (originalType) {
       case "I":
+      case "1":
+      case 1:
         return "ingresos";
       case "E":
+      case "2":
+      case 2:
         return "egresos";
       case "D":
         return "ingresos";
@@ -82,7 +87,7 @@ const Categories = ({ type: propType = "" }) => {
 
   const mod = useMemo<ModCrudType>(
     () => ({
-      modulo: "categories",
+      modulo: "v3/categories",
       singular: "Categoría",
       plural: "Categorías",
       permiso: "categories",
