@@ -15,31 +15,15 @@ import CategoryCard from "./CategoryCard/CategoryCard";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 
-const BackNavigation = ({ type }: { type: "I" | "E" | "D" }) => {
+const BackNavigation = ({ type }: { type: number | string }) => {
   const getBackLink = () => {
-    switch (type) {
-      case "I":
-        return "/payments";
-      case "E":
-        return "/outlays";
-      case "D":
-        return "/debts_manager";
-      default:
-        return "/payments";
-    }
+    if (String(type) === "D") return "/debts_manager";
+    return Number(type) === 2 ? "/outlays" : "/payments";
   };
 
   const getBackText = () => {
-    switch (type) {
-      case "I":
-        return "Volver a sección ingresos";
-      case "E":
-        return "Volver a sección egresos";
-      case "D":
-        return "Volver a sección deudas";
-      default:
-        return "Volver a sección ingresos";
-    }
+    if (String(type) === "D") return "Volver a sección deudas";
+    return Number(type) === 2 ? "Volver a sección egresos" : "Volver a sección ingresos";
   };
 
   return (
@@ -58,25 +42,12 @@ const Categories = ({ type: propType = "" }) => {
   // Usar el tipo de la URL si existe, sino el prop
   const type = urlType || propType;
 
-  // Adaptar tipos legacy ('I', 'E') a numéricos (1 = Ingresos, 2 = Egresos) para v3
-  const typeToUse = type === "E" || String(type) === "2" ? 2 : 1;
-  const originalType = type; // Mantener el tipo original tal como viene
+  // En Categories v3, type siempre es numérico (1 = Ingresos, 2 = Egresos)
+  const typeToUse = Number(type) === 2 ? 2 : 1;
+  const originalType = type; // Para la navegación de regreso (puede ser 'D', 1 o 2)
 
   const getCategoryTypeText = () => {
-    switch (originalType) {
-      case "I":
-      case "1":
-      case 1:
-        return "ingresos";
-      case "E":
-      case "2":
-      case 2:
-        return "egresos";
-      case "D":
-        return "ingresos";
-      default:
-        return "ingresos";
-    }
+    return typeToUse === 2 ? "egresos" : "ingresos";
   };
 
   const categoryTypeText = getCategoryTypeText();
