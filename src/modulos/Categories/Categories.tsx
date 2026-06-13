@@ -43,7 +43,7 @@ const Categories = ({ type: propType = "" }) => {
   const type = urlType || propType;
 
   // En Categories v3, type siempre es numérico (1 = Ingresos, 2 = Egresos)
-  const typeToUse = Number(type) === CategoryType.EXPENSE ? CategoryType.EXPENSE : CategoryType.INCOME;
+  const typeToUse = (type === "E" || Number(type) === CategoryType.EXPENSE) ? CategoryType.EXPENSE : CategoryType.INCOME;
   const originalType = type; // Para la navegación de regreso (puede ser 'D', 1 o 2)
 
   const getCategoryTypeText = () => {
