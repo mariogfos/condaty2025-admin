@@ -1,3 +1,35 @@
+export enum CategoryType {
+  INCOME = 1,
+  EXPENSE = 2,
+}
+
+export enum CategoryStatus {
+  INACTIVE = 0,
+  ACTIVE = 1,
+  VOID = 2,
+}
+
+export enum CategoryFixed {
+  NO = 0,
+  YES = 1,
+}
+
+export const CATEGORY_TYPE_LABELS = {
+  [CategoryType.INCOME]: "Ingreso",
+  [CategoryType.EXPENSE]: "Egreso",
+} as const;
+
+export const CATEGORY_STATUS_LABELS = {
+  [CategoryStatus.INACTIVE]: "Inactivo",
+  [CategoryStatus.ACTIVE]: "Activo",
+  [CategoryStatus.VOID]: "Anulado",
+} as const;
+
+export const CATEGORY_FIXED_LABELS = {
+  [CategoryFixed.NO]: "No",
+  [CategoryFixed.YES]: "Sí",
+} as const;
+
 export interface CategoryItem {
   id?: string | number;
   name?: string;
@@ -8,8 +40,9 @@ export interface CategoryItem {
     name?: string;
   };
   hijos?: CategoryItem[];
-  type?: "I" | "E" | string;
-  fixed?: string;
+  type?: CategoryType | number;
+  status?: CategoryStatus | number;
+  fixed?: CategoryFixed | number;
   _isAddingSubcategoryFlow?: boolean;
   [key: string]: any;
 }
@@ -28,21 +61,22 @@ export interface CategoryFormProps {
   extraData?: Record<string, any>;
   getExtraData?: () => void;
   action: "add" | "edit" | string;
-  categoryType: "I" | "E";
+  categoryType: CategoryType | number;
   data?: any[];
 }
+
 export interface CategoryCardProps {
   item: CategoryItem;
   onClick?: (item: CategoryItem) => void;
   onEdit: (item: CategoryItem) => void;
   onDel: (item: CategoryItem) => void;
-  categoryType: "I" | "E";
-
+  categoryType: CategoryType | number;
   onAddSubcategory: (parentCategoryId: string) => void;
   className?: string;
   isSelected?: boolean;
   onSelectCard?: () => void;
 }
+
 export interface InputEvent {
   target: {
     name: string;

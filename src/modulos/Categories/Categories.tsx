@@ -8,7 +8,7 @@ import {
   IconCategories,
 } from "@/components/layout/icons/IconsBiblioteca";
 import Link from "next/link";
-import { CategoryItem } from "./Type/CategoryType";
+import { CategoryItem, CategoryType } from "./Type/CategoryType";
 import Button from "@/mk/components/forms/Button/Button";
 import CategoryForm from "./RenderForm/RenderForm";
 import CategoryCard from "./CategoryCard/CategoryCard";
@@ -18,12 +18,12 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 const BackNavigation = ({ type }: { type: number | string }) => {
   const getBackLink = () => {
     if (String(type) === "D") return "/debts_manager";
-    return Number(type) === 2 ? "/outlays" : "/payments";
+    return Number(type) === CategoryType.EXPENSE ? "/outlays" : "/payments";
   };
 
   const getBackText = () => {
     if (String(type) === "D") return "Volver a sección deudas";
-    return Number(type) === 2 ? "Volver a sección egresos" : "Volver a sección ingresos";
+    return Number(type) === CategoryType.EXPENSE ? "Volver a sección egresos" : "Volver a sección ingresos";
   };
 
   return (
@@ -43,11 +43,11 @@ const Categories = ({ type: propType = "" }) => {
   const type = urlType || propType;
 
   // En Categories v3, type siempre es numérico (1 = Ingresos, 2 = Egresos)
-  const typeToUse = Number(type) === 2 ? 2 : 1;
+  const typeToUse = Number(type) === CategoryType.EXPENSE ? CategoryType.EXPENSE : CategoryType.INCOME;
   const originalType = type; // Para la navegación de regreso (puede ser 'D', 1 o 2)
 
   const getCategoryTypeText = () => {
-    return typeToUse === 2 ? "egresos" : "ingresos";
+    return typeToUse === CategoryType.EXPENSE ? "egresos" : "ingresos";
   };
 
   const categoryTypeText = getCategoryTypeText();

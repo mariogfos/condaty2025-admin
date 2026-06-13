@@ -9,6 +9,7 @@ import {
   CategoryFormProps,
   InputEvent,
   CategoryItem,
+  CategoryType,
 } from "../Type/CategoryType";
 import Select from "@/mk/components/forms/Select/Select";
 
@@ -112,7 +113,7 @@ const CategoryForm = memo(
 
       const cleanItem = {
         ..._Item,
-        type: categoryType === "I" ? "I" : "E",
+        type: categoryType,
         category_id: isSubcategoryMode ? _Item.category_id : null,
         bank_account_id: _Item.bank_account_id || null,
       };
@@ -237,7 +238,7 @@ const CategoryForm = memo(
           <input
             type="hidden"
             name="type"
-            value={categoryType === "I" ? "I" : "E"}
+            value={categoryType}
           />
         </div>
       </DataModal>
