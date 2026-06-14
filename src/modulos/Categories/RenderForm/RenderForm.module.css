@@ -5,11 +5,11 @@
 }
 
 .error {
-  border-color: #dc3545 !important;
+  border-color: var(--cError) !important;
 }
 
 .error-message {
-  color: #dc3545;
+  color: var(--cError);
   font-size: 14px;
   margin-top: 4px;
 }

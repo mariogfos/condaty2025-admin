@@ -229,13 +229,11 @@
   min-width: 192px;
   margin: 0 !important;
   white-space: nowrap;
-}
-
-.addButton {
-  padding: "8px 16px";
-  width: "auto";
-  height: 48;
-  display: "flex";
+  padding: 8px 16px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .backLink {
@@ -331,4 +329,14 @@
   .createCategoryButton {
     white-space: normal;
   }
+}
+
+.cardEven .subcategoriesContainer,
+.cardEven .subcategoryItem {
+  background-color: var(--cBlackV2) !important;
+}
+
+.cardOdd .subcategoriesContainer,
+.cardOdd .subcategoryItem {
+  background-color: var(--cWhiteV2) !important;
 }
