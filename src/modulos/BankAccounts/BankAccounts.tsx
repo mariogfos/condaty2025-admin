@@ -32,7 +32,7 @@ const centeredColumnStyle = {
 } as const;
 
 const BankAccounts = () => {
-  const mod: ModCrudType = {
+  const mod: ModCrudType = useMemo(() => ({
     modulo: "v3/bank-accounts",
     singular: "cuenta bancaria",
     plural: "cuentas bancarias",
@@ -54,7 +54,7 @@ const BankAccounts = () => {
       extraData?: Record<string, any>;
       reLoad?: any;
     }) => <RenderView {...props} />,
-  };
+  }), []);
   const getOptionsBankEntity = useCallback(
     (extraData: any) => [
       { id: "ALL", name: "Todos" },
