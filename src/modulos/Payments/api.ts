@@ -1,24 +1,24 @@
-export const PAYMENTS_V2_BASE = "/payments-v2";
+export const PAYMENTS_V3_BASE = "/payments-v3";
 
 export const paymentsApi = {
   unitFinancialState: (dptoId: string | number) =>
-    `${PAYMENTS_V2_BASE}/units/${dptoId}/financial-state`,
-  adminDebts: `${PAYMENTS_V2_BASE}/admin/debts`,
-  adminPartialDebts: `${PAYMENTS_V2_BASE}/admin/partial-debts`,
-  full: `${PAYMENTS_V2_BASE}/full`,
-  partial: `${PAYMENTS_V2_BASE}/partial`,
+    `${PAYMENTS_V3_BASE}/units/${dptoId}/financial-state`,
+  adminDebts: `${PAYMENTS_V3_BASE}/admin/debts`,
+  adminPartialDebts: `${PAYMENTS_V3_BASE}/admin/partial-debts`,
+  full: `${PAYMENTS_V3_BASE}/full`,
+  partial: `${PAYMENTS_V3_BASE}/partial`,
   partialSummary: (debtId: string | number) =>
-    `${PAYMENTS_V2_BASE}/debts/${debtId}/partial-summary`,
-  detail: (paymentId: string | number) => `${PAYMENTS_V2_BASE}/${paymentId}`,
+    `${PAYMENTS_V3_BASE}/debts/${debtId}/partial-summary`,
+  detail: (paymentId: string | number) => `${PAYMENTS_V3_BASE}/${paymentId}`,
   receipt: (paymentId: string | number) =>
-    `${PAYMENTS_V2_BASE}/${paymentId}/receipt`,
+    `${PAYMENTS_V3_BASE}/${paymentId}/receipt`,
   voucher: (paymentId: string | number) =>
-    `${PAYMENTS_V2_BASE}/${paymentId}/voucher`,
+    `${PAYMENTS_V3_BASE}/${paymentId}/voucher`,
   confirm: (paymentId: string | number) =>
-    `${PAYMENTS_V2_BASE}/${paymentId}/confirm`,
-  cancel: (paymentId: string | number) => `${PAYMENTS_V2_BASE}/${paymentId}`,
+    `${PAYMENTS_V3_BASE}/${paymentId}/confirm`,
+  cancel: (paymentId: string | number) => `${PAYMENTS_V3_BASE}/${paymentId}`,
   partialReceipt: (debtId: string | number) =>
-    `${PAYMENTS_V2_BASE}/debts/${debtId}/partial-receipt`,
+    `${PAYMENTS_V3_BASE}/debts/${debtId}/partial-receipt`,
   resolvedPayment: (debtId: string | number) =>
-    `${PAYMENTS_V2_BASE}/debts/${debtId}/resolved-payment`,
+    `${PAYMENTS_V3_BASE}/debts/${debtId}/resolved-payment`,
 };
