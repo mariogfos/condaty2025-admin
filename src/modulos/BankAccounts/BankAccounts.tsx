@@ -9,6 +9,8 @@ import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 
+import { BankAccountStatus, BANK_ACCOUNT_STATUS_LABELS } from "./Type/BankType";
+
 const paramsInitial = {
   perPage: 20,
   page: 1,
@@ -31,7 +33,7 @@ const centeredColumnStyle = {
 
 const BankAccounts = () => {
   const mod: ModCrudType = {
-    modulo: "bank-accounts",
+    modulo: "v3/bank-accounts",
     singular: "cuenta bancaria",
     plural: "cuentas bancarias",
     filter: true,
@@ -63,8 +65,8 @@ const BankAccounts = () => {
   const getOptionsStatus = useCallback(
     () => [
       { id: "ALL", name: "Todos" },
-      { id: "A", name: "Habilitada" },
-      { id: "X", name: "Deshabilitada" },
+      { id: BankAccountStatus.ACTIVE, name: "Habilitada" },
+      { id: BankAccountStatus.INACTIVE, name: "Deshabilitada" },
     ],
     []
   );
@@ -109,7 +111,7 @@ const BankAccounts = () => {
           },
         },
       },
-      status: {
+      status_v3: {
         rules: [],
         api: "ae",
         label: "Estado",
@@ -119,16 +121,17 @@ const BankAccounts = () => {
           className: styles.statusColumn,
           style: centeredColumnStyle,
           onRender: ({ item }: Record<string, any>) => {
+            const isActive = Number(item.status_v3) === BankAccountStatus.ACTIVE;
             return (
               <StatusBadge
-                color={item.status === "A" ? "var(--cSuccess)" : "var(--cError)"}
+                color={isActive ? "var(--cSuccess)" : "var(--cError)"}
                 backgroundColor={
-                  item.status === "A"
+                  isActive
                     ? "var(--cHoverSuccess)"
                     : "var(--cHoverError)"
                 }
               >
-                {item.status === "A" ? "Habilitada" : "Deshabilitada"}
+                {isActive ? "Habilitada" : "Deshabilitada"}
               </StatusBadge>
             );
           },

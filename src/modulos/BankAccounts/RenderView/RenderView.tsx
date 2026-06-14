@@ -7,6 +7,7 @@ import { formatNumber } from "@/mk/utils/numbers";
 import RenderForm from "../RenderForm/RenderForm";
 import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { BankAccountStatus } from "../Type/BankType";
 
 const RenderView = (props: any) => {
   const {
@@ -28,11 +29,13 @@ const RenderView = (props: any) => {
     item?.image ||
     item?.url_image ||
     "";
+  const isActive = Number(item?.status_v3) === BankAccountStatus.ACTIVE;
+
   const getDetail = async () => {
     if (data?.id) {
       setLoading(true);
       const { data: res } = await execute(
-        `/bank-accounts`,
+        `/v3/bank-accounts`,
         "GET",
         {
           fullType: "DET",
@@ -57,10 +60,10 @@ const RenderView = (props: any) => {
   const handleUpdateStatus = async () => {
     setLoading(true);
     const { data: res } = await execute(
-      `/bank-account-availability/${item?.id}`,
+      `/v3/bank-account-availability/${item?.id}`,
       "PUT",
       {
-        status: item?.status === "A" ? "X" : "A",
+        status: isActive ? BankAccountStatus.INACTIVE : BankAccountStatus.ACTIVE,
       },
       false,
       true
@@ -90,20 +93,20 @@ const RenderView = (props: any) => {
               Editar datos
             </Button>
             <Button
-              variant={item?.status === "A" ? "cancel" : "primary"}
+              variant={isActive ? "cancel" : "primary"}
               onClick={() => setOpenConfirm(true)}
               style={{
                 backgroundColor:
-                  item?.status === "A"
+                  isActive
                     ? "color-mix(in srgb, var(--cError) 92%, white 8%)"
                     : undefined,
                 borderColor:
-                  item?.status === "A"
+                  isActive
                     ? "color-mix(in srgb, var(--cError) 72%, black 28%)"
                     : undefined,
               }}
             >
-              {item?.status === "A"
+              {isActive
                 ? "Deshabilitar cuenta"
                 : "Habilitar cuenta"}
             </Button>
@@ -146,14 +149,14 @@ const RenderView = (props: any) => {
                   <p className={styles.bankDetailLabel}>Estado</p>
                   <div className={styles.bankDetailBadgeWrap}>
                     <StatusBadge
-                      color={item?.status === "A" ? "var(--cSuccess)" : "var(--cError)"}
+                      color={isActive ? "var(--cSuccess)" : "var(--cError)"}
                       backgroundColor={
-                        item?.status === "A"
+                        isActive
                           ? "var(--cHoverSuccess)"
                           : "var(--cHoverError)"
                       }
                     >
-                      {item?.status === "A" ? "Habilitada" : "Deshabilitada"}
+                      {isActive ? "Habilitada" : "Deshabilitada"}
                     </StatusBadge>
                   </div>
                 </div>
@@ -221,7 +224,7 @@ const RenderView = (props: any) => {
         <DataModal
           style={{ width: 600 }}
           title={
-            item?.status === "A" ? "Deshabilitar cuenta" : "Habilitar cuenta"
+            isActive ? "Deshabilitar cuenta" : "Habilitar cuenta"
           }
           buttonText=""
           buttonExtra={
@@ -230,20 +233,20 @@ const RenderView = (props: any) => {
                 Cancelar
               </Button>
               <Button
-                variant={item?.status === "A" ? "cancel" : "primary"}
+                variant={isActive ? "cancel" : "primary"}
                 onClick={handleUpdateStatus}
                 style={{
                   backgroundColor:
-                    item?.status === "A"
+                    isActive
                       ? "color-mix(in srgb, var(--cError) 92%, white 8%)"
                       : undefined,
                   borderColor:
-                    item?.status === "A"
+                    isActive
                       ? "color-mix(in srgb, var(--cError) 72%, black 28%)"
                       : undefined,
                 }}
               >
-                {item?.status === "A" ? "Deshabilitar cuenta" : "Confirmar"}
+                {isActive ? "Deshabilitar cuenta" : "Confirmar"}
               </Button>
             </div>
           }
@@ -253,7 +256,7 @@ const RenderView = (props: any) => {
           onClose={() => setOpenConfirm(false)}
         >
           <p>
-            {item?.status === "A"
+            {isActive
               ? "¿Seguro que quieres deshabilitar esta cuenta bancaria? Ya no aparecerá en los flujos de pago."
               : "¿Seguro que quieres habilitar esta cuenta bancaria? Volverá a aparecer en los flujos de pago."}
           </p>
