@@ -5,6 +5,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useState, useEffect } from "react";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
+import { BankAccountType } from "../Type/BankType";
 
 const RenderForm = ({
   open,
@@ -14,7 +15,11 @@ const RenderForm = ({
   extraData,
   reLoad,
 }: any) => {
-  const [formState, setFormState] = useState({ ...item, initial_amount: item?.initial_amount ?? 0 });
+  const [formState, setFormState] = useState({ 
+    ...item, 
+    initial_amount: item?.initial_amount ?? 0,
+    account_type_v3: item?.account_type_v3 ?? BankAccountType.SAVINGS 
+  });
   const [errors, setErrors] = useState({});
   const { showToast } = useAuth();
 
@@ -33,6 +38,7 @@ const RenderForm = ({
       ...prev,
       ...item,
       initial_amount: item?.initial_amount ?? 0,
+      account_type_v3: item?.account_type_v3 ?? BankAccountType.SAVINGS
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item, open]);
@@ -61,9 +67,9 @@ const RenderForm = ({
     });
 
     errors = checkRules({
-      value: formState?.account_type,
+      value: formState?.account_type_v3,
       rules: ["required"],
-      key: "account_type",
+      key: "account_type_v3",
       errors,
     });
     errors = checkRules({
@@ -105,13 +111,12 @@ const RenderForm = ({
     if (hasErrors(validate())) return;
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
-      "/bank-accounts" + (formState.id ? "/" + formState.id : ""),
+      "/v3/bank-accounts" + (formState.id ? "/" + formState.id : ""),
       method,
       {
-        // avatar: formState.avatar || "",
         images: formState.images || "",
         bank_entity_id: formState.bank_entity_id || "",
-        account_type: formState.account_type || "",
+        account_type_v3: Number(formState.account_type_v3 ?? BankAccountType.SAVINGS),
         account_number: formState.account_number || "",
         currency_type_id: formState.currency_type_id || "",
         holder: formState.holder || "",
@@ -166,17 +171,17 @@ const RenderForm = ({
       />
       <Select
         label="Tipo de cuenta"
-        name="account_type"
-        value={formState.account_type || ""}
+        name="account_type_v3"
+        value={formState.account_type_v3 || ""}
         disabled={item?.isInUse}
         optionLabel="name"
         options={[
           {
-            id: "S",
+            id: BankAccountType.SAVINGS,
             name: "Cuenta ahorro",
           },
           {
-            id: "C",
+            id: BankAccountType.CURRENT,
             name: "Cuenta corriente",
           },
         ]}
