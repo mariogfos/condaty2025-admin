@@ -1,5 +1,5 @@
 "use client";
-import { memo, useState, useEffect, useCallback, useMemo } from "react";
+import React, { memo, useState, useEffect, useCallback, useMemo } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
@@ -9,9 +9,9 @@ import {
   CategoryFormProps,
   InputEvent,
   CategoryItem,
-  CategoryType,
 } from "../Type/CategoryType";
 import Select from "@/mk/components/forms/Select/Select";
+import { FORM_LABELS } from "../config/categories.constants";
 
 const CategoryForm = memo(
   ({
@@ -45,7 +45,6 @@ const CategoryForm = memo(
           [name]: type === "checkbox" ? checked : value,
         }));
 
-        // Clear error for this field when user starts typing
         if (_errors[name]) {
           set_Errors((prev) => ({
             ...prev,
@@ -89,22 +88,6 @@ const CategoryForm = memo(
       );
       set_Errors(filteredErrs);
 
-      if (Object.keys(errs).length > 0) {
-        setTimeout(() => {
-          const firstErrorElement =
-            document.querySelector(`.${styles.error}`) ||
-            document.querySelector(".error");
-          if (firstErrorElement) {
-            (firstErrorElement as HTMLElement).scrollIntoView({
-              behavior: "smooth",
-              block: "center",
-            });
-          } else {
-            const modalBody = document.querySelector(".data-modal-body");
-            if (modalBody) (modalBody as HTMLElement).scrollTop = 0;
-          }
-        }, 100);
-      }
       return Object.keys(errs).length === 0;
     }, [_Item]);
 
@@ -118,7 +101,6 @@ const CategoryForm = memo(
         bank_account_id: _Item.bank_account_id || null,
       };
 
-      // Remove unnecessary properties
       const propsToDelete = [
         "hijos",
         "_initItem",
@@ -142,15 +124,17 @@ const CategoryForm = memo(
       isSubcategoryMode,
       validar,
     ]);
+
     const { modalTitle, buttonText } = useMemo(() => {
       const itemType = isSubcategoryMode ? "subcategoría" : "categoría";
       const actionText = action === "edit" ? "Editar" : "Crear";
 
       return {
         modalTitle: `${actionText} ${itemType}`,
-        buttonText: "Guardar",
+        buttonText: FORM_LABELS.buttonSave,
       };
     }, [action, isSubcategoryMode]);
+
     const parentCategory = useMemo(
       () =>
         extraData?.categories?.find(
@@ -164,12 +148,13 @@ const CategoryForm = memo(
       onClose();
     }, [onClose]);
 
-    const getOptionsBankAccounts = useCallback(() => {
-      return extraData?.bankAccounts?.map((bank: any) => ({
-        id: bank.id,
-        name:
-          bank.holder + " - " + bank.alias_holder + " - " + bank.account_number,
-      }));
+    const bankAccountOptions = useMemo(() => {
+      return (
+        extraData?.bankAccounts?.map((bank: any) => ({
+          id: bank.id,
+          name: `${bank.holder} - ${bank.alias_holder} - ${bank.account_number}`,
+        })) || []
+      );
     }, [extraData?.bankAccounts]);
 
     if (!open) return null;
@@ -181,7 +166,7 @@ const CategoryForm = memo(
         open={open}
         onClose={onCloseModal}
         buttonText={buttonText}
-        buttonCancel="Cancelar"
+        buttonCancel={FORM_LABELS.buttonCancel}
         onSave={handleSave}
         className={styles.formModalContent}
         variant={"mini"}
@@ -191,9 +176,9 @@ const CategoryForm = memo(
             <>
               <Input
                 name="category_id_name"
-                label="Categoría padre"
+                label={FORM_LABELS.parentCategory}
                 value={parentCategory?.name || ""}
-                onChange={() => {}}
+                onChange={undefined}
                 required
                 className={styles.customSelect}
                 disabled
@@ -212,28 +197,25 @@ const CategoryForm = memo(
             name="name"
             value={_Item.name || ""}
             onChange={handleChange}
-            label={`Nombre`}
+            label={FORM_LABELS.name}
             error={_errors}
             required
-            // className={_errors.name ? styles.error : ""}
           />
           <Select
             name="bank_account_id"
-            label="Asignar cuenta bancaria"
+            label={FORM_LABELS.bankAccount}
             value={_Item.bank_account_id || ""}
             onChange={handleChange}
-            options={getOptionsBankAccounts()}
+            options={bankAccountOptions}
             error={_errors}
             required
-            // className={_errors.bank_account_id ? styles.error : ""}
           />
           <TextArea
             name="description"
             value={_Item.description || ""}
             onChange={handleChange}
-            label={`Descripción`}
+            label={FORM_LABELS.description}
             error={_errors}
-            // className={_errors.description ? styles.error : ""}
           />
           <input
             type="hidden"
