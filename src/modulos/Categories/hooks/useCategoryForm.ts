@@ -12,7 +12,7 @@ export const useCategoryForm = ({
   action,
   categoryType,
   getExtraData,
-}: Omit<CategoryFormProps, "open">) => {
+}: Omit<CategoryFormProps, "open" | "errors">) => {
   const [_Item, set_Item] = useState<Partial<CategoryItem>>({});
   const [_errors, set_Errors] = useState<{ [key: string]: string }>({});
 
