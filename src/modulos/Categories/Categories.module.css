@@ -330,3 +330,13 @@
     white-space: normal;
   }
 }
+
+.cardEven .subcategoriesContainer,
+.cardEven .subcategoryItem {
+  background-color: var(--cBlackV2) !important;
+}
+
+.cardOdd .subcategoriesContainer,
+.cardOdd .subcategoryItem {
+  background-color: var(--cWhiteV2) !important;
+}

@@ -1,5 +1,5 @@
 "use client";
-import { memo, useState, useCallback, useEffect } from "react";
+import React, { memo, useState, useCallback, useEffect } from "react";
 import styles from "../Categories.module.css";
 import {
   IconArrowDown,
@@ -8,6 +8,7 @@ import {
   IconSimpleAdd,
 } from "@/components/layout/icons/IconsBiblioteca";
 import { CategoryCardProps, CategoryItem } from "../Type/CategoryType";
+import { CATEGORIES_NAVIGATION } from "../config/categories.constants";
 
 const CategoryCard = memo(
   ({
@@ -18,7 +19,7 @@ const CategoryCard = memo(
     onAddSubcategory,
     className = "",
     isSelected = false,
-    onSelectCard,
+    onClick,
     forceOpen = false,
   }: CategoryCardProps & { forceOpen?: boolean }) => {
     const hasSubcategories = item.hijos && item.hijos.length > 0;
@@ -40,10 +41,11 @@ const CategoryCard = memo(
     );
 
     const handleMainCardClick = useCallback(() => {
-      if (onSelectCard) {
-        onSelectCard();
+      if (onClick) {
+        onClick(item);
       }
-    }, [onSelectCard]);
+    }, [onClick, item]);
+
     const handleEditClick = useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -59,21 +61,16 @@ const CategoryCard = memo(
       },
       [item, onDel]
     );
-    const parentBgColor = className.includes(styles.cardEven)
-      ? "var(--cBlackV2)"
-      : className.includes(styles.cardOdd)
-      ? "var(--cWhiteV2)"
-      : "";
 
     const isAccordionOpen = forceOpen || showSubcategories;
     const cardClasses = `${styles.categoryCard} ${className} ${
       isSelected ? styles.selectedCard : ""
     }${isAccordionOpen ? ` ${styles.accordionOpen}` : ""}`;
+
     return (
       <div
         className={cardClasses}
         onClick={toggleSubcategories}
-        style={parentBgColor ? { backgroundColor: parentBgColor } : undefined}
       >
         <div className={styles.categoryHeader} onClick={handleMainCardClick}>
           <div className={styles.categoryTitle}>
@@ -121,10 +118,7 @@ const CategoryCard = memo(
           </div>
         </div>
         {isAccordionOpen && (
-          <div
-            className={styles.subcategoriesContainer}
-            style={parentBgColor ? { backgroundColor: parentBgColor } : {}}
-          >
+          <div className={styles.subcategoriesContainer}>
             <div className={styles.subcategoriesList}>
               {hasSubcategories &&
                 item.hijos?.map((subcat: CategoryItem) => {
@@ -140,12 +134,7 @@ const CategoryCard = memo(
                   return (
                     <div
                       key={subcat.id || `subcat-${Math.random()}`}
-                      className={`${styles.subcategoryItem}`}
-                      style={
-                        parentBgColor
-                          ? { backgroundColor: parentBgColor }
-                          : undefined
-                      }
+                      className={styles.subcategoryItem}
                       role="button"
                       tabIndex={0}
                     >
@@ -200,7 +189,7 @@ const CategoryCard = memo(
                   }}
                 >
                   <IconSimpleAdd size={16} />
-                  <span>Agregar subcategoría</span>
+                  <span>{CATEGORIES_NAVIGATION.addSubcategory}</span>
                 </button>
               </div>
             </div>

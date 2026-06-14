@@ -19,3 +19,21 @@ export const FORM_LABELS = {
   buttonSave: "Guardar",
   buttonCancel: "Cancelar",
 } as const;
+
+export const CATEGORIES_NAVIGATION = {
+  backToDebts: "Volver a sección deudas",
+  backToExpenses: "Volver a sección egresos",
+  backToIncomes: "Volver a sección ingresos",
+  headerExpenses: "Categorías de egresos",
+  headerIncomes: "Categorías de ingresos",
+  emptyMsg: "Sin categorías.",
+  emptyLine2: "Crea categorías para organizar tus movimientos financieros.",
+  newCategory: "Nueva categoría",
+  addSubcategory: "Agregar subcategoría",
+} as const;
+
+export const NAVIGATION_PATHS = {
+  debts: "/debts_manager",
+  expenses: "/outlays",
+  incomes: "/payments",
+} as const;

@@ -12,16 +12,19 @@ import CategoryCard from "./CategoryCard/CategoryCard";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCategories from "./hooks/useCategories";
+import { CATEGORIES_NAVIGATION, NAVIGATION_PATHS } from "./config/categories.constants";
 
 const BackNavigation = ({ type }: { type: number | string }) => {
   const getBackLink = () => {
-    if (String(type) === "D") return "/debts_manager";
-    return Number(type) === CategoryType.EXPENSE ? "/outlays" : "/payments";
+    if (String(type) === "D") return NAVIGATION_PATHS.debts;
+    const isExpense = type === "E" || Number(type) === CategoryType.EXPENSE;
+    return isExpense ? NAVIGATION_PATHS.expenses : NAVIGATION_PATHS.incomes;
   };
 
   const getBackText = () => {
-    if (String(type) === "D") return "Volver a sección deudas";
-    return Number(type) === CategoryType.EXPENSE ? "Volver a sección egresos" : "Volver a sección ingresos";
+    if (String(type) === "D") return CATEGORIES_NAVIGATION.backToDebts;
+    const isExpense = type === "E" || Number(type) === CategoryType.EXPENSE;
+    return isExpense ? CATEGORIES_NAVIGATION.backToExpenses : CATEGORIES_NAVIGATION.backToIncomes;
   };
 
   return (
@@ -91,7 +94,6 @@ const Categories = ({ type: propType = "" }) => {
             setSearch={handleSearch}
             textButton="Buscar"
             className={styles.dataSearchCustom}
-            style={{ width: "100%" }}
             searchMsg={extraData?.searchMsg || ""}
           />
         </div>
@@ -99,14 +101,14 @@ const Categories = ({ type: propType = "" }) => {
           className={styles.createCategoryButton}
           onClick={handleAddPrincipalCategory}
         >
-          Nueva categoría
+          {CATEGORIES_NAVIGATION.newCategory}
         </Button>
       </div>
       <List
         onRenderBody={renderCardFunction}
         height={"100%"}
-        emptyMsg="Sin categorías."
-        emptyLine2="Crea categorías para organizar tus movimientos financieros."
+        emptyMsg={CATEGORIES_NAVIGATION.emptyMsg}
+        emptyLine2={CATEGORIES_NAVIGATION.emptyLine2}
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
         hideTitle
       />

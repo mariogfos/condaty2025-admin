@@ -25,9 +25,9 @@ vi.mock("../hooks/useCategories", () => ({
     userCan: mockUserCan,
     extraData: { searchMsg: "Buscar..." },
     modPermission: "categories",
-    originalType: "1",
-    categoryTypeText: "ingresos",
-    typeToUse: 1,
+    originalType: "E",
+    categoryTypeText: "egresos",
+    typeToUse: 2,
     forceOpenAccordions: false,
     handleEdit: vi.fn(),
     handleDelete: vi.fn(),
@@ -59,8 +59,8 @@ describe("Categories Component", () => {
 
   it("renderiza el título y la navegación correctamente", () => {
     render(<Categories />);
-    expect(screen.getByText("Categorías de ingresos")).toBeInTheDocument();
-    expect(screen.getByText("Volver a sección ingresos")).toBeInTheDocument();
+    expect(screen.getByText("Categorías de egresos")).toBeInTheDocument();
+    expect(screen.getByText("Volver a sección egresos")).toBeInTheDocument();
   });
 
   it("muestra NotAccess si el usuario no tiene permisos de lectura ('R')", () => {
