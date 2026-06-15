@@ -1,4 +1,4 @@
-export const PAYMENTS_V3_BASE = "/payments-v3";
+export const PAYMENTS_V3_BASE = "/v3/payments";
 
 export const paymentsApi = {
   unitFinancialState: (dptoId: string | number) =>
