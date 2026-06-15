@@ -6,6 +6,7 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useState, useEffect } from "react";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import { BankAccountType } from "../Type/BankType";
+import { bankAccountsApi } from "../api";
 
 const RenderForm = ({
   open,
@@ -111,7 +112,7 @@ const RenderForm = ({
     if (hasErrors(validate())) return;
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
-      "/v3/bank-accounts" + (formState.id ? "/" + formState.id : ""),
+      formState.id ? bankAccountsApi.detail(formState.id) : bankAccountsApi.base,
       method,
       {
         images: formState.images || "",

@@ -2,6 +2,7 @@ import React from "react";
 import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import CategoryForm from "../RenderForm/RenderForm";
 import { CategoryItem } from "../Type/CategoryType";
+import { categoriesApi } from "../api";
 
 export const getCategoryConfig = (
   typeToUse: number,
@@ -11,7 +12,7 @@ export const getCategoryConfig = (
   getExtraDataRef: React.MutableRefObject<any>
 ): { mod: ModCrudType; fields: any } => {
   const mod: ModCrudType = {
-    modulo: "v3/categories",
+    modulo: categoriesApi.modulo,
     singular: "Categoría",
     plural: "Categorías",
     permiso: "categories",

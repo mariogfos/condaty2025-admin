@@ -8,8 +8,8 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-
 import { BankAccountStatus, BANK_ACCOUNT_STATUS_LABELS } from "./Type/BankType";
+import { bankAccountsApi } from "./api";
 
 const paramsInitial = {
   perPage: 20,
@@ -33,7 +33,7 @@ const centeredColumnStyle = {
 
 const BankAccounts = () => {
   const mod: ModCrudType = useMemo(() => ({
-    modulo: "v3/bank-accounts",
+    modulo: bankAccountsApi.modulo,
     singular: "cuenta bancaria",
     plural: "cuentas bancarias",
     filter: true,
