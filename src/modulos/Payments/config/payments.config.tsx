@@ -130,7 +130,7 @@ export const getPaymentsConfig = (
   centerClass: string
 ): { mod: ModCrudType; fields: any } => {
   const mod: ModCrudType = {
-    modulo: "payments",
+    modulo: "v3/payments",
     singular: "Ingreso",
     plural: "Ingresos",
     permiso: "payments",

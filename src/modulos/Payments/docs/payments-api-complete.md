@@ -1,6 +1,6 @@
 # Payments Module - API Documentation
 
-The frontend Payments module interacts with the backend modular DDD Payments v3 API (`/payments-v3`). 
+The frontend Payments module interacts with the backend modular DDD Payments v3 API (`/v3/payments`). 
 
 ---
 
@@ -8,14 +8,14 @@ The frontend Payments module interacts with the backend modular DDD Payments v3 
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| **GET** | `/payments-v3` | Lists all payments registered. Supports search and pagination filters. |
-| **GET** | `/payments-v3/admin/debts` | Retrieve pending debts for a specific apartment unit (`dptoId`). |
-| **POST** | `/payments-v3/full` | Register a standard payment associated with a set of pending debts. |
-| **POST** | `/payments-v3/partial` | Register a partial payment for a specific debt. |
-| **POST** | `/payments-v3/{id}/confirm` | Confirms/approves a payment under `"S"` status. |
-| **POST** | `/payments-v3/{id}/voucher` | Submits a voucher file path or reference for validation. |
-| **GET** | `/payments-v3/owner/pending` | Fetch pending debts for the authenticated owner mobile view. |
-| **GET** | `/payments-v3/owner/history` | Retrieve payments history for the authenticated owner mobile view. |
+| **GET** | `/v3/payments` | Lists all payments registered. Supports search and pagination filters. |
+| **GET** | `/v3/payments/admin/debts` | Retrieve pending debts for a specific apartment unit (`dptoId`). |
+| **POST** | `/v3/payments/full` | Register a standard payment associated with a set of pending debts. |
+| **POST** | `/v3/payments/partial` | Register a partial payment for a specific debt. |
+| **POST** | `/v3/payments/{id}/confirm` | Confirms/approves a payment under `"S"` status. |
+| **POST** | `/v3/payments/{id}/voucher` | Submits a voucher file path or reference for validation. |
+| **GET** | `/v3/payments/owner/pending` | Fetch pending debts for the authenticated owner mobile view. |
+| **GET** | `/v3/payments/owner/history` | Retrieve payments history for the authenticated owner mobile view. |
 
 ---
 
@@ -56,7 +56,7 @@ The frontend Payments module interacts with the backend modular DDD Payments v3 
 
 ## 📦 Request / Response DTO Schema
 
-### Register Payment (`POST /payments-v3/full`)
+### Register Payment (`POST /v3/payments/full`)
 
 **Payload Schema:**
 ```json
