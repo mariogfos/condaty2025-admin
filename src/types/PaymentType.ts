@@ -1,10 +1,3 @@
-export enum PaymentStatus {
-  SUBMITTED = 1, // Por confirmar
-  PAID = 2,      // Confirmado
-  REJECTED = 3,  // Rechazado
-  CANCELLED = 4, // Anulado
-}
-
 export enum DebtStatus {
   PENDING = 1,           // Por cobrar
   OVERDUE = 2,           // En mora
@@ -14,24 +7,6 @@ export enum DebtStatus {
   FORGIVEN = 6,          // Condonada
   WORKFLOW_PENDING = 7,  // Flujo externo pendiente
   CANCELLED = 8,         // Anulada
-}
-
-export enum PaymentMethod {
-  TRANSFER = 1,
-  OFFICE = 2,
-  QR = 3,
-  CASH = 4,
-  CHEQUE = 5,
-}
-
-export enum PaymentType {
-  ALL_DEBTS = 1,
-  EXPENSES = 2,
-  RESERVATIONS = 3,
-  CONDONATION = 4,
-  PAYMENT_PLAN = 5,
-  OTHER_DEBTS = 6,
-  DIRECT_INCOME = 7,
 }
 
 export interface PaymentStatusConfig {
@@ -85,40 +60,8 @@ export const DEBT_STATUS_MAP: Record<number, PaymentStatusConfig> = {
   },
 };
 
-// Mapa de estados de PAGO
-export const PAYMENT_STATUS_MAP: Record<number, PaymentStatusConfig> = {
-  [PaymentStatus.SUBMITTED]: {
-    label: "Por confirmar",
-    color: "var(--cWarning)",
-    backgroundColor: "var(--cHoverCompl4)",
-  },
-  [PaymentStatus.PAID]: {
-    label: "Confirmado",
-    color: "var(--cSuccess)",
-    backgroundColor: "var(--cHoverCompl2)",
-  },
-  [PaymentStatus.REJECTED]: {
-    label: "Rechazado",
-    color: "var(--cMediumAlert)",
-    backgroundColor: "var(--cHoverCompl5)",
-  },
-  [PaymentStatus.CANCELLED]: {
-    label: "Anulado",
-    color: "var(--cError)",
-    backgroundColor: "var(--cHoverError)",
-  },
-};
-
 export const getDebtStatusConfig = (status: number): PaymentStatusConfig => {
   return DEBT_STATUS_MAP[status] || {
-    label: "Desconocido",
-    color: "var(--cLight)",
-    backgroundColor: "var(--cHoverLight)",
-  };
-};
-
-export const getPaymentStatusConfig = (status: number): PaymentStatusConfig => {
-  return PAYMENT_STATUS_MAP[status] || {
     label: "Desconocido",
     color: "var(--cLight)",
     backgroundColor: "var(--cHoverLight)",
