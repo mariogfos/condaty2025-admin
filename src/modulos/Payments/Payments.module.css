@@ -111,3 +111,22 @@
   height: 100%;
   width: 100%;
 }
+
+.textEllipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alignRight {
+  display: block;
+  text-align: right;
+  width: 100%;
+}
+
+.center {
+  display: block;
+  text-align: center;
+  width: 100%;
+}
+

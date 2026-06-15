@@ -341,3 +341,13 @@
     gap: 12px;
   }
 }
+
+.deudaButton {
+  background: none;
+  border: none;
+  padding: 0;
+  width: 100%;
+  text-align: inherit;
+  cursor: pointer;
+}
+
