@@ -8,6 +8,7 @@ import RenderForm from "../RenderForm/RenderForm";
 import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { BankAccountStatus } from "../Type/BankType";
+import { bankAccountsApi } from "../api";
 
 const RenderView = (props: any) => {
   const {
@@ -35,7 +36,7 @@ const RenderView = (props: any) => {
     if (data?.id) {
       setLoading(true);
       const { data: res } = await execute(
-        `/v3/bank-accounts`,
+        bankAccountsApi.base,
         "GET",
         {
           fullType: "DET",
@@ -60,7 +61,7 @@ const RenderView = (props: any) => {
   const handleUpdateStatus = async () => {
     setLoading(true);
     const { data: res } = await execute(
-      `/v3/bank-account-availability/${item?.id}`,
+      bankAccountsApi.availability(item?.id),
       "PUT",
       {
         status: isActive ? BankAccountStatus.INACTIVE : BankAccountStatus.ACTIVE,
