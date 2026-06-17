@@ -35,14 +35,14 @@ export type MenuConfigItem =
 
 export const menuConfig: MenuConfigItem[] = [
   { type: "item", href: "/", labelKey: "home", perm: "home", icon: IconHome },
-  {
+  /* {
     type: "item",
     href: "/tasks",
     labelKey: "tasks",
     // perm: "tasks",
     perm: "",
     icon: IconMonitorLine,
-  },
+  }, */
   {
     type: "dropdown",
     labelKey: "backoffice",
@@ -50,7 +50,6 @@ export const menuConfig: MenuConfigItem[] = [
     key: "Backoffice",
     items: [
       { href: "/superadmins", perm: "superadmins", labelKey: "superadmins" },
-      { href: "/demos", perm: "superadmins", labelKey: "demos" },
       { href: "/condominios", perm: "condominios", labelKey: "condominiums" },
       { href: "/invitations", perm: "campanas", labelKey: "qrInvitations" },
       { href: "/uploads", perm: "cargamasiva", labelKey: "bulkUpload" },
