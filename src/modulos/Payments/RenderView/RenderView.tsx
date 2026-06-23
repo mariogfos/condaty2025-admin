@@ -26,9 +26,10 @@ import Table from "@/mk/components/ui/Table/Table";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 import { paymentsApi } from "../api";
+import { PaymentMethod, PaymentStatus } from "../Type/PaymentType";
 interface PaymentDetail {
   id: string | number;
-  status: string;
+  status: number;
   __openRejectModal?: boolean;
   user?: any;
   confirm_obs?: string;
@@ -240,7 +241,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       paymentsApi.confirm(paymentId),
       "POST",
       {
-        confirm: rechazado ? "P" : "R",
+        confirm: rechazado ? PaymentStatus.PAID : PaymentStatus.REJECTED,
         confirm_obs: formState.confirm_obs,
       },
       false,
@@ -320,27 +321,25 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     }
   };
 
-  const getPaymentType = (type: string) => {
-    const typeMap: Record<string, string> = {
-      T: "Transferencia bancaria",
-      E: "Efectivo",
-      C: "Cheque",
-      Q: "Pago QR",
-      //O: 'Pago en oficina',
+  const getPaymentType = (type: number) => {
+    const typeMap: Record<number, string> = {
+      [PaymentMethod.TRANSFER]: "Transferencia bancaria",
+      [PaymentMethod.OFFICE]: "Pago en oficina",
+      [PaymentMethod.QR]: "Pago QR",
+      [PaymentMethod.CASH]: "Efectivo",
+      [PaymentMethod.CHEQUE]: "Cheque",
     };
-    return typeMap[type] || type;
+    return typeMap[type] || String(type);
   };
 
-  const getStatus = (status: string) => {
-    const statusMap: Record<string, string> = {
-      P: "Cobrado",
-      S: "Por confirmar",
-      R: "Rechazado",
-      A: "Por pagar",
-      M: "Moroso",
-      X: "Anulado",
+  const getStatus = (status: number) => {
+    const statusMap: Record<number, string> = {
+      [PaymentStatus.PAID]: "Cobrado",
+      [PaymentStatus.SUBMITTED]: "Por confirmar",
+      [PaymentStatus.REJECTED]: "Rechazado",
+      [PaymentStatus.CANCELLED]: "Anulado",
     };
-    return statusMap[status] || status;
+    return statusMap[status] || String(status);
   };
 
   const getDptoName = () => {
@@ -414,27 +413,25 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   }
 
   let aprobadoLabel;
-  if (item.status === "P") {
+  if (item.status === PaymentStatus.PAID) {
     aprobadoLabel = "Aprobado por";
-  } else if (item.status === "R") {
+  } else if (item.status === PaymentStatus.REJECTED) {
     aprobadoLabel = "Rechazado por";
-  } else if (item.status === "S") {
+  } else if (item.status === PaymentStatus.SUBMITTED) {
     aprobadoLabel = "Por confirmar por";
   } else {
     aprobadoLabel = "Aprobado por";
   }
 
   let statusClass = "";
-  if (item.status === "P") {
+  if (item.status === PaymentStatus.PAID) {
     statusClass = styles.statusPaid;
-  } else if (item.status === "S") {
+  } else if (item.status === PaymentStatus.SUBMITTED) {
     statusClass = styles.statusPending;
-  } else if (item.status === "R") {
+  } else if (item.status === PaymentStatus.REJECTED) {
     statusClass = styles.statusRejected;
-  } else if (item.status === "X") {
+  } else if (item.status === PaymentStatus.CANCELLED) {
     statusClass = styles.statusCanceled;
-  } else if (item.status === "E") {
-    statusClass = styles.statusVoucher;
   }
 
   let tenantDisplay = "-/-";
@@ -607,7 +604,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       handleDownloadVouchers();
     }
   };
-  const canReviewPayment = item?.status === "S";
+  const canReviewPayment = item?.status === PaymentStatus.SUBMITTED;
 
   return (
     <>
@@ -661,8 +658,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     </span>
                   </div>
                   {showBankAccount &&
-                    item.status !== "R" &&
-                    item.status !== "X" && (
+                    item.status !== PaymentStatus.REJECTED &&
+                    item.status !== PaymentStatus.CANCELLED && (
                       <div className={styles.infoBlock}>
                         <span className={styles.infoLabel}>Observación</span>
                         <span className={styles.infoValue}>
@@ -699,7 +696,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     </div>
                   )}
 
-                  {confirmedBy && item.status === "R" && (
+                  {confirmedBy && item.status === PaymentStatus.REJECTED && (
                     <div className={styles.infoBlock}>
                       <span className={styles.infoLabel}>{aprobadoLabel}</span>
                       <span className={styles.infoValue}>
@@ -708,8 +705,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     </div>
                   )}
                   {!showBankAccount &&
-                    item.status !== "R" &&
-                    item.status !== "X" && (
+                    item.status !== PaymentStatus.REJECTED &&
+                    item.status !== PaymentStatus.CANCELLED && (
                       <div className={styles.infoBlock}>
                         <span className={styles.infoLabel}>Observación</span>
                         <span className={styles.infoValue}>
@@ -717,7 +714,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                         </span>
                       </div>
                     )}
-                  {item.status === "X" && (
+                  {item.status === PaymentStatus.CANCELLED && (
                     <>
                       <div className={styles.infoBlock}>
                         <span className={styles.infoLabel}>Anulado por</span>
@@ -747,7 +744,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     </span>
                   </div>
 
-                  {item.status === "R" && (
+                  {item.status === PaymentStatus.REJECTED && (
                     <>
                       <div className={styles.infoBlock}>
                         <span className={styles.infoLabel}>
@@ -767,7 +764,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                       </div>
                     </>
                   )}
-                  {item.status === "X" ? (
+                  {item.status === PaymentStatus.CANCELLED ? (
                     <div className={styles.infoBlock}>
                       <span className={styles.infoLabel}>
                         Motivo de rechazo
@@ -780,7 +777,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     </div>
                   ) : (
                     <>
-                      {confirmedBy && item.status !== "R" && (
+                      {confirmedBy && item.status !== PaymentStatus.REJECTED && (
                         <div className={styles.infoBlock}>
                           <span className={styles.infoLabel}>
                             {aprobadoLabel}
@@ -804,7 +801,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   )}
 
                   {/* Ocultar completamente el bloque de respaldo si está rechazado */}
-                  {item.status !== "R" && (
+                  {item.status !== PaymentStatus.REJECTED && (
                     <div className={styles.infoBlock}>
                       <span className={styles.infoLabel}>
                         Nro. de respaldo de pago
@@ -862,7 +859,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               )}
 
             <div className={styles.voucherButtonContainer}>
-              {item && onDel && item.status === "P" && item.user && (
+              {item && onDel && item.status === PaymentStatus.PAID && item.user && (
                 <Button
                   onClick={handleAnularClick}
                   className={styles.textButtonDanger}
@@ -873,7 +870,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                 </Button>
               )}
 
-              {item.status === "P" && (
+              {item.status === PaymentStatus.PAID && (
                 <Button
                   variant="secondary"
                   className={styles.voucherButton}
@@ -883,7 +880,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   Ver Recibo
                 </Button>
               )}
-              {item.status === "P" && (
+              {item.status === PaymentStatus.PAID && (
                 <Button
                   variant="secondary"
                   className={styles.voucherButton}

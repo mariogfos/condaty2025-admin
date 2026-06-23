@@ -853,7 +853,7 @@ export const usePaymentsForm = (
     }
 
     try {
-      const endpoint = isDebtBasedPayment ? paymentsApi.full : "/payments";
+      const endpoint = paymentsApi.full;
       const { data, error } = await execute(endpoint, "POST", params);
 
       if (data?.success) {
