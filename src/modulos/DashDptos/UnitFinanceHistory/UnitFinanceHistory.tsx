@@ -15,7 +15,6 @@ import {
 } from "@/modulos/DebtsManager/TabComponents/constants";
 import { paymentsApi } from "@/modulos/Payments/api";
 import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
-import PartialPaymentRenderView from "@/modulos/PartialPayments/RenderView/RenderView";
 import DebtRenderView from "@/modulos/DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { IconCategories, IconPagos } from "@/components/layout/icons/IconsBiblioteca";
@@ -140,26 +139,6 @@ const normalizeDebtRow = (row: any) => ({
   status: getDebtStatusCode(row) || row?.status || "A",
 });
 
-const getIsPartialDebtFlag = (row: any) => {
-  const rawValue =
-    row?.is_partial ??
-    row?.debt?.is_partial ??
-    row?.debt_dpto?.is_partial ??
-    null;
-
-  return rawValue === true || rawValue === 1 || rawValue === "1";
-};
-
-const isPartialDebtRow = (row: any) => {
-  const normalizedStatus = getDebtStatusCode(row);
-
-  if (normalizedStatus === "I") {
-    return true;
-  }
-
-  return getIsPartialDebtFlag(row);
-};
-
 const resolveDebtStatus = (row: any) => {
   const normalizedStatus = getDebtStatusCode(row);
   const dueAtString = row?.debt?.due_at || row?.due_at || "";
@@ -262,7 +241,6 @@ const UnitFinanceHistory = ({
     null,
   );
   const [selectedDebt, setSelectedDebt] = useState<any | null>(null);
-  const [selectedPartialDebt, setSelectedPartialDebt] = useState<any | null>(null);
 
   const totalPaymentsAmount = useMemo(() => {
     return paymentRows.reduce((acc, row) => acc + getPaymentAmount(row), 0);
@@ -600,11 +578,6 @@ const UnitFinanceHistory = ({
                   return;
                 }
 
-                if (isPartialDebtRow(normalizedRow)) {
-                  setSelectedPartialDebt(normalizedRow);
-                  return;
-                }
-
                 setSelectedDebt(normalizedRow);
               }}
             />
@@ -641,17 +614,6 @@ const UnitFinanceHistory = ({
         />
       ) : null}
 
-      {selectedPartialDebt ? (
-        <PartialPaymentRenderView
-          open={Boolean(selectedPartialDebt)}
-          onClose={() => setSelectedPartialDebt(null)}
-          item={selectedPartialDebt}
-          extraData={extraData}
-          execute={execute}
-          reLoad={handleRefreshFinancialData}
-          showToast={showToast}
-        />
-      ) : null}
     </>
   );
 };
