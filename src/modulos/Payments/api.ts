@@ -5,8 +5,8 @@ export const paymentsApi = {
     `${PAYMENTS_V3_BASE}/units/${dptoId}/financial-state`,
   adminDebts: `${PAYMENTS_V3_BASE}/admin/debts`,
   adminPartialDebts: `${PAYMENTS_V3_BASE}/admin/partial-debts`,
-  full: `${PAYMENTS_V3_BASE}/full`,
-  partial: `${PAYMENTS_V3_BASE}/partial`,
+  create: PAYMENTS_V3_BASE,
+  simulate: `${PAYMENTS_V3_BASE}/simulate`,
   partialSummary: (debtId: string | number) =>
     `${PAYMENTS_V3_BASE}/debts/${debtId}/partial-summary`,
   detail: (paymentId: string | number) => `${PAYMENTS_V3_BASE}/${paymentId}`,
