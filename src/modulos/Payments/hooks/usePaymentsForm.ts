@@ -243,6 +243,9 @@ export const usePaymentsForm = (
   const [periodoTotal, setPeriodoTotal] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoadingDeudas, setIsLoadingDeudas] = useState(false);
+  const [simulateResult, setSimulateResult] = useState<any>(null);
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [simulateError, setSimulateError] = useState<string | null>(null);
 
   const showCategoryFields = formState.type === FormPaymentType.DIRECT;
   const isDebtBasedPayment = Boolean(formState.type && formState.type !== FormPaymentType.DIRECT);
@@ -688,6 +691,42 @@ export const usePaymentsForm = (
     });
   }, [getSubtotal]);
 
+  const runSimulate = useCallback(async () => {
+    if (!isDebtBasedPayment || !formState.amount || selectedPeriodo.length === 0) return;
+
+    setIsSimulating(true);
+    try {
+      const { data } = await execute(
+        paymentsApi.simulate,
+        "POST",
+        {
+          amount: parseFloat(String(formState.amount)),
+          debt_dpto_ids: selectedPeriodo.map((p) => Number(p.id)),
+        },
+        false,
+        true
+      );
+
+      if (data?.success) {
+        const result = data.data;
+        setSimulateResult(result);
+        if (result?.is_overpayment === true) {
+          setSimulateError("El monto supera la deuda total");
+        } else {
+          setSimulateError(null);
+        }
+      }
+    } catch (_err) {
+      // silent — don't block form submission
+    } finally {
+      setIsSimulating(false);
+    }
+  }, [isDebtBasedPayment, formState.amount, selectedPeriodo, execute]);
+
+  const handleAmountBlur = useCallback(() => {
+    runSimulate();
+  }, [runSimulate]);
+
   const validar = useCallback(() => {
     const err: Errors = {};
     if (!formState.type) {
@@ -820,40 +859,27 @@ export const usePaymentsForm = (
       }
     }
 
-    let params: any = {
+    const selectedDpto = findSelectedDpto(formState.dpto_id || "");
+    const dptoId = Number(selectedDpto?.id || formState.dpto_id);
+
+    const params: any = {
+      dpto_id: dptoId,
       paid_at: formState.paid_at,
-      method: formState.method,
-      url_file: formState.url_file,
-      obs: formState.obs,
-      nro_id: formState.dpto_id,
-      owner_id: owner_id,
-      type: formState.type,
+      method: Number(formState.method),
+      amount: parseFloat(String(
+        isDebtBasedPayment && selectedPeriodo.length > 0
+          ? formState.amount || periodoTotal
+          : formState.amount || "0"
+      )),
+      debt_dpto_ids: isDebtBasedPayment ? selectedPeriodo.map((p) => Number(p.id)) : [],
       bank_account_id: bank_account_id,
+      obs: formState.obs || "",
+      voucher: formState.voucher || "",
+      url_file: formState.url_file || [],
     };
 
-    if (formState.voucher && String(formState.voucher).length > 0) {
-      params.voucher = formState.voucher;
-    }
-
-    if (showCategoryFields) {
-      params.subcategory_id = formState.subcategory_id;
-    }
-
-    if (isDebtBasedPayment && selectedPeriodo.length > 0) {
-      params = {
-        ...params,
-        asignados: selectedPeriodo,
-        amount: periodoTotal,
-      };
-    } else {
-      params = {
-        ...params,
-        amount: parseFloat(String(formState.amount || "0")),
-      };
-    }
-
     try {
-      const endpoint = paymentsApi.full;
+      const endpoint = paymentsApi.create;
       const { data, error } = await execute(endpoint, "POST", params);
 
       if (data?.success) {
@@ -900,6 +926,8 @@ export const usePaymentsForm = (
     return false;
   }, [selectedPeriodo]);
 
+  const isSubmitDisabled = Boolean(simulateError);
+
   return {
     formState,
     setFormState,
@@ -920,5 +948,10 @@ export const usePaymentsForm = (
     getSubtotal,
     getConceptByType,
     getDebtType,
+    simulateResult,
+    isSimulating,
+    simulateError,
+    handleAmountBlur,
+    isSubmitDisabled,
   };
 };

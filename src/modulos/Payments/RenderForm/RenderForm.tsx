@@ -39,6 +39,11 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
     getSubtotal,
     getConceptByType,
     getDebtType,
+    simulateResult,
+    isSimulating,
+    simulateError,
+    handleAmountBlur,
+    isSubmitDisabled,
   } = usePaymentsForm(props, open);
 
   const deudasContent = useMemo(() => {
@@ -206,6 +211,7 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
         title={"Crear ingreso"}
         minWidth={680}
         maxWidth={860}
+        disabled={isSubmitDisabled}
       >
         <div className={styles["income-form-container"]}>
           <div className={styles.section}>
@@ -299,16 +305,23 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                       name="amount"
                       label="Monto del ingreso"
                       onChange={handleChangeInput}
-                      value={
-                        isDebtBasedPayment && deudas?.length > 0
-                          ? periodoTotal.toFixed(2)
-                          : formState.amount
-                      }
+                      onBlur={formState.isAmountLocked ? undefined : handleAmountBlur}
+                      value={formState.amount}
                       required={false}
                       error={errors}
-                      disabled={isDebtBasedPayment || formState.isAmountLocked}
+                      disabled={formState.isAmountLocked}
                       maxLength={20}
                     />
+                    {isSimulating && (
+                      <span style={{ fontSize: "12px", color: "var(--cWhiteV3)" }}>
+                        Calculando...
+                      </span>
+                    )}
+                    {simulateError && (
+                      <span style={{ fontSize: "12px", color: "var(--cError, #f44)" }}>
+                        {simulateError}
+                      </span>
+                    )}
                   </div>
                   <div className={styles["input-half"]}>
                     <Select
@@ -400,6 +413,39 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
               </div>
             </div>
           </div>
+
+          {simulateResult?.payment_is_partial === true && (
+            <div className={styles.section} style={{ marginTop: 16 }}>
+              <div style={{ padding: "12px", border: "1px solid var(--cWarning, #f90)", borderRadius: 8 }}>
+                <p style={{ fontWeight: "bold", marginBottom: 8 }}>Pago parcial detectado</p>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: "left", padding: "4px 8px" }}>Deuda ID</th>
+                      <th style={{ textAlign: "right", padding: "4px 8px" }}>Monto aplicado</th>
+                      <th style={{ textAlign: "right", padding: "4px 8px" }}>Balance antes</th>
+                      <th style={{ textAlign: "right", padding: "4px 8px" }}>Balance después</th>
+                      <th style={{ textAlign: "center", padding: "4px 8px" }}>Excluida</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(simulateResult.items || []).map((item: any, idx: number) => (
+                      <tr key={idx}>
+                        <td style={{ padding: "4px 8px" }}>{item.debt_dpto_id}</td>
+                        <td style={{ textAlign: "right", padding: "4px 8px" }}>{item.applied_amount}</td>
+                        <td style={{ textAlign: "right", padding: "4px 8px" }}>{item.balance_before}</td>
+                        <td style={{ textAlign: "right", padding: "4px 8px" }}>{item.balance_after}</td>
+                        <td style={{ textAlign: "center", padding: "4px 8px" }}>{item.excluded ? "Sí" : "No"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p style={{ marginTop: 8, fontSize: 13 }}>
+                  Al confirmar, se aplicará el pago parcial según la distribución mostrada.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </DataModal>
     </>
