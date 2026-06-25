@@ -189,7 +189,7 @@ const getDebtPeriodLabel = (debt: Record<string, any> | null | undefined) => {
 
 const getPaymentPeriodOrConceptValues = (item: Record<string, any>) => {
   const detailValues = getPaymentDetails(item).map((detail: any) => {
-    const debtPeriod = getDebtPeriodLabel(detail?.debt_dpto?.debt);
+    const debtPeriod = getDebtPeriodLabel(detail?.debt_dpto) || getDebtPeriodLabel(detail?.debt_dpto?.shared);
     if (debtPeriod) return debtPeriod;
 
     const reservationTitle =
