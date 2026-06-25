@@ -54,8 +54,8 @@ const getDebtConceptLabel = (row: any) => {
   if (debtType === 1) {
     return (
       getMonthPeriodLabel(
-        row?.debt?.month ?? row?.shared?.month,
-        row?.debt?.year ?? row?.shared?.year,
+        row?.month ?? row?.shared?.month,
+        row?.year ?? row?.shared?.year,
       ) || "-/-"
     );
   }
@@ -71,7 +71,6 @@ const getDebtConceptLabel = (row: any) => {
   return (
     row?.description ||
     row?.shared?.description ||
-    row?.debt?.description ||
     row?.subcategory?.name ||
     "-/-"
   );
@@ -116,7 +115,6 @@ const getDebtStatusCode = (row: any) =>
   String(
     row?.status ??
       row?.debt_status ??
-      row?.debt?.status ??
       row?.debt_dpto?.status ??
       "",
   )
@@ -141,7 +139,7 @@ const normalizeDebtRow = (row: any) => ({
 
 const resolveDebtStatus = (row: any) => {
   const normalizedStatus = getDebtStatusCode(row);
-  const dueAtString = row?.debt?.due_at || row?.due_at || "";
+  const dueAtString = row?.due_at || "";
   const todayString = new Date().toISOString().split("T")[0];
 
   if (normalizedStatus === "A" && dueAtString && dueAtString < todayString) {
@@ -172,8 +170,8 @@ const getPaymentConceptLabel = (payment: any) => {
         if (debtType === 1) {
           return (
             getMonthPeriodLabel(
-              debt?.debt?.month ?? debt?.shared?.month,
-              debt?.debt?.year ?? debt?.shared?.year,
+              debt?.month ?? debt?.shared?.month,
+              debt?.year ?? debt?.shared?.year,
             ) || ""
           );
         }
@@ -294,9 +292,9 @@ const UnitFinanceHistory = ({
 
         const sortedRows = [...activeRows].sort((left, right) =>
           String(
-            right?.due_at || right?.debt?.due_at || right?.created_at || "",
+            right?.due_at || right?.created_at || "",
           ).localeCompare(
-            String(left?.due_at || left?.debt?.due_at || left?.created_at || ""),
+            String(left?.due_at || left?.created_at || ""),
           ),
         );
 
@@ -435,7 +433,7 @@ const UnitFinanceHistory = ({
         responsive: "desktop",
         width: "140px",
         onRender: ({ item }: any) =>
-          getDateStrMesShort(item?.due_at || item?.debt?.due_at) || "-/-",
+          getDateStrMesShort(item?.due_at) || "-/-",
       },
       {
         key: "concept_period",
@@ -469,7 +467,7 @@ const UnitFinanceHistory = ({
         style: { textAlign: "center", justifyContent: "center" },
         onRender: ({ item }: any) => {
           const resolvedStatus = resolveDebtStatus(item);
-          const dueAtString = item?.debt?.due_at || item?.due_at;
+          const dueAtString = item?.due_at;
           const { color, bgColor } = getDebtStatusConfig(
             resolvedStatus,
             dueAtString,
