@@ -275,4 +275,86 @@ describe("usePaymentsForm", () => {
     expect(payload.debt_dpto_ids.every((id: any) => typeof id === "number")).toBe(true);
     expect(typeof payload.method).toBe("number");
   });
+
+  it("ordena deudas por year/month a nivel dpto (no via debt head)", async () => {
+    const localExecute = vi.fn().mockImplementation((url: string) => {
+      if (url === paymentsApi.adminDebts) {
+        return Promise.resolve({
+          data: {
+            success: true,
+            data: {
+              deudas: [
+                { id: "2", month: 6, year: 2024, debt: { month: 1, year: 2099 } },
+                { id: "1", month: 3, year: 2024, debt: { month: 12, year: 2099 } },
+              ],
+            },
+          },
+        });
+      }
+      return Promise.resolve({ data: { success: true } });
+    });
+
+    const props = {
+      item: {
+        paid_at: "2026-06-25",
+        type: FormPaymentType.EXPENSE,
+        dpto_id: "101",
+        method: String(PaymentMethod.CASH),
+        amount: "",
+      },
+      extraData: {
+        dptos: [{ id: 5, nro: "101", description: "Dpto 101", homeowner: { id: 9, name: "Mario" } }],
+        categories: [],
+        client_config: { cat_expensas: 100, cat_reservations: 200, cat_forgiveness: 300 },
+        bankAccounts: [],
+        subcategories: [],
+      },
+      execute: localExecute,
+      showToast: mockShowToast,
+      reLoad: mockReLoad,
+      onClose: mockOnClose,
+    } as any;
+
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    await waitFor(() => {
+      expect(result.current.deudas).toHaveLength(2);
+    });
+
+    // Sorted by dpto-level month/year: Mar 2024 (id=1) before Jun 2024 (id=2)
+    // NOT by debt head 2099 values
+    expect(result.current.deudas[0].id).toBe("1");
+    expect(result.current.deudas[1].id).toBe("2");
+  });
+
+  it("getConceptByType devuelve periodo desde dpto-level para tipo 1 (EXPENSE)", () => {
+    const props = makeExpenseProps() as any;
+    const { result } = renderHook(() => usePaymentsForm(props, false));
+
+    const periodo = { type: 1, month: 4, year: 2025, debt: { month: 99, year: 9999 }, shared: { month: 11, year: 2020 } } as any;
+    const concept = result.current.getConceptByType(periodo);
+
+    // dpto-level year used (2025), NOT debt head (9999)
+    expect(concept).toContain("2025");
+  });
+
+  it("getConceptByType usa shared fallback para tipo 1 cuando dpto month/year son null (SHARED row)", () => {
+    const props = makeExpenseProps() as any;
+    const { result } = renderHook(() => usePaymentsForm(props, false));
+
+    const periodo = { type: 1, month: null, year: null, shared: { month: 8, year: 2023 } } as any;
+    const concept = result.current.getConceptByType(periodo);
+
+    expect(concept).toContain("2023");
+  });
+
+  it("getConceptByType default no incluye debt.description", () => {
+    const props = makeExpenseProps() as any;
+    const { result } = renderHook(() => usePaymentsForm(props, false));
+
+    const periodo = { type: 99, description: null, shared: { description: null }, debt: { description: "debe ignorarse" } } as any;
+    const concept = result.current.getConceptByType(periodo);
+
+    expect(concept).toBe("-/-");
+  });
 });

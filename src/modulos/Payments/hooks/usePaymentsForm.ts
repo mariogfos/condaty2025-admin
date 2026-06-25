@@ -315,8 +315,8 @@ export const usePaymentsForm = (
 
           const deudasArrayOrdenado = deudasArray.toSorted(
             (a, b) =>
-              (a.debt?.year ?? 0) - (b.debt?.year ?? 0) ||
-              (a.debt?.month ?? 0) - (b.debt?.month ?? 0)
+              (a.year ?? 0) - (b.year ?? 0) ||
+              (a.month ?? 0) - (b.month ?? 0)
           );
           setDeudas(deudasArrayOrdenado);
           if (deudasArrayOrdenado.length === 0) {
@@ -362,8 +362,8 @@ export const usePaymentsForm = (
 
     switch (type) {
       case 1: {
-        const monthNum = periodo?.debt?.month ?? periodo?.shared?.month;
-        const yearNum = periodo?.debt?.year ?? periodo?.shared?.year;
+        const monthNum = periodo?.month ?? periodo?.shared?.month;
+        const yearNum = periodo?.year ?? periodo?.shared?.year;
         if (monthNum != null && yearNum != null) {
           const monthIndex = Math.max(1, Math.min(12, Number(monthNum)));
           const monthName = MONTHS_S[monthIndex] || String(monthNum);
@@ -390,7 +390,6 @@ export const usePaymentsForm = (
         return (
           periodo?.description ||
           periodo?.shared?.description ||
-          periodo?.debt?.description ||
           "-/-"
         );
     }
