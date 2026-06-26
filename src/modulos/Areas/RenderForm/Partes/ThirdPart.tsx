@@ -2,6 +2,7 @@ import React from "react";
 import styles from "../RenderForm.module.css";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Switch from "@/mk/components/forms/Switch/Switch";
+import Input from "@/mk/components/forms/Input/Input";
 import Br from "@/components/Detail/Br";
 interface PropsType {
   handleChange: any;
@@ -33,6 +34,22 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
           value={formState?.penalty_or_debt_restriction}
         />
       </div>
+      <Br />
+      <div className={styles.sectionBlock}>
+        <p className={styles.title}>Anticipación de reservas</p>
+        <p className={styles.subtitle}>
+          Define cuántas horas antes del turno puede reservar un residente.
+        </p>
+      </div>
+      <Input
+        type="number"
+        label="Horas mínimas de anticipación"
+        name="min_reservation_advance_hours"
+        value={formState?.min_reservation_advance_hours ?? 0}
+        onChange={handleChange}
+        error={errors}
+        min={0}
+      />
       <Br />
       <div className={styles.sectionBlock}>
         <p className={styles.title}>Políticas de uso</p>
