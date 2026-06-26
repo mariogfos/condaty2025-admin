@@ -49,13 +49,16 @@ const renderConceptCell = (props: any, textOverflowClass: string) => {
 
   const linesFromDetails: string[] = details.map((d: any) => {
     const base = d?.subcategory?.padre?.name || d?.subcategory?.name || "-/-";
-    const debtObj = d?.debt_dpto?.debt;
-    const resArea = d?.debt_dpto?.reservation?.area;
+    const dpto = d?.debt_dpto;
+    const resArea = dpto?.reservation?.area;
+    const period =
+      dpto?.period ?? dpto?.periodo ?? dpto?.month ?? dpto?.mes;
+    const year = dpto?.year ?? dpto?.anio ?? dpto?.y ?? dpto?.yr;
 
-    if (debtObj) {
-      const period =
-        debtObj?.period ?? debtObj?.periodo ?? debtObj?.month ?? debtObj?.mes;
-      const year = debtObj?.year ?? debtObj?.anio ?? debtObj?.y ?? debtObj?.yr;
+    if (
+      (period !== undefined && period !== null) ||
+      (year !== undefined && year !== null)
+    ) {
       const toMonthName = (m: any) => {
         const num = Number(m);
         if (!Number.isNaN(num) && num >= 1 && num <= 12)
