@@ -348,7 +348,7 @@ export const usePaymentsForm = (
     const maintenanceAmount = parseFloat(String(periodo?.maintenance_amount)) || 0;
 
     let total;
-    if (Number(periodo?.type ?? periodo?.debt?.type) === 3) {
+    if (Number(periodo?.type) === 3) {
       total = penaltyAmount + maintenanceAmount;
     } else {
       total = amount + penaltyAmount + maintenanceAmount;
@@ -372,16 +372,10 @@ export const usePaymentsForm = (
         return "-/-";
       }
       case 2:
-        return `Reserva: ${
-          periodo?.debt?.reservation?.area?.title ||
-          periodo?.reservation?.area?.title ||
-          "-/-"
-        }`;
+        return `Reserva: ${periodo?.reservation?.area?.title || "-/-"}`;
       case 3:
         return `Multa por Cancelación: ${
-          periodo?.debt?.penalty_reservation?.area?.title ||
-          periodo?.penalty_reservation?.area?.title ||
-          "-/-"
+          periodo?.penalty_reservation?.area?.title || "-/-"
         }`;
       case 0:
       case 4:

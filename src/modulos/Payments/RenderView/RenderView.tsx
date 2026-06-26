@@ -1017,9 +1017,9 @@ const getConceptByType = (periodo: any) => {
     case 1: {
       // Expensas: mostrar periodo (MES y AÑO)
       const monthNumRaw =
-        periodo?.debt_dpto?.debt?.month ?? periodo?.debt_dpto?.shared?.month;
+        periodo?.debt_dpto?.month ?? periodo?.debt_dpto?.shared?.month;
       const yearNumRaw =
-        periodo?.debt_dpto?.debt?.year ?? periodo?.debt_dpto?.shared?.year;
+        periodo?.debt_dpto?.year ?? periodo?.debt_dpto?.shared?.year;
 
       const monthIndex =
         typeof monthNumRaw === "number"
@@ -1044,9 +1044,7 @@ const getConceptByType = (periodo: any) => {
       // Reservas
       const penaltyAmount = getDetailAmount(periodo, "penalty_amount");
       const areaTitle =
-        periodo?.debt_dpto?.reservation?.area?.title ||
-        periodo?.debt_dpto?.debt?.reservation?.area?.title ||
-        "-/-";
+        periodo?.debt_dpto?.reservation?.area?.title || "-/-";
 
       if (penaltyAmount > 0) {
         return `Multa: ${areaTitle}`;
@@ -1056,9 +1054,7 @@ const getConceptByType = (periodo: any) => {
     }
     case 3: // Multa por Cancelación
       return `Multa por Cancelación: ${
-        periodo?.debt_dpto?.penaltyReservation?.area?.title ||
-        periodo?.debt_dpto?.debt?.reservation_penalty?.area?.title ||
-        "-/-"
+        periodo?.debt_dpto?.penalty_reservation?.area?.title || "-/-"
       }`;
     default:
       return periodo?.subcategory?.name || "-/-";

@@ -16,9 +16,9 @@ const getMonthPeriodLabel = (monthValue: any, yearValue: any) => {
   return `${monthLabel} ${yearValue}`;
 };
 
-// POST-TRANSFORM: reads row?.month/year (dpto-level), not row?.debt?.month/year
+// POST-TRANSFORM: reads row?.month/year (dpto-level), debt head retired
 const getDebtConceptLabel_inline = (row: any) => {
-  const debtType = Number(row?.type ?? row?.debt?.type ?? -1);
+  const debtType = Number(row?.type ?? -1);
 
   if (debtType === 1) {
     return (

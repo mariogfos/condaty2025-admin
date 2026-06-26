@@ -41,15 +41,11 @@ const getMonthPeriodLabel = (monthValue: any, yearValue: any) => {
 
 const getReservationAreaLabel = (row: any) =>
   row?.reservation?.area?.title ||
-  row?.debt?.reservation?.area?.title ||
   row?.penalty_reservation?.area?.title ||
-  row?.debt?.penalty_reservation?.area?.title ||
-  row?.penaltyReservation?.area?.title ||
-  row?.debt?.reservation_penalty?.area?.title ||
   "";
 
 const getDebtConceptLabel = (row: any) => {
-  const debtType = Number(row?.type ?? row?.debt?.type ?? -1);
+  const debtType = Number(row?.type ?? -1);
 
   if (debtType === 1) {
     return (
@@ -77,7 +73,7 @@ const getDebtConceptLabel = (row: any) => {
 };
 
 const getDebtTypeLabel = (row: any) => {
-  switch (Number(row?.type ?? row?.debt?.type ?? -1)) {
+  switch (Number(row?.type ?? -1)) {
     case 0:
       return "Otras deudas";
     case 1:
@@ -165,7 +161,7 @@ const getPaymentConceptLabel = (payment: any) => {
           );
         }
 
-        const debtType = Number(debt?.type ?? debt?.debt?.type ?? -1);
+        const debtType = Number(debt?.type ?? -1);
 
         if (debtType === 1) {
           return (
@@ -178,10 +174,7 @@ const getPaymentConceptLabel = (payment: any) => {
 
         if (debtType === 2 || debtType === 3) {
           return (
-            debt?.reservation?.area?.title ||
-            debt?.debt?.reservation?.area?.title ||
-            debt?.penaltyReservation?.area?.title ||
-            debt?.debt?.reservation_penalty?.area?.title ||
+            getReservationAreaLabel(debt) ||
             debt?.description ||
             ""
           );

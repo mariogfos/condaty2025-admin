@@ -91,7 +91,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   );
 
   const debtDetail = data?.data?.[0] || item;
-  const debtType = debtDetail?.type || debtDetail?.debt?.type || 0;
+  const debtType = debtDetail?.type ?? 0;
   const executeRef = useRef(execute);
 
   const hasApiData = data?.data?.[0];
@@ -145,10 +145,10 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   const getConceptText = (detail: any) => {
-    switch (Number(detail?.type ?? detail?.debt?.type ?? 0)) {
+    switch (Number(detail?.type ?? 0)) {
       case 1: {
-        const month = detail?.debt?.month ?? detail?.shared?.month;
-        const year = detail?.debt?.year ?? detail?.shared?.year;
+        const month = detail?.month ?? detail?.shared?.month;
+        const year = detail?.year ?? detail?.shared?.year;
         if (month && year) {
           return `${MONTHS_ES[Number(month) - 1] || month} ${year}`;
         }
@@ -157,14 +157,11 @@ const RenderView: React.FC<RenderViewProps> = ({
       case 2:
         return (
           detail?.reservation?.area?.title ||
-          detail?.debt?.reservation?.area?.title ||
           detail?.description ||
           "-/-"
         );
       case 3:
         return (
-          detail?.penaltyReservation?.area?.title ||
-          detail?.debt?.reservation_penalty?.area?.title ||
           detail?.penalty_reservation?.area?.title ||
           detail?.description ||
           "-/-"
@@ -174,7 +171,6 @@ const RenderView: React.FC<RenderViewProps> = ({
       default:
         return (
           detail?.description ||
-          detail?.debt?.description ||
           detail?.subcategory?.name ||
           "-/-"
         );
@@ -190,7 +186,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   const handleDetailButtonClick = (type: number) => {
-    const targetId = debtDetail?.debt?.id || debtDetail?.shared_id;
+    const targetId = debtDetail?.shared_id;
 
     switch (type) {
       case 1:
@@ -318,7 +314,6 @@ const RenderView: React.FC<RenderViewProps> = ({
 
     const isForgivenessDebt =
       debtDetail?.description?.toLowerCase().includes("condonación") ||
-      debtDetail?.debt?.description?.toLowerCase().includes("condonación") ||
       debtDetail?.subcategory?.name?.toLowerCase().includes("condonación");
 
     const shouldLockFields =
@@ -383,16 +378,11 @@ const RenderView: React.FC<RenderViewProps> = ({
   const subcategoryDisplay = debtDetail?.subcategory?.name || "-/-";
   const conceptDisplay = getConceptText(debtDetail);
   const debtDescription =
-    debtDetail?.debt?.description ||
     debtDetail?.description ||
     conceptDisplay ||
     "-/-";
-  const startDateDisplay = formatToDayDDMMYYYY(
-    debtDetail?.debt?.begin_at || debtDetail?.created_at,
-  );
-  const dueDateDisplay = formatToDayDDMMYYYY(
-    debtDetail?.debt?.due_at || debtDetail?.due_at,
-  );
+  const startDateDisplay = formatToDayDDMMYYYY(debtDetail?.created_at);
+  const dueDateDisplay = formatToDayDDMMYYYY(debtDetail?.due_at);
   const paidAtDisplay = formatToDayDDMMYYYY(
     debtDetail?.payment?.paid_at || debtDetail?.paid_at,
   );
@@ -566,7 +556,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                         Distribución
                       </span>
                       <span className={paymentStyles.infoValue}>
-                        {debtDetail?.debt?.distribution || "Dividido por igual"}
+                        {"Dividido por igual"}
                       </span>
                     </div>
                   ) : null}
