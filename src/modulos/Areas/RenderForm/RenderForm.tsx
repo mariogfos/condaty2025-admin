@@ -85,6 +85,8 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     has_price: item?.price ? "S" : "N",
     requires_approval: item?.requires_approval || "X",
     penalty_or_debt_restriction: item?.penalty_or_debt_restriction || "X",
+    min_reservation_advance_hours:
+      item?.min_reservation_advance_hours ?? 0,
   });
   const { showToast } = useAuth();
   const [level, setLevel] = useState(1);
@@ -239,6 +241,21 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   };
   const validateLevel3 = () => {
     let errors: any = {};
+    const advanceHoursValue = formState?.min_reservation_advance_hours;
+
+    if (
+      advanceHoursValue !== undefined &&
+      advanceHoursValue !== null &&
+      String(advanceHoursValue).trim() !== ""
+    ) {
+      const advanceHours = Number(advanceHoursValue);
+
+      if (!Number.isInteger(advanceHours) || advanceHours < 0) {
+        errors.min_reservation_advance_hours =
+          "Ingresa un número entero mayor o igual a 0";
+      }
+    }
+
     setErrors(errors);
     return errors;
   };
@@ -291,6 +308,10 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         usage_rules: formState?.usage_rules,
         cancellation_policy: formState?.cancellation_policy,
         approval_response_hours: formState?.approval_response_hours,
+        min_reservation_advance_hours:
+          formState?.min_reservation_advance_hours === ""
+            ? 0
+            : Number(formState?.min_reservation_advance_hours || 0),
         penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
         booking_mode: formState?.booking_mode,
         max_reservations_per_day: formState?.max_reservations_per_day,
