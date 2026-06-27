@@ -57,7 +57,7 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
 
   // Consulta DET si solo tenemos un ID o si necesitamos más detalles
   const { data, reLoad } = useAxios(
-    "/debts",
+    "/debt-groups",
     "GET",
     {
       searchBy: item?.id,

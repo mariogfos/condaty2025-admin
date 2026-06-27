@@ -111,7 +111,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     };
 
     const { data: response } = await execute(
-      '/debts' + (formState.id ? '/' + formState.id : ''),
+      '/debt-groups' + (formState.id ? '/' + formState.id : ''),
       method,
       dataToSend,
       false
