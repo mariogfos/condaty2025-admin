@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { MONTHS_S } from "@/mk/utils/date";
 import { DebtStatus } from "@/types/PaymentType";
+import {
+  getPaymentStatusConfig,
+  PaymentStatus,
+} from "@/modulos/Payments/Type/PaymentType";
 
 // ---------------------------------------------------------------------------
 // Inlined helpers — NUMERIC-NATIVE (post-S6-status-numeric refactor)
@@ -187,5 +191,41 @@ describe("UnitFinanceHistory — sort by dpto due_at (not debt.due_at)", () => {
 
     expect(sorted[0].id).toBe("b");
     expect(sorted[1].id).toBe("a");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tests — paymentsHeader numeric status cell (S-D)
+// The payments tab status cell must use numeric getPaymentStatusConfig,
+// NOT the stale string-keyed @/types/payment version.
+// ---------------------------------------------------------------------------
+
+describe("UnitFinanceHistory — paymentsHeader numeric status cell (S-D)", () => {
+  it("numeric status 1 (SUBMITTED) renders 'Por confirmar'", () => {
+    const info = getPaymentStatusConfig(PaymentStatus.SUBMITTED);
+    expect(info.label).toBe("Por confirmar");
+  });
+
+  it("numeric status 2 (PAID) renders 'Confirmado'", () => {
+    const info = getPaymentStatusConfig(PaymentStatus.PAID);
+    expect(info.label).toBe("Confirmado");
+  });
+
+  it("numeric status 3 (REJECTED) renders 'Rechazado'", () => {
+    const info = getPaymentStatusConfig(PaymentStatus.REJECTED);
+    expect(info.label).toBe("Rechazado");
+  });
+
+  it("numeric status 4 (CANCELLED) renders 'Anulado'", () => {
+    const info = getPaymentStatusConfig(PaymentStatus.CANCELLED);
+    expect(info.label).toBe("Anulado");
+  });
+
+  it("payment status does NOT bleed into debt domain (no 'A'/'M' codes)", () => {
+    // Confirm stale debt codes ('A', 'M') are NOT in the numeric payment map
+    const infoA = getPaymentStatusConfig("A" as any);
+    const infoM = getPaymentStatusConfig("M" as any);
+    expect(infoA.label).toBe("Desconocido");
+    expect(infoM.label).toBe("Desconocido");
   });
 });

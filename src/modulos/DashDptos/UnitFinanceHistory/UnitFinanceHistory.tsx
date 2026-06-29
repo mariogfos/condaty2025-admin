@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { TableSkeleton } from "@/mk/components/ui/Skeleton/Skeleton";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { MONTHS_S, getDateStrMes, getDateStrMesShort } from "@/mk/utils/date";
-import { getPaymentStatusConfig, type PaymentStatus } from "@/types/payment";
+import { getPaymentStatusConfig } from "@/modulos/Payments/Type/PaymentType";
 import { DebtStatus } from "@/types/PaymentType";
 import {
   getStatusConfig as getDebtStatusConfig,
@@ -405,9 +405,7 @@ const UnitFinanceHistory = ({
         width: "180px",
         style: { textAlign: "center", justifyContent: "center" },
         onRender: ({ item }: any) => {
-          const statusInfo = getPaymentStatusConfig(
-            item?.status as PaymentStatus,
-          );
+          const statusInfo = getPaymentStatusConfig(Number(item?.status));
 
           return (
             <StatusBadge
