@@ -9,6 +9,7 @@ import { TableSkeleton } from "@/mk/components/ui/Skeleton/Skeleton";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { MONTHS_S, getDateStrMes, getDateStrMesShort } from "@/mk/utils/date";
 import { getPaymentStatusConfig, type PaymentStatus } from "@/types/payment";
+import { DebtStatus } from "@/types/PaymentType";
 import {
   getStatusConfig as getDebtStatusConfig,
   getStatusText as getDebtStatusText,
@@ -107,15 +108,12 @@ const getDebtBalance = (row: any) => {
   return Math.round((debtAmount + penaltyAmount + maintenanceAmount) * 100) / 100;
 };
 
-const getDebtStatusCode = (row: any) =>
-  String(
-    row?.status ??
-      row?.debt_status ??
-      row?.debt_dpto?.status ??
-      "",
-  )
-    .trim()
-    .toUpperCase();
+// NUMERIC-NATIVE: reads status as a number, never calls .toUpperCase()
+const getDebtNumericStatus = (row: any): number => {
+  const raw = row?.status ?? row?.debt_status ?? row?.debt_dpto?.status;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DebtStatus.PENDING;
+};
 
 const getDebtRowId = (row: any) =>
   row?.debt_dpto_id ??
@@ -130,19 +128,20 @@ const normalizeDebtRow = (row: any) => ({
   ...row,
   id: getDebtRowId(row),
   debt_dpto_id: row?.debt_dpto_id ?? row?.debt_dpto?.id ?? getDebtRowId(row),
-  status: getDebtStatusCode(row) || row?.status || "A",
+  status: getDebtNumericStatus(row),
 });
 
-const resolveDebtStatus = (row: any) => {
-  const normalizedStatus = getDebtStatusCode(row);
+// NUMERIC overdue rule: PENDING + past due_at => OVERDUE
+const resolveDebtStatus = (row: any): number => {
+  const status = getDebtNumericStatus(row);
   const dueAtString = row?.due_at || "";
   const todayString = new Date().toISOString().split("T")[0];
 
-  if (normalizedStatus === "A" && dueAtString && dueAtString < todayString) {
-    return "M";
+  if (status === DebtStatus.PENDING && dueAtString && dueAtString < todayString) {
+    return DebtStatus.OVERDUE;
   }
 
-  return normalizedStatus || "A";
+  return status;
 };
 
 const getPaymentConceptLabel = (payment: any) => {
@@ -210,7 +209,13 @@ const getPaymentConceptLabel = (payment: any) => {
 const getPaymentAmount = (payment: any) =>
   Number(payment?.amount ?? 0) + Number(payment?.penalty_amount ?? 0);
 
-const ACTIVE_DEBT_STATUSES = new Set(["A", "M", "S", "I"]);
+// NUMERIC active statuses: PENDING, OVERDUE, SUBMITTED, PARTIAL
+const ACTIVE_DEBT_STATUSES = new Set([
+  DebtStatus.PENDING,
+  DebtStatus.OVERDUE,
+  DebtStatus.SUBMITTED,
+  DebtStatus.PARTIAL,
+]);
 
 const UnitFinanceHistory = ({
   execute,
@@ -459,12 +464,10 @@ const UnitFinanceHistory = ({
         width: "180px",
         style: { textAlign: "center", justifyContent: "center" },
         onRender: ({ item }: any) => {
+          // resolveDebtStatus already applies the overdue rule; pass raw status
+          // to getDebtStatusConfig so it doesn't double-apply the rule.
           const resolvedStatus = resolveDebtStatus(item);
-          const dueAtString = item?.due_at;
-          const { color, bgColor } = getDebtStatusConfig(
-            resolvedStatus,
-            dueAtString,
-          );
+          const { color, bgColor } = getDebtStatusConfig(resolvedStatus);
 
           return (
             <StatusBadge backgroundColor={bgColor} color={color}>

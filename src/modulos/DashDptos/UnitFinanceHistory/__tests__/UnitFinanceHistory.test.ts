@@ -1,12 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { MONTHS_S } from "@/mk/utils/date";
-
-// Inline characterization tests for UnitFinanceHistory pure helpers.
-// We inline the TRANSFORMED logic (post-refactor) to lock the intended behavior.
-// The actual component file should match this logic after Commit 3 of S6 HU-3 Slice D.
+import { DebtStatus } from "@/types/PaymentType";
 
 // ---------------------------------------------------------------------------
-// Inlined helpers (post-transform)
+// Inlined helpers — NUMERIC-NATIVE (post-S6-status-numeric refactor)
 // ---------------------------------------------------------------------------
 
 const getMonthPeriodLabel = (monthValue: any, yearValue: any) => {
@@ -46,34 +43,40 @@ const getDebtConceptLabel_inline = (row: any) => {
   );
 };
 
-// POST-TRANSFORM: debt?.status removed; dpto.status is canonical
-const getDebtStatusCode_inline = (row: any) =>
-  String(
-    row?.status ?? row?.debt_status ?? row?.debt_dpto?.status ?? "",
-  )
-    .trim()
-    .toUpperCase();
+// NUMERIC-NATIVE: status is always a number; never calls .toUpperCase()
+const getDebtNumericStatus = (row: any): number => {
+  const raw = row?.status ?? row?.debt_status ?? row?.debt_dpto?.status;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DebtStatus.PENDING;
+};
 
-// POST-TRANSFORM: uses row?.due_at directly (Commit 0 backfilled)
-const resolveDebtStatus_inline = (row: any) => {
-  const normalizedStatus = getDebtStatusCode_inline(row);
+// NUMERIC overdue rule: PENDING + past due_at => OVERDUE
+const resolveDebtStatus_numeric = (row: any): number => {
+  const status = getDebtNumericStatus(row);
   const dueAtString = row?.due_at || "";
   const todayString = new Date().toISOString().split("T")[0];
 
-  if (normalizedStatus === "A" && dueAtString && dueAtString < todayString) {
-    return "M";
+  if (status === DebtStatus.PENDING && dueAtString && dueAtString < todayString) {
+    return DebtStatus.OVERDUE;
   }
 
-  return normalizedStatus || "A";
+  return status;
 };
 
+// ACTIVE set: numeric DebtStatus values
+const ACTIVE_DEBT_STATUSES_NUMERIC = new Set([
+  DebtStatus.PENDING,
+  DebtStatus.OVERDUE,
+  DebtStatus.PARTIAL,
+  DebtStatus.SUBMITTED,
+]);
+
 // ---------------------------------------------------------------------------
-// Tests
+// Tests — concept label (unchanged from S6 HU-3 Slice D)
 // ---------------------------------------------------------------------------
 
-describe("UnitFinanceHistory — S6 HU-3 Slice D characterization", () => {
-  // Test 1
-  it("getDebtConceptLabel type=1 EXPENSE: reads month/year from dpto-level, not debt head", () => {
+describe("UnitFinanceHistory — concept label (S6 HU-3 Slice D)", () => {
+  it("type=1 EXPENSE: reads month/year from dpto-level, not debt head", () => {
     const row = {
       type: 1,
       month: 3,
@@ -82,15 +85,13 @@ describe("UnitFinanceHistory — S6 HU-3 Slice D characterization", () => {
       shared: null,
     };
     const result = getDebtConceptLabel_inline(row);
-    // Should use dpto-level month=3 (Mar) and year=2025, NOT debt.month=12/debt.year=9999
     expect(result).toContain(MONTHS_S[3]);
     expect(result).toContain("2025");
     expect(result).not.toContain("9999");
     expect(result).not.toContain(MONTHS_S[12]);
   });
 
-  // Test 2
-  it("getDebtConceptLabel type=1 SHARED: falls back to shared when dpto month/year are null", () => {
+  it("type=1 SHARED: falls back to shared when dpto month/year are null", () => {
     const row = {
       type: 1,
       month: null,
@@ -102,8 +103,7 @@ describe("UnitFinanceHistory — S6 HU-3 Slice D characterization", () => {
     expect(result).toContain("2022");
   });
 
-  // Test 3
-  it("getDebtConceptLabel default: does NOT use debt.description", () => {
+  it("default type: does NOT use debt.description", () => {
     const row = {
       type: 99,
       description: null,
@@ -112,62 +112,79 @@ describe("UnitFinanceHistory — S6 HU-3 Slice D characterization", () => {
       subcategory: null,
     };
     const result = getDebtConceptLabel_inline(row);
-    // debt.description must be dropped — fallback should reach "-/-"
     expect(result).toBe("-/-");
     expect(result).not.toBe("never");
   });
+});
 
-  // Test 4
-  it("getDebtStatusCode: uses dpto-level status, not debt head status", () => {
-    const row = {
-      status: "2",
-      debt_status: undefined,
-      debt: { status: "A" },
-      debt_dpto: null,
-    };
-    const result = getDebtStatusCode_inline(row);
-    expect(result).toBe("2");
-    expect(result).not.toBe("A");
+// ---------------------------------------------------------------------------
+// Tests — NUMERIC status helpers (new in this slice)
+// ---------------------------------------------------------------------------
+
+describe("UnitFinanceHistory — numeric status (debt_dptos.status is int)", () => {
+  it("getDebtNumericStatus: returns numeric status from row.status", () => {
+    expect(getDebtNumericStatus({ status: 2 })).toBe(DebtStatus.OVERDUE);
+    expect(getDebtNumericStatus({ status: 5 })).toBe(DebtStatus.PAID);
   });
 
-  // Test 5
-  it("resolveDebtStatus: uses dpto due_at directly (not debt.due_at)", () => {
-    // dpto due_at is in the past → should return 'M' (overdue)
-    // debt.due_at is far in the future — if we accidentally read it, status stays 'A'
-    const row = {
-      status: "A",
-      due_at: "2020-01-01",
-      debt: { due_at: "2099-12-31" },
-    };
-    const result = resolveDebtStatus_inline(row);
-    expect(result).toBe("M");
+  it("getDebtNumericStatus: falls back to PENDING when status is missing", () => {
+    expect(getDebtNumericStatus({})).toBe(DebtStatus.PENDING);
+    expect(getDebtNumericStatus({ status: null })).toBe(DebtStatus.PENDING);
   });
 
-  // Test 6
-  it("debtSort: sorts by dpto due_at not debt.due_at (descending)", () => {
+  it("getDebtNumericStatus: reads debt_dpto.status as fallback chain", () => {
+    expect(
+      getDebtNumericStatus({ debt_dpto: { status: 3 } }),
+    ).toBe(DebtStatus.PARTIAL);
+  });
+
+  it("resolveDebtStatus_numeric: PENDING + past due_at => OVERDUE", () => {
+    const row = { status: DebtStatus.PENDING, due_at: "2020-01-01" };
+    expect(resolveDebtStatus_numeric(row)).toBe(DebtStatus.OVERDUE);
+  });
+
+  it("resolveDebtStatus_numeric: non-PENDING past due_at stays unchanged", () => {
+    // A PAID debt that is past due should NOT become OVERDUE
+    const row = { status: DebtStatus.PAID, due_at: "2020-01-01" };
+    expect(resolveDebtStatus_numeric(row)).toBe(DebtStatus.PAID);
+  });
+
+  it("resolveDebtStatus_numeric: PENDING + future due_at stays PENDING", () => {
+    const row = { status: DebtStatus.PENDING, due_at: "2099-12-31" };
+    expect(resolveDebtStatus_numeric(row)).toBe(DebtStatus.PENDING);
+  });
+
+  it("ACTIVE_DEBT_STATUSES_NUMERIC includes PENDING, OVERDUE, PARTIAL, SUBMITTED", () => {
+    expect(ACTIVE_DEBT_STATUSES_NUMERIC.has(DebtStatus.PENDING)).toBe(true);
+    expect(ACTIVE_DEBT_STATUSES_NUMERIC.has(DebtStatus.OVERDUE)).toBe(true);
+    expect(ACTIVE_DEBT_STATUSES_NUMERIC.has(DebtStatus.PARTIAL)).toBe(true);
+    expect(ACTIVE_DEBT_STATUSES_NUMERIC.has(DebtStatus.SUBMITTED)).toBe(true);
+  });
+
+  it("ACTIVE_DEBT_STATUSES_NUMERIC excludes PAID, FORGIVEN, CANCELLED", () => {
+    expect(ACTIVE_DEBT_STATUSES_NUMERIC.has(DebtStatus.PAID)).toBe(false);
+    expect(ACTIVE_DEBT_STATUSES_NUMERIC.has(DebtStatus.FORGIVEN)).toBe(false);
+    expect(ACTIVE_DEBT_STATUSES_NUMERIC.has(DebtStatus.CANCELLED)).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tests — sort still uses dpto-level due_at (not debt.due_at)
+// ---------------------------------------------------------------------------
+
+describe("UnitFinanceHistory — sort by dpto due_at (not debt.due_at)", () => {
+  it("sorts descending by dpto-level due_at", () => {
     const rows = [
-      {
-        id: "b",
-        due_at: "2025-06-01",
-        debt: { due_at: "2020-01-01" },
-        created_at: "",
-      },
-      {
-        id: "a",
-        due_at: "2025-01-01",
-        debt: { due_at: "2030-12-31" },
-        created_at: "",
-      },
+      { id: "b", due_at: "2025-06-01", debt: { due_at: "2020-01-01" }, created_at: "" },
+      { id: "a", due_at: "2025-01-01", debt: { due_at: "2030-12-31" }, created_at: "" },
     ];
 
-    // POST-TRANSFORM sort: uses right?.due_at || right?.created_at (no debt?.due_at)
     const sorted = [...rows].sort((left, right) =>
       String(right?.due_at || right?.created_at || "").localeCompare(
         String(left?.due_at || left?.created_at || ""),
       ),
     );
 
-    // Descending by dpto due_at: 'b' (June 2025) first, 'a' (Jan 2025) second
     expect(sorted[0].id).toBe("b");
     expect(sorted[1].id).toBe("a");
   });
