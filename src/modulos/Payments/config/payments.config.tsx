@@ -11,6 +11,7 @@ import {
   PAYMENT_METHOD_OPTIONS,
   STATUS_OPTIONS,
   METHOD_MAP,
+  FORM_PAYMENT_METHODS,
   getPaymentStatusConfig,
 } from "../Type/PaymentType";
 
@@ -192,11 +193,7 @@ export const getPaymentsConfig = (
       label: "Método de pago",
       form: {
         type: "select",
-        options: [
-          { id: "T", name: "Transferencia" },
-          { id: "E", name: "Efectivo" },
-          { id: "C", name: "Cheque" },
-        ],
+        options: FORM_PAYMENT_METHODS,
       },
       list: {
         width: 200,
