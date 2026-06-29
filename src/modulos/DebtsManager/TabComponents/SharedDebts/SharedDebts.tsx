@@ -15,6 +15,7 @@ import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFil
 import { formatNumber } from "@/mk/utils/numbers";
 import { useRouter } from "next/navigation";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
+import { DebtStatus } from "@/types/PaymentType";
 import {
   getStatusText,
   getStatusConfig,
@@ -62,18 +63,12 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   };
 
   const renderStatusCell = ({ item }: { item: any }) => {
-    let finalStatus = item?.status;
-
-    const today = new Date();
-    const todayString = today.toISOString().split("T")[0];
+    const rawStatus = Number(item?.status);
+    const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
     const dueAtString = item?.due_at;
-
-    if (dueAtString && dueAtString < todayString && item?.status === "A") {
-      finalStatus = "M";
-    }
-
-    const statusText = getStatusText(finalStatus);
-    const { color, bgColor } = getStatusConfig(finalStatus);
+    // getStatusConfig applies the overdue rule internally
+    const { color, bgColor } = getStatusConfig(numericStatus, dueAtString);
+    const statusText = getStatusText(numericStatus);
 
     return (
       <StatusBadge color={color} backgroundColor={bgColor}>
@@ -529,21 +524,13 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   });
 
   const renderItem = (item: Record<string, any>) => {
-    let finalStatus = item?.status;
-    const today = new Date();
-    const todayDateOnly = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-    );
-    const dueDate = item?.due_at ? new Date(item.due_at) : null;
-    const dueDateOnly = dueDate
-      ? new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate())
-      : null;
-
-    if (dueDateOnly && dueDateOnly < todayDateOnly && item?.status === "A") {
-      finalStatus = "M";
-    }
+    const rawStatus = Number(item?.status);
+    const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
+    const dueAtString = item?.due_at;
+    const todayString = new Date().toISOString().split("T")[0];
+    const displayStatus = dueAtString && dueAtString < todayString && numericStatus === DebtStatus.PENDING
+      ? DebtStatus.OVERDUE
+      : numericStatus;
 
     const debtAmount = parseFloat(item?.amount) || 0;
     const totalPenalty =
@@ -555,9 +542,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     return (
       <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
         <ItemList
-          title={`${item?.description || "Sin concepto"} - ${getStatusText(
-            finalStatus,
-          )}`}
+          title={`${item?.description || "Sin concepto"} - ${getStatusText(displayStatus)}`}
           subtitle={`Deuda: Bs ${debtAmount.toFixed(
             2,
           )} | Multa: Bs ${totalPenalty.toFixed(

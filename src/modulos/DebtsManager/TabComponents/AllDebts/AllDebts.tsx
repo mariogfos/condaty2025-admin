@@ -14,6 +14,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
+import { DebtStatus } from "@/types/PaymentType";
 import {
   getStatusText as getStatusTextConst,
   getStatusConfig as getStatusConfigConst,
@@ -77,15 +78,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
   };
 
   const renderStatusCell = ({ item }: { item: any }) => {
-    let finalStatus = item?.status;
-    const today = new Date();
-    const todayString = today.toISOString().split("T")[0];
+    const rawStatus = Number(item?.status);
+    const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
     const dueAtString = item?.due_at;
-    if (dueAtString && dueAtString < todayString && item?.status === "A") {
-      finalStatus = "M";
-    }
-    const statusText = getStatusTextConst(finalStatus);
-    const { color, bgColor } = getStatusConfigConst(finalStatus, dueAtString);
+    // getStatusConfig applies the overdue rule internally
+    const { color, bgColor } = getStatusConfigConst(numericStatus, dueAtString);
+    const statusText = getStatusTextConst(numericStatus);
     return (
       <StatusBadge color={color} backgroundColor={bgColor}>
         {statusText}
@@ -144,13 +142,15 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
 
   const getStatusOptions = () => [
     { id: "ALL", name: "Todos los estados" },
-    { id: "A", name: "Por cobrar" },
-    { id: "P", name: "Cobrada" },
-    { id: "F", name: "Condonada" },
-    { id: "S", name: "Por confirmar" },
-    { id: "M", name: "En mora" },
-    { id: "C", name: "Cancelada" },
-    { id: "X", name: "Anulada" },
+    { id: DebtStatus.PENDING,   name: "Por cobrar" },
+    { id: DebtStatus.PAID,      name: "Cobrada" },
+    { id: DebtStatus.FORGIVEN,  name: "Condonada" },
+    { id: DebtStatus.SUBMITTED, name: "Por confirmar" },
+    { id: DebtStatus.OVERDUE,   name: "En mora" },
+    { id: DebtStatus.CANCELLED, name: "Anulada" },
+    { id: DebtStatus.PARTIAL,   name: "Pago parcial" },
+    { id: DebtStatus.AWAITING_VOUCHER, name: "Por subir comprobante" },
+    { id: DebtStatus.REJECTED,  name: "Rechazado" },
   ];
 
   const getDebtTypeOptions = () => [
@@ -525,19 +525,13 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
   });
 
   const renderItem = (item: Record<string, any>) => {
-    const getStatusText = (status: string) => {
-      return getStatusTextConst(status);
-    };
-
-    let finalStatus = item?.status;
-
-    // Obtener fecha actual solo como string YYYY-MM-DD
-    const today = new Date();
-    const todayString = today.toISOString().split("T")[0];
+    const rawStatus = Number(item?.status);
+    const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
+    // getStatusConfig applies the overdue rule internally
     const dueAtString = item?.due_at;
-    if (dueAtString && dueAtString < todayString && item?.status === "A") {
-      finalStatus = "M";
-    }
+    const displayStatus = dueAtString && dueAtString < new Date().toISOString().split("T")[0] && numericStatus === DebtStatus.PENDING
+      ? DebtStatus.OVERDUE
+      : numericStatus;
 
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
@@ -546,7 +540,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     return (
       <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
         <ItemList
-          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(finalStatus)}`}
+          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusTextConst(displayStatus)}`}
           subtitle={`Deuda: ${formatBs(debtAmount)} | Multa: ${formatBs(penaltyAmount)} | Total: ${formatBs(totalBalance)}`}
           variant="V1"
           active={selItem && selItem.id == item.id}
