@@ -9,6 +9,7 @@ import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatBs } from "@/mk/utils/numbers";
 import { parseExpenseDescription } from "../utils/expenseDescription";
+import { METHOD_MAP } from "@/modulos/Payments/Type/PaymentType";
 interface Category {
   id: number | string;
   name: string;
@@ -69,16 +70,8 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   const { execute } = useAxios();
   const { showToast } = useAuth();
 
-  const paymentMethodMap: Record<string, string> = {
-    T: "Transferencia bancaria",
-    O: "Pago en oficina",
-    Q: "Pago QR",
-    E: "Efectivo",
-    C: "Cheque",
-  };
-
-  const getPaymentMethodText = (type: string): string => {
-    return paymentMethodMap[type] || type;
+  const getPaymentMethodText = (type: string | number): string => {
+    return METHOD_MAP[type] || String(type);
   };
 
   const getCategoryNames = () => {
