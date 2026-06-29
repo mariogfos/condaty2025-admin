@@ -1,6 +1,6 @@
 import { formatToDayDDMMYYYY } from "@/mk/utils/date";
 import { formatBs } from "@/mk/utils/numbers";
-import { getPaymentStatusConfig, type PaymentStatus } from "@/types/payment";
+import { getPaymentStatusConfig } from "@/modulos/Payments/Type/PaymentType";
 
 export type ReportFormat = "pdf" | "excel";
 
@@ -216,9 +216,10 @@ const getPaymentPeriodOrConceptValues = (item: Record<string, any>) => {
 };
 
 const getPaymentStatusLabel = (item: Record<string, any>) => {
-  const status = String(item?.status || "").trim().toUpperCase() as PaymentStatus;
+  const status = Number(item?.status);
   if (!status) return "-/-";
-  return getPaymentStatusConfig(status).longLabel || getPaymentStatusConfig(status).label;
+  const config = getPaymentStatusConfig(status);
+  return config.longLabel || config.label;
 };
 
 const getPaymentPartialLabel = (item: Record<string, any>) => {

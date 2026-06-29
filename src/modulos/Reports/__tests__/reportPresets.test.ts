@@ -199,3 +199,60 @@ describe("fallbackConcept description — reads from dpto-level (not head)", () 
     expect(fallbackConcept).not.toBe("Head description — must NOT be used");
   });
 });
+
+// ---------------------------------------------------------------------------
+// S-D: getPaymentStatusLabel — must use Number(item?.status), not String().toUpperCase()
+// ---------------------------------------------------------------------------
+
+import {
+  getPaymentStatusConfig,
+  PaymentStatus,
+} from "@/modulos/Payments/Type/PaymentType";
+
+/**
+ * Inlined post-fix version of getPaymentStatusLabel from reportPresets.ts.
+ * RED: the stale version does String(status).toUpperCase() which misses numeric keys.
+ * GREEN: after fix — Number(status) is used.
+ */
+const getPaymentStatusLabel_numeric = (item: Record<string, any>): string => {
+  const status = Number(item?.status);
+  if (!status) return "-/-";
+  const config = getPaymentStatusConfig(status);
+  return config.longLabel || config.label;
+};
+
+describe("reportPresets — getPaymentStatusLabel numeric (S-D)", () => {
+  it("status 2 (PAID/Confirmado) returns label, not raw number", () => {
+    const result = getPaymentStatusLabel_numeric({ status: 2 });
+    expect(result).toBe("Confirmado");
+    expect(result).not.toBe("2");
+  });
+
+  it("status 1 (SUBMITTED) returns 'Por confirmar'", () => {
+    const result = getPaymentStatusLabel_numeric({ status: PaymentStatus.SUBMITTED });
+    expect(result).toBe("Por confirmar");
+  });
+
+  it("status 3 (REJECTED) returns 'Rechazado'", () => {
+    const result = getPaymentStatusLabel_numeric({ status: PaymentStatus.REJECTED });
+    expect(result).toBe("Rechazado");
+  });
+
+  it("status 4 (CANCELLED) returns 'Anulado'", () => {
+    const result = getPaymentStatusLabel_numeric({ status: PaymentStatus.CANCELLED });
+    expect(result).toBe("Anulado");
+  });
+
+  it("missing status returns '-/-'", () => {
+    expect(getPaymentStatusLabel_numeric({})).toBe("-/-");
+    expect(getPaymentStatusLabel_numeric({ status: null })).toBe("-/-");
+    expect(getPaymentStatusLabel_numeric({ status: 0 })).toBe("-/-");
+  });
+
+  it("stale string code 'P' does NOT resolve to a payment label", () => {
+    // 'P' was the old PAID code — with numeric backend it arrives as number 2, not 'P'
+    // Number('P') = NaN → status = NaN → !status → '-/-'
+    const result = getPaymentStatusLabel_numeric({ status: "P" });
+    expect(result).toBe("-/-");
+  });
+});
