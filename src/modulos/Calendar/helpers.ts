@@ -12,7 +12,10 @@ import {
 } from "date-fns";
 import { getFullName } from "@/mk/utils/string";
 import { capitalizeWords } from "@/mk/utils/string";
-import { RESERVATION_STATUS_CONFIG } from "@/modulos/Reservas/constants/reservationConstants";
+import {
+  RESERVATION_STATUS_CONFIG,
+  ReservationStatus,
+} from "@/modulos/Reservas/constants/reservationConstants";
 import type {
   ReservationArea,
   ReservationListItem,
@@ -49,7 +52,7 @@ export type CalendarReservationEntry = {
   unitLabel: string;
   timeLabel: string;
   chipLabel: string;
-  status: string;
+  status: ReservationStatus | number | undefined;
   statusLabel: string;
   backgroundColor: string;
   color: string;
@@ -419,11 +422,13 @@ export const getReservationStatusMeta = (reservation: ReservationListItem) => {
   );
 
   const config =
-    RESERVATION_STATUS_CONFIG[
-      statusKey as keyof typeof RESERVATION_STATUS_CONFIG
-    ] || FALLBACK_STATUS;
+    (statusKey !== undefined && RESERVATION_STATUS_CONFIG[statusKey]) ||
+    FALLBACK_STATUS;
 
-  if (statusKey === "C" || statusKey === "T") {
+  if (
+    statusKey === ReservationStatus.CANCELLED_MANUAL ||
+    statusKey === ReservationStatus.CANCELLED_AUTO
+  ) {
     return {
       status: statusKey,
       ...config,
@@ -432,7 +437,7 @@ export const getReservationStatusMeta = (reservation: ReservationListItem) => {
     };
   }
 
-  if (statusKey === "M") {
+  if (statusKey === ReservationStatus.MAINTENANCE) {
     return {
       status: statusKey,
       ...config,
@@ -450,7 +455,7 @@ export const getReservationStatusMeta = (reservation: ReservationListItem) => {
 export const matchesReservationFilters = (
   reservation: ReservationListItem,
   areaId: string,
-  statuses: string[],
+  statuses: Array<ReservationStatus | number | string>,
   query: string,
 ) => {
   if (
@@ -461,10 +466,12 @@ export const matchesReservationFilters = (
   }
 
   const statusMeta = getReservationStatusMeta(reservation);
+  const normalizedStatuses = statuses.map(String);
   if (
-    statuses.length > 0 &&
-    !statuses.includes("ALL") &&
-    !statuses.includes(statusMeta.status)
+    normalizedStatuses.length > 0 &&
+    !normalizedStatuses.includes("ALL") &&
+    statusMeta.status !== undefined &&
+    !normalizedStatuses.includes(String(statusMeta.status))
   ) {
     return false;
   }
@@ -477,7 +484,9 @@ export const matchesReservationFilters = (
     getAreaName(reservation.area),
     getResidentName(
       resident,
-      statusMeta.status === "M" ? "Administracion" : "Residente no disponible",
+      statusMeta.status === ReservationStatus.MAINTENANCE
+        ? "Administracion"
+        : "Residente no disponible",
     ),
     getUnitLabel(reservation.dpto),
     reservation.obs,
@@ -515,7 +524,9 @@ export const buildCalendarEntries = (
     const statusMeta = getReservationStatusMeta(reservation);
     const residentName = getResidentName(
       resident,
-      statusMeta.status === "M" ? "Administracion" : "Residente no disponible",
+      statusMeta.status === ReservationStatus.MAINTENANCE
+        ? "Administracion"
+        : "Residente no disponible",
     );
     const unitLabel = getUnitLabel(reservation.dpto);
     const timeLabel = formatReservationTimeRange(reservation);
@@ -528,7 +539,7 @@ export const buildCalendarEntries = (
       const dayKey = formatDateKey(day);
       const list = entries.get(dayKey) || [];
       const sortValue =
-        statusMeta.status === "M"
+        statusMeta.status === ReservationStatus.MAINTENANCE
           ? -1
           : Number.parseInt(
               (getTimeBounds(reservation).startTime || "23:59").replace(":", ""),

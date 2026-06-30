@@ -1,5 +1,6 @@
 import { paymentsApi } from "@/modulos/Payments/api";
 import type { ReservationListItem } from "@/modulos/Reservas/types";
+import { ReservationStatus } from "@/modulos/Reservas/constants/reservationConstants";
 import { resolveReservationDisplayStatus } from "./reservationStatus";
 
 export type ResolvedReservationPayment = {
@@ -60,7 +61,7 @@ export const shouldFetchReservationResolvedPayment = (
     getReservationDisplayStatusInput(reservation),
   );
 
-  return status === "A";
+  return status === ReservationStatus.PENDING_PAYMENT;
 };
 
 const getPaymentFromReservation = (

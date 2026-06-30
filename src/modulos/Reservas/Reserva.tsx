@@ -16,6 +16,7 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import {
   RESERVATION_STATUS_CONFIG,
   RESERVATION_STATUS_OPTIONS,
+  ReservationStatus,
 } from "./constants/reservationConstants";
 import { resolveReservationDisplayStatus } from "./utils/reservationStatus";
 import {
@@ -139,7 +140,7 @@ const Reserva = () => {
     const dpto = item?.dpto;
     const ownerName = owner
       ? getFullName(owner)
-      : item.status == "M"
+      : Number(item.status) === ReservationStatus.MAINTENANCE
         ? "Administración"
         : "Residente no disponible";
     const dptoNro = dpto?.nro ? dpto.nro : "Sin Dpto.";

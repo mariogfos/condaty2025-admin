@@ -7,67 +7,68 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { IconReservedAreas } from "@/components/layout/icons/IconsBiblioteca";
 import styles from "./ReservationsTable.module.css";
 import { formatToDayDDMMYYYY } from "@/mk/utils/date";
+import { ReservationStatus } from "@/modulos/Reservas/constants/reservationConstants";
 
 interface ReservationsTableProps {
   reservations: any[];
 }
-const getReservationStatus = (status: string) => {
-  switch (status) {
-    case "W":
+const getReservationStatus = (status: ReservationStatus | number) => {
+  switch (Number(status)) {
+    case ReservationStatus.AWAITING_APPROVAL:
       return {
         label: "Esperando confirmación",
         backgroundColor: "#E9B01E33",
         color: "#E9B01E",
       };
-    case "A":
+    case ReservationStatus.PENDING_PAYMENT:
       return {
         label: "Pago pendiente",
         backgroundColor: "#E9B01E33",
         color: "#E9B01E",
       };
-    case "Q":
+    case ReservationStatus.PAYMENT_SUBMITTED:
       return {
         label: "Pago por confirmar",
         backgroundColor: "#E9B01E33",
         color: "#E9B01E",
       };
-    case "N":
+    case ReservationStatus.RESERVED_UNPAID:
       return {
         label: "Reservado (sin pago)",
         backgroundColor: "#00E38C33",
         color: "#00E38C",
       };
-    case "L":
+    case ReservationStatus.RESERVED_PAID:
       return {
         label: "Reservado (pagado)",
         backgroundColor: "#00E38C33",
         color: "#00E38C",
       };
-    case "R":
+    case ReservationStatus.REJECTED:
       return {
         label: "Reserva rechazada",
         backgroundColor: "#E4605533",
         color: "#E46055",
       };
-    case "C":
+    case ReservationStatus.CANCELLED_MANUAL:
       return {
         label: "Cancelada manualmente",
         backgroundColor: "#E4605533",
         color: "#E46055",
       };
-    case "T":
+    case ReservationStatus.CANCELLED_AUTO:
       return {
         label: "Cancelada automática",
         backgroundColor: "#E4605533",
         color: "#E46055",
       };
-    case "F":
+    case ReservationStatus.COMPLETED:
       return {
         label: "Finalizada",
         backgroundColor: "#00E38C33",
         color: "#00E38C",
       };
-    case "X":
+    case ReservationStatus.LEGACY_REJECTED:
       return {
         label: "Rechazada",
         backgroundColor: "#E4605533",

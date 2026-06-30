@@ -1,31 +1,44 @@
 import {
   getUpdatedReservationStatus,
-  type ReservationStatus,
+  ReservationStatus,
 } from "@/modulos/Reservas/constants/reservationConstants";
 
-const TERMINAL_OR_MANUAL_STATUSES = new Set([
-  "W",
-  "R",
-  "C",
-  "T",
-  "F",
-  "M",
+// Estados de reserva terminales o manuales (dominio RESERVA → numérico).
+const TERMINAL_OR_MANUAL_STATUSES = new Set<ReservationStatus>([
+  ReservationStatus.AWAITING_APPROVAL, // W
+  ReservationStatus.REJECTED, // R
+  ReservationStatus.CANCELLED_MANUAL, // C
+  ReservationStatus.CANCELLED_AUTO, // T
+  ReservationStatus.COMPLETED, // F
+  ReservationStatus.MAINTENANCE, // M
 ]);
 
+// OJO cross-domain: estos son estados de DEUDA (debt_dptos.status), NO de reserva.
+// Tras S6.5 slices 1-2 la deuda/pago ya llegan numéricos, por lo que estos compares
+// string quedan inertes y la API ya entrega reservations.status resuelto. Se migran
+// en el slice de string-stragglers sistémicos (DEFERRED), no en este.
 const PENDING_DEBT_STATUSES = new Set(["A", "M", "I", "E"]);
 
 type ReservationStatusInput = {
-  status?: ReservationStatus | "X" | string | null;
+  status?: ReservationStatus | number | string | null;
   dateEnd?: string | null;
   endTime?: string | null;
-  debtStatus?: string | null;
-  paymentStatus?: string | null;
+  debtStatus?: string | number | null;
+  paymentStatus?: string | number | null;
   paymentId?: string | number | null;
 };
 
 const hasPaymentEvidence = (paymentId?: string | number | null) => {
   const normalized = String(paymentId ?? "").trim().toLowerCase();
   return normalized !== "" && normalized !== "0" && normalized !== "null";
+};
+
+const normalizeReservationStatus = (
+  status?: ReservationStatus | number | string | null,
+): ReservationStatus | undefined => {
+  if (status === null || status === undefined || status === "") return undefined;
+  const numeric = typeof status === "number" ? status : Number(status);
+  return Number.isFinite(numeric) ? (numeric as ReservationStatus) : undefined;
 };
 
 export const resolveReservationDisplayStatus = ({
@@ -35,18 +48,22 @@ export const resolveReservationDisplayStatus = ({
   debtStatus,
   paymentStatus,
   paymentId,
-}: ReservationStatusInput): string => {
+}: ReservationStatusInput): ReservationStatus | undefined => {
+  const normalizedStatus = normalizeReservationStatus(status);
   const updatedStatus = getUpdatedReservationStatus(
-    status as ReservationStatus | undefined,
+    normalizedStatus,
     dateEnd || undefined,
     endTime || undefined,
   );
-  const currentStatus = String(updatedStatus || status || "").trim();
+  const currentStatus = updatedStatus ?? normalizedStatus;
 
-  if (TERMINAL_OR_MANUAL_STATUSES.has(currentStatus)) {
+  if (currentStatus !== undefined && TERMINAL_OR_MANUAL_STATUSES.has(currentStatus)) {
     return currentStatus;
   }
 
+  // DEFERRED (string-straggler slice): debtStatus/paymentStatus son dominio
+  // deuda/pago (ya numéricos); estos compares string no disparan hoy y la API
+  // entrega reservations.status ya resuelto. Los returns son dominio reserva → numérico.
   const nextPaymentStatus = String(paymentStatus || "").trim();
   const nextDebtStatus = String(debtStatus || "").trim();
 
@@ -54,7 +71,7 @@ export const resolveReservationDisplayStatus = ({
     (nextPaymentStatus === "P" && nextDebtStatus !== "I") ||
     nextDebtStatus === "P"
   ) {
-    return "L";
+    return ReservationStatus.RESERVED_PAID;
   }
 
   if (
@@ -62,18 +79,22 @@ export const resolveReservationDisplayStatus = ({
     nextDebtStatus === "S" ||
     (!nextPaymentStatus && hasPaymentEvidence(paymentId))
   ) {
-    return "Q";
+    return ReservationStatus.PAYMENT_SUBMITTED;
   }
 
-  if (PENDING_DEBT_STATUSES.has(nextDebtStatus) && currentStatus !== "N") {
-    return "A";
+  if (
+    PENDING_DEBT_STATUSES.has(nextDebtStatus) &&
+    currentStatus !== ReservationStatus.RESERVED_UNPAID
+  ) {
+    return ReservationStatus.PENDING_PAYMENT;
   }
 
   return currentStatus;
 };
 
-export const shouldShowReservationPaymentTimeLimit = (status?: string | null) =>
-  status === "A";
+export const shouldShowReservationPaymentTimeLimit = (
+  status?: ReservationStatus | number | null,
+) => status === ReservationStatus.PENDING_PAYMENT;
 
 export const formatReservationPaymentTimeLimitMessage = (
   value?: string | null,
