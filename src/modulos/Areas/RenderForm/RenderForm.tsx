@@ -84,7 +84,8 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     booking_mode: item?.booking_mode || "day",
     has_price: item?.price ? "S" : "N",
     requires_approval: item?.requires_approval === false ? "X" : "A",
-    penalty_or_debt_restriction: item?.penalty_or_debt_restriction || "X",
+    penalty_or_debt_restriction:
+      item?.penalty_or_debt_restriction === true ? "A" : "X",
   });
   const { showToast } = useAuth();
   const [level, setLevel] = useState(1);
@@ -291,7 +292,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         usage_rules: formState?.usage_rules,
         cancellation_policy: formState?.cancellation_policy,
         approval_response_hours: formState?.approval_response_hours,
-        penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
+        penalty_or_debt_restriction: formState?.penalty_or_debt_restriction === "A",
         booking_mode: formState?.booking_mode,
         max_reservations_per_day: formState?.max_reservations_per_day,
         reservation_duration: parseFloat(formState?.reservation_duration),
