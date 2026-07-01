@@ -39,7 +39,7 @@ type ReservationArea = {
   description?: string | null;
   images?: string[] | null;
   price?: string | number | null;
-  is_free?: string | null;
+  is_free?: boolean | null;
   booking_mode?: string | null;
   cancellation_policy?: string | null;
   usage_rules?: string | null;
@@ -206,7 +206,7 @@ const getPriceDetails = (
 
   const price = Number.parseFloat(String(area.price || 0));
   const total = Number.parseFloat(String(safeTotalAmount));
-  const isFreeExplicit = area.is_free === "A";
+  const isFreeExplicit = area.is_free === true;
   const isPriceZero = Number.isNaN(price) || price <= 0;
 
   if (isFreeExplicit || isPriceZero) {

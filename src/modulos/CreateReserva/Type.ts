@@ -77,14 +77,14 @@ export interface ApiArea {
   available_hours?: Record<string, string[]> | null;
   booking_mode?: "hour" | "day" | string | null;
   price?: string | null;
-  is_free?: "X" | string | null;
+  is_free?: boolean | null;
   max_booking_duration?: number | null;
   special_restrictions?: string | null;
   usage_rules?: string | null;
   max_reservations_per_day?: number | null;
   max_reservations_per_week?: number | null;
   penalty_or_debt_restriction?: "X" | string | null;
-  requires_approval?: "A" | string | null;
+  requires_approval?: boolean | null;
   approval_response_hours?: number | null;
   auto_approval_available?: "X" | string | null;
   cancellable?: "A" | string | null;

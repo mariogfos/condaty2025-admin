@@ -624,7 +624,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                         <KeyValue
                           title={"Aprobación de administración"}
                           value={
-                            selectedAreaDetails?.requires_approval === "A"
+                            selectedAreaDetails?.requires_approval === true
                               ? "Si"
                               : "No"
                           }
@@ -972,7 +972,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     Reserva por periodo
                   </p>
                   <span className={styles.priceInfoBottom}>
-                    {selectedAreaDetails.is_free === "A"
+                    {selectedAreaDetails.is_free === true
                       ? "Gratis"
                       : `Bs ${formatNumber(selectedAreaDetails.price || 0)}`}
                   </span>

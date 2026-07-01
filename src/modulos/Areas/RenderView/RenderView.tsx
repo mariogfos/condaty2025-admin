@@ -204,7 +204,7 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
               />
               <KeyValue
                 title={"Aprobación de administración"}
-                value={item?.requires_approval == "A" ? "Sí" : "No"}
+                value={item?.requires_approval ? "Sí" : "No"}
               />
               {item?.booking_mode === "hour" && (
                 <KeyValue

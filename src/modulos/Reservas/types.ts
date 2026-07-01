@@ -92,7 +92,7 @@ export type ReservationArea = {
   available_days?: string[] | null;
   available_hours?: Record<string, string[]> | null;
   price?: string | number | null;
-  is_free?: string | null;
+  is_free?: boolean | null;
   booking_mode?: string | null;
   max_reservations_per_day?: number | null;
   max_booking_duration?: number | null;
@@ -100,7 +100,7 @@ export type ReservationArea = {
   special_restrictions?: string | null;
   cancellation_policy?: string | null;
   penalty_or_debt_restriction?: string | null;
-  requires_approval?: string | null;
+  requires_approval?: boolean | null;
   show_real_time_availability?: string | null;
   show_in_calendar?: string | null;
   images?: string[] | null;

@@ -1282,7 +1282,7 @@ const CalendarPage = () => {
   }, [selectedReservationUnitChoice]);
 
   const reservationIsFree =
-    selectedReservationAreaChoice?.area.is_free === "A" ||
+    selectedReservationAreaChoice?.area.is_free === true ||
     Number(selectedReservationAreaChoice?.area.price || 0) <= 0;
 
   const reservationPriceLabel = reservationIsFree
