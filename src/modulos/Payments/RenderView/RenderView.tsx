@@ -608,6 +608,81 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     }
   };
   const canReviewPayment = item?.status === "S";
+  const showCancelIncomeAction =
+    Boolean(item && onDel && item.status === "P" && item.user);
+  const showReceiptAction = item.status === "P";
+  const showShareReceiptAction = item.status === "P";
+  const showVoucherAction = hasVoucherUrls;
+  const showRejectPaymentAction = canReviewPayment;
+  const showApprovePaymentAction = canReviewPayment;
+  const hasPaymentActions =
+    showCancelIncomeAction ||
+    showReceiptAction ||
+    showShareReceiptAction ||
+    showVoucherAction ||
+    showRejectPaymentAction ||
+    showApprovePaymentAction;
+  const paymentActionButtons = !loading && hasPaymentActions ? (
+    <div className={styles.voucherButtonContainer}>
+      {showCancelIncomeAction && (
+        <Button
+          onClick={handleAnularClick}
+          className={styles.textButtonDanger}
+          variant="danger"
+        >
+          Anular ingreso
+        </Button>
+      )}
+
+      {showReceiptAction && (
+        <Button
+          variant="secondary"
+          className={styles.voucherButton}
+          onClick={() => handleGenerateReceipt(item)}
+        >
+          Ver Recibo
+        </Button>
+      )}
+      {showShareReceiptAction && (
+        <Button
+          variant="secondary"
+          className={styles.voucherButton}
+          onClick={handleShareReceiptWhatsApp}
+        >
+          Compartir por WhatsApp
+        </Button>
+      )}
+      {showVoucherAction && (
+        <Button
+          variant="secondary"
+          className={styles.voucherButton}
+          onClick={handleViewOrDownloadVouchers}
+        >
+          Ver comprobante
+        </Button>
+      )}
+      {showRejectPaymentAction && (
+        <Button
+          variant="secondary"
+          className={styles.voucherButton}
+          onClick={() => {
+            setOnRechazar(true);
+          }}
+        >
+          Rechazar pago
+        </Button>
+      )}
+      {showApprovePaymentAction && (
+        <Button
+          variant="primary"
+          className={styles.voucherButton}
+          onClick={() => onConfirm(true)}
+        >
+          Aprobar pago
+        </Button>
+      )}
+    </div>
+  ) : null;
 
   return (
     <>
@@ -622,6 +697,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         headerDivider={false}
         minWidth={860}
         maxWidth={980}
+        buttonExtra={paymentActionButtons}
       >
         {loading ? (
           <Loading />
@@ -861,68 +937,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                 </div>
               )}
 
-            <div className={styles.voucherButtonContainer}>
-              {item && onDel && item.status === "P" && item.user && (
-                <Button
-                  onClick={handleAnularClick}
-                  className={styles.textButtonDanger}
-                  // style={{ marginRight: 8 }}
-                  variant="danger"
-                >
-                  Anular ingreso
-                </Button>
-              )}
-
-              {item.status === "P" && (
-                <Button
-                  variant="secondary"
-                  className={styles.voucherButton}
-                  // style={hasVoucherUrls ? { marginRight: 8 } : {}}
-                  onClick={() => handleGenerateReceipt(item)}
-                >
-                  Ver Recibo
-                </Button>
-              )}
-              {item.status === "P" && (
-                <Button
-                  variant="secondary"
-                  className={styles.voucherButton}
-                  // style={{ marginRight: 8 }}
-                  onClick={handleShareReceiptWhatsApp}
-                >
-                  Compartir por WhatsApp
-                </Button>
-              )}
-              {hasVoucherUrls && (
-                <Button
-                  variant="secondary"
-                  className={styles.voucherButton}
-                  onClick={handleViewOrDownloadVouchers}
-                >
-                  Ver comprobante
-                </Button>
-              )}
-              {canReviewPayment && (
-                <Button
-                  variant="secondary"
-                  className={styles.voucherButton}
-                  onClick={() => {
-                    setOnRechazar(true);
-                  }}
-                >
-                  Rechazar pago
-                </Button>
-              )}
-              {canReviewPayment && (
-                <Button
-                  variant="primary"
-                  className={styles.voucherButton}
-                  onClick={() => onConfirm(true)}
-                >
-                  Aprobar pago
-                </Button>
-              )}
-            </div>
           </>
         )}
       </DataModal>

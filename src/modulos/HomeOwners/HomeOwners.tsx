@@ -16,6 +16,7 @@ import {
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
+import { firstCountOrZero } from "@/mk/utils/dashboardCounts";
 
 const paramsInitial = {
   perPage: 20,
@@ -456,23 +457,30 @@ const HomeOwners = () => {
     mod,
     fields,
   });
+  const homeownersCount = firstCountOrZero(
+    extraData?.homeowners,
+    extraData?.homeownersCount,
+    extraData?.owners,
+    extraData?.ownersCount,
+    data?.message?.total,
+  );
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.style}>
       <WidgetDashCard
         title="Propietarios Registrados"
-        data={data?.message?.total || 0}
+        data={homeownersCount}
         icon={
           <IconHomeOwner
             color={
-              !data?.message?.total || data?.message?.total === 0
+              homeownersCount === 0
                 ? "var(--cWhiteV1)"
                 : "var(--cWhite)"
             }
             style={{
               backgroundColor:
-                !data?.message?.total || data?.message?.total === 0
+                homeownersCount === 0
                   ? "var(--cHover)"
                   : "rgba(255, 255, 255, 0.1)",
             }}

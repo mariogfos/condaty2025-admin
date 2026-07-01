@@ -62,9 +62,13 @@ import type {
   ReservationArea,
   ReservationExtraData,
   ReservationListItem,
-  ReservationResident,
   ReservationUnit,
 } from "@/modulos/Reservas/types";
+import {
+  buildReservationUnitChoices,
+  getReservationUnitOwnerId,
+  type ReservationUnitChoice,
+} from "@/modulos/Reservas/utils/reservationUnits";
 import {
   CALENDAR_WEEK_DAYS,
   type CalendarReservationEntry,
@@ -182,84 +186,6 @@ type CalendarAreaLocalAvailabilityLookup = {
   byName: Record<string, CalendarAreaLocalAvailability>;
 };
 
-type CalendarUnitChoice = {
-  id: string;
-  name: string;
-  unit: ReservationUnit;
-  resident: ReservationResident | null;
-  roleLabel: string;
-};
-
-const buildCalendarUnitChoices = (unit: ReservationUnit): CalendarUnitChoice[] => {
-  const unitLabel = getUnitLabel(unit);
-  const seenResidents = new Set<string>();
-  const choices: CalendarUnitChoice[] = [];
-
-  const pushChoice = (
-    resident: ReservationResident | null | undefined,
-    roleLabel: string,
-    fallbackKey: string,
-  ) => {
-    if (!resident) return;
-
-    const residentName = getResidentName(resident, roleLabel);
-    const dedupeKey = String(resident.id || residentName || fallbackKey);
-
-    if (seenResidents.has(dedupeKey)) {
-      return;
-    }
-
-    seenResidents.add(dedupeKey);
-    choices.push({
-      id: `${unit.id}:${fallbackKey}:${resident.id || residentName}`,
-      name: `${unitLabel}: ${residentName} · ${roleLabel}`,
-      unit,
-      resident,
-      roleLabel,
-    });
-  };
-
-  pushChoice(unit.tenant, "Inquilino", "tenant");
-  pushChoice(unit.homeowner, "Propietario", "homeowner");
-  pushChoice(unit.titular?.owner, "Titular", "titular");
-
-  const homeownerDependents = Array.isArray(unit.homeowner?.dependientes)
-    ? unit.homeowner.dependientes
-    : [];
-  homeownerDependents.forEach((dependent, index) => {
-    pushChoice(
-      dependent?.owner,
-      "Dependiente de propietario",
-      `homeowner-dependent-${dependent?.owner_id || index}`,
-    );
-  });
-
-  const tenantDependents = Array.isArray(unit.tenant?.dependientes)
-    ? unit.tenant.dependientes
-    : [];
-  tenantDependents.forEach((dependent, index) => {
-    pushChoice(
-      dependent?.owner,
-      "Dependiente de inquilino",
-      `tenant-dependent-${dependent?.owner_id || index}`,
-    );
-  });
-
-  if (choices.length > 0) {
-    return choices;
-  }
-
-  return [
-    {
-      id: `${unit.id}:unit`,
-      name: `${unitLabel}: Sin residente`,
-      unit,
-      resident: null,
-      roleLabel: "Sin residente",
-    },
-  ];
-};
-
 const CalendarPage = () => {
   const router = useRouter();
   const { contextInstance } = useContext(AxiosContext);
@@ -332,6 +258,7 @@ const CalendarPage = () => {
   const reservationAvailabilityRequestRef = useRef(0);
   const modalAreaAvailabilityRequestRef = useRef(0);
   const selectedDayTimeLimitRequestRef = useRef(0);
+  const openedReservationQueryRef = useRef("");
   const gridRef = useRef<HTMLDivElement>(null);
 
   const canView = userCan("reservations", "R");
@@ -743,8 +670,8 @@ const CalendarPage = () => {
     [visibleAreaOptions],
   );
 
-  const unitOptions = useMemo<CalendarUnitChoice[]>(
-    () => units.flatMap((unit) => buildCalendarUnitChoices(unit)),
+  const unitOptions = useMemo<ReservationUnitChoice[]>(
+    () => buildReservationUnitChoices(units),
     [units],
   );
 
@@ -1243,7 +1170,7 @@ const CalendarPage = () => {
   const reservationMaintenanceSlots = reservationLiveAvailability?.maintenance || [];
 
   const selectedReservationOwnerId = String(
-    selectedReservationUnit?.titular?.id || "",
+    getReservationUnitOwnerId(selectedReservationUnit),
   );
 
   const selectedReservationResidentLabel = useMemo(() => {
@@ -1457,6 +1384,51 @@ const CalendarPage = () => {
   const closeDayActionMenu = useCallback(() => {
     setDayActionMenu(null);
   }, []);
+
+  const openCreateReservationModal = useCallback(
+    (day?: Date) => {
+      const today = startOfDay(new Date());
+      const candidateDay = day ? startOfDay(day) : selectedDate;
+      const safeDay =
+        candidateDay && candidateDay >= today ? candidateDay : today;
+      const dayKey = formatDateKey(safeDay);
+      const dayEntries = entriesByDay.get(dayKey) || [];
+
+      closeDayActionMenu();
+      setSelectedDate(safeDay);
+      setCalendarActionModal({
+        action: "create_reservation",
+        row: {
+          day: safeDay,
+          dayKey,
+          reservationCount: dayEntries.length,
+        },
+      });
+    },
+    [closeDayActionMenu, entriesByDay, selectedDate],
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const shouldOpenReservationModal =
+      searchParams.get("newReservation") === "1" ||
+      searchParams.get("action") === "new-reservation";
+
+    if (!shouldOpenReservationModal) return;
+
+    const queryKey = searchParams.toString();
+    if (openedReservationQueryRef.current === queryKey) return;
+
+    openedReservationQueryRef.current = queryKey;
+
+    if (canCreate) {
+      openCreateReservationModal();
+    }
+
+    router.replace("/calendar", { scroll: false });
+  }, [canCreate, openCreateReservationModal, router]);
 
   useEffect(() => {
     if (!calendarActionModal || calendarActionModal.action !== "create_reservation") {
@@ -1839,10 +1811,7 @@ const CalendarPage = () => {
         disabled: !canCreate,
         onClick: ({ row, closeMenu }) => {
           closeMenu();
-          setCalendarActionModal({
-            action: "create_reservation",
-            row,
-          });
+          openCreateReservationModal(row.day);
         },
       },
       {
@@ -1857,7 +1826,7 @@ const CalendarPage = () => {
         },
       },
     ],
-    [canCreate],
+    [canCreate, openCreateReservationModal],
   );
 
   const handlePeriodSelect = useCallback(
@@ -2125,7 +2094,7 @@ const CalendarPage = () => {
               {canCreate ? (
                 <Button
                   variant="primary"
-                  onClick={() => router.push("/create-reservas")}
+                  onClick={() => openCreateReservationModal()}
                   className={styles.toolbarActionButton}
                   style={{ height: 48, width: "auto", fontWeight: 700 }}
                 >

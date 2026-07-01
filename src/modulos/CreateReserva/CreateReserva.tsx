@@ -15,7 +15,6 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
-import { getFullName } from "@/mk/utils/string";
 import { ApiArea, FormState } from "./Type";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
@@ -27,6 +26,12 @@ import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import RenderView from "../DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
+import {
+  buildReservationUnitSelectOptions,
+  getReservationResidentFullName,
+  getReservationUnitOwnerId,
+  getReservationUnitPrimaryChoice,
+} from "@/modulos/Reservas/utils/reservationUnits";
 
 const initialState: FormState = {
   unidad: "",
@@ -116,7 +121,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const getCalendar = useCallback(
     async (date?: any) => {
       setLoadingCalendar(true);
-      const ownerId = selectedUnit?.titular?.id;
+      const ownerId = getReservationUnitOwnerId(selectedUnit);
       const { data } = await execute(
         "/reservations-calendar",
         "GET",
@@ -125,9 +130,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
           date_at: date || new Date().toISOString()?.split("T")[0],
           owner_id:
             ownerId ||
-            extraData?.dptos?.find(
-              (u: any) => String(u.id) === formState.unidad,
-            )?.titular?.id,
+            getReservationUnitOwnerId(
+              extraData?.dptos?.find(
+                (u: any) => String(u.id) === formState.unidad,
+              ),
+            ),
         },
         false,
         true,
@@ -160,23 +167,8 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     if (!selectedArea) {
       return [];
     }
-    let data: any[] = [];
-    extraData?.dptos?.forEach((unidad: any) => {
-      if (selectedArea?.penalty_or_debt_restriction == "A") {
-        if (unidad?.defaulter == "X") {
-          data.push({
-            id: String(unidad.id),
-            name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)}`,
-          });
-        }
-      } else {
-        data.push({
-          id: String(unidad.id),
-          name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)} `,
-        });
-      }
-    });
-    return data;
+
+    return buildReservationUnitSelectOptions(extraData?.dptos || []);
   }, [extraData?.dptos, extraData?.areas, formState.area_social]);
 
   const selectedAreaDetails: ApiArea | undefined = useMemo(() => {
@@ -341,9 +333,13 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     const selectedUnit = extraData?.dptos.find(
       (u: any) => String(u.id) === formState.unidad,
     );
-    const ownerId = selectedUnit?.titular?.id;
+    const ownerId = getReservationUnitOwnerId(selectedUnit);
     if (!ownerId) {
       setIsSubmitting(false);
+      showToast(
+        "La unidad seleccionada no tiene un titular configurado para crear la reserva.",
+        "error",
+      );
       return;
     }
 
@@ -471,6 +467,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     onClose();
   };
   const currentImage = selectedAreaDetails?.images?.[currentImageIndex];
+  const selectedUnitResponsible = selectedUnit
+    ? getReservationUnitPrimaryChoice(selectedUnit).resident
+    : null;
+  const selectedUnitResponsibleName =
+    getReservationResidentFullName(selectedUnitResponsible);
   return (
     <div className={styles.pageWrapper}>
       <HeaderBack label="Volver a lista de reservas" onClick={_onClose} />
@@ -873,14 +874,14 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   <div className={styles.summaryOwnerInfo}>
                     <div className={styles.ownerIdentifier}>
                       <Avatar
-                        src={selectedUnit?.titular?.url_avatar}
-                        name={getFullName(selectedUnit?.titular)}
+                        src={selectedUnitResponsible?.url_avatar || undefined}
+                        name={selectedUnitResponsibleName}
                         w={40}
                         h={40}
                       />
                       <div className={styles.ownerText}>
                         <span className={styles.ownerName}>
-                          {getFullName(selectedUnit?.titular)}
+                          {selectedUnitResponsibleName}
                         </span>
                         <span className={styles.ownerUnit}>
                           Unidad {selectedUnit?.nro}

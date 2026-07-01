@@ -2209,6 +2209,7 @@ const useCrud = ({
           {runtime.openList && (
             <CurrentAddMenu
               filters={filters}
+              onClick={props.onAddClick}
               extraButtons={runtime.extraButtons}
               data={sortedData}
               breakPoint={props.filterBreakPoint}

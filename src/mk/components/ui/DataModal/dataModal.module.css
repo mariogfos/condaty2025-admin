@@ -14,6 +14,7 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    min-height: 0;
     color: var(--cWhite);
     background-color: var(--cModalSurface);
     border-radius: var(--bRadiusL);
@@ -70,20 +71,29 @@
       flex-direction: column;
       gap: 12px;
       overflow-y: auto;
-      flex-grow: 1;
+      flex: 1 1 auto;
+      min-height: 0;
       color: var(--cWhiteV1);
       margin-top: var(--spS);
       margin-bottom: var(--spS);
     }
     & > footer {
       display: flex;
+      flex: 0 0 auto;
       /* flex-direction: column;  Mantenemos esto para el móvil inicialmente */
       gap: 8px; /* Espacio entre botones si están en columna o si hay más de dos */
+      padding-top: var(--spM);
+      border-top: 1px solid var(--cModalDivider);
 
       /* Para pantallas móviles (botones en columna, ocupan todo el ancho por defecto) */
       & > button {
         /* Estilo general para los botones en el footer si es necesario */
         width: 100%; /* Hacemos que ocupen todo el ancho en vista de columna */
+      }
+
+      & > :not(button) {
+        width: 100%;
+        min-width: 0;
       }
 
       @media (width > 768px) {

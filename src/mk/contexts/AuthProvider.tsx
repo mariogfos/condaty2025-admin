@@ -9,7 +9,6 @@ import {
   useState,
 } from "react";
 import useAxios from "../hooks/useAxios";
-import { useRouter } from "next/navigation";
 import Login from "../components/auth/Login";
 import useToast, { ToastItem } from "../hooks/useToast";
 import Splash from "../../components/req/Splash";
@@ -39,7 +38,6 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
   const storeRef = useRef<any>(null);
   const [splash, setSplash] = useState(true);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
-  const router: any = useRouter();
   const { showToast } = useToast(setToasts);
 
   const _setStore = useCallback(async (newStore: object) => {
@@ -66,11 +64,6 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
       } else if (currentUser?.client_id) {
         credentials.client_id = currentUser.client_id;
       }
-      if (client_id) {
-        credentials.client_id = client_id;
-      } else if (currentUser?.client_id) {
-        credentials.client_id = currentUser.client_id;
-      }
       if (currentUser) {
         const { data, error }: any = await execute(
           process.env.NEXT_PUBLIC_AUTH_IAM,
@@ -92,22 +85,13 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
             localStorage.setItem("condaty_client_id", currentUser.client_id);
           }
 
-          if (client_id) {
-            currentUser.client_id = client_id;
-          } else if (credentials.client_id) {
-            currentUser.client_id = credentials.client_id;
-          }
-
-          if (currentUser.client_id) {
-            localStorage.setItem("condaty_client_id", currentUser.client_id);
-          }
-
           localStorage.setItem(
             (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
             JSON.stringify({ token: token.token, user: currentUser }),
           );
         } else {
-          if (error.status == 500) {
+          if (error?.status == 500) {
+            setWaiting(-1, "-getUser500");
             setTimeout(async () => {
               localStorage.removeItem(
                 (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
@@ -115,20 +99,16 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
               setUser(false);
               setSplash(false);
             }, 1000);
-            return;
+            return false;
           }
           localStorage.removeItem(
             (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
           );
           localStorage.removeItem("condaty_client_id");
-          localStorage.removeItem("condaty_client_id");
           setUser(false);
           setWaiting(-1, "-getUser");
           setSplash(false);
-          // setSplash(false);
-          // router.reload();
-          // router.reload();
-          return;
+          return false;
         }
       }
     } catch (e) {
@@ -137,6 +117,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     setUser(currentUser);
     setWaiting(-1, "-getUser2");
     setSplash(false);
+    return currentUser;
   };
 
   const userCan = (

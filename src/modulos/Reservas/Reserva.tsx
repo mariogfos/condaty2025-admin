@@ -13,6 +13,8 @@ import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFil
 import CreateReserva from "../CreateReserva/CreateReserva";
 import { IconCalendar } from "@/components/layout/icons/IconsBiblioteca";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 import {
   RESERVATION_STATUS_CONFIG,
   RESERVATION_STATUS_OPTIONS,
@@ -108,6 +110,8 @@ const ReservationStatusBadge = ({ item }: { item: any }) => {
 };
 
 const Reserva = () => {
+  const router = useRouter();
+  const { showToast } = useAuth();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
     startDate?: string;
@@ -341,6 +345,14 @@ const Reserva = () => {
     <>
       <List
         height={"100%"}
+        onAddClick={() => {
+          if (!userCan(mod.permiso, "C")) {
+            showToast("No tiene permisos para crear reservas", "error");
+            return;
+          }
+
+          router.push("/calendar?newReservation=1");
+        }}
         emptyMsg="Sin reservas pendientes. cuando los residentes comiencen"
         emptyLine2="a solicitar reservas de áreas sociales lo verás reflejado aquí."
         emptyIcon={<IconCalendar size={80} color="var(--cWhiteV1)" />}
