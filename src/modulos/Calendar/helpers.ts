@@ -22,6 +22,7 @@ import type {
 } from "@/modulos/Reservas/types";
 import { resolveReservationDisplayStatus } from "@/modulos/Reservas/utils/reservationStatus";
 import { getReservationDisplayStatusInput } from "@/modulos/Reservas/utils/reservationPayment";
+import { getReservationUnitPrimaryResident } from "@/modulos/Reservas/utils/reservationUnits";
 
 const WEEK_STARTS_ON_SUNDAY = { weekStartsOn: 0 as const };
 
@@ -133,7 +134,7 @@ export const dedupeReservationsById = (reservations: ReservationListItem[]) =>
   );
 
 export const getResidentFromUnit = (unit?: ReservationUnit | null) =>
-  unit?.tenant || unit?.homeowner || unit?.titular?.owner || null;
+  getReservationUnitPrimaryResident(unit);
 
 export const getResidentName = (
   resident?: ReservationResident | null,

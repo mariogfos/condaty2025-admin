@@ -410,6 +410,74 @@ const RenderView: React.FC<RenderViewProps> = ({
         ]
           .filter(Boolean)
           .join(" · ");
+  const showRegistrarPagoAction =
+    actions.showRegistrarPago && debtDetail?.status !== "F";
+  const showVerPagoAction = actions.showVerPago && resolvedPaymentId;
+  const showRelatedDetailAction = Boolean(detailButtonText);
+  const showEditAction =
+    actions.showEditar && onEdit && !hideEditAndDeleteButtons;
+  const showCancelAction =
+    actions.showAnular && onDel && !hideEditAndDeleteButtons;
+  const hasDebtActions =
+    showRegistrarPagoAction ||
+    showVerPagoAction ||
+    showRelatedDetailAction ||
+    showEditAction ||
+    showCancelAction;
+  const debtActionButtons =
+    !shouldShowLoading &&
+    Object.keys(debtDetail).length > 0 &&
+    hasDebtActions ? (
+      <div
+        className={`${paymentStyles.voucherButtonContainer} ${styles.actionsWrap}`}
+      >
+        {showRegistrarPagoAction && (
+          <Button
+            onClick={() => setShowPaymentForm(true)}
+            className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+          >
+            Registrar Pago
+          </Button>
+        )}
+        {showVerPagoAction && (
+          <Button
+            onClick={() => setShowPaymentModal(true)}
+            variant="secondary"
+            className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+          >
+            Ver pago
+          </Button>
+        )}
+        {showRelatedDetailAction && (
+          <Button
+            onClick={() => handleDetailButtonClick(debtType)}
+            variant="secondary"
+            className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+            disabled={!hasApiData}
+          >
+            {detailButtonText}
+          </Button>
+        )}
+        {showEditAction && (
+          <Button
+            onClick={() => onEdit?.(debtDetail)}
+            variant="secondary"
+            className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+          >
+            Editar
+          </Button>
+        )}
+        {showCancelAction && (
+          <Button
+            onClick={() => onDel?.(debtDetail)}
+            variant="secondary"
+            className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+          >
+            Anular
+          </Button>
+        )}
+      </div>
+    ) : null;
 
   return (
     <>
@@ -423,6 +491,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         headerDivider={false}
         minWidth={860}
         maxWidth={980}
+        buttonExtra={debtActionButtons}
       >
         {shouldShowLoading || Object.keys(debtDetail).length === 0 ? (
           <Loading />
@@ -585,56 +654,6 @@ const RenderView: React.FC<RenderViewProps> = ({
             <div className={paymentStyles.container}>
               <div className={styles.sectionHeading}>Detalles de la deuda</div>
               <div className={styles.detailsContent}>{debtDescription}</div>
-            </div>
-
-            <div
-              className={`${paymentStyles.voucherButtonContainer} ${styles.actionsWrap}`}
-            >
-              {actions.showRegistrarPago && debtDetail?.status !== "F" && (
-                <Button
-                  onClick={() => setShowPaymentForm(true)}
-                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
-                >
-                  Registrar Pago
-                </Button>
-              )}
-              {actions.showVerPago && resolvedPaymentId && (
-                <Button
-                  onClick={() => setShowPaymentModal(true)}
-                  variant="secondary"
-                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
-                >
-                  Ver pago
-                </Button>
-              )}
-              {detailButtonText && (
-                <Button
-                  onClick={() => handleDetailButtonClick(debtType)}
-                  variant="secondary"
-                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
-                  disabled={!hasApiData}
-                >
-                  {detailButtonText}
-                </Button>
-              )}
-              {actions.showEditar && onEdit && !hideEditAndDeleteButtons && (
-                <Button
-                  onClick={() => onEdit(debtDetail)}
-                  variant="secondary"
-                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
-                >
-                  Editar
-                </Button>
-              )}
-              {actions.showAnular && onDel && !hideEditAndDeleteButtons && (
-                <Button
-                  onClick={() => onDel(debtDetail)}
-                  variant="secondary"
-                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
-                >
-                  Anular
-                </Button>
-              )}
             </div>
           </>
         )}

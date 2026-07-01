@@ -67,7 +67,8 @@ const Section = ({
       style={{
         top: `${position?.top || 0}px`,
         left: `${position?.left || 0}px`,
-        minWidth: `${position?.width || 0}px`,
+        width: `${position?.width || 0}px`,
+        maxWidth: "calc(100vw - 24px)",
       }}
     >
       <div className={filter ? styles.searchBox : styles.hidden}>
@@ -302,16 +303,36 @@ const Select = ({
     let parent: any = select.getBoundingClientRect();
     let childPosition: any = child?.getBoundingClientRect();
 
-    let up = 57;
-    if (childPosition) {
-      if (parent.top + 57 + childPosition.height > window.innerHeight) {
-        up = childPosition.height * -1;
-      }
-    }
+    const viewportMargin = 12;
+    const gap = 8;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const resolvedWidth = Math.min(
+      Math.max(parent.width, 220),
+      viewportWidth - viewportMargin * 2,
+    );
+    const dropdownHeight =
+      childPosition?.height ||
+      Math.min(360, viewportHeight - viewportMargin * 2);
+    const availableBelow = viewportHeight - parent.bottom - viewportMargin;
+    const availableAbove = parent.top - viewportMargin;
+    const shouldOpenAbove =
+      childPosition && availableBelow < dropdownHeight && availableAbove > availableBelow;
+    const top = shouldOpenAbove
+      ? Math.max(viewportMargin, parent.top - dropdownHeight - gap)
+      : Math.min(
+          parent.bottom + gap,
+          Math.max(viewportMargin, viewportHeight - dropdownHeight - viewportMargin),
+        );
+    const left = Math.min(
+      Math.max(viewportMargin, parent.left),
+      Math.max(viewportMargin, viewportWidth - resolvedWidth - viewportMargin),
+    );
+
     setPosition({
-      top: parent.top + up,
-      left: parent.left,
-      width: parent.width,
+      top,
+      left,
+      width: resolvedWidth,
     });
   };
 
@@ -319,6 +340,16 @@ const Select = ({
     if (openOptions) {
       calcPosition();
     }
+  }, [openOptions, search]);
+
+  useEffect(() => {
+    if (!openOptions) return;
+
+    window.addEventListener("resize", calcPosition);
+
+    return () => {
+      window.removeEventListener("resize", calcPosition);
+    };
   }, [openOptions]);
   //cambio for value in multiselect
   useEffect(() => {

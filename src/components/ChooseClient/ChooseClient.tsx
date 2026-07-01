@@ -1,7 +1,6 @@
 "use client";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import {
   IconArrowRight,
@@ -22,26 +21,49 @@ interface Props {
   onClose: () => void;
 }
 const ChooseClient = ({ open, onClose }: Props) => {
-  const { user, getUser, setStore, store } = useAuth();
+  const { user, getUser, showToast } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const router = useRouter();
+  const [switchingClientId, setSwitchingClientId] = useState<
+    string | number | null
+  >(null);
   const { translate } = useScopedI18n("chooseClient");
 
   const onClick = async (id: any) => {
-    await getUser(id);
-    router.push("/");
-    setStore({
-      ...store,
-      reLoadDashboard: true,
-    });
+    if (switchingClientId !== null) return;
+
+    setSwitchingClientId(id);
+    const nextUser = await getUser(id);
+
+    if (!nextUser?.client_id || String(nextUser.client_id) !== String(id)) {
+      setSwitchingClientId(null);
+      showToast(
+        "No se pudo cambiar de condominio. Intenta nuevamente.",
+        "error",
+      );
+      return;
+    }
+
     onClose();
+    if (
+      window.location.pathname === "/" &&
+      !window.location.search &&
+      !window.location.hash
+    ) {
+      window.location.reload();
+      return;
+    }
+    window.location.assign("/");
   };
 
   const renderClient = (c: any) => {
     return (
-      <div
+      <button
+        type="button"
         key={c.id}
-        className={styles.clientItem}
+        className={`${styles.clientItem} ${
+          switchingClientId !== null ? styles.clientItemDisabled : ""
+        }`}
+        disabled={switchingClientId !== null}
         onClick={() => onClick(c.id)}
       >
         <div className={styles.clientInfo}>
@@ -84,7 +106,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
             <IconArrowRight size={16} color="var(--cWhiteV1)" />
           </div>
         </div>
-      </div>
+      </button>
     );
   };
 
