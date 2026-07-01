@@ -105,6 +105,10 @@ const createFormState = (client_config: Record<string, any>) => ({
     Number(client_config?.has_soft_reservation) === 1 ||
     client_config?.has_soft_reservation === true ||
     client_config?.has_soft_reservation === "Y",
+  has_reservation_advance_limit:
+    Number(client_config?.has_reservation_advance_limit) === 1 ||
+    client_config?.has_reservation_advance_limit === true ||
+    client_config?.has_reservation_advance_limit === "Y",
   has_tasks_visible:
     Number(client_config?.has_tasks_visible) === 1 ||
     client_config?.has_tasks_visible === true ||
@@ -265,6 +269,13 @@ const DptoConfig = ({
       setFormState((prev: any) => ({
         ...prev,
         has_soft_reservation: isEnabled,
+      }));
+    } else if (name === "has_reservation_advance_limit") {
+      const isEnabled = value === "Y";
+
+      setFormState((prev: any) => ({
+        ...prev,
+        has_reservation_advance_limit: isEnabled,
       }));
     } else if (name === "has_tasks_visible") {
       const isEnabled = value === "Y";
@@ -990,6 +1001,27 @@ const DptoConfig = ({
                   disabled={!editMode}
                 />
               )}
+
+              <div className={styles.switchContainer}>
+                <div className={styles.switchContent}>
+                  <p className={styles.textTitle}>
+                    Respetar anticipación mínima por área
+                  </p>
+                  <p className={styles.textSubtitle}>
+                    Bloquea para residentes los turnos que no cumplan las horas
+                    de anticipación configuradas en cada área social.
+                  </p>
+                </div>
+                <Switch
+                  name="has_reservation_advance_limit"
+                  label=""
+                  value={formState.has_reservation_advance_limit ? "Y" : "N"}
+                  onChange={handleSwitchChange}
+                  optionValue={["Y", "N"]}
+                  checked={formState.has_reservation_advance_limit}
+                  disabled={!editMode}
+                />
+              </div>
 
               <div className={styles.switchContainer}>
                 <div className={styles.switchContent}>
