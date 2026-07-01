@@ -68,7 +68,7 @@ type ReservationItem = {
   approved_by?: string | number | null;
   canceled_by?: string | number | null;
   canceled_at?: string | null;
-  is_canceled?: string;
+  is_canceled?: boolean;
   obs?: string | null;
   reason?: string | null;
   start_time?: string | null;
