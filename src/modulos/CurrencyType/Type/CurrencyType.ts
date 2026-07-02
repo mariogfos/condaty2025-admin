@@ -13,8 +13,7 @@ export interface CurrencyTypeItem {
   name: string;
   code: string;
   description?: string;
-  status_v3: CurrencyTypeStatus | number;
-  status?: string;
+  status: CurrencyTypeStatus | number;
   created_at?: string;
   updated_at?: string;
 }
