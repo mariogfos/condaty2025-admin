@@ -20,6 +20,7 @@ import styles from "./DetailSharedDebts.module.css";
 import { getDateStrMes } from "@/mk/utils/date";
 import UnifiedCard from "../../../UnifiedCard/UnifiedCard";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
+import { DebtStatus } from "@/types/PaymentType";
 import {
   getStatusText as getStatusTextConst,
   getStatusConfig as getStatusConfigConst,
@@ -89,15 +90,12 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   };
 
   const renderStatusCell = ({ item }: { item: any }) => {
-    let finalStatus = item?.status;
-    const today = new Date();
-    const todayString = today.toISOString().split("T")[0];
+    const rawStatus = Number(item?.status);
+    const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
     const dueAtString = item?.due_at;
-    if (dueAtString && dueAtString < todayString && item?.status === "A") {
-      finalStatus = "M";
-    }
-    const statusText = getStatusTextConst(finalStatus);
-    const { color, bgColor } = getStatusConfigConst(finalStatus, dueAtString);
+    // getStatusConfig applies the overdue rule internally
+    const statusText = getStatusTextConst(numericStatus);
+    const { color, bgColor } = getStatusConfigConst(numericStatus, dueAtString);
     return (
       <StatusBadge color={color} backgroundColor={bgColor}>
         {statusText}
@@ -340,7 +338,9 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const fetchDebtData = async () => {
     try {
-      const response = await execute(`/debts/${debtId}`, "GET", { id: debtId });
+      const response = await execute(`/debt-groups/${debtId}`, "GET", {
+        id: debtId,
+      });
       if (response?.data?.success) {
         return response.data.data;
       }
@@ -364,8 +364,9 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const confirmDelete = async () => {
     try {
-      const response = await execute(`/debts/${debtId}`, "DELETE", {
+      const response = await execute(`/debt-groups/${debtId}`, "DELETE", {
         id: debtId,
+        type: 4,
       });
       if (response?.data?.success) {
         showToast("Deuda eliminada exitosamente", "success");
@@ -381,7 +382,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const handleFormSave = async (data: any) => {
     try {
-      const response = await execute(`/debts/${debtId}`, "PUT", data);
+      const response = await execute(`/debt-groups/${debtId}`, "PUT", data);
 
       if (response?.data?.success) {
         setShowEditForm(false);

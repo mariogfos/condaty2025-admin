@@ -14,8 +14,8 @@ import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import RenderView from '../AllDebts/RenderView/RenderView';
-import PartialPaymentsRenderView from '@/modulos/PartialPayments/RenderView/RenderView';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal'; import { hasMaintenanceValue } from '@/mk/utils/utils';
+import { DebtStatus } from "@/types/PaymentType";
 import { getStatusText, getStatusConfig, STATUS_FILTER_OPTIONS } from '../constants';
 
 interface IndividualDebtsProps {
@@ -77,21 +77,12 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   };
 
   const renderStatusCell = ({ item }: { item: any }) => {
-    let finalStatus = item?.status;
-
-    // Obtener fecha actual solo como string YYYY-MM-DD
-    const today = new Date();
-    const todayString = today.toISOString().split('T')[0];
+    const rawStatus = Number(item?.status);
+    const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
     const dueAtString = item?.due_at;
-
-    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
-    if (dueAtString && dueAtString < todayString && item?.status === 'A') {
-      finalStatus = 'M';
-
-    }
-
-    const statusText = getStatusText(finalStatus);
-    const { color, bgColor } = getStatusConfig(finalStatus);
+    // getStatusConfig applies the overdue rule internally
+    const { color, bgColor } = getStatusConfig(numericStatus, dueAtString);
+    const statusText = getStatusText(numericStatus);
 
     return (
       <StatusBadge
@@ -244,37 +235,19 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       edit: true,
       del: true,
     },
-    renderView: (props: any) => {
-      if (props.item?.status === 'I') {
-        return (
-          <PartialPaymentsRenderView
-            open={props.open}
-            onClose={props.onClose}
-            item={props.item}
-            extraData={props.extraData}
-            user={user}
-            onEdit={props.onEdit}
-            onDel={props.onDel}
-            execute={props.execute}
-            reLoad={props.reLoad}
-            showToast={props.showToast}
-          />
-        );
-      }
-      return (
-        <RenderView
-          open={props.open}
-          onClose={props.onClose}
-          item={props.item}
-          extraData={props.extraData}
-          user={user}
-          onEdit={props.onEdit}
-          onDel={props.onDel}
-          hideSharedDebtButton={false}
-          hideEditAndDeleteButtons={false}
-        />
-      );
-    },
+    renderView: (props: any) => (
+      <RenderView
+        open={props.open}
+        onClose={props.onClose}
+        item={props.item}
+        extraData={props.extraData}
+        user={user}
+        onEdit={props.onEdit}
+        onDel={props.onDel}
+        hideSharedDebtButton={false}
+        hideEditAndDeleteButtons={false}
+      />
+    ),
     titleAdd: 'Crear',
     renderForm: (props: any) => <RenderForm {...props} />,
   };
@@ -437,17 +410,13 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   });
 
   const renderItem = (item: Record<string, any>) => {
-    let finalStatus = item?.status;
-
-    // Obtener fecha actual solo como string YYYY-MM-DD
-    const today = new Date();
-    const todayString = today.toISOString().split('T')[0];
+    const rawStatus = Number(item?.status);
+    const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
     const dueAtString = item?.due_at;
-
-    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
-    if (dueAtString && dueAtString < todayString && item?.status === 'A') {
-      finalStatus = 'M';
-    }
+    const todayString = new Date().toISOString().split('T')[0];
+    const displayStatus = dueAtString && dueAtString < todayString && numericStatus === DebtStatus.PENDING
+      ? DebtStatus.OVERDUE
+      : numericStatus;
 
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
@@ -456,7 +425,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     return (
       <RenderItem item={item} onClick={() => { }} onLongPress={onLongPress}>
         <ItemList
-          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(finalStatus)}`}
+          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(displayStatus)}`}
           subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${penaltyAmount.toFixed(2)} | Total: Bs ${totalBalance.toFixed(2)}`}
           variant="V1"
           active={selItem && selItem.id == item.id}

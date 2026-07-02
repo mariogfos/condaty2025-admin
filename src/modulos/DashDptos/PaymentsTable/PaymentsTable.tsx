@@ -5,10 +5,10 @@ import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import EmptyData from '@/components/NoData/EmptyData';
 import { IconPagos } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import { PaymentStatus, getPaymentStatusConfig } from '@/types/payment';
+import { getPaymentStatusConfig, METHOD_MAP } from '@/modulos/Payments/Type/PaymentType';
 
 const statusCell = ({ item }: { item: any }) => {
-  const status = item?.status as PaymentStatus;
+  const status = Number(item?.status);
   const statusInfo = getPaymentStatusConfig(status);
   return (
     <StatusBadge backgroundColor={statusInfo.backgroundColor} color={statusInfo.color}>
@@ -26,14 +26,7 @@ const amountCell = ({ item }: { item: any }) => {
 };
 
 const paymentMethodCell = ({ item }: { item: any }) => {
-  const methodMap: Record<string, string> = {
-    T: "Transferencia bancaria",
-    E: "Efectivo",
-    C: "Cheque",
-    Q: "Pago QR",
-    O: "Pago en oficina",
-  };
-  return methodMap[item?.method] || item?.method || '-/-';
+  return METHOD_MAP[Number(item?.method)] || item?.method || '-/-';
 };
 
 interface PaymentsTableProps {

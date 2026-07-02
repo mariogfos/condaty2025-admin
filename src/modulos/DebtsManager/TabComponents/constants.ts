@@ -1,26 +1,34 @@
+import { DebtStatus } from "@/types/PaymentType";
 
-export const DEBT_STATUS_MAP: { [key: string]: string } = {
-  'A': 'Por cobrar',
-  'P': 'Cobrado',
-  'S': 'Por confirmar',
-  'M': 'En mora',
-  'C': 'Cancelada',
-  'F': 'Condonada',
-  'X': 'Anulada',
-  'I': 'Pago parcial'
+// ---------------------------------------------------------------------------
+// Numeric-native debt status maps — keyed by DebtStatus enum (int 1-10)
+// Legacy string-code compat ('A','P','M',...) has been removed.
+// ---------------------------------------------------------------------------
+
+export const DEBT_STATUS_MAP: Record<number, string> = {
+  [DebtStatus.PENDING]:         'Por cobrar',
+  [DebtStatus.OVERDUE]:         'En mora',
+  [DebtStatus.PARTIAL]:         'Pago parcial',
+  [DebtStatus.SUBMITTED]:       'Por confirmar',
+  [DebtStatus.PAID]:            'Cobrado',
+  [DebtStatus.FORGIVEN]:        'Condonada',
+  [DebtStatus.WORKFLOW_PENDING]:'En flujo externo',
+  [DebtStatus.CANCELLED]:       'Anulada',
+  [DebtStatus.AWAITING_VOUCHER]:'Por subir comprobante',
+  [DebtStatus.REJECTED]:        'Rechazado',
 };
 
-export const DEBT_STATUS_CONFIG: { [key: string]: { color: string; bgColor: string } } = {
-  A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
-  P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
-  S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
-  R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
-  M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
-  C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
-  F: { color: '#1E8AE9', bgColor: '#517FE133' },
-  X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
-  I: { color: 'var(--cWhiteV1)', bgColor: 'color-mix(in srgb, var(--cWhiteV1) 25%, transparent)' },
-
+export const DEBT_STATUS_CONFIG: Record<number, { color: string; bgColor: string }> = {
+  [DebtStatus.PENDING]:         { color: 'var(--cWarning)',     bgColor: 'var(--cHoverCompl8)' },
+  [DebtStatus.OVERDUE]:         { color: 'var(--cError)',       bgColor: 'var(--cHoverError)' },
+  [DebtStatus.PARTIAL]:         { color: 'var(--cWhiteV1)',     bgColor: 'color-mix(in srgb, var(--cWhiteV1) 25%, transparent)' },
+  [DebtStatus.SUBMITTED]:       { color: 'var(--cWarning)',     bgColor: 'var(--cHoverCompl4)' },
+  [DebtStatus.PAID]:            { color: 'var(--cSuccess)',     bgColor: 'var(--cHoverCompl2)' },
+  [DebtStatus.FORGIVEN]:        { color: '#1E8AE9',             bgColor: '#517FE133' },
+  [DebtStatus.WORKFLOW_PENDING]:{ color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
+  [DebtStatus.CANCELLED]:       { color: 'var(--cInfo)',        bgColor: 'var(--cHoverCompl3)' },
+  [DebtStatus.AWAITING_VOUCHER]:{ color: 'var(--cWarning)',     bgColor: 'var(--cHoverCompl4)' },
+  [DebtStatus.REJECTED]:        { color: 'var(--cError)',       bgColor: 'var(--cHoverError)' },
 };
 
 
@@ -31,7 +39,6 @@ export const PAYMENT_TYPE_MAP: { [key: string]: string } = {
   Q: "Pago QR",
   O: "Pago en oficina",
 };
-
 
 
 export const DISTRIBUTION_TYPE_MAP: { [key: string]: string } = {
@@ -67,21 +74,25 @@ export const DEBT_TYPE_BUTTON_TEXT: { [key: number]: string } = {
 };
 
 
-export const BALANCE_TITLE_MAP: { [key: string]: string } = {
-  'P': 'Saldo cobrado',
-  'M': 'Saldo a cobrar',
-  'A': 'Saldo a cobrar'
+// Balance title — numeric keys
+export const BALANCE_TITLE_MAP: Record<number, string> = {
+  [DebtStatus.PAID]:    'Saldo cobrado',
+  [DebtStatus.OVERDUE]: 'Saldo a cobrar',
+  [DebtStatus.PENDING]: 'Saldo a cobrar',
 };
 
-export const STATUS_FILTER_OPTIONS = [
-  { id: 'A', name: 'Por cobrar' },
-  { id: 'P', name: 'Cobrado' },
-  { id: 'S', name: 'Por confirmar' },
-  { id: 'M', name: 'En mora' },
-  { id: 'C', name: 'Cancelada' },
-  { id: 'F', name: 'Condonada' },
-  { id: 'X', name: 'Anulada' },
-  { id: 'I', name: 'Pago parcial' }
+// Filter options — ids are numeric DebtStatus values
+export const STATUS_FILTER_OPTIONS: Array<{ id: number; name: string }> = [
+  { id: DebtStatus.PENDING,         name: 'Por cobrar' },
+  { id: DebtStatus.PAID,            name: 'Cobrado' },
+  { id: DebtStatus.SUBMITTED,       name: 'Por confirmar' },
+  { id: DebtStatus.OVERDUE,         name: 'En mora' },
+  { id: DebtStatus.CANCELLED,       name: 'Anulada' },
+  { id: DebtStatus.FORGIVEN,        name: 'Condonada' },
+  { id: DebtStatus.PARTIAL,         name: 'Pago parcial' },
+  { id: DebtStatus.AWAITING_VOUCHER,name: 'Por subir comprobante' },
+  { id: DebtStatus.REJECTED,        name: 'Rechazado' },
+  { id: DebtStatus.WORKFLOW_PENDING,name: 'En flujo externo' },
 ];
 
 export const DISTRIBUTION_FILTER_OPTIONS = [
@@ -101,21 +112,23 @@ export const PAYMENT_TYPE_OPTIONS = [
 ];
 
 
-export const getStatusText = (status: string): string => {
-  return DEBT_STATUS_MAP[status] || status;
+export const getStatusText = (status: number): string => {
+  return DEBT_STATUS_MAP[status] ?? String(status);
 };
 
 
-export const getStatusConfig = (status: string, dueDate?: string): { color: string; bgColor: string } => {
+// Overdue rule: PENDING + past dueDate => treat as OVERDUE for display
+export const getStatusConfig = (status: number, dueDate?: string): { color: string; bgColor: string } => {
   let finalStatus = status;
   const today = new Date();
-  const due = dueDate ? new Date(dueDate) : null;
+  const todayString = today.toISOString().split('T')[0];
+  const due = dueDate ?? null;
 
-  if (due && due < today && status === 'A') {
-    finalStatus = 'M';
+  if (due && due < todayString && status === DebtStatus.PENDING) {
+    finalStatus = DebtStatus.OVERDUE;
   }
 
-  return DEBT_STATUS_CONFIG[finalStatus] || DEBT_STATUS_CONFIG.A;
+  return DEBT_STATUS_CONFIG[finalStatus] ?? DEBT_STATUS_CONFIG[DebtStatus.PENDING];
 };
 
 
@@ -134,7 +147,7 @@ export const getAmountTypeText = (amountType: string): string => {
 };
 
 
-export const getBalanceTitle = (status: string): string => {
+export const getBalanceTitle = (status: number): string => {
   return BALANCE_TITLE_MAP[status] || 'Saldo a cobrar';
 };
 
@@ -147,52 +160,69 @@ export const getDetailButtonText = (type: number, hideSharedDebtButton: boolean 
 };
 
 
-export const getAvailableActions = (status: string, type: number) => {
+// ---------------------------------------------------------------------------
+// getAvailableActions — numeric DebtStatus
+//
+// String→numeric mapping used here (for reviewer reference):
+//   'A' → PENDING(1)    'M' → OVERDUE(2)   'I' → PARTIAL(3)
+//   'S' → SUBMITTED(4)  'P' → PAID(5)       'F' → FORGIVEN(6)
+//   'W' → WORKFLOW_PENDING(7)  'X' → CANCELLED(8)
+//   'E' → AWAITING_VOUCHER(9)  'R' → REJECTED(10)
+//
+// Business logic is IDENTICAL to the string version — only comparisons flipped.
+// ---------------------------------------------------------------------------
+
+export const getAvailableActions = (status: number, type: number) => {
+  const isPaid       = status === DebtStatus.PAID;
+  const isPartial    = status === DebtStatus.PARTIAL;
+  const isSubmitted  = status === DebtStatus.SUBMITTED;
+  const isForgiven   = status === DebtStatus.FORGIVEN;
+
   if (type !== 0) {
     return {
       showAnular: false,
       showEditar: false,
-      showRegistrarPago: !(status === 'P' || status === 'S' || status === 'I' || status === 'F'),
-      showVerPago: status === 'P' || status === 'S' || status === 'I'
+      showRegistrarPago: !(isPaid || isSubmitted || isPartial || isForgiven),
+      showVerPago: isPaid || isSubmitted || isPartial,
     };
   }
 
   switch (status) {
-    case 'P':
+    case DebtStatus.PAID:
       return {
         showAnular: false,
         showEditar: false,
         showRegistrarPago: false,
-        showVerPago: true
+        showVerPago: true,
       };
-    case 'I':
+    case DebtStatus.PARTIAL:
       return {
         showAnular: false,
         showEditar: false,
         showRegistrarPago: false,
-        showVerPago: true
+        showVerPago: true,
       };
-    case 'F':
+    case DebtStatus.FORGIVEN:
       return {
         showAnular: false,
         showEditar: false,
         showRegistrarPago: false,
-        showVerPago: false
+        showVerPago: false,
       };
-    case 'M':
-    case 'A':
+    case DebtStatus.PENDING:
+    case DebtStatus.OVERDUE:
       return {
         showAnular: true,
         showEditar: true,
         showRegistrarPago: true,
-        showVerPago: false
+        showVerPago: false,
       };
     default:
       return {
         showAnular: true,
         showEditar: true,
         showRegistrarPago: true,
-        showVerPago: false
+        showVerPago: false,
       };
   }
 };
@@ -201,7 +231,7 @@ export const getAvailableActions = (status: string, type: number) => {
 export const DEFAULT_VALUES = {
   PAYMENT_TYPE: 'T',
   AMOUNT_TYPE: 'F',
-  STATUS: 'A',
+  STATUS: DebtStatus.PENDING,
   INTEREST: 0,
   DISTRIBUTION_DEFAULT: 'Dividido por igual'
 };

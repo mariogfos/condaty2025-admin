@@ -69,7 +69,7 @@ const renderTotalAmountCollectedCell = ({ item }: { item: any }) => (
 );
 
 const mod: ModCrudType = {
-  modulo: 'debts',
+  modulo: 'debt-groups',
   singular: 'Expensa',
   plural: 'Expensas',
   export: true,

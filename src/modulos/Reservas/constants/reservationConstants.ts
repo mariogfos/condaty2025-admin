@@ -1,100 +1,119 @@
-// Tipos de estado de reserva
-export type ReservationStatus =
-  | "W"
-  | "A"
-  | "Q"
-  | "N"
-  | "L"
-  | "R"
-  | "C"
-  | "T"
-  | "F"
-  | "M";
+// Estado de reserva — enum numérico canónico (sincronizado con el backend
+// App\Modules\Reservations\Enums\ReservationStatus). La columna reservations.status
+// y la serialización de la API son numéricas; el front compara contra estos valores.
+export enum ReservationStatus {
+  AWAITING_APPROVAL = 1, // W: Esperando confirmación
+  PENDING_PAYMENT = 2, // A: Pago pendiente
+  PAYMENT_SUBMITTED = 3, // Q: Por confirmar pago
+  RESERVED_UNPAID = 4, // N: Reservado (sin pago)
+  RESERVED_PAID = 5, // L: Reservado (pagado)
+  REJECTED = 6, // R: Reserva rechazada
+  CANCELLED_MANUAL = 7, // C: Cancelada manualmente
+  CANCELLED_AUTO = 8, // T: Cancelada automática
+  COMPLETED = 9, // F: Finalizada
+  MAINTENANCE = 10, // M: Mantenimiento
+  LEGACY_REJECTED = 11, // X: Rechazada (legacy)
+}
+
+type ReservationStatusConfigEntry = {
+  label: string;
+  backgroundColor: string;
+  color: string;
+  class: string;
+};
 
 // Configuración de estados de reserva con colores y etiquetas
-export const RESERVATION_STATUS_CONFIG = {
-  W: {
+export const RESERVATION_STATUS_CONFIG: Record<
+  ReservationStatus,
+  ReservationStatusConfigEntry
+> = {
+  [ReservationStatus.AWAITING_APPROVAL]: {
     label: "Esperando confirmación",
     backgroundColor: "#E9B01E33",
     color: "#E9B01E",
     class: "statusW",
   },
-  A: {
+  [ReservationStatus.PENDING_PAYMENT]: {
     label: "Pago pendiente",
     backgroundColor: "#E9B01E33",
     color: "#E9B01E",
     class: "statusA",
   },
-  Q: {
+  [ReservationStatus.PAYMENT_SUBMITTED]: {
     label: "Por confirmar",
     backgroundColor: "#E9B01E33",
     color: "#E9B01E",
     class: "statusQ",
   },
-  N: {
+  [ReservationStatus.RESERVED_UNPAID]: {
     label: "Reservado (sin pago)",
     backgroundColor: "#00E38C33",
     color: "#00E38C",
     class: "statusN",
   },
-  L: {
+  [ReservationStatus.RESERVED_PAID]: {
     label: "Reservado (pagado)",
     backgroundColor: "#00E38C33",
     color: "#00E38C",
     class: "statusL",
   },
-  R: {
+  [ReservationStatus.REJECTED]: {
     label: "Reserva rechazada",
     backgroundColor: "#E4605533",
     color: "#E46055",
     class: "statusR",
   },
-  C: {
+  [ReservationStatus.CANCELLED_MANUAL]: {
     label: "Cancelada manualmente",
     backgroundColor: "#E4605533",
     color: "#E46055",
     class: "statusC",
   },
-  T: {
+  [ReservationStatus.CANCELLED_AUTO]: {
     label: "Cancelada automática",
     backgroundColor: "#E4605533",
     color: "#E46055",
     class: "statusT",
   },
-  F: {
+  [ReservationStatus.COMPLETED]: {
     label: "Finalizada",
     backgroundColor: "#00E38C33",
     color: "#00E38C",
     class: "statusF",
   },
-  X: {
+  [ReservationStatus.LEGACY_REJECTED]: {
     label: "Rechazada",
     backgroundColor: "#E4605533",
     color: "#E46055",
     class: "statusX",
   },
-  M: {
+  [ReservationStatus.MAINTENANCE]: {
     label: "Mantenimiento",
     backgroundColor: "#E4605533",
     color: "#e11907ff",
     class: "statusX",
   },
-} as const;
+};
 
-// Opciones para filtros de estado
-export const RESERVATION_STATUS_OPTIONS = [
+// Opciones para filtros de estado. El id es el valor numérico del enum como string
+// (el Select multiSelect compara por igualdad estricta de string; el backend
+// status_reservation acepta el valor numérico vía == loose).
+export const RESERVATION_STATUS_OPTIONS: Array<{
+  id: string;
+  name: string;
+}> = [
   { id: "ALL", name: "Todos" },
-  { id: "W", name: "Esperando confirmación" },
-  { id: "A", name: "Pago pendiente" },
-  { id: "Q", name: "Por confirmar" },
-  { id: "N", name: "Reservado (sin pago)" },
-  { id: "L", name: "Reservado (pagado)" },
-  { id: "R", name: "Reserva rechazada" },
-  { id: "C", name: "Cancelada manualmente" },
-  { id: "T", name: "Cancelada automática" },
-  { id: "F", name: "Finalizada" },
-  { id: "M", name: "Mantenimiento" },
-  // { id: "X", name: "Rechazada" },
+  { id: String(ReservationStatus.AWAITING_APPROVAL), name: "Esperando confirmación" },
+  { id: String(ReservationStatus.PENDING_PAYMENT), name: "Pago pendiente" },
+  { id: String(ReservationStatus.PAYMENT_SUBMITTED), name: "Por confirmar" },
+  { id: String(ReservationStatus.RESERVED_UNPAID), name: "Reservado (sin pago)" },
+  { id: String(ReservationStatus.RESERVED_PAID), name: "Reservado (pagado)" },
+  { id: String(ReservationStatus.REJECTED), name: "Reserva rechazada" },
+  { id: String(ReservationStatus.CANCELLED_MANUAL), name: "Cancelada manualmente" },
+  { id: String(ReservationStatus.CANCELLED_AUTO), name: "Cancelada automática" },
+  { id: String(ReservationStatus.COMPLETED), name: "Finalizada" },
+  { id: String(ReservationStatus.MAINTENANCE), name: "Mantenimiento" },
+  // { id: String(ReservationStatus.LEGACY_REJECTED), name: "Rechazada" },
 ];
 
 /**
@@ -107,25 +126,21 @@ export const getUpdatedReservationStatus = (
   dateEnd?: string,
   endTime?: string,
 ): ReservationStatus | undefined => {
-  if (!status) return undefined;
+  if (status === undefined || status === null) return undefined;
 
-  // // Solo cambiar a completado si está en estado "L" (Reservado con pago)
-  // if (status === "L" && dateEnd && endTime) {
+  // // Solo cambiar a completado si está en estado RESERVED_PAID
+  // if (status === ReservationStatus.RESERVED_PAID && dateEnd && endTime) {
   //   const now = new Date();
   //   const endDateTime = new Date(`${dateEnd}T${endTime}Z`);
-
-  //   // Si la fecha/hora de fin ya pasó, cambiar a completado
   //   if (now > endDateTime) {
-  //     return "F";
+  //     return ReservationStatus.COMPLETED;
   //   }
   // }
-  // if (status === "N" && dateEnd && endTime) {
+  // if (status === ReservationStatus.RESERVED_UNPAID && dateEnd && endTime) {
   //   const now = new Date();
   //   const endDateTime = new Date(`${dateEnd}T${endTime}Z`);
-
-  //   // Si la fecha/hora de fin ya pasó, cambiar a completado
   //   if (now > endDateTime) {
-  //     return "F";
+  //     return ReservationStatus.COMPLETED;
   //   }
   // }
 

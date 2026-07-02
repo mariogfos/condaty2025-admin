@@ -11,6 +11,7 @@ import { format, parse } from "date-fns"; // Necesario para parsear hora
 import { useRouter } from "next/navigation";
 import ReservationDetailModal from "./RenderView/RenderView"; // Ajusta la ruta si es necesario
 import { useAuth } from "@/mk/contexts/AuthProvider"; // Importa useAuth si necesitas userCan
+import { ReservationStatus } from "./constants/reservationConstants";
 
 // --- Definición del Módulo (Ajusta singular/plural si quieres) ---
 const mod = {
@@ -30,7 +31,7 @@ const paramsInitial = {
   page: 1,
   fullType: "L",
   searchBy: "",
-  filterBy: "status:W", // <-- ¡FILTRO APLICADO AQUÍ!
+  filterBy: `status:${ReservationStatus.AWAITING_APPROVAL}`, // <-- ¡FILTRO APLICADO AQUÍ!
   sortBy: "created_at", // Ordenar por fecha de creación (más antiguas primero)
   orderBy: "asc", // Orden ascendente
 };
@@ -157,15 +158,33 @@ const ReservaPending = () => {
         label: "Estado",
         list: {
           onRender: (props: any) => {
-            const status = props?.item?.status; // Debería ser 'W' aquí
-            const statusMap: any = {
-              W: { label: "En espera", class: styles.statusW },
-              A: { label: "Aprobado", class: styles.statusA },
-              R: { label: "Rechazado", class: styles.statusR },
-              C: { label: "Cancelado", class: styles.statusC },
-              M: { label: "Mantenimiento", class: styles.statusM },
+            const status = props?.item?.status; // Debería ser AWAITING_APPROVAL aquí
+            const statusMap: Record<number, { label: string; class: string }> = {
+              [ReservationStatus.AWAITING_APPROVAL]: {
+                label: "En espera",
+                class: styles.statusW,
+              },
+              [ReservationStatus.PENDING_PAYMENT]: {
+                label: "Aprobado",
+                class: styles.statusA,
+              },
+              [ReservationStatus.REJECTED]: {
+                label: "Rechazado",
+                class: styles.statusR,
+              },
+              [ReservationStatus.CANCELLED_MANUAL]: {
+                label: "Cancelado",
+                class: styles.statusC,
+              },
+              [ReservationStatus.MAINTENANCE]: {
+                label: "Mantenimiento",
+                class: styles.statusM,
+              },
             };
-            const currentStatus = status ? statusMap[status] : null;
+            const currentStatus =
+              status !== undefined && status !== null
+                ? statusMap[Number(status)]
+                : null;
             // Para la lista de pendientes, siempre debería ser 'W', pero mantenemos la lógica por si acaso
             return (
               <div

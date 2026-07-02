@@ -15,7 +15,7 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
 import {
   RESERVATION_STATUS_CONFIG,
-  type ReservationStatus,
+  ReservationStatus,
 } from "../constants/reservationConstants";
 import {
   formatReservationPaymentTimeLimitMessage,
@@ -39,7 +39,7 @@ type ReservationArea = {
   description?: string | null;
   images?: string[] | null;
   price?: string | number | null;
-  is_free?: string | null;
+  is_free?: boolean | null;
   booking_mode?: string | null;
   cancellation_policy?: string | null;
   usage_rules?: string | null;
@@ -68,12 +68,12 @@ type ReservationItem = {
   approved_by?: string | number | null;
   canceled_by?: string | number | null;
   canceled_at?: string | null;
-  is_canceled?: string;
+  is_canceled?: boolean;
   obs?: string | null;
   reason?: string | null;
   start_time?: string | null;
   end_time?: string | null;
-  status?: ReservationStatus | "X" | string;
+  status?: ReservationStatus | number | string;
   created_at?: string | null;
   updated_at?: string | null;
   deleted_at?: string | null;
@@ -103,13 +103,20 @@ interface ReservationDetailModalProps {
   reLoad?: Function;
 }
 
-const TERMINAL_STATUSES = new Set(["R", "C", "T", "F", "X", "M"]);
-const REASON_LABELS: Record<string, string> = {
-  R: "Motivo del rechazo",
-  C: "Motivo de la cancelación",
-  T: "Motivo de la cancelación",
-  M: "Motivo del mantenimiento",
-  X: "Motivo",
+const TERMINAL_STATUSES = new Set<ReservationStatus>([
+  ReservationStatus.REJECTED, // R
+  ReservationStatus.CANCELLED_MANUAL, // C
+  ReservationStatus.CANCELLED_AUTO, // T
+  ReservationStatus.COMPLETED, // F
+  ReservationStatus.LEGACY_REJECTED, // X
+  ReservationStatus.MAINTENANCE, // M
+]);
+const REASON_LABELS: Record<number, string> = {
+  [ReservationStatus.REJECTED]: "Motivo del rechazo",
+  [ReservationStatus.CANCELLED_MANUAL]: "Motivo de la cancelación",
+  [ReservationStatus.CANCELLED_AUTO]: "Motivo de la cancelación",
+  [ReservationStatus.MAINTENANCE]: "Motivo del mantenimiento",
+  [ReservationStatus.LEGACY_REJECTED]: "Motivo",
 };
 
 const getActorName = (actor?: ReservationActor | string | null, fallback = "") => {
@@ -199,7 +206,7 @@ const getPriceDetails = (
 
   const price = Number.parseFloat(String(area.price || 0));
   const total = Number.parseFloat(String(safeTotalAmount));
-  const isFreeExplicit = area.is_free === "A";
+  const isFreeExplicit = area.is_free === true;
   const isPriceZero = Number.isNaN(price) || price <= 0;
 
   if (isFreeExplicit || isPriceZero) {
@@ -209,27 +216,27 @@ const getPriceDetails = (
   return `Bs ${price.toFixed(2)}`;
 };
 
-const getStatusClassName = (statusKey?: string) => {
-  switch (statusKey) {
-    case "W":
+const getStatusClassName = (statusKey?: ReservationStatus | number) => {
+  switch (Number(statusKey)) {
+    case ReservationStatus.AWAITING_APPROVAL:
       return styles.statusW;
-    case "A":
+    case ReservationStatus.PENDING_PAYMENT:
       return styles.statusA;
-    case "Q":
+    case ReservationStatus.PAYMENT_SUBMITTED:
       return styles.statusQ;
-    case "N":
+    case ReservationStatus.RESERVED_UNPAID:
       return styles.statusN;
-    case "L":
+    case ReservationStatus.RESERVED_PAID:
       return styles.statusL;
-    case "R":
+    case ReservationStatus.REJECTED:
       return styles.statusR;
-    case "C":
+    case ReservationStatus.CANCELLED_MANUAL:
       return styles.statusC;
-    case "T":
+    case ReservationStatus.CANCELLED_AUTO:
       return styles.statusT;
-    case "F":
+    case ReservationStatus.COMPLETED:
       return styles.statusF;
-    case "M":
+    case ReservationStatus.MAINTENANCE:
       return styles.statusM;
     default:
       return styles.statusUnknown;
@@ -299,11 +306,10 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         reservationDetail?.debt_dpto?.payment_id ||
         undefined,
     });
-    const currentStatus = statusKey
-      ? RESERVATION_STATUS_CONFIG[statusKey as keyof typeof RESERVATION_STATUS_CONFIG]
-      : null;
+    const currentStatus =
+      statusKey !== undefined ? RESERVATION_STATUS_CONFIG[statusKey] : null;
 
-    const isMaintenance = statusKey === "M";
+    const isMaintenance = statusKey === ReservationStatus.MAINTENANCE;
     const ownerName = getActorName(
       reservationDetail?.owner,
       isMaintenance ? "Mantenimiento administrativo" : "Residente no disponible",
@@ -319,11 +325,12 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     const resolvedDebtId =
       (reservationDetail?.debt_dpto as any)?.id || reservationDetail?.debt_id;
     const canShowPayment = Boolean(resolvedPaymentId);
-    const canReviewRequest = reservationDetail?.status === "W";
+    const canReviewRequest =
+      Number(reservationDetail?.status) === ReservationStatus.AWAITING_APPROVAL;
     const canCancelReservation =
-      Boolean(statusKey) &&
-      !TERMINAL_STATUSES.has(String(statusKey)) &&
-      statusKey !== "W";
+      statusKey !== undefined &&
+      !TERMINAL_STATUSES.has(statusKey) &&
+      statusKey !== ReservationStatus.AWAITING_APPROVAL;
     const showTimeLimit =
       Boolean(formattedTimeLimit) &&
       shouldShowReservationPaymentTimeLimit(statusKey);
@@ -331,7 +338,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     const obsText = reservationDetail?.obs?.trim() || "";
     const areaName = reservationDetail?.area?.title || "Área social";
     const approvalLabel =
-      statusKey === "R"
+      statusKey === ReservationStatus.REJECTED
         ? "Revisado por"
         : isMaintenance
           ? "Registrado por"
@@ -454,11 +461,13 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       };
     }, [open, resolvedDebtId, executeAction]);
 
+    const reasonLabel =
+      statusKey !== undefined ? REASON_LABELS[statusKey] : undefined;
     const detailNotes = [
-      ...(reasonText && REASON_LABELS[String(statusKey || "")] != null
+      ...(reasonText && reasonLabel != null
         ? [
             {
-              label: REASON_LABELS[String(statusKey || "")],
+              label: reasonLabel,
               value: reasonText,
             },
           ]
@@ -574,7 +583,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         `/reservations/${reservationDetail?.id}`,
         "PUT",
         {
-          status: "C",
+          status: ReservationStatus.CANCELLED_MANUAL,
           reason: formState?.reason,
         },
         false,
@@ -653,7 +662,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
 
                     <span
                       className={`${styles.statusBadge} ${getStatusClassName(
-                        String(statusKey || reservationDetail?.status || ""),
+                        statusKey ?? Number(reservationDetail?.status),
                       )}`}
                     >
                       {currentStatus?.label || "Estado desconocido"}

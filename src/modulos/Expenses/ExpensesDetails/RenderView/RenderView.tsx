@@ -205,7 +205,7 @@ const RenderView = (props: {
 
               <InfoBlock
                 label="Periodo"
-                value={MONTHS_S[item?.debt?.month] + "/" + item?.debt?.year}
+                value={MONTHS_S[item?.month ?? item?.shared?.month] + "/" + (item?.year ?? item?.shared?.year)}
               />
 
               <InfoBlock

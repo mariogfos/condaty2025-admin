@@ -317,10 +317,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
       amount_type: _formState.amount_type,
       amount: parseFloat(String(_formState.amount || "0")),
       interest: parseFloat(String(_formState.interest || "0")),
-      has_mv: _formState.has_mv ? "Y" : "N",
-      is_forgivable: _formState.is_forgivable ? "Y" : "N",
-      has_pp: _formState.has_pp ? "Y" : "N",
-      is_blocking: _formState.is_blocking ? "Y" : "N",
+      has_mv: _formState.has_mv,
+      is_forgivable: _formState.is_forgivable,
+      has_pp: _formState.has_pp,
+      is_blocking: _formState.is_blocking,
     };
 
     const dataToSave =

@@ -7,6 +7,7 @@ import { getUrlImages } from "@/mk/utils/string";
 import type { TableRowContextMenuConfig } from "@/mk/components/ui/Table/Table";
 import { Eye, FileImage, CheckCircle2, Ban } from "lucide-react";
 import { getPaymentsConfig } from "../config/payments.config";
+import { PaymentStatus } from "../Type/PaymentType";
 import styles from "../Payments.module.css";
 
 const getPaymentVoucherUrls = (item: any) => {
@@ -113,7 +114,7 @@ export const usePayments = () => {
       paymentsApi.confirm(row.id),
       "POST",
       {
-        confirm: "P",
+        confirm: PaymentStatus.PAID,
         confirm_obs: "",
       },
       false,
@@ -136,9 +137,9 @@ export const usePayments = () => {
     () => ({
       items: (row) => {
         const voucherUrls = getPaymentVoucherUrls(row);
-        const canCancel = row?.status === "P" && Boolean(row?.user);
+        const canCancel = row?.status === PaymentStatus.PAID && Boolean(row?.user);
 
-        if (row?.status === "S") {
+        if (row?.status === PaymentStatus.SUBMITTED) {
           return [
             {
               label: "Ver comprobante",
@@ -164,7 +165,7 @@ export const usePayments = () => {
         }
 
         const primaryLabel =
-          row?.status === "X" ? "Ver anulación" : "Ver detalle";
+          row?.status === PaymentStatus.CANCELLED ? "Ver anulación" : "Ver detalle";
 
         const items: any[] = [
           {

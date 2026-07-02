@@ -162,7 +162,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     }
     let data: any[] = [];
     extraData?.dptos?.forEach((unidad: any) => {
-      if (selectedArea?.penalty_or_debt_restriction == "A") {
+      if (selectedArea?.penalty_or_debt_restriction === true) {
         if (unidad?.defaulter == "X") {
           data.push({
             id: String(unidad.id),
@@ -616,7 +616,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                           title={"Restricción por mora"}
                           value={
                             selectedAreaDetails?.penalty_or_debt_restriction ===
-                            "A"
+                            true
                               ? "Si"
                               : "No"
                           }
@@ -624,7 +624,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                         <KeyValue
                           title={"Aprobación de administración"}
                           value={
-                            selectedAreaDetails?.requires_approval === "A"
+                            selectedAreaDetails?.requires_approval === true
                               ? "Si"
                               : "No"
                           }
@@ -972,7 +972,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     Reserva por periodo
                   </p>
                   <span className={styles.priceInfoBottom}>
-                    {selectedAreaDetails.is_free === "A"
+                    {selectedAreaDetails.is_free === true
                       ? "Gratis"
                       : `Bs ${formatNumber(selectedAreaDetails.price || 0)}`}
                   </span>

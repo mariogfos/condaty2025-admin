@@ -9,6 +9,7 @@ import { UnitsType } from "@/mk/utils/utils";
 import { IconEdit, IconTrash } from "@/components/layout/icons/IconsBiblioteca";
 import useAxios from "@/mk/hooks/useAxios";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import { DebtStatus } from "@/types/PaymentType";
 import styles from "./RenderView.module.css";
 
 interface DebtItem {
@@ -28,7 +29,7 @@ interface DebtItem {
   is_forgivable?: string | boolean;
   has_pp?: string | boolean;
   is_blocking?: string | boolean;
-  status?: string;
+  status?: number;
   created_at?: string;
   updated_at?: string;
   user?: any;
@@ -57,7 +58,7 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
 
   // Consulta DET si solo tenemos un ID o si necesitamos más detalles
   const { data, reLoad } = useAxios(
-    "/debts",
+    "/debt-groups",
     "GET",
     {
       searchBy: item?.id,
@@ -122,15 +123,20 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
     return isAdvance === "Y" ? "Sí" : "No";
   };
 
-  const getStatusText = (status?: string) => {
-    const statusMap: { [key: string]: string } = {
-      A: "Activa",
-      P: "Pagada",
-      C: "Cancelada",
-      X: "Anulada",
-      I: "Pago parcial",
+  const getStatusText = (status?: number) => {
+    const statusMap: { [key: number]: string } = {
+      [DebtStatus.PENDING]: "Activa",
+      [DebtStatus.OVERDUE]: "En mora",
+      [DebtStatus.PARTIAL]: "Pago parcial",
+      [DebtStatus.SUBMITTED]: "Por confirmar",
+      [DebtStatus.PAID]: "Pagada",
+      [DebtStatus.FORGIVEN]: "Condonada",
+      [DebtStatus.WORKFLOW_PENDING]: "Pendiente aprobación",
+      [DebtStatus.CANCELLED]: "Anulada",
+      [DebtStatus.AWAITING_VOUCHER]: "Por subir comprobante",
+      [DebtStatus.REJECTED]: "Rechazado",
     };
-    return statusMap[status || ""] || status || "Activa";
+    return statusMap[status ?? DebtStatus.PENDING] || "Activa";
   };
 
   const getDepartmentName = () => {
@@ -160,13 +166,12 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
     return value === "Y" ? "Sí" : "No";
   };
 
-  const getStatusStyle = (status?: string) => {
-    if (status === "A") return styles.statusActive;
-    if (status === "P") return styles.statusCompleted;
-    if (status === "C") return styles.statusCancelled;
-    if (status === "X") return styles.statusCancelled;
-    if (status === "I") return styles.statusPartial;
-    return "";
+  const getStatusStyle = (status?: number) => {
+    if (status === DebtStatus.PAID) return styles.statusCompleted;
+    if (status === DebtStatus.CANCELLED) return styles.statusCancelled;
+    if (status === DebtStatus.PARTIAL) return styles.statusPartial;
+    if (status === undefined || status === null) return "";
+    return styles.statusActive;
   };
 
   const handleEditClick = () => {
@@ -218,8 +223,8 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
               </button>
             )}
             {onDel &&
-              debtDetail.status !== "X" &&
-              debtDetail.status !== "P" && (
+              debtDetail.status !== DebtStatus.CANCELLED &&
+              debtDetail.status !== DebtStatus.PAID && (
                 <button
                   type="button"
                   onClick={handleDeleteClick}

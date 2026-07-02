@@ -46,7 +46,10 @@ import ContextMenu, {
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { capitalize, capitalizeWords } from "@/mk/utils/string";
-import { RESERVATION_STATUS_OPTIONS } from "@/modulos/Reservas/constants/reservationConstants";
+import {
+  RESERVATION_STATUS_OPTIONS,
+  ReservationStatus,
+} from "@/modulos/Reservas/constants/reservationConstants";
 import {
   formatReservationPaymentTimeLimitMessage,
   shouldShowReservationPaymentTimeLimit,
@@ -109,23 +112,43 @@ const FILTER_STYLE = {
 
 const PAST_PERIOD_MONTHS = 12;
 const UPCOMING_PERIOD_MONTHS = 6;
+// Estados excluidos por defecto del calendario (cancelados/rechazados) — string del
+// valor numérico del enum, para alinear con los ids de RESERVATION_STATUS_OPTIONS.
+const HIDDEN_DEFAULT_STATUS_IDS = new Set(
+  [
+    ReservationStatus.REJECTED,
+    ReservationStatus.CANCELLED_MANUAL,
+    ReservationStatus.CANCELLED_AUTO,
+    ReservationStatus.LEGACY_REJECTED,
+  ].map(String),
+);
 const DEFAULT_VISIBLE_STATUS_IDS = RESERVATION_STATUS_OPTIONS.map((option) =>
   String(option.id),
 ).filter(
-  (statusId) =>
-    statusId !== "ALL" &&
-    statusId !== "R" &&
-    statusId !== "C" &&
-    statusId !== "T" &&
-    statusId !== "X",
+  (statusId) => statusId !== "ALL" && !HIDDEN_DEFAULT_STATUS_IDS.has(statusId),
 );
-const STATUS_WITH_REASON = new Set(["M", "C", "T", "R", "X"]);
+const STATUS_WITH_REASON = new Set(
+  [
+    ReservationStatus.MAINTENANCE,
+    ReservationStatus.CANCELLED_MANUAL,
+    ReservationStatus.CANCELLED_AUTO,
+    ReservationStatus.REJECTED,
+    ReservationStatus.LEGACY_REJECTED,
+  ].map(String),
+);
 const DEFAULT_PERIOD_ID = format(startOfMonth(new Date()), "yyyy-MM");
 const DEFAULT_STATUS_FILTER_KEY = [...DEFAULT_VISIBLE_STATUS_IDS]
   .sort()
   .join(",");
 const CALENDAR_FLOW_TOTAL_STEPS = 2;
-const NON_BLOCKING_CALENDAR_STATUSES = new Set(["C", "T", "R", "X"]);
+const NON_BLOCKING_CALENDAR_STATUSES = new Set(
+  [
+    ReservationStatus.CANCELLED_MANUAL,
+    ReservationStatus.CANCELLED_AUTO,
+    ReservationStatus.REJECTED,
+    ReservationStatus.LEGACY_REJECTED,
+  ].map(String),
+);
 const EMPTY_SELECTED_DAY_ENTRIES: CalendarReservationEntry[] = [];
 
 type CalendarDayActionRow = {
@@ -491,7 +514,7 @@ const CalendarPage = () => {
     () =>
       reservationsWithResolvedPayments.filter((reservation) => {
         const nextStatus = getReservationStatusMeta(reservation).status;
-        return !NON_BLOCKING_CALENDAR_STATUSES.has(nextStatus);
+        return !NON_BLOCKING_CALENDAR_STATUSES.has(String(nextStatus));
       }),
     [reservationsWithResolvedPayments],
   );
@@ -936,7 +959,7 @@ const CalendarPage = () => {
       const applyEntry = (
         current: ReturnType<typeof getOrCreateAvailability>,
       ) => {
-        if (entry.status === "M") {
+        if (entry.status === ReservationStatus.MAINTENANCE) {
           current.hasMaintenance = true;
 
           if (isAllDayEntry) {
@@ -1259,7 +1282,7 @@ const CalendarPage = () => {
   }, [selectedReservationUnitChoice]);
 
   const reservationIsFree =
-    selectedReservationAreaChoice?.area.is_free === "A" ||
+    selectedReservationAreaChoice?.area.is_free === true ||
     Number(selectedReservationAreaChoice?.area.price || 0) <= 0;
 
   const reservationPriceLabel = reservationIsFree
@@ -1951,7 +1974,7 @@ const CalendarPage = () => {
     (entry: (typeof selectedDayEntries)[number], key: string) => {
       const reason = entry.reservation.reason?.trim() || "";
       const showReason =
-        reason.length > 0 && STATUS_WITH_REASON.has(entry.status);
+        reason.length > 0 && STATUS_WITH_REASON.has(String(entry.status));
       const timeLimitMessage =
         selectedDayTimeLimits[String(entry.reservation.id)] ||
         formatReservationPaymentTimeLimitMessage(entry.reservation.time_limit);

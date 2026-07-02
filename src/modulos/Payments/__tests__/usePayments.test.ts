@@ -1,6 +1,7 @@
 import { renderHook, act } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import usePayments from "../hooks/usePayments";
+import { PaymentStatus } from "../Type/PaymentType";
 
 const mockPush = vi.fn();
 vi.mock("next/navigation", () => ({
@@ -51,10 +52,10 @@ describe("usePayments Hook", () => {
     await act(async () => {
       const items = result.current.rowContextMenu.items;
       if (typeof items === "function") {
-        const menuItems = items({ id: "pay-1", status: "S" }, 0);
+        const menuItems = items({ id: "pay-1", status: PaymentStatus.SUBMITTED }, 0);
         const approveItem = menuItems[1];
         if (approveItem && typeof approveItem.onClick === "function") {
-          await (approveItem.onClick as any)({ id: "pay-1", status: "S" });
+          await (approveItem.onClick as any)({ id: "pay-1", status: PaymentStatus.SUBMITTED });
         }
       }
     });

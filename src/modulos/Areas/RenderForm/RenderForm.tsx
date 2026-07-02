@@ -83,8 +83,9 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
       item?.coordinates || buildCoordinatesValue(item?.latitude, item?.longitude),
     booking_mode: item?.booking_mode || "day",
     has_price: item?.price ? "S" : "N",
-    requires_approval: item?.requires_approval || "X",
-    penalty_or_debt_restriction: item?.penalty_or_debt_restriction || "X",
+    requires_approval: item?.requires_approval === false ? "X" : "A",
+    penalty_or_debt_restriction:
+      item?.penalty_or_debt_restriction === true ? "A" : "X",
     min_reservation_advance_hours:
       item?.min_reservation_advance_hours ?? 0,
   });
@@ -298,7 +299,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         longitude: parseCoordinateValue(formState?.longitude),
         max_capacity: formState?.max_capacity,
         status: formState?.status,
-        requires_approval: formState?.requires_approval,
+        requires_approval: formState?.requires_approval === "A",
         price: formState?.price,
         max_reservations_per_week: formState?.max_reservations_per_week,
         min_cancel_hours: formState?.min_cancel_hours,
@@ -312,11 +313,11 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
           formState?.min_reservation_advance_hours === ""
             ? 0
             : Number(formState?.min_reservation_advance_hours || 0),
-        penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
+        penalty_or_debt_restriction: formState?.penalty_or_debt_restriction === "A",
         booking_mode: formState?.booking_mode,
         max_reservations_per_day: formState?.max_reservations_per_day,
         reservation_duration: parseFloat(formState?.reservation_duration),
-        is_free: formState?.has_price == "S" ? "X" : "A",
+        is_free: formState?.has_price !== "S",
       },
     );
 

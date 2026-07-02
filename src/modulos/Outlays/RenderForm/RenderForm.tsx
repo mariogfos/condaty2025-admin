@@ -8,6 +8,7 @@ import styles from "./RenderForm.module.css";
 import Toast from "@/mk/components/ui/Toast/Toast";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import { checkRules } from "@/mk/utils/validate/Rules";
+import { FORM_PAYMENT_METHODS } from "@/modulos/Payments/Type/PaymentType";
 
 interface Category {
   id: number | string;
@@ -280,13 +281,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     onClose();
   }, [onClose, set_Errors]);
 
-  const paymentMethods = [
-    { id: "T", name: "Transferencia bancaria" },
-    { id: "O", name: "Pago en oficina" },
-    { id: "Q", name: "Pago QR" },
-    { id: "E", name: "Efectivo" },
-    { id: "C", name: "Cheque" },
-  ];
+  const paymentMethods = FORM_PAYMENT_METHODS;
 
   const handleSave = useCallback(() => {
     if (!validar()) return;

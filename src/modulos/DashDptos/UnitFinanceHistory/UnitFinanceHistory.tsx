@@ -8,14 +8,14 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { TableSkeleton } from "@/mk/components/ui/Skeleton/Skeleton";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { MONTHS_S, getDateStrMes, getDateStrMesShort } from "@/mk/utils/date";
-import { getPaymentStatusConfig, type PaymentStatus } from "@/types/payment";
+import { getPaymentStatusConfig } from "@/modulos/Payments/Type/PaymentType";
+import { DebtStatus } from "@/types/PaymentType";
 import {
   getStatusConfig as getDebtStatusConfig,
   getStatusText as getDebtStatusText,
 } from "@/modulos/DebtsManager/TabComponents/constants";
 import { paymentsApi } from "@/modulos/Payments/api";
 import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
-import PartialPaymentRenderView from "@/modulos/PartialPayments/RenderView/RenderView";
 import DebtRenderView from "@/modulos/DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { IconCategories, IconPagos } from "@/components/layout/icons/IconsBiblioteca";
@@ -42,21 +42,17 @@ const getMonthPeriodLabel = (monthValue: any, yearValue: any) => {
 
 const getReservationAreaLabel = (row: any) =>
   row?.reservation?.area?.title ||
-  row?.debt?.reservation?.area?.title ||
   row?.penalty_reservation?.area?.title ||
-  row?.debt?.penalty_reservation?.area?.title ||
-  row?.penaltyReservation?.area?.title ||
-  row?.debt?.reservation_penalty?.area?.title ||
   "";
 
 const getDebtConceptLabel = (row: any) => {
-  const debtType = Number(row?.type ?? row?.debt?.type ?? -1);
+  const debtType = Number(row?.type ?? -1);
 
   if (debtType === 1) {
     return (
       getMonthPeriodLabel(
-        row?.debt?.month ?? row?.shared?.month,
-        row?.debt?.year ?? row?.shared?.year,
+        row?.month ?? row?.shared?.month,
+        row?.year ?? row?.shared?.year,
       ) || "-/-"
     );
   }
@@ -72,14 +68,13 @@ const getDebtConceptLabel = (row: any) => {
   return (
     row?.description ||
     row?.shared?.description ||
-    row?.debt?.description ||
     row?.subcategory?.name ||
     "-/-"
   );
 };
 
 const getDebtTypeLabel = (row: any) => {
-  switch (Number(row?.type ?? row?.debt?.type ?? -1)) {
+  switch (Number(row?.type ?? -1)) {
     case 0:
       return "Otras deudas";
     case 1:
@@ -113,16 +108,12 @@ const getDebtBalance = (row: any) => {
   return Math.round((debtAmount + penaltyAmount + maintenanceAmount) * 100) / 100;
 };
 
-const getDebtStatusCode = (row: any) =>
-  String(
-    row?.status ??
-      row?.debt_status ??
-      row?.debt?.status ??
-      row?.debt_dpto?.status ??
-      "",
-  )
-    .trim()
-    .toUpperCase();
+// NUMERIC-NATIVE: reads status as a number, never calls .toUpperCase()
+const getDebtNumericStatus = (row: any): number => {
+  const raw = row?.status ?? row?.debt_status ?? row?.debt_dpto?.status;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DebtStatus.PENDING;
+};
 
 const getDebtRowId = (row: any) =>
   row?.debt_dpto_id ??
@@ -137,39 +128,20 @@ const normalizeDebtRow = (row: any) => ({
   ...row,
   id: getDebtRowId(row),
   debt_dpto_id: row?.debt_dpto_id ?? row?.debt_dpto?.id ?? getDebtRowId(row),
-  status: getDebtStatusCode(row) || row?.status || "A",
+  status: getDebtNumericStatus(row),
 });
 
-const getIsPartialDebtFlag = (row: any) => {
-  const rawValue =
-    row?.is_partial ??
-    row?.debt?.is_partial ??
-    row?.debt_dpto?.is_partial ??
-    null;
-
-  return rawValue === true || rawValue === 1 || rawValue === "1";
-};
-
-const isPartialDebtRow = (row: any) => {
-  const normalizedStatus = getDebtStatusCode(row);
-
-  if (normalizedStatus === "I") {
-    return true;
-  }
-
-  return getIsPartialDebtFlag(row);
-};
-
-const resolveDebtStatus = (row: any) => {
-  const normalizedStatus = getDebtStatusCode(row);
-  const dueAtString = row?.debt?.due_at || row?.due_at || "";
+// NUMERIC overdue rule: PENDING + past due_at => OVERDUE
+const resolveDebtStatus = (row: any): number => {
+  const status = getDebtNumericStatus(row);
+  const dueAtString = row?.due_at || "";
   const todayString = new Date().toISOString().split("T")[0];
 
-  if (normalizedStatus === "A" && dueAtString && dueAtString < todayString) {
-    return "M";
+  if (status === DebtStatus.PENDING && dueAtString && dueAtString < todayString) {
+    return DebtStatus.OVERDUE;
   }
 
-  return normalizedStatus || "A";
+  return status;
 };
 
 const getPaymentConceptLabel = (payment: any) => {
@@ -188,23 +160,20 @@ const getPaymentConceptLabel = (payment: any) => {
           );
         }
 
-        const debtType = Number(debt?.type ?? debt?.debt?.type ?? -1);
+        const debtType = Number(debt?.type ?? -1);
 
         if (debtType === 1) {
           return (
             getMonthPeriodLabel(
-              debt?.debt?.month ?? debt?.shared?.month,
-              debt?.debt?.year ?? debt?.shared?.year,
+              debt?.month ?? debt?.shared?.month,
+              debt?.year ?? debt?.shared?.year,
             ) || ""
           );
         }
 
         if (debtType === 2 || debtType === 3) {
           return (
-            debt?.reservation?.area?.title ||
-            debt?.debt?.reservation?.area?.title ||
-            debt?.penaltyReservation?.area?.title ||
-            debt?.debt?.reservation_penalty?.area?.title ||
+            getReservationAreaLabel(debt) ||
             debt?.description ||
             ""
           );
@@ -240,7 +209,13 @@ const getPaymentConceptLabel = (payment: any) => {
 const getPaymentAmount = (payment: any) =>
   Number(payment?.amount ?? 0) + Number(payment?.penalty_amount ?? 0);
 
-const ACTIVE_DEBT_STATUSES = new Set(["A", "M", "S", "I"]);
+// NUMERIC active statuses: PENDING, OVERDUE, SUBMITTED, PARTIAL
+const ACTIVE_DEBT_STATUSES = new Set([
+  DebtStatus.PENDING,
+  DebtStatus.OVERDUE,
+  DebtStatus.SUBMITTED,
+  DebtStatus.PARTIAL,
+]);
 
 const UnitFinanceHistory = ({
   execute,
@@ -262,7 +237,6 @@ const UnitFinanceHistory = ({
     null,
   );
   const [selectedDebt, setSelectedDebt] = useState<any | null>(null);
-  const [selectedPartialDebt, setSelectedPartialDebt] = useState<any | null>(null);
 
   const totalPaymentsAmount = useMemo(() => {
     return paymentRows.reduce((acc, row) => acc + getPaymentAmount(row), 0);
@@ -316,9 +290,9 @@ const UnitFinanceHistory = ({
 
         const sortedRows = [...activeRows].sort((left, right) =>
           String(
-            right?.due_at || right?.debt?.due_at || right?.created_at || "",
+            right?.due_at || right?.created_at || "",
           ).localeCompare(
-            String(left?.due_at || left?.debt?.due_at || left?.created_at || ""),
+            String(left?.due_at || left?.created_at || ""),
           ),
         );
 
@@ -431,9 +405,7 @@ const UnitFinanceHistory = ({
         width: "180px",
         style: { textAlign: "center", justifyContent: "center" },
         onRender: ({ item }: any) => {
-          const statusInfo = getPaymentStatusConfig(
-            item?.status as PaymentStatus,
-          );
+          const statusInfo = getPaymentStatusConfig(Number(item?.status));
 
           return (
             <StatusBadge
@@ -457,7 +429,7 @@ const UnitFinanceHistory = ({
         responsive: "desktop",
         width: "140px",
         onRender: ({ item }: any) =>
-          getDateStrMesShort(item?.due_at || item?.debt?.due_at) || "-/-",
+          getDateStrMesShort(item?.due_at) || "-/-",
       },
       {
         key: "concept_period",
@@ -490,12 +462,10 @@ const UnitFinanceHistory = ({
         width: "180px",
         style: { textAlign: "center", justifyContent: "center" },
         onRender: ({ item }: any) => {
+          // resolveDebtStatus already applies the overdue rule; pass raw status
+          // to getDebtStatusConfig so it doesn't double-apply the rule.
           const resolvedStatus = resolveDebtStatus(item);
-          const dueAtString = item?.debt?.due_at || item?.due_at;
-          const { color, bgColor } = getDebtStatusConfig(
-            resolvedStatus,
-            dueAtString,
-          );
+          const { color, bgColor } = getDebtStatusConfig(resolvedStatus);
 
           return (
             <StatusBadge backgroundColor={bgColor} color={color}>
@@ -600,11 +570,6 @@ const UnitFinanceHistory = ({
                   return;
                 }
 
-                if (isPartialDebtRow(normalizedRow)) {
-                  setSelectedPartialDebt(normalizedRow);
-                  return;
-                }
-
                 setSelectedDebt(normalizedRow);
               }}
             />
@@ -641,17 +606,6 @@ const UnitFinanceHistory = ({
         />
       ) : null}
 
-      {selectedPartialDebt ? (
-        <PartialPaymentRenderView
-          open={Boolean(selectedPartialDebt)}
-          onClose={() => setSelectedPartialDebt(null)}
-          item={selectedPartialDebt}
-          extraData={extraData}
-          execute={execute}
-          reLoad={handleRefreshFinancialData}
-          showToast={showToast}
-        />
-      ) : null}
     </>
   );
 };

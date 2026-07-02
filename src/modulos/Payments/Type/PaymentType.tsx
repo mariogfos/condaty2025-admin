@@ -66,11 +66,11 @@ export const getPaymentStatusConfig = (status: number): PaymentStatusConfig => {
 };
 
 export enum FormPaymentType {
-  EXPENSE = "E",
-  RESERVATION = "R",
-  CONDONATION = "F",
-  OTHER = "O",
-  DIRECT = "I",
+  EXPENSE = PaymentType.EXPENSES,
+  RESERVATION = PaymentType.RESERVATIONS,
+  CONDONATION = PaymentType.CONDONATION,
+  OTHER = PaymentType.OTHER_DEBTS,
+  DIRECT = PaymentType.DIRECT_INCOME,
 }
 
 export const PERIOD_OPTIONS = [
@@ -111,20 +111,12 @@ export const TYPE_OPTIONS = [
   { id: FormPaymentType.DIRECT, name: "Pago directo" },
 ];
 
-export enum FormPaymentMethod {
-  QR = "Q",
-  TRANSFER = "T",
-  CASH = "E",
-  CHEQUE = "C",
-  OFFICE = "O",
-}
-
 export const FORM_PAYMENT_METHODS = [
-  { id: FormPaymentMethod.QR, name: "Pago QR" },
-  { id: FormPaymentMethod.TRANSFER, name: "Transferencia bancaria" },
-  { id: FormPaymentMethod.CASH, name: "Efectivo" },
-  { id: FormPaymentMethod.CHEQUE, name: "Cheque" },
-  { id: FormPaymentMethod.OFFICE, name: "Pago en oficina" },
+  { id: PaymentMethod.QR, name: "Pago QR" },
+  { id: PaymentMethod.TRANSFER, name: "Transferencia bancaria" },
+  { id: PaymentMethod.CASH, name: "Efectivo" },
+  { id: PaymentMethod.CHEQUE, name: "Cheque" },
+  { id: PaymentMethod.OFFICE, name: "Pago en oficina" },
 ];
 
 export const METHOD_MAP: Record<string | number, string> = {
@@ -133,11 +125,6 @@ export const METHOD_MAP: Record<string | number, string> = {
   [PaymentMethod.QR]: "Pago QR",
   [PaymentMethod.CASH]: "Efectivo",
   [PaymentMethod.CHEQUE]: "Cheque",
-  [FormPaymentMethod.TRANSFER]: "Transferencia bancaria",
-  [FormPaymentMethod.OFFICE]: "Pago en oficina",
-  [FormPaymentMethod.QR]: "Pago QR",
-  [FormPaymentMethod.CASH]: "Efectivo",
-  [FormPaymentMethod.CHEQUE]: "Cheque",
 };
 
 export const FORM_LABELS = {

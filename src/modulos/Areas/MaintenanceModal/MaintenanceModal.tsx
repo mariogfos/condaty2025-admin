@@ -157,7 +157,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       "/reservations/" + id,
       "DELETE",
       {
-        is_canceled: "Y",
+        is_canceled: true,
       },
       false,
       true,

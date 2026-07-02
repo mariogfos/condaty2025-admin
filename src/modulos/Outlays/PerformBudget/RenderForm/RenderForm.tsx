@@ -6,6 +6,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useEffect, useState } from "react";
 import { formatNumber } from "../../../../mk/utils/numbers";
+import { FORM_PAYMENT_METHODS } from "@/modulos/Payments/Type/PaymentType";
 interface PropsType {
   item: any;
   setItem: any;
@@ -98,13 +99,7 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
     data?.action === "edit" ? handleEditItem() : handleAddItem();
     onClose();
   };
-  const paymentMethods = [
-    { id: "T", name: "Transferencia" },
-    { id: "O", name: "Pago en oficina" },
-    { id: "Q", name: "QR" },
-    { id: "E", name: "Efectivo" },
-    { id: "C", name: "Cheque" },
-  ];
+  const paymentMethods = FORM_PAYMENT_METHODS;
 
   return (
     <DataModal

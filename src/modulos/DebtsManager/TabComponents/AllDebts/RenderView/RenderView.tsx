@@ -20,6 +20,7 @@ import {
 import { getFullName } from "@/mk/utils/string";
 import { getTitular } from "@/mk/utils/adapters";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
+import { DebtStatus } from "@/types/PaymentType";
 import {
   getStatusText,
   getStatusConfig,
@@ -91,7 +92,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   );
 
   const debtDetail = data?.data?.[0] || item;
-  const debtType = debtDetail?.type || debtDetail?.debt?.type || 0;
+  const debtType = debtDetail?.type ?? 0;
   const executeRef = useRef(execute);
 
   const hasApiData = data?.data?.[0];
@@ -99,15 +100,13 @@ const RenderView: React.FC<RenderViewProps> = ({
     open && item?.id && !loaded && !hasApiData && !hasEnoughDebtDetail(item),
   );
 
-  const resolveStatus = (status: string, dueDate?: string) => {
-    let finalStatus = status;
-    const today = new Date();
-    const todayString = today.toISOString().split("T")[0];
-    const dueAtString = dueDate;
-    if (dueAtString && dueAtString < todayString && status === "A") {
-      finalStatus = "M";
+  // Numeric overdue rule: PENDING + past dueDate => OVERDUE
+  const resolveStatus = (status: number, dueDate?: string): number => {
+    const todayString = new Date().toISOString().split("T")[0];
+    if (dueDate && dueDate < todayString && status === DebtStatus.PENDING) {
+      return DebtStatus.OVERDUE;
     }
-    return finalStatus;
+    return status;
   };
 
   const getPaymentTypeText = (type: string) => {
@@ -121,7 +120,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     return paymentTypeMap[type] || type;
   };
 
-  const getStatusStyle = (status: string, dueDate?: string) => {
+  const getStatusStyle = (status: number, dueDate?: string) => {
     return getStatusConfig(status, dueDate);
   };
 
@@ -145,10 +144,10 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   const getConceptText = (detail: any) => {
-    switch (Number(detail?.type ?? detail?.debt?.type ?? 0)) {
+    switch (Number(detail?.type ?? 0)) {
       case 1: {
-        const month = detail?.debt?.month ?? detail?.shared?.month;
-        const year = detail?.debt?.year ?? detail?.shared?.year;
+        const month = detail?.month ?? detail?.shared?.month;
+        const year = detail?.year ?? detail?.shared?.year;
         if (month && year) {
           return `${MONTHS_ES[Number(month) - 1] || month} ${year}`;
         }
@@ -157,14 +156,11 @@ const RenderView: React.FC<RenderViewProps> = ({
       case 2:
         return (
           detail?.reservation?.area?.title ||
-          detail?.debt?.reservation?.area?.title ||
           detail?.description ||
           "-/-"
         );
       case 3:
         return (
-          detail?.penaltyReservation?.area?.title ||
-          detail?.debt?.reservation_penalty?.area?.title ||
           detail?.penalty_reservation?.area?.title ||
           detail?.description ||
           "-/-"
@@ -174,7 +170,6 @@ const RenderView: React.FC<RenderViewProps> = ({
       default:
         return (
           detail?.description ||
-          detail?.debt?.description ||
           detail?.subcategory?.name ||
           "-/-"
         );
@@ -190,7 +185,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   const handleDetailButtonClick = (type: number) => {
-    const targetId = debtDetail?.debt?.id || debtDetail?.shared_id;
+    const targetId = debtDetail?.shared_id;
 
     switch (type) {
       case 1:
@@ -318,7 +313,6 @@ const RenderView: React.FC<RenderViewProps> = ({
 
     const isForgivenessDebt =
       debtDetail?.description?.toLowerCase().includes("condonación") ||
-      debtDetail?.debt?.description?.toLowerCase().includes("condonación") ||
       debtDetail?.subcategory?.name?.toLowerCase().includes("condonación");
 
     const shouldLockFields =
@@ -365,10 +359,12 @@ const RenderView: React.FC<RenderViewProps> = ({
   const maintenanceAmount = parseFloat(debtDetail?.maintenance_amount) || 0;
   const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
 
-  const finalStatus = resolveStatus(debtDetail?.status, debtDetail?.due_at);
+  const rawStatus = Number(debtDetail?.status);
+  const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
+  const finalStatus = resolveStatus(numericStatus, debtDetail?.due_at);
   const statusText = getStatusText(finalStatus);
-  const { color } = getStatusStyle(finalStatus, debtDetail?.due_at);
-  const actions = getAvailableActions(debtDetail?.status, debtType);
+  const { color } = getStatusStyle(finalStatus);
+  const actions = getAvailableActions(numericStatus, debtType);
   const detailButtonText = getDetailButtonText(debtType);
   const showDistribution = debtType === 4;
   const ownerDisplay = getFullName(debtDetail?.dpto?.homeowner) || "-/-";
@@ -383,21 +379,16 @@ const RenderView: React.FC<RenderViewProps> = ({
   const subcategoryDisplay = debtDetail?.subcategory?.name || "-/-";
   const conceptDisplay = getConceptText(debtDetail);
   const debtDescription =
-    debtDetail?.debt?.description ||
     debtDetail?.description ||
     conceptDisplay ||
     "-/-";
-  const startDateDisplay = formatToDayDDMMYYYY(
-    debtDetail?.debt?.begin_at || debtDetail?.created_at,
-  );
-  const dueDateDisplay = formatToDayDDMMYYYY(
-    debtDetail?.debt?.due_at || debtDetail?.due_at,
-  );
+  const startDateDisplay = formatToDayDDMMYYYY(debtDetail?.created_at);
+  const dueDateDisplay = formatToDayDDMMYYYY(debtDetail?.due_at);
   const paidAtDisplay = formatToDayDDMMYYYY(
     debtDetail?.payment?.paid_at || debtDetail?.paid_at,
   );
   const headerSubtitle =
-    finalStatus === "P"
+    finalStatus === DebtStatus.PAID
       ? `Pagada el ${formatToDayFdMYH(
           debtDetail?.payment?.paid_at || debtDetail?.paid_at,
           true,
@@ -539,7 +530,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                       {formatBs(totalBalance)}
                     </span>
                   </div>
-                  {debtDetail?.status === "P" ? (
+                  {numericStatus === DebtStatus.PAID ? (
                     <>
                       <div className={paymentStyles.infoBlock}>
                         <span className={paymentStyles.infoLabel}>
@@ -566,7 +557,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                         Distribución
                       </span>
                       <span className={paymentStyles.infoValue}>
-                        {debtDetail?.debt?.distribution || "Dividido por igual"}
+                        {"Dividido por igual"}
                       </span>
                     </div>
                   ) : null}
@@ -590,7 +581,7 @@ const RenderView: React.FC<RenderViewProps> = ({
             <div
               className={`${paymentStyles.voucherButtonContainer} ${styles.actionsWrap}`}
             >
-              {actions.showRegistrarPago && debtDetail?.status !== "F" && (
+              {actions.showRegistrarPago && numericStatus !== DebtStatus.FORGIVEN && (
                 <Button
                   onClick={() => setShowPaymentForm(true)}
                   className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}

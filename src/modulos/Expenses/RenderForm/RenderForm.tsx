@@ -1,13 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import { MONTHS } from "@/mk/utils/date";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import { getFullName } from "@/mk/utils/string";
 
 type yearProps = { id: string | number; name: string }[];
 
@@ -17,20 +15,13 @@ const RenderForm = ({
   item,
   setItem,
   execute,
-  extraData,
-  user,
   reLoad,
 }: any) => {
   const [formState, setFormState]: any = useState({
     ...item,
     type: 1,
-    dpto_id: item.dpto_id || [],
   });
   const [errors, setErrors]: any = useState({});
-  const [ldpto, setLdpto] = useState([]);
-  const client = user.clients.filter(
-    (item: any) => item.id === user.client_id
-  )[0];
   const { showToast } = useAuth();
 
   const handleChange = (e: any) => {
@@ -52,61 +43,23 @@ const RenderForm = ({
       key: "month",
       errors: errs,
     });
-    errs = checkRules({
-      value: formState.due_at,
-      rules: ["required"],
-      key: "due_at",
-      errors: errs,
-    });
-
-    if (formState.year && formState.month !== undefined && formState.due_at) {
-      const dueDate = new Date(formState.due_at);
-      const expenseYear = parseInt(formState.year);
-      const expenseMonth = parseInt(formState.month);
-      const dueYear = dueDate.getFullYear();
-      const dueMonth = dueDate.getMonth() + 1;
-      if (
-        dueYear < expenseYear ||
-        (dueYear === expenseYear && dueMonth < expenseMonth)
-      ) {
-        errs.due_at =
-          "La fecha de vencimiento no puede ser anterior al período de la expensa";
-      }
-    }
-    errs = checkRules({
-      value: formState.asignar,
-      rules: ["required"],
-      key: "asignar",
-      errors: errs,
-    });
-    if (formState.asignar === "S") {
-      errs = checkRules({
-        value:
-          formState.dpto_id && formState.dpto_id.length > 0
-            ? formState.dpto_id
-            : null,
-        rules: ["required"],
-        key: "dpto_id",
-        errors: errs,
-      });
-    }
     setErrors(errs);
     return errs;
   };
   const onSave = async () => {
     let method = formState.id ? "PUT" : "POST";
     if (hasErrors(validate())) return;
+    // TODO(advance-payments): selective expense creation moved to the payment form.
+    // EXPENSE create now generates for the whole condominio (period-only);
+    // the backend derives due_at/begin_at from the period and generates for all active units.
     const { data: response } = await execute(
-      "/debts" + (formState.id ? "/" + formState.id : ""),
+      "/debt-groups" + (formState.id ? "/" + formState.id : ""),
       method,
       {
         year: formState.year,
         month: formState.month,
-        due_at: formState.due_at,
         type: 1,
         description: formState.description,
-        asignar: formState.asignar,
-        dpto_id: formState.dpto_id,
       },
       false
     );
@@ -134,22 +87,6 @@ const RenderForm = ({
     name: month,
   })).filter((option) => option.name !== "");
 
-  useEffect(() => {
-    const lista: any = [];
-    extraData?.dptos?.map((item: any, key: number) => {
-      lista[key] = {
-        id: item.id,
-        nro: item.nro,
-        label:
-          (getFullName(item?.titular) || "Sin titular") +
-          " - " +
-          item.nro +
-          (item.description ? " - " + item.description : ""),
-      };
-    });
-    setLdpto(lista);
-  }, [client.type_dpto, extraData?.dptos]);
-
   return (
     <DataModal
       open={open}
@@ -174,42 +111,9 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
       />
-      <Input
-        label="Fecha de vencimiento"
-        name="due_at"
-        value={formState.due_at}
-        onChange={handleChange}
-        type="date"
-        error={errors}
-      />
-      <Select
-        label="Asignar a"
-        name="asignar"
-        value={formState.asignar}
-        options={[
-          { id: "T", name: "Todas las unidades" },
-          { id: "O", name: "Unidades ocupadas" },
-          { id: "L", name: "Unidades no ocupadas" },
-          { id: "S", name: "Seleccionar unidades específicas" },
-        ]}
-        onChange={handleChange}
-        error={errors}
-      />
-      {formState.asignar === "S" && (
-        <Select
-          label="Seleccionar Unidades"
-          name="dpto_id"
-          value={formState?.dpto_id || []}
-          options={ldpto}
-          optionLabel="label"
-          optionValue="id"
-          onChange={handleChange}
-          error={errors}
-          placeholder="Seleccione las unidades"
-          multiSelect={true}
-          filter={true}
-        />
-      )}
+      {/* TODO(advance-payments): selective expense creation moved to the payment form.
+          The due-date / assign-to / unit-selection fields were removed; EXPENSE create
+          now generates for the whole condominio (period-only). */}
       <TextArea
         label="Descripción"
         name="description"
