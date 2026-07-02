@@ -13,8 +13,10 @@ interface DefaulterConfigProps {
   onSave?: (e: object) => Promise<void> | void;
 }
 
+// Claves numéricas espejo de LimitType (backend: app/Modules/Clients/Enums/LimitType.php)
+// 1=COUNT (cantidad), 2=DAYS (días), 3=MONTH (fin de mes)
 const limit_msgs: any = {
-  C: {
+  1: {
     label: "Cantidad",
     soft: {
       title:
@@ -30,7 +32,7 @@ const limit_msgs: any = {
         "El bloqueo es la configuración que define cuántas expensas impagas puede acumular un residente antes de que el sistema restrinja automáticamente su acceso a la aplicación del condominio.",
     },
   },
-  D: {
+  2: {
     label: "Dias",
     soft: {
       title:
@@ -45,7 +47,7 @@ const limit_msgs: any = {
         "El bloqueo es la configuración que define después de cuántos días desde el vencimiento de la expensa mas antigua impaga, el sistema restrinja automáticamente su acceso a la aplicación del condominio.",
     },
   },
-  M: {
+  3: {
     label: "Fin de mes",
     soft: {
       title:
@@ -63,9 +65,9 @@ const limit_msgs: any = {
 };
 
 const lLimit_type = [
-  { id: "C", name: "Por cantidad de expensas impagas" },
-  { id: "D", name: "Por días desde el vencimiento de la deuda mas antigua" },
-  { id: "M", name: "Por fin de mes" },
+  { id: 1, name: "Por cantidad de expensas impagas" },
+  { id: 2, name: "Por días desde el vencimiento de la deuda mas antigua" },
+  { id: 3, name: "Por fin de mes" },
 ];
 const lcheckMora = [
   { id: 0, name: "No" },
@@ -293,7 +295,7 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
             />
           </div>
         </div>
-        {formState?.limit_type != "M" && (
+        {formState?.limit_type != 3 && (
           <>
             <div className={styles.sectionContainer}>
               <div>
