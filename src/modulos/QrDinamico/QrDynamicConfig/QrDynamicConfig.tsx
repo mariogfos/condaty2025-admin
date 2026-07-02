@@ -504,7 +504,7 @@ const QrDynamicConfig: React.FC<QrDynamicConfigProps> = ({
         )}
 
         {/* Info según entorno */}
-        {formState.qr_dynamic_environment === "S" && (
+        {formState.qr_dynamic_environment === QrEnvironment.SANDBOX && (
           <div className={styles.sectionContainer}>
             <Card style={{ backgroundColor: "rgba(245, 158, 11, 0.1)" }}>
               <h3 className={styles.infoTitle}>Modo Sandbox Activo</h3>
@@ -517,7 +517,7 @@ const QrDynamicConfig: React.FC<QrDynamicConfigProps> = ({
           </div>
         )}
 
-        {formState.qr_dynamic_environment === "P" && (
+        {formState.qr_dynamic_environment === QrEnvironment.PRODUCTION && (
           <div className={styles.sectionContainer}>
             <Card style={{ backgroundColor: "rgba(0, 227, 140, 0.1)" }}>
               <h3 className={styles.infoTitle}>Modo Producción</h3>

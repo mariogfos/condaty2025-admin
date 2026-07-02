@@ -21,12 +21,12 @@ export enum QrDynamicMode {
 /**
  * Entorno del QR dinámico.
  * @see QrEnvironmentEnum (backend: app/Modules/QrDinamico/Enums/QrEnvironmentEnum.php)
- * - 'S': sandbox  → entorno de pruebas
- * - 'P': production → entorno de producción
+ * - 0: sandbox    → entorno de pruebas
+ * - 1: production → entorno de producción
  */
 export enum QrEnvironment {
-  SANDBOX = "S",
-  PRODUCTION = "P",
+  SANDBOX = 0,
+  PRODUCTION = 1,
 }
 
 /**
