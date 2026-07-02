@@ -30,7 +30,7 @@ const RenderView = (props: any) => {
     item?.image ||
     item?.url_image ||
     "";
-  const isActive = Number(item?.status_v3) === BankAccountStatus.ACTIVE;
+  const isActive = Number(item?.status) === BankAccountStatus.ACTIVE;
 
   const getDetail = async () => {
     if (data?.id) {

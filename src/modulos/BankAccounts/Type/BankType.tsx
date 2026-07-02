@@ -26,9 +26,9 @@ export const BANK_ACCOUNT_STATUS_LABELS = {
 export interface BankEntityItem {
   id: string | number;
   name: string;
-  bank_code_v3?: string;
+  bank_code?: string;
   description?: string;
-  status_v3?: BankEntityStatus | number;
+  status?: BankEntityStatus | number;
   [key: string]: any;
 }
 
@@ -37,7 +37,7 @@ export interface BankAccountItem {
   client_id?: string | number;
   bank_entity_id: string | number;
   currency_type_id: string | number;
-  account_type_v3: BankAccountType | number;
+  account_type: BankAccountType | number;
   account_number: string;
   holder: string;
   ci_holder: string;
@@ -48,7 +48,7 @@ export interface BankAccountItem {
   is_main?: number;
   is_reserve?: number;
   is_expense?: number;
-  status_v3?: BankAccountStatus | number;
+  status?: BankAccountStatus | number;
   bank_entity?: BankEntityItem;
   [key: string]: any;
 }

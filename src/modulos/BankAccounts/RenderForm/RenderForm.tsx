@@ -19,7 +19,7 @@ const RenderForm = ({
   const [formState, setFormState] = useState({ 
     ...item, 
     initial_amount: item?.initial_amount ?? 0,
-    account_type_v3: item?.account_type_v3 ?? BankAccountType.SAVINGS 
+    account_type: item?.account_type ?? BankAccountType.SAVINGS 
   });
   const [errors, setErrors] = useState({});
   const { showToast } = useAuth();
@@ -39,7 +39,7 @@ const RenderForm = ({
       ...prev,
       ...item,
       initial_amount: item?.initial_amount ?? 0,
-      account_type_v3: item?.account_type_v3 ?? BankAccountType.SAVINGS
+      account_type: item?.account_type ?? BankAccountType.SAVINGS
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item, open]);
@@ -68,9 +68,9 @@ const RenderForm = ({
     });
 
     errors = checkRules({
-      value: formState?.account_type_v3,
+      value: formState?.account_type,
       rules: ["required"],
-      key: "account_type_v3",
+      key: "account_type",
       errors,
     });
     errors = checkRules({
@@ -117,7 +117,7 @@ const RenderForm = ({
       {
         images: formState.images || "",
         bank_entity_id: formState.bank_entity_id || "",
-        account_type_v3: Number(formState.account_type_v3 ?? BankAccountType.SAVINGS),
+        account_type: Number(formState.account_type ?? BankAccountType.SAVINGS),
         account_number: formState.account_number || "",
         currency_type_id: formState.currency_type_id || "",
         holder: formState.holder || "",
@@ -172,8 +172,8 @@ const RenderForm = ({
       />
       <Select
         label="Tipo de cuenta"
-        name="account_type_v3"
-        value={formState.account_type_v3 || ""}
+        name="account_type"
+        value={formState.account_type || ""}
         disabled={item?.isInUse}
         optionLabel="name"
         options={[

@@ -111,7 +111,7 @@ const BankAccounts = () => {
           },
         },
       },
-      status_v3: {
+      status: {
         rules: [],
         api: "ae",
         label: "Estado",
@@ -121,7 +121,7 @@ const BankAccounts = () => {
           className: styles.statusColumn,
           style: centeredColumnStyle,
           onRender: ({ item }: Record<string, any>) => {
-            const isActive = Number(item.status_v3) === BankAccountStatus.ACTIVE;
+            const isActive = Number(item.status) === BankAccountStatus.ACTIVE;
             return (
               <StatusBadge
                 color={isActive ? "var(--cSuccess)" : "var(--cError)"}
