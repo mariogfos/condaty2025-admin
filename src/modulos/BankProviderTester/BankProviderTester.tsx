@@ -39,7 +39,7 @@ interface TokenData {
 interface QrConfig {
   mode: number;
   mode_label: string;
-  environment: string;
+  environment: number; // 0=sandbox, 1=production (QrEnvironmentEnum)
   environment_label: string;
   source: string;
   has_credentials: boolean;
