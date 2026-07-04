@@ -1,3 +1,5 @@
+import { DebtStatus } from "@/types/PaymentType";
+
 export const setParamsCrud = (
   modulo: string,
   param: "searchBy" | "filterBy",
@@ -202,7 +204,7 @@ interface Assigned {
   debt_id: string;
   amount: number;
   penalty_amount: number;
-  status: string;
+  status: DebtStatus;
 }
 
 type AssignedList = Assigned[];
@@ -234,11 +236,14 @@ export const sumExpenses = (unidades: AssignedList) => {
   });
   return sum;
 };
+// Char→numeric mapping (ref: DebtsManager/TabComponents/constants.ts):
+//   'P' → DebtStatus.PAID     'X' → DebtStatus.CANCELLED
+// "paid unit"  = deuda saldada (PAID)
+// "payable"    = ni saldada ni anulada (igual que el viejo status != 'P' && != 'X')
 export const paidUnits = (unidades: AssignedList) => {
   let cont = 0;
   unidades.map((uni) => {
-    // && uni.status != "X"
-    if (uni.status == "P") {
+    if (uni.status === DebtStatus.PAID) {
       cont = cont + 1;
     }
   });
@@ -248,7 +253,7 @@ export const paidUnits = (unidades: AssignedList) => {
 export const sumPaidUnits = (unidades: AssignedList) => {
   let sum = 0;
   unidades.map((uni) => {
-    if (uni.status == "P") {
+    if (uni.status === DebtStatus.PAID) {
       sum += Number(uni.amount) + Number(uni.penalty_amount);
     }
   });
@@ -257,13 +262,11 @@ export const sumPaidUnits = (unidades: AssignedList) => {
 
 export const unitsPayable = (unidades: AssignedList) => {
   let cont = 0;
-  // let c = "";
   unidades.map((uni) => {
-    if (uni.status != "P" && uni.status != "X") {
+    if (uni.status !== DebtStatus.PAID && uni.status !== DebtStatus.CANCELLED) {
       cont = cont + 1;
     }
   });
-  // return c;
   return cont;
 };
 export const isUnitInDefault = (props: Debt) => {
