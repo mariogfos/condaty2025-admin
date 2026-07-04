@@ -105,18 +105,18 @@ const Section = ({
                 ]
                   .filter(Boolean)
                   .join(" ")}
-                key={`li${name}${option[optionValue] || key}`}
+                key={`li${name}${option[optionValue] ?? key}`}
                 onClick={
                   isGroupLabel
                     ? undefined
                     : !multiSelect
                     ? (e) => {
-                        handleSelectClickElement(option[optionValue] || key);
+                        handleSelectClickElement(option[optionValue] ?? key);
                         e.stopPropagation();
                       }
                     : (e) => {
                         handleSelectMultiClickElement(
-                          option[optionValue] || key,
+                          option[optionValue] ?? key,
                         );
                         e.stopPropagation();
                       }
