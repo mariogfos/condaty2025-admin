@@ -8,7 +8,8 @@ import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import { getDateStrMesShort } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import { formatBs } from '@/mk/utils/numbers';
-import { colorStatusForgiveness, statusForgiveness, statusForgivenessFilter } from './constants';
+import { DebtStatus } from '@/types/PaymentType';
+import { getStatusText, getStatusConfig, STATUS_FILTER_OPTIONS } from '../constants';
 import RenderView from './RenderView/RenderView';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 
@@ -90,23 +91,23 @@ const Forgiveness = ({
         form: { type: 'text' },
         list: {
           onRender: ({ item }: any) => {
-            let status = item?.status;
-            if (item?.due_at < new Date().toISOString().split('T')[0] && item?.status == 'A') {
-              status = 'M';
-            }
+            const numericStatus = Number(item?.status);
+            const isOverdue =
+              item?.due_at < new Date().toISOString().split('T')[0] &&
+              numericStatus === DebtStatus.PENDING;
+            const displayStatus = isOverdue ? DebtStatus.OVERDUE : numericStatus;
+            // getStatusConfig aplica la regla de mora (PENDING + vencido → OVERDUE)
+            const { color, bgColor } = getStatusConfig(numericStatus, item?.due_at);
             return (
-              <StatusBadge
-                color={colorStatusForgiveness[status]?.color}
-                backgroundColor={colorStatusForgiveness[status]?.bg}
-              >
-                {statusForgiveness[status]}
+              <StatusBadge color={color} backgroundColor={bgColor}>
+                {getStatusText(displayStatus)}
               </StatusBadge>
             );
           },
         },
         filter: {
           label: 'Estado',
-          options: () => statusForgivenessFilter,
+          options: () => [{ id: 'ALL', name: 'Todos los estados' }, ...STATUS_FILTER_OPTIONS],
         },
       },
       category: {
