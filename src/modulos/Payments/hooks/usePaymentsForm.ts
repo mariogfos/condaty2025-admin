@@ -246,6 +246,10 @@ export const usePaymentsForm = (
   const [simulateResult, setSimulateResult] = useState<any>(null);
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulateError, setSimulateError] = useState<string | null>(null);
+  // Guard doble-submit: el estado deshabilita el botón del DataModal; el ref
+  // corta la reentrada sincrónica (dos clicks antes del re-render de React).
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   const showCategoryFields = formState.type === FormPaymentType.DIRECT;
   const isDebtBasedPayment = Boolean(formState.type && formState.type !== FormPaymentType.DIRECT);
@@ -782,6 +786,7 @@ export const usePaymentsForm = (
   ]);
 
   const _onSavePago = useCallback(async () => {
+    if (isSubmittingRef.current) return;
     const isValid = validar();
     if (!isValid) {
       if (errors.general) {
@@ -871,6 +876,8 @@ export const usePaymentsForm = (
       url_file: formState.url_file || [],
     };
 
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
     try {
       const endpoint = paymentsApi.create;
       const { data, error } = await execute(endpoint, "POST", params);
@@ -891,7 +898,11 @@ export const usePaymentsForm = (
           setErrors(data.errors);
         }
       }
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
+    }
   }, [
     formState,
     extraData,
@@ -919,7 +930,7 @@ export const usePaymentsForm = (
     return false;
   }, [selectedPeriodo]);
 
-  const isSubmitDisabled = Boolean(simulateError);
+  const isSubmitDisabled = Boolean(simulateError) || isSubmitting;
 
   return {
     formState,
