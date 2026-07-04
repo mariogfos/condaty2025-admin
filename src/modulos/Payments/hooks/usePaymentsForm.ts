@@ -5,6 +5,7 @@ import { getTitular } from "@/mk/utils/adapters";
 import { paymentsApi } from "../api";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { FormPaymentType } from "../Type/PaymentType";
+import { CategoryFixed } from "@/modulos/Categories/Type/CategoryType";
 
 export interface Dpto {
   id: string | number;
@@ -338,7 +339,7 @@ export const usePaymentsForm = (
 
   const filteredCategories = useMemo(() => {
     const list = extraData?.categories || [];
-    return list.filter((cat) => String(cat.fixed) !== "Y");
+    return list.filter((cat) => Number(cat.fixed) !== CategoryFixed.YES);
   }, [extraData?.categories]);
 
   const getSubtotal = useCallback((periodo: Deuda) => {
@@ -511,7 +512,7 @@ export const usePaymentsForm = (
 
         if (selectedCategory?.hijos) {
           newSubcategories = (selectedCategory.hijos || []).filter(
-            (hijo: Subcategory) => String(hijo.fixed) !== "Y"
+            (hijo: Subcategory) => Number(hijo.fixed) !== CategoryFixed.YES
           );
 
           const catExpensasChild = newSubcategories.find(
