@@ -22,6 +22,7 @@ import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { DebtStatus } from "@/types/PaymentType";
 
 const renderUnitCell = ({ item }: { item: any }) => (
   <div>{item?.dpto?.nro}</div>
@@ -54,17 +55,17 @@ const renderStatusCell = (
   { item }: { item: any },
   getDisplayStatus: Function,
 ) => {
-  const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
-    A: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" }, // Por cobrar
-    P: { color: "var(--cSuccess)", bgColor: "var(--cHoverCompl2)" }, // Cobrado
-    S: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl4)" }, // Por confirmar
-    R: { color: "var(--cMediumAlert)", bgColor: "var(--cMediumAlertHover)" }, // Rechazado
-    M: { color: "var(--cError)", bgColor: "var(--cHoverError)" }, // En mora
-    F: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" }, // Finalizado
+  const statusConfig: { [key: number]: { color: string; bgColor: string } } = {
+    [DebtStatus.PENDING]: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" }, // Por cobrar
+    [DebtStatus.PAID]: { color: "var(--cSuccess)", bgColor: "var(--cHoverCompl2)" }, // Cobrada
+    [DebtStatus.SUBMITTED]: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl4)" }, // Por confirmar
+    [DebtStatus.REJECTED]: { color: "var(--cMediumAlert)", bgColor: "var(--cMediumAlertHover)" }, // Rechazado
+    [DebtStatus.OVERDUE]: { color: "var(--cError)", bgColor: "var(--cHoverError)" }, // En mora
+    [DebtStatus.FORGIVEN]: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" }, // Condonada
   };
 
   const displayStatus = getDisplayStatus(item);
-  const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig.A;
+  const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig[DebtStatus.PENDING];
 
   return (
     <StatusBadge color={color} backgroundColor={bgColor}>
@@ -90,28 +91,29 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   }>({});
   const { user } = useAuth();
   const getDisplayStatus = (item: any) => {
+    const numericStatus = Number(item?.status);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (item.status === "A" && item.due_at) {
+    if (numericStatus === DebtStatus.PENDING && item.due_at) {
       const dueDate = new Date(item.due_at);
       if (today > dueDate) {
-        return { text: "En mora", code: "M" };
+        return { text: "En mora", code: DebtStatus.OVERDUE };
       }
     }
 
-    switch (item.status) {
-      case "A":
-        return { text: "Por cobrar", code: "A" };
-      case "P":
-        return { text: "Cobrada", code: "P" };
-      case "S":
-        return { text: "Por confirmar", code: "S" };
-      case "M":
-        return { text: "En mora", code: "M" };
-      case "F":
-        return { text: "Condonada", code: "F" };
+    switch (numericStatus) {
+      case DebtStatus.PENDING:
+        return { text: "Por cobrar", code: DebtStatus.PENDING };
+      case DebtStatus.PAID:
+        return { text: "Cobrada", code: DebtStatus.PAID };
+      case DebtStatus.SUBMITTED:
+        return { text: "Por confirmar", code: DebtStatus.SUBMITTED };
+      case DebtStatus.OVERDUE:
+        return { text: "En mora", code: DebtStatus.OVERDUE };
+      case DebtStatus.FORGIVEN:
+        return { text: "Condonada", code: DebtStatus.FORGIVEN };
       default:
-        return { text: item.status || "Desconocido", code: item.status || "" };
+        return { text: item?.status != null ? String(item.status) : "Desconocido", code: numericStatus };
     }
   };
 
@@ -296,11 +298,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           options: () => {
             return [
               { id: "ALL", name: "Todos" },
-              { id: "A", name: "Por cobrar" },
-              { id: "P", name: "Cobrada" },
-              { id: "F", name: "Condonada" },
-              { id: "S", name: "Por confirmar" },
-              { id: "M", name: "En mora" },
+              { id: DebtStatus.PENDING, name: "Por cobrar" },
+              { id: DebtStatus.PAID, name: "Cobrada" },
+              { id: DebtStatus.FORGIVEN, name: "Condonada" },
+              { id: DebtStatus.SUBMITTED, name: "Por confirmar" },
+              { id: DebtStatus.OVERDUE, name: "En mora" },
             ];
           },
           optionLabel: "name",

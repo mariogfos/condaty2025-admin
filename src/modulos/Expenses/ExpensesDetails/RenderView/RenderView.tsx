@@ -10,6 +10,7 @@ import { formatBs } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
 import Table from "@/mk/components/ui/Table/Table";
 import { paymentsApi } from "../../../Payments/api";
+import { DebtStatus } from "@/types/PaymentType";
 
 const RenderView = (props: {
   open: boolean;
@@ -66,36 +67,37 @@ const RenderView = (props: {
     await refreshResolvedPayment(item.id);
   };
   const getStatus = (item: any) => {
+    const numericStatus = Number(item?.status);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (item.status === "A" && item.due_at) {
+    if (numericStatus === DebtStatus.PENDING && item.due_at) {
       const dueDate = new Date(item.due_at);
       if (today > dueDate) {
-        return { text: "En mora", code: "M" };
+        return { text: "En mora", code: DebtStatus.OVERDUE };
       }
     }
-    switch (item.status) {
-      case "A":
-        return { text: "Por cobrar", code: "A" };
-      case "P":
-        return { text: "Cobrado", code: "P" };
-      case "S":
-        return { text: "Por confirmar", code: "S" };
-      case "M":
-        return { text: "En mora", code: "M" };
-      case "F":
-        return { text: "Condonada", code: "F" };
+    switch (numericStatus) {
+      case DebtStatus.PENDING:
+        return { text: "Por cobrar", code: DebtStatus.PENDING };
+      case DebtStatus.PAID:
+        return { text: "Cobrado", code: DebtStatus.PAID };
+      case DebtStatus.SUBMITTED:
+        return { text: "Por confirmar", code: DebtStatus.SUBMITTED };
+      case DebtStatus.OVERDUE:
+        return { text: "En mora", code: DebtStatus.OVERDUE };
+      case DebtStatus.FORGIVEN:
+        return { text: "Condonada", code: DebtStatus.FORGIVEN };
       default:
-        return { text: item.status || "Desconocido", code: item.status || "" };
+        return { text: item?.status != null ? String(item.status) : "Desconocido", code: numericStatus };
     }
   };
 
-  const colorStatus: any = {
-    A: "var(--cInfo)",
-    M: "var(--cError)",
-    S: "var(--cWarning)",
-    P: "var(--cSuccess)",
-    F: "var(--cInfo)",
+  const colorStatus: { [key: number]: string } = {
+    [DebtStatus.PENDING]: "var(--cInfo)",
+    [DebtStatus.OVERDUE]: "var(--cError)",
+    [DebtStatus.SUBMITTED]: "var(--cWarning)",
+    [DebtStatus.PAID]: "var(--cSuccess)",
+    [DebtStatus.FORGIVEN]: "var(--cInfo)",
   };
 
   type InfoBlockProps = {
