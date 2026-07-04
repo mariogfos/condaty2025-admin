@@ -224,6 +224,7 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
     }
     setEditMode(false);
   };
+  const activeLimitMsg = limit_msgs[formState?.limit_type] ?? limit_msgs[1];
   return (
     <div className={styles.defaulterContainer}>
       <div className={styles.headerRow}>
@@ -279,7 +280,7 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
               </Tooltip>
             </div>
             <p className={styles.sectionSubtitle}>
-              {limit_msgs[formState?.limit_type].soft.title}
+              {activeLimitMsg.soft.title}
             </p>
           </div>
           <div className={styles.inputField}>
@@ -303,20 +304,20 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
                   <h2 className={styles.sectionTitle}>Pre-aviso</h2>
                   <Tooltip
                     position="right"
-                    title={limit_msgs[formState?.limit_type].soft.tooltip}
+                    title={activeLimitMsg.soft.tooltip}
                   >
                     <IconQuestion size={16} />
                   </Tooltip>
                 </div>
                 <p className={styles.sectionSubtitle}>
-                  {limit_msgs[formState?.limit_type].soft.title}
+                  {activeLimitMsg.soft.title}
                 </p>
               </div>
 
               <div className={styles.inputField}>
                 <Input
                   type="number"
-                  label={limit_msgs[formState?.limit_type].label}
+                  label={activeLimitMsg.label}
                   name="soft_limit"
                   error={errors}
                   required
@@ -335,20 +336,20 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
                   <h2 className={styles.sectionTitle}>Bloqueo</h2>
                   <Tooltip
                     position="right"
-                    title={limit_msgs[formState?.limit_type].hard.tooltip}
+                    title={activeLimitMsg.hard.tooltip}
                   >
                     <IconQuestion size={16} />
                   </Tooltip>
                 </div>
                 <p className={styles.sectionSubtitle}>
-                  {limit_msgs[formState?.limit_type].hard.title}
+                  {activeLimitMsg.hard.title}
                 </p>
               </div>
 
               <div className={styles.inputField}>
                 <Input
                   type="number"
-                  label={limit_msgs[formState?.limit_type].label}
+                  label={activeLimitMsg.label}
                   name="hard_limit"
                   error={errors}
                   required
