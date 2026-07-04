@@ -26,7 +26,7 @@ import WidgetGrafIngresos from "@/components/Widgets/WidgetGrafIngresos/WidgetGr
 import WidgetGrafBalance from "@/components/Widgets/WidgetGrafBalance/WidgetGrafBalance";
 import { ChartType, COLORS20 } from "@/mk/components/ui/Graphs/GraphsTypes";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { formatNumber } from "@/mk/utils/numbers";
+import { formatNumber, roundMoney } from "@/mk/utils/numbers";
 import EmptyData from "@/components/NoData/EmptyData";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import { MONTHS_GRAPH } from "@/mk/utils/date";
@@ -321,7 +321,8 @@ const BalanceGeneral: React.FC = () => {
       if (!map.has(item.categ_id)) {
         map.set(item.categ_id, { name: item.name, total: 0 });
       }
-      map.get(item.categ_id).total += parseFloat(item.amount ?? 0);
+      const entry = map.get(item.categ_id);
+      entry.total = roundMoney(entry.total + parseFloat(item.amount ?? 0));
     });
     return Array.from(map.values());
   }, [finanzas?.data?.ingresosHist]);
@@ -331,7 +332,8 @@ const BalanceGeneral: React.FC = () => {
       if (!map.has(item.categ_id)) {
         map.set(item.categ_id, { name: item.name, total: 0 });
       }
-      map.get(item.categ_id).total += parseFloat(item.amount ?? 0);
+      const entry = map.get(item.categ_id);
+      entry.total = roundMoney(entry.total + parseFloat(item.amount ?? 0));
     });
     return Array.from(map.values());
   }, [finanzas?.data?.egresosHist]);
@@ -392,12 +394,12 @@ const BalanceGeneral: React.FC = () => {
         .reduce((acc: any[], item: any) => {
           let found = acc.find((a) => a.id === item.categ_id);
           if (found) {
-            found.total += parseFloat(item.amount ?? 0);
+            found.total = roundMoney(found.total + parseFloat(item.amount ?? 0));
           } else {
             acc.push({
               id: item.categ_id,
               name: item.name,
-              total: parseFloat(item.amount ?? 0),
+              total: roundMoney(parseFloat(item.amount ?? 0)),
             });
           }
           return acc;
@@ -415,12 +417,12 @@ const BalanceGeneral: React.FC = () => {
         .reduce((acc: any[], item: any) => {
           let found = acc.find((a) => a.id === item.categ_id);
           if (found) {
-            found.total += parseFloat(item.amount ?? 0);
+            found.total = roundMoney(found.total + parseFloat(item.amount ?? 0));
           } else {
             acc.push({
               id: item.categ_id,
               name: item.name,
-              total: parseFloat(item.amount ?? 0),
+              total: roundMoney(parseFloat(item.amount ?? 0)),
             });
           }
           return acc;

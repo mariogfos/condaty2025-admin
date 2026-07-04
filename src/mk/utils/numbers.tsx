@@ -10,6 +10,11 @@ export function formatNumberWithComma(value: string | number, decimals = 2) {
   formattedValue = formattedValue.replace(".", ","); // Reemplaza punto por coma
   return formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Agrega puntos para los miles
 }
+export const roundMoney = (value: number | string): number => {
+  const num = Number(value);
+  if (isNaN(num)) return 0;
+  return Math.round((num + Number.EPSILON) * 100) / 100;
+};
 export const formatBs = (value: number | string): string => {
   if (value === null || value === undefined || value === "") return "Bs 0.00";
   const num = typeof value === "string" ? parseFloat(value.replace(/,/g, '')) : value;
