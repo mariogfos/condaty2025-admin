@@ -6,7 +6,8 @@ import { getFullName } from '@/mk/utils/string';
 import React from 'react';
 import { hasMaintenanceValue } from '@/mk/utils/utils';
 import { useAuth } from '@/mk/contexts/AuthProvider';
-import { colorStatusForgiveness, statusForgiveness } from '../constants';
+import { DebtStatus } from '@/types/PaymentType';
+import { getStatusText, getStatusConfig } from '../../constants';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import Button from '@/mk/components/forms/Button/Button';
 import { shouldIgnoreValueTranslationContext } from '@/i18n/translationGuards';
@@ -90,12 +91,25 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
   ];
 
   const getStatus = (item: any) => {
-    let status = item?.status;
-    if (item?.due_at < new Date().toISOString().split('T')[0] && item?.status == 'A') {
-      status = 'M';
+    const numericStatus = Number(item?.status);
+    if (
+      item?.due_at < new Date().toISOString().split('T')[0] &&
+      numericStatus === DebtStatus.PENDING
+    ) {
+      return DebtStatus.OVERDUE;
     }
-    return status;
+    return numericStatus;
   };
+
+  const numericStatus = Number(item?.status);
+  // Estados terminales: no se puede editar ni anular una condonación cobrada,
+  // por confirmar o ya anulada.
+  const isTerminalStatus = [
+    DebtStatus.PAID,
+    DebtStatus.SUBMITTED,
+    DebtStatus.CANCELLED,
+  ].includes(numericStatus);
+  const isOverdue = item?.due_at < new Date().toISOString().split('T')[0];
   return (
     <DataModal
       title="Detalle de condonación"
@@ -107,15 +121,12 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
       buttonCancel=""
       buttonExtra={
         <div style={{ display: 'flex', gap: 16, width: '100%' }}>
-          {item?.due_at < new Date().toISOString().split('T')[0] ||
-          item?.status == 'P' ||
-          item?.status == 'S' ||
-          item?.status == 'X' ? null : (
+          {isOverdue || isTerminalStatus ? null : (
             <Button onClick={() => onEdit(item)} variant="secondary" style={{ flex: 1 }}>
               Editar
             </Button>
           )}
-          {item?.status == 'P' || item?.status == 'S' || item?.status == 'X' ? null : (
+          {isTerminalStatus ? null : (
             <Button onClick={() => onDel(item)} variant="secondary" style={{ flex: 1 }}>
               Anular
             </Button>
@@ -202,10 +213,10 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
                   containerStyle={{
                     justifyContent: 'flex-start',
                   }}
-                  color={colorStatusForgiveness[getStatus(item)]?.color}
-                  backgroundColor={colorStatusForgiveness[getStatus(item)]?.bg}
+                  color={getStatusConfig(numericStatus, item?.due_at).color}
+                  backgroundColor={getStatusConfig(numericStatus, item?.due_at).bgColor}
                 >
-                  {statusForgiveness[getStatus(item)]}
+                  {getStatusText(getStatus(item))}
                 </StatusBadge>
               }
             />
