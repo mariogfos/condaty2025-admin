@@ -28,6 +28,7 @@ import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import RenderView from "../DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
 import {
   buildReservationUnitSelectOptions,
+  getReservationUnitDisplayLabel,
   getReservationResidentFullName,
   getReservationUnitOwnerId,
   getReservationUnitPrimaryChoice,
@@ -472,6 +473,9 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     : null;
   const selectedUnitResponsibleName =
     getReservationResidentFullName(selectedUnitResponsible);
+  const selectedUnitLabel = selectedUnit
+    ? getReservationUnitDisplayLabel(selectedUnit)
+    : "Sin unidad";
   return (
     <div className={styles.pageWrapper}>
       <HeaderBack label="Volver a lista de reservas" onClick={_onClose} />
@@ -884,7 +888,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                           {selectedUnitResponsibleName}
                         </span>
                         <span className={styles.ownerUnit}>
-                          Unidad {selectedUnit?.nro}
+                          {selectedUnitLabel}
                         </span>
                       </div>
                     </div>
