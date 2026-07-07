@@ -27,6 +27,7 @@ describe("reservationUnits", () => {
       {
         id: 1,
         nro: "1",
+        type: { name: "Casa" },
         homeowner: { id: 7, name: "Ana", last_name: "Lopez" },
       },
     ] as ReservationUnit[];
@@ -34,7 +35,7 @@ describe("reservationUnits", () => {
     expect(buildReservationUnitSelectOptions(units)).toEqual([
       {
         id: "1",
-        name: "Unidad 1 - Ana Lopez · Propietario",
+        name: "Casa 1 - Ana Lopez · Propietario",
       },
       {
         id: "2",
@@ -48,6 +49,7 @@ describe("reservationUnits", () => {
       {
         id: 3,
         nro: "3",
+        type: { name: "Departamento" },
         homeowner: { id: 8, name: "Luis", last_name: "Rojas" },
         tenant: { id: 8, name: "Luis", last_name: "Rojas" },
       },
@@ -56,7 +58,7 @@ describe("reservationUnits", () => {
     expect(buildReservationUnitChoices(units)).toMatchObject([
       {
         roleLabel: "Propietario/Residente",
-        name: "Unidad 3 - Luis Rojas · Propietario/Residente",
+        name: "Departamento 3 - Luis Rojas · Propietario/Residente",
       },
     ]);
   });

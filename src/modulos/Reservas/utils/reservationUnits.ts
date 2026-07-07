@@ -122,8 +122,13 @@ export const getReservationUnitDisplayLabel = (
 ) => {
   if (!unit) return "Sin unidad";
 
+  const unitTypeLabel = String(
+    unit.type?.name || unit.type?.description || "Unidad",
+  ).trim() || "Unidad";
   const unitNumber = getReservationUnitNumber(unit);
-  return unitNumber ? `Unidad ${unitNumber}` : "Unidad sin número";
+  return unitNumber
+    ? `${unitTypeLabel} ${unitNumber}`
+    : `${unitTypeLabel} sin número`;
 };
 
 export const formatReservationUnitChoiceName = (
