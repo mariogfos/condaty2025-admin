@@ -83,6 +83,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
       item?.coordinates || buildCoordinatesValue(item?.latitude, item?.longitude),
     booking_mode: item?.booking_mode || "day",
     has_price: item?.price ? "S" : "N",
+    guarantee_amount: item?.guarantee_amount ?? 0,
     requires_approval: item?.requires_approval || "X",
     penalty_or_debt_restriction: item?.penalty_or_debt_restriction || "X",
     min_reservation_advance_hours:
@@ -224,6 +225,12 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         errors,
       });
       errors = checkRules({
+        value: formState?.guarantee_amount ?? 0,
+        rules: ["number", "positive", "less:10000"],
+        key: "guarantee_amount",
+        errors,
+      });
+      errors = checkRules({
         value: formState?.min_cancel_hours,
         rules: ["required", "less:200", "integer"],
         key: "min_cancel_hours",
@@ -300,6 +307,10 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         status: formState?.status,
         requires_approval: formState?.requires_approval,
         price: formState?.price,
+        guarantee_amount:
+          formState?.has_price == "S"
+            ? Number(formState?.guarantee_amount || 0)
+            : 0,
         max_reservations_per_week: formState?.max_reservations_per_week,
         min_cancel_hours: formState?.min_cancel_hours,
         penalty_fee: formState?.penalty_fee,

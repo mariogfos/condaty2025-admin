@@ -104,6 +104,7 @@ export type ReservationArea = {
   show_real_time_availability?: string | null;
   show_in_calendar?: string | null;
   images?: string[] | null;
+  guarantee_amount?: string | number | null;
 };
 
 export type ReservationExtraData = {

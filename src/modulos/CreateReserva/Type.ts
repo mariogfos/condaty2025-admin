@@ -77,6 +77,7 @@ export interface ApiArea {
   available_hours?: Record<string, string[]> | null;
   booking_mode?: "hour" | "day" | string | null;
   price?: string | null;
+  guarantee_amount?: string | number | null;
   is_free?: "X" | string | null;
   max_booking_duration?: number | null;
   special_restrictions?: string | null;

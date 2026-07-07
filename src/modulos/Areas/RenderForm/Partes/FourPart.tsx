@@ -181,6 +181,10 @@ const FourPart = ({ item }: { item: any }) => {
               value={"Bs. " + formatNumber(item?.price)}
             />
             <KeyValue
+              title={"Garantía"}
+              value={"Bs. " + formatNumber(item?.guarantee_amount || 0)}
+            />
+            <KeyValue
               title={"Cantidad máx. de personas"}
               value={item?.max_capacity}
             />
