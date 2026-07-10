@@ -33,6 +33,68 @@ const periodOptions = [
   { id: "custom", name: "Personalizado" },
 ];
 
+const ACCESS_REPORT_MAX_RANGE_DAYS = 60;
+const accessReportBlockedPeriods = new Set(["y", "ly"]);
+
+const parseFilterByString = (filterBy: string) => {
+  const parsed: Record<string, string> = {};
+
+  filterBy
+    .split("|")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .forEach((part) => {
+      const separatorIndex = part.indexOf(":");
+      if (separatorIndex === -1) return;
+
+      const key = part.slice(0, separatorIndex).trim();
+      const value = part.slice(separatorIndex + 1).trim();
+      if (key) parsed[key] = value;
+    });
+
+  return parsed;
+};
+
+const parseIsoDateToUtc = (value: string) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!match) return null;
+
+  const [, year, month, day] = match;
+  return Date.UTC(Number(year), Number(month) - 1, Number(day));
+};
+
+const validateAccessReportExport = ({ params }: { params?: any }) => {
+  const filters = parseFilterByString(String(params?.filterBy || ""));
+  const period = filters.in_at;
+
+  if (!period || period === "ALL") {
+    return "Debe elegir un periodo para poder generar el reporte.";
+  }
+
+  if (accessReportBlockedPeriods.has(period)) {
+    return "Para exportar el reporte seleccione un periodo menor a 60 días. Este año y Año anterior no están permitidos.";
+  }
+
+  if (!period.includes(",")) return null;
+
+  const [startDate = "", endDate = ""] = period
+    .split(",")
+    .map((value) => value.trim());
+  const startTime = parseIsoDateToUtc(startDate);
+  const endTime = parseIsoDateToUtc(endDate);
+
+  if (startTime === null || endTime === null || endTime < startTime) {
+    return "El rango de fechas seleccionado no es válido para exportar.";
+  }
+
+  const diffDays = Math.floor((endTime - startTime) / 86400000);
+  if (diffDays > ACCESS_REPORT_MAX_RANGE_DAYS) {
+    return "El rango personalizado no puede superar 60 días para exportar el reporte.";
+  }
+
+  return null;
+};
+
 const accessStatusTonePalette = {
   success: {
     color: "var(--cStatusSuccess)",
@@ -148,6 +210,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         del: true,
       },
       search: true,
+      validateExport: validateAccessReportExport,
       getListRows: (response: any, requestParams?: Record<string, any>) => {
         if (requestParams?.fullType !== "DET") {
           return Array.isArray(response?.data) ? response.data : [];
