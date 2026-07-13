@@ -65,6 +65,8 @@ export interface Deuda {
   payment_id?: string | null;
   shared_id?: string | null;
   type?: number;
+  year?: number;
+  month?: number;
   maintenance_amount?: string | null;
   begin_at?: string;
   due_at?: string;
@@ -170,7 +172,7 @@ export interface FormState {
   voucher?: string;
   obs?: string;
   amount?: number | string;
-  type?: string;
+  type?: FormPaymentType;
   owner_id?: string | number;
 }
 
@@ -218,7 +220,7 @@ export const usePaymentsForm = (
 
     return {
       paid_at: item?.paid_at || new Date().toISOString().split("T")[0],
-      type: item?.type || "",
+      type: item?.type,
       file: item?.file || null,
       url_file: Array.isArray(item?.url_file) ? item.url_file : [],
       filename: item?.filename || null,
@@ -294,7 +296,7 @@ export const usePaymentsForm = (
   );
 
   const getDeudas = useCallback(
-    async (nroDpto: string | number, paymentmethod: string) => {
+    async (nroDpto: string | number, paymentmethod: FormPaymentType) => {
       if (!nroDpto || !paymentmethod || paymentmethod === FormPaymentType.DIRECT) return;
 
       const selectedDpto = findSelectedDpto(nroDpto);
@@ -606,9 +608,14 @@ export const usePaymentsForm = (
       }
 
       if (name === "type") {
+        // El Select emite el id numérico del enum; lo normalizamos a FormPaymentType.
+        const typeValue =
+          newValue === "" || newValue == null
+            ? undefined
+            : (Number(newValue) as FormPaymentType);
         setFormState((prev: FormState) => ({
           ...prev,
-          [name]: newValue,
+          type: typeValue,
           category_id: "",
           subcategory_id: "",
           subcategories: [],
@@ -617,12 +624,12 @@ export const usePaymentsForm = (
         setSelectedPeriodo([]);
         setPeriodoTotal(0);
         lastLoadedDeudas.current = "";
-        if (newValue && newValue !== FormPaymentType.DIRECT && formState.dpto_id) {
+        if (typeValue && typeValue !== FormPaymentType.DIRECT && formState.dpto_id) {
           setTimeout(() => {
-            const deudasKey = `${formState.dpto_id}_${newValue}`;
+            const deudasKey = `${formState.dpto_id}_${typeValue}`;
             lastLoadedDeudas.current = deudasKey;
             if (formState.dpto_id) {
-              getDeudas(formState.dpto_id, newValue as string);
+              getDeudas(formState.dpto_id, typeValue);
             }
           }, 0);
         }

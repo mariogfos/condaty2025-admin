@@ -46,7 +46,7 @@ interface PaymentDetail {
   category?: { padre?: { name?: string } };
   obs?: string;
   type?: string;
-  method?: string;
+  method?: number;
   voucher?: string;
   ext?: string;
   url_file?: (string | null)[];
@@ -679,7 +679,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>Método de pago</span>
                     <span className={styles.infoValue}>
-                      {getPaymentType(item.method || "")}
+                      {item.method ? getPaymentType(item.method) : "-/-"}
                     </span>
                   </div>
 

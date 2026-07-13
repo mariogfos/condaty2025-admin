@@ -15,11 +15,6 @@ import { QR_ENVIRONMENT_LABEL, QrDynamicMode, QrEnvironment } from "../types";
 // Types & Enums
 // ============================================================================
 
-export const QrEnvironmentLabels: Record<QrEnvironment, string> = {
-  S: "Sandbox (Pruebas)",
-  P: "Producción",
-};
-
 export const QrDynamicModeLabels: Record<QrDynamicMode, string> = {
   [QrDynamicMode.DISABLED]: "Manual (QR desactivado)",
   [QrDynamicMode.GLOBAL]: "Global (services del módulo)",

@@ -83,7 +83,7 @@ export interface ApiArea {
   usage_rules?: string | null;
   max_reservations_per_day?: number | null;
   max_reservations_per_week?: number | null;
-  penalty_or_debt_restriction?: "X" | string | null;
+  penalty_or_debt_restriction?: boolean | null;
   requires_approval?: boolean | null;
   approval_response_hours?: number | null;
   auto_approval_available?: "X" | string | null;

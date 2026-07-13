@@ -28,6 +28,7 @@ import {
   getAvailableActions as getAvailableActionsFromConstants,
 } from "../../constants";
 import { paymentsApi } from "@/modulos/Payments/api";
+import { FormPaymentType } from "@/modulos/Payments/Type/PaymentType";
 
 interface RenderViewProps {
   open: boolean;
@@ -176,7 +177,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     }
   };
 
-  const getAvailableActions = (status: string, type: number) => {
+  const getAvailableActions = (status: number, type: number) => {
     return getAvailableActionsFromConstants(status, type);
   };
 
@@ -318,16 +319,16 @@ const RenderView: React.FC<RenderViewProps> = ({
     const shouldLockFields =
       isIndividualDebt || isExpensasDebt || isReservationsDebt || isSharedDebt;
 
-    let paymentType = "I";
+    let paymentType: FormPaymentType = FormPaymentType.OTHER;
 
     if (isForgivenessDebt) {
-      paymentType = "F"; // Condonación
+      paymentType = FormPaymentType.CONDONATION; // Condonación
     } else if (isExpensasDebt) {
-      paymentType = "E"; // Expensas
+      paymentType = FormPaymentType.EXPENSE; // Expensas
     } else if (isReservationsDebt) {
-      paymentType = "R"; // Reservas
+      paymentType = FormPaymentType.RESERVATION; // Reservas
     } else if (isIndividualDebt || isSharedDebt) {
-      paymentType = "O"; // Otras deudas
+      paymentType = FormPaymentType.OTHER; // Otras deudas
     }
 
     const titular = getTitular(debtDetail?.dpto);
