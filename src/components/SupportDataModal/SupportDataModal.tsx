@@ -110,7 +110,7 @@ const SupportDataModal = () => {
       onSave={() => handleSubmit()}
       title="Datos de soporte"
       minWidth={640}
-      maxWidth="calc(100% - 40px)"
+      maxWidth={760}
     >
       {loading ? (
         <p>Cargando...</p>
