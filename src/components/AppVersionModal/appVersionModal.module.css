@@ -26,3 +26,27 @@
 .btnPrimary { background: var(--cPrimary); color: var(--cBlack); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
 .btnSecondary { background: transparent; color: var(--cWhite); border: var(--bWidth) solid var(--cBorder); padding: 8px 12px; border-radius: 6px; cursor: pointer; }
 .inputWrapper { margin: 4px 0; }
+.helperText {
+  color: var(--cWhiteV1);
+  font-size: var(--sS);
+  line-height: 1.4;
+  margin: -4px 0 4px;
+}
+.previewBox {
+  border: var(--bWidth) solid var(--cBorder);
+  border-radius: var(--bRadiusS);
+  background: var(--cBackground-foreground);
+  color: var(--cWhite);
+  padding: 12px;
+}
+.previewLabel {
+  color: var(--cWhiteV1);
+  font-size: var(--sS);
+  margin-bottom: 6px;
+}
+.previewText {
+  color: var(--cWhite);
+  font-size: var(--sM);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}

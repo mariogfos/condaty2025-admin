@@ -54,6 +54,7 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/invitations", perm: "campanas", labelKey: "qrInvitations" },
       { href: "/uploads", perm: "cargamasiva", labelKey: "bulkUpload" },
       { href: "/app-versions", perm: "superadmins", labelKey: "appVersions" },
+      { href: "/support-data", perm: "superadmins", labelKey: "supportData" },
       {
         href: "/visit-reasons",
         perm: "visit_reasons",
