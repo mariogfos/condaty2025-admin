@@ -30,6 +30,11 @@ const RenderForm = ({
   const [formState, setFormState]: any = useState({
     ...item,
     has_active_account_plan: parseBoolean(item?.has_active_account_plan),
+    can_receive_visits:
+      item?.can_receive_visits === undefined ||
+      item?.can_receive_visits === null
+        ? true
+        : parseBoolean(item?.can_receive_visits),
   });
   const [errors, setErrors]: any = useState({});
   const [typeFields, setTypeFields]: any = useState([]);
@@ -54,6 +59,11 @@ const RenderForm = ({
           has_active_account_plan: parseBoolean(
             item?.has_active_account_plan
           ),
+          can_receive_visits:
+            item?.can_receive_visits === undefined ||
+            item?.can_receive_visits === null
+              ? true
+              : parseBoolean(item?.can_receive_visits),
         };
 
         // Procesar field_values si existen
@@ -73,10 +83,10 @@ const RenderForm = ({
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
 
-    if (name === "has_active_account_plan") {
+    if (name === "has_active_account_plan" || name === "can_receive_visits") {
       setFormState((prev: any) => ({
         ...prev,
-        has_active_account_plan: checked ?? parseBoolean(value),
+        [name]: checked ?? parseBoolean(value),
       }));
     } else if (name === "type") {
       const selectedType = extraData?.type?.find(
@@ -175,6 +185,7 @@ const RenderForm = ({
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
         has_active_account_plan: Boolean(formState.has_active_account_plan),
+        can_receive_visits: Boolean(formState.can_receive_visits),
         homeowner_id:
           formState.homeowner_id == "X" ? null : formState.homeowner_id,
         fields: fields,
@@ -299,6 +310,48 @@ const RenderForm = ({
           optionValue={["1", "0"]}
           value={formState.has_active_account_plan ? "1" : "0"}
           checked={Boolean(formState.has_active_account_plan)}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 16,
+          padding: "12px 0",
+          width: "100%",
+        }}
+      >
+        <div style={{ flex: "1 1 220px", minWidth: 0 }}>
+          <p
+            style={{
+              color: "var(--twhite)",
+              fontSize: "var(--sM)",
+              fontWeight: 600,
+              margin: 0,
+            }}
+          >
+            Esta unidad puede recibir visitas
+          </p>
+          <p
+            style={{
+              color: "var(--cWhiteV1)",
+              fontSize: "var(--sS)",
+              lineHeight: 1.4,
+              margin: "4px 0 0",
+            }}
+          >
+            Al desactivarlo, no aparecerá en la lista de visitas de guardia.
+          </p>
+        </div>
+        <Switch
+          name="can_receive_visits"
+          optionValue={["1", "0"]}
+          value={formState.can_receive_visits ? "1" : "0"}
+          checked={Boolean(formState.can_receive_visits)}
           onChange={handleChange}
         />
       </div>
