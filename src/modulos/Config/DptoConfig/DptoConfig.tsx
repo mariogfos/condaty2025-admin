@@ -37,37 +37,61 @@ const paymentMethodOptions = [
   { id: "W", name: "WhatsApp" },
 ] as const;
 
-const ownerActionPermissionOptions = [
+const operationalActionOptions = [
+  { id: "invitation", name: "QR" },
+  { id: "visit_approval", name: "Visitas" },
+  { id: "reservation", name: "Reservas" },
+  { id: "alert", name: "Alertas" },
+] as const;
+
+const operationalRoleOptions = [
   {
-    id: "owner_can_invite_without_residence",
-    name: "Invitación QR",
-    description: "Permite generar invitaciones QR.",
+    id: "homeowner_resident",
+    name: "Propietario residente",
+    description: "Propietario que también vive en la unidad.",
   },
   {
-    id: "owner_can_approve_visits_without_residence",
-    name: "Visitas en guardia",
-    description: "Permite recibir y aprobar visitas desde guardia.",
+    id: "homeowner_resident_dependent",
+    name: "Dep. prop. residente",
+    description: "Dependiente de propietario residente.",
   },
   {
-    id: "owner_can_reserve_without_residence",
-    name: "Reservas",
-    description: "Permite reservar áreas sociales desde la app.",
+    id: "homeowner_non_resident",
+    name: "Propietario no residente",
+    description: "Propietario que no vive en la unidad.",
   },
   {
-    id: "owner_can_alert_without_residence",
-    name: "Alertas",
-    description: "Permite enviar alertas de emergencia.",
+    id: "homeowner_non_resident_dependent",
+    name: "Dep. prop. no residente",
+    description: "Dependiente de propietario no residente.",
+  },
+  {
+    id: "tenant",
+    name: "Inquilino",
+    description: "Residente asignado como inquilino.",
+  },
+  {
+    id: "tenant_dependent",
+    name: "Dep. inquilino",
+    description: "Dependiente de inquilino.",
   },
 ] as const;
 
 type PaymentDebtType = (typeof paymentDebtTypes)[number]["id"];
 type PaymentMethod = (typeof paymentMethodOptions)[number]["id"];
-type OwnerActionPermission =
-  (typeof ownerActionPermissionOptions)[number]["id"];
+type OperationalAction = (typeof operationalActionOptions)[number]["id"];
+type OperationalRole = (typeof operationalRoleOptions)[number]["id"];
+type OperationalPermissionsConfig = Record<
+  OperationalRole,
+  Record<OperationalAction, boolean>
+>;
 
-const ownerActionPermissionFieldNames = ownerActionPermissionOptions.map(
-  (option) => option.id,
-);
+const legacyOperationalActionFieldNames: Record<OperationalAction, string> = {
+  invitation: "owner_can_invite_without_residence",
+  visit_approval: "owner_can_approve_visits_without_residence",
+  reservation: "owner_can_reserve_without_residence",
+  alert: "owner_can_alert_without_residence",
+};
 
 const normalizePaymentMethodsConfig = (value: any) => {
   const parsed =
@@ -115,6 +139,67 @@ const getSingleUrl = (value: unknown) => {
 const isEnabledConfigValue = (value: unknown) =>
   Number(value) === 1 || value === true || value === "Y";
 
+const buildDefaultOperationalPermissionsConfig = (
+  client_config: Record<string, any> = {},
+): OperationalPermissionsConfig => {
+  const residentDefaults = operationalActionOptions.reduce(
+    (acc, action) => ({ ...acc, [action.id]: true }),
+    {} as Record<OperationalAction, boolean>,
+  );
+  const nonResidentOwnerDefaults = operationalActionOptions.reduce(
+    (acc, action) => ({
+      ...acc,
+      [action.id]: isEnabledConfigValue(
+        client_config?.[legacyOperationalActionFieldNames[action.id]],
+      ),
+    }),
+    {} as Record<OperationalAction, boolean>,
+  );
+
+  return {
+    homeowner_resident: { ...residentDefaults },
+    homeowner_resident_dependent: { ...residentDefaults },
+    homeowner_non_resident: { ...nonResidentOwnerDefaults },
+    homeowner_non_resident_dependent: { ...nonResidentOwnerDefaults },
+    tenant: { ...residentDefaults },
+    tenant_dependent: { ...residentDefaults },
+  };
+};
+
+const normalizeOperationalPermissionsConfig = (
+  value: any,
+  client_config: Record<string, any> = {},
+): OperationalPermissionsConfig => {
+  const parsed =
+    typeof value === "string"
+      ? (() => {
+          try {
+            return JSON.parse(value);
+          } catch {
+            return {};
+          }
+        })()
+      : value || {};
+  const config = buildDefaultOperationalPermissionsConfig(client_config);
+
+  operationalRoleOptions.forEach((role) => {
+    operationalActionOptions.forEach((action) => {
+      if (
+        Object.prototype.hasOwnProperty.call(
+          parsed?.[role.id] || {},
+          action.id,
+        )
+      ) {
+        config[role.id][action.id] = isEnabledConfigValue(
+          parsed[role.id][action.id],
+        );
+      }
+    });
+  });
+
+  return config;
+};
+
 const createFormState = (client_config: Record<string, any>) => ({
   url_logo: client_config?.client?.url_logo || [],
   url_logo_print: client_config?.client?.url_logo_print || [],
@@ -143,17 +228,9 @@ const createFormState = (client_config: Record<string, any>) => ({
     Number(client_config?.has_reservation_advance_limit) === 1 ||
     client_config?.has_reservation_advance_limit === true ||
     client_config?.has_reservation_advance_limit === "Y",
-  owner_can_invite_without_residence: isEnabledConfigValue(
-    client_config?.owner_can_invite_without_residence,
-  ),
-  owner_can_approve_visits_without_residence: isEnabledConfigValue(
-    client_config?.owner_can_approve_visits_without_residence,
-  ),
-  owner_can_reserve_without_residence: isEnabledConfigValue(
-    client_config?.owner_can_reserve_without_residence,
-  ),
-  owner_can_alert_without_residence: isEnabledConfigValue(
-    client_config?.owner_can_alert_without_residence,
+  operational_permissions_config: normalizeOperationalPermissionsConfig(
+    client_config?.operational_permissions_config,
+    client_config,
   ),
   has_tasks_visible:
     Number(client_config?.has_tasks_visible) === 1 ||
@@ -184,6 +261,9 @@ const getComparableState = (formState: Record<string, any>) => ({
   url_banner: getSingleUrl(formState.url_banner),
   payment_methods_config: normalizePaymentMethodsConfig(
     formState.payment_methods_config,
+  ),
+  operational_permissions_config: normalizeOperationalPermissionsConfig(
+    formState.operational_permissions_config,
   ),
   payment_time_limit: formState.bookingRequiresPayment
     ? formState.payment_time_limit || ""
@@ -329,17 +409,31 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
         ...prev,
         has_tasks_visible: isEnabled,
       }));
-    } else if (
-      ownerActionPermissionFieldNames.includes(name as OwnerActionPermission)
-    ) {
-      const isEnabled = value === "Y";
-
-      setFormState((prev: any) => ({
-        ...prev,
-        [name]: isEnabled,
-      }));
     }
   };
+
+  const handleOperationalPermissionSwitch =
+    (role: OperationalRole, action: OperationalAction) =>
+    ({ target: { value } }: any) => {
+      const isEnabled = value === "Y";
+
+      setFormState((prev: any) => {
+        const currentConfig = normalizeOperationalPermissionsConfig(
+          prev.operational_permissions_config,
+        );
+
+        return {
+          ...prev,
+          operational_permissions_config: {
+            ...currentConfig,
+            [role]: {
+              ...currentConfig[role],
+              [action]: isEnabled,
+            },
+          },
+        };
+      });
+    };
 
   const handlePaymentMethodSwitch =
     (debtType: PaymentDebtType, method: PaymentMethod) =>
@@ -594,6 +688,9 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
     "Condominio";
   const paymentMethodsConfig = normalizePaymentMethodsConfig(
     formState.payment_methods_config,
+  );
+  const operationalPermissionsConfig = normalizeOperationalPermissionsConfig(
+    formState.operational_permissions_config,
   );
   const whatsappPaymentEnabled = hasWhatsAppPaymentMethod(paymentMethodsConfig);
 
@@ -1106,32 +1203,65 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
 
                 <div className={styles.cardHeader}>
                   <p className={styles.textTitle}>
-                    Permisos de propietarios no residentes
+                    Permisos operativos por vínculo
                   </p>
                   <p className={styles.textSubtitle}>
-                    Define qué pueden hacer propietarios sin residencia activa y
-                    sus dependientes dentro del condominio.
+                    Controla qué puede hacer cada perfil y sus dependientes en
+                    la app y en guardia.
                   </p>
                 </div>
 
-                <div className={styles.permissionSwitchGrid}>
-                  {ownerActionPermissionOptions.map((option) => (
-                    <div className={styles.permissionSwitchRow} key={option.id}>
-                      <div className={styles.switchContent}>
-                        <p className={styles.textTitle}>{option.name}</p>
-                        <p className={styles.textSubtitle}>
-                          {option.description}
-                        </p>
+                <div className={styles.permissionMatrix}>
+                  <div
+                    className={`${styles.permissionMatrixRow} ${styles.permissionMatrixHeader}`}
+                  >
+                    <div>Vínculo</div>
+                    {operationalActionOptions.map((action) => (
+                      <div key={action.id}>{action.name}</div>
+                    ))}
+                  </div>
+
+                  {operationalRoleOptions.map((role) => (
+                    <div className={styles.permissionMatrixRow} key={role.id}>
+                      <div className={styles.permissionRoleCell}>
+                        <span className={styles.permissionRoleName}>
+                          {role.name}
+                        </span>
+                        <span className={styles.permissionRoleDescription}>
+                          {role.description}
+                        </span>
                       </div>
-                      <Switch
-                        name={option.id}
-                        label=""
-                        value={formState[option.id] ? "Y" : "N"}
-                        onChange={handleSwitchChange}
-                        optionValue={["Y", "N"]}
-                        checked={Boolean(formState[option.id])}
-                        disabled={!editMode}
-                      />
+
+                      {operationalActionOptions.map((action) => (
+                        <div
+                          className={styles.permissionActionCell}
+                          key={`${role.id}-${action.id}`}
+                        >
+                          <span className={styles.permissionMobileLabel}>
+                            {action.name}
+                          </span>
+                          <Switch
+                            name={`${role.id}_${action.id}`}
+                            label=""
+                            value={
+                              operationalPermissionsConfig[role.id]?.[action.id]
+                                ? "Y"
+                                : "N"
+                            }
+                            onChange={handleOperationalPermissionSwitch(
+                              role.id,
+                              action.id,
+                            )}
+                            optionValue={["Y", "N"]}
+                            checked={Boolean(
+                              operationalPermissionsConfig[role.id]?.[
+                                action.id
+                              ],
+                            )}
+                            disabled={!editMode}
+                          />
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </div>

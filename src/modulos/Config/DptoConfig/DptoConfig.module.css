@@ -532,25 +532,84 @@
   gap: 10px;
 }
 
-.permissionSwitchGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-  gap: 10px;
-}
-
-.permissionSwitchRow {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  align-items: flex-start;
-  padding: 14px;
-  border-radius: 14px;
+.permissionMatrix {
+  width: 100%;
+  overflow-x: auto;
   border: 1px solid var(--cModalBorder);
+  border-radius: 14px;
   background-color: color-mix(
     in srgb,
     var(--cModalSurfaceRaised) 64%,
     transparent
   );
+}
+
+.permissionMatrixRow {
+  display: grid;
+  grid-template-columns: minmax(210px, 1.2fr) repeat(4, minmax(112px, 0.7fr));
+  min-width: 660px;
+  border-bottom: 1px solid var(--cModalBorder);
+}
+
+.permissionMatrixRow:last-child {
+  border-bottom: 0;
+}
+
+.permissionMatrixHeader {
+  color: var(--cWhiteV1);
+  font-size: var(--body-xs-size);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+}
+
+.permissionMatrixHeader > div,
+.permissionRoleCell,
+.permissionActionCell {
+  padding: 12px;
+}
+
+.permissionMatrixHeader > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.permissionMatrixHeader > div:first-child {
+  justify-content: flex-start;
+}
+
+.permissionRoleCell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.permissionRoleName {
+  color: var(--cWhite);
+  font-size: var(--body-sm-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.25;
+}
+
+.permissionRoleDescription {
+  color: var(--cWhiteV1);
+  font-size: var(--body-xs-size);
+  line-height: 1.35;
+}
+
+.permissionActionCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.permissionMobileLabel {
+  display: none;
+  color: var(--cWhiteV1);
+  font-size: var(--body-sm-size);
 }
 
 .paymentMethodRow {
@@ -697,6 +756,33 @@
 
   .paymentMethodError {
     grid-column: 1;
+  }
+
+  .permissionMatrix {
+    overflow-x: visible;
+  }
+
+  .permissionMatrixHeader {
+    display: none;
+  }
+
+  .permissionMatrixRow {
+    grid-template-columns: 1fr;
+    min-width: 0;
+  }
+
+  .permissionRoleCell {
+    padding-bottom: 8px;
+  }
+
+  .permissionActionCell {
+    justify-content: space-between;
+    border-top: 1px solid var(--cModalBorder);
+    padding-block: 10px;
+  }
+
+  .permissionMobileLabel {
+    display: inline;
   }
 }
 
