@@ -41,7 +41,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
 
   const getReservas = async () => {
     const { data } = await execute(
-      "/reservations",
+      "/api/v3/reservations",
       "GET",
       {
         fullType: "L",
@@ -113,7 +113,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   const onSave = async () => {
     if (hasErrors(validate())) return;
     const { data } = await execute(
-      "/reservations-areablocked",
+      "/api/v3/reservations/area-blocked",
       "POST",
       formState,
     );
@@ -128,7 +128,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   const getAreasM = async () => {
     setLoading(true);
     const { data } = await execute(
-      "/reservations",
+      "/api/v3/reservations",
       "GET",
       {
         fullType: "L",

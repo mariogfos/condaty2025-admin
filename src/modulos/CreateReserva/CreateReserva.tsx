@@ -118,7 +118,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       setLoadingCalendar(true);
       const ownerId = selectedUnit?.titular?.id;
       const { data } = await execute(
-        "/reservations-calendar",
+        "/api/v3/reservations/calendar",
         "GET",
         {
           area_id: formState?.area_social || "none",
@@ -368,7 +368,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     };
     try {
       const response = await execute(
-        "/reservations",
+        "/api/v3/reservations",
         "POST",
         payload,
         false,

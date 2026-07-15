@@ -155,7 +155,7 @@ export const fetchResolvedPaymentForReservation = async (
   if (!debtId && reservation?.id && contextInstance) {
     const response = await contextInstance.request({
       method: "GET",
-      url: "/reservations",
+      url: "/api/v3/reservations",
       params: {
         fullType: "DET",
         searchBy: reservation.id,
