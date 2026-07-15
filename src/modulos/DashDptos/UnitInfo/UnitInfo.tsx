@@ -198,6 +198,12 @@ const UnitInfo = ({
             </span>
           </div>
           <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Plan de cuentas</span>
+            <span className={styles.infoValue}>
+              {datas?.data?.has_active_account_plan ? "Activo" : "Sin plan"}
+            </span>
+          </div>
+          <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Paga las expensas:</span>
             <div style={{ position: "relative" }}>
               <button
