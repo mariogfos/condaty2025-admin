@@ -373,7 +373,7 @@ const CalendarPage = () => {
     try {
       const response = await contextInstance.request({
         method: "GET",
-        url: "/reservations",
+        url: "/api/v3/reservations",
         params: {
           fullType: "EXTRA",
           page: 1,
@@ -411,7 +411,7 @@ const CalendarPage = () => {
           splitRangeByYear(visibleRange.start, visibleRange.end).map((segment) =>
             contextInstance.request({
               method: "GET",
-              url: "/reservations",
+              url: "/api/v3/reservations",
               params: {
                 fullType: "L",
                 page: 1,
@@ -637,7 +637,7 @@ const CalendarPage = () => {
           pendingEntries.map((entry) =>
             contextInstance.request({
               method: "GET",
-              url: "/reservations",
+              url: "/api/v3/reservations",
               params: {
                 fullType: "DET",
                 searchBy: entry.reservation.id,
@@ -1350,7 +1350,7 @@ const CalendarPage = () => {
             try {
               const response = await contextInstance.request({
                 method: "GET",
-                url: "/reservations-calendar",
+                url: "/api/v3/reservations/calendar",
                 params: {
                   area_id: String(area.id),
                   date_at: calendarActionModal.row.dayKey,
@@ -1517,7 +1517,7 @@ const CalendarPage = () => {
       try {
         const response = await contextInstance.request({
           method: "GET",
-          url: "/reservations-calendar",
+          url: "/api/v3/reservations/calendar",
           params: {
             area_id: reservationDraft.areaId,
             date_at: calendarActionModal.row.dayKey,
@@ -1790,7 +1790,7 @@ const CalendarPage = () => {
     try {
       const response = await contextInstance.request({
         method: "POST",
-        url: "/reservations",
+        url: "/api/v3/reservations",
         data: payload,
       });
 

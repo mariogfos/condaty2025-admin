@@ -250,7 +250,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     const shouldFetchDetail = open && Boolean(detailId);
 
     const { data, reLoad: reloadReservationDetail } = useAxios(
-      shouldFetchDetail ? "/reservations" : null,
+      shouldFetchDetail ? "/api/v3/reservations" : null,
       "GET",
       {
         fullType: "DET",
