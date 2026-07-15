@@ -16,7 +16,7 @@ jobs:
   rule-check:
     name: Verify Agency Rules
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,28 +47,13 @@ jobs:
             exit 1
           fi
 
-  team-activity:
-    name: Update Team Activity
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Update Team Activity
-        run: |
-          bash .agent/hooks/update-team-activity.sh \
-            . \
-            .agent/projects/condaty/team-activity/TEAM_CHANGES.md
-
-      - name: Create PR with changes
-        if: success()
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "docs: update team activity log"
-          title: "docs: update team activity log"
-          branch: chore/update-team-activity
-          delete-branch: true
-          file-path: .agent/projects/condaty/team-activity/TEAM_CHANGES.md
+  # team-activity job removed 2026-07-15 (Mario): "ya no se usará".
+  # update-team-activity.sh referenced a script that no longer exists in
+  # this repo (was deleted 2026-06-06). The agency no longer needs an
+  # auto-generated TEAM_CHANGES.md — manual changelog is enough.
+  #
+  # update-memory job: ver .github/workflows/update-memory.yml → ELIMINADO
+  # 2026-07-15. Regla de agencia "NO update-module-memory.sh" es binding
+  # cross-project. La auto-PR para module-memory.json era útil cuando los
+  # módulos eran menos estables; ahora el directorio .makromania/projects/
+  # es canónico y no necesita auto-sync.
