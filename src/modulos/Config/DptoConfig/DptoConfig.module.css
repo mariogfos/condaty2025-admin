@@ -190,8 +190,16 @@
   border-radius: 20px;
   overflow: hidden;
   background:
-    radial-gradient(circle at 24% 22%, rgba(0, 227, 140, 0.16), transparent 38%),
-    linear-gradient(180deg, var(--cModalSurfaceRaised), color-mix(in srgb, var(--cModalSection) 90%, black 10%));
+    radial-gradient(
+      circle at 24% 22%,
+      rgba(0, 227, 140, 0.16),
+      transparent 38%
+    ),
+    linear-gradient(
+      180deg,
+      var(--cModalSurfaceRaised),
+      color-mix(in srgb, var(--cModalSection) 90%, black 10%)
+    );
   border: 1px solid var(--cModalBorder);
 }
 
@@ -248,7 +256,11 @@
   border-radius: 32px;
   overflow: hidden;
   border: 4px solid var(--cModalSection);
-  background-color: color-mix(in srgb, var(--cModalSurfaceRaised) 38%, black 62%);
+  background-color: color-mix(
+    in srgb,
+    var(--cModalSurfaceRaised) 38%,
+    black 62%
+  );
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
   flex: 0 0 auto;
 }
@@ -291,7 +303,11 @@
   font-size: 28px;
   font-weight: var(--font-weight-bold);
   background:
-    radial-gradient(circle at 30% 20%, rgba(0, 227, 140, 0.16), transparent 44%),
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(0, 227, 140, 0.16),
+      transparent 44%
+    ),
     color-mix(in srgb, var(--cModalSurfaceRaised) 92%, black 8%);
 }
 
@@ -514,6 +530,27 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.permissionSwitchGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 10px;
+}
+
+.permissionSwitchRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--cModalBorder);
+  background-color: color-mix(
+    in srgb,
+    var(--cModalSurfaceRaised) 64%,
+    transparent
+  );
 }
 
 .paymentMethodRow {
