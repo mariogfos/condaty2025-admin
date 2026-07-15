@@ -4,10 +4,19 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import Switch from "@/mk/components/forms/Switch/Switch";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getFullName } from "@/mk/utils/string";
 import useAxios from "@/mk/hooks/useAxios";
+
+const parseBoolean = (value: any) =>
+  value === true ||
+  value === 1 ||
+  value === "1" ||
+  value === "Y" ||
+  value === "S" ||
+  value === "true";
 
 const RenderForm = ({
   open,
@@ -18,7 +27,10 @@ const RenderForm = ({
   user,
   reLoad,
 }: any) => {
-  const [formState, setFormState]: any = useState({ ...item });
+  const [formState, setFormState]: any = useState({
+    ...item,
+    has_active_account_plan: parseBoolean(item?.has_active_account_plan),
+  });
   const [errors, setErrors]: any = useState({});
   const [typeFields, setTypeFields]: any = useState([]);
   const [enabledFields, setEnabledFields]: any = useState({});
@@ -36,7 +48,13 @@ const RenderForm = ({
 
         // Inicializar los campos habilitados y sus valores
         const enabledFieldsInit: any = {};
-        const formStateUpdate = { ...item, type: item.type_id };
+        const formStateUpdate = {
+          ...item,
+          type: item.type_id,
+          has_active_account_plan: parseBoolean(
+            item?.has_active_account_plan
+          ),
+        };
 
         // Procesar field_values si existen
         if (item.field_values && Array.isArray(item.field_values)) {
@@ -55,7 +73,12 @@ const RenderForm = ({
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
 
-    if (name === "type") {
+    if (name === "has_active_account_plan") {
+      setFormState((prev: any) => ({
+        ...prev,
+        has_active_account_plan: checked ?? parseBoolean(value),
+      }));
+    } else if (name === "type") {
       const selectedType = extraData?.type?.find(
         (t: any) => t.id === parseInt(value)
       );
@@ -151,6 +174,7 @@ const RenderForm = ({
         type_id: parseInt(formState.type_id),
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
+        has_active_account_plan: Boolean(formState.has_active_account_plan),
         homeowner_id:
           formState.homeowner_id == "X" ? null : formState.homeowner_id,
         fields: fields,
@@ -236,6 +260,48 @@ const RenderForm = ({
         error={errors}
         required={false}
       />
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 16,
+          padding: "12px 0",
+          width: "100%",
+        }}
+      >
+        <div style={{ flex: "1 1 220px", minWidth: 0 }}>
+          <p
+            style={{
+              color: "var(--twhite)",
+              fontSize: "var(--sM)",
+              fontWeight: 600,
+              margin: 0,
+            }}
+          >
+            Tiene plan de cuentas activo
+          </p>
+          <p
+            style={{
+              color: "var(--cWhiteV1)",
+              fontSize: "var(--sS)",
+              lineHeight: 1.4,
+              margin: "4px 0 0",
+            }}
+          >
+            Permite operar sin bloqueo por mora cuando el plan está activo.
+          </p>
+        </div>
+        <Switch
+          name="has_active_account_plan"
+          optionValue={["1", "0"]}
+          value={formState.has_active_account_plan ? "1" : "0"}
+          checked={Boolean(formState.has_active_account_plan)}
+          onChange={handleChange}
+        />
+      </div>
 
       {/* <Select
         label="Propietario"
