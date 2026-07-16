@@ -151,7 +151,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   };
 
   const mod: ModCrudType = {
-    modulo: "debt-dptos",
+    modulo: "v3/debt-dptos",
     singular: "",
     plural: "",
     filter: true,

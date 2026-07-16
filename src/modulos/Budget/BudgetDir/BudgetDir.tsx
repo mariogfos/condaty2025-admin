@@ -122,7 +122,7 @@ const getCategoryOptionsForFilter = (extraData: any) => [
 ];
 
 const mod: ModCrudType = {
-  modulo: "budgets",
+  modulo: "v3/budgets",
   singular: "Presupuesto",
   plural: "Presupuestos",
   permiso: "budgets",

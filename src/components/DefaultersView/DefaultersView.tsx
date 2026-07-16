@@ -30,7 +30,7 @@ const Defaulters = () => {
 
   // Definir el módulo para useCrud
   const mod = {
-    modulo: "defaulters",
+    modulo: "v3/defaulters",
     singular: "Moroso",
     plural: "Morosos",
     permiso: "defaulters",
@@ -131,7 +131,7 @@ const Defaulters = () => {
 
   // Exportar función para el botón de exportar
   const exportar = () => {
-    execute("/defaulters", "GET", { exportar: 1 }, false);
+    execute("/v3/defaulters", "GET", { exportar: 1 }, false);
   };
 
   // Botones adicionales para la tabla
@@ -170,7 +170,7 @@ const Defaulters = () => {
     try {
       // Usamos el mismo endpoint que useCrud usa para obtener los datos
       const { data: response } = await execute(
-        "/defaulters",
+        "/v3/defaulters",
         "GET",
         {
           fullType: "DET",

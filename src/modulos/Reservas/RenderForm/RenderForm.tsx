@@ -265,7 +265,7 @@ const RenderForm = ({
 
     try {
       console.log("Enviando datos:", params);
-      const { data, error } = await execute("/expenses", "POST", params);
+      const { data, error } = await execute("/v3/expenses", "POST", params);
 
       if (data?.success) {
         showToast("Egreso registrado con éxito", "success");

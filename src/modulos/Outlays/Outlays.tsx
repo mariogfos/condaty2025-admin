@@ -47,7 +47,7 @@ const Outlays = () => {
   };
 
   const mod: ModCrudType = {
-    modulo: "expenses",
+    modulo: "v3/expenses",
     singular: "Egreso",
     plural: "Egresos",
     filter: true,
