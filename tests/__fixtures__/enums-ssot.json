@@ -1,0 +1,161 @@
+{
+  "$schema": "./enums-ssot.schema.json",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-15",
+  "maintainer": "Condaty cross-app team",
+  "source": "SSoT canónico de enums compartidos entre admin/rnGuard/rnOwner. Cada app mantiene su enum local sincronizado vía test de reflection contra esta fuente. NO es runtime: se usa solo en CI/tests para detectar drift.",
+  "sync": {
+    "strategy": "manual-copy",
+    "rationale": "Repos privados, sin registry npm compartido. El SSoT se versiona en humandistor y se copia a tests/fixtures/ de cada app cuando cambia. El test de reflection detecta drift si alguien modifica el enum local sin actualizar el SSoT.",
+    "copyCommand": "cp /Users/marioguzman/.mavis/projects/condaty/sprints/enums-ssot.json <app>/tests/fixtures/enums-ssot.json",
+    "apps": [
+      "condaty-admin",
+      "rnGuard",
+      "rnOwner"
+    ]
+  },
+  "enums": {
+    "ReservationStatus": {
+      "type": "int",
+      "comment": "Sincronizado con backend App\\Modules\\Reservations\\Enums\\ReservationStatus (PHP). Char legacy mapeado en comments.",
+      "apps": ["admin", "rnGuard", "rnOwner"],
+      "values": [
+        { "name": "AWAITING_APPROVAL", "value": 1, "comment": "W: Esperando confirmación" },
+        { "name": "PENDING_PAYMENT", "value": 2, "comment": "A: Pago pendiente" },
+        { "name": "PAYMENT_SUBMITTED", "value": 3, "comment": "Q: Por confirmar pago" },
+        { "name": "RESERVED_UNPAID", "value": 4, "comment": "N: Reservado (sin pago)" },
+        { "name": "RESERVED_PAID", "value": 5, "comment": "L: Reservado (pagado)" },
+        { "name": "REJECTED", "value": 6, "comment": "R: Reserva rechazada" },
+        { "name": "CANCELLED_MANUAL", "value": 7, "comment": "C: Cancelada manualmente" },
+        { "name": "CANCELLED_AUTO", "value": 8, "comment": "T: Cancelada automática" },
+        { "name": "COMPLETED", "value": 9, "comment": "F: Finalizada" },
+        { "name": "MAINTENANCE", "value": 10, "comment": "M: Mantenimiento" },
+        { "name": "LEGACY_REJECTED", "value": 11, "comment": "X: Rechazada (legacy)" }
+      ]
+    },
+    "PaymentStatus": {
+      "type": "int",
+      "comment": "Sincronizado con backend App\\Modules\\Payments\\Enums\\PaymentStatus (PHP).",
+      "apps": ["admin", "rnOwner"],
+      "values": [
+        { "name": "SUBMITTED", "value": 1, "comment": "Por confirmar", "rnOwnerAlias": "PENDING" },
+        { "name": "PAID", "value": 2, "comment": "Confirmado/Pagado" },
+        { "name": "REJECTED", "value": 3, "comment": "Rechazado" },
+        { "name": "CANCELLED", "value": 4, "comment": "Anulado" }
+      ]
+    },
+    "PaymentMethod": {
+      "type": "int",
+      "comment": "Sincronizado con backend App\\Modules\\Payments\\Enums\\PaymentMethod (PHP).",
+      "apps": ["admin", "rnOwner"],
+      "values": [
+        { "name": "TRANSFER", "value": 1 },
+        { "name": "OFFICE", "value": 2 },
+        { "name": "QR", "value": 3 },
+        { "name": "CASH", "value": 4 },
+        { "name": "CHEQUE", "value": 5 }
+      ]
+    },
+    "PaymentType": {
+      "type": "int",
+      "comment": "Sincronizado con backend App\\Modules\\Payments\\Enums\\PaymentType (PHP). NO confundir con QrDinamico/types.ts PaymentType (string char, semántica distinta — son enums DIFERENTES, no se pueden unificar).",
+      "apps": ["admin", "rnOwner"],
+      "values": [
+        { "name": "ALL_DEBTS", "value": 1 },
+        { "name": "EXPENSES", "value": 2 },
+        { "name": "RESERVATIONS", "value": 3 },
+        { "name": "CONDONATION", "value": 4 },
+        { "name": "PAYMENT_PLAN", "value": 5 },
+        { "name": "OTHER_DEBTS", "value": 6 },
+        { "name": "DIRECT_INCOME", "value": 7 }
+      ]
+    },
+    "DebtStatus": {
+      "type": "int",
+      "comment": "Sincronizado con backend App\\Modules\\Payments\\Enums\\DebtStatus (PHP).",
+      "apps": ["admin", "rnOwner"],
+      "values": [
+        { "name": "PENDING", "value": 1, "comment": "Por cobrar" },
+        { "name": "OVERDUE", "value": 2, "comment": "En mora" },
+        { "name": "PARTIAL", "value": 3, "comment": "En proceso parcial" },
+        { "name": "SUBMITTED", "value": 4, "comment": "Pago por confirmar" },
+        { "name": "PAID", "value": 5, "comment": "Saldada" },
+        { "name": "FORGIVEN", "value": 6, "comment": "Condonada" },
+        { "name": "WORKFLOW_PENDING", "value": 7, "comment": "Flujo externo pendiente" },
+        { "name": "CANCELLED", "value": 8, "comment": "Anulada" },
+        { "name": "AWAITING_VOUCHER", "value": 9, "comment": "Por subir comprobante" },
+        { "name": "REJECTED", "value": 10, "comment": "Rechazado" }
+      ]
+    },
+    "DebtType": {
+      "type": "int",
+      "comment": "Solo rnOwner lo define. admin no tiene equivalente directo (mapea a PaymentType en su lugar).",
+      "apps": ["rnOwner"],
+      "values": [
+        { "name": "EXPENSE", "value": 1 },
+        { "name": "RESERVATION", "value": 2 },
+        { "name": "FINE", "value": 3 },
+        { "name": "FORGIVEN", "value": 5, "comment": "Salto 4 reservado (gap histórico del backend)" }
+      ]
+    },
+    "AssemblyStatus": {
+      "type": "string",
+      "comment": "Char-backed (string). Sincronizado con backend App\\Modules\\Assemblies\\Enums\\AssemblyStatus (PHP enum: string).",
+      "apps": ["admin", "rnOwner"],
+      "values": [
+        { "name": "Scheduled", "value": "S" },
+        { "name": "InProgress", "value": "P" },
+        { "name": "Completed", "value": "C" },
+        { "name": "Cancelled", "value": "X" }
+      ]
+    },
+    "AssemblyType": {
+      "type": "string",
+      "comment": "Char-backed. Backend enums Assemblies son string, no int.",
+      "apps": ["admin", "rnOwner"],
+      "values": [
+        { "name": "Ordinary", "value": "O" },
+        { "name": "Extraordinary", "value": "E" },
+        { "name": "Informative", "value": "I" }
+      ]
+    },
+    "AssemblyModality": {
+      "type": "string",
+      "comment": "Char-backed.",
+      "apps": ["admin", "rnOwner"],
+      "values": [
+        { "name": "Virtual", "value": "V" },
+        { "name": "Presencial", "value": "P" },
+        { "name": "Hibrid", "value": "H" }
+      ]
+    },
+    "TargetAudience": {
+      "type": "string",
+      "comment": "String-backed (no char).",
+      "apps": ["admin", "rnOwner"],
+      "values": [
+        { "name": "AllOwners", "value": "all_owners" },
+        { "name": "Residents", "value": "residents" },
+        { "name": "Dependents", "value": "dependents" }
+      ]
+    },
+    "SurveyStatus": {
+      "type": "string",
+      "comment": "Char-backed. Sincronizado con backend App\\Modules\\Surveys\\Enums\\SurveyStatus (PHP).",
+      "apps": ["admin", "rnOwner"],
+      "values": [
+        { "name": "Draft", "value": "D" },
+        { "name": "Visible", "value": "V", "comment": "Visible, participants can see but NOT vote" },
+        { "name": "Scheduled", "value": "S" },
+        { "name": "Active", "value": "A" },
+        { "name": "Paused", "value": "P" },
+        { "name": "Closed", "value": "C" },
+        { "name": "Disabled", "value": "X" }
+      ]
+    }
+  },
+  "excluded": {
+    "PaymentType (QrDinamico)": "String char, semántica distinta a PaymentType numeric. NO son el mismo enum. Vive en admin/src/modulos/QrDinamico/types.ts sin contraparte cross-app.",
+    "BankAccountStatus/Type, BankEntityStatus, CategoryType/Status/Fixed, CurrencyTypeStatus, ExpenseStatus, LimitType, QrDynamicMode, QrEnvironment, QrOrderState, FormPaymentType, NetworkStateBits, MediaType, PaymentUiMethod": "Enums únicos por app, no compartidos cross-app. Si en el futuro se comparten, agregarlos a este SSoT con sus apps[] correspondientes."
+  }
+}
