@@ -58,8 +58,8 @@
     },
     "PaymentType": {
       "type": "int",
-      "comment": "Sincronizado con backend App\\Modules\\Payments\\Enums\\PaymentType (PHP). NO confundir con QrDinamico/types.ts PaymentType (string char, semántica distinta — son enums DIFERENTES, no se pueden unificar).",
-      "apps": ["admin", "rnOwner"],
+      "comment": "Sincronizado con backend App\\Modules\\Payments\\Enums\\PaymentType (PHP). NO confundir con QrDinamico/types.ts PaymentType (string char, semántica distinta — son enums DIFERENTES, no se pueden unificar). SOLO consumido por admin — rnOwner usa `DebtType` (semántica diferente, no equivalente).",
+      "apps": ["admin"],
       "values": [
         { "name": "ALL_DEBTS", "value": 1 },
         { "name": "EXPENSES", "value": 2 },
@@ -89,7 +89,7 @@
     },
     "DebtType": {
       "type": "int",
-      "comment": "Solo rnOwner lo define. admin no tiene equivalente directo (mapea a PaymentType en su lugar).",
+      "comment": "Solo rnOwner lo define. admin no tiene equivalente directo (mapea a PaymentType en su lugar). NO es el mismo enum que PaymentType — semántica y valores distintos.",
       "apps": ["rnOwner"],
       "values": [
         { "name": "EXPENSE", "value": 1 },
