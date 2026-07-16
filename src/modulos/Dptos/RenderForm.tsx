@@ -29,7 +29,7 @@ const RenderForm = ({
 }: any) => {
   const [formState, setFormState]: any = useState({
     ...item,
-    has_active_account_plan: parseBoolean(item?.has_active_account_plan),
+    has_payment_plan: parseBoolean(item?.has_payment_plan),
     can_receive_visits:
       item?.can_receive_visits === undefined ||
       item?.can_receive_visits === null
@@ -56,8 +56,8 @@ const RenderForm = ({
         const formStateUpdate = {
           ...item,
           type: item.type_id,
-          has_active_account_plan: parseBoolean(
-            item?.has_active_account_plan
+          has_payment_plan: parseBoolean(
+            item?.has_payment_plan
           ),
           can_receive_visits:
             item?.can_receive_visits === undefined ||
@@ -83,7 +83,7 @@ const RenderForm = ({
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
 
-    if (name === "has_active_account_plan" || name === "can_receive_visits") {
+    if (name === "has_payment_plan" || name === "can_receive_visits") {
       setFormState((prev: any) => ({
         ...prev,
         [name]: checked ?? parseBoolean(value),
@@ -184,7 +184,7 @@ const RenderForm = ({
         type_id: parseInt(formState.type_id),
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
-        has_active_account_plan: Boolean(formState.has_active_account_plan),
+        has_payment_plan: Boolean(formState.has_payment_plan),
         can_receive_visits: Boolean(formState.can_receive_visits),
         homeowner_id:
           formState.homeowner_id == "X" ? null : formState.homeowner_id,
@@ -292,7 +292,7 @@ const RenderForm = ({
               margin: 0,
             }}
           >
-            Tiene plan de cuentas activo
+            Tiene plan de pagos activo
           </p>
           <p
             style={{
@@ -306,10 +306,10 @@ const RenderForm = ({
           </p>
         </div>
         <Switch
-          name="has_active_account_plan"
+          name="has_payment_plan"
           optionValue={["1", "0"]}
-          value={formState.has_active_account_plan ? "1" : "0"}
-          checked={Boolean(formState.has_active_account_plan)}
+          value={formState.has_payment_plan ? "1" : "0"}
+          checked={Boolean(formState.has_payment_plan)}
           onChange={handleChange}
         />
       </div>
