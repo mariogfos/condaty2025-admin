@@ -26,7 +26,7 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
 
   const { execute } = useAxios();
   const getApprovedBudgets = async () => {
-    const { data } = await execute("/approved-budgets", "GET", {
+    const { data } = await execute("/v3/budgets/approved-budgets", "GET", {
       page: 1,
       perPage: -1,
     });
@@ -54,7 +54,7 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
   }, [formState]);
 
   const onSave = async () => {
-    const { data } = await execute("/execute-budget", "POST", formState);
+    const { data } = await execute("/v3/budgets/execute-budget", "POST", formState);
 
     // Debug: Ver toda la respuesta
     console.log('🔍 Respuesta completa del API:', data);

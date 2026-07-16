@@ -80,7 +80,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   const today = new Date();
 
   const { data, execute, loaded } = useAxios(
-    "/debt-dptos",
+    "/v3/debt-dptos",
     "GET",
     {
       searchBy: item?.id,
@@ -251,7 +251,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   const reloadItem = async () => {
     try {
       const response = await executeRef.current(
-        "/debt-dptos",
+        "/v3/debt-dptos",
         "GET",
         {
           searchBy: currentItem.id,

@@ -40,7 +40,7 @@ const Defaulters = () => {
     return d;
   };
   const mod = {
-    modulo: "defaulters",
+    modulo: "v3/defaulters",
     singular: "Moroso",
     plural: "Morosos",
     permiso: "defaulters",

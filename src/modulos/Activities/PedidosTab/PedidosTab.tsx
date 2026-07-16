@@ -88,7 +88,7 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
   // Definición del módulo Pedidos
   const modPedidos: ModCrudType = useMemo(() => {
     return {
-      modulo: "others",
+      modulo: "v3/others",
       singular: "Pedido",
       plural: "Pedidos",
       filter: true,

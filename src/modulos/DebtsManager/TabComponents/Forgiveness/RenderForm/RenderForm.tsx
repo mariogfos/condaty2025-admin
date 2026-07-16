@@ -218,7 +218,7 @@ const RenderForm = ({
     };
 
     const { data: response } = await execute(
-      "/debt-dptos" + (formState.id ? "/" + formState.id : ""),
+      "/v3/debt-dptos" + (formState.id ? "/" + formState.id : ""),
       method,
       dataToSend,
       false

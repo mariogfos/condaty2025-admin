@@ -134,7 +134,7 @@ const Budget = () => {
 
   const mod: ModCrudType = useMemo(
     () => ({
-      modulo: "budgets",
+      modulo: "v3/budgets",
       singular: "Presupuesto",
       plural: "Presupuestos",
       permiso: "budgets",

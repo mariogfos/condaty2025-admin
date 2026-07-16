@@ -50,7 +50,7 @@ const RenderView = (props: {
 
   const reloadItem = async () => {
     const { data } = await props.execute(
-      "/debt-dptos",
+      "/v3/debt-dptos",
       "GET",
       {
         fullType: "DET",

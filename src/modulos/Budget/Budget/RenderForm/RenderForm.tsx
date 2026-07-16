@@ -101,7 +101,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       return;
     }
 
-    const url = "/budgets" + (formState.id ? "/" + formState.id : "");
+    const url = "/v3/budgets" + (formState.id ? "/" + formState.id : "");
     const method = formState.id ? "PUT" : "POST";
 
     try {

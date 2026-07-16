@@ -28,7 +28,7 @@ const Forgiveness = ({
 }: any) => {
 
   const mod = {
-    modulo: 'debt-dptos',
+    modulo: 'v3/debt-dptos',
     singular: 'condonación',
     plural: '',
     permiso: 'defaulters',

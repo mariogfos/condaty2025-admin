@@ -457,7 +457,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
   }, []);
 
   const mod: ModCrudType = {
-    modulo: "debt-dptos",
+    modulo: "v3/debt-dptos",
     singular: "Deuda",
     plural: "",
     // export: true,

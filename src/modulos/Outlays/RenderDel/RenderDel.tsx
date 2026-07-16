@@ -89,7 +89,7 @@ const RenderDel = memo(({ open, onClose, item, onSave, execute, reLoad }: Render
     };
 
     try {
-      const { data: response } = await execute(`/expenses/${item?.id}`, 'DELETE', params);
+      const { data: response } = await execute(`/v3/expenses/${item?.id}`, 'DELETE', params);
 
       if (response?.success) {
         onClose();

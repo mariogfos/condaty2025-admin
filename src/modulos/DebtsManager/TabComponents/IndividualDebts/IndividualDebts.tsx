@@ -223,7 +223,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   ];
 
   const mod: ModCrudType = {
-    modulo: 'debt-dptos',
+    modulo: 'v3/debt-dptos',
     singular: 'Deuda',
     plural: '',
     export: true,

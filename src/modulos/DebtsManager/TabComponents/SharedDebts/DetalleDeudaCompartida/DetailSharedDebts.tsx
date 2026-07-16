@@ -246,7 +246,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   }, []);
 
   const mod: ModCrudType = {
-    modulo: "debt-dptos",
+    modulo: "v3/debt-dptos",
     singular: "Detalle",
     plural: "Detalles",
     export: true,
