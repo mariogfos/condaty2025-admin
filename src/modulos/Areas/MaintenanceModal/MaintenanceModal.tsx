@@ -13,6 +13,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { IconX } from "@/components/layout/icons/IconsBiblioteca";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
+import { ReservationStatus } from "@/modulos/Reservas/constants/reservationConstants";
 
 interface Props {
   open: boolean;
@@ -132,7 +133,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       "GET",
       {
         fullType: "L",
-        filterBy: "status_reservation:M",
+        filterBy: `status_reservation:${ReservationStatus.MAINTENANCE}`,
         perPage: -1,
         page: 1,
       },
