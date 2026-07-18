@@ -24,6 +24,83 @@ export enum PaymentType {
   DIRECT_INCOME = 7,
 }
 
+/**
+ * S18.5a — ExpenseStatus numeric enum.
+ *
+ * Sincronizado con backend `App\Modules\Expenses\Enums\ExpenseStatus` (PHP):
+ * - ACTIVE = 1 (legacy 'A')
+ * - CANCELLED = 0 (legacy 'X')
+ *
+ * El backend serializa como TINYINT (no string), pineado desde S2-T2 + S6.5.
+ * El admin debe pinear estos int values, no chars.
+ */
+export enum ExpenseStatus {
+  ACTIVE = 1,
+  CANCELLED = 0,
+}
+
+/**
+ * S18.5a — AreaStatus numeric enum.
+ *
+ * Sincronizado con backend `App\Models\Enums\AreaStatus` (PHP):
+ * - ACTIVE = 1 (legacy 'A')
+ * - MAINTENANCE = 2 (legacy 'M')
+ */
+export enum AreaStatus {
+  ACTIVE = 1,
+  MAINTENANCE = 2,
+}
+
+/**
+ * S18.5a — DptoStatus numeric enum.
+ *
+ * Sincronizado con backend `App\Models\Enums\DptoStatus` (PHP):
+ * - ACTIVE = 1 (legacy 'A')
+ */
+export enum DptoStatus {
+  ACTIVE = 1,
+}
+
+/**
+ * S18.5a — OwnerStatus numeric enum.
+ *
+ * Sincronizado con backend `App\Modules\HomeOwner\Enums\OwnerStatus` (PHP):
+ * - ACTIVE = 1 (legacy 'A')
+ */
+export enum OwnerStatus {
+  ACTIVE = 1,
+}
+
+/**
+ * S18.5a — ClientOwnerStatus numeric enum.
+ *
+ * Sincronizado con backend `App\Modules\HomeOwner\Enums\ClientOwnerStatus` (PHP):
+ * - ACTIVE = 1 (legacy 'A')
+ * - WAITING = 2 (legacy 'W')
+ */
+export enum ClientOwnerStatus {
+  ACTIVE = 1,
+  WAITING = 2,
+}
+
+/**
+ * S18.5a — ClientOwnerType numeric enum.
+ *
+ * Sincronizado con backend `App\Modules\HomeOwner\Enums\ClientOwnerType` (PHP):
+ * - HOMEOWNER = 1 (legacy 'H')
+ * - RESIDENT = 2 (legacy 'R')
+ * - DEPENDENT = 3 (legacy 'D')
+ * - HOMEOWNER_RESIDENT = 4 (legacy 'HT')
+ * - HOMEOWNER_DEPENDENT = 5 (legacy 'HD')
+ */
+export enum ClientOwnerType {
+  HOMEOWNER = 1,
+  RESIDENT = 2,
+  DEPENDENT = 3,
+  HOMEOWNER_RESIDENT = 4,
+  HOMEOWNER_DEPENDENT = 5,
+}
+
 export interface PaymentStatusConfig {
   label: string;
   color: string;

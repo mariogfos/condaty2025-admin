@@ -11,6 +11,7 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import { formatNumber } from "@/mk/utils/numbers";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Br from "@/components/Detail/Br";
+import { AreaStatus } from "@/modulos/Payments/Type/PaymentType";
 
 const status: any = {
   A: "Activa",

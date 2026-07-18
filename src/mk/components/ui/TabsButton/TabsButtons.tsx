@@ -1,8 +1,8 @@
 import styles from "./tabsButton.module.css";
 type PropsType = {
-  sel: string;
+  sel: string | number;
   tabs:
-    | { value: string; text: string; numero?: number }[]
+    | { value: string | number; text: string; numero?: number }[]
     | Record<string, any>;
   setSel: Function;
   val?: string;

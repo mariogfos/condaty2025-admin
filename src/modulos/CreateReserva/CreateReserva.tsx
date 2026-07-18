@@ -17,6 +17,7 @@ import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
 import { getFullName } from "@/mk/utils/string";
 import { ApiArea, FormState } from "./Type";
+import { AreaStatus } from "@/modulos/Payments/Type/PaymentType";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Button from "@/mk/components/forms/Button/Button";
@@ -598,12 +599,12 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                         <KeyValue
                           title={"Estado"}
                           value={
-                            selectedAreaDetails.status === "A"
+                            Number(selectedAreaDetails.status) === AreaStatus.ACTIVE || selectedAreaDetails.status === "A"
                               ? "Disponible"
                               : "No Disponible"
                           }
                           colorValue={
-                            selectedAreaDetails.status === "A"
+                            Number(selectedAreaDetails.status) === AreaStatus.ACTIVE || selectedAreaDetails.status === "A"
                               ? "var(--cSuccess)"
                               : "var(--cError)"
                           }

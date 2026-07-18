@@ -9,7 +9,7 @@ import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatBs } from "@/mk/utils/numbers";
 import { parseExpenseDescription } from "../utils/expenseDescription";
-import { METHOD_MAP } from "@/modulos/Payments/Type/PaymentType";
+import { METHOD_MAP, ExpenseStatus } from "@/modulos/Payments/Type/PaymentType";
 interface Category {
   id: number | string;
   name: string;
@@ -33,7 +33,7 @@ interface OutlayItem {
   description?: string;
   category?: Category;
   category_id?: number | string;
-  status: "A" | "X" | string;
+  status: ExpenseStatus | number | string;
   type?: string;
   ext?: string;
   url_file?: (string | null)[];
@@ -112,7 +112,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
     return { categoryName, subCategoryName };
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: number | string) => {
     const statusMap: Record<string, string> = {
       A: "Pagado",
       X: "Anulado",
@@ -151,9 +151,9 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
     : { categoryName: "", subCategoryName: "" };
   const parsedDescription = parseExpenseDescription(item?.description);
 
-  const getStatusStyle = (status: string) => {
-    if (status === "A") return styles.statusPaid;
-    if (status === "X") return styles.statusCancelled;
+  const getStatusStyle = (status: number | string) => {
+    if (status === ExpenseStatus.ACTIVE || status === 1 || status === "A") return styles.statusPaid;
+    if (status === ExpenseStatus.CANCELLED || status === 0 || status === "X") return styles.statusCancelled;
     return "";
   };
 
@@ -324,7 +324,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
           })
         : "-/-",
     },
-    currentItem.status === "X" && currentItem.canceled_by
+    currentItem.status === ExpenseStatus.CANCELLED && currentItem.canceled_by
       ? {
           key: "canceledBy",
           label: "Anulado por",
@@ -403,7 +403,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
       value: getStatusText(currentItem.status),
       valueClassName: getStatusStyle(currentItem.status),
     },
-    currentItem.status === "X" && currentItem.canceled_obs
+    currentItem.status === ExpenseStatus.CANCELLED && currentItem.canceled_obs
       ? {
           key: "canceledReason",
           label: "Motivo de anulación",
