@@ -9,6 +9,7 @@ import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { AreaStatus } from "@/modulos/Payments/Type/PaymentType";
 
 const paramsInitial = {
   perPage: 20,
@@ -279,8 +280,8 @@ const Areas = () => {
         },
         onRender: (props: any) => {
           let status = "";
-          if (props?.item?.status === "A") status = "Activa";
-          if (props?.item?.status === "X") status = "Inactiva";
+          if ((props?.item?.status === AreaStatus.ACTIVE || props?.item?.status === 1 || props?.item?.status === "A")) status = "Activa";
+          if ((props?.item?.status === 0 || props?.item?.status === "X")) status = "Inactiva";
 
           return (
             <StatusBadge

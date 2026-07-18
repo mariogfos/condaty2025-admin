@@ -10,6 +10,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import { Card } from "@/mk/components/ui/Card/Card";
 import { getFullName } from "@/mk/utils/string";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
+import { ClientOwnerStatus, ClientOwnerType } from "@/modulos/Payments/Type/PaymentType";
 
 const OwnerManager = () => {
   const { showToast, user } = useAuth();
@@ -173,19 +174,19 @@ const OwnerManager = () => {
     }
   };
 
-  const getRol = (type: string) => {
-    switch (type) {
-      case "H":
-        return "Propietario";
-      case "T":
-        return "Residente";
-      case "HT":
-        return "Propietario y Residente";
-      case "D":
-        return "Dependiente";
-      default:
-        return "";
-    }
+  const getRol = (type: string | number) => {
+    const numericType = Number(type);
+    const strType = String(type);
+    // HALLAZGO-NEW-22: legacy char "T" no documentado en ClientOwnerType, mapea a RESIDENT
+    if (numericType === ClientOwnerType.HOMEOWNER || numericType === 1 || strType === "H")
+      return "Propietario";
+    if (numericType === ClientOwnerType.RESIDENT || numericType === 2 || strType === "T")
+      return "Residente";
+    if (numericType === ClientOwnerType.HOMEOWNER_RESIDENT || strType === "HT")
+      return "Propietario y Residente";
+    if (numericType === ClientOwnerType.DEPENDENT || strType === "D")
+      return "Dependiente";
+    return "";
   };
 
   const validate = () => {
@@ -325,7 +326,7 @@ const OwnerManager = () => {
             />
             <div>
               Usuario esta activo?:{" "}
-              <span>{formState.status == "W" ? "No" : "Sí"}</span>
+              <span>{(formState.status === ClientOwnerStatus.WAITING || formState.status === 2 || formState.status === "W") ? "No" : "Sí"}</span>
             </div>
             <br />
             El usuario esta vinculado a las siguientes Unidades:
@@ -343,7 +344,7 @@ const OwnerManager = () => {
             {formState.clients?.map((client: any) => (
               <div key={client.id}>
                 {client.client.name} (
-                {client.status == "W" ? "No Activado" : "Activado"}) Rol:{" "}
+                {(client.status === ClientOwnerStatus.WAITING || client.status === 2 || client.status === "W") ? "No Activado" : "Activado"}) Rol:{" "}
                 {getRol(client.type)}{" "}
                 {client.titular &&
                   " su Titular es: " + getFullName(client.titular) + " "}

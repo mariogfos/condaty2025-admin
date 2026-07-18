@@ -6,6 +6,8 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import styles from "./HistoryPayments.module.css";
 import { IconPagos } from "@/components/layout/icons/IconsBiblioteca";
+import { DebtStatus } from "@/types/PaymentType";
+import { PaymentMethod } from "@/modulos/Payments/Type/PaymentType";
 
 
 interface HistoryPaymentsProps {
@@ -14,15 +16,15 @@ interface HistoryPaymentsProps {
   close: () => void;
 }
 
-const getStatus = (status: string) => {
-  const statusMap: Record<string, string> = {
-    A: "Por Pagar",
-    P: "Pagado",
-    S: "Por confirmar",
-    M: "Moroso",
-    R: "Rechazado",
+const getStatus = (status: number) => {
+  const statusMap: Record<number, string> = {
+    [DebtStatus.PENDING]: "Por Pagar",
+    [DebtStatus.PAID]: "Pagado",
+    [DebtStatus.SUBMITTED]: "Por confirmar",
+    [DebtStatus.OVERDUE]: "Moroso",
+    [DebtStatus.REJECTED]: "Rechazado",
   };
-  return statusMap[status] || status;
+  return statusMap[status] || `Status ${status}`;
 };
 
 const HistoryPayments = ({
@@ -30,7 +32,7 @@ const HistoryPayments = ({
   open,
   close,
 }: HistoryPaymentsProps) => {
-  const [typeSearch, setTypeSearch] = useState("P");
+  const [typeSearch, setTypeSearch] = useState<number>(DebtStatus.PAID);
   const [openPagar, setOpenPagar] = useState(false);
   const [openComprobante, setOpenComprobante] = useState(false);
   const [idPago, setIdPago] = useState<string | null>(null);
@@ -38,8 +40,8 @@ const HistoryPayments = ({
   // Filtra los datos según el tab seleccionado
   const filteredData = paymentsData.filter(
     (pago) =>
-      (typeSearch === "P" && pago?.status === "P") ||
-      (typeSearch === "X" && pago?.status !== "P")
+      (typeSearch === DebtStatus.PAID && pago?.status === DebtStatus.PAID) ||
+      (typeSearch === DebtStatus.REJECTED && pago?.status !== DebtStatus.PAID)
       );
 
   return (
@@ -53,8 +55,8 @@ const HistoryPayments = ({
       <div className={styles.wrapper}>
         <TabsButtons
           tabs={[
-            { value: "P", text: "Confirmados" },
-            { value: "X", text: "Pendientes" },
+            { value: DebtStatus.PAID, text: "Confirmados" },
+            { value: DebtStatus.REJECTED, text: "Pendientes" },
           ]}
           sel={typeSearch}
           setSel={setTypeSearch}
@@ -76,7 +78,7 @@ const HistoryPayments = ({
                   key={index}
                   className={styles.gridRow}
                   onClick={() => {
-                    if (pago.status === "A") {
+                    if (pago.status === DebtStatus.PENDING) {
                       setOpenPagar(true);
                     } else {
                       setOpenComprobante(true);
@@ -98,11 +100,11 @@ const HistoryPayments = ({
                     <EmptyData className={styles.emptyCell} message="-" />
                   )}
                   <div className={styles.cell}>
-                    {pago?.payment?.type === "Q"
+                    {pago?.payment?.type === PaymentMethod.QR
                       ? "QR"
-                      : pago?.payment?.type === "T"
+                      : pago?.payment?.type === PaymentMethod.TRANSFER
                       ? "Transferencia"
-                      : pago?.payment?.type === "O"
+                      : pago?.payment?.type === PaymentMethod.OFFICE
                       ? "Pago en oficina"
                       : "Sin pago"}
                   </div>

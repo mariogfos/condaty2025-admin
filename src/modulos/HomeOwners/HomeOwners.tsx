@@ -16,6 +16,7 @@ import {
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
+import { DptoStatus } from "@/modulos/Payments/Type/PaymentType";
 
 const paramsInitial = {
   perPage: 20,
@@ -64,7 +65,7 @@ const HomeOwners = () => {
                 />
                 <KeyValue
                   title="Estado"
-                  value={dpto.status === "A" ? "Activo" : "Inactivo"}
+                  value={(dpto.status === DptoStatus.ACTIVE || dpto.status === 1 || dpto.status === "A") ? "Activo" : "Inactivo"}
                 />
                 {index < homeowner.dptos.length - 1 && (
                   <hr className={styles.unitDivider} />

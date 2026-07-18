@@ -16,6 +16,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Br from "@/components/Detail/Br";
+import { AreaStatus } from "@/modulos/Payments/Type/PaymentType";
 
 const status: any = {
   A: "Activa",
