@@ -21,7 +21,7 @@ const ModalDestiny = ({
     setSel(formState?.lDestiny || []);
   }, [formState]);
   // const getMeta = async () => {
-  //   const { data } = await execute("/surveys", "GET", {
+  //   const { data } = await execute("/v3/surveys", "GET", {
   //     destiny: sel,
   //     fullType: "DES",
   //     lDestinies: formState.lDestiny,

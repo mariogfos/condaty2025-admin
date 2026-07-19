@@ -100,7 +100,7 @@ export default function SurveyTargeting({
   const calculateAudience = async (criteria: any) => {
     try {
       const { data } = await execute(
-        "/surveys/calculate-audience",
+        "/v3/surveys/calculate-audience",
         "POST",
         { target_criteria: criteria },
         false,
