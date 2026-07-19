@@ -208,7 +208,7 @@ const RenderView = (props: {
     try {
       // Fetch Basic Details
       const detailRes = await execute(
-        "/surveys",
+        "/v3/surveys",
         "GET",
         { fullType: "DET", searchBy: id },
         false,
@@ -224,7 +224,7 @@ const RenderView = (props: {
 
       // Fetch Advanced Stats
       const statsRes = await execute(
-        "/surveys/results",
+        "/v3/surveys/results",
         "GET",
         { survey_id: id, ...filters },
         false,

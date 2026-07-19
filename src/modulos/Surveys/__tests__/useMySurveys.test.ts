@@ -40,7 +40,7 @@ describe('useMySurveys Hook', () => {
     await waitFor(() => {
         expect(result.current.counts).toEqual(mockCounts);
     });
-    expect(mockExecute).toHaveBeenCalledWith("/surveys/my-counts", "GET", {}, false, true);
+    expect(mockExecute).toHaveBeenCalledWith("/v3/surveys/my-counts", "GET", {}, false, true);
   });
 
   it('fetchSurveys carga las encuestas correctamente', async () => {

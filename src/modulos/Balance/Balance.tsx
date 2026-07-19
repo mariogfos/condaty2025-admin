@@ -78,7 +78,7 @@ const BalanceGeneral: React.FC = () => {
     data: finanzas,
     reLoad: reLoadFinanzas,
     loaded,
-  } = useAxios("/balances", "POST", {});
+  } = useAxios("/v3/balances", "POST", {});
 
   const [loadingLocal, setLoadingLocal] = useState(false);
   useEffect(() => {

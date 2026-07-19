@@ -34,7 +34,7 @@ interface UseMySurveysReturn {
   reLoad: Function;
 }
 
-const modulePath = "/surveys";
+const modulePath = "/v3/surveys";
 
 export const useMySurveys = (): UseMySurveysReturn => {
   const [counts, setCounts] = useState<MySurveyCount | null>(null);
@@ -53,7 +53,7 @@ export const useMySurveys = (): UseMySurveysReturn => {
       setLoading(true);
       setError(null);
       const { data: response } = await execute(
-        "/surveys/my-counts",
+        "/v3/surveys/my-counts",
         "GET",
         {},
         false,

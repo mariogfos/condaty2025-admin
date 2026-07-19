@@ -64,7 +64,7 @@ const RenderForm = ({
         setIsLoadingDetails(true);
         try {
           const { data } = await execute(
-            "/surveys",
+            "/v3/surveys",
             "GET",
             {
               fullType: "DET",
@@ -170,7 +170,7 @@ const RenderForm = ({
 
       let method = formState.id ? "PUT" : "POST";
       const { data } = await execute(
-        "/surveys" + (formState.id ? "/" + formState.id : ""),
+        "/v3/surveys" + (formState.id ? "/" + formState.id : ""),
         method,
         {
           title: formState.title,

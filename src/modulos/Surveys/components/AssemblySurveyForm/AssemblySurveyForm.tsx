@@ -198,7 +198,7 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
         ],
       };
 
-      const url = action === "edit" ? `/surveys/${editItem.id}` : "/surveys";
+      const url = action === "edit" ? `/v3/surveys/${editItem.id}` : "/v3/surveys";
       const method = action === "edit" ? "PUT" : "POST";
 
       const { data } = await execute(url, method, payload);
