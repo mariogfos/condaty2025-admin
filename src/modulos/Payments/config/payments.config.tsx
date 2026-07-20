@@ -150,7 +150,24 @@ export const getPaymentsConfig = (
       del: true,
     },
     filter: true,
-    export: true,
+    // S37.5: pineamos mod.exportAsync (slot reusable de S36.5) para
+    // migrar el módulo Payments al flow async XLSX (S32 + S37).
+    // - export: false → deshabilita IconExport legacy (el viewer
+    //   reportPreset sigue disponible BC para preview + PDF).
+    // - exportAsync.type: "payments" → matchea el PaymentsReportType
+    //   pineado en S37 (ReportTypeRegistry).
+    // - format: "excel" → ExcelGenerator chunked (S37 D-37-1).
+    // - auto-pasa filterBy+searchBy del store actual (useCrud S36.5).
+    // El flow async NO pinea startDate/endDate porque el filter del
+    // módulo Payments usa `filterBy: "paid_at:m"` (periodo), no
+    // date range custom. Si se requiere date range, S38+ agrega
+    // `extraParams: { start_date, end_date }` via UI.
+    export: false,
+    exportAsync: {
+      type: "payments",
+      format: "excel",
+      label: "Exportar XLSX",
+    },
     titleAdd: "Nuevo",
     titleDel: "Anular",
     saveMsg: {

@@ -1,5 +1,6 @@
 /**
  * S-D: payments.config.tsx — form method select options must use numeric PaymentMethod ids
+ *      + S37.5: mod.exportAsync slot para migrar al flow async XLSX
  *
  * RED: fails while the form select uses string ids ('T'/'E'/'C').
  * GREEN: after replacing with FORM_PAYMENT_METHODS (numeric PaymentMethod ids).
@@ -10,6 +11,7 @@ import {
   METHOD_MAP,
   PaymentMethod,
 } from "@/modulos/Payments/Type/PaymentType";
+import { getPaymentsConfig } from "@/modulos/Payments/config/payments.config";
 
 describe("payments.config — FORM_PAYMENT_METHODS are numeric (S-D)", () => {
   it("all form method option ids are numbers, not strings", () => {
@@ -71,5 +73,41 @@ describe("payments.config — renderMethodCell uses numeric METHOD_MAP (S-D)", (
 
   it("string 'T' does NOT resolve (stale code guard)", () => {
     expect(METHOD_MAP["T"]).toBeUndefined();
+  });
+});
+
+describe("payments.config — mod.exportAsync slot (S37.5)", () => {
+  // S37.5: pinea el slot exportAsync (S36.5) en payments.config.tsx para
+  // migrar al flow async XLSX (S32 + S37 PaymentsReportType). El viewer
+  // reportPreset sigue disponible BC para preview + PDF.
+
+  it("pinea mod.exportAsync.type = 'payments' (matchea ReportTypeRegistry)", () => {
+    const { mod } = getPaymentsConfig("text-overflow", "text-right", "text-center");
+    expect(mod.exportAsync).toBeDefined();
+    expect(mod.exportAsync?.type).toBe("payments");
+  });
+
+  it("pinea mod.exportAsync.format = 'excel' (ExcelGenerator path, S37)", () => {
+    const { mod } = getPaymentsConfig("text-overflow", "text-right", "text-center");
+    expect(mod.exportAsync?.format).toBe("excel");
+  });
+
+  it("pinea mod.exportAsync.label = 'Exportar XLSX'", () => {
+    const { mod } = getPaymentsConfig("text-overflow", "text-right", "text-center");
+    expect(mod.exportAsync?.label).toBe("Exportar XLSX");
+  });
+
+  it("mod.export = false → deshabilita IconExport legacy (override)", () => {
+    // S36.5 D-36.5-3: si pinean AMBOS export: true Y exportAsync,
+    // el async override el legacy. Pineando export: false dejamos
+    // claro: solo async.
+    const { mod } = getPaymentsConfig("text-overflow", "text-right", "text-center");
+    expect(mod.export).toBe(false);
+  });
+
+  it("mantiene mod.reportPreset = 'payments-income' (viewer BC)", () => {
+    // BC: el viewer sigue disponible para preview + PDF.
+    const { mod } = getPaymentsConfig("text-overflow", "text-right", "text-center");
+    expect(mod.reportPreset).toBe("payments-income");
   });
 });
