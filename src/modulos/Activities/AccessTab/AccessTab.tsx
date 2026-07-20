@@ -142,7 +142,19 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
       plural: "Accesos",
       filter: true,
       permiso: "accesses",
-      export: true,
+      // S36.5 (NEW-NEW-43 frontend migration): useCrud renderiza
+      // AsyncExportButton en lugar del IconExport legacy cuando
+      // exportAsync está pineado. El flow legacy (onExport("pdf"))
+      // ya no pineá microservicio externo (muerto en S36) y cae a
+      // parent::export() XLSX genérico. Pineamos el flow async que
+      // va por el endpoint centralizado POST /api/v3/reports/accesses/export
+      // con default = 7 cols (S34 + S36 D-36-1).
+      export: false,
+      exportAsync: {
+        type: "accesses",
+        format: "pdf",
+        label: "Exportar PDF",
+      },
       extraData: false,
       hideActions: {
         add: true,
