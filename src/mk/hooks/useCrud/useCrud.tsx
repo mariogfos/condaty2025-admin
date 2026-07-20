@@ -53,6 +53,7 @@ import useMediaQuery from "../useMediaQuery";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 import { encodeReportViewerState } from "@/modulos/Reports/reportViewerState";
 import { shouldUseNewReportsViewer } from "@/modulos/Reports/reportFeatureFlags";
+import AsyncExportButton from "@/mk/components/ui/AsyncExportButton/AsyncExportButton";
 
 export type ModCrudType = {
   modulo: string;
@@ -93,6 +94,32 @@ export type ModCrudType = {
   };
   getListRows?: (response: any, params?: Record<string, any>) => any[];
   reportPreset?: string;
+  /**
+   * exportAsync (S36.5 — NEW-NEW-43 frontend migration)
+   *
+   * Si está pineado, el botón "Exportar reporte" usa el flow async
+   * (POST /api/v3/reports/{type}/export + polling) en lugar del
+   * legacy onExport (que cae a GET /api/v3/{modulo}?fullType=L&_export=pdf).
+   *
+   * - type:     nombre del ReportType registrado en el backend
+   *             (S32: ReportTypeRegistry). Ej: "accesses", "balance", "payments".
+   * - format:   "pdf" (default) o "excel" (cuando el ReportType pinea Excel,
+   *             ver S37 para Payments XLSX).
+   * - label:    texto del botón. Default: "Exportar".
+   * - exportCols: subset opcional de cols (S36). Si no se pineá, el
+   *               ReportType usa su default completo.
+   * - extraParams: map opcional para pinear params adicionales al POST
+   *                (ej: filterBy custom, dpto_id, type_access).
+   *                Si no se pineá, useCrud pasa filterBy + searchBy
+   *                del store actual.
+   */
+  exportAsync?: {
+    type: string;
+    format?: "pdf" | "excel";
+    label?: string;
+    exportCols?: string[];
+    extraParams?: Record<string, any>;
+  };
 };
 
 export type TypeRenderForm = {
@@ -1693,7 +1720,7 @@ const useCrud = ({
                   onClick={data?.length > 0 ? onImport : () => {}}
                 />
               )}
-              {mod.export === true && (
+              {mod.export === true && !mod.exportAsync && (
                 <IconExport
                   title="Exportar reporte"
                   className={
@@ -1709,6 +1736,35 @@ const useCrud = ({
                             : onExport("pdf")
                       : () => {}
                   }
+                />
+              )}
+              {mod.exportAsync && (
+                <AsyncExportButton
+                  type={mod.exportAsync.type}
+                  format={mod.exportAsync.format || "pdf"}
+                  label={mod.exportAsync.label || "Exportar"}
+                  params={(() => {
+                    if (mod.exportAsync?.extraParams) {
+                      return mod.exportAsync.extraParams;
+                    }
+                    const out: Record<string, any> = {};
+                    if (params?.filterBy) out.filterBy = params.filterBy;
+                    if (params?.searchBy) out.searchBy = params.searchBy;
+                    if (
+                      mod.exportAsync?.exportCols &&
+                      mod.exportAsync.exportCols.length > 0
+                    ) {
+                      out.exportCols = mod.exportAsync.exportCols;
+                    }
+                    return out;
+                  })()}
+                  // S33 pineó variant="outline" en AsyncExportButton,
+                  // pero Button real no acepta "outline" → styles.outline = undefined.
+                  // Pineamos "terciary" (válido en Button) en useCrud para no propagar
+                  // el bug visual. Flag en S36.5 PR para fix de raíz en S37+ (cambiar
+                  // el type del AsyncExportButton a "primary" | "secondary" | "terciary" | ...).
+                  // @ts-expect-error — S33 type pineó "outline" que no es válido; usamos "terciary"
+                  variant="terciary"
                 />
               )}
               {mod.export?.length > 0 && (
