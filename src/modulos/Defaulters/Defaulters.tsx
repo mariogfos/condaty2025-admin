@@ -21,6 +21,7 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { useRouter } from "next/navigation";
 import { getTitular } from "@/mk/utils/adapters";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
+import { getDefaultersMod } from "./config/defaultersMod";
 
 const Defaulters = () => {
   const router = useRouter();
@@ -39,28 +40,13 @@ const Defaulters = () => {
     });
     return d;
   };
-  const mod = {
-    modulo: "v3/defaulters",
-    singular: "Moroso",
-    plural: "Morosos",
-    permiso: "defaulters",
-    pagination: false,
-    extraData: true,
-    export: ["pdf", "xls"],
-    hideActions: {
-      view: true,
-      add: true,
-      edit: true,
-      del: true,
-    },
-    filter: true,
-    saveMsg: {
-      add: "Moroso creado con éxito",
-      edit: "Moroso actualizado con éxito",
-      del: "Moroso eliminado con éxito",
-    },
-    onSearch: onSearch,
-  };
+  // S38.5 (HALLAZGO-NEW-58): el mod ahora viene del factory `getDefaultersMod()`.
+  // Pineá `mod.export: false` + `mod.exportAsync: { type: "defaulters", ... }`
+  // (slot S36.5, matchea DefaulterReportType pineado en S38 backend).
+  // El pre-S38.5 pineaba `export: ["pdf", "xls"]` (array, bug type) — IconExport
+  // legacy nunca se rendereaba. S38.5 fixea con el slot async.
+  const mod = getDefaultersMod();
+  mod.onSearch = onSearch;
 
   const paramsInitial = {
     fullType: "L",
