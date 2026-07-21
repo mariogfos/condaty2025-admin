@@ -519,7 +519,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     ),
   };
 
-  const { userCan, List, onEdit, onDel, extraData, onFilter, reLoad } = useCrud(
+  const { List, onEdit, onDel, onView, extraData, onFilter } = useCrud(
     {
       paramsInitial,
       mod,
@@ -563,7 +563,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     const totalBalance = debtAmount + penaltyAmount;
 
     return (
-      <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
+      <RenderItem
+        item={item}
+        onClick={() => onView(item)}
+        onLongPress={onLongPress}
+      >
         <ItemList
           title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(finalStatus)}`}
           subtitle={`Deuda: ${formatBs(debtAmount)} | Multa: ${formatBs(penaltyAmount)} | Total: ${formatBs(totalBalance)}`}
@@ -574,7 +578,9 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     );
   };
 
-  const onClickDetail = (row: any) => {};
+  const onClickDetail = (row: any) => {
+    onView(row);
+  };
 
   return (
     <>

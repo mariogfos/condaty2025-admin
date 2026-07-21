@@ -172,6 +172,7 @@ const SecondPart = ({
       setFormState({
         ...formState,
         price: "",
+        guarantee_amount: 0,
         min_cancel_hours: "",
         penalty_fee: "",
       });
@@ -453,6 +454,15 @@ const SecondPart = ({
             label="Monto (Bs)"
             name="price"
             value={formState?.price}
+            onChange={handleChange}
+            error={errors}
+          />
+          <Br />
+          <Input
+            type="number"
+            label="Garantía (Bs)"
+            name="guarantee_amount"
+            value={formState?.guarantee_amount}
             onChange={handleChange}
             error={errors}
           />

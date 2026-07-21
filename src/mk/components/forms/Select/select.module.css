@@ -167,8 +167,8 @@
 .selectOptions {
   cursor: pointer;
   z-index: 1300;
-  width: max-content;
-  max-width: min(calc(100vw - 24px), 420px);
+  max-width: calc(100vw - 24px);
+  box-sizing: border-box;
   padding: 8px;
   background-color: rgba(18, 21, 25, 0.98);
   border: 1px solid var(--cModalBorder);

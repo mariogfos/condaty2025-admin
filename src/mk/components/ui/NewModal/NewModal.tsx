@@ -95,7 +95,11 @@ const NewModal = ({
 
   return (
     <div
-      style={{ visibility: open ? "visible" : "hidden", zIndex }}
+      style={{
+        visibility: open ? "visible" : "hidden",
+        pointerEvents: open ? "auto" : "none",
+        zIndex,
+      }}
       className={styles.dataModal}
       onClick={(e) => e.stopPropagation()}
     >

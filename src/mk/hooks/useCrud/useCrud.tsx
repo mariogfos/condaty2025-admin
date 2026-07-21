@@ -93,6 +93,10 @@ export type ModCrudType = {
   };
   getListRows?: (response: any, params?: Record<string, any>) => any[];
   reportPreset?: string;
+  validateExport?: (input: {
+    params: Record<string, any>;
+    type?: string;
+  }) => string | null | undefined | false;
 };
 
 export type TypeRenderForm = {
@@ -962,6 +966,14 @@ const useCrud = ({
   const openReportViewer = () => {
     if (!useNewReportsViewer || typeof window === "undefined") return;
 
+    const exportValidationMessage = mod?.validateExport?.({
+      params,
+      type: "pdf",
+    });
+    if (exportValidationMessage) {
+      return showToast(exportValidationMessage, "error");
+    }
+
     const nextState = encodeReportViewerState({
       params: {
         ...params,
@@ -981,6 +993,11 @@ const useCrud = ({
   ) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
+
+    const exportValidationMessage = mod?.validateExport?.({ params, type });
+    if (exportValidationMessage) {
+      return showToast(exportValidationMessage, "error");
+    }
 
     if (isExporting) return; // Evitar múltiples clics
     setIsExporting(true);
@@ -2209,6 +2226,7 @@ const useCrud = ({
           {runtime.openList && (
             <CurrentAddMenu
               filters={filters}
+              onClick={props.onAddClick}
               extraButtons={runtime.extraButtons}
               data={sortedData}
               breakPoint={props.filterBreakPoint}

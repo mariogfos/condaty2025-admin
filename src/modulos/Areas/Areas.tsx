@@ -137,6 +137,13 @@ const Areas = () => {
         list: false,
         form: { type: "number" },
       },
+      guarantee_amount: {
+        rules: ["number"],
+        api: "ae",
+        label: "Garantía",
+        list: false,
+        form: { type: "number" },
+      },
       is_free: {
         rules: ["required"],
         api: "ae",

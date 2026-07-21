@@ -11,8 +11,10 @@ import { format, parse } from "date-fns";
 import ReservationDetailModal from "./RenderView/RenderView";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import CreateReserva from "../CreateReserva/CreateReserva";
+import ReservationQuickCreateModal from "./components/ReservationQuickCreateModal";
 import { IconCalendar } from "@/components/layout/icons/IconsBiblioteca";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 import {
   RESERVATION_STATUS_CONFIG,
   RESERVATION_STATUS_OPTIONS,
@@ -24,6 +26,7 @@ import {
   shouldFetchReservationResolvedPayment,
   type ResolvedReservationPayment,
 } from "./utils/reservationPayment";
+import { getReservationUnitDisplayLabel } from "./utils/reservationUnits";
 import { AxiosContext } from "@/mk/contexts/AxiosInstanceProvider";
 
 const mod = {
@@ -108,7 +111,9 @@ const ReservationStatusBadge = ({ item }: { item: any }) => {
 };
 
 const Reserva = () => {
+  const { showToast } = useAuth();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [openQuickCreate, setOpenQuickCreate] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
     startDate?: string;
     endDate?: string;
@@ -142,7 +147,7 @@ const Reserva = () => {
       : item.status == "M"
         ? "Administración"
         : "Residente no disponible";
-    const dptoNro = dpto?.nro ? dpto.nro : "Sin Dpto.";
+    const dptoNro = dpto ? getReservationUnitDisplayLabel(dpto) : "Sin Dpto.";
 
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -321,6 +326,7 @@ const Reserva = () => {
     onEdit,
     onDel,
     onFilter,
+    reLoad,
   } = useCrud({
     paramsInitial,
     mod,
@@ -341,6 +347,13 @@ const Reserva = () => {
     <>
       <List
         height={"100%"}
+        onAddClick={() => {
+          if (!userCan(mod.permiso, "C")) {
+            showToast("No tiene permisos para crear reservas", "error");
+            return;
+          }
+          setOpenQuickCreate(true);
+        }}
         emptyMsg="Sin reservas pendientes. cuando los residentes comiencen"
         emptyLine2="a solicitar reservas de áreas sociales lo verás reflejado aquí."
         emptyIcon={<IconCalendar size={80} color="var(--cWhiteV1)" />}
@@ -355,6 +368,11 @@ const Reserva = () => {
         onSave={onSaveFilterModal}
         errorStart={customDateErrors.startDate}
         errorEnd={customDateErrors.endDate}
+      />
+      <ReservationQuickCreateModal
+        open={openQuickCreate}
+        onClose={() => setOpenQuickCreate(false)}
+        onCreated={() => reLoad()}
       />
     </>
   );

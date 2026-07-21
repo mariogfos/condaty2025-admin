@@ -24,6 +24,7 @@ import RenderForm from "../Owners/RenderForm/RenderForm";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import RenderView from "./RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { firstCountOrZero } from "@/mk/utils/dashboardCounts";
 
 const paramsInitial = {
   perPage: 20,
@@ -405,6 +406,27 @@ const Owners = () => {
     onEdit,
     onDel,
   });
+  const homeownersCount = firstCountOrZero(
+    extraData?.homeowners,
+    extraData?.homeownersCount,
+    extraData?.owners,
+    extraData?.ownersCount,
+  );
+  const residentsCount = firstCountOrZero(
+    extraData?.tenants,
+    extraData?.tenantsCount,
+    extraData?.residents,
+    extraData?.residentsCount,
+  );
+  const dependentsCount = firstCountOrZero(
+    extraData?.dependents,
+    extraData?.dependentsCount,
+  );
+  const pendingOwnersCount = firstCountOrZero(
+    extraData?.pendingOwnersCount,
+    extraData?.pendingOwners,
+    extraData?.pending,
+  );
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
@@ -435,18 +457,18 @@ const Owners = () => {
 
         <WidgetDashCard
           title="Propietarios"
-          data={String(extraData?.homeowners ?? extraData?.owners ?? 0)}
+          data={String(homeownersCount)}
           style={{ maxWidth: "250px" }}
           icon={
             <IconOwner
               color={
-                !extraData?.homeowners || (extraData?.homeowners ?? 0) === 0
+                homeownersCount === 0
                   ? "var(--cWhiteV1)"
                   : "var(--cSuccess)"
               }
               style={{
                 backgroundColor:
-                  !extraData?.homeowners || (extraData?.homeowners ?? 0) === 0
+                  homeownersCount === 0
                     ? "var(--cHover)"
                     : "var(--cHoverCompl2)",
               }}
@@ -458,18 +480,18 @@ const Owners = () => {
 
         <WidgetDashCard
           title="Residentes"
-          data={String(extraData?.tenants ?? 0)}
+          data={String(residentsCount)}
           style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson
               color={
-                !extraData?.tenants || extraData?.tenants === 0
+                residentsCount === 0
                   ? "var(--cWhiteV1)"
                   : "var(--cInfo)"
               }
               style={{
                 backgroundColor:
-                  !extraData?.tenants || extraData?.tenants === 0
+                  residentsCount === 0
                     ? "var(--cHover)"
                     : "var(--cHoverCompl3)",
               }}
@@ -481,18 +503,18 @@ const Owners = () => {
 
         <WidgetDashCard
           title="Dependientes"
-          data={String(extraData?.dependents ?? 0)}
+          data={String(dependentsCount)}
           style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson
               color={
-                !extraData?.dependents || extraData?.dependents === 0
+                dependentsCount === 0
                   ? "var(--cWhiteV1)"
                   : "var(--cWarning)"
               }
               style={{
                 backgroundColor:
-                  !extraData?.dependents || extraData?.dependents === 0
+                  dependentsCount === 0
                     ? "var(--cHover)"
                     : "var(--cHoverCompl4)",
               }}
@@ -504,11 +526,15 @@ const Owners = () => {
 
         <WidgetDashCard
           title="Por activar"
-          data={String(extraData?.pendingOwnersCount ?? 0)}
+          data={String(pendingOwnersCount)}
           style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson
-              color={"var(--cWhite)"}
+              color={
+                pendingOwnersCount === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cWhite)"
+              }
               style={{
                 backgroundColor: "var(--cHover)",
               }}
