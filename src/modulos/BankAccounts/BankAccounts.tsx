@@ -4,12 +4,13 @@ import styles from "./BankAccounts.module.css";
 import useCrudUtils from "../shared/useCrudUtils";
 import React, { useCallback, useMemo } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
-import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
+import useCrud from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { BankAccountStatus, BANK_ACCOUNT_STATUS_LABELS } from "./Type/BankType";
 import { bankAccountsApi } from "./api";
+import { getBankAccountsMod } from "./config/bankAccountsMod";
 
 const paramsInitial = {
   perPage: 20,
@@ -32,29 +33,11 @@ const centeredColumnStyle = {
 } as const;
 
 const BankAccounts = () => {
-  const mod: ModCrudType = useMemo(() => ({
-    modulo: bankAccountsApi.modulo,
-    singular: "cuenta bancaria",
-    plural: "cuentas bancarias",
-    filter: true,
-    export: true,
-    import: false,
-    permiso: "owners",
-    hideActions: {
-      edit: true,
-      del: true,
-    },
-    extraData: true,
-    renderForm: (props: any) => <RenderForm {...props} />,
-    renderView: (props: {
-      open: boolean;
-      onClose: any;
-      item: Record<string, any>;
-      onConfirm?: Function;
-      extraData?: Record<string, any>;
-      reLoad?: any;
-    }) => <RenderView {...props} />,
-  }), []);
+  // S41: mod extraído a factory `getBankAccountsMod()` (patrón S37.5 + S38.5)
+  // para permitir tests unitarios sin renderizar React. Pineá
+  // `mod.export: false` + `mod.exportAsync: { type: "bank-accounts", ... }`
+  // para migrar al flow async PDF (S32 + S41 backend BankAccountsReportType).
+  const mod = useMemo(() => getBankAccountsMod(), []);
   const getOptionsBankEntity = useCallback(
     (extraData: any) => [
       { id: "ALL", name: "Todos" },
