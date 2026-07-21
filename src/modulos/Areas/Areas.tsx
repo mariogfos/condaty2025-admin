@@ -26,6 +26,15 @@ const statusColor: any = {
 const Areas = () => {
   const [openMaintenance, setOpenMaintenance] = useState(false);
   const { store, setStore } = useAuth();
+  // S45 (D-38-5 round 2): mod literal migrado a async flow.
+  // - export: false → kill legacy IconExport (D-38-5).
+  // - exportAsync: { type: "areas", ... } → slot async pineado (S36.5
+  //   pattern, idéntico a defaultersMod S38.5 + bankAccountsMod S41 +
+  //   outlaysMod S43). matchea el AreasReportType pineado en S45 backend.
+  // Areas NO usa factory pattern (S37.5/S38.5/S41/S43) porque el mod
+  // tiene renderView/renderForm con closures internas (reLoad de useCrud).
+  // El cambio es el mínimo: solo `export: true` → `export: false +
+  // exportAsync: {...}`. La lógica de renderView/renderForm queda intacta.
   const mod = {
     modulo: "areas",
     singular: "área social",
@@ -73,7 +82,12 @@ const Areas = () => {
         />
       );
     },
-    export: true,
+    export: false,
+    exportAsync: {
+      type: "areas",
+      format: "pdf",
+      label: "Exportar PDF",
+    },
     filter: true,
   };
   const fields = useMemo(
