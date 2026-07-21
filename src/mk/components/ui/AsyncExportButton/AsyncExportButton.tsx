@@ -47,7 +47,7 @@ type PropsType = {
   label?: string;
   format?: "pdf" | "excel";
   className?: string;
-  variant?: "primary" | "secondary" | "outline";
+  variant?: "primary" | "secondary" | "terciary";
   onCompleted?: (state: AsyncExportState) => void;
   onError?: (error: string) => void;
 };
@@ -58,7 +58,7 @@ export default function AsyncExportButton({
   label = "Exportar",
   format = "pdf",
   className,
-  variant = "outline",
+  variant = "terciary",
   onCompleted,
   onError,
 }: PropsType) {

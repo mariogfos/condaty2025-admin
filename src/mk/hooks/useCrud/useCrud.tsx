@@ -1758,12 +1758,6 @@ const useCrud = ({
                     }
                     return out;
                   })()}
-                  // S33 pineó variant="outline" en AsyncExportButton,
-                  // pero Button real no acepta "outline" → styles.outline = undefined.
-                  // Pineamos "terciary" (válido en Button) en useCrud para no propagar
-                  // el bug visual. Flag en S36.5 PR para fix de raíz en S37+ (cambiar
-                  // el type del AsyncExportButton a "primary" | "secondary" | "terciary" | ...).
-                  // @ts-expect-error — S33 type pineó "outline" que no es válido; usamos "terciary"
                   variant="terciary"
                 />
               )}
