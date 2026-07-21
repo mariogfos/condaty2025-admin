@@ -31,7 +31,9 @@ export type DefaultersModType = ModCrudType & {
  * export de Defaulters estaba ROTO en producción. S38.5 lo fixea pineando
  * `export: false` (kill legacy) + `exportAsync: {...}` (slot async).
  *
- * @see HALLAZGO-NEW-58 (binding, S38) — bug pre-existente de DefaultersView
+ * @see HALLAZGO-NEW-58 (binding, S38) — bug pre-existente de DefaultersView orphaned.
+ *      Archivo `components/DefaultersView/DefaultersView.tsx` BORRADO en S40
+ *      (HALLAZGO-NEW-58 follow-up). 0 imports confirmados pre-S40.
  * @see HALLAZGO-NEW-57 (binding, cross-project) — módulos sin ReportType usan flow genérico
  * @see D-36.5-3 (S36.5) — si pinean AMBOS `mod.export: true` Y `mod.exportAsync`,
  *   el async override el legacy

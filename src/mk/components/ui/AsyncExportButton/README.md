@@ -46,7 +46,7 @@ import AsyncExportButton from "@/mk/components/ui/AsyncExportButton/AsyncExportB
 | `label` | `string` | `"Exportar"` | Texto del botón |
 | `format` | `"pdf" \| "excel"` | `"pdf"` | Formato de salida |
 | `className` | `string` | — | CSS adicional |
-| `variant` | `"primary" \| "secondary" \| "outline"` | `"outline"` | Estilo del botón |
+| `variant` | `"primary" \| "secondary" \| "terciary"` | `"terciary"` | Estilo del botón |
 | `onCompleted` | `(state) => void` | — | Callback cuando el reporte está listo |
 | `onError` | `(msg) => void` | — | Callback cuando falla |
 
