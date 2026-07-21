@@ -451,7 +451,25 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     modulo: "debt-groups",
     singular: "Deuda Compartida",
     plural: "",
-    export: true,
+    // S48: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
+    // - export: false → kill legacy GET /api/v3/debt-groups?_export=pdf.
+    // - exportAsync: {...} → slot async que useCrud auto-renderea via
+    //   AsyncExportButton (S36.5 pattern, idéntico a S41 BankAccounts,
+    //   S43 Outlays, S45 Areas, S47.5 DebtDpto).
+    // - type: "debt-groups" → matchea el DebtGroupReportType pineado en
+    //   S48-T01 backend (PR #133, ReportTypeRegistry.auto-discovery,
+    //   12 tipos).
+    // - extraParams.type: undefined → branch EXPENSE del ReportType
+    //   (7 cols agregado por debt_id/year/month). Si el usuario pinea
+    //   type=4 (SHARED), el branch cambia automáticamente (S48-T01
+    //   detectBranch).
+    // - format: "pdf" (S48-T01 pineá PDF only, no XLSX — D-48-3).
+    export: false,
+    exportAsync: {
+      type: "debt-groups",
+      format: "pdf",
+      label: "Exportar PDF",
+    },
     filter: true,
     permiso: "expense",
     extraData: true,
