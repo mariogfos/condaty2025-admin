@@ -10,15 +10,11 @@ import {
   ROLE_LABELS,
 } from "../../types/assemblies.types";
 import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
-import {
-  IconTrash,
-  IconDownload,
-} from "@/components/layout/icons/IconsBiblioteca";
+import { IconTrash } from "@/components/layout/icons/IconsBiblioteca";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useMemo } from "react";
-import { getUrlImages } from "@/mk/utils/string";
-import Button from "@/mk/components/forms/Button/Button";
+import AsyncExportButton from "@/mk/components/ui/AsyncExportButton/AsyncExportButton";
 
 // Helper para extraer solo la hora HH:MM
 const formatOnlyTime = (dateStr: string) => {
@@ -46,9 +42,11 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const { execute: fetchAttendances, loaded } = useAxios();
   const { execute: deleteAttendance } = useAxios();
-  const { execute: exportAttendances } = useAxios();
+  // S38.5: el export de attendees ahora usa el flow async canónico
+  // (POST /api/v3/reports/assemblies-attendances/export + polling)
+  // vía `<AsyncExportButton>` (S33). Se MATA el legacy useAxios al
+  // endpoint `GET /assemblies/{id}/export-attendances` (D-38-5 cleanup).
   const { showToast } = useAuth();
-  const [isExporting, setIsExporting] = useState(false);
 
   const loadAttendances = async () => {
     setIsLoading(true);
@@ -133,44 +131,6 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
     }
   };
 
-  const handleExportPdf = async () => {
-    if (attendances.length === 0) {
-      showToast("No hay asistentes para exportar", "error");
-      return;
-    }
-
-    setIsExporting(true);
-    try {
-      const { data: response, error } = await exportAttendances(
-        `/assemblies/${assemblyId}/export-attendances`,
-        "GET",
-        {},
-        false,
-        true,
-      );
-
-      if (response?.success && response?.data?.path) {
-        // Trigger download
-        const fullUrl = getUrlImages("/" + response.data.path);
-        const link = document.createElement("a");
-        link.href = fullUrl;
-        link.setAttribute("target", "_blank");
-        link.download = `asistencia_asamblea_${assemblyId}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        showToast("PDF generado con éxito", "success");
-      } else {
-        showToast(error?.data?.message || "Error al generar el PDF", "error");
-      }
-    } catch (err) {
-      console.error("Error exporting attendances:", err);
-      showToast("Error crítico al exportar", "error");
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
   const getModalityLabel = (modality: string) => {
     return modality === "P" ? "Presencial" : "Virtual";
   };
@@ -207,13 +167,19 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
             Virtual: <br /> <strong>{virtualCount}</strong>
           </span>
         )}
-        <Button
-          variant="secondary"
-          onClick={handleExportPdf}
-          disabled={isExporting || attendances.length === 0}
-        >
-          <IconDownload size={18} title="Exportar lista de asistentes a PDF" />
-        </Button>
+        {/* S38.5: AsyncExportButton reemplaza el Button+IconDownload legacy
+            (que llamaba al endpoint síncrono /export-attendances). El flow
+            async se encarga de: POST /api/v3/reports/assemblies-attendances/
+            export + polling + download modal. Si no hay attendees, el botón
+            no se renderea (mejor UX que disabled). */}
+        {attendances.length > 0 && (
+          <AsyncExportButton
+            type="assemblies-attendances"
+            params={{ assembly_id: assemblyId }}
+            label="Exportar PDF"
+            variant="secondary"
+          />
+        )}
       </div>
 
       {attendances.length === 0 ? (
