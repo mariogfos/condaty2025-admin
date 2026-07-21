@@ -3,7 +3,7 @@ import styles from "./Outlays.module.css";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo, useState } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
-import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
+import useCrud from "@/mk/hooks/useCrud/useCrud";
 import { formatNumber } from "@/mk/utils/numbers";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
@@ -17,6 +17,7 @@ import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFil
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import PerformBudget from "./PerformBudget/PerformBudget";
 import { getExpenseDescriptionSummary } from "./utils/expenseDescription";
+import { getOutlaysMod } from "./config/outlaysMod";
 
 const Outlays = () => {
   const router = useRouter();
@@ -46,30 +47,14 @@ const Outlays = () => {
     return { filterBy: currentFilters };
   };
 
-  const mod: ModCrudType = {
-    modulo: "v3/expenses",
-    singular: "Egreso",
-    plural: "Egresos",
-    filter: true,
-    export: true,
-    permiso: "outlays",
-    extraData: true,
-    renderForm: RenderForm,
-    titleAdd: "Nuevo",
-    titleDel: "Anular",
-    renderView: RenderView,
-    renderDel: RenderDel,
-    hideActions: {
-      edit: true,
-      del: true,
-    },
-    loadView: { fullType: "DET" },
-    saveMsg: {
-      add: "Egreso creado con éxito",
-      edit: "Egreso actualizado con éxito",
-      del: "Egreso anulado con éxito",
-    },
-  };
+  // S43: mod extraído a factory `getOutlaysMod()` (patrón S37.5 + S38.5 + S41)
+  // para permitir tests unitarios sin renderizar React. Pineá
+  // `mod.export: false` + `mod.exportAsync: { type: "expenses", ... }`
+  // para migrar al flow async PDF (S32 + S43 backend ExpensesReportType).
+  // S41 discovery: Outlays pineá modulo: "v3/expenses" + permiso: "outlays"
+  // — es un alias del módulo Expenses canónico. El type "expenses" del
+  // slot async matchea el ExpensesReportType pineado en S43 backend.
+  const mod = useMemo(() => getOutlaysMod(), []);
   const paramsInitial = {
     perPage: 20,
     page: 1,
