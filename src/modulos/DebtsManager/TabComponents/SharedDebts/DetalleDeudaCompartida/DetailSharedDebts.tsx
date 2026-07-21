@@ -249,7 +249,28 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     modulo: "v3/debt-dptos",
     singular: "Detalle",
     plural: "Detalles",
-    export: true,
+    // S47.5: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
+    // - export: false → kill legacy GET /api/v3/debt-dptos?_export=pdf.
+    // - exportAsync: {...} → slot async que useCrud auto-renderea via
+    //   AsyncExportButton (S36.5 pattern, idéntico a S41 BankAccounts,
+    //   S43 Outlays, S45 Areas).
+    // - type: "debt-dptos" → matchea el DebtDptoReportType pineado en
+    //   S47 backend (ReportTypeRegistry.auto-discovery, 11 tipos).
+    // - extraParams.type: 1 (EXPENSE) + debt_id dinámico → branch EXPENSE
+    //   del ReportType (8 cols: unidad, fecha_pago_date3, fecha_plazo_date3,
+    //   estado, monto_cur, multa_cur, mv_cur, total_sum_cur).
+    //   El debtId es un PROP del componente (SharedDebts → DetailSharedDebts
+    //   navega con el debt_id específico de la shared debt seleccionada).
+    //   Como el mod se declara en el render, extraParams lee `debtId` del
+    //   closure del componente — funciona en cada render.
+    // - format: "pdf" (S47 pineá PDF only, no XLSX — D-47-3).
+    export: false,
+    exportAsync: {
+      type: "debt-dptos",
+      format: "pdf",
+      label: "Exportar PDF",
+      extraParams: { type: 1, debt_id: debtId },
+    },
     filter: false,
     permiso: "expense",
     extraData: true,
