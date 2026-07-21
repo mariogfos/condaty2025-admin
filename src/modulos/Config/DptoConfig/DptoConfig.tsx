@@ -37,8 +37,61 @@ const paymentMethodOptions = [
   { id: "W", name: "WhatsApp" },
 ] as const;
 
+const operationalActionOptions = [
+  { id: "invitation", name: "QR" },
+  { id: "visit_approval", name: "Visitas" },
+  { id: "reservation", name: "Reservas" },
+  { id: "alert", name: "Alertas" },
+] as const;
+
+const operationalRoleOptions = [
+  {
+    id: "homeowner_resident",
+    name: "Propietario residente",
+    description: "Propietario que también vive en la unidad.",
+  },
+  {
+    id: "homeowner_resident_dependent",
+    name: "Dep. prop. residente",
+    description: "Dependiente de propietario residente.",
+  },
+  {
+    id: "homeowner_non_resident",
+    name: "Propietario no residente",
+    description: "Propietario que no vive en la unidad.",
+  },
+  {
+    id: "homeowner_non_resident_dependent",
+    name: "Dep. prop. no residente",
+    description: "Dependiente de propietario no residente.",
+  },
+  {
+    id: "tenant",
+    name: "Inquilino",
+    description: "Residente asignado como inquilino.",
+  },
+  {
+    id: "tenant_dependent",
+    name: "Dep. inquilino",
+    description: "Dependiente de inquilino.",
+  },
+] as const;
+
 type PaymentDebtType = (typeof paymentDebtTypes)[number]["id"];
 type PaymentMethod = (typeof paymentMethodOptions)[number]["id"];
+type OperationalAction = (typeof operationalActionOptions)[number]["id"];
+type OperationalRole = (typeof operationalRoleOptions)[number]["id"];
+type OperationalPermissionsConfig = Record<
+  OperationalRole,
+  Record<OperationalAction, boolean>
+>;
+
+const legacyOperationalActionFieldNames: Record<OperationalAction, string> = {
+  invitation: "owner_can_invite_without_residence",
+  visit_approval: "owner_can_approve_visits_without_residence",
+  reservation: "owner_can_reserve_without_residence",
+  alert: "owner_can_alert_without_residence",
+};
 
 const normalizePaymentMethodsConfig = (value: any) => {
   const parsed =
@@ -52,33 +105,99 @@ const normalizePaymentMethodsConfig = (value: any) => {
         })()
       : value || {};
 
-  return paymentDebtTypes.reduce((acc, debtType) => {
-    const methods = Array.isArray(parsed?.[debtType.id])
-      ? parsed[debtType.id]
-      : DEFAULT_PAYMENT_METHODS_CONFIG[debtType.id];
+  return paymentDebtTypes.reduce(
+    (acc, debtType) => {
+      const methods = Array.isArray(parsed?.[debtType.id])
+        ? parsed[debtType.id]
+        : DEFAULT_PAYMENT_METHODS_CONFIG[debtType.id];
 
-    acc[debtType.id] = Array.from(
-      new Set(
-        methods
-          .map((method: any) => String(method).toUpperCase())
-          .filter((method: any) =>
-            paymentMethodOptions.some((option) => option.id === method),
-          ),
-      ),
-    );
-    return acc;
-  }, {} as Record<PaymentDebtType, string[]>);
+      acc[debtType.id] = Array.from(
+        new Set(
+          methods
+            .map((method: any) => String(method).toUpperCase())
+            .filter((method: any) =>
+              paymentMethodOptions.some((option) => option.id === method),
+            ),
+        ),
+      );
+      return acc;
+    },
+    {} as Record<PaymentDebtType, string[]>,
+  );
 };
 
-const hasWhatsAppPaymentMethod = (
-  config: Record<PaymentDebtType, string[]>,
-) => paymentDebtTypes.some((debtType) => config[debtType.id]?.includes("W"));
+const hasWhatsAppPaymentMethod = (config: Record<PaymentDebtType, string[]>) =>
+  paymentDebtTypes.some((debtType) => config[debtType.id]?.includes("W"));
 
 const getSingleUrl = (value: unknown) => {
   if (Array.isArray(value)) {
     return value[0] || "";
   }
   return typeof value === "string" ? value : "";
+};
+
+const isEnabledConfigValue = (value: unknown) =>
+  Number(value) === 1 || value === true || value === "Y";
+
+const buildDefaultOperationalPermissionsConfig = (
+  client_config: Record<string, any> = {},
+): OperationalPermissionsConfig => {
+  const residentDefaults = operationalActionOptions.reduce(
+    (acc, action) => ({ ...acc, [action.id]: true }),
+    {} as Record<OperationalAction, boolean>,
+  );
+  const nonResidentOwnerDefaults = operationalActionOptions.reduce(
+    (acc, action) => ({
+      ...acc,
+      [action.id]: isEnabledConfigValue(
+        client_config?.[legacyOperationalActionFieldNames[action.id]],
+      ),
+    }),
+    {} as Record<OperationalAction, boolean>,
+  );
+
+  return {
+    homeowner_resident: { ...residentDefaults },
+    homeowner_resident_dependent: { ...residentDefaults },
+    homeowner_non_resident: { ...nonResidentOwnerDefaults },
+    homeowner_non_resident_dependent: { ...nonResidentOwnerDefaults },
+    tenant: { ...residentDefaults },
+    tenant_dependent: { ...residentDefaults },
+  };
+};
+
+const normalizeOperationalPermissionsConfig = (
+  value: any,
+  client_config: Record<string, any> = {},
+): OperationalPermissionsConfig => {
+  const parsed =
+    typeof value === "string"
+      ? (() => {
+          try {
+            return JSON.parse(value);
+          } catch {
+            return {};
+          }
+        })()
+      : value || {};
+  const config = buildDefaultOperationalPermissionsConfig(client_config);
+
+  operationalRoleOptions.forEach((role) => {
+    operationalActionOptions.forEach((action) => {
+      if (
+        Object.prototype.hasOwnProperty.call(
+          parsed?.[role.id] || {},
+          action.id,
+        )
+      ) {
+        config[role.id][action.id] = isEnabledConfigValue(
+          parsed[role.id][action.id],
+        );
+      }
+    });
+  });
+
+  return config;
 };
 
 const createFormState = (client_config: Record<string, any>) => ({
@@ -105,6 +224,14 @@ const createFormState = (client_config: Record<string, any>) => ({
     Number(client_config?.has_soft_reservation) === 1 ||
     client_config?.has_soft_reservation === true ||
     client_config?.has_soft_reservation === "Y",
+  has_reservation_advance_limit:
+    Number(client_config?.has_reservation_advance_limit) === 1 ||
+    client_config?.has_reservation_advance_limit === true ||
+    client_config?.has_reservation_advance_limit === "Y",
+  operational_permissions_config: normalizeOperationalPermissionsConfig(
+    client_config?.operational_permissions_config,
+    client_config,
+  ),
   has_tasks_visible:
     Number(client_config?.has_tasks_visible) === 1 ||
     client_config?.has_tasks_visible === true ||
@@ -135,19 +262,21 @@ const getComparableState = (formState: Record<string, any>) => ({
   payment_methods_config: normalizePaymentMethodsConfig(
     formState.payment_methods_config,
   ),
+  operational_permissions_config: normalizeOperationalPermissionsConfig(
+    formState.operational_permissions_config,
+  ),
   payment_time_limit: formState.bookingRequiresPayment
     ? formState.payment_time_limit || ""
     : null,
 });
 
-const DptoConfig = ({
-  client_config,
-  onSave,
-  mode = "condo",
-}: PropsType) => {
+const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
   const { showToast } = useAuth();
   const isRulesMode = mode === "rules";
-  const initialState = useMemo(() => createFormState(client_config), [client_config]);
+  const initialState = useMemo(
+    () => createFormState(client_config),
+    [client_config],
+  );
   const [formState, setFormState] = useState(initialState);
   const [editMode, setEditMode] = useState(false);
   const [openAccordions, setOpenAccordions] = useState({
@@ -266,6 +395,13 @@ const DptoConfig = ({
         ...prev,
         has_soft_reservation: isEnabled,
       }));
+    } else if (name === "has_reservation_advance_limit") {
+      const isEnabled = value === "Y";
+
+      setFormState((prev: any) => ({
+        ...prev,
+        has_reservation_advance_limit: isEnabled,
+      }));
     } else if (name === "has_tasks_visible") {
       const isEnabled = value === "Y";
 
@@ -275,6 +411,29 @@ const DptoConfig = ({
       }));
     }
   };
+
+  const handleOperationalPermissionSwitch =
+    (role: OperationalRole, action: OperationalAction) =>
+    ({ target: { value } }: any) => {
+      const isEnabled = value === "Y";
+
+      setFormState((prev: any) => {
+        const currentConfig = normalizeOperationalPermissionsConfig(
+          prev.operational_permissions_config,
+        );
+
+        return {
+          ...prev,
+          operational_permissions_config: {
+            ...currentConfig,
+            [role]: {
+              ...currentConfig[role],
+              [action]: isEnabled,
+            },
+          },
+        };
+      });
+    };
 
   const handlePaymentMethodSwitch =
     (debtType: PaymentDebtType, method: PaymentMethod) =>
@@ -530,15 +689,21 @@ const DptoConfig = ({
   const paymentMethodsConfig = normalizePaymentMethodsConfig(
     formState.payment_methods_config,
   );
-  const whatsappPaymentEnabled =
-    hasWhatsAppPaymentMethod(paymentMethodsConfig);
+  const operationalPermissionsConfig = normalizeOperationalPermissionsConfig(
+    formState.operational_permissions_config,
+  );
+  const whatsappPaymentEnabled = hasWhatsAppPaymentMethod(paymentMethodsConfig);
 
   return (
-    <div className={`${styles.Config} ${isRulesMode ? styles.compactMode : ""}`}>
+    <div
+      className={`${styles.Config} ${isRulesMode ? styles.compactMode : ""}`}
+    >
       <div className={styles.headerRow}>
         <div className={styles.headerContent}>
           <h1 className={styles.mainTitle}>
-            {isRulesMode ? "Reglas operativas" : "Datos generales del condominio"}
+            {isRulesMode
+              ? "Reglas operativas"
+              : "Datos generales del condominio"}
           </h1>
           <p className={styles.mainSubtitle}>
             {isRulesMode
@@ -948,66 +1113,158 @@ const DptoConfig = ({
                 className={`${styles.accordionChevron} ${openAccordions.reservas ? styles.accordionChevronOpen : ""}`}
               />
             </button>
-            {openAccordions.reservas && <div className={styles.accordionDivider} />}
+            {openAccordions.reservas && (
+              <div className={styles.accordionDivider} />
+            )}
 
             <div
               className={`${styles.accordionBody} ${openAccordions.reservas ? styles.accordionBodyOpen : ""}`}
             >
               <div className={styles.settingsStack}>
-              <div className={styles.switchContainer}>
-                <div className={styles.switchContent}>
+                <div className={styles.switchContainer}>
+                  <div className={styles.switchContent}>
+                    <p className={styles.textTitle}>
+                      Reservas requieren pago obligatorio
+                    </p>
+                    <p className={styles.textSubtitle}>
+                      Exige un pago para confirmar reservas y define un tiempo
+                      límite para completarlo.
+                    </p>
+                  </div>
+                  <Switch
+                    name="bookingRequiresPayment"
+                    label=""
+                    value={formState.bookingRequiresPayment ? "Y" : "N"}
+                    onChange={handleSwitchChange}
+                    optionValue={["Y", "N"]}
+                    checked={formState.bookingRequiresPayment}
+                    disabled={!editMode}
+                  />
+                </div>
+
+                {formState.bookingRequiresPayment && (
+                  <Input
+                    type="number"
+                    label="Tiempo límite para pago (horas)"
+                    name="payment_time_limit"
+                    error={errors}
+                    value={formState.payment_time_limit || ""}
+                    onChange={handleTimeChange}
+                    className="dark-input"
+                    min="1"
+                    max="400"
+                    placeholder="Máximo 400 horas"
+                    disabled={!editMode}
+                  />
+                )}
+
+                <div className={styles.switchContainer}>
+                  <div className={styles.switchContent}>
+                    <p className={styles.textTitle}>
+                      Respetar anticipación mínima por área
+                    </p>
+                    <p className={styles.textSubtitle}>
+                      Bloquea para residentes los turnos que no cumplan las
+                      horas de anticipación configuradas en cada área social.
+                    </p>
+                  </div>
+                  <Switch
+                    name="has_reservation_advance_limit"
+                    label=""
+                    value={formState.has_reservation_advance_limit ? "Y" : "N"}
+                    onChange={handleSwitchChange}
+                    optionValue={["Y", "N"]}
+                    checked={formState.has_reservation_advance_limit}
+                    disabled={!editMode}
+                  />
+                </div>
+
+                <div className={styles.switchContainer}>
+                  <div className={styles.switchContent}>
+                    <p className={styles.textTitle}>
+                      Bloquear reservas en soft ban
+                    </p>
+                    <p className={styles.textSubtitle}>
+                      Impide que residentes en soft ban realicen reservas.
+                    </p>
+                  </div>
+                  <Switch
+                    name="has_soft_reservation"
+                    label=""
+                    value={formState.has_soft_reservation ? "Y" : "N"}
+                    onChange={handleSwitchChange}
+                    optionValue={["Y", "N"]}
+                    checked={formState.has_soft_reservation}
+                    disabled={!editMode}
+                  />
+                </div>
+
+                <div className={styles.sectionDivider} />
+
+                <div className={styles.cardHeader}>
                   <p className={styles.textTitle}>
-                    Reservas requieren pago obligatorio
+                    Permisos operativos por vínculo
                   </p>
                   <p className={styles.textSubtitle}>
-                    Exige un pago para confirmar reservas y define un tiempo
-                    límite para completarlo.
+                    Controla qué puede hacer cada perfil y sus dependientes en
+                    la app y en guardia.
                   </p>
                 </div>
-                <Switch
-                  name="bookingRequiresPayment"
-                  label=""
-                  value={formState.bookingRequiresPayment ? "Y" : "N"}
-                  onChange={handleSwitchChange}
-                  optionValue={["Y", "N"]}
-                  checked={formState.bookingRequiresPayment}
-                  disabled={!editMode}
-                />
-              </div>
 
-              {formState.bookingRequiresPayment && (
-                <Input
-                  type="number"
-                  label="Tiempo límite para pago (horas)"
-                  name="payment_time_limit"
-                  error={errors}
-                  value={formState.payment_time_limit || ""}
-                  onChange={handleTimeChange}
-                  className="dark-input"
-                  min="1"
-                  max="400"
-                  placeholder="Máximo 400 horas"
-                  disabled={!editMode}
-                />
-              )}
+                <div className={styles.permissionMatrix}>
+                  <div
+                    className={`${styles.permissionMatrixRow} ${styles.permissionMatrixHeader}`}
+                  >
+                    <div>Vínculo</div>
+                    {operationalActionOptions.map((action) => (
+                      <div key={action.id}>{action.name}</div>
+                    ))}
+                  </div>
 
-              <div className={styles.switchContainer}>
-                <div className={styles.switchContent}>
-                  <p className={styles.textTitle}>Bloquear reservas en soft ban</p>
-                  <p className={styles.textSubtitle}>
-                    Impide que residentes en soft ban realicen reservas.
-                  </p>
+                  {operationalRoleOptions.map((role) => (
+                    <div className={styles.permissionMatrixRow} key={role.id}>
+                      <div className={styles.permissionRoleCell}>
+                        <span className={styles.permissionRoleName}>
+                          {role.name}
+                        </span>
+                        <span className={styles.permissionRoleDescription}>
+                          {role.description}
+                        </span>
+                      </div>
+
+                      {operationalActionOptions.map((action) => (
+                        <div
+                          className={styles.permissionActionCell}
+                          key={`${role.id}-${action.id}`}
+                        >
+                          <span className={styles.permissionMobileLabel}>
+                            {action.name}
+                          </span>
+                          <Switch
+                            name={`${role.id}_${action.id}`}
+                            label=""
+                            value={
+                              operationalPermissionsConfig[role.id]?.[action.id]
+                                ? "Y"
+                                : "N"
+                            }
+                            onChange={handleOperationalPermissionSwitch(
+                              role.id,
+                              action.id,
+                            )}
+                            optionValue={["Y", "N"]}
+                            checked={Boolean(
+                              operationalPermissionsConfig[role.id]?.[
+                                action.id
+                              ],
+                            )}
+                            disabled={!editMode}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ))}
                 </div>
-                <Switch
-                  name="has_soft_reservation"
-                  label=""
-                  value={formState.has_soft_reservation ? "Y" : "N"}
-                  onChange={handleSwitchChange}
-                  optionValue={["Y", "N"]}
-                  checked={formState.has_soft_reservation}
-                  disabled={!editMode}
-                />
-              </div>
               </div>
             </div>
           </section>
@@ -1031,166 +1288,170 @@ const DptoConfig = ({
                 className={`${styles.accordionChevron} ${openAccordions.finanzas ? styles.accordionChevronOpen : ""}`}
               />
             </button>
-            {openAccordions.finanzas && <div className={styles.accordionDivider} />}
+            {openAccordions.finanzas && (
+              <div className={styles.accordionDivider} />
+            )}
 
             <div
               className={`${styles.accordionBody} ${openAccordions.finanzas ? styles.accordionBodyOpen : ""}`}
             >
               <div className={styles.settingsStack}>
-              <div className={styles.switchContainer}>
-                <div className={styles.switchContent}>
-                  <p className={styles.textTitle}>
-                    Mantenimiento de valor en el condominio
-                  </p>
+                <div className={styles.switchContainer}>
+                  <div className={styles.switchContent}>
+                    <p className={styles.textTitle}>
+                      Mantenimiento de valor en el condominio
+                    </p>
+                    <p className={styles.textSubtitle}>
+                      Aplica mantenimiento de valor a reservas, deudas y fondos
+                      del condominio.
+                    </p>
+                  </div>
+                  <Switch
+                    name="has_maintenance_value"
+                    label=""
+                    value={formState.has_maintenance_value ? "Y" : "N"}
+                    onChange={handleSwitchChange}
+                    optionValue={["Y", "N"]}
+                    checked={formState.has_maintenance_value}
+                    disabled={!editMode}
+                  />
+                </div>
+
+                <div className={styles.sectionDivider} />
+
+                <div className={styles.cardHeader}>
+                  <p className={styles.textTitle}>Métodos de pago por deuda</p>
                   <p className={styles.textSubtitle}>
-                    Aplica mantenimiento de valor a reservas, deudas y fondos
-                    del condominio.
+                    Configura qué alternativas verá el residente según el tipo
+                    de deuda seleccionada.
                   </p>
                 </div>
-                <Switch
-                  name="has_maintenance_value"
-                  label=""
-                  value={formState.has_maintenance_value ? "Y" : "N"}
-                  onChange={handleSwitchChange}
-                  optionValue={["Y", "N"]}
-                  checked={formState.has_maintenance_value}
-                  disabled={!editMode}
-                />
-              </div>
 
-              <div className={styles.sectionDivider} />
+                <div className={styles.paymentMethodsMatrix}>
+                  {paymentDebtTypes.map((debtType) => (
+                    <div className={styles.paymentMethodRow} key={debtType.id}>
+                      <div className={styles.paymentMethodHeader}>
+                        <p className={styles.textTitle}>{debtType.name}</p>
+                      </div>
 
-              <div className={styles.cardHeader}>
-                <p className={styles.textTitle}>Métodos de pago por deuda</p>
-                <p className={styles.textSubtitle}>
-                  Configura qué alternativas verá el residente según el tipo de
-                  deuda seleccionada.
-                </p>
-              </div>
+                      <div className={styles.paymentMethodToggles}>
+                        {paymentMethodOptions.map((method) => (
+                          <div
+                            className={styles.paymentMethodToggle}
+                            key={`${debtType.id}-${method.id}`}
+                          >
+                            <span>{method.name}</span>
+                            <Switch
+                              name={`${debtType.id}_${method.id}`}
+                              label=""
+                              value={
+                                paymentMethodsConfig[debtType.id]?.includes(
+                                  method.id,
+                                )
+                                  ? "Y"
+                                  : "N"
+                              }
+                              onChange={handlePaymentMethodSwitch(
+                                debtType.id,
+                                method.id,
+                              )}
+                              optionValue={["Y", "N"]}
+                              checked={Boolean(
+                                paymentMethodsConfig[debtType.id]?.includes(
+                                  method.id,
+                                ),
+                              )}
+                              disabled={!editMode}
+                            />
+                          </div>
+                        ))}
+                      </div>
 
-              <div className={styles.paymentMethodsMatrix}>
-                {paymentDebtTypes.map((debtType) => (
-                  <div className={styles.paymentMethodRow} key={debtType.id}>
-                    <div className={styles.paymentMethodHeader}>
-                      <p className={styles.textTitle}>{debtType.name}</p>
+                      {errors?.[`payment_methods_config_${debtType.id}`] && (
+                        <p className={styles.paymentMethodError}>
+                          {errors[`payment_methods_config_${debtType.id}`]}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {whatsappPaymentEnabled && (
+                  <Input
+                    type="text"
+                    label="Número de WhatsApp para pagos"
+                    name="payment_whatsapp_phone"
+                    error={errors}
+                    value={formState.payment_whatsapp_phone}
+                    onChange={handleWhatsAppPhoneChange}
+                    className="dark-input"
+                    maxLength={20}
+                    placeholder="59170000000"
+                    disabled={!editMode}
+                  />
+                )}
+
+                <div className={styles.sectionDivider} />
+
+                <div className={styles.switchContainer}>
+                  <div className={styles.switchContent}>
+                    <p className={styles.textTitle}>
+                      Mostrar resumen financiero
+                    </p>
+                    <p className={styles.textSubtitle}>
+                      Habilita el resumen financiero en la vista principal del
+                      condominio.
+                    </p>
+                  </div>
+                  <Switch
+                    name="has_financial_data"
+                    label=""
+                    value={formState.has_financial_data ? "1" : "0"}
+                    onChange={handleSwitchChange}
+                    optionValue={["1", "0"]}
+                    checked={formState.has_financial_data}
+                    disabled={!editMode}
+                  />
+                </div>
+
+                {formState.has_financial_data && (
+                  <>
+                    <div className={styles.switchContainer}>
+                      <div className={styles.switchContent}>
+                        <p className={styles.textTitle}>Mostrar deudas</p>
+                        <p className={styles.textSubtitle}>
+                          Incluye deudas dentro del resumen financiero del
+                          condominio.
+                        </p>
+                      </div>
+                      <Switch
+                        name="has_financial_debt"
+                        label=""
+                        value={formState.has_financial_debt ? "1" : "0"}
+                        onChange={handleSwitchChange}
+                        optionValue={["1", "0"]}
+                        checked={formState.has_financial_debt}
+                        disabled={!editMode}
+                      />
                     </div>
 
-                    <div className={styles.paymentMethodToggles}>
-                      {paymentMethodOptions.map((method) => (
-                        <div
-                          className={styles.paymentMethodToggle}
-                          key={`${debtType.id}-${method.id}`}
-                        >
-                          <span>{method.name}</span>
-                          <Switch
-                            name={`${debtType.id}_${method.id}`}
-                            label=""
-                            value={
-                              paymentMethodsConfig[debtType.id]?.includes(
-                                method.id,
-                              )
-                                ? "Y"
-                                : "N"
-                            }
-                            onChange={handlePaymentMethodSwitch(
-                              debtType.id,
-                              method.id,
-                            )}
-                            optionValue={["Y", "N"]}
-                            checked={Boolean(
-                              paymentMethodsConfig[debtType.id]?.includes(
-                                method.id,
-                              ),
-                            )}
-                            disabled={!editMode}
-                          />
-                        </div>
-                      ))}
-                    </div>
-
-                    {errors?.[`payment_methods_config_${debtType.id}`] && (
-                      <p className={styles.paymentMethodError}>
-                        {errors[`payment_methods_config_${debtType.id}`]}
-                      </p>
+                    {formState.has_financial_debt && (
+                      <Select
+                        name="financial_mode"
+                        label="Modo de finanzas"
+                        value={formState.financial_mode}
+                        onChange={handleChange}
+                        options={[
+                          { id: 1, name: "Solo expensas" },
+                          { id: 2, name: "Expensas y multas separados" },
+                          { id: 3, name: "Expensas y multas juntos" },
+                        ]}
+                        error={errors}
+                        disabled={!editMode}
+                      />
                     )}
-                  </div>
-                ))}
-              </div>
-
-              {whatsappPaymentEnabled && (
-                <Input
-                  type="text"
-                  label="Número de WhatsApp para pagos"
-                  name="payment_whatsapp_phone"
-                  error={errors}
-                  value={formState.payment_whatsapp_phone}
-                  onChange={handleWhatsAppPhoneChange}
-                  className="dark-input"
-                  maxLength={20}
-                  placeholder="59170000000"
-                  disabled={!editMode}
-                />
-              )}
-
-              <div className={styles.sectionDivider} />
-
-              <div className={styles.switchContainer}>
-                <div className={styles.switchContent}>
-                  <p className={styles.textTitle}>Mostrar resumen financiero</p>
-                  <p className={styles.textSubtitle}>
-                    Habilita el resumen financiero en la vista principal del
-                    condominio.
-                  </p>
-                </div>
-                <Switch
-                  name="has_financial_data"
-                  label=""
-                  value={formState.has_financial_data ? "1" : "0"}
-                  onChange={handleSwitchChange}
-                  optionValue={["1", "0"]}
-                  checked={formState.has_financial_data}
-                  disabled={!editMode}
-                />
-              </div>
-
-              {formState.has_financial_data && (
-                <>
-                  <div className={styles.switchContainer}>
-                    <div className={styles.switchContent}>
-                      <p className={styles.textTitle}>Mostrar deudas</p>
-                      <p className={styles.textSubtitle}>
-                        Incluye deudas dentro del resumen financiero del
-                        condominio.
-                      </p>
-                    </div>
-                    <Switch
-                      name="has_financial_debt"
-                      label=""
-                      value={formState.has_financial_debt ? "1" : "0"}
-                      onChange={handleSwitchChange}
-                      optionValue={["1", "0"]}
-                      checked={formState.has_financial_debt}
-                      disabled={!editMode}
-                    />
-                  </div>
-
-                  {formState.has_financial_debt && (
-                    <Select
-                      name="financial_mode"
-                      label="Modo de finanzas"
-                      value={formState.financial_mode}
-                      onChange={handleChange}
-                      options={[
-                        { id: 1, name: "Solo expensas" },
-                        { id: 2, name: "Expensas y multas separados" },
-                        { id: 3, name: "Expensas y multas juntos" },
-                      ]}
-                      error={errors}
-                      disabled={!editMode}
-                    />
-                  )}
-                </>
-              )}
+                  </>
+                )}
               </div>
             </div>
           </section>
@@ -1213,32 +1474,34 @@ const DptoConfig = ({
                 className={`${styles.accordionChevron} ${openAccordions.tareas ? styles.accordionChevronOpen : ""}`}
               />
             </button>
-            {openAccordions.tareas && <div className={styles.accordionDivider} />}
+            {openAccordions.tareas && (
+              <div className={styles.accordionDivider} />
+            )}
 
             <div
               className={`${styles.accordionBody} ${openAccordions.tareas ? styles.accordionBodyOpen : ""}`}
             >
               <div className={styles.settingsStack}>
-              <div className={styles.switchContainer}>
-                <div className={styles.switchContent}>
-                  <p className={styles.textTitle}>
-                    Tareas visibles para residentes por defecto
-                  </p>
-                  <p className={styles.textSubtitle}>
-                    Define si las tareas nuevas nacen públicas o privadas para
-                    los residentes.
-                  </p>
+                <div className={styles.switchContainer}>
+                  <div className={styles.switchContent}>
+                    <p className={styles.textTitle}>
+                      Tareas visibles para residentes por defecto
+                    </p>
+                    <p className={styles.textSubtitle}>
+                      Define si las tareas nuevas nacen públicas o privadas para
+                      los residentes.
+                    </p>
+                  </div>
+                  <Switch
+                    name="has_tasks_visible"
+                    label=""
+                    value={formState.has_tasks_visible ? "Y" : "N"}
+                    onChange={handleSwitchChange}
+                    optionValue={["Y", "N"]}
+                    checked={formState.has_tasks_visible}
+                    disabled={!editMode}
+                  />
                 </div>
-                <Switch
-                  name="has_tasks_visible"
-                  label=""
-                  value={formState.has_tasks_visible ? "Y" : "N"}
-                  onChange={handleSwitchChange}
-                  optionValue={["Y", "N"]}
-                  checked={formState.has_tasks_visible}
-                  disabled={!editMode}
-                />
-              </div>
               </div>
             </div>
           </section>

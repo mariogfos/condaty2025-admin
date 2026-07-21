@@ -33,6 +33,7 @@ import ContentRenderView from "@/modulos/Contents/RenderView/RenderView";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
 import { AssemblyDashboardCard } from "@/modulos/Assemblies/components/AssemblyDashboardCard/AssemblyDashboardCard";
+import { firstCountOrZero } from "@/mk/utils/dashboardCounts";
 
 const paramsInitial = {
   fullType: "L",
@@ -88,6 +89,23 @@ const HomePage = () => {
   } = useAxios("/dashboard", "GET", {
     ...paramsInitial,
   });
+  const dashboardData = dashboard?.data ?? {};
+  const administratorsCount = firstCountOrZero(
+    dashboardData.adminsCount,
+    dashboardData.administratorsCount,
+    dashboardData.admins,
+  );
+  const residentsCount = firstCountOrZero(
+    dashboardData.residentsCount,
+    dashboardData.tenantsCount,
+    dashboardData.residents,
+    dashboardData.tenants,
+    dashboardData.ownersCount,
+  );
+  const guardsCount = firstCountOrZero(
+    dashboardData.guardsCount,
+    dashboardData.guards,
+  );
 
   const today = new Date();
   const monthLabel = new Intl.DateTimeFormat(localeTag, {
@@ -368,9 +386,9 @@ const HomePage = () => {
             {!isMobile && (
               <WidgetBase variant={"V1"} title={translate("usersSummary")} subtitle={translate("usersSummarySubtitle")} className={styles.summaryWidgetEqualHeight} style={{ maxHeight: "max-content" }}>
                 <div className={styles.widgetsResumeContainer}>
-                  <WidgetDashCard title={translate("administrators")} data={formatNumber(dashboard?.data?.adminsCount, 0)} tooltip={true} tooltipTitle={translate("administratorsTooltip")} tooltipColor="var(--cWhiteV1)" tooltipPosition="left" tooltipWidth={500} />
-                  <WidgetDashCard title={translate("residents")} data={formatNumber(dashboard?.data?.ownersCount, 0)} tooltip={true} tooltipTitle={translate("residentsTooltip")} tooltipColor="var(--cWhiteV1)" tooltipPosition="left" tooltipWidth={500} />
-                  <WidgetDashCard title={translate("guards")} data={formatNumber(dashboard?.data?.guardsCount, 0)} tooltip={true} tooltipTitle={translate("guardsTooltip")} tooltipColor="var(--cWhiteV1)" tooltipPosition="left" tooltipWidth={500} />
+                  <WidgetDashCard title={translate("administrators")} data={formatNumber(administratorsCount, 0)} tooltip={true} tooltipTitle={translate("administratorsTooltip")} tooltipColor="var(--cWhiteV1)" tooltipPosition="left" tooltipWidth={500} />
+                  <WidgetDashCard title={translate("residents")} data={formatNumber(residentsCount, 0)} tooltip={true} tooltipTitle={translate("residentsTooltip")} tooltipColor="var(--cWhiteV1)" tooltipPosition="left" tooltipWidth={500} />
+                  <WidgetDashCard title={translate("guards")} data={formatNumber(guardsCount, 0)} tooltip={true} tooltipTitle={translate("guardsTooltip")} tooltipColor="var(--cWhiteV1)" tooltipPosition="left" tooltipWidth={500} />
                 </div>
               </WidgetBase>
             )}

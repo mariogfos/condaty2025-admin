@@ -204,6 +204,14 @@ const UnitInfo = ({
             </span>
           </div>
           <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Recibe visitas</span>
+            <span className={styles.infoValue}>
+              {datas?.data?.can_receive_visits === false
+                ? "Desactivado"
+                : "Activo"}
+            </span>
+          </div>
+          <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Paga las expensas:</span>
             <div style={{ position: "relative" }}>
               <button

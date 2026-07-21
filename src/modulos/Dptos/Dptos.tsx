@@ -9,6 +9,10 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getFullName, getUrlImages, pluralize } from "@/mk/utils/string";
+import {
+  getUnitTotalCount,
+  getUnitTypeCounts,
+} from "@/mk/utils/dashboardCounts";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useRouter } from "next/navigation";
 import { UnitsType } from "@/mk/utils/utils";
@@ -392,6 +396,14 @@ const Dptos = () => {
     onEdit,
     onDel,
   });
+  const unitTypeCounts = useMemo(
+    () => getUnitTypeCounts(extraData?.units),
+    [extraData?.units],
+  );
+  const totalUnitsCount = useMemo(
+    () => getUnitTotalCount(extraData?.units, data?.message?.total),
+    [data?.message?.total, extraData?.units],
+  );
   const handleRowClick = (item: any) => {
     router.push(`/units/${item.id}`);
   };
@@ -455,17 +467,6 @@ const Dptos = () => {
     );
   };
 
-  const getFormatTypeUnit = () => {
-    let untis: any = [];
-    Object?.keys(extraData?.units || {}).map((c: any, i: number) => {
-      if (i !== 0) {
-        untis.push({ id: c, name: c, value: extraData?.units[c] });
-      }
-    });
-
-    return untis;
-  };
-
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.departamentos}>
@@ -473,18 +474,18 @@ const Dptos = () => {
       <div className={styles.allStatsRow}>
         <WidgetDashCard
           title={"Unidades totales"}
-          data={data?.message?.total || 0}
+          data={totalUnitsCount}
           style={{ minWidth: "280px", maxWidth: "260px" }}
           icon={
             <IconUnidades
               color={
-                !data?.message?.total || data?.message?.total === 0
+                totalUnitsCount === 0
                   ? "var(--cWhiteV1)"
                   : "var(--cInfo)"
               }
               style={{
                 backgroundColor:
-                  !data?.message?.total || data?.message?.total === 0
+                  totalUnitsCount === 0
                     ? "var(--cHover)"
                     : "var(--cHoverCompl3)",
               }}
@@ -493,7 +494,7 @@ const Dptos = () => {
             />
           }
         />
-        {getFormatTypeUnit().map((item: any, i: number) => {
+        {unitTypeCounts.map((item: any) => {
           const isEmpty = !item.value || item.value === 0;
           const pluralizedTitle =
             pluralize(item.name, item.value || 0)
@@ -501,7 +502,7 @@ const Dptos = () => {
               .toUpperCase() + pluralize(item.name, item.value || 0).slice(1);
           return (
             <WidgetDashCard
-              key={i}
+              key={item.id}
               title={pluralizedTitle}
               data={item.value}
               style={{ minWidth: "160px", maxWidth: "268px" }}

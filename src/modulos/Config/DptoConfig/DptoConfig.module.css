@@ -190,8 +190,16 @@
   border-radius: 20px;
   overflow: hidden;
   background:
-    radial-gradient(circle at 24% 22%, rgba(0, 227, 140, 0.16), transparent 38%),
-    linear-gradient(180deg, var(--cModalSurfaceRaised), color-mix(in srgb, var(--cModalSection) 90%, black 10%));
+    radial-gradient(
+      circle at 24% 22%,
+      rgba(0, 227, 140, 0.16),
+      transparent 38%
+    ),
+    linear-gradient(
+      180deg,
+      var(--cModalSurfaceRaised),
+      color-mix(in srgb, var(--cModalSection) 90%, black 10%)
+    );
   border: 1px solid var(--cModalBorder);
 }
 
@@ -248,7 +256,11 @@
   border-radius: 32px;
   overflow: hidden;
   border: 4px solid var(--cModalSection);
-  background-color: color-mix(in srgb, var(--cModalSurfaceRaised) 38%, black 62%);
+  background-color: color-mix(
+    in srgb,
+    var(--cModalSurfaceRaised) 38%,
+    black 62%
+  );
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
   flex: 0 0 auto;
 }
@@ -291,7 +303,11 @@
   font-size: 28px;
   font-weight: var(--font-weight-bold);
   background:
-    radial-gradient(circle at 30% 20%, rgba(0, 227, 140, 0.16), transparent 44%),
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(0, 227, 140, 0.16),
+      transparent 44%
+    ),
     color-mix(in srgb, var(--cModalSurfaceRaised) 92%, black 8%);
 }
 
@@ -516,6 +532,86 @@
   gap: 10px;
 }
 
+.permissionMatrix {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--cModalBorder);
+  border-radius: 14px;
+  background-color: color-mix(
+    in srgb,
+    var(--cModalSurfaceRaised) 64%,
+    transparent
+  );
+}
+
+.permissionMatrixRow {
+  display: grid;
+  grid-template-columns: minmax(210px, 1.2fr) repeat(4, minmax(112px, 0.7fr));
+  min-width: 660px;
+  border-bottom: 1px solid var(--cModalBorder);
+}
+
+.permissionMatrixRow:last-child {
+  border-bottom: 0;
+}
+
+.permissionMatrixHeader {
+  color: var(--cWhiteV1);
+  font-size: var(--body-xs-size);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+}
+
+.permissionMatrixHeader > div,
+.permissionRoleCell,
+.permissionActionCell {
+  padding: 12px;
+}
+
+.permissionMatrixHeader > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.permissionMatrixHeader > div:first-child {
+  justify-content: flex-start;
+}
+
+.permissionRoleCell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.permissionRoleName {
+  color: var(--cWhite);
+  font-size: var(--body-sm-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.25;
+}
+
+.permissionRoleDescription {
+  color: var(--cWhiteV1);
+  font-size: var(--body-xs-size);
+  line-height: 1.35;
+}
+
+.permissionActionCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.permissionMobileLabel {
+  display: none;
+  color: var(--cWhiteV1);
+  font-size: var(--body-sm-size);
+}
+
 .paymentMethodRow {
   display: grid;
   grid-template-columns: minmax(120px, 0.8fr) minmax(0, 2fr);
@@ -660,6 +756,33 @@
 
   .paymentMethodError {
     grid-column: 1;
+  }
+
+  .permissionMatrix {
+    overflow-x: visible;
+  }
+
+  .permissionMatrixHeader {
+    display: none;
+  }
+
+  .permissionMatrixRow {
+    grid-template-columns: 1fr;
+    min-width: 0;
+  }
+
+  .permissionRoleCell {
+    padding-bottom: 8px;
+  }
+
+  .permissionActionCell {
+    justify-content: space-between;
+    border-top: 1px solid var(--cModalBorder);
+    padding-block: 10px;
+  }
+
+  .permissionMobileLabel {
+    display: inline;
   }
 }
 

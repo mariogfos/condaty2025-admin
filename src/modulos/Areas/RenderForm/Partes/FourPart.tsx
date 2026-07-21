@@ -181,6 +181,10 @@ const FourPart = ({ item }: { item: any }) => {
               value={"Bs. " + formatNumber(item?.price)}
             />
             <KeyValue
+              title={"Garantía"}
+              value={"Bs. " + formatNumber(item?.guarantee_amount || 0)}
+            />
+            <KeyValue
               title={"Cantidad máx. de personas"}
               value={item?.max_capacity}
             />
@@ -209,6 +213,10 @@ const FourPart = ({ item }: { item: any }) => {
             <KeyValue
               title={"Reservación por semana"}
               value={item?.max_reservations_per_week}
+            />
+            <KeyValue
+              title={"Anticipación mínima"}
+              value={`${item?.min_reservation_advance_hours ?? 0}h`}
             />
             {item?.price > 0 && (
               <KeyValue
