@@ -226,7 +226,24 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     modulo: 'v3/debt-dptos',
     singular: 'Deuda',
     plural: '',
-    export: true,
+    // S47.5: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
+    // - export: false → kill legacy GET /api/v3/debt-dptos?_export=pdf.
+    // - exportAsync: {...} → slot async que useCrud auto-renderea via
+    //   AsyncExportButton (S36.5 pattern, idéntico a S41 BankAccounts,
+    //   S43 Outlays, S45 Areas).
+    // - type: "debt-dptos" → matchea el DebtDptoReportType pineado en
+    //   S47 backend (ReportTypeRegistry.auto-discovery, 11 tipos).
+    // - extraParams.type: 0 (NORMAL) → branch NORMAL/SHARED/ALL del
+    //   ReportType (6 cols: unit, subcategory, type, status, due_at,
+    //   balance_due_cur). Para AllDebts (sin type) sería 0 también.
+    // - format: "pdf" (S47 pineá PDF only, no XLSX — D-47-3).
+    export: false,
+    exportAsync: {
+      type: 'debt-dptos',
+      format: 'pdf',
+      label: 'Exportar PDF',
+      extraParams: { type: 0 },
+    },
     filter: true,
     permiso: 'expense',
     extraData: true,

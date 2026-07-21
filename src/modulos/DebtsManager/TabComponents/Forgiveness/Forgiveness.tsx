@@ -35,7 +35,25 @@ const Forgiveness = ({
     sumarize: true,
     extraData: true,
     loadView: { fullType: 'DET', type: 5 },
-    export: true,
+    // S47.5: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
+    // - export: false → kill legacy GET /api/v3/debt-dptos?_export=pdf.
+    // - exportAsync: {...} → slot async que useCrud auto-renderea via
+    //   AsyncExportButton (S36.5 pattern, idéntico a S41 BankAccounts,
+    //   S43 Outlays, S45 Areas).
+    // - type: "debt-dptos" → matchea el DebtDptoReportType pineado en
+    //   S47 backend (ReportTypeRegistry.auto-discovery, 11 tipos).
+    // - extraParams.type: 5 (FORGIVENESS) → branch FORGIVENESS del
+    //   ReportType (8 cols: dpto_nro, titular, due_at_date1, status_texto,
+    //   categoria_padre_nombre, forgiveness_cobrar_cur, forgiveness_amount_cur,
+    //   total_sum_cur).
+    // - format: "pdf" (S47 pineá PDF only, no XLSX — D-47-3).
+    export: false,
+    exportAsync: {
+      type: 'debt-dptos',
+      format: 'pdf',
+      label: 'Exportar PDF',
+      extraParams: { type: 5 },
+    },
     titleDel: "Anular",
 
     hideActions: { add: false, edit: true, del: true },
