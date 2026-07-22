@@ -31,7 +31,26 @@ const Users = () => {
     plural: "personal administrativo",
     filter: true,
     permiso: "users",
-    export: true,
+    // S52.5: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
+    // - export: false → kill legacy IconExport.
+    // - exportAsync: { type: "users", ... } → slot async que useCrud auto-renderea
+    //   via AsyncExportButton (S36.5 pattern, idéntico a S41 BankAccounts +
+    //   S47.5 DebtDpto + S48-T05 SharedDebts).
+    // - type: "users" → matchea el UserReportType pineado en S52 backend
+    //   (ReportTypeRegistry.auto-discovery).
+    // - format: "pdf" → ReportGenerator chunked (S32). XLSX también soportado
+    //   (S52 pineá excelRowProvider).
+    // - auto-pasa searchBy del store actual (useCrud S36.5 D-36.5-2).
+    // - filterBy (pipe-separated role_id) también se pasa via params del Report.
+    // Factory NO aplicada (D-45-3, binding): Users pineá renderView + renderDel
+    // con closures internas (capturan reLoad + userCan). Factory rompería
+    // esas refs. Cambio mínimo inline es la opción correcta.
+    export: false,
+    exportAsync: {
+      type: "users",
+      format: "pdf",
+      label: "Exportar PDF",
+    },
     titleAdd: "Nuevo",
     // import: true,
     // search: { hide: true },
