@@ -107,7 +107,24 @@ const Binnacle = () => {
     hideActions: { edit: true, del: true, add: true },
     renderView: (props: any) => <RenderView {...props} />,
     loadView: { fullType: "DET" },
-    export: true,
+    // S54.5: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
+    // - export: false → kill legacy IconExport.
+    // - exportAsync: { type: "guard-news", ... } → slot async que useCrud
+    //   auto-renderea via AsyncExportButton (S36.5 pattern, idéntico a
+    //   S52.5 Users + S41 BankAccounts + S47.5 DebtDpto + S48-T05 SharedDebts).
+    // - type: "guard-news" → matchea el GuardNewReportType pineado en S54
+    //   backend (ReportTypeRegistry.auto-discovery).
+    // - format: "pdf" → ReportGenerator chunked (S32). XLSX también soportado
+    //   (S54 pineá excelRowProvider).
+    // - auto-pasa searchBy + filterBy del store actual al Report.
+    // Factory NO aplicada (D-45-3, binding): Binnacle pineá renderView
+    // inline. Cambio mínimo inline es la opción correcta.
+    export: false,
+    exportAsync: {
+      type: "guard-news",
+      format: "pdf",
+      label: "Exportar PDF",
+    },
   };
 
   const paramsInitial = {
