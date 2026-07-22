@@ -1,0 +1,76 @@
+.GuardDevices {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height: 100%;
+}
+
+.title {
+  color: var(--cWhite);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.buttonContent {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.deviceCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 180px;
+}
+
+.deviceName {
+  color: var(--cWhite);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.deviceMeta {
+  color: var(--cWhiteV1);
+  font-size: 12px;
+  margin: 0;
+}
+
+.codeBox {
+  align-items: center;
+  background: var(--cHover);
+  border: 1px solid var(--cBlackV2);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+}
+
+.codeLabel {
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  margin: 0;
+}
+
+.code {
+  color: var(--cAccent);
+  font-family: var(--font-mono, monospace);
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0;
+}
+
+.hint {
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 14px 0 0;
+}
