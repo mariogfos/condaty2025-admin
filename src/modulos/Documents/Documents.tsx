@@ -29,7 +29,25 @@ const Documents = () => {
       fullType: "DET",
     },
     filter: true,
-    export: true,
+    // S57.5: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
+    // - export: false → kill legacy IconExport.
+    // - exportAsync: { type: "documents", ... } → slot async que useCrud
+    //   auto-renderea via AsyncExportButton (S36.5 pattern, idéntico a
+    //   S52.5 Users + S54.5 Binnacle + S55.5 Alerts).
+    // - type: "documents" → matchea el DocumentReportType pineado en S57
+    //   backend (ReportTypeRegistry.auto-discovery).
+    // - format: "pdf" → ReportGenerator chunked (S32). XLSX también soportado
+    //   (S57 pineá excelRowProvider).
+    // - auto-pasa searchBy + filterBy del store actual al Report.
+    // Factory NO aplicada (D-45-3, binding): Documents pineá renderView +
+    // renderForm con closures inline (RenderView/RenderForm). Cambio
+    // mínimo inline es la opción correcta.
+    export: false,
+    exportAsync: {
+      type: "documents",
+      format: "pdf",
+      label: "Exportar PDF",
+    },
     renderView: (props: {
       open: boolean;
       onClose: any;
