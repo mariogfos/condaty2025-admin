@@ -94,7 +94,19 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
       filter: true,
       permiso: "",
       extraData: false,
-      export: true,
+      // S64.5 (HALLAZGO-NEW-61): migrado al slot async S36.5.
+      // - export: false → kill legacy IconExport (D-38-5 round 15 frontend).
+      // - exportAsync: { type: "others", ... } → slot async.
+      // - matchea el OtherReportType pineado en S64 backend.
+      // - auto-pasa filterBy (in_at:week|lweek|month|lmonth) + searchBy del
+      //   store actual (useCrud S36.5 D-36.5-2).
+      // Patrón idéntico a S52.5 + S54.5 + S55.5 + S57.5 + S61.5 + S62.5 + S63.5.
+      export: false,
+      exportAsync: {
+        type: "others",
+        format: "pdf",
+        label: "Exportar PDF",
+      },
       hideActions: {
         add: true,
         edit: true,
