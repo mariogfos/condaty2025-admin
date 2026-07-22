@@ -113,6 +113,8 @@ const getStatusOptions = (addDefault = false) => [
   { id: "X", name: "Cancelado" },
 ];
 
+// S67 (HALLAZGO-NEW-63): getCategoryOptionsForFilter KILLED. La tabla
+// `budgets` NO pineá category_id → el filterBy no se usa.
 const getCategoryOptionsForFilter = (extraData: any) => [
   { id: "T", name: "Todos" },
   ...(extraData?.categories || []).map((cat: any) => ({
@@ -218,25 +220,11 @@ const BudgetDir = () => {
           width: "150px",
         },
       },
-      category_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Subcategoría",
-        form: {
-          type: "select",
-          optionsExtra: "categories",
-          placeholder: "Seleccione Subcategoría",
-        },
-        list: {
-          onRender: (props: any) => props.item.category?.name || "N/A",
-          order: 2, // Segunda columna
-        },
-        /* filter: {
-          label: "Categoría",
-          options: getCategoryOptionsForFilter,
-          width: "200px",
-        }, */
-      },
+      // S67 (HALLAZGO-NEW-63): 'category_id' field KILLED. La tabla
+      // `budgets` backend NO pineá la col (S9 migración unificada). El
+      // `with('category')` pineá SQLSTATE en runtime. Si en el futuro
+      // se quiere, pinear columna + FK + restaurar este field (D-67-1
+      // binding, cross-project).
       user_id: {
         api: "e",
         label: "Creado por",

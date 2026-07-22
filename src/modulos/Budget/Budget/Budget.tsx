@@ -112,6 +112,8 @@ const getStatusOptions = (addDefault = false) => [
   { id: "X", name: "Cancelado" },
 ];
 
+// S67 (HALLAZGO-NEW-63): getCategoryOptionsForFilter KILLED. La tabla
+// `budgets` NO pineá category_id → el filterBy no se usa.
 const getCategoryOptionsForFilter = (extraData: any) => [
   { id: "ALL", name: "Todos" },
   ...(extraData?.categories || []).map((cat: any) => ({
@@ -144,9 +146,11 @@ const Budget = () => {
       // - export: false → kill legacy IconExport (D-38-5 round 14 frontend).
       // - exportAsync: { type: "budgets", ... } → slot async.
       // - matchea el BudgetReportType pineado en S63 backend.
-      // - auto-pasa filterBy (period M|Q|B|Y + status D|P|A|R + category_id)
+      // - auto-pasa filterBy (period M|Q|B|Y + status D|P|A|R)
       //   + searchBy del store actual (useCrud S36.5 D-36.5-2).
       // Patrón idéntico a S52.5 + S54.5 + S55.5 + S57.5 + S61.5 + S62.5.
+      // S67 (HALLAZGO-NEW-63): 'category_id' KILLED del filterBy.
+      // La tabla budgets NO pineá la col.
       export: false,
       exportAsync: {
         type: "budgets",
@@ -198,17 +202,11 @@ const Budget = () => {
         api: "ae",
         label: "Fecha Fin",
       },
-      category_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Subcategoría",
-        list: { onRender: (props: any) => props.item.category?.name || "N/A" },
-        filter: {
-          label: "Subcategoría",
-          options: getCategoryOptionsForFilter,
-          width: "200px",
-        },
-      },
+      // S67 (HALLAZGO-NEW-63): 'category_id' field KILLED. La tabla
+      // `budgets` backend NO pineá la col (S9 migración unificada). El
+      // `with('category')` pineá SQLSTATE en runtime. Si en el futuro
+      // se quiere, pinear columna + FK + restaurar este field (D-67-1
+      // binding, cross-project).
       period: {
         rules: ["required"],
         api: "ae",

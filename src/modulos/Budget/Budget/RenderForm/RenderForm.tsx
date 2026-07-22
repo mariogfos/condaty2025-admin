@@ -44,7 +44,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
     end_date: "",
     amount: "",
     period: "",
-    category_id: "",
+    // S67 (HALLAZGO-NEW-63): 'category_id' KILLED. La tabla `budgets`
+    // backend NO pineá la col (S9 migración unificada). Si en el
+    // futuro se quiere, pinear columna + FK + restaurar este state
+    // (D-67-1 binding, cross-project).
     ...item,
   });
 
@@ -58,7 +61,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
         end_date: item.end_date ? item.end_date.split(" ")[0] : "",
         amount: item.amount || "",
         period: item.period || "",
-        category_id: item.category_id || "",
         ...item,
       });
     }
@@ -82,7 +84,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
       end_date: { rules: ["required"] },
       amount: { rules: ["required", "number"] },
       period: { rules: ["required"] },
-      category_id: { rules: ["required"] },
+      // S67 (HALLAZGO-NEW-63): 'category_id' KILLED de validateForm.
+      // La tabla budgets NO pineá la col.
     };
 
     const validationErrors = checkRulesFields(
@@ -186,18 +189,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
             />
           </div>
 
-          <div className={styles.field}>
-            <Select
-              name="category_id"
-              value={formState.category_id}
-              onChange={handleChange}
-              label="Subcategoría"
-              options={extraData?.categories || []}
-              placeholder="Seleccione subcategoría"
-              error={errors}
-              required
-            />
-          </div>
+          {/* S67 (HALLAZGO-NEW-63): 'category_id' Select KILLED. La tabla
+              `budgets` backend NO pineá la col. Si en el futuro se
+              quiere, pinear columna + FK + restaurar este Select
+              (D-67-1 binding, cross-project). */}
         </div>
 
         <div className={styles.field}>
