@@ -66,7 +66,24 @@ const Alerts = () => {
     permiso: "alerts",
     extraData: true,
     hideActions: { edit: true, del: true, add: true },
-    export: true,
+    // S55.5: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
+    // - export: false → kill legacy IconExport.
+    // - exportAsync: { type: "alerts", ... } → slot async que useCrud
+    //   auto-renderea via AsyncExportButton (S36.5 pattern, idéntico a
+    //   S52.5 Users + S54.5 Binnacle + S41 BankAccounts).
+    // - type: "alerts" → matchea el AlertReportType pineado en S55 backend
+    //   (ReportTypeRegistry.auto-discovery).
+    // - format: "pdf" → ReportGenerator chunked (S32). XLSX también soportado
+    //   (S55 pineá excelRowProvider).
+    // - auto-pasa searchBy + filterBy del store actual al Report.
+    // Factory NO aplicada (D-45-3, binding): Alerts pineá renderView con
+    // reLoad closure inline. Cambio mínimo inline es la opción correcta.
+    export: false,
+    exportAsync: {
+      type: "alerts",
+      format: "pdf",
+      label: "Exportar PDF",
+    },
     filter: true,
     renderView: (props: {
       open: boolean;
