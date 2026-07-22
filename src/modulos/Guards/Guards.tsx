@@ -31,7 +31,14 @@ const Guards = () => {
     plural: "Guardias",
     filter: true,
     permiso: "guards",
-    export: true,
+    // S66.5 (HALLAZGO-NEW-64): migrado al slot async S36.5.
+    // S66 pineó GuardsReportType backend (PR #151).
+    export: false,
+    exportAsync: {
+      type: "guards",
+      format: "pdf",
+      label: "Exportar PDF",
+    },
     titleAdd: "Nuevo",
     //import: true,
     hideActions: {

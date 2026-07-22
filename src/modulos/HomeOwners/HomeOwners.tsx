@@ -82,7 +82,15 @@ const HomeOwners = () => {
     singular: "Propietario",
     plural: "Propietarios",
     permiso: "owners",
-    export: true,
+    // S66.5 (HALLAZGO-NEW-64): migrado al slot async S36.5.
+    // S60.5 fue NO-OP (D-60.5-1) — el módulo SÍ pineá export: true
+    // (línea 85 histórica), S66.5 corrige.
+    export: false,
+    exportAsync: {
+      type: "homeowners",
+      format: "pdf",
+      label: "Exportar PDF",
+    },
     import: true,
     hideActions: {
       edit: true,

@@ -51,7 +51,14 @@ const EventsAdmin = () => {
     plural: "Eventos",
     permiso: "events",
     extraData: true,
-    export: true,
+    // S66.5 (HALLAZGO-NEW-64): migrado al slot async S36.5.
+    // S66 pineó EventsReportType backend (PR #151).
+    export: false,
+    exportAsync: {
+      type: "events",
+      format: "pdf",
+      label: "Exportar PDF",
+    },
     onHideActions: (item: any) => {
       return {
         hideEdit: item?.attendance_count > 0,

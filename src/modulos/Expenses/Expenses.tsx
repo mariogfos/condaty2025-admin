@@ -72,7 +72,15 @@ const mod: ModCrudType = {
   modulo: 'debt-groups',
   singular: 'Expensa',
   plural: 'Expensas',
-  export: true,
+  // S66.5 (HALLAZGO-NEW-64): migrado al slot async S36.5.
+  // S43 pineó ExpensesReportType backend (PR #129) pero el frontend
+  // quedó incompleto sin exportAsync. S66.5 corrige.
+  export: false,
+  exportAsync: {
+    type: 'expenses',
+    format: 'pdf',
+    label: 'Exportar PDF',
+  },
   filter: true,
   permiso: 'expense',
   extraData: true,

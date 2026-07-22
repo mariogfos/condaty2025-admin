@@ -155,7 +155,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     singular: "",
     plural: "",
     filter: true,
-    export: true,
+    // S66.5 (HALLAZGO-NEW-64): kill export: true legacy. Este es un
+    // tab/componente con modulo: 'v3/debt-dptos' (URL legacy deprecada) +
+    // singular/plural vacíos. Sin ReportType backend. Export nunca
+    // funcionó productivamente. Cleanup cosmético.
+    export: false,
     permiso: "expenses",
     hideActions: {
       add: true,
