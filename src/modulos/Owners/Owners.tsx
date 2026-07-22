@@ -96,7 +96,22 @@ const Owners = () => {
     singular: "Residente",
     plural: "Residentes",
     filter: true,
-    export: true,
+    // S61.5 (HALLAZGO-NEW-61): migrado al slot async S36.5.
+    // - export: false → kill legacy IconExport (D-38-5 round 12 frontend).
+    // - exportAsync: { type: "owners", ... } → slot async que useCrud
+    //   auto-renderea via AsyncExportButton. Matchea el OwnerReportType
+    //   pineado en S61 backend (ReportTypeRegistry.auto-discovery).
+    // - format: "pdf" → ReportGenerator chunked (S32). XLSX también
+    //   soportado (S61 pineá excelRowProvider).
+    // - auto-pasa filterBy+searchBy del store actual (useCrud S36.5
+    //   D-36.5-2). Patrón idéntico a S52.5 Users + S54.5 Binnacle +
+    //   S55.5 Alerts + S57.5 Documents.
+    export: false,
+    exportAsync: {
+      type: "owners",
+      format: "pdf",
+      label: "Exportar PDF",
+    },
     import: false,
     permiso: "owners",
     hideActions: {
