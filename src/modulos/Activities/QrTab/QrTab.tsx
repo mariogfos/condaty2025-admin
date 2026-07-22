@@ -30,7 +30,13 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
       plural: "Invitaciones QR",
       filter: true,
       permiso: "",
-      export: true,
+      // S65.5 (HALLAZGO-NEW-61): migrado al slot async S36.5.
+      export: false,
+      exportAsync: {
+        type: "invitations",
+        format: "pdf",
+        label: "Exportar PDF",
+      },
       extraData: false,
       hideActions: {
         
