@@ -7,7 +7,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderView from "./RenderView/RenderView";
 
 const mod = {
-  modulo: "types",
+  modulo: "v3/types",
   singular: "Tipo de unidad",
   plural: "Tipos de unidades",
   onHideActions: (item: any) => {
