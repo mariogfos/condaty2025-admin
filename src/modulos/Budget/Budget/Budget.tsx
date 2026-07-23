@@ -112,16 +112,6 @@ const getStatusOptions = (addDefault = false) => [
   { id: "X", name: "Cancelado" },
 ];
 
-// S67 (HALLAZGO-NEW-63): getCategoryOptionsForFilter KILLED. La tabla
-// `budgets` NO pineá category_id → el filterBy no se usa.
-const getCategoryOptionsForFilter = (extraData: any) => [
-  { id: "ALL", name: "Todos" },
-  ...(extraData?.categories || []).map((cat: any) => ({
-    id: cat.id,
-    name: cat.name,
-  })),
-];
-
 const Budget = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
