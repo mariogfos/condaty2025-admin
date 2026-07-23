@@ -46,7 +46,7 @@ const paramsInitial = {
 const EventsAdmin = () => {
   // const { user } = useAuth();
   const mod: ModCrudType = {
-    modulo: "events",
+    modulo: "v3/events",
     singular: "evento",
     plural: "Eventos",
     permiso: "events",
