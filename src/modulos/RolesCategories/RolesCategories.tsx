@@ -8,7 +8,7 @@ import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
 
 const mod: ModCrudType = {
-  modulo: "abilitycategories",
+  modulo: "v3/ability-categories",
   singular: "Categoría",
   plural: "Categorías",
   // import: true,
