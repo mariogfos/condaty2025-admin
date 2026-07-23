@@ -17,7 +17,7 @@ import Permisos from "./Permisos";
 const lLevel = ["Fos", "Partido", "Provincia", "Canton", "Parroquia", "Barrio"];
 
 const mod: ModCrudType = {
-  modulo: "roles",
+  modulo: "v3/roles",
   singular: "rol",
   plural: "roles",
   permiso: "roles",
