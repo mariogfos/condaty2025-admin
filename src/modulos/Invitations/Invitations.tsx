@@ -14,7 +14,7 @@ const paramsInitial = {
   searchBy: "",
 };
 const mod: ModCrudType = {
-  modulo: "campaigns",
+  modulo: "v3/campaigns",
   singular: "campaña",
   plural: "campañas",
   permiso: "campanas",
