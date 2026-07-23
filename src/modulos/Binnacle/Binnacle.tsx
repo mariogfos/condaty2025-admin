@@ -98,7 +98,7 @@ const Binnacle = () => {
   ];
 
   const mod = {
-    modulo: "guardnews",
+    modulo: "v3/guardnews",
     singular: "Bitácora",
     plural: "Bitácoras",
     permiso: "guardlogs",
