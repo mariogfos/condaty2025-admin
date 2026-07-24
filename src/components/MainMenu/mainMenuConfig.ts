@@ -83,11 +83,6 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "bankAccounts",
         perm: "bank_accounts",
       },
-      {
-        href: "/partial-payments",
-        labelKey: "partialPayments",
-        perm: "bank_accounts",
-      },
       // {
       //   href: "/bank-provider-tester",
       //   labelKey: "bankTester",
