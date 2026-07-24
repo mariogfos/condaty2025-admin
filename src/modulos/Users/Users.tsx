@@ -26,7 +26,7 @@ const paramsInitial = {
 const Users = () => {
   const { user, userCan } = useAuth();
   const mod: ModCrudType = {
-    modulo: "users",
+    modulo: "v3/users",
     singular: "personal",
     plural: "personal administrativo",
     filter: true,
