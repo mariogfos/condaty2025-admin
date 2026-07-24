@@ -18,7 +18,7 @@ const Documents = () => {
   const { setStore } = useAuth();
 
   const mod = {
-    modulo: "documents",
+    modulo: "v3/documents",
     singular: "documento",
     plural: "documentos",
     permiso: "documents",
