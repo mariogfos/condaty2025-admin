@@ -36,7 +36,7 @@ const Areas = () => {
   // El cambio es el mínimo: solo `export: true` → `export: false +
   // exportAsync: {...}`. La lógica de renderView/renderForm queda intacta.
   const mod = {
-    modulo: "areas",
+    modulo: "v3/areas",
     singular: "área social",
     plural: "áreas sociales",
     permiso: "areas",
