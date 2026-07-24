@@ -15,7 +15,7 @@ const paramsInitial = {
   searchBy: "",
 };
 const mod: ModCrudType = {
-  modulo: "clients",
+  modulo: "v3/clients",
   singular: "condominios",
   plural: "condominios",
   permiso: "condominios",
