@@ -60,7 +60,7 @@ const Alerts = () => {
   }>({});
 
   const mod = {
-    modulo: "alerts",
+    modulo: "v3/alerts",
     singular: "alerta",
     plural: "",
     permiso: "alerts",
