@@ -108,7 +108,7 @@ const Dptos = () => {
   }, []);
 
   const mod: ModCrudType = {
-    modulo: "dptos",
+    modulo: "v3/dptos",
     singular: "",
     plural: "",
     filter: true,
