@@ -131,7 +131,7 @@ const Contents = () => {
   };
 
   const mod: ModCrudType = {
-    modulo: "contents",
+    modulo: "v3/contents",
     singular: "publicación",
     plural: "",
     permiso: "contents",
