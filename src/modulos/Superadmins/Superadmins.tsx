@@ -21,7 +21,7 @@ const Superadmins = () => {
   const { user } = useAuth();
 
   const mod: ModCrudType = {
-    modulo: "users",
+    modulo: "v3/users",
     singular: "superadmin",
     plural: "superadmins",
     permiso: "superadmins",
