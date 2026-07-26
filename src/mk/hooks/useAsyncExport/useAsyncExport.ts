@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useToast } from "../useToast";
+import useToast from "../useToast";
 
 /**
  * useAsyncExport (S33 — NEW-NEW-43 PDF Reports Async + Chunking)
