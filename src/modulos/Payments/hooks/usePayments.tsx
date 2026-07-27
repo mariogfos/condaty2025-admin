@@ -8,6 +8,7 @@ import type { TableRowContextMenuConfig } from "@/mk/components/ui/Table/Table";
 import { Eye, FileImage, CheckCircle2, Ban } from "lucide-react";
 import { getPaymentsConfig } from "../config/payments.config";
 import { PaymentStatus } from "../Type/PaymentType";
+import Button from "@/mk/components/forms/Button/Button";
 import styles from "../Payments.module.css";
 
 const getPaymentVoucherUrls = (item: any) => {
@@ -88,13 +89,14 @@ export const usePayments = () => {
 
   const extraButtons = useMemo(
     () => [
-      {
-        key: "categories-button",
-        variant: "secondary",
-        onClick: () => goToCategories("I"),
-        className: styles.categoriesButton,
-        children: "Categorías",
-      } as any,
+      <Button
+        key="categories-button"
+        variant="secondary"
+        onClick={() => goToCategories("I")}
+        className={styles.categoriesButton}
+      >
+        Categorías
+      </Button>,
     ],
     [goToCategories]
   );
@@ -103,7 +105,7 @@ export const usePayments = () => {
     paramsInitial,
     mod,
     fields,
-    extraButtons: extraButtons.map((btn) => btn.children), // useCrud expects ReactNodes or custom array of children buttons
+    extraButtons,
     getFilter: handleGetFilter,
   });
 
