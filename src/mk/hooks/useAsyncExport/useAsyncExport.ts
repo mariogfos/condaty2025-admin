@@ -15,6 +15,30 @@ const API_BASE_URL =
   (typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL) || "";
 
 /**
+ * S117: helper que construye la URL absoluta al back pineando API_BASE_URL
+ * (que termina en `/api`) y un path del back. El bug original S115
+ * pineaba `${API_BASE_URL}${path}` directo, pero los paths de reports
+ * (status, download_url) que vienen del back ya empiezan con `/api/...`
+ * (vía `route()`), entonces la concatenación pineá DOBLE `/api/`
+ * (e.g. `http://localhost:8000/api/api/v3/reports/...`) → 404 del front
+ * proxy → front recibe HTML de Next.js como PDF → "PDF ilegible" con
+ * basura.
+ *
+ * Estrategia: si el path empieza con `/api/`, strip el `/api` y concatenar
+ * con API_BASE_URL (que ya lo tiene). Si no, concatenar tal cual
+ * (e.g. paths hardcoded como `/v3/reports/...` que S113 pineó).
+ */
+const buildBackendUrl = (path: string): string => {
+  if (path.startsWith("http")) return path;
+  // Path del back que ya incluye `/api/...` (vía route()).
+  if (path.startsWith("/api/")) {
+    return `${API_BASE_URL}${path.substring(4)}`;  // strip leading "/api"
+  }
+  // Path sin prefix /api (e.g. `/v3/reports/...` pineado por S113).
+  return `${API_BASE_URL}${path}`;
+};
+
+/**
  * Lee el token de localStorage pineado por el flow de auth.
  * Replica el patrón de `src/mk/interceptors/axiosInterceptors.tsx`.
  * Retorna null si no hay token (caller decide cómo manejar).
@@ -317,9 +341,7 @@ export function useAsyncExport(
       // :3000), no contra el back en :8000 → 404 + "No autenticado" del
       // proxy de Next.js. Fix: pinear API_BASE_URL + token del localStorage
       // (mismo patrón que S113 fix para export + status).
-      const downloadUrl = state.downloadUrl.startsWith("http")
-        ? state.downloadUrl
-        : `${API_BASE_URL}${state.downloadUrl}`;
+      const downloadUrl = buildBackendUrl(state.downloadUrl);
       const res = await fetch(downloadUrl, {
         headers: {
           ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),

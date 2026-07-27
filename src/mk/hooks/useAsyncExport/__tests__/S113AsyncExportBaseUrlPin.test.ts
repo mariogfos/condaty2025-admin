@@ -73,15 +73,20 @@ describe("S113 — useAsyncExport baseURL + auth pin", () => {
     expect(src).toMatch(/credentials:\s*['"]include['"]/);
   });
 
-  it("useAsyncExport.ts pino downloadUrl con API_BASE_URL (S115 fix)", () => {
+  it("useAsyncExport.ts pino downloadUrl con API_BASE_URL (S117 helper)", () => {
     const src = fs.readFileSync(HOOK_PATH, "utf8");
-    // S115: el `downloadUrl` que viene del back es relativo (vía route()).
-    // El download() del hook pinea API_BASE_URL cuando NO es absoluto.
-    // Si alguien pineá restaurar `fetch(state.downloadUrl)` directo, el
-    // navegador va al front (Next.js) en lugar del back → 404.
-    expect(src).toMatch(/\$\{API_BASE_URL\}\$\{state\.downloadUrl\}/);
+    // S117: el download() ahora pinea un helper `buildBackendUrl()` que
+    // maneja el doble /api/ (API_BASE_URL termina en /api, paths de
+    // back vía route() también empiezan con /api → S115 pineá doble
+    // /api/ → 404 del front → HTML de Next.js pineado como PDF → ilegible).
+    // El helper pinea API_BASE_URL + path (strip /api si el path lo tiene).
+    expect(src).toMatch(/const buildBackendUrl\s*=/);
+    expect(src).toMatch(/buildBackendUrl\(state\.downloadUrl\)/);
     // Anti-regresión: el download() NO pinea `fetch(state.downloadUrl)`
-    // directo (sin prefijo API_BASE_URL).
+    // directo (sin helper).
     expect(src).not.toMatch(/fetch\(\s*state\.downloadUrl\s*\)/);
+    // Anti-regresión: el download() NO pinea la concatenación directa
+    // `${API_BASE_URL}${state.downloadUrl}` que pineá doble /api.
+    expect(src).not.toMatch(/\$\{API_BASE_URL\}\$\{state\.downloadUrl\}/);
   });
 });
