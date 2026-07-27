@@ -69,7 +69,14 @@ const renderTotalAmountCollectedCell = ({ item }: { item: any }) => (
 );
 
 const mod: ModCrudType = {
-  modulo: 'debt-groups',
+  // S112: el endpoint canónico es `/api/v3/debt-groups` (DebtDptos module,
+  // grouped flows para EXPENSE/SHARED batches). El módulo front se llama
+  // "Expenses" pero el endpoint agrupa debt_dptos por periodo (debt_id uuid)
+  // y eso es lo que la UI pineá con `asignados[]`. Pineamos `v3/debt-groups`
+  // (R-PKG-016 sweep, no legacy alias). HALLAZGO-NEW-20 bind: este módulo
+  // muestra expensas AGRUPADAS; el endpoint `/v3/expenses` retorna records
+  // individuales (Expense model) y NO matchea el shape que la UI consume.
+  modulo: 'v3/debt-groups',
   singular: 'Expensa',
   plural: 'Expensas',
   // S66.5 (HALLAZGO-NEW-64): migrado al slot async S36.5.
