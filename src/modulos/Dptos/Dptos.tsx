@@ -8,7 +8,7 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { getFullName, getUrlImages, pluralize } from "@/mk/utils/string";
+import { getFullName, pluralize } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useRouter } from "next/navigation";
 import { UnitsType } from "@/mk/utils/utils";
@@ -24,7 +24,6 @@ import {
   IconLocal,
   IconGarage,
 } from "@/components/layout/icons/IconsBiblioteca";
-import Button from "@/mk/components/forms/Button/Button";
 
 const paramsInitial = {
   fullType: "L",
@@ -114,6 +113,16 @@ const Dptos = () => {
     filter: true,
     permiso: "units",
     // export: true,
+    // S111: exportAsync slot para el reporte "Estado de cuentas" (DptoDeudas
+    // async XLSX export, S38). El type "dpto-deudas" matchea el
+    // DptoDeudasReportType pineado en el back. useCrud auto-renderea el
+    // AsyncExportButton; el botón custom legacy + execute directo al endpoint
+    // viejo (removido en S38 con R-PKG-016) fueron eliminados en S111.
+    exportAsync: {
+      type: "dpto-deudas",
+      format: "excel",
+      label: "Estado de cuentas XLSX",
+    },
     extraData: true,
     import: false,
     titleAdd: "Nueva unidad",
@@ -137,20 +146,6 @@ const Dptos = () => {
       user: any;
       execute: any;
     }) => <RenderForm {...props} />,
-  };
-
-  const ButtonReportDeudas = () => {
-    return (
-      <Button
-        variant="secondary"
-        onClick={() => {
-          console.log(process.env.NEXT_PUBLIC_API_URL + "/dptos-export-deudas");
-          onReport();
-        }}
-      >
-        <IconDepartments2 /> Estado de cuentas
-      </Button>
-    );
   };
 
   const fields = useMemo(() => {
@@ -381,7 +376,6 @@ const Dptos = () => {
     fields,
     getFilter,
     _onImport: onImport,
-    extraButtons: [<ButtonReportDeudas />],
   });
 
   const { onLongPress, selItem } = useCrudUtils({
@@ -394,48 +388,6 @@ const Dptos = () => {
   });
   const handleRowClick = (item: any) => {
     router.push(`/units/${item.id}`);
-  };
-
-  const onReport = async () => {
-    const { data: file } = await execute(
-      "/dptos-export-deudas",
-      "GET",
-      {},
-      false,
-      mod?.noWaiting,
-    );
-
-    if (file?.status) {
-      const url = getUrlImages("/" + file.url);
-      // Intentar derivar un nombre de archivo desde el path; si no, usar por defecto
-      const suggestedName = (() => {
-        const path = String(file.data?.path || "");
-        const base = path.split("/").pop();
-        if (base && base.trim().length > 0) return base;
-        const ext = "xlsx".toLowerCase();
-        return `reporte-deudas-${new Date().toISOString()}.${ext}`;
-      })();
-
-      try {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = suggestedName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        window.URL.revokeObjectURL(blobUrl);
-      } catch (error) {
-        // Fallback: si falla la descarga, abrir directamente la URL
-        window.location.href = url;
-      }
-    } else {
-      showToast("Hubo un error al exportar el archivo", "error");
-    }
   };
 
   const renderItem = (
