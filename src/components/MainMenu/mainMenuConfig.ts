@@ -54,11 +54,10 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/invitations", perm: "campanas", labelKey: "qrInvitations" },
       { href: "/uploads", perm: "cargamasiva", labelKey: "bulkUpload" },
       { href: "/app-versions", perm: "superadmins", labelKey: "appVersions" },
-      {
-        href: "/visit-reasons",
-        perm: "visit_reasons",
-        labelKey: "Motivos de visitas",
-      },
+      // S103: VisitReasons removido del menú — feature dead (permiso "" en el
+      // módulo + endpoint /api/v3/visit-reasons nunca existió en el back).
+      // La página /visit-reasons queda huérfana (próximo sprint: borrarla junto
+      // al módulo src/modulos/VisitReasons/ si Mario confirma dead permanente).
     ],
   },
   {

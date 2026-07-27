@@ -15,7 +15,7 @@ import { ReservationStatus } from "./constants/reservationConstants";
 
 // --- Definición del Módulo (Ajusta singular/plural si quieres) ---
 const mod = {
-  modulo: "reservations",
+  modulo: "v3/reservations",
   singular: "Reserva Pendiente", // Cambiado para claridad
   plural: "Reservas Pendientes", // Cambiado para claridad
   permiso: "reservations", // Asegúrate que el permiso sea correcto

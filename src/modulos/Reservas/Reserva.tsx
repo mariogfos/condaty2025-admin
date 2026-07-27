@@ -28,7 +28,7 @@ import {
 import { AxiosContext } from "@/mk/contexts/AxiosInstanceProvider";
 
 const mod = {
-  modulo: "reservations",
+  modulo: "v3/reservations",
   singular: "reserva",
   plural: "reservas",
   permiso: "reservations",

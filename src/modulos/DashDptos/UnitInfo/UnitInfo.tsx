@@ -108,7 +108,7 @@ const UnitInfo = ({
     }
 
     try {
-      const { data } = await execute("/dptos-change-titular", "POST", {
+      const { data } = await execute("/v3/dptos-change-titular", "POST", {
         dpto_id: dptoId,
         holder,
       });
@@ -141,7 +141,7 @@ const UnitInfo = ({
     }
 
     try {
-      const { data } = await execute("/dptos-release-owner", "POST", {
+      const { data } = await execute("/v3/dptos-release-owner", "POST", {
         dpto_id: dptoId,
         owner_id: ownerId,
         type: "H",

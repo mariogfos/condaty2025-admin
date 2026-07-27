@@ -25,7 +25,7 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
   // Definición del módulo QR
   const modQR: ModCrudType = useMemo(() => {
     return {
-      modulo: "invitations",
+      modulo: "v3/invitations",
       singular: "Invitación",
       plural: "Invitaciones QR",
       filter: true,
