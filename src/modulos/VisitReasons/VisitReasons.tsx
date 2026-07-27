@@ -1,57 +1,21 @@
 "use client";
-import useCrud from "@/mk/hooks/useCrud/useCrud";
+// S103: VisitReasons es feature DEAD — el backend nunca expuso
+// `/api/v3/visit-reasons` (verificado con `php artisan route:list` el 2026-07-27).
+// El módulo tenía `permiso: ""` y siempre mostraba NotAccess; el entry del menú
+// Backoffice se removió en S103 (mainMenuConfig.ts). La página
+// /visit-reasons queda huérfana (próximo sprint: borrarla si Mario confirma).
+//
+// Pin: este placeholder documenta el estado y previene que cualquier reactivador
+// futuro restaure el módulo sin haberse asegurado primero de que el back tiene
+// los endpoints. Para reactivar:
+//   1. Crear `app/Modules/VisitReasons/Controllers/VisitReasonController.php` en
+//      el back y registrarlo en routes/api.php como `/api/v3/visit-reasons`.
+//   2. Restaurar el entry del menú en mainMenuConfig.ts.
+//   3. Reemplazar este componente con la implementación real (useCrud).
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import { useEffect, useMemo } from "react";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-
-const mod = {
-  modulo: "visit-reasons",
-  singular: "Motivo de visita",
-  plural: "Motivos de visitas",
-  permiso: "", //"visit_reasons",
-  extraData: false,
-  // renderForm: RenderForm,
-  // renderView: (props: any) => <RenderView {...props} />,
-  loadView: { fullType: "DET" },
-};
-
-const paramsInitial = {
-  perPage: 20,
-  page: 1,
-  fullType: "L",
-  searchBy: "",
-  _debug: 2,
-};
 
 const VisitReasons = () => {
-  const fields = useMemo(() => {
-    return {
-      id: { rules: [], api: "e" },
-      name: {
-        rules: ["required"],
-        api: "ae",
-        label: "Nombre",
-        form: { type: "text" },
-        list: true,
-      },
-    };
-  }, []);
-
-  const { setStore, store } = useAuth();
-
-  useEffect(() => {
-    setStore({ ...store, title: "Motivos de visitas" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const { userCan, List } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-  });
-
-  if (!userCan(mod.permiso, "R")) return <NotAccess />;
-  return <List height={"100%"} />;
+  return <NotAccess />;
 };
 
 export default VisitReasons;

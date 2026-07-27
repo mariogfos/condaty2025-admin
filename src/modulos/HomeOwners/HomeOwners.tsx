@@ -78,7 +78,7 @@ const HomeOwners = () => {
   };
 
   const mod: ModCrudType = {
-    modulo: "homeowners",
+    modulo: "v3/homeowners",
     singular: "Propietario",
     plural: "Propietarios",
     permiso: "owners",

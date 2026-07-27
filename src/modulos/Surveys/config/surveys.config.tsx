@@ -20,7 +20,7 @@ export const getSurveyConfig = (
   onCloseView?: () => void,
 ): { mod: ModCrudType; fields: any } => {
   const mod: ModCrudType = {
-    modulo: "surveys",
+    modulo: "v3/surveys",
     singular: "Encuesta",
     plural: "Encuestas",
     titleAdd: "Crear",

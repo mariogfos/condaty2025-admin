@@ -30,7 +30,7 @@ const ActiveOwner = ({
   // W:En espera
 
   const { data: dptos, execute } = useAxios(
-    "/dptos",
+    "/v3/dptos",
     "GET",
     {
       page: 1,

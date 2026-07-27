@@ -58,7 +58,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     reLoad,
     execute,
     loaded,
-  } = useAxios("/dptos", "GET", {
+  } = useAxios("/v3/dptos", "GET", {
     fullType: "DET",
     dpto_id: id,
     extraData: true,
@@ -134,7 +134,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
       };
 
       const { data: response } = await execute(
-        "/dptos-change-owner",
+        "/v3/dptos-change-owner",
         "POST",
         payload,
       );
@@ -183,7 +183,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
   };
   const onDel = async () => {
-    const { data } = await execute("/dptos/" + datas.data.id, "DELETE");
+    const { data } = await execute("/v3/dptos/" + datas.data.id, "DELETE");
     if (data?.success) {
       showToast("Unidad eliminada", "success");
       router.push("/units");
@@ -233,7 +233,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         type: currentRemovalType,
       };
 
-      const { data } = await execute("/dptos-release-owner", "POST", payload);
+      const { data } = await execute("/v3/dptos-release-owner", "POST", payload);
 
       if (data?.success) {
         showToast(
