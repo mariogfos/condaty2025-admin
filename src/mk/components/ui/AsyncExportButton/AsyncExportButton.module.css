@@ -6,3 +6,11 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* S116b: container inline-flex para pinear export + history shortcut
+   lado a lado sin wrapper extra que rompa layouts existentes. */
+.buttonGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

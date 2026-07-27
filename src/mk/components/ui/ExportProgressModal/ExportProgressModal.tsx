@@ -1,6 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { LoaderCircle, CheckCircle2, XCircle, Download } from "lucide-react";
+import {
+  LoaderCircle,
+  CheckCircle2,
+  XCircle,
+  Download,
+  History,
+} from "lucide-react";
 import NewModal from "../NewModal/NewModal";
 import Button from "../../forms/Button/Button";
 import type { AsyncExportState } from "../../../hooks/useAsyncExport/useAsyncExport";
@@ -15,6 +21,13 @@ import styles from "./ExportProgressModal.module.css";
  * - "Reporte listo" + botón Descargar cuando completed
  * - Mensaje de error + botón Cerrar cuando failed
  *
+ * S116b front: pinea botón "Ver historial" en estado completed y
+ * failed. El user puede revisar el historial completo de downloads
+ * (incluyendo reports viejos pineados por otros módulos) sin perder
+ * el contexto del modal actual. Resuelve el bug "se queda pensando":
+ * el user ya no está trapped esperando el botón Descargar — siempre
+ * puede ver otros reports finalizados en paralelo.
+ *
  * Uso:
  *
  *     <ExportProgressModal
@@ -23,6 +36,7 @@ import styles from "./ExportProgressModal.module.css";
  *       reportTypeLabel="Pagos"  // opcional, para el título
  *       onDownload={download}
  *       onClose={reset}
+ *       onShowHistory={() => setHistoryOpen(true)}  // S116b
  *     />
  */
 type PropsType = {
@@ -31,6 +45,13 @@ type PropsType = {
   reportTypeLabel?: string;
   onDownload: () => void;
   onClose: () => void;
+  /**
+   * S116b: callback para abrir el DownloadHistory modal. Si se pineá,
+   * aparece un botón "Ver historial" en los estados completed y failed.
+   * Si NO se pineá, no se muestra el botón (back-compat con consumers
+   * viejos).
+   */
+  onShowHistory?: () => void;
 };
 
 export default function ExportProgressModal({
@@ -39,6 +60,7 @@ export default function ExportProgressModal({
   reportTypeLabel = "reporte",
   onDownload,
   onClose,
+  onShowHistory,
 }: PropsType) {
   // Si el reporte está completado, dejamos el modal abierto hasta que
   // el usuario descargue o cierre. El parent controla `open`.
@@ -140,8 +162,18 @@ export default function ExportProgressModal({
                 data-testid="export-download-btn"
               >
                 <Download size={18} />
-                Descargar PDF
+                Descargar
               </Button>
+              {onShowHistory && (
+                <Button
+                  onClick={onShowHistory}
+                  variant="terciary"
+                  data-testid="export-show-history-btn"
+                >
+                  <History size={18} />
+                  Ver historial
+                </Button>
+              )}
               <Button onClick={onClose} variant="secondary">
                 Cerrar
               </Button>
@@ -160,6 +192,16 @@ export default function ExportProgressModal({
               {state.errorMessage ?? "Error desconocido"}
             </p>
             <div className={styles.actions}>
+              {onShowHistory && (
+                <Button
+                  onClick={onShowHistory}
+                  variant="terciary"
+                  data-testid="export-show-history-btn"
+                >
+                  <History size={18} />
+                  Ver historial
+                </Button>
+              )}
               <Button onClick={onClose} variant="primary">
                 Cerrar
               </Button>
