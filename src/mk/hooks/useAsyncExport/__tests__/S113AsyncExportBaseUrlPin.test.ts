@@ -72,4 +72,16 @@ describe("S113 — useAsyncExport baseURL + auth pin", () => {
     // pinear credentials: 'include' para enviar cookies cross-domain.
     expect(src).toMatch(/credentials:\s*['"]include['"]/);
   });
+
+  it("useAsyncExport.ts pino downloadUrl con API_BASE_URL (S115 fix)", () => {
+    const src = fs.readFileSync(HOOK_PATH, "utf8");
+    // S115: el `downloadUrl` que viene del back es relativo (vía route()).
+    // El download() del hook pinea API_BASE_URL cuando NO es absoluto.
+    // Si alguien pineá restaurar `fetch(state.downloadUrl)` directo, el
+    // navegador va al front (Next.js) en lugar del back → 404.
+    expect(src).toMatch(/\$\{API_BASE_URL\}\$\{state\.downloadUrl\}/);
+    // Anti-regresión: el download() NO pinea `fetch(state.downloadUrl)`
+    // directo (sin prefijo API_BASE_URL).
+    expect(src).not.toMatch(/fetch\(\s*state\.downloadUrl\s*\)/);
+  });
 });

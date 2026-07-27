@@ -311,7 +311,21 @@ export function useAsyncExport(
       return;
     }
     try {
-      const res = await fetch(state.downloadUrl);
+      // S115: el `downloadUrl` que viene del back es RELATIVO
+      // (`/api/v3/reports/{uuid}/download` vía `route('reports.download', ...)`).
+      // El navegador lo resuelve contra `window.location.origin` (el front en
+      // :3000), no contra el back en :8000 → 404 + "No autenticado" del
+      // proxy de Next.js. Fix: pinear API_BASE_URL + token del localStorage
+      // (mismo patrón que S113 fix para export + status).
+      const downloadUrl = state.downloadUrl.startsWith("http")
+        ? state.downloadUrl
+        : `${API_BASE_URL}${state.downloadUrl}`;
+      const res = await fetch(downloadUrl, {
+        headers: {
+          ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+        },
+        credentials: "include",
+      });
       if (!res.ok) {
         if (res.status === 410) {
           showToast("El reporte expiró", "error");
