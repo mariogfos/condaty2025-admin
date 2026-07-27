@@ -4,6 +4,34 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import useToast from "../useToast";
 
 /**
+ * S113: el bug original pineaba `fetch("/api/v3/reports/...")` con RUTA
+ * RELATIVA — el navegador la resolvía contra `window.location.origin` (el
+ * front en :3000), no contra el back en :8000. Resultado: 404 silencioso
+ * en TODOS los exports. El fix pinea el baseURL via
+ * `process.env.NEXT_PUBLIC_API_URL` + replica el patrón del token del
+ * localStorage que el axiosInterceptors pinea.
+ */
+const API_BASE_URL =
+  (typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL) || "";
+
+/**
+ * Lee el token de localStorage pineado por el flow de auth.
+ * Replica el patrón de `src/mk/interceptors/axiosInterceptors.tsx`.
+ * Retorna null si no hay token (caller decide cómo manejar).
+ */
+const getAuthToken = (): string | null => {
+  try {
+    const raw = localStorage.getItem(
+      (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
+    );
+    if (!raw) return null;
+    return JSON.parse(raw + "").token ?? null;
+  } catch {
+    return null;
+  }
+};
+
+/**
  * useAsyncExport (S33 — NEW-NEW-43 PDF Reports Async + Chunking)
  *
  * Hook que pineá el flow async de export PDF introducido en S32:
@@ -112,9 +140,13 @@ export function useAsyncExport(
   const pollStatus = useCallback(
     async (jobId: string) => {
       try {
-        const res = await fetch(`/api/v3/reports/${jobId}/status`, {
+        const res = await fetch(`${API_BASE_URL}/reports/${jobId}/status`, {
           method: "GET",
-          headers: { Accept: "application/json" },
+          headers: {
+            Accept: "application/json",
+            ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+          },
+          credentials: "include",
         });
 
         if (res.status === 404) {
@@ -197,12 +229,14 @@ export function useAsyncExport(
       });
 
       try {
-        const res = await fetch(`/api/v3/reports/${type}/export`, {
+        const res = await fetch(`${API_BASE_URL}/reports/${type}/export`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
           },
+          credentials: "include",
           body: JSON.stringify(params ?? {}),
         });
 
