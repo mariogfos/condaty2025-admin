@@ -35,8 +35,18 @@ describe("S113 — useAsyncExport baseURL + auth pin", () => {
     const src = fs.readFileSync(HOOK_PATH, "utf8");
     // El bug original pineá `fetch(\`/api/v3/reports/${type}\`)` que se
     // resolvía contra el front (:3000), no contra el back (:8000).
-    // S113 fix pineá \`${API_BASE_URL}/reports/${type}\` con baseURL del back.
+    // S113 fix pineá \`${API_BASE_URL}/v3/reports/${type}\` con baseURL del back.
     expect(src).not.toMatch(/fetch\([^)]*`\/api\/v3\/reports\//);
+  });
+
+  it("useAsyncExport.ts pinea /v3/reports/ (canónico, no legacy alias)", () => {
+    const src = fs.readFileSync(HOOK_PATH, "utf8");
+    // S113b (R-PKG-016 sweep): pinear el canónico `/v3/reports/...` en
+    // lugar del legacy `/api/reports/...` que pineá un Controller con
+    // getNameModel roto (HALLAZGO-NEW-22, S114).
+    expect(src).toMatch(/`\$\{API_BASE_URL\}\/v3\/reports\//);
+    // Anti-regresión: NO pinea el legacy alias `/reports/` (sin v3).
+    expect(src).not.toMatch(/`\$\{API_BASE_URL\}\/reports\//);
   });
 
   it("useAsyncExport.ts pinea API_BASE_URL desde NEXT_PUBLIC_API_URL", () => {
