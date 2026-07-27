@@ -140,7 +140,7 @@ export function useAsyncExport(
   const pollStatus = useCallback(
     async (jobId: string) => {
       try {
-        const res = await fetch(`${API_BASE_URL}/reports/${jobId}/status`, {
+        const res = await fetch(`${API_BASE_URL}/v3/reports/${jobId}/status`, {
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -229,7 +229,7 @@ export function useAsyncExport(
       });
 
       try {
-        const res = await fetch(`${API_BASE_URL}/reports/${type}/export`, {
+        const res = await fetch(`${API_BASE_URL}/v3/reports/${type}/export`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
