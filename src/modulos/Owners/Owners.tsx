@@ -24,6 +24,7 @@ import RenderForm from "../Owners/RenderForm/RenderForm";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import RenderView from "./RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { DptoStatus, OwnerStatus } from "@/modulos/Payments/Type/PaymentType";
 
 const paramsInitial = {
   perPage: 20,
@@ -79,7 +80,7 @@ const Owners = () => {
                 />
                 <KeyValue
                   title="Estado"
-                  value={dpto.status === "A" ? "Activo" : "Inactivo"}
+                  value={dpto.status === DptoStatus.ACTIVE ? "Activo" : "Inactivo"}
                 />
                 {index < homeowner.dptos.length - 1 && (
                   <hr className={styles.unitDivider} />
@@ -128,7 +129,7 @@ const Owners = () => {
       extraData?: Record<string, any>;
       reLoad?: any;
     }) =>
-      props?.item.status === "W" && props?.item.type_owner !== "Dependiente" ? (
+      props?.item.status === OwnerStatus.WAITING && props?.item.type_owner !== "Dependiente" ? (
         <RenderView {...props} />
       ) : (
         <ProfileModal
@@ -359,7 +360,7 @@ const Owners = () => {
               <span
                 style={{
                   color:
-                    item?.status === "W"
+                    item?.status === OwnerStatus.WAITING
                       ? "var(--cWarning)"
                       : "var(--cWhiteV1)",
                 }}
