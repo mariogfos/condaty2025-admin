@@ -6,6 +6,11 @@
  * para pinear como "Ver historial" en el `ExportProgressModal` y
  * `AsyncExportButton`. Mantiene el contrato del `NewModal` que el
  * proyecto ya pineá en 30+ lugares.
+ *
+ * S119b: pineá `initialType` para que cuando el modal se abra desde
+ * un módulo específico (e.g. `AsyncExportButton` con `type="outlays"`),
+ * el dropdown "Módulo" del `DownloadHistory` ya esté pre-seleccionado
+ * en el type correspondiente. Default: null ("Todos").
  */
 import NewModal from "../NewModal/NewModal";
 import DownloadHistory, {
@@ -20,6 +25,11 @@ type DownloadHistoryModalProps = {
   onDownload?: (item: DownloadHistoryItem) => void | Promise<void>;
   /** Status inicial. Default "completed". */
   initialStatus?: DownloadHistoryProps["initialStatus"];
+  /**
+   * S119b: type inicial (módulo) para el filtro. Si se pasa, el dropdown
+   * "Módulo" arranca pre-seleccionado. Default: null ("Todos").
+   */
+  initialType?: DownloadHistoryProps["initialType"];
   /** Polling opcional para reports pending/processing. */
   pollIntervalMs?: number;
 };
@@ -29,6 +39,7 @@ export default function DownloadHistoryModal({
   onClose,
   onDownload,
   initialStatus,
+  initialType,
   pollIntervalMs,
 }: DownloadHistoryModalProps) {
   return (
@@ -47,6 +58,7 @@ export default function DownloadHistoryModal({
       <DownloadHistory
         onDownload={onDownload}
         initialStatus={initialStatus}
+        initialType={initialType}
         pollIntervalMs={pollIntervalMs}
       />
     </NewModal>

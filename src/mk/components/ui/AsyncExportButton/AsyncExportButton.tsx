@@ -151,6 +151,10 @@ export default function AsyncExportButton({
       <DownloadHistoryModal
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
+        // S119b: pre-selecciona el módulo del que se está abriendo el
+        // historial. Si el user está en "Outlays" y click "Historial",
+        // el dropdown arranca en "outlays" en vez de "Todos".
+        initialType={type}
       />
     </>
   );

@@ -118,6 +118,14 @@ export type DownloadHistoryResponse = {
 type DownloadHistoryProps = {
   /** Status inicial. Default "completed" (lo que el user normalmente quiere). */
   initialStatus?: DownloadHistoryStatus;
+  /**
+   * S119b: type inicial (módulo) para el filtro. Útil cuando el modal
+   * se abre desde un módulo específico (e.g. Outlays.tsx) y queremos
+   * que el dropdown "Módulo" ya esté pre-seleccionado en "outlays".
+   * Default: null ("Todos"). Si se pasa, el filtro del GET inicial
+   * pinea `?type=<value>`.
+   */
+  initialType?: string | null;
   /** Polling automático para reports pending/processing (cada N ms). 0 = off. */
   pollIntervalMs?: number;
   /**
@@ -235,6 +243,7 @@ const StatusPill = ({ status }: { status: DownloadHistoryStatus }) => {
 
 export default function DownloadHistory({
   initialStatus = DEFAULT_STATUS,
+  initialType = null,
   pollIntervalMs = DEFAULT_POLL_MS,
   onDownload,
   emptyMessage = "Aún no generaste ningún reporte. Probá exportar algo desde un módulo con botón \"Exportar XLSX\" o \"Exportar PDF\".",
@@ -243,7 +252,9 @@ export default function DownloadHistory({
 }: DownloadHistoryProps) {
   const [status, setStatus] = useState<DownloadHistoryStatus>(initialStatus);
   // S119: filtro por módulo/type. null = "Todos".
-  const [type, setType] = useState<string | null>(null);
+  // S119b: si el parent pinea `initialType` (e.g. AsyncExportButton
+  // pasando su `type` prop), el dropdown arranca pre-seleccionado.
+  const [type, setType] = useState<string | null>(initialType);
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<DownloadHistoryItem[]>([]);
   const [total, setTotal] = useState(0);
