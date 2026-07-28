@@ -18,9 +18,16 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import Br from "@/components/Detail/Br";
 import { AreaStatus } from "@/modulos/Payments/Type/PaymentType";
 
-const status: any = {
-  A: "Activa",
-  X: "Inactiva",
+// S130 (HALLAZGO-NEW-39, binding cross-project): areas.status ahora
+// es TINYINT enum (AreaStatus::ACTIVE=1, MAINTENANCE=2), post S17-T3
+// (back). El mapa legacy `status = { A: "Activa", X: "Inactiva" }`
+// se reemplaza con el enum canónico. NOTA: el back `AreaController
+// ::statusArea` pineá un `$statusMap` que acepta tanto chars legacy
+// ('A'/'M') como enum values (1/2) en el input — pineamos enum
+// value (1 o 2) por consistencia.
+const AREA_STATUS_LABEL: Record<number, string> = {
+  [AreaStatus.ACTIVE]: "Activa",
+  [AreaStatus.MAINTENANCE]: "En mantenimiento",
 };
 
 const formatCoordinateValue = (value: any) => {
@@ -173,9 +180,11 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
               <p className={styles.title}>Datos generales</p>
               <KeyValue
                 title={"Estado"}
-                value={status[item?.status]}
+                value={AREA_STATUS_LABEL[item?.status as number]}
                 colorValue={
-                  item?.status == "A" ? "var(--cSuccess)" : "var(--cError)"
+                  item?.status === AreaStatus.ACTIVE
+                    ? "var(--cSuccess)"
+                    : "var(--cError)"
                 }
               />
               <KeyValue
@@ -323,7 +332,9 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
         <Button
           variant="secondary"
           onClick={() =>
-            item?.status == "A" ? setOpenConfirm(true) : onSaveStatus("A")
+            item?.status === AreaStatus.ACTIVE
+              ? setOpenConfirm(true)
+              : onSaveStatus(AreaStatus.ACTIVE)
           }
           style={{
             width: 150,
@@ -333,7 +344,9 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
             color: "var(--cWhite)",
           }}
         >
-          {item?.status == "A" ? "Desactivar área" : "Activar área"}
+          {item?.status === AreaStatus.ACTIVE
+            ? "Desactivar área"
+            : "Activar área"}
         </Button>
 
         {openConfirm && (
@@ -344,7 +357,7 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
             buttonText="Desactivar"
             buttonCancel="Cancelar"
             onSave={async () => {
-              onSaveStatus("X");
+              onSaveStatus(AreaStatus.MAINTENANCE);
             }}
           >
             <p>
