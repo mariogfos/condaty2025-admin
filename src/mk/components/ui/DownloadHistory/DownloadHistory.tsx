@@ -2,11 +2,19 @@
 /**
  * S116b front — DownloadHistory component
  *
- * Lista los reports generados por el user autenticado. Consume
- * `GET /api/v3/reports?status=...&page=...&perPage=...` (pineado en
+ * Lista los reports generados por el user autenticado. Consome
+ * `GET /api/v3/reports?status=...&type=...&page=...&perPage=...` (pineado en
  * S116b back, PR #204). Replica el patrón de S113/S115/S117 de
  * `useAsyncExport.ts` para construir URLs absolutas al back con
  * `API_BASE_URL` + `getAuthToken()` + `buildBackendUrl()`.
+ *
+ * S119 — Extendido con:
+ * - Filtro por `type` (módulo) en el dropdown. Pineá el
+ *   `?type=payments` del back (PR #207 → fix/s120 → S119).
+ * - Botón "Limpiar historial" que llama a `DELETE /api/v3/reports`
+ *   con confirm modal. Pineá el `ReportController::destroy()` del back
+ *   (S119) que borra SOLO completed/failed del user autenticado
+ *   + archivos físicos del storage. NO toca pending/processing.
  *
  * HALLAZGO-NEW-21 (binding, cross-project): cualquier `fetch()` que
  * pineá una URL del BACK debe pinear el baseURL del back
@@ -21,6 +29,10 @@
  * `/v3/reports` (NO legacy alias `/api/reports` con Controller roto
  * HALLAZGO-NEW-22).
  *
+ * HALLAZGO-NEW-26 (S116b front, binding cross-project): modal de flow
+ * async debe pinear salida explícita. Principio: el Clear flow es
+ * destructivo → confirm modal obligatorio antes de pinear DELETE.
+ *
  * Uso:
  *
  *     <DownloadHistory onDownload={(url, type) => downloadReport(url, type)} />
@@ -29,7 +41,7 @@
  *
  *     <DownloadHistoryModal ... />
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Download,
   RefreshCw,
@@ -38,8 +50,10 @@ import {
   Inbox,
   AlertCircle,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import Button from "../../forms/Button/Button";
+import NewModal from "../NewModal/NewModal";
 import styles from "./DownloadHistory.module.css";
 
 /**
@@ -115,6 +129,18 @@ type DownloadHistoryProps = {
   onDownload?: (item: DownloadHistoryItem) => void | Promise<void>;
   /** Custom render para mensajes vacíos / errores. */
   emptyMessage?: string;
+  /**
+   * S119: si se pasa, oculta el botón "Limpiar historial". Útil cuando
+   * el parent quiere pinear el Clear desde otro lado (e.g. un menú
+   * de "Más opciones"). Default: false (botón visible si hay items).
+   */
+  hideClearButton?: boolean;
+  /**
+   * S119: callback cuando el Clear se completa exitosamente. Útil
+   * para que el parent muestre un toast o haga algo más. Si no se
+   * pineá, no se notifica al parent.
+   */
+  onClearCompleted?: (deletedReports: number, deletedFiles: number) => void;
 };
 
 export type { DownloadHistoryProps };
@@ -123,21 +149,43 @@ const DEFAULT_STATUS: DownloadHistoryStatus = "completed";
 const DEFAULT_PAGE_SIZE = 20;
 const DEFAULT_POLL_MS = 5000;
 
+/**
+ * S119: lista de tipos conocidos para el dropdown "Módulo". Esta lista
+ * se mantiene manualmente (no hay endpoint back que la exponga —
+ * podríamos agregarlo en S119b si Mario quiere dropdown dinámico).
+ * El `value` matchea con el `type` que devuelve el back (campo
+ * `reports.type`). El `label` es lo que ve el user.
+ *
+ * Mantener sincronizado con `App\Reports\ReportTypeRegistry` del back
+ * (php artisan tinker → `app(App\Reports\ReportTypeRegistry::class)->availableTypes()`).
+ */
+const KNOWN_TYPES: { value: string; label: string }[] = [
+  { value: "payments", label: "Pagos" },
+  { value: "payments-xlsx", label: "Pagos XLSX" },
+  { value: "outlays", label: "Egresos" },
+  { value: "expenses", label: "Expensas" },
+  { value: "accesses", label: "Accesos" },
+  { value: "defaulters", label: "Morosos" },
+  { value: "dpto-deudas", label: "Deudas por Dpto" },
+  { value: "bank-accounts", label: "Cuentas Bancarias" },
+  { value: "areas", label: "Áreas" },
+  { value: "events", label: "Eventos" },
+  { value: "guards", label: "Guardias" },
+  { value: "homeowner", label: "Propietarios" },
+  { value: "owner", label: "Owners" },
+  { value: "reservation", label: "Reservas" },
+  { value: "invitation", label: "Invitaciones" },
+  { value: "budget", label: "Presupuesto" },
+  { value: "bank-entities", label: "Entidades Bancarias" },
+  { value: "debt-group", label: "Grupos de Deuda" },
+  { value: "assembly-attendances", label: "Asistencia a Asambleas" },
+  { value: "array_chunked", label: "Reporte (genérico)" },
+];
+
 /** Humaniza el `type` del report ("payments-xlsx" → "Pagos XLSX"). */
 const humanizeType = (type: string): string => {
-  // Mapeo conocido (ReportTypeRegistry)
-  const known: Record<string, string> = {
-    payments: "Pagos",
-    "payments-xlsx": "Pagos XLSX",
-    accesses: "Accesos",
-    defaulters: "Morosos",
-    "dptos-deudas": "Deudas por Dpto",
-    "bank-accounts": "Cuentas Bancarias",
-    expenses: "Expensas",
-    areas: "Áreas",
-    "array_chunked": "Reporte (genérico)",
-  };
-  if (known[type]) return known[type];
+  const known = KNOWN_TYPES.find((t) => t.value === type);
+  if (known) return known.label;
   // Fallback: humanizar el slug
   return type
     .replace(/[-_]/g, " ")
@@ -190,17 +238,31 @@ export default function DownloadHistory({
   pollIntervalMs = DEFAULT_POLL_MS,
   onDownload,
   emptyMessage = "Aún no generaste ningún reporte. Probá exportar algo desde un módulo con botón \"Exportar XLSX\" o \"Exportar PDF\".",
+  hideClearButton = false,
+  onClearCompleted,
 }: DownloadHistoryProps) {
   const [status, setStatus] = useState<DownloadHistoryStatus>(initialStatus);
+  // S119: filtro por módulo/type. null = "Todos".
+  const [type, setType] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<DownloadHistoryItem[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [downloadingUuid, setDownloadingUuid] = useState<string | null>(null);
+  // S119: estado del modal de confirmación de Clear.
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [clearError, setClearError] = useState<string | null>(null);
 
   const perPage = DEFAULT_PAGE_SIZE;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
+
+  // S119: cuando cambia type o status, reset page a 1 (no tiene sentido
+  // quedarse en page=5 si el filtro cambió).
+  useEffect(() => {
+    setPage(1);
+  }, [type, status]);
 
   const fetchPage = useCallback(
     async (showSpinner = true) => {
@@ -208,9 +270,15 @@ export default function DownloadHistory({
       setError(null);
       try {
         // S116b: pinea endpoint canónico `/v3/reports` (NO legacy alias
-        // `/api/reports` HALLAZGO-NEW-22). Query params: status, page, perPage.
-        // URL absoluta al back (HALLAZGO-NEW-21).
-        const url = `${API_BASE_URL}/v3/reports?status=${status}&page=${page}&perPage=${perPage}`;
+        // `/api/reports` HALLAZGO-NEW-22). Query params: status, type,
+        // page, perPage. URL absoluta al back (HALLAZGO-NEW-21).
+        const params = new URLSearchParams();
+        params.set("status", status);
+        params.set("page", String(page));
+        params.set("perPage", String(perPage));
+        if (type) params.set("type", type);
+
+        const url = `${API_BASE_URL}/v3/reports?${params.toString()}`;
         const token = getAuthToken();
         const res = await fetch(url, {
           method: "GET",
@@ -243,10 +311,10 @@ export default function DownloadHistory({
         if (showSpinner) setLoading(false);
       }
     },
-    [status, page, perPage],
+    [status, type, page, perPage],
   );
 
-  // Initial + when status/page changes
+  // Initial + when status/page/type changes
   useEffect(() => {
     fetchPage(true);
   }, [fetchPage]);
@@ -304,6 +372,56 @@ export default function DownloadHistory({
     [onDownload],
   );
 
+  // S119: handler del Clear. Llama DELETE /api/v3/reports (canónico,
+  // NO legacy alias), con Bearer + buildBackendUrl pattern. Multi-tenant
+  // viene del token — el back filtra por user_id automáticamente.
+  const handleClear = useCallback(async () => {
+    setClearing(true);
+    setClearError(null);
+    try {
+      // HALLAZGO-NEW-20: pinear endpoint canónico `/v3/reports`.
+      // HALLAZGO-NEW-21: URL absoluta via API_BASE_URL.
+      const url = `${API_BASE_URL}/v3/reports`;
+      const token = getAuthToken();
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          Accept: "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(
+          data?.message ?? `Error al limpiar el historial (${res.status})`,
+        );
+      }
+      const data = await res.json().catch(() => ({}));
+      // Reset page + cerrar modal + refetch.
+      setPage(1);
+      setShowClearConfirm(false);
+      await fetchPage(true);
+      if (onClearCompleted) {
+        onClearCompleted(
+          data?.deleted_reports ?? 0,
+          data?.deleted_files ?? 0,
+        );
+      }
+    } catch (err: any) {
+      setClearError(err?.message ?? "Error de red al limpiar el historial");
+    } finally {
+      setClearing(false);
+    }
+  }, [fetchPage, onClearCompleted]);
+
+  // S119: lista de types disponibles para el dropdown. Mostramos
+  // "Todos" + los types del KNOWN_TYPES que el user probablemente use.
+  // Si Mario quiere dropdown dinámico (basado en los types que el user
+  // realmente tiene), eso es S119b — pinear endpoint
+  // `GET /api/v3/reports/types` que retorne distinct types del user.
+  const typeOptions = useMemo(() => KNOWN_TYPES, []);
+
   return (
     <div className={styles.body} data-testid="download-history">
       <div className={styles.header}>
@@ -327,6 +445,44 @@ export default function DownloadHistory({
           )}
           Refrescar
         </button>
+      </div>
+
+      {/* S119: filter bar con dropdown de Módulo + botón Limpiar. */}
+      <div className={styles.filterBar} data-testid="download-history-filter-bar">
+        <label className={styles.filterLabel}>
+          <span>Módulo:</span>
+          <select
+            value={type ?? ""}
+            onChange={(e) => setType(e.target.value || null)}
+            className={styles.select}
+            data-testid="download-history-type-filter"
+            disabled={loading}
+          >
+            <option value="">Todos</option>
+            {typeOptions.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {!hideClearButton && items.length > 0 && (
+          <button
+            type="button"
+            className={styles.clearBtn}
+            onClick={() => {
+              setClearError(null);
+              setShowClearConfirm(true);
+            }}
+            disabled={loading || clearing}
+            data-testid="download-history-clear-btn"
+            aria-label="Limpiar historial"
+          >
+            <Trash2 size={14} />
+            Limpiar historial
+          </button>
+        )}
       </div>
 
       {error ? (
@@ -418,6 +574,30 @@ export default function DownloadHistory({
           </button>
         </div>
       )}
+
+      {/* S119: confirm modal del Clear. PINEA el flow destructivo:
+          user debe confirmar antes de pinear DELETE. Back-compat:
+          si parent no pineá `hideClearButton`, se muestra el botón
+          que abre este modal. */}
+      <NewModal
+        open={showClearConfirm}
+        onClose={() => {
+          if (!clearing) setShowClearConfirm(false);
+        }}
+        onSave={handleClear}
+        title="¿Limpiar historial?"
+        subtitle={`Se eliminarán todos los reportes completados y fallidos (${items.length} en esta página). Esta acción no se puede deshacer.`}
+        buttonText={clearing ? "Limpiando…" : "Sí, limpiar"}
+        buttonCancel="Cancelar"
+        disabled={clearing}
+      >
+        {clearError && (
+          <div className={styles.error} style={{ padding: 0 }}>
+            <AlertCircle size={20} />
+            <p style={{ fontSize: 13 }}>{clearError}</p>
+          </div>
+        )}
+      </NewModal>
     </div>
   );
 }

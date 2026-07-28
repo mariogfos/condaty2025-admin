@@ -23,7 +23,10 @@ describe("S116b front — DownloadHistory endpoint + status + pagination", () =>
     const src = fs.readFileSync(COMPONENT_PATH, "utf8");
     // S116b back (PR #204) acepta ?status=completed|failed|pending|processing|all.
     // Default: completed (lo que el user normalmente quiere ver).
-    expect(src).toMatch(/status=\$\{status\}/);
+    // S119: el URL building se refactorizó a URLSearchParams en vez de
+    // template literal inline. La intención es la misma: pinear status
+    // en el query string. Test actualizado al nuevo patrón.
+    expect(src).toMatch(/params\.set\(\s*["']status["']\s*,\s*status\s*\)/);
     // El default de initialStatus es "completed"
     expect(src).toMatch(/DEFAULT_STATUS[^;]*=\s*["']completed["']/);
   });
@@ -31,8 +34,9 @@ describe("S116b front — DownloadHistory endpoint + status + pagination", () =>
   it("DownloadHistory.tsx pinea page + perPage query params (S116b back pagination)", () => {
     const src = fs.readFileSync(COMPONENT_PATH, "utf8");
     // El back pinea ?page=...&perPage=... (clamp 1-100, default 20).
-    expect(src).toMatch(/page=\$\{page\}/);
-    expect(src).toMatch(/perPage=\$\{perPage\}/);
+    // S119: refactor a URLSearchParams — pinear el patrón nuevo.
+    expect(src).toMatch(/params\.set\(\s*["']page["']\s*,\s*String\(page\)\s*\)/);
+    expect(src).toMatch(/params\.set\(\s*["']perPage["']\s*,\s*String\(perPage\)\s*\)/);
   });
 
   it("DownloadHistory.tsx pinea anti IDOR (NO acepta user_id en query)", () => {
@@ -62,10 +66,15 @@ describe("S116b front — DownloadHistory endpoint + status + pagination", () =>
     const src = fs.readFileSync(COMPONENT_PATH, "utf8");
     // Mapeo humanizado para los tipos conocidos de reports
     // (S32-S45). Si el back agrega uno nuevo, pinear acá.
-    expect(src).toMatch(/payments:\s*["']Pagos["']/);
-    expect(src).toMatch(/expenses:\s*["']Expensas["']/);
-    expect(src).toMatch(/defaulters:\s*["']Morosos["']/);
-    expect(src).toMatch(/accesses:\s*["']Accesos["']/);
+    // S119: el mapping se refactorizó de `Record<string,string>` (objeto)
+    // a `KNOWN_TYPES: { value, label }[]` (array) para pinear la
+    // estructura del dropdown. El test se actualiza para matchear
+    // la nueva forma pero pinea LA MISMA INTENCIÓN: que los types
+    // principales estén mapeados a labels humanizados.
+    expect(src).toMatch(/value:\s*["']payments["']\s*,\s*label:\s*["']Pagos["']/);
+    expect(src).toMatch(/value:\s*["']expenses["']\s*,\s*label:\s*["']Expensas["']/);
+    expect(src).toMatch(/value:\s*["']defaulters["']\s*,\s*label:\s*["']Morosos["']/);
+    expect(src).toMatch(/value:\s*["']accesses["']\s*,\s*label:\s*["']Accesos["']/);
   });
 
   it("DownloadHistory.tsx pinea download button disabled cuando !isCompleted", () => {

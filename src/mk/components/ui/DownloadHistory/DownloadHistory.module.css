@@ -59,6 +59,82 @@
   opacity: 0.5;
 }
 
+/* S119: filter bar con dropdown de Módulo + botón Limpiar historial. */
+.filterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.filterLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #555;
+  font-weight: 500;
+}
+
+.filterLabel > span {
+  white-space: nowrap;
+}
+
+.select {
+  padding: 6px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+  min-width: 140px;
+}
+
+.select:hover:not(:disabled) {
+  border-color: #c0c0c0;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #00a37a;
+  box-shadow: 0 0 0 2px rgba(0, 163, 122, 0.15);
+}
+
+.select:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.clearBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid #f0c0c0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #b22828;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.clearBtn:hover:not(:disabled) {
+  background: #fce8e8;
+  border-color: #d83a3a;
+}
+
+.clearBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .refreshSpinner {
   animation: spin 1s linear infinite;
 }
