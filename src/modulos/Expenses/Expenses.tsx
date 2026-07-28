@@ -82,11 +82,16 @@ const mod: ModCrudType = {
   // S66.5 (HALLAZGO-NEW-64): migrado al slot async S36.5.
   // S43 pineó ExpensesReportType backend (PR #129) pero el frontend
   // quedó incompleto sin exportAsync. S66.5 corrige.
+  // S118b: pinea extraParams.title: "Reporte de Expensas" → title
+  // dinámico del PDF (el back lee $report->params['title'] y el
+  // ExpensesReportType con type=expenses ahora pinea las DEUDAS
+  // de dptos, tabla debt_dptos).
   export: false,
   exportAsync: {
     type: 'expenses',
     format: 'pdf',
     label: 'Exportar PDF',
+    extraParams: { title: 'Reporte de Expensas' },
   },
   filter: true,
   permiso: 'expense',

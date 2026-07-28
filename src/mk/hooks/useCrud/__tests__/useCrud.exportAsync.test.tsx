@@ -288,9 +288,10 @@ describe("useCrud — exportAsync slot (S36.5)", () => {
     ).toBeInTheDocument();
   });
 
-  it("exportAsync.extraParams pineado → override de filterBy/searchBy del store", () => {
-    // Si extraParams está pineado, useCrud NO pineá filterBy/searchBy
-    // automáticos. Validamos que el botón se renderiza correctamente.
+  it("exportAsync.extraParams pineado → merge con filterBy/searchBy del store (S118b)", () => {
+    // S118b: Si extraParams está pineado, useCrud pineá merge (no override)
+    // con filterBy/searchBy automáticos. Patrón canónico para pinear
+    // `title: "X"` sin perder los filtros del store.
     const TestComp = () => {
       const { List } = useCrud({
         paramsInitial: { page: 1, perPage: 10 },
