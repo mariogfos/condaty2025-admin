@@ -1744,10 +1744,11 @@ const useCrud = ({
                   format={mod.exportAsync.format || "pdf"}
                   label={mod.exportAsync.label || "Exportar"}
                   params={(() => {
-                    if (mod.exportAsync?.extraParams) {
-                      return mod.exportAsync.extraParams;
-                    }
-                    const out: Record<string, any> = {};
+                    // S118b: merge extraParams con filterBy/searchBy (antes
+                    // pineaba SOLO extraParams, perdiendo los filtros del store).
+                    const out: Record<string, any> = {
+                      ...(mod.exportAsync?.extraParams ?? {}),
+                    };
                     if (params?.filterBy) out.filterBy = params.filterBy;
                     if (params?.searchBy) out.searchBy = params.searchBy;
                     if (

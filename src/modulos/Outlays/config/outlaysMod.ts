@@ -2,6 +2,7 @@ import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 
 /**
  * getOutlaysMod (S43 — NEW-NEW-43 Expenses async export frontend)
+ *               (S118b — split Outlays vs Expenses, title dinámico)
  *
  * Factory que retorna el `mod` literal para el módulo Outlays (Egresos).
  * Extraído de `Outlays.tsx` para permitir tests unitarios sin renderizar
@@ -12,12 +13,10 @@ import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
  * Outlays al flow async PDF + XLSX (S32 + S43 backend
  * `ExpensesReportType`).
  *
- * S41 discovery (binding, cross-project): `Outlays.tsx` pinea
- * `modulo: "v3/expenses"` + `permiso: "outlays"`. Es un alias del
- * módulo Expenses canónico. Cuando se pineá `mod.exportAsync: { type:
- * "expenses" }` aquí, el `ExpensesReportType` (S43) sirve para ambos.
- * El permiso `outlays` se chequea a nivel del job (GenerateReportJob
- * → controller), no del ReportType.
+ * S118b: el `type` cambia de "expenses" a "outlays" para matchear el
+ * nuevo `OutlaysReportType` del back (que pineá gastos del condominio,
+ * tabla `expenses`). El `extraParams.title` pinea "Reporte de Egresos"
+ * para que el title del PDF sea consistente con el módulo.
  *
  * Pre-S43: el `Outlays.tsx` pineaba `export: true` (BC) sin
  * `mod.exportAsync`. El IconExport legacy llamaba a
@@ -26,11 +25,11 @@ import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
  * Riesgo: listados grandes (>500 egresos) caían en timeout 60s PHP-FPM.
  *
  * Post-S43: `export: false` (kill legacy) + `exportAsync: {...}` (slot async).
- * El flow async va por `POST /api/v3/reports/expenses/export` con
+ * El flow async va por `POST /api/v3/reports/outlays/export` con
  * format=pdf|xlsx. Render en queue worker (S32), Dompdf pagination
  * automática.
  *
- * @see HALLAZGO-NEW-57 (binding, cross-project) — ExpensesReportType canónico
+ * @see HALLAZGO-NEW-57 (binding, cross-project) — OutlaysReportType canónico
  * @see D-36.5-3 (S36.5) — si pinean AMBOS `mod.export: true` Y `mod.exportAsync`,
  *   el async override el legacy
  * @see D-37.5-3 (S37.5) — factory pattern para configs `mod` (patrón reusable)
@@ -43,20 +42,25 @@ export const getOutlaysMod = (): ModCrudType => ({
   plural: "Egresos",
   filter: true,
   // S43: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
+  // S118b: type: "outlays" → matchea el nuevo OutlaysReportType del back.
+  //        extraParams.title: "Reporte de Egresos" → title dinámico del PDF.
   // - export: false → kill legacy IconExport.
   // - exportAsync: {...} → slot async que useCrud auto-renderea via
   //   AsyncExportButton (S36.5 pattern, idéntico a defaultersMod S38.5
   //   + payments.config S37.5 + bankAccountsMod S41).
-  // - type: "expenses" → matchea el ExpensesReportType pineado en
-  //   S43 backend (ReportTypeRegistry.auto-discovery).
+  // - type: "outlays" → matchea el OutlaysReportType pineado en
+  //   S118b backend (ReportTypeRegistry.auto-discovery).
   // - format: "pdf" → ReportGenerator chunked (S32). XLSX también soportado
   //   en el backend (S43 pineá excelRowProvider).
-  // - auto-pasa filterBy+searchBy del store actual (useCrud S36.5 D-36.5-2).
+  // - extraParams.title: "Reporte de Egresos" → title del PDF (S118b).
+  // - auto-pasa filterBy+searchBy del store actual (useCrud S36.5 D-36.5-2,
+  //   merge con extraParams desde S118b).
   export: false,
   exportAsync: {
-    type: "expenses",
+    type: "outlays",
     format: "pdf",
     label: "Exportar PDF",
+    extraParams: { title: "Reporte de Egresos" },
   },
   permiso: "outlays",
   extraData: true,
