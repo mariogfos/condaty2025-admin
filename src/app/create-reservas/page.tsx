@@ -21,7 +21,7 @@ const CreateReservaPage = () => {
     try {
       const response = await contextInstance.request({
         method: "GET",
-        url: "/api/v3/reservations",
+        url: "/v3/reservations",
         params: {
           perPage: -1,
           page: 1,
