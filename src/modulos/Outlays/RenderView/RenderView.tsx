@@ -152,8 +152,8 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   const parsedDescription = parseExpenseDescription(item?.description);
 
   const getStatusStyle = (status: number | string) => {
-    if (status === ExpenseStatus.ACTIVE || status === 1 || status === "A") return styles.statusPaid;
-    if (status === ExpenseStatus.CANCELLED || status === 0 || status === "X") return styles.statusCancelled;
+    if (status === ExpenseStatus.ACTIVE) return styles.statusPaid;
+    if (status === ExpenseStatus.CANCELLED) return styles.statusCancelled;
     return "";
   };
 

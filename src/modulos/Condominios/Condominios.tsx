@@ -7,6 +7,7 @@ import RenderForm from "./RenderForm/RenderForm";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { getDateTimeStrMes } from "@/mk/utils/date";
 import RenderDel from "./RenderDel/RenderDel";
+import { ClientStatus } from "@/modulos/Payments/Type/PaymentType";
 
 const paramsInitial = {
   perPage: 20,
@@ -24,7 +25,7 @@ const mod: ModCrudType = {
   extraData: true,
   onHideActions: (item: any) => {
     return {
-      hideDel: item.privacy == "P" || item.status == "I",
+      hideDel: item.privacy == "P" || item.status === ClientStatus.INACTIVE,
     };
   },
   hideActions: {

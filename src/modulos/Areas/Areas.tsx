@@ -294,8 +294,8 @@ const Areas = () => {
         },
         onRender: (props: any) => {
           let status = "";
-          if ((props?.item?.status === AreaStatus.ACTIVE || props?.item?.status === 1 || props?.item?.status === "A")) status = "Activa";
-          if ((props?.item?.status === 0 || props?.item?.status === "X")) status = "Inactiva";
+          if (props?.item?.status === AreaStatus.ACTIVE) status = "Activa";
+          if (props?.item?.status === AreaStatus.MAINTENANCE) status = "Inactiva";
 
           return (
             <StatusBadge

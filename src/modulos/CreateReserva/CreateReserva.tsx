@@ -599,12 +599,12 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                         <KeyValue
                           title={"Estado"}
                           value={
-                            Number(selectedAreaDetails.status) === AreaStatus.ACTIVE || selectedAreaDetails.status === "A"
+                            Number(selectedAreaDetails.status) === AreaStatus.ACTIVE
                               ? "Disponible"
                               : "No Disponible"
                           }
                           colorValue={
-                            Number(selectedAreaDetails.status) === AreaStatus.ACTIVE || selectedAreaDetails.status === "A"
+                            Number(selectedAreaDetails.status) === AreaStatus.ACTIVE
                               ? "var(--cSuccess)"
                               : "var(--cError)"
                           }

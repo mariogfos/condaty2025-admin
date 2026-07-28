@@ -326,7 +326,7 @@ const OwnerManager = () => {
             />
             <div>
               Usuario esta activo?:{" "}
-              <span>{(formState.status === ClientOwnerStatus.WAITING || formState.status === 2 || formState.status === "W") ? "No" : "Sí"}</span>
+              <span>{formState.status === ClientOwnerStatus.WAITING ? "No" : "Sí"}</span>
             </div>
             <br />
             El usuario esta vinculado a las siguientes Unidades:
@@ -344,7 +344,7 @@ const OwnerManager = () => {
             {formState.clients?.map((client: any) => (
               <div key={client.id}>
                 {client.client.name} (
-                {(client.status === ClientOwnerStatus.WAITING || client.status === 2 || client.status === "W") ? "No Activado" : "Activado"}) Rol:{" "}
+                {client.status === ClientOwnerStatus.WAITING ? "No Activado" : "Activado"}) Rol:{" "}
                 {getRol(client.type)}{" "}
                 {client.titular &&
                   " su Titular es: " + getFullName(client.titular) + " "}

@@ -7,6 +7,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { ClientOwnerStatus } from "@/modulos/Payments/Type/PaymentType";
 
 const RenderView = (props: any) => {
   const { open, onClose, item: data, reLoad, execute, showToast } = props;
@@ -141,7 +142,7 @@ const RenderView = (props: any) => {
             </div>
           )}
 
-          {client?.pivot?.status === "W" && (
+          {client?.pivot?.status === ClientOwnerStatus.WAITING && (
             <div className={styles.boxButtons}>
               <Button
                 onClick={() => openModal("X")}

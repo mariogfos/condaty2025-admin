@@ -55,9 +55,23 @@ export enum AreaStatus {
  * S18.5a — DptoStatus numeric enum.
  *
  * Sincronizado con backend `App\Models\Enums\DptoStatus` (PHP):
+ * - INACTIVE = 0 (legacy 'X') — S_front + S135 pineado
  * - ACTIVE = 1 (legacy 'A')
  */
 export enum DptoStatus {
+  INACTIVE = 0,
+  ACTIVE = 1,
+}
+
+/**
+ * S_front — ClientStatus numeric enum.
+ *
+ * Sincronizado con backend `App\Modules\Clients\Enums\ClientStatus` (PHP):
+ * - INACTIVE = 0 (legacy 'I') — S135 pineado
+ * - ACTIVE = 1 (legacy 'A')
+ */
+export enum ClientStatus {
+  INACTIVE = 0,
   ACTIVE = 1,
 }
 
@@ -66,9 +80,15 @@ export enum DptoStatus {
  *
  * Sincronizado con backend `App\Modules\HomeOwner\Enums\OwnerStatus` (PHP):
  * - ACTIVE = 1 (legacy 'A')
+ * - WAITING = 2 (legacy 'W') — S_front + S132 pineado
+ * - PASSWORD_CHANGE_REQUIRED = 3 (legacy 'P') — S132 pineado
+ * - DISABLED = 4 (legacy 'X') — S132 pineado
  */
 export enum OwnerStatus {
   ACTIVE = 1,
+  WAITING = 2,
+  PASSWORD_CHANGE_REQUIRED = 3,
+  DISABLED = 4,
 }
 
 /**

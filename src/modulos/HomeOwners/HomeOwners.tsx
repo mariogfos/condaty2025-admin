@@ -65,7 +65,7 @@ const HomeOwners = () => {
                 />
                 <KeyValue
                   title="Estado"
-                  value={(dpto.status === DptoStatus.ACTIVE || dpto.status === 1 || dpto.status === "A") ? "Activo" : "Inactivo"}
+                  value={dpto.status === DptoStatus.ACTIVE ? "Activo" : "Inactivo"}
                 />
                 {index < homeowner.dptos.length - 1 && (
                   <hr className={styles.unitDivider} />

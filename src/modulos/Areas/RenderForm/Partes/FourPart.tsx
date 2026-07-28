@@ -169,7 +169,7 @@ const FourPart = ({ item }: { item: any }) => {
               title={"Estado"}
               value={status[item?.status]}
               colorValue={
-                item?.status == "A" ? "var(--cSuccess)" : "var(--cError)"
+                item?.status === AreaStatus.ACTIVE ? "var(--cSuccess)" : "var(--cError)"
               }
             />
             <KeyValue
