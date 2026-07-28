@@ -25,6 +25,11 @@ const COMPONENT_PATH = path.resolve(
   "../DownloadHistory.tsx",
 );
 
+const ASYNC_EXPORT_BUTTON_PATH = path.resolve(
+  __dirname,
+  "../../AsyncExportButton/AsyncExportButton.tsx",
+);
+
 let src = "";
 
 describe("S119 (front) - DownloadHistory Modulo filter + Clear", () => {
@@ -33,8 +38,10 @@ describe("S119 (front) - DownloadHistory Modulo filter + Clear", () => {
   });
 
   it("declara type state para el filtro por modulo", () => {
+    // S119b: ahora el state pineá `initialType` (no null hardcoded).
+    // Back-compat: si el parent no pinea initialType, default null.
     expect(src).toMatch(
-      /const\s+\[\s*type\s*,\s*setType\s*\]\s*=\s*useState\s*<\s*string\s*\|\s*null\s*>\s*\(\s*null\s*\)/,
+      /const\s+\[\s*type\s*,\s*setType\s*\]\s*=\s*useState\s*<\s*string\s*\|\s*null\s*>\s*\(\s*initialType\s*\)/,
     );
   });
 
@@ -133,5 +140,59 @@ describe("S119 (front) - DownloadHistory Modulo filter + Clear", () => {
       /import\s*\{[^}]*Trash2[^}]*\}\s*from\s*["']lucide-react["']/,
     );
     expect(src).toMatch(/<Trash2\s+size=\{14\}\s*\/>/);
+  });
+
+  // ─────────────────────────────────────────────────────────────────
+  // S119b — pre-seleccionar módulo en el dropdown cuando el modal
+  // se abre desde un módulo específico (e.g. AsyncExportButton).
+  // ─────────────────────────────────────────────────────────────────
+
+  it("S119b: pinea la prop opcional initialType string or null", () => {
+    // Back-compat: default null (Todos). Parents pinean initialType
+    // para pre-seleccionar el módulo.
+    expect(src).toMatch(/initialType\?:\s*string\s*\|\s*null/);
+  });
+
+  it("S119b: pinea initialType con default null en el destructuring", () => {
+    // La prop debe tener un valor default para back-compat. Si un
+    // parent viejo no la pineá, initialType = null = "Todos".
+    expect(src).toMatch(/initialType\s*=\s*null/);
+  });
+
+  it("S119b: el useState de type arranca con initialType", () => {
+    // El state del filtro debe inicializarse con initialType, NO con
+    // null hardcoded. Si pineás `useState<string | null>(null)` en
+    // vez de `useState<string | null>(initialType)`, el initialType
+    // prop es inútil.
+    expect(src).toMatch(
+      /useState\s*<\s*string\s*\|\s*null\s*>\s*\(\s*initialType\s*\)/,
+    );
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// S119b — integración en AsyncExportButton (pasa initialType)
+// ─────────────────────────────────────────────────────────────────
+
+describe("S119b (front) - AsyncExportButton pinea initialType en DownloadHistoryModal", () => {
+  let asyncSrc = "";
+  beforeAll(() => {
+    asyncSrc = fs.readFileSync(ASYNC_EXPORT_BUTTON_PATH, "utf-8");
+  });
+
+  it("AsyncExportButton pinea initialType=type en el DownloadHistoryModal", () => {
+    // S119b: cuando el user está en Outlays (type=outlays) y click
+    // "Historial", el modal debe arrancar con initialType=outlays.
+    // El componente ya tiene la prop `type: string` (la que se pineá
+    // al POST /export). Solo necesitamos pinearla al modal.
+    expect(asyncSrc).toMatch(
+      /<DownloadHistoryModal[\s\S]*?initialType=\{type\}/,
+    );
+  });
+
+  it("AsyncExportButton sigue pineando open y onClose en el modal", () => {
+    // Back-compat: las props originales pineadas.
+    expect(asyncSrc).toMatch(/<DownloadHistoryModal[\s\S]*?open=\{historyOpen\}/);
+    expect(asyncSrc).toMatch(/<DownloadHistoryModal[\s\S]*?onClose=\{[\s\S]*?setHistoryOpen\(false\)[\s\S]*?\}/);
   });
 });
