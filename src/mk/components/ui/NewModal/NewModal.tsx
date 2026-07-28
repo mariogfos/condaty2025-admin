@@ -133,7 +133,32 @@ const NewModal = ({
         {/* {!fullScreen && headerDivider && (
           <div className={styles.headerDivider} />
         )} */}
-        <section className={className}>{children}</section>
+        {/* S127 (HALLAZGO-NEW-37, binding cross-project): pinear
+         * `{open && children}` en vez de `{children}` directo.
+         *
+         * Por qué: el patrón anterior siempre renderizaba los
+         * children, cambiando solo `visibility: hidden/visible` del
+         * wrapper. Eso significaba que los `useEffect` de los children
+         * (e.g. polling de `DownloadHistory`, setInterval de
+         * `useAsyncExport`) seguían activos cuando el modal estaba
+         * "cerrado" — el user navegaba a otro menú y los polls
+         * seguían disparando `GET /v3/reports` y `GET /v3/reports/{id}/status`
+         * para siempre. Resultado: network flood al cambiar de menú.
+         *
+         * El fix de raíz: desmontar los children cuando `open=false`
+         * → React ejecuta los cleanup de los useEffect → polls mueren.
+         * Es el patrón de las headless modal libs modernas (Headless UI,
+         * Radix, Chakra).
+         *
+         * Trade-off documentado: cualquier state interno de los
+         * children (useState) se resetea al cerrar/reabrir. Eso es
+         * exactamente lo que queremos para modales de "progress" y
+         * "history" (cleanup completo al cerrar). Si un modal futuro
+         * necesita preservar state entre aperturas, debe subir el
+         * state al parent y pasarlo como props, NO depender del
+         * children-montado-aunque-cerrado.
+         */}
+        <section className={className}>{open && children}</section>
         {(buttonText != "" || buttonCancel != "" || buttonExtra) && (
           <footer>
             {buttonText != "" && (
