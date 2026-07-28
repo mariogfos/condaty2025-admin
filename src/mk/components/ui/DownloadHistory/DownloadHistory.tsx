@@ -158,14 +158,17 @@ const DEFAULT_PAGE_SIZE = 20;
 const DEFAULT_POLL_MS = 5000;
 
 /**
- * S119: lista de tipos conocidos para el dropdown "Módulo". Esta lista
- * se mantiene manualmente (no hay endpoint back que la exponga —
- * podríamos agregarlo en S119b si Mario quiere dropdown dinámico).
- * El `value` matchea con el `type` que devuelve el back (campo
- * `reports.type`). El `label` es lo que ve el user.
+ * S123: lista de tipos con labels humanizados. S123b pineó `initialType`
+ * (pre-selecciona en dropdown). Pero los VALUES de esta lista se usan
+ * SOLO como mapa de LABELS — los VALUES reales del dropdown vienen
+ * del endpoint back `/v3/reports/types` (HALLAZGO-NEW-32).
  *
- * Mantener sincronizado con `App\Reports\ReportTypeRegistry` del back
- * (php artisan tinker → `app(App\Reports\ReportTypeRegistry::class)->availableTypes()`).
+ * Esta lista es solo un fallback + label map. El dropdown principal
+ * pineá los types del back vía `availableTypes` state.
+ *
+ * Mantener sincronizado con `App\Reports\ReportTypeRegistry::availableTypes()`
+ * del back (php artisan tinker). El back es la SSoT — esta lista es
+ * solo para humanizar.
  */
 const KNOWN_TYPES: { value: string; label: string }[] = [
   { value: "payments", label: "Pagos" },
@@ -179,14 +182,15 @@ const KNOWN_TYPES: { value: string; label: string }[] = [
   { value: "areas", label: "Áreas" },
   { value: "events", label: "Eventos" },
   { value: "guards", label: "Guardias" },
-  { value: "homeowner", label: "Propietarios" },
-  { value: "owner", label: "Owners" },
-  { value: "reservation", label: "Reservas" },
-  { value: "invitation", label: "Invitaciones" },
-  { value: "budget", label: "Presupuesto" },
+  { value: "homeowners", label: "Propietarios" },
+  { value: "owners", label: "Owners" },
+  { value: "reservations", label: "Reservas" },
+  { value: "invitations", label: "Invitaciones" },
+  { value: "budgets", label: "Presupuesto" },
   { value: "bank-entities", label: "Entidades Bancarias" },
-  { value: "debt-group", label: "Grupos de Deuda" },
-  { value: "assembly-attendances", label: "Asistencia a Asambleas" },
+  { value: "debt-groups", label: "Grupos de Deuda" },
+  { value: "assemblies-attendances", label: "Asistencia a Asambleas" },
+  { value: "guard-news", label: "Guardias Nuevos" },
   { value: "array_chunked", label: "Reporte (genérico)" },
 ];
 
@@ -199,6 +203,42 @@ const humanizeType = (type: string): string => {
     .replace(/[-_]/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 };
+
+/**
+ * S123 (HALLAZGO-NEW-32): fetcha los types disponibles del back vía
+ * `GET /api/v3/reports/types`. El back devuelve los `type` strings
+ * que el user realmente tiene generados (multi-tenant). Drift
+ * imposible — si el back renombra/agrega un type, el dropdown
+ * se actualiza solo.
+ *
+ * Si el endpoint falla (red, 500, etc.), retorna el fallback
+ * hardcoded para que el dropdown no quede vacío. La defensa es
+ * "best-effort": la lista puede no estar 100% sincronizada con el
+ * back, pero el componente sigue funcionando.
+ */
+async function fetchAvailableTypes(): Promise<string[]> {
+  try {
+    const token = getAuthToken();
+    const res = await fetch(`${API_BASE_URL}/v3/reports/types`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      credentials: "include",
+    });
+    if (!res.ok) {
+      // Fallback silencioso — el dropdown muestra los types del fallback.
+      return KNOWN_TYPES.map((t) => t.value);
+    }
+    const body = await res.json();
+    const data = (body?.data ?? []) as string[];
+    return Array.isArray(data) ? data : [];
+  } catch {
+    // Fallback silencioso.
+    return KNOWN_TYPES.map((t) => t.value);
+  }
+}
 
 const formatBytes = (bytes: number | null): string => {
   if (bytes === null || bytes === undefined) return "";
@@ -265,6 +305,12 @@ export default function DownloadHistory({
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [clearError, setClearError] = useState<string | null>(null);
+  // S123 (HALLAZGO-NEW-32): lista de types disponibles del back
+  // (vía `GET /api/v3/reports/types`). Si el fetch falla, fallback
+  // al hardcoded KNOWN_TYPES (defensa best-effort).
+  const [availableTypes, setAvailableTypes] = useState<string[]>(
+    KNOWN_TYPES.map((t) => t.value),
+  );
 
   const perPage = DEFAULT_PAGE_SIZE;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -324,6 +370,23 @@ export default function DownloadHistory({
     },
     [status, type, page, perPage],
   );
+
+  // S123 (HALLAZGO-NEW-32): fetch available types del back en mount.
+  // El dropdown usa estos values. Si el endpoint falla, fallback al
+  // KNOWN_TYPES hardcoded (defensa best-effort — ver fetchAvailableTypes).
+  // Solo se ejecuta UNA VEZ en mount (deps []) para no spammear el
+  // endpoint en cada cambio de filtro.
+  useEffect(() => {
+    let cancelled = false;
+    fetchAvailableTypes().then((types) => {
+      if (!cancelled) {
+        setAvailableTypes(types);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Initial + when status/page/type changes
   useEffect(() => {
@@ -426,12 +489,26 @@ export default function DownloadHistory({
     }
   }, [fetchPage, onClearCompleted]);
 
-  // S119: lista de types disponibles para el dropdown. Mostramos
-  // "Todos" + los types del KNOWN_TYPES que el user probablemente use.
-  // Si Mario quiere dropdown dinámico (basado en los types que el user
-  // realmente tiene), eso es S119b — pinear endpoint
-  // `GET /api/v3/reports/types` que retorne distinct types del user.
-  const typeOptions = useMemo(() => KNOWN_TYPES, []);
+  // S123 (HALLAZGO-NEW-32): el dropdown usa `availableTypes` (los
+  // types reales del back) en vez de `KNOWN_TYPES` hardcoded. Cada
+  // type se labela con KNOWN_TYPES si hay match, o con humanizeType
+  // fallback. Así el dropdown está siempre sincronizado con el back
+  // y nunca se "driftea" por rename de un ReportType.
+  //
+  // El useMemo deriva el array de `{value, label}[]` a partir de
+  // availableTypes + KNOWN_TYPES map. Si availableTypes aún no
+  // cargó (primer render), usa KNOWN_TYPES hardcoded como fallback.
+  const typeOptions = useMemo(() => {
+    return availableTypes.map((value) => {
+      const known = KNOWN_TYPES.find((t) => t.value === value);
+      return {
+        value,
+        label: known?.label ?? value
+          .replace(/[-_]/g, " ")
+          .replace(/\b\w/g, (c: string) => c.toUpperCase()),
+      };
+    });
+  }, [availableTypes]);
 
   return (
     <div className={styles.body} data-testid="download-history">

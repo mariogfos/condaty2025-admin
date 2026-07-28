@@ -143,6 +143,66 @@ describe("S119 (front) - DownloadHistory Modulo filter + Clear", () => {
   });
 
   // ─────────────────────────────────────────────────────────────────
+  // S123 — dropdown consume types del back vía /v3/reports/types
+  // (HALLAZGO-NEW-32: derivá keys del back, NO hardcodees).
+  // ─────────────────────────────────────────────────────────────────
+
+  it("S123: pinea funcion fetchAvailableTypes que consume /v3/reports/types", () => {
+    // El componente debe fetchar los types del back en vez de usar
+    // KNOWN_TYPES hardcoded. Drift imposible.
+    expect(src).toMatch(
+      /async\s+function\s+fetchAvailableTypes\s*\(\s*\)\s*:\s*Promise\s*<\s*string\[\]\s*>/,
+    );
+    expect(src).toMatch(/`\$\{API_BASE_URL\}\/v3\/reports\/types`/);
+  });
+
+  it("S123: pinea useEffect que llama fetchAvailableTypes en mount", () => {
+    // Solo se ejecuta UNA VEZ en mount (deps vacias) para no spammear
+    // el endpoint en cada cambio de filtro.
+    expect(src).toMatch(
+      /useEffect\(\s*\(\s*\)\s*=>\s*\{[\s\S]*?fetchAvailableTypes\(\)[\s\S]*?\}\s*,\s*\[\s*\]\s*\)/,
+    );
+  });
+
+  it("S123: pinea state availableTypes para los types del back", () => {
+    // El state se inicializa con KNOWN_TYPES hardcoded como fallback,
+    // pero se sobreescribe con la response del back.
+    expect(src).toMatch(
+      /const\s+\[\s*availableTypes\s*,\s*setAvailableTypes\s*\]\s*=\s*useState/,
+    );
+  });
+
+  it("S123: el dropdown usa availableTypes en vez de KNOWN_TYPES hardcoded", () => {
+    // El typeOptions useMemo se deriva de availableTypes (no de KNOWN_TYPES).
+    expect(src).toMatch(
+      /typeOptions\s*=\s*useMemo\(\s*\(\)\s*=>\s*\{[\s\S]*?return\s+availableTypes\.map/,
+    );
+  });
+
+  it("S123: fetchAvailableTypes tiene fallback silencioso a KNOWN_TYPES", () => {
+    // Si el endpoint falla, fallback al KNOWN_TYPES hardcoded para
+    // que el dropdown no quede vacío. Defensa best-effort.
+    expect(src).toMatch(/return\s+KNOWN_TYPES\.map\(\s*\(\s*t\s*\)\s*=>\s*t\.value\s*\)/);
+  });
+
+  it("S123: el helper KNOWN_TYPES sigue existiendo como label map (no se borra)", () => {
+    // KNOWN_TYPES se pineá como label map (los labels humanizados).
+    // El back es SSoT para los values, el front pineá KNOWN_TYPES solo
+    // para mapear values a labels bonitos.
+    expect(src).toContain("const KNOWN_TYPES:");
+  });
+
+  it("S123: KNOWN_TYPES incluye values plurales (owners, homeowners, reservations) — NO singulares", () => {
+    // HALLAZGO-NEW-32 + HALLAZGO-NEW-31: el KNOWN_TYPES pinea los
+    // values exactos del back (plurales, SSoT = ReportTypeRegistry).
+    // Si alguien pinea singulares (owner, homeowner, reservation),
+    // el filter no matchea.
+    expect(src).toMatch(/value:\s*["']owners["']/);
+    expect(src).toMatch(/value:\s*["']homeowners["']/);
+    expect(src).toMatch(/value:\s*["']reservations["']/);
+  });
+
+  // ─────────────────────────────────────────────────────────────────
   // S119b — pre-seleccionar módulo en el dropdown cuando el modal
   // se abre desde un módulo específico (e.g. AsyncExportButton).
   // ─────────────────────────────────────────────────────────────────
