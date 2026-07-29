@@ -77,7 +77,7 @@ const useInstandDB = (): useInstantDbType => {
         if (del.length > 0) db.transact(del);
       }
     },
-    [user.client_id]
+    [user.client_id],
   );
   useEvent("onChatCloseRoom", onChatCloseRoom);
 
@@ -89,16 +89,16 @@ const useInstandDB = (): useInstantDbType => {
             ...payload,
             status: "N",
             client_id: user.client_id,
-          })
+          }),
         );
       }
     },
-    [user.client_id]
+    [user.client_id],
   );
 
   useEvent("onChatSendMsg", onChatSendMsg);
 
-  const { data: usersChat, reLoad } = useAxios("users", "GET", {
+  const { data: usersChat, reLoad } = useAxios("v3/users", "GET", {
     perPage: -1,
     fullType: "CHAT",
   });
@@ -144,7 +144,7 @@ const useInstandDB = (): useInstantDbType => {
               ?.name,
             rol: user.role.name,
             permisos: user.role.abilities,
-          })
+          }),
         );
       }
     }
@@ -171,7 +171,7 @@ const useInstandDB = (): useInstantDbType => {
         }
         return acc;
       },
-      {}
+      {},
     );
 
     const uniquePeersArray: any = Object.values(uniquePeers);
@@ -213,7 +213,7 @@ const useInstandDB = (): useInstantDbType => {
           db.transact(
             db.tx.messages[m.id].update({
               received_at: now,
-            })
+            }),
           );
         }
       });
@@ -229,13 +229,13 @@ const useInstandDB = (): useInstantDbType => {
             db.transact(
               db.tx.messages[m.id].update({
                 read_at: now,
-              })
+              }),
             );
           }
         });
       }
     },
-    [user?.id]
+    [user?.id],
   );
 
   const receivedMessage = useCallback(
@@ -247,19 +247,19 @@ const useInstandDB = (): useInstantDbType => {
             db.transact(
               db.tx.messages[m.id].update({
                 received_at: now,
-              })
+              }),
             );
           }
         });
       }
     },
-    [user?.id]
+    [user?.id],
   );
 
   const uploadImageInstantDB = async (
     file: File,
     roomId: string,
-    msgId: string
+    msgId: string,
   ) => {
     try {
       const opts = {
@@ -304,7 +304,7 @@ const useInstandDB = (): useInstantDbType => {
       setSending(false);
       return false;
     },
-    [sendMsgEvent, user.id]
+    [sendMsgEvent, user.id],
   );
 
   const sendEmoticon: SendEmoticonType = useCallback(
@@ -313,13 +313,13 @@ const useInstandDB = (): useInstantDbType => {
         const data = await db.transact(
           db.tx.messages[msgId].update({
             emoticon,
-          })
+          }),
         );
         return data;
       }
       return false;
     },
-    []
+    [],
   );
 
   const getNameRoom = useCallback(
@@ -330,7 +330,7 @@ const useInstandDB = (): useInstantDbType => {
       }
       return newRoomId;
     },
-    [user?.id]
+    [user?.id],
   );
 
   const closeRoom = useCallback(
@@ -338,7 +338,7 @@ const useInstandDB = (): useInstantDbType => {
       setRooms(rooms.filter((r: any) => r.value !== roomIdDel));
       closeRoomEvent(roomIdDel);
     },
-    [closeRoomEvent, rooms]
+    [closeRoomEvent, rooms],
   );
 
   const openNewChat = useCallback(
@@ -363,7 +363,7 @@ const useInstandDB = (): useInstantDbType => {
       newRoomEvent(newRoomId);
       return newRoomId;
     },
-    [getNameRoom, rooms, newRoomEvent, closeRoom]
+    [getNameRoom, rooms, newRoomEvent, closeRoom],
   );
 
   const result = useMemo(
@@ -414,7 +414,7 @@ const useInstandDB = (): useInstantDbType => {
       showToast,
       typing,
       sending,
-    ]
+    ],
   );
 
   return result;
