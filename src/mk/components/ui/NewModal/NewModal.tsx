@@ -1,5 +1,6 @@
 "use client";
 import { CSSProperties, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Button from "../../forms/Button/Button";
 import { IconX } from "../../../../components/layout/icons/IconsBiblioteca";
 import styles from "./newModal.module.css";
@@ -58,6 +59,11 @@ const NewModal = ({
   maxWidth = null,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
+  // S141 (HALLAZGO-NEW-51, binding cross-project): SSR safety. `document`
+  // no existe en el server, así que pineamos el portal solo después del
+  // primer effect (client mount). En SSR retornamos `null` (el modal
+  // se renderea client-side only gracias a `"use client"`).
+  const [mounted, setMounted] = useState(false);
 
   const _close = (a: any = false) => {
     setOpenModal(false);
@@ -65,6 +71,10 @@ const NewModal = ({
       onClose(a);
     }, duration);
   };
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -93,9 +103,31 @@ const NewModal = ({
     </div>
   );
 
-  return (
+  // S141 (HALLAZGO-NEW-51, binding cross-project): pineamos
+  // `createPortal(..., document.body)` para que el modal NO quede
+  // atrapado en un stacking context ancestro. El bug clásico: un padre
+  // con `transform`, `filter`, `perspective`, `will-change`,
+  // `contain: paint` o `backdrop-filter` rompe `position: fixed` y el
+  // modal se renderea dentro del card / columna / modal padre en vez
+  // de cubrir el viewport. El portal al body escapa cualquier
+  // stacking context y pinea el modal SIEMPRE encima de todo.
+  //
+  // UX: pineamos `pointer-events: none` cuando `open=false` para que el
+  // wrapper invisible (que sigue montado para preservar la animación
+  // de cierre con `transition: all 0.3s`) NO intercepte clicks. La
+  // animación de cierre se sigue viendo porque el componente sigue en
+  // el DOM hasta que `onClose` se ejecute vía el setTimeout de `_close`.
+  //
+  // S127 (HALLAZGO-NEW-37) sigue vigente: `{open && children}` mata
+  // los useEffect zombie (polling de DownloadHistory, useAsyncExport)
+  // cuando el modal está cerrado.
+  const modalContent = (
     <div
-      style={{ visibility: open ? "visible" : "hidden", zIndex }}
+      style={{
+        visibility: open ? "visible" : "hidden",
+        pointerEvents: open ? "auto" : "none",
+        zIndex,
+      }}
       className={styles.dataModal}
       onClick={(e) => e.stopPropagation()}
     >
@@ -181,6 +213,13 @@ const NewModal = ({
       </main>
     </div>
   );
+
+  // S141: SSR safety. Antes del primer mount client, `document` no
+  // existe → no pineamos portal. Después del mount, pineamos portal
+  // al body. Si `mounted=false` (SSR o primer render antes del
+  // effect), retornamos `null`.
+  if (!mounted) return null;
+  return createPortal(modalContent, document.body);
 };
 
 export default NewModal;
