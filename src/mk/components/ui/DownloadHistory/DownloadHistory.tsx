@@ -596,9 +596,8 @@ export default function DownloadHistory({
         </label>
 
         {!hideClearButton && items.length > 0 && (
-          <button
-            type="button"
-            className={styles.clearBtn}
+          <Button
+            variant="primary"
             onClick={() => {
               setClearError(null);
               setShowClearConfirm(true);
@@ -609,7 +608,7 @@ export default function DownloadHistory({
           >
             <Trash2 size={14} />
             Limpiar historial
-          </button>
+          </Button>
         )}
       </div>
 
