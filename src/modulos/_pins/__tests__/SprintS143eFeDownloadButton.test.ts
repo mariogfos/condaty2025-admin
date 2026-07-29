@@ -148,4 +148,45 @@ describe("S143e-fe — DownloadButton con ícono + menú (HALLAZGO-NEW-54)", () 
       expect(css).toMatch(/padding:\s*0/);
     });
   });
+
+  describe("useCrud — bifurca DownloadButton vs AsyncExportButton (S143e-fe-2)", () => {
+    it("useCrud.tsx importa DownloadButton", () => {
+      const src = readFile("mk/hooks/useCrud/useCrud.tsx");
+      expect(src).toMatch(
+        /import\s+DownloadButton\s+from\s+["']@\/mk\/components\/ui\/DownloadButton\/DownloadButton["']/,
+      );
+    });
+
+    it("useCrud.tsx pineá DownloadButton cuando supportedFormats está pineado", () => {
+      const src = loadSourceWithoutComments("mk/hooks/useCrud/useCrud.tsx");
+      expect(src).toMatch(/mod\.exportAsync\.supportedFormats/);
+      // Bifurca: DownloadButton si pineá supportedFormats, sino AsyncExportButton.
+      expect(src).toMatch(/DownloadButton/);
+      expect(src).toMatch(/AsyncExportButton/);
+    });
+  });
+
+  describe("Payments config — pineá supportedFormats (S143e-fe-2)", () => {
+    it("payments.config.tsx pineá supportedFormats: ['pdf', 'xlsx', 'csv']", () => {
+      const src = readFile("modulos/Payments/config/payments.config.tsx");
+      expect(src).toMatch(/supportedFormats:\s*\["pdf",\s*"xlsx",\s*"csv"\]/);
+    });
+
+    it("payments.config.tsx pineá endpoint: '/api/v3/payments'", () => {
+      const src = readFile("modulos/Payments/config/payments.config.tsx");
+      expect(src).toMatch(/endpoint:\s*["']\/api\/v3\/payments["']/);
+    });
+
+    it("payments.config.tsx pineá useExtraData: true", () => {
+      const src = readFile("modulos/Payments/config/payments.config.tsx");
+      expect(src).toMatch(/useExtraData:\s*true/);
+    });
+
+    it("payments.config.tsx pineá requiredRelations con paymentMethod, category, bankAccount", () => {
+      const src = readFile("modulos/Payments/config/payments.config.tsx");
+      expect(src).toMatch(/requiredRelations:\s*\["paymentMethod"/);
+      expect(src).toMatch(/"category"/);
+      expect(src).toMatch(/"bankAccount"/);
+    });
+  });
 });

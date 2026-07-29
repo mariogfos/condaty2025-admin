@@ -163,10 +163,28 @@ export const getPaymentsConfig = (
     // date range custom. Si se requiere date range, S38+ agrega
     // `extraParams: { start_date, end_date }` via UI.
     export: false,
+    // S143e (HALLAZGO-NEW-54, binding, cross-project): el botón de export
+    // pineá el `DownloadButton` (ícono + menú con PDF / XLSX / CSV) en vez
+    // del `AsyncExportButton` legacy (texto "Exportar XLSX").
+    //
+    // `supportedFormats`: array con los formats que el back pineá
+    //   configurados en `PaymentsExportConfig::supportedFormats()`.
+    //   Si pineá 1 format → single click. Si pineá 2+ → dropdown con menú.
+    // `endpoint`: el endpoint de lista del módulo. El flow consume
+    //   `GET {endpoint}?_export={format}` (flow nuevo inline del
+    //   Controller) en vez de `POST /v3/reports/{type}/export` (BC layer).
+    // `useExtraData`: si true, el `Controller::index` pineá `extraData`
+    //   antes de dispatchar (metadata adicional: totales, categorías, etc.).
+    // `requiredRelations`: relations que el Controller debe eager-load
+    //   antes del export (e.g. `paymentMethod`, `category`, `bankAccount`).
     exportAsync: {
       type: "payments",
       format: "excel",
-      label: "Exportar XLSX",
+      label: "Exportar",
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      endpoint: "/api/v3/payments",
+      useExtraData: true,
+      requiredRelations: ["paymentMethod", "category", "bankAccount"],
     },
     titleAdd: "Nuevo",
     titleDel: "Anular",
