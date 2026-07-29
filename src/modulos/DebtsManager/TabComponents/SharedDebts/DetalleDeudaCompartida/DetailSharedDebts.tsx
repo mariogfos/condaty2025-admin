@@ -246,27 +246,35 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   }, []);
 
   const mod: ModCrudType = {
-    modulo: "v3/debt-dptos",
+    // S139 (HALLAZGO-NEW-48 + Bug #2 Mario 2026-07-29): el DETALLE de una
+    // deuda compartida (vista que se abre al hacer click en una fila de
+    // SharedDebts) pineá el REPORTE AGRUPADO del periodo (DebtGroupReportType
+    // EXPENSE branch — 7 cols agregado por periodo, año, mes).
+    //
+    // Pre-S139: pineá `type: "debt-dptos"` + `type: 1` → DebtDptoReportType
+    // EXPENSE branch → 8 cols por deuda individual del periodo. Pero el
+    // usuario esperaba el REPORTE DEL GRUPO (7 cols agregado), no las
+    // deudas individuales. El label y las columnas no matcheaban.
+    //
+    // Post-S139: pineá `type: "debt-groups"` + `extraParams: { type: 1, debt_id: X }`
+    // → DebtGroupReportType EXPENSE branch → "Listado de EXPENSAS"
+    // (7 cols agregado por `debt_id, year, month`).
+    //
+    // Cross-IA: `debt-dptos` se conserva para las vistas que pineá
+    // deudas individuales (IndividualDebts, SharedDebts lista, Forgiveness,
+    // AllDebts). `debt-groups` se pineá para el detalle de periodo y la
+    // lista CRUD de expensas (Expenses.tsx).
+    modulo: "v3/debt-groups",
     singular: "Detalle",
     plural: "Detalles",
-    // S47.5: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
-    // - export: false → kill legacy GET /api/v3/debt-dptos?_export=pdf.
-    // - exportAsync: {...} → slot async que useCrud auto-renderea via
-    //   AsyncExportButton (S36.5 pattern, idéntico a S41 BankAccounts,
-    //   S43 Outlays, S45 Areas).
-    // - type: "debt-dptos" → matchea el DebtDptoReportType pineado en
-    //   S47 backend (ReportTypeRegistry.auto-discovery, 11 tipos).
-    // - extraParams.type: 1 (EXPENSE) + debt_id dinámico → branch EXPENSE
-    //   del ReportType (8 cols: unidad, fecha_pago_date3, fecha_plazo_date3,
-    //   estado, monto_cur, multa_cur, mv_cur, total_sum_cur).
-    //   El debtId es un PROP del componente (SharedDebts → DetailSharedDebts
-    //   navega con el debt_id específico de la shared debt seleccionada).
-    //   Como el mod se declara en el render, extraParams lee `debtId` del
-    //   closure del componente — funciona en cada render.
-    // - format: "pdf" (S47 pineá PDF only, no XLSX — D-47-3).
+    // S48-T01 pattern: exportAsync slot para el reporte AGRUPADO del periodo.
+    // - type: "debt-groups" → DebtGroupReportType branch EXPENSE (7 cols).
+    // - extraParams.type: 1 (EXPENSE) + debt_id dinámico → filtra por el
+    //   periodo específico seleccionado en SharedDebts.
+    // - format: "pdf" (PDF only — XLSX pineá `dpto-deudas` para Unidades).
     export: false,
     exportAsync: {
-      type: "debt-dptos",
+      type: "debt-groups",
       format: "pdf",
       label: "Exportar PDF",
       extraParams: { type: 1, debt_id: debtId },

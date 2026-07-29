@@ -100,6 +100,19 @@ export type DownloadHistoryItem = {
   id: number;
   uuid: string;
   type: string;
+  /**
+   * S139 (HALLAZGO-NEW-48): displayName del ReportType pineado según
+   * params (e.g. "Deuda Individual", "Deudas Compartidas", "Condonaciones",
+   * "Reporte de Expensas"). Si el back retorna `name`, se pineá en el
+   * render del item + en el filename del download. Si NO se pineá
+   * (ReportType legacy sin override), fallback a `humanizeType(type)`.
+   *
+   * Multi-branch pineado: el mismo `type` (e.g. "debt-dptos") pinea
+   * 4 vistas distintas — el `name` permite distinguir en el dropdown
+   * del histórico y en el filename del archivo bajado.
+   */
+  name?: string | null;
+  format: string;
   status: DownloadHistoryStatus;
   created_at: string | null;
   download_url: string | null;
@@ -188,6 +201,12 @@ const KNOWN_TYPES: { value: string; label: string }[] = [
   { value: "invitations", label: "Invitaciones" },
   { value: "budgets", label: "Presupuesto" },
   { value: "bank-entities", label: "Entidades Bancarias" },
+  // S139 (HALLAZGO-NEW-48): `debt-dptos` pineá 4 vistas distintas según
+  // params (Deuda Individual, Deudas Compartidas, Condonaciones, Todas).
+  // El label del dropdown es el type técnico humanizado (legacy fallback);
+  // el label de cada item del histórico pineá `name` (displayName dinámico
+  // del ReportType) que se computa server-side.
+  { value: "debt-dptos", label: "Deudas por Dpto" },
   { value: "debt-groups", label: "Grupos de Deuda" },
   { value: "assemblies-attendances", label: "Asistencia a Asambleas" },
   { value: "guard-news", label: "Guardias Nuevos" },
@@ -432,7 +451,22 @@ export default function DownloadHistory({
         const blobUrl = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = blobUrl;
-        link.download = `${item.type}-${item.uuid}.${item.type.includes("xlsx") || item.type.includes("excel") ? "xlsx" : "pdf"}`;
+        // S139 (HALLAZGO-NEW-48 + HALLAZGO-NEW-49): filename pinea
+        // displayName (legible) + format normalizado ('excel'→'xlsx').
+        // El back ya pinea esto en Content-Disposition, pero algunos
+        // browsers reescriben el filename al hacer Blob download — pineamos
+        // también acá para que el archivo bajado se llame "deuda_individual-XXXX.xlsx"
+        // en vez de "debt-dptos-XXXX.excel".
+        const downloadFormat =
+          item.format === "excel" ? "xlsx" : (item.format || "pdf");
+        const downloadName = item.name || humanizeType(item.type);
+        const sanitizedName = downloadName
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9_\-]+/g, "_")
+          .replace(/^_+|_+$/g, "");
+        link.download = `${sanitizedName || "reporte"}-${item.uuid}.${downloadFormat}`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -594,8 +628,14 @@ export default function DownloadHistory({
       ) : (
         <ul className={styles.list} data-testid="download-history-list">
           {items.map((item) => {
-            const isXlsx =
-              item.type.includes("xlsx") || item.type.includes("excel");
+            // S139 (HALLAZGO-NEW-48): pinea `item.name` (displayName del
+            // ReportType según params) si está pineado. Fallback a
+            // `humanizeType(item.type)` (legacy) para ReportTypes sin
+            // override. Esto permite distinguir "Deuda Individual",
+            // "Deudas Compartidas", "Condonaciones" — todos con type
+            // "debt-dptos".
+            const displayLabel = item.name || humanizeType(item.type);
+            const isXlsx = item.format === "xlsx" || item.format === "excel";
             const Icon = isXlsx ? FileSpreadsheet : FileText;
             const isCompleted = item.status === "completed";
             return (
@@ -610,7 +650,9 @@ export default function DownloadHistory({
                   aria-hidden="true"
                 />
                 <div className={styles.itemBody}>
-                  <p className={styles.itemTitle}>{humanizeType(item.type)}</p>
+                  <p className={styles.itemTitle} data-testid="download-history-item-title">
+                    {displayLabel}
+                  </p>
                   <p className={styles.itemMeta}>
                     <span>{formatDate(item.created_at)}</span>
                     {item.size_bytes !== null && item.size_bytes > 0 && (
