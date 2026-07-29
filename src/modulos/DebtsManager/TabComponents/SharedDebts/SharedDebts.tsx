@@ -448,27 +448,40 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   }, []);
 
   const mod: ModCrudType = {
-    modulo: "debt-groups",
+    // S139 (HALLAZGO-NEW-48 + Bug #2 Mario 2026-07-29): la lista de
+    // "Deudas Compartidas" pineá las DEUDAS INDIVIDUALES tipo SHARED,
+    // NO el reporte agrupado de expensas.
+    //
+    // Pre-S139: pineá `type: "debt-groups"` → DebtGroupReportType
+    // EXPENSE branch → "Listado de EXPENSAS" (7 cols agregado por periodo).
+    // Eso era el reporte de la lista CRUD de expensas, NO las deudas
+    // compartidas. El usuario veía el reporte equivocado.
+    //
+    // Post-S139: pineá `type: "debt-dptos"` + `extraParams: { type: 4 }`
+    // → DebtDptoReportType NORMAL branch → "TODAS LAS DEUDAS COMPARTIDAS"
+    // (6 cols por deuda individual tipo SHARED).
+    //
+    // Cross-IA: el `DebtGroupReportType` (type="debt-groups") se conserva
+    // para el detalle del periodo (DetailSharedDebts) y para la lista CRUD
+    // de expensas (Expenses.tsx, módulo "v3/debt-groups"). Ver S139-fe.
+    modulo: "v3/debt-dptos",
     singular: "Deuda Compartida",
     plural: "",
     // S48: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
-    // - export: false → kill legacy GET /api/v3/debt-groups?_export=pdf.
+    // - export: false → kill legacy GET /api/v3/debt-dptos?_export=pdf.
     // - exportAsync: {...} → slot async que useCrud auto-renderea via
-    //   AsyncExportButton (S36.5 pattern, idéntico a S41 BankAccounts,
-    //   S43 Outlays, S45 Areas, S47.5 DebtDpto).
-    // - type: "debt-groups" → matchea el DebtGroupReportType pineado en
-    //   S48-T01 backend (PR #133, ReportTypeRegistry.auto-discovery,
-    //   12 tipos).
-    // - extraParams.type: undefined → branch EXPENSE del ReportType
-    //   (7 cols agregado por debt_id/year/month). Si el usuario pinea
-    //   type=4 (SHARED), el branch cambia automáticamente (S48-T01
-    //   detectBranch).
-    // - format: "pdf" (S48-T01 pineá PDF only, no XLSX — D-48-3).
+    //   AsyncExportButton (S36.5 pattern).
+    // - type: "debt-dptos" + extraParams.type: 4 (SHARED) → branch NORMAL
+    //   de DebtDptoReportType → 6 cols por deuda individual tipo SHARED,
+    //   "TODAS LAS DEUDAS COMPARTIDAS". Filtra por `debt_dptos.type = 4`.
+    // - format: "pdf" (PDF only — XLSX pineá `dpto-deudas` para el reporte
+    //   de Unidades, no este).
     export: false,
     exportAsync: {
-      type: "debt-groups",
+      type: "debt-dptos",
       format: "pdf",
       label: "Exportar PDF",
+      extraParams: { type: 4 },
     },
     filter: true,
     permiso: "expense",
