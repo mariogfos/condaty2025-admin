@@ -264,15 +264,28 @@ const Outlays = () => {
             }
 
             const statusConfig: StatusConfig = {
-              A: {
-                label: "Pagado",
-                color: "var(--cSuccess)",
-                bgColor: "var(--cHoverCompl2)",
-              },
-              X: {
+              // S140 (HALLAZGO-NEW-39 variant): el back pinea `ExpenseStatus`
+              // enum numérico (post-S2-T2). Las keys legacy CHAR ('A', 'X')
+              // ya no matchean — todo caía en "Desconocido". Fix: pinear
+              // keys numéricas que matchean el enum del back
+              // (app/Modules/Expenses/Enums/ExpenseStatus.php).
+              //
+              // Pre-S140 (legacy, char):
+              //   A: Pagado
+              //   X: Anulado
+              //
+              // Post-S140 (numeric, post-ExpenseStatus enum):
+              //   0 (ExpenseStatus.CANCELLED): Anulado
+              //   1 (ExpenseStatus.ACTIVE): Pagado
+              0: {
                 label: "Anulado",
                 color: "var(--cWhite)",
                 bgColor: "var(--cHoverCompl1)",
+              },
+              1: {
+                label: "Pagado",
+                color: "var(--cSuccess)",
+                bgColor: "var(--cHoverCompl2)",
               },
             };
 
@@ -282,7 +295,10 @@ const Outlays = () => {
               bgColor: "var(--cHoverCompl1)",
             };
 
-            const status = props.item.status as keyof typeof statusConfig;
+            // Coerce to number (back pinea int, pero el JSON a veces
+            // viene como string — defensa en profundidad).
+            const rawStatus = props.item.status;
+            const status = typeof rawStatus === "string" ? parseInt(rawStatus, 10) : rawStatus;
             const { label, color, bgColor } =
               statusConfig[status] || defaultConfig;
 
