@@ -91,14 +91,27 @@ describe("S139-fe — displayName dinámico + SharedDebts/DetailSharedDebts fix"
       expect(src).not.toMatch(/item\.type\.includes\(['"]excel['"]\)/);
     });
 
-    it("KNOWN_TYPES pineá `debt-dptos` → 'Deudas por Dpto' (legacy fallback para dropdown)", () => {
+    it("KNOWN_TYPES pineá `debt-dptos` con label distinto a `dpto-deudas` (no duplicado)", () => {
+      // S140: el `debt-dptos` pineá 4 vistas multi-branch (Individual,
+      // Compartidas, Condonaciones, Todas). El `dpto-deudas` pineá el
+      // reporte de Unidades (XLSX estado de cuentas). Pre-S140 ambos
+      // pinean "Deudas por Dpto" → duplicado en el dropdown. Post-S140
+      // pinean labels distintos.
       const src = readFile(
         "mk/components/ui/DownloadHistory/DownloadHistory.tsx"
       );
       // Compat: el dropdown pineá KNOWN_TYPES como label fallback. El
       // `debt-dptos` debe tener un label humanizado.
       expect(src).toMatch(/value:\s*["']debt-dptos["']/);
-      expect(src).toMatch(/label:\s*["']Deudas por Dpto["']/);
+      // El label pineá algo distinto a "Deudas por Dpto" (que es
+      // de dpto-deudas). Default: "Deudas — Detalles" o "Deudas Individuales
+      // y Compartidas". Pin genérico: NO debe contener "Deudas por Dpto".
+      const debtDptosMatch = src.match(
+        /value:\s*["']debt-dptos["'],\s*label:\s*["']([^"']+)["']/,
+      );
+      expect(debtDptosMatch).not.toBeNull();
+      expect(debtDptosMatch![1]).not.toBe("Deudas por Dpto");
+      expect(debtDptosMatch![1]).not.toMatch(/Deudas por Dpto/);
     });
   });
 
