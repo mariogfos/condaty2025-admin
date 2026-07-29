@@ -595,6 +595,9 @@ export default function DownloadHistory({
           </select>
         </label>
 
+        {/* S143e (HALLAZGO-NEW-54): el botón "Limpiar historial" ahora es
+            SOLO ícono (Trash2) + tooltip "Limpiar historial" + aria-label.
+            El texto se pineó al `title` HTML para accesibilidad. */}
         {!hideClearButton && items.length > 0 && (
           <Button
             variant="primary"
@@ -604,10 +607,11 @@ export default function DownloadHistory({
             }}
             disabled={loading || clearing}
             data-testid="download-history-clear-btn"
+            title="Limpiar historial"
             aria-label="Limpiar historial"
+            className={styles.iconOnly}
           >
             <Trash2 size={14} />
-            Limpiar historial
           </Button>
         )}
       </div>
