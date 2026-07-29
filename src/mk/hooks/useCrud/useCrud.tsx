@@ -54,6 +54,7 @@ import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 import { encodeReportViewerState } from "@/modulos/Reports/reportViewerState";
 import { shouldUseNewReportsViewer } from "@/modulos/Reports/reportFeatureFlags";
 import AsyncExportButton from "@/mk/components/ui/AsyncExportButton/AsyncExportButton";
+import DownloadButton from "@/mk/components/ui/DownloadButton/DownloadButton";
 
 export type ModCrudType = {
   modulo: string;
@@ -1739,28 +1740,61 @@ const useCrud = ({
                 />
               )}
               {mod.exportAsync && (
-                <AsyncExportButton
-                  type={mod.exportAsync.type}
-                  format={mod.exportAsync.format || "pdf"}
-                  label={mod.exportAsync.label || "Exportar"}
-                  params={(() => {
-                    // S118b: merge extraParams con filterBy/searchBy (antes
-                    // pineaba SOLO extraParams, perdiendo los filtros del store).
-                    const out: Record<string, any> = {
-                      ...(mod.exportAsync?.extraParams ?? {}),
-                    };
-                    if (params?.filterBy) out.filterBy = params.filterBy;
-                    if (params?.searchBy) out.searchBy = params.searchBy;
-                    if (
-                      mod.exportAsync?.exportCols &&
-                      mod.exportAsync.exportCols.length > 0
-                    ) {
-                      out.exportCols = mod.exportAsync.exportCols;
-                    }
-                    return out;
-                  })()}
-                  variant="terciary"
-                />
+                <>
+                  {/* S143e (HALLAZGO-NEW-54, binding, cross-project): si
+                      `mod.exportAsync.supportedFormats` está pineado (array con
+                      1+ formats), pinear el `DownloadButton` con ícono + menú.
+                      Si NO, mantener el `AsyncExportButton` legacy (BC layer
+                      para módulos no migrados). */}
+                  {Array.isArray(mod.exportAsync.supportedFormats) &&
+                  mod.exportAsync.supportedFormats.length > 0 ? (
+                    <DownloadButton
+                      type={mod.exportAsync.type}
+                      supportedFormats={mod.exportAsync.supportedFormats}
+                      endpoint={mod.exportAsync.endpoint ?? null}
+                      useExtraData={Boolean(mod.exportAsync.useExtraData)}
+                      requiredRelations={mod.exportAsync.requiredRelations ?? []}
+                      title={mod.exportAsync.label || "Exportar"}
+                      params={(() => {
+                        // S118b: merge extraParams con filterBy/searchBy.
+                        const out: Record<string, any> = {
+                          ...(mod.exportAsync?.extraParams ?? {}),
+                        };
+                        if (params?.filterBy) out.filterBy = params.filterBy;
+                        if (params?.searchBy) out.searchBy = params.searchBy;
+                        if (
+                          mod.exportAsync?.exportCols &&
+                          mod.exportAsync.exportCols.length > 0
+                        ) {
+                          out.exportCols = mod.exportAsync.exportCols;
+                        }
+                        return out;
+                      })()}
+                    />
+                  ) : (
+                    <AsyncExportButton
+                      type={mod.exportAsync.type}
+                      format={mod.exportAsync.format || "pdf"}
+                      label={mod.exportAsync.label || "Exportar"}
+                      params={(() => {
+                        // S118b: merge extraParams con filterBy/searchBy.
+                        const out: Record<string, any> = {
+                          ...(mod.exportAsync?.extraParams ?? {}),
+                        };
+                        if (params?.filterBy) out.filterBy = params.filterBy;
+                        if (params?.searchBy) out.searchBy = params.searchBy;
+                        if (
+                          mod.exportAsync?.exportCols &&
+                          mod.exportAsync.exportCols.length > 0
+                        ) {
+                          out.exportCols = mod.exportAsync.exportCols;
+                        }
+                        return out;
+                      })()}
+                      variant="terciary"
+                    />
+                  )}
+                </>
               )}
               {mod.export?.length > 0 && (
                 <Dropdown

@@ -148,4 +148,50 @@ describe("S143e-fe — DownloadButton con ícono + menú (HALLAZGO-NEW-54)", () 
       expect(css).toMatch(/padding:\s*0/);
     });
   });
+
+  describe("useCrud — bifurca DownloadButton vs AsyncExportButton (S143e-fe-2)", () => {
+    it("useCrud.tsx importa DownloadButton", () => {
+      const src = readFile("mk/hooks/useCrud/useCrud.tsx");
+      expect(src).toMatch(
+        /import\s+DownloadButton\s+from\s+["']@\/mk\/components\/ui\/DownloadButton\/DownloadButton["']/,
+      );
+    });
+
+    it("useCrud.tsx pineá DownloadButton cuando supportedFormats está pineado", () => {
+      const src = loadSourceWithoutComments("mk/hooks/useCrud/useCrud.tsx");
+      expect(src).toMatch(/mod\.exportAsync\.supportedFormats/);
+      // Bifurca: DownloadButton si pineá supportedFormats, sino AsyncExportButton.
+      expect(src).toMatch(/DownloadButton/);
+      expect(src).toMatch(/AsyncExportButton/);
+    });
+  });
+
+  describe("Payments config — pineá supportedFormats (S143e-fe-2)", () => {
+    it("payments.config.tsx pineá supportedFormats: ['pdf', 'xlsx', 'csv']", () => {
+      const src = readFile("modulos/Payments/config/payments.config.tsx");
+      expect(src).toMatch(/supportedFormats:\s*\["pdf",\s*"xlsx",\s*"csv"\]/);
+    });
+
+    it("payments.config.tsx pineá endpoint: '/v3/payments' (SIN /api/ prefijo)", () => {
+      const src = readFile("modulos/Payments/config/payments.config.tsx");
+      // S143e-fe-3 (HALLAZGO-NEW-57): el endpoint NO debe pinear `/api/` prefijo
+      // porque `API_BASE_URL` ya termina en `/api` y se duplicaría
+      // (`/api/api/v3/payments` → 404). El flow pinea `GET {API_BASE_URL}{endpoint}?_export=...`.
+      expect(src).toMatch(/endpoint:\s*["']\/v3\/payments["']/);
+      // Regression pin: el endpoint NO debe pinear `/api/v3/`.
+      expect(src).not.toMatch(/endpoint:\s*["']\/api\/v3\/payments["']/);
+    });
+
+    it("payments.config.tsx pineá useExtraData: true", () => {
+      const src = readFile("modulos/Payments/config/payments.config.tsx");
+      expect(src).toMatch(/useExtraData:\s*true/);
+    });
+
+    it("payments.config.tsx pineá requiredRelations con paymentMethod, category, bankAccount", () => {
+      const src = readFile("modulos/Payments/config/payments.config.tsx");
+      expect(src).toMatch(/requiredRelations:\s*\["paymentMethod"/);
+      expect(src).toMatch(/"category"/);
+      expect(src).toMatch(/"bankAccount"/);
+    });
+  });
 });
