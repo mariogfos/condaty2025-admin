@@ -115,6 +115,15 @@ export type UseAsyncExportOptions = {
   pollIntervalMs?: number;
   onCompleted?: (state: AsyncExportState) => void;
   onError?: (errorMessage: string) => void;
+  /**
+   * S143e (HALLAZGO-NEW-54, binding, cross-project): si se pineá, el hook
+   * dispatcha `GET {endpoint}?_export={format}` (flow nuevo inline del
+   * Controller del módulo) en vez de `POST /v3/reports/{type}/export`
+   * (flow BC layer legacy).
+   *
+   * Default: null (usa el flow BC layer legacy — mantiene back-compat).
+   */
+  endpoint?: string | null;
 };
 
 const INITIAL_STATE: AsyncExportState = {
@@ -138,7 +147,7 @@ export type UseAsyncExportReturn = {
 export function useAsyncExport(
   options: UseAsyncExportOptions,
 ): UseAsyncExportReturn {
-  const { type, pollIntervalMs = 2500, onCompleted, onError } = options;
+  const { type, pollIntervalMs = 2500, onCompleted, onError, endpoint } = options;
   const { showToast } = useToast();
   const [state, setState] = useState<AsyncExportState>(INITIAL_STATE);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -253,16 +262,28 @@ export function useAsyncExport(
       });
 
       try {
-        const res = await fetch(`${API_BASE_URL}/v3/reports/${type}/export`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
-          },
-          credentials: "include",
-          body: JSON.stringify(params ?? {}),
-        });
+        // S143e (HALLAZGO-NEW-54): si `endpoint` está pineado, dispatcha el
+        // flow nuevo inline (GET {endpoint}?_export=...) del Controller del
+        // módulo. Si NO, mantiene el flow BC layer legacy (POST /v3/reports/{type}/export).
+        const res = endpoint
+          ? await fetch(`${API_BASE_URL}${endpoint}?_export=${encodeURIComponent((params as any)?.format ?? "pdf")}`, {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+              },
+              credentials: "include",
+            })
+          : await fetch(`${API_BASE_URL}/v3/reports/${type}/export`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+              },
+              credentials: "include",
+              body: JSON.stringify(params ?? {}),
+            });
 
         if (res.status === 202) {
           const data = await res.json();
