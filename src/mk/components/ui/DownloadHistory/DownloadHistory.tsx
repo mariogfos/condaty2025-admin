@@ -190,7 +190,12 @@ const KNOWN_TYPES: { value: string; label: string }[] = [
   { value: "expenses", label: "Expensas" },
   { value: "accesses", label: "Accesos" },
   { value: "defaulters", label: "Morosos" },
-  { value: "dpto-deudas", label: "Deudas por Dpto" },
+  // S139: `dpto-deudas` es el ReportType de Unidades (XLSX "estado de
+  // cuentas"). `debt-dptos` es el ReportType de Deudas Individuales /
+  // Compartidas / Condonaciones (PDF, multi-branch). Antes pinean el
+  // mismo label "Deudas por Dpto" → duplicado en el dropdown. Fix:
+  // pinear labels distintos.
+  { value: "dpto-deudas", label: "Deudas por Dpto (XLSX)" },
   { value: "bank-accounts", label: "Cuentas Bancarias" },
   { value: "areas", label: "Áreas" },
   { value: "events", label: "Eventos" },
@@ -205,9 +210,10 @@ const KNOWN_TYPES: { value: string; label: string }[] = [
   // params (Deuda Individual, Deudas Compartidas, Condonaciones, Todas).
   // El label del dropdown es el type técnico humanizado (legacy fallback);
   // el label de cada item del histórico pineá `name` (displayName dinámico
-  // del ReportType) que se computa server-side.
-  { value: "debt-dptos", label: "Deudas por Dpto" },
-  { value: "debt-groups", label: "Grupos de Deuda" },
+  // del ReportType) que se computa server-side. Multi-branch → label
+  // genérico "Deudas — Detalles".
+  { value: "debt-dptos", label: "Deudas — Detalles" },
+  { value: "debt-groups", label: "Deudas — Grupos" },
   { value: "assemblies-attendances", label: "Asistencia a Asambleas" },
   { value: "guard-news", label: "Guardias Nuevos" },
   { value: "array_chunked", label: "Reporte (genérico)" },
