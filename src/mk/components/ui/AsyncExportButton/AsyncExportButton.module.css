@@ -14,3 +14,23 @@
   align-items: center;
   gap: 6px;
 }
+
+/* S141 (HALLAZGO-NEW-51, binding cross-project): cuando `iconOnly=true`
+   (e.g. card PARTICIPANTES del detalle de Asamblea), los botones
+   pinean solo el ícono. Override de los estilos default del `<Button>`
+   (`width: 100%`, `min-height: var(--controlHeight)`, padding X) para
+   que el botón quede cuadrado y compacto — un "icon button" clásico.
+
+   Importante: pineamos `flex: none` para que el botón NO estire a
+   `width: 100%` heredado del `Button.module.css`. Sin esto, en un
+   flex container el icon-button se vería gigante (full width del
+   card). */
+.iconOnly {
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  flex: none !important;
+  gap: 0 !important;
+}

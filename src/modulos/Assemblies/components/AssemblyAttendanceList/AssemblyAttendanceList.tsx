@@ -172,12 +172,19 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
             async se encarga de: POST /api/v3/reports/assemblies-attendances/
             export + polling + download modal. Si no hay attendees, el botón
             no se renderea (mejor UX que disabled). */}
+        {/* S141 (HALLAZGO-NEW-51, binding cross-project): `iconOnly`
+            en este card porque está dentro del card PARTICIPANTES del
+            detalle de Asamblea. Mario pidió solo íconos (sin "Exportar
+            PDF" ni "Historial" como texto) para que el header del card
+            no se vea sobrecargado. El label sigue accesible vía
+            `title` + `aria-label` (tooltip on hover + screen reader). */}
         {attendances.length > 0 && (
           <AsyncExportButton
             type="assemblies-attendances"
             params={{ assembly_id: assemblyId }}
             label="Exportar PDF"
             variant="secondary"
+            iconOnly
           />
         )}
       </div>

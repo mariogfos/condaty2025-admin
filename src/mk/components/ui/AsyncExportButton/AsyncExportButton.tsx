@@ -65,6 +65,18 @@ type PropsType = {
    * que aparece cuando completa/falla).
    */
   showHistoryShortcut?: boolean;
+  /**
+   * S141 (HALLAZGO-NEW-51, binding cross-project): si es `true`, los
+   * botones pinean SOLO el ícono (sin label de texto). Útil cuando el
+   * botón está dentro de un card / columna con espacio vertical
+   * limitado (e.g. card "PARTICIPANTES" del detalle de Asamblea). El
+   * `title` HTML se sigue pineando para accesibilidad (tooltip on
+   * hover).
+   *
+   * Default: `false` (compat con consumers existentes que pinean el
+   * label visible).
+   */
+  iconOnly?: boolean;
 };
 
 export default function AsyncExportButton({
@@ -77,6 +89,7 @@ export default function AsyncExportButton({
   onCompleted,
   onError,
   showHistoryShortcut = true,
+  iconOnly = false,
 }: PropsType) {
   const [modalOpen, setModalOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -110,24 +123,32 @@ export default function AsyncExportButton({
           onClick={handleClick}
           disabled={state.isExporting}
           variant={variant}
-          className={className}
+          className={`${iconOnly ? styles.iconOnly : ""} ${className || ""}`.trim()}
           data-testid={`async-export-btn-${type}`}
+          title={iconOnly ? label : undefined}
+          aria-label={iconOnly ? label : undefined}
         >
           {state.isExporting ? (
             <LoaderCircle size={16} className={styles.spinner} />
           ) : (
             <Download size={16} />
           )}
-          {label}
+          {/* S141 (HALLAZGO-NEW-51): pineamos solo el ícono cuando
+              `iconOnly=true`. El label sigue accesible vía `title` +
+              `aria-label` arriba (tooltip on hover + screen reader). */}
+          {!iconOnly && label}
         </Button>
         {showHistoryShortcut && (
           <Button
             onClick={() => setHistoryOpen(true)}
             variant={variant === "primary" ? "secondary" : "terciary"}
+            className={iconOnly ? styles.iconOnly : undefined}
             data-testid={`async-history-btn-${type}`}
+            title={iconOnly ? "Historial" : undefined}
+            aria-label={iconOnly ? "Historial" : undefined}
           >
             <History size={16} />
-            Historial
+            {!iconOnly && "Historial"}
           </Button>
         )}
       </span>
