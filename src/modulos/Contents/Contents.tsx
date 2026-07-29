@@ -135,7 +135,11 @@ const Contents = () => {
     singular: "publicación",
     plural: "",
     permiso: "contents",
-    titleAdd: "Nueva",
+    // S140 (bug #14 backlog Mario 2026-07-28): el botón "Agregar" del
+    // módulo Publicaciones se renderizaba con label "Nueva" (genérico).
+    // Fix: pinear label explícito "Nueva publicación" para que el
+    // user sepa qué tipo de contenido va a crear.
+    titleAdd: "Nueva publicación",
     export: false,
     extraData: true,
     filter: true,

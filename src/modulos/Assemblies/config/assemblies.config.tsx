@@ -28,6 +28,17 @@ export const getAssemblyConfig = (
     search: true,
     filter: true,
     titleAdd: "Crear",
+    // S140 (bug #10 backlog Mario 2026-07-28): faltaba slot `exportAsync`
+    // en la lista de Asambleas. Pineamos `assembly-attendances`
+    // (AssemblyAttendancesReportType, S110 pre-existente) que es el
+    // ReportType más cercano a "asambleas" en el back. useCrud
+    // auto-renderea el AsyncExportButton (S36.5 pattern).
+    export: false,
+    exportAsync: {
+      type: "assembly-attendances",
+      format: "pdf",
+      label: "Exportar PDF",
+    },
     hideActions: {
       view: false,
       edit: false,

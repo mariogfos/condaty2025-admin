@@ -140,10 +140,26 @@ export let lIdeologies = [
   { id: "25", name: "Herrerismo" },
 ];
 export const lStatusActive: any = {
-  A: { name: "Activo" },
-  X: { name: "Inactivo" },
-  W: { name: "Por activar" },
-  P: { name: "Debe cambiar contraseña" },
+  // S140 (HALLAZGO-NEW-39 variant): el back pinea `OwnerStatus` enum
+  // numérico (post-S132). Las keys legacy CHAR ('A', 'X', 'W', 'P') ya
+  // no matchean — todo caía en "Desconocido". Fix: pinear keys numéricas
+  // 1-4 que matchean el enum del back (src/modulos/Payments/Type/PaymentType.tsx).
+  //
+  // Pre-S140 (legacy, char):
+  //   A: Activo
+  //   X: Inactivo
+  //   W: Por activar
+  //   P: Debe cambiar contraseña
+  //
+  // Post-S140 (numeric, post-S132):
+  //   1 (OwnerStatus.ACTIVE): Activo
+  //   2 (OwnerStatus.WAITING): Por activar
+  //   3 (OwnerStatus.PASSWORD_CHANGE_REQUIRED): Debe cambiar contraseña
+  //   4 (OwnerStatus.DISABLED): Inactivo
+  1: { name: "Activo" },
+  2: { name: "Por activar" },
+  3: { name: "Debe cambiar contraseña" },
+  4: { name: "Inactivo" },
   // en un futuro el estado inactivo se manejara de acuerdo al campo delete_at
 };
 export const lComDestinies: any = [
