@@ -204,6 +204,12 @@ const UnitInfo = ({
             </span>
           </div>
           <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Membresía</span>
+            <span className={styles.infoValue}>
+              {datas?.data?.has_membership ? "Activa" : "Sin membresía"}
+            </span>
+          </div>
+          <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Recibe visitas</span>
             <span className={styles.infoValue}>
               {datas?.data?.can_receive_visits === false

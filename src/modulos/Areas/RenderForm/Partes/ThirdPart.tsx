@@ -83,6 +83,30 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
       <Br />
       <div className={styles.switchRow}>
         <div className={styles.switchContent}>
+          <p className={styles.title}>¿Requiere membresía?</p>
+          <p className={styles.subtitle}>
+            Si activas esta opción, solo las unidades con membresía verán esta
+            área social en la app de residentes.
+          </p>
+        </div>
+        <Switch
+          name="requires_membership"
+          optionValue={["1", "0"]}
+          onChange={(e: any) => {
+            handleChange({
+              target: {
+                name: "requires_membership",
+                value: Boolean(e.target.checked),
+              },
+            });
+          }}
+          value={formState?.requires_membership ? "1" : "0"}
+          checked={Boolean(formState?.requires_membership)}
+        />
+      </div>
+      <Br />
+      <div className={styles.switchRow}>
+        <div className={styles.switchContent}>
           <p className={styles.title}>¿Aprobación de administración?</p>
           <p className={styles.subtitle}>
             Si activas esta opción, cada solicitud de reserva pasará por tu

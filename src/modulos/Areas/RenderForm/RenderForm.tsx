@@ -40,6 +40,14 @@ const parseCoordinateValue = (value: unknown) => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
+const parseBoolean = (value: any) =>
+  value === true ||
+  value === 1 ||
+  value === "1" ||
+  value === "Y" ||
+  value === "S" ||
+  value === "true";
+
 const buildCoordinatesValue = (latitude: unknown, longitude: unknown) => {
   const latitudeValue = hasCoordinateValue(latitude)
     ? String(latitude).trim()
@@ -85,6 +93,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     has_price: item?.price ? "S" : "N",
     guarantee_amount: item?.guarantee_amount ?? 0,
     requires_approval: item?.requires_approval || "X",
+    requires_membership: parseBoolean(item?.requires_membership),
     penalty_or_debt_restriction: item?.penalty_or_debt_restriction || "X",
     min_reservation_advance_hours:
       item?.min_reservation_advance_hours ?? 0,
@@ -306,6 +315,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         max_capacity: formState?.max_capacity,
         status: formState?.status,
         requires_approval: formState?.requires_approval,
+        requires_membership: Boolean(formState?.requires_membership),
         price: formState?.price,
         guarantee_amount:
           formState?.has_price == "S"
