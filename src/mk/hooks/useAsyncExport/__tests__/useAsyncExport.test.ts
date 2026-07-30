@@ -340,6 +340,10 @@ describe("useAsyncExport", () => {
     expect(options.method).toBe("GET");
     expect(url).toContain("/v3/payments");
     expect(url).toContain("_export=pdf");
+    // S143e-bk-18 (HALLAZGO-NEW-76): el flow S143e pinea `fullType=L`
+    // EXPLÍCITAMENTE para unificar el path de lista y export (el listado
+    // normal ya pineá fullType=L vía useCrud.tsx:1022).
+    expect(url).toContain("fullType=L");
     // filterBy array → filterBy[]=paid_at:m&filterBy[]=status:1
     expect(url).toContain("filterBy%5B%5D=paid_at%3Am");
     expect(url).toContain("filterBy%5B%5D=status%3A1");

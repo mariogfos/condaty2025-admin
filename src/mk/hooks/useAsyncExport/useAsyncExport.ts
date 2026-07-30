@@ -43,6 +43,15 @@ const buildBackendUrl = (path: string): string => {
  * `params` (filterBy, searchBy, fechas, customColumns, etc.) al query
  * string para el flow `GET {endpoint}?_export=...` del S143e.
  *
+ * S143e-bk-18 (HALLAZGO-NEW-76, binding, cross-project): pineamos
+ * `fullType=L` EXPLÍCITAMENTE en el query string del flow S143e.
+ * Razón: el listado normal pineá `fullType=L` (useCrud.tsx:1022) para
+ * activar el flow de filtros en el back (case 'L' en
+ * *Controller::beforeList -> queryForList -> applyFilterBy). El back
+ * pineaba fullType=L como fallback (S143e-bk-17), pero pineándolo
+ * desde el front unificamos el path de lista y export, eliminando
+ * la posibilidad de divergencia futura entre los dos flows.
+ *
  * Reglas de serialización (alineadas con cómo Laravel parsea query params):
  *   - `format` → se pinea como `_export` (no va en el body de la URL,
  *     ya lo pineá el flow arriba).
@@ -59,11 +68,16 @@ const buildBackendUrl = (path: string): string => {
 const buildQueryString = (params: Record<string, any> | undefined): string => {
   const query = new URLSearchParams();
   if (!params || typeof params !== "object") {
-    return `_export=pdf`;
+    return `_export=pdf&fullType=L`;
   }
   // `_export` SIEMPRE se pinea (default pdf si no se especifica).
   const format = (params as any)?.format ?? "pdf";
   query.set("_export", String(format));
+  // S143e-bk-18 (HALLAZGO-NEW-76): pinear `fullType=L` EXPLÍCITAMENTE para
+  // unificar el path de lista y export. El listado normal ya pineá esto
+  // (useCrud.tsx:1022). El back lo pineaba como fallback (bk-17) pero
+  // pineándolo desde el front es más explícito y elimina divergencia.
+  query.set("fullType", "L");
   for (const [key, value] of Object.entries(params)) {
     if (key === "format") continue;
     if (value === undefined || value === null) continue;
