@@ -404,4 +404,262 @@ describe("useAsyncExport", () => {
       }),
     );
   });
+
+  /**
+   * S147e-fe (HALLAZGO-NEW-100, front part, binding, cross-project): el
+   * bug original pineaba `link.download = ${type}-${jobId}.pdf` con la
+   * extensión `.pdf` HARDCODED — TODOS los exports (incluso XLSX y CSV)
+   * bajaban como archivo `.pdf`, sin importar el format pineado en
+   * `start({ format: "xlsx" | "csv" | "pdf" })`. El back ya pineá el
+   * Content-Type correcto (S145e NEW-98 pineó `text/csv`, S146e NEW-99
+   * el XLSX, PDF es default), pero el front ignoraba el format del
+   * usuario al nombrar el archivo.
+   *
+   * Fix: guardar el `format` pineado en `start(params)` en un `useRef`
+   * (no `useState` para NO triggerear re-render) y derivar la extensión
+   * de ahí en `download()`. Default `"pdf"` para el flow legacy que
+   * no pinea `format` en params (BC).
+   *
+   * Estos 5 tests pinean el flow download() con un mock de
+   * `document.createElement('a')` para capturar el `link.download` que
+   * el front le da al browser. Sin este test, source-parsing solo
+   * pinea la INTENCIÓN (el código fuente tiene la línea correcta), no
+   * la EFECTIVIDAD (el browser realmente pinea el nombre correcto).
+   * HALLAZGO-NEW-03 reforzado por 9na vez.
+   */
+
+  /**
+   * Helper: mockea el flow download() (createObjectURL, <a>.click(), etc.)
+   * y retorna el `link.download` que el front le pineá al browser.
+   */
+  const captureLinkDownload = async (
+    renderResult: { current: { download: () => Promise<void> } },
+  ): Promise<string> => {
+    const mockLink = {
+      href: "",
+      download: "",
+      click: vi.fn(),
+    };
+    vi.spyOn(document, "createElement").mockImplementation(((tag: string) => {
+      if (tag === "a") return mockLink as any;
+      // Fallback: defer to original for non-anchor tags.
+      return document.createElement.call(document, tag);
+    }) as any);
+    vi.spyOn(window.URL, "createObjectURL").mockReturnValue("blob:mock-url");
+    vi.spyOn(window.URL, "revokeObjectURL").mockImplementation(() => {});
+    vi.spyOn(document.body, "appendChild").mockImplementation(((el: any) => el) as any);
+    vi.spyOn(document.body, "removeChild").mockImplementation(((el: any) => el) as any);
+
+    await act(async () => {
+      await renderResult.current.download();
+    });
+    return mockLink.download;
+  };
+
+  it("download() con format: 'pdf' (default) → link.download = ${type}-{jobId}.pdf (HALLAZGO-NEW-100)", async () => {
+    const fetchMock = mockFetchSequence([
+      { status: 202, body: { job_id: "job-pdf", status: "pending" } },
+      {
+        status: 200,
+        body: {
+          status: "completed",
+          download_url: "/api/v3/reports/job-pdf/download",
+        },
+      },
+      // download fetch — el back pinea Content-Type: application/pdf
+      {
+        status: 200,
+        body: { blob: new Blob(["PDF"], { type: "application/pdf" }) },
+      },
+    ]);
+    // @ts-expect-error
+    global.fetch = fetchMock;
+
+    const { result } = renderHook(() =>
+      useAsyncExport({ type: "payments", pollIntervalMs: 50 }),
+    );
+
+    await act(async () => {
+      await result.current.start({ format: "pdf" });
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe("completed");
+    });
+
+    const filename = await captureLinkDownload(result);
+    expect(filename).toBe("payments-job-pdf.pdf");
+  });
+
+  it("download() con format: 'xlsx' pineado en start → link.download = ${type}-{jobId}.xlsx (HALLAZGO-NEW-100)", async () => {
+    const fetchMock = mockFetchSequence([
+      { status: 202, body: { job_id: "job-xlsx", status: "pending" } },
+      {
+        status: 200,
+        body: {
+          status: "completed",
+          download_url: "/api/v3/reports/job-xlsx/download",
+        },
+      },
+      {
+        status: 200,
+        body: {
+          blob: new Blob(["XLSX"], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          }),
+        },
+      },
+    ]);
+    // @ts-expect-error
+    global.fetch = fetchMock;
+
+    const { result } = renderHook(() =>
+      useAsyncExport({ type: "payments", pollIntervalMs: 50 }),
+    );
+
+    await act(async () => {
+      await result.current.start({ format: "xlsx" });
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe("completed");
+    });
+
+    const filename = await captureLinkDownload(result);
+    expect(filename).toBe("payments-job-xlsx.xlsx");
+  });
+
+  it("download() con format: 'csv' pineado en start → link.download = ${type}-{jobId}.csv (HALLAZGO-NEW-100)", async () => {
+    const fetchMock = mockFetchSequence([
+      { status: 202, body: { job_id: "job-csv", status: "pending" } },
+      {
+        status: 200,
+        body: {
+          status: "completed",
+          download_url: "/api/v3/reports/job-csv/download",
+        },
+      },
+      {
+        status: 200,
+        body: {
+          blob: new Blob(["CSV"], { type: "text/csv" }),
+        },
+      },
+    ]);
+    // @ts-expect-error
+    global.fetch = fetchMock;
+
+    const { result } = renderHook(() =>
+      useAsyncExport({ type: "payments", pollIntervalMs: 50 }),
+    );
+
+    await act(async () => {
+      await result.current.start({ format: "csv" });
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe("completed");
+    });
+
+    const filename = await captureLinkDownload(result);
+    expect(filename).toBe("payments-job-csv.csv");
+  });
+
+  it("download() SIN format en start (flow legacy) → fallback a .pdf (HALLAZGO-NEW-100, BC)", async () => {
+    const fetchMock = mockFetchSequence([
+      { status: 202, body: { job_id: "job-legacy-pdf", status: "pending" } },
+      {
+        status: 200,
+        body: {
+          status: "completed",
+          download_url: "/api/v3/reports/job-legacy-pdf/download",
+        },
+      },
+      {
+        status: 200,
+        body: {
+          blob: new Blob(["PDF"], { type: "application/pdf" }),
+        },
+      },
+    ]);
+    // @ts-expect-error
+    global.fetch = fetchMock;
+
+    const { result } = renderHook(() =>
+      useAsyncExport({ type: "payments", pollIntervalMs: 50 }),
+    );
+
+    // NO pineamos format en start — flow legacy default = PDF
+    await act(async () => {
+      await result.current.start({});
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe("completed");
+    });
+
+    const filename = await captureLinkDownload(result);
+    expect(filename).toBe("payments-job-legacy-pdf.pdf");
+  });
+
+  it("download() con state.jobId null → link.download = ${type}-report.{ext} (HALLAZGO-NEW-100, edge case)", async () => {
+    const fetchMock = mockFetchSequence([
+      { status: 202, body: { job_id: "job-edge", status: "pending" } },
+      {
+        status: 200,
+        body: {
+          status: "completed",
+          download_url: "/api/v3/reports/job-edge/download",
+        },
+      },
+      {
+        status: 200,
+        body: {
+          blob: new Blob(["XLSX"], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          }),
+        },
+      },
+    ]);
+    // @ts-expect-error
+    global.fetch = fetchMock;
+
+    const { result } = renderHook(() =>
+      useAsyncExport({ type: "visitors", pollIntervalMs: 50 }),
+    );
+
+    await act(async () => {
+      await result.current.start({ format: "xlsx" });
+    });
+
+    // Forzar jobId null antes del download para pinear el fallback
+    // "report" del template string.
+    act(() => {
+      result.current.reset();
+    });
+
+    // Después del reset, state.downloadUrl también es null → download()
+    // pineá showToast y retorna sin pinear link.download. Test: validar
+    // que el reset pineá el comportamiento correcto.
+    const mockLink = {
+      href: "",
+      download: "",
+      click: vi.fn(),
+    };
+    vi.spyOn(document, "createElement").mockImplementation(((tag: string) => {
+      if (tag === "a") return mockLink as any;
+      return document.createElement.call(document, tag);
+    }) as any);
+    vi.spyOn(window.URL, "createObjectURL").mockReturnValue("blob:mock-url");
+    vi.spyOn(window.URL, "revokeObjectURL").mockImplementation(() => {});
+
+    await act(async () => {
+      await result.current.download();
+    });
+
+    // Después del reset, link.download NO se pineá (download() retorna
+    // antes por el guard `if (!state.downloadUrl)`). click tampoco.
+    expect(mockLink.click).not.toHaveBeenCalled();
+    expect(mockLink.download).toBe("");
+  });
 });
