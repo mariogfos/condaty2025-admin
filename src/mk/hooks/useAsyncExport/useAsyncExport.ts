@@ -39,6 +39,54 @@ const buildBackendUrl = (path: string): string => {
 };
 
 /**
+ * S143e-bk-16 (HALLAZGO-NEW-70, binding, cross-project): serializa
+ * `params` (filterBy, searchBy, fechas, customColumns, etc.) al query
+ * string para el flow `GET {endpoint}?_export=...` del S143e.
+ *
+ * Reglas de serialización (alineadas con cómo Laravel parsea query params):
+ *   - `format` → se pinea como `_export` (no va en el body de la URL,
+ *     ya lo pineá el flow arriba).
+ *   - `null` / `undefined` → se omiten.
+ *   - Array (e.g. `filterBy: ['paid_at:m', 'status:1']`) → se pinea como
+ *     `filterBy[]=paid_at:m&filterBy[]=status:1` (Laravel parsea arrays
+ *     con `[]`).
+ *   - Object (e.g. `searchBy: { searchBy: 'foo' }`) → se pinea como
+ *     `searchBy[searchBy]=foo` (Laravel parsea nested objects con `[]`).
+ *   - Primitivo (string, number, boolean) → se pinea tal cual.
+ *
+ * BC: el path legacy POST usa `JSON.stringify(params)` intacto.
+ */
+const buildQueryString = (params: Record<string, any> | undefined): string => {
+  const query = new URLSearchParams();
+  if (!params || typeof params !== "object") {
+    return `_export=pdf`;
+  }
+  // `_export` SIEMPRE se pinea (default pdf si no se especifica).
+  const format = (params as any)?.format ?? "pdf";
+  query.set("_export", String(format));
+  for (const [key, value] of Object.entries(params)) {
+    if (key === "format") continue;
+    if (value === undefined || value === null) continue;
+    if (Array.isArray(value)) {
+      // filterBy: ['paid_at:m', 'status:1'] → filterBy[]=paid_at:m&filterBy[]=status:1
+      for (const v of value) {
+        if (v === undefined || v === null) continue;
+        query.append(`${key}[]`, String(v));
+      }
+    } else if (typeof value === "object") {
+      // searchBy: { searchBy: 'foo' } → searchBy[searchBy]=foo
+      for (const [k, v] of Object.entries(value)) {
+        if (v === undefined || v === null) continue;
+        query.append(`${key}[${k}]`, String(v));
+      }
+    } else {
+      query.set(key, String(value));
+    }
+  }
+  return query.toString();
+};
+
+/**
  * Lee el token de localStorage pineado por el flow de auth.
  * Replica el patrón de `src/mk/interceptors/axiosInterceptors.tsx`.
  * Retorna null si no hay token (caller decide cómo manejar).
@@ -265,8 +313,21 @@ export function useAsyncExport(
         // S143e (HALLAZGO-NEW-54): si `endpoint` está pineado, dispatcha el
         // flow nuevo inline (GET {endpoint}?_export=...) del Controller del
         // módulo. Si NO, mantiene el flow BC layer legacy (POST /v3/reports/{type}/export).
+        //
+        // S143e-bk-16 (HALLAZGO-NEW-70, binding, cross-project): en el path
+        // `endpoint`, los params (filterBy, searchBy, fechas, etc.) DEBEN
+        // serializarse al query string del GET. Antes se IGNORABAN (el
+        // fetch era GET sin body) → el export salía con TODA la data sin
+        // filtros aplicados. Ahora pineamos TODO `params` (excepto `format`
+        // que va en `_export`) como query params para que el back aplique
+        // los mismos filtros que la lista.
+        //
+        // Cross-project: aplica a TODO módulo que pineá
+        // `mod.exportAsync.endpoint` (Payments, S144e+ Expenses, etc.).
+        // El path legacy POST sigue pineando `body: JSON.stringify(params)`
+        // intacto (BC layer).
         const res = endpoint
-          ? await fetch(`${API_BASE_URL}${endpoint}?_export=${encodeURIComponent((params as any)?.format ?? "pdf")}`, {
+          ? await fetch(`${API_BASE_URL}${endpoint}?${buildQueryString(params)}`, {
               method: "GET",
               headers: {
                 Accept: "application/json",

@@ -12,9 +12,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useAsyncExport } from "../useAsyncExport";
 
-// Mock useToast to avoid pulling in ToastProvider
+// Mock useToast to avoid pulling in ToastProvider.
+// S143e-bk-16 (HALLAZGO-NEW-71, binding, cross-project): el mock viejo
+// pineaba `useToast: () => ({...})` (named export) pero el import en
+// `useAsyncExport.ts:4` es DEFAULT (`import useToast from "../useToast"`).
+// Vitest tira "No default export is defined on the mock". Fix: pinear el
+// `default` export. Esto desbloquea 7 tests pre-existentes que fallaban
+// desde antes de este sprint.
 vi.mock("../../useToast", () => ({
-  useToast: () => ({
+  default: () => ({
     showToast: vi.fn(),
   }),
 }));
@@ -280,5 +286,118 @@ describe("useAsyncExport", () => {
     expect(result.current.state.status).toBe("idle");
     expect(result.current.state.isExporting).toBe(false);
     expect(result.current.state.jobId).toBe(null);
+  });
+
+  /**
+   * S143e-bk-16 (HALLAZGO-NEW-70, binding, cross-project): en el path
+   * `endpoint` (S143e), los params DEBEN serializarse al query string
+   * del GET. Antes se IGNORABAN → el export salía con TODA la data sin
+   * filtros aplicados. Pineamos que filterBy + searchBy + fechas +
+   * format llegan como query params.
+   */
+  it("start() con endpoint → serializa params al query string (HALLAZGO-NEW-70)", async () => {
+    const fetchMock = mockFetchSequence([
+      // GET /v3/payments?_export=pdf&... → 202 con job_id
+      { status: 202, body: { job_id: "job-filter", status: "pending" } },
+      // poll → completed
+      {
+        status: 200,
+        body: {
+          status: "completed",
+          download_url: "/api/v3/reports/job-filter/download",
+        },
+      },
+    ]);
+    // @ts-expect-error
+    global.fetch = fetchMock;
+
+    const { result } = renderHook(() =>
+      useAsyncExport({
+        type: "payments",
+        endpoint: "/v3/payments",
+        pollIntervalMs: 50,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.start({
+        filterBy: ["paid_at:m", "status:1"],
+        searchBy: { searchBy: "foo" },
+        startDate: "2026-01-01",
+        endDate: "2026-07-29",
+        format: "pdf",
+      });
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe("completed");
+    });
+
+    // El primer fetch debe ser GET con query string conteniendo los filtros.
+    const firstCall = fetchMock.mock.calls[0];
+    const url: string = firstCall[0];
+    const options = firstCall[1];
+    expect(options.method).toBe("GET");
+    expect(url).toContain("/v3/payments");
+    expect(url).toContain("_export=pdf");
+    // filterBy array → filterBy[]=paid_at:m&filterBy[]=status:1
+    expect(url).toContain("filterBy%5B%5D=paid_at%3Am");
+    expect(url).toContain("filterBy%5B%5D=status%3A1");
+    // searchBy object → searchBy[searchBy]=foo
+    expect(url).toContain("searchBy%5BsearchBy%5D=foo");
+    // primitivos
+    expect(url).toContain("startDate=2026-01-01");
+    expect(url).toContain("endDate=2026-07-29");
+    // format NO se pinea como key (va como _export)
+    expect(url).not.toContain("format=pdf");
+  });
+
+  /**
+   * S143e-bk-16: el path legacy POST sigue pineando `body: JSON.stringify(params)`
+   * intacto. BC layer pineado.
+   */
+  it("start() SIN endpoint → POST con body JSON (BC layer legacy intacto)", async () => {
+    const fetchMock = mockFetchSequence([
+      { status: 202, body: { job_id: "job-legacy", status: "pending" } },
+      {
+        status: 200,
+        body: {
+          status: "completed",
+          download_url: "/api/v3/reports/job-legacy/download",
+        },
+      },
+    ]);
+    // @ts-expect-error
+    global.fetch = fetchMock;
+
+    const { result } = renderHook(() =>
+      useAsyncExport({ type: "payments", pollIntervalMs: 50 }),
+    );
+
+    await act(async () => {
+      await result.current.start({
+        filterBy: ["paid_at:m"],
+        searchBy: { searchBy: "foo" },
+        format: "xlsx",
+      });
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe("completed");
+    });
+
+    // El primer fetch debe ser POST con body JSON conteniendo los params.
+    const firstCall = fetchMock.mock.calls[0];
+    const url: string = firstCall[0];
+    const options = firstCall[1];
+    expect(options.method).toBe("POST");
+    expect(url).toContain("/v3/reports/payments/export");
+    expect(options.body).toBe(
+      JSON.stringify({
+        filterBy: ["paid_at:m"],
+        searchBy: { searchBy: "foo" },
+        format: "xlsx",
+      }),
+    );
   });
 });
