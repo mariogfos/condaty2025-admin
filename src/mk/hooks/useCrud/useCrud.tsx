@@ -116,10 +116,14 @@ export type ModCrudType = {
    */
   exportAsync?: {
     type: string;
-    format?: "pdf" | "excel";
+    format?: "pdf" | "excel" | "csv" | "custom" | "xlsx";
+    supportedFormats?: string[];
     label?: string;
     exportCols?: string[];
     extraParams?: Record<string, any>;
+    requiredRelations?: string[];
+    endpoint?: string;
+    useExtraData?: boolean;
   };
 };
 
@@ -1753,7 +1757,9 @@ const useCrud = ({
                       supportedFormats={mod.exportAsync.supportedFormats}
                       endpoint={mod.exportAsync.endpoint ?? null}
                       useExtraData={Boolean(mod.exportAsync.useExtraData)}
-                      requiredRelations={mod.exportAsync.requiredRelations ?? []}
+                      requiredRelations={
+                        mod.exportAsync.requiredRelations ?? []
+                      }
                       title={mod.exportAsync.label || "Exportar"}
                       params={(() => {
                         // S118b: merge extraParams con filterBy/searchBy.

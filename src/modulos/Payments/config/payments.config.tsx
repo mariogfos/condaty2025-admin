@@ -52,8 +52,7 @@ const renderConceptCell = (props: any, textOverflowClass: string) => {
     const base = d?.subcategory?.padre?.name || d?.subcategory?.name || "-/-";
     const dpto = d?.debt_dpto;
     const resArea = dpto?.reservation?.area;
-    const period =
-      dpto?.period ?? dpto?.periodo ?? dpto?.month ?? dpto?.mes;
+    const period = dpto?.period ?? dpto?.periodo ?? dpto?.month ?? dpto?.mes;
     const year = dpto?.year ?? dpto?.anio ?? dpto?.y ?? dpto?.yr;
 
     if (
@@ -97,11 +96,7 @@ const renderConceptCell = (props: any, textOverflowClass: string) => {
 
   if (linesFromDetails.length > 0) {
     const text = linesFromDetails.join(" | ");
-    return (
-      <div className={textOverflowClass}>
-        {text}
-      </div>
-    );
+    return <div className={textOverflowClass}>{text}</div>;
   }
 
   const concepts: string[] = Array.isArray(item.concept)
@@ -109,20 +104,12 @@ const renderConceptCell = (props: any, textOverflowClass: string) => {
     : [];
   if (concepts.length > 0) {
     const text = concepts.join(" | ");
-    return (
-      <div className={textOverflowClass}>
-        {text}
-      </div>
-    );
+    return <div className={textOverflowClass}>{text}</div>;
   }
 
   if (item.concepto) {
     const text = String(item.concepto);
-    return (
-      <div className={textOverflowClass}>
-        {text}
-      </div>
-    );
+    return <div className={textOverflowClass}>{text}</div>;
   }
 
   return <div>-/-</div>;
@@ -131,7 +118,7 @@ const renderConceptCell = (props: any, textOverflowClass: string) => {
 export const getPaymentsConfig = (
   textOverflowClass: string,
   alignRightClass: string,
-  centerClass: string
+  centerClass: string,
 ): { mod: ModCrudType; fields: any } => {
   const mod: ModCrudType = {
     modulo: "v3/payments",
@@ -185,8 +172,8 @@ export const getPaymentsConfig = (
       label: "Exportar",
       supportedFormats: ["pdf", "xlsx", "csv"],
       endpoint: "/v3/payments", // SIN `/api/` prefijo (HALLAZGO-NEW-21 fix: API_BASE_URL ya lo tiene).
-      useExtraData: true,
-      requiredRelations: ["paymentMethod", "category", "bankAccount"],
+      useExtraData: false,
+      // requiredRelations: ["paymentMethod", "category", "bankAccount"],
     },
     titleAdd: "Nuevo",
     titleDel: "Anular",
@@ -257,11 +244,7 @@ export const getPaymentsConfig = (
     status: {
       rules: [],
       api: "ae",
-      label: (
-        <span className={centerClass}>
-          Estado
-        </span>
-      ),
+      label: <span className={centerClass}>Estado</span>,
       list: {
         width: 160,
         onRender: renderStatusCell,
@@ -274,11 +257,7 @@ export const getPaymentsConfig = (
     amount: {
       rules: ["required", "number"],
       api: "ae",
-      label: (
-        <span className={alignRightClass}>
-          Monto total
-        </span>
-      ),
+      label: <span className={alignRightClass}>Monto total</span>,
       form: {
         type: "number",
         placeholder: "Ej: 100.00",
