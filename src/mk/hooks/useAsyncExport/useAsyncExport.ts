@@ -216,6 +216,31 @@ export function useAsyncExport(
   const isExportingRef = useRef(false);
   const onCompletedRef = useRef(onCompleted);
   const onErrorRef = useRef(onError);
+  /**
+   * S147e-fe (HALLAZGO-NEW-100, front part, binding, cross-project): el
+   * bug original pineaba `link.download = ${type}-${jobId}.pdf` con la
+   * extensión `.pdf` HARDCODED — TODOS los exports (incluso XLSX y CSV)
+   * bajaban como archivo `.pdf`, sin importar el format pineado en
+   * `start({ format: "xlsx" | "csv" | "pdf" })`. El back ya pineá el
+   * Content-Type correcto (S145e NEW-98 pineó `text/csv`, S146e NEW-99
+   * el XLSX, PDF es default), pero el front ignoraba el format del
+   * usuario al nombrar el archivo.
+   *
+   * Fix: guardar el `format` pineado en `start(params)` en un `useRef`
+   * (no `useState` para NO triggerear re-render) y derivar la extensión
+   * de ahí en `download()`. Default `"pdf"` para el flow legacy que
+   * no pinea `format` en params (BC).
+   *
+   * Cross-project: el back pinea el Content-Type correcto basado en
+   * `_export` (S143e-bk-18 HALLAZGO-NEW-76). El front pinea el MISMO
+   * format en el nombre del archivo. Sin esta sincronización, el
+   * usuario abre un .xlsx que el browser le pineá como .pdf.
+   *
+   * Por qué ref y no state: el `link.download` solo se lee en el
+   * momento del click, no necesitamos reactividad. Ref persiste entre
+   * renders sin causar re-renders innecesarios.
+   */
+  const formatRef = useRef<string>("pdf");
   onCompletedRef.current = onCompleted;
   onErrorRef.current = onError;
 
@@ -317,6 +342,11 @@ export function useAsyncExport(
       }
       isExportingRef.current = true;
       stopPolling();
+      // S147e-fe (HALLAZGO-NEW-100, front part): pinear el format del
+      // usuario en formatRef ANTES del fetch para que download() lo
+      // pueda usar al nombrar el archivo. Default "pdf" para el flow
+      // legacy que no pinea `format` en params (BC).
+      formatRef.current = (params as any)?.format ?? "pdf";
       setState({
         ...INITIAL_STATE,
         isExporting: true,
@@ -460,7 +490,18 @@ export function useAsyncExport(
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = blobUrl;
-      link.download = `${type}-${state.jobId ?? "report"}.pdf`;
+      // S147e-fe (HALLAZGO-NEW-100, front part, binding, cross-project):
+      // derivar la extensión del format pineado por el usuario en
+      // `start(params.format)`, NO hardcodear `.pdf`. El back pineá el
+      // Content-Type correcto (S145e NEW-98 + S146e NEW-99) y el archivo
+      // descargado TIENE el format correcto internamente — solo el
+      // nombre del archivo estaba mal.
+      //
+      // Validado contra:
+      // - "pdf" → "payments-{jobId}.pdf" (default flow legacy)
+      // - "xlsx" → "payments-{jobId}.xlsx" (S143e format xlsx)
+      // - "csv" → "payments-{jobId}.csv" (S145e format csv)
+      link.download = `${type}-${state.jobId ?? "report"}.${formatRef.current}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
