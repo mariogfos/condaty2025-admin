@@ -200,6 +200,31 @@ const Areas = () => {
         list: false,
         form: { type: "text" },
       },
+      requires_membership: {
+        rules: [],
+        api: "ae",
+        label: "Membresía",
+        list: {
+          width: "150px",
+          onRender: ({ item }: any) => (
+            <StatusBadge
+              backgroundColor={
+                item?.requires_membership
+                  ? "var(--cHoverCompl4)"
+                  : "var(--cHoverSuccess)"
+              }
+              color={
+                item?.requires_membership
+                  ? "var(--cWarning)"
+                  : "var(--cSuccess)"
+              }
+            >
+              {item?.requires_membership ? "Solo miembros" : "Libre"}
+            </StatusBadge>
+          ),
+        },
+        form: false,
+      },
       approval_response_hours: {
         rules: ["required"],
         api: "ae",
