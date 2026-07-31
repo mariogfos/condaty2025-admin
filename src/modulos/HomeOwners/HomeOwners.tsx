@@ -138,7 +138,7 @@ const HomeOwners = () => {
   const onBlurCi = useCallback(async (e: any, props: any) => {
     if (e.target.value.trim() == "") return;
     const { data, error } = await execute(
-      "/homeowners",
+      "/v3/homeowners",
       "GET",
       {
         fullType: "EXIST",
@@ -192,7 +192,7 @@ const HomeOwners = () => {
       return;
 
     const { data, error } = await execute(
-      "/homeowners",
+      "/v3/homeowners",
       "GET",
       {
         fullType: "EXIST",

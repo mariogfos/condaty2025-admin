@@ -113,7 +113,7 @@ const Users = () => {
       return;
 
     const { data, error } = await execute(
-      "/users",
+      "/v3/users",
       "GET",
       {
         fullType: "EXIST",
@@ -136,7 +136,7 @@ const Users = () => {
   const onBlurCi = useCallback(async (e: any, props: any) => {
     if (e.target.value.trim() == "") return;
     const { data, error } = await execute(
-      "/users",
+      "/v3/users",
       "GET",
       {
         fullType: "EXIST",

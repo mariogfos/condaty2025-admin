@@ -52,7 +52,7 @@ const OwnerManager = () => {
     }
     try {
       const { data } = await execute(
-        "/owners",
+        "/v3/owners",
         "GET",
         {
           fullType: "EXIST",
@@ -136,7 +136,7 @@ const OwnerManager = () => {
 
     try {
       const { data } = await execute(
-        "/owners",
+        "/v3/owners",
         "GET",
         {
           fullType: "EXIST",
@@ -254,7 +254,7 @@ const OwnerManager = () => {
         payload.password = formState.newCi;
       }
 
-      const endpoint = `/owners/${formState.id}`;
+      const endpoint = `/v3/owners/${formState.id}`;
       const method = "PUT";
 
       const { data: response } = await execute(endpoint, method, payload, true);

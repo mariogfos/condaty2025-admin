@@ -95,7 +95,7 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
     if (hasErrors(validate())) return;
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
-      "/guards" + (formState.id ? "/" + formState.id : ""),
+      "/v3/guards" + (formState.id ? "/" + formState.id : ""),
       method,
       {
         ci: formState.ci,
@@ -121,7 +121,7 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
   const onBlurCi = async () => {
     // if (e.target.value.trim() == "") return;
     const { data } = await execute(
-      "/guards",
+      "/v3/guards",
       "GET",
       {
         fullType: "EXIST",
@@ -168,7 +168,7 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
   };
   const onBlurEmail = useCallback(async () => {
     const { data } = await execute(
-      "/guards",
+      "/v3/guards",
       "GET",
       {
         fullType: "EXIST",

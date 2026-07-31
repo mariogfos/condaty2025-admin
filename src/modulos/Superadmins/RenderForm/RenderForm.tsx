@@ -95,7 +95,7 @@ const RenderForm = ({
     }
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
-      "/users" + (formState.id ? "/" + formState.id : ""),
+      "/v3/users" + (formState.id ? "/" + formState.id : ""),
       method,
       {
         name: formState?.name || "",
@@ -122,7 +122,7 @@ const RenderForm = ({
       return false;
     }
     const { data: response } = await execute(
-      "/users",
+      "/v3/users",
       "GET",
       {
         searchBy: formState.email,
