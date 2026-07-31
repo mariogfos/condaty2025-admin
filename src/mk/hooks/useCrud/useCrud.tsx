@@ -327,6 +327,7 @@ const useCrud = ({
   const { user, showToast, userCan, store, setStore } = useAuth();
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors]: any = useState({});
+  const [isSaving, setIsSaving] = useState(false);
 
   const [openImport, setOpenImport] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -775,6 +776,8 @@ const useCrud = ({
   };
 
   const onSave = async (data: Record<string, any>, _setErrors?: Function) => {
+    if (isSaving) return;
+
     if (!userCan(mod.permiso, action == "del" ? "D" : action))
       return showToast("No tiene permisos para esta acción", "error");
 
@@ -826,46 +829,51 @@ const useCrud = ({
       }
     }
 
-    const { data: response, error: err } = await execute(
-      url,
-      method,
-      action == "del" ? { id: data.id } : paramWithoutFiles,
-      false,
-      mod?.noWaiting,
-    );
+    setIsSaving(true);
+    try {
+      const { data: response, error: err } = await execute(
+        url,
+        method,
+        action == "del" ? { id: data.id } : paramWithoutFiles,
+        false,
+        mod?.noWaiting,
+      );
 
-    if (response?.success) {
-      try {
-        const uploadId =
-          response?.data?.id ??
-          response?.data?.data?.id ??
-          data?.id ??
-          response?.id ??
-          null;
-        if (filesToUpload.length > 0 && uploadId) {
-          await uploadLargeFiles(
-            filesToUpload,
-            uploadId,
-            execute,
-            mod?.noWaiting,
-            showToast,
-          );
+      if (response?.success) {
+        try {
+          const uploadId =
+            response?.data?.id ??
+            response?.data?.data?.id ??
+            data?.id ??
+            response?.id ??
+            null;
+          if (filesToUpload.length > 0 && uploadId) {
+            await uploadLargeFiles(
+              filesToUpload,
+              uploadId,
+              execute,
+              mod?.noWaiting,
+              showToast,
+            );
+          }
+        } catch (e) {
+          logError("Error post-upload handling", e);
         }
-      } catch (e) {
-        logError("Error post-upload handling", e);
-      }
 
-      onCloseCrud();
-      setOpenDel(false);
-      if (useInfiniteList) {
-        await reloadCrudList(null, mod?.noWaiting);
+        onCloseCrud();
+        setOpenDel(false);
+        if (useInfiniteList) {
+          void reloadCrudList(null, mod?.noWaiting);
+        } else {
+          axiosReload(params, mod?.noWaiting);
+        }
+        showToast(mod.saveMsg?.[action] || response?.message, "success");
       } else {
-        axiosReload(params, mod?.noWaiting);
+        showToast(response?.message, "error");
+        logError("Error onSave:", err);
       }
-      showToast(mod.saveMsg?.[action] || response?.message, "success");
-    } else {
-      showToast(response?.message, "error");
-      logError("Error onSave:", err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -1435,7 +1443,9 @@ const useCrud = ({
         }
         // textSaveButtom por defecto "Guardar" o "Actualizar" segun action en mod.textSaveButtom
         buttonText={
-          action == "add"
+          isSaving
+            ? "Guardando..."
+            : action == "add"
             ? mod?.textSaveButtom
               ? mod?.textSaveButtom
               : "Guardar"
@@ -1450,6 +1460,7 @@ const useCrud = ({
         style={mod.formModal?.style}
         minWidth={mod.formModal?.minWidth}
         maxWidth={mod.formModal?.maxWidth ?? 560}
+        disabled={isSaving}
       >
         <div className={styles.formLayout}>
           {header.map((field: any, index: number) => (
