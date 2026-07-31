@@ -30,6 +30,7 @@ const RenderForm = ({
   const [formState, setFormState]: any = useState({
     ...item,
     has_payment_plan: parseBoolean(item?.has_payment_plan),
+    has_membership: parseBoolean(item?.has_membership),
     can_receive_visits:
       item?.can_receive_visits === undefined ||
       item?.can_receive_visits === null
@@ -59,6 +60,7 @@ const RenderForm = ({
           has_payment_plan: parseBoolean(
             item?.has_payment_plan
           ),
+          has_membership: parseBoolean(item?.has_membership),
           can_receive_visits:
             item?.can_receive_visits === undefined ||
             item?.can_receive_visits === null
@@ -83,7 +85,11 @@ const RenderForm = ({
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
 
-    if (name === "has_payment_plan" || name === "can_receive_visits") {
+    if (
+      name === "has_payment_plan" ||
+      name === "can_receive_visits" ||
+      name === "has_membership"
+    ) {
       setFormState((prev: any) => ({
         ...prev,
         [name]: checked ?? parseBoolean(value),
@@ -185,6 +191,7 @@ const RenderForm = ({
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
         has_payment_plan: Boolean(formState.has_payment_plan),
+        has_membership: Boolean(formState.has_membership),
         can_receive_visits: Boolean(formState.can_receive_visits),
         homeowner_id:
           formState.homeowner_id == "X" ? null : formState.homeowner_id,
@@ -310,6 +317,49 @@ const RenderForm = ({
           optionValue={["1", "0"]}
           value={formState.has_payment_plan ? "1" : "0"}
           checked={Boolean(formState.has_payment_plan)}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 16,
+          padding: "12px 0",
+          width: "100%",
+        }}
+      >
+        <div style={{ flex: "1 1 220px", minWidth: 0 }}>
+          <p
+            style={{
+              color: "var(--twhite)",
+              fontSize: "var(--sM)",
+              fontWeight: 600,
+              margin: 0,
+            }}
+          >
+            Tiene membresía activa
+          </p>
+          <p
+            style={{
+              color: "var(--cWhiteV1)",
+              fontSize: "var(--sS)",
+              lineHeight: 1.4,
+              margin: "4px 0 0",
+            }}
+          >
+            Permite ver en residentes las áreas sociales marcadas como solo
+            miembros.
+          </p>
+        </div>
+        <Switch
+          name="has_membership"
+          optionValue={["1", "0"]}
+          value={formState.has_membership ? "1" : "0"}
+          checked={Boolean(formState.has_membership)}
           onChange={handleChange}
         />
       </div>

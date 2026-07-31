@@ -310,6 +310,39 @@ const Dptos = () => {
         },
         import: true,
       },
+      has_membership: {
+        rules: [],
+        api: "ae",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Membresía
+          </span>
+        ),
+        form: false,
+        list: {
+          width: "150px",
+          onRender: (props: any) => (
+            <div className={styles.statusCellCenter}>
+              <StatusBadge
+                color={
+                  props?.item?.has_membership
+                    ? "var(--cSuccess)"
+                    : "var(--cWhiteV1)"
+                }
+                backgroundColor={
+                  props?.item?.has_membership
+                    ? "var(--cHoverSuccess)"
+                    : "var(--cHover)"
+                }
+              >
+                {props?.item?.has_membership ? "Activa" : "Sin membresía"}
+              </StatusBadge>
+            </div>
+          ),
+        },
+      },
       status: {
         rules: [""],
         api: "",
