@@ -33,6 +33,12 @@ const Users = () => {
     permiso: "users",
     export: true,
     titleAdd: "Nuevo",
+    noWaiting: true,
+    formModal: {
+      minWidth: 720,
+      maxWidth: 840,
+      className: styles.adminStaffFormModal,
+    },
     // import: true,
     // search: { hide: true },
     hideActions: {
@@ -200,7 +206,13 @@ const Users = () => {
         form: {
           type: "imageUpload",
           prefix: "ADM",
-          style: { width: "100%" },
+          style: { width: "100%", minHeight: 180 },
+          sizePreview: { width: "150px", height: "150px" },
+          containerStyle: {
+            gridColumn: "1 / -1",
+            justifySelf: "center",
+            width: "min(100%, 320px)",
+          },
         },
       },
 
@@ -240,6 +252,7 @@ const Users = () => {
         form: {
           type: "fullName",
           disabled: onDisbled,
+          containerStyle: { gridColumn: "1 / -1" },
         },
         list: {
           onRender: (item: any) => {
@@ -354,6 +367,7 @@ const Users = () => {
         form: {
           type: "text",
           disabled: onDisbled,
+          containerStyle: { gridColumn: "1 / -1" },
         },
       },
       email: {
@@ -376,6 +390,7 @@ const Users = () => {
               </div>
             );
           },
+          containerStyle: { gridColumn: "1 / -1" },
         },
         list: true,
       },

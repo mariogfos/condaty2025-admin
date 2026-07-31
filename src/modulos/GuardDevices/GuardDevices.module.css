@@ -1,0 +1,151 @@
+.GuardDevices {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height: 100%;
+}
+
+.title {
+  color: var(--cWhite);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.buttonContent {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.guardCell {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  min-width: 240px;
+}
+
+.guardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.guardName {
+  color: var(--cWhite);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.guardCi {
+  color: var(--cWhiteV1);
+  font-size: 12px;
+  margin: 0;
+}
+
+.deviceCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 180px;
+}
+
+.deviceName {
+  color: var(--cWhite);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.deviceMeta {
+  color: var(--cWhiteV1);
+  font-size: 12px;
+  margin: 0;
+}
+
+.statusBadge {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 700;
+  justify-content: center;
+  line-height: 1;
+  min-width: 82px;
+  padding: 7px 10px;
+}
+
+.statusActive {
+  background: rgba(41, 196, 106, 0.16);
+  color: var(--cSuccess, #29c46a);
+}
+
+.statusRevoked {
+  background: rgba(255, 91, 91, 0.16);
+  color: var(--cError, #ff5b5b);
+}
+
+.actionButtonContent {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.codeBox {
+  align-items: center;
+  background: var(--cHover);
+  border: 1px solid var(--cBlackV2);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+}
+
+.codeLabel {
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  margin: 0;
+}
+
+.code {
+  color: var(--cAccent);
+  font-family: var(--font-mono, monospace);
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0;
+}
+
+.hint {
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 14px 0 0;
+}
+
+.expiration {
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+
+.revokeText {
+  color: var(--cWhiteV1);
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.revokeText strong {
+  color: var(--cWhite);
+}

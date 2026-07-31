@@ -203,6 +203,10 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
                 value={item?.penalty_or_debt_restriction == "A" ? "Sí" : "No"}
               />
               <KeyValue
+                title={"Requiere membresía"}
+                value={item?.requires_membership ? "Sí" : "No"}
+              />
+              <KeyValue
                 title={"Aprobación de administración"}
                 value={item?.requires_approval == "A" ? "Sí" : "No"}
               />
