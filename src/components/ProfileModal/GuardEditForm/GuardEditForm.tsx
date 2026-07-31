@@ -60,12 +60,17 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
   const { showToast } = useAuth();
   const { execute } = useAxios();
   const [localErrors, setLocalErrors] = useState<Errors>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [isCheckingCi, setIsCheckingCi] = useState(false);
   const handleChangeInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
       setFormState((prev: FormState) => ({
         ...prev,
         [name]: value,
+        ...(name === "ci" && !prev.id
+          ? { _disabled: false, _emailDisabled: false }
+          : {}),
       }));
       if (localErrors[name]) {
         setLocalErrors((prev) => ({ ...prev, [name]: "" }));
@@ -76,58 +81,76 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
 
   const onBlurCi = useCallback(
     async (e: React.FocusEvent<HTMLInputElement>) => {
-      if (e.target.value.trim() === "") return;
+      const ci = e.target.value.trim();
+      if (ci === "" || formState.id || isCheckingCi) return;
 
-      const { data } = await execute(
-        "/guards",
-        "GET",
-        {
-          fullType: "EXIST",
-          type: "ci",
-          searchBy: e.target.value,
-          value: formState.id,
-        },
-        false,
-        true,
-      );
-
-      if (data?.success && data.data?.data?.id) {
-        const filteredData = data.data.data;
-        if (filteredData.existCondo) {
-          showToast("El guardia ya existe en este condominio", "warning");
-          setFormState({});
-          setLocalErrors({ ci: "Ese CI ya esta en uso en este condominio." });
-          return;
-        }
-        setLocalErrors({ ci: "" });
-        setFormState({
-          ...formState,
-          ci: filteredData.ci,
-          name: filteredData.name,
-          middle_name: filteredData.middle_name,
-          last_name: filteredData.last_name,
-          mother_last_name: filteredData.mother_last_name,
-          email: filteredData.email ?? "",
-          phone: filteredData.phone,
-          _disabled: true,
-          _emailDisabled: true,
-        });
-
-        showToast(
-          "El guardia ya existe en condaty, se va a vincular al condominio",
-          "warning",
+      setIsCheckingCi(true);
+      try {
+        const { data } = await execute(
+          "/guards",
+          "GET",
+          {
+            fullType: "EXIST",
+            type: "ci",
+            searchBy: ci,
+            value: formState.id,
+          },
+          false,
+          true,
         );
-      } else {
-        setLocalErrors({ ci: "" });
-        setFormState({
-          ...formState,
-          _disabled: false,
-          _emailDisabled: false,
-        });
+
+        if (data?.success && data.data?.data?.id) {
+          const filteredData = data.data.data;
+          if (filteredData.existCondo) {
+            showToast("El guardia ya existe en este condominio", "warning");
+            setLocalErrors({ ci: "Ese CI ya esta en uso en este condominio." });
+            setFormState((prev: FormState) => ({
+              ...prev,
+              ci,
+              _disabled: false,
+              _emailDisabled: false,
+            }));
+            return;
+          }
+          setLocalErrors({ ci: "" });
+          setFormState({
+            ...formState,
+            ci: filteredData.ci,
+            name: filteredData.name,
+            middle_name: filteredData.middle_name,
+            last_name: filteredData.last_name,
+            mother_last_name: filteredData.mother_last_name,
+            email: filteredData.email ?? "",
+            phone: filteredData.phone,
+            _disabled: true,
+            _emailDisabled: true,
+          });
+
+          showToast(
+            "El guardia ya existe en Condaty, se va a vincular al condominio",
+            "warning",
+          );
+        } else {
+          setLocalErrors({ ci: "" });
+          setFormState({
+            ...formState,
+            _disabled: false,
+            _emailDisabled: false,
+          });
+        }
+      } finally {
+        setIsCheckingCi(false);
       }
     },
-    [execute, showToast, formState, setFormState],
+    [execute, showToast, formState, setFormState, isCheckingCi],
   );
+
+  const onCiKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+
+    e.preventDefault();
+    await onBlurCi(e as unknown as React.FocusEvent<HTMLInputElement>);
+  };
 
   const onBlurEmail = useCallback(
     async (e: React.FocusEvent<HTMLInputElement>) => {
@@ -224,6 +247,7 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
   }, [formState, setErrors]);
 
   const onSave = async () => {
+    if (isSaving) return;
     if (hasErrors(validate())) {
       showToast("Por favor revise los campos marcados", "warning");
       return;
@@ -244,6 +268,7 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
       avatar: formState.avatar || "",
     };
 
+    setIsSaving(true);
     try {
       const { data: response } = await execute(
         url,
@@ -273,6 +298,8 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
     } catch (error) {
       console.error(error);
       showToast("Error al guardar guardia", "error");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -294,10 +321,13 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
       onClose={onCloseModal}
       onSave={onSave}
       buttonCancel="Cancelar"
-      buttonText={formState.id ? "Actualizar" : "Guardar"}
+      buttonText={
+        isSaving ? "Guardando..." : formState.id ? "Actualizar" : "Guardar"
+      }
       title={formState.id ? "Editar Guardia" : "Nuevo guardia"}
       minWidth={560}
       maxWidth={860}
+      disabled={isSaving || isCheckingCi}
     >
       <div className={styles["guard-form-container"]}>
         {/* Sección de imagen */}
@@ -338,8 +368,9 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
               value={formState.ci || ""}
               onChange={handleChangeInput}
               onBlur={onBlurCi}
+              onKeyDown={onCiKeyDown}
               error={localErrors}
-              disabled={true}
+              disabled={Boolean(formState.id)}
               maxLength={8}
             />
           </div>
