@@ -334,7 +334,7 @@ const BankProviderTester: React.FC = () => {
     setConfigLoading(true);
     setConfigError(null);
     try {
-      const result = await execute("/bank-qr/config", "GET", null);
+      const result = await execute("/v3/bank-qr/config", "GET", null);
       if (result.error) {
         setConfigError(result.error.data?.message || "Failed to load config");
       } else {

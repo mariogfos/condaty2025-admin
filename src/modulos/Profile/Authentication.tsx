@@ -160,7 +160,7 @@ const Authentication = ({
   };
 
   const onGetCode = async () => {
-    const { data, error } = await execute("/adm-getpin", "POST", {
+    const { data, error } = await execute("/v3/adm-getpin", "POST", {
       type: "email",
     });
     if (data?.success == true) {
@@ -190,7 +190,7 @@ const Authentication = ({
       setIsDisabled(false);
       return;
     }
-    const { data: response } = await execute("/users", "GET", {
+    const { data: response } = await execute("/v3/users", "GET", {
       searchBy: formState.newEmail,
       fullType: "EXIST",
       type: "email",

@@ -19,7 +19,7 @@ const RenderDel = memo(
 
     const handleSave = useCallback(async () => {
       try {
-        const { data: response } = await execute(`/delete-client`, "POST", {
+        const { data: response } = await execute(`/v3/delete-client`, "POST", {
           client_id: item?.id,
         });
 

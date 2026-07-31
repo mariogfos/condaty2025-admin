@@ -31,7 +31,7 @@ const Config = () => {
     ...paramsInitial,
   });
   const onSave = async (formState: any) => {
-    const { data, error } = await execute("/client-config-actualizar", "PUT", {
+    const { data, error } = await execute("/v3/client-configs/actualizar", "PUT", {
       ...formState,
     });
 

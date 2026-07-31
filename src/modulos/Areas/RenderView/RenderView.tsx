@@ -102,8 +102,8 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
       (a, b) => dayOrder[a] - dayOrder[b],
     );
   };
-  const onSaveStatus = async (status: string) => {
-    const { data } = await execute("/status-area", "POST", {
+  const onSaveStatus = async (status: number) => {
+    const { data } = await execute("/v3/areas/status", "POST", {
       status: status,
       area_id: item?.id,
     });

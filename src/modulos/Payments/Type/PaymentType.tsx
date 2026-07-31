@@ -97,10 +97,14 @@ export enum OwnerStatus {
  * Sincronizado con backend `App\Modules\HomeOwner\Enums\ClientOwnerStatus` (PHP):
  * - ACTIVE = 1 (legacy 'A')
  * - WAITING = 2 (legacy 'W')
+ * - PASSWORD_CHANGE_REQUIRED = 3 (legacy 'P') — S132 pineado en back
+ * - DISABLED = 4 (legacy 'X') — S132 pineado en back
  */
 export enum ClientOwnerStatus {
   ACTIVE = 1,
   WAITING = 2,
+  PASSWORD_CHANGE_REQUIRED = 3,
+  DISABLED = 4,
 }
 
 /**

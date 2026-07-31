@@ -27,7 +27,7 @@ export const AssemblyDashboardCard = ({ assembly: initialAssembly = null }: { as
 
     const fetchNextAssembly = async () => {
       try {
-        const { data } = await execute("/assemblies", "GET", {
+        const { data } = await execute("/v3/assemblies", "GET", {
           fullType: "L",
           perPage: 1,
           page: 1,

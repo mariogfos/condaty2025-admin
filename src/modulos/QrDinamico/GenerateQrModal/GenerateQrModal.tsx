@@ -45,7 +45,7 @@ const GenerateQrModal = ({ open, onClose, onSuccess }: Props) => {
     if (form.payment_type) payload.payment_type = form.payment_type;
     if (form.owner_id)     payload.owner_id = form.owner_id;
 
-    const res: GenerateQrResponse = await execute('qr-dynamic/generate', 'POST', payload);
+    const res: GenerateQrResponse = await execute('v3/qr-dynamic/generate', 'POST', payload);
 
     if (res?.success && res.data) {
       setGeneratedOrder(res.data);

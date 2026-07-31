@@ -537,7 +537,7 @@ Este manual cubre la implementación y configuración de Condaty para una gesti�
             created_at: Date.now(),
           }),
         ]);
-        const { data } = await execute("/payments", "GET", {
+        const { data } = await execute("/v3/payments", "GET", {
           fullType: "BOT",
           perPage: -1,
           client_id: functionParams?.parameters?.client_id,

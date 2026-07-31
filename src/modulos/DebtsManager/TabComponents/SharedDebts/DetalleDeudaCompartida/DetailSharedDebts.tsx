@@ -367,7 +367,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const fetchDebtData = async () => {
     try {
-      const response = await execute(`/debt-groups/${debtId}`, "GET", {
+      const response = await execute(`/v3/debt-groups/${debtId}`, "GET", {
         id: debtId,
       });
       if (response?.data?.success) {
@@ -393,7 +393,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const confirmDelete = async () => {
     try {
-      const response = await execute(`/debt-groups/${debtId}`, "DELETE", {
+      const response = await execute(`/v3/debt-groups/${debtId}`, "DELETE", {
         id: debtId,
         type: 4,
       });
@@ -411,7 +411,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const handleFormSave = async (data: any) => {
     try {
-      const response = await execute(`/debt-groups/${debtId}`, "PUT", data);
+      const response = await execute(`/v3/debt-groups/${debtId}`, "PUT", data);
 
       if (response?.data?.success) {
         setShowEditForm(false);
