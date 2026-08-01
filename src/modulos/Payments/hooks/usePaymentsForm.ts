@@ -775,6 +775,18 @@ export const usePaymentsForm = (
       if (!formState.amount) {
         err.amount = "Este campo es requerido";
       }
+    } else {
+      // Pago basado en deudas: el monto sigue siendo obligatorio. Si el usuario
+      // no escribió nada, el submit usa el periodoTotal como fallback para
+      // no romper el flujo, pero el error bloquea el guardado para forzar
+      // confirmación explícita del monto a registrar.
+      if (
+        !formState.amount ||
+        (typeof formState.amount === "string" && formState.amount.trim() === "") ||
+        (typeof formState.amount === "number" && formState.amount <= 0)
+      ) {
+        err.amount = "Este campo es requerido";
+      }
     }
 
     if (!formState.paid_at) {
