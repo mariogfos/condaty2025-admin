@@ -103,7 +103,7 @@ const Profile = () => {
     };
 
     const { data, error: err } = await execute(
-      "/users/" + user.id,
+      "/v3/users/" + user.id,
       "PUT",
       newUser,
     );

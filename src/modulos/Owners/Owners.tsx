@@ -161,7 +161,7 @@ const Owners = () => {
   const onBlurCi = useCallback(async (e: any, props: any) => {
     if (e.target.value.trim() == "") return;
     const { data, error } = await execute(
-      "/owners",
+      "/v3/owners",
       "GET",
       {
         fullType: "EXIST",

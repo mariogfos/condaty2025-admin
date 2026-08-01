@@ -79,7 +79,7 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
       if (e.target.value.trim() === "") return;
 
       const { data } = await execute(
-        "/guards",
+        "/v3/guards",
         "GET",
         {
           fullType: "EXIST",
@@ -138,7 +138,7 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
         return;
 
       const { data } = await execute(
-        "/guards",
+        "/v3/guards",
         "GET",
         {
           fullType: "EXIST",
@@ -229,7 +229,7 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
       return;
     }
 
-    const url = formState.id ? `/guards/${formState.id}` : "/guards";
+    const url = formState.id ? `/v3/guards/${formState.id}` : "/v3/guards";
     const method = formState.id ? "PUT" : "POST";
 
     const params = {

@@ -88,7 +88,7 @@ const RenderForm = ({
       return;
     }
     const { data: response } = await execute(
-      "/users",
+      "/v3/users",
       "GET",
       {
         searchBy: formState.email,
@@ -106,7 +106,7 @@ const RenderForm = ({
   const onSave = async () => {
     if (hasErrors(validate())) return;
     const { data: response } = await execute(
-      "/users/" + formState.id,
+      "/v3/users/" + formState.id,
       "PUT",
       {
         name: formState.name,

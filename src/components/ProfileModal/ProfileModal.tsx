@@ -122,10 +122,10 @@ const ProfileModal = ({
   const IconType = getIconType();
 
   const getUrl = () => {
-    if (type === "admin") return `/users`;
-    if (type === "owner") return `/owners`;
-    if (type === "homeOwner") return `/homeowners`;
-    return `/guards`;
+    if (type === "admin") return `/v3/users`;
+    if (type === "owner") return `/v3/owners`;
+    if (type === "homeOwner") return `/v3/homeowners`;
+    return `/v3/guards`;
   };
 
   const url = getUrl();

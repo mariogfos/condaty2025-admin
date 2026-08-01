@@ -88,7 +88,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
 
     try {
       const { data: response, error } = await fetchResidents(
-        `/owners`,
+        `/v3/owners`,
         "GET",
         params,
         false,

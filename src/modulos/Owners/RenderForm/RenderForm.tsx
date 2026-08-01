@@ -316,7 +316,7 @@ const RenderForm = ({
 
     try {
       const { data } = await execute(
-        "/owners",
+        "/v3/owners",
         "GET",
         {
           fullType: "EXIST",
@@ -374,7 +374,7 @@ const RenderForm = ({
 
     try {
       const { data } = await execute(
-        "/owners",
+        "/v3/owners",
         "GET",
         {
           fullType: "EXIST",
@@ -441,7 +441,7 @@ const RenderForm = ({
         is_homeowner: formState.type_owner === "Propietario" ? "Y" : "N",
       };
 
-      const endpoint = formState.id ? `/owners/${formState.id}` : "/owners";
+      const endpoint = formState.id ? `/v3/owners/${formState.id}` : "/v3/owners";
       const method = formState.id ? "PUT" : "POST";
 
       const { data: response } = await execute(endpoint, method, payload, true);

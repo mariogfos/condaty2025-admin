@@ -862,21 +862,21 @@ const Tasks = () => {
   const loadAssignablePeople = async () => {
     const [usersResponse, guardsResponse, ownersResponse] = await Promise.all([
       execute(
-        "/users",
+        "/v3/users",
         "GET",
         { page: 1, perPage: 300, fullType: "L" },
         false,
         true,
       ),
       execute(
-        "/guards",
+        "/v3/guards",
         "GET",
         { page: 1, perPage: 300, fullType: "L" },
         false,
         true,
       ),
       execute(
-        "/owners",
+        "/v3/owners",
         "GET",
         { page: 1, perPage: 300, fullType: "L" },
         false,

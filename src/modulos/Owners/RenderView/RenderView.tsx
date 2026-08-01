@@ -27,7 +27,7 @@ const RenderView = (props: any) => {
   const getDataDetail = async () => {
     setLoading(true);
     const { data: dataDetail, error } = await execute(
-      "/owners",
+      "/v3/owners",
       "GET",
       {
         fullType: "DET",
