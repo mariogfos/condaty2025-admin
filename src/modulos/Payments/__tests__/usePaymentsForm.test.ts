@@ -357,4 +357,234 @@ describe("usePaymentsForm", () => {
 
     expect(concept).toBe("-/-");
   });
+
+  // ============== S86 inline-create-expense (modal approach) ==============
+
+  it("S86-modal: addNewExpense pinea la virtual con el monto y actualiza amount", () => {
+    const props = makeExpenseProps({ amount: "100" }) as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    let r: any;
+    act(() => {
+      r = result.current.addNewExpense({
+        month: 8,
+        year: 2026,
+        description: "Pago adelantado",
+        amount: 1500,
+      });
+    });
+
+    expect(r.ok).toBe(true);
+    expect(result.current.formState.newExpense).not.toBeNull();
+    expect(result.current.formState.newExpense?.month).toBe(8);
+    expect(result.current.formState.newExpense?.year).toBe(2026);
+    expect(result.current.formState.newExpense?.amount).toBe(1500);
+    // amount del form se auto-pinea con el monto de la virtual
+    expect(result.current.formState.amount).toBe("1500");
+  });
+
+  it("S86-modal: addNewExpense rechaza duplicado contra deudas pre-existentes", async () => {
+    // Mock: adminDebts devuelve 1 deuda para julio 2026
+    const localExecute = vi.fn().mockImplementation((url: string) => {
+      if (url === paymentsApi.adminDebts) {
+        return Promise.resolve({
+          data: {
+            success: true,
+            data: {
+              deudas: [
+                { id: "1", month: 7, year: 2026, amount: 1000, type: 1 },
+              ],
+            },
+          },
+        });
+      }
+      return Promise.resolve({ data: { success: true } });
+    });
+
+    const props = makeExpenseProps({ execute: localExecute }) as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    // Esperar a que se carguen las deudas
+    await waitFor(() => {
+      expect(result.current.deudas).toHaveLength(1);
+    });
+
+    // Intentar agregar virtual para mismo mes/año
+    let r: any;
+    act(() => {
+      r = result.current.addNewExpense({
+        month: 7,
+        year: 2026,
+        description: "Duplicado",
+        amount: 1500,
+      });
+    });
+
+    expect(r.ok).toBe(false);
+    expect(r.error).toContain("Ya existe una deuda");
+    expect(result.current.formState.newExpense).toBeNull();
+  });
+
+  it("S86-modal: addNewExpense rechaza duplicado contra la virtual ya creada", () => {
+    const props = makeExpenseProps() as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    // Primera virtual OK
+    act(() => {
+      result.current.addNewExpense({
+        month: 8,
+        year: 2026,
+        description: "Agosto",
+        amount: 1500,
+      });
+    });
+
+    // Segunda virtual mismo periodo → rechazado
+    let r2: any;
+    act(() => {
+      r2 = result.current.addNewExpense({
+        month: 8,
+        year: 2026,
+        description: "Agosto otra vez",
+        amount: 1700,
+      });
+    });
+    expect(r2.ok).toBe(false);
+    expect(r2.error).toContain("Ya creaste una expensa");
+  });
+
+  it("S86-modal: removeNewExpense limpia la virtual y resetea amount", () => {
+    const props = makeExpenseProps() as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    act(() => {
+      result.current.addNewExpense({
+        month: 8,
+        year: 2026,
+        description: "",
+        amount: 1500,
+      });
+    });
+    expect(result.current.formState.newExpense).not.toBeNull();
+
+    act(() => {
+      result.current.removeNewExpense();
+    });
+    expect(result.current.formState.newExpense).toBeNull();
+    expect(result.current.formState.amount).toBe("");
+  });
+
+  it("S86-modal: cambiar de tipo limpia la virtual y amount", () => {
+    const props = makeExpenseProps() as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    act(() => {
+      result.current.addNewExpense({
+        month: 8,
+        year: 2026,
+        description: "",
+        amount: 1500,
+      });
+    });
+    expect(result.current.formState.newExpense).not.toBeNull();
+
+    act(() => {
+      result.current.handleChangeInput({
+        target: { name: "type", value: FormPaymentType.DIRECT, type: "text" },
+      } as any);
+    });
+
+    expect(result.current.formState.newExpense).toBeNull();
+    expect(result.current.formState.amount).toBe("");
+  });
+
+  it("S86-modal: submit con virtual pinea create_expense + expense_data correctos", async () => {
+    const localExecute = vi
+      .fn()
+      .mockImplementation((url: string) => {
+        if (url === paymentsApi.adminDebts) {
+          return Promise.resolve({
+            data: { success: true, data: { deudas: [] } },
+          });
+        }
+        return Promise.resolve({ data: { success: true, data: "payment-s86" } });
+      });
+
+    const props = {
+      item: {
+        paid_at: "2026-08-01",
+        type: FormPaymentType.EXPENSE,
+        dpto_id: "101",
+        method: String(PaymentMethod.CASH),
+        amount: "",
+      },
+      extraData: {
+        dptos: [{ id: 5, nro: "101", description: "Dpto 101", homeowner: { id: 9, name: "Mario" } }],
+        categories: [],
+        client_config: { cat_expensas: 100, cat_reservations: 200, cat_forgiveness: 300 },
+        bankAccounts: [{ id: 7, is_expense: 1 }],
+        subcategories: [],
+      },
+      execute: localExecute,
+      showToast: mockShowToast,
+      reLoad: mockReLoad,
+      onClose: mockOnClose,
+    } as any;
+
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    await waitFor(() => {
+      // deudas cargadas (vacías)
+      expect(result.current.deudas).toHaveLength(0);
+    });
+
+    // Crear la virtual
+    act(() => {
+      result.current.addNewExpense({
+        month: 8,
+        year: 2026,
+        description: "Pago adelantado Agosto",
+        amount: 1500,
+      });
+    });
+
+    await act(async () => {
+      await result.current._onSavePago();
+    });
+
+    const createCall = localExecute.mock.calls.find((c: any[]) => c[0] === paymentsApi.create);
+    expect(createCall).toBeDefined();
+    const payload = createCall![2];
+
+    expect(payload.create_expense).toBe(true);
+    expect(payload.expense_data).toBeDefined();
+    expect(payload.expense_data.month).toBe(8);
+    expect(payload.expense_data.year).toBe(2026);
+    expect(payload.expense_data.description).toBe("Pago adelantado Agosto");
+    expect(payload.expense_data.amount).toBe(1500);
+    expect(payload.expense_data.due_at).toBe("2026-08-31");
+    expect(payload.expense_data.subcategory_id).toBe(100);
+    expect(payload.debt_dpto_ids).toEqual([]);
+    expect(payload.amount).toBe(1500);
+    expect(payload.bank_account_id).toBe(7);
+  });
+
+  it("S86-modal: validación rechaza month/year/amount inválido en addNewExpense", () => {
+    const props = makeExpenseProps() as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    const tryAdd = (data: any) => {
+      let r: any;
+      act(() => {
+        r = result.current.addNewExpense(data);
+      });
+      return r;
+    };
+
+    expect(tryAdd({ month: 13, year: 2026, description: "", amount: 100 }).ok).toBe(false);
+    expect(tryAdd({ month: 0, year: 2026, description: "", amount: 100 }).ok).toBe(false);
+    expect(tryAdd({ month: 8, year: 1999, description: "", amount: 100 }).ok).toBe(false);
+    expect(tryAdd({ month: 8, year: 2026, description: "", amount: 0 }).ok).toBe(false);
+    expect(tryAdd({ month: 8, year: 2026, description: "", amount: -10 }).ok).toBe(false);
+  });
 });

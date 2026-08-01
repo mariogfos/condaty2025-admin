@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import EmptyData from "@/components/NoData/EmptyData";
 import Select from "@/mk/components/forms/Select/Select";
@@ -16,6 +16,12 @@ import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import { FORM_PAYMENT_METHODS, TYPE_OPTIONS, FormPaymentType } from "../Type/PaymentType";
 import { usePaymentsForm, RenderFormProps } from "../hooks/usePaymentsForm";
+import CreateExpenseModal from "./CreateExpenseModal";
+
+const MONTH_NAMES = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
 
 const RenderForm: React.FC<RenderFormProps> = (props) => {
   const { open, onClose } = props;
@@ -44,7 +50,27 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
     simulateError,
     handleAmountBlur,
     isSubmitDisabled,
+    addNewExpense,
+    updateNewExpense,
+    removeNewExpense,
   } = usePaymentsForm(props, open);
+
+  // S86 inline-create-expense (modal): controla el modal de crear/editar
+  // la expensa virtual.
+  const [showCreateExpense, setShowCreateExpense] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<
+    import("../hooks/usePaymentsForm").NewExpense | null
+  >(null);
+
+  // Heurística: monto normal de la unidad = monto de la primera deuda
+  // pre-existente. Cuando el back pinee `dptos.expense_amount` (spec para
+  // Claude Code), esto se cambia a leer de la unidad seleccionada.
+  const suggestedAmount = useMemo(() => {
+    if (!formState.dpto_id || deudas.length === 0) return 0;
+    const first = deudas[0];
+    return getSubtotal(first) || 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formState.dpto_id, deudas.length]);
 
   const deudasContent = useMemo(() => {
     if (!formState.dpto_id) {
@@ -179,7 +205,23 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
             ))}
           </div>
           <div className={styles["total-container"]}>
-            <p>Total a pagar: {formatBs(periodoTotal)}</p>
+            <p>
+              Total a pagar: {formatBs(periodoTotal)}
+              {formState.type === FormPaymentType.EXPENSE && !formState.newExpense && (
+                <button
+                  type="button"
+                  data-testid="open-create-expense-modal"
+                  onClick={() => {
+                    setEditingExpense(null);
+                    setShowCreateExpense(true);
+                  }}
+                  className={styles["select-all-container"]}
+                  style={{ marginLeft: 12, color: "var(--cAccent, #00e38c)" }}
+                >
+                  <span style={{ fontSize: "0.9rem" }}>+ Crear expensa nueva</span>
+                </button>
+              )}
+            </p>
           </div>
         </div>
       );
@@ -187,6 +229,7 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
   }, [
     formState.dpto_id,
     formState.type,
+    formState.newExpense,
     isLoadingDeudas,
     deudas,
     selectedPeriodo,
@@ -323,6 +366,90 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                 </div>
               )}
 
+              {/* S86 inline-create-expense: lista virtual de la expensa nueva.
+                  Solo aparece si formState.newExpense está presente y type === EXPENSE.
+                  Cada item tiene botones Editar / Eliminar. */}
+              {formState.newExpense && formState.type === FormPaymentType.EXPENSE && (
+                <div
+                  data-testid="new-expense-card"
+                  className={styles["deudas-container"]}
+                  style={{ marginTop: 12, border: "1px dashed var(--cAccent, #00e38c)", borderRadius: 8, padding: 12 }}
+                >
+                  <div className={styles["deudas-title-row"]}>
+                    <p className={styles["deudas-title"]}>
+                      🆕 Expensa nueva (se creará al confirmar el pago)
+                    </p>
+                  </div>
+                  <div
+                    className={styles["deudas-table"]}
+                    style={{ borderColor: "var(--cAccent, #00e38c)" }}
+                  >
+                    <div className={styles["deuda-row"]}>
+                      <div className={styles["deuda-cell"]}>
+                        Expensa
+                      </div>
+                      <div className={styles["deuda-cell"]}>
+                        {formState.newExpense.description ||
+                          `Expensa ${MONTH_NAMES[formState.newExpense.month - 1]} ${formState.newExpense.year}`}
+                      </div>
+                      <div
+                        className={`${styles["deuda-cell"]} ${styles["amount-cell"]}`}
+                        style={{ gridColumn: "span 2" }}
+                      >
+                        {"Bs " + formatNumber(Number(formState.newExpense.amount))}
+                      </div>
+                      <div
+                        className={`${styles["deuda-cell"]} ${styles["deuda-check"]}`}
+                      >
+                        <IconCheckSquare
+                          className={`${styles["check-icon"]} ${styles.selected}`}
+                        />
+                      </div>
+                      <div
+                        className={styles["deuda-cell"]}
+                        style={{ gap: 8, justifyContent: "flex-end" }}
+                      >
+                        <button
+                          type="button"
+                          data-testid="edit-new-expense"
+                          onClick={() => {
+                            setEditingExpense(formState.newExpense ?? null);
+                            setShowCreateExpense(true);
+                          }}
+                          style={{
+                            background: "none",
+                            border: "1px solid var(--cWhiteV2)",
+                            color: "var(--cWhite)",
+                            padding: "4px 10px",
+                            borderRadius: 4,
+                            cursor: "pointer",
+                            fontSize: "0.8rem",
+                          }}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          data-testid="remove-new-expense"
+                          onClick={() => removeNewExpense()}
+                          style={{
+                            background: "none",
+                            border: "1px solid var(--cError, #f44)",
+                            color: "var(--cError, #f44)",
+                            padding: "4px 10px",
+                            borderRadius: 4,
+                            cursor: "pointer",
+                            fontSize: "0.8rem",
+                          }}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className={styles["input-container"]} style={{ marginTop: isDebtBasedPayment ? 8 : 0 }}>
                 <Input
                   type="currency"
@@ -446,6 +573,19 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
           )}
         </div>
       </DataModal>
+
+      <CreateExpenseModal
+        open={showCreateExpense}
+        onClose={() => {
+          setShowCreateExpense(false);
+          setEditingExpense(null);
+        }}
+        suggestedAmount={suggestedAmount}
+        editing={editingExpense}
+        onConfirm={(data) =>
+          editingExpense ? updateNewExpense(data) : addNewExpense(data)
+        }
+      />
     </>
   );
 };

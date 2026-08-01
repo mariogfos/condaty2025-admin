@@ -155,6 +155,21 @@ export interface SelectedPeriodo {
   bank_account_id?: string | number;
 }
 
+/**
+ * Expensa virtual creada desde el modal de "Crear expensa nueva".
+ * Vive solo en memoria del form hasta que se confirma el pago (momento en
+ * el cual el backend la crea como DebtDpto via S86 create_expense + expense_data).
+ * El id virtual es `__new_<random>` para que no colisione con los ids reales
+ * de las deudas pre-existentes.
+ */
+export interface NewExpense {
+  virtualId: string;
+  month: number;
+  year: number;
+  description: string;
+  amount: number;
+}
+
 export interface FormState {
   paid_at?: string;
   file?: string | null;
@@ -174,6 +189,12 @@ export interface FormState {
   amount?: number | string;
   type?: FormPaymentType;
   owner_id?: string | number;
+  /**
+   * Expensa virtual creada en memoria desde el modal. Una sola por form.
+   * Si está presente, se suma al monto total y al submit se manda como
+   * `create_expense: true` + `expense_data` (S86).
+   */
+  newExpense?: NewExpense | null;
 }
 
 export interface Errors {
@@ -188,6 +209,10 @@ export interface Errors {
   file?: string;
   paid_at?: string;
   type?: string;
+  // Errores del modal de crear expensa virtual.
+  newExpenseMonth?: string;
+  newExpenseYear?: string;
+  newExpenseAmount?: string;
   [key: string]: string | undefined;
 }
 
@@ -237,6 +262,7 @@ export const usePaymentsForm = (
       obs: item?.obs || "",
       amount: item?.amount || "",
       owner_id: item?.owner_id || "",
+      newExpense: null,
     };
   });
 
@@ -258,8 +284,11 @@ export const usePaymentsForm = (
   const isDebtBasedPayment = Boolean(formState.type && formState.type !== FormPaymentType.DIRECT);
 
   const isExpensasWithoutDebt = useMemo(() => {
+    // S86 inline-create-expense (modal): si hay una expensa virtual en memoria,
+    // vamos a crearla en el submit, así que "no hay deudas" ya no es un error.
+    if (formState.newExpense) return false;
     return formState.type === FormPaymentType.EXPENSE && deudas.length === 0 && !isLoadingDeudas;
-  }, [formState.type, deudas.length, isLoadingDeudas]);
+  }, [formState.type, formState.newExpense, deudas.length, isLoadingDeudas]);
 
   const isReservationsWithoutDebt = useMemo(() => {
     return formState.type === FormPaymentType.RESERVATION && deudas.length === 0 && !isLoadingDeudas;
@@ -619,10 +648,15 @@ export const usePaymentsForm = (
           category_id: "",
           subcategory_id: "",
           subcategories: [],
+          // Cambio de tipo → reset de la expensa virtual y del amount.
+          newExpense: null,
+          amount: "",
         }));
         setDeudas([]);
         setSelectedPeriodo([]);
         setPeriodoTotal(0);
+        setSimulateResult(null);
+        setSimulateError(null);
         lastLoadedDeudas.current = "";
         if (typeValue && typeValue !== FormPaymentType.DIRECT && formState.dpto_id) {
           setTimeout(() => {
@@ -633,6 +667,20 @@ export const usePaymentsForm = (
             }
           }, 0);
         }
+      } else if (name === "dpto_id") {
+        // Cambio de unidad → la expensa virtual ya no aplica (estaba asociada
+        // al dpto anterior). Reset.
+        setFormState((prev: FormState) => ({
+          ...prev,
+          dpto_id: newValue,
+          newExpense: null,
+          amount: "",
+        }));
+        setSelectedPeriodo([]);
+        setPeriodoTotal(0);
+        setSimulateResult(null);
+        setSimulateError(null);
+        lastLoadedDeudas.current = "";
       } else {
         setFormState((prev: FormState) => ({
           ...prev,
@@ -698,6 +746,10 @@ export const usePaymentsForm = (
 
   const runSimulate = useCallback(async () => {
     if (!isDebtBasedPayment || !formState.amount || selectedPeriodo.length === 0) return;
+    // S86 inline-create-expense (modal): si la deuda todavía no existe (newExpense
+    // virtual presente), no hay nada que simular — el backend la crea con el
+    // monto que mandemos y la cascade la paga en la misma transacción.
+    if (formState.newExpense) return;
 
     setIsSimulating(true);
     try {
@@ -726,11 +778,98 @@ export const usePaymentsForm = (
     } finally {
       setIsSimulating(false);
     }
-  }, [isDebtBasedPayment, formState.amount, selectedPeriodo, execute]);
+  }, [isDebtBasedPayment, formState.amount, formState.newExpense, selectedPeriodo, execute]);
 
   const handleAmountBlur = useCallback(() => {
     runSimulate();
   }, [runSimulate]);
+
+  /**
+   * Agrega una expensa virtual en memoria (S86 inline-create-expense via modal).
+   * Valida que no exista ya una deuda pre-existente para (month, year) en el
+   * `deudas` state (que viene de adminDebts). Devuelve { ok, error? }.
+   */
+  const addNewExpense = useCallback(
+    (data: { month: number; year: number; description: string; amount: number }): { ok: boolean; error?: string } => {
+      const month = Number(data.month);
+      const year = Number(data.year);
+      const amount = Number(data.amount);
+
+      if (!month || month < 1 || month > 12) {
+        return { ok: false, error: "Mes inválido (1-12)" };
+      }
+      if (!year || year < 2000 || year > 2100) {
+        return { ok: false, error: "Año inválido" };
+      }
+      if (!amount || amount <= 0) {
+        return { ok: false, error: "El monto debe ser mayor a cero" };
+      }
+
+      // Check de duplicado contra deudas pre-existentes (adminDebts).
+      const conflict = deudas.find(
+        (d) => Number(d.month) === month && Number(d.year) === year
+      );
+      if (conflict) {
+        return {
+          ok: false,
+          error: `Ya existe una deuda para ${month}/${year} en esta unidad.`,
+        };
+      }
+
+      // Check de duplicado contra la expensa virtual ya existente.
+      if (formState.newExpense) {
+        if (
+          Number(formState.newExpense.month) === month &&
+          Number(formState.newExpense.year) === year
+        ) {
+          return {
+            ok: false,
+            error: `Ya creaste una expensa para ${month}/${year} en este formulario.`,
+          };
+        }
+      }
+
+      setFormState((prev: FormState) => ({
+        ...prev,
+        newExpense: {
+          virtualId: `__new_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+          month,
+          year,
+          description: (data.description || "").trim(),
+          amount,
+        },
+        // Auto-pinear el monto del pago con el de la expensa virtual.
+        amount: String(amount),
+      }));
+      return { ok: true };
+    },
+    [deudas, formState.newExpense]
+  );
+
+  /**
+   * Edita la expensa virtual existente. Mismas validaciones que addNewExpense.
+   * Si la expensa virtual ya tenía un (month, year), permitimos "modificarla"
+   * en el modal y re-validamos contra deudas pre-existentes.
+   */
+  const updateNewExpense = useCallback(
+    (data: { month: number; year: number; description: string; amount: number }): { ok: boolean; error?: string } => {
+      // Reutilizamos addNewExpense: si el (month, year) no cambió, no hay
+      // conflicto con la expensa virtual misma. Si cambió, validamos igual.
+      return addNewExpense(data);
+    },
+    [addNewExpense]
+  );
+
+  const removeNewExpense = useCallback(() => {
+    setFormState((prev: FormState) => ({
+      ...prev,
+      newExpense: null,
+      // Si el monto coincide con la virtual, lo limpiamos también.
+      amount: "",
+    }));
+    setSimulateResult(null);
+    setSimulateError(null);
+  }, []);
 
   const validar = useCallback(() => {
     const err: Errors = {};
@@ -749,8 +888,11 @@ export const usePaymentsForm = (
     if (
       isDebtBasedPayment &&
       deudas?.length > 0 &&
-      selectedPeriodo.length === 0
+      selectedPeriodo.length === 0 &&
+      !formState.newExpense
     ) {
+      // S86: si newExpense está presente, la deuda virtual se crea en el
+      // submit; selectedPeriodo queda vacío intencionalmente.
       err.selectedPeriodo = "Debe seleccionar al menos una deuda para pagar";
     }
 
@@ -880,6 +1022,13 @@ export const usePaymentsForm = (
     const selectedDpto = findSelectedDpto(formState.dpto_id || "");
     const dptoId = Number(selectedDpto?.id || formState.dpto_id);
 
+    // S86 inline-create-expense (modal): si hay una expensa virtual, dejamos
+    // debt_dpto_ids vacío y pineamos create_expense + expense_data. El backend
+    // crea la DebtDpto dentro de la misma transacción que el pago.
+    const hasNewExpense = Boolean(
+      formState.newExpense && formState.type === FormPaymentType.EXPENSE
+    );
+
     const params: any = {
       dpto_id: dptoId,
       paid_at: formState.paid_at,
@@ -889,12 +1038,38 @@ export const usePaymentsForm = (
           ? formState.amount || periodoTotal
           : formState.amount || "0"
       )),
-      debt_dpto_ids: isDebtBasedPayment ? selectedPeriodo.map((p) => Number(p.id)) : [],
+      debt_dpto_ids: hasNewExpense
+        ? []
+        : isDebtBasedPayment
+          ? selectedPeriodo.map((p) => Number(p.id))
+          : [],
       bank_account_id: bank_account_id,
       obs: formState.obs || "",
       voucher: formState.voucher || "",
       url_file: formState.url_file || [],
     };
+
+    if (hasNewExpense && formState.newExpense) {
+      const ne = formState.newExpense;
+      // due_at: último día del mes pineado. Convención consistente con el
+      // formato Y-m-d que espera el backend.
+      const lastDay = new Date(ne.year, ne.month, 0).getDate();
+      const dueAt = `${ne.year}-${String(ne.month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+
+      params.create_expense = true;
+      params.expense_data = {
+        dpto_id: dptoId,
+        amount: Number(ne.amount),
+        due_at: dueAt,
+        description: ne.description || "",
+        month: ne.month,
+        year: ne.year,
+        // pinear la subcategoría "expensas" del cliente si está disponible,
+        // para mantener la consistencia con el resto del módulo que usa
+        // client_config.cat_expensas como SSoT.
+        subcategory_id: extraData?.client_config?.cat_expensas ?? null,
+      };
+    }
 
     isSubmittingRef.current = true;
     setIsSubmitting(true);
@@ -977,5 +1152,9 @@ export const usePaymentsForm = (
     simulateError,
     handleAmountBlur,
     isSubmitDisabled,
+    // S86 inline-create-expense (modal): helpers para la expensa virtual.
+    addNewExpense,
+    updateNewExpense,
+    removeNewExpense,
   };
 };
