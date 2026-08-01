@@ -245,18 +245,33 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
           </div>
 
           <div className={styles.section}>
-            <div className={styles["input-container"]}>
-              <Select
-                name="type"
-                label="Tipo"
-                required={true}
-                value={formState.type}
-                onChange={handleChangeInput}
-                options={TYPE_OPTIONS}
-                error={errors}
-                optionLabel="name"
-                optionValue="id"
-              />
+            <div className={styles["input-row"]}>
+              <div className={styles["input-half"]}>
+                <Select
+                  name="type"
+                  label="Tipo"
+                  required={true}
+                  value={formState.type}
+                  onChange={handleChangeInput}
+                  options={TYPE_OPTIONS}
+                  error={errors}
+                  optionLabel="name"
+                  optionValue="id"
+                />
+              </div>
+              <div className={styles["input-half"]}>
+                <Select
+                  name="method"
+                  label="Método de pago"
+                  value={formState.method}
+                  onChange={handleChangeInput}
+                  options={FORM_PAYMENT_METHODS}
+                  error={errors}
+                  required
+                  optionLabel="name"
+                  optionValue="id"
+                />
+              </div>
             </div>
           </div>
 
@@ -297,48 +312,6 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
 
           <div className={styles.section}>
             <div>
-              <div className={styles["payment-section"]}>
-                <div className={styles["input-row"]}>
-                  <div className={styles["input-half"]}>
-                    <Input
-                      type="currency"
-                      name="amount"
-                      label="Monto del ingreso"
-                      onChange={handleChangeInput}
-                      onBlur={formState.isAmountLocked ? undefined : handleAmountBlur}
-                      value={formState.amount}
-                      required={false}
-                      error={errors}
-                      disabled={formState.isAmountLocked}
-                      maxLength={20}
-                    />
-                    {isSimulating && (
-                      <span style={{ fontSize: "12px", color: "var(--cWhiteV3)" }}>
-                        Calculando...
-                      </span>
-                    )}
-                    {simulateError && (
-                      <span style={{ fontSize: "12px", color: "var(--cError, #f44)" }}>
-                        {simulateError}
-                      </span>
-                    )}
-                  </div>
-                  <div className={styles["input-half"]}>
-                    <Select
-                      name="method"
-                      label="Método de pago"
-                      value={formState.method}
-                      onChange={handleChangeInput}
-                      options={FORM_PAYMENT_METHODS}
-                      error={errors}
-                      required
-                      optionLabel="name"
-                      optionValue="id"
-                    />
-                  </div>
-                </div>
-              </div>
-
               {isDebtBasedPayment && (
                 <div>
                   {deudasContent}
@@ -349,6 +322,31 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                   )}
                 </div>
               )}
+
+              <div className={styles["input-container"]} style={{ marginTop: isDebtBasedPayment ? 8 : 0 }}>
+                <Input
+                  type="currency"
+                  name="amount"
+                  label="Monto del ingreso"
+                  onChange={handleChangeInput}
+                  onBlur={formState.isAmountLocked ? undefined : handleAmountBlur}
+                  value={formState.amount}
+                  required={true}
+                  error={errors}
+                  disabled={formState.isAmountLocked}
+                  maxLength={20}
+                />
+                {isSimulating && (
+                  <span style={{ fontSize: "12px", color: "var(--cWhiteV3)" }}>
+                    Calculando...
+                  </span>
+                )}
+                {simulateError && (
+                  <span style={{ fontSize: "12px", color: "var(--cError, #f44)" }}>
+                    {simulateError}
+                  </span>
+                )}
+              </div>
 
               <div className={styles["supporting-fields"]}>
                 <div className={styles["upload-section"]}>
