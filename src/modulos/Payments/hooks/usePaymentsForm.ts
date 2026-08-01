@@ -11,6 +11,12 @@ export interface Dpto {
   id: string | number;
   nro: string;
   description: string;
+  /**
+   * S87: monto "normal" de expensas para esta unidad (SSoT del back en
+   * `dptos.expense_amount`). Si está presente, se usa como pre-carga del
+   * modal de crear expensa. Si no, cae a la heurística del front.
+   */
+  expense_amount?: number | string | null;
   holder?: "H" | "T";
   homeowner?: any;
   tenant?: any;
@@ -190,11 +196,12 @@ export interface FormState {
   type?: FormPaymentType;
   owner_id?: string | number;
   /**
-   * Expensa virtual creada en memoria desde el modal. Una sola por form.
-   * Si está presente, se suma al monto total y al submit se manda como
-   * `create_expense: true` + `expense_data` (S86).
+   * Lista de expensas virtuales creadas en memoria desde el modal (S87 multi).
+   * Cada item tiene un virtualId único. Se suman al monto total y al submit
+   * se mandan como `create_expenses: [{...expense_data}, ...]` (S87).
+   * El backend las crea en la misma transacción que el pago.
    */
-  newExpense?: NewExpense | null;
+  newExpenses?: NewExpense[];
 }
 
 export interface Errors {
@@ -262,7 +269,7 @@ export const usePaymentsForm = (
       obs: item?.obs || "",
       amount: item?.amount || "",
       owner_id: item?.owner_id || "",
-      newExpense: null,
+      newExpenses: [],
     };
   });
 
@@ -284,11 +291,17 @@ export const usePaymentsForm = (
   const isDebtBasedPayment = Boolean(formState.type && formState.type !== FormPaymentType.DIRECT);
 
   const isExpensasWithoutDebt = useMemo(() => {
-    // S86 inline-create-expense (modal): si hay una expensa virtual en memoria,
-    // vamos a crearla en el submit, así que "no hay deudas" ya no es un error.
-    if (formState.newExpense) return false;
+    // S87 inline-create-expense (modal): si hay expensas virtuales en memoria,
+    // vamos a crearlas en el submit, así que "no hay deudas" ya no es un error.
+    if ((formState.newExpenses?.length ?? 0) > 0) return false;
     return formState.type === FormPaymentType.EXPENSE && deudas.length === 0 && !isLoadingDeudas;
-  }, [formState.type, formState.newExpense, deudas.length, isLoadingDeudas]);
+  }, [formState.type, formState.newExpenses, deudas.length, isLoadingDeudas]);
+
+  // S87: suma de los montos de las expensas virtuales. El front lo usa para
+  // mostrar el "Total a pagar" = periodoTotal + newExpensesTotal.
+  const newExpensesTotal = useMemo(() => {
+    return (formState.newExpenses || []).reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  }, [formState.newExpenses]);
 
   const isReservationsWithoutDebt = useMemo(() => {
     return formState.type === FormPaymentType.RESERVATION && deudas.length === 0 && !isLoadingDeudas;
@@ -307,6 +320,10 @@ export const usePaymentsForm = (
           id: dpto.nro,
           name,
           dpto_id: dpto.id,
+          // S87: monto "normal" de expensas (SSoT del back, dptos.expense_amount).
+          // Lo pineamos al lDptos para que el modal de crear expensa pueda
+          // pre-cargar con el monto real de la unidad.
+          expense_amount: dpto.expense_amount,
         };
       }) || [],
     [extraData?.dptos, store.Unitstype]
@@ -648,8 +665,8 @@ export const usePaymentsForm = (
           category_id: "",
           subcategory_id: "",
           subcategories: [],
-          // Cambio de tipo → reset de la expensa virtual y del amount.
-          newExpense: null,
+          // Cambio de tipo → reset de las expensas virtuales y del amount.
+          newExpenses: [],
           amount: "",
         }));
         setDeudas([]);
@@ -668,12 +685,12 @@ export const usePaymentsForm = (
           }, 0);
         }
       } else if (name === "dpto_id") {
-        // Cambio de unidad → la expensa virtual ya no aplica (estaba asociada
-        // al dpto anterior). Reset.
+        // Cambio de unidad → las expensas virtuales ya no aplican (estaban
+        // asociadas al dpto anterior). Reset.
         setFormState((prev: FormState) => ({
           ...prev,
           dpto_id: newValue,
-          newExpense: null,
+          newExpenses: [],
           amount: "",
         }));
         setSelectedPeriodo([]);
@@ -746,10 +763,10 @@ export const usePaymentsForm = (
 
   const runSimulate = useCallback(async () => {
     if (!isDebtBasedPayment || !formState.amount || selectedPeriodo.length === 0) return;
-    // S86 inline-create-expense (modal): si la deuda todavía no existe (newExpense
-    // virtual presente), no hay nada que simular — el backend la crea con el
-    // monto que mandemos y la cascade la paga en la misma transacción.
-    if (formState.newExpense) return;
+    // S87 inline-create-expense (modal): si hay deudas virtuales (aún no
+    // existen en el back), no hay nada que simular — el backend las crea con
+    // los montos que mandemos y la cascade las paga en la misma transacción.
+    if ((formState.newExpenses?.length ?? 0) > 0) return;
 
     setIsSimulating(true);
     try {
@@ -778,19 +795,19 @@ export const usePaymentsForm = (
     } finally {
       setIsSimulating(false);
     }
-  }, [isDebtBasedPayment, formState.amount, formState.newExpense, selectedPeriodo, execute]);
+  }, [isDebtBasedPayment, formState.amount, formState.newExpenses, selectedPeriodo, execute]);
 
   const handleAmountBlur = useCallback(() => {
     runSimulate();
   }, [runSimulate]);
 
   /**
-   * Agrega una expensa virtual en memoria (S86 inline-create-expense via modal).
-   * Valida que no exista ya una deuda pre-existente para (month, year) en el
-   * `deudas` state (que viene de adminDebts). Devuelve { ok, error? }.
+   * S87: agrega una expensa virtual al array (multi). Valida que no exista
+   * ya una deuda pre-existente para (month, year) en el `deudas` state, ni
+   * otra virtual con el mismo (month, year). Devuelve { ok, error?, virtualId? }.
    */
   const addNewExpense = useCallback(
-    (data: { month: number; year: number; description: string; amount: number }): { ok: boolean; error?: string } => {
+    (data: { month: number; year: number; description: string; amount: number }): { ok: boolean; error?: string; virtualId?: string } => {
       const month = Number(data.month);
       const year = Number(data.year);
       const amount = Number(data.amount);
@@ -816,56 +833,98 @@ export const usePaymentsForm = (
         };
       }
 
-      // Check de duplicado contra la expensa virtual ya existente.
-      if (formState.newExpense) {
-        if (
-          Number(formState.newExpense.month) === month &&
-          Number(formState.newExpense.year) === year
-        ) {
-          return {
-            ok: false,
-            error: `Ya creaste una expensa para ${month}/${year} en este formulario.`,
-          };
-        }
+      // Check de duplicado contra las virtuales ya existentes.
+      const conflictVirtual = (formState.newExpenses || []).find(
+        (e) => Number(e.month) === month && Number(e.year) === year
+      );
+      if (conflictVirtual) {
+        return {
+          ok: false,
+          error: `Ya creaste una expensa para ${month}/${year} en este formulario.`,
+        };
       }
 
-      setFormState((prev: FormState) => ({
-        ...prev,
-        newExpense: {
-          virtualId: `__new_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-          month,
-          year,
-          description: (data.description || "").trim(),
-          amount,
-        },
-        // Auto-pinear el monto del pago con el de la expensa virtual.
-        amount: String(amount),
-      }));
-      return { ok: true };
+      const virtualId = `__new_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const newExpense: NewExpense = {
+        virtualId,
+        month,
+        year,
+        description: (data.description || "").trim(),
+        amount,
+      };
+
+      setFormState((prev: FormState) => {
+        const next = [...(prev.newExpenses || []), newExpense];
+        // Auto-pinear el monto del pago con la suma de todas las virtuales.
+        // El admin puede editar el amount después si quiere (ej: pagar menos
+        // que la suma → pago parcial).
+        return {
+          ...prev,
+          newExpenses: next,
+          amount: String(next.reduce((s, e) => s + e.amount, 0)),
+        };
+      });
+      return { ok: true, virtualId };
     },
-    [deudas, formState.newExpense]
+    [deudas, formState.newExpenses]
   );
 
   /**
-   * Edita la expensa virtual existente. Mismas validaciones que addNewExpense.
-   * Si la expensa virtual ya tenía un (month, year), permitimos "modificarla"
-   * en el modal y re-validamos contra deudas pre-existentes.
+   * S87: edita una expensa virtual por virtualId. Mismas validaciones que
+   * addNewExpense (excluyendo la misma virtual del check de duplicado).
    */
   const updateNewExpense = useCallback(
-    (data: { month: number; year: number; description: string; amount: number }): { ok: boolean; error?: string } => {
-      // Reutilizamos addNewExpense: si el (month, year) no cambió, no hay
-      // conflicto con la expensa virtual misma. Si cambió, validamos igual.
-      return addNewExpense(data);
+    (virtualId: string, data: { month: number; year: number; description: string; amount: number }): { ok: boolean; error?: string } => {
+      const month = Number(data.month);
+      const year = Number(data.year);
+      const amount = Number(data.amount);
+
+      if (!month || month < 1 || month > 12) {
+        return { ok: false, error: "Mes inválido (1-12)" };
+      }
+      if (!year || year < 2000 || year > 2100) {
+        return { ok: false, error: "Año inválido" };
+      }
+      if (!amount || amount <= 0) {
+        return { ok: false, error: "El monto debe ser mayor a cero" };
+      }
+
+      // Check de duplicado contra deudas pre-existentes.
+      const conflict = deudas.find(
+        (d) => Number(d.month) === month && Number(d.year) === year
+      );
+      if (conflict) {
+        return { ok: false, error: `Ya existe una deuda para ${month}/${year} en esta unidad.` };
+      }
+
+      // Check de duplicado contra OTRAS virtuales (excluyendo esta misma).
+      const conflictVirtual = (formState.newExpenses || []).find(
+        (e) => e.virtualId !== virtualId && Number(e.month) === month && Number(e.year) === year
+      );
+      if (conflictVirtual) {
+        return { ok: false, error: `Ya creaste una expensa para ${month}/${year} en este formulario.` };
+      }
+
+      setFormState((prev: FormState) => {
+        const next = (prev.newExpenses || []).map((e) =>
+          e.virtualId === virtualId
+            ? { ...e, month, year, description: (data.description || "").trim(), amount }
+            : e
+        );
+        return { ...prev, newExpenses: next };
+      });
+      return { ok: true };
     },
-    [addNewExpense]
+    [deudas, formState.newExpenses]
   );
 
-  const removeNewExpense = useCallback(() => {
+  /**
+   * S87: quita una expensa virtual del array por virtualId.
+   */
+  const removeNewExpense = useCallback((virtualId: string) => {
     setFormState((prev: FormState) => ({
       ...prev,
-      newExpense: null,
-      // Si el monto coincide con la virtual, lo limpiamos también.
-      amount: "",
+      newExpenses: (prev.newExpenses || []).filter((e) => e.virtualId !== virtualId),
     }));
     setSimulateResult(null);
     setSimulateError(null);
@@ -889,10 +948,10 @@ export const usePaymentsForm = (
       isDebtBasedPayment &&
       deudas?.length > 0 &&
       selectedPeriodo.length === 0 &&
-      !formState.newExpense
+      (formState.newExpenses?.length ?? 0) === 0
     ) {
-      // S86: si newExpense está presente, la deuda virtual se crea en el
-      // submit; selectedPeriodo queda vacío intencionalmente.
+      // S87: si newExpenses tiene items, las deudas virtuales se crean en
+      // el submit; selectedPeriodo queda vacío intencionalmente.
       err.selectedPeriodo = "Debe seleccionar al menos una deuda para pagar";
     }
 
@@ -1022,12 +1081,12 @@ export const usePaymentsForm = (
     const selectedDpto = findSelectedDpto(formState.dpto_id || "");
     const dptoId = Number(selectedDpto?.id || formState.dpto_id);
 
-    // S86 inline-create-expense (modal): si hay una expensa virtual, dejamos
-    // debt_dpto_ids vacío y pineamos create_expense + expense_data. El backend
-    // crea la DebtDpto dentro de la misma transacción que el pago.
-    const hasNewExpense = Boolean(
-      formState.newExpense && formState.type === FormPaymentType.EXPENSE
-    );
+    // S87 inline-create-expense (modal): si hay expensas virtuales, dejamos
+    // debt_dpto_ids vacío y pineamos create_expenses: []. El backend crea
+    // cada DebtDpto dentro de la misma transacción que el pago. Soporta N
+    // expensas en un solo POST.
+    const newExpensesList = formState.newExpenses || [];
+    const hasNewExpense = newExpensesList.length > 0 && formState.type === FormPaymentType.EXPENSE;
 
     const params: any = {
       dpto_id: dptoId,
@@ -1049,26 +1108,22 @@ export const usePaymentsForm = (
       url_file: formState.url_file || [],
     };
 
-    if (hasNewExpense && formState.newExpense) {
-      const ne = formState.newExpense;
-      // due_at: último día del mes pineado. Convención consistente con el
-      // formato Y-m-d que espera el backend.
-      const lastDay = new Date(ne.year, ne.month, 0).getDate();
-      const dueAt = `${ne.year}-${String(ne.month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
-
-      params.create_expense = true;
-      params.expense_data = {
-        dpto_id: dptoId,
-        amount: Number(ne.amount),
-        due_at: dueAt,
-        description: ne.description || "",
-        month: ne.month,
-        year: ne.year,
-        // pinear la subcategoría "expensas" del cliente si está disponible,
-        // para mantener la consistencia con el resto del módulo que usa
-        // client_config.cat_expensas como SSoT.
-        subcategory_id: extraData?.client_config?.cat_expensas ?? null,
-      };
+    if (hasNewExpense) {
+      // S87: array de expensas. due_at = último día del mes pineado.
+      params.create_expenses = newExpensesList.map((ne) => {
+        const lastDay = new Date(ne.year, ne.month, 0).getDate();
+        const dueAt = `${ne.year}-${String(ne.month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+        return {
+          dpto_id: dptoId,
+          amount: Number(ne.amount),
+          due_at: dueAt,
+          description: ne.description || "",
+          month: ne.month,
+          year: ne.year,
+          // SSoT: subcategoría "expensas" del cliente (igual que DIRECT).
+          subcategory_id: extraData?.client_config?.cat_expensas ?? null,
+        };
+      });
     }
 
     isSubmittingRef.current = true;
@@ -1156,5 +1211,6 @@ export const usePaymentsForm = (
     addNewExpense,
     updateNewExpense,
     removeNewExpense,
+    newExpensesTotal,
   };
 };
