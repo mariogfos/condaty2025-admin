@@ -10,7 +10,7 @@ const Conciliation = () => {
   const [selectedClients, setSelectedClients] = useState<Record<string, boolean>>({});
 
   const loadData = async () => {
-    const res = await execute('qr-dynamic/conciliation/summary', 'GET');
+    const res = await execute('v3/qr-dynamic/conciliation/summary', 'GET');
     if (res?.success) {
       setData(res.data);
     }
@@ -49,7 +49,7 @@ const Conciliation = () => {
       return;
     }
 
-    const res = await execute('qr-dynamic/conciliation/mark-deposited', 'POST', {
+    const res = await execute('v3/qr-dynamic/conciliation/mark-deposited', 'POST', {
       order_ids: orderIdsToConciliate
     });
 

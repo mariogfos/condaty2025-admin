@@ -50,7 +50,6 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
   }, []);
 
   const getUser = async (client_id = null) => {
-    // setSplash(true);
     setWaiting(1, "getUser");
     let currentUser: any = false;
     try {
@@ -60,12 +59,9 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
         ) + "",
       );
       currentUser = user || token.user;
+      // M3: dedupe — antes había 2 bloques if/else idénticos
+      // para setear credentials.client_id. Consolidado a 1.
       const credentials: any = {};
-      if (client_id) {
-        credentials.client_id = client_id;
-      } else if (currentUser?.client_id) {
-        credentials.client_id = currentUser.client_id;
-      }
       if (client_id) {
         credentials.client_id = client_id;
       } else if (currentUser?.client_id) {
@@ -82,16 +78,6 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
 
         if (data?.success && !error) {
           currentUser = data?.data?.user;
-          if (client_id) {
-            currentUser.client_id = client_id;
-          } else if (credentials.client_id) {
-            currentUser.client_id = credentials.client_id;
-          }
-
-          if (currentUser.client_id) {
-            localStorage.setItem("condaty_client_id", currentUser.client_id);
-          }
-
           if (client_id) {
             currentUser.client_id = client_id;
           } else if (credentials.client_id) {
@@ -121,13 +107,9 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
             (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
           );
           localStorage.removeItem("condaty_client_id");
-          localStorage.removeItem("condaty_client_id");
           setUser(false);
           setWaiting(-1, "-getUser");
           setSplash(false);
-          // setSplash(false);
-          // router.reload();
-          // router.reload();
           return;
         }
       }
@@ -278,6 +260,8 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
 export default AuthProvider;
 
 export const useAuth = () => {
-  const data: AuthContextType = useContext(AuthContext);
-  return { ...data };
+  // M3: no spread — antes `{ ...data }` creaba un objeto nuevo en cada
+  // render, lo que re-renderizaba a todos los consumidores. Retornamos
+  // el value del context directamente (estable entre renders).
+  return useContext(AuthContext);
 };

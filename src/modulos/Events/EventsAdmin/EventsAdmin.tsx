@@ -681,14 +681,9 @@ const EventsAdmin = () => {
       </RenderItem>
     );
   };
-  const onResponse = async () => {
-    const { data } = await execute("/events-automatic", "POST", {});
-    if (data?.success) {
-      showToast("success", "Se han enviado las encuestas");
-    } else {
-      showToast("error", "No se han podido enviar las encuestas");
-    }
-  };
+  // F3: onResponse fue removido — llamaba a /events-automatic, endpoint
+  // que NO existe en el API. Era código muerto (solo se invocaba desde
+  // un <IconLike onClick={...} /> comentado en la línea que sigue).
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.roles}>

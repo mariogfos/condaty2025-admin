@@ -140,11 +140,16 @@ const ProfileModal = ({
     true,
   );
 
-  // useEffect(() => {
-  //   if (dataID) {
-  //     reLoadDet({ searchBy: dataID });
-  //   }
-  // }, [dataID]);
+  // B1: el useEffect de useAxios solo corre en mount. Sin este reLoad
+  // cuando cambia dataID, el modal mostraba los datos del primer user
+  // cada vez que se re-abría para otro. Pineá el código comentado que
+  // quedó como TODO muerto.
+  useEffect(() => {
+    if (dataID) {
+      reLoadDet({ searchBy: dataID });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataID]);
   const getProfileRole = () => {
     if (type === "admin") return data?.data[0]?.role?.[0]?.name;
     if (type === "owner") return data?.data[0]?.type_owner;
@@ -190,7 +195,7 @@ const ProfileModal = ({
         url_avatar: data?.data[0]?.url_avatar,
       });
     }
-  }, [openEdit, data]);
+  }, [openEdit, data?.data?.[0]?.id, data]);
 
   const onChange = (e: ChangeEvent) => {
     setFormState({
@@ -415,16 +420,19 @@ const ProfileModal = ({
                 {(() => {
                   let address = "";
                   if (type === "owner") {
-                    const hasDescription = data?.data[0]?.dpto[0]?.description;
-                    const hasNro = data?.data[0]?.dpto[0]?.nro;
+                    // B2: optional chaining en [0] — antes era `dpto[0]?.x`
+                    // que crasheaba si dpto era null/undefined. También
+                    // pinea fallback a string vacío para que la concatenación
+                    // no produzca "undefined".
+                    const dpto = data?.data[0]?.dpto?.[0];
+                    const hasDescription = dpto?.description;
+                    const hasNro = dpto?.nro;
                     if (hasDescription || hasNro) {
                       address =
-                        (data?.data[0]?.dpto[0]?.type?.name || "") +
+                        (dpto?.type?.name || "") +
                         " " +
-                        (data?.data[0]?.dpto[0]?.nro || "") +
-                        (hasDescription
-                          ? " - " + data?.data[0]?.dpto[0]?.description
-                          : "");
+                        (dpto?.nro || "") +
+                        (hasDescription ? " - " + dpto.description : "");
                     }
                   } else {
                     address = data?.data[0]?.address;

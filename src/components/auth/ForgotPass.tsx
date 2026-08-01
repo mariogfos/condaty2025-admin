@@ -92,7 +92,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       return;
     }
 
-    const { data, error } = await execute("/" + mod + "-getpinreset", "POST", {
+    const { data, error } = await execute("/v3/" + mod + "-getpinreset", "POST", {
       ci: formState.ci,
       code: "",
       type: "email",
@@ -133,7 +133,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       }
 
       // Validar el pin con la API
-      const { data, error } = await execute("/adm-validatepin", "POST", {
+      const { data, error } = await execute("/v3/adm-validatepin", "POST", {
         ci: formState.ci,
         pin: formState.code,
         type: "ADM",
@@ -150,7 +150,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
 
   const onChangePass = async () => {
     let err = {};
-    let url = "/" + mod + "-setpassreset";
+    let url = "/v3/" + mod + "-setpassreset";
 
     let param: any = { code: formState.code };
 

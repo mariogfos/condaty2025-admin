@@ -160,7 +160,7 @@ const Authentication = ({
   };
 
   const onGetCode = async () => {
-    const { data, error } = await execute("/adm-getpin", "POST", {
+    const { data, error } = await execute("/v3/adm-getpin", "POST", {
       type: "email",
     });
     if (data?.success == true) {

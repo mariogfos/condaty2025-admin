@@ -7,18 +7,26 @@ import Button from "@/mk/components/forms/Button/Button";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { ClientOwnerStatus } from "@/modulos/Payments/Type/PaymentType";
+import {
+  ClientOwnerStatus,
+  ClientOwnerType,
+} from "@/modulos/Payments/Type/PaymentType";
 
 const RenderView = (props: any) => {
   const { open, onClose, item: data, reLoad, execute, showToast } = props;
   const { user } = useAuth();
   const [item, setItem]: any = useState({});
-  const client = item?.clients?.find(
-    (item: any) => item?.id === user?.client_id,
-  );
   const [openActive, setOpenActive] = useState(false);
   const [typeActive, setTypeActive] = useState("");
   const [loading, setLoading] = useState(false);
+  const [notFound, setNotFound] = useState(false);
+
+  // B6: client calculado DENTRO del render — antes se calculaba antes del
+  // setItem, por lo que en el primer frame `item = {}` → client undefined
+  // y el botón Aprobar/Rechazar no aparecía.
+  const client = item?.clients?.find(
+    (c: any) => c?.id === user?.client_id,
+  );
 
   const openModal = (t: any) => {
     setOpenActive(true);
@@ -26,6 +34,7 @@ const RenderView = (props: any) => {
   };
   const getDataDetail = async () => {
     setLoading(true);
+    setNotFound(false);
     const { data: dataDetail, error } = await execute(
       "/v3/owners",
       "GET",
@@ -36,19 +45,33 @@ const RenderView = (props: any) => {
       false,
       true,
     );
-    if (dataDetail?.success === true) {
-      setItem(dataDetail?.data[0]);
+    if (dataDetail?.success) {
+      const found = dataDetail?.data?.[0];
+      if (found) {
+        setItem(found);
+      } else {
+        setNotFound(true);
+      }
     } else {
       showToast(error?.data?.message || error?.message, "error");
+      setNotFound(true);
     }
     setLoading(false);
   };
+  // B4: useEffect con [open, data?.id] en vez de [] — antes solo se
+  // ejecutaba al mount del componente, no cuando se re-abría el modal
+  // para otro owner en waiting.
   useEffect(() => {
-    if (open) {
+    if (open && data?.id) {
       getDataDetail();
     }
-  }, []);
-  if (!item) {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, data?.id]);
+
+  // B5: la guarda original `if (!item)` con useState({}) era código
+  // muerto ({} es truthy). Ahora discrimina entre "no encontrado" y
+  // "cargando" (loading + !item?.id) abajo.
+  if (notFound) {
     return (
       <DataModal
         open={open}
@@ -78,7 +101,7 @@ const RenderView = (props: any) => {
           style={{ width: "max-content" }}
           className={styles.renderView}
         >
-          {loading ? (
+          {loading || !item?.id ? (
             <p>Cargando...</p>
           ) : (
             <div className={styles.boxContent}>
@@ -111,10 +134,10 @@ const RenderView = (props: any) => {
                   </p>
                 </div>
 
-                {item?.dpto?.[0]?.type.name && (
+                {item?.dpto?.[0]?.type?.name && (
                   <div className={styles.infoSection_details}>
                     <p>Tipo de unidad</p>
-                    <p>{item?.dpto[0]?.type.name}</p>
+                    <p>{item?.dpto[0]?.type?.name}</p>
                   </div>
                 )}
 
@@ -135,7 +158,9 @@ const RenderView = (props: any) => {
                 <div className={styles.infoSection_details}>
                   <p>Rol</p>
                   <p className={styles.statusActive}>
-                    {client?.pivot?.type === "H" ? "Propietario" : "Inquilino"}
+                    {client?.pivot?.type === ClientOwnerType.HOMEOWNER
+                      ? "Propietario"
+                      : "Inquilino"}
                   </p>
                 </div>
               </section>

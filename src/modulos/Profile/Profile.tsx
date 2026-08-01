@@ -14,6 +14,7 @@ import {
   IconLook,
 } from "@/components/layout/icons/IconsBiblioteca";
 import Button from "@/mk/components/forms/Button/Button";
+import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import Authentication from "./Authentication";
 import styles from "./profile.module.css";
 
@@ -33,7 +34,7 @@ interface FormState {
 }
 
 const Profile = () => {
-  const { user, getUser, showToast, userCan, logout } = useAuth();
+  const { user, getUser, showToast, userCan, logout, setStore } = useAuth();
   const [formState, setFormState] = useState<FormState>({});
   const [errors, setErrors] = useState<any>({});
   const [preview, setPreview] = useState<string | null>(null);
@@ -44,7 +45,6 @@ const Profile = () => {
   const [onLogout, setOnLogout] = useState(false);
   const [type, setType] = useState("");
 
-  const { setStore } = useAuth();
   useEffect(() => {
     setStore({ title: "PERFIL" });
   }, []);
@@ -59,6 +59,13 @@ const Profile = () => {
   useEffect(() => {
     setFormState((prevState: any) => ({ ...prevState, ...user }));
   }, [user]);
+
+  // B3: handleChange para InputFullName. El form de "Editar Perfil"
+  // tenía los InputFullName comentados, lo que dejaba el botón
+  // "Guardar Cambios" sin inputs.
+  const handleChange = (e: any) => {
+    setFormState((prev: any) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
   const validate = () => {
     let errors: any = {};
@@ -271,14 +278,14 @@ const Profile = () => {
             ) : (
               <>
                 <div className={styles.sectionTitle}>Editar Perfil</div>
-                {/* <InputFullName
+                <InputFullName
                   value={formState}
                   errors={errors}
                   onChange={handleChange}
                   disabled={false}
                   onBlur={validate}
                   name={""}
-                /> */}
+                />
                 <Button onClick={onSave} className={styles.saveButton}>
                   Guardar Cambios
                 </Button>
@@ -351,14 +358,14 @@ const Profile = () => {
           />
 
           <div className={styles.formInput}>
-            {/* <InputFullName
+            <InputFullName
               value={formState}
-              name={"full_name"}
+              name={""}
               errors={errors}
               onChange={handleChange}
               disabled={false}
               onBlur={validate}
-            /> */}
+            />
           </div>
         </div>
       </DataModal>
