@@ -205,23 +205,21 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
             ))}
           </div>
           <div className={styles["total-container"]}>
-            <p>
-              Total a pagar: {formatBs(periodoTotal)}
-              {formState.type === FormPaymentType.EXPENSE && !formState.newExpense && (
-                <button
-                  type="button"
-                  data-testid="open-create-expense-modal"
-                  onClick={() => {
-                    setEditingExpense(null);
-                    setShowCreateExpense(true);
-                  }}
-                  className={styles["select-all-container"]}
-                  style={{ marginLeft: 12, color: "var(--cAccent, #00e38c)" }}
-                >
-                  <span style={{ fontSize: "0.9rem" }}>+ Crear expensa nueva</span>
-                </button>
-              )}
-            </p>
+            {formState.type === FormPaymentType.EXPENSE && !formState.newExpense && (
+              <button
+                type="button"
+                data-testid="open-create-expense-modal"
+                onClick={() => {
+                  setEditingExpense(null);
+                  setShowCreateExpense(true);
+                }}
+                className={styles["select-all-container"]}
+                style={{ color: "var(--cAccent, #00e38c)" }}
+              >
+                <span style={{ fontSize: "0.9rem" }}>+ Crear expensa nueva</span>
+              </button>
+            )}
+            <p>Total a pagar: {formatBs(periodoTotal)}</p>
           </div>
         </div>
       );

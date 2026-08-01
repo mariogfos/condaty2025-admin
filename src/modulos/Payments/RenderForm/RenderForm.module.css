@@ -307,11 +307,13 @@
 
 .total-container {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   color: var(--cWhite);
   padding: var(--spM) 0;
   font-weight: var(--bMedium);
   font-size: 1rem;
+  gap: 12px;
 }
 
 .error-message {
