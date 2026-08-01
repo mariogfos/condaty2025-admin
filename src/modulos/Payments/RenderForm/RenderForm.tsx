@@ -394,9 +394,23 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                       {formState.newExpenses!.map((ne) => (
                         <div key={ne.virtualId} className={styles["deuda-row"]}>
                           <div className={styles["deuda-cell"]}>Expensa</div>
-                          <div className={styles["deuda-cell"]}>
-                            {ne.description ||
-                              `Expensa ${MONTH_NAMES[ne.month - 1]} ${ne.year}`}
+                          <div
+                            className={styles["deuda-cell"]}
+                            style={{ display: "flex", flexDirection: "column", gap: 2 }}
+                          >
+                            <span style={{ fontWeight: "var(--bMedium)" }}>
+                              {`Expensa ${MONTH_NAMES[ne.month - 1]} ${ne.year}`}
+                            </span>
+                            {ne.description && (
+                              <span
+                                style={{
+                                  fontSize: "0.78rem",
+                                  color: "var(--cWhiteV1)",
+                                }}
+                              >
+                                {ne.description}
+                              </span>
+                            )}
                           </div>
                           <div
                             className={`${styles["deuda-cell"]} ${styles["amount-cell"]}`}
