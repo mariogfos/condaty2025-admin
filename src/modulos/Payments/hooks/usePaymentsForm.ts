@@ -174,6 +174,14 @@ export interface FormState {
   amount?: number | string;
   type?: FormPaymentType;
   owner_id?: string | number;
+  // S86 inline-create-expense: cuando type === EXPENSE y el admin quiere
+  // registrar una expensa que aún no fue creada (pago adelantado, etc.),
+  // pineá createExpense=true + expenseMonth/Year/Description. El backend
+  // crea la DebtDpto en la misma transacción que el pago.
+  createExpense?: boolean;
+  expenseMonth?: number | string;
+  expenseYear?: number | string;
+  expenseDescription?: string;
 }
 
 export interface Errors {
@@ -188,6 +196,8 @@ export interface Errors {
   file?: string;
   paid_at?: string;
   type?: string;
+  expenseMonth?: string;
+  expenseYear?: string;
   [key: string]: string | undefined;
 }
 
@@ -237,6 +247,12 @@ export const usePaymentsForm = (
       obs: item?.obs || "",
       amount: item?.amount || "",
       owner_id: item?.owner_id || "",
+      // S86 inline-create-expense: si el item entrante ya tiene el flag (caso
+      // deep-link / re-edición), lo respetamos; si no, default false.
+      createExpense: item?.createExpense || false,
+      expenseMonth: item?.expenseMonth ?? new Date().getMonth() + 1,
+      expenseYear: item?.expenseYear ?? new Date().getFullYear(),
+      expenseDescription: item?.expenseDescription || "",
     };
   });
 
@@ -258,8 +274,11 @@ export const usePaymentsForm = (
   const isDebtBasedPayment = Boolean(formState.type && formState.type !== FormPaymentType.DIRECT);
 
   const isExpensasWithoutDebt = useMemo(() => {
+    // S86 inline-create-expense: si el flag está activo, vamos a crear la
+    // deuda AHORA, así que "no hay deudas" ya no es un estado de error.
+    if (formState.createExpense) return false;
     return formState.type === FormPaymentType.EXPENSE && deudas.length === 0 && !isLoadingDeudas;
-  }, [formState.type, deudas.length, isLoadingDeudas]);
+  }, [formState.type, formState.createExpense, deudas.length, isLoadingDeudas]);
 
   const isReservationsWithoutDebt = useMemo(() => {
     return formState.type === FormPaymentType.RESERVATION && deudas.length === 0 && !isLoadingDeudas;
@@ -619,10 +638,16 @@ export const usePaymentsForm = (
           category_id: "",
           subcategory_id: "",
           subcategories: [],
+          // Cambio de tipo → reset del flag createExpense y del amount (si era
+          // debt-based con periodoTotal pre-rellenado, ya no aplica).
+          createExpense: false,
+          amount: "",
         }));
         setDeudas([]);
         setSelectedPeriodo([]);
         setPeriodoTotal(0);
+        setSimulateResult(null);
+        setSimulateError(null);
         lastLoadedDeudas.current = "";
         if (typeValue && typeValue !== FormPaymentType.DIRECT && formState.dpto_id) {
           setTimeout(() => {
@@ -698,6 +723,10 @@ export const usePaymentsForm = (
 
   const runSimulate = useCallback(async () => {
     if (!isDebtBasedPayment || !formState.amount || selectedPeriodo.length === 0) return;
+    // S86 inline-create-expense: si la deuda todavía no existe (createExpense=true),
+    // no hay nada que simular — el backend la crea con el monto que mandemos y
+    // la cascade la paga en la misma transacción. Skip silencioso.
+    if (formState.createExpense) return;
 
     setIsSimulating(true);
     try {
@@ -726,7 +755,7 @@ export const usePaymentsForm = (
     } finally {
       setIsSimulating(false);
     }
-  }, [isDebtBasedPayment, formState.amount, selectedPeriodo, execute]);
+  }, [isDebtBasedPayment, formState.amount, formState.createExpense, selectedPeriodo, execute]);
 
   const handleAmountBlur = useCallback(() => {
     runSimulate();
@@ -749,8 +778,12 @@ export const usePaymentsForm = (
     if (
       isDebtBasedPayment &&
       deudas?.length > 0 &&
-      selectedPeriodo.length === 0
+      selectedPeriodo.length === 0 &&
+      !formState.createExpense
     ) {
+      // S86: si createExpense=true, la deuda todavía no existe; el backend
+      // la crea dentro de la misma transacción. selectedPeriodo queda vacío
+      // intencionalmente.
       err.selectedPeriodo = "Debe seleccionar al menos una deuda para pagar";
     }
 
@@ -791,6 +824,18 @@ export const usePaymentsForm = (
 
     if (!formState.paid_at) {
       err.paid_at = "Este campo es requerido";
+    }
+
+    // S86 inline-create-expense: validar mes/año si createExpense=true.
+    if (formState.createExpense) {
+      const month = Number(formState.expenseMonth);
+      const year = Number(formState.expenseYear);
+      if (!month || month < 1 || month > 12) {
+        err.expenseMonth = "Mes inválido (1-12)";
+      }
+      if (!year || year < 2000 || year > 2100) {
+        err.expenseYear = "Año inválido";
+      }
     }
 
     setErrors(err);
@@ -880,6 +925,13 @@ export const usePaymentsForm = (
     const selectedDpto = findSelectedDpto(formState.dpto_id || "");
     const dptoId = Number(selectedDpto?.id || formState.dpto_id);
 
+    // S86 inline-create-expense: si el flag está activo, dejamos debt_dpto_ids
+    // vacío y pineamos create_expense + expense_data. El backend crea la
+    // DebtDpto dentro de la misma transacción que el pago.
+    const shouldCreateExpense = Boolean(
+      formState.createExpense && formState.type === FormPaymentType.EXPENSE
+    );
+
     const params: any = {
       dpto_id: dptoId,
       paid_at: formState.paid_at,
@@ -889,12 +941,41 @@ export const usePaymentsForm = (
           ? formState.amount || periodoTotal
           : formState.amount || "0"
       )),
-      debt_dpto_ids: isDebtBasedPayment ? selectedPeriodo.map((p) => Number(p.id)) : [],
+      debt_dpto_ids:
+        shouldCreateExpense
+          ? []
+          : isDebtBasedPayment
+            ? selectedPeriodo.map((p) => Number(p.id))
+            : [],
       bank_account_id: bank_account_id,
       obs: formState.obs || "",
       voucher: formState.voucher || "",
       url_file: formState.url_file || [],
     };
+
+    if (shouldCreateExpense) {
+      const month = Number(formState.expenseMonth);
+      const year = Number(formState.expenseYear);
+      // due_at: fin del mes pineado. Si el usuario quiere otra fecha, podría
+      // agregarse después; por ahora usamos el último día del mes como
+      // convención consistente con el formato Y-m-d que espera el backend.
+      const lastDay = new Date(year, month, 0).getDate();
+      const dueAt = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+
+      params.create_expense = true;
+      params.expense_data = {
+        dpto_id: dptoId,
+        amount: params.amount,
+        due_at: dueAt,
+        description: (formState.expenseDescription || "").trim(),
+        month: month,
+        year: year,
+        // pinear la subcategoría "expensas" del cliente si está disponible,
+        // para mantener la consistencia con el resto del módulo que usa
+        // client_config.cat_expensas como SSoT.
+        subcategory_id: extraData?.client_config?.cat_expensas ?? null,
+      };
+    }
 
     isSubmittingRef.current = true;
     setIsSubmitting(true);

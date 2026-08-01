@@ -312,7 +312,43 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
 
           <div className={styles.section}>
             <div>
-              {isDebtBasedPayment && (
+              {formState.type === FormPaymentType.EXPENSE && (
+                <div
+                  className={styles["select-all-container"]}
+                  style={{ marginBottom: 12 }}
+                >
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      cursor: "pointer",
+                      color: "var(--cWhite)",
+                      fontSize: "0.95rem",
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      data-testid="create-expense-toggle"
+                      checked={Boolean(formState.createExpense)}
+                      onChange={(e) =>
+                        setFormState((prev: any) => ({
+                          ...prev,
+                          createExpense: e.target.checked,
+                          // Si activamos el flag, limpiamos selección de deudas
+                          // pre-existentes (no aplica en este modo).
+                          ...(e.target.checked
+                            ? { amount: "" }
+                            : {}),
+                        }))
+                      }
+                    />
+                    Crear expensa nueva (pago adelantado)
+                  </label>
+                </div>
+              )}
+
+              {isDebtBasedPayment && !formState.createExpense && (
                 <div>
                   {deudasContent}
                   {errors.selectedPeriodo && (
@@ -323,11 +359,98 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                 </div>
               )}
 
+              {formState.createExpense && formState.type === FormPaymentType.EXPENSE && (
+                <div
+                  className={styles["payment-section"]}
+                  style={{ marginBottom: 12 }}
+                >
+                  <div className={styles["input-row"]}>
+                    <div className={styles["input-half"]}>
+                      <Select
+                        name="expenseMonth"
+                        label="Mes de la expensa"
+                        value={String(formState.expenseMonth ?? "")}
+                        onChange={(e: any) =>
+                          setFormState((prev: any) => ({
+                            ...prev,
+                            expenseMonth: Number(e.target.value),
+                          }))
+                        }
+                        options={[
+                          { id: 1, name: "Enero" },
+                          { id: 2, name: "Febrero" },
+                          { id: 3, name: "Marzo" },
+                          { id: 4, name: "Abril" },
+                          { id: 5, name: "Mayo" },
+                          { id: 6, name: "Junio" },
+                          { id: 7, name: "Julio" },
+                          { id: 8, name: "Agosto" },
+                          { id: 9, name: "Septiembre" },
+                          { id: 10, name: "Octubre" },
+                          { id: 11, name: "Noviembre" },
+                          { id: 12, name: "Diciembre" },
+                        ]}
+                        required
+                        error={errors}
+                        optionLabel="name"
+                        optionValue="id"
+                      />
+                    </div>
+                    <div className={styles["input-half"]}>
+                      <Input
+                        type="number"
+                        name="expenseYear"
+                        label="Año de la expensa"
+                        value={String(formState.expenseYear ?? "")}
+                        onChange={(e) => {
+                          const raw = (e.target.value || "").replace(/\D/g, "").slice(0, 4);
+                          setFormState((prev: any) => ({
+                            ...prev,
+                            expenseYear: raw,
+                          }));
+                        }}
+                        required
+                        error={errors}
+                        maxLength={4}
+                      />
+                    </div>
+                  </div>
+                  <div className={styles["input-container"]} style={{ marginTop: 8 }}>
+                    <Input
+                      type="text"
+                      name="expenseDescription"
+                      label="Descripción (opcional)"
+                      placeholder="Expensa Agosto 2026"
+                      value={formState.expenseDescription || ""}
+                      onChange={(e) =>
+                        setFormState((prev: any) => ({
+                          ...prev,
+                          expenseDescription: e.target.value.substring(0, 100),
+                        }))
+                      }
+                      error={errors}
+                      maxLength={100}
+                    />
+                  </div>
+                  <p
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "var(--cWhiteV1)",
+                      marginTop: 6,
+                    }}
+                  >
+                    Se creará la deuda para la unidad seleccionada y se pagará
+                    en la misma operación. La descripción por defecto es
+                    &quot;Expensa [Mes] [Año]&quot;.
+                  </p>
+                </div>
+              )}
+
               <div className={styles["input-container"]} style={{ marginTop: isDebtBasedPayment ? 8 : 0 }}>
                 <Input
                   type="currency"
                   name="amount"
-                  label="Monto del ingreso"
+                  label={formState.createExpense ? "Monto de la expensa y del pago" : "Monto del ingreso"}
                   onChange={handleChangeInput}
                   onBlur={formState.isAmountLocked ? undefined : handleAmountBlur}
                   value={formState.amount}

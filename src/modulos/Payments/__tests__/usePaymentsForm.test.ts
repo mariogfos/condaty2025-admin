@@ -357,4 +357,151 @@ describe("usePaymentsForm", () => {
 
     expect(concept).toBe("-/-");
   });
+
+  it("S86 inline-create-expense: pinea create_expense + expense_data y deuda vacía", async () => {
+    const localExecute = vi.fn().mockResolvedValue({ data: { success: true, data: "payment-s86" } });
+
+    const props = {
+      item: {
+        paid_at: "2026-08-01",
+        type: FormPaymentType.EXPENSE,
+        dpto_id: "101",
+        method: String(PaymentMethod.CASH),
+        amount: "",
+        // Pineamos el flag S86 directamente en el state inicial
+        createExpense: true,
+        expenseMonth: 8,
+        expenseYear: 2026,
+        expenseDescription: "Pago adelantado Agosto",
+      },
+      extraData: {
+        dptos: [{ id: 5, nro: "101", description: "Dpto 101", homeowner: { id: 9, name: "Mario" } }],
+        categories: [],
+        client_config: { cat_expensas: 100, cat_reservations: 200, cat_forgiveness: 300 },
+        bankAccounts: [{ id: 7, is_expense: 1 }],
+        subcategories: [],
+      },
+      execute: localExecute,
+      showToast: mockShowToast,
+      reLoad: mockReLoad,
+      onClose: mockOnClose,
+    } as any;
+
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    // El form debe aceptar crear expensa sin deudas pre-existentes:
+    // isExpensasWithoutDebt debe estar en false.
+    expect(result.current.formState.createExpense).toBe(true);
+
+    await act(async () => {
+      result.current.handleChangeInput({ target: { name: "amount", value: "1500", type: "text" } } as any);
+    });
+
+    await act(async () => {
+      await result.current._onSavePago();
+    });
+
+    const createCall = localExecute.mock.calls.find((c: any[]) => c[0] === paymentsApi.create);
+    expect(createCall).toBeDefined();
+    const payload = createCall![2];
+
+    // create_expense + expense_data pineados
+    expect(payload.create_expense).toBe(true);
+    expect(payload.expense_data).toBeDefined();
+    expect(payload.expense_data.month).toBe(8);
+    expect(payload.expense_data.year).toBe(2026);
+    expect(payload.expense_data.description).toBe("Pago adelantado Agosto");
+    expect(payload.expense_data.amount).toBe(1500);
+    // due_at = último día del mes pineado
+    expect(payload.expense_data.due_at).toBe("2026-08-31");
+    // subcategory_id pinea cat_expensas automáticamente
+    expect(payload.expense_data.subcategory_id).toBe(100);
+    // debt_dpto_ids vacío (la deuda se crea dentro de la transacción)
+    expect(payload.debt_dpto_ids).toEqual([]);
+    // amount = mismo que expense_data.amount
+    expect(payload.amount).toBe(1500);
+    // bank_account_id de la cuenta de expensas
+    expect(payload.bank_account_id).toBe(7);
+  });
+
+  it("S86 inline-create-expense: validación rechaza mes/año inválido", async () => {
+    const localExecute = vi.fn().mockResolvedValue({ data: { success: true } });
+
+    const props = {
+      item: {
+        paid_at: "2026-08-01",
+        type: FormPaymentType.EXPENSE,
+        dpto_id: "101",
+        method: String(PaymentMethod.CASH),
+        amount: "100",
+        createExpense: true,
+        expenseMonth: 13, // inválido
+        expenseYear: 2026,
+        expenseDescription: "",
+      },
+      extraData: {
+        dptos: [{ id: 5, nro: "101", description: "Dpto 101", homeowner: { id: 9, name: "Mario" } }],
+        categories: [],
+        client_config: { cat_expensas: 100, cat_reservations: 200, cat_forgiveness: 300 },
+        bankAccounts: [{ id: 7, is_expense: 1 }],
+        subcategories: [],
+      },
+      execute: localExecute,
+      showToast: mockShowToast,
+      reLoad: mockReLoad,
+      onClose: mockOnClose,
+    } as any;
+
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    await act(async () => {
+      await result.current._onSavePago();
+    });
+
+    // No debe haberse pineado el endpoint porque la validación falló
+    const createCall = localExecute.mock.calls.find((c: any[]) => c[0] === paymentsApi.create);
+    expect(createCall).toBeUndefined();
+  });
+
+  it("S86: cambiar de tipo resetea createExpense", async () => {
+    const localExecute = vi.fn().mockResolvedValue({ data: { success: true } });
+
+    const props = {
+      item: {
+        paid_at: "2026-08-01",
+        type: FormPaymentType.EXPENSE,
+        dpto_id: "101",
+        method: String(PaymentMethod.CASH),
+        amount: "",
+        createExpense: true,
+        expenseMonth: 8,
+        expenseYear: 2026,
+      },
+      extraData: {
+        dptos: [{ id: 5, nro: "101", description: "Dpto 101", homeowner: { id: 9, name: "Mario" } }],
+        categories: [],
+        client_config: { cat_expensas: 100, cat_reservations: 200, cat_forgiveness: 300 },
+        bankAccounts: [],
+        subcategories: [],
+      },
+      execute: localExecute,
+      showToast: mockShowToast,
+      reLoad: mockReLoad,
+      onClose: mockOnClose,
+    } as any;
+
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    expect(result.current.formState.createExpense).toBe(true);
+
+    // Cambio a DIRECT
+    await act(async () => {
+      result.current.handleChangeInput({
+        target: { name: "type", value: FormPaymentType.DIRECT, type: "text" },
+      } as any);
+    });
+
+    expect(result.current.formState.createExpense).toBe(false);
+    expect(result.current.formState.amount).toBe("");
+  });
 });
