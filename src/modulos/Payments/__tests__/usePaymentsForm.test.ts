@@ -358,9 +358,9 @@ describe("usePaymentsForm", () => {
     expect(concept).toBe("-/-");
   });
 
-  // ============== S86 inline-create-expense (modal approach) ==============
+  // ============== S87 inline-create-expense (modal, multi) ==============
 
-  it("S86-modal: addNewExpense pinea la virtual con el monto y actualiza amount", () => {
+  it("S87-modal: addNewExpense agrega al array y actualiza amount con el total", () => {
     const props = makeExpenseProps({ amount: "100" }) as any;
     const { result } = renderHook(() => usePaymentsForm(props, true));
 
@@ -375,25 +375,41 @@ describe("usePaymentsForm", () => {
     });
 
     expect(r.ok).toBe(true);
-    expect(result.current.formState.newExpense).not.toBeNull();
-    expect(result.current.formState.newExpense?.month).toBe(8);
-    expect(result.current.formState.newExpense?.year).toBe(2026);
-    expect(result.current.formState.newExpense?.amount).toBe(1500);
-    // amount del form se auto-pinea con el monto de la virtual
+    expect(result.current.formState.newExpenses).toHaveLength(1);
+    expect(result.current.formState.newExpenses?.[0]?.month).toBe(8);
+    expect(result.current.formState.newExpenses?.[0]?.year).toBe(2026);
+    expect(result.current.formState.newExpenses?.[0]?.amount).toBe(1500);
+    // amount del form se auto-pinea con la suma de las virtuales
     expect(result.current.formState.amount).toBe("1500");
+    expect(result.current.newExpensesTotal).toBe(1500);
   });
 
-  it("S86-modal: addNewExpense rechaza duplicado contra deudas pre-existentes", async () => {
-    // Mock: adminDebts devuelve 1 deuda para julio 2026
+  it("S87-modal: addNewExpense permite N virtuales y suma al total", () => {
+    const props = makeExpenseProps() as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    act(() => {
+      result.current.addNewExpense({ month: 8, year: 2026, description: "Ago", amount: 1000 });
+    });
+    act(() => {
+      result.current.addNewExpense({ month: 9, year: 2026, description: "Sep", amount: 2000 });
+    });
+    act(() => {
+      result.current.addNewExpense({ month: 10, year: 2026, description: "Oct", amount: 1500 });
+    });
+
+    expect(result.current.formState.newExpenses).toHaveLength(3);
+    expect(result.current.newExpensesTotal).toBe(4500);
+  });
+
+  it("S87-modal: addNewExpense rechaza duplicado contra deudas pre-existentes", async () => {
     const localExecute = vi.fn().mockImplementation((url: string) => {
       if (url === paymentsApi.adminDebts) {
         return Promise.resolve({
           data: {
             success: true,
             data: {
-              deudas: [
-                { id: "1", month: 7, year: 2026, amount: 1000, type: 1 },
-              ],
+              deudas: [{ id: "1", month: 7, year: 2026, amount: 1000, type: 1 }],
             },
           },
         });
@@ -404,12 +420,10 @@ describe("usePaymentsForm", () => {
     const props = makeExpenseProps({ execute: localExecute }) as any;
     const { result } = renderHook(() => usePaymentsForm(props, true));
 
-    // Esperar a que se carguen las deudas
     await waitFor(() => {
       expect(result.current.deudas).toHaveLength(1);
     });
 
-    // Intentar agregar virtual para mismo mes/año
     let r: any;
     act(() => {
       r = result.current.addNewExpense({
@@ -422,71 +436,110 @@ describe("usePaymentsForm", () => {
 
     expect(r.ok).toBe(false);
     expect(r.error).toContain("Ya existe una deuda");
-    expect(result.current.formState.newExpense).toBeNull();
+    expect(result.current.formState.newExpenses).toHaveLength(0);
   });
 
-  it("S86-modal: addNewExpense rechaza duplicado contra la virtual ya creada", () => {
+  it("S87-modal: addNewExpense rechaza duplicado entre virtuales del mismo mes/año", () => {
     const props = makeExpenseProps() as any;
     const { result } = renderHook(() => usePaymentsForm(props, true));
 
-    // Primera virtual OK
     act(() => {
-      result.current.addNewExpense({
-        month: 8,
-        year: 2026,
-        description: "Agosto",
-        amount: 1500,
-      });
+      result.current.addNewExpense({ month: 8, year: 2026, description: "Ago 1", amount: 1000 });
     });
-
-    // Segunda virtual mismo periodo → rechazado
     let r2: any;
     act(() => {
-      r2 = result.current.addNewExpense({
-        month: 8,
-        year: 2026,
-        description: "Agosto otra vez",
-        amount: 1700,
-      });
+      r2 = result.current.addNewExpense({ month: 8, year: 2026, description: "Ago 2", amount: 1500 });
     });
     expect(r2.ok).toBe(false);
     expect(r2.error).toContain("Ya creaste una expensa");
+    // Solo quedó 1 en el array
+    expect(result.current.formState.newExpenses).toHaveLength(1);
   });
 
-  it("S86-modal: removeNewExpense limpia la virtual y resetea amount", () => {
+  it("S87-modal: updateNewExpense edita por virtualId sin chocar consigo mismo", () => {
+    const props = makeExpenseProps() as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    let vid: any;
+    act(() => {
+      vid = result.current.addNewExpense({
+        month: 8,
+        year: 2026,
+        description: "Original",
+        amount: 1000,
+      }).virtualId;
+    });
+
+    // Editar (mismo mes/año que la original) — NO debe rechazarse por sí misma
+    let r: any;
+    act(() => {
+      r = result.current.updateNewExpense(vid, {
+        month: 8,
+        year: 2026,
+        description: "Editado",
+        amount: 2000,
+      });
+    });
+    expect(r.ok).toBe(true);
+    expect(result.current.formState.newExpenses?.[0]?.description).toBe("Editado");
+    expect(result.current.formState.newExpenses?.[0]?.amount).toBe(2000);
+  });
+
+  it("S87-modal: updateNewExpense rechaza si choca con OTRA virtual", () => {
+    const props = makeExpenseProps() as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    let vidA: any;
+    let vidB: any;
+    act(() => {
+      vidA = result.current.addNewExpense({ month: 8, year: 2026, description: "A", amount: 1000 }).virtualId;
+    });
+    act(() => {
+      vidB = result.current.addNewExpense({ month: 9, year: 2026, description: "B", amount: 2000 }).virtualId;
+    });
+
+    // Intentar mover B al periodo de A
+    let r: any;
+    act(() => {
+      r = result.current.updateNewExpense(vidB, {
+        month: 8,
+        year: 2026,
+        description: "B movida",
+        amount: 2500,
+      });
+    });
+    expect(r.ok).toBe(false);
+    expect(r.error).toContain("Ya creaste una expensa");
+  });
+
+  it("S87-modal: removeNewExpense(virtualId) quita solo ese item", () => {
+    const props = makeExpenseProps() as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    let vidA: any;
+    act(() => {
+      vidA = result.current.addNewExpense({ month: 8, year: 2026, description: "A", amount: 1000 }).virtualId;
+    });
+    act(() => {
+      result.current.addNewExpense({ month: 9, year: 2026, description: "B", amount: 2000 });
+    });
+    expect(result.current.formState.newExpenses).toHaveLength(2);
+
+    act(() => {
+      result.current.removeNewExpense(vidA);
+    });
+    expect(result.current.formState.newExpenses).toHaveLength(1);
+    expect(result.current.formState.newExpenses?.[0]?.month).toBe(9);
+  });
+
+  it("S87-modal: cambiar de tipo limpia el array y amount", () => {
     const props = makeExpenseProps() as any;
     const { result } = renderHook(() => usePaymentsForm(props, true));
 
     act(() => {
-      result.current.addNewExpense({
-        month: 8,
-        year: 2026,
-        description: "",
-        amount: 1500,
-      });
+      result.current.addNewExpense({ month: 8, year: 2026, description: "", amount: 1500 });
     });
-    expect(result.current.formState.newExpense).not.toBeNull();
-
-    act(() => {
-      result.current.removeNewExpense();
-    });
-    expect(result.current.formState.newExpense).toBeNull();
-    expect(result.current.formState.amount).toBe("");
-  });
-
-  it("S86-modal: cambiar de tipo limpia la virtual y amount", () => {
-    const props = makeExpenseProps() as any;
-    const { result } = renderHook(() => usePaymentsForm(props, true));
-
-    act(() => {
-      result.current.addNewExpense({
-        month: 8,
-        year: 2026,
-        description: "",
-        amount: 1500,
-      });
-    });
-    expect(result.current.formState.newExpense).not.toBeNull();
+    expect(result.current.formState.newExpenses).toHaveLength(1);
 
     act(() => {
       result.current.handleChangeInput({
@@ -494,20 +547,37 @@ describe("usePaymentsForm", () => {
       } as any);
     });
 
-    expect(result.current.formState.newExpense).toBeNull();
+    expect(result.current.formState.newExpenses).toHaveLength(0);
     expect(result.current.formState.amount).toBe("");
   });
 
-  it("S86-modal: submit con virtual pinea create_expense + expense_data correctos", async () => {
+  it("S87-modal: cambiar de dpto limpia el array y amount", () => {
+    const props = makeExpenseProps() as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    act(() => {
+      result.current.addNewExpense({ month: 8, year: 2026, description: "", amount: 1500 });
+    });
+    expect(result.current.formState.newExpenses).toHaveLength(1);
+
+    act(() => {
+      result.current.handleChangeInput({
+        target: { name: "dpto_id", value: "202", type: "text" },
+      } as any);
+    });
+
+    expect(result.current.formState.newExpenses).toHaveLength(0);
+    expect(result.current.formState.amount).toBe("");
+  });
+
+  it("S87-modal: submit con array de 2 virtuales pinea create_expenses: [] con 2 items", async () => {
     const localExecute = vi
       .fn()
       .mockImplementation((url: string) => {
         if (url === paymentsApi.adminDebts) {
-          return Promise.resolve({
-            data: { success: true, data: { deudas: [] } },
-          });
+          return Promise.resolve({ data: { success: true, data: { deudas: [] } } });
         }
-        return Promise.resolve({ data: { success: true, data: "payment-s86" } });
+        return Promise.resolve({ data: { success: true, data: "payment-s87" } });
       });
 
     const props = {
@@ -534,17 +604,23 @@ describe("usePaymentsForm", () => {
     const { result } = renderHook(() => usePaymentsForm(props, true));
 
     await waitFor(() => {
-      // deudas cargadas (vacías)
       expect(result.current.deudas).toHaveLength(0);
     });
 
-    // Crear la virtual
     act(() => {
       result.current.addNewExpense({
         month: 8,
         year: 2026,
-        description: "Pago adelantado Agosto",
+        description: "Agosto",
         amount: 1500,
+      });
+    });
+    act(() => {
+      result.current.addNewExpense({
+        month: 9,
+        year: 2026,
+        description: "Septiembre",
+        amount: 1000,
       });
     });
 
@@ -556,20 +632,23 @@ describe("usePaymentsForm", () => {
     expect(createCall).toBeDefined();
     const payload = createCall![2];
 
-    expect(payload.create_expense).toBe(true);
-    expect(payload.expense_data).toBeDefined();
-    expect(payload.expense_data.month).toBe(8);
-    expect(payload.expense_data.year).toBe(2026);
-    expect(payload.expense_data.description).toBe("Pago adelantado Agosto");
-    expect(payload.expense_data.amount).toBe(1500);
-    expect(payload.expense_data.due_at).toBe("2026-08-31");
-    expect(payload.expense_data.subcategory_id).toBe(100);
+    // S87: array de expensas
+    expect(payload.create_expenses).toHaveLength(2);
+    expect(payload.create_expenses[0].month).toBe(8);
+    expect(payload.create_expenses[0].year).toBe(2026);
+    expect(payload.create_expenses[0].amount).toBe(1500);
+    expect(payload.create_expenses[0].due_at).toBe("2026-08-31");
+    expect(payload.create_expenses[0].subcategory_id).toBe(100);
+    expect(payload.create_expenses[1].month).toBe(9);
+    expect(payload.create_expenses[1].amount).toBe(1000);
+    expect(payload.create_expenses[1].due_at).toBe("2026-09-30");
     expect(payload.debt_dpto_ids).toEqual([]);
-    expect(payload.amount).toBe(1500);
+    // amount total = 1500 + 1000
+    expect(payload.amount).toBe(2500);
     expect(payload.bank_account_id).toBe(7);
   });
 
-  it("S86-modal: validación rechaza month/year/amount inválido en addNewExpense", () => {
+  it("S87-modal: validación rechaza month/year/amount inválido en addNewExpense", () => {
     const props = makeExpenseProps() as any;
     const { result } = renderHook(() => usePaymentsForm(props, true));
 
