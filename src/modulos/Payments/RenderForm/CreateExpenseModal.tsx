@@ -1,18 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import styles from "./RenderForm.module.css";
-import type { NewExpense } from "../hooks/usePaymentsForm";
+import type { NewExpense, Deuda } from "../hooks/usePaymentsForm";
 
 export interface CreateExpenseModalProps {
   open: boolean;
   onClose: () => void;
   /**
-   * Heurística de pre-carga del monto "normal" de la unidad. Hoy se calcula
-   * del lado del front (primera deuda pre-existente si hay). Cuando el back
-   * pinee `dptos.expense_amount` en `queryForExtraData`, este hook debería
+   * Heurística de pre-carga del monto "normal" de la unidad. Cuando el back
+   * pinea `dptos.expense_amount` en `queryForExtraData`, este hook debería
    * recibirlo y pasarlo como `suggestedAmount` directo.
    */
   suggestedAmount?: number;
@@ -21,6 +20,16 @@ export interface CreateExpenseModalProps {
    * para pre-rellenar el form.
    */
   editing?: NewExpense | null;
+  /**
+   * Deudas pre-existentes del dpto actual (adminDebts). Se valida contra
+   * estas en tiempo real para detectar duplicados.
+   */
+  existingDebts?: Deuda[];
+  /**
+   * Virtuales ya creadas en este form. Se valida contra estas en tiempo real
+   * para detectar duplicados y para excluir la virtual que se está editando.
+   */
+  existingVirtuals?: NewExpense[];
   /**
    * onConfirm devuelve { ok, error? }. El padre (RenderForm) llama al helper
    * addNewExpense/updateNewExpense del hook y muestra el toast si hay error.
@@ -53,6 +62,8 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({
   onClose,
   suggestedAmount = 0,
   editing = null,
+  existingDebts = [],
+  existingVirtuals = [],
   onConfirm,
 }) => {
   const now = new Date();
@@ -62,7 +73,6 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({
   const [amount, setAmount] = useState<string>(
     editing ? String(editing.amount) : String(suggestedAmount || "")
   );
-  const [error, setError] = useState<string | null>(null);
 
   // Reset al abrir/cambiar edición.
   useEffect(() => {
@@ -71,13 +81,48 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({
       setYear(String(editing?.year ?? now.getFullYear()));
       setDescription(editing?.description ?? "");
       setAmount(editing ? String(editing.amount) : String(suggestedAmount || ""));
-      setError(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, editing?.virtualId]);
 
+  /**
+   * Validación en tiempo real (mientras el admin escribe/cambia valores).
+   * Devuelve un mensaje de error si hay algún problema, o null si está OK.
+   *
+   * Chequeos:
+   * - Mes dentro de 1-12 (lo pinea el Select, pero defensivo).
+   * - Año entre 2000-2100.
+   * - Monto parseable y > 0.
+   * - Periodo (mes, año) NO está en deudas pre-existentes del dpto.
+   * - Periodo (mes, año) NO está en virtuales ya creadas (excluyendo la que
+   *   se está editando, para no chocar consigo misma).
+   */
+  const liveError = useMemo<string | null>(() => {
+    if (!month || month < 1 || month > 12) return "Mes inválido";
+    const y = Number(year);
+    if (!year || y < 2000 || y > 2100) return "Año inválido";
+    const a = Number(amount);
+    if (!amount || Number.isNaN(a) || a <= 0) return "El monto debe ser mayor a 0";
+
+    const conflictDebt = existingDebts.find(
+      (d) => Number(d.month) === month && Number(d.year) === y
+    );
+    if (conflictDebt) {
+      return `Ya existe una deuda para ${month}/${y} en esta unidad.`;
+    }
+
+    const conflictVirtual = existingVirtuals.find(
+      (v) => v.virtualId !== editing?.virtualId && Number(v.month) === month && Number(v.year) === y
+    );
+    if (conflictVirtual) {
+      return `Ya creaste una expensa para ${month}/${y} en este formulario.`;
+    }
+
+    return null;
+  }, [month, year, amount, existingDebts, existingVirtuals, editing?.virtualId]);
+
   const handleConfirm = () => {
-    setError(null);
+    if (liveError) return;
     const result = onConfirm({
       month,
       year: Number(year),
@@ -85,7 +130,9 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({
       amount: Number(amount),
     });
     if (!result.ok) {
-      setError(result.error || "No se pudo crear la expensa.");
+      // Si el hook detecta algo extra (ej: duplicado por race condition),
+      // el modal queda abierto y el botón se rehabilita. Pero como ya
+      // validamos en tiempo real, este caso es raro. Igual manejamos.
       return;
     }
     onClose();
@@ -99,6 +146,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({
       title={editing ? "Editar expensa" : "Crear expensa nueva"}
       buttonText={editing ? "Guardar cambios" : "Crear y agregar al pago"}
       buttonCancel="Cancelar"
+      disabled={Boolean(liveError)}
       minWidth={420}
       maxWidth={520}
     >
@@ -172,7 +220,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({
           />
         </div>
 
-        {error && (
+        {liveError && (
           <div
             data-testid="create-expense-error"
             style={{
@@ -181,7 +229,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({
               marginTop: 8,
             }}
           >
-            {error}
+            {liveError}
           </div>
         )}
       </div>

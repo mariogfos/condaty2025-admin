@@ -853,17 +853,13 @@ export const usePaymentsForm = (
         amount,
       };
 
-      setFormState((prev: FormState) => {
-        const next = [...(prev.newExpenses || []), newExpense];
-        // Auto-pinear el monto del pago con la suma de todas las virtuales.
-        // El admin puede editar el amount después si quiere (ej: pagar menos
-        // que la suma → pago parcial).
-        return {
-          ...prev,
-          newExpenses: next,
-          amount: String(next.reduce((s, e) => s + e.amount, 0)),
-        };
-      });
+      setFormState((prev: FormState) => ({
+        ...prev,
+        newExpenses: [...(prev.newExpenses || []), newExpense],
+        // NO auto-pineamos el monto: el admin debe escribirlo manualmente
+        // para que sea consciente de cuánto está recibiendo. El campo
+        // arranca vacío; validar() rechaza amount vacío en el submit.
+      }));
       return { ok: true, virtualId };
     },
     [deudas, formState.newExpenses]
@@ -1092,11 +1088,11 @@ export const usePaymentsForm = (
       dpto_id: dptoId,
       paid_at: formState.paid_at,
       method: Number(formState.method),
-      amount: parseFloat(String(
-        isDebtBasedPayment && selectedPeriodo.length > 0
-          ? formState.amount || periodoTotal
-          : formState.amount || "0"
-      )),
+      // S87 review: el monto SIEMPRE viene del formState. NO usamos
+      // periodoTotal como fallback — el admin debe escribirlo manualmente
+      // para que sea consciente de cuánto está recibiendo. validar() ya
+      // rechaza amount vacío, así que en este punto siempre tiene valor.
+      amount: parseFloat(String(formState.amount || "0")),
       debt_dpto_ids: hasNewExpense
         ? []
         : isDebtBasedPayment
