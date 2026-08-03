@@ -217,6 +217,81 @@ describe("usePaymentsForm", () => {
     });
   });
 
+  // ============== S87: simulate con create_expenses ==============
+
+  it("S87-simulate: con virtuales pinea create_expenses al simulate", async () => {
+    const localExecute = makeSimulateExecute({
+      is_overpayment: false,
+      payment_is_partial: true,
+      items: [
+        { debt_dpto_id: 1, applied_amount: 800, balance_before: 1000, balance_after: 200, excluded: false },
+        { debt_dpto_id: -1, applied_amount: 0, balance_before: 500, balance_after: 500, excluded: true },
+      ],
+    });
+    const props = makeExpenseProps({ execute: localExecute }) as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    // Crear 2 virtuales: 1000 + 500 = 1500. El admin paga 800.
+    act(() => {
+      result.current.addNewExpense({ month: 8, year: 2026, description: "Ago", amount: 1000 });
+    });
+    act(() => {
+      result.current.addNewExpense({ month: 9, year: 2026, description: "Sep", amount: 500 });
+    });
+
+    await act(async () => {
+      result.current.handleChangeInput({ target: { name: "amount", value: "800", type: "text" } } as any);
+    });
+    await act(async () => {
+      await result.current.handleAmountBlur();
+    });
+
+    const simulateCall = localExecute.mock.calls.find((c: any[]) => c[0] === paymentsApi.simulate);
+    expect(simulateCall).toBeDefined();
+    const body = simulateCall![2];
+
+    // S87: el body lleva create_expenses con 2 items
+    expect(body.create_expenses).toHaveLength(2);
+    expect(body.create_expenses[0].amount).toBe(1000);
+    expect(body.create_expenses[0].month).toBe(8);
+    expect(body.create_expenses[0].due_at).toBe("2026-08-31");
+    expect(body.create_expenses[1].amount).toBe(500);
+    expect(body.create_expenses[1].due_at).toBe("2026-09-30");
+    expect(body.debt_dpto_ids).toEqual([]);
+    expect(body.amount).toBe(800);
+
+    // simulateResult guardado
+    await waitFor(() => {
+      expect(result.current.simulateResult?.payment_is_partial).toBe(true);
+      expect(result.current.simulateResult?.items).toHaveLength(2);
+    });
+  });
+
+  it("S87-simulate: is_overpayment con virtuales setea simulateError", async () => {
+    const localExecute = makeSimulateExecute({
+      is_overpayment: true,
+      payment_is_partial: false,
+      items: [],
+    });
+    const props = makeExpenseProps({ execute: localExecute }) as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    act(() => {
+      result.current.addNewExpense({ month: 8, year: 2026, description: "Ago", amount: 1000 });
+    });
+    await act(async () => {
+      result.current.handleChangeInput({ target: { name: "amount", value: "9999", type: "text" } } as any);
+    });
+    await act(async () => {
+      await result.current.handleAmountBlur();
+    });
+
+    await waitFor(() => {
+      expect(result.current.simulateError).toBe("El monto supera la deuda total");
+      expect(result.current.isSubmitDisabled).toBe(true);
+    });
+  });
+
   it("submit: llama paymentsApi.create con payload unificado", async () => {
     const localExecute = vi.fn().mockResolvedValue({ data: { success: true } });
 

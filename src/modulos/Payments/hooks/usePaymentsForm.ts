@@ -762,21 +762,41 @@ export const usePaymentsForm = (
   }, [getSubtotal]);
 
   const runSimulate = useCallback(async () => {
-    if (!isDebtBasedPayment || !formState.amount || selectedPeriodo.length === 0) return;
-    // S87 inline-create-expense (modal): si hay deudas virtuales (aún no
-    // existen en el back), no hay nada que simular — el backend las crea con
-    // los montos que mandemos y la cascade las paga en la misma transacción.
-    if ((formState.newExpenses?.length ?? 0) > 0) return;
+    // S87: el simulate corre también cuando hay virtuales (multi-expense
+    // flow). El backend ahora acepta `create_expenses: []` y devuelve la
+    // distribución completa (incluyendo qué virtuales quedan sin pagar si
+    // el monto es insuficiente).
+    if (!isDebtBasedPayment || !formState.amount) return;
+    if (selectedPeriodo.length === 0 && (formState.newExpenses?.length ?? 0) === 0) return;
 
     setIsSimulating(true);
     try {
+      const body: any = {
+        amount: parseFloat(String(formState.amount)),
+        debt_dpto_ids: selectedPeriodo.map((p) => Number(p.id)),
+      };
+      // S87: si hay virtuales, pineamos create_expenses para que el
+      // simulate las incluya en la cascada.
+      const newExpensesList = formState.newExpenses || [];
+      if (newExpensesList.length > 0) {
+        body.create_expenses = newExpensesList.map((ne) => {
+          const lastDay = new Date(ne.year, ne.month, 0).getDate();
+          const dueAt = `${ne.year}-${String(ne.month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+          return {
+            dpto_id: formState.dpto_id,
+            amount: Number(ne.amount),
+            due_at: dueAt,
+            description: ne.description || "",
+            month: ne.month,
+            year: ne.year,
+            subcategory_id: extraData?.client_config?.cat_expensas ?? null,
+          };
+        });
+      }
       const { data } = await execute(
         paymentsApi.simulate,
         "POST",
-        {
-          amount: parseFloat(String(formState.amount)),
-          debt_dpto_ids: selectedPeriodo.map((p) => Number(p.id)),
-        },
+        body,
         false,
         true
       );

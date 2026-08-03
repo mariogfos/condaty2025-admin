@@ -99,7 +99,7 @@ describe("RenderForm Component", () => {
     };
     render(<RenderForm {...defaultProps} />);
     expect(screen.getByText("Pago parcial detectado")).toBeInTheDocument();
-    expect(screen.getByText("Deuda ID")).toBeInTheDocument();
+    expect(screen.getByText("Deuda")).toBeInTheDocument();
     expect(screen.getByText("Monto aplicado")).toBeInTheDocument();
   });
 });
