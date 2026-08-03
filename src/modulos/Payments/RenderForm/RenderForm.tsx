@@ -578,7 +578,7 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead>
                     <tr>
-                      <th style={{ textAlign: "left", padding: "4px 8px" }}>Deuda ID</th>
+                      <th style={{ textAlign: "left", padding: "4px 8px" }}>Deuda</th>
                       <th style={{ textAlign: "right", padding: "4px 8px" }}>Monto aplicado</th>
                       <th style={{ textAlign: "right", padding: "4px 8px" }}>Balance antes</th>
                       <th style={{ textAlign: "right", padding: "4px 8px" }}>Balance después</th>
@@ -586,19 +586,48 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {(simulateResult.items || []).map((item: any, idx: number) => (
-                      <tr key={idx}>
-                        <td style={{ padding: "4px 8px" }}>{item.debt_dpto_id}</td>
-                        <td style={{ textAlign: "right", padding: "4px 8px" }}>{item.applied_amount}</td>
-                        <td style={{ textAlign: "right", padding: "4px 8px" }}>{item.balance_before}</td>
-                        <td style={{ textAlign: "right", padding: "4px 8px" }}>{item.balance_after}</td>
-                        <td style={{ textAlign: "center", padding: "4px 8px" }}>{item.excluded ? "Sí" : "No"}</td>
-                      </tr>
-                    ))}
+                    {(simulateResult.items || []).map((item: any, idx: number) => {
+                      // S87: el back pineá ids negativos (-1, -2, ...) para
+                      // las virtuales. Mostramos el label legible (Mes Año +
+                      // descripción) cuando es virtual.
+                      const isVirtual = Number(item.debt_dpto_id) < 0;
+                      const virtual = isVirtual
+                        ? (formState.newExpenses || [])[
+                            Math.abs(Number(item.debt_dpto_id)) - 1
+                          ]
+                        : null;
+                      const label = virtual
+                        ? `${MONTH_NAMES[virtual.month - 1]} ${virtual.year}` +
+                          (virtual.description
+                            ? ` — ${virtual.description}`
+                            : "")
+                        : `#${item.debt_dpto_id}`;
+                      return (
+                        <tr key={idx}>
+                          <td style={{ padding: "4px 8px" }}>
+                            {virtual ? `🆕 ${label}` : label}
+                          </td>
+                          <td style={{ textAlign: "right", padding: "4px 8px" }}>{item.applied_amount}</td>
+                          <td style={{ textAlign: "right", padding: "4px 8px" }}>{item.balance_before}</td>
+                          <td style={{ textAlign: "right", padding: "4px 8px" }}>{item.balance_after}</td>
+                          <td style={{ textAlign: "center", padding: "4px 8px" }}>
+                            {item.excluded ? (
+                              <span style={{ color: "var(--cError, #f44)", fontWeight: "bold" }}>
+                                Sí (no se paga)
+                              </span>
+                            ) : (
+                              "No"
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
                 <p style={{ marginTop: 8, fontSize: 13 }}>
-                  Al confirmar, se aplicará el pago parcial según la distribución mostrada.
+                  Al confirmar, se aplicará el pago parcial según la distribución
+                  mostrada. Las filas con <b>🆕</b> son expensas virtuales nuevas;
+                  las marcadas como <b>Sí (no se paga)</b> quedan pendientes.
                 </p>
               </div>
             </div>
