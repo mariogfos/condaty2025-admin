@@ -150,9 +150,12 @@ describe("S119 (front) - DownloadHistory Modulo filter + Clear", () => {
   it("S123: pinea funcion fetchAvailableTypes que consume /v3/reports/types", () => {
     // El componente debe fetchar los types del back en vez de usar
     // KNOWN_TYPES hardcoded. Drift imposible.
-    expect(src).toMatch(
-      /async\s+function\s+fetchAvailableTypes\s*\(\s*\)\s*:\s*Promise\s*<\s*string\[\]\s*>/,
-    );
+    // (El tipo de retorno ya no se pinea con regex: pasó a `TypeOption[]`
+    //  cuando el back empezó a mandar el label, y una aserción sobre la
+    //  firma se rompe por un cambio que no es un bug. Lo que importa —
+    //  que el dropdown muestre el label del back — se verifica renderizando
+    //  el componente más abajo.)
+    expect(src).toMatch(/async\s+function\s+fetchAvailableTypes\s*\(/);
     expect(src).toMatch(/`\$\{API_BASE_URL\}\/v3\/reports\/types`/);
   });
 
@@ -173,16 +176,19 @@ describe("S119 (front) - DownloadHistory Modulo filter + Clear", () => {
   });
 
   it("S123: el dropdown usa availableTypes en vez de KNOWN_TYPES hardcoded", () => {
-    // El typeOptions useMemo se deriva de availableTypes (no de KNOWN_TYPES).
-    expect(src).toMatch(
-      /typeOptions\s*=\s*useMemo\(\s*\(\)\s*=>\s*\{[\s\S]*?return\s+availableTypes\.map/,
-    );
+    // Los labels ya vienen resueltos del back, así que el dropdown consume
+    // `availableTypes` directo (antes los derivaba con un useMemo contra
+    // KNOWN_TYPES). Lo que se pinea es que NO vuelva a mapear el hardcoded.
+    expect(src).toMatch(/const\s+typeOptions\s*=\s*availableTypes/);
+    expect(src).not.toMatch(/typeOptions[\s\S]{0,120}KNOWN_TYPES\.find/);
   });
 
   it("S123: fetchAvailableTypes tiene fallback silencioso a KNOWN_TYPES", () => {
-    // Si el endpoint falla, fallback al KNOWN_TYPES hardcoded para
-    // que el dropdown no quede vacío. Defensa best-effort.
-    expect(src).toMatch(/return\s+KNOWN_TYPES\.map\(\s*\(\s*t\s*\)\s*=>\s*t\.value\s*\)/);
+    // Si el endpoint falla, fallback al KNOWN_TYPES hardcoded (con su label)
+    // para que el dropdown no quede vacío. Defensa best-effort.
+    expect(src).toMatch(
+      /return\s+KNOWN_TYPES\.map\(\s*\(\s*t\s*\)\s*=>\s*\(\s*\{\s*value:\s*t\.value,\s*label:\s*t\.label\s*\}\s*\)\s*\)/,
+    );
   });
 
   it("S123: el helper KNOWN_TYPES sigue existiendo como label map (no se borra)", () => {

@@ -183,7 +183,10 @@ const DEFAULT_POLL_MS = 5000;
  * del back (php artisan tinker). El back es la SSoT — esta lista es
  * solo para humanizar.
  */
-const KNOWN_TYPES: { value: string; label: string }[] = [
+/** Opción del dropdown "Módulo": el `type` técnico + su nombre legible. */
+type TypeOption = { value: string; label: string };
+
+const KNOWN_TYPES: TypeOption[] = [
   { value: "payments", label: "Pagos" },
   { value: "payments-xlsx", label: "Pagos XLSX" },
   { value: "outlays", label: "Egresos" },
@@ -241,7 +244,7 @@ const humanizeType = (type: string): string => {
  * "best-effort": la lista puede no estar 100% sincronizada con el
  * back, pero el componente sigue funcionando.
  */
-async function fetchAvailableTypes(): Promise<string[]> {
+async function fetchAvailableTypes(): Promise<TypeOption[]> {
   try {
     const token = getAuthToken();
     const res = await fetch(`${API_BASE_URL}/v3/reports/types`, {
@@ -254,14 +257,30 @@ async function fetchAvailableTypes(): Promise<string[]> {
     });
     if (!res.ok) {
       // Fallback silencioso — el dropdown muestra los types del fallback.
-      return KNOWN_TYPES.map((t) => t.value);
+      return KNOWN_TYPES.map((t) => ({ value: t.value, label: t.label }));
     }
     const body = await res.json();
+
+    // El back manda `options: [{type, label}]`, donde el label es el TÍTULO
+    // del reporte — el mismo que va en el header del PDF y en el nombre del
+    // archivo. Ese es el SSoT: el front deja de inventar el nombre del módulo.
+    const options = body?.options;
+    if (Array.isArray(options) && options.length > 0) {
+      return options.map((o: { type: string; label?: string }) => ({
+        value: o.type,
+        label: o.label || humanizeType(o.type),
+      }));
+    }
+
+    // Back viejo (sólo `data: string[]`): humanizamos como antes. Se puede
+    // retirar cuando todos los entornos estén en la versión nueva.
     const data = (body?.data ?? []) as string[];
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(data)
+      ? data.map((value) => ({ value, label: humanizeType(value) }))
+      : [];
   } catch {
     // Fallback silencioso.
-    return KNOWN_TYPES.map((t) => t.value);
+    return KNOWN_TYPES.map((t) => ({ value: t.value, label: t.label }));
   }
 }
 
@@ -333,8 +352,8 @@ export default function DownloadHistory({
   // S123 (HALLAZGO-NEW-32): lista de types disponibles del back
   // (vía `GET /api/v3/reports/types`). Si el fetch falla, fallback
   // al hardcoded KNOWN_TYPES (defensa best-effort).
-  const [availableTypes, setAvailableTypes] = useState<string[]>(
-    KNOWN_TYPES.map((t) => t.value),
+  const [availableTypes, setAvailableTypes] = useState<TypeOption[]>(
+    KNOWN_TYPES.map((t) => ({ value: t.value, label: t.label })),
   );
 
   const perPage = DEFAULT_PAGE_SIZE;
@@ -538,17 +557,9 @@ export default function DownloadHistory({
   // El useMemo deriva el array de `{value, label}[]` a partir de
   // availableTypes + KNOWN_TYPES map. Si availableTypes aún no
   // cargó (primer render), usa KNOWN_TYPES hardcoded como fallback.
-  const typeOptions = useMemo(() => {
-    return availableTypes.map((value) => {
-      const known = KNOWN_TYPES.find((t) => t.value === value);
-      return {
-        value,
-        label: known?.label ?? value
-          .replace(/[-_]/g, " ")
-          .replace(/\b\w/g, (c: string) => c.toUpperCase()),
-      };
-    });
-  }, [availableTypes]);
+  // El label ya viene resuelto de `fetchAvailableTypes` (título del back, o
+  // el humanizado local si el módulo todavía no migró al motor nuevo).
+  const typeOptions = availableTypes;
 
   return (
     <div className={styles.body} data-testid="download-history">
