@@ -364,8 +364,19 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
 
           <div className={styles.section}>
             <div>
+              {isDebtBasedPayment && (
+                <div>
+                  {deudasContent}
+                  {errors.selectedPeriodo && (
+                    <div className={styles["error-message"]}>
+                      {errors.selectedPeriodo}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* S87 inline-create-expense: lista virtual de expensas nuevas.
-                  Aparece ARRIBA de la tabla de deudas pre-existentes. Cada
+                  Aparece DEBAJO de la tabla de deudas pre-existentes. Cada
                   item tiene botones Editar / Eliminar. Soporta N expensas
                   (multi). Solo visible si type === EXPENSE. */}
               {(formState.newExpenses?.length ?? 0) > 0 &&
@@ -374,7 +385,7 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                     data-testid="new-expense-card"
                     className={styles["deudas-container"]}
                     style={{
-                      marginBottom: 12,
+                      marginTop: 12,
                       border: "1px dashed var(--cAccent, #00e38c)",
                       borderRadius: 8,
                       padding: 12,
@@ -470,17 +481,6 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                     </div>
                   </div>
                 )}
-
-              {isDebtBasedPayment && (
-                <div>
-                  {deudasContent}
-                  {errors.selectedPeriodo && (
-                    <div className={styles["error-message"]}>
-                      {errors.selectedPeriodo}
-                    </div>
-                  )}
-                </div>
-              )}
 
               <div className={styles["input-container"]} style={{ marginTop: isDebtBasedPayment ? 8 : 0 }}>
                 <Input
@@ -614,6 +614,8 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
         }}
         suggestedAmount={suggestedAmount}
         editing={editingExpense}
+        existingDebts={deudas}
+        existingVirtuals={formState.newExpenses || []}
         onConfirm={(data) =>
           editingExpense
             ? updateNewExpense(editingExpense.virtualId, data)

@@ -360,7 +360,7 @@ describe("usePaymentsForm", () => {
 
   // ============== S87 inline-create-expense (modal, multi) ==============
 
-  it("S87-modal: addNewExpense agrega al array y actualiza amount con el total", () => {
+  it("S87-modal: addNewExpense agrega al array SIN auto-pinear amount", () => {
     const props = makeExpenseProps({ amount: "100" }) as any;
     const { result } = renderHook(() => usePaymentsForm(props, true));
 
@@ -379,12 +379,14 @@ describe("usePaymentsForm", () => {
     expect(result.current.formState.newExpenses?.[0]?.month).toBe(8);
     expect(result.current.formState.newExpenses?.[0]?.year).toBe(2026);
     expect(result.current.formState.newExpenses?.[0]?.amount).toBe(1500);
-    // amount del form se auto-pinea con la suma de las virtuales
-    expect(result.current.formState.amount).toBe("1500");
+    // S87 review: NO auto-pin del amount. El admin debe escribirlo
+    // manualmente para ser consciente de cuánto está recibiendo.
+    // El campo arranca vacío.
+    expect(result.current.formState.amount).toBe("");
     expect(result.current.newExpensesTotal).toBe(1500);
   });
 
-  it("S87-modal: addNewExpense permite N virtuales y suma al total", () => {
+  it("S87-modal: addNewExpense permite N virtuales y suma al total via newExpensesTotal", () => {
     const props = makeExpenseProps() as any;
     const { result } = renderHook(() => usePaymentsForm(props, true));
 
@@ -400,6 +402,36 @@ describe("usePaymentsForm", () => {
 
     expect(result.current.formState.newExpenses).toHaveLength(3);
     expect(result.current.newExpensesTotal).toBe(4500);
+    // S87 review: amount del form sigue vacío, el admin lo escribe aparte.
+    expect(result.current.formState.amount).toBe("");
+  });
+
+  it("S87-modal: handleSelectPeriodo NO auto-pinea amount con periodoTotal", () => {
+    // S87 review: el admin debe escribir el amount manualmente, sin
+    // auto-pin con periodoTotal (que viene de las deudas pre-existentes).
+    const props = makeExpenseProps({ amount: "" }) as any;
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    expect(result.current.formState.amount).toBe("");
+
+    // Simular selección de un periodo (no se puede usar handleSelectPeriodo
+    // porque depende de `deudas` que no hay en este test; igual verificamos
+    // que el `amount` queda en "" sin auto-pin).
+    act(() => {
+      result.current.handleChangeInput({
+        target: { name: "amount", value: "750", type: "text" },
+      } as any);
+    });
+
+    expect(result.current.formState.amount).toBe("750");
+
+    // El admin lo cambia manualmente, no se reescribe solo.
+    act(() => {
+      result.current.handleChangeInput({
+        target: { name: "amount", value: "", type: "text" },
+      } as any);
+    });
+    expect(result.current.formState.amount).toBe("");
   });
 
   it("S87-modal: addNewExpense rechaza duplicado contra deudas pre-existentes", async () => {
@@ -624,6 +656,14 @@ describe("usePaymentsForm", () => {
       });
     });
 
+    // S87 review: el admin escribe el monto manualmente. En este test
+    // pineamos 2500 (= 1500 + 1000) para representar lo que haría.
+    act(() => {
+      result.current.handleChangeInput({
+        target: { name: "amount", value: "2500", type: "text" },
+      } as any);
+    });
+
     await act(async () => {
       await result.current._onSavePago();
     });
@@ -643,7 +683,7 @@ describe("usePaymentsForm", () => {
     expect(payload.create_expenses[1].amount).toBe(1000);
     expect(payload.create_expenses[1].due_at).toBe("2026-09-30");
     expect(payload.debt_dpto_ids).toEqual([]);
-    // amount total = 1500 + 1000
+    // amount = el que el admin pineó (NO auto-fill con la suma de virtuales)
     expect(payload.amount).toBe(2500);
     expect(payload.bank_account_id).toBe(7);
   });
