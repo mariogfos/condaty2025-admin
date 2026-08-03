@@ -201,7 +201,11 @@ const INITIAL_STATE: AsyncExportState = {
 
 export type UseAsyncExportReturn = {
   state: AsyncExportState;
-  start: (params: Record<string, any>) => Promise<void>;
+  /**
+   * `overrideType` (Fase 4b) dispara un reporte CUSTOM con otro `type` desde
+   * el mismo botón del módulo.
+   */
+  start: (params: Record<string, any>, overrideType?: string) => Promise<void>;
   reset: () => void;
   download: () => Promise<void>;
 };
@@ -336,7 +340,15 @@ export function useAsyncExport(
   );
 
   const start = useCallback(
-    async (params: Record<string, any>) => {
+    /**
+     * @param params  Filtros + `format`.
+     * @param overrideType  Fase 4b: `type` alternativo para disparar un
+     *   reporte CUSTOM (e.g. "payments-income") desde el mismo botón del
+     *   módulo. Un custom SIEMPRE va por el flujo POST /v3/reports/{type}/export
+     *   —no por el `endpoint` de la lista— porque no es la lista: arma su
+     *   propia consulta.
+     */
+    async (params: Record<string, any>, overrideType?: string) => {
       if (isExportingRef.current) {
         return;
       }
@@ -370,7 +382,10 @@ export function useAsyncExport(
         // `mod.exportAsync.endpoint` (Payments, S144e+ Expenses, etc.).
         // El path legacy POST sigue pineando `body: JSON.stringify(params)`
         // intacto (BC layer).
-        const res = endpoint
+        const tipoEfectivo = overrideType ?? type;
+        const usarEndpointDeLista = Boolean(endpoint) && !overrideType;
+
+        const res = usarEndpointDeLista
           ? await fetch(`${API_BASE_URL}${endpoint}?${buildQueryString(params)}`, {
               method: "GET",
               headers: {
@@ -379,7 +394,7 @@ export function useAsyncExport(
               },
               credentials: "include",
             })
-          : await fetch(`${API_BASE_URL}/v3/reports/${type}/export`, {
+          : await fetch(`${API_BASE_URL}/v3/reports/${tipoEfectivo}/export`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",

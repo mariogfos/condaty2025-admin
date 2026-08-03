@@ -43,6 +43,10 @@ import ExportProgressModal from "../ExportProgressModal/ExportProgressModal";
 import { DownloadHistoryModal } from "../DownloadHistory";
 import styles from "./DownloadButton.module.css";
 
+/** Mismo origen del back que usan el hook y el historial. */
+const API_BASE_URL =
+  (typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL) || "";
+
 export type DownloadFormat = "pdf" | "xlsx" | "csv";
 
 type PropsType = {
@@ -87,11 +91,54 @@ type PropsType = {
   title?: string;
 };
 
+/**
+ * Reporte CUSTOM que ofrece el módulo (Fase 4b). Lo declara el back en
+ * `app/Modules/<Modulo>/CustomReports/`; el front sólo lo lista.
+ *
+ * Un módulo puede no tener ninguno: en ese caso el menú queda como antes.
+ */
+export type CustomReport = {
+  /** `Report::type` con el que se despacha (e.g. "payments-income"). */
+  key: string;
+  /** Título que ve el usuario (e.g. "Reporte de Ingresos"). */
+  label: string;
+  /** Formatos que ese reporte sabe generar. */
+  formats: DownloadFormat[];
+};
+
 const formatLabel: Record<DownloadFormat, string> = {
   pdf: "PDF",
   xlsx: "Excel (XLSX)",
   csv: "CSV",
 };
+
+/**
+ * Reportes custom que ofrece el módulo. Si el endpoint falla, se devuelve
+ * lista vacía: el menú de exportar tiene que seguir funcionando aunque los
+ * custom no se puedan listar.
+ */
+async function fetchCustomReports(module: string): Promise<CustomReport[]> {
+  try {
+    const token =
+      typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
+    const res = await fetch(
+      `${API_BASE_URL}/v3/reports/custom?module=${encodeURIComponent(module)}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        credentials: "include",
+      },
+    );
+    if (!res.ok) return [];
+    const body = await res.json();
+    return Array.isArray(body?.data) ? (body.data as CustomReport[]) : [];
+  } catch {
+    return [];
+  }
+}
 
 export default function DownloadButton({
   type,
@@ -108,6 +155,10 @@ export default function DownloadButton({
   const [modalOpen, setModalOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Reportes custom del módulo. Se piden al abrir el menú por primera vez:
+  // pedirlos en el mount cargaría el endpoint en cada pantalla con listado,
+  // aunque el usuario nunca despliegue el menú.
+  const [customReports, setCustomReports] = useState<CustomReport[] | null>(null);
 
   const hasMultipleFormats = supportedFormats.length > 1;
 
@@ -145,9 +196,20 @@ export default function DownloadButton({
     await start(exportParams);
   };
 
+  /** Dispara un reporte custom: mismo flujo async, otro `type`. */
+  const handleCustomExport = async (custom: CustomReport, format: DownloadFormat) => {
+    setMenuOpen(false);
+    setModalOpen(true);
+    await start({ ...params, format }, custom.key);
+  };
+
   const handleDirectClick = () => {
     if (hasMultipleFormats) {
-      setMenuOpen((v) => !v);
+      const abriendo = !menuOpen;
+      setMenuOpen(abriendo);
+      if (abriendo && customReports === null) {
+        fetchCustomReports(type).then(setCustomReports);
+      }
       return;
     }
     handleExport(supportedFormats[0] ?? "pdf");
@@ -198,6 +260,44 @@ export default function DownloadButton({
                 {formatLabel[fmt]}
               </button>
             ))}
+            {/* Fase 4b: reportes custom del módulo, debajo de los formatos
+                automáticos y arriba del historial. Si el módulo no declara
+                ninguno, esta sección no existe y el menú queda como antes. */}
+            {customReports !== null && customReports.length > 0 && (
+              <>
+                <hr className={styles.menuDivider} />
+                {customReports.map((custom) =>
+                  custom.formats.length === 1 ? (
+                    <button
+                      key={custom.key}
+                      type="button"
+                      role="menuitem"
+                      className={styles.menuItem}
+                      onClick={() => handleCustomExport(custom, custom.formats[0])}
+                      data-testid={`download-menuitem-${type}-custom-${custom.key}`}
+                    >
+                      {custom.label}
+                    </button>
+                  ) : (
+                    // Con más de un formato se abre una entrada por formato:
+                    // "Reporte de Ingresos · Excel (XLSX)".
+                    custom.formats.map((fmt) => (
+                      <button
+                        key={`${custom.key}-${fmt}`}
+                        type="button"
+                        role="menuitem"
+                        className={styles.menuItem}
+                        onClick={() => handleCustomExport(custom, fmt)}
+                        data-testid={`download-menuitem-${type}-custom-${custom.key}-${fmt}`}
+                      >
+                        {custom.label} · {formatLabel[fmt]}
+                      </button>
+                    ))
+                  )
+                )}
+              </>
+            )}
+
             <hr className={styles.menuDivider} />
             <button
               type="button"
