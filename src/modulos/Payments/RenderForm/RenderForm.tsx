@@ -14,13 +14,27 @@ import Toast from "@/mk/components/ui/Toast/Toast";
 import styles from "./RenderForm.module.css";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
-import { FORM_PAYMENT_METHODS, TYPE_OPTIONS, FormPaymentType } from "../Type/PaymentType";
+import {
+  FORM_PAYMENT_METHODS,
+  TYPE_OPTIONS,
+  FormPaymentType,
+} from "../Type/PaymentType";
 import { usePaymentsForm, RenderFormProps } from "../hooks/usePaymentsForm";
 import CreateExpenseModal from "./CreateExpenseModal";
 
 const MONTH_NAMES = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
 ];
 
 const RenderForm: React.FC<RenderFormProps> = (props) => {
@@ -70,7 +84,7 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
   const suggestedAmount = useMemo(() => {
     if (!formState.dpto_id) return 0;
     const selectedDpto = lDptos.find(
-      (d) => String(d.id) === String(formState.dpto_id)
+      (d) => String(d.id) === String(formState.dpto_id),
     );
     if (selectedDpto && selectedDpto.expense_amount) {
       const n = Number(selectedDpto.expense_amount);
@@ -99,8 +113,8 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
             {formState.type === FormPaymentType.EXPENSE
               ? "expensas"
               : formState.type === FormPaymentType.RESERVATION
-              ? "reservas"
-              : "este tipo"}
+                ? "reservas"
+                : "este tipo"}
             .
           </p>
         </div>
@@ -226,7 +240,9 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                 className={styles["select-all-container"]}
                 style={{ color: "var(--cAccent, #00e38c)" }}
               >
-                <span style={{ fontSize: "0.9rem" }}>+ Crear expensa nueva</span>
+                <span style={{ fontSize: "0.9rem" }}>
+                  + Crear expensa nueva
+                </span>
               </button>
             )}
             <p>Total a pagar: {formatBs(periodoTotal + newExpensesTotal)}</p>
@@ -260,39 +276,38 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
         onSave={_onSavePago}
         buttonCancel={"Cancelar"}
         buttonText={"Crear ingreso"}
-        title={"Crear ingreso"}
+        title={"Crear ingreso2"}
         minWidth={680}
         maxWidth={860}
         disabled={isSubmitDisabled}
       >
         <div className={styles["income-form-container"]}>
           <div className={styles.section}>
-            <div className={styles["input-container"]}>
-              <Input
-                type="date"
-                name="paid_at"
-                label="Seleccionar fecha"
-                required={true}
-                value={formState.paid_at || ""}
-                onChange={handleChangeInput}
-                error={errors}
-              />
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <div className={styles["input-container"]}>
-              <Select
-                name="dpto_id"
-                label="Seleccionar Unidad"
-                required={true}
-                value={formState.dpto_id}
-                onChange={handleChangeInput}
-                options={lDptos}
-                error={errors}
-                filter={true}
-                filterStyle={{ backgroundColor: "#323232" }}
-              />
+            <div className={styles["input-row"]}>
+              <div className={styles["input-half"]}>
+                <Input
+                  type="date"
+                  name="paid_at"
+                  label="Seleccionar fecha"
+                  required={true}
+                  value={formState.paid_at || ""}
+                  onChange={handleChangeInput}
+                  error={errors}
+                />
+              </div>
+              <div className={styles["input-half"]}>
+                <Select
+                  name="method"
+                  label="Método de pago"
+                  value={formState.method}
+                  onChange={handleChangeInput}
+                  options={FORM_PAYMENT_METHODS}
+                  error={errors}
+                  required
+                  optionLabel="name"
+                  optionValue="id"
+                />
+              </div>
             </div>
           </div>
 
@@ -311,17 +326,18 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                   optionValue="id"
                 />
               </div>
+
               <div className={styles["input-half"]}>
                 <Select
-                  name="method"
-                  label="Método de pago"
-                  value={formState.method}
+                  name="dpto_id"
+                  label="Seleccionar Unidad"
+                  required={true}
+                  value={formState.dpto_id}
                   onChange={handleChangeInput}
-                  options={FORM_PAYMENT_METHODS}
+                  options={lDptos}
                   error={errors}
-                  required
-                  optionLabel="name"
-                  optionValue="id"
+                  filter={true}
+                  filterStyle={{ backgroundColor: "#323232" }}
                 />
               </div>
             </div>
@@ -393,7 +409,8 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                   >
                     <div className={styles["deudas-title-row"]}>
                       <p className={styles["deudas-title"]}>
-                        🆕 {formState.newExpenses!.length === 1
+                        🆕{" "}
+                        {formState.newExpenses!.length === 1
                           ? "Expensa nueva (se creará al confirmar el pago)"
                           : `Expensas nuevas (${formState.newExpenses!.length}, se crearán al confirmar el pago)`}
                       </p>
@@ -407,7 +424,11 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                           <div className={styles["deuda-cell"]}>Expensa</div>
                           <div
                             className={styles["deuda-cell"]}
-                            style={{ display: "flex", flexDirection: "column", gap: 2 }}
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 2,
+                            }}
                           >
                             <span style={{ fontWeight: "var(--bMedium)" }}>
                               {`Expensa ${MONTH_NAMES[ne.month - 1]} ${ne.year}`}
@@ -482,13 +503,18 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                   </div>
                 )}
 
-              <div className={styles["input-container"]} style={{ marginTop: isDebtBasedPayment ? 8 : 0 }}>
+              <div
+                className={styles["input-container"]}
+                style={{ marginTop: isDebtBasedPayment ? 8 : 0 }}
+              >
                 <Input
                   type="currency"
                   name="amount"
                   label="Monto del ingreso"
                   onChange={handleChangeInput}
-                  onBlur={formState.isAmountLocked ? undefined : handleAmountBlur}
+                  onBlur={
+                    formState.isAmountLocked ? undefined : handleAmountBlur
+                  }
                   value={formState.amount}
                   required={true}
                   error={errors}
@@ -501,7 +527,9 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
                   </span>
                 )}
                 {simulateError && (
-                  <span style={{ fontSize: "12px", color: "var(--cError, #f44)" }}>
+                  <span
+                    style={{ fontSize: "12px", color: "var(--cError, #f44)" }}
+                  >
                     {simulateError}
                   </span>
                 )}
@@ -573,61 +601,110 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
 
           {simulateResult?.payment_is_partial === true && (
             <div className={styles.section} style={{ marginTop: 16 }}>
-              <div style={{ padding: "12px", border: "1px solid var(--cWarning, #f90)", borderRadius: 8 }}>
-                <p style={{ fontWeight: "bold", marginBottom: 8 }}>Pago parcial detectado</p>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <div
+                style={{
+                  padding: "12px",
+                  border: "1px solid var(--cWarning, #f90)",
+                  borderRadius: 8,
+                }}
+              >
+                <p style={{ fontWeight: "bold", marginBottom: 8 }}>
+                  Pago parcial detectado
+                </p>
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    fontSize: 13,
+                  }}
+                >
                   <thead>
                     <tr>
-                      <th style={{ textAlign: "left", padding: "4px 8px" }}>Deuda</th>
-                      <th style={{ textAlign: "right", padding: "4px 8px" }}>Monto aplicado</th>
-                      <th style={{ textAlign: "right", padding: "4px 8px" }}>Balance antes</th>
-                      <th style={{ textAlign: "right", padding: "4px 8px" }}>Balance después</th>
-                      <th style={{ textAlign: "center", padding: "4px 8px" }}>Excluida</th>
+                      <th style={{ textAlign: "left", padding: "4px 8px" }}>
+                        Deuda
+                      </th>
+                      <th style={{ textAlign: "right", padding: "4px 8px" }}>
+                        Monto aplicado
+                      </th>
+                      <th style={{ textAlign: "right", padding: "4px 8px" }}>
+                        Balance antes
+                      </th>
+                      <th style={{ textAlign: "right", padding: "4px 8px" }}>
+                        Balance después
+                      </th>
+                      <th style={{ textAlign: "center", padding: "4px 8px" }}>
+                        Excluida
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {(simulateResult.items || []).map((item: any, idx: number) => {
-                      // S87: el back pineá ids negativos (-1, -2, ...) para
-                      // las virtuales. Mostramos el label legible (Mes Año +
-                      // descripción) cuando es virtual.
-                      const isVirtual = Number(item.debt_dpto_id) < 0;
-                      const virtual = isVirtual
-                        ? (formState.newExpenses || [])[
-                            Math.abs(Number(item.debt_dpto_id)) - 1
-                          ]
-                        : null;
-                      const label = virtual
-                        ? `${MONTH_NAMES[virtual.month - 1]} ${virtual.year}` +
-                          (virtual.description
-                            ? ` — ${virtual.description}`
-                            : "")
-                        : `#${item.debt_dpto_id}`;
-                      return (
-                        <tr key={idx}>
-                          <td style={{ padding: "4px 8px" }}>
-                            {virtual ? `🆕 ${label}` : label}
-                          </td>
-                          <td style={{ textAlign: "right", padding: "4px 8px" }}>{item.applied_amount}</td>
-                          <td style={{ textAlign: "right", padding: "4px 8px" }}>{item.balance_before}</td>
-                          <td style={{ textAlign: "right", padding: "4px 8px" }}>{item.balance_after}</td>
-                          <td style={{ textAlign: "center", padding: "4px 8px" }}>
-                            {item.excluded ? (
-                              <span style={{ color: "var(--cError, #f44)", fontWeight: "bold" }}>
-                                Sí (no se paga)
-                              </span>
-                            ) : (
-                              "No"
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {(simulateResult.items || []).map(
+                      (item: any, idx: number) => {
+                        // S87: el back pineá ids negativos (-1, -2, ...) para
+                        // las virtuales. Mostramos el label legible (Mes Año +
+                        // descripción) cuando es virtual.
+                        const isVirtual = Number(item.debt_dpto_id) < 0;
+                        const virtual = isVirtual
+                          ? (formState.newExpenses || [])[
+                              Math.abs(Number(item.debt_dpto_id)) - 1
+                            ]
+                          : null;
+                        const label = virtual
+                          ? `${MONTH_NAMES[virtual.month - 1]} ${virtual.year}` +
+                            (virtual.description
+                              ? ` — ${virtual.description}`
+                              : "")
+                          : `#${item.debt_dpto_id}`;
+                        return (
+                          <tr key={idx}>
+                            <td style={{ padding: "4px 8px" }}>
+                              {virtual ? `🆕 ${label}` : label}
+                            </td>
+                            <td
+                              style={{ textAlign: "right", padding: "4px 8px" }}
+                            >
+                              {item.applied_amount}
+                            </td>
+                            <td
+                              style={{ textAlign: "right", padding: "4px 8px" }}
+                            >
+                              {item.balance_before}
+                            </td>
+                            <td
+                              style={{ textAlign: "right", padding: "4px 8px" }}
+                            >
+                              {item.balance_after}
+                            </td>
+                            <td
+                              style={{
+                                textAlign: "center",
+                                padding: "4px 8px",
+                              }}
+                            >
+                              {item.excluded ? (
+                                <span
+                                  style={{
+                                    color: "var(--cError, #f44)",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Sí (no se paga)
+                                </span>
+                              ) : (
+                                "No"
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      },
+                    )}
                   </tbody>
                 </table>
                 <p style={{ marginTop: 8, fontSize: 13 }}>
-                  Al confirmar, se aplicará el pago parcial según la distribución
-                  mostrada. Las filas con <b>🆕</b> son expensas virtuales nuevas;
-                  las marcadas como <b>Sí (no se paga)</b> quedan pendientes.
+                  Al confirmar, se aplicará el pago parcial según la
+                  distribución mostrada. Las filas con <b>🆕</b> son expensas
+                  virtuales nuevas; las marcadas como <b>Sí (no se paga)</b>{" "}
+                  quedan pendientes.
                 </p>
               </div>
             </div>
