@@ -78,8 +78,7 @@ describe("payments.config — renderMethodCell uses numeric METHOD_MAP (S-D)", (
 
 describe("payments.config — mod.exportAsync slot (S37.5)", () => {
   // S37.5: pinea el slot exportAsync (S36.5) en payments.config.tsx para
-  // migrar al flow async XLSX (S32 + S37 PaymentsReportType). El viewer
-  // reportPreset sigue disponible BC para preview + PDF.
+  // migrar al flow async XLSX (S32 + S37 PaymentsReportType).
 
   it("pinea mod.exportAsync.type = 'payments' (matchea ReportTypeRegistry)", () => {
     const { mod } = getPaymentsConfig("text-overflow", "text-right", "text-center");
@@ -114,9 +113,14 @@ describe("payments.config — mod.exportAsync slot (S37.5)", () => {
     expect(mod.export).toBe(false);
   });
 
-  it("mantiene mod.reportPreset = 'payments-income' (viewer BC)", () => {
-    // BC: el viewer sigue disponible para preview + PDF.
+  /**
+   * El visor de reportes (`/reports?preset=`) se eliminó el 2026-08-04: era
+   * inalcanzable desde la UI —el ícono que lo abría dejó de renderizarse al
+   * migrar Payments a `exportAsync`— y su archivo lo produce hoy el custom
+   * de Ingresos. Este pin exigía que el slot siguiera declarado.
+   */
+  it("ya no declara un preset de visor", () => {
     const { mod } = getPaymentsConfig("text-overflow", "text-right", "text-center");
-    expect(mod.reportPreset).toBe("payments-income");
+    expect((mod as Record<string, unknown>).reportPreset).toBeUndefined();
   });
 });

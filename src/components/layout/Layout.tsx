@@ -88,7 +88,6 @@ const Layout = ({ children }: any) => {
 
   const path = usePathname();
   const router = useRouter();
-  const isImmersiveRoute = (path || "").startsWith("/reports");
 
   const typeAlerts: any = {
     E: {
@@ -300,14 +299,6 @@ const Layout = ({ children }: any) => {
     soundBell?.pause();
     soundBell?.load();
   };
-  if (isImmersiveRoute) {
-    return (
-      <main className={styles.immersiveLayout}>
-        <section className={styles.immersiveContent}>{children}</section>
-      </main>
-    );
-  }
-
   return (
     <main className={layoutClassName}>
       <section>

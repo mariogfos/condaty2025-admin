@@ -160,14 +160,6 @@ vi.mock("@/mk/components/ui/Table/Table", () => ({
   default: () => <div data-testid="table-mock" />,
 }));
 
-// Mock Reports feature flags + reportViewerState
-vi.mock("@/modulos/Reports/reportFeatureFlags", () => ({
-  shouldUseNewReportsViewer: () => false,
-}));
-vi.mock("@/modulos/Reports/reportViewerState", () => ({
-  encodeReportViewerState: () => "encoded-state",
-}));
-
 // Now import useCrud AFTER all mocks are set up
 import useCrud, { ModCrudType } from "../useCrud";
 

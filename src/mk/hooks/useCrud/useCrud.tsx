@@ -51,8 +51,6 @@ import EmptyData from "@/components/NoData/EmptyData";
 import { IconEmptySearch } from "@/components/layout/icons/IconsBiblioteca";
 import useMediaQuery from "../useMediaQuery";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
-import { encodeReportViewerState } from "@/modulos/Reports/reportViewerState";
-import { shouldUseNewReportsViewer } from "@/modulos/Reports/reportFeatureFlags";
 import AsyncExportButton from "@/mk/components/ui/AsyncExportButton/AsyncExportButton";
 import DownloadButton from "@/mk/components/ui/DownloadButton/DownloadButton";
 
@@ -94,7 +92,6 @@ export type ModCrudType = {
     style?: React.CSSProperties;
   };
   getListRows?: (response: any, params?: Record<string, any>) => any[];
-  reportPreset?: string;
   /**
    * exportAsync (S36.5 — NEW-NEW-43 frontend migration)
    *
@@ -989,24 +986,6 @@ const useCrud = ({
   };
 
   type ExportType = "pdf" | "xls" | "csv";
-  const useNewReportsViewer = shouldUseNewReportsViewer(mod?.reportPreset);
-
-  const openReportViewer = () => {
-    if (!useNewReportsViewer || typeof window === "undefined") return;
-
-    const nextState = encodeReportViewerState({
-      params: {
-        ...params,
-        fullType: params?.fullType || "L",
-      },
-    });
-    const nextUrl = `/reports?preset=${encodeURIComponent(
-      mod.reportPreset,
-    )}&state=${nextState}`;
-
-    window.open(nextUrl, "_blank", "noopener,noreferrer");
-  };
-
   const onExport = async (
     type?: string, // Cambiar el tipo a string opcional
     callBack: (url: string) => void = (url: string) => {},
@@ -1733,14 +1712,7 @@ const useCrud = ({
                     " " +
                     (data?.length == 0 ? styles.disabled : "")
                   }
-                  onClick={
-                    data?.length > 0
-                      ? () =>
-                          useNewReportsViewer
-                            ? openReportViewer()
-                            : onExport("pdf")
-                      : () => {}
-                  }
+                  onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
                 />
               )}
               {mod.exportAsync && (

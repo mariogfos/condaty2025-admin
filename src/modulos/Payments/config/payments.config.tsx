@@ -129,7 +129,6 @@ export const getPaymentsConfig = (
     renderForm: RenderForm,
     renderView: (props: any) => <RenderView {...props} />,
     renderDel: (props: any) => <RenderDel {...props} />,
-    reportPreset: "payments-income",
     hideActions: {
       view: false,
       add: false,
@@ -139,8 +138,7 @@ export const getPaymentsConfig = (
     filter: true,
     // S37.5: pineamos mod.exportAsync (slot reusable de S36.5) para
     // migrar el módulo Payments al flow async XLSX (S32 + S37).
-    // - export: false → deshabilita IconExport legacy (el viewer
-    //   reportPreset sigue disponible BC para preview + PDF).
+    // - export: false → deshabilita IconExport legacy.
     // - exportAsync.type: "payments" → matchea el PaymentsReportType
     //   pineado en S37 (ReportTypeRegistry).
     // - format: "excel" → ExcelGenerator chunked (S37 D-37-1).

@@ -79,20 +79,6 @@
   grid-template-rows: auto 1fr;
 }
 
-.immersiveLayout {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  background: var(--cBackground-muted);
-  overflow: hidden;
-}
-
-.immersiveContent {
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
-}
-
 .layoutTablet {
   grid-template-areas:
     "navbar"

@@ -23,7 +23,7 @@ vi.mock("@/mk/hooks/useToast", () => ({
 
 /** Corta el flujo apenas se dispara: sólo interesa la PRIMERA llamada. */
 const stubFetch = () => {
-  const fetchMock = vi.fn(async () => ({
+  const fetchMock = vi.fn(async (_url: unknown, _init?: RequestInit) => ({
     ok: true,
     status: 202,
     json: async () => ({ job_id: null }),
@@ -32,10 +32,10 @@ const stubFetch = () => {
   return fetchMock;
 };
 
-const primeraLlamada = (mock: ReturnType<typeof stubFetch>) => ({
-  url: String(mock.mock.calls[0]?.[0]),
-  init: mock.mock.calls[0]?.[1] as RequestInit | undefined,
-});
+const primeraLlamada = (mock: ReturnType<typeof stubFetch>) => {
+  const llamada = mock.mock.calls[0];
+  return { url: String(llamada?.[0]), init: llamada?.[1] };
+};
 
 describe("useAsyncExport — dispatch", () => {
   afterEach(() => {
