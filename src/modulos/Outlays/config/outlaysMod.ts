@@ -59,7 +59,18 @@ export const getOutlaysMod = (): ModCrudType => ({
   exportAsync: {
     type: "outlays",
     format: "pdf",
-    label: "Exportar PDF",
+    label: "Exportar",
+    supportedFormats: ["pdf", "xlsx", "csv"],
+    // Fase 6 (2026-08-04): con `endpoint` el export sale por la LISTA
+    // (`GET /v3/expenses?_export={format}`), que es el flow del motor
+    // declarativo — el job re-ejecuta el ExpenseController y exporta
+    // exactamente lo que el usuario tiene en pantalla, con sus filtros.
+    //
+    // 🔴 Sin `endpoint` el hook cae al flow por type
+    // (`POST /v3/reports/outlays/export`), que resuelve contra el registry
+    // legacy y renderiza con Dompdf. Ese camino ya no existe: el
+    // OutlaysReportType se borró junto con esta migración.
+    endpoint: "/v3/expenses", // sin `/api/`: API_BASE_URL ya lo trae.
     extraParams: { title: "Reporte de Egresos" },
   },
   permiso: "outlays",

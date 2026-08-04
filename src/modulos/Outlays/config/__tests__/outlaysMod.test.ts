@@ -44,10 +44,29 @@ describe("Outlays mod config (S43 + S118b)", () => {
     expect(mod.exportAsync?.format).toBe("pdf");
   });
 
-  it("mod.exportAsync.label = 'Exportar PDF'", () => {
-    // Label del botón AsyncExportButton.
+  /**
+   * Fase 6: el botón dejó de prometer un formato único porque pasó a ser
+   * un menú (pdf / xlsx / csv, más los customs que el back declare).
+   */
+  it("el label no promete un formato unico", () => {
     const mod = getOutlaysMod();
-    expect(mod.exportAsync?.label).toBe("Exportar PDF");
+    expect(mod.exportAsync?.label).toBe("Exportar");
+    expect(mod.exportAsync?.supportedFormats?.length).toBeGreaterThan(1);
+  });
+
+  /**
+   * 🔴 Éste es el pin de la migración de Fase 6.
+   *
+   * Con `endpoint` el export sale por la LISTA (`GET /v3/expenses?_export=`)
+   * y lo atiende el motor declarativo. Sin `endpoint`, `useAsyncExport` cae
+   * al flow por type (`POST /v3/reports/outlays/export`), que resuelve
+   * contra el registry legacy — donde el OutlaysReportType ya no existe.
+   * O sea: borrarlo rompe la exportación de Egresos entera, y nada más en
+   * el front lo notaría.
+   */
+  it("pinea el endpoint de la lista para salir por el motor nuevo", () => {
+    const mod = getOutlaysMod();
+    expect(mod.exportAsync?.endpoint).toBe("/v3/expenses");
   });
 
   it("mod.exportAsync.extraParams.title = 'Reporte de Egresos' (S118b title dinámico)", () => {
