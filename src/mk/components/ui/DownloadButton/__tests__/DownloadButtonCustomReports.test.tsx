@@ -9,7 +9,7 @@ import DownloadButton from "../DownloadButton";
 
 /** Responde el endpoint de customs con `customs`; el resto, 202 vacío. */
 function mockFetch(customs: unknown) {
-  return vi.fn(async (url: unknown) => {
+  return vi.fn(async (url: unknown, _init?: RequestInit) => {
     const href = String(url);
     if (href.includes("/reports/custom")) {
       return {
@@ -114,5 +114,35 @@ describe("DownloadButton — reportes custom", () => {
       const urls = fetchMock.mock.calls.map((c) => String(c[0]));
       expect(urls.some((u) => u.includes("/v3/reports/payments-income/export"))).toBe(true);
     });
+  });
+  /**
+   * 🔴 El bug que dejó el menú sin los customs: se leía
+   * `localStorage.getItem("token")` a secas, pero la app guarda el token bajo
+   * `NEXT_PUBLIC_AUTH_IAM + "token"` y DENTRO de un JSON. El request salía sin
+   * Authorization → 401 → el `catch` devolvía [] → el menú se veía idéntico a
+   * un módulo sin customs. Silencioso.
+   */
+  it("manda el token en el formato que guarda la app", async () => {
+    const iam = process.env.NEXT_PUBLIC_AUTH_IAM ?? "";
+    window.localStorage.setItem(iam + "token", JSON.stringify({ token: "abc123" }));
+
+    const fetchMock = mockFetch([
+      { key: "payments-income", label: "Reporte de Ingresos", formats: ["xlsx"] },
+    ]);
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<DownloadButton {...props} supportedFormats={["pdf", "xlsx", "csv"]} />);
+    await abrirMenu();
+
+    await waitFor(() => {
+      const llamada = fetchMock.mock.calls.find((c) =>
+        String(c[0]).includes("/reports/custom"),
+      );
+      expect(llamada).toBeTruthy();
+      const headers = llamada?.[1]?.headers as Record<string, string> | undefined;
+      expect(headers?.Authorization).toBe("Bearer abc123");
+    });
+
+    window.localStorage.removeItem(iam + "token");
   });
 });

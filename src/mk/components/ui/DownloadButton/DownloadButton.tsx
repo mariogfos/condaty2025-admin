@@ -47,6 +47,28 @@ import styles from "./DownloadButton.module.css";
 const API_BASE_URL =
   (typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL) || "";
 
+/**
+ * Token de sesión, con el MISMO formato que el resto de la app.
+ *
+ * 🔴 Acá estaba el bug por el que los reportes custom no aparecían en el menú:
+ * se leía `localStorage.getItem("token")` a secas, pero la app lo guarda bajo
+ * la clave `NEXT_PUBLIC_AUTH_IAM + "token"` y con el token DENTRO de un JSON.
+ * Resultado: el header iba sin Authorization, el endpoint respondía 401 y el
+ * `catch` devolvía lista vacía — o sea, el menú se veía exactamente igual que
+ * si el módulo no tuviera ningún custom. Un fallo silencioso.
+ */
+const getAuthToken = (): string | null => {
+  try {
+    const raw = localStorage.getItem(
+      (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+    );
+    if (!raw) return null;
+    return JSON.parse(raw + "").token ?? null;
+  } catch {
+    return null;
+  }
+};
+
 export type DownloadFormat = "pdf" | "xlsx" | "csv";
 
 type PropsType = {
@@ -119,8 +141,7 @@ const formatLabel: Record<DownloadFormat, string> = {
  */
 async function fetchCustomReports(module: string): Promise<CustomReport[]> {
   try {
-    const token =
-      typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
+    const token = typeof window !== "undefined" ? getAuthToken() : null;
     const res = await fetch(
       `${API_BASE_URL}/v3/reports/custom?module=${encodeURIComponent(module)}`,
       {
