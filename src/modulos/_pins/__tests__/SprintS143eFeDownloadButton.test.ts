@@ -98,22 +98,19 @@ describe("S143e-fe — DownloadButton con ícono + menú (HALLAZGO-NEW-54)", () 
       expect(src).toMatch(/endpoint\?: string \| null/);
     });
 
-    it("useAsyncExport.ts dispatcha GET inline si endpoint pineado", () => {
-      const src = loadSourceWithoutComments(
-        "mk/hooks/useAsyncExport/useAsyncExport.ts",
-      );
-      // S143e: si endpoint está pineado, dispatcha GET {endpoint}?_export={format}.
-      expect(src).toMatch(/endpoint\s*\?\s*await fetch/);
-      expect(src).toMatch(/encodeURIComponent/);
-    });
-
-    it("useAsyncExport.ts mantiene BC layer legacy (POST /v3/reports/{type}/export)", () => {
-      const src = loadSourceWithoutComments(
-        "mk/hooks/useAsyncExport/useAsyncExport.ts",
-      );
-      // S143e: si endpoint NO pineado, sigue pineando el flow BC layer.
-      expect(src).toMatch(/v3\/reports\/\$\{type\}\/export/);
-    });
+    /*
+     * Los dos pines que vivían acá —`/endpoint\s*\?\s*await fetch/` y
+     * `/v3\/reports\/\$\{type\}\/export/`— se movieron a
+     * `useAsyncExport/__tests__/useAsyncExport.dispatch.test.ts`, que MIDE a
+     * dónde sale el request en vez de mirar cómo está escrito el archivo.
+     *
+     * Se rompieron cuando el hook empezó a aceptar un `overrideType` para los
+     * reportes custom: el `type` pasó a llamarse `tipoEfectivo` y el `endpoint`
+     * a evaluarse en una variable. El comportamiento no cambió ni un poco —
+     * sólo el texto del código— y sin embargo el pin quedó rojo. Un pin que se
+     * pone rojo cuando renombrás una variable no protege nada: enseña a
+     * ignorarlo.
+     */
   });
 
   describe("DownloadHistory — botón Limpiar historial solo ícono (S143e HALLAZGO-NEW-54)", () => {
@@ -182,10 +179,16 @@ describe("S143e-fe — DownloadButton con ícono + menú (HALLAZGO-NEW-54)", () 
       expect(src).not.toMatch(/endpoint:\s*["']\/api\/v3\/payments["']/);
     });
 
-    it("payments.config.tsx pineá useExtraData: true", () => {
-      const src = readFile("modulos/Payments/config/payments.config.tsx");
-      expect(src).toMatch(/useExtraData:\s*true/);
-    });
+    /*
+     * Se retira el pin de `useExtraData: true`.
+     *
+     * `useExtraData` es una PERILLA, no un contrato: dice si el export
+     * necesita el `extraData` del listado. Payments dejó de necesitarlo
+     * cuando el motor pasó a resolver categorías y métodos de pago en la
+     * query del reporte (commit `6ae6e8ab`), y el pin quedó exigiendo `true`
+     * sobre un archivo que dice `false` a propósito. Un pin que congela el
+     * valor de una perilla convierte cada ajuste legítimo en un rojo.
+     */
 
     it("payments.config.tsx pineá requiredRelations con paymentMethod, category, bankAccount", () => {
       const src = readFile("modulos/Payments/config/payments.config.tsx");

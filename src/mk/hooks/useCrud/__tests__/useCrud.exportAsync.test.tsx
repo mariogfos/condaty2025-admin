@@ -14,7 +14,14 @@
  * 6. mod sin export y sin exportAsync → no se renderea ningún botón de export
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  act,
+  waitFor,
+} from "@testing-library/react";
 import React from "react";
 
 // Mock useAxios to avoid pulling in AxiosContext providers
@@ -340,5 +347,78 @@ describe("useCrud — exportAsync slot (S36.5)", () => {
       screen.queryByRole("button", { name: /Exportar PDF/i }),
     ).not.toBeInTheDocument();
     expect(useAsyncExportMock).not.toHaveBeenCalled();
+  });
+
+  /**
+   * Fase 5 — los reportes custom llegan a CUALQUIER módulo sin tocar el front.
+   *
+   * El plan original preveía declararlos en el slot
+   * (`exportAsync.customReports`). Se resolvió al revés y es mejor: el menú
+   * los pide al back por el módulo, así que sumar un custom es crear su clase
+   * en `app/Modules/<Mod>/CustomReports/` — el front no se toca ni se
+   * redespliega, y ningún módulo puede quedarse con una lista desactualizada.
+   */
+  it("un modulo con exportAsync recibe sus custom del back sin declararlos en el front", async () => {
+    const fetchMock = vi.fn(async (url: unknown) => {
+      const href = String(url);
+      if (href.includes("/reports/custom")) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            success: true,
+            data: [
+              { key: "expenses-summary", label: "Resumen de Egresos", formats: ["xlsx"] },
+            ],
+          }),
+        } as Response;
+      }
+      return { ok: true, status: 202, json: async () => ({}) } as Response;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const TestComp = () => {
+      const { List } = useCrud({
+        paramsInitial: { page: 1, perPage: 10 },
+        mod: {
+          modulo: "expenses",
+          singular: "Egreso",
+          plural: "Egresos",
+          permiso: "expenses",
+          pagination: false,
+          export: false,
+          // Ni una palabra sobre customs: sólo el módulo y sus formatos.
+          exportAsync: {
+            type: "expenses",
+            label: "Exportar",
+            supportedFormats: ["pdf", "xlsx"],
+          },
+        } as ModCrudType,
+        fields: baseFields,
+      });
+      return <List emptyMsg="empty" emptyLine2="empty2" />;
+    };
+
+    render(<TestComp />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("download-btn-expenses"));
+    });
+
+    // Se pregunta por el módulo de ESTE listado, no por uno fijo.
+    await waitFor(() => {
+      expect(
+        fetchMock.mock.calls.some((c) =>
+          String(c[0]).includes("/reports/custom?module=expenses"),
+        ),
+      ).toBe(true);
+    });
+
+    expect(
+      (await screen.findByTestId("download-menuitem-expenses-custom-expenses-summary"))
+        .textContent,
+    ).toContain("Resumen de Egresos");
+
+    vi.unstubAllGlobals();
   });
 });

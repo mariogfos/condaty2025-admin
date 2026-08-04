@@ -92,9 +92,18 @@ describe("payments.config — mod.exportAsync slot (S37.5)", () => {
     expect(mod.exportAsync?.format).toBe("excel");
   });
 
-  it("pinea mod.exportAsync.label = 'Exportar XLSX'", () => {
+  /**
+   * El label dejó de nombrar un formato cuando el botón pasó a ser un menú.
+   *
+   * Con `supportedFormats` el usuario elige pdf / xlsx / csv (y los customs
+   * del módulo) DENTRO del menú, así que "Exportar XLSX" mentía sobre lo que
+   * hace el botón. Lo que importa no es el texto exacto sino que no vuelva a
+   * prometer un formato único.
+   */
+  it("pinea un label de exportacion que no promete un formato unico", () => {
     const { mod } = getPaymentsConfig("text-overflow", "text-right", "text-center");
-    expect(mod.exportAsync?.label).toBe("Exportar XLSX");
+    expect(mod.exportAsync?.label).toBe("Exportar");
+    expect(mod.exportAsync?.supportedFormats?.length).toBeGreaterThan(1);
   });
 
   it("mod.export = false → deshabilita IconExport legacy (override)", () => {
