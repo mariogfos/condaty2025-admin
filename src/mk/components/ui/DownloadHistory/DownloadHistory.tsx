@@ -53,6 +53,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Button from "../../forms/Button/Button";
+import { nombreDeArchivoDelHeader } from "@/mk/utils/contentDisposition";
 import NewModal from "../NewModal/NewModal";
 import styles from "./DownloadHistory.module.css";
 
@@ -476,12 +477,13 @@ export default function DownloadHistory({
         const blobUrl = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = blobUrl;
-        // S139 (HALLAZGO-NEW-48 + HALLAZGO-NEW-49): filename pinea
-        // displayName (legible) + format normalizado ('excel'→'xlsx').
-        // El back ya pinea esto en Content-Disposition, pero algunos
-        // browsers reescriben el filename al hacer Blob download — pineamos
-        // también acá para que el archivo bajado se llame "deuda_individual-XXXX.xlsx"
-        // en vez de "debt-dptos-XXXX.excel".
+        // El nombre lo manda el back en `Content-Disposition`: título del
+        // reporte + fecha y hora. Acá sólo se lee, así que el archivo baja
+        // igual desde el historial que desde el botón de exportar.
+        //
+        // El fallback (nombre legible + uuid) queda por si el header no llega:
+        // en un fetch cross-origin el navegador lo oculta salvo que el
+        // servidor lo liste en `exposed_headers` del CORS.
         const downloadFormat =
           item.format === "excel" ? "xlsx" : (item.format || "pdf");
         const downloadName = item.name || humanizeType(item.type);
@@ -491,7 +493,12 @@ export default function DownloadHistory({
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/[^a-z0-9_\-]+/g, "_")
           .replace(/^_+|_+$/g, "");
-        link.download = `${sanitizedName || "reporte"}-${item.uuid}.${downloadFormat}`;
+        const delServidor = nombreDeArchivoDelHeader(
+          res.headers?.get("Content-Disposition")
+        );
+        link.download =
+          delServidor ??
+          `${sanitizedName || "reporte"}-${item.uuid}.${downloadFormat}`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

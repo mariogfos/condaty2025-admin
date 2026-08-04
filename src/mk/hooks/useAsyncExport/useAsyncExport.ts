@@ -2,6 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useRef, useState } from "react";
 import useToast from "../useToast";
+import { nombreDeArchivoDelHeader } from "@/mk/utils/contentDisposition";
 
 /**
  * S113: el bug original pineaba `fetch("/api/v3/reports/...")` con RUTA
@@ -505,18 +506,24 @@ export function useAsyncExport(
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = blobUrl;
-      // S147e-fe (HALLAZGO-NEW-100, front part, binding, cross-project):
-      // derivar la extensión del format pineado por el usuario en
-      // `start(params.format)`, NO hardcodear `.pdf`. El back pineá el
-      // Content-Type correcto (S145e NEW-98 + S146e NEW-99) y el archivo
-      // descargado TIENE el format correcto internamente — solo el
-      // nombre del archivo estaba mal.
+      // El nombre lo manda el back: título del reporte + fecha y hora
+      // ("Reporte_de_Pagos_2026-08-04_20-31.pdf"). Acá sólo se lee.
       //
-      // Validado contra:
-      // - "pdf" → "payments-{jobId}.pdf" (default flow legacy)
-      // - "xlsx" → "payments-{jobId}.xlsx" (S143e format xlsx)
-      // - "csv" → "payments-{jobId}.csv" (S145e format csv)
-      link.download = `${type}-${state.jobId ?? "report"}.${formatRef.current}`;
+      // 🔴 Antes se armaba a mano y pisaba al del servidor: el archivo bajaba
+      // como "payments-cb3411e1-5bec-4fd3-911d-dbcd13bb746f.pdf". El uuid no
+      // le dice nada a quien recibe el archivo y ordena pésimo en la carpeta
+      // de descargas.
+      //
+      // El fallback conserva el formato viejo por si el header no llega —
+      // pasa si `Content-Disposition` no está en `exposed_headers` del CORS,
+      // porque el navegador lo oculta sin avisar. Mejor un nombre feo que un
+      // archivo sin extensión.
+      const delServidor = nombreDeArchivoDelHeader(
+        res.headers?.get("Content-Disposition")
+      );
+      link.download =
+        delServidor ??
+        `${type}-${state.jobId ?? "report"}.${formatRef.current}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

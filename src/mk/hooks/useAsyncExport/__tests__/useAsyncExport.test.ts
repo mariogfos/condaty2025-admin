@@ -30,7 +30,16 @@ const delayed = <T>(value: T, ms = 0): Promise<T> =>
   new Promise((resolve) => setTimeout(() => resolve(value), ms));
 
 // Helper: mock fetch with a sequence of responses (for polling)
-const mockFetchSequence = (responses: Array<{ status: number; body: any }>) => {
+/**
+ * ⚠️ El `headers` no es decorado: sin él, este mock no se parecía a una
+ * `Response` de verdad. `download()` lee `Content-Disposition` para nombrar el
+ * archivo, y contra un mock sin headers eso tiraba una excepción que el
+ * `try/catch` del hook se comía: el `link.download` quedaba vacío y el test
+ * fallaba señalando el nombre, no la causa.
+ */
+const mockFetchSequence = (
+  responses: Array<{ status: number; body: any; headers?: Record<string, string> }>,
+) => {
   let callIndex = 0;
   return vi.fn(async () => {
     const r = responses[callIndex] ?? responses[responses.length - 1];
@@ -38,6 +47,7 @@ const mockFetchSequence = (responses: Array<{ status: number; body: any }>) => {
     return {
       ok: r.status >= 200 && r.status < 300,
       status: r.status,
+      headers: new Headers(r.headers ?? {}),
       json: async () => r.body,
       blob: async () => new Blob(["PDF_CONTENT"], { type: "application/pdf" }),
     } as any;
@@ -420,6 +430,13 @@ describe("useAsyncExport", () => {
    * de ahí en `download()`. Default `"pdf"` para el flow legacy que
    * no pinea `format` en params (BC).
    *
+   * ⚠️ 2026-08-04: estos 5 tests pasaron a pinear el **fallback**. El nombre
+   * ahora lo manda el back en `Content-Disposition` y el front lo usa; el
+   * patrón `{type}-{jobId}.{ext}` queda sólo para cuando ese header no llega
+   * (pasa si el CORS del server no lo expone, porque el navegador lo oculta
+   * sin avisar). Que la extensión siga siendo la correcta en ese camino es lo
+   * que estos tests siguen cuidando.
+   *
    * Estos 5 tests pinean el flow download() con un mock de
    * `document.createElement('a')` para capturar el `link.download` que
    * el front le da al browser. Sin este test, source-parsing solo
@@ -489,6 +506,91 @@ describe("useAsyncExport", () => {
 
     const filename = await captureLinkDownload(result);
     expect(filename).toBe("payments-job-pdf.pdf");
+  });
+
+  /**
+   * 🔴 El nombre lo manda el back: título del reporte + fecha y hora. El front
+   * lo tiene que USAR, no reinventar.
+   *
+   * Reportado por Mario el 2026-08-04: el archivo bajaba como
+   * "payments-cb3411e1-5bec-4fd3-911d-dbcd13bb746f.pdf". El uuid no le dice
+   * nada a quien recibe el archivo y ordena pésimo en la carpeta de descargas.
+   * El back ya mandaba el nombre bien en `Content-Disposition`; el front lo
+   * pisaba.
+   */
+  it("download() usa el nombre que manda el back en Content-Disposition", async () => {
+    const fetchMock = mockFetchSequence([
+      { status: 202, body: { job_id: "job-nombre", status: "pending" } },
+      {
+        status: 200,
+        body: {
+          status: "completed",
+          download_url: "/api/v3/reports/job-nombre/download",
+        },
+      },
+      {
+        status: 200,
+        body: {},
+        headers: {
+          "Content-Disposition":
+            'attachment; filename="Reporte_de_Pagos_2026-08-04_20-31.pdf"',
+        },
+      },
+    ]);
+    global.fetch = fetchMock;
+
+    const { result } = renderHook(() =>
+      useAsyncExport({ type: "payments", pollIntervalMs: 50 }),
+    );
+
+    await act(async () => {
+      await result.current.start({ format: "pdf" });
+    });
+    await waitFor(() => {
+      expect(result.current.state.status).toBe("completed");
+    });
+
+    expect(await captureLinkDownload(result)).toBe(
+      "Reporte_de_Pagos_2026-08-04_20-31.pdf",
+    );
+  });
+
+  /**
+   * `filename*` gana sobre `filename` porque es el que conserva los acentos.
+   */
+  it("download() prefiere el filename* codificado cuando viene", async () => {
+    const fetchMock = mockFetchSequence([
+      { status: 202, body: { job_id: "job-utf8", status: "pending" } },
+      {
+        status: 200,
+        body: {
+          status: "completed",
+          download_url: "/api/v3/reports/job-utf8/download",
+        },
+      },
+      {
+        status: 200,
+        body: {},
+        headers: {
+          "Content-Disposition":
+            "attachment; filename=\"Reporte.pdf\"; filename*=UTF-8''Reporte_de_Cr%C3%A9ditos.pdf",
+        },
+      },
+    ]);
+    global.fetch = fetchMock;
+
+    const { result } = renderHook(() =>
+      useAsyncExport({ type: "payments", pollIntervalMs: 50 }),
+    );
+
+    await act(async () => {
+      await result.current.start({ format: "pdf" });
+    });
+    await waitFor(() => {
+      expect(result.current.state.status).toBe("completed");
+    });
+
+    expect(await captureLinkDownload(result)).toBe("Reporte_de_Créditos.pdf");
   });
 
   it("download() con format: 'xlsx' pineado en start → link.download = ${type}-{jobId}.xlsx (HALLAZGO-NEW-100)", async () => {
