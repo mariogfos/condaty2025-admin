@@ -68,13 +68,6 @@ const Alerts = () => {
     hideActions: { edit: true, del: true, add: true },
     // S55.5: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
     // - export: false → kill legacy IconExport.
-    // - exportAsync: { type: "alerts", ... } → slot async que useCrud
-    //   auto-renderea via AsyncExportButton (S36.5 pattern, idéntico a
-    //   S52.5 Users + S54.5 Binnacle + S41 BankAccounts).
-    // - type: "alerts" → matchea el AlertReportType pineado en S55 backend
-    //   (ReportTypeRegistry.auto-discovery).
-    // - format: "pdf" → ReportGenerator chunked (S32). XLSX también soportado
-    //   (S55 pineá excelRowProvider).
     // - auto-pasa searchBy + filterBy del store actual al Report.
     // Factory NO aplicada (D-45-3, binding): Alerts pineá renderView con
     // reLoad closure inline. Cambio mínimo inline es la opción correcta.
@@ -82,7 +75,18 @@ const Alerts = () => {
     exportAsync: {
       type: "alerts",
       format: "pdf",
-      label: "Exportar PDF",
+      label: "Exportar",
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      // Fase 6 (2026-08-04): con `endpoint` el export sale por la LISTA
+      // (`GET /v3/alerts?_export={format}`), que es el flow del motor
+      // declarativo — el job re-ejecuta el AlertController y exporta
+      // exactamente lo que el usuario tiene en pantalla, con sus filtros.
+      //
+      // 🔴 Sin `endpoint` el hook cae al flow por type
+      // (`POST /v3/reports/alerts/export`), que resuelve contra el registry
+      // legacy. Ese camino ya no existe: el `AlertReportType` se borró al
+      // migrar, así que sin esta línea el botón devuelve 400.
+      endpoint: "/v3/alerts",
     },
     filter: true,
     renderView: (props: {
