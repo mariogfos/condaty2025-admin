@@ -15,8 +15,11 @@ import { getOutlaysMod } from "../outlaysMod";
  *
  * S118b: el `type` cambia de "expenses" a "outlays" para matchear el
  * nuevo `OutlaysReportType` del back (que pineá gastos del condominio,
- * tabla `expenses`). El `extraParams.title` pinea "Reporte de Egresos"
- * para que el title del PDF sea consistente con el módulo.
+ * tabla `expenses`).
+ *
+ * Fase 6 (2026-08-04): Egresos migró al motor declarativo. El `endpoint`
+ * pineado manda el export por la lista, y el título ya no viaja desde acá:
+ * lo declara `OutlaysExportConfig::title()` en el back.
  *
  * @see HALLAZGO-NEW-57 (binding, cross-project) — OutlaysReportType canónico
  * @see D-37.5-3 (S37.5) — factory pattern para configs `mod`
@@ -69,11 +72,17 @@ describe("Outlays mod config (S43 + S118b)", () => {
     expect(mod.exportAsync?.endpoint).toBe("/v3/expenses");
   });
 
-  it("mod.exportAsync.extraParams.title = 'Reporte de Egresos' (S118b title dinámico)", () => {
-    // S118b: el back lee $report->params['title'] y lo usa como title
-    // del PDF. Outlays pinea 'Reporte de Egresos' (consistente con el
-    // nombre del módulo "Egresos" del sidebar).
+  /**
+   * Fase 6: el título del reporte lo declara el back en
+   * `OutlaysExportConfig::title()`. Antes el front lo mandaba por
+   * `extraParams` y el back lo leía de `params['title']` — dos lugares
+   * donde cambiar lo mismo, y ganaba el de afuera.
+   *
+   * El módulo del back es la única fuente de verdad del export: columnas,
+   * relaciones y título. La query sale del `beforeList` del controller.
+   */
+  it("no manda el titulo: lo declara el back", () => {
     const mod = getOutlaysMod();
-    expect(mod.exportAsync?.extraParams?.title).toBe("Reporte de Egresos");
+    expect(mod.exportAsync?.extraParams?.title).toBeUndefined();
   });
 });

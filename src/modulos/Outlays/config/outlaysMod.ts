@@ -71,7 +71,12 @@ export const getOutlaysMod = (): ModCrudType => ({
     // legacy y renderiza con Dompdf. Ese camino ya no existe: el
     // OutlaysReportType se borró junto con esta migración.
     endpoint: "/v3/expenses", // sin `/api/`: API_BASE_URL ya lo trae.
-    extraParams: { title: "Reporte de Egresos" },
+    // El título del reporte NO se manda desde acá: lo declara el back en
+    // `OutlaysExportConfig::title()`. El módulo del back es la única fuente
+    // de verdad del export —columnas, relaciones, título— y la query sale
+    // del `beforeList` del controller, con sus filtros y su búsqueda. Si el
+    // front mandara el título habría dos lugares donde cambiarlo, y el que
+    // gana sería el de afuera.
   },
   permiso: "outlays",
   extraData: true,
