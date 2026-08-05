@@ -167,7 +167,10 @@ describe("S130 (front) - Areas RenderView status enum pin (HALLAZGO-NEW-39)", ()
 
       await waitFor(() => {
         expect(mockExecute).toHaveBeenCalledWith(
-          "/status-area",
+          // La ruta se movió al módulo v3 (`Route::post('areas/status')` en
+          // Areas/Routes/api.php). `/status-area` ya no existe en el back:
+          // este test venía en rojo pidiendo una ruta muerta.
+          "/v3/areas/status",
           "POST",
           expect.objectContaining({
             status: 1, // AreaStatus.ACTIVE

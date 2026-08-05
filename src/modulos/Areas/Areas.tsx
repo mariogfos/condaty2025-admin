@@ -86,7 +86,16 @@ const Areas = () => {
     exportAsync: {
       type: "areas",
       format: "pdf",
-      label: "Exportar PDF",
+      label: "Exportar",
+      // 🔴 `supportedFormats` y `endpoint` son UNA sola cosa: el interruptor
+      // de la migración al motor declarativo. Van juntos o no va ninguno.
+      //
+      // `useCrud` elige el botón mirando SÓLO `supportedFormats`: con el array
+      // renderea el `DownloadButton` (ícono + menú PDF/XLSX/CSV) y le pasa el
+      // `endpoint`; sin el array cae al `AsyncExportButton` legacy, que **no
+      // recibe `endpoint` como prop**, así que el endpoint no llega nunca.
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      endpoint: "/v3/areas", // sin `/api/`: API_BASE_URL ya lo trae.
     },
     filter: true,
   };
