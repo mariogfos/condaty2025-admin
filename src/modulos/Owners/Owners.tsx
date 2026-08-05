@@ -100,10 +100,7 @@ const Owners = () => {
     // S61.5 (HALLAZGO-NEW-61): migrado al slot async S36.5.
     // - export: false → kill legacy IconExport (D-38-5 round 12 frontend).
     // - exportAsync: { type: "owners", ... } → slot async que useCrud
-    //   auto-renderea via AsyncExportButton. Matchea el OwnerReportType
-    //   pineado en S61 backend (ReportTypeRegistry.auto-discovery).
-    // - format: "pdf" → ReportGenerator chunked (S32). XLSX también
-    //   soportado (S61 pineá excelRowProvider).
+    //   auto-renderea via AsyncExportButton.
     // - auto-pasa filterBy+searchBy del store actual (useCrud S36.5
     //   D-36.5-2). Patrón idéntico a S52.5 Users + S54.5 Binnacle +
     //   S55.5 Alerts + S57.5 Documents.
@@ -112,6 +109,17 @@ const Owners = () => {
       type: "owners",
       format: "pdf",
       label: "Exportar PDF",
+      // Fase 6 (2026-08-05): con `endpoint` el export sale por la LISTA
+      // (`GET {endpoint}?_export={format}` → OwnersExportConfig → mPDF),
+      // así que el PDF muestra exactamente los residentes que hay en
+      // pantalla, con los mismos filtros.
+      //
+      // 🔴 Sin `endpoint` el hook cae al flow por `type`
+      // (`POST /v3/reports/owners/export` → ReportTypeRegistry → Dompdf),
+      // que es el camino legacy. Y NO avisa: el botón anda igual, el
+      // reporte sale igual, sólo que armado por el motor viejo con su
+      // propia query. Es el interruptor de la migración de este módulo.
+      endpoint: "/v3/owners", // sin `/api/`: API_BASE_URL ya lo trae.
     },
     import: false,
     permiso: "owners",
