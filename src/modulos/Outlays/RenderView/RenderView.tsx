@@ -460,7 +460,17 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
       </div>
 
       <div className={styles.voucherButtonContainer}>
-        {onDel && currentItem.status !== "X" && (
+        {/*
+          🔴 Era `currentItem.status !== "X"`. `expenses.status` es numérico
+          desde S140 (0 = anulado, 1 = pagado), así que el back manda 0 y
+          `0 !== "X"` es SIEMPRE verdadero: el botón "Anular egreso" seguía
+          apareciendo en egresos que YA estaban anulados.
+
+          Este archivo ya usaba `ExpenseStatus.CANCELLED` bien en otros cuatro
+          lugares; sólo esta línea quedó con el char. `Number()` porque el tipo
+          de `status` admite string y el JSON a veces lo manda así.
+        */}
+        {onDel && Number(currentItem.status) !== ExpenseStatus.CANCELLED && (
           <Button
             variant="danger"
             onClick={handleAnularClick}
