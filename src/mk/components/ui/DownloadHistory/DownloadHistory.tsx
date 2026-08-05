@@ -521,7 +521,14 @@ export default function DownloadHistory({
     try {
       // HALLAZGO-NEW-20: pinear endpoint canónico `/v3/reports`.
       // HALLAZGO-NEW-21: URL absoluta via API_BASE_URL.
-      const url = `${API_BASE_URL}/v3/reports`;
+      //
+      // 🔴 El `type` va SIEMPRE que haya un módulo seleccionado. El botón vive
+      // al lado del dropdown "Módulo" y borraba todo igual: parado en Ingresos
+      // te llevabas puestos los de Egresos. Sin módulo seleccionado (el
+      // dropdown en "Todos") se borra todo, que es lo que corresponde.
+      const url = type
+        ? `${API_BASE_URL}/v3/reports?type=${encodeURIComponent(type)}`
+        : `${API_BASE_URL}/v3/reports`;
       const token = getAuthToken();
       const res = await fetch(url, {
         method: "DELETE",
@@ -553,7 +560,7 @@ export default function DownloadHistory({
     } finally {
       setClearing(false);
     }
-  }, [fetchPage, onClearCompleted]);
+  }, [fetchPage, onClearCompleted, type]);
 
   // S123 (HALLAZGO-NEW-32): el dropdown usa `availableTypes` (los
   // types reales del back) en vez de `KNOWN_TYPES` hardcoded. Cada
@@ -567,6 +574,12 @@ export default function DownloadHistory({
   // El label ya viene resuelto de `fetchAvailableTypes` (título del back, o
   // el humanizado local si el módulo todavía no migró al motor nuevo).
   const typeOptions = availableTypes;
+
+  // Lo que el modal de confirmación le promete al usuario tiene que ser lo que
+  // el botón hace. Si hay un módulo seleccionado, se borra SÓLO ese.
+  const moduloSeleccionado = type
+    ? (typeOptions.find((t) => t.value === type)?.label ?? type)
+    : null;
 
   return (
     <div className={styles.body} data-testid="download-history">
@@ -742,8 +755,16 @@ export default function DownloadHistory({
           if (!clearing) setShowClearConfirm(false);
         }}
         onSave={handleClear}
-        title="¿Limpiar historial?"
-        subtitle={`Se eliminarán todos los reportes completados y fallidos (${items.length} en esta página). Esta acción no se puede deshacer.`}
+        title={
+          moduloSeleccionado
+            ? `¿Limpiar el historial de ${moduloSeleccionado}?`
+            : "¿Limpiar historial?"
+        }
+        subtitle={
+          moduloSeleccionado
+            ? `Se eliminarán los reportes completados y fallidos de ${moduloSeleccionado}. Los de otros módulos no se tocan. Esta acción no se puede deshacer.`
+            : "Se eliminarán los reportes completados y fallidos de TODOS los módulos. Esta acción no se puede deshacer."
+        }
         buttonText={clearing ? "Limpiando…" : "Sí, limpiar"}
         buttonCancel="Cancelar"
         disabled={clearing}

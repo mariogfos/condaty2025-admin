@@ -98,9 +98,13 @@ describe("S119 (front) - DownloadHistory Modulo filter + Clear", () => {
   });
 
   it("el Clear pinea confirm modal NewModal antes del DELETE HALLAZGO-NEW-26", () => {
-    // El modal debe pinearse ANTES de pinear el DELETE. El NewModal
-    // tiene buttonText que pinea onSave=handleClear.
-    expect(src).toMatch(/<NewModal[\s\S]*?title=["']\u00bfLimpiar historial\?["']/);
+    // \u26a0\ufe0f Este assert pineaba el t\u00edtulo literal `title="\u00bfLimpiar historial?"`
+    // y se rompi\u00f3 al hacer que el modal nombre el m\u00f3dulo seleccionado \u2014 sin
+    // que el comportamiento tuviera nada malo. Un regex sobre el c\u00f3digo
+    // fuente se rompe con cualquier refactor y no ve lo que el usuario lee.
+    // Lo que el modal DICE se mide renderiz\u00e1ndolo, en
+    // `DownloadHistoryLimpiarPorModulo.test.tsx`.
+    expect(src).toMatch(/<NewModal/);
     expect(src).toMatch(/onSave=\{handleClear\}/);
   });
 
