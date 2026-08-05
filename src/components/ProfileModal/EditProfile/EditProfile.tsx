@@ -78,9 +78,7 @@ const EditProfile = ({
       mother_last_name: formState.mother_last_name,
       phone: formState.phone,
       avatar: formState.avatar,
-      ...(type !== "homeOwner" && type !== "owner"
-        ? { address: formState.address }
-        : {}),
+      ...(type !== "owner" ? { address: formState.address } : {}),
       ...(user?.fosrole_id ? { email: formState.email } : {}),
       url_avatar: formState.url_avatar,
     };
@@ -113,7 +111,9 @@ const EditProfile = ({
       zIndex={10010}
     >
       <div className={styles.EditProfile}>
-        <p className={styles.subtitle}>Ingresa los datos personales del usuario.</p>
+        <p className={styles.subtitle}>
+          Ingresa los datos personales del usuario.
+        </p>
         <section>
           <UploadFileProfile
             name={"url_avatar"}
@@ -189,7 +189,7 @@ const EditProfile = ({
               </div>
             )}
           </div>
-          {type !== "homeOwner" && type !== "owner" && (
+          {type !== "owner" && (
             <Input
               label="Dirección"
               name="address"

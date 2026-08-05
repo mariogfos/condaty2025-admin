@@ -95,7 +95,8 @@ const getAuthToken = (): string | null => {
   }
 };
 
-export type DownloadHistoryStatus = "completed" | "failed" | "pending" | "processing" | "all";
+export type DownloadHistoryStatus =
+  "completed" | "failed" | "pending" | "processing" | "all";
 
 export type DownloadHistoryItem = {
   id: number;
@@ -204,7 +205,10 @@ const KNOWN_TYPES: TypeOption[] = [
   { value: "areas", label: "Áreas" },
   { value: "events", label: "Eventos" },
   { value: "guards", label: "Guardias" },
-  { value: "homeowners", label: "Propietarios" },
+  // 'homeowners' salió el 2026-08-05 con su módulo. Esta lista es sólo el
+  // mapa de etiquetas: los types reales los trae `/v3/reports/types`. Un
+  // reporte viejo de ese type sobreviviría a lo sumo las 48h de retención,
+  // y en ese lapso mostraría el nombre técnico en vez de "Propietarios".
   { value: "owners", label: "Owners" },
   { value: "reservations", label: "Reservas" },
   { value: "invitations", label: "Invitaciones" },
@@ -228,9 +232,7 @@ const humanizeType = (type: string): string => {
   const known = KNOWN_TYPES.find((t) => t.value === type);
   if (known) return known.label;
   // Fallback: humanizar el slug
-  return type
-    .replace(/[-_]/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return type.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
 /**
@@ -331,7 +333,7 @@ export default function DownloadHistory({
   initialType = null,
   pollIntervalMs = DEFAULT_POLL_MS,
   onDownload,
-  emptyMessage = "Aún no generaste ningún reporte. Probá exportar algo desde un módulo con botón \"Exportar XLSX\" o \"Exportar PDF\".",
+  emptyMessage = 'Aún no generaste ningún reporte. Probá exportar algo desde un módulo con botón "Exportar XLSX" o "Exportar PDF".',
   hideClearButton = false,
   onClearCompleted,
 }: DownloadHistoryProps) {
@@ -485,7 +487,7 @@ export default function DownloadHistory({
         // en un fetch cross-origin el navegador lo oculta salvo que el
         // servidor lo liste en `exposed_headers` del CORS.
         const downloadFormat =
-          item.format === "excel" ? "xlsx" : (item.format || "pdf");
+          item.format === "excel" ? "xlsx" : item.format || "pdf";
         const downloadName = item.name || humanizeType(item.type);
         const sanitizedName = downloadName
           .toLowerCase()
@@ -494,7 +496,7 @@ export default function DownloadHistory({
           .replace(/[^a-z0-9_\-]+/g, "_")
           .replace(/^_+|_+$/g, "");
         const delServidor = nombreDeArchivoDelHeader(
-          res.headers?.get("Content-Disposition")
+          res.headers?.get("Content-Disposition"),
         );
         link.download =
           delServidor ??
@@ -550,10 +552,7 @@ export default function DownloadHistory({
       setShowClearConfirm(false);
       await fetchPage(true);
       if (onClearCompleted) {
-        onClearCompleted(
-          data?.deleted_reports ?? 0,
-          data?.deleted_files ?? 0,
-        );
+        onClearCompleted(data?.deleted_reports ?? 0, data?.deleted_files ?? 0);
       }
     } catch (err: any) {
       setClearError(err?.message ?? "Error de red al limpiar el historial");
@@ -587,7 +586,8 @@ export default function DownloadHistory({
         <div className={styles.headerTitle}>
           <h3 className={styles.title}>Historial de descargas</h3>
           <p className={styles.subtitle}>
-            {total} {total === 1 ? "reporte" : "reportes"} · página {page} de {totalPages}
+            {total} {total === 1 ? "reporte" : "reportes"} · página {page} de{" "}
+            {totalPages}
           </p>
         </div>
         <button
@@ -607,7 +607,10 @@ export default function DownloadHistory({
       </div>
 
       {/* S119: filter bar con dropdown de Módulo + botón Limpiar. */}
-      <div className={styles.filterBar} data-testid="download-history-filter-bar">
+      <div
+        className={styles.filterBar}
+        data-testid="download-history-filter-bar"
+      >
         <label className={styles.filterLabel}>
           <span>Módulo:</span>
           <select
@@ -690,7 +693,10 @@ export default function DownloadHistory({
                   aria-hidden="true"
                 />
                 <div className={styles.itemBody}>
-                  <p className={styles.itemTitle} data-testid="download-history-item-title">
+                  <p
+                    className={styles.itemTitle}
+                    data-testid="download-history-item-title"
+                  >
                     {displayLabel}
                   </p>
                   <p className={styles.itemMeta}>

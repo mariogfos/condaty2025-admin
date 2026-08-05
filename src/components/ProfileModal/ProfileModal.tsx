@@ -113,7 +113,7 @@ const ProfileModal = ({
     if (type === "admin") {
       return <IconAdmin color={"var(--cPrimary)"} size={16} />;
     }
-    if (type === "owner" || type === "homeOwner") {
+    if (type === "owner") {
       return <IconUser color={"var(--cPrimary)"} size={18} />;
     }
     return <IconGuardShield color={"var(--cPrimary)"} size={20} />;
@@ -124,7 +124,6 @@ const ProfileModal = ({
   const getUrl = () => {
     if (type === "admin") return `/v3/users`;
     if (type === "owner") return `/v3/owners`;
-    if (type === "homeOwner") return `/v3/homeowners`;
     return `/v3/guards`;
   };
 
@@ -153,7 +152,6 @@ const ProfileModal = ({
   const getProfileRole = () => {
     if (type === "admin") return data?.data[0]?.role?.[0]?.name;
     if (type === "owner") return data?.data[0]?.type_owner;
-    if (type === "homeOwner") return data?.data[0]?.type_owner;
     return "Guardia";
   };
 
@@ -171,8 +169,6 @@ const ProfileModal = ({
         return `/ADM-${userId}.webp?d=${timestamp}`;
       case "owner":
         return `/OWNER-${userId}.webp?d=${timestamp}`;
-      case "homeOwner":
-        return `/HOMEOWNER-${userId}.webp?d=${timestamp}`;
       default:
         return `/GUARD-${userId}.webp?d=${timestamp}`;
     }
@@ -467,18 +463,16 @@ const ProfileModal = ({
                     </span>
                   </div>
                 )}
-                {type !== "homeOwner" &&
-                  clientUsers &&
-                  clientUsers.length > 0 && (
-                    <div className={styles.fieldGroup}>
-                      <span className={styles.fieldLabel}>Condominio</span>
-                      <div className={styles.fieldValue}>
-                        {clientUsers.map((item: ClientItem) => (
-                          <div key={item.id}>{item.name}</div>
-                        ))}
-                      </div>
+                {clientUsers && clientUsers.length > 0 && (
+                  <div className={styles.fieldGroup}>
+                    <span className={styles.fieldLabel}>Condominio</span>
+                    <div className={styles.fieldValue}>
+                      {clientUsers.map((item: ClientItem) => (
+                        <div key={item.id}>{item.name}</div>
+                      ))}
                     </div>
-                  )}
+                  </div>
+                )}
               </div>
             </div>
 

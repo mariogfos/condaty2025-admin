@@ -202,14 +202,16 @@ describe("S119 (front) - DownloadHistory Modulo filter + Clear", () => {
     expect(src).toContain("const KNOWN_TYPES:");
   });
 
-  it("S123: KNOWN_TYPES incluye values plurales (owners, homeowners, reservations) — NO singulares", () => {
+  it("S123: KNOWN_TYPES incluye values plurales (owners, reservations) — NO singulares", () => {
     // HALLAZGO-NEW-32 + HALLAZGO-NEW-31: el KNOWN_TYPES pinea los
     // values exactos del back (plurales, SSoT = ReportTypeRegistry).
-    // Si alguien pinea singulares (owner, homeowner, reservation),
-    // el filter no matchea.
+    // Si alguien pinea singulares (owner, reservation), el filter no matchea.
+    //
+    // 'homeowners' salió el 2026-08-05: su módulo se borró entero, así que
+    // el back ya no puede emitir ese type.
     expect(src).toMatch(/value:\s*["']owners["']/);
-    expect(src).toMatch(/value:\s*["']homeowners["']/);
     expect(src).toMatch(/value:\s*["']reservations["']/);
+    expect(src).not.toMatch(/value:\s*["']homeowners["']/);
   });
 
   // ─────────────────────────────────────────────────────────────────

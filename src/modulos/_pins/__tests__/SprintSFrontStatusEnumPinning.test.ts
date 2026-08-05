@@ -59,11 +59,10 @@ describe("S_front — Status enum pinning (HALLAZGO-NEW-39 front variant)", () =
     expect(src).not.toMatch(/status\s*===\s*['"]X['"]/);
   });
 
-  it("HomeOwners.tsx: usa DptoStatus.ACTIVE enum, NO char 'A'", () => {
-    const src = readFile("modulos/HomeOwners/HomeOwners.tsx");
-    expect(src).toMatch(/DptoStatus\.ACTIVE/);
-    expect(src).not.toMatch(/status\s*===\s*['"]A['"]/);
-  });
+  // El pin de HomeOwners.tsx se fue el 2026-08-05 con el módulo: owners y
+  // homeowners ya estaban unificados en la tabla `owners`, y esa pantalla no
+  // tenía un solo link entrante. Los propietarios se ven filtrando Residentes,
+  // que tiene su propio pin acá abajo.
 
   it("Owners.tsx: usa DptoStatus.ACTIVE + OwnerStatus.WAITING enum, NO char 'A'/'W'", () => {
     const src = readFile("modulos/Owners/Owners.tsx");
