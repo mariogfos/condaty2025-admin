@@ -31,13 +31,22 @@ const Guards = () => {
     plural: "Guardias",
     filter: true,
     permiso: "guards",
-    // S66.5 (HALLAZGO-NEW-64): migrado al slot async S36.5.
-    // S66 pineó GuardsReportType backend (PR #151).
     export: false,
     exportAsync: {
       type: "guards",
       format: "pdf",
-      label: "Exportar PDF",
+      label: "Exportar",
+      // 🔴 `supportedFormats` y `endpoint` son UNA sola cosa: el interruptor
+      // de la migración al motor declarativo. Van juntos o no va ninguno.
+      //
+      // `useCrud` elige el botón mirando SÓLO `supportedFormats`: con el array
+      // renderea el `DownloadButton` (ícono + menú PDF/XLSX/CSV) y le pasa el
+      // `endpoint`; sin el array cae al `AsyncExportButton` legacy —dos
+      // botones, "Exportar PDF" y "Historial"— que **no recibe `endpoint` como
+      // prop**, así que el endpoint no llega nunca y el export se va por
+      // `POST /v3/reports/guards/export`, al ReportType que ya no existe.
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      endpoint: "/v3/guards", // sin `/api/`: API_BASE_URL ya lo trae.
     },
     titleAdd: "Nuevo",
     //import: true,
