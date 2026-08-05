@@ -80,7 +80,9 @@ const Owners = () => {
                 />
                 <KeyValue
                   title="Estado"
-                  value={dpto.status === DptoStatus.ACTIVE ? "Activo" : "Inactivo"}
+                  value={
+                    dpto.status === DptoStatus.ACTIVE ? "Activo" : "Inactivo"
+                  }
                 />
                 {index < homeowner.dptos.length - 1 && (
                   <hr className={styles.unitDivider} />
@@ -99,26 +101,29 @@ const Owners = () => {
     filter: true,
     // S61.5 (HALLAZGO-NEW-61): migrado al slot async S36.5.
     // - export: false → kill legacy IconExport (D-38-5 round 12 frontend).
-    // - exportAsync: { type: "owners", ... } → slot async que useCrud
-    //   auto-renderea via AsyncExportButton.
-    // - auto-pasa filterBy+searchBy del store actual (useCrud S36.5
-    //   D-36.5-2). Patrón idéntico a S52.5 Users + S54.5 Binnacle +
-    //   S55.5 Alerts + S57.5 Documents.
+    // - auto-pasa filterBy+searchBy del store actual (useCrud S36.5 D-36.5-2).
     export: false,
     exportAsync: {
       type: "owners",
       format: "pdf",
-      label: "Exportar PDF",
-      // Fase 6 (2026-08-05): con `endpoint` el export sale por la LISTA
-      // (`GET {endpoint}?_export={format}` → OwnersExportConfig → mPDF),
-      // así que el PDF muestra exactamente los residentes que hay en
-      // pantalla, con los mismos filtros.
+      label: "Exportar",
+      // 🔴 `supportedFormats` y `endpoint` son UNA sola cosa: el interruptor
+      // de la migración. Van juntos o no va ninguno.
       //
-      // 🔴 Sin `endpoint` el hook cae al flow por `type`
-      // (`POST /v3/reports/owners/export` → ReportTypeRegistry → Dompdf),
-      // que es el camino legacy. Y NO avisa: el botón anda igual, el
-      // reporte sale igual, sólo que armado por el motor viejo con su
-      // propia query. Es el interruptor de la migración de este módulo.
+      // `useCrud` elige el botón mirando SÓLO `supportedFormats`: con el
+      // array pineá el `DownloadButton` (ícono + menú PDF/XLSX/CSV) y le pasa
+      // el `endpoint`; sin el array cae al `AsyncExportButton` legacy —dos
+      // botones, "Exportar PDF" y "Historial"— que **no recibe `endpoint`
+      // como prop**. O sea que sin esta línea el `endpoint` de abajo no se
+      // ignora un poco: no llega nunca, y el export se va por
+      // `POST /v3/reports/owners/export` al ReportType que ya no existe.
+      //
+      // Los tres formatos salen de `OwnersExportConfig::supportedFormats()`.
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      // Fase 6 (2026-08-05): con `endpoint` el export sale por la LISTA
+      // (`GET {endpoint}?_export={format}` → OwnersExportConfig → mPDF), así
+      // que el reporte muestra exactamente los residentes que hay en
+      // pantalla, con los mismos filtros.
       endpoint: "/v3/owners", // sin `/api/`: API_BASE_URL ya lo trae.
     },
     import: false,
@@ -137,7 +142,8 @@ const Owners = () => {
       extraData?: Record<string, any>;
       reLoad?: any;
     }) =>
-      props?.item.status === OwnerStatus.WAITING && props?.item.type_owner !== "Dependiente" ? (
+      props?.item.status === OwnerStatus.WAITING &&
+      props?.item.type_owner !== "Dependiente" ? (
         <RenderView {...props} />
       ) : (
         <ProfileModal
