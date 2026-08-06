@@ -67,9 +67,16 @@ const Owners = () => {
         title={`Unidades de ${getFullName(homeowner)}`}
         buttonText=""
       >
+        {/*
+          🔴 2026-08-06: leía `dptos`, que trae sólo las unidades donde la
+          persona es TITULAR. Un dependiente abría este modal y lo veía
+          vacío, aunque su perfil mostrara el domicilio — porque el perfil
+          leía otra relación. `unidades` lo arma `UnidadesDeLaPersona` en el
+          back, con la misma regla que el reporte y que el perfil.
+        */}
         <div className={styles.unitsContainer}>
-          {homeowner.dptos &&
-            homeowner.dptos.map((dpto: any, index: number) => (
+          {homeowner.unidades &&
+            homeowner.unidades.map((dpto: any, index: number) => (
               <div key={dpto.id} className={styles.unitCard}>
                 <KeyValue title="Nro" value={dpto.nro} />
                 <KeyValue title="Descripción" value={dpto.description} />
@@ -84,7 +91,7 @@ const Owners = () => {
                     dpto.status === DptoStatus.ACTIVE ? "Activo" : "Inactivo"
                   }
                 />
-                {index < homeowner.dptos.length - 1 && (
+                {index < homeowner.unidades.length - 1 && (
                   <hr className={styles.unitDivider} />
                 )}
               </div>

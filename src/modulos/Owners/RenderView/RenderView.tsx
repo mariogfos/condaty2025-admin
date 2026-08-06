@@ -134,18 +134,27 @@ const RenderView = (props: any) => {
                   </p>
                 </div>
 
-                {item?.dpto?.[0]?.type?.name && (
+                {/*
+                  🔴 2026-08-06: estos dos bloques leían `dpto`, la relación
+                  del pivot `dpto_owners`. Andaba para los dependientes y
+                  fallaba para los titulares sin fila en el pivot — 161
+                  personas en la base local caían acá en el "CASO 2" y se
+                  mostraban como si sólo tuvieran una unidad SOLICITADA,
+                  teniendo una asignada. `unidades` trae los dos casos con la
+                  misma regla que el reporte y el perfil.
+                */}
+                {item?.unidades?.[0]?.type?.name && (
                   <div className={styles.infoSection_details}>
                     <p>Tipo de unidad</p>
-                    <p>{item?.dpto[0]?.type?.name}</p>
+                    <p>{item?.unidades[0]?.type?.name}</p>
                   </div>
                 )}
 
-                {item?.dpto?.length > 0 ? (
+                {item?.unidades?.length > 0 ? (
                   // CASO 1: Si ya tiene una unidad asignada
                   <div className={styles.infoSection_details}>
                     <p>Número de Unidad</p>
-                    <p>{item.dpto[0].nro}</p>
+                    <p>{item.unidades[0].nro}</p>
                   </div>
                 ) : (
                   // CASO 2: Si solo tiene una unidad solicitada (preunidad)

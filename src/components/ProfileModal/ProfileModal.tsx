@@ -342,12 +342,26 @@ const ProfileModal = ({
                   </div>
                 )}
 
-                {data?.data[0]?.dptos && data?.data[0]?.dptos?.length > 0 && (
+                {/*
+                  🔴 2026-08-06: esto leía `dptos`, que del back viene sólo
+                  con las unidades donde la persona es TITULAR
+                  (`dptos.homeowner_id`). Un dependiente —que vive en la
+                  unidad pero no es titular de nada— no aparecía en esta
+                  lista, aunque el "Domicilio" de más abajo sí lo mostraba,
+                  porque ese leía otra relación.
+
+                  Ahora las dos leen `unidades`, que arma
+                  `UnidadesDeLaPersona` en el back con la misma regla que el
+                  reporte. Es UNA respuesta a "qué unidades tiene esta
+                  persona", no tres.
+                */}
+                {data?.data[0]?.unidades &&
+                  data?.data[0]?.unidades?.length > 0 && (
                   <div className={styles.unitOwnership}>
                     {IconType}
                     <div className={styles.contactAccent}>
                       <strong>Propietario de : </strong>
-                      {data?.data[0]?.dptos
+                      {data?.data[0]?.unidades
                         ?.map((dpto: any) => (
                           <span
                             key={dpto.id}
@@ -420,7 +434,13 @@ const ProfileModal = ({
                     // que crasheaba si dpto era null/undefined. También
                     // pinea fallback a string vacío para que la concatenación
                     // no produzca "undefined".
-                    const dpto = data?.data[0]?.dpto?.[0];
+                    //
+                    // 🔴 2026-08-06: leía `dpto`, la relación del pivot
+                    // `dpto_owners`. Andaba para los dependientes y fallaba
+                    // para los titulares sin fila en el pivot — 161 personas
+                    // en la base local. `unidades` trae los dos casos, y es
+                    // la misma lista que muestran los chips de arriba.
+                    const dpto = data?.data[0]?.unidades?.[0];
                     const hasDescription = dpto?.description;
                     const hasNro = dpto?.nro;
                     if (hasDescription || hasNro) {
