@@ -31,25 +31,19 @@ const Users = () => {
     plural: "personal administrativo",
     filter: true,
     permiso: "users",
-    // S52.5: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
-    // - export: false → kill legacy IconExport.
-    // - exportAsync: { type: "users", ... } → slot async que useCrud auto-renderea
-    //   via AsyncExportButton (S36.5 pattern, idéntico a S41 BankAccounts +
-    //   S47.5 DebtDpto + S48-T05 SharedDebts).
-    // - type: "users" → matchea el UserReportType pineado en S52 backend
-    //   (ReportTypeRegistry.auto-discovery).
-    // - format: "pdf" → ReportGenerator chunked (S32). XLSX también soportado
-    //   (S52 pineá excelRowProvider).
-    // - auto-pasa searchBy del store actual (useCrud S36.5 D-36.5-2).
-    // - filterBy (pipe-separated role_id) también se pasa via params del Report.
-    // Factory NO aplicada (D-45-3, binding): Users pineá renderView + renderDel
-    // con closures internas (capturan reLoad + userCan). Factory rompería
-    // esas refs. Cambio mínimo inline es la opción correcta.
     export: false,
+    // 🔴 `endpoint` y `supportedFormats` son UNA sola cosa, no dos opciones.
+    // `useCrud` elige QUÉ botón renderiza mirando `supportedFormats`, y el
+    // botón viejo no recibe `endpoint`: poner sólo uno de los dos deja el
+    // export saliendo por el motor Dompdf sin ningún síntoma visible.
+    // Con los dos, el pedido va por `GET /v3/users?_export={formato}` y lo
+    // atiende `UsersExportConfig`.
     exportAsync: {
       type: "users",
       format: "pdf",
-      label: "Exportar PDF",
+      label: "Exportar",
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      endpoint: "/v3/users",
     },
     titleAdd: "Nuevo",
     // import: true,

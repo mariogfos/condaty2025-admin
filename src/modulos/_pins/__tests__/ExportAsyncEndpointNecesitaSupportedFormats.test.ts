@@ -136,4 +136,64 @@ describe("exportAsync: endpoint y supportedFormats viajan juntos", () => {
         `sale, pero el export igual se va por el flow legacy por type.`,
     ).toEqual([]);
   });
+
+  /**
+   * Y el `endpoint` tiene que apuntar a la MISMA lista que muestra la
+   * pantalla.
+   *
+   * El back resuelve qué config usar desde el controller que atiende esa URL,
+   * así que un endpoint corrido no da error: exporta bien... otra cosa. El
+   * usuario filtra Personal y se baja Residentes, con status `completed` y
+   * todo. Es la clase de falla que no tiene síntoma hasta que alguien abre el
+   * PDF.
+   *
+   * ⚠️ Sólo se revisan los archivos con UN `modulo:` literal. En los que
+   * declaran varios (tabs que arman más de un `mod`) no se puede saber cuál
+   * corresponde a cada `exportAsync` sin parsear de verdad, y preferimos no
+   * mirar antes que dar un verde inventado. Hoy ninguno de esos tiene
+   * `endpoint`: si mañana lo tiene, este test lo saltea en silencio — por eso
+   * el conteo de abajo.
+   */
+  it("el endpoint apunta al mismo modulo que lista la pantalla", () => {
+    const corridos: string[] = [];
+    let revisados = 0;
+
+    for (const archivo of archivos) {
+      const src = fs.readFileSync(archivo, "utf-8");
+      const modulos = [...src.matchAll(/\bmodulo\s*:\s*["'`]([^"'`]+)["'`]/g)];
+      if (modulos.length !== 1) continue;
+
+      const modulo = modulos[0][1];
+
+      for (const bloque of bloquesExportAsync(src)) {
+        const sinComentarios = bloque
+          .replace(/\/\*[\s\S]*?\*\//g, "")
+          .replace(/\/\/.*$/gm, "");
+
+        const endpoint = sinComentarios.match(
+          /\bendpoint\s*:\s*["'`]([^"'`]+)["'`]/,
+        );
+        if (!endpoint) continue;
+
+        revisados++;
+        if (endpoint[1].replace(/^\//, "") !== modulo) {
+          corridos.push(
+            `${path.relative(MODULOS_ROOT, archivo)}: modulo '${modulo}' vs endpoint '${endpoint[1]}'`,
+          );
+        }
+      }
+    }
+
+    expect(
+      revisados,
+      "El barrido no encontró ningún endpoint que revisar: el test quedó decorativo.",
+    ).toBeGreaterThan(0);
+
+    expect(
+      corridos,
+      `Estos módulos exportan una lista distinta de la que muestran. El back ` +
+        `elige la config por el controller de esa URL, así que el reporte sale ` +
+        `'completed' con el contenido equivocado.`,
+    ).toEqual([]);
+  });
 });
