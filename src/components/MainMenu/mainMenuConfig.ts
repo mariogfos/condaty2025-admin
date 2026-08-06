@@ -54,6 +54,15 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/invitations", perm: "campanas", labelKey: "qrInvitations" },
       { href: "/uploads", perm: "cargamasiva", labelKey: "bulkUpload" },
       { href: "/app-versions", perm: "superadmins", labelKey: "appVersions" },
+      // 🔴 Va acá y no en Finanzas —al lado de Cuentas Bancarias— porque
+      // `bank_entities` NO tiene `client_id`: es un catálogo COMPARTIDO entre
+      // todos los condominios. Editar una entidad la cambia para TODOS los
+      // clientes, así que no es una pantalla de administrador de condominio.
+      {
+        href: "/bank-entities",
+        perm: "superadmins",
+        labelKey: "bankEntities",
+      },
       // S103: VisitReasons removido del menú — feature dead (permiso "" en el
       // módulo + endpoint /api/v3/visit-reasons nunca existió en el back).
       // La página /visit-reasons queda huérfana (próximo sprint: borrarla junto
