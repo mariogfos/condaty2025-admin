@@ -18,6 +18,7 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import PerformBudget from "./PerformBudget/PerformBudget";
 import { getExpenseDescriptionSummary } from "./utils/expenseDescription";
 import { getOutlaysMod } from "./config/outlaysMod";
+import { ExpenseStatus } from "@/modulos/Payments/Type/PaymentType";
 
 const Outlays = () => {
   const router = useRouter();
@@ -81,13 +82,35 @@ const Outlays = () => {
     { id: "custom", name: "Personalizado" },
   ];
 
+  // 🔴 Acá iban los chars legacy `"A"` y `"X"`, y el filtro MENTÍA (encontrado
+  // el 2026-08-05 barriendo los módulos ya migrados, a partir del mismo bug en
+  // Áreas).
+  //
+  // `expenses.status` es `tinyint unsigned` desde S2-T2 (0=CANCELLED,
+  // 1=ACTIVE) y `ExpenseController::getModelfilterBy` hace
+  // `where('expenses.status', $value[1])` con el valor crudo. MariaDB convierte
+  // los DOS chars a 0, así que —medido contra la base local—:
+  //
+  //   filtrar por "Pagado"  → 21 filas: los ANULADOS
+  //   filtrar por "Anulado" → las MISMAS 21 filas
+  //   los 1015 pagados      → invisibles en las dos opciones
+  //
+  // ⚠️ Peor que el de Áreas, que devolvía cero: acá el usuario ve filas y les
+  // cree. El render de esta misma pantalla ya se había arreglado a keys
+  // numéricas en S140 — el filtro fue el que quedó atrás.
   const getStatusOptions = () => [
     { id: "ALL", name: "Todos" },
-    { id: "A", name: "Pagado" },
-    { id: "X", name: "Anulado" },
+    { id: ExpenseStatus.ACTIVE, name: "Pagado" },
+    { id: ExpenseStatus.CANCELLED, name: "Anulado" },
   ];
 
-  // <- Agregar función para opciones de tipo
+  // ⚠️ Este builder alimenta el filtro `expense_type`, que está COMENTADO más
+  // abajo — o sea que hoy no lo usa nadie. Se deja anotado porque tiene el
+  // mismo agujero que tenía `getStatusOptions`: `expenses.type` también es
+  // `tinyint unsigned`, y `getModelfilterBy` mete el valor crudo en el
+  // `where`. Si alguien descomenta ese campo tal como está, el filtro va a
+  // devolver basura sin avisar. Antes de descomentarlo, cambiar 'E'/'P' por
+  // los valores numéricos del enum del back.
   const getTypeOptions = () => [
     { id: "ALL", name: "Todos" },
     { id: "E", name: "Egreso" },

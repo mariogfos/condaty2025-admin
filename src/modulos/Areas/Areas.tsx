@@ -316,10 +316,22 @@ const Areas = () => {
           );
         },
         filter: {
+          // 🔴 Acá iban los chars legacy `"A"` y `"X"`, y el filtro devolvía
+          // SIEMPRE cero áreas (reportado por Mario, 2026-08-05).
+          //
+          // `areas.status` es `tinyint unsigned` desde S17-T8. El controller
+          // hace `where('status', $filterValue)` con el char crudo, MariaDB lo
+          // convierte a 0 y ninguna fila matchea. Con "Todos" andaba porque el
+          // controller saltea el `where` cuando el valor es 'ALL' — o sea que
+          // la única opción que funcionaba era la que no filtraba.
+          //
+          // El resto del módulo ya usaba `AreaStatus` numérico (el onRender de
+          // arriba, RenderView, FourPart): el filtro era el único que había
+          // quedado en chars. Y `"X"` ni siquiera existe como estado.
           options: () => [
             { id: "ALL", name: "Todos" },
-            { id: "A", name: "Activa" },
-            { id: "X", name: "Inactiva" },
+            { id: AreaStatus.ACTIVE, name: "Activa" },
+            { id: AreaStatus.MAINTENANCE, name: "Inactiva" },
           ],
         },
       },

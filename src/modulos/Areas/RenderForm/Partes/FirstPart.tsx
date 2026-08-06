@@ -5,6 +5,7 @@ import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Br from "@/components/Detail/Br";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
+import { AreaStatus } from "@/modulos/Payments/Type/PaymentType";
 interface PropsType {
   handleChange: any;
   errors: any;
@@ -76,10 +77,24 @@ const FirstPart = ({
         required
         value={formState?.status}
         onChange={handleChange}
+        // 🔴 Acá iban los chars legacy `"A"` y `"X"`, y esto NO fallaba en
+        // silencio como el filtro: **reventaba con un 500**.
+        //
+        // `status` está en el `$fillable` de `Area` y `Area::$casts` lo castea
+        // a `AreaStatus`, que es un enum de int. Guardar el área con el switch
+        // de Estado tocado tiraba:
+        //
+        //   TypeError: AreaStatus::from(): Argument #1 ($value) must be of
+        //   type int, string given
+        //
+        // Verificado ejecutándolo, no deduciéndolo.
+        //
+        // ⚠️ "Inactiva" es MAINTENANCE: el enum sólo tiene ACTIVE=1 y
+        // MAINTENANCE=2. `"X"` nunca existió como estado de área — y el
+        // onRender de la lista ya venía mostrando MAINTENANCE como "Inactiva".
         options={[
-          { id: "A", name: "Activa" },
-          { id: "X", name: "Inactiva" },
-          // { id: "M", name: "En mantenimiento" },
+          { id: AreaStatus.ACTIVE, name: "Activa" },
+          { id: AreaStatus.MAINTENANCE, name: "Inactiva" },
         ]}
         error={errors}
       />
