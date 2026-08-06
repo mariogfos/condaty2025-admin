@@ -43,10 +43,19 @@ export const getBankAccountsMod = (): ModCrudType => ({
   //   en el backend (S41 pineá excelRowProvider).
   // - auto-pasa filterBy+searchBy del store actual (useCrud S36.5 D-36.5-2).
   export: false,
+  // Fase 6 (2026-08-05): Bancos migró al motor declarativo.
+  //
+  // 🔴 `endpoint` y `supportedFormats` son UNA sola cosa, no dos opciones. El
+  // `useCrud` elige QUÉ botón renderiza mirando `supportedFormats`, y el botón
+  // viejo no recibe `endpoint`: poner sólo el endpoint deja el botón legacy en
+  // pantalla —que lo ignora— y el export se sigue yendo por el motor viejo,
+  // sin ninguna diferencia visible.
   exportAsync: {
     type: "bank-accounts",
     format: "pdf",
-    label: "Exportar PDF",
+    label: "Exportar",
+    supportedFormats: ["pdf", "xlsx", "csv"],
+    endpoint: "/v3/bank-accounts", // sin `/api/`: el baseURL ya lo trae.
   },
   import: false,
   permiso: "owners",

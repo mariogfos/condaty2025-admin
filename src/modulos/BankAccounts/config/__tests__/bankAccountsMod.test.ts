@@ -35,9 +35,34 @@ describe("BankAccounts mod config (S41)", () => {
     expect(mod.exportAsync?.format).toBe("pdf");
   });
 
-  it("mod.exportAsync.label = 'Exportar PDF'", () => {
-    // Label del botón AsyncExportButton.
+  it("el label ya no promete un solo formato", () => {
+    // Fase 6: el botón ofrece los tres formatos en un menú, así que decir
+    // "Exportar PDF" pasó a ser mentira.
     const mod = getBankAccountsMod();
-    expect(mod.exportAsync?.label).toBe("Exportar PDF");
+    expect(mod.exportAsync?.label).toBe("Exportar");
+  });
+
+  /**
+   * 🔴 `endpoint` y `supportedFormats` son UNA sola cosa, y es el interruptor
+   * silencioso de toda la migración.
+   *
+   * `useCrud` elige QUÉ botón renderiza mirando `supportedFormats`, y el botón
+   * viejo NO recibe `endpoint`. Si queda sólo el endpoint, en pantalla se ve el
+   * botón legacy —que lo ignora— y el export se sigue yendo por el motor viejo,
+   * sin ninguna diferencia visible. Ya pasó al migrar Egresos.
+   */
+  it("el export entra por el motor nuevo: endpoint y supportedFormats juntos", () => {
+    const mod = getBankAccountsMod();
+
+    expect(mod.exportAsync?.supportedFormats).toEqual(["pdf", "xlsx", "csv"]);
+    expect(mod.exportAsync?.endpoint).toBe("/v3/bank-accounts");
+  });
+
+  /**
+   * Sin `/api/` al principio: el `baseURL` de axios ya termina en `/api`, así
+   * que un path con el prefijo da `.../api/api/...` → 404.
+   */
+  it("el endpoint no repite el prefijo /api", () => {
+    expect(getBankAccountsMod().exportAsync?.endpoint).not.toMatch(/^\/api\//);
   });
 });
