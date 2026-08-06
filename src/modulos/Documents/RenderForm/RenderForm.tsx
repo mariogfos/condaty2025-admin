@@ -71,7 +71,7 @@ const RenderForm = ({
     let method = formState.id ? "PUT" : "POST";
     const ext = formState?.files[0]?.split(".").pop()?.toLowerCase() ?? "";
     const { data } = await execute(
-      "/documents" + (formState.id ? "/" + formState.id : ""),
+      "/v3/documents" + (formState.id ? "/" + formState.id : ""),
       method,
       {
         name: formState.name || "",

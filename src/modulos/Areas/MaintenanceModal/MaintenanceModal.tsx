@@ -42,7 +42,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
 
   const getReservas = async () => {
     const { data } = await execute(
-      "/api/v3/reservations",
+      "/v3/reservations",
       "GET",
       {
         fullType: "L",
@@ -114,7 +114,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   const onSave = async () => {
     if (hasErrors(validate())) return;
     const { data } = await execute(
-      "/api/v3/reservations/area-blocked",
+      "/v3/reservations/area-blocked",
       "POST",
       formState,
     );
@@ -129,7 +129,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   const getAreasM = async () => {
     setLoading(true);
     const { data } = await execute(
-      "/api/v3/reservations",
+      "/v3/reservations",
       "GET",
       {
         fullType: "L",
@@ -155,7 +155,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
 
   const handleCancelMaintenance = async (id: any) => {
     const { data } = await execute(
-      "/reservations/" + id,
+      "/v3/reservations/" + id,
       "DELETE",
       {
         is_canceled: true,

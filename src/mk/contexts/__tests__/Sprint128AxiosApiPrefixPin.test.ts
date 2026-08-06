@@ -106,6 +106,56 @@ describe("S128 (front) - axios.url drop /api prefix pin (HALLAZGO-NEW-38)", () =
     expect(violations).toEqual([]);
   });
 
+  /**
+   * 🔴 El pin de arriba estaba en verde con el bug puesto, y por eso existe
+   * éste (2026-08-05).
+   *
+   * Aquel busca la clave literal `url:` —la forma de un objeto de config de
+   * axios—. Pero la app NO llama a axios así: llama a `execute("/ruta", ...)`,
+   * con el path como PRIMER ARGUMENTO POSICIONAL. `MaintenanceModal` de Áreas
+   * tenía TRES llamadas con `execute("/api/v3/reservations", ...)`, que
+   * terminaban en `.../api/api/v3/reservations` → 404, y el pin genérico no
+   * las veía.
+   *
+   * ⚠️ Es el mismo error de siempre: el test medía con la lente de la forma en
+   * que se descubrió el bug la primera vez, no de la forma en que el código
+   * realmente hace las llamadas.
+   */
+  it("ningún execute() pinea un path que arranca con /api/", () => {
+    const violations: string[] = [];
+
+    for (const file of files) {
+      const content = fs.readFileSync(file, "utf-8");
+
+      // ⚠️ Sobre TODO el contenido, no línea por línea. La primera versión de
+      // este test escaneaba renglón a renglón y se comió el bug que venía a
+      // pinear: `execute(` y el path están en LÍNEAS DISTINTAS en casi todas
+      // las llamadas de la app, porque prettier las parte:
+      //
+      //     await execute(
+      //       "/api/v3/reservations",     ← el path, un renglón más abajo
+      //       "GET",
+      //
+      // Descubierto reinyectando el bug: el test quedaba en verde. Sin esa
+      // reinyección habría commiteado un pin decorativo.
+      const re = /execute\(\s*["'`]\/api\//g;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(content)) !== null) {
+        const linea = content.slice(0, m.index).split("\n").length;
+        violations.push(
+          `${path.relative(FRONT_ROOT, file)}:${linea}\n    ${m[0].replace(/\s+/g, " ")}…`,
+        );
+      }
+    }
+
+    expect(
+      violations,
+      `execute() concatena con el baseURL, que ya termina en /api. Un path ` +
+        `que arranca con /api/ da .../api/api/... → 404. Sacá el prefijo: ` +
+        `"/api/v3/x" → "/v3/x".\n${violations.join("\n")}`,
+    ).toEqual([]);
+  });
+
   it("S128 pin: AxiosInstanceProvider baseURL viene de NEXT_PUBLIC_API_URL", () => {
     // El pin complementario: la SSoT del baseURL es
     // `process.env.NEXT_PUBLIC_API_URL`. Si alguien refactorea a

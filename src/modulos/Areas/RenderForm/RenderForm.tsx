@@ -288,7 +288,14 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   const onSave = async () => {
     let method = formState.id ? "PUT" : "POST";
     const { data, error } = await execute(
-      "/areas" + (formState.id ? "/" + formState.id : ""),
+      // 🔴 Acá decía `/areas` a secas, y esa ruta NO EXISTE: guardar y editar
+      // un área tiraban error de ruta (reportado por Mario, 2026-08-05).
+      //
+      // `AreaController` se movió al módulo v3 en S80 y sus rutas quedaron sólo
+      // bajo el prefijo `v3` (`route:list` da únicamente `api/v3/areas`). El
+      // comentario de `Areas/Routes/api.php` dice que las legacy siguen
+      // andando "via main routes/api.php (alias)" — no es cierto para ésta.
+      "/v3/areas" + (formState.id ? "/" + formState.id : ""),
       method,
       {
         // avatar: formState?.avatar,

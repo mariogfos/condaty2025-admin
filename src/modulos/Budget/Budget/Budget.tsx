@@ -255,7 +255,7 @@ const Budget = () => {
     setIsSending(true);
     try {
       const { data: response, error } = await execute(
-        "/send-budget-approval",
+        "/v3/budgets/send-budget-approval",
         "POST",
         {},
         false,

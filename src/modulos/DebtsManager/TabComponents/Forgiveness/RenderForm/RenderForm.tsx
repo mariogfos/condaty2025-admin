@@ -102,7 +102,7 @@ const RenderForm = ({
 
   const getDptosDebts = async () => {
     const { data } = await execute(
-      "/dptos-debts",
+      "/v3/debt-dptos/dptos-debts",
       "GET",
       {
         dpto_id: formState?.dpto_id,

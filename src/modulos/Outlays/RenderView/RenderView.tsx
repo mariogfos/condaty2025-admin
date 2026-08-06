@@ -283,7 +283,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
     showToast("Generando nota de egreso...", "info");
 
     const { data: file, error } = await execute(
-      "/payment-nota",
+      "/v3/payment-nota",
       "POST",
       { id: item?.id },
       false,

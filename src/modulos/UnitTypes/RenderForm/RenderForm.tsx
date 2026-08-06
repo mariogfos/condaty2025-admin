@@ -106,7 +106,7 @@ const RenderForm = ({
     const loadExtraFields = async () => {
       try {
         const { data: response } = await execute(
-          "/types",
+          "/v3/types",
           "GET",
           {
             perPage: -1,
@@ -247,7 +247,7 @@ const RenderForm = ({
     };
 
     const method = action === "add" ? "POST" : "PUT";
-    const endpoint = action === "add" ? "/types" : `/types/${formState.id}`;
+    const endpoint = action === "add" ? "/v3/types" : `/types/${formState.id}`;
 
     const { data: response } = await execute(endpoint, method, formData, false);
 

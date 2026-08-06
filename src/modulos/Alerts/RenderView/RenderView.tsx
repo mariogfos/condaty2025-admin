@@ -267,7 +267,7 @@ const RenderView = (props: RenderViewProps) => {
   const getItemApi = async () => {
     setIsLoading(true);
     const { data } = await execute(
-      "/alerts",
+      "/v3/alerts",
       "GET",
       { fullType: "DET", searchBy: props.item.id },
       false,
@@ -287,7 +287,11 @@ const RenderView = (props: RenderViewProps) => {
 
   const onSaveAttend = async () => {
     const { data } = await execute(
-      "/attend",
+      // La ruta canónica del módulo (`Alerts/Routes/api.php`). La legacy
+      // `/attend` del `routes/api.php` del root era un duplicado exacto
+      // —mismo controller, misma acción— y se borró: las rutas viven en la
+      // carpeta de su módulo DDD.
+      "/v3/alerts/attend",
       "POST",
       { id: item.id },
       false,

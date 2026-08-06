@@ -75,7 +75,7 @@ const RenderForm = ({
         : formState.clientIds;
 
     const { data } = await execute(
-      "/campaigns" + (formState.id ? "/" + formState.id : ""),
+      "/v3/campaigns" + (formState.id ? "/" + formState.id : ""),
       method,
       {
         name: formState?.name || "",

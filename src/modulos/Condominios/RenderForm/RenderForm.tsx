@@ -59,7 +59,7 @@ const RenderForm = ({
     if (hasErrors(validate())) return;
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
-      "/clients" + (formState.id ? "/" + formState.id : ""),
+      "/v3/clients" + (formState.id ? "/" + formState.id : ""),
       method,
       {
         name: formState?.name || "",
