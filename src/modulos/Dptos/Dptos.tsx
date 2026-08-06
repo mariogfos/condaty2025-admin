@@ -113,11 +113,18 @@ const Dptos = () => {
     filter: true,
     permiso: "units",
     // export: true,
-    // S111: exportAsync slot para el reporte "Estado de cuentas" (DptoDeudas
-    // async XLSX export, S38). El type "dpto-deudas" matchea el
-    // DptoDeudasReportType pineado en el back. useCrud auto-renderea el
-    // AsyncExportButton; el botón custom legacy + execute directo al endpoint
-    // viejo (removido en S38 con R-PKG-016) fueron eliminados en S111.
+    // El reporte "Estado de cuentas": cuántas deudas abiertas tiene cada
+    // unidad y cuánto suman.
+    //
+    // ⚠️ Este es el único export de la pantalla que NO lleva `endpoint` +
+    // `supportedFormats`, y es a propósito: **no es esta lista en otro
+    // formato**. La lista muestra número, descripción, dimensión y expensas;
+    // el reporte muestra deudas y saldo, que no salen de esta query. Por eso
+    // en el back vive como CUSTOM (`DptoDeudasCustomReport`) y se sigue
+    // pidiendo por `type`, no por la URL de la lista.
+    //
+    // Poner `endpoint` acá exportaría las columnas de la pantalla, marcado
+    // `completed` y sin ningún error.
     exportAsync: {
       type: "dpto-deudas",
       format: "excel",

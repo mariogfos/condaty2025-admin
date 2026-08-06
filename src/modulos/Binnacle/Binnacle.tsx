@@ -120,10 +120,17 @@ const Binnacle = () => {
     // Factory NO aplicada (D-45-3, binding): Binnacle pineá renderView
     // inline. Cambio mínimo inline es la opción correcta.
     export: false,
+    // 🔴 `endpoint` y `supportedFormats` viajan juntos: `useCrud` elige el
+    // botón mirando `supportedFormats`, y el botón viejo no recibe
+    // `endpoint`. Con los dos, el pedido va por
+    // `GET /v3/guardnews?_export={formato}` y lo atiende
+    // `GuardNewsExportConfig`.
     exportAsync: {
       type: "guard-news",
       format: "pdf",
-      label: "Exportar PDF",
+      label: "Exportar",
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      endpoint: "/v3/guardnews",
     },
   };
 
