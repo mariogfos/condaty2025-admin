@@ -198,7 +198,12 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     fullType: "L",
     page: 1,
     perPage: 20,
-    debt_id: data.id,
+    // 🔴 2026-08-06: acá iba `debt_id: data.id`. La fila del listado dejó de
+    // ser un `debt_id` —cada corrida del generador minteaba uno nuevo, y abril
+    // de 2026 tenía 81 para 491 filas— y pasó a ser el PERIODO. Ahora el
+    // detalle pide el periodo, que es lo que el usuario clickeó.
+    year: data.year,
+    month: data.month,
     type: 1,
   };
 

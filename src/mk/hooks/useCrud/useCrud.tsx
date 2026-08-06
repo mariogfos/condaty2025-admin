@@ -1734,8 +1734,31 @@ const useCrud = ({
                       }
                       title={mod.exportAsync.label || "Exportar"}
                       params={(() => {
-                        // S118b: merge extraParams con filterBy/searchBy.
+                        // 🔴 2026-08-06: acá viajaban SÓLO `filterBy` y
+                        // `searchBy`. Alcanzaba mientras cada pantalla migrada
+                        // fuera una lista simple, y dejó de alcanzar con el
+                        // detalle de un periodo de expensas: esa lista se
+                        // define por `debt_id` + `type`, que quedaban afuera.
+                        //
+                        // Sin esos params el back resolvía OTRA clave de
+                        // export —la genérica del endpoint, que atiende cinco
+                        // pantallas—, no encontraba config y se iba por el
+                        // motor viejo, que revienta con "htmlspecialchars():
+                        // must be of type string, DebtStatus given". Lo
+                        // reportó Mario.
+                        //
+                        // Un export es "esta lista en otro formato": tiene que
+                        // llevar los MISMOS params con que se armó la lista, o
+                        // no es la misma lista. Se sacan sólo los de paginado,
+                        // que el back ignora en un export.
+                        const {
+                          page: _page,
+                          perPage: _perPage,
+                          ...paramsDeLaLista
+                        } = params ?? {};
+
                         const out: Record<string, any> = {
+                          ...paramsDeLaLista,
                           ...(mod.exportAsync?.extraParams ?? {}),
                         };
                         if (params?.filterBy) out.filterBy = params.filterBy;
