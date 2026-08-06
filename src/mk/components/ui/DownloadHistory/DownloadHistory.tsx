@@ -287,6 +287,23 @@ async function fetchAvailableTypes(): Promise<TypeOption[]> {
   }
 }
 
+/**
+ * El formato del archivo, en mayúsculas y con el nombre que el usuario
+ * reconoce.
+ *
+ * ⚠️ `excel` y `xlsx` son el mismo archivo con dos nombres: el front manda
+ * "excel" en algunos módulos y el back lo normaliza a "xlsx". En el historial
+ * conviven los dos según cuándo se generó el reporte, así que se muestran
+ * igual — si no, el mismo Excel aparecería con dos etiquetas distintas.
+ */
+const formatoLegible = (format: string | null | undefined): string => {
+  const f = (format ?? "").toLowerCase();
+  if (f === "excel" || f === "xlsx" || f === "xls") return "XLSX";
+  if (f === "csv") return "CSV";
+  if (f === "pdf") return "PDF";
+  return f ? f.toUpperCase() : "—";
+};
+
 const formatBytes = (bytes: number | null): string => {
   if (bytes === null || bytes === undefined) return "";
   if (bytes < 1024) return `${bytes} B`;
@@ -428,6 +445,24 @@ export default function DownloadHistory({
     fetchAvailableTypes().then((types) => {
       if (!cancelled) {
         setAvailableTypes(types);
+        // 🔴 2026-08-06 (lo reportó Mario): el historial se abría mostrando
+        // "Todos" en el select y la lista VACÍA; había que elegir el módulo y
+        // volver a "Todos" para que apareciera algo.
+        //
+        // La causa: el parent nos pasa su `mod.exportAsync.type`, y si ese
+        // valor no es el que el back usa para guardar el reporte, quedábamos
+        // filtrando por un type sin ninguna fila. Y como tampoco figura entre
+        // las opciones —que vienen del back—, el `<select>` no tenía qué
+        // marcar y caía en "Todos". O sea: el filtro decía una cosa y la
+        // consulta hacía otra.
+        //
+        // Acá el estado se alinea con lo que el usuario VE. Un type que el
+        // back no conoce se descarta y se muestran todos, que es lo que el
+        // select estaba diciendo. Arregla la clase entera, no sólo el módulo
+        // que la disparó.
+        setType((actual) =>
+          actual && !types.some((t) => t.value === actual) ? null : actual,
+        );
       }
     });
     return () => {
@@ -680,6 +715,12 @@ export default function DownloadHistory({
             const displayLabel = item.name || humanizeType(item.type);
             const isXlsx = item.format === "xlsx" || item.format === "excel";
             const Icon = isXlsx ? FileSpreadsheet : FileText;
+            // 🔴 2026-08-06 (lo reportó Mario): dos reportes del mismo módulo
+            // se veían idénticos —mismo nombre, misma fecha— y no había forma
+            // de saber cuál era el PDF y cuál el Excel. El ícono distinguía
+            // hoja de cálculo de documento, pero no separa PDF de CSV y hay
+            // que saber leerlo. El formato va escrito.
+            const formatLabel = formatoLegible(item.format);
             const isCompleted = item.status === "completed";
             return (
               <li
@@ -700,7 +741,10 @@ export default function DownloadHistory({
                     {displayLabel}
                   </p>
                   <p className={styles.itemMeta}>
-                    <span>{formatDate(item.created_at)}</span>
+                    <span data-testid="download-history-item-format">
+                      {formatLabel}
+                    </span>
+                    <span>· {formatDate(item.created_at)}</span>
                     {item.size_bytes !== null && item.size_bytes > 0 && (
                       <span>· {formatBytes(item.size_bytes)}</span>
                     )}
