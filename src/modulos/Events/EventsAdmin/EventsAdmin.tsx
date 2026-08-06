@@ -54,10 +54,18 @@ const EventsAdmin = () => {
     // S66.5 (HALLAZGO-NEW-64): migrado al slot async S36.5.
     // S66 pineó EventsReportType backend (PR #151).
     export: false,
+    // Fase 6 (2026-08-05): Eventos migró al motor declarativo.
+    //
+    // 🔴 `endpoint` y `supportedFormats` van JUNTOS: `useCrud` elige el botón
+    // mirando `supportedFormats` y el botón viejo no recibe `endpoint`, así que
+    // poner uno solo deja el export yendose por el motor viejo sin diferencia
+    // visible en pantalla.
     exportAsync: {
       type: "events",
       format: "pdf",
-      label: "Exportar PDF",
+      label: "Exportar",
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      endpoint: "/v3/events", // sin `/api/`: el baseURL ya lo trae.
     },
     onHideActions: (item: any) => {
       return {

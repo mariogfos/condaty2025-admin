@@ -43,10 +43,18 @@ const Documents = () => {
     // renderForm con closures inline (RenderView/RenderForm). Cambio
     // mínimo inline es la opción correcta.
     export: false,
+    // Fase 6 (2026-08-05): Documentos migró al motor declarativo.
+    //
+    // 🔴 `endpoint` y `supportedFormats` son UNA sola cosa: `useCrud` elige
+    // qué botón renderiza mirando `supportedFormats`, y el botón viejo no
+    // recibe `endpoint`. Con uno solo, el export se sigue yendo por el motor
+    // viejo sin ninguna diferencia visible.
     exportAsync: {
       type: "documents",
       format: "pdf",
-      label: "Exportar PDF",
+      label: "Exportar",
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      endpoint: "/v3/documents", // sin `/api/`: el baseURL ya lo trae.
     },
     renderView: (props: {
       open: boolean;
