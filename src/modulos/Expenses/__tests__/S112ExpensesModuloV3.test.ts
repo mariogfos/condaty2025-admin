@@ -43,9 +43,30 @@ describe("S112 — Expenses modulo v3/debt-groups pin", () => {
     expect(src).not.toMatch(/modulo:\s*['"]debt-groups['"]/);
   });
 
-  it("Expenses.tsx pinea el exportAsync.type = 'expenses' (ReportTypeRegistry)", () => {
+  /**
+   * 🔴 Esto pineaba `type: 'expenses'`, o sea el bug que Mario reportó el
+   * 2026-08-06: ese type apuntaba al reporte que lista CADA deuda de CADA
+   * unidad de TODOS los periodos, mientras la pantalla muestra el resumen
+   * por periodo. El pin estaba cuidando el valor equivocado.
+   *
+   * Lo que hay que sostener es que el `type` coincida con la clave que el
+   * back resuelve para esta pantalla. Si se separan, el export sigue andando
+   * —manda el `endpoint`— pero el historial se abre filtrado por un type sin
+   * reportes: se ve "Todos" en el select y la lista vacía.
+   */
+  it("Expenses.tsx pinea el type que resuelve el back para esta pantalla", () => {
     const src = fs.readFileSync(EXPENSES_TSX, "utf8");
-    // El slot exportAsync matchea el ExpensesReportType del back (S43).
-    expect(src).toMatch(/type:\s*['"]expenses['"]/);
+    expect(src).toMatch(/type:\s*['"]debt-groups-expenses['"]/);
+    expect(src).toMatch(/endpoint:\s*['"]\/v3\/debt-groups['"]/);
+  });
+
+  /**
+   * El título lo declara el módulo del back, que es su única fuente de verdad.
+   * Mandarlo desde el front deja dos lugares declarando lo mismo, y gana el de
+   * afuera — encima imprimiendo texto del cliente en el encabezado del PDF.
+   */
+  it("Expenses.tsx no manda el titulo del reporte", () => {
+    const src = fs.readFileSync(EXPENSES_TSX, "utf8");
+    expect(src).not.toMatch(/extraParams:\s*\{\s*title:/);
   });
 });

@@ -155,11 +155,21 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     singular: "",
     plural: "",
     filter: true,
-    // S66.5 (HALLAZGO-NEW-64): kill export: true legacy. Este es un
-    // tab/componente con modulo: 'v3/debt-dptos' (URL legacy deprecada) +
-    // singular/plural vacíos. Sin ReportType backend. Export nunca
-    // funcionó productivamente. Cleanup cosmético.
     export: false,
+    // 🔴 2026-08-06 (lo pidió Mario): esta pantalla NUNCA tuvo export. El
+    // comentario que estaba acá decía que "el export nunca funcionó
+    // productivamente" y lo dejaba apagado; ahora sale por el motor nuevo.
+    //
+    // `debt_id` + `type: 1` viajan en los params de la lista, así que el
+    // reporte trae exactamente las expensas del periodo que está en pantalla
+    // —y el título del archivo lleva el periodo, que lo resuelve el back.
+    exportAsync: {
+      type: "expenses-periodo",
+      format: "pdf",
+      label: "Exportar",
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      endpoint: "/v3/debt-dptos",
+    },
     permiso: "expenses",
     hideActions: {
       add: true,

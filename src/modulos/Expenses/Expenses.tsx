@@ -7,14 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import RenderItem from '../shared/RenderItem';
 import { MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
-import {
-  isUnitInDefault,
-  paidUnits,
-  sumExpenses,
-  sumPaidUnits,
-  sumPenalty,
-  unitsPayable,
-} from '@/mk/utils/utils';
+import { isUnitInDefault, paidUnits } from '@/mk/utils/utils';
 import ExpensesDetails from './ExpensesDetails/ExpensesDetailsView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
@@ -32,12 +25,20 @@ const renderPeriodCell = (props: any) => {
   );
 };
 
+// 🔴 2026-08-06: estos seis totales los sumaba el NAVEGADOR recorriendo
+// `asignados` con los helpers de `mk/utils`. Mientras sólo los mostraba la
+// pantalla daba igual, pero ahora el reporte también tiene que mostrarlos, y
+// escribir la misma suma otra vez en PHP dejaba la regla en dos lenguajes
+// esperando a separarse.
+//
+// Los calcula `DebtGroupController::buildGroupRow()` y los leen los dos.
+// `asignados` sigue viniendo porque otras partes de la pantalla lo usan.
 const renderTotalExpensesCell = ({ item }: { item: any }) => (
-  <FormatBsAlign value={sumExpenses(item?.asignados)} alignRight />
+  <FormatBsAlign value={item?.total_expensas ?? 0} alignRight />
 );
 
 const renderPaidUnitsCell = ({ item }: { item: any }) => (
-  <div className={styles.PaidUnitsCell}>{paidUnits(item?.asignados)}</div>
+  <div className={styles.PaidUnitsCell}>{item?.unidades_al_dia ?? 0}</div>
 );
 
 const renderUnitsPayableCell = ({ item }: { item: any }) => (
@@ -47,25 +48,20 @@ const renderUnitsPayableCell = ({ item }: { item: any }) => (
       color: isUnitInDefault(item) ? 'var(--cError)' : 'var(--cWhiteV1)',
     }}
   >
-    {unitsPayable(item?.asignados)}
+    {item?.unidades_por_pagar ?? 0}
   </div>
 );
 
 const renderAmountsCollectedCell = ({ item }: { item: any }) => (
-  <FormatBsAlign value={sumPaidUnits(item?.asignados)} alignRight />
+  <FormatBsAlign value={item?.total_cobrado ?? 0} alignRight />
 );
 
 const renderSumPenaltyCell = ({ item }: { item: any }) => (
-  <FormatBsAlign value={sumPenalty(item?.asignados)} alignRight />
+  <FormatBsAlign value={item?.total_multa ?? 0} alignRight />
 );
 
 const renderTotalAmountCollectedCell = ({ item }: { item: any }) => (
-  <FormatBsAlign
-    value={
-      sumExpenses(item?.asignados) + sumPenalty(item?.asignados) - sumPaidUnits(item?.asignados)
-    }
-    alignRight
-  />
+  <FormatBsAlign value={item?.saldo_a_cobrar ?? 0} alignRight />
 );
 
 const mod: ModCrudType = {
@@ -79,19 +75,26 @@ const mod: ModCrudType = {
   modulo: 'v3/debt-groups',
   singular: 'Expensa',
   plural: 'Expensas',
-  // S66.5 (HALLAZGO-NEW-64): migrado al slot async S36.5.
-  // S43 pineó ExpensesReportType backend (PR #129) pero el frontend
-  // quedó incompleto sin exportAsync. S66.5 corrige.
-  // S118b: pinea extraParams.title: "Reporte de Expensas" → title
-  // dinámico del PDF (el back lee $report->params['title'] y el
-  // ExpensesReportType con type=expenses ahora pinea las DEUDAS
-  // de dptos, tabla debt_dptos).
   export: false,
+  // 🔴 2026-08-06 (lo reportó Mario): esto apuntaba al type `expenses`, que en
+  // el back listaba CADA deuda de CADA unidad de TODOS los periodos. La
+  // pantalla muestra doce filas —una por mes— y el PDF de esa pantalla traía
+  // miles. No era un reporte mal formateado: era otro reporte.
+  //
+  // Con `endpoint` + `supportedFormats` el pedido va por
+  // `GET /v3/debt-groups?_export={formato}` y lo atiende
+  // `ExpensasPorPeriodoExportConfig`, que exporta ESTE resumen por periodo.
+  // De paso desaparecen los dos botones legacy ("Exportar PDF" + "Historial")
+  // y queda el mismo menú que en el resto de los módulos.
+  //
+  // El `title` ya no se manda desde acá: el título lo declara el módulo del
+  // back, que es su única fuente de verdad.
   exportAsync: {
-    type: 'expenses',
+    type: 'debt-groups-expenses',
     format: 'pdf',
-    label: 'Exportar PDF',
-    extraParams: { title: 'Reporte de Expensas' },
+    label: 'Exportar',
+    supportedFormats: ['pdf', 'xlsx', 'csv'],
+    endpoint: '/v3/debt-groups',
   },
   filter: true,
   permiso: 'expense',

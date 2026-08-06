@@ -109,11 +109,14 @@ const Binnacle = () => {
     loadView: { fullType: "DET" },
     // S54.5: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
     // - export: false → kill legacy IconExport.
-    // - exportAsync: { type: "guard-news", ... } → slot async que useCrud
-    //   auto-renderea via AsyncExportButton (S36.5 pattern, idéntico a
-    //   S52.5 Users + S41 BankAccounts + S47.5 DebtDpto + S48-T05 SharedDebts).
-    // - type: "guard-news" → matchea el GuardNewReportType pineado en S54
-    //   backend (ReportTypeRegistry.auto-discovery).
+    // 🔴 `guard_news` con guion BAJO, no `guard-news`. Es la clave que
+    //   resuelve el back (el nombre de la tabla), y con esa clave se guarda
+    //   el Report. La del ReportType legacy tenía guion MEDIO.
+    //
+    //   Que quedaran distintas no rompía el export —el `endpoint` manda—,
+    //   pero SÍ rompía el historial: se abría filtrado por un type sin
+    //   ningún reporte, mostrando "Todos" en el select y la lista vacía.
+    //   Lo reportó Mario el 2026-08-06.
     // - format: "pdf" → ReportGenerator chunked (S32). XLSX también soportado
     //   (S54 pineá excelRowProvider).
     // - auto-pasa searchBy + filterBy del store actual al Report.
@@ -126,7 +129,7 @@ const Binnacle = () => {
     // `GET /v3/guardnews?_export={formato}` y lo atiende
     // `GuardNewsExportConfig`.
     exportAsync: {
-      type: "guard-news",
+      type: "guard_news",
       format: "pdf",
       label: "Exportar",
       supportedFormats: ["pdf", "xlsx", "csv"],
