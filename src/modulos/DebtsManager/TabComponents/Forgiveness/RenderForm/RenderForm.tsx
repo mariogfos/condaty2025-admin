@@ -8,6 +8,7 @@ import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
 import { MONTHS } from "@/mk/utils/date1";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useEffect, useState } from "react";
@@ -34,7 +35,8 @@ const RenderForm = ({
   });
   const [errors, setErrors] = useState({});
   const [debts, setDebts] = useState([]);
-  const { showToast } = useAuth();
+  const { showToast, user } = useAuth();
+  const muestraMantenimiento = hasMaintenanceValue(user);
 
   const totalAmount = formState?.forgiveness
     ?.reduce(
@@ -49,10 +51,12 @@ const RenderForm = ({
       0
     )
     .toFixed(2);
+  // El mantenimiento de valor sólo cuenta si el condominio lo habilita.
   const totalMaintenanceAmount = formState?.forgiveness
     ?.reduce(
       (total: number, debt: any) =>
-        total + (Number(debt.maintenance_amount) || 0),
+        total +
+        (muestraMantenimiento ? Number(debt.maintenance_amount) || 0 : 0),
       0
     )
     .toFixed(2);
@@ -367,7 +371,11 @@ const RenderForm = ({
                 >
                   {`Deuda: ${formatBs(debt?.amount)} • Mora: ${formatBs(
                     debt?.penalty_amount
-                  )} • Mant. Valor: ${formatBs(debt?.maintenance_amount)}`}
+                  )}${
+                    muestraMantenimiento
+                      ? ` • Mant. Valor: ${formatBs(debt?.maintenance_amount)}`
+                      : ""
+                  }`}
                 </p>
               </div>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -381,7 +389,7 @@ const RenderForm = ({
                   {formatBs(
                     Number(debt?.amount) +
                       Number(debt?.penalty_amount) +
-                      Number(debt?.maintenance_amount)
+                      maintenanceAmountFor(user, debt)
                   )}
                 </p>
                 {formState?.forgiveness?.some((f: any) => f.id === debt.id) ? (
@@ -414,11 +422,13 @@ const RenderForm = ({
               value={formatBs(totalPenaltyAmount)}
               colorValue="var(--cWhiteV1)"
             />
-            <KeyValue
-              title={"Mantenimiento de valor total"}
-              value={formatBs(totalMaintenanceAmount)}
-              colorValue="var(--cWhiteV1)"
-            />
+            {muestraMantenimiento && (
+              <KeyValue
+                title={"Mantenimiento de valor total"}
+                value={formatBs(totalMaintenanceAmount)}
+                colorValue="var(--cWhiteV1)"
+              />
+            )}
           </div>
           <p style={{ fontSize: 16, color: "var(--cWhite)", marginBottom: 10 }}>
             Monto disponible a condonar {formatBs(amountForgiveness)}

@@ -11,7 +11,7 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import RenderItem from "../../../shared/RenderItem";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { hasMaintenanceValue } from "@/mk/utils/utils";
+import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import { DebtStatus } from "@/types/PaymentType";
@@ -131,11 +131,15 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     return <FormatBsAlign value={parseFloat(raw)} alignRight />;
   };
 
+  // 🔴 La celda y el pie tienen que hacer la MISMA cuenta. Acá la celda sumaba
+  // mantenimiento de valor y el pie no, así que la suma de la columna no daba
+  // el total de abajo. Y el mantenimiento entra sólo si el condominio lo
+  // habilita: si no, ni se muestra ni se suma.
   const renderBalanceDueCell = ({ item }: { item: any }) => {
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
-    const maintenanceAmount = parseFloat(item?.maintenance_amount) || 0;
-    const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
+    const totalBalance =
+      debtAmount + penaltyAmount + maintenanceAmountFor(user, item);
 
     return <FormatBsAlign value={totalBalance} alignRight />;
   };
@@ -448,7 +452,9 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
           sumarize: false,
           onRenderFoot: (item: any, index: number, sumas: any) => {
             const totalBalance =
-              (sumas.amount || 0) + (sumas.penalty_amount || 0);
+              (sumas.amount || 0) +
+              (sumas.penalty_amount || 0) +
+              (hasMaintenanceValue(user) ? sumas.maintenance_amount || 0 : 0);
             return renderTotalWithGreenBorder(totalBalance, true);
           },
         },

@@ -14,7 +14,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import { formatNumber } from "@/mk/utils/numbers";
 import { useRouter } from "next/navigation";
-import { hasMaintenanceValue } from "@/mk/utils/utils";
+import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
 import { DebtStatus } from "@/types/PaymentType";
 import {
   getStatusText,
@@ -99,8 +99,15 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     return <div>{getDateStrMesShort(item.due_at)}</div>;
   };
 
+  // 🔴 La fila de un grupo trae `debt_amount` —la suma de sus unidades—, no
+  // `amount`. Leer `amount` acá dejaba la columna Deuda en CERO: es la
+  // contracara del bug que tenía el reporte, que leía `amount` y habría
+  // impreso el monto de la primera unidad como si fuera el del grupo.
+  const montoDelGrupo = (item: any): number =>
+    parseFloat(item?.debt_amount ?? item?.amount) || 0;
+
   const renderDebtAmountCell = ({ item }: { item: any }) => (
-    <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
+    <FormatBsAlign value={montoDelGrupo(item)} alignRight />
   );
 
   const renderPenaltyAmountCell = ({ item }: { item: any }) => {
@@ -113,12 +120,14 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   };
 
   const renderBalanceDueCell = ({ item }: { item: any }) => {
-    const debtAmount = parseFloat(item?.amount) || 0;
+    const debtAmount = montoDelGrupo(item);
     const totalPenalty =
       item?.asignados?.reduce((sum: number, asignado: any) => {
         return sum + (parseFloat(asignado?.penalty_amount) || 0);
       }, 0) || 0;
-    const totalBalance = debtAmount + totalPenalty;
+    // Si el condominio tiene mantenimiento de valor, se muestra Y se suma.
+    const totalBalance =
+      debtAmount + totalPenalty + maintenanceAmountFor(user, item);
 
     return <FormatBsAlign value={totalBalance} alignRight />;
   };
@@ -429,7 +438,9 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
           sumarize: false,
           onRenderFoot: (item: any, index: number, sumas: any) => {
             const totalBalance =
-              (sumas.debt_amount || 0) + (sumas.penalty_amount || 0);
+              (sumas.debt_amount || 0) +
+              (sumas.penalty_amount || 0) +
+              (hasMaintenanceValue(user) ? sumas.maintenance_amount || 0 : 0);
             return renderTotalWithGreenBorder(totalBalance, true);
           },
         },
@@ -549,12 +560,13 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
       ? DebtStatus.OVERDUE
       : numericStatus;
 
-    const debtAmount = parseFloat(item?.amount) || 0;
+    const debtAmount = montoDelGrupo(item);
     const totalPenalty =
       item?.asignados?.reduce((sum: number, asignado: any) => {
         return sum + (parseFloat(asignado?.penalty_amount) || 0);
       }, 0) || 0;
-    const totalBalance = debtAmount + totalPenalty;
+    const totalBalance =
+      debtAmount + totalPenalty + maintenanceAmountFor(user, item);
 
     return (
       <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>

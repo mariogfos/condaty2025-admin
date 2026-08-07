@@ -317,3 +317,26 @@ export const hasMaintenanceValue = (iamData: any): boolean => {
   // Retornar el valor de has_maintenance_value, por defecto false
   return currentClient?.config?.has_maintenance_value;
 };
+
+/**
+ * Lo que el mantenimiento de valor aporta al total de una fila: el monto si el
+ * condominio lo tiene habilitado, CERO si no.
+ *
+ * 🔴 Regla de Mario (2026-08-07): si el condominio no habilita mantenimiento de
+ * valor, **ni se muestra ni se suma**, en todo lugar donde se toque.
+ *
+ * ⚠️ Las dos mitades importan igual. Esconder la columna pero seguir sumándola
+ * por adentro da un total que **no se puede reconstruir con lo que se ve** — y
+ * eso ya estaba pasando al revés en "Todas las deudas": la celda del Monto
+ * total sumaba mantenimiento y el pie de la tabla no, así que la suma de la
+ * columna no daba el total de abajo.
+ *
+ * Su gemelo en PHP es `App\Mk\Export\Support\MantenimientoDeValor::delTotal()`.
+ */
+export const maintenanceAmountFor = (iamData: any, item: any): number => {
+  if (!hasMaintenanceValue(iamData)) {
+    return 0;
+  }
+
+  return parseFloat(item?.maintenance_amount) || 0;
+};

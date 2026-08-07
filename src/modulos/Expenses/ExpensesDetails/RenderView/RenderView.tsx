@@ -11,6 +11,8 @@ import { getTitular } from "@/mk/utils/adapters";
 import Table from "@/mk/components/ui/Table/Table";
 import { paymentsApi } from "../../../Payments/api";
 import { DebtStatus } from "@/types/PaymentType";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import { maintenanceAmountFor } from "@/mk/utils/utils";
 
 const RenderView = (props: {
   open: boolean;
@@ -18,6 +20,7 @@ const RenderView = (props: {
   item: Record<string, any>;
   execute: Function;
 }) => {
+  const { user } = useAuth();
   const [openPayment, setOpenPayment] = useState(false);
   const [item, setItem] = useState(props.item);
   const [resolvedPaymentId, setResolvedPaymentId] = useState<
@@ -187,7 +190,7 @@ const RenderView = (props: {
             <div className={styles.totalAmount}>
               {formatBs(
                 (parseFloat(item?.amount || "0") || 0) +
-                  (parseFloat(item?.maintenance_amount || "0") || 0) +
+                  maintenanceAmountFor(user, item) +
                   (parseFloat(item?.penalty_amount || "0") || 0),
               )}
             </div>

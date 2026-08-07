@@ -119,83 +119,23 @@ describe("S139-fe — displayName dinámico + SharedDebts/DetailSharedDebts fix"
   // Bug #2 — SharedDebts pinea `debt-dptos` (no `debt-groups`)
   // ────────────────────────────────────────────────────────────────────
 
-  describe("SharedDebts lista pinea `debt-dptos` + type=4 (no `debt-groups`)", () => {
-    it("SharedDebts.tsx pineá modulo: 'v3/debt-dptos' + exportAsync.type: 'debt-dptos'", () => {
-      const src = loadSourceWithoutComments(
-        "modulos/DebtsManager/TabComponents/SharedDebts/SharedDebts.tsx"
-      );
-      // modulo pineá 'v3/debt-dptos' (no 'debt-groups').
-      expect(src).toMatch(/modulo:\s*["']v3\/debt-dptos["']/);
-      // exportAsync.type pineá 'debt-dptos' (no 'debt-groups').
-      expect(src).toMatch(/type:\s*["']debt-dptos["']/);
-      // extraParams.type = 4 (SHARED) para DebtDptoReportType NORMAL branch.
-      expect(src).toMatch(/extraParams:\s*\{\s*type:\s*4\s*\}/);
-    });
-
-    it("SharedDebts NO pineá `debt-groups` (regression pin)", () => {
-      // loadSourceWithoutComments ya pineó comentarios. Pero el `modulo: "debt-groups"`
-      // NO debe estar en el archivo (regression pin).
-      const src = loadSourceWithoutComments(
-        "modulos/DebtsManager/TabComponents/SharedDebts/SharedDebts.tsx"
-      );
-      // El modulo pineá 'v3/debt-dptos', no 'debt-groups'.
-      expect(src).not.toMatch(/modulo:\s*["']debt-groups["']/);
-      // El exportAsync.type NO pineá 'debt-groups' tampoco.
-      expect(src).not.toMatch(/type:\s*["']debt-groups["']/);
-    });
-
-    it("SharedDebts.tsx pineá docblock S139 con contexto del fix", () => {
-      const src = readFile(
-        "modulos/DebtsManager/TabComponents/SharedDebts/SharedDebts.tsx"
-      );
-      // El docblock explica el cambio S139 + HALLAZGO-NEW-48.
-      expect(src).toMatch(/S139/);
-      expect(src).toMatch(/HALLAZGO-NEW-48/);
-      expect(src).toMatch(/Deuda Compartida/);
-    });
-  });
-
-  // ────────────────────────────────────────────────────────────────────
-  // Bug #2 — DetailSharedDebts pinea `debt-groups` (no `debt-dptos`)
-  // ────────────────────────────────────────────────────────────────────
-
-  describe("DetailSharedDebts pinea `debt-groups` + type=1 (no `debt-dptos`)", () => {
-    it("DetailSharedDebts.tsx pineá modulo: 'v3/debt-groups' + exportAsync.type: 'debt-groups'", () => {
-      const src = loadSourceWithoutComments(
-        "modulos/DebtsManager/TabComponents/SharedDebts/DetalleDeudaCompartida/DetailSharedDebts.tsx"
-      );
-      // modulo pineá 'v3/debt-groups' (no 'v3/debt-dptos').
-      expect(src).toMatch(/modulo:\s*["']v3\/debt-groups["']/);
-      // exportAsync.type pineá 'debt-groups' (no 'debt-dptos').
-      expect(src).toMatch(/type:\s*["']debt-groups["']/);
-      // extraParams.type = 1 (EXPENSE) + debt_id dinámico.
-      expect(src).toMatch(/extraParams:\s*\{\s*type:\s*1,\s*debt_id:\s*debtId\s*\}/);
-    });
-
-    it("DetailSharedDebts NO pineá `debt-dptos` (regression pin)", () => {
-      const src = loadSourceWithoutComments(
-        "modulos/DebtsManager/TabComponents/SharedDebts/DetalleDeudaCompartida/DetailSharedDebts.tsx"
-      );
-      // El modulo pineá 'v3/debt-groups', no 'v3/debt-dptos'.
-      expect(src).not.toMatch(/modulo:\s*["']v3\/debt-dptos["']/);
-      // El exportAsync.type NO pineá 'debt-dptos' tampoco.
-      expect(src).not.toMatch(/type:\s*["']debt-dptos["']/);
-    });
-
-    it("DetailSharedDebts.tsx pineá docblock S139 con contexto del fix", () => {
-      const src = readFile(
-        "modulos/DebtsManager/TabComponents/SharedDebts/DetalleDeudaCompartida/DetailSharedDebts.tsx"
-      );
-      expect(src).toMatch(/S139/);
-      expect(src).toMatch(/HALLAZGO-NEW-48/);
-      // Explica que pineá DebtGroupReportType (7 cols agregado por periodo).
-      expect(src).toMatch(/agrupado/i);
-    });
-  });
-
-  // ────────────────────────────────────────────────────────────────────
-  // Cross-check: las 4 vistas de `debt-dptos` no pinean type=1 (EXPENSE)
-  // ────────────────────────────────────────────────────────────────────
+  // 🔴 2026-08-07 — ACÁ VIVÍAN CUATRO PINS QUE FIJABAN EL CABLEADO AL REVÉS.
+  //
+  // Pineaban que la pestaña "Compartidas" pidiera `v3/debt-dptos` y el detalle
+  // `v3/debt-groups`, y estaba cruzado: medido en la base local, la pestaña
+  // recibía 495 filas por unidad para 1 solo grupo, y el detalle 1 fila
+  // agrupada sin `dpto`, con la columna "Unidad" vacía.
+  //
+  // Se borran, no se repuntan: un pin sobre una decisión equivocada vuelve
+  // difícil corregirla. Y estaban hechos por SOURCE-PARSING —hasta exigían la
+  // palabra "HALLAZGO-NEW-48" adentro de un comentario—, así que se caían
+  // cuando alguien reescribía la prosa y no se caían cuando el cableado se
+  // rompía de verdad.
+  //
+  // Lo que los reemplaza mide COMPORTAMIENTO y vive en el back:
+  // `CadaPantallaDeCompartidasPideSuPropioListadoTest` corre los dos listados y
+  // verifica que las filas de cada endpoint llenen las columnas de su reporte y
+  // que las del otro las dejen vacías.
 
   describe("Las 4 vistas de `debt-dptos` pinean tipos distintos (no EXPENSE)", () => {
     it("IndividualDebts pineá type=0 (NORMAL)", () => {

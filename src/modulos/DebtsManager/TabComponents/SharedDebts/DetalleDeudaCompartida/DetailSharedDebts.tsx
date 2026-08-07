@@ -19,7 +19,7 @@ import { capitalize } from "@/mk/utils/string";
 import styles from "./DetailSharedDebts.module.css";
 import { getDateStrMes } from "@/mk/utils/date";
 import UnifiedCard from "../../../UnifiedCard/UnifiedCard";
-import { hasMaintenanceValue } from "@/mk/utils/utils";
+import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
 import { DebtStatus } from "@/types/PaymentType";
 import {
   getStatusText as getStatusTextConst,
@@ -118,7 +118,9 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   const renderBalanceDueCell = ({ item }: { item: any }) => {
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
-    const totalBalance = debtAmount + penaltyAmount;
+    // Si el condominio tiene mantenimiento de valor, se muestra Y se suma.
+    const totalBalance =
+      debtAmount + penaltyAmount + maintenanceAmountFor(user, item);
     return <FormatBsAlign value={totalBalance} alignRight />;
   };
 

@@ -14,7 +14,7 @@ import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import RenderView from '../AllDebts/RenderView/RenderView';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal'; import { hasMaintenanceValue } from '@/mk/utils/utils';
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal'; import { hasMaintenanceValue, maintenanceAmountFor } from '@/mk/utils/utils';
 import { DebtStatus } from "@/types/PaymentType";
 import { getStatusText, getStatusConfig, STATUS_FILTER_OPTIONS } from '../constants';
 
@@ -114,8 +114,9 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   const renderBalanceDueCell = ({ item }: { item: any }) => {
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
-    const maintenanceAmount = parseFloat(item?.maintenance_amount) || 0;
-    const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
+    // El mantenimiento de valor entra sólo si el condominio lo habilita.
+    const totalBalance =
+      debtAmount + penaltyAmount + maintenanceAmountFor(user, item);
 
     return <FormatBsAlign value={totalBalance} alignRight />;
   };
