@@ -460,17 +460,21 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     modulo: "v3/debt-dptos",
     singular: "Deuda",
     plural: "",
-    // S140 (HALLAZGO-NEW-39 variant + bug #5 backlog Mario 2026-07-28):
-    // faltaba slot `exportAsync` en la tab "Deudas" (default "Todas las
-    // Deudas" post-S139). Slot pineado apuntando a `debt-dptos` sin
-    // extraParams.type (default "Todas las Deudas" pineado por
-    // `DebtDptoReportType::displayName`). useCrud auto-renderea el
-    // AsyncExportButton (S36.5 pattern).
+    // 🔴 `endpoint` y `supportedFormats` viajan juntos: `useCrud` elige el
+    // botón mirando `supportedFormats`, y el botón viejo no recibe `endpoint`.
+    // Sin los dos quedaba el par legacy —"Exportar PDF" + "Historial"— que
+    // Mario ya rechazó en Expensas.
+    //
+    // Con ellos el pedido va por `GET /v3/debt-dptos?_export={formato}` y lo
+    // atiende `DeudasExportConfig`, con las nueve columnas de esta pantalla:
+    // el reporte viejo imprimía seis y se comía Deuda, Multa y Mant. Valor.
     export: false,
     exportAsync: {
-      type: "debt-dptos",
+      type: "debt_dptos",
       format: "pdf",
-      label: "Exportar PDF",
+      label: "Exportar",
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      endpoint: "/v3/debt-dptos",
     },
     filter: true,
     permiso: "expense",
