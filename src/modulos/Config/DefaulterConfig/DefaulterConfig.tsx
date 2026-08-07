@@ -479,7 +479,12 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
               { id: 0, name: "Sin multa" },
               { id: 1, name: "Porcentaje" },
               { id: 2, name: "Valor Fijo" },
-              { id: 3, name: "Personalizado" },
+              // 🔴 Se llamaba "Personalizado" y en el back esta opción ejecuta
+              // `applyTieredPenalty`: la escalonada por cortes. El
+              // "personalizado" de verdad es otra estrategia —`penalty_type` 4,
+              // que hoy ni el front ofrece ni el back valida—, así que el
+              // nombre invitaba a confundir dos fórmulas distintas.
+              { id: 3, name: "Escalonado por cortes" },
             ]}
             disabled={!editMode}
           />
@@ -533,12 +538,12 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
           {formState?.penalty_type == 3 && (
             <>
               <p className={styles.fieldHint}>
-                Define el monto de multa que se aplicará después de la fecha del
-                día 10 del mes de la deuda
+                Primer corte: monto que se aplica en cuanto la deuda pasa su
+                fecha de vencimiento.
               </p>
               <Input
                 type="text"
-                label="Primer monto"
+                label="Monto del primer corte"
                 name="first_amount"
                 error={errors}
                 required
@@ -548,12 +553,13 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
                 disabled={!editMode}
               />
               <p className={styles.fieldHint}>
-                Define el monto de multa que se aplicará por retraso en el pago
-                al finalizar el mes
+                Segundo corte: monto que se aplica al terminar el mes del
+                vencimiento. <strong>Reemplaza</strong> al del primer corte, no
+                se suma.
               </p>
               <Input
                 type="text"
-                label="Segundo monto"
+                label="Monto del segundo corte"
                 name="second_amount"
                 error={errors}
                 required
