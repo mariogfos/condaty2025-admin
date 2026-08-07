@@ -1,4 +1,5 @@
 import { DebtStatus } from "@/types/PaymentType";
+import { maintenanceAmountFor } from "@/mk/utils/utils";
 
 // ---------------------------------------------------------------------------
 // Numeric-native debt status maps — keyed by DebtStatus enum (int 1-10)
@@ -267,20 +268,17 @@ export const COMMON_MESSAGES = {
 
 
 /**
- * Lo que una deuda debe DE VERDAD: deuda + mora + mantenimiento de valor.
+ * Lo que una deuda debe: deuda + mora + mantenimiento de valor.
  *
- * 🔴 Condonaciones es la EXCEPCIÓN a la regla general de mantenimiento de valor,
- * y es a propósito. Lo definió Mario el 2026-08-07: *"el monto de la deuda
- * condonada es consolidado"*. En el resto de la app, si el condominio no
- * habilita mantenimiento de valor **no se muestra ni se suma**
- * (`maintenanceAmountFor`); acá se suma SIEMPRE, porque este número es el que
- * se persiste al condonar y condonar de menos dejaría un residuo sin cubrir.
+ * 🔴 El mantenimiento entra **sólo si el condominio lo habilita**, igual que en
+ * todo el resto de la app. Regla de Mario, 2026-08-07: *"si no está habilitado,
+ * ni muestra ni suma"*, y eso incluye el total de una condonación.
  *
- * ⚠️ Por eso la pantalla de condonaciones muestra el desglose del mantenimiento
- * cuando el condominio lo habilita **o cuando hay monto**: un total que incluye
- * una línea que no se ve no se puede reconstruir con lo que hay en pantalla.
+ * ⚠️ Este número se PERSISTE al condonar, así que la pregunta no es decorativa:
+ * es la que define cuánto se condona. Por eso vive acá, con nombre propio y con
+ * test, y no como tres `Number()` sueltos adentro de un componente.
  */
-export const montoConsolidadoDeLaDeuda = (debt: any): number =>
+export const montoACobrarDeLaDeuda = (iamData: any, debt: any): number =>
   (Number(debt?.amount) || 0) +
   (Number(debt?.penalty_amount) || 0) +
-  (Number(debt?.maintenance_amount) || 0);
+  maintenanceAmountFor(iamData, debt);

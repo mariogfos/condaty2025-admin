@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   AMOUNT_TYPE_MAP,
   getAmountTypeText,
-  montoConsolidadoDeLaDeuda,
+  montoACobrarDeLaDeuda,
 } from "../constants";
 
 /**
@@ -41,39 +41,35 @@ describe("AMOUNT_TYPE_MAP", () => {
   });
 });
 
+const condominio = (habilitado: boolean) => ({
+  client_id: "c-1",
+  clients: [{ id: "c-1", config: { has_maintenance_value: habilitado } }],
+});
+
 /**
- * 🔴 Condonaciones es la EXCEPCIÓN a la regla de mantenimiento de valor.
+ * 🔴 El total a condonar sigue la MISMA regla que todo lo demás: si el
+ * condominio no habilita mantenimiento de valor, no se muestra ni se suma.
+ * Lo definió Mario el 2026-08-07.
  *
- * Regla general (Mario, 2026-08-07): si el condominio no habilita mantenimiento
- * de valor, ni se muestra ni se suma. Acá NO: *"el monto de la deuda condonada
- * es consolidado"*. Este número se PERSISTE al condonar, y condonar de menos
- * dejaría un residuo sin cubrir.
- *
- * ⚠️ Por eso vive en una función propia y con nombre propio, en vez de quedar
- * como tres `Number()` sueltos adentro de un componente: la excepción tiene que
- * ser visible, o el próximo barrido de la regla general se la lleva puesta.
+ * ⚠️ Este número se PERSISTE al condonar —y además es el denominador del
+ * porcentaje—, así que la pregunta no es decorativa: define cuánto se condona.
+ * Por eso vive en una función con nombre propio y no como tres `Number()`
+ * sueltos adentro de un componente, que fue donde estuvo hasta hoy.
  */
-describe("montoConsolidadoDeLaDeuda", () => {
-  it("suma deuda, mora y mantenimiento de valor", () => {
-    expect(
-      montoConsolidadoDeLaDeuda({
-        amount: "100",
-        penalty_amount: "20",
-        maintenance_amount: "5",
-      }),
-    ).toBe(125);
+describe("montoACobrarDeLaDeuda", () => {
+  const deuda = { amount: "100", penalty_amount: "20", maintenance_amount: "5" };
+
+  it("suma el mantenimiento cuando el condominio lo habilita", () => {
+    expect(montoACobrarDeLaDeuda(condominio(true), deuda)).toBe(125);
   });
 
-  it("suma el mantenimiento SIEMPRE: no pregunta por la config del condominio", () => {
-    // Es la diferencia con `maintenanceAmountFor`, que devolvería 0 acá.
-    expect(
-      montoConsolidadoDeLaDeuda({ amount: "100", maintenance_amount: "5" }),
-    ).toBe(105);
+  it("NO lo suma cuando el condominio no lo habilita", () => {
+    expect(montoACobrarDeLaDeuda(condominio(false), deuda)).toBe(120);
   });
 
   it("los campos que faltan valen cero, no NaN", () => {
-    expect(montoConsolidadoDeLaDeuda({ amount: "100" })).toBe(100);
-    expect(montoConsolidadoDeLaDeuda({})).toBe(0);
-    expect(montoConsolidadoDeLaDeuda(undefined)).toBe(0);
+    expect(montoACobrarDeLaDeuda(condominio(true), { amount: "100" })).toBe(100);
+    expect(montoACobrarDeLaDeuda(condominio(true), {})).toBe(0);
+    expect(montoACobrarDeLaDeuda(condominio(true), undefined)).toBe(0);
   });
 });
