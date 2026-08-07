@@ -24,6 +24,7 @@ import { DebtStatus } from "@/types/PaymentType";
 import {
   getStatusText as getStatusTextConst,
   getStatusConfig as getStatusConfigConst,
+  getAmountTypeText,
 } from "../../constants";
 
 interface DetailSharedDebtsProps {
@@ -61,15 +62,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [debtData, setDebtData] = useState<DebtData | undefined>(undefined);
-
-  const getAmountTypeText = (amountType: string) => {
-    const amountTypeMap: { [key: string]: string } = {
-      F: "Fijo",
-      M: "Por m²",
-      A: "Promedio",
-    };
-    return amountTypeMap[amountType] || amountType;
-  };
 
   const getSegmentationText = (segmentation: string) => {
     const segmentationMap: { [key: string]: string } = {
@@ -246,38 +238,34 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   }, []);
 
   const mod: ModCrudType = {
-    // S139 (HALLAZGO-NEW-48 + Bug #2 Mario 2026-07-29): el DETALLE de una
-    // deuda compartida (vista que se abre al hacer click en una fila de
-    // SharedDebts) pineá el REPORTE AGRUPADO del periodo (DebtGroupReportType
-    // EXPENSE branch — 7 cols agregado por periodo, año, mes).
+    // 🔴 2026-08-07: esta pantalla también estaba cruzada con la pestaña.
     //
-    // Pre-S139: pineá `type: "debt-dptos"` + `type: 1` → DebtDptoReportType
-    // EXPENSE branch → 8 cols por deuda individual del periodo. Pero el
-    // usuario esperaba el REPORTE DEL GRUPO (7 cols agregado), no las
-    // deudas individuales. El label y las columnas no matcheaban.
+    // El detalle muestra UNA FILA POR UNIDAD —`dpto.nro`, su estado, su multa—
+    // y eso lo devuelve `v3/debt-dptos` filtrando por `shared_id`. Pedido a
+    // `v3/debt-groups` volvían las filas AGRUPADAS: medido, **1 fila sin
+    // `dpto`**, con lo cual la columna "Unidad" salía vacía. Peor: ese
+    // endpoint ni siquiera mira el `debt_id`, así que con dos compartidas el
+    // detalle de una mostraba las dos.
     //
-    // Post-S139: pineá `type: "debt-groups"` + `extraParams: { type: 1, debt_id: X }`
-    // → DebtGroupReportType EXPENSE branch → "Listado de EXPENSAS"
-    // (7 cols agregado por `debt_id, year, month`).
-    //
-    // Cross-IA: `debt-dptos` se conserva para las vistas que pineá
-    // deudas individuales (IndividualDebts, SharedDebts lista, Forgiveness,
-    // AllDebts). `debt-groups` se pineá para el detalle de periodo y la
-    // lista CRUD de expensas (Expenses.tsx).
-    modulo: "v3/debt-groups",
+    // Y el encabezado ("Categoría - Concepto") y la tarjeta de DISTRIBUCIÓN
+    // leen `extraData.debt`, que arma `DebtDptoController` buscando por
+    // `shared_id` — justo el que no se estaba llamando.
+    modulo: "v3/debt-dptos",
     singular: "Detalle",
     plural: "Detalles",
-    // S48-T01 pattern: exportAsync slot para el reporte AGRUPADO del periodo.
-    // - type: "debt-groups" → DebtGroupReportType branch EXPENSE (7 cols).
-    // - extraParams.type: 1 (EXPENSE) + debt_id dinámico → filtra por el
-    //   periodo específico seleccionado en SharedDebts.
-    // - format: "pdf" (PDF only — XLSX pineá `dpto-deudas` para Unidades).
+    // Motor nuevo (Fase 6): lo atiende `DetalleDeCompartidaExportConfig`.
+    //
+    // 🔴 Acá el `extraParams` mandaba `type: 1` (EXPENSE) mientras la lista
+    // pedía `type: 4`: el PDF de esta pantalla era el resumen de expensas por
+    // periodo. Otro reporte, no un reporte mal formateado.
     export: false,
     exportAsync: {
-      type: "debt-groups",
+      type: "debt-dptos-compartida-detalle",
       format: "pdf",
-      label: "Exportar PDF",
-      extraParams: { type: 1, debt_id: debtId },
+      label: "Exportar",
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      endpoint: "/v3/debt-dptos",
+      extraParams: { type: 4, debt_id: debtId },
     },
     filter: false,
     permiso: "expense",

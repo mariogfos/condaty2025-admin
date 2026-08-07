@@ -19,6 +19,8 @@ import { DebtStatus } from "@/types/PaymentType";
 import {
   getStatusText,
   getStatusConfig,
+  getAmountTypeText,
+  AMOUNT_TYPE_MAP,
   STATUS_FILTER_OPTIONS,
 } from "../constants";
 
@@ -47,20 +49,9 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     <div>{item?.subcategory?.name || "-/-"}</div>
   );
 
-  const renderDistributionCell = ({ item }: { item: any }) => {
-    const getDistributionText = (amountType: string) => {
-      const distributionMap: { [key: string]: string } = {
-        M: "Por m²",
-        P: "Promedio",
-        F: "Fijo",
-        V: "Variable",
-        A: "Promedio",
-      };
-      return distributionMap[amountType] || "-/-";
-    };
-
-    return <div>{getDistributionText(item?.amount_type)}</div>;
-  };
+  const renderDistributionCell = ({ item }: { item: any }) => (
+    <div>{getAmountTypeText(item?.amount_type)}</div>
+  );
 
   const renderStatusCell = ({ item }: { item: any }) => {
     const rawStatus = Number(item?.status);
@@ -137,13 +128,12 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     ...STATUS_FILTER_OPTIONS,
   ];
 
+  // 🔴 El filtro sale de la MISMA tabla que la columna. Escrito a mano ofrecía
+  // "Variable" y "Porcentual", dos repartos que el back no sabe hacer: elegir
+  // cualquiera de los dos devolvía cero filas para siempre.
   const getDistributionOptions = () => [
     { id: "ALL", name: "Todas los tipos" },
-    { id: "F", name: "Fijo" },
-    { id: "V", name: "Variable" },
-    { id: "P", name: "Porcentual" },
-    { id: "M", name: "Por m²" },
-    { id: "A", name: "Promedio" },
+    ...Object.entries(AMOUNT_TYPE_MAP).map(([id, name]) => ({ id, name })),
   ];
 
   const getCategoryOptions = (extraData?: any) => {
@@ -448,39 +438,35 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   }, []);
 
   const mod: ModCrudType = {
-    // S139 (HALLAZGO-NEW-48 + Bug #2 Mario 2026-07-29): la lista de
-    // "Deudas Compartidas" pineá las DEUDAS INDIVIDUALES tipo SHARED,
-    // NO el reporte agrupado de expensas.
+    // 🔴 2026-08-07: esta pantalla estaba pedida al endpoint equivocado.
     //
-    // Pre-S139: pineá `type: "debt-groups"` → DebtGroupReportType
-    // EXPENSE branch → "Listado de EXPENSAS" (7 cols agregado por periodo).
-    // Eso era el reporte de la lista CRUD de expensas, NO las deudas
-    // compartidas. El usuario veía el reporte equivocado.
+    // Una deuda compartida es un GRUPO: un `shared_id` repartido entre N
+    // unidades. Esta pestaña lista los grupos —una fila por deuda—, y todo lo
+    // que renderea es forma de grupo: `asignados` para sumar la multa,
+    // `amount_type` para la distribución, `concept`. Eso lo arma
+    // `DebtGroupController::buildGroupRow()`, que hasta lo documenta:
+    // *"SHARED (SharedDebts.tsx): row needs `id` (the correlation),
+    // `debt_amount`/`penalty_amount`, `asignados`, `subcategory.padre`"*.
     //
-    // Post-S139: pineá `type: "debt-dptos"` + `extraParams: { type: 4 }`
-    // → DebtDptoReportType NORMAL branch → "TODAS LAS DEUDAS COMPARTIDAS"
-    // (6 cols por deuda individual tipo SHARED).
-    //
-    // Cross-IA: el `DebtGroupReportType` (type="debt-groups") se conserva
-    // para el detalle del periodo (DetailSharedDebts) y para la lista CRUD
-    // de expensas (Expenses.tsx, módulo "v3/debt-groups"). Ver S139-fe.
-    modulo: "v3/debt-dptos",
+    // S139 la repuntó a `v3/debt-dptos`, que devuelve las filas SUELTAS por
+    // unidad. Medido en la base local: **495 filas por unidad para 1 grupo**.
+    // O sea que la pantalla mostraba 495 renglones repitiendo el mismo
+    // concepto, con la columna Multa siempre en cero —`asignados` no existe en
+    // esas filas— y el click llevaba un id de fila donde el detalle espera un
+    // `shared_id`.
+    modulo: "v3/debt-groups",
     singular: "Deuda Compartida",
     plural: "",
-    // S48: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
-    // - export: false → kill legacy GET /api/v3/debt-dptos?_export=pdf.
-    // - exportAsync: {...} → slot async que useCrud auto-renderea via
-    //   AsyncExportButton (S36.5 pattern).
-    // - type: "debt-dptos" + extraParams.type: 4 (SHARED) → branch NORMAL
-    //   de DebtDptoReportType → 6 cols por deuda individual tipo SHARED,
-    //   "TODAS LAS DEUDAS COMPARTIDAS". Filtra por `debt_dptos.type = 4`.
-    // - format: "pdf" (PDF only — XLSX pineá `dpto-deudas` para el reporte
-    //   de Unidades, no este).
+    // Motor nuevo (Fase 6): `endpoint` + `supportedFormats` → el `?_export=`
+    // lo atiende `DeudasCompartidasExportConfig`, con las ocho columnas de
+    // esta pantalla.
     export: false,
     exportAsync: {
-      type: "debt-dptos",
+      type: "debt-groups-shared",
       format: "pdf",
-      label: "Exportar PDF",
+      label: "Exportar",
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      endpoint: "/v3/debt-groups",
       extraParams: { type: 4 },
     },
     filter: true,

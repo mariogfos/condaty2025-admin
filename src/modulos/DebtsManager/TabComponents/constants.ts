@@ -41,20 +41,24 @@ export const PAYMENT_TYPE_MAP: { [key: string]: string } = {
 };
 
 
-export const DISTRIBUTION_TYPE_MAP: { [key: string]: string } = {
-  M: 'Por m²',
-  P: 'Promedio',
-  F: 'Fijo',
-  V: 'Variable',
-  A: 'Promedio'
-};
-
+/**
+ * Cómo se reparte una deuda compartida entre las unidades.
+ *
+ * 🔴 2026-08-07: esto vivía en CUATRO tablas que no coincidían — dos acá
+ * (`DISTRIBUTION_TYPE_MAP` y `AMOUNT_TYPE_MAP`, ninguna usada) y una adentro de
+ * cada pantalla de compartidas. Entre las cuatro ofrecían `P` como "Promedio"
+ * y como "Porcentual", y una `V` de "Variable".
+ *
+ * El back sabe repartir TRES: fijo por unidad, promedio y por m²
+ * (`SharedDebtService::generate`). `P` y `V` no existen: eran opciones de
+ * filtro que nunca podían traer una fila.
+ *
+ * Su gemela en PHP es `App\Modules\DebtDptos\Export\TipoDeMonto`.
+ */
 export const AMOUNT_TYPE_MAP: { [key: string]: string } = {
   F: 'Fijo',
-  V: 'Variable',
-  P: 'Porcentual',
-  M: 'Por m²',
-  A: 'Promedio'
+  A: 'Promedio',
+  M: 'Por m²'
 };
 
 
@@ -134,11 +138,6 @@ export const getStatusConfig = (status: number, dueDate?: string): { color: stri
 
 export const getPaymentTypeText = (type: string): string => {
   return PAYMENT_TYPE_MAP[type] || type;
-};
-
-
-export const getDistributionText = (amountType: string): string => {
-  return DISTRIBUTION_TYPE_MAP[amountType] || '-/-';
 };
 
 
