@@ -232,17 +232,30 @@ const Defaulters = () => {
     );
     return totals;
   }, [data?.data]);
+  // 🔴 `??` y no `||`: con `||`, un total de CERO que viene del back se toma
+  // como "sin dato" y se reemplaza por el que suma el front. Y cero es un valor
+  // legítimo y frecuente — medido 2026-08-07: 17 de 19 condominios tienen
+  // `penalty_type = 0`, o sea que no aplican multa y su total es cero de
+  // verdad. Es el mismo patrón que `where('col', null)` en el back: un valor
+  // que parece "vacío" cambia de significado en silencio.
+  //
+  // 🔴 Y `extraData?.porCobrarMv` FALTABA en las dependencias: si el back
+  // cambiaba el mantenimiento de valor y nada más, el memo no se recalculaba y
+  // la tarjeta seguía mostrando el número anterior. Dos cifras de la misma
+  // pantalla saliendo de momentos distintos es justamente la inconsistencia
+  // que reportaron los usuarios.
   const finalTotals = useMemo(
     () => ({
       porCobrarExpensa:
-        extraData?.porCobrarExpensa || calculatedTotals.porCobrarExpensa,
+        extraData?.porCobrarExpensa ?? calculatedTotals.porCobrarExpensa,
       porCobrarMulta:
-        extraData?.porCobrarMulta || calculatedTotals.porCobrarMulta,
-      porCobrarMv: extraData?.porCobrarMv || calculatedTotals.porCobrarMv,
+        extraData?.porCobrarMulta ?? calculatedTotals.porCobrarMulta,
+      porCobrarMv: extraData?.porCobrarMv ?? calculatedTotals.porCobrarMv,
     }),
     [
       extraData?.porCobrarExpensa,
       extraData?.porCobrarMulta,
+      extraData?.porCobrarMv,
       calculatedTotals.porCobrarExpensa,
       calculatedTotals.porCobrarMulta,
       calculatedTotals.porCobrarMv,
