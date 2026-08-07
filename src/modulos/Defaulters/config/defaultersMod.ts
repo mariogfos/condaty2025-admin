@@ -45,19 +45,21 @@ export const getDefaultersMod = (): DefaultersModType => ({
   permiso: "defaulters",
   pagination: false,
   extraData: true,
-  // S38.5 (HALLAZGO-NEW-58): el pre-S38 pineá `export: ["pdf", "xls"]`
-  // (array) que NO matchea el type ModCrudType.export?: boolean.
-  // - export: false → kill legacy IconExport.
-  // - exportAsync: {...} → slot async que useCrud auto-renderea via
-  //   AsyncExportButton (S36.5 pattern, idéntico a payments.config S37.5).
-  // - format: "pdf" → matchea el DefaulterReportType pineado en S38 backend
-  //   (ReportTypeRegistry.auto-discovery).
-  // - auto-pasa filterBy+searchBy del store actual (useCrud S36.5 D-36.5-2).
+  // Motor nuevo (Fase 6, 2026-08-07): `endpoint` + `supportedFormats` viajan
+  // juntos — `useCrud` elige el botón mirando `supportedFormats`, y el botón
+  // viejo no recibe `endpoint`. El pedido va por
+  // `GET /v3/defaulters?_export={formato}` y lo atiende `MorososExportConfig`.
+  //
+  // 🔴 El reporte viejo imprimía CUATRO columnas —Unidad, Titular, Expensas
+  // atrasadas y Total— mientras la pantalla muestra siete: calculaba Expensas,
+  // Multas y Mant. Valor y las tiraba antes de imprimir.
   export: false,
   exportAsync: {
     type: "defaulters",
     format: "pdf",
-    label: "Exportar PDF",
+    label: "Exportar",
+    supportedFormats: ["pdf", "xlsx", "csv"],
+    endpoint: "/v3/defaulters",
   },
   hideActions: {
     view: true,

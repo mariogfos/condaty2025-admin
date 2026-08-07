@@ -33,9 +33,13 @@ describe("Defaulters mod config (S38.5)", () => {
     expect(mod.exportAsync?.format).toBe("pdf");
   });
 
-  it("mod.exportAsync.label = 'Exportar PDF'", () => {
-    // Label del botón AsyncExportButton.
+  it("mod.exportAsync ofrece los tres formatos del motor nuevo", () => {
+    // Fase 6 (2026-08-07): el botón deja de ser sólo PDF. `endpoint` y
+    // `supportedFormats` viajan juntos — `useCrud` elige el botón mirando
+    // `supportedFormats`, y el botón viejo no recibe `endpoint`.
     const mod = getDefaultersMod();
-    expect(mod.exportAsync?.label).toBe("Exportar PDF");
+    expect(mod.exportAsync?.label).toBe("Exportar");
+    expect(mod.exportAsync?.supportedFormats).toEqual(["pdf", "xlsx", "csv"]);
+    expect(mod.exportAsync?.endpoint).toBe("/v3/defaulters");
   });
 });
