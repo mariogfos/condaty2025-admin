@@ -99,13 +99,8 @@ export const STATUS_FILTER_OPTIONS: Array<{ id: number; name: string }> = [
   { id: DebtStatus.WORKFLOW_PENDING,name: 'En flujo externo' },
 ];
 
-export const DISTRIBUTION_FILTER_OPTIONS = [
-  { id: 'F', name: 'Fijo' },
-  { id: 'V', name: 'Variable' },
-  { id: 'P', name: 'Porcentual' },
-  { id: 'M', name: 'Por m²' },
-  { id: 'A', name: 'Promedio' }
-];
+// La QUINTA tabla de `amount_type`, también sin usar y también con `V` y `P`.
+// El filtro de la pestaña de compartidas se deriva hoy de `AMOUNT_TYPE_MAP`.
 
 export const PAYMENT_TYPE_OPTIONS = [
   { id: 'T', name: 'Transferencia bancaria' },
@@ -269,3 +264,23 @@ export const COMMON_MESSAGES = {
   REQUIRED_FIELD: 'Este campo es requerido',
   NO_FUTURE_DATES: 'No se permiten fechas futuras'
 };
+
+
+/**
+ * Lo que una deuda debe DE VERDAD: deuda + mora + mantenimiento de valor.
+ *
+ * 🔴 Condonaciones es la EXCEPCIÓN a la regla general de mantenimiento de valor,
+ * y es a propósito. Lo definió Mario el 2026-08-07: *"el monto de la deuda
+ * condonada es consolidado"*. En el resto de la app, si el condominio no
+ * habilita mantenimiento de valor **no se muestra ni se suma**
+ * (`maintenanceAmountFor`); acá se suma SIEMPRE, porque este número es el que
+ * se persiste al condonar y condonar de menos dejaría un residuo sin cubrir.
+ *
+ * ⚠️ Por eso la pantalla de condonaciones muestra el desglose del mantenimiento
+ * cuando el condominio lo habilita **o cuando hay monto**: un total que incluye
+ * una línea que no se ve no se puede reconstruir con lo que hay en pantalla.
+ */
+export const montoConsolidadoDeLaDeuda = (debt: any): number =>
+  (Number(debt?.amount) || 0) +
+  (Number(debt?.penalty_amount) || 0) +
+  (Number(debt?.maintenance_amount) || 0);

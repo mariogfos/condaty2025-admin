@@ -8,7 +8,8 @@ import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
+import { hasMaintenanceValue } from "@/mk/utils/utils";
+import { montoConsolidadoDeLaDeuda } from "../../constants";
 import { MONTHS } from "@/mk/utils/date1";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useEffect, useState } from "react";
@@ -36,7 +37,23 @@ const RenderForm = ({
   const [errors, setErrors] = useState({});
   const [debts, setDebts] = useState([]);
   const { showToast, user } = useAuth();
-  const muestraMantenimiento = hasMaintenanceValue(user);
+  /**
+   * 🔴 Condonaciones es la EXCEPCIÓN a la regla general de mantenimiento de
+   * valor, y es a propósito: lo definió Mario el 2026-08-07 —*"el monto de la
+   * deuda condonada es consolidado"*—. En el resto de la app, si el condominio
+   * no habilita mantenimiento de valor no se muestra ni se suma; acá el total
+   * SIEMPRE lo suma, porque condonar de menos dejaría un residuo sin cubrir.
+   *
+   * ⚠️ Y por eso el desglose se muestra cuando el condominio lo habilita **o
+   * cuando hay monto**: un total que incluye una línea que no se ve no se puede
+   * reconstruir con lo que hay en pantalla.
+   */
+  const totalMaintenance = formState?.forgiveness?.reduce(
+    (total: number, debt: any) => total + (Number(debt.maintenance_amount) || 0),
+    0
+  );
+  const muestraMantenimiento =
+    hasMaintenanceValue(user) || Number(totalMaintenance) > 0;
 
   const totalAmount = formState?.forgiveness
     ?.reduce(
@@ -51,15 +68,7 @@ const RenderForm = ({
       0
     )
     .toFixed(2);
-  // El mantenimiento de valor sólo cuenta si el condominio lo habilita.
-  const totalMaintenanceAmount = formState?.forgiveness
-    ?.reduce(
-      (total: number, debt: any) =>
-        total +
-        (muestraMantenimiento ? Number(debt.maintenance_amount) || 0 : 0),
-      0
-    )
-    .toFixed(2);
+  const totalMaintenanceAmount = Number(totalMaintenance ?? 0).toFixed(2);
 
   const amountForgiveness =
     Number(totalAmount) +
@@ -188,16 +197,11 @@ const RenderForm = ({
     return errors;
   };
 
-  const getTotal = () => {
-    let total = 0;
-    formState?.forgiveness?.forEach((debt: any) => {
-      total +=
-        Number(debt.amount) +
-        Number(debt.penalty_amount) +
-        Number(debt.maintenance_amount);
-    });
-    return total;
-  };
+  const getTotal = () =>
+    (formState?.forgiveness ?? []).reduce(
+      (total: number, debt: any) => total + montoConsolidadoDeLaDeuda(debt),
+      0
+    );
   const onSave = async () => {
     let method = formState.id ? "PUT" : "POST";
     if (hasErrors(validate())) return;
@@ -386,11 +390,7 @@ const RenderForm = ({
                     fontWeight: "bold",
                   }}
                 >
-                  {formatBs(
-                    Number(debt?.amount) +
-                      Number(debt?.penalty_amount) +
-                      maintenanceAmountFor(user, debt)
-                  )}
+                  {formatBs(montoConsolidadoDeLaDeuda(debt))}
                 </p>
                 {formState?.forgiveness?.some((f: any) => f.id === debt.id) ? (
                   <IconCheckSquare color="var(--cAccent)" />
