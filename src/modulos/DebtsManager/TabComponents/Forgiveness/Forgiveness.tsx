@@ -45,13 +45,20 @@ const Forgiveness = ({
     // - extraParams.type: 5 (FORGIVENESS) → branch FORGIVENESS del
     //   ReportType (8 cols: dpto_nro, titular, due_at_date1, status_texto,
     //   categoria_padre_nombre, forgiveness_cobrar_cur, forgiveness_amount_cur,
-    //   total_sum_cur).
-    // - format: "pdf" (S47 pineá PDF only, no XLSX — D-47-3).
+    // Motor declarativo: `endpoint` + `supportedFormats` juntos, si no `useCrud`
+    // renderea el par de botones legacy.
+    //
+    // ⚠️ Condonaciones NO comparte la clave de la lista plana: son otras ocho
+    // columnas (Titular, Categoría, Deuda total, Condonado, Total a cobrar).
+    // El `extraParams.type: 5` es el que hace que el back resuelva esa clave, y
+    // es el mismo `type` con el que se filtró la lista.
     export: false,
     exportAsync: {
-      type: 'debt-dptos',
+      type: 'debt-dptos-condonaciones',
       format: 'pdf',
-      label: 'Exportar PDF',
+      supportedFormats: ['pdf', 'xlsx', 'csv'],
+      endpoint: '/v3/debt-dptos',
+      label: 'Exportar',
       extraParams: { type: 5 },
     },
     titleDel: "Anular",
