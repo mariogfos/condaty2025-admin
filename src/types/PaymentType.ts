@@ -72,6 +72,43 @@ export const DEBT_STATUS_MAP: Record<number, PaymentStatusConfig> = {
   },
 };
 
+/**
+ * Cómo se llama cada estado de deuda para el usuario, COMPLETO.
+ *
+ * 🔴 Lo reportó Mario el 2026-08-07: en el detalle de un periodo de Expensas la
+ * columna Estado mostraba **un "3" pelado**, y el filtro por estado no ofrecía
+ * ese estado. Medido en la base local: **257 expensas en PARTIAL**.
+ *
+ * La causa: cada pantalla escribía su propio `switch` o su propio mapa, y
+ * ninguno estaba completo. Éste es el espejo exacto de `DebtStatus::label()`
+ * del backend — si las palabras se separan, el PDF dice una cosa y la pantalla
+ * otra sobre la misma fila.
+ *
+ * ⚠️ `Record<DebtStatus, string>` (no `Record<number, string>`) a propósito:
+ * si se agrega un case al enum y nadie le pone nombre, **no compila**. Con
+ * `number` el hueco es silencioso y se descubre en un PDF.
+ *
+ * ⚠️ Este archivo tiene además `DEBT_STATUS_MAP` con OTRAS palabras para el
+ * mismo enum ("Por Pagar", "Moroso", "Cobrado"), y `DebtsManager` tiene una
+ * tercera. No las unifico sin decisión de producto: cambiaría texto en
+ * pantallas que nadie pidió tocar.
+ */
+export const DEBT_STATUS_TEXT: Record<DebtStatus, string> = {
+  [DebtStatus.PENDING]: "Por cobrar",
+  [DebtStatus.OVERDUE]: "En mora",
+  [DebtStatus.PARTIAL]: "Pago parcial",
+  [DebtStatus.SUBMITTED]: "Por confirmar",
+  [DebtStatus.PAID]: "Cobrada",
+  [DebtStatus.FORGIVEN]: "Condonada",
+  [DebtStatus.WORKFLOW_PENDING]: "En flujo externo",
+  [DebtStatus.CANCELLED]: "Anulada",
+  [DebtStatus.AWAITING_VOUCHER]: "Por subir comprobante",
+  [DebtStatus.REJECTED]: "Rechazado",
+};
+
+export const getDebtStatusText = (status: number): string =>
+  DEBT_STATUS_TEXT[status as DebtStatus] ?? "Desconocido";
+
 export const getDebtStatusConfig = (status: number): PaymentStatusConfig => {
   return DEBT_STATUS_MAP[status] || {
     label: "Desconocido",

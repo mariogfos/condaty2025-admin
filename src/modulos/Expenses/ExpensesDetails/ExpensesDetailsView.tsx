@@ -22,7 +22,7 @@ import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { DebtStatus } from "@/types/PaymentType";
+import { DebtStatus, DEBT_STATUS_TEXT, getDebtStatusText } from "@/types/PaymentType";
 
 const renderUnitCell = ({ item }: { item: any }) => (
   <div>{item?.dpto?.nro}</div>
@@ -62,6 +62,13 @@ const renderStatusCell = (
     [DebtStatus.REJECTED]: { color: "var(--cMediumAlert)", bgColor: "var(--cMediumAlertHover)" }, // Rechazado
     [DebtStatus.OVERDUE]: { color: "var(--cError)", bgColor: "var(--cHoverError)" }, // En mora
     [DebtStatus.FORGIVEN]: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" }, // Condonada
+    // ⚠️ Los cuatro que faltaban. Sin ellos el fallback pintaba una expensa en
+    // PARTIAL con el celeste de "Por cobrar": el texto decía una cosa y el
+    // color otra.
+    [DebtStatus.PARTIAL]: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl4)" }, // Pago parcial
+    [DebtStatus.WORKFLOW_PENDING]: { color: "var(--cMediumAlert)", bgColor: "var(--cMediumAlertHover)" }, // En flujo externo
+    [DebtStatus.CANCELLED]: { color: "var(--cError)", bgColor: "var(--cHoverError)" }, // Anulada
+    [DebtStatus.AWAITING_VOUCHER]: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl4)" }, // Por subir comprobante
   };
 
   const displayStatus = getDisplayStatus(item);
@@ -101,20 +108,10 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       }
     }
 
-    switch (numericStatus) {
-      case DebtStatus.PENDING:
-        return { text: "Por cobrar", code: DebtStatus.PENDING };
-      case DebtStatus.PAID:
-        return { text: "Cobrada", code: DebtStatus.PAID };
-      case DebtStatus.SUBMITTED:
-        return { text: "Por confirmar", code: DebtStatus.SUBMITTED };
-      case DebtStatus.OVERDUE:
-        return { text: "En mora", code: DebtStatus.OVERDUE };
-      case DebtStatus.FORGIVEN:
-        return { text: "Condonada", code: DebtStatus.FORGIVEN };
-      default:
-        return { text: item?.status != null ? String(item.status) : "Desconocido", code: numericStatus };
-    }
+    // 🔴 Acá había un `switch` con 5 de los 10 estados y un `default` que
+    // devolvía `String(item.status)`: las 257 expensas en PARTIAL salían en
+    // pantalla como un "3" pelado. El nombre lo pone la tabla completa.
+    return { text: getDebtStatusText(numericStatus), code: numericStatus };
   };
 
   const getPeriodOptions = () => [
@@ -315,13 +312,20 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           label: "Estado",
           width: "278px",
           options: () => {
+            // 🔴 Lo pidió Mario: faltaba "Pago parcial". Las 257 expensas en
+            // ese estado se veían en la lista pero no se podían filtrar.
+            // Los nombres salen de la misma tabla que la celda: si el filtro
+            // dice una palabra y la columna otra, nadie encuentra sus filas.
             return [
               { id: "ALL", name: "Todos" },
-              { id: DebtStatus.PENDING, name: "Por cobrar" },
-              { id: DebtStatus.PAID, name: "Cobrada" },
-              { id: DebtStatus.FORGIVEN, name: "Condonada" },
-              { id: DebtStatus.SUBMITTED, name: "Por confirmar" },
-              { id: DebtStatus.OVERDUE, name: "En mora" },
+              ...[
+                DebtStatus.PENDING,
+                DebtStatus.OVERDUE,
+                DebtStatus.PARTIAL,
+                DebtStatus.SUBMITTED,
+                DebtStatus.PAID,
+                DebtStatus.FORGIVEN,
+              ].map((estado) => ({ id: estado, name: DEBT_STATUS_TEXT[estado] })),
             ];
           },
           optionLabel: "name",
