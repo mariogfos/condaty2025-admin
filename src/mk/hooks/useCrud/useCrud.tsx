@@ -338,6 +338,24 @@ const CrudRendererHost = memo(
 );
 CrudRendererHost.displayName = "CrudRendererHost";
 
+/**
+ * El `filterBy` inicial de un módulo, en la forma que espera el back.
+ *
+ * Acepta el objeto legible (`{ in_at: "m" }`) y devuelve `"in_at:m"`. Si ya
+ * viene como cadena la deja pasar; si no hay filtro devuelve `null`.
+ */
+const filtroInicialComoCadena = (filtro: any): string | null => {
+  if (!filtro) return null;
+  if (typeof filtro === "string") return filtro || null;
+  if (typeof filtro !== "object") return null;
+
+  const partes = Object.entries(filtro)
+    .filter(([, valor]) => valor !== "" && valor !== null && valor !== undefined)
+    .map(([campo, valor]) => `${campo}:${valor}`);
+
+  return partes.length ? partes.join("|") : null;
+};
+
 const useCrud = ({
   paramsInitial,
   mod,
@@ -368,6 +386,16 @@ const useCrud = ({
   const [params, setParams] = useState({
     ...{
       ...paramsInitial,
+      // 🔴 El `filterBy` inicial se normaliza a la MISMA forma que produce
+      // `onFilter`: la cadena `campo:valor|campo:valor`. Un módulo lo declara
+      // como objeto —`{ in_at: "m" }`, que es como se lee— y acá se convierte.
+      //
+      // ⚠️ Sin esto, un `paramsInitial.filterBy` en forma de objeto viaja como
+      // `filterBy[in_at]=m` y el back, que hace `explode('|', $filterBy)`, no
+      // lo entiende: la lista sale SIN filtrar y nada avisa.
+      ...(filtroInicialComoCadena(paramsInitial?.filterBy)
+        ? { filterBy: filtroInicialComoCadena(paramsInitial?.filterBy) }
+        : {}),
       ...(extraParams || {}),
       ...(useInfiniteList
         ? {
@@ -918,7 +946,17 @@ const useCrud = ({
     }
     setOldSearch(searchBy);
   };
-  const [oldFilter, setOldFilter]: any = useState({});
+  // ⚠️ `oldFilter` arranca CON el filtro inicial del módulo, no vacío.
+  //
+  // 🔴 Es lo que mantiene los dos estados de acuerdo. `onFilter` construye el
+  // nuevo `filterBy` mezclando `oldFilter` con lo que el usuario acaba de
+  // tocar: si arranca vacío, el primer clic en CUALQUIER otro filtro borra el
+  // período inicial sin que nadie lo pida y sin decir nada.
+  const [oldFilter, setOldFilter]: any = useState(
+    paramsInitial?.filterBy && typeof paramsInitial.filterBy === "object"
+      ? { filterBy: { ...paramsInitial.filterBy } }
+      : {},
+  );
   const onFilter = (_opt: string, value: string) => {
     let opt = _opt.replace("_filter", "");
     // console.log("onFilter", opt, value);

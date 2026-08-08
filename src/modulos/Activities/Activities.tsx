@@ -6,11 +6,28 @@ import AccessesTab from "./AccessTab/AccessTab";
 import QrTab from "./QrTab/QrTab";
 import PedidosTab from "./PedidosTab/PedidosTab";
 
+/**
+ * 🔴 Los accesos arrancan en ESTE MES, no en "todos".
+ *
+ * El filtro de período de esta pantalla ofrece nueve opciones —Hoy, Ayer, Esta
+ * semana… Personalizado— y **excluye "Todos" a propósito** (está comentado en
+ * `AccessTab`). Pero la lista arrancaba SIN período, o sea justo en el estado
+ * que el filtro no ofrece.
+ *
+ * ⚠️ Se pagaba en el export, que hereda el filtro de la pantalla: medido el
+ * 2026-08-08 en el condominio más grande son **198.004 accesos, unas 6.600
+ * páginas** y varios minutos de espera para un documento que nadie lee. Los
+ * otros módulos no lo notan porque son órdenes de magnitud más chicos; accesos
+ * es el único donde la contradicción se paga.
+ *
+ * El usuario que necesita más sigue teniendo Año y Personalizado a un clic.
+ */
 const paramsInitialAccess = {
   fullType: "L",
   perPage: 20,
   page: 1,
   extraData: true,
+  filterBy: { in_at: "m" },
 };
 
 /**
