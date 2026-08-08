@@ -132,21 +132,19 @@ const Budget = () => {
       permiso: "budgets",
       extraData: true,
       filter: true,
-      // S63.5 (HALLAZGO-NEW-61): migrado al slot async S36.5.
-      // - export: false → kill legacy IconExport (D-38-5 round 14 frontend).
-      // - exportAsync: { type: "budgets", ... } → slot async.
-      // - matchea el BudgetReportType pineado en S63 backend.
-      // - auto-pasa filterBy (period M|Q|B|Y + status D|P|A|R)
-      //   + searchBy del store actual (useCrud S36.5 D-36.5-2).
-      // Patrón idéntico a S52.5 + S54.5 + S55.5 + S57.5 + S61.5 + S62.5.
-      // S67 (HALLAZGO-NEW-63): 'category_id' KILLED del filterBy.
-      // La tabla budgets NO pineá la col.
+      // 🔴 SIN botón de exportar, a propósito.
+      //
+      // Apuntaba a `BudgetReportType`, del motor viejo, que se borró al cerrar
+      // la Fase 6 (2026-08-08) junto con `app/Reports` y Dompdf. Presupuestos
+      // es el único módulo que NO se migró al motor declarativo, y fue una
+      // decisión medida: la tabla `budgets` tiene CERO filas y esta pantalla no
+      // la enlaza ningún menú.
+      //
+      // ⚠️ Dejar el `exportAsync` apuntando a un type inexistente daría un 400
+      // al apretar. Un botón que falla es peor que no tener botón: el usuario
+      // no sabe si el problema es suyo. Cuando Presupuestos se use de verdad,
+      // vuelve con su `ExportConfig` como el resto.
       export: false,
-      exportAsync: {
-        type: "budgets",
-        format: "pdf",
-        label: "Exportar PDF",
-      },
       titleAdd: "Nuevo",
       saveMsg: {
         add: "Presupuesto creado con éxito",
