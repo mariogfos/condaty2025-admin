@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import useAxios from "@/mk/hooks/useAxios";
 import { getUrlImages } from "@/mk/utils/string";
-import html2canvas from "html2canvas";
+import { useAsyncExport } from "@/mk/hooks/useAsyncExport/useAsyncExport";
 import Select from "@/mk/components/forms/Select/Select";
 import Button from "@/mk/components/forms/Button/Button";
 import Input from "@/mk/components/forms/Input/Input";
@@ -71,7 +71,6 @@ const BalanceGeneral: React.FC = () => {
   const chartRefIngresos = useRef<HTMLDivElement>(null);
   const chartRefEgresos = useRef<HTMLDivElement>(null);
 
-  const [exportando, setExportando] = useState(false);
   const { setStore, userCan } = useAuth();
 
   const {
@@ -123,45 +122,41 @@ const BalanceGeneral: React.FC = () => {
     { id: "sc", name: "Personalizado" },
   ];
 
+  // 🔴 2026-08-07: el botón "Descargar reporte" NO descargaba nada.
+  //
+  // `POST /v3/balances` con `exportar: true` encola el reporte y responde 202
+  // con `{job_id, status, status_url, download_url}` — el flujo async, desde
+  // S35. Pero acá se seguía esperando `finanzas.data.export.path`, que es el
+  // shape del camino LEGACY síncrono: esa clave nunca llega, así que el
+  // `window.open` no se ejecutaba nunca. El usuario apretaba, el PDF se
+  // generaba en el worker y no se abría solo.
+  //
+  // Ahora usa el mismo hook que el resto de los módulos migrados: encola,
+  // hace polling del estado y descarga cuando termina.
+  //
+  // ⚠️ La captura del gráfico se sacó de acá: el front hacía `html2canvas`,
+  // subía un PNG en base64 en cada export y el backend NO lo recibe —medido:
+  // cero referencias a `grafica` en todo `app/`—. Queda pendiente meterlo
+  // dentro del PDF (decisión de Mario, 2026-08-07); mientras tanto no se sube
+  // una imagen al vacío.
+  const {
+    state: exportState,
+    start: startExport,
+    download: downloadExport,
+  } = useAsyncExport({
+    type: "balance",
+    onCompleted: () => downloadExport(),
+  });
+
+  const exportando = exportState.isExporting;
+
   const exportar = async () => {
-    setExportando(true);
-
-    // Esperar a que el gráfico se re-renderice con fondo blanco
-
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    let fileObj = null;
-    let refToCapture = chartRefBalance;
-    let fileName = "grafica-balance.png";
-    if (formStateFilter.filter_mov === "I") {
-      refToCapture = chartRefIngresos;
-      fileName = "grafica-ingresos.png";
-    } else if (formStateFilter.filter_mov === "E") {
-      refToCapture = chartRefEgresos;
-      fileName = "grafica-egresos.png";
-    } else if (formStateFilter.filter_mov === "T") {
-      refToCapture = chartRefBalance;
-      fileName = "grafica-balance-claro.png";
-    }
-    if (refToCapture.current) {
-      const canvas = await html2canvas(refToCapture.current);
-      const base64 = canvas.toDataURL("image/png");
-      let base64String = base64.replace("data:image/png;base64,", "");
-      base64String = encodeURIComponent(base64String);
-      fileObj = { ext: "png", file: base64String };
-    }
-    setExportando(false);
-    reLoadFinanzas({
-      ...formStateFilter,
-      exportar: true,
-      grafica: fileObj ?? null,
+    await startExport({
+      filter_date: formStateFilter.filter_date,
+      filter_mov: formStateFilter.filter_mov,
+      filter_categ: formStateFilter.filter_categ,
     });
   };
-  useEffect(() => {
-    if (finanzas?.success === true && finanzas?.data?.export) {
-      window.open(getUrlImages("/" + finanzas.data.export.path), "_blank");
-    }
-  }, [finanzas]);
   const onSaveCustomFilter = () => {
     let err: ErrorType = {};
     if (!formState.date_inicio) {
