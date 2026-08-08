@@ -5,10 +5,8 @@ import { Ban, Copy, KeyRound, Smartphone } from "lucide-react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import Button from "@/mk/components/forms/Button/Button";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { getUrlImages } from "@/mk/utils/string";
 import styles from "./GuardDevices.module.css";
 
 const paramsInitial = {
@@ -34,15 +32,6 @@ const formatDate = (value?: string | null) => {
   });
 };
 
-const getGuardAvatarUrl = (item: any) => {
-  if (item?.guard_url_avatar) return item.guard_url_avatar;
-  if (!item?.guard_has_image || !item?.guard_id) return undefined;
-
-  return getUrlImages(
-    `/GUARD-${item.guard_id}.webp?d=${item.guard_updated_at || ""}`,
-  );
-};
-
 const GuardDevices = () => {
   const { userCan } = useAuth();
   const crudRef = useRef<any>({});
@@ -51,6 +40,8 @@ const GuardDevices = () => {
   const [generatingCode, setGeneratingCode] = useState(false);
   const [deviceToRevoke, setDeviceToRevoke] = useState<any>(null);
   const [revoking, setRevoking] = useState(false);
+  const [deviceDetail, setDeviceDetail] = useState<any>(null);
+  const [loadingDeviceDetail, setLoadingDeviceDetail] = useState(false);
 
   const generateAuthorizationCode = useCallback(async () => {
     setCodeModalOpen(true);
@@ -97,6 +88,39 @@ const GuardDevices = () => {
     [generateAuthorizationCode],
   );
 
+  const handleOpenDeviceDetail = useCallback(async (device: any) => {
+    if (!device?.id) return;
+
+    setDeviceDetail({ ...device, loading: true });
+    setLoadingDeviceDetail(true);
+
+    try {
+      const { execute, showToast } = crudRef.current;
+      if (!execute) return;
+
+      const { data, error }: any = await execute(
+        `/guard-device-authorizations/${device.id}`,
+        "GET",
+        {},
+        false,
+        false,
+      );
+
+      if (data?.success && data?.data) {
+        setDeviceDetail(data.data);
+        return;
+      }
+
+      setDeviceDetail(device);
+      showToast?.(
+        data?.message || error?.message || "No se pudo cargar el detalle.",
+        "error",
+      );
+    } finally {
+      setLoadingDeviceDetail(false);
+    }
+  }, []);
+
   const mod: ModCrudType = {
     modulo: "guard-device-authorizations",
     singular: "dispositivo",
@@ -114,38 +138,11 @@ const GuardDevices = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "" },
-      guard_name: {
-        rules: [],
-        api: "",
-        label: "Guardia",
-        order: 1,
-        list: {
-          width: "310px",
-          onRender: ({ item }: any) => {
-            const guardName = item?.guard_name || "Guardia";
-
-            return (
-              <div className={styles.guardCell}>
-                <Avatar
-                  src={getGuardAvatarUrl(item)}
-                  name={guardName}
-                  w={42}
-                  h={42}
-                />
-                <div className={styles.guardInfo}>
-                  <p className={styles.guardName}>{guardName}</p>
-                  <p className={styles.guardCi}>CI: {item?.guard_ci || "-/-"}</p>
-                </div>
-              </div>
-            );
-          },
-        },
-      },
       device_name: {
         rules: [],
         api: "",
         label: "Dispositivo",
-        order: 2,
+        order: 1,
         list: {
           width: "260px",
           onRender: ({ item }: any) => {
@@ -165,7 +162,7 @@ const GuardDevices = () => {
         rules: [],
         api: "",
         label: "Sistema",
-        order: 3,
+        order: 2,
         list: {
           width: "160px",
           onRender: ({ item }: any) => {
@@ -178,7 +175,7 @@ const GuardDevices = () => {
         rules: [],
         api: "",
         label: "App",
-        order: 4,
+        order: 3,
         list: {
           width: "120px",
           onRender: ({ item }: any) => {
@@ -191,7 +188,7 @@ const GuardDevices = () => {
         rules: [],
         api: "",
         label: "Autorizado",
-        order: 5,
+        order: 4,
         list: {
           width: "180px",
           onRender: ({ item }: any) => (
@@ -203,7 +200,7 @@ const GuardDevices = () => {
         rules: [],
         api: "",
         label: "Ultima actividad",
-        order: 6,
+        order: 5,
         list: {
           width: "180px",
           onRender: ({ item }: any) => (
@@ -215,7 +212,7 @@ const GuardDevices = () => {
         rules: [],
         api: "",
         label: "Estado",
-        order: 7,
+        order: 6,
         list: {
           width: "120px",
           onRender: ({ item }: any) => {
@@ -236,7 +233,7 @@ const GuardDevices = () => {
         rules: [],
         api: "",
         label: "Acciones",
-        order: 8,
+        order: 7,
         list: {
           width: "150px",
           onRender: ({ item }: any) => {
@@ -338,6 +335,7 @@ const GuardDevices = () => {
         emptyLine2="Cuando un guardia autorice su celular, aparecera aqui."
         emptyIcon={<Smartphone size={80} color="var(--cWhiteV1)" />}
         actionsWidth="0px"
+        onRowClick={handleOpenDeviceDetail}
       />
 
       <DataModal
@@ -379,9 +377,9 @@ const GuardDevices = () => {
         maxWidth={480}
       >
         <p className={styles.revokeText}>
-          Se revocara la autorizacion de{" "}
-          <strong>{deviceToRevoke?.guard_name || "este guardia"}</strong> en el
-          dispositivo{" "}
+          Se revocara este dispositivo para <strong>todos los guardias activos
+          del condominio</strong>. Para volver a usarlo se necesitara un nuevo
+          codigo de autorizacion en el dispositivo{" "}
           <strong>
             {deviceToRevoke?.device_name ||
               [deviceToRevoke?.brand, deviceToRevoke?.model]
@@ -391,6 +389,146 @@ const GuardDevices = () => {
           </strong>
           .
         </p>
+      </DataModal>
+
+      <DataModal
+        open={!!deviceDetail}
+        onClose={() => setDeviceDetail(null)}
+        title="Detalle del dispositivo"
+        buttonText=""
+        buttonCancel="Cerrar"
+        minWidth={860}
+        maxWidth={1040}
+      >
+        <div className={styles.detailContent}>
+          <section className={styles.detailSummary}>
+            <div>
+              <p className={styles.detailDeviceName}>
+                {deviceDetail?.device_name || "Dispositivo autorizado"}
+              </p>
+              <p className={styles.detailDeviceMeta}>
+                {[deviceDetail?.brand, deviceDetail?.model]
+                  .filter(Boolean)
+                  .join(" ") || "Sin modelo informado"}
+              </p>
+            </div>
+            <span
+              className={`${styles.statusBadge} ${
+                deviceDetail?.revoked_at
+                  ? styles.statusRevoked
+                  : styles.statusActive
+              }`}
+            >
+              {deviceDetail?.revoked_at ? "Revocado" : "Activo"}
+            </span>
+          </section>
+
+          <section className={styles.detailFacts}>
+            <div>
+              <span>Sistema</span>
+              <strong>
+                {[deviceDetail?.os, deviceDetail?.os_version]
+                  .filter(Boolean)
+                  .join(" ") || "-/-"}
+              </strong>
+            </div>
+            <div>
+              <span>Aplicacion</span>
+              <strong>
+                {deviceDetail?.app_version || deviceDetail?.build_number || "-/-"}
+              </strong>
+            </div>
+            <div>
+              <span>Autorizado</span>
+              <strong>{formatDate(deviceDetail?.authorized_at)}</strong>
+            </div>
+            <div>
+              <span>Ultima actividad</span>
+              <strong>{formatDate(deviceDetail?.last_seen_at)}</strong>
+            </div>
+          </section>
+
+          {loadingDeviceDetail ? (
+            <p className={styles.detailLoading}>Cargando historial...</p>
+          ) : (
+            <>
+              <section className={styles.historySection}>
+                <div className={styles.historyHeader}>
+                  <h2>Autorizaciones</h2>
+                  <p>Quien uso un codigo para habilitar este dispositivo.</p>
+                </div>
+                <div className={styles.historyTableWrap}>
+                  <table className={styles.historyTable}>
+                    <thead>
+                      <tr>
+                        <th>Guardia</th>
+                        <th>CI</th>
+                        <th>Fecha</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {deviceDetail?.authorization_history?.length ? (
+                        deviceDetail.authorization_history.map((item: any) => (
+                          <tr key={`authorization-${item.id}`}>
+                            <td>{item?.guard?.name || "Sin registro"}</td>
+                            <td>{item?.guard?.ci || "-/-"}</td>
+                            <td>{formatDate(item?.used_at)}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={3} className={styles.emptyHistory}>
+                            Sin autorizaciones vinculadas.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section className={styles.historySection}>
+                <div className={styles.historyHeader}>
+                  <h2>Actividad</h2>
+                  <p>
+                    {deviceDetail?.activity_tracking_note ||
+                      "Ingresos de sesion y acciones realizadas desde este dispositivo."}
+                  </p>
+                </div>
+                <div className={styles.historyTableWrap}>
+                  <table className={styles.historyTable}>
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Guardia</th>
+                        <th>Accion</th>
+                        <th>App</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {deviceDetail?.activity_history?.length ? (
+                        deviceDetail.activity_history.map((item: any) => (
+                          <tr key={`activity-${item.id}`}>
+                            <td>{formatDate(item?.date_at)}</td>
+                            <td>{item?.guard?.name || "Sin registro"}</td>
+                            <td>{item?.action || "Actividad"}</td>
+                            <td>{item?.app_version || "-/-"}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={4} className={styles.emptyHistory}>
+                            Aun no hay actividad exacta registrada para este dispositivo.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </>
+          )}
+        </div>
       </DataModal>
     </div>
   );
