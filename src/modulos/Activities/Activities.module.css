@@ -60,6 +60,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* El ícono ya no va solo: lleva el nombre del tipo al lado, porque son TRES
+     (individual, grupal y frecuente) y dos íconos no alcanzan para distinguirlos. */
+  gap: 6px;
+  white-space: nowrap;
 }
 
 .groupIcon {

@@ -12,6 +12,18 @@ interface QRTabProps {
   paramsInitial: any;
   onRowClick: (item: any) => void;
 }
+
+/**
+ * Los tres tipos de invitación, con las palabras que ya usa el detalle.
+ *
+ * ⚠️ Las mismas que imprime `InvitacionesExportConfig` en el back: la lista y
+ * el reporte tienen que decir lo mismo.
+ */
+const INVITATION_TYPE_LABELS: Record<string, string> = {
+  I: "Individual",
+  G: "Grupal",
+  F: "Frecuente",
+};
 // Función actualizada para obtener las opciones de período
 const getPeriodOptions = () => [
   { id: "t", name: "Todos" },
@@ -35,7 +47,16 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
       exportAsync: {
         type: "invitations",
         format: "pdf",
-        label: "Exportar PDF",
+        label: "Exportar",
+        // 🔴 `supportedFormats` y `endpoint` son UNA sola cosa: el interruptor
+        // de la migración al motor declarativo. Van juntos o no va ninguno.
+        //
+        // `useCrud` elige el botón mirando SÓLO `supportedFormats`: con el
+        // array renderea el `DownloadButton` (menú PDF/XLSX/CSV) y le pasa el
+        // `endpoint`; sin el array cae al `AsyncExportButton` legacy, que **no
+        // recibe `endpoint` como prop**, así que el endpoint no llega nunca.
+        supportedFormats: ["pdf", "xlsx", "csv"],
+        endpoint: "/v3/invitations", // sin `/api/`: API_BASE_URL ya lo trae.
       },
       extraData: false,
       hideActions: {
@@ -113,15 +134,28 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
         api: "",
         label: "Tipo",
         list: {
-          width: "80px",
+          // Más ancho que los 80px de antes: ahora la celda lleva texto.
+          width: "130px",
           onRender: (props: any) => {
+            // 🔴 Son TRES tipos, no dos. Medido el 2026-08-08: `I` individual
+            // (3.468), `G` grupal (605) y `F` FRECUENTE (999) — las que repiten
+            // días de la semana. Acá sólo se preguntaba por `G`, así que las
+            // 999 frecuentes se dibujaban con el ícono de individual.
+            //
+            // El ícono solo no alcanza para distinguir tres cosas, así que va
+            // con su nombre al lado. El reporte usa las mismas palabras.
+            const type = props.item.type;
+            const esGrupal = type === "G";
+            const label = INVITATION_TYPE_LABELS[type] ?? INVITATION_TYPE_LABELS.I;
+
             return (
-              <div className={styles.invitationTypeIcon}>
-                {props.item.type === "G" ? (
+              <div className={styles.invitationTypeIcon} title={label}>
+                {esGrupal ? (
                   <IconGroupsQr className={styles.groupIcon} />
                 ) : (
                   <IconSingleQr className={styles.singleIcon} />
                 )}
+                <span>{label}</span>
               </div>
             );
           },
@@ -162,11 +196,16 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
         list: {
           width: "100px",
           onRender: (props: any) => {
-            return (
-              <div>
-                {props.item.guests ? props.item.guests.length : 0} invitados
-              </div>
-            );
+            // 🔴 Los invitados viven en DOS lugares según el tipo. Medido el
+            // 2026-08-08: de las 3.970 invitaciones con fecha pasada, 3.425 no
+            // son grupales, tienen su invitado en `visit_id` y CERO filas en
+            // `guests`. Contar sólo `guests` decía "0 invitados" en el 86% de
+            // las filas — una invitación individual tiene un invitado.
+            const enLaLista = props.item.guests?.length ?? 0;
+            const cuantos =
+              enLaLista > 0 ? enLaLista : props.item.visit_id ? 1 : 0;
+
+            return <div>{cuantos} invitados</div>;
           },
         },
       },
