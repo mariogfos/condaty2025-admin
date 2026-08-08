@@ -21,36 +21,6 @@
   white-space: nowrap;
 }
 
-.guardCell {
-  align-items: center;
-  display: flex;
-  gap: 10px;
-  min-width: 240px;
-}
-
-.guardInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
-.guardName {
-  color: var(--cWhite);
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.guardCi {
-  color: var(--cWhiteV1);
-  font-size: 12px;
-  margin: 0;
-}
-
 .deviceCell {
   display: flex;
   flex-direction: column;
@@ -148,4 +118,142 @@
 
 .revokeText strong {
   color: var(--cWhite);
+}
+
+.detailContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.detailSummary {
+  align-items: flex-start;
+  background: var(--cHover);
+  border: 1px solid var(--cBlackV2);
+  border-radius: 10px;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 18px;
+}
+
+.detailDeviceName {
+  color: var(--cWhite);
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.detailDeviceMeta,
+.historyHeader p,
+.detailFacts span,
+.detailLoading {
+  color: var(--cWhiteV1);
+}
+
+.detailDeviceMeta {
+  font-size: 14px;
+  margin: 5px 0 0;
+}
+
+.detailFacts {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.detailFacts > div {
+  background: var(--cHover);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 13px;
+}
+
+.detailFacts span {
+  font-size: 12px;
+}
+
+.detailFacts strong {
+  color: var(--cWhite);
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historySection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.historyHeader h2 {
+  color: var(--cWhite);
+  font-size: 17px;
+  margin: 0;
+}
+
+.historyHeader p {
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 5px 0 0;
+}
+
+.historyTableWrap {
+  border: 1px solid var(--cBlackV2);
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.historyTable {
+  border-collapse: collapse;
+  min-width: 620px;
+  width: 100%;
+}
+
+.historyTable th,
+.historyTable td {
+  border-bottom: 1px solid var(--cBlackV2);
+  padding: 11px 12px;
+  text-align: left;
+}
+
+.historyTable th {
+  color: var(--cWhiteV1);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.historyTable td {
+  color: var(--cWhite);
+  font-size: 13px;
+}
+
+.historyTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.emptyHistory {
+  color: var(--cWhiteV1) !important;
+  text-align: center !important;
+}
+
+.detailLoading {
+  font-size: 14px;
+  margin: 0;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .detailSummary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .detailFacts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
