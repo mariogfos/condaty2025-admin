@@ -38,21 +38,20 @@ const mod = {
   renderView: (props: any) => <ReservationDetailModal {...props} />,
   //loadView: { fullType: "DET" },
   filter: true,
-  // S62.5 (HALLAZGO-NEW-61): migrado al slot async S36.5.
-  // - export: false → kill legacy IconExport (D-38-5 round 13 frontend).
-  // - exportAsync: { type: "reservations", ... } → slot async que useCrud
-  //   auto-renderea via AsyncExportButton. Matchea el ReservationReportType
-  //   pineado en S62 backend (ReportTypeRegistry.auto-discovery).
-  // - format: "pdf" → ReportGenerator chunked (S32). XLSX también soportado
-  //   (S62 pineá excelRowProvider).
-  // - auto-pasa filterBy (date_at d/ld/w/lw/m/lm/y/ly + status_reservation +
-  //   area_id) + searchBy del store actual (useCrud S36.5 D-36.5-2).
-  // Patrón idéntico a S52.5 + S54.5 + S55.5 + S57.5 + S61.5.
   export: false,
   exportAsync: {
     type: "reservations",
     format: "pdf",
-    label: "Exportar PDF",
+    label: "Exportar",
+    // 🔴 `supportedFormats` y `endpoint` son UNA sola cosa: el interruptor de
+    // la migración al motor declarativo. Van juntos o no va ninguno.
+    //
+    // `useCrud` elige el botón mirando SÓLO `supportedFormats`: con el array
+    // renderea el `DownloadButton` (ícono + menú PDF/XLSX/CSV) y le pasa el
+    // `endpoint`; sin el array cae al `AsyncExportButton` legacy, que **no
+    // recibe `endpoint` como prop**, así que el endpoint no llega nunca.
+    supportedFormats: ["pdf", "xlsx", "csv"],
+    endpoint: "/v3/reservations", // sin `/api/`: API_BASE_URL ya lo trae.
   },
   titleAdd: "Nueva",
 };
