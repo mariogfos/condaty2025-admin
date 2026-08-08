@@ -10,7 +10,12 @@ import RenderView from "./RenderView/RenderView";
 
 interface QRTabProps {
   paramsInitial: any;
-  onRowClick: (item: any) => void;
+  /**
+   * ⚠️ Opcional: el detalle de una invitación lo abre `useCrud` con el
+   * `renderView` del propio módulo. Sólo hace falta cuando quien monta la lista
+   * quiere hacer algo distinto al hacer clic.
+   */
+  onRowClick?: (item: any) => void;
 }
 
 /**
