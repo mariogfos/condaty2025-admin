@@ -29,6 +29,7 @@ prompt_aliases.json
 # production
 /build
 .env*
+!.env.example
 /.env.development
 .env.production
 /context

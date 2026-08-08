@@ -31,6 +31,15 @@ export interface AuthContextType {
 }
 
 export const AuthContext = createContext({} as AuthContextType);
+
+const adminAuthEndpoints = {
+  login: process.env.NEXT_PUBLIC_AUTH_LOGIN || "/adm-login",
+  logout: process.env.NEXT_PUBLIC_AUTH_LOGOUT || "/adm-logout",
+  iam: process.env.NEXT_PUBLIC_AUTH_IAM || "/adm-iam",
+};
+
+const adminAuthTokenKey = `${adminAuthEndpoints.iam}token`;
+
 const AuthProvider = ({ children, noAuth = false }: any): any => {
   const { error, loaded, execute, waiting, setWaiting } = useAxios();
   const [user, setUser] = useState<any>(null);
@@ -53,9 +62,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     let currentUser: any = false;
     try {
       const token = await JSON.parse(
-        localStorage.getItem(
-          (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
-        ) + "",
+        localStorage.getItem(adminAuthTokenKey) + "",
       );
       currentUser = user || token.user;
       const credentials: any = {};
@@ -66,7 +73,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
       }
       if (currentUser) {
         const { data, error }: any = await execute(
-          process.env.NEXT_PUBLIC_AUTH_IAM,
+          adminAuthEndpoints.iam,
           "POST",
           credentials,
           false,
@@ -86,7 +93,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
           }
 
           localStorage.setItem(
-            (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+            adminAuthTokenKey,
             JSON.stringify({ token: token.token, user: currentUser }),
           );
         } else {
@@ -94,7 +101,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
             setWaiting(-1, "-getUser500");
             setTimeout(async () => {
               localStorage.removeItem(
-                (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+                adminAuthTokenKey,
               );
               setUser(false);
               setSplash(false);
@@ -102,7 +109,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
             return false;
           }
           localStorage.removeItem(
-            (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+            adminAuthTokenKey,
           );
           localStorage.removeItem("condaty_client_id");
           setUser(false);
@@ -163,7 +170,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     setUser(false);
 
     const { data, error }: any = await execute(
-      process.env.NEXT_PUBLIC_AUTH_LOGIN,
+      adminAuthEndpoints.login,
       "POST",
       credentials,
     );
@@ -171,7 +178,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     if (data?.success && !error) {
       setUser(data?.data?.user);
       localStorage.setItem(
-        (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+        adminAuthTokenKey,
         JSON.stringify({ token: data?.data?.token, user: data?.data?.user }),
       );
       setWaiting(-1, "-login");
@@ -187,11 +194,11 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     setUser({ id: "0" });
     setWaiting(1, "logout");
     const { data, error }: any = await execute(
-      process.env.NEXT_PUBLIC_AUTH_LOGOUT,
+      adminAuthEndpoints.logout,
       "POST",
     );
     localStorage.removeItem(
-      (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+      adminAuthTokenKey,
     );
     setUser(false);
     if (data?.success) {
