@@ -222,7 +222,9 @@ const KNOWN_TYPES: TypeOption[] = [
   // genérico "Deudas — Detalles".
   { value: "debt-dptos", label: "Deudas — Detalles" },
   { value: "debt-groups", label: "Deudas — Grupos" },
+  { value: "assemblies", label: "Asambleas" },
   { value: "assemblies-attendances", label: "Asistencia a Asambleas" },
+  { value: "others", label: "Pedidos" },
   { value: "guard-news", label: "Guardias Nuevos" },
   { value: "array_chunked", label: "Reporte (genérico)" },
 ];

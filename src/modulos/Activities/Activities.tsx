@@ -4,6 +4,7 @@ import styles from "./Activities.module.css";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import AccessesTab from "./AccessTab/AccessTab";
 import QrTab from "./QrTab/QrTab";
+import PedidosTab from "./PedidosTab/PedidosTab";
 
 const paramsInitialAccess = {
   fullType: "L",
@@ -22,9 +23,19 @@ const paramsInitialQr = {
   page: 1,
 };
 
+/**
+ * ⚠️ Los pedidos tampoco tienen tarjetas de resumen.
+ */
+const paramsInitialPedidos = {
+  fullType: "L",
+  perPage: 20,
+  page: 1,
+};
+
 const tabs = [
   { value: "accesses", text: "Accesos" },
   { value: "qr", text: "Invitaciones" },
+  { value: "pedidos", text: "Pedidos" },
 ];
 
 /**
@@ -43,6 +54,16 @@ const tabs = [
  *
  * En el menú, "Invitaciones QR" (`/invitations`) apunta a OTRA cosa: las
  * campañas (`v3/campaigns`), con columnas de rol, código y cantidad.
+ *
+ * 🔴 Y `PedidosTab` estaba EXACTAMENTE IGUAL: entera, con su `RenderView`, su
+ * filtro por período, su botón de exportar y hasta las acciones de registrar
+ * entrada y salida — y sin un solo import en todo el proyecto. Apareció al
+ * migrar su reporte al motor declarativo (Fase 6, 2026-08-08): el back tenía
+ * `OtherReportType` vivo para una lista que nadie podía abrir.
+ *
+ * Van tres en la Fase 6 —Presupuestos, QrTab, PedidosTab— más el módulo
+ * `homeowners`. Ya no es una casualidad: **buscar quién importa, no qué
+ * importa**.
  */
 const Activities = () => {
   const [tab, setTab] = useState("accesses");
@@ -51,11 +72,9 @@ const Activities = () => {
     <div className={styles.container1}>
       <TabsButtons sel={tab} tabs={tabs} setSel={setTab} variant="rounded" />
 
-      {tab === "accesses" ? (
-        <AccessesTab paramsInitial={paramsInitialAccess} />
-      ) : (
-        <QrTab paramsInitial={paramsInitialQr} />
-      )}
+      {tab === "accesses" && <AccessesTab paramsInitial={paramsInitialAccess} />}
+      {tab === "qr" && <QrTab paramsInitial={paramsInitialQr} />}
+      {tab === "pedidos" && <PedidosTab paramsInitial={paramsInitialPedidos} />}
     </div>
   );
 };
