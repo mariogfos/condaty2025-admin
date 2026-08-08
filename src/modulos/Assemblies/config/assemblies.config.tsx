@@ -28,16 +28,35 @@ export const getAssemblyConfig = (
     search: true,
     filter: true,
     titleAdd: "Crear",
-    // S140 (bug #10 backlog Mario 2026-07-28): faltaba slot `exportAsync`
-    // en la lista de Asambleas. Pineamos `assembly-attendances`
-    // (AssemblyAttendancesReportType, S110 pre-existente) que es el
-    // ReportType más cercano a "asambleas" en el back. useCrud
-    // auto-renderea el AsyncExportButton (S36.5 pattern).
+    // 🔴 Este botón NO PODÍA funcionar. Pedía `assembly-attendances` —en
+    // singular—, y la clave registrada era `assemblies-attendances`. Pero
+    // aunque la clave hubiera estado bien, ese reporte es la lista de
+    // ASISTENTES de UNA asamblea y exige un `assembly_id` que un export de
+    // listado no tiene de dónde sacar.
+    //
+    // El comentario original lo decía sin darse cuenta: *"el ReportType más
+    // cercano a asambleas en el back"*. Cerca no alcanza — un botón que baja
+    // el reporte equivocado es peor que no tener botón, porque nadie lo
+    // reporta: se abre el archivo y dice otra cosa.
+    //
+    // Desde la Fase 6 (2026-08-08) la lista tiene su propio reporte
+    // (`AsambleasExportConfig`), y el de asistentes vive donde siempre estuvo:
+    // en el detalle de la asamblea.
     export: false,
     exportAsync: {
-      type: "assembly-attendances",
+      type: "assemblies",
       format: "pdf",
-      label: "Exportar PDF",
+      label: "Exportar",
+      // 🔴 `supportedFormats` y `endpoint` van JUNTOS: `useCrud` elige el botón
+      // mirando sólo `supportedFormats`, y el botón viejo no recibe `endpoint`.
+      supportedFormats: ["pdf", "xlsx", "csv"],
+      // ⚠️ `/assemblies`, sin `/v3`: tiene que ser EXACTAMENTE la misma URL
+      // que lista la pantalla (`modulo: "assemblies"`). Las dos existen y las
+      // dos van al mismo controller, pero el pin
+      // `ExportAsyncEndpointNecesitaSupportedFormats` compara las cadenas —y
+      // hace bien: el día que una de las dos rutas cambie de destino, un
+      // endpoint escrito distinto exporta otra lista sin dar error.
+      endpoint: "/assemblies",
     },
     hideActions: {
       view: false,
