@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import useAxios from "@/mk/hooks/useAxios";
 import { getUrlImages } from "@/mk/utils/string";
 import { useAsyncExport } from "@/mk/hooks/useAsyncExport/useAsyncExport";
+import ExportProgressModal from "@/mk/components/ui/ExportProgressModal/ExportProgressModal";
 import Select from "@/mk/components/forms/Select/Select";
 import Button from "@/mk/components/forms/Button/Button";
 import Input from "@/mk/components/forms/Input/Input";
@@ -71,7 +72,7 @@ const BalanceGeneral: React.FC = () => {
   const chartRefIngresos = useRef<HTMLDivElement>(null);
   const chartRefEgresos = useRef<HTMLDivElement>(null);
 
-  const { setStore, userCan } = useAuth();
+  const { setStore, userCan, showToast } = useAuth();
 
   const {
     data: finanzas,
@@ -139,19 +140,39 @@ const BalanceGeneral: React.FC = () => {
   // cero referencias a `grafica` en todo `app/`—. Queda pendiente meterlo
   // dentro del PDF (decisión de Mario, 2026-08-07); mientras tanto no se sube
   // una imagen al vacío.
+  // 🔴 El modal de progreso es el MISMO que usa el resto de los módulos
+  // (`AsyncExportButton` lo arma junto al hook). Acá el botón es propio —tiene
+  // su ícono y su estilo—, así que el hook se usa directo; pero sin el modal el
+  // usuario apretaba y no veía absolutamente nada mientras el worker armaba el
+  // PDF, que en un balance grande tarda varios segundos.
+  const [modalExport, setModalExport] = useState(false);
+
   const {
     state: exportState,
     start: startExport,
     download: downloadExport,
+    reset: resetExport,
   } = useAsyncExport({
     type: "balance",
-    onCompleted: () => downloadExport(),
+    onCompleted: () => setModalExport(true),
+    // 🔴 Un export que falla TIENE que decirlo. Sin esto el botón no hacía
+    // nada visible: el back respondía 400 y el error moría adentro del hook.
+    onError: (msg) => {
+      setModalExport(true);
+      showToast(msg || "No se pudo generar el reporte", "error");
+    },
   });
 
   const exportando = exportState.isExporting;
 
   const exportar = async () => {
+    setModalExport(true);
     await startExport({
+      // 🔴 `format` VA en los params: el hook los manda tal cual en el body y
+      // el back, sin este campo, asume `xlsx` — que este reporte no genera —
+      // y devuelve 400 "Format 'xlsx' no soportado". El botón se quedaba
+      // mudo por esto.
+      format: "pdf",
       filter_date: formStateFilter.filter_date,
       filter_mov: formStateFilter.filter_mov,
       filter_categ: formStateFilter.filter_categ,
@@ -1097,6 +1118,21 @@ const BalanceGeneral: React.FC = () => {
         }}
         errorStart={errors.date_inicio}
         errorEnd={errors.date_fin}
+      />
+
+      <ExportProgressModal
+        open={modalExport}
+        state={exportState}
+        reportTypeLabel="flujo de efectivo"
+        onDownload={async () => {
+          await downloadExport();
+          setModalExport(false);
+          resetExport();
+        }}
+        onClose={() => {
+          setModalExport(false);
+          resetExport();
+        }}
       />
     </div>
   );
