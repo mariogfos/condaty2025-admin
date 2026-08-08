@@ -65,7 +65,15 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
       singular: "Invitación",
       plural: "Invitaciones QR",
       filter: true,
-      permiso: "",
+      // 🔴 Con `permiso: ""` esta lista NO tenía control de acceso:
+      // `AuthProvider::userCan` arranca con `if (!ability) return true`, así que
+      // cualquier rol que llegara a Actividades veía nombres de residentes,
+      // unidades e invitados. Lo detectamos el 2026-08-08 al montar la pestaña.
+      //
+      // Va `accesses` —el mismo que ya protege la pestaña de al lado y la
+      // entrada del menú— porque NO existe un permiso de invitaciones: medido
+      // sobre los roles de la base, ninguno de los 40 lo menciona.
+      permiso: "accesses",
       // S65.5 (HALLAZGO-NEW-61): migrado al slot async S36.5.
       export: false,
       exportAsync: {
