@@ -108,7 +108,7 @@ const Authentication = ({
 
   const onChangeData = async () => {
     let err = {};
-    let url = "/adm-setemail";
+    let url = "/v3/adm-setemail";
     let param: any = { code: formState.code };
     if (type == "M") {
       if (hasErrors(validateEmail())) {
@@ -119,7 +119,7 @@ const Authentication = ({
       if (hasErrors(validatePassword())) {
         return;
       }
-      url = "/adm-setpass";
+      url = "/v3/adm-setpass";
       param = { ...param, password: formState.password };
     }
 
@@ -141,10 +141,10 @@ const Authentication = ({
     }
   };
   const onValidCode = async () => {
-    let url = "/adm-setemail";
+    let url = "/v3/adm-setemail";
     let param: any = { code: formState.code };
     if (type == "P") {
-      url = "/adm-setpass";
+      url = "/v3/adm-setpass";
     }
 
     const { data } = await execute(url, "POST", param);

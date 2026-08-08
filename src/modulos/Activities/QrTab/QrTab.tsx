@@ -29,6 +29,25 @@ const INVITATION_TYPE_LABELS: Record<string, string> = {
   G: "Grupal",
   F: "Frecuente",
 };
+
+/**
+ * ⚠️ Los valores viajan al back en `filterBy` y los interpreta
+ * `InvitationController::porEstado()`. Son las palabras que la lista MUESTRA,
+ * no los cuatro chars de `invitations.status` —'O', 'A', 'I', 'X'— que el
+ * usuario no ve por ningún lado: un filtro que hable otro idioma que la
+ * columna filtra por algo distinto de lo que se está mirando.
+ */
+const getStatusOptions = () => [
+  { id: "ALL", name: "Todos" },
+  { id: "ACTIVA", name: "Activa" },
+  { id: "EXPIRADA", name: "Expirada" },
+  { id: "ANULADA", name: "Anulada" },
+];
+
+const getTypeOptions = () => [
+  { id: "ALL", name: "Todos" },
+  ...Object.entries(INVITATION_TYPE_LABELS).map(([id, name]) => ({ id, name })),
+];
 // Función actualizada para obtener las opciones de período
 const getPeriodOptions = () => [
   { id: "t", name: "Todos" },
@@ -138,6 +157,11 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
         rules: [""],
         api: "",
         label: "Tipo",
+        filter: {
+          label: "Tipo",
+          width: "160px",
+          options: getTypeOptions,
+        },
         list: {
           // Más ancho que los 80px de antes: ahora la celda lleva texto.
           width: "130px",
@@ -171,6 +195,11 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
         rules: [""],
         api: "",
         label: "Estado",
+        filter: {
+          label: "Estado",
+          width: "160px",
+          options: getStatusOptions,
+        },
         list: {
           width: "100px",
           onRender: (props: any) => {

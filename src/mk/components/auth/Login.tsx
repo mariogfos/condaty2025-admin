@@ -174,7 +174,7 @@ const Login = () => {
     if (isBlocked) return;
 
     const { data, error }: any = await execute(
-      process.env.NEXT_PUBLIC_AUTH_VALIDATE_PIN || "/adm-validatepin",
+      process.env.NEXT_PUBLIC_AUTH_VALIDATE_PIN || "/v3/adm-validatepin",
       "POST",
       {
         pin: verificationCode,
@@ -192,7 +192,25 @@ const Login = () => {
         localStorage.removeItem(getAttemptsKey(userKey));
         localStorage.removeItem(getBlockKey(userKey));
       }
-    } else {
+      return;
+    }
+
+    // 🔴 Un fallo de la LLAMADA no es un PIN incorrecto.
+    //
+    // Acá todo lo que no fuera `success` sumaba un intento, y a los 3 el
+    // usuario quedaba bloqueado 30 minutos. Con el endpoint caído —lo que pasó
+    // hasta el 2026-08-08, cuando estas tres URLs apuntaban a rutas legacy que
+    // devolvían 404— el superadmin se autobloqueaba sin haber tecleado nada
+    // mal, y "reintentar" sólo gastaba el siguiente intento.
+    //
+    // El PIN se da por incorrecto cuando el back RESPONDE que lo es; si no hubo
+    // respuesta, se dice que falló la conexión y no se cuenta.
+    if (error || !data) {
+      setErrors({ code: translate("serverConnectionIssue") });
+      return;
+    }
+
+    {
       // PIN Incorrecto
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
@@ -229,7 +247,7 @@ const Login = () => {
 
   const handleTrustDevice = async (trust: boolean) => {
     const { data, error }: any = await execute(
-      process.env.NEXT_PUBLIC_AUTH_TRUST_DEVICE || "/trust-device",
+      process.env.NEXT_PUBLIC_AUTH_TRUST_DEVICE || "/v3/trust-device",
       "POST",
       {
         trustDevice: trust ? "Y" : "N",
@@ -255,21 +273,42 @@ const Login = () => {
     }
   };
 
+  /**
+   * Reenviar el código.
+   *
+   * 🔴 Va por el LOGIN, no por `adm-getpin`, y no es un rodeo: es cómo funciona
+   * el back. `LoginBaseController::login()` detecta el dispositivo nuevo y
+   * llama a `getPin()` ÉL MISMO, dentro de ese request, donde el usuario ya
+   * está autenticado. El endpoint `/v3/adm-getpin` es para otra cosa —pedir un
+   * PIN estando ya adentro— y por eso vive detrás de `auth:sanctum` y lee el
+   * usuario de la sesión.
+   *
+   * Este botón se aprieta en la pantalla del PIN, o sea ANTES de tener token.
+   * Pegarle a `adm-getpin` desde acá no podía funcionar nunca: daba 404 por la
+   * URL vieja, y con la URL corregida habría dado 401. Lo reportó Mario el
+   * 2026-08-08: *"cuando le doy reintentar igual"*.
+   *
+   * ⚠️ La respuesta del login con dispositivo nuevo es `success: false` con
+   * `errors.device === "untrusted"`. Eso NO es un fallo: significa que el
+   * código se envió y el back espera el PIN.
+   */
   const handleResendCode = async () => {
     const { data, error }: any = await execute(
-      process.env.NEXT_PUBLIC_AUTH_GET_PIN || "/adm-getpin",
+      process.env.NEXT_PUBLIC_AUTH_LOGIN,
       "POST",
-      {
-        email: formState.email,
-        deviceInfo: {
-          fingerprint: deviceInfo.fingerprint,
-        },
-      },
+      { ...formState, deviceInfo },
     );
 
-    if (data?.success) {
-      // Opcional: Mostrar toast de éxito o actualizar mensaje
-      // setVerificationMessage(data.message);
+    const seEnvio = data?.errors?.device === "untrusted";
+
+    if (seEnvio) {
+      setVerificationMessage(translate("verificationMessage"));
+    } else {
+      setErrors({
+        code: error || !data
+          ? translate("serverConnectionIssue")
+          : translate("unableToSendCode"),
+      });
     }
   };
 
