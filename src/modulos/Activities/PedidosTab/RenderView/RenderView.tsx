@@ -5,6 +5,7 @@ import { getFullName } from "@/mk/utils/string";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import Button from "@/mk/components/forms/Button/Button";
 import { formatAccessDateTime } from "../../AccessTab/shared/accessDetailUtils";
+import { AccessTaxiMark } from "../../AccessTab/shared/accessEnums";
 import {
   IconDelivery,
   IconEmail,
@@ -139,14 +140,14 @@ const RenderView: React.FC<RenderViewProps> = ({
                 </div>
               </div>
 
-              {item.access?.taxi === "Y" && item.access?.plate && (
+              {Number(item.access?.taxi) === AccessTaxiMark.CAME_BY_TAXI && item.access?.plate && (
                 <div className={styles.detailRow}>
                   <div className={styles.label}>Placa:</div>
                   <div className={styles.value}>{item.access?.plate}</div>
                 </div>
               )}
 
-              {item.access?.taxi === "Y" && !item.access?.plate && (
+              {Number(item.access?.taxi) === AccessTaxiMark.CAME_BY_TAXI && !item.access?.plate && (
                 <div className={styles.detailRow}>
                   <div className={styles.label}>Placa:</div>
                   <div className={styles.value}>Bicicleta (sin placa)</div>

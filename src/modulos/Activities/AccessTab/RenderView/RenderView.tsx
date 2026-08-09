@@ -23,6 +23,7 @@ import {
   collectUniqueImages,
   flattenAccessDevices,
   formatAccessDetailDate,
+  fueRechazado,
   getAccessStatusInfo,
   getAccessTypeLabel,
   getEntityAvatar,
@@ -413,7 +414,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
       ? {
           date: formatDetailDate(accessDetail.confirm_at),
           sentence: approvalInfo.actorName ? (
-            accessDetail?.confirm === "N" || accessDetail?.rejected_guard_id ? (
+            fueRechazado(accessDetail) ? (
               <>
                 {actorRolePrefix} <strong>{approvalInfo.actorName}</strong>{" "}
                 rechazó el acceso de <strong>{subjectName}</strong> para{" "}
@@ -426,7 +427,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 <strong>{unitLabel}</strong>.
               </>
             )
-          ) : accessDetail?.confirm === "N" || accessDetail?.rejected_guard_id ? (
+          ) : fueRechazado(accessDetail) ? (
             <>
               Se rechazó el acceso de <strong>{subjectName}</strong> para{" "}
               <strong>{unitLabel}</strong>.
@@ -439,7 +440,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
           ),
           note: accessDetail?.obs_confirm || "",
           tone:
-            accessDetail?.confirm === "N" || accessDetail?.rejected_guard_id
+            fueRechazado(accessDetail)
               ? ("danger" as Tone)
               : ("accent" as Tone),
         }

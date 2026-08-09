@@ -12,6 +12,10 @@ import {
   IconOther,
   IconExitHome,
 } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  ACCESS_TYPE_LABEL,
+  AccessType,
+} from "@/modulos/Activities/AccessTab/shared/accessEnums";
 import styles from "./AccessTable.module.css";
 
 interface AccessTableProps {
@@ -22,13 +26,13 @@ const renderSubtitle = (item: any) => {
   if (item?.other) {
     subtitle = item.other?.other_type?.name;
   }
-  if (item?.type === "O") {
+  if (Number(item?.type) === AccessType.QR_KEY) {
     subtitle = "CI: " + item.owner?.ci;
   }
   return subtitle;
 };
 const visitCell = ({ item }: { item: any }) => {
-  const displayUser = item?.type === "O" ? item.owner : item.visit;
+  const displayUser = Number(item?.type) === AccessType.QR_KEY ? item.owner : item.visit;
 
   return (
     <div className={styles.visitInfo}>
@@ -57,7 +61,7 @@ const leftAccess = (item: any) => {
     }
     return <div className={styles.iconContainer}>{icon}</div>;
   }
-  if (item?.type === "O") {
+  if (Number(item?.type) === AccessType.QR_KEY) {
     return (
       <Avatar
         src={item?.owner?.url_avatar}
@@ -112,27 +116,11 @@ const entryExitCell = ({ item }: { item: any }) => (
   </div>
 );
 
-const typeCell = ({ item }: { item: any }) => {
-  if (item.type === "P") {
-    return "Pedido";
-  }
-  if (item.type === "I") {
-    return "Individual";
-  }
-  if (item.type === "G") {
-    return "QR Grupal";
-  }
-  if (item.type === "F") {
-    return "QR Frecuente";
-  }
-  if (item.type === "O") {
-    return "Llave QR";
-  }
-  if (item.type === "C") {
-    return "Sin QR";
-  }
-  return "-/-";
-};
+// La tabla de etiquetas sale del enum, no se escribe a mano acá. Cada copia
+// manual es una que se olvida de un tipo nuevo: ésta decía "Individual" donde
+// el resto del sistema dice "QR Individual".
+const typeCell = ({ item }: { item: any }) =>
+  ACCESS_TYPE_LABEL[Number(item?.type) as AccessType] ?? "-/-";
 
 const AccessTable = ({ access }: AccessTableProps) => {
   const accessHeader = [

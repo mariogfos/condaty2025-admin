@@ -1,5 +1,6 @@
 import { getFullName } from "@/mk/utils/string";
 import {
+  ACCESS_TYPE_LABEL,
   AccessType,
   AccessConfirmation,
   isCompanion,
@@ -130,25 +131,30 @@ export const getUnitLabel = (owner: AnyRecord | null | undefined) => {
   return `${prefix} ${identifier}`.trim();
 };
 
-export const getAccessTypeLabel = (type: string, detail: AnyRecord) => {
-  const typeMap: Record<string, string> = {
-    C: "Sin QR",
-    I: "QR Individual",
-    G: "QR Grupal",
-    F: "QR Frecuente",
-    P: "Pedido",
-    O: "Llave QR",
-  };
-
+export const getAccessTypeLabel = (type: unknown, detail: AnyRecord) => {
+  // 🔴 Esta tabla estaba escrita a mano y CON LAS LETRAS (`C`/`I`/`G`/...)
+  // después del flip: `typeMap[2]` daba undefined y el detalle mostraba "-/-"
+  // como tipo en TODO lo que no fuera un pedido — la rama del pedido era la
+  // única que ya comparaba numérico, y por eso el bug pasaba desapercibido
+  // mirando la pantalla de pedidos.
   if (Number(type) === AccessType.ORDER) {
     return `Pedido/${detail?.other?.other_type?.name || "-/-"}`;
   }
 
-  return typeMap[type] || "-/-";
+  return ACCESS_TYPE_LABEL[Number(type) as AccessType] || "-/-";
 };
 
-const QR_AUTHORIZED_TYPES = new Set(["I", "G", "F"]);
-const RESIDENT_AUTHORIZED_TYPES = new Set(["O", "P"]);
+// 🔴 Los dos Sets también guardaban letras: `has(2)` era false para TODO, así
+// que un QR individual perdía su "Aprobado por / Residente" en el detalle.
+const QR_AUTHORIZED_TYPES = new Set<AccessType>([
+  AccessType.QR_INDIVIDUAL,
+  AccessType.QR_GROUP,
+  AccessType.QR_FREQUENT,
+]);
+const RESIDENT_AUTHORIZED_TYPES = new Set<AccessType>([
+  AccessType.QR_KEY,
+  AccessType.ORDER,
+]);
 
 const hasValue = (value: unknown) =>
   value !== null && value !== undefined && value !== "";
@@ -206,11 +212,11 @@ const getAccessApprovalSource = (
     return null;
   }
 
-  if (access.type && QR_AUTHORIZED_TYPES.has(access.type)) {
+  if (access.type && QR_AUTHORIZED_TYPES.has(Number(access.type))) {
     return buildDecisionSource("resident", "Aprobado por");
   }
 
-  if (!access.type || RESIDENT_AUTHORIZED_TYPES.has(access.type)) {
+  if (!access.type || RESIDENT_AUTHORIZED_TYPES.has(Number(access.type))) {
     return buildDecisionSource("resident", "Aprobado por");
   }
 
@@ -276,6 +282,18 @@ const isUnregisteredExit = (access?: AnyRecord | null): boolean => {
     (!obsOut || obsOut === "no se registro la salida de esta persona en porteria.")
   );
 };
+
+/**
+ * Si este acceso fue RECHAZADO, por el residente o por el guardia.
+ *
+ * ⚠️ Son dos rechazos distintos con dos columnas distintas: el residente
+ * contesta `confirm = NO` y el guardia deja su id en `rejected_guard_id`. La
+ * pantalla los muestra igual, así que la condición estaba copiada cuatro veces
+ * entre el detalle y el modal — y las cuatro comparaban contra la letra `'N'`.
+ */
+export const fueRechazado = (detail?: AnyRecord | null): boolean =>
+  Number(detail?.confirm) === AccessConfirmation.NO ||
+  hasValue(detail?.rejected_guard_id);
 
 export const getAccessStatusInfo = (detail: AnyRecord) => {
   const approvalSource = getAccessApprovalSource(detail);

@@ -13,19 +13,23 @@ import {
   IconArrowLeft,
   IconArrowRight,
 } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  ACCESS_TYPE_LABEL,
+  AccessType,
+} from "@/modulos/Activities/AccessTab/shared/accessEnums";
 
 interface Props {
+  /**
+   * 🔴 Un ACCESO, no una invitación, aunque el componente se llame así.
+   * Trae `item.invitation` adentro, y ahí conviven DOS columnas `type` con dos
+   * alfabetos distintos: `item.type` es `accesses.type` (numérico desde el
+   * 2026-08-09) y `invitation.type` sigue siendo char `I`/`G`/`F`. Cada `type`
+   * de acá abajo dice de cuál de las dos sale.
+   */
   item?: any;
   open: boolean;
   onClose: () => void;
 }
-
-const typeInvitation: any = {
-  C: "Sin QR",
-  I: "QR individual",
-  G: "QR grupal",
-  F: "QR frecuente",
-};
 
 const InvitationsDetail = ({ item, open, onClose }: Props) => {
   const owner = item?.owner;
@@ -75,7 +79,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
   const statusInfo = getStatusInfo();
 
   const getDateDisplay = (item: any, invitation: any) => {
-    if (item?.type === "F") {
+    if (Number(item?.type) === AccessType.QR_FREQUENT) {
       if (invitation?.start_date && invitation?.end_date) {
         return formatDateRange(invitation.start_date, invitation.end_date);
       }
@@ -113,7 +117,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Tipo de invitación</span>
               <span className={styles.infoValue}>
-                {typeInvitation[item?.type]}
+                {ACCESS_TYPE_LABEL[Number(item?.type) as AccessType] ?? "-/-"}
               </span>
             </div>
             <div className={styles.infoBlock}>
@@ -128,7 +132,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
             </div>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>
-                {item?.type == "F" ? "Indicaciones" : "Detalle"}
+                {Number(item?.type) === AccessType.QR_FREQUENT ? "Indicaciones" : "Detalle"}
               </span>
               <span className={styles.infoValue}>
                 {invitation?.obs || "-/-"}
@@ -151,10 +155,10 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                 </span>
               </div>
             )}
-            {item?.type !== "C" && (
+            {Number(item?.type) !== AccessType.WITHOUT_QR && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>
-                  {item?.type === "F"
+                  {Number(item?.type) === AccessType.QR_FREQUENT
                     ? "Periodo de validez"
                     : "Fecha de invitación"}
                 </span>
@@ -166,7 +170,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
           </div>
         </section>
 
-        {item?.type === "F" && (
+        {Number(item?.type) === AccessType.QR_FREQUENT && (
           <>
             <p className={styles.sectionTitle}>Configuración avanzada</p>
             <section className={styles.detailsSection}>
@@ -198,14 +202,15 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
           </>
         )}
 
-        {(item?.type === "F" || item?.type === "G") && (
+        {(Number(item?.type) === AccessType.QR_FREQUENT ||
+          Number(item?.type) === AccessType.QR_GROUP) && (
           <>
             <p className={styles.sectionTitle}>
-              {item?.type == "F" ? "Accesos" : "Asistieron"}{" "}
+              {Number(item?.type) === AccessType.QR_FREQUENT ? "Accesos" : "Asistieron"}{" "}
               {getAccess().length}
               <span style={{ color: "var(--cWhiteV1)" }}>
                 /
-                {item?.type === "F"
+                {Number(item?.type) === AccessType.QR_FREQUENT
                   ? invitation?.max_entries || "ilimitados"
                   : invitation?.guests?.length}
               </span>

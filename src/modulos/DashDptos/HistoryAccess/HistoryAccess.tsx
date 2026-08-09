@@ -6,6 +6,10 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import EmptyData from "@/components/NoData/EmptyData";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { IconExitHome } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  ACCESS_TYPE_LABEL,
+  AccessType,
+} from "@/modulos/Activities/AccessTab/shared/accessEnums";
 
 interface HistoryAccessProps {
   accessData: any[];
@@ -48,21 +52,15 @@ const HistoryAccess = ({ accessData, open, close }: HistoryAccessProps) => {
                 </div>
               </div>
 
+              {/*
+                🔴 Esta celda listaba sólo P/I/G/C y mandaba TODO lo demás al
+                else, que renderizaba un "No hay registros de visitas" adentro
+                de la columna de tipo. Un acceso con QR frecuente o llave QR
+                aparecía diciendo que no había visitas, teniendo la fila
+                completa al lado. La tabla del enum no puede olvidarse un caso.
+              */}
               <div>
-                {visita.type === "P" ? (
-                  "Pedido"
-                ) : visita.type === "I" ? (
-                  "Individual"
-                ) : visita.type === "G" ? (
-                  "Grupal"
-                ) : visita.type === "C" ? (
-                  "Sin QR"
-                ) : (
-                  <EmptyData
-                    message="No hay registros de visitas"
-                    icon={<IconExitHome size={40} color="var(--cWhiteV1)" />}
-                  />
-                )}
+                {ACCESS_TYPE_LABEL[Number(visita.type) as AccessType] ?? "-/-"}
               </div>
 
               <div>

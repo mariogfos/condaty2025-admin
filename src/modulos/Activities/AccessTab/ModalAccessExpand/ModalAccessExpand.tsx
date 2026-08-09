@@ -15,6 +15,7 @@ import {
   esCierreSinSalidaRegistrada,
   flattenAccessDevices,
   formatAccessDetailDate,
+  fueRechazado,
   getAccessHeadline,
   getAccessStatusInfo,
   getAccessTypeLabel,
@@ -244,7 +245,7 @@ const ModalAccessExpand = ({ id, open, onClose, type }: PropsType) => {
     accessDetail?.confirm_at
       ? {
           label:
-            accessDetail?.confirm === "N" || accessDetail?.rejected_guard_id != null
+            fueRechazado(accessDetail)
               ? "Rechazo"
               : "Validacion",
           date: formatDetailDate(accessDetail.confirm_at),

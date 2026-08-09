@@ -32,6 +32,16 @@ if (
   });
 }
 
+// jsdom no trae ResizeObserver y `Table` mide sus columnas con uno. Sin esto,
+// cualquier test que renderice una tabla revienta antes de la primera aserción.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver;
+}
+
 process.env.NEXT_PUBLIC_AUTH_IAM ??= '/adm-iam';
 process.env.NEXT_PUBLIC_PUSHER_BEAMS_INTEREST_PREFIX ??= 'dev';
 process.env.NEXT_PUBLIC_INSTANTDB_APP_ID ??= 'test-app-id';
