@@ -12,6 +12,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import {
   collectUniqueImages,
+  esCierreSinSalidaRegistrada,
   flattenAccessDevices,
   formatAccessDetailDate,
   getAccessHeadline,
@@ -307,6 +308,27 @@ const ModalAccessExpand = ({ id, open, onClose, type }: PropsType) => {
               </p>
             </div>
           </section>
+
+          {/*
+            🔴 El aviso, y no sólo la etiqueta.
+            El badge "Sin salida" dice QUÉ pasó. Lo que faltaba es explicar que
+            la hora de salida que el usuario está leyendo más abajo **es la de
+            entrada repetida** — o sea, que no hubo una salida real. Sin esto,
+            el detalle muestra una hora que parece un dato y no lo es.
+          */}
+          {esCierreSinSalidaRegistrada(accessDetail) ? (
+            <section className={styles.avisoSinSalida}>
+              <p className={styles.avisoTitulo}>
+                Este acceso se cerró sin registrar la salida
+              </p>
+              <p className={styles.avisoTexto}>
+                La hora de salida es la misma que la de entrada porque en
+                portería no se registró cuándo salió esta persona. No es una
+                salida real: es la marca de que el acceso quedó abierto y se
+                cerró después.
+              </p>
+            </section>
+          ) : null}
 
           <section className={styles.sectionCard}>
             <p className={styles.sectionTitle}>Resumen</p>

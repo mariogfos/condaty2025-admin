@@ -1,5 +1,5 @@
 // esto? revisar todo las funciones que estan como props para sacar a fuera
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "../Activities.module.css";
 import { getFullName } from "@/mk/utils/string";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
@@ -69,6 +69,45 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
     startDate?: string;
     endDate?: string;
   }>({});
+  const [cerrandoId, setCerrandoId] = useState<string | number | null>(null);
+
+  /**
+   * ⚠️ `reLoad` sale de `useCrud`, que se llama DESPUÉS de armar los campos, y
+   * los campos se memoizan con `[]`. Un ref es la forma de que el `onRender` de
+   * una celda pueda refrescar la lista sin volver a crear las columnas en cada
+   * render —que es lo que pasaría metiendo `reLoad` en las dependencias—.
+   */
+  const reLoadRef = useRef<(() => void) | null>(null);
+
+  /**
+   * Cierra a mano un acceso que quedó sin salida.
+   *
+   * 🔴 No manda ninguna hora: el back pone `out_at = in_at`. Que el front
+   * eligiera la hora sería inventar una salida que no ocurrió, y además
+   * rompería la igualdad que permite reconocer después el cierre irregular.
+   */
+  const cerrarAcceso = async (item: any) => {
+    if (cerrandoId) return;
+
+    setCerrandoId(item.id);
+    try {
+      const { data } = await execute(
+        "/accesses/close-without-exit",
+        "POST",
+        { id: item.id },
+        false,
+      );
+
+      if (data?.success) {
+        showToast(data?.message || "Acceso cerrado", "success");
+        reLoadRef.current?.();
+      } else {
+        showToast(data?.message || "No se pudo cerrar el acceso", "error");
+      }
+    } finally {
+      setCerrandoId(null);
+    }
+  };
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
@@ -284,11 +323,35 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         label: "Salida",
         list: {
           onRender: (props: any) => {
+            if (props.item.out_at) {
+              return <div>{formatAccessDateTimeShort(props.item.out_at)}</div>;
+            }
+
+            // Sin salida y con entrada: se puede cerrar desde acá.
+            //
+            // ⚠️ El botón sólo aparece si el acceso ENTRÓ. Un acceso que ni
+            // siquiera entró no está "sin salida": está sin usar, y cerrarlo
+            // le inventaría una entrada.
+            if (!props.item.in_at) {
+              return <div>-/-</div>;
+            }
+
             return (
-              <div>
-                {props.item.out_at
-                  ? formatAccessDateTimeShort(props.item.out_at)
-                  : "-/-"}
+              <div className={styles.salidaPendiente}>
+                <span>-/-</span>
+                <button
+                  type="button"
+                  className={styles.botonCerrarAcceso}
+                  disabled={cerrandoId === props.item.id}
+                  onClick={(e) => {
+                    // Sin esto, el clic abre además el detalle de la fila.
+                    e.stopPropagation();
+                    cerrarAcceso(props.item);
+                  }}
+                  title="Marca la salida con la misma hora de entrada, para dejar constancia de que en portería no se registró"
+                >
+                  {cerrandoId === props.item.id ? "Cerrando…" : "Cerrar"}
+                </button>
               </div>
             );
           },
@@ -313,6 +376,44 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
               </StatusBadge>
             );
           },
+        },
+      },
+
+      /**
+       * Filtro por accesos sin salida.
+       *
+       * 🔴 Va como campo propio y NO como filtro del campo `status`, porque el
+       * Mk usa la clave del campo como nombre del filtro que viaja al back
+       * (`salida:pendiente`). Colgarlo de `status` mandaría `status:...`, que
+       * además choca con la columna `accesses.status` — un char que, medido,
+       * **no lo mira nadie**.
+       *
+       * ⚠️ NO reusa el estado derivado de `getAccessStatusInfo`: ése calcula
+       * seis estados sobre una fila YA traída. Filtrar es preguntárselo a la
+       * base, y sólo dos de esos seis se expresan en SQL:
+       *
+       * - **Pendientes**: entraron y no tienen salida. Son los accionables.
+       *   Medido el 2026-08-09: 10.005.
+       * - **Cerrados sin salida**: ya cerrados con `out_at = in_at`. Historial
+       *   de la irregularidad. Medido: 18.129.
+       *
+       * La regla en SQL vive en los scopes del modelo del back: ya está escrita
+       * dos veces —`EstadoDelAcceso` y `getAccessStatusInfo`— y una tercera
+       * copia suelta sería la que se desincroniza.
+       */
+      salida: {
+        rules: [],
+        api: "",
+        label: "",
+        list: false,
+        filter: {
+          label: "Salida",
+          width: "190px",
+          options: () => [
+            { id: "ALL", name: "Todos" },
+            { id: "pendiente", name: "Sin salida (pendientes)" },
+            { id: "cerrado", name: "Cerrados sin salida" },
+          ],
         },
       },
 
@@ -363,8 +464,11 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         },
       },
     };
+    // ⚠️ `cerrandoId` SÍ va en las dependencias: sin él, el botón se quedaría
+    // con el texto y el `disabled` del primer render y nunca mostraría
+    // "Cerrando…". Es el único estado que las celdas necesitan.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [cerrandoId]);
   const { userCan, List, reLoad, onFilter, setStore, store } = useCrud({
     paramsInitial,
     mod: modAccess,
@@ -372,6 +476,9 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
     getSearch: getSearchParams,
     getFilter: handleGetFilter,
   });
+
+  // El ref que usan las celdas para refrescar la lista después de cerrar.
+  reLoadRef.current = () => reLoad();
 
   useEffect(() => {
     setStore({ ...store, title: "Accesos" });

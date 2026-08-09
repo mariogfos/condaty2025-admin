@@ -369,3 +369,32 @@
     grid-template-columns: 1fr;
   }
 }
+
+/*
+  Aviso de cierre sin salida registrada.
+
+  Usa la paleta de `toneWarning` a propósito: es el mismo hecho que el badge
+  "Sin salida" que se ve arriba, así que tiene que leerse como la explicación
+  de ese badge y no como una alerta distinta.
+*/
+.avisoSinSalida {
+  border: 1px solid rgba(233, 176, 30, 0.24);
+  background: rgba(233, 176, 30, 0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.avisoTitulo {
+  color: #f4cb65;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.avisoTexto {
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  line-height: 1.45;
+}

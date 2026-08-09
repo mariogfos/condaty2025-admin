@@ -243,6 +243,22 @@ const sameDateTimeValue = (
   return String(left) === String(right);
 };
 
+/**
+ * El acceso se cerró sin que hubiera una salida real: `out_at = in_at`.
+ *
+ * 🔴 Se exporta porque el detalle necesita AVISARLO, no sólo etiquetarlo.
+ * Antes vivía privada acá adentro y sólo alimentaba el badge "Sin salida", que
+ * dice QUÉ pasó pero no POR QUÉ ni qué significa esa hora de salida que el
+ * usuario está leyendo — y esa hora es falsa: es la de entrada repetida.
+ *
+ * ⚠️ Una copia de esta regla en el modal sería la cuarta escritura de la misma
+ * definición (ya está en `EstadoDelAcceso` y en los scopes del modelo, del lado
+ * del back). Exportarla es más barato que sincronizar cuatro.
+ */
+export const esCierreSinSalidaRegistrada = (
+  access?: AnyRecord | null,
+): boolean => isUnregisteredExit(access);
+
 const isUnregisteredExit = (access?: AnyRecord | null): boolean => {
   if (!access?.in_at || !access?.out_at) return false;
 
