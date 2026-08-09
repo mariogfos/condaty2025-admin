@@ -73,15 +73,57 @@ describe('AssemblyStatusActions', () => {
       });
     });
 
-    it('envía X al hacer clic en Cancelar', async () => {
-      mockExecute.mockResolvedValueOnce({
-        data: { success: true },
-      });
-
+    /**
+     * 🔴 Cancelar NO manda el PATCH: abre el modal que pide el motivo.
+     *
+     * Este test afirmaba que el clic disparaba la llamada, y estaba en ROJO —
+     * medido el 2026-08-08: 6 corridas de 6—. Figuraba como "intermitente" y no
+     * lo era: describía el comportamiento anterior a que cancelar pasara a
+     * exigir una observación.
+     *
+     * ⚠️ El flujo del modal, que es el que existe, no lo cubría NADIE.
+     */
+    it('al hacer clic en Cancelar abre el modal y todavía no llama a la API', async () => {
       renderComponent(scheduledAssembly);
 
-      const cancelarBtn = screen.getByRole('button', { name: /Cancelar/i });
-      fireEvent.click(cancelarBtn);
+      fireEvent.click(screen.getByRole('button', { name: /^Cancelar$/i }));
+
+      expect(await screen.findByText('Cancelar Asamblea')).toBeInTheDocument();
+      expect(mockExecute).not.toHaveBeenCalled();
+    });
+
+    it('envía X con el motivo al confirmar la cancelación', async () => {
+      mockExecute.mockResolvedValueOnce({ data: { success: true } });
+
+      renderComponent(scheduledAssembly);
+      fireEvent.click(screen.getByRole('button', { name: /^Cancelar$/i }));
+
+      fireEvent.change(await screen.findByRole('textbox'), {
+        target: { value: '  Sin quórum  ' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: /Confirmar Cancelación/i }));
+
+      await waitFor(() => {
+        expect(mockExecute).toHaveBeenCalledWith(
+          '/assemblies/1/status',
+          'PATCH',
+          // ⚠️ El motivo va recortado: el componente hace `trim()`, y un motivo
+          // que es sólo espacios NO se manda (ver el test de acá abajo).
+          { status: 'X', cancellation_observation: 'Sin quórum' },
+          false,
+          true,
+        );
+      });
+    });
+
+    it('sin motivo escrito manda sólo el estado, sin la clave del motivo', async () => {
+      mockExecute.mockResolvedValueOnce({ data: { success: true } });
+
+      renderComponent(scheduledAssembly);
+      fireEvent.click(screen.getByRole('button', { name: /^Cancelar$/i }));
+      fireEvent.click(
+        await screen.findByRole('button', { name: /Confirmar Cancelación/i })
+      );
 
       await waitFor(() => {
         expect(mockExecute).toHaveBeenCalledWith(
@@ -298,7 +340,7 @@ describe('AssemblyStatusActions', () => {
       const assembly = { id: 1, status: 'C' };
       renderComponent(assembly);
 
-      expect(screen.getByText('Estado: Completada')).toBeInTheDocument();
+      expect(screen.getByText('Estado: Finalizada')).toBeInTheDocument();
     });
 
     it('muestra el estado actual correctamente para Cancelled', async () => {
