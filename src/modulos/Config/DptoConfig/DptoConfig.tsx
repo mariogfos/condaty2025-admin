@@ -81,7 +81,7 @@ const getSingleUrl = (value: unknown) => {
   return typeof value === "string" ? value : "";
 };
 
-const createFormState = (client_config: Record<string, any>) => ({
+export const createFormState = (client_config: Record<string, any>) => ({
   url_logo: client_config?.client?.url_logo || [],
   url_logo_print: client_config?.client?.url_logo_print || [],
   url_banner: client_config?.client?.url_banner || [],
@@ -129,9 +129,20 @@ const createFormState = (client_config: Record<string, any>) => ({
     client_config?.payment_methods_config,
   ),
   payment_whatsapp_phone: client_config?.payment_whatsapp_phone || "",
+  /**
+   * 🔴 `?? 0` y no `|| 0`: son distintos y acá importa.
+   *
+   * El valor legítimo de "apagado" ES el 0, así que `||` no cambiaría nada
+   * hoy… pero también se come cualquier 0 que venga del back como número, y
+   * deja el campo listo para que mañana alguien confunda "sin configurar" con
+   * "configurado en 0". `??` sólo cubre null/undefined, que es lo que se
+   * quiere.
+   */
+  access_auto_close_days: Number(client_config?.access_auto_close_days ?? 0),
+  cierraAccesosSolo: Number(client_config?.access_auto_close_days ?? 0) > 0,
 });
 
-const getComparableState = (formState: Record<string, any>) => ({
+export const getComparableState = (formState: Record<string, any>) => ({
   ...formState,
   url_logo: getSingleUrl(formState.url_logo),
   url_logo_print: getSingleUrl(formState.url_logo_print),
@@ -142,6 +153,12 @@ const getComparableState = (formState: Record<string, any>) => ({
   payment_time_limit: formState.bookingRequiresPayment
     ? formState.payment_time_limit || ""
     : null,
+  // Con el switch apagado el plazo es 0, sin importar qué número quedó escrito
+  // en el input. Así "apagar" y "apagar después de haber escrito 30" comparan
+  // igual, y el botón de guardar no se enciende por un cambio que no existe.
+  access_auto_close_days: formState.cierraAccesosSolo
+    ? Number(formState.access_auto_close_days) || 0
+    : 0,
 });
 
 const DptoConfig = ({
@@ -158,6 +175,7 @@ const DptoConfig = ({
     reservas: true,
     finanzas: true,
     tareas: true,
+    accesos: true,
   });
 
   const [errors, setErrors]: any = useState({});
@@ -214,6 +232,7 @@ const DptoConfig = ({
         reservas: true,
         finanzas: true,
         tareas: true,
+        accesos: true,
       });
     }
   }, [isRulesMode]);
@@ -241,6 +260,20 @@ const DptoConfig = ({
           Number(prev.payment_time_limit) > 0
             ? prev.payment_time_limit
             : prev.savedPaymentTimeLimit,
+      }));
+    } else if (name === "cierraAccesosSolo") {
+      const isEnabled = value === "Y";
+
+      // 🔴 Al apagar hay que MANDAR el 0, no sólo esconder el input.
+      //
+      // El back guarda un único número y 0 es su forma de decir "apagado". Si
+      // acá se dejara el 30 escrito, el switch se vería en OFF y el cron
+      // seguiría cerrando accesos: la pantalla diría una cosa y el sistema
+      // haría otra.
+      setFormState((prev: any) => ({
+        ...prev,
+        cierraAccesosSolo: isEnabled,
+        access_auto_close_days: isEnabled ? prev.access_auto_close_days || "" : 0,
       }));
     } else if (name === "has_maintenance_value") {
       const isEnabled = value === "Y";
@@ -443,6 +476,18 @@ const DptoConfig = ({
       });
     }
 
+    // ⚠️ Con el switch encendido, el plazo tiene que ser 1 o más. Un 0 acá
+    // apagaría la función desde un campo que dice lo contrario.
+    if (formState.cierraAccesosSolo) {
+      nextErrors = checkRules({
+        value: formState.access_auto_close_days,
+        rules: ["required", "greater:0"],
+        key: "access_auto_close_days",
+        errors: nextErrors,
+        data: formState,
+      });
+    }
+
     if (formState?.has_financial_debt && formState?.has_financial_data) {
       nextErrors = checkRules({
         value: formState.financial_mode,
@@ -522,7 +567,7 @@ const DptoConfig = ({
     setEditMode(false);
   };
 
-  const toggleAccordion = (key: "reservas" | "finanzas" | "tareas") => {
+  const toggleAccordion = (key: "reservas" | "finanzas" | "tareas" | "accesos") => {
     setOpenAccordions((prev) => ({
       ...prev,
       [key]: !prev[key],
@@ -1271,6 +1316,79 @@ const DptoConfig = ({
                   disabled={!editMode}
                 />
               </div>
+              </div>
+            </div>
+          </section>
+
+          {/*
+            Cierre automático de accesos sin salida.
+
+            🔴 El switch no es un campo aparte: es la forma de decir 0. El back
+            guarda un solo número, `access_auto_close_days`, y 0 significa
+            apagado. Tener dos campos —un booleano y un plazo— sería tener dos
+            fuentes para el mismo estado, y tarde o temprano se contradicen.
+          */}
+          <section className={styles.formCard}>
+            <button
+              type="button"
+              className={styles.accordionHeader}
+              onClick={() => toggleAccordion("accesos")}
+            >
+              <div className={styles.accordionHeaderContent}>
+                <p className={styles.textTitle}>Accesos</p>
+                <p className={styles.textSubtitle}>
+                  Qué hacer con los accesos que el guardia abrió y nunca cerró.
+                </p>
+              </div>
+              <ChevronDown
+                size={18}
+                strokeWidth={1.8}
+                className={`${styles.accordionChevron} ${openAccordions.accesos ? styles.accordionChevronOpen : ""}`}
+              />
+            </button>
+            {openAccordions.accesos && <div className={styles.accordionDivider} />}
+
+            <div
+              className={`${styles.accordionBody} ${openAccordions.accesos ? styles.accordionBodyOpen : ""}`}
+            >
+              <div className={styles.settingsStack}>
+                <div className={styles.switchContainer}>
+                  <div className={styles.switchContent}>
+                    <p className={styles.textTitle}>
+                      Cerrar solo los accesos sin salida
+                    </p>
+                    <p className={styles.textSubtitle}>
+                      Pasado el plazo, el sistema les pone la misma hora de
+                      salida que de entrada. Quedan marcados como cerrados por
+                      el sistema, no como una salida real.
+                    </p>
+                  </div>
+                  <Switch
+                    name="cierraAccesosSolo"
+                    label=""
+                    value={formState.cierraAccesosSolo ? "Y" : "N"}
+                    onChange={handleSwitchChange}
+                    optionValue={["Y", "N"]}
+                    checked={formState.cierraAccesosSolo}
+                    disabled={!editMode}
+                  />
+                </div>
+
+                {formState.cierraAccesosSolo && (
+                  <Input
+                    type="number"
+                    label="Días sin salida antes de cerrarlo"
+                    name="access_auto_close_days"
+                    error={errors}
+                    value={formState.access_auto_close_days || ""}
+                    onChange={handleChange}
+                    className="dark-input"
+                    min="1"
+                    max="65535"
+                    placeholder="Por ejemplo, 60"
+                    disabled={!editMode}
+                  />
+                )}
               </div>
             </div>
           </section>
