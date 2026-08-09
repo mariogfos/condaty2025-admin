@@ -282,3 +282,30 @@ export const montoACobrarDeLaDeuda = (iamData: any, debt: any): number =>
   (Number(debt?.amount) || 0) +
   (Number(debt?.penalty_amount) || 0) +
   maintenanceAmountFor(iamData, debt);
+
+/**
+ * ¿Es condonable el CAPITAL de esta deuda?
+ *
+ * ## 🔴 Por qué esto no es un `=== "Y"`
+ *
+ * `debt_dptos.is_forgivable` fue `char(1)` con `'Y'`/`'N'` hasta la migración
+ * del 2026-06-30, que la pasó a `tinyint(1)` y le puso el cast `'boolean'` al
+ * modelo. Desde entonces la API manda `true`/`false`, pero el formulario de
+ * condonaciones seguía preguntando `=== "Y"`: **siempre falso**.
+ *
+ * ⚠️ Se pagaba en silencio y en el peor lugar. El capital de las deudas
+ * condonables no entraba en `amountForgiveness`, que es a la vez el techo que
+ * valida el monto y la base con la que se convierte porcentaje ⇄ monto. O sea:
+ * el operador no podía condonar más que la mora, y el porcentaje que veía
+ * estaba calculado sobre otro número. Medido el 2026-08-08: **689 deudas
+ * condonables** de 15.210.
+ *
+ * Acepta las dos formas a propósito: la nueva y la vieja. Todavía quedan filas
+ * viejas circulando por caches y snapshots, y una lectura que sólo entiende una
+ * forma es exactamente lo que produjo este bug.
+ */
+export const esCondonable = (debt: any): boolean =>
+  debt?.is_forgivable === true ||
+  debt?.is_forgivable === 1 ||
+  debt?.is_forgivable === "Y" ||
+  debt?.is_forgivable === "1";

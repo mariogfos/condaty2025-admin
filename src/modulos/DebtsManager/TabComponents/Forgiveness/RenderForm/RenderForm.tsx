@@ -9,7 +9,7 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
-import { montoACobrarDeLaDeuda } from "../../constants";
+import { esCondonable, montoACobrarDeLaDeuda } from "../../constants";
 import { MONTHS } from "@/mk/utils/date1";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useEffect, useState } from "react";
@@ -41,10 +41,14 @@ const RenderForm = ({
   // NI se suma al total a condonar. Lo definió Mario el 2026-08-07.
   const muestraMantenimiento = hasMaintenanceValue(user);
 
+  // 🔴 `esCondonable` y no `is_forgivable === "Y"`: la columna es tinyint desde
+  // el 2026-06-30 y la API manda booleano. La comparación vieja daba SIEMPRE
+  // falso, así que el capital no entraba en `amountForgiveness` — que es el
+  // techo de validación y la base del porcentaje.
   const totalAmount = formState?.forgiveness
     ?.reduce(
       (total: number, debt: any) =>
-        total + (debt?.is_forgivable === "Y" ? Number(debt.amount) || 0 : 0),
+        total + (esCondonable(debt) ? Number(debt.amount) || 0 : 0),
       0
     )
     .toFixed(2);
