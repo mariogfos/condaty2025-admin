@@ -147,25 +147,24 @@ export interface AssemblyConfig {
   count_abstention: boolean;
 }
 
-// Labels para mostrar en UI
-export const STATUS_LABELS: Record<AssemblyStatus, string> = {
-  S: "Programada",
-  P: "En progreso",
-  C: "Completada",
-  X: "Cancelada",
-};
-
-export const TYPE_LABELS: Record<AssemblyType, string> = {
-  O: "Ordinaria",
-  E: "Extraordinaria",
-  I: "Informativa",
-};
-
-export const MODALITY_LABELS: Record<AssemblyModality, string> = {
-  V: "Virtual",
-  P: "Presencial",
-  H: "Híbrida",
-};
+/**
+ * 🔴 Las etiquetas de estado NO se escriben acá: se re-exportan.
+ *
+ * Había dos tablas, y decían cosas distintas para el MISMO estado. Ésta decía
+ * *"Completada"* y la de `config/assemblies.constants.ts` decía *"Finalizada"*
+ * —el cambio de producto se aplicó de un solo lado—. Como cada componente
+ * importaba de donde le quedaba más cerca, **la misma asamblea se leía distinta
+ * según la pantalla**: "Finalizada" en el detalle y en la lista, "Completada"
+ * en la tarjeta del dashboard y en el botón de cambiar estado.
+ *
+ * ⚠️ Y había un test pineando "Completada", que es la trampa peor: un pin sobre
+ * la decisión equivocada hace que corregirla parezca la rotura.
+ *
+ * `TYPE_LABELS` y `MODALITY_LABELS` vivían acá duplicadas y **no las importaba
+ * nadie** —todos los consumidores ya sacaban las suyas de `constants`—, así que
+ * se fueron. Una copia sin lector es la próxima divergencia esperando.
+ */
+export { API_STATUS_LABELS as STATUS_LABELS } from "../config/assemblies.constants";
 
 export const AUDIENCE_LABELS: Record<TargetAudience, string> = {
   all_owners: "Todos los propietarios",
