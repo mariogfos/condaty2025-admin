@@ -1,7 +1,7 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.0.0",
-  "lastUpdated": "2026-07-15",
+  "version": "1.1.0",
+  "lastUpdated": "2026-08-09",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de enums compartidos entre admin/rnGuard/rnOwner. Cada app mantiene su enum local sincronizado vía test de reflection contra esta fuente. NO es runtime: se usa solo en CI/tests para detectar drift.",
   "sync": {
@@ -15,6 +15,49 @@
     ]
   },
   "enums": {
+    "AccessType": {
+      "type": "int",
+      "comment": "accesses.type. Sincronizado con backend App\\Modules\\Access\\Enums\\TipoDeAcceso (PHP). Char legacy (pre 2026-08-09) en cada comment.",
+      "apps": ["admin", "rnGuard", "rnOwner"],
+      "values": [
+        { "name": "WITHOUT_QR", "value": 1, "comment": "C: Sin QR — 359.634 filas" },
+        { "name": "QR_INDIVIDUAL", "value": 2, "comment": "I: QR Individual — 2.397" },
+        { "name": "QR_GROUP", "value": 3, "comment": "G: QR Grupal — 1.422" },
+        { "name": "QR_FREQUENT", "value": 4, "comment": "F: QR frecuente — 17.200" },
+        { "name": "ORDER", "value": 5, "comment": "P: Pedido — 97" },
+        { "name": "QR_KEY", "value": 6, "comment": "O: Llave QR — 1.269" }
+      ]
+    },
+    "AccessStoredStatus": {
+      "type": "int",
+      "comment": "accesses.status. Backend App\\Modules\\Access\\Enums\\EstadoGuardado. 🔴 NO es el estado que muestra la pantalla: ese se DERIVA de in_at/out_at/confirm_at (getAccessStatusInfo).",
+      "apps": ["admin", "rnGuard", "rnOwner"],
+      "values": [
+        { "name": "WAITING", "value": 1, "comment": "A: Aprobado, esperando entrar — 824" },
+        { "name": "INSIDE", "value": 2, "comment": "I: Adentro — 10.004" },
+        { "name": "OUTSIDE", "value": 3, "comment": "O: Afuera — 367.900" },
+        { "name": "REJECTED", "value": 4, "comment": "N: Rechazado — 3.291" }
+      ]
+    },
+    "AccessConfirmation": {
+      "type": "int",
+      "comment": "accesses.confirm. Backend App\\Modules\\Access\\Enums\\Confirmacion. Es la RESPUESTA (¿lo dejo pasar?), no un estado.",
+      "apps": ["admin", "rnGuard", "rnOwner"],
+      "values": [
+        { "name": "YES", "value": 1, "comment": "Y: Autorizado — 354.623" },
+        { "name": "NO", "value": 2, "comment": "N: No autorizado — 27.396" }
+      ]
+    },
+    "AccessTaxiMark": {
+      "type": "int",
+      "comment": "accesses.taxi. Backend App\\Modules\\Access\\Enums\\MarcaDeTaxi. 🔴 No es un booleano: IS_THE_DRIVER es lo unico que distingue al taxista de un acompanante.",
+      "apps": ["admin", "rnGuard", "rnOwner"],
+      "values": [
+        { "name": "NO_TAXI", "value": 1, "comment": "N: Sin taxi — 269.751" },
+        { "name": "CAME_BY_TAXI", "value": 2, "comment": "Y: Llego en taxi — 110.465" },
+        { "name": "IS_THE_DRIVER", "value": 3, "comment": "C: Es el taxista — 1.803" }
+      ]
+    },
     "ReservationStatus": {
       "type": "int",
       "comment": "Sincronizado con backend App\\Modules\\Reservations\\Enums\\ReservationStatus (PHP). Char legacy mapeado en comments.",

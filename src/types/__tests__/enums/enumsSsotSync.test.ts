@@ -33,7 +33,18 @@ import {
 import { SurveyStatus } from '@/modulos/Surveys/types/surveys.types';
 
 // Mapeo enum-name → import local. El test itera el SSoT y busca en este mapa.
+import {
+  AccessType,
+  AccessStoredStatus,
+  AccessConfirmation,
+  AccessTaxiMark,
+} from '@/modulos/Activities/AccessTab/shared/accessEnums';
+
 const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
+  AccessType,
+  AccessStoredStatus,
+  AccessConfirmation,
+  AccessTaxiMark,
   ReservationStatus,
   PaymentStatus,
   PaymentMethod,

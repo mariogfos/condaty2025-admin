@@ -1,5 +1,11 @@
 import { getFullName } from "@/mk/utils/string";
 import {
+  AccessType,
+  AccessConfirmation,
+  isCompanion,
+  isTheTaxiDriver,
+} from "./accessEnums";
+import {
   formatToDayFdMYH,
   getDateTimeStrMes,
   getDateTimeStrMesShort,
@@ -134,7 +140,7 @@ export const getAccessTypeLabel = (type: string, detail: AnyRecord) => {
     O: "Llave QR",
   };
 
-  if (type === "P") {
+  if (Number(type) === AccessType.ORDER) {
     return `Pedido/${detail?.other?.other_type?.name || "-/-"}`;
   }
 
@@ -192,8 +198,8 @@ const getAccessApprovalSource = (
     return buildDecisionSource("guard", "Aprobado por");
   }
 
-  if (access.type === "C") {
-    if (access.confirm === "Y" && hasValue(access.confirm_at)) {
+  if (Number(access.type) === AccessType.WITHOUT_QR) {
+    if (Number(access.confirm) === AccessConfirmation.YES && hasValue(access.confirm_at)) {
       return buildDecisionSource("resident", "Aprobado por");
     }
 
@@ -220,7 +226,7 @@ const getAccessRejectionSource = (
     return buildDecisionSource("guard", "Rechazado por");
   }
 
-  if (access.confirm === "N" && hasValue(access.confirm_at)) {
+  if (Number(access.confirm) === AccessConfirmation.NO && hasValue(access.confirm_at)) {
     return buildDecisionSource("resident", "Rechazado por");
   }
 
@@ -291,7 +297,7 @@ export const getAccessStatusInfo = (detail: AnyRecord) => {
     return { label: "Rechazado", tone: "danger" as const };
   }
 
-  if (detail?.confirm === "Y" || approvalSource) {
+  if (Number(detail?.confirm) === AccessConfirmation.YES || approvalSource) {
     return { label: "Por entrar", tone: "accent" as const };
   }
 
@@ -301,9 +307,9 @@ export const getAccessStatusInfo = (detail: AnyRecord) => {
 export const getMovementMode = (detail: AnyRecord) => {
   const related = Array.isArray(detail?.accesses) ? detail.accesses : [];
   const hasTaxiRelation = related.some(
-    (entry: AnyRecord) => entry?.taxi === "C" || entry?.plate,
+    (entry: AnyRecord) => isTheTaxiDriver(entry?.taxi) || entry?.plate,
   );
-  return detail?.plate || detail?.taxi === "C" || hasTaxiRelation
+  return detail?.plate || isTheTaxiDriver(detail?.taxi) || hasTaxiRelation
     ? "Vehicular"
     : "Peatonal";
 };
@@ -334,16 +340,16 @@ export const getRequestActorInfo = (detail: AnyRecord) => {
 };
 
 export const getAccessHeadline = (detail: AnyRecord) => {
-  const subject = detail?.type === "O" ? detail?.owner : detail?.visit;
+  const subject = Number(detail?.type) === AccessType.QR_KEY ? detail?.owner : detail?.visit;
   const subjectName = getEntityName(subject) || "Sin nombre";
   const ownerName = getEntityName(detail?.owner) || "Residente";
   const unit = getUnitLabel(detail?.owner);
 
-  if (detail?.type === "O") {
+  if (Number(detail?.type) === AccessType.QR_KEY) {
     return `${subjectName} registro su acceso a ${unit}`;
   }
 
-  if (detail?.type === "P") {
+  if (Number(detail?.type) === AccessType.ORDER) {
     return `${subjectName} entrego a ${ownerName}`;
   }
 
@@ -353,8 +359,8 @@ export const getAccessHeadline = (detail: AnyRecord) => {
 export const splitRelatedAccesses = (detail: AnyRecord) => {
   const related = Array.isArray(detail?.accesses) ? detail.accesses : [];
   return {
-    companions: related.filter((entry: AnyRecord) => entry?.taxi !== "C"),
-    taxis: related.filter((entry: AnyRecord) => entry?.taxi === "C"),
+    companions: related.filter((entry: AnyRecord) => isCompanion(entry?.taxi)),
+    taxis: related.filter((entry: AnyRecord) => isTheTaxiDriver(entry?.taxi)),
   };
 };
 
