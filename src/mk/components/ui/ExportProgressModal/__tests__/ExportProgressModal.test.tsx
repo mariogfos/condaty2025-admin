@@ -66,7 +66,7 @@ describe("ExportProgressModal", () => {
       />,
     );
     expect(screen.getByText("Generando Pagos…")).toBeTruthy();
-    expect(screen.getByText(/Encolando reporte/i)).toBeTruthy();
+    expect(screen.getByText(/Encolando el reporte/i)).toBeTruthy();
   });
 
   it("renders 'Generando' title + progress + chunks when status=processing", () => {
@@ -87,7 +87,10 @@ describe("ExportProgressModal", () => {
     );
     expect(screen.getByText("Generando reporte…")).toBeTruthy();
     expect(screen.getByText("60%")).toBeTruthy();
-    expect(screen.getByText("Chunk 3 de 5")).toBeTruthy();
+    // ⚠️ "Parte", no "Chunk": el texto es para el usuario y "chunk" es una
+    // palabra nuestra. Importa desde que la barra se dibuja de verdad —el back
+    // no escribía `total_chunks` y esto no se veía nunca (2026-08-08)—.
+    expect(screen.getByText("Parte 3 de 5")).toBeTruthy();
   });
 
   it("renders 'Reporte listo' + Descargar button when status=completed", () => {

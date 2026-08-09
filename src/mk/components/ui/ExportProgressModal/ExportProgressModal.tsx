@@ -109,9 +109,14 @@ export default function ExportProgressModal({
                 aria-hidden="true"
               />
               <p className={styles.message}>
+                {/* ⚠️ Ni "PDF" ni "chunks". El formato lo elige el usuario
+                    —puede ser XLSX o CSV— y "chunk" es una palabra nuestra, no
+                    suya. Importa desde que hay barra: antes esto acompañaba a
+                    un spinner que nadie miraba, ahora es el texto que se lee
+                    mientras se espera. */}
                 {state.status === "pending"
-                  ? "Encolando reporte…"
-                  : "Generando PDF en chunks pequeños para no saturar el server."}
+                  ? "Encolando el reporte…"
+                  : "Armando el reporte por partes, para no saturar el servidor."}
               </p>
             </div>
 
@@ -129,7 +134,7 @@ export default function ExportProgressModal({
 
             {state.currentChunk !== null && state.totalChunks !== null && (
               <p className={styles.chunks}>
-                Chunk {state.currentChunk} de {state.totalChunks}
+                Parte {state.currentChunk} de {state.totalChunks}
               </p>
             )}
 
@@ -152,7 +157,7 @@ export default function ExportProgressModal({
             </p>
             {state.totalChunks !== null && (
               <p className={styles.chunks}>
-                Generado en {state.totalChunks} chunks · {state.progress}%
+                Generado en {state.totalChunks} partes · {state.progress}%
               </p>
             )}
             <div className={styles.actions}>
