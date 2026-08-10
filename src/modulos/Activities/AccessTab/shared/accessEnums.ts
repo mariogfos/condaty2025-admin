@@ -81,3 +81,22 @@ export const ACCESS_TYPE_LABEL: Record<AccessType, string> = {
   [AccessType.ORDER]: 'Pedido',
   [AccessType.QR_KEY]: 'Llave QR',
 };
+
+/**
+ * Las opciones del filtro "Tipo de Acceso" del listado del admin.
+ *
+ * 🔴 Existe como constante —y no inline en la pantalla— porque su `id` VIAJA AL
+ * BACKEND dentro de `filterBy` y termina en un `where('accesses.type', ...)`
+ * contra un TINYINT. La lista estaba escrita a mano con las letras viejas
+ * ('C', 'I', 'G'...): MariaDB convierte 'C' a 0 y el filtro devolvia la lista
+ * vacia para TODAS las opciones, sin error y sin aviso.
+ *
+ * Ese es el char sobreviviendo como **valor que viaja al backend**: ni una
+ * comparacion ni una clave de tabla, asi que no lo ve el compilador ni un grep
+ * de `=== 'C'`. La unica defensa es que salga del enum.
+ */
+export const ACCESS_TYPE_FILTER_OPTIONS: { id: number; name: string }[] =
+  Object.entries(ACCESS_TYPE_LABEL).map(([value, name]) => ({
+    id: Number(value),
+    name,
+  }));

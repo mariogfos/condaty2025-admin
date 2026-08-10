@@ -14,7 +14,12 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import {
   formatAccessDateTimeShort,
   getAccessStatusInfo,
+  // 🔴 Esta pantalla tenia su PROPIA copia (`getTypeAccess` + `typeMap`) con
+  // las letras viejas, que le ganaba a la compartida por estar mas cerca. Con
+  // el flip, `typeMap[5]` daba undefined y la columna "Tipo" salia vacia.
+  getAccessTypeLabel,
 } from "./shared/accessDetailUtils";
+import { ACCESS_TYPE_FILTER_OPTIONS } from "./shared/accessEnums";
 
 interface AccessesTabProps {
   paramsInitial: any;
@@ -157,22 +162,6 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
     setCustomDateErrors({});
   };
 
-  const getTypeAccess = (type: string, param: any) => {
-    if (type === "P") {
-      return "Pedido:" + param?.other?.other_type?.name;
-    }
-    if (type === "F") {
-      return "QR Frecuente";
-    }
-    return typeMap[type];
-  };
-  const typeMap: Record<string, string> = {
-    C: "Sin QR",
-    G: "QR Grupal",
-    I: "QR Individual",
-    P: "Pedido",
-    O: "Llave QR",
-  };
   // Definición del módulo Accesos
   const modAccess: ModCrudType = useMemo(() => {
     return {
@@ -264,7 +253,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
                     <div style={{ color: "var(--cWhite)" }}>
                       {getFullName(user)}
                     </div>
-                    <div>{getTypeAccess(props?.item?.type, props?.item)}</div>
+                    <div>{getAccessTypeLabel(props?.item?.type, props?.item)}</div>
                   </div>
                 </div>
               </div>
@@ -425,7 +414,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
           onRender: (props: any) => {
             return (
               <div>
-                <p> {getTypeAccess(props.item.type, props.item)}</p>
+                <p> {getAccessTypeLabel(props.item.type, props.item)}</p>
                 <div className={styles.companionsText}>
                   {props?.item?.accesses.length > 0 &&
                     `+${props?.item?.accesses?.length} acompañante${
@@ -439,15 +428,16 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         filter: {
           label: "Tipo de Acceso",
           width: "180px",
-          options: () => [
-            { id: "ALL", name: "Todos" },
-            { id: "C", name: "Sin QR" },
-            { id: "I", name: "QR Individual" },
-            { id: "G", name: "QR Grupal" },
-            { id: "F", name: "QR frecuente" },
-            { id: "P", name: "Pedido" },
-            { id: "O", name: "Llave QR" },
-          ],
+          // 🔴 Esta lista estaba escrita a mano y CON LAS LETRAS: mandaba
+          // `type_access:C` al back, que lo compara contra un TINYINT. MariaDB
+          // convierte 'C' a 0 y no matchea nada: después del flip, TODAS las
+          // opciones del filtro devolvían la lista vacía, sin error.
+          //
+          // Es una forma de sobrevivir que no estaba en el catálogo: el char
+          // como VALOR QUE VIAJA AL BACKEND dentro de un array de opciones.
+          // No es una comparación ni una clave, así que ni el compilador ni el
+          // grep de `=== 'C'` lo veían. Ahora sale del enum.
+          options: () => [{ id: "ALL", name: "Todos" }, ...ACCESS_TYPE_FILTER_OPTIONS],
         },
       },
       dpto_id: {
