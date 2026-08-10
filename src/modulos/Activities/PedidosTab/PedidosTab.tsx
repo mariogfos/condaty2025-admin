@@ -17,6 +17,7 @@ import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderView from "./RenderView/RenderView";
 import { formatAccessDateTime } from "../AccessTab/shared/accessDetailUtils";
+import { AccessType } from "../AccessTab/shared/accessEnums";
 
 
 interface PedidosTabProps {
@@ -62,7 +63,11 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
         const { data } = await execute(url, "POST", {
           pedido_id: pedido.id,
           begin_at: getUTCNow(),
-          type: "P",
+          // 🔴 Numerico, no "P". `accesses.type` es TINYINT desde el flip a
+          // enums: `TipoDeAcceso::de("P")` hace `ctype_digit` y devuelve null,
+          // asi que la rama de Pedido de `beforeCreate` no corria y el admin no
+          // podia registrar la entrada de un pedido.
+          type: AccessType.ORDER,
           plate: "", // Estos campos podrían venir del formulario
           name: "",
           last_name: "",
