@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { getAccessUnit, getAccessUnitLabel } from "../accessDetailUtils";
 import {
   ACCESS_TYPE_FILTER_OPTIONS,
   ACCESS_TYPE_LABEL,
@@ -53,5 +54,45 @@ describe("el filtro de tipo de acceso", () => {
     for (const opcion of ACCESS_TYPE_FILTER_OPTIONS) {
       expect(opcion.name).toBe(ACCESS_TYPE_LABEL[opcion.id as AccessType]);
     }
+  });
+});
+
+/**
+ * A que unidad fue un acceso.
+ *
+ * 🔴 `access.dpto` sale de `accesses.dpto_id` y es la unidad EXACTA de ese
+ * acceso. `owner.dpto[0]` es sólo la primera del residente. Medido el
+ * 2026-08-10: **2.663 accesos** mostraban una unidad distinta de la registrada,
+ * y hay 126 residentes con más de una unidad.
+ *
+ * ⚠️ Se prefiere, no se reemplaza: 166.064 accesos no tienen `dpto_id`.
+ */
+describe("la unidad de un acceso", () => {
+  const residenteConDos = {
+    owner: { dpto: [{ nro: "A-101" }, { nro: "B-202" }] },
+  };
+
+  it("gana la unidad del acceso sobre la primera del residente", () => {
+    const acceso = { ...residenteConDos, dpto: { nro: "B-202" } };
+
+    expect(getAccessUnit(acceso)?.nro).toBe("B-202");
+  });
+
+  it("sin dpto cae a la primera del residente, como siempre", () => {
+    expect(getAccessUnit(residenteConDos)?.nro).toBe("A-101");
+  });
+
+  it("sin residente ni unidad no rompe", () => {
+    expect(getAccessUnit({})).toBeFalsy();
+    expect(getAccessUnitLabel({})).toBe("-/-");
+  });
+
+  it("la etiqueta usa el tipo de la unidad del acceso", () => {
+    const acceso = {
+      ...residenteConDos,
+      dpto: { nro: "B-202", type: { name: "Departamento" } },
+    };
+
+    expect(getAccessUnitLabel(acceso)).toBe("Departamento B-202");
   });
 });

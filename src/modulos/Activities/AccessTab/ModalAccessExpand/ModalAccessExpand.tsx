@@ -23,8 +23,9 @@ import {
   getEntityGallery,
   getEntityName,
   getMovementMode,
-  getUnitLabel,
+  getAccessUnitLabel,
 } from "../shared/accessDetailUtils";
+import { AccessType } from "../shared/accessEnums";
 
 interface PropsType {
   id: string | number | null;
@@ -183,7 +184,17 @@ const ModalAccessExpand = ({ id, open, onClose, type }: PropsType) => {
     getAccess();
   }, [type, id, open]);
 
-  const accessType = accessDetail?.type || "";
+  // 🔴 `accessType` es `accesses.type`, que desde el flip del 2026-08-09 es
+  // NUMERICO. Este archivo lo comparaba contra "O" y "P" —las letras viejas de
+  // llave QR y pedido— y las tres comparaciones daban false siempre: el detalle
+  // de una llave QR mostraba al visitante en vez del residente, y el de un
+  // pedido no mostraba el tipo de pedido.
+  //
+  // ⚠️ El barrido del flip no lo vio porque busca `.type === 'X'` y aca el
+  // char esta detras de un ALIAS LOCAL. Ojo: el prop `type` de este mismo
+  // componente NO es esto — es la clase de modal (A/T/I/V/P) y sigue siendo
+  // char, por eso conviven las dos cosas a tres lineas de distancia.
+  const accessType = accessDetail?.type ?? null;
   const owner = accessDetail?.owner || {};
   const visit = accessDetail?.visit || {};
   const statusInfo = getAccessStatusInfo(accessDetail);
@@ -194,9 +205,10 @@ const ModalAccessExpand = ({ id, open, onClose, type }: PropsType) => {
   );
   const deviceItems = deviceData.devices;
   const actionItems = deviceData.actions;
-  const subject = accessType === "O" ? owner : visit;
+  const esLlaveQr = Number(accessType) === AccessType.QR_KEY;
+  const subject = esLlaveQr ? owner : visit;
   const subjectName = getEntityName(subject) || "Sin nombre";
-  const unitLabel = getUnitLabel(owner);
+  const unitLabel = getAccessUnitLabel(accessDetail);
   const startedAt = accessDetail?.in_at || accessDetail?.begin_at;
 
   const imageGroups = useMemo(() => {
@@ -209,7 +221,7 @@ const ModalAccessExpand = ({ id, open, onClose, type }: PropsType) => {
       {
         key: "host",
         title: "Fotos del residente destino",
-        images: accessType === "O" ? [] : getEntityGallery(owner),
+        images: esLlaveQr ? [] : getEntityGallery(owner),
       },
       {
         key: "access",
@@ -355,7 +367,7 @@ const ModalAccessExpand = ({ id, open, onClose, type }: PropsType) => {
               {accessDetail?.plate ? (
                 <FactCard label="Placa" value={accessDetail.plate} />
               ) : null}
-              {accessType === "P" ? (
+              {Number(accessType) === AccessType.ORDER ? (
                 <FactCard
                   label="Tipo de pedido"
                   value={accessDetail?.other?.other_type?.name || "-/-"}

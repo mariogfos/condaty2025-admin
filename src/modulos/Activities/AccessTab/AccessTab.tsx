@@ -18,6 +18,7 @@ import {
   // las letras viejas, que le ganaba a la compartida por estar mas cerca. Con
   // el flip, `typeMap[5]` daba undefined y la columna "Tipo" salia vacia.
   getAccessTypeLabel,
+  getAccessUnit,
 } from "./shared/accessDetailUtils";
 import { ACCESS_TYPE_FILTER_OPTIONS } from "./shared/accessEnums";
 
@@ -277,7 +278,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
                 </div>
                 <div className={styles.avatarText}>
                   <div>{getFullName(props.item?.owner)}</div>
-                  <div>Unidad: {props?.item?.owner?.dpto[0]?.nro || "-/-"}</div>
+                  <div>Unidad: {getAccessUnit(props?.item)?.nro || "-/-"}</div>
                 </div>
               </div>
             );

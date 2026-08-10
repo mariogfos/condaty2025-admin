@@ -31,7 +31,7 @@ import {
   getEntityName,
   getMovementMode,
   getRequestActorInfo,
-  getUnitLabel,
+  getAccessUnitLabel,
   splitRelatedAccesses,
 } from "../shared/accessDetailUtils";
 
@@ -288,7 +288,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   const subject = accessType === "O" ? owner : visit;
   const subjectName = getEntityName(subject) || "Sin nombre";
   const subjectDocument = accessType === "O" ? owner?.ci : visit?.ci;
-  const unitLabel = getUnitLabel(owner);
+  const unitLabel = getAccessUnitLabel(item);
   const movementMode = getMovementMode(accessDetail);
   const approvalSummary = approvalInfo.actorName
     ? `${approvalInfo.actorName}${

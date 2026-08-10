@@ -122,6 +122,32 @@ export const getPrimaryUnit = (owner: AnyRecord | null | undefined) => {
   return Array.isArray(owner.dpto) ? owner.dpto[0] : owner.dpto;
 };
 
+/**
+ * La unidad a la que fue ESE acceso.
+ *
+ * 🔴 `access.dpto` es el dato exacto —sale de `accesses.dpto_id`— y
+ * `owner.dpto[0]` es sólo la PRIMERA unidad del residente. Para quien tiene una
+ * sola da igual; para quien tiene varias, la pantalla mostraba la que saliera
+ * primero del pivote.
+ *
+ * Medido el 2026-08-10: **2.663 accesos** mostraban una unidad distinta de la
+ * registrada. Hay 126 residentes con más de una unidad.
+ *
+ * ⚠️ Se PREFIERE, no se reemplaza: 166.064 accesos no tienen `dpto_id` y ahí la
+ * única fuente sigue siendo el residente.
+ */
+export const getAccessUnit = (access: AnyRecord | null | undefined) =>
+  access?.dpto ?? getPrimaryUnit(access?.owner);
+
+export const getAccessUnitLabel = (access: AnyRecord | null | undefined) => {
+  const unit = getAccessUnit(access);
+  if (!unit) return "-/-";
+
+  const prefix = unit?.type?.name || "Unidad";
+  const identifier = unit?.nro || unit?.description || "-/-";
+  return `${prefix} ${identifier}`.trim();
+};
+
 export const getUnitLabel = (owner: AnyRecord | null | undefined) => {
   const unit = getPrimaryUnit(owner);
   if (!unit) return "-/-";
@@ -361,7 +387,8 @@ export const getAccessHeadline = (detail: AnyRecord) => {
   const subject = Number(detail?.type) === AccessType.QR_KEY ? detail?.owner : detail?.visit;
   const subjectName = getEntityName(subject) || "Sin nombre";
   const ownerName = getEntityName(detail?.owner) || "Residente";
-  const unit = getUnitLabel(detail?.owner);
+  // La unidad de ESTE acceso, no la primera del residente.
+  const unit = getAccessUnitLabel(detail);
 
   if (Number(detail?.type) === AccessType.QR_KEY) {
     return `${subjectName} registro su acceso a ${unit}`;
