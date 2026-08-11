@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Button from "@/mk/components/forms/Button/Button";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
@@ -123,6 +124,7 @@ const AccessEvidenceConfigContent = () => {
   const usage = usageResponse?.data;
   const usagePeriods = Array.isArray(usage?.periods) ? usage.periods : [];
   const usagePageCount = Math.max(1, Math.ceil(usagePeriods.length / USAGE_PERIODS_PER_PAGE));
+  const usagePageNumbers = Array.from({ length: usagePageCount }, (_, index) => index + 1);
   const visibleUsagePeriods = usagePeriods.slice(
     (usagePage - 1) * USAGE_PERIODS_PER_PAGE,
     usagePage * USAGE_PERIODS_PER_PAGE,
@@ -495,18 +497,31 @@ const AccessEvidenceConfigContent = () => {
                 onClick={() => setUsagePage((currentPage) => Math.max(1, currentPage - 1))}
                 disabled={usagePage === 1}
               >
-                Anterior
+                <ChevronLeft size={16} aria-hidden="true" />
+                <span className={styles.visuallyHidden}>Página anterior</span>
               </Button>
-              <span className={styles.usagePageStatus}>
-                Página {usagePage} de {usagePageCount}
-              </span>
+              <div className={styles.usagePageNumbers}>
+                {usagePageNumbers.map((page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    className={styles.usagePageNumber}
+                    onClick={() => setUsagePage(page)}
+                    aria-current={usagePage === page ? "page" : undefined}
+                    aria-label={`Ir a la página ${page}`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
               <Button
                 variant="secondary"
                 className={styles.usagePageButton}
                 onClick={() => setUsagePage((currentPage) => Math.min(usagePageCount, currentPage + 1))}
                 disabled={usagePage === usagePageCount}
               >
-                Siguiente
+                <ChevronRight size={16} aria-hidden="true" />
+                <span className={styles.visuallyHidden}>Página siguiente</span>
               </Button>
             </nav>
           )}
