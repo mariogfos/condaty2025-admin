@@ -1,135 +1,224 @@
-.container {
-  display: grid;
-  gap: 20px;
+.config {
+  width: 100%;
+  max-width: 860px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.header,
-.cardHeader,
-.usageSection {
+.headerRow {
   display: flex;
-  gap: 20px;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 16px;
 }
 
-.header h1,
-.card h2,
-.usageSection h2 {
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.headerAction {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.headerButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.headerButtons > * {
+  flex: 0 0 auto;
+}
+
+.mainTitle {
+  color: var(--cWhite);
+  font-size: var(--title-sm-size);
+  font-weight: var(--font-weight-bold);
   margin: 0;
+}
+
+.mainSubtitle,
+.textSubtitle,
+.fieldHint {
   color: var(--cWhiteV1);
+  font-size: var(--body-sm-size);
+  line-height: 1.5;
+  margin: 0;
 }
 
-.header p,
-.card p,
-.usageSection p,
-.card small {
-  margin: 8px 0 0;
-  color: var(--cWhiteV3);
-  line-height: 1.45;
+.mainSubtitle {
+  max-width: 640px;
 }
 
-.warning,
-.card,
-.usageSection {
-  border: 1px solid var(--cWhiteV5);
+.saveButton,
+.editButton {
+  width: auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.rulesGrid,
+.settingsStack,
+.cardHeader,
+.switchContent,
+.retentionRow {
+  display: flex;
+  flex-direction: column;
+}
+
+.rulesGrid {
+  width: 100%;
+  gap: 12px;
+}
+
+.formCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--cModalBorder);
   border-radius: 14px;
-  padding: 22px;
-  background: var(--cNeutral900);
+  background-color: var(--cModalSurface);
 }
 
-.warning {
-  border-color: #bd8a26;
-  background: rgba(189, 138, 38, 0.12);
+.cardHeader,
+.switchContent {
+  gap: 3px;
+}
+
+.textTitle {
+  color: var(--cWhite);
+  font-size: var(--body-md-size);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.storageNotice {
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--cWarning) 58%, var(--cModalBorder));
+  border-radius: 14px;
+  background-color: color-mix(in srgb, var(--cWarning) 12%, var(--cModalSurface));
   color: var(--cWhiteV1);
+  font-size: var(--body-sm-size);
   line-height: 1.5;
 }
 
-.grid {
+.settingsStack {
+  gap: 12px;
+}
+
+.switchContainer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--cModalBorder);
+  border-radius: 14px;
+  background-color: color-mix(in srgb, var(--cModalSurfaceRaised) 72%, transparent);
+}
+
+.formGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 12px;
 }
 
-.grid label,
-.retentionInput {
+.fieldPair {
   display: grid;
-  gap: 8px;
-  color: var(--cWhiteV2);
-  font-size: 14px;
+  grid-template-columns: minmax(0, 1fr) minmax(116px, 0.42fr);
+  gap: 12px;
+  min-width: 0;
 }
 
-.grid input,
-.compoundInput input,
-.compoundInput select {
-  min-height: 42px;
-  border: 1px solid var(--cWhiteV5);
-  border-radius: 8px;
-  padding: 0 12px;
-  color: var(--cWhiteV1);
-  background: var(--cNeutral800);
+.fieldWithHint,
+.retentionRow {
+  gap: 6px;
+  min-width: 0;
 }
 
-.compoundInput {
+.metricGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 86px;
-  gap: 8px;
-}
-
-.retentionInput {
-  max-width: 360px;
-  margin-top: 18px;
-}
-
-.stats {
-  display: grid;
-  width: 100%;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
-.stats article {
-  display: grid;
+.metricCard {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
-  min-height: 130px;
-  padding: 16px;
-  border: 1px solid var(--cWhiteV5);
-  border-radius: 12px;
-  background: var(--cNeutral800);
+  min-width: 0;
+  min-height: 126px;
+  padding: 12px;
+  border: 1px solid var(--cModalBorder);
+  border-radius: 14px;
+  background-color: color-mix(in srgb, var(--cModalSurfaceRaised) 72%, transparent);
 }
 
-.stats span,
-.stats small {
-  color: var(--cWhiteV3);
-  font-size: 12px;
+.metricCard span,
+.metricCard small {
+  color: var(--cWhiteV1);
+  font-size: var(--body-xs-size);
   line-height: 1.35;
 }
 
-.stats strong {
+.metricCard strong {
   color: var(--cAccent);
-  font-size: 21px;
+  font-size: var(--title-xs-size);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .loading {
-  padding: 32px;
-  color: var(--cWhiteV3);
+  width: 100%;
+  max-width: 860px;
+  margin-inline: auto;
+  padding: 32px 12px;
+  color: var(--cWhiteV1);
 }
 
-@media (max-width: 900px) {
-  .header,
-  .usageSection {
+@media (max-width: 960px) {
+  .headerRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerAction,
+  .headerButtons,
+  .saveButton,
+  .editButton {
+    width: 100%;
+  }
+
+  .headerButtons {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 860px) {
+  .switchContainer {
     flex-direction: column;
   }
 
-  .grid,
-  .stats {
-    grid-template-columns: 1fr 1fr;
+  .metricGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 560px) {
-  .grid,
-  .stats {
+@media (max-width: 640px) {
+  .fieldPair,
+  .metricGrid {
     grid-template-columns: 1fr;
   }
 }

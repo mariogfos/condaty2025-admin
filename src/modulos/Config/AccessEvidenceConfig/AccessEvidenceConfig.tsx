@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Button from "@/mk/components/forms/Button/Button";
+import Input from "@/mk/components/forms/Input/Input";
+import Select from "@/mk/components/forms/Select/Select";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -16,7 +18,7 @@ type PolicyState = {
   retention_enabled: boolean;
   retention_value: string;
   retention_unit: "days" | "months";
-  delivery_ready: boolean;
+  storage_ready: boolean;
 };
 
 const DEFAULT_POLICY: PolicyState = {
@@ -28,7 +30,7 @@ const DEFAULT_POLICY: PolicyState = {
   retention_enabled: false,
   retention_value: "",
   retention_unit: "days",
-  delivery_ready: false,
+  storage_ready: false,
 };
 
 const bytesToMegabytes = (bytes?: number | null) => {
@@ -52,8 +54,11 @@ const policyToForm = (policy: any): PolicyState => ({
       ? ""
       : String(policy.retention_days),
   retention_unit: "days",
-  delivery_ready: Boolean(policy?.delivery_ready),
+  storage_ready: Boolean(policy?.storage_ready ?? policy?.delivery_ready),
 });
+
+const comparablePolicy = ({ storage_ready: _storageReady, ...policy }: PolicyState) =>
+  policy;
 
 const formatBytes = (bytes?: number | null) => {
   if (!bytes) return "0 MB";
@@ -62,7 +67,7 @@ const formatBytes = (bytes?: number | null) => {
 };
 
 const formatUsd = (value?: number | null) => {
-  if (value === null || value === undefined) return "Pendiente de conciliar";
+  if (value === null || value === undefined) return "Pendiente de estimar";
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -85,6 +90,8 @@ const AccessEvidenceConfig = () => {
   } = useAxios("/access/evidence-usage", "GET", {});
   const { execute } = useAxios(null, "GET", {});
   const [form, setForm] = useState<PolicyState>(DEFAULT_POLICY);
+  const [initialForm, setInitialForm] = useState<PolicyState>(DEFAULT_POLICY);
+  const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const policy = policyResponse?.data;
@@ -92,7 +99,9 @@ const AccessEvidenceConfig = () => {
 
   useEffect(() => {
     if (policyResponse?.success) {
-      setForm(policyToForm(policy));
+      const nextForm = policyToForm(policy);
+      setForm(nextForm);
+      setInitialForm(nextForm);
     }
   }, [policy, policyResponse?.success]);
 
@@ -109,14 +118,21 @@ const AccessEvidenceConfig = () => {
     return form.retention_unit === "months" ? Math.round(value * 30) : Math.round(value);
   }, [form.retention_unit, form.retention_value]);
 
+  const isDirty = useMemo(
+    () =>
+      JSON.stringify(comparablePolicy(form)) !==
+      JSON.stringify(comparablePolicy(initialForm)),
+    [form, initialForm],
+  );
+
   const updateField = (name: keyof PolicyState, value: any) => {
     setForm((current) => ({ ...current, [name]: value }));
   };
 
   const save = async () => {
-    if (form.enabled && !form.delivery_ready) {
+    if (form.enabled && !form.storage_ready) {
       showToast(
-        "Falta configurar CLOUDINARY_URL y la clave privada de entrega de Cloudinary en el Backend.",
+        "No se puede habilitar la captura hasta que el Backend configure CLOUDINARY_URL.",
         "error",
       );
       return;
@@ -152,10 +168,18 @@ const AccessEvidenceConfig = () => {
       return;
     }
 
-    setForm(policyToForm(data.data));
+    const nextForm = policyToForm(data.data);
+    setForm(nextForm);
+    setInitialForm(nextForm);
+    setEditMode(false);
     reloadPolicy();
     reloadUsage();
     showToast("Reglas de evidencia actualizadas", "success");
+  };
+
+  const discardChanges = () => {
+    setForm(initialForm);
+    setEditMode(false);
   };
 
   if (!policyLoaded || !usageLoaded) {
@@ -163,169 +187,229 @@ const AccessEvidenceConfig = () => {
   }
 
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <div>
-          <h1>Reglas de evidencia de accesos</h1>
-          <p>
-            Controla las fotos opcionales que portería puede adjuntar a cada ingreso y su costo operativo.
+    <div className={styles.config}>
+      <header className={styles.headerRow}>
+        <div className={styles.headerContent}>
+          <h1 className={styles.mainTitle}>Reglas de evidencia</h1>
+          <p className={styles.mainSubtitle}>
+            Define cuándo portería puede adjuntar fotos opcionales, sus límites y el tiempo de conservación.
           </p>
         </div>
-        <Button onClick={save} disabled={saving}>
-          {saving ? "Guardando…" : "Guardar cambios"}
-        </Button>
+
+        <div className={styles.headerAction}>
+          <div className={styles.headerButtons}>
+            {!editMode ? (
+              <Button variant="secondary" className={styles.editButton} onClick={() => setEditMode(true)}>
+                Editar
+              </Button>
+            ) : (
+              <>
+                <Button variant="secondary" className={styles.editButton} onClick={discardChanges}>
+                  Descartar cambios
+                </Button>
+                <Button className={styles.saveButton} onClick={save} disabled={!isDirty || saving}>
+                  {saving ? "Guardando…" : "Guardar cambios"}
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
       </header>
 
-      {!form.delivery_ready && (
-        <div className={styles.warning}>
-          La entrega privada de Cloudinary aún no está configurada en el Backend. Puedes revisar esta regla,
-          pero no activarla hasta que el equipo configure CLOUDINARY_URL y su clave de token privada.
-        </div>
-      )}
-
-      <section className={styles.card}>
-        <div className={styles.cardHeader}>
-          <div>
-            <h2>Captura en portería</h2>
-            <p>Las fotos son opcionales para el guardia y no reemplazan las fotos de carnet o placa existentes.</p>
-          </div>
-          <Switch
-            name="enabled"
-            value={form.enabled ? "Y" : "N"}
-            onChange={({ target }: any) => updateField("enabled", target.value === "Y")}
-            label={form.enabled ? "Habilitada" : "Deshabilitada"}
-            disabled={!form.delivery_ready}
-          />
-        </div>
-
-        <div className={styles.grid}>
-          <label>
-            <span>Máximo de fotos por acceso</span>
-            <input
-              type="number"
-              min="1"
-              max="10"
-              value={form.max_photos_per_access}
-              disabled={!form.enabled}
-              onChange={(event) => updateField("max_photos_per_access", event.target.value)}
-            />
-            <small>Entre 1 y 10 fotos. El Backend valida el límite incluso si una app está desactualizada.</small>
-          </label>
-        </div>
-      </section>
-
-      <section className={styles.card}>
-        <div className={styles.cardHeader}>
-          <div>
-            <h2>Cuota mensual</h2>
-            <p>Puedes limitar por cantidad de fotos, por tamaño total o por ambos. Se mide sobre fotos nuevas del mes.</p>
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <label>
-            <span>Máximo de fotos al mes</span>
-            <input
-              type="number"
-              min="1"
-              placeholder="Sin límite por cantidad"
-              value={form.monthly_max_photo_count}
-              disabled={!form.enabled}
-              onChange={(event) => updateField("monthly_max_photo_count", event.target.value)}
-            />
-          </label>
-          <label>
-            <span>Máximo de almacenamiento al mes</span>
-            <div className={styles.compoundInput}>
-              <input
-                type="number"
-                min="1"
-                step="0.01"
-                placeholder="Sin límite por tamaño"
-                value={form.monthly_storage_value}
-                disabled={!form.enabled}
-                onChange={(event) => updateField("monthly_storage_value", event.target.value)}
-              />
-              <select
-                value={form.monthly_storage_unit}
-                disabled={!form.enabled}
-                onChange={(event) => updateField("monthly_storage_unit", event.target.value as "MB" | "GB")}
-              >
-                <option value="MB">MB</option>
-                <option value="GB">GB</option>
-              </select>
-            </div>
-          </label>
-        </div>
-      </section>
-
-      <section className={styles.card}>
-        <div className={styles.cardHeader}>
-          <div>
-            <h2>Conservación y eliminación</h2>
-            <p>Al vencer el plazo, el Backend elimina cada activo identificado y guarda el resultado de la operación.</p>
-          </div>
-          <Switch
-            name="retention_enabled"
-            value={form.retention_enabled ? "Y" : "N"}
-            onChange={({ target }: any) => updateField("retention_enabled", target.value === "Y")}
-            label={form.retention_enabled ? "Borrado automático activo" : "Sin borrado automático"}
-            disabled={!form.enabled}
-          />
-        </div>
-
-        {form.retention_enabled && (
-          <label className={styles.retentionInput}>
-            <span>Conservar fotos durante</span>
-            <div className={styles.compoundInput}>
-              <input
-                type="number"
-                min="1"
-                max={form.retention_unit === "months" ? "120" : "3650"}
-                value={form.retention_value}
-                onChange={(event) => updateField("retention_value", event.target.value)}
-              />
-              <select
-                value={form.retention_unit}
-                onChange={(event) => updateField("retention_unit", event.target.value as "days" | "months")}
-              >
-                <option value="days">días</option>
-                <option value="months">meses</option>
-              </select>
-            </div>
-            <small>Los meses se convierten a 30 días para que el plazo sea verificable y automático.</small>
-          </label>
+      <div className={styles.rulesGrid}>
+        {!form.storage_ready && (
+          <aside className={styles.storageNotice}>
+            El almacenamiento privado de evidencia aún no está preparado en el Backend. Puedes revisar esta
+            regla, pero solo podrás activar la captura cuando el servidor tenga configurado CLOUDINARY_URL.
+          </aside>
         )}
-      </section>
 
-      <section className={styles.usageSection}>
-        <div>
-          <h2>Consumo de {usage?.month || "este mes"}</h2>
-          <p>El almacenamiento y las fotos son propios del condominio. El costo se concilia a nivel de cuenta Cloudinary.</p>
-        </div>
-        <div className={styles.stats}>
-          <article>
-            <span>Fotos cargadas</span>
-            <strong>{usage?.uploaded_photo_count || 0}</strong>
-            <small>{formatBytes(usage?.uploaded_bytes)}</small>
-          </article>
-          <article>
-            <span>Almacenamiento activo</span>
-            <strong>{formatBytes(usage?.active_bytes)}</strong>
-            <small>{usage?.active_photo_count || 0} fotos disponibles</small>
-          </article>
-          <article>
-            <span>Costo {usage?.cost_status === "estimated" ? "estimado" : "por conciliar"}</span>
-            <strong>{formatUsd(usage?.estimated_cost_usd)}</strong>
-            <small>Solo almacenamiento asignado; entrega y transformaciones se concilian aparte.</small>
-          </article>
-          <article>
-            <span>Cobro sugerido</span>
-            <strong>{formatUsd(usage?.suggested_charge_usd)}</strong>
-            <small>Incluye {usage?.markup_percent ?? 15}% de margen.</small>
-          </article>
-        </div>
-      </section>
+        <section className={styles.formCard}>
+          <div className={styles.cardHeader}>
+            <p className={styles.textTitle}>Captura en portería</p>
+            <p className={styles.textSubtitle}>
+              Las fotos son opcionales para el guardia y no reemplazan las fotos de carnet o placa existentes.
+            </p>
+          </div>
+
+          <div className={styles.settingsStack}>
+            <div className={styles.switchContainer}>
+              <div className={styles.switchContent}>
+                <p className={styles.textTitle}>Permitir evidencia de acceso</p>
+                <p className={styles.textSubtitle}>
+                  Guard mostrará la opción después de crear un acceso solo cuando esta regla esté activa.
+                </p>
+              </div>
+              <Switch
+                name="enabled"
+                value={form.enabled ? "Y" : "N"}
+                onChange={({ target }: any) => updateField("enabled", target.value === "Y")}
+                label={form.enabled ? "Habilitada" : "Deshabilitada"}
+                disabled={!editMode || !form.storage_ready}
+              />
+            </div>
+
+            <div className={styles.formGrid}>
+              <div className={styles.fieldWithHint}>
+                <Input
+                  type="number"
+                  label="Máximo de fotos por acceso"
+                  name="max_photos_per_access"
+                  value={form.max_photos_per_access}
+                  min={1}
+                  max={10}
+                  required={false}
+                  disabled={!editMode || !form.enabled}
+                  onChange={({ target }: any) => updateField("max_photos_per_access", target.value)}
+                />
+                <p className={styles.fieldHint}>
+                  Entre 1 y 10 fotos. El Backend valida el límite aunque una app esté desactualizada.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.formCard}>
+          <div className={styles.cardHeader}>
+            <p className={styles.textTitle}>Cuota mensual</p>
+            <p className={styles.textSubtitle}>
+              Limita por cantidad de fotos, tamaño total o ambos. La medición se hace sobre fotos nuevas del mes.
+            </p>
+          </div>
+
+          <div className={styles.formGrid}>
+            <Input
+              type="number"
+              label="Máximo de fotos al mes"
+              name="monthly_max_photo_count"
+              value={form.monthly_max_photo_count}
+              min={1}
+              placeholder="Sin límite por cantidad"
+              required={false}
+              disabled={!editMode || !form.enabled}
+              onChange={({ target }: any) => updateField("monthly_max_photo_count", target.value)}
+            />
+            <div className={styles.fieldPair}>
+              <Input
+                type="number"
+                label="Almacenamiento mensual"
+                name="monthly_storage_value"
+                value={form.monthly_storage_value}
+                min={1}
+                placeholder="Sin límite por tamaño"
+                required={false}
+                disabled={!editMode || !form.enabled}
+                onChange={({ target }: any) => updateField("monthly_storage_value", target.value)}
+              />
+              <Select
+                label="Unidad"
+                name="monthly_storage_unit"
+                value={form.monthly_storage_unit}
+                options={[
+                  { id: "MB", name: "MB" },
+                  { id: "GB", name: "GB" },
+                ]}
+                required={false}
+                disabled={!editMode || !form.enabled}
+                onChange={({ target }: any) => updateField("monthly_storage_unit", target.value)}
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.formCard}>
+          <div className={styles.cardHeader}>
+            <p className={styles.textTitle}>Conservación y eliminación</p>
+            <p className={styles.textSubtitle}>
+              Al vencer el plazo, el Backend elimina cada activo identificado y registra el resultado.
+            </p>
+          </div>
+
+          <div className={styles.settingsStack}>
+            <div className={styles.switchContainer}>
+              <div className={styles.switchContent}>
+                <p className={styles.textTitle}>Borrado automático</p>
+                <p className={styles.textSubtitle}>
+                  Conserva las fotos durante un plazo definido y luego elimina únicamente la evidencia asociada.
+                </p>
+              </div>
+              <Switch
+                name="retention_enabled"
+                value={form.retention_enabled ? "Y" : "N"}
+                onChange={({ target }: any) => updateField("retention_enabled", target.value === "Y")}
+                label={form.retention_enabled ? "Activo" : "Desactivado"}
+                disabled={!editMode || !form.enabled}
+              />
+            </div>
+
+            {form.retention_enabled && (
+              <div className={styles.retentionRow}>
+                <div className={styles.fieldPair}>
+                  <Input
+                    type="number"
+                    label="Conservar durante"
+                    name="retention_value"
+                    value={form.retention_value}
+                    min={1}
+                    max={form.retention_unit === "months" ? 120 : 3650}
+                    required={false}
+                    disabled={!editMode || !form.enabled}
+                    onChange={({ target }: any) => updateField("retention_value", target.value)}
+                  />
+                  <Select
+                    label="Unidad"
+                    name="retention_unit"
+                    value={form.retention_unit}
+                    options={[
+                      { id: "days", name: "Días" },
+                      { id: "months", name: "Meses" },
+                    ]}
+                    required={false}
+                    disabled={!editMode || !form.enabled}
+                    onChange={({ target }: any) => updateField("retention_unit", target.value)}
+                  />
+                </div>
+                <p className={styles.fieldHint}>
+                  Los meses se convierten a 30 días para que el plazo sea verificable y automático.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className={styles.formCard}>
+          <div className={styles.cardHeader}>
+            <p className={styles.textTitle}>Consumo de {usage?.month || "este mes"}</p>
+            <p className={styles.textSubtitle}>
+              Uso propio del condominio y una proyección de cobro preventivo; no representa una factura final.
+            </p>
+          </div>
+
+          <div className={styles.metricGrid}>
+            <article className={styles.metricCard}>
+              <span>Fotos cargadas</span>
+              <strong>{usage?.uploaded_photo_count || 0}</strong>
+              <small>{formatBytes(usage?.uploaded_bytes)}</small>
+            </article>
+            <article className={styles.metricCard}>
+              <span>Almacenamiento activo</span>
+              <strong>{formatBytes(usage?.active_bytes)}</strong>
+              <small>{usage?.active_photo_count || 0} fotos disponibles</small>
+            </article>
+            <article className={styles.metricCard}>
+              <span>Costo estimado</span>
+              <strong>{formatUsd(usage?.estimated_cost_usd)}</strong>
+              <small>La conciliación real puede variar según la cuenta Cloudinary.</small>
+            </article>
+            <article className={styles.metricCard}>
+              <span>Cobro sugerido</span>
+              <strong>{formatUsd(usage?.suggested_charge_usd)}</strong>
+              <small>Incluye el factor preventivo ×{usage?.billing_multiplier ?? "1.5"}.</small>
+            </article>
+          </div>
+        </section>
+      </div>
     </div>
   );
 };
