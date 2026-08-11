@@ -214,6 +214,23 @@
   font-weight: var(--font-weight-medium);
 }
 
+.usageMetricInline {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.usageMetricInline strong,
+.usageMetricInline small {
+  display: inline;
+}
+
+.usageMetricInline > span {
+  color: var(--cWhiteV1);
+  font-size: var(--body-xs-size);
+}
+
 .usagePagination {
   display: flex;
   align-items: center;

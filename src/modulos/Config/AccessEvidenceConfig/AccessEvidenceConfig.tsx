@@ -101,6 +101,11 @@ const formatPeriod = (period: any) => {
   return period?.year ? `${month} ${period.year}` : month;
 };
 
+const formatPhotoCount = (count?: number) => {
+  const total = Number(count || 0);
+  return `${total} ${total === 1 ? "foto" : "fotos"}`;
+};
+
 const AccessEvidenceConfigContent = () => {
   const { showToast } = useAuth();
   const {
@@ -474,12 +479,18 @@ const AccessEvidenceConfigContent = () => {
                   <tr key={period.period}>
                     <td data-label="Período">{formatPeriod(period)}</td>
                     <td data-label="Fotos cargadas">
-                      <strong>{period.uploaded_photo_count || 0}</strong>
-                      <small>{formatBytes(period.uploaded_bytes)}</small>
+                      <span className={styles.usageMetricInline}>
+                        <strong>{formatPhotoCount(period.uploaded_photo_count)}</strong>
+                        <span aria-hidden="true">/</span>
+                        <small>{formatBytes(period.uploaded_bytes)}</small>
+                      </span>
                     </td>
                     <td data-label="Almacenamiento activo">
-                      <strong>{formatBytes(period.active_bytes)}</strong>
-                      <small>{period.active_photo_count || 0} fotos disponibles</small>
+                      <span className={styles.usageMetricInline}>
+                        <strong>{formatPhotoCount(period.active_photo_count)}</strong>
+                        <span aria-hidden="true">/</span>
+                        <small>{formatBytes(period.active_bytes)}</small>
+                      </span>
                     </td>
                     <td data-label="Costo estimado">{formatUsd(period.estimated_cost_usd)}</td>
                     <td data-label="Cobro sugerido">{formatUsd(period.suggested_charge_usd)}</td>
