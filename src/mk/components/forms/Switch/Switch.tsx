@@ -8,6 +8,7 @@ type PropsType = {
   value: string;
   onChange: { (e: any): void };
   label?: string;
+  ariaLabel?: string;
   required?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
@@ -24,6 +25,7 @@ const Switch = ({
   value,
   onChange,
   label,
+  ariaLabel,
   required = false,
   disabled = false,
   readOnly = false,
@@ -62,6 +64,7 @@ const Switch = ({
             required ? `${styles["label-active"]} }` : null
           }`}
         >
+          {ariaLabel ? <span className={styles.srOnly}>{ariaLabel}</span> : null}
           {label} {required ? "*" : null}
           <div
             className={`${styles["center-content"]} ${styles["container-label"]} `}

@@ -35,6 +35,8 @@ const DEFAULT_POLICY: PolicyState = {
   storage_ready: false,
 };
 
+const MAX_PHOTO_SIZE_MB = 100;
+
 const bytesToMegabytes = (bytes?: number | null) => {
   if (!bytes) return "";
   return String(Number((bytes / 1024 / 1024).toFixed(2)));
@@ -141,7 +143,7 @@ const AccessEvidenceConfig = () => {
   const save = async () => {
     if (form.enabled && !form.storage_ready) {
       showToast(
-        "No se puede habilitar la captura hasta que el Backend configure CLOUDINARY_URL.",
+        "No se puede habilitar la captura porque el almacenamiento de evidencias no está disponible en este entorno.",
         "error",
       );
       return;
@@ -158,6 +160,11 @@ const AccessEvidenceConfig = () => {
 
     if (form.max_photo_size_value && !maxPhotoBytes) {
       showToast("El peso máximo por foto debe ser mayor que cero.", "error");
+      return;
+    }
+
+    if (maxPhotoBytes && maxPhotoBytes > MAX_PHOTO_SIZE_MB * 1024 ** 2) {
+      showToast(`El peso máximo por foto debe estar entre 1 y ${MAX_PHOTO_SIZE_MB} MB.`, "error");
       return;
     }
 
@@ -234,8 +241,8 @@ const AccessEvidenceConfig = () => {
       <div className={styles.rulesGrid}>
         {!form.storage_ready && (
           <aside className={styles.storageNotice}>
-            La configuración privada de Cloudinary no está disponible en este entorno de Backend. Puedes revisar
-            esta regla, pero solo podrás activar la captura cuando este entorno tenga CLOUDINARY_URL.
+            El almacenamiento de evidencias no está disponible en este entorno. Puedes revisar esta regla, pero no
+            podrás activar la captura por ahora.
           </aside>
         )}
 
@@ -252,14 +259,15 @@ const AccessEvidenceConfig = () => {
               <div className={styles.switchContent}>
                 <p className={styles.textTitle}>Permitir evidencia de acceso</p>
                 <p className={styles.textSubtitle}>
-                  Guard mostrará la opción después de crear un acceso solo cuando esta regla esté activa.
+                  La aplicación de Guardias mostrará esta opción después de crear un acceso cuando esta regla esté
+                  activa.
                 </p>
               </div>
               <Switch
                 name="enabled"
                 value={form.enabled ? "Y" : "N"}
                 onChange={({ target }: any) => updateField("enabled", target.value === "Y")}
-                label={form.enabled ? "Habilitada" : "Deshabilitada"}
+                ariaLabel="Permitir evidencia de acceso"
                 disabled={!editMode || !form.storage_ready}
               />
             </div>
@@ -278,7 +286,7 @@ const AccessEvidenceConfig = () => {
                   onChange={({ target }: any) => updateField("max_photos_per_access", target.value)}
                 />
                 <p className={styles.fieldHint}>
-                  Entre 1 y 10 fotos. El Backend valida el límite aunque una app esté desactualizada.
+                  Define entre 1 y 10 fotos por acceso.
                 </p>
               </div>
               <div className={styles.fieldWithHint}>
@@ -288,13 +296,14 @@ const AccessEvidenceConfig = () => {
                   name="max_photo_size_value"
                   value={form.max_photo_size_value}
                   min={1}
-                  placeholder="Límite técnico del Backend"
+                  max={MAX_PHOTO_SIZE_MB}
+                  placeholder="Ej.: 10"
                   required={false}
                   disabled={!editMode || !form.enabled}
                   onChange={({ target }: any) => updateField("max_photo_size_value", target.value)}
                 />
                 <p className={styles.fieldHint}>
-                  Cada archivo debe respetar este límite y el techo técnico del Backend.
+                  Define entre 1 y {MAX_PHOTO_SIZE_MB} MB por foto.
                 </p>
               </div>
             </div>
@@ -353,7 +362,7 @@ const AccessEvidenceConfig = () => {
           <div className={styles.cardHeader}>
             <p className={styles.textTitle}>Conservación y eliminación</p>
             <p className={styles.textSubtitle}>
-              Al vencer el plazo, el Backend elimina cada activo identificado y registra el resultado.
+              Al vencer el plazo, las fotos se eliminan automáticamente.
             </p>
           </div>
 
@@ -369,7 +378,7 @@ const AccessEvidenceConfig = () => {
                 name="retention_enabled"
                 value={form.retention_enabled ? "Y" : "N"}
                 onChange={({ target }: any) => updateField("retention_enabled", target.value === "Y")}
-                label={form.retention_enabled ? "Activo" : "Desactivado"}
+                ariaLabel="Activar borrado automático"
                 disabled={!editMode || !form.enabled}
               />
             </div>
@@ -402,7 +411,7 @@ const AccessEvidenceConfig = () => {
                   />
                 </div>
                 <p className={styles.fieldHint}>
-                  Los meses se convierten a 30 días para que el plazo sea verificable y automático.
+                  Cada mes equivale a 30 días.
                 </p>
               </div>
             )}
@@ -413,7 +422,7 @@ const AccessEvidenceConfig = () => {
           <div className={styles.cardHeader}>
             <p className={styles.textTitle}>Consumo de {usage?.month || "este mes"}</p>
             <p className={styles.textSubtitle}>
-              Uso propio del condominio y una proyección de cobro preventivo; no representa una factura final.
+              Uso del condominio. No representa una factura final.
             </p>
           </div>
 
@@ -431,12 +440,10 @@ const AccessEvidenceConfig = () => {
             <article className={styles.metricCard}>
               <span>Costo estimado</span>
               <strong>{formatUsd(usage?.estimated_cost_usd)}</strong>
-              <small>La conciliación real puede variar según la cuenta Cloudinary.</small>
             </article>
             <article className={styles.metricCard}>
               <span>Cobro sugerido</span>
               <strong>{formatUsd(usage?.suggested_charge_usd)}</strong>
-              <small>Incluye el factor preventivo ×{usage?.billing_multiplier ?? "1.5"}.</small>
             </article>
           </div>
         </section>
