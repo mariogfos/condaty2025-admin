@@ -161,36 +161,57 @@
   min-width: 0;
 }
 
-.metricGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+.usageTableWrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--cModalBorder);
+  border-radius: 12px;
 }
 
-.metricCard {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-  min-height: 126px;
+.usageTable {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+.usageTable th,
+.usageTable td {
   padding: 12px;
-  border: 1px solid var(--cModalBorder);
-  border-radius: 14px;
+  border-bottom: 1px solid var(--cModalBorder);
+  text-align: left;
+  vertical-align: top;
+}
+
+.usageTable th {
+  color: var(--cWhiteV1);
+  font-size: var(--body-xs-size);
+  font-weight: var(--font-weight-medium);
   background-color: color-mix(in srgb, var(--cModalSurfaceRaised) 72%, transparent);
 }
 
-.metricCard span,
-.metricCard small {
+.usageTable td {
+  color: var(--cWhite);
+  font-size: var(--body-sm-size);
+}
+
+.usageTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.usageTable td strong,
+.usageTable td small {
+  display: block;
+}
+
+.usageTable td small {
   color: var(--cWhiteV1);
   font-size: var(--body-xs-size);
   line-height: 1.35;
 }
 
-.metricCard strong {
+.usageTable td strong {
   color: var(--cAccent);
-  font-size: var(--title-xs-size);
-  line-height: 1.2;
-  overflow-wrap: anywhere;
+  font-weight: var(--font-weight-medium);
 }
 
 .loading {
@@ -224,10 +245,6 @@
     flex-direction: column;
   }
 
-  .metricGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .quotaGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -239,8 +256,7 @@
 
 @media (max-width: 640px) {
   .fieldPair,
-  .quotaGrid,
-  .metricGrid {
+  .quotaGrid {
     grid-template-columns: 1fr;
   }
 
@@ -250,5 +266,52 @@
 
   .quotaGrid > :last-child {
     grid-column: auto;
+  }
+
+  .usageTableWrap {
+    overflow: visible;
+    border: 0;
+  }
+
+  .usageTable,
+  .usageTable tbody,
+  .usageTable tr,
+  .usageTable td {
+    display: block;
+    min-width: 0;
+  }
+
+  .usageTable thead {
+    display: none;
+  }
+
+  .usageTable tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  .usageTable tr {
+    padding: 12px;
+    border: 1px solid var(--cModalBorder);
+    border-radius: 12px;
+    background-color: color-mix(in srgb, var(--cModalSurfaceRaised) 72%, transparent);
+  }
+
+  .usageTable td {
+    display: grid;
+    grid-template-columns: minmax(116px, 0.8fr) minmax(0, 1fr);
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--cModalBorder);
+  }
+
+  .usageTable td::before {
+    content: attr(data-label);
+    color: var(--cWhiteV1);
+    font-size: var(--body-xs-size);
+  }
+
+  .usageTable tr td:last-child {
+    border-bottom: 0;
   }
 }

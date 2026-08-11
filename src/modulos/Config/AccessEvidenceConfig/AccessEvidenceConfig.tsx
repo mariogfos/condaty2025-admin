@@ -7,6 +7,7 @@ import Select from "@/mk/components/forms/Select/Select";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import styles from "./AccessEvidenceConfig.module.css";
 
 type PolicyState = {
@@ -72,16 +73,25 @@ const formatBytes = (bytes?: number | null) => {
 };
 
 const formatUsd = (value?: number | null) => {
-  if (value === null || value === undefined) return "Pendiente de estimar";
+  if (value === null || value === undefined) return "—";
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 2,
-    maximumFractionDigits: 4,
+    maximumFractionDigits: 2,
   }).format(value);
 };
 
-const AccessEvidenceConfig = () => {
+const formatMonth = (month?: number) => {
+  if (!month || month < 1 || month > 12) return "—";
+
+  return new Intl.DateTimeFormat("es-BO", {
+    month: "long",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(2024, month - 1, 1)));
+};
+
+const AccessEvidenceConfigContent = () => {
   const { showToast } = useAuth();
   const {
     data: policyResponse,
@@ -101,6 +111,7 @@ const AccessEvidenceConfig = () => {
 
   const policy = policyResponse?.data;
   const usage = usageResponse?.data;
+  const usagePeriods = Array.isArray(usage?.periods) ? usage.periods : [];
 
   useEffect(() => {
     if (policyResponse?.success) {
@@ -420,36 +431,58 @@ const AccessEvidenceConfig = () => {
 
         <section className={styles.formCard}>
           <div className={styles.cardHeader}>
-            <p className={styles.textTitle}>Consumo de {usage?.month || "este mes"}</p>
+            <p className={styles.textTitle}>Consumo de evidencia</p>
             <p className={styles.textSubtitle}>
-              Uso del condominio. No representa una factura final.
+              Uso del condominio por período. No representa una factura final.
             </p>
           </div>
 
-          <div className={styles.metricGrid}>
-            <article className={styles.metricCard}>
-              <span>Fotos cargadas</span>
-              <strong>{usage?.uploaded_photo_count || 0}</strong>
-              <small>{formatBytes(usage?.uploaded_bytes)}</small>
-            </article>
-            <article className={styles.metricCard}>
-              <span>Almacenamiento activo</span>
-              <strong>{formatBytes(usage?.active_bytes)}</strong>
-              <small>{usage?.active_photo_count || 0} fotos disponibles</small>
-            </article>
-            <article className={styles.metricCard}>
-              <span>Costo estimado</span>
-              <strong>{formatUsd(usage?.estimated_cost_usd)}</strong>
-            </article>
-            <article className={styles.metricCard}>
-              <span>Cobro sugerido</span>
-              <strong>{formatUsd(usage?.suggested_charge_usd)}</strong>
-            </article>
+          <div className={styles.usageTableWrap}>
+            <table className={styles.usageTable}>
+              <thead>
+                <tr>
+                  <th scope="col">Año</th>
+                  <th scope="col">Mes</th>
+                  <th scope="col">Fotos cargadas</th>
+                  <th scope="col">Almacenamiento activo</th>
+                  <th scope="col">Costo estimado</th>
+                  <th scope="col">Cobro sugerido</th>
+                </tr>
+              </thead>
+              <tbody>
+                {usagePeriods.map((period: any) => (
+                  <tr key={period.period}>
+                    <td data-label="Año">{period.year}</td>
+                    <td data-label="Mes">{formatMonth(period.month)}</td>
+                    <td data-label="Fotos cargadas">
+                      <strong>{period.uploaded_photo_count || 0}</strong>
+                      <small>{formatBytes(period.uploaded_bytes)}</small>
+                    </td>
+                    <td data-label="Almacenamiento activo">
+                      <strong>{formatBytes(period.active_bytes)}</strong>
+                      <small>{period.active_photo_count || 0} fotos disponibles</small>
+                    </td>
+                    <td data-label="Costo estimado">{formatUsd(period.estimated_cost_usd)}</td>
+                    <td data-label="Cobro sugerido">{formatUsd(period.suggested_charge_usd)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
       </div>
     </div>
   );
+};
+
+const AccessEvidenceConfig = () => {
+  const { user } = useAuth();
+
+  if (user?.type !== "ADM" || !user?.fosrole_id) {
+    return <NotAccess />;
+  }
+
+  return <AccessEvidenceConfigContent />;
 };
 
 export default AccessEvidenceConfig;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./Config.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -22,6 +22,13 @@ const Config = () => {
   const { getUser, user } = useAuth();
   const { showToast, userCan }: any = useAuth();
   const [typeSearch, setTypeSearch] = useState("C");
+  const isFosAdmin = user?.type === "ADM" && Boolean(user?.fosrole_id);
+
+  useEffect(() => {
+    if (!isFosAdmin && typeSearch === "E") {
+      setTypeSearch("C");
+    }
+  }, [isFosAdmin, typeSearch]);
 
   const {
     data: client_config,
@@ -57,7 +64,9 @@ const Config = () => {
             tabs={[
               { value: "C", text: "Condominio" },
               { value: "R", text: "Reglas Operativas" },
-              { value: "E", text: "Reglas de evidencia" },
+              ...(isFosAdmin
+                ? [{ value: "E", text: "Reglas de evidencia" }]
+                : []),
               { value: "P", text: "Cuentas de pagos" },
               { value: "M", text: "Morosidad" },
               { value: "T", text: "Tipos de unidades" },
@@ -105,7 +114,7 @@ const Config = () => {
             />
           </LoadingScreen>
         )}
-        {typeSearch == "E" && <AccessEvidenceConfig />}
+        {isFosAdmin && typeSearch == "E" && <AccessEvidenceConfig />}
         {typeSearch == "T" && (
           <div className={styles.tablePanel}>
             <UnitsType />
