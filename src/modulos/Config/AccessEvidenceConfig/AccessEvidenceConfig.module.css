@@ -224,11 +224,12 @@
 .usageMetricInline strong,
 .usageMetricInline small {
   display: inline;
+  font-size: inherit;
 }
 
 .usageMetricInline > span {
   color: var(--cWhiteV1);
-  font-size: var(--body-xs-size);
+  font-size: inherit;
 }
 
 .usagePagination {

@@ -39,7 +39,7 @@ const DEFAULT_POLICY: PolicyState = {
 
 const MAX_PHOTO_SIZE_MB = 100;
 
-const USAGE_PERIODS_PER_PAGE = 8;
+const USAGE_PERIODS_PER_PAGE = 12;
 
 const bytesToMegabytes = (bytes?: number | null) => {
   if (!bytes) return "";
