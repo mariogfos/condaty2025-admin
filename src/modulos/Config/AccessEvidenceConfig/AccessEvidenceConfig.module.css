@@ -217,7 +217,7 @@
 .usagePagination {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 6px;
   margin-top: 2px;
 }
@@ -393,6 +393,6 @@
   }
 
   .usagePagination {
-    justify-content: space-between;
+    justify-content: center;
   }
 }
