@@ -38,6 +38,8 @@ const DEFAULT_POLICY: PolicyState = {
 
 const MAX_PHOTO_SIZE_MB = 100;
 
+const USAGE_PERIODS_PER_PAGE = 8;
+
 const bytesToMegabytes = (bytes?: number | null) => {
   if (!bytes) return "";
   return String(Number((bytes / 1024 / 1024).toFixed(2)));
@@ -85,10 +87,17 @@ const formatUsd = (value?: number | null) => {
 const formatMonth = (month?: number) => {
   if (!month || month < 1 || month > 12) return "—";
 
-  return new Intl.DateTimeFormat("es-BO", {
+  const label = new Intl.DateTimeFormat("es-BO", {
     month: "long",
     timeZone: "UTC",
   }).format(new Date(Date.UTC(2024, month - 1, 1)));
+
+  return `${label.charAt(0).toUpperCase()}${label.slice(1)}`;
+};
+
+const formatPeriod = (period: any) => {
+  const month = formatMonth(period?.month);
+  return period?.year ? `${month} ${period.year}` : month;
 };
 
 const AccessEvidenceConfigContent = () => {
@@ -108,10 +117,16 @@ const AccessEvidenceConfigContent = () => {
   const [initialForm, setInitialForm] = useState<PolicyState>(DEFAULT_POLICY);
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [usagePage, setUsagePage] = useState(1);
 
   const policy = policyResponse?.data;
   const usage = usageResponse?.data;
   const usagePeriods = Array.isArray(usage?.periods) ? usage.periods : [];
+  const usagePageCount = Math.max(1, Math.ceil(usagePeriods.length / USAGE_PERIODS_PER_PAGE));
+  const visibleUsagePeriods = usagePeriods.slice(
+    (usagePage - 1) * USAGE_PERIODS_PER_PAGE,
+    usagePage * USAGE_PERIODS_PER_PAGE,
+  );
 
   useEffect(() => {
     if (policyResponse?.success) {
@@ -120,6 +135,10 @@ const AccessEvidenceConfigContent = () => {
       setInitialForm(nextForm);
     }
   }, [policy, policyResponse?.success]);
+
+  useEffect(() => {
+    setUsagePage((currentPage) => Math.min(currentPage, usagePageCount));
+  }, [usagePageCount]);
 
   const monthlyMaxBytes = useMemo(() => {
     const value = Number(form.monthly_storage_value);
@@ -441,8 +460,7 @@ const AccessEvidenceConfigContent = () => {
             <table className={styles.usageTable}>
               <thead>
                 <tr>
-                  <th scope="col">Año</th>
-                  <th scope="col">Mes</th>
+                  <th scope="col">Período</th>
                   <th scope="col">Fotos cargadas</th>
                   <th scope="col">Almacenamiento activo</th>
                   <th scope="col">Costo estimado</th>
@@ -450,10 +468,9 @@ const AccessEvidenceConfigContent = () => {
                 </tr>
               </thead>
               <tbody>
-                {usagePeriods.map((period: any) => (
+                {visibleUsagePeriods.map((period: any) => (
                   <tr key={period.period}>
-                    <td data-label="Año">{period.year}</td>
-                    <td data-label="Mes">{formatMonth(period.month)}</td>
+                    <td data-label="Período">{formatPeriod(period)}</td>
                     <td data-label="Fotos cargadas">
                       <strong>{period.uploaded_photo_count || 0}</strong>
                       <small>{formatBytes(period.uploaded_bytes)}</small>
@@ -469,6 +486,30 @@ const AccessEvidenceConfigContent = () => {
               </tbody>
             </table>
           </div>
+
+          {usagePageCount > 1 && (
+            <nav className={styles.usagePagination} aria-label="Paginación de consumo de evidencia">
+              <Button
+                variant="secondary"
+                className={styles.usagePageButton}
+                onClick={() => setUsagePage((currentPage) => Math.max(1, currentPage - 1))}
+                disabled={usagePage === 1}
+              >
+                Anterior
+              </Button>
+              <span className={styles.usagePageStatus}>
+                Página {usagePage} de {usagePageCount}
+              </span>
+              <Button
+                variant="secondary"
+                className={styles.usagePageButton}
+                onClick={() => setUsagePage((currentPage) => Math.min(usagePageCount, currentPage + 1))}
+                disabled={usagePage === usagePageCount}
+              >
+                Siguiente
+              </Button>
+            </nav>
+          )}
         </section>
       </div>
     </div>

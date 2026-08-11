@@ -214,6 +214,24 @@
   font-weight: var(--font-weight-medium);
 }
 
+.usagePagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.usagePageButton {
+  width: auto;
+  min-width: 0;
+}
+
+.usagePageStatus {
+  color: var(--cWhiteV1);
+  font-size: var(--body-sm-size);
+  white-space: nowrap;
+}
+
 .loading {
   width: 100%;
   max-width: 860px;
@@ -313,5 +331,9 @@
 
   .usageTable tr td:last-child {
     border-bottom: 0;
+  }
+
+  .usagePagination {
+    justify-content: space-between;
   }
 }
