@@ -7,6 +7,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import DefaulterConfig from "./DefaulterConfig/DefaulterConfig";
 import PaymentsConfig from "./PaymentsConfig/PaymentsConfig";
 import DptoConfig from "./DptoConfig/DptoConfig";
+import AccessEvidenceConfig from "./AccessEvidenceConfig/AccessEvidenceConfig";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
@@ -56,6 +57,7 @@ const Config = () => {
             tabs={[
               { value: "C", text: "Condominio" },
               { value: "R", text: "Reglas Operativas" },
+              { value: "E", text: "Evidencia de accesos" },
               { value: "P", text: "Cuentas de pagos" },
               { value: "M", text: "Morosidad" },
               { value: "T", text: "Tipos de unidades" },
@@ -103,6 +105,7 @@ const Config = () => {
             />
           </LoadingScreen>
         )}
+        {typeSearch == "E" && <AccessEvidenceConfig />}
         {typeSearch == "T" && (
           <div className={styles.tablePanel}>
             <UnitsType />
