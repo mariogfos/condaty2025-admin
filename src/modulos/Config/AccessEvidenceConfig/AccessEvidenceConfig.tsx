@@ -12,6 +12,7 @@ import styles from "./AccessEvidenceConfig.module.css";
 type PolicyState = {
   enabled: boolean;
   max_photos_per_access: number;
+  max_photo_size_value: string;
   monthly_max_photo_count: string;
   monthly_storage_value: string;
   monthly_storage_unit: "MB" | "GB";
@@ -24,6 +25,7 @@ type PolicyState = {
 const DEFAULT_POLICY: PolicyState = {
   enabled: false,
   max_photos_per_access: 3,
+  max_photo_size_value: "",
   monthly_max_photo_count: "",
   monthly_storage_value: "",
   monthly_storage_unit: "MB",
@@ -41,6 +43,7 @@ const bytesToMegabytes = (bytes?: number | null) => {
 const policyToForm = (policy: any): PolicyState => ({
   enabled: Boolean(policy?.enabled),
   max_photos_per_access: Number(policy?.max_photos_per_access || 3),
+  max_photo_size_value: bytesToMegabytes(policy?.max_photo_bytes),
   monthly_max_photo_count:
     policy?.monthly_max_photo_count === null ||
     policy?.monthly_max_photo_count === undefined
@@ -112,6 +115,12 @@ const AccessEvidenceConfig = () => {
     return Math.round(value * multiplier);
   }, [form.monthly_storage_unit, form.monthly_storage_value]);
 
+  const maxPhotoBytes = useMemo(() => {
+    const value = Number(form.max_photo_size_value);
+    if (!Number.isFinite(value) || value <= 0) return null;
+    return Math.round(value * 1024 ** 2);
+  }, [form.max_photo_size_value]);
+
   const retentionDays = useMemo(() => {
     const value = Number(form.retention_value);
     if (!Number.isFinite(value) || value <= 0) return null;
@@ -147,6 +156,11 @@ const AccessEvidenceConfig = () => {
       return;
     }
 
+    if (form.max_photo_size_value && !maxPhotoBytes) {
+      showToast("El peso máximo por foto debe ser mayor que cero.", "error");
+      return;
+    }
+
     if (form.retention_enabled && !retentionDays) {
       showToast("Define el tiempo de conservación de las fotos.", "error");
       return;
@@ -156,6 +170,7 @@ const AccessEvidenceConfig = () => {
     const { data, error } = await execute("/access/evidence-policy", "PUT", {
       enabled: form.enabled,
       max_photos_per_access: Number(form.max_photos_per_access),
+      max_photo_bytes: maxPhotoBytes,
       monthly_max_photo_count: monthlyPhotoCount,
       monthly_max_bytes: monthlyMaxBytes,
       retention_enabled: form.retention_enabled,
@@ -249,8 +264,8 @@ const AccessEvidenceConfig = () => {
               />
             </div>
 
-            <div className={styles.formGrid}>
-              <div className={styles.fieldWithHint}>
+          <div className={styles.formGrid}>
+            <div className={styles.fieldWithHint}>
                 <Input
                   type="number"
                   label="Máximo de fotos por acceso"
@@ -266,6 +281,22 @@ const AccessEvidenceConfig = () => {
                   Entre 1 y 10 fotos. El Backend valida el límite aunque una app esté desactualizada.
                 </p>
               </div>
+              <div className={styles.fieldWithHint}>
+                <Input
+                  type="number"
+                  label="Peso máximo por foto (MB)"
+                  name="max_photo_size_value"
+                  value={form.max_photo_size_value}
+                  min={1}
+                  placeholder="Límite técnico del Backend"
+                  required={false}
+                  disabled={!editMode || !form.enabled}
+                  onChange={({ target }: any) => updateField("max_photo_size_value", target.value)}
+                />
+                <p className={styles.fieldHint}>
+                  Cada archivo debe respetar este límite y el techo técnico del Backend.
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -278,7 +309,7 @@ const AccessEvidenceConfig = () => {
             </p>
           </div>
 
-          <div className={styles.formGrid}>
+          <div className={styles.quotaGrid}>
             <Input
               type="number"
               label="Máximo de fotos al mes"
@@ -290,31 +321,31 @@ const AccessEvidenceConfig = () => {
               disabled={!editMode || !form.enabled}
               onChange={({ target }: any) => updateField("monthly_max_photo_count", target.value)}
             />
-            <div className={styles.fieldPair}>
-              <Input
-                type="number"
-                label="Almacenamiento mensual"
-                name="monthly_storage_value"
-                value={form.monthly_storage_value}
-                min={1}
-                placeholder="Sin límite por tamaño"
-                required={false}
-                disabled={!editMode || !form.enabled}
-                onChange={({ target }: any) => updateField("monthly_storage_value", target.value)}
-              />
-              <Select
-                label="Unidad"
-                name="monthly_storage_unit"
-                value={form.monthly_storage_unit}
-                options={[
-                  { id: "MB", name: "MB" },
-                  { id: "GB", name: "GB" },
-                ]}
-                required={false}
-                disabled={!editMode || !form.enabled}
-                onChange={({ target }: any) => updateField("monthly_storage_unit", target.value)}
-              />
-            </div>
+            <Input
+              type="number"
+              label="Almacenamiento mensual"
+              name="monthly_storage_value"
+              value={form.monthly_storage_value}
+              min={1}
+              placeholder="Sin límite por tamaño"
+              required={false}
+              disabled={!editMode || !form.enabled}
+              onChange={({ target }: any) => updateField("monthly_storage_value", target.value)}
+            />
+            <Select
+              label="Unidad"
+              name="monthly_storage_unit"
+              value={form.monthly_storage_unit}
+              options={[
+                { id: "MB", name: "MB" },
+                { id: "GB", name: "GB" },
+              ]}
+              required={false}
+              style={{ minWidth: 0 }}
+              inputStyle={{ minWidth: 0 }}
+              disabled={!editMode || !form.enabled}
+              onChange={({ target }: any) => updateField("monthly_storage_unit", target.value)}
+            />
           </div>
         </section>
 

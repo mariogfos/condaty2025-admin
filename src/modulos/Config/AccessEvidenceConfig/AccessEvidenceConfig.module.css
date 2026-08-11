@@ -131,8 +131,21 @@
 
 .formGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.quotaGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(124px, 0.42fr);
+  gap: 12px;
+  min-width: 0;
+}
+
+.formGrid > *,
+.quotaGrid > *,
+.fieldPair > * {
+  min-width: 0;
 }
 
 .fieldPair {
@@ -214,11 +227,28 @@
   .metricGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .quotaGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quotaGrid > :last-child {
+    grid-column: span 2;
+  }
 }
 
 @media (max-width: 640px) {
   .fieldPair,
+  .quotaGrid,
   .metricGrid {
     grid-template-columns: 1fr;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .quotaGrid > :last-child {
+    grid-column: auto;
   }
 }
