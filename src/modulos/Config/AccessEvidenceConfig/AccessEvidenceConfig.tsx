@@ -219,8 +219,8 @@ const AccessEvidenceConfig = () => {
       <div className={styles.rulesGrid}>
         {!form.storage_ready && (
           <aside className={styles.storageNotice}>
-            El almacenamiento privado de evidencia aún no está preparado en el Backend. Puedes revisar esta
-            regla, pero solo podrás activar la captura cuando el servidor tenga configurado CLOUDINARY_URL.
+            La configuración privada de Cloudinary no está disponible en este entorno de Backend. Puedes revisar
+            esta regla, pero solo podrás activar la captura cuando este entorno tenga CLOUDINARY_URL.
           </aside>
         )}
 
