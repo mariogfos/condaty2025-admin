@@ -276,7 +276,7 @@ const AccessEvidenceConfig = () => {
             <div className={styles.fieldWithHint}>
                 <Input
                   type="number"
-                  label="Máximo de fotos por acceso"
+                  label="Máximo de fotos por ingreso o salida"
                   name="max_photos_per_access"
                   value={form.max_photos_per_access}
                   min={1}
@@ -286,7 +286,7 @@ const AccessEvidenceConfig = () => {
                   onChange={({ target }: any) => updateField("max_photos_per_access", target.value)}
                 />
                 <p className={styles.fieldHint}>
-                  Define entre 1 y 10 fotos por acceso.
+                  Define entre 1 y 10 fotos para cada ingreso y cada salida.
                 </p>
               </div>
               <div className={styles.fieldWithHint}>
