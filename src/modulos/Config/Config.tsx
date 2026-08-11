@@ -57,7 +57,7 @@ const Config = () => {
             tabs={[
               { value: "C", text: "Condominio" },
               { value: "R", text: "Reglas Operativas" },
-              { value: "E", text: "Evidencia de accesos" },
+              { value: "E", text: "Reglas de evidencia" },
               { value: "P", text: "Cuentas de pagos" },
               { value: "M", text: "Morosidad" },
               { value: "T", text: "Tipos de unidades" },
