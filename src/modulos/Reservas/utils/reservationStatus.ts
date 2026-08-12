@@ -1,7 +1,4 @@
-import {
-  getUpdatedReservationStatus,
-  ReservationStatus,
-} from "@/modulos/Reservas/constants/reservationConstants";
+import { ReservationStatus } from "@/modulos/Reservas/Type/ReservaType";
 
 // Estados de reserva terminales o manuales (dominio RESERVA → numérico).
 const TERMINAL_OR_MANUAL_STATUSES = new Set<ReservationStatus>([
@@ -49,13 +46,14 @@ export const resolveReservationDisplayStatus = ({
   paymentStatus,
   paymentId,
 }: ReservationStatusInput): ReservationStatus | undefined => {
-  const normalizedStatus = normalizeReservationStatus(status);
-  const updatedStatus = getUpdatedReservationStatus(
-    normalizedStatus,
-    dateEnd || undefined,
-    endTime || undefined,
-  );
-  const currentStatus = updatedStatus ?? normalizedStatus;
+  // ⚠️ `dateEnd` y `endTime` ya no se usan para derivar "Finalizada": lo hacía
+  // `getUpdatedReservationStatus`, cuyo cuerpo estaba COMENTADO ENTERO desde
+  // antes de este cambio —devolvía el estado tal cual— así que se eliminó. Ese
+  // corte lo resuelve hoy el API (`ReservationStatusFilter` compara
+  // `date_end + end_time` contra `now('America/La_Paz')`, no contra el reloj
+  // del navegador). Los dos parámetros siguen en la firma porque los llamadores
+  // los pasan y sacarlos es una migración aparte.
+  const currentStatus = normalizeReservationStatus(status);
 
   if (currentStatus !== undefined && TERMINAL_OR_MANUAL_STATUSES.has(currentStatus)) {
     return currentStatus;

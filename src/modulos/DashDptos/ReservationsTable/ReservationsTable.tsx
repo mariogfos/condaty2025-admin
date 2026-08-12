@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { IconReservedAreas } from "@/components/layout/icons/IconsBiblioteca";
 import styles from "./ReservationsTable.module.css";
 import { formatToDayDDMMYYYY } from "@/mk/utils/date";
-import { ReservationStatus } from "@/modulos/Reservas/constants/reservationConstants";
+import { ReservationStatus } from "@/modulos/Reservas/Type/ReservaType";
 
 interface ReservationsTableProps {
   reservations: any[];

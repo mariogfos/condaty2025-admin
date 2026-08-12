@@ -12,17 +12,15 @@ import {
 } from "date-fns";
 import { getFullName } from "@/mk/utils/string";
 import { capitalizeWords } from "@/mk/utils/string";
-import {
-  RESERVATION_STATUS_CONFIG,
-  ReservationStatus,
-} from "@/modulos/Reservas/constants/reservationConstants";
+import { ReservationStatus } from "@/modulos/Reservas/Type/ReservaType";
+import { RESERVATION_STATUS_CONFIG } from "@/modulos/Reservas/config/reservas.constants";
 import type {
   ReservationArea,
   ReservationListItem,
   ReservationResident,
   ReservationUnit,
   ReservationVisibleRange,
-} from "@/modulos/Reservas/types";
+} from "@/modulos/Reservas/Type/ReservaType";
 import { resolveReservationDisplayStatus } from "@/modulos/Reservas/utils/reservationStatus";
 import { getReservationDisplayStatusInput } from "@/modulos/Reservas/utils/reservationPayment";
 

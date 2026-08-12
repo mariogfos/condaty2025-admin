@@ -46,10 +46,8 @@ import ContextMenu, {
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { capitalize, capitalizeWords } from "@/mk/utils/string";
-import {
-  RESERVATION_STATUS_OPTIONS,
-  ReservationStatus,
-} from "@/modulos/Reservas/constants/reservationConstants";
+import { ReservationStatus } from "@/modulos/Reservas/Type/ReservaType";
+import { RESERVATION_STATUS_OPTIONS } from "@/modulos/Reservas/config/reservas.constants";
 import {
   formatReservationPaymentTimeLimitMessage,
   shouldShowReservationPaymentTimeLimit,
@@ -67,7 +65,7 @@ import type {
   ReservationListItem,
   ReservationResident,
   ReservationUnit,
-} from "@/modulos/Reservas/types";
+} from "@/modulos/Reservas/Type/ReservaType";
 import {
   CALENDAR_WEEK_DAYS,
   type CalendarReservationEntry,

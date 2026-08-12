@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import CreateReserva from "@/modulos/CreateReserva/CreateReserva";
 import { AxiosContext } from "@/mk/contexts/AxiosInstanceProvider";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import type { ReservationExtraData } from "@/modulos/Reservas/types";
+import type { ReservationExtraData } from "@/modulos/Reservas/Type/ReservaType";
 
 const CreateReservaPage = () => {
   const router = useRouter();
