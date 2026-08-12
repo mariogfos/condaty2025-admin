@@ -62,9 +62,19 @@ export const formatRequestMoment = (value?: string | null) => {
 /**
  * La fecha del evento, en largo.
  *
- * ⚠️ Se le pega `T00:00:00` a propósito: `reservations.date_at` es un DÍA
- * calendario, no un instante. Parsear "2026-08-12" sin hora lo interpreta como
- * medianoche UTC y en `America/La_Paz` (UTC-4) eso retrocede al día anterior.
+ * 🔴 Lo que protege el borde del día acá es `parseISO`, NO el `T00:00:00`.
+ * `reservations.date_at` es un DÍA calendario, no un instante. Medido el
+ * 2026-08-12 con `TZ=America/La_Paz` (UTC-4):
+ *
+ *     new Date("2026-08-12")      → 11 de agosto  ← el bug
+ *     parseISO("2026-08-12")      → 12 de agosto
+ *     parseISO("2026-08-12T00:00:00") → 12 de agosto
+ *
+ * `new Date` con una fecha sin hora la interpreta como medianoche UTC y
+ * retrocede un día en cualquier zona al oeste de Greenwich; `parseISO` la
+ * interpreta como medianoche LOCAL. El sufijo `T00:00:00` es redundante con
+ * `parseISO` y se conserva sólo porque hace explícito que se está pidiendo la
+ * medianoche local.
  */
 export const getFormattedReservationDate = (dateStr?: string | null) => {
   if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
