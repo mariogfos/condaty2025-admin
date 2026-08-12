@@ -323,7 +323,17 @@ export const useReservationDetail = ({
     setActionError(null);
 
     try {
-      await executeActionRef.current(
+      // 🔴 Hay que mirar `data.success`, no alcanza con el try/catch.
+      //
+      // El API devuelve los rechazos de NEGOCIO con HTTP 200 y
+      // `{success: false, message: "..."}` — el sobre lleva su propio estado.
+      // Un catch solo atrapa errores de transporte, asi que un "no se puede
+      // aprobar" salia por el camino del exito: se cerraba el modal y se
+      // recargaba la lista como si hubiera funcionado.
+      //
+      // `cancelReservation`, en este mismo hook, ya lo hacia bien. Aprobar y
+      // Rechazar no. Ahora los tres siguen el mismo criterio.
+      const response = await executeActionRef.current(
         reservationsApi.detail(reservationDetail.id),
         "PUT",
         {
@@ -334,6 +344,14 @@ export const useReservationDetail = ({
         false,
         true,
       );
+
+      if (!response?.data?.success) {
+        setActionError(
+          response?.data?.message || RESERVATION_DETAIL_COPY.approveError,
+        );
+        return;
+      }
+
       reLoad?.();
       onClose();
     } catch (error: any) {
@@ -378,7 +396,9 @@ export const useReservationDetail = ({
     setActionError(null);
 
     try {
-      await executeActionRef.current(
+      // Mismo criterio que aprobar y cancelar: el rechazo de negocio viene
+      // con HTTP 200 y `{success: false}`, y el catch no lo ve.
+      const response = await executeActionRef.current(
         reservationsApi.detail(reservationDetail.id),
         "PUT",
         {
@@ -388,6 +408,13 @@ export const useReservationDetail = ({
         false,
         true,
       );
+
+      if (!response?.data?.success) {
+        setActionError(
+          response?.data?.message || RESERVATION_DETAIL_COPY.rejectError,
+        );
+        return;
+      }
 
       setIsRejectModalOpen(false);
       onClose();
