@@ -261,7 +261,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                 label="Motivo"
                 name="reason"
                 value={detail.cancelReason}
-                onChange={(event: any) =>
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                   detail.changeCancelReason(event.target.value)
                 }
                 required
@@ -289,7 +289,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
               <Input
                 name="reason"
                 value={detail.rejectionReason}
-                onChange={(event: any) =>
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                   detail.changeRejectionReason(event.target.value)
                 }
                 placeholder="Escribe aquí por qué se rechaza la reserva..."

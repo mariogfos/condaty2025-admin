@@ -61,6 +61,28 @@ type UseReservationDetailArgs = {
  * `ReservationApproval.APPROVED` (2) y `.REJECTED` (3), a
  * `reservationsApi.detail(id)`.
  */
+
+/**
+ * El mensaje de un error de axios, sin `any`.
+ *
+ * El `catch` de TypeScript entrega `unknown` y esa es la forma correcta: lo que
+ * llega puede ser cualquier cosa. La forma de axios se declara UNA vez acá en
+ * vez de dejar un `error: any` suelto en cada `catch`, donde el compilador deja
+ * pasar cualquier propiedad inventada.
+ */
+type ErrorConMensaje = {
+  response?: { data?: { message?: string } };
+  message?: string;
+};
+
+const mensajeDelError = (error: unknown, porDefecto: string): string => {
+  const conMensaje = error as ErrorConMensaje | null;
+
+  return (
+    conMensaje?.response?.data?.message || conMensaje?.message || porDefecto
+  );
+};
+
 export const useReservationDetail = ({
   open,
   onClose,
@@ -354,11 +376,9 @@ export const useReservationDetail = ({
 
       reLoad?.();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       setActionError(
-        error?.response?.data?.message ||
-          error?.message ||
-          RESERVATION_DETAIL_COPY.approveError,
+        mensajeDelError(error, RESERVATION_DETAIL_COPY.approveError),
       );
     } finally {
       setIsActionLoading(false);
@@ -419,11 +439,9 @@ export const useReservationDetail = ({
       setIsRejectModalOpen(false);
       onClose();
       reLoad?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       setActionError(
-        error?.response?.data?.message ||
-          error?.message ||
-          RESERVATION_DETAIL_COPY.rejectError,
+        mensajeDelError(error, RESERVATION_DETAIL_COPY.rejectError),
       );
       setIsRejectModalOpen(false);
     } finally {
