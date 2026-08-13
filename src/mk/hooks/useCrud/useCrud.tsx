@@ -477,6 +477,17 @@ const useCrud = ({
   const loadedQueryRef = useRef("");
   const pendingReloadResolveRef = useRef<((value?: any) => void) | null>(null);
   const loadMoreLockRef = useRef(false);
+  /**
+   * 🔴 La última página que el API CONFIRMÓ (respondió bien). `loadMoreRows`
+   * incrementa `params.page` de forma optimista, ANTES de la respuesta; si el
+   * request falla y la siguiente pedida hiciera `page + 1` sobre el optimista,
+   * la página fallada se saltea EN SILENCIO: sus filas no aparecen nunca y la
+   * lista se ve completa. Pedir siempre `confirmada + 1` convierte cada nuevo
+   * trigger en el reintento de la página perdida.
+   */
+  const lastConfirmedPageRef = useRef(0);
+  /** El último "cargar más" falló: la lista NO está completa y hay que decirlo. */
+  const [loadMoreFailed, setLoadMoreFailed] = useState(false);
   const infiniteBatchSize = useInfiniteList
     ? getNormalizedPerPage(params.perPage ?? paramsInitial?.perPage, true)
     : Number(params.perPage ?? paramsInitial?.perPage ?? 0);
@@ -504,6 +515,8 @@ const useCrud = ({
     setListTotal(0);
     setListHasMore(false);
     loadMoreLockRef.current = false;
+    lastConfirmedPageRef.current = 0;
+    setLoadMoreFailed(false);
     setIsAppendingList(false);
     setIsResetListLoading(true);
   }, [useInfiniteList]);
@@ -529,7 +542,31 @@ const useCrud = ({
       }
 
       lastResolvedParamsRef.current = nextRequestParams;
-      setManualData(result.data);
+
+      // 🔴 La confirmación de página y la señal de fallo viven ACÁ, en el
+      // ciclo de vida del request, y no en los efectos: el efecto de la
+      // respuesta tiene `params` en sus dependencias y RE-CORRE con datos
+      // viejos apenas `loadMoreRows` cambia la página — antes de que el
+      // request responda —, así que cualquier flag que se mire o se escriba
+      // ahí llega tarde o confirma páginas que nunca respondieron.
+      const requestedPage = Number(nextRequestParams?.page || 1);
+      if (result.error) {
+        // Sólo `loadMoreRows` pide páginas > 1 (el inicio y los resets van
+        // siempre a la 1): un fallo con página > 1 es un "cargar más" perdido.
+        if (requestedPage > 1) {
+          setLoadMoreFailed(true);
+        }
+      } else if (result.data !== null && result.data !== undefined) {
+        lastConfirmedPageRef.current = requestedPage;
+      }
+
+      // 🔴 Un error NO pisa `manualData` con null: `resolvedData` devuelve
+      // `data` tal cual cuando es null, y la lista ENTERA desaparecía de la
+      // pantalla aunque `listRows` siguiera teniendo las filas ya cargadas.
+      // El dato viejo se conserva; el error viaja por `manualError`.
+      if (result.data !== null && result.data !== undefined) {
+        setManualData(result.data);
+      }
       setManualError(result.error);
       setManualLoaded(true);
       return result;
@@ -638,10 +675,15 @@ const useCrud = ({
     if (listTotal > 0 && listRows.length >= listTotal) return;
 
     loadMoreLockRef.current = true;
+    setLoadMoreFailed(false);
     setIsAppendingList(true);
+    // 🔴 La página siguiente se calcula sobre la última CONFIRMADA, no sobre
+    // el `params.page` optimista: si el request anterior falló, `params.page`
+    // quedó apuntando a la página que nunca llegó, y `old.page + 1` la
+    // saltearía en silencio. Con la confirmada, este trigger la reintenta.
     setParams((old: any) => ({
       ...old,
-      page: Number(old?.page || 1) + 1,
+      page: (lastConfirmedPageRef.current || Number(old?.page || 1)) + 1,
       perPage: getNormalizedPerPage(
         old?.perPage ?? paramsInitial?.perPage,
         true,
@@ -2142,6 +2184,7 @@ const useCrud = ({
     isResetListLoading,
     listTotal,
     listHasMore,
+    loadMoreFailed,
   };
 
   const listComponentRef = useRef<any>(null);
@@ -2430,6 +2473,21 @@ const useCrud = ({
                     {emptyContent}
                   </section>
                 )}
+                {runtime.useInfiniteList && runtime.loadMoreFailed ? (
+                  // 🔴 Antes un fallo al cargar más no dejaba NADA: ni toast,
+                  // ni renglón. La lista se veía completa y las filas de la
+                  // página fallada no aparecían nunca.
+                  <div className={styles.loadMoreErrorRow} role="alert">
+                    <span>No se pudieron cargar más resultados.</span>
+                    <button
+                      type="button"
+                      className={styles.loadMoreErrorRetry}
+                      onClick={() => runtime.onLoadMore()}
+                    >
+                      Reintentar
+                    </button>
+                  </div>
+                ) : null}
                 {showTableSkeleton ||
                 props?.paginationHide ||
                 runtime.useInfiniteList ||
@@ -2651,6 +2709,7 @@ const useCrud = ({
     listHasMore,
     isAppendingList,
     isResetListLoading,
+    loadMoreFailed,
     infiniteBatchSize,
     infinitePrefetchRows,
     onLoadMore: loadMoreRows,

@@ -126,6 +126,31 @@
   margin-top: 12px;
 }
 
+/* El renglón de "no se pudo cargar más" del scroll infinito, con su reintento. */
+.loadMoreErrorRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spM);
+  padding: var(--spM);
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+}
+
+.loadMoreErrorRetry {
+  background: none;
+  border: 1px solid var(--cWhiteV3);
+  border-radius: var(--bRadiusS, 8px);
+  color: var(--cWhite);
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: var(--sM);
+}
+
+.loadMoreErrorRetry:hover {
+  border-color: var(--cWhite);
+}
+
 .actions {
   width: 100%;
   display: flex;
