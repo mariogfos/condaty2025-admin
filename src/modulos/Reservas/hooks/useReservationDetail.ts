@@ -94,7 +94,12 @@ export const useReservationDetail = ({
   const detailId = reservationId || item?.id;
   const shouldFetchDetail = open && Boolean(detailId);
 
-  const { data, reLoad: reloadReservationDetail } = useAxios(
+  const {
+    data,
+    error: detailFetchError,
+    loaded: detailLoaded,
+    reLoad: reloadReservationDetail,
+  } = useAxios(
     // 🔴 SIN el prefijo `/api`: lo trae el baseURL. Ver `api.ts`.
     shouldFetchDetail ? reservationsApi.base : null,
     "GET",
@@ -328,6 +333,31 @@ export const useReservationDetail = ({
 
   const isEmpty = Object.keys(reservationDetail).length === 0;
 
+  /**
+   * 🔴 Cargando, error y no-encontrada son TRES estados, no uno.
+   *
+   * Antes el modal condicionaba el esqueleto a `isEmpty`, la MISMA condición
+   * del branch "Reserva no encontrada": el texto era inalcanzable y un DET que
+   * fallaba (red caída, 404) dejaba el esqueleto para siempre. `useAxios` ya
+   * devolvía `loaded` y `error` y este hook los descartaba.
+   *
+   * - `showDetailSkeleton`: el request sigue en vuelo Y no hay nada que
+   *   mostrar (si vino `item` de la fila, el contenido se pinta con eso
+   *   mientras el DET completa — comportamiento de siempre).
+   * - `detailLoadFailed`: el request terminó MAL y no hay nada que mostrar.
+   * - `isEmpty` a secas (con el request terminado bien) queda para el branch
+   *   de no-encontrada, que ahora sí se puede alcanzar.
+   */
+  const isDetailPending = shouldFetchDetail && !detailLoaded;
+  const showDetailSkeleton = isEmpty && isDetailPending;
+  const detailLoadFailed =
+    isEmpty && !isDetailPending && Boolean(detailFetchError);
+
+  /** Reintenta el DET después de un fallo, con esqueleto mientras responde. */
+  const retryDetailLoad = useCallback(() => {
+    void reloadReservationDetail(null, false);
+  }, [reloadReservationDetail]);
+
   const handlePaymentModalClose = useCallback(() => {
     setShowPaymentModal(false);
     void reloadReservationDetail(null, true);
@@ -508,6 +538,9 @@ export const useReservationDetail = ({
     // Datos
     reservationDetail,
     isEmpty,
+    showDetailSkeleton,
+    detailLoadFailed,
+    retryDetailLoad,
     statusKey,
     currentStatus,
     detailRows,
