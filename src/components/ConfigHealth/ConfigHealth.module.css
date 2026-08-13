@@ -1,0 +1,159 @@
+/*
+ * El aviso de configuración faltante del dashboard.
+ *
+ * Usa las variables del tema (`--cError`, `--cWarning`, …) y no colores
+ * literales: el admin tiene modo claro y oscuro, y un `#E46055` pegado acá se
+ * ve mal en uno de los dos.
+ */
+
+.panel {
+  border: 1px solid var(--cWarning, #e0a800);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  background-color: var(--cHover, rgba(255, 255, 255, 0.04));
+}
+
+/* Cuando hay algo crítico el borde cambia: se lee de lejos que no es un aviso más. */
+.panelCritico {
+  border-color: var(--cError, #e46055);
+}
+
+.encabezado {
+  margin-bottom: 12px;
+}
+
+.titulo {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--cWhite, #fff);
+}
+
+.bajada {
+  font-size: 13px;
+  margin: 4px 0 0;
+  color: var(--cWhiteV1, #9fa8b3);
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background-color: var(--cBlackV2, rgba(0, 0, 0, 0.18));
+}
+
+.chip {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.critica {
+  color: var(--cError, #e46055);
+  background-color: var(--cHoverError, rgba(228, 96, 85, 0.14));
+}
+
+.importante {
+  color: var(--cWarning, #e0a800);
+  background-color: var(--cHoverWarning, rgba(224, 168, 0, 0.14));
+}
+
+.opcional {
+  color: var(--cWhiteV1, #9fa8b3);
+  background-color: var(--cHover, rgba(255, 255, 255, 0.06));
+}
+
+.textos {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemTitulo {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  color: var(--cWhite, #fff);
+}
+
+.itemPorque {
+  font-size: 12px;
+  margin: 2px 0 0;
+  color: var(--cWhiteV1, #9fa8b3);
+}
+
+.accion {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  color: var(--cBlack, #12181f);
+  background-color: var(--cSuccess, #00e38c);
+}
+
+.accion:hover {
+  opacity: 0.9;
+}
+
+/* En mobile el item se apila: el botón entero abajo, no apretado a la derecha. */
+@media (max-width: 600px) {
+  .item {
+    flex-wrap: wrap;
+  }
+
+  .textos {
+    flex-basis: 100%;
+    order: 2;
+  }
+
+  .accion {
+    order: 3;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* El pie con el botón que repara. La acción es una sola para todo el panel:
+   el aprovisionamiento crea TODO lo que falte de una, no de a un ítem. */
+.pie {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.aclaracion {
+  font-size: 12px;
+  margin: 0;
+  color: var(--cWhiteV1, #9fa8b3);
+}
+
+.accion:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.error {
+  font-size: 13px;
+  margin: 10px 0 0;
+  color: var(--cError, #e46055);
+}

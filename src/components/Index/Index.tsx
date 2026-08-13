@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import useAxios from "@/mk/hooks/useAxios";
+import ConfigHealth from "@/components/ConfigHealth/ConfigHealth";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import NotAccess from "../auth/NotAccess/NotAccess";
 import styles from "./index.module.css";
@@ -258,6 +259,10 @@ const HomePage = () => {
   return (
     <>
       <div className={styles.container} data-i18n-ignore="true">
+        {/* Arriba de todo y antes del resumen: si al condominio le falta
+            configuración, hay operaciones que van a fallar, y eso se tiene que
+            ver antes que los números. Se pinta solo cuando falta algo. */}
+        <ConfigHealth />
         <div className={styles.mainLayout}>
           <div className={styles.leftColumn}>
             <WidgetBase variant={"V1"} title={translate("currentSummary")} subtitle={formattedDate} className={styles.summaryWidgetEqualHeight} style={{ maxHeight: "max-content" }}>

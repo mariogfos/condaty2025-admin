@@ -52,7 +52,8 @@ const RESERVA: ReservationDetailItem = {
   start_time: "10:00:00",
   end_time: "12:00:00",
   people_count: 5,
-  area: { id: 3, title: "Salón de eventos", is_free: "N", price: 100 },
+  // `is_free` es boolean en el tipo: el char "N" es de antes del flip.
+  area: { id: 3, title: "Salón de eventos", is_free: false, price: 100 },
   owner: { id: 9, name: "Ana", last_name: "Quiroga" },
   dpto: { id: 4, nro: "B-12" },
 };
