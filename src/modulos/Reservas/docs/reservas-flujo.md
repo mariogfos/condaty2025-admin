@@ -11,19 +11,15 @@ src/modulos/Reservas/
 ├── Type/ReservaType.ts             enums numéricos + formas del API
 ├── config/
 │   ├── reservas.constants.ts       labels, colores, opciones, contrato del API
-│   ├── reservas.config.tsx         mod + fields de la lista principal
-│   └── reservasPending.config.tsx  mod + fields de la pestaña de pendientes
+│   └── reservas.config.tsx         mod + fields de la lista
 ├── hooks/
 │   ├── useReservas.ts              container de la lista
-│   ├── useReservasPending.ts       container de la pestaña
 │   └── useReservationDetail.ts     container del detalle (todas las acciones)
 ├── utils/
 │   ├── reservationStatus.ts        el estado que se VE (derivación)
 │   ├── reservationPayment.ts       resolver el pago de una reserva
 │   └── reservationFormat.ts        formateadores puros
 ├── Reserva.tsx                     presentacional (lista)
-├── ReservaPending.tsx              presentacional (pendientes)
-├── ReserbationsTab.tsx             las dos pestañas
 ├── ReservationStatusBadge/         el badge de estado de la lista
 ├── RenderView/RenderView.tsx       presentacional (detalle)
 └── __tests__/
@@ -223,15 +219,23 @@ y le pasa el `endpoint`; sin el array cae al `AsyncExportButton` legacy, que no
 recibe `endpoint` como prop, así que el endpoint no llega nunca. Van juntos o no
 va ninguno.
 
-## La pestaña de pendientes
+## La pestaña de pendientes — BORRADA (2026-08-12)
 
-`ReservaPending` es la misma lista con `filterBy=status:1` fijo y
-`sortBy=created_at&orderBy=asc` (las más viejas primero).
+Existía `ReservaPending`: la misma lista con `filterBy=status:1` fijo y
+`sortBy=created_at&orderBy=asc`. **Estaba muerta**: la única que la renderizaba
+era `ReserbationsTab`, y `page.tsx` importaba ese componente pero montaba
+`<Reserva />` directo. Nunca llegó a la pantalla.
 
-⚠️ **Hoy no tiene entrada.** La única que la renderea es `ReserbationsTab`, y
-`src/app/reservas/page.tsx` importa ese componente pero monta `<Reserva />`
-directo. Queda funcionando para el día que se vuelva a enganchar la pestaña.
+Se borró el subárbol entero por decisión del dueño: `ReserbationsTab.tsx`,
+`ReservationsTab.module.css`, `ReservaPending.tsx`,
+`hooks/useReservasPending.ts` y `config/reservasPending.config.tsx`.
 
-🔴 Y cuando se enganche, va a filtrar de verdad por primera vez: hasta la
-migración del back, `filterBy=status:1` caía en un `default: break` y la
-pestaña listaba **todas** las reservas.
+⚠️ **Lo que queda vivo y hay que saber**: el filtro `status` del API sigue
+declarado en su `ListConfig`, con sus tests. Esta pantalla ya no lo usa —la
+lista principal filtra por `status_reservation`, el estado que se VE—, pero es
+una capacidad del API que funciona y que otro consumidor puede pedir.
+
+🔴 Y el motivo por el que estaba rota vale igual: hasta la migración del back,
+`filterBy=status:1` caía en un `default: break` y **la lista devolvía todo**. Un
+filtro que el API no declara no falla: deja de filtrar. Eso lo pinea hoy
+`__tests__/reservasApiContract.test.ts`.

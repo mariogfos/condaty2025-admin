@@ -73,16 +73,16 @@ cuadro de error del detalle).
 log, sin diferencia de aspecto. La pantalla muestra la lista entera y el usuario
 cree que ése es el resultado.
 
-Ya pasó exactamente eso: `ReservaPending` mandaba `filterBy=status:1` contra un
-back que no conocía el filtro, y la pestaña de "Reservas pendientes" listaba
-todas las reservas.
+Ya pasó exactamente eso: la pestaña de "Reservas pendientes" mandaba
+`filterBy=status:1` contra un back que no conocía el filtro, y listaba todas las
+reservas. Esa pestaña se borró —estaba muerta— pero el modo de fallar sigue
+siendo el mismo para cualquier filtro.
 
 ### 5. `sortBy=created_at` es ordenable
 
-Lo usa la pestaña de pendientes. Si el API lo saca de `sortableFields()`, el
-orden se ignora y las pendientes salen en el orden del `beforeList`
-(`created_at desc`) — o sea, al revés de lo que la pantalla quiere mostrar.
-Tampoco avisa.
+Si el API lo saca de `sortableFields()`, el orden que manda el módulo se ignora
+y la lista sale en el orden del `beforeList` (`created_at desc`). **Tampoco
+avisa.**
 
 ### 6. `perPage` tiene tope 100
 
@@ -184,11 +184,6 @@ string-stragglers sistémicos, que es transversal a varios módulos.
 `utils/reservationPayment.ts` guarda un `Map` por `debtId` a nivel de módulo que
 vive toda la sesión.
 
-### 6. La pestaña de pendientes no tiene entrada
-
-`src/app/reservas/page.tsx` importa `ReserbationsTab` pero monta `<Reserva />`.
-Decisión del dueño: engancharla o borrarla.
-
-### 7. Faltan cinco clases CSS de estado
+### 6. Faltan cinco clases CSS de estado
 
 `Reserva.module.css` tiene ocho de once. El render cae a `statusUnknown`.

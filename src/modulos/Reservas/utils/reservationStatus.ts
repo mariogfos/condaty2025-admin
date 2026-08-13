@@ -38,21 +38,22 @@ const normalizeReservationStatus = (
   return Number.isFinite(numeric) ? (numeric as ReservationStatus) : undefined;
 };
 
+// ⚠️ `dateEnd` y `endTime` están en `ReservationStatusInput` y esta función NO
+// los desestructura, a propósito. Servían para derivar "Finalizada" desde
+// `getUpdatedReservationStatus`, cuyo cuerpo estaba COMENTADO ENTERO —devolvía
+// el estado tal cual— así que se eliminó. Ese corte lo resuelve hoy el API
+// (`ReservationStatusFilter` compara `date_end + end_time` contra
+// `now('America/La_Paz')`, no contra el reloj del navegador).
+//
+// Siguen en el TIPO porque los llamadores los pasan, y uno de ellos vive en
+// otro módulo (`Calendar/helpers.ts`): sacarlos del tipo es un cambio
+// coordinado, no limpieza. Anotado en `HALLAZGOS_CRUZADOS.md`.
 export const resolveReservationDisplayStatus = ({
   status,
-  dateEnd,
-  endTime,
   debtStatus,
   paymentStatus,
   paymentId,
 }: ReservationStatusInput): ReservationStatus | undefined => {
-  // ⚠️ `dateEnd` y `endTime` ya no se usan para derivar "Finalizada": lo hacía
-  // `getUpdatedReservationStatus`, cuyo cuerpo estaba COMENTADO ENTERO desde
-  // antes de este cambio —devolvía el estado tal cual— así que se eliminó. Ese
-  // corte lo resuelve hoy el API (`ReservationStatusFilter` compara
-  // `date_end + end_time` contra `now('America/La_Paz')`, no contra el reloj
-  // del navegador). Los dos parámetros siguen en la firma porque los llamadores
-  // los pasan y sacarlos es una migración aparte.
   const currentStatus = normalizeReservationStatus(status);
 
   if (currentStatus !== undefined && TERMINAL_OR_MANUAL_STATUSES.has(currentStatus)) {

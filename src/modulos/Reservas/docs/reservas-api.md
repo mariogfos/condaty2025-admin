@@ -23,7 +23,7 @@ no en el componente.
 
 ## `GET /v3/reservations` — el listado
 
-Quién lo llama: `useCrud`, desde `useReservas` y `useReservasPending`.
+Quién lo llama: `useCrud`, desde `useReservas`.
 
 ### Params
 
@@ -34,8 +34,8 @@ Quién lo llama: `useCrud`, desde `useReservas` y `useReservasPending`.
 | `fullType` | `L` listado · `DET` detalle · `EXTRA` datos del alta | `L` |
 | `searchBy` | **un solo término libre** | lo que escriba el usuario |
 | `filterBy` | `nombre:valor\|nombre:valor` | `date_at:…` y/o `status_reservation:…` |
-| `sortBy` | campo de orden | `created_at` (sólo pendientes) |
-| `orderBy` | `asc` / `desc` | `asc` (sólo pendientes) |
+| `sortBy` | campo de orden | — (lo fija la columna que se toca) |
+| `orderBy` | `asc` / `desc` | — |
 | `relations` | lista blanca de relaciones a cargar | *no se manda* |
 | `extraData` | pide los datos auxiliares | lo maneja `useCrud` |
 | `_debug`, `_export` | diagnóstico y export | los maneja `useCrud` |

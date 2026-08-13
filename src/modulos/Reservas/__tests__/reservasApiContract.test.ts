@@ -6,9 +6,11 @@
  * no cambia el aspecto de la pantalla. Simplemente **no filtra**, y el usuario
  * ve la lista entera creyendo que ése es el resultado de su búsqueda.
  *
- * Ya pasó exactamente eso: `ReservaPending` mandaba `filterBy=status:1` desde
- * siempre contra un back que no conocía el filtro `status`, y la pestaña de
- * "Reservas pendientes" listaba TODAS las reservas.
+ * Ya pasó exactamente eso: la pestaña "Reservas pendientes" mandaba
+ * `filterBy=status:1` desde siempre contra un back que no conocía el filtro
+ * `status`, caía en un `default: break` y la pestaña listaba TODAS las
+ * reservas. Esa pestaña se borró —estaba muerta, nadie la renderizaba— pero el
+ * modo de fallar es el que este archivo existe para evitar.
  *
  * `RESERVATIONS_API_CONTRACT` es la copia declarada del ListConfig del API.
  * Este test compara lo que el módulo manda contra esa copia. Lo que NO puede
@@ -21,10 +23,6 @@ import {
   RESERVATIONS_INITIAL_PARAMS,
 } from "../config/reservas.config";
 import {
-  getPendingReservationsConfig,
-  PENDING_RESERVATIONS_INITIAL_PARAMS,
-} from "../config/reservasPending.config";
-import {
   FILTER_ALL,
   RESERVATION_STATUS_OPTIONS,
   RESERVATIONS_API_CONTRACT,
@@ -36,13 +34,6 @@ const filtrosDeclarados = (fields: Record<string, any>) =>
   Object.entries(fields)
     .filter(([, field]) => field?.filter)
     .map(([name]) => name);
-
-/** Los pares `nombre:valor` de un `filterBy` en forma de cadena. */
-const filtrosDeUnParams = (filterBy?: string) =>
-  String(filterBy || "")
-    .split("|")
-    .filter(Boolean)
-    .map((par) => par.split(":")[0]);
 
 describe("Reservas — el módulo no se sale del contrato del API", () => {
   it("cada filtro que declara la lista existe en el ListConfig del API", () => {
@@ -62,65 +53,29 @@ describe("Reservas — el módulo no se sale del contrato del API", () => {
     ).toEqual([]);
   });
 
-  it("el filterBy fijo de la pestaña de pendientes existe en el API", () => {
-    const usados = filtrosDeUnParams(
-      PENDING_RESERVATIONS_INITIAL_PARAMS.filterBy,
-    );
 
-    expect(usados).toContain("status");
-    expect(
-      usados.filter(
-        (name) =>
-          !(RESERVATIONS_API_CONTRACT.filters as readonly string[]).includes(
-            name,
-          ),
-      ),
-    ).toEqual([]);
-  });
-
-  it("el sortBy de pendientes está en los campos ordenables del API", () => {
-    expect(
-      RESERVATIONS_API_CONTRACT.sortableFields as readonly string[],
-    ).toContain(PENDING_RESERVATIONS_INITIAL_PARAMS.sortBy);
-    expect(["asc", "desc"]).toContain(
-      PENDING_RESERVATIONS_INITIAL_PARAMS.orderBy,
-    );
-  });
-
-  it("ninguna lista pide más filas que el tope del API", () => {
-    for (const params of [
-      RESERVATIONS_INITIAL_PARAMS,
-      PENDING_RESERVATIONS_INITIAL_PARAMS,
-    ]) {
+  it("la lista no pide más filas que el tope del API", () => {
+    for (const params of [RESERVATIONS_INITIAL_PARAMS]) {
       expect(params.perPage).toBeLessThanOrEqual(
         RESERVATIONS_API_CONTRACT.maxPerPage,
       );
     }
   });
 
-  it("ninguna lista manda los params que el API ya ignora (cols, joins)", () => {
+  it("la lista no manda los params que el API ya ignora (cols, joins)", () => {
     // Mandarlos no rompe, pero mentir sobre lo que se pide es cómo se
     // acumulan los parámetros que sí importaban.
-    for (const params of [
-      RESERVATIONS_INITIAL_PARAMS,
-      PENDING_RESERVATIONS_INITIAL_PARAMS,
-    ] as Record<string, unknown>[]) {
-      for (const ignorado of RESERVATIONS_API_CONTRACT.ignoredParams) {
-        expect(params).not.toHaveProperty(ignorado);
-      }
+    const params = RESERVATIONS_INITIAL_PARAMS as Record<string, unknown>;
+
+    for (const ignorado of RESERVATIONS_API_CONTRACT.ignoredParams) {
+      expect(params).not.toHaveProperty(ignorado);
     }
   });
 
-  it("las dos listas apuntan al mismo módulo, sin barra inicial", () => {
+  it("la lista apunta al módulo sin barra inicial", () => {
     // `useCrud` arma la URL como `"/" + mod.modulo`: una barra de más da
     // `//v3/reservations`.
-    const modulos = [
-      getReservationsConfig().mod.modulo,
-      getPendingReservationsConfig().mod.modulo,
-    ];
-
-    expect(new Set(modulos).size).toBe(1);
-    expect(modulos[0]).toBe("v3/reservations");
+    expect(getReservationsConfig().mod.modulo).toBe("v3/reservations");
   });
 
   it("el export apunta al endpoint sin el prefijo /api", () => {
@@ -160,8 +115,4 @@ describe("Reservas — los valores de los filtros son numéricos", () => {
     }
   });
 
-  it("el filtro fijo de pendientes manda el número 1, no el char 'W'", () => {
-    expect(PENDING_RESERVATIONS_INITIAL_PARAMS.filterBy).toBe("status:1");
-    expect(ReservationStatus.AWAITING_APPROVAL).toBe(1);
-  });
 });

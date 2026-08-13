@@ -1,15 +1,13 @@
-/* Reserva.module.css */
-
 /* Estilo base para todos los badges de estado */
 .statusBadge {
   font-weight: var(--bMedium);
-  padding: 6px var(--spM); /* Ajusta el padding si es necesario */
+  padding: 6px var(--spM);
   border-radius: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  width: fit-content; /* Ancho se ajusta al contenido */
+  width: fit-content;
   min-width: 90px; /* Un mínimo para mantener consistencia, ajusta si prefieres */
   white-space: nowrap; /* Evita que el texto corto se parta */
   font-size: var(--sM); /* Puedes ajustar el tamaño de fuente */
