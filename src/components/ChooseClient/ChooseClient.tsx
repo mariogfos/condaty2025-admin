@@ -1,7 +1,6 @@
 "use client";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import {
   IconArrowRight,
@@ -22,19 +21,41 @@ interface Props {
   onClose: () => void;
 }
 const ChooseClient = ({ open, onClose }: Props) => {
-  const { user, getUser, setStore, store } = useAuth();
+  const { user, getUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const router = useRouter();
   const { translate } = useScopedI18n("chooseClient");
 
+  /**
+   * Cambiar de condominio RECARGA LA PÁGINA ENTERA.
+   *
+   * 🔴 Antes hacía `router.push("/")` —navegación del lado del cliente— y avisaba
+   * al dashboard con `reLoadDashboard`. Eso refresca lo que se acuerda de
+   * escuchar ese flag, y **deja pegado todo lo demás**: componentes que piden sus
+   * datos una vez al montarse siguen mostrando los del condominio anterior hasta
+   * que el usuario aprieta F5.
+   *
+   * Medido por Mario el 2026-08-13: entró a otro condominio y el aviso de
+   * configuración seguía mostrando los faltantes del anterior. El aviso era el
+   * síntoma visible; el problema es general — cualquier pantalla que no escuche
+   * el flag queda con datos de otro condominio, que en un sistema multi-tenant
+   * es de las cosas peores que pueden pasar.
+   *
+   * Con `window.location.href` el documento se carga de nuevo: se rearma el
+   * estado, se rehacen TODAS las peticiones y no hay nada que pueda quedar
+   * viejo. Es más lento que una navegación cliente, y esa lentitud es el precio
+   * correcto por no mostrar datos del condominio equivocado.
+   *
+   * ⚠️ El `getUser(id)` va ANTES y con `await`: es el que deja las credenciales
+   * del condominio nuevo. Recargar antes de que termine volvería con las viejas.
+   */
   const onClick = async (id: any) => {
     await getUser(id);
-    router.push("/");
-    setStore({
-      ...store,
-      reLoadDashboard: true,
-    });
     onClose();
+
+    // Sin `router.push` ni `reLoadDashboard`: la recarga completa los hace
+    // innecesarios —el store se rearma solo— y dejarlos sería prometer un
+    // refresco parcial que ya no ocurre.
+    window.location.href = "/";
   };
 
   const renderClient = (c: any) => {
