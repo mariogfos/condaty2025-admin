@@ -152,7 +152,6 @@ export type ReservationListItem = {
   area_id?: number | string | null;
   owner_id?: number | string | null;
   dpto_id?: number | string | null;
-  debt_id?: number | string | null;
   debt_dpto_id?: number | string | null;
   status?: ReservationStatus | number | string;
   amount?: string | number | null;
@@ -186,7 +185,6 @@ export type ReservationListItem = {
  */
 export type ReservationDetailItem = ReservationListItem & {
   client_id?: string;
-  debt_id_penalty?: string;
   paid_at?: string | null;
   approved_at?: string | null;
   /**

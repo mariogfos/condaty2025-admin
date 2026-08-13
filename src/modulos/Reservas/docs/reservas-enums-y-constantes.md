@@ -88,7 +88,7 @@ Todas en `config/reservas.constants.ts`.
 
 ### `RESERVATION_STATUS_CONFIG`
 
-`Record<ReservationStatus, { label, backgroundColor, color, class }>`. La tabla
+`Record<ReservationStatus, { label, backgroundColor, color }>`. La tabla
 de etiquetas y colores.
 
 ⚠️ Las palabras tienen que ser **las mismas** que `ReservationStatus::label()`
@@ -98,10 +98,12 @@ residente reclame. (Ya pasó: el reporte tenía su propia tabla escrita a mano e
 SQL con 9 de los 11 casos, y el 55% de las filas de un condominio salía
 "Desconocido".)
 
-⚠️ `Reserva.module.css` define **ocho** clases de estado y el catálogo tiene
-once: `statusQ`, `statusL`, `statusR`, `statusT` y `statusM` no existen. El
-render de pendientes cae a `statusUnknown` cuando falta; antes salía con
-`className="undefined"`.
+El campo `class` que acompañaba a cada entrada se **eliminó el 2026-08-13**:
+ningún render lo leía, y las clases a las que apuntaba vivían en
+`Reserva.module.css`, que quedó huérfano cuando se borró la pestaña de
+pendientes (`b5dcc5e9`) y también se eliminó. Las clases de estado que sí se
+usan (`statusW`…`statusM` del detalle) viven en
+`RenderView/ReservationDetailModal.module.css`, con su propio switch.
 
 ### `RESERVATION_STATUS_OPTIONS`
 

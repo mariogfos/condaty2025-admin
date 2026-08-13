@@ -15,8 +15,11 @@ import {
 import {
   ReservationApproval,
   ReservationStatus,
+  type ReservationApprovePayload,
+  type ReservationCancelPayload,
   type ReservationDetailItem,
   type ReservationDetailRow,
+  type ReservationRejectPayload,
 } from "../Type/ReservaType";
 import {
   formatPeopleCount,
@@ -147,7 +150,8 @@ export const useReservationDetail = ({
   >(null);
 
   const debtDpto = reservationDetail?.debt_dpto;
-  const resolvedDebtId = debtDpto?.id || reservationDetail?.debt_id;
+  // Sin fallback a `debt_id`: la columna se dropeó del API y ya no viaja.
+  const resolvedDebtId = debtDpto?.id;
 
   // Lo que ya vino en la fila manda; el efecto de abajo sólo completa lo que
   // falte.
@@ -385,14 +389,17 @@ export const useReservationDetail = ({
       //
       // `cancelReservation`, en este mismo hook, ya lo hacia bien. Aprobar y
       // Rechazar no. Ahora los tres siguen el mismo criterio.
+      // El payload declarado con su tipo: si el contrato del PUT cambia, el
+      // compilador lo marca ACÁ y no en producción con un 422.
+      const payload: ReservationApprovePayload = {
+        approved_at: formatDateFns(new Date(), "yyyy-MM-dd HH:mm:ss"),
+        is_approved: ReservationApproval.APPROVED,
+        obs: RESERVATION_DETAIL_COPY.approveObs,
+      };
       const response = await executeActionRef.current(
         reservationsApi.detail(reservationDetail.id),
         "PUT",
-        {
-          approved_at: formatDateFns(new Date(), "yyyy-MM-dd HH:mm:ss"),
-          is_approved: ReservationApproval.APPROVED,
-          obs: RESERVATION_DETAIL_COPY.approveObs,
-        },
+        payload,
         false,
         true,
       );
@@ -448,13 +455,14 @@ export const useReservationDetail = ({
     try {
       // Mismo criterio que aprobar y cancelar: el rechazo de negocio viene
       // con HTTP 200 y `{success: false}`, y el catch no lo ve.
+      const payload: ReservationRejectPayload = {
+        is_approved: ReservationApproval.REJECTED,
+        reason: rejectionReason.trim(),
+      };
       const response = await executeActionRef.current(
         reservationsApi.detail(reservationDetail.id),
         "PUT",
-        {
-          is_approved: ReservationApproval.REJECTED,
-          reason: rejectionReason.trim(),
-        },
+        payload,
         false,
         true,
       );
@@ -504,13 +512,14 @@ export const useReservationDetail = ({
     setCancelErrors(nextErrors);
     if (hasErrors(nextErrors)) return;
 
+    const payload: ReservationCancelPayload = {
+      status: ReservationStatus.CANCELLED_MANUAL,
+      reason: cancelReason,
+    };
     const response = await executeActionRef.current(
       reservationsApi.detail(reservationDetail?.id as string | number),
       "PUT",
-      {
-        status: ReservationStatus.CANCELLED_MANUAL,
-        reason: cancelReason,
-      },
+      payload,
       false,
       true,
     );

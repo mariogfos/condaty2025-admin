@@ -107,7 +107,10 @@ export const useReservas = () => {
     getFilter: handleGetFilter,
   });
 
-  const { onLongPress, selItem } = useCrudUtils({
+  // La llamada queda por su EFECTO (registra el título y las acciones del
+  // header vía setStore); su retorno (onLongPress/selItem) no lo consume
+  // nadie — Reserva.tsx nunca los usó.
+  useCrudUtils({
     onSearch: crud.onSearch,
     searchs: crud.searchs,
     setStore: crud.setStore,
@@ -141,8 +144,6 @@ export const useReservas = () => {
     // Del CRUD
     List: crud.List,
     userCan: crud.userCan,
-    onLongPress,
-    selItem,
     modPermission: mod.permiso,
 
     // Período personalizado
