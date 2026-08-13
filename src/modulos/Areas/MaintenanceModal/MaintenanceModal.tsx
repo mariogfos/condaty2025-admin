@@ -13,7 +13,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { IconX } from "@/components/layout/icons/IconsBiblioteca";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
-import { ReservationStatus } from "@/modulos/Reservas/constants/reservationConstants";
+import { ReservationStatus } from "@/modulos/Reservas/Type/ReservaType";
 
 interface Props {
   open: boolean;

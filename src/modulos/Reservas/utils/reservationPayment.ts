@@ -1,6 +1,7 @@
 import { paymentsApi } from "@/modulos/Payments/api";
-import type { ReservationListItem } from "@/modulos/Reservas/types";
-import { ReservationStatus } from "@/modulos/Reservas/constants/reservationConstants";
+import { reservationsApi } from "@/modulos/Reservas/api";
+import type { ReservationListItem } from "@/modulos/Reservas/Type/ReservaType";
+import { ReservationStatus } from "@/modulos/Reservas/Type/ReservaType";
 import { resolveReservationDisplayStatus } from "./reservationStatus";
 
 export type ResolvedReservationPayment = {
@@ -155,7 +156,7 @@ export const fetchResolvedPaymentForReservation = async (
   if (!debtId && reservation?.id && contextInstance) {
     const response = await contextInstance.request({
       method: "GET",
-      url: "/v3/reservations",
+      url: reservationsApi.base,
       params: {
         fullType: "DET",
         searchBy: reservation.id,

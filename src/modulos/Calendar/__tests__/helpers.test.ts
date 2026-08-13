@@ -7,8 +7,8 @@ import {
 } from "../helpers";
 import { shouldShowReservationPaymentTimeLimit } from "@/modulos/Reservas/utils/reservationStatus";
 import { mergeResolvedPaymentIntoReservation } from "@/modulos/Reservas/utils/reservationPayment";
-import { ReservationStatus } from "@/modulos/Reservas/constants/reservationConstants";
-import type { ReservationListItem } from "@/modulos/Reservas/types";
+import { ReservationStatus } from "@/modulos/Reservas/Type/ReservaType";
+import type { ReservationListItem } from "@/modulos/Reservas/Type/ReservaType";
 
 describe("buildCalendarEntries", () => {
   it("muestra primero el nombre del area y luego la hora", () => {

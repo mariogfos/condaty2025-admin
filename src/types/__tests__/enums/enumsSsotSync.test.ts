@@ -17,7 +17,7 @@ import { describe, it, expect } from 'vitest';
 import ssot from '../../../../tests/__fixtures__/enums-ssot.json';
 
 // Enums locales de admin (numeric int-backed o string char-backed según SSoT)
-import { ReservationStatus } from '@/modulos/Reservas/constants/reservationConstants';
+import { ReservationStatus } from '@/modulos/Reservas/Type/ReservaType';
 import {
   PaymentStatus,
   PaymentMethod,
