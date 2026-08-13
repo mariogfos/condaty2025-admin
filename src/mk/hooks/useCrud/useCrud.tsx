@@ -2463,6 +2463,29 @@ const useCrud = ({
                     skeletonRowCount={skeletonRowCount}
                     rowContextMenu={props.rowContextMenu}
                   />
+                ) : runtime.error ? (
+                  // 🔴 "El API está caído" y "no hay filas" NO se ven iguales.
+                  // Antes con `loaded=true` y `data=null` esto devolvía null:
+                  // pantalla en blanco, `runtime.error` sin renderizar en
+                  // ningún lado y sin forma de reintentar.
+                  <section
+                    className={styles.emptyState}
+                    style={{
+                      minHeight: resolvedListHeight || "280px",
+                    }}
+                  >
+                    <div className={styles.listErrorState} role="alert">
+                      <p>No se pudo cargar el listado.</p>
+                      <span>Revisa tu conexión e intenta de nuevo.</span>
+                      <button
+                        type="button"
+                        className={styles.loadMoreErrorRetry}
+                        onClick={() => runtime.reLoad()}
+                      >
+                        Recargar
+                      </button>
+                    </div>
+                  </section>
                 ) : runtime.data === null ? null : (
                   <section
                     className={styles.emptyState}

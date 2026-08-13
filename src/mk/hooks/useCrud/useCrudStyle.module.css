@@ -126,6 +126,27 @@
   margin-top: 12px;
 }
 
+/* El estado de error de la carga inicial: el API no respondió y hay que decirlo. */
+.listErrorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spM);
+  height: 100%;
+  color: var(--cWhiteV1);
+}
+
+.listErrorState > p {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.listErrorState > span {
+  font-size: var(--sM);
+  color: var(--cWhiteV3);
+}
+
 /* El renglón de "no se pudo cargar más" del scroll infinito, con su reintento. */
 .loadMoreErrorRow {
   display: flex;
