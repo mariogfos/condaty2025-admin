@@ -33,13 +33,31 @@ const mod: ModCrudType = {
   },
   renderForm: (props: any) => <RenderForm {...props} />,
 };
+/**
+ * CDT-26: keyed by the numeric ClientStatus enum, not the legacy 'A'/'I' chars.
+ *
+ * `clients.status` became TINYINT UNSIGNED on 2026-07-18
+ * (migration `migrate_clients_status_to_numeric`), so a char-keyed map returned
+ * `undefined` and the list fell back to printing the raw value ("1").
+ *
+ * This map feeds two surfaces: the badge in the list AND the "Filtrar por
+ * estado" dropdown, whose option ids come from `Object.keys` below. With char
+ * keys the filter silently sent 'A'/'I' and matched no rows without erroring.
+ */
 const statusCondominios: Record<
-  string,
+  number,
   { text: string; bgColor: string; color: string }
 > = {
-  A: { text: "Activo", bgColor: "#15392B", color: "var(--cAccent)" },
-  I: { text: "Inactivo", bgColor: "#3A2121", color: "var(--cError)" },
-  // S: { text: "Suspendido", bgColor: "#3B351E", color: "var(--cWarning)" },
+  [ClientStatus.ACTIVE]: {
+    text: "Activo",
+    bgColor: "#15392B",
+    color: "var(--cAccent)",
+  },
+  [ClientStatus.INACTIVE]: {
+    text: "Inactivo",
+    bgColor: "#3A2121",
+    color: "var(--cError)",
+  },
 };
 const privacyCondominios: Record<string, string> = {
   T: "Prueba",
@@ -84,9 +102,9 @@ const Condominios = () => {
           width: "180px",
           options: () => [
             { id: "ALL", name: "Todos" },
-            ...Object.keys(statusCondominios).map((key) => ({
-              id: key,
-              name: statusCondominios[key]?.text || key,
+            ...Object.entries(statusCondominios).map(([value, cfg]) => ({
+              id: Number(value),
+              name: cfg.text,
             })),
           ],
         },
