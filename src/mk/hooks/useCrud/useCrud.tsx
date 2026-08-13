@@ -209,6 +209,7 @@ type UseCrudType = {
   listHasMore?: boolean;
   isAppendingList?: boolean;
   isResetListLoading?: boolean;
+  loadMoreFailed?: boolean;
   infiniteBatchSize?: number;
   infinitePrefetchRows?: number;
   onLoadMore?: Function;
