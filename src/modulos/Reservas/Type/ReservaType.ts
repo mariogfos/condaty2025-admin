@@ -16,7 +16,8 @@
  *
  * Espeja `App\Modules\Reservations\Enums\ReservationStatus` del API, que es
  * `enum ReservationStatus: int`. La columna `reservations.status` es TINYINT
- * desde 2026-06-29 y el `ReservationResource` serializa el número.
+ * desde 2026-06-29 y el motor Mk2 serializa el modelo con su cast de enum,
+ * así que el número viaja tal cual (no existe un Resource en el camino).
  *
  * 🔴 Los comentarios `// W`, `// A`, … son los chars LEGACY, de antes del flip.
  * Están sólo para poder rastrear código viejo; **ningún char se manda ni se
