@@ -160,12 +160,11 @@ por su cuenta. `api.ts` ya las declara; falta que esos módulos las importen.
 
 Son 4 archivos y ~10 call sites. No se tocaron porque son otros módulos.
 
-### 2. Aprobar y rechazar no miran `data.success`
+### 2. ~~Aprobar y rechazar no miran `data.success`~~ — resuelto
 
-Sólo capturan la excepción. Un `{ success: false, message: "..." }` con HTTP 200
-se trata como éxito: el modal se cierra y la lista se recarga sin cambios.
-Cancelar sí lo mira. Unificar los tres es un cambio de comportamiento que
-conviene decidir con el dueño.
+Los tres (aprobar, rechazar, cancelar) miran `data.success` desde
+`1aa916ec`: un `{ success: false }` con HTTP 200 muestra el mensaje de error
+en vez de cerrar el modal como si hubiera funcionado.
 
 ### 3. El detalle se pide como un listado de una fila
 
@@ -184,6 +183,9 @@ string-stragglers sistémicos, que es transversal a varios módulos.
 `utils/reservationPayment.ts` guarda un `Map` por `debtId` a nivel de módulo que
 vive toda la sesión.
 
-### 6. Faltan cinco clases CSS de estado
+### 6. ~~Faltan cinco clases CSS de estado~~ — resuelto el 2026-08-13
 
-`Reserva.module.css` tiene ocho de once. El render cae a `statusUnknown`.
+Ya no falta nada porque ya no hay nada que faltar: `Reserva.module.css` quedó
+huérfano al borrarse la pestaña de pendientes (`b5dcc5e9`) y se eliminó, junto
+con el campo `class` de `RESERVATION_STATUS_CONFIG` que nadie leía. Las clases
+de estado vivas están en `RenderView/ReservationDetailModal.module.css`.

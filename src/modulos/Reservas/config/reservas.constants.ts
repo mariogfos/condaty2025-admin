@@ -4,7 +4,6 @@ type ReservationStatusConfigEntry = {
   label: string;
   backgroundColor: string;
   color: string;
-  class: string;
 };
 
 /**
@@ -23,67 +22,56 @@ export const RESERVATION_STATUS_CONFIG: Record<
     label: "Esperando confirmación",
     backgroundColor: "#E9B01E33",
     color: "#E9B01E",
-    class: "statusW",
   },
   [ReservationStatus.PENDING_PAYMENT]: {
     label: "Pago pendiente",
     backgroundColor: "#E9B01E33",
     color: "#E9B01E",
-    class: "statusA",
   },
   [ReservationStatus.PAYMENT_SUBMITTED]: {
     label: "Por confirmar",
     backgroundColor: "#E9B01E33",
     color: "#E9B01E",
-    class: "statusQ",
   },
   [ReservationStatus.RESERVED_UNPAID]: {
     label: "Reservado (sin pago)",
     backgroundColor: "#00E38C33",
     color: "#00E38C",
-    class: "statusN",
   },
   [ReservationStatus.RESERVED_PAID]: {
     label: "Reservado (pagado)",
     backgroundColor: "#00E38C33",
     color: "#00E38C",
-    class: "statusL",
   },
   [ReservationStatus.REJECTED]: {
     label: "Reserva rechazada",
     backgroundColor: "#E4605533",
     color: "#E46055",
-    class: "statusR",
   },
   [ReservationStatus.CANCELLED_MANUAL]: {
     label: "Cancelada manualmente",
     backgroundColor: "#E4605533",
     color: "#E46055",
-    class: "statusC",
   },
   [ReservationStatus.CANCELLED_AUTO]: {
     label: "Cancelada automática",
     backgroundColor: "#E4605533",
     color: "#E46055",
-    class: "statusT",
   },
   [ReservationStatus.COMPLETED]: {
     label: "Finalizada",
     backgroundColor: "#00E38C33",
     color: "#00E38C",
-    class: "statusF",
   },
   [ReservationStatus.LEGACY_REJECTED]: {
     label: "Rechazada",
     backgroundColor: "#E4605533",
     color: "#E46055",
-    class: "statusX",
   },
   [ReservationStatus.MAINTENANCE]: {
     label: "Mantenimiento",
     backgroundColor: "#E4605533",
     color: "#e11907ff",
-    class: "statusX",
   },
 };
 
@@ -206,7 +194,10 @@ export const RESERVATIONS_API_CONTRACT = {
 
 /** Textos de la pantalla. */
 export const RESERVATIONS_COPY = {
-  emptyMsg: "Sin reservas pendientes. cuando los residentes comiencen",
+  // ⚠️ Es el vacío GENERAL del listado (la pestaña de pendientes se borró en
+  // b5dcc5e9), y la oración sigue en `emptyLine2`: por eso arranca mayúscula
+  // "Cuando" y no dice "pendientes".
+  emptyMsg: "Sin reservas. Cuando los residentes comiencen",
   emptyLine2: "a solicitar reservas de áreas sociales lo verás reflejado aquí.",
   areaUnavailable: "Área no disponible",
   residentUnavailable: "Residente no disponible",
@@ -222,6 +213,9 @@ export const RESERVATION_DETAIL_COPY = {
   title: "Detalle de la reserva",
   notFound: "No se encontró información de la reserva.",
   notFoundSuggestion: "Verifica los detalles o intenta de nuevo más tarde.",
+  loadError: "No se pudo cargar la reserva.",
+  loadErrorSuggestion: "Revisa tu conexión e intenta de nuevo.",
+  retry: "Reintentar",
   maintenanceOwner: "Mantenimiento administrativo",
   residentUnavailable: "Residente no disponible",
   administration: "Administración",

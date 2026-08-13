@@ -15,8 +15,11 @@ import {
 import {
   ReservationApproval,
   ReservationStatus,
+  type ReservationApprovePayload,
+  type ReservationCancelPayload,
   type ReservationDetailItem,
   type ReservationDetailRow,
+  type ReservationRejectPayload,
 } from "../Type/ReservaType";
 import {
   formatPeopleCount,
@@ -94,7 +97,12 @@ export const useReservationDetail = ({
   const detailId = reservationId || item?.id;
   const shouldFetchDetail = open && Boolean(detailId);
 
-  const { data, reLoad: reloadReservationDetail } = useAxios(
+  const {
+    data,
+    error: detailFetchError,
+    loaded: detailLoaded,
+    reLoad: reloadReservationDetail,
+  } = useAxios(
     // 🔴 SIN el prefijo `/api`: lo trae el baseURL. Ver `api.ts`.
     shouldFetchDetail ? reservationsApi.base : null,
     "GET",
@@ -142,7 +150,8 @@ export const useReservationDetail = ({
   >(null);
 
   const debtDpto = reservationDetail?.debt_dpto;
-  const resolvedDebtId = debtDpto?.id || reservationDetail?.debt_id;
+  // Sin fallback a `debt_id`: la columna se dropeó del API y ya no viaja.
+  const resolvedDebtId = debtDpto?.id;
 
   // Lo que ya vino en la fila manda; el efecto de abajo sólo completa lo que
   // falte.
@@ -328,6 +337,31 @@ export const useReservationDetail = ({
 
   const isEmpty = Object.keys(reservationDetail).length === 0;
 
+  /**
+   * 🔴 Cargando, error y no-encontrada son TRES estados, no uno.
+   *
+   * Antes el modal condicionaba el esqueleto a `isEmpty`, la MISMA condición
+   * del branch "Reserva no encontrada": el texto era inalcanzable y un DET que
+   * fallaba (red caída, 404) dejaba el esqueleto para siempre. `useAxios` ya
+   * devolvía `loaded` y `error` y este hook los descartaba.
+   *
+   * - `showDetailSkeleton`: el request sigue en vuelo Y no hay nada que
+   *   mostrar (si vino `item` de la fila, el contenido se pinta con eso
+   *   mientras el DET completa — comportamiento de siempre).
+   * - `detailLoadFailed`: el request terminó MAL y no hay nada que mostrar.
+   * - `isEmpty` a secas (con el request terminado bien) queda para el branch
+   *   de no-encontrada, que ahora sí se puede alcanzar.
+   */
+  const isDetailPending = shouldFetchDetail && !detailLoaded;
+  const showDetailSkeleton = isEmpty && isDetailPending;
+  const detailLoadFailed =
+    isEmpty && !isDetailPending && Boolean(detailFetchError);
+
+  /** Reintenta el DET después de un fallo, con esqueleto mientras responde. */
+  const retryDetailLoad = useCallback(() => {
+    void reloadReservationDetail(null, false);
+  }, [reloadReservationDetail]);
+
   const handlePaymentModalClose = useCallback(() => {
     setShowPaymentModal(false);
     void reloadReservationDetail(null, true);
@@ -355,14 +389,17 @@ export const useReservationDetail = ({
       //
       // `cancelReservation`, en este mismo hook, ya lo hacia bien. Aprobar y
       // Rechazar no. Ahora los tres siguen el mismo criterio.
+      // El payload declarado con su tipo: si el contrato del PUT cambia, el
+      // compilador lo marca ACÁ y no en producción con un 422.
+      const payload: ReservationApprovePayload = {
+        approved_at: formatDateFns(new Date(), "yyyy-MM-dd HH:mm:ss"),
+        is_approved: ReservationApproval.APPROVED,
+        obs: RESERVATION_DETAIL_COPY.approveObs,
+      };
       const response = await executeActionRef.current(
         reservationsApi.detail(reservationDetail.id),
         "PUT",
-        {
-          approved_at: formatDateFns(new Date(), "yyyy-MM-dd HH:mm:ss"),
-          is_approved: ReservationApproval.APPROVED,
-          obs: RESERVATION_DETAIL_COPY.approveObs,
-        },
+        payload,
         false,
         true,
       );
@@ -418,13 +455,14 @@ export const useReservationDetail = ({
     try {
       // Mismo criterio que aprobar y cancelar: el rechazo de negocio viene
       // con HTTP 200 y `{success: false}`, y el catch no lo ve.
+      const payload: ReservationRejectPayload = {
+        is_approved: ReservationApproval.REJECTED,
+        reason: rejectionReason.trim(),
+      };
       const response = await executeActionRef.current(
         reservationsApi.detail(reservationDetail.id),
         "PUT",
-        {
-          is_approved: ReservationApproval.REJECTED,
-          reason: rejectionReason.trim(),
-        },
+        payload,
         false,
         true,
       );
@@ -474,13 +512,14 @@ export const useReservationDetail = ({
     setCancelErrors(nextErrors);
     if (hasErrors(nextErrors)) return;
 
+    const payload: ReservationCancelPayload = {
+      status: ReservationStatus.CANCELLED_MANUAL,
+      reason: cancelReason,
+    };
     const response = await executeActionRef.current(
       reservationsApi.detail(reservationDetail?.id as string | number),
       "PUT",
-      {
-        status: ReservationStatus.CANCELLED_MANUAL,
-        reason: cancelReason,
-      },
+      payload,
       false,
       true,
     );
@@ -508,6 +547,9 @@ export const useReservationDetail = ({
     // Datos
     reservationDetail,
     isEmpty,
+    showDetailSkeleton,
+    detailLoadFailed,
+    retryDetailLoad,
     statusKey,
     currentStatus,
     detailRows,

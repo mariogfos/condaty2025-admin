@@ -209,6 +209,7 @@ type UseCrudType = {
   listHasMore?: boolean;
   isAppendingList?: boolean;
   isResetListLoading?: boolean;
+  loadMoreFailed?: boolean;
   infiniteBatchSize?: number;
   infinitePrefetchRows?: number;
   onLoadMore?: Function;
@@ -477,6 +478,19 @@ const useCrud = ({
   const loadedQueryRef = useRef("");
   const pendingReloadResolveRef = useRef<((value?: any) => void) | null>(null);
   const loadMoreLockRef = useRef(false);
+  /**
+   * 🔴 La última página que el API CONFIRMÓ (respondió bien). `loadMoreRows`
+   * incrementa `params.page` de forma optimista, ANTES de la respuesta; si el
+   * request falla y la siguiente pedida hiciera `page + 1` sobre el optimista,
+   * la página fallada se saltea EN SILENCIO: sus filas no aparecen nunca y la
+   * lista se ve completa. Pedir siempre `confirmada + 1` convierte cada nuevo
+   * trigger en el reintento de la página perdida.
+   */
+  const lastConfirmedPageRef = useRef(0);
+  /** El último "cargar más" falló: la lista NO está completa y hay que decirlo. */
+  const [loadMoreFailed, setLoadMoreFailed] = useState(false);
+  /** Guarda de en-vuelo de `onSave`: un doble click no puede crear dos filas. */
+  const onSaveInFlightRef = useRef(false);
   const infiniteBatchSize = useInfiniteList
     ? getNormalizedPerPage(params.perPage ?? paramsInitial?.perPage, true)
     : Number(params.perPage ?? paramsInitial?.perPage ?? 0);
@@ -504,6 +518,8 @@ const useCrud = ({
     setListTotal(0);
     setListHasMore(false);
     loadMoreLockRef.current = false;
+    lastConfirmedPageRef.current = 0;
+    setLoadMoreFailed(false);
     setIsAppendingList(false);
     setIsResetListLoading(true);
   }, [useInfiniteList]);
@@ -529,7 +545,31 @@ const useCrud = ({
       }
 
       lastResolvedParamsRef.current = nextRequestParams;
-      setManualData(result.data);
+
+      // 🔴 La confirmación de página y la señal de fallo viven ACÁ, en el
+      // ciclo de vida del request, y no en los efectos: el efecto de la
+      // respuesta tiene `params` en sus dependencias y RE-CORRE con datos
+      // viejos apenas `loadMoreRows` cambia la página — antes de que el
+      // request responda —, así que cualquier flag que se mire o se escriba
+      // ahí llega tarde o confirma páginas que nunca respondieron.
+      const requestedPage = Number(nextRequestParams?.page || 1);
+      if (result.error) {
+        // Sólo `loadMoreRows` pide páginas > 1 (el inicio y los resets van
+        // siempre a la 1): un fallo con página > 1 es un "cargar más" perdido.
+        if (requestedPage > 1) {
+          setLoadMoreFailed(true);
+        }
+      } else if (result.data !== null && result.data !== undefined) {
+        lastConfirmedPageRef.current = requestedPage;
+      }
+
+      // 🔴 Un error NO pisa `manualData` con null: `resolvedData` devuelve
+      // `data` tal cual cuando es null, y la lista ENTERA desaparecía de la
+      // pantalla aunque `listRows` siguiera teniendo las filas ya cargadas.
+      // El dato viejo se conserva; el error viaja por `manualError`.
+      if (result.data !== null && result.data !== undefined) {
+        setManualData(result.data);
+      }
       setManualError(result.error);
       setManualLoaded(true);
       return result;
@@ -638,10 +678,15 @@ const useCrud = ({
     if (listTotal > 0 && listRows.length >= listTotal) return;
 
     loadMoreLockRef.current = true;
+    setLoadMoreFailed(false);
     setIsAppendingList(true);
+    // 🔴 La página siguiente se calcula sobre la última CONFIRMADA, no sobre
+    // el `params.page` optimista: si el request anterior falló, `params.page`
+    // quedó apuntando a la página que nunca llegó, y `old.page + 1` la
+    // saltearía en silencio. Con la confirmada, este trigger la reintenta.
     setParams((old: any) => ({
       ...old,
-      page: Number(old?.page || 1) + 1,
+      page: (lastConfirmedPageRef.current || Number(old?.page || 1)) + 1,
       perPage: getNormalizedPerPage(
         old?.perPage ?? paramsInitial?.perPage,
         true,
@@ -867,97 +912,112 @@ const useCrud = ({
   };
 
   const onSave = async (data: Record<string, any>, _setErrors?: Function) => {
-    if (!userCan(mod.permiso, action == "del" ? "D" : action))
-      return showToast("No tiene permisos para esta acción", "error");
+    // 🔴 Guarda de en-vuelo: el botón Guardar del DataModal no se deshabilita
+    // durante el await, así que un doble click despachaba DOS POST idénticos
+    // (dos reservas para el mismo horario; en un área paga, dos deudas). El
+    // segundo click se IGNORA hasta que el guardado entero —request y reload
+    // de la lista— haya terminado. Mismo patrón que el isActionLoading de
+    // useReservationDetail.
+    if (onSaveInFlightRef.current) return;
+    onSaveInFlightRef.current = true;
 
-    if (action != "del") {
-      const errors = checkRulesFields(fields, data, action, execute);
-      if (_setErrors) {
-        _setErrors(errors);
+    try {
+      if (!userCan(mod.permiso, action == "del" ? "D" : action))
+        return showToast("No tiene permisos para esta acción", "error");
+
+      if (action != "del") {
+        const errors = checkRulesFields(fields, data, action, execute);
+        if (_setErrors) {
+          _setErrors(errors);
+        } else {
+          setErrors(errors);
+        }
+        if (hasErrors(errors)) return;
+      }
+
+      const url = "/" + mod.modulo + (data.id ? "/" + data.id : "");
+      let method = "POST";
+      if (data.id) {
+        method = "PUT";
+        if (action == "del") {
+          method = "DELETE";
+        }
+      }
+
+      // Build params and detect large file fields (to be uploaded separately)
+      const param = getParamFields(data, fields, action);
+      const uploadLimitMB = mod?.fileUploadLimitMB ?? 0.5;
+      const { param: paramWithoutFiles, filesToUpload } =
+        detectLargeFilesAndStrip(data, fields, { ...param }, uploadLimitMB);
+
+      // Use the same detection result as creation: filesToUpload contains only
+      // files that exceeded the upload limit and were stripped from the params.
+      // We won't force additional behavior for edits here; rely on detectLargeFilesAndStrip.
+
+      // Ensure root ext is present when a file field exists.
+      // If we detected filesToUpload (i.e. files stripped because they're large),
+      // prefer the extension from the file to override any previous value —
+      // otherwise fall back to ext found in the form data.
+      if (filesToUpload.length > 0 && filesToUpload[0].ext) {
+        paramWithoutFiles.ext = filesToUpload[0].ext;
       } else {
-        setErrors(errors);
-      }
-      if (hasErrors(errors)) return;
-    }
-
-    const url = "/" + mod.modulo + (data.id ? "/" + data.id : "");
-    let method = "POST";
-    if (data.id) {
-      method = "PUT";
-      if (action == "del") {
-        method = "DELETE";
-      }
-    }
-
-    // Build params and detect large file fields (to be uploaded separately)
-    const param = getParamFields(data, fields, action);
-    const uploadLimitMB = mod?.fileUploadLimitMB ?? 0.5;
-    const { param: paramWithoutFiles, filesToUpload } =
-      detectLargeFilesAndStrip(data, fields, { ...param }, uploadLimitMB);
-
-    // Use the same detection result as creation: filesToUpload contains only
-    // files that exceeded the upload limit and were stripped from the params.
-    // We won't force additional behavior for edits here; rely on detectLargeFilesAndStrip.
-
-    // Ensure root ext is present when a file field exists.
-    // If we detected filesToUpload (i.e. files stripped because they're large),
-    // prefer the extension from the file to override any previous value —
-    // otherwise fall back to ext found in the form data.
-    if (filesToUpload.length > 0 && filesToUpload[0].ext) {
-      paramWithoutFiles.ext = filesToUpload[0].ext;
-    } else {
-      for (const key in fields) {
-        const f = fields[key];
-        if (f?.form?.type === "fileUpload") {
-          const val = data[key] || param[key];
-          if (val && typeof val === "object" && val.ext) {
-            paramWithoutFiles.ext = val.ext;
-            break;
+        for (const key in fields) {
+          const f = fields[key];
+          if (f?.form?.type === "fileUpload") {
+            const val = data[key] || param[key];
+            if (val && typeof val === "object" && val.ext) {
+              paramWithoutFiles.ext = val.ext;
+              break;
+            }
           }
         }
       }
-    }
 
-    const { data: response, error: err } = await execute(
-      url,
-      method,
-      action == "del" ? { id: data.id } : paramWithoutFiles,
-      false,
-      mod?.noWaiting,
-    );
+      const { data: response, error: err } = await execute(
+        url,
+        method,
+        action == "del" ? { id: data.id } : paramWithoutFiles,
+        false,
+        mod?.noWaiting,
+      );
 
-    if (response?.success) {
-      try {
-        const uploadId =
-          response?.data?.id ??
-          response?.data?.data?.id ??
-          data?.id ??
-          response?.id ??
-          null;
-        if (filesToUpload.length > 0 && uploadId) {
-          await uploadLargeFiles(
-            filesToUpload,
-            uploadId,
-            execute,
-            mod?.noWaiting,
-            showToast,
-          );
+      if (response?.success) {
+        try {
+          const uploadId =
+            response?.data?.id ??
+            response?.data?.data?.id ??
+            data?.id ??
+            response?.id ??
+            null;
+          if (filesToUpload.length > 0 && uploadId) {
+            await uploadLargeFiles(
+              filesToUpload,
+              uploadId,
+              execute,
+              mod?.noWaiting,
+              showToast,
+            );
+          }
+        } catch (e) {
+          logError("Error post-upload handling", e);
         }
-      } catch (e) {
-        logError("Error post-upload handling", e);
-      }
 
-      onCloseCrud();
-      setOpenDel(false);
-      if (useInfiniteList) {
-        await reloadCrudList(null, mod?.noWaiting);
+        onCloseCrud();
+        setOpenDel(false);
+        if (useInfiniteList) {
+          await reloadCrudList(null, mod?.noWaiting);
+        } else {
+          axiosReload(params, mod?.noWaiting);
+        }
+        showToast(mod.saveMsg?.[action] || response?.message, "success");
       } else {
-        axiosReload(params, mod?.noWaiting);
+        showToast(response?.message, "error");
+        logError("Error onSave:", err);
       }
-      showToast(mod.saveMsg?.[action] || response?.message, "success");
-    } else {
-      showToast(response?.message, "error");
-      logError("Error onSave:", err);
+    } finally {
+      // Se libera SIEMPRE: también cuando la validación cortó antes o el
+      // request falló — la guarda es de en-vuelo, no un candado permanente.
+      onSaveInFlightRef.current = false;
     }
   };
 
@@ -2142,6 +2202,7 @@ const useCrud = ({
     isResetListLoading,
     listTotal,
     listHasMore,
+    loadMoreFailed,
   };
 
   const listComponentRef = useRef<any>(null);
@@ -2420,6 +2481,29 @@ const useCrud = ({
                     skeletonRowCount={skeletonRowCount}
                     rowContextMenu={props.rowContextMenu}
                   />
+                ) : runtime.error ? (
+                  // 🔴 "El API está caído" y "no hay filas" NO se ven iguales.
+                  // Antes con `loaded=true` y `data=null` esto devolvía null:
+                  // pantalla en blanco, `runtime.error` sin renderizar en
+                  // ningún lado y sin forma de reintentar.
+                  <section
+                    className={styles.emptyState}
+                    style={{
+                      minHeight: resolvedListHeight || "280px",
+                    }}
+                  >
+                    <div className={styles.listErrorState} role="alert">
+                      <p>No se pudo cargar el listado.</p>
+                      <span>Revisa tu conexión e intenta de nuevo.</span>
+                      <button
+                        type="button"
+                        className={styles.loadMoreErrorRetry}
+                        onClick={() => runtime.reLoad()}
+                      >
+                        Recargar
+                      </button>
+                    </div>
+                  </section>
                 ) : runtime.data === null ? null : (
                   <section
                     className={styles.emptyState}
@@ -2430,6 +2514,21 @@ const useCrud = ({
                     {emptyContent}
                   </section>
                 )}
+                {runtime.useInfiniteList && runtime.loadMoreFailed ? (
+                  // 🔴 Antes un fallo al cargar más no dejaba NADA: ni toast,
+                  // ni renglón. La lista se veía completa y las filas de la
+                  // página fallada no aparecían nunca.
+                  <div className={styles.loadMoreErrorRow} role="alert">
+                    <span>No se pudieron cargar más resultados.</span>
+                    <button
+                      type="button"
+                      className={styles.loadMoreErrorRetry}
+                      onClick={() => runtime.onLoadMore()}
+                    >
+                      Reintentar
+                    </button>
+                  </div>
+                ) : null}
                 {showTableSkeleton ||
                 props?.paginationHide ||
                 runtime.useInfiniteList ||
@@ -2651,6 +2750,7 @@ const useCrud = ({
     listHasMore,
     isAppendingList,
     isResetListLoading,
+    loadMoreFailed,
     infiniteBatchSize,
     infinitePrefetchRows,
     onLoadMore: loadMoreRows,

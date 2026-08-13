@@ -72,11 +72,34 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
           maxWidth={920}
           variant="mini"
         >
+          {/*
+            🔴 Tres estados, tres condiciones DISTINTAS. Antes `isEmpty`
+            gobernaba el esqueleto Y el branch de no-encontrada: el texto era
+            código muerto y un DET fallado dejaba el esqueleto para siempre.
+          */}
           <LoadingScreen
-            onlyLoading={detail.isEmpty && open}
+            onlyLoading={detail.showDetailSkeleton}
             type="CardSkeleton"
           >
-            {detail.isEmpty ? (
+            {detail.detailLoadFailed ? (
+              <div className={styles.container}>
+                <div className={styles.notFoundContainer}>
+                  <p className={styles.notFoundText}>
+                    {RESERVATION_DETAIL_COPY.loadError}
+                  </p>
+                  <p className={styles.notFoundSuggestion}>
+                    {RESERVATION_DETAIL_COPY.loadErrorSuggestion}
+                  </p>
+                  <Button
+                    variant="secondary"
+                    onClick={detail.retryDetailLoad}
+                    className={styles.secondaryActionButton}
+                  >
+                    {RESERVATION_DETAIL_COPY.retry}
+                  </Button>
+                </div>
+              </div>
+            ) : detail.isEmpty ? (
               <div className={styles.container}>
                 <div className={styles.notFoundContainer}>
                   <p className={styles.notFoundText}>

@@ -24,11 +24,11 @@ const toKey = (value?: string | number | null) => {
   return key && key !== "0" && key.toLowerCase() !== "null" ? key : "";
 };
 
+// ⚠️ Sin fallback a `debt_id`: la columna se DROPEÓ del API y el campo ya no
+// viaja en ningún sobre. Un fallback sobre un campo que no existe no es
+// robustez, es código muerto que esconde de dónde sale el dato de verdad.
 export const getReservationDebtId = (reservation?: ReservationLike | null) =>
-  reservation?.debt_dpto?.id ||
-  reservation?.debt_id ||
-  reservation?.debt_dpto_id ||
-  null;
+  reservation?.debt_dpto?.id || reservation?.debt_dpto_id || null;
 
 export const getReservationDisplayStatusInput = (
   reservation: ReservationLike,
