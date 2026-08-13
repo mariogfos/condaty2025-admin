@@ -248,13 +248,39 @@ const getParamsQuerySignature = (source: Record<string, any> = {}) => {
   return JSON.stringify(ordered);
 };
 
+/**
+ * El total que trae el sobre del API, o `undefined` si no lo mandó.
+ *
+ * 🔴 El total viaja en `message`, y NO siempre con la misma forma. El
+ * `afterList` por defecto del back (`Mk/Controllers/BaseController:240` y su
+ * gemelo de Mk2) devuelve `['total' => $total]`, así que casi todos los
+ * módulos mandan `message: { total: N }`. Pero un módulo con `afterList`
+ * propio puede devolver el número pelado, y entonces `message` **es** el
+ * total. Medido contra el server el 2026-08-12:
+ *
+ * ```
+ * [RESERVAS] message = -1
+ * [AREAS]    message = {"total":-1}
+ * ```
+ *
+ * ⚠️ `message` también es el texto de un mensaje en las respuestas que no son
+ * listados ("Datos guardados"), por eso se exige `typeof === "number"` y no
+ * un `Number(...)` sobre cualquier cosa: `Number("")` da 0 y haría pasar por
+ * "total cero" a un sobre que no trae total.
+ */
+const getEnvelopeTotal = (response: any) => {
+  if (typeof response?.message === "number") return response.message;
+
+  return response?.message?.total ?? response?.total;
+};
+
 const getResponseTotal = (response: any, fallback = 0) => {
-  const total = Number(response?.message?.total ?? response?.total ?? fallback);
+  const total = Number(getEnvelopeTotal(response) ?? fallback);
   return Number.isFinite(total) ? total : fallback;
 };
 
 const hasExplicitResponseTotal = (response: any) => {
-  const total = response?.message?.total ?? response?.total;
+  const total = getEnvelopeTotal(response);
   if (total === undefined || total === null || total === "") return false;
 
   return Number.isFinite(Number(total));
@@ -594,8 +620,22 @@ const useCrud = ({
       return;
     }
 
-    const currentTotal = listTotal || getResponseTotal(data, listRows.length);
-    if (currentTotal > 0 && listRows.length >= currentTotal) return;
+    // 🔴 El corte mira SÓLO `listTotal`, que el efecto de la respuesta deja en
+    // 0 cuando el API no mandó un total explícito.
+    //
+    // Acá había un `listTotal || getResponseTotal(data, listRows.length)`: con
+    // el total desconocido, el fallback de `getResponseTotal` es el largo de
+    // la propia lista, así que `listRows.length >= currentTotal` daba SIEMPRE
+    // verdadero y esto cortaba en la primera página. La lista quedaba
+    // prometiendo "hay más" —`listHasMore` se calcula con otra medida,
+    // `hasExplicitResponseTotal`, y dibuja el esqueleto de "cargando más"— y
+    // al mismo tiempo negándose a pedir: cero requests, esqueleto para
+    // siempre. Es el cuelgue que reportó el dueño en Reservas el 2026-08-12.
+    //
+    // ⚠️ Y no había reintento posible: `Table` baja su `canTriggerNextLoadRef`
+    // ANTES de llamar acá y sólo lo vuelve a levantar si el usuario se aleja
+    // del fondo, así que una sola negativa deja la lista muerta.
+    if (listTotal > 0 && listRows.length >= listTotal) return;
 
     loadMoreLockRef.current = true;
     setIsAppendingList(true);
@@ -608,7 +648,6 @@ const useCrud = ({
       ),
     }));
   }, [
-    data,
     isAppendingList,
     isResetListLoading,
     listHasMore,
