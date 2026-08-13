@@ -46,6 +46,25 @@ componente arma una URL, elige un enum ni decide si un botón corresponde.
    devuelve `<NotAccess />` antes de mostrar nada. **La verificación es del
    componente, no del API**: el API igual valida.
 
+### El scroll infinito, que se colgaba
+
+Al llegar al fondo, `useCrud` pide la página siguiente **sólo si cree que faltan
+filas**, y eso lo decide con el total que viene en `message`.
+
+🔴 **Se colgaba, y sólo en Reservas.** El API mandaba el total como entero pelado
+(`"message": 128`) en vez de `{ "total": 128 }`: `getEnvelopeTotal` no lo
+encontraba, caía al fallback —el largo de la lista ya cargada— y después
+`useCrud` comparaba `listRows.length >= currentTotal` contra ese mismo largo:
+**siempre verdadero**. Cortaba en la página 1, sin pedir nada más y sin ningún
+error. Abajo quedaba el esqueleto para siempre.
+
+A los otros módulos los salvaba el `-1` que devolvían, porque la guarda pedía
+`currentTotal > 0`.
+
+Arreglado en los dos lados el 2026-08-12 y **los dos arreglos se quedan**:
+`getEnvelopeTotal` tolera las dos formas —*una lista que promete "hay más" y no
+pide está rota venga lo que venga del API*— y el API ya devuelve el objeto.
+
 ## 2. Buscar
 
 El buscador manda **un solo término** en `searchBy`. El API lo busca, con OR

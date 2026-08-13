@@ -86,6 +86,25 @@ calendario y no un instante.
 
 Cada fila trae `area`, `owner`, `dpto`, `periods` y `debt_dpto` cargados.
 
+🔴 **Esta doc estaba bien y el API estaba mal.** Hasta el 2026-08-12,
+`ReservationController::afterList` devolvía el total **pelado** (`"message": 128`)
+en sus tres salidas. Eso es lo que colgaba el scroll infinito: `useCrud` no
+encontraba el total, caía al largo de su propia lista y después comparaba esa
+lista contra sí misma — siempre verdadero, cortaba en la página 1.
+
+Se arregló en los dos lados y **los dos arreglos se quedan**:
+
+- **El API** devuelve el objeto (`ReservationSobreDelListadoTest` pinea las tres
+  salidas).
+- **El front** tolera las dos formas (`getEnvelopeTotal`, `useCrud.tsx:271`),
+  porque *una lista que promete "hay más" y no pide está rota venga lo que venga
+  del API*. `HomeOwner` e `Invitation` todavía mandan el entero pelado.
+
+⚠️ El total vale **0** cuando el listado no pagina (`perPage=-1`) o cuando el
+request lleva `noCount=1`. Y `perPage` **1 y -1 son sentinelas** del motor: con
+`1` el API devuelve un modelo suelto, con `-1` devuelve todo sin contar. Paginar
+de verdad empieza en **2**.
+
 ---
 
 ## `GET /v3/reservations?fullType=DET&searchBy={id}&page=1&perPage=1` — el detalle

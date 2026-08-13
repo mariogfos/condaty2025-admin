@@ -89,6 +89,26 @@ Tampoco avisa.
 El módulo pide 20. Si alguien sube ese número por encima de 100, el API lo
 recorta **en silencio** y la paginación queda descuadrada.
 
+⚠️ Y **1 y -1 son sentinelas del motor**, no tamaños de página: con `1` el API
+devuelve un modelo suelto en vez de una lista, con `-1` devuelve todo sin contar.
+Paginar de verdad empieza en **2**.
+
+### 6 bis. El total del listado viene en `message`, como objeto
+
+`{ "message": { "total": 128 } }`. Lo lee `getEnvelopeTotal` (`useCrud.tsx:271`).
+
+🔴 **Este es el que ya se rompió.** El API mandaba el entero pelado
+(`"message": 128`) hasta el 2026-08-12: `useCrud` no encontraba el total, caía al
+largo de su propia lista y después comparaba esa lista contra sí misma — siempre
+verdadero. **El scroll infinito cortaba en la página 1** y no pedía la siguiente.
+
+Arreglado en los dos lados, y los dos arreglos se quedan: el API devuelve el
+objeto y `getEnvelopeTotal` sigue tolerando las dos formas, porque otros módulos
+del API todavía mandan el entero pelado.
+
+⚠️ El total vale **0** cuando el listado no pagina o cuando lleva `noCount=1`. Un
+0 no significa "lista vacía": significa "no se contó".
+
 ### 7. `searchBy` es un término libre
 
 Si el API vuelve a la forma `campo:operador:valor`, la búsqueda del módulo deja
