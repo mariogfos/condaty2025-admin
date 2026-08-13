@@ -157,3 +157,17 @@
   margin: 10px 0 0;
   color: var(--cError, #e46055);
 }
+
+/* Un bloque por ámbito: lo automático y lo que necesita a una persona. */
+.bloque + .bloque {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--cHover, rgba(255, 255, 255, 0.08));
+}
+
+.bloqueTitulo {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  color: var(--cWhiteV1, #9fa8b3);
+}

@@ -29,6 +29,8 @@ type Faltante = {
   titulo: string;
   porque: string;
   donde: string;
+  /** Si el sistema puede dejarlo listo solo. Lo decide el catálogo del back. */
+  auto: boolean;
   severidad: number;
   severidad_label: string;
   consecuencia: string;
@@ -36,6 +38,7 @@ type Faltante = {
 
 type Resumen = {
   ok: boolean;
+  auto_reparables: number;
   criticas: number;
   importantes: number;
   opcionales: number;
@@ -104,6 +107,12 @@ const ConfigHealth = () => {
 
   const hayCriticas = resumen.criticas > 0;
 
+  // Dos ámbitos distintos, dos bloques: lo que el sistema crea solo y lo que
+  // necesita a una persona. Mezclarlos deja al administrador apretando un botón
+  // que no puede cumplir con la mitad de la lista.
+  const automaticos = resumen.faltantes.filter((f) => f.auto);
+  const manuales = resumen.faltantes.filter((f) => !f.auto);
+
   return (
     <section
       className={`${styles.panel} ${hayCriticas ? styles.panelCritico : ""}`}
@@ -124,36 +133,66 @@ const ConfigHealth = () => {
         </p>
       </header>
 
-      <ul className={styles.lista}>
-        {resumen.faltantes.map((faltante) => (
-          <li key={faltante.clave} className={styles.item}>
-            <span className={`${styles.chip} ${claseDeSeveridad(faltante.severidad)}`}>
-              {faltante.severidad_label}
-            </span>
+      {automaticos.length ? (
+        <div className={styles.bloque}>
+          <h4 className={styles.bloqueTitulo}>Esto lo dejamos listo nosotros</h4>
 
-            <div className={styles.textos}>
-              <p className={styles.itemTitulo}>{faltante.titulo}</p>
-              <p className={styles.itemPorque}>{faltante.porque}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+          <ul className={styles.lista}>
+            {automaticos.map((faltante) => (
+              <li key={faltante.clave} className={styles.item}>
+                <span className={`${styles.chip} ${claseDeSeveridad(faltante.severidad)}`}>
+                  {faltante.severidad_label}
+                </span>
+                <div className={styles.textos}>
+                  <p className={styles.itemTitulo}>{faltante.titulo}</p>
+                  <p className={styles.itemPorque}>{faltante.porque}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
 
-      <footer className={styles.pie}>
-        <button
-          type="button"
-          className={styles.accion}
-          onClick={reparar}
-          disabled={reparando}
-        >
-          {reparando ? "Corrigiendo…" : "Corregir configuración"}
-        </button>
-        <p className={styles.aclaracion}>
-          Las crea el sistema: no hace falta configurarlas a mano.
-        </p>
-      </footer>
+          <footer className={styles.pie}>
+            <button
+              type="button"
+              className={styles.accion}
+              onClick={reparar}
+              disabled={reparando}
+            >
+              {reparando ? "Corrigiendo…" : "Corregir automáticamente"}
+            </button>
+            <p className={styles.aclaracion}>
+              Las crea el sistema: no hace falta configurarlas a mano.
+            </p>
+          </footer>
 
-      {errorAlReparar ? <p className={styles.error}>{errorAlReparar}</p> : null}
+          {errorAlReparar ? <p className={styles.error}>{errorAlReparar}</p> : null}
+        </div>
+      ) : null}
+
+      {manuales.length ? (
+        <div className={styles.bloque}>
+          <h4 className={styles.bloqueTitulo}>Esto necesita que lo configures vos</h4>
+
+          <ul className={styles.lista}>
+            {manuales.map((faltante) => (
+              <li key={faltante.clave} className={styles.item}>
+                <span className={`${styles.chip} ${claseDeSeveridad(faltante.severidad)}`}>
+                  {faltante.severidad_label}
+                </span>
+                <div className={styles.textos}>
+                  <p className={styles.itemTitulo}>{faltante.titulo}</p>
+                  <p className={styles.itemPorque}>{faltante.porque}</p>
+                </div>
+                {/* Acá SÍ va un link: son datos que sólo puede cargar una
+                    persona, así que el aviso lleva a la pantalla exacta. */}
+                <a className={styles.accion} href={faltante.donde}>
+                  Configurar
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </section>
   );
 };

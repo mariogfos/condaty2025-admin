@@ -31,10 +31,11 @@ const renderCon = (data: any) => {
   );
 };
 
-const SANO = { ok: true, criticas: 0, importantes: 0, opcionales: 0, faltantes: [] };
+const SANO = { ok: true, auto_reparables: 0, criticas: 0, importantes: 0, opcionales: 0, faltantes: [] };
 
 const ROTO = {
   ok: false,
+  auto_reparables: 1,
   criticas: 1,
   importantes: 1,
   opcionales: 0,
@@ -44,15 +45,17 @@ const ROTO = {
       titulo: "Categoría de multa por reserva",
       porque: "Sin ella, cancelar tarde una reserva falla y el residente no puede cancelar.",
       donde: "/categories",
+      auto: true,
       severidad: 1,
       severidad_label: "Crítico",
       consecuencia: "Hay operaciones que van a fallar hasta que se configure.",
     },
     {
-      clave: "payment_methods_config",
-      titulo: "Métodos de pago habilitados",
-      porque: "Define con qué puede pagar el residente.",
-      donde: "/configs",
+      clave: "main_account_id",
+      titulo: "Cuenta bancaria principal",
+      porque: "Sin ella el residente no tiene a dónde pagar.",
+      donde: "/bank-accounts",
+      auto: false,
       severidad: 2,
       severidad_label: "Importante",
       consecuencia: "El sistema opera, pero algo va a quedar mal registrado.",
@@ -91,16 +94,19 @@ describe("El aviso de configuración faltante", () => {
    * se editan ni se borran. Por eso hay un botón que repara — un link a
    * `/categories` sería mandarlo a mirar una pared.
    */
-  it("ofrece un botón que corrige, y no un link a una pantalla donde no puede hacer nada", async () => {
+  it("separa lo que corrige el sistema de lo que tiene que hacer una persona", async () => {
     renderCon(ROTO);
 
-    const boton = await screen.findByRole("button", { name: /corregir configuración/i });
-
+    // Lo automático: botón, sin link — el admin no puede crear una categoría fija.
+    const boton = await screen.findByRole("button", { name: /corregir autom/i });
     expect(boton).toBeInTheDocument();
-    expect(
-      screen.queryByText("Configurar"),
-      "quedó el link viejo a una pantalla donde el admin no puede crear una categoría fija",
-    ).toBeNull();
+    expect(screen.getByText(/lo dejamos listo nosotros/i)).toBeInTheDocument();
+
+    // Lo manual: link a la pantalla exacta, porque el sistema no puede
+    // inventarle los datos bancarios al condominio.
+    expect(screen.getByText(/necesita que lo configures vos/i)).toBeInTheDocument();
+    const link = screen.getByText("Configurar").closest("a");
+    expect(link).toHaveAttribute("href", "/bank-accounts");
   });
 
   it("avisa fuerte cuando hay algo crítico", async () => {
