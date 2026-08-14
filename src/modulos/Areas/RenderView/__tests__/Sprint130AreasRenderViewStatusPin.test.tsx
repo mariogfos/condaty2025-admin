@@ -22,7 +22,19 @@
  * HALLAZGO-NEW-03: source-parsing pinea INTENCIÓN. Los e2e con RTL
  * pinean EFECTIVIDAD. Ambos deben correr juntos.
  */
-import { describe, it, expect, beforeAll } from "vitest";
+// ⚠️ `vi`, `beforeEach` y `afterEach` faltaban en este import y el archivo
+// los tomaba de los globals, que `tsconfig.json` no declara: el test CORRIA
+// bien y `tsc` tiraba 6 errores TS2304. Estaba anotado en
+// HALLAZGOS_CRUZADOS.md como pendiente de Areas.
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import fs from "fs";
 import path from "path";

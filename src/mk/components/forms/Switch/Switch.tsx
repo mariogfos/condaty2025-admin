@@ -4,7 +4,15 @@ import styles from "./switch.module.css";
 
 type PropsType = {
   name: string;
-  optionValue?: string[];
+  /**
+   * Los dos valores que el switch emite: `[encendido, apagado]`.
+   *
+   * ⚠️ Acepta numeros ademas de strings porque el proyecto esta migrando los
+   * estados de `char(1)` a **enum numerico**, y un switch de "requiere
+   * aprobacion" ahora emite `2`/`1` en vez de `"A"`/`"X"`. Con la firma
+   * anterior (`string[]`) esos modulos no compilaban.
+   */
+  optionValue?: (string | number)[];
   value: string;
   onChange: { (e: any): void };
   label?: string;

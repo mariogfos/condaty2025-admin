@@ -11,7 +11,14 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import { formatNumber } from "@/mk/utils/numbers";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Br from "@/components/Detail/Br";
-import { AreaStatus } from "@/modulos/Payments/Type/PaymentType";
+import { AreaStatus } from "../../Type/AreaEnums";
+import {
+  AREA_BOOKING_MODE_LABEL,
+  AreaBookingMode,
+  bloqueaConDeuda,
+  esPorHora,
+  requiereAprobacion,
+} from "../../Type/AreaEnums";
 
 const status: any = {
   A: "Activa",
@@ -174,7 +181,7 @@ const FourPart = ({ item }: { item: any }) => {
             />
             <KeyValue
               title={"Tipo de reserva"}
-              value={item?.booking_mode === "hour" ? "Por hora" : "Por día"}
+              value={AREA_BOOKING_MODE_LABEL[item?.booking_mode as AreaBookingMode] ?? "—"}
             />
 
             <KeyValue
@@ -195,13 +202,13 @@ const FourPart = ({ item }: { item: any }) => {
             />
             <KeyValue
               title={"Restricción por mora"}
-              value={item?.penalty_or_debt_restriction ? "Sí" : "No"}
+              value={bloqueaConDeuda(item?.penalty_or_debt_restriction) ? "Sí" : "No"}
             />
             <KeyValue
               title={"Aprobación de administración"}
-              value={item?.requires_approval ? "Sí" : "No"}
+              value={requiereAprobacion(item?.requires_approval) ? "Sí" : "No"}
             />
-            {item?.booking_mode === "hour" && (
+            {esPorHora(item?.booking_mode) && (
               <KeyValue
                 title={"Reservación por día"}
                 value={item?.max_reservations_per_day}
