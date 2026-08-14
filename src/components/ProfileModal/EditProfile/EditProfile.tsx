@@ -95,7 +95,12 @@ const EditProfile = ({
       onClose();
     } else {
       console.error("error:", err);
-      setErrors(err.data?.errors);
+      // 🔴 Era `err.data?.errors`, y `err` es `null` justo en el caso más común
+      // de esta rama: el API rechaza una validación con **HTTP 200 y
+      // `success: false`**, así que no hay error de transporte. Leerlo tiraba
+      // "Cannot read properties of null" en vez de marcar el campo mal
+      // completado. Los errores vienen en el sobre, no en el error.
+      setErrors(err?.data?.errors ?? data?.errors);
     }
   };
   return (

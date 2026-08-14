@@ -11,7 +11,10 @@ interface Props {
 }
 
 const GenerateQrModal = ({ open, onClose, onSuccess }: Props) => {
-  const { execute, loaded } = useAxios();
+  // Primer uso del genérico de `useAxios`: acá `data.data` es el pedido de QR
+  // tipado, no `any`. `GenerateQrResponse` ya describía el sobre entero, así que
+  // sólo hace falta decirle qué lleva adentro.
+  const { execute, loaded } = useAxios<GenerateQrResponse['data']>();
 
   const [form, setForm] = useState<GenerateQrPayload>({
     amount: 0,
@@ -45,12 +48,17 @@ const GenerateQrModal = ({ open, onClose, onSuccess }: Props) => {
     if (form.payment_type) payload.payment_type = form.payment_type;
     if (form.owner_id)     payload.owner_id = form.owner_id;
 
-    const res: GenerateQrResponse = await execute('v3/qr-dynamic/generate', 'POST', payload);
+    // 🔴 Esto declaraba `res: GenerateQrResponse` sobre lo que devuelve
+    // `execute`, que es `{ data, error }` — el sobre está un nivel más adentro.
+    // La anotación mentía y TypeScript la creía, así que `res.success` era
+    // siempre `undefined`: el QR se generaba y la pantalla decía "Error al
+    // generar el QR" igual.
+    const { data: sobre } = await execute('v3/qr-dynamic/generate', 'POST', payload);
 
-    if (res?.success && res.data) {
-      setGeneratedOrder(res.data);
+    if (sobre?.success && sobre.data) {
+      setGeneratedOrder(sobre.data);
     } else {
-      setApiError(res?.message ?? 'Error al generar el QR. Intenta nuevamente.');
+      setApiError(sobre?.message ?? 'Error al generar el QR. Intenta nuevamente.');
     }
   };
 

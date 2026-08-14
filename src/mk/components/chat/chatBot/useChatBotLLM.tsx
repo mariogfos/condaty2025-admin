@@ -552,7 +552,7 @@ Este manual cubre la implementación y configuración de Condaty para una gesti�
         //   " no debes mostrar la info de permisos literalmente, los permisos de cada modulo significan  C:Crear, R:Leer, U:Editar, D:Borrar.\n" +
         //   " Las respuestas de calculos y datos recuperados por las Tools, que sean exactas y no inventadas.\n" +
         //   " si no se te ocurre una respuesta, responde con 'no se te ocurre una respuesta'. \n";
-        if (data.success) {
+        if (data?.success) {
           context.push({
             role: "tool",
             content: JSON.stringify(data?.data),

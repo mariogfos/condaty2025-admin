@@ -48,10 +48,8 @@ const VotersListModal: React.FC<VotersListModalProps> = ({
       const { data: response } = await execute(url, "GET");
       setLoaded(true);
 
-      if (response.success) {
-        // console.error("[VotersListModal] API error:", error);
-        console.log(response.data);
-        setVoters(response.data.voters || response.data?.data?.voters || []);
+      if (response?.success) {
+        setVoters(response.data?.voters || response.data?.data?.voters || []);
       } else {
         setVoters([]);
       }

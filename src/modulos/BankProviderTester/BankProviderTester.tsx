@@ -28,7 +28,8 @@ interface HistoryItem {
   success: boolean;
   message: string;
   requestData?: Record<string, unknown>;
-  responseData?: Record<string, unknown>;
+  /** `null` cuando la petición falló y no hubo sobre que guardar. */
+  responseData?: Record<string, unknown> | null;
 }
 
 interface TokenData {
@@ -334,11 +335,12 @@ const BankProviderTester: React.FC = () => {
     setConfigLoading(true);
     setConfigError(null);
     try {
-      const result = await execute("/v3/bank-qr/config", "GET", null);
+      const result = await execute("/v3/bank-qr/config", "GET");
       if (result.error) {
         setConfigError(result.error.data?.message || "Failed to load config");
       } else {
-        setQrConfig(result.data);
+        // El sobre trae la configuración en `data`, no en la raíz.
+        setQrConfig(result.data?.data ?? null);
       }
     } catch (err: any) {
       setConfigError(err?.message || "Unknown error loading config");
@@ -362,7 +364,9 @@ const BankProviderTester: React.FC = () => {
     success: boolean,
     message: string,
     request?: Record<string, unknown>,
-    response?: Record<string, unknown>,
+    // `execute` devuelve el sobre, que puede venir en `null` si la petición
+    // falló. Antes era `Record<string, unknown> | undefined` y no lo contemplaba.
+    response?: Record<string, unknown> | null,
   ) => {
     const newItem: HistoryItem = {
       id: Date.now().toString(),

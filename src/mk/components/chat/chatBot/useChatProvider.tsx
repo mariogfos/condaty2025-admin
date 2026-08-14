@@ -41,10 +41,12 @@ export function useChatProvider({ provider, context }: UseChatProviderOptions) {
         context: context ?? "",
         provider: provider || "chatgpt",
       });
-      if (data.success === true) {
+      if (data?.success === true) {
         response = data.data;
       } else {
-        setError(error);
+        // `error` es el fallo de transporte y puede ser `null` —el rechazo de
+        // negocio llega con 200—, así que se guarda su mensaje, no el objeto.
+        setError(error?.message ?? null);
         response = "No se pudo responder la pregunta, intenta mas tarde";
       }
     } catch (err: any) {

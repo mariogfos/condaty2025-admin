@@ -9,7 +9,7 @@ import {
   useRef,
   useMemo,
 } from "react";
-import useAxios from "../useAxios";
+import useAxios, { type MethodType } from "../useAxios";
 import { capitalize, getUrlImages } from "../../utils/string";
 import { useAuth } from "../../contexts/AuthProvider";
 import {
@@ -936,7 +936,7 @@ const useCrud = ({
       }
 
       const url = "/" + mod.modulo + (data.id ? "/" + data.id : "");
-      let method = "POST";
+      let method: MethodType = "POST";
       if (data.id) {
         method = "PUT";
         if (action == "del") {

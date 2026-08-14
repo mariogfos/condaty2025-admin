@@ -22,8 +22,11 @@ const RenderView = ({ order, onClose, onCancel }: Props) => {
 
   const handleCancel = async () => {
     if (!confirm('¿Confirmas la anulación de este QR?')) return;
-    const res = await doCancel(`qr-dynamic/orders/${order.id}/cancel`, 'POST');
-    if (res?.success) onCancel();
+    // El sobre del API viene dentro de `data`. Leyendo `res.success` esto era
+    // siempre `undefined`: el QR se anulaba en el servidor y la pantalla no se
+    // enteraba nunca.
+    const { data: sobre } = await doCancel(`qr-dynamic/orders/${order.id}/cancel`, 'POST');
+    if (sobre?.success) onCancel();
   };
 
   const handlePrint = () => {
