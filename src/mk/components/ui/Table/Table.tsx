@@ -344,6 +344,123 @@ const getResolvedFillIndex = (header: NonNullable<PropsType["header"]>) => {
   return firstFlexible?.index ?? -1;
 };
 
+
+/**
+ * Una fila de la tabla, memoizada.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * 🔴 POR QUÉ ES UN COMPONENTE Y NO SIGUE INLINE
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
+ * Estaba escrita dentro del `.map()` de `Table`, así que **no había nada que
+ * memoizar**: cada render de la tabla rehacía todas las celdas de todas las
+ * filas cargadas, aunque no hubiera cambiado ninguna.
+ *
+ * Con scroll infinito eso escala mal, porque el costo crece con el total ya
+ * cargado. Medido el 2026-08-13 (`__tests__/tablaEscalaAlCargarMas.test.tsx`),
+ * agregando un lote de 40 filas:
+ *
+ *   40 filas cargadas   →   240 celdas
+ *   200 filas cargadas  →   720 celdas
+ *   1.000 filas cargadas → 3.120 celdas   ← deberían ser 120 en los tres casos
+ *
+ * Una sesión que carga 1.000 filas en 25 lotes hacía ~40.000 renders de celda en
+ * vez de ~3.000. No se veía como un bug —la lista muestra lo correcto—, se veía
+ * como que la app va pesada cuando hay muchos datos.
+ *
+ * ⚠️ Esto sólo sirve si `header` y los handlers mantienen su identidad entre
+ * renders. `mergeRowsById` de `useCrud` ya conserva el objeto de cada fila ya
+ * cargada, así que `row` sí es estable.
+ */
+const Row = memo(function Row({
+  row,
+  index,
+  header,
+  extraData,
+  manualWidths,
+  measuredWidths,
+  fillColumnIndex,
+  actionsWidth,
+  onButtonActions,
+  activo,
+  onRowClick,
+  onContextMenu,
+}: {
+  row: Record<string, any>;
+  index: number;
+  header: any[];
+  extraData: any;
+  manualWidths: any;
+  measuredWidths: any;
+  fillColumnIndex: number;
+  actionsWidth: any;
+  onButtonActions: any;
+  activo: boolean;
+  onRowClick: (row: any) => void;
+  onContextMenu: (event: any, row: any, index: number) => void;
+}) {
+  return (
+    <div
+      className={activo ? styles.contextMenuActiveRow : ""}
+      onClick={() => onRowClick(row)}
+      onContextMenu={(event) => onContextMenu(event, row, index)}
+    >
+      {header.map((item: any, i: number) => {
+        if (item.onHide?.()) {
+          return null;
+        }
+
+        const ignoreTranslation = shouldIgnoreValueTranslationContext({
+          label: item.label,
+          key: item.key,
+        });
+
+        return (
+          <span
+            key={item.key + i}
+            data-col-index={i}
+            className={[
+              styles[item.responsive],
+              item.className,
+              isAmountColumn(item) ? styles.amountCell : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            style={{
+              ...item.style,
+              ...getColumnWidthStyle({
+                item,
+                manualWidth: manualWidths[i],
+                measuredWidth: measuredWidths?.[i],
+                preferFill: i === fillColumnIndex,
+              }),
+            }}
+            data-i18n-ignore={ignoreTranslation ? "true" : undefined}
+          >
+            {item.onRender &&
+              item.onRender?.({
+                value: row[item.key],
+                key: item.key,
+                item: row,
+                i: index + 1,
+                extraData,
+              })}
+            {!item.onRender && row[item.key]}
+          </span>
+        );
+      })}
+      {onButtonActions && (
+        <span
+          className={styles.onlyDesktop}
+          style={{ ...getActionsWidthStyle(actionsWidth) }}
+        >
+          {onButtonActions(row)}
+        </span>
+      )}
+    </div>
+  );
+});
+
 const Table = ({
   header = [],
   id = "0",
@@ -953,7 +1070,10 @@ const Body = ({
     }
   }, []);
 
-  const _onRowClick = (e: any) => {
+  // Memoizada porque baja como prop a cada fila: como función suelta, su
+  // identidad nueva por render invalidaba el memo de TODAS las filas y la
+  // extracción del componente `Row` no servía de nada.
+  const _onRowClick = useCallback((e: any) => {
     closeContextMenu();
     if (onRowClick) {
       // const scrollTop = divRef?.current?.scrollTop;
@@ -962,7 +1082,7 @@ const Body = ({
       // }
       onRowClick(e);
     }
-  };
+  }, [closeContextMenu, onRowClick]);
 
   const resolveScrollContainer = useCallback(() => {
     if (height) return divRef.current as HTMLElement;
@@ -1195,71 +1315,20 @@ const Body = ({
             ) : onRenderCard ? (
               onRenderCard(row, index, onRowClick)
             ) : (
-              <div
-                key={"row" + index}
-                className={
-                  contextMenuState?.rowIndex === index
-                    ? styles.contextMenuActiveRow
-                    : ""
-                }
-                onClick={() => _onRowClick(row)}
-                onContextMenu={(event) =>
-                  handleRowContextMenu(event, row, index)
-                }
-              >
-                {header.map((item: any, i: number) => {
-                  if (item.onHide?.()) {
-                    return null;
-                  }
-
-                  const ignoreTranslation = shouldIgnoreValueTranslationContext({
-                    label: item.label,
-                    key: item.key,
-                  });
-
-                  return (
-                    <span
-                      key={item.key + i}
-                      data-col-index={i}
-                      className={[
-                        styles[item.responsive],
-                        item.className,
-                        isAmountColumn(item) ? styles.amountCell : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                      style={{
-                        ...item.style,
-                        ...getColumnWidthStyle({
-                          item,
-                          manualWidth: manualWidths[i],
-                          measuredWidth: measuredWidths?.[i],
-                          preferFill: i === fillColumnIndex,
-                        }),
-                      }}
-                      data-i18n-ignore={ignoreTranslation ? "true" : undefined}
-                    >
-                      {item.onRender &&
-                        item.onRender?.({
-                          value: row[item.key],
-                          key: item.key,
-                          item: row,
-                          i: index + 1,
-                          extraData,
-                        })}
-                      {!item.onRender && row[item.key]}
-                    </span>
-                  );
-                })}
-                {onButtonActions && (
-                  <span
-                    className={styles.onlyDesktop}
-                    style={{ ...getActionsWidthStyle(actionsWidth) }}
-                  >
-                    {onButtonActions(row)}
-                  </span>
-                )}
-              </div>
+              <Row
+                row={row}
+                index={index}
+                header={header}
+                extraData={extraData}
+                manualWidths={manualWidths}
+                measuredWidths={measuredWidths}
+                fillColumnIndex={fillColumnIndex}
+                actionsWidth={actionsWidth}
+                onButtonActions={onButtonActions}
+                activo={contextMenuState?.rowIndex === index}
+                onRowClick={_onRowClick}
+                onContextMenu={handleRowContextMenu}
+              />
             )}
           </Fragment>
       ))}

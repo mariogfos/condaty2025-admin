@@ -5,33 +5,34 @@ import React from "react";
 /**
  * Cuánto cuesta un "cargar más" cuando ya hay filas en pantalla.
  *
- * ## 🔴 Lo medido el 2026-08-13
+ * ## 🔴 El problema, medido el 2026-08-13
  *
- * `Table` dibuja cada fila y cada celda dentro de un `.map()` en su propio
- * cuerpo. No hay componente de fila, así que **no hay nada que memoizar**: cada
- * vez que `Table` se renderiza, se rehacen TODAS las celdas de TODAS las filas
- * cargadas, aunque el 97% no haya cambiado.
+ * `Table` dibujaba cada fila y cada celda dentro de un `.map()` en su propio
+ * cuerpo. No había componente de fila, así que **no había nada que memoizar**:
+ * cada render rehacía todas las celdas de todas las filas cargadas, aunque no
+ * hubiera cambiado ninguna.
  *
- * Con scroll infinito eso escala mal. Medido con este mismo test:
+ * Con scroll infinito escalaba mal, porque el costo crecía con el total:
  *
- * | filas cargadas | celdas al agregar un lote de 40 |
- * |---|---|
- * | 40    | 240   |
- * | 200   | 720   |
- * | 1.000 | **3.120** |
+ * | filas cargadas | celdas al agregar un lote de 40 | hoy |
+ * |---|---|---|
+ * | 40    | 240       | 120 |
+ * | 200   | 720       | 120 |
+ * | 1.000 | **3.120** | 120 |
  *
- * Debería ser 120 en los tres casos: sólo las 40 filas nuevas × 3 columnas. El
- * costo crece con el total, así que una sesión de scroll que carga 1.000 filas
- * en 25 lotes hace ~40.000 renders de celda en vez de ~3.000.
+ * Una sesión que cargaba 1.000 filas en 25 lotes hacía ~40.000 renders de celda
+ * en vez de ~3.000. No se veía como un bug —la lista muestra lo correcto—, se
+ * veía como que la app va pesada cuando hay muchos datos.
  *
- * No se ve como un bug: la lista muestra lo correcto. Se ve como que "la app va
- * pesada cuando hay muchos datos".
+ * Arreglado extrayendo `Row` como componente memoizado y estabilizando las props
+ * que le bajan.
  *
- * ## Qué fija este test
+ * ## Qué cuida este test
  *
- * El número de HOY, para que el día que se memoice la fila esto se ponga rojo y
- * haya que bajarlo a propósito, con la mejora medida al lado. Es un termómetro,
- * no una prohibición: si sube, alguien empeoró el escalado sin darse cuenta.
+ * Que el número **no vuelva a crecer con el total**. Alcanza con que una prop de
+ * la fila —`header`, `onRowClick`, `onContextMenu`, `extraData`— vuelva a
+ * cambiar de identidad en cada render para que el memo deje de pegar y nadie se
+ * entere: la lista sigue mostrando lo correcto, sólo que otra vez lenta.
  *
  * ⚠️ Cuenta llamadas a `onRender` de cada columna, no nodos del DOM: lo que
  * importa es el trabajo de React, no cuántos `<span>` quedaron.
@@ -79,41 +80,53 @@ const armarHeader = (contador: { n: number }) =>
     },
   }));
 
+/**
+ * ⚠️ Las filas ya cargadas CONSERVAN su objeto; sólo se agregan las nuevas.
+ *
+ * Es lo que hace `mergeRowsById` de `useCrud` en un "cargar más": las páginas
+ * que llegan traen ids nuevos, así que las filas viejas nunca se reemplazan.
+ *
+ * La primera versión de este test recreaba TODAS las filas en cada lote, y con
+ * eso el memo de la fila no puede pegar nunca: medía un escenario que la app no
+ * produce, y hacía parecer que memoizar no servía de nada.
+ */
 const celdasAlAgregarUnLote = (yaCargadas: number) => {
   const contador = { n: 0 };
   const header = armarHeader(contador);
 
-  const { rerender } = render(<Table header={header} data={filas(yaCargadas)} />);
+  const cargadas = filas(yaCargadas);
+  const { rerender } = render(<Table header={header} data={cargadas} />);
 
   contador.n = 0;
-  rerender(<Table header={header} data={filas(yaCargadas + LOTE)} />);
+  const conElLoteNuevo = [...cargadas, ...filas(LOTE).map((f, i) => ({ ...f, id: `nueva${i}` }))];
+  rerender(<Table header={header} data={conElLoteNuevo} />);
 
   return contador.n;
 };
 
 describe("Table: qué cuesta un 'cargar más'", () => {
-  it("hoy re-renderiza TODAS las filas cargadas, no sólo el lote nuevo", () => {
+  it("cuesta lo mismo con 40 filas cargadas que con 1.000", () => {
     const conPocas = celdasAlAgregarUnLote(40);
     const conMuchas = celdasAlAgregarUnLote(1000);
 
-    // El ideal sería que las dos dieran lo mismo: sólo el lote nuevo.
-    const ideal = LOTE * 3;
-
-    expect(conPocas).toBeGreaterThan(ideal);
-    expect(conMuchas).toBeGreaterThan(ideal);
-
-    // 🔴 El costo crece con el total ya cargado. Esto es lo que hay que romper
-    // el día que se memoice la fila.
     expect(
-      conMuchas / conPocas,
-      `Con 1.000 filas cargadas, agregar 40 costó ${conMuchas} celdas; con 40 cargadas costó ${conPocas}. ` +
-        "Si esta proporción bajó a ~1, alguien memoizó la fila: bajá los números de este test y dejá la mejora medida en el docblock.",
-    ).toBeGreaterThan(5);
+      conMuchas,
+      `Agregar un lote de 40 sobre 1.000 filas costó ${conMuchas} celdas y sobre 40 filas costó ${conPocas}. ` +
+        "Si el número creció con el total, el memo de `Row` dejó de pegar: casi seguro alguna prop que baja a la fila " +
+        "(`header`, `onRowClick`, `onContextMenu`, `extraData`) volvió a cambiar de identidad en cada render.",
+    ).toBe(conPocas);
   });
 
-  it("deja anotado el número exacto de hoy, para comparar cuando se mejore", () => {
-    expect(celdasAlAgregarUnLote(40)).toBe(240);
-    expect(celdasAlAgregarUnLote(200)).toBe(720);
-    expect(celdasAlAgregarUnLote(1000)).toBe(3120);
+  it("sólo re-renderiza el lote nuevo, no lo que ya estaba", () => {
+    // 🔴 Los números de antes de memoizar la fila (medidos el 2026-08-13):
+    //      40 cargadas   →   240
+    //      200 cargadas  →   720
+    //      1.000 cargadas → 3.120
+    //    Crecían con el total. Ahora son constantes: sólo el lote nuevo.
+    const soloElLoteNuevo = LOTE * 3;
+
+    expect(celdasAlAgregarUnLote(40)).toBe(soloElLoteNuevo);
+    expect(celdasAlAgregarUnLote(200)).toBe(soloElLoteNuevo);
+    expect(celdasAlAgregarUnLote(1000)).toBe(soloElLoteNuevo);
   });
 });
