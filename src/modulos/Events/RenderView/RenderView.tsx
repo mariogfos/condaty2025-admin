@@ -21,7 +21,7 @@ import {
   getDateStrMes,
   getDateTimeStrMes,
   getUTCNow,
-  getNow,
+  getNowDate,
 } from "@/mk/utils/date";
 import StatsCard from "@/mk/components/ui/StatsCard/StatsCard";
 import EventStatsCard from "@/mk/components/ui/EventsStatsCard/EventStatsCards";
@@ -41,7 +41,7 @@ const RenderView = (props: {
 
   // CDT-43: el dia de HOY es el LOCAL (Bolivia UTC-4). Desplazar el reloj a UTC
   // adelantaba un dia entre las 20:00 y la medianoche.
-  const hoy: any = new Date(getNow());
+  const hoy: any = getNowDate();
 
   const [sexGraphData, setSexGraphData] = useState<any>({
     labels: [],

@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Button from "@/mk/components/forms/Button/Button";
-import { getDateTimeStrMes, getNow } from "@/mk/utils/date";
+import { getDateTimeStrMes, getNowDate } from "@/mk/utils/date";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import SurveyQuestionTypePanel from "../SurveyQuestionTypePanel/SurveyQuestionTypePanel";
@@ -102,7 +102,7 @@ const RenderForm = ({
   const disabled = () => {
     // CDT-43: el dia de HOY es el LOCAL (Bolivia UTC-4). Desplazar el reloj a UTC
     // adelantaba un dia entre las 20:00 y la medianoche.
-    const hoy: any = new Date(getNow());
+    const hoy: any = getNowDate();
     return item?.scheduled_at && new Date(item?.scheduled_at) <= hoy;
   };
 

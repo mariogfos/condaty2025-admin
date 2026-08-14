@@ -446,6 +446,18 @@ export const getNow = (): string => {
   // return new Date().toISOString().substring(0, 10);
 };
 
+/**
+ * La MEDIANOCHE LOCAL del día de hoy, como `Date`.
+ *
+ * 🔴 No usar `new Date(getNow())`. Un `"YYYY-MM-DD"` pelado se parsea como
+ * medianoche **UTC**, o sea las 20:00 del día ANTERIOR en Bolivia: queda
+ * corrido 4 horas las 24 horas del día, peor que el bug que se quería
+ * arreglar. La `T00:00:00` **sin `Z`** es la que fuerza el parseo local.
+ * Medido en la review de CDT-43, donde ese `new Date(getNow())` entró como
+ * regresión en Events y Surveys.
+ */
+export const getNowDate = (): Date => new Date(`${getNow()}T00:00:00`);
+
 export const getDateDesdeHasta = (date: any, locale?: AppLocale) => {
   const fechaActual = new Date();
   //convertir fechaActual a hora local

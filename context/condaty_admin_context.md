@@ -719,6 +719,10 @@ const fields: Record<string, FieldConfig> = {
   en **UTC** y en Bolivia (UTC-4) adelanta un día entre las 20:00 y la
   medianoche — CDT-36 y CDT-43. Para un **instante** (`created_at`, chat,
   cronómetros) `toISOString()` sí es lo correcto.
+  🔴 Si necesitás un `Date` y no un string, usá `getNowDate()`. **Nunca
+  `new Date(getNow())`**: un `"YYYY-MM-DD"` pelado se parsea como medianoche
+  UTC, o sea las 20:00 del día ANTERIOR en Bolivia — corrido 4 horas las 24
+  horas del día.
 - **numbers.tsx**: Formateo de números y monedas
 - **string.tsx**: Manipulación de strings
 - **images.tsx**: Procesamiento de imágenes

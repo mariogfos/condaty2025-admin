@@ -24,6 +24,7 @@ import {
   validDateLess,
 } from "@/components/validators/rulesApp";
 import { DebtStatus } from "@/types/PaymentType";
+import { getNow, getNowDate } from "@/mk/utils/date";
 
 vi.mock("@/mk/contexts/AuthProvider", () => ({
   useAuth: () => ({ showToast: vi.fn() }),
@@ -124,6 +125,38 @@ describe("CDT-43 · el día de HOY es el LOCAL, no el UTC", () => {
       expect(getStatusConfig(DebtStatus.PENDING, "2026-08-13")).toEqual(
         DEBT_STATUS_CONFIG[DebtStatus.OVERDUE],
       );
+    });
+  });
+
+  describe("getNowDate — la MEDIANOCHE LOCAL, no la UTC", () => {
+    // Regresión encontrada en la review: `new Date(getNow())` parsea el
+    // "YYYY-MM-DD" pelado como medianoche UTC, o sea las 20:00 del día
+    // ANTERIOR en Bolivia. Queda corrido 4 horas las 24 horas del día — peor
+    // que el bug original, que sólo fallaba de 20:00 a medianoche.
+    it("22:30 del 14: es el 14 a las 00:00 locales", () => {
+      anclarLaFranja(LA_NOCHE_DEL_14);
+
+      const hoy = getNowDate();
+
+      expect(hoy.getFullYear()).toBe(2026);
+      expect(hoy.getMonth()).toBe(7); // agosto
+      expect(hoy.getDate()).toBe(14);
+      expect(hoy.getHours()).toBe(0);
+      expect(hoy.getTime()).toBe(new Date(2026, 7, 14).getTime());
+
+      // El anti-ejemplo: así se veía la regresión.
+      expect(new Date(getNow()).getDate()).toBe(13);
+      expect(new Date(getNow()).getHours()).toBe(20);
+    });
+
+    it("mediodía del 14: sigue siendo el 14 a las 00:00 locales", () => {
+      anclarLaFranja(EL_MEDIODIA_DEL_14);
+
+      const hoy = getNowDate();
+
+      expect(hoy.getDate()).toBe(14);
+      expect(hoy.getHours()).toBe(0);
+      expect(hoy.getTime()).toBe(new Date(2026, 7, 14).getTime());
     });
   });
 
