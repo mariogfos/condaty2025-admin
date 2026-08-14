@@ -16,6 +16,7 @@ import {
   MONTHS_ES,
   formatToDayDDMMYYYY,
   formatToDayFdMYH,
+  getNow,
 } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
 import { getTitular } from "@/mk/utils/adapters";
@@ -335,7 +336,10 @@ const RenderView: React.FC<RenderViewProps> = ({
     const owner_id = titular?.id;
 
     return {
-      paid_at: new Date().toISOString().split("T")[0],
+      // Fecha LOCAL (Bolivia, UTC-4). Con toISOString() el cobro desde el
+      // detalle de deuda abría precargado con la fecha de mañana después de
+      // las 20:00.
+      paid_at: getNow(),
       dpto_id: debtDetail?.dpto?.nro,
       category_id: finalCategoryId,
       subcategory_id: subcategoryId,
