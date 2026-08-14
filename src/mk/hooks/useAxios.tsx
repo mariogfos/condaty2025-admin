@@ -11,29 +11,113 @@ import {
 import { AxiosContext } from "../contexts/AxiosInstanceProvider";
 import { logError } from "../utils/logs";
 
-export type MethodType = "GET" | "POST" | "PUT" | "DELETE";
+/**
+ * ⚠️ `PATCH` faltaba, y no era un olvido inocuo: el API tiene rutas `patch`
+ * —`assemblies/{assembly}/status`, `tasks/{task}/status`, `tasks/{task}/assign`—
+ * y el front ya las llamaba. Como `execute` estaba tipada `Function`, nadie se
+ * enteraba de que el tipo no contemplaba el verbo que el código usa.
+ */
+export type MethodType = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
-export type UseAxiosType = {
-  countAxios: number;
-  cancel: Function;
+/**
+ * El sobre que devuelve el API en TODA respuesta.
+ *
+ * ⚠️ La firma es abierta a propósito (`[key: string]: any`). El sobre real trae
+ * cuatro claves fijas —`success`, `data`, `message`, `errors`— y cada módulo le
+ * agrega las suyas: `extraData` aparece en 34 lugares, y hay listados que suman
+ * `total` o campos propios. Cerrarlo hoy rompería esos accesos sin haber ganado
+ * nada: lo que importa es que las cuatro fijas **dejen de ser `any`**.
+ *
+ * 🔴 `success` es lo que más se lee mal. El API responde los rechazos de negocio
+ * con **HTTP 200 y `success: false`**, así que un `try/catch` no los ve: hay que
+ * mirar esta clave. De 168 llamadas del repo, sólo 44 lo hacían.
+ */
+export type ApiEnvelope<T = any> = {
+  success?: boolean;
+  data?: T;
+  message?: any;
+  errors?: any;
+  [key: string]: any;
+};
+
+/** Lo que devuelve `execute` cuando la petición NO llegó a completarse. */
+export type ApiError = {
+  message: string;
+  status: number;
   data: any;
-  error: any;
+};
+
+/**
+ * El par que devuelve `execute`: uno de los dos viene en null.
+ *
+ * ⚠️ `error` acá es sólo el fallo de transporte (red caída, 500, timeout). Un
+ * rechazo de negocio llega con `error === null` y `data.success === false`.
+ */
+export type ExecuteResult<T = any> = {
+  data: ApiEnvelope<T> | null;
+  error: ApiError | null;
+};
+
+/**
+ * 🔴 Antes era `Function`, que en TypeScript no verifica NADA: ni cuántos
+ * argumentos recibe, ni de qué tipo, ni qué devuelve. Con cinco parámetros
+ * posicionales —tres de ellos opcionales y dos booleanos seguidos— era la firma
+ * más fácil de invocar mal de todo el repo, y el compilador miraba para otro
+ * lado.
+ */
+export type ExecuteFn<T = any> = (
+  url?: string | null,
+  method?: MethodType,
+  payload?: Record<string, any>,
+  /** Si además de devolver la respuesta la guarda en el estado del hook. */
+  saveInState?: boolean,
+  notWaiting?: boolean,
+) => Promise<ExecuteResult<T>>;
+
+export type ReLoadFn = (
+  payload?: Record<string, any> | null,
+  noWaiting?: boolean,
+  /** Si es `true`, no hace nada hasta que haya corrido la primera petición. */
+  prevent?: boolean,
+) => Promise<void>;
+
+/** Suma o resta al contador global de peticiones en vuelo. */
+export type SetWaitingFn = (delta: number, origen?: string) => void;
+
+export type UseAxiosType<T = any> = {
+  countAxios: number;
+  cancel: () => void;
+  /**
+   * El sobre de la última respuesta, o `null` mientras no haya ninguna.
+   *
+   * ⚠️ Arranca en `[]` —no en `null`— cuando el hook se crea con `url: null`.
+   * Es de la implementación vieja y NO se cambió acá: hay 83 llamadas y varias
+   * podrían estar leyendo `.length` sobre eso. Cambiarlo es su propio PR, con
+   * la medición hecha.
+   */
+  data: ApiEnvelope<T> | null;
+  error: ApiError | "";
   loaded: boolean;
-  execute: Function;
-  reLoad: Function;
+  execute: ExecuteFn<T>;
+  reLoad: ReLoadFn;
   waiting: number;
-  setWaiting: Function;
+  setWaiting: SetWaitingFn;
   notWaiting?: boolean;
 };
 
-const useAxios = (
+/**
+ * @typeParam T - Qué hay adentro de `data.data`. Por omisión es `any`, así que
+ * las 83 llamadas que ya existen siguen compilando igual. Un módulo que quiera
+ * chequeo real lo pide: `useAxios<Reserva[]>("/reservations")`.
+ */
+const useAxios = <T = any,>(
   url: string | null = null,
   method: MethodType = "GET",
-  payload: object = {},
+  payload: Record<string, any> = {},
   noWaiting = false,
-): UseAxiosType => {
-  const [data, setData] = useState<any>(null);
-  const [error, setError]: any = useState("");
+): UseAxiosType<T> => {
+  const [data, setData] = useState<ApiEnvelope<T> | null>(null);
+  const [error, setError] = useState<ApiError | "">("");
   const [loaded, setLoaded] = useState(false);
   const [countAxios, setCountAxios] = useState(0);
   const { contextInstance, waiting, setWaiting }: any =
@@ -77,13 +161,13 @@ const useAxios = (
    * Depende solo de cosas que casi nunca cambian. Todo lo inestable
    * —`setWaiting`, `payload`— entra por ref.
    */
-  const execute: any = useCallback(async (
+  const execute: ExecuteFn<T> = useCallback(async (
     _url: string | null = url,
     _method: MethodType = method,
-    payload: any = {},
+    payload: Record<string, any> = {},
     Act: boolean = false,
     notWaiting = false,
-  ) => {
+  ): Promise<ExecuteResult<T>> => {
     setError("");
     if (!notWaiting) {
       setLoaded(false);
@@ -99,8 +183,8 @@ const useAxios = (
       _url = _url + "?" + new URLSearchParams(payload).toString();
     }
 
-    let data = null;
-    let error: null | { message: string; status: number; data: any } = null;
+    let data: ApiEnvelope<T> | null = null;
+    let error: ApiError | null = null;
 
     try {
       const response = await instance?.request({
@@ -148,8 +232,12 @@ const useAxios = (
   // de dependencias, `execute` se lee durante el render, y leerlo antes de su
   // declaracion es un ReferenceError por la zona muerta temporal. Como
   // funcion suelta no se notaba, porque recien se resolvia al llamarla.
-  const reLoad = useCallback(
-    async (_payload: any = null, noWaiting = false, prevent = false) => {
+  const reLoad: ReLoadFn = useCallback(
+    async (
+      _payload: Record<string, any> | null = null,
+      noWaiting = false,
+      prevent = false,
+    ) => {
       if (prevent && countAxiosRef.current == 0) return;
       const pay = {
         ...payloadRef.current,

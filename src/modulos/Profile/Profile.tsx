@@ -122,7 +122,10 @@ const Profile = () => {
       setOpenProfileModal(false);
     } else {
       console.error("error:", err);
-      setErrors(err.data?.errors);
+      // Mismo caso que en `EditProfile`: en un rechazo de validación el API
+      // responde 200 con `success: false`, así que `err` es `null` y esto
+      // reventaba en vez de mostrar qué campo está mal.
+      setErrors(err?.data?.errors ?? data?.errors);
     }
   };
 

@@ -5,6 +5,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
+import type { MethodType } from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getFullName } from "@/mk/utils/string";
 import useAxios from "@/mk/hooks/useAxios";
@@ -131,7 +132,7 @@ const RenderForm = ({
   };
 
   const onSave = async () => {
-    let method = formState.id ? "PUT" : "POST";
+    const method: MethodType = formState.id ? "PUT" : "POST";
     if (hasErrors(validate())) return;
 
     // Preparar los campos adicionales habilitados en el formato requerido

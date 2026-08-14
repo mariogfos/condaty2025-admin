@@ -9,10 +9,14 @@ const Conciliation = () => {
   const [data, setData] = useState<ConciliationData | null>(null);
   const [selectedClients, setSelectedClients] = useState<Record<string, boolean>>({});
 
+  // 🔴 `execute` devuelve `{ data, error }`, y el sobre del API viene ADENTRO de
+  // `data`. Esto leía `res.success` y `res.data` —un nivel de más arriba—, así
+  // que `res.success` era SIEMPRE `undefined` y la pantalla no cargaba nunca.
+  // Lo tapaba `execute: Function`, que en TypeScript no verifica nada.
   const loadData = async () => {
-    const res = await execute('v3/qr-dynamic/conciliation/summary', 'GET');
-    if (res?.success) {
-      setData(res.data);
+    const { data: sobre } = await execute('v3/qr-dynamic/conciliation/summary', 'GET');
+    if (sobre?.success) {
+      setData(sobre.data);
     }
   };
 
@@ -49,15 +53,18 @@ const Conciliation = () => {
       return;
     }
 
-    const res = await execute('v3/qr-dynamic/conciliation/mark-deposited', 'POST', {
+    // Mismo error que en `loadData`: se leía un nivel más arriba del sobre. Acá
+    // el efecto era peor —conciliaba bien y avisaba "Error al conciliar"—,
+    // porque el `else` era la única rama alcanzable.
+    const { data: sobre } = await execute('v3/qr-dynamic/conciliation/mark-deposited', 'POST', {
       order_ids: orderIdsToConciliate
     });
 
-    if (res?.success) {
+    if (sobre?.success) {
       setSelectedClients({});
       loadData();
     } else {
-      alert(res?.message || 'Error al conciliar');
+      alert(sobre?.message || 'Error al conciliar');
     }
   };
 

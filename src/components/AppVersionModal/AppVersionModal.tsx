@@ -70,18 +70,19 @@ export const AppVersionModal: React.FC = () => {
     setSaving(true);
     try {
       const payload = { ...form };
-      console.log('AppVersion PUT payload', payload);
-      // include token fallback header in case interceptors haven't attached token yet
-      let axiosConfig: any = {};
-      try {
-        const apiToken = JSON.parse(
-          (localStorage.getItem((process.env.NEXT_PUBLIC_AUTH_IAM as string) + 'token') as string) || 'null'
-        )?.token;
-        if (apiToken) axiosConfig = { headers: { Authorization: 'Bearer ' + apiToken } };
-      } catch (e) {
-        axiosConfig = {};
-      }
-      const res: any = await execute('/app-version', 'PUT', payload, false, false, axiosConfig);
+
+      // 🔴 Acá había un bloque que armaba `axiosConfig` con el header
+      // `Authorization` y lo pasaba como SEXTO argumento de `execute` — que
+      // recibe CINCO. El argumento se descartaba: el header nunca viajó.
+      //
+      // Y tampoco hacía falta. El interceptor de peticiones
+      // (`mk/interceptors/axiosInterceptors.tsx`) lee la misma clave del
+      // localStorage y pone el mismo header en TODAS las peticiones. Era una
+      // copia del interceptor, muerta por partida doble.
+      //
+      // Lo destapó tipar `execute`: como estaba declarada `Function`,
+      // TypeScript aceptaba cualquier cantidad de argumentos sin chistar.
+      const res = await execute('/app-version', 'PUT', payload, false, false);
       if (res.error) {
         console.error('AppVersion PUT error', res.error);
         const detail = res.error.data || res.error.message || JSON.stringify(res.error);

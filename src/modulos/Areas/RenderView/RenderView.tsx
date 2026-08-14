@@ -113,7 +113,7 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
       showToast(data.msg, "success");
       setOpenConfirm(false);
     } else {
-      showToast(data.msg, "error");
+      showToast(data?.msg, "error");
     }
   };
 
