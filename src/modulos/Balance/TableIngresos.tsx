@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TableFinance from "./TableFinance/TableFinance";
+import { idCategoriaPadre } from "./categoriaPadre";
 interface CategoriaPrincipal {
   id: string | number;
   name: string;
@@ -69,26 +70,14 @@ const TableIngresos = ({
       });
     });
     subcategorias?.forEach((itemIngreso: ItemIngreso) => {
-      let parentCategoryInProcessedData: FormattedCategoryData | undefined;
-      if (itemIngreso.category_id !== null) {
-        parentCategoryInProcessedData = processedData.find(
-          (cat) => cat.id == itemIngreso.category_id
-        );
-      } else {
-        parentCategoryInProcessedData = processedData.find(
-          (cat) => cat.id == itemIngreso.categ_id
-        );
-      }
+      const idPadre = idCategoriaPadre(itemIngreso);
+      const parentCategoryInProcessedData = processedData.find(
+        (cat) => cat.id == idPadre
+      );
       if (!parentCategoryInProcessedData) {
-        if (itemIngreso.category_id !== null) {
-          console.warn(
-            `INGRESOS: Categoría padre (vía category_id ${itemIngreso.category_id}) no encontrada en la lista de categorías principales para el item ${itemIngreso.name} (ID del item: ${itemIngreso.categ_id})`
-          );
-        } else {
-          console.warn(
-            `INGRESOS: Categoría principal (vía categ_id ${itemIngreso.categ_id}) no encontrada en la lista de categorías principales para el item directo ${itemIngreso.name}`
-          );
-        }
+        console.warn(
+          `INGRESOS: Categoría padre ${idPadre} no encontrada en la lista de categorías principales para el item ${itemIngreso.name} (ID del item: ${itemIngreso.categ_id})`
+        );
         return;
       }
       const amount = parseFloat(itemIngreso.amount) || 0;
