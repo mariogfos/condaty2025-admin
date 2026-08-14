@@ -139,7 +139,12 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
 
     if (value === "ALL") {
       currentFilters[opt] = "ALL"; // Enviamos 'ALL' explícitamente // esto?
-    } else if (!value) {
+      // 🔴 Los tres valores explícitos y no `!value`: un estado que vale 0 es
+      // una opción elegida, no "sin filtro". Con el chequeo de verdad la clave
+      // se borraba y el back devolvía la lista SIN filtrar, sin ningún error
+      // (es lo que pasó en Egresos, CDT-38). Hoy ningún `DebtStatus` vale 0,
+      // pero el próximo enum que se agregue acá no tiene por qué saberlo.
+    } else if (value === "" || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
