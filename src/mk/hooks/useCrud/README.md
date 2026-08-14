@@ -328,8 +328,25 @@ const {
 
 ### With Custom Filter
 
+> 🔴 **"Sin filtro" son sólo `undefined`, `null` y `""`.** El hook serializa
+> `filterBy` a la cadena `campo:valor|campo:valor` descartando únicamente esos
+> tres valores, y el **cero es un valor legítimo**: hay estados que valen 0
+> (`ExpenseStatus.CANCELLED`, `PaymentStatus.CANCELLED`,
+> `BankAccountStatus.INACTIVE`, `BankEntityStatus.INACTIVE`). Un `getFilter`
+> propio que borre la clave con un chequeo de verdad (`if (!value) delete ...`)
+> hace que el back reciba la lista SIN filtrar, sin ningún error: la pantalla
+> muestra todos los estados y el usuario les cree (CDT-38, Egresos).
+>
+> `filterValue` puede llegar como número: es el `id` crudo de la opción del
+> `Select`, no una cadena.
+
 ```typescript
-const customFilter = (filterKey: string, filterValue: string, previousFilter: Record<string, any>) => {
+const customFilter = (filterKey: string, filterValue: string | number, previousFilter: Record<string, any>) => {
+  if (filterValue === "" || filterValue === null || filterValue === undefined) {
+    const { [filterKey]: _, ...resto } = previousFilter.filterBy || {};
+    return { filterBy: resto };
+  }
+
   return {
     filterBy: {
       ...previousFilter.filterBy,

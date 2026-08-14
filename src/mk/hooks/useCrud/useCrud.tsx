@@ -400,6 +400,24 @@ const CrudRendererHost = memo(
 CrudRendererHost.displayName = "CrudRendererHost";
 
 /**
+ * ¿Este valor de filtro hay que mandarlo al back?
+ *
+ * 🔴 "Sin filtro" son SÓLO tres valores: `undefined`, `null` y `""`. No es lo
+ * mismo que "falsy".
+ *
+ * El chequeo de verdad (`if (valor)`) descarta también el **cero legítimo**, y
+ * hay estados que valen 0: `ExpenseStatus.CANCELLED`, `PaymentStatus.CANCELLED`,
+ * `BankAccountStatus.INACTIVE`, `BankEntityStatus.INACTIVE`. Medido en Egresos
+ * (CDT-38): al elegir "Anulado" la clave `status` NUNCA entraba al `filterBy`,
+ * el back recibía la lista sin filtrar y la tabla seguía mostrando los pagados
+ * — sin ningún error, así que el usuario le cree.
+ *
+ * Misma familia que el `0 == ""` del `Select` compartido (CDT-30).
+ */
+const esValorDeFiltro = (valor: any): boolean =>
+  valor !== undefined && valor !== null && valor !== "";
+
+/**
  * El `filterBy` inicial de un módulo, en la forma que espera el back.
  *
  * Acepta el objeto legible (`{ in_at: "m" }`) y devuelve `"in_at:m"`. Si ya
@@ -411,7 +429,7 @@ const filtroInicialComoCadena = (filtro: any): string | null => {
   if (typeof filtro !== "object") return null;
 
   const partes = Object.entries(filtro)
-    .filter(([, valor]) => valor !== "" && valor !== null && valor !== undefined)
+    .filter(([, valor]) => esValorDeFiltro(valor))
     .map(([campo, valor]) => `${campo}:${valor}`);
 
   return partes.length ? partes.join("|") : null;
@@ -1126,7 +1144,8 @@ const useCrud = ({
     //iterar filterBy para quitar los vacios
     let fil: any = [];
     for (const key in filterBy.filterBy) {
-      if (filterBy.filterBy[key]) fil.push(key + ":" + filterBy.filterBy[key]);
+      const valor = filterBy.filterBy[key];
+      if (esValorDeFiltro(valor)) fil.push(key + ":" + valor);
     }
     fil = fil.join("|");
     // Always update filterBy: set to new value OR explicitly to undefined to clear old filters from params
@@ -1719,13 +1738,15 @@ const useCrud = ({
   const FilterResponsive = ({ filters, onChange, breakPoint }: any) => {
     const isBreak = useMediaQuery("(max-width: " + breakPoint + "px)");
 
+    // ⚠️ `esValorDeFiltro` y no un chequeo de verdad: un estado que vale 0
+    // ("Anulado") está tan seleccionado como cualquier otro y el borde tiene
+    // que pintarse igual.
     const getFilterInputStyle = (filterKey: string) => ({
       backgroundColor: "var(--controlSecondaryBg)",
       borderColor:
-        filterSel[filterKey] &&
-        filterSel[filterKey] != "" &&
-        filterSel[filterKey] != "T" &&
-        filterSel[filterKey] != "ALL"
+        esValorDeFiltro(filterSel[filterKey]) &&
+        String(filterSel[filterKey]) !== "T" &&
+        String(filterSel[filterKey]) !== "ALL"
           ? "var(--cPrimary)"
           : "var(--controlSecondaryBorder)",
       color: "var(--controlSecondaryText)",
@@ -1765,7 +1786,10 @@ const useCrud = ({
                   name={f.key + "_filter"}
                   onChange={onChange}
                   options={f.options || []}
-                  value={filterSel[f.key] || ""}
+                  // 🔴 `??` y no `||`: con `||`, un filtro elegido que vale 0
+                  // ("Anulado") se dibuja VACÍO y el usuario cree que no eligió
+                  // nada.
+                  value={filterSel[f.key] ?? ""}
                   optionLabel={f?.optionLabel}
                   optionValue={f?.optionValue}
                   error={false}
@@ -1793,7 +1817,8 @@ const useCrud = ({
                 name={f.key + "_filter"}
                 onChange={onChange}
                 options={f.options || []}
-                value={filterSel[f.key] || ""}
+                // 🔴 Mismo `??` que en `BreakFilter`: el 0 es un valor elegido.
+                value={filterSel[f.key] ?? ""}
                 optionLabel={f?.optionLabel}
                 optionValue={f?.optionValue}
                 inputStyle={getFilterInputStyle(f.key)}
