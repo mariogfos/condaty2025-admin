@@ -498,16 +498,44 @@ const useCrud = ({
     INFINITE_PREFETCH_ROWS,
     Math.round(Number(infiniteBatchSize || INFINITE_BATCH_SIZE) * 0.5),
   );
+  /**
+   * 🔴 `mod` y `params` se leen por REF, no por dependencia.
+   *
+   * Los módulos arman `mod` como objeto literal DENTRO del componente, así que
+   * es una identidad nueva en cada render. Medido el 2026-08-13 sobre los 40
+   * consumidores: 23 lo declaran adentro, y `fields` lo hace 35 de 40 —afuera,
+   * CERO—. Con `mod` en las dependencias, este `useCallback` se recreaba en cada
+   * render, y como es dependencia de `resolvedData`, el memo de los datos se
+   * invalidaba también.
+   *
+   * El efecto medido en `/owners`: **`data` cambiaba de identidad 10 veces
+   * seguidas** sin que cambiara ningún otro estado. Cada una de esas veces
+   * re-renderiza la lista entera y arma un objeto nuevo — el costo es memoria y
+   * velocidad, no un bug visible, que es justamente por qué nadie lo vio.
+   *
+   * Leerlos por ref es correcto acá: esta función se ejecuta cuando llega una
+   * respuesta, no durante el render, así que `.current` siempre tiene el valor
+   * de ese momento. Es el mismo patrón que ya usa `useAxios` para `setWaiting`.
+   */
+  const modRef = useRef(mod);
+  const paramsRef = useRef(params);
+  modRef.current = mod;
+  paramsRef.current = params;
+
   const getListRowsFromResponse = useCallback(
-    (response: any, sourceParams: Record<string, any> = params) => {
-      if (mod.getListRows) {
-        const customRows = mod.getListRows(response, sourceParams);
+    (response: any, sourceParams?: Record<string, any>) => {
+      const currentMod = modRef.current;
+      if (currentMod.getListRows) {
+        const customRows = currentMod.getListRows(
+          response,
+          sourceParams ?? paramsRef.current,
+        );
         return Array.isArray(customRows) ? customRows : [];
       }
 
       return Array.isArray(response?.data) ? response.data : [];
     },
-    [mod, params],
+    [],
   );
 
   const beginListReset = useCallback(() => {
