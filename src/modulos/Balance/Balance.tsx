@@ -2,13 +2,10 @@
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import useAxios from "@/mk/hooks/useAxios";
-import { getUrlImages } from "@/mk/utils/string";
 import { useAsyncExport } from "@/mk/hooks/useAsyncExport/useAsyncExport";
 import ExportProgressModal from "@/mk/components/ui/ExportProgressModal/ExportProgressModal";
 import Select from "@/mk/components/forms/Select/Select";
 import Button from "@/mk/components/forms/Button/Button";
-import Input from "@/mk/components/forms/Input/Input";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import TableIngresos from "./TableIngresos";
 import TableEgresos from "./TableEgresos";
@@ -41,11 +38,6 @@ interface FilterState {
   filter_mov: string;
   filter_categ: string[];
 }
-interface FormStateType {
-  date_inicio?: string;
-  date_fin?: string;
-  [key: string]: string | undefined;
-}
 
 interface ErrorType {
   [key: string]: string;
@@ -66,7 +58,6 @@ const BalanceGeneral: React.FC = () => {
   const [errors, setErrors] = useState<ErrorType>({});
   const [lchars, setLchars] = useState<ChartTypeOption[]>([]);
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
-  const [formState, setFormState] = useState<FormStateType>({});
 
   const chartRefBalance = useRef<HTMLDivElement>(null);
   const chartRefIngresos = useRef<HTMLDivElement>(null);
@@ -177,48 +168,6 @@ const BalanceGeneral: React.FC = () => {
       filter_mov: formStateFilter.filter_mov,
       filter_categ: formStateFilter.filter_categ,
     });
-  };
-  const onSaveCustomFilter = () => {
-    let err: ErrorType = {};
-    if (!formState.date_inicio) {
-      err = { ...err, date_inicio: "La fecha de inicio es obligatoria" };
-    }
-    if (!formState.date_fin) {
-      err = { ...err, date_fin: "La fecha de fin es obligatoria" };
-    }
-    if (
-      formState.date_inicio &&
-      formState.date_fin &&
-      formState.date_inicio > formState.date_fin
-    ) {
-      err = {
-        ...err,
-        date_inicio: "La fecha de inicio no puede ser mayor a la de fin",
-      };
-    }
-    if (
-      formState.date_inicio &&
-      formState.date_fin &&
-      formState.date_inicio.slice(0, 4) !== formState.date_fin.slice(0, 4)
-    ) {
-      err = {
-        ...err,
-        date_inicio: "El periodo personalizado debe estar dentro del mismo año",
-        date_fin: "El periodo personalizado debe estar dentro del mismo año",
-      };
-    }
-    if (Object.keys(err).length > 0) {
-      setErrors(err);
-      return;
-    }
-    if (formState.date_inicio && formState.date_fin) {
-      setFormStateFilter({
-        ...formStateFilter,
-        filter_date: "c:" + formState.date_inicio + "," + formState.date_fin,
-      });
-    }
-    setOpenCustomFilter(false);
-    setErrors({});
   };
   const getCategories = () => {
     let data = [];
@@ -364,7 +313,7 @@ const BalanceGeneral: React.FC = () => {
     }
     return "Total del saldo acumulado";
   };
-  const filtrarHastaMesActual = (data: any[], tipo: string) => {
+  const filtrarHastaMesActual = (data: any[]) => {
     if (formStateFilter.filter_date === "y" && Array.isArray(data)) {
       const mesActual = new Date().getMonth();
       return data.filter((item: any) => {
@@ -393,59 +342,30 @@ const BalanceGeneral: React.FC = () => {
     return formStateFilter.filter_categ;
   };
 
-  const filtrarPorCategorias = (data: any[], key: string) => {
-    const selectcategorias = getSelectCategorias();
-    if (selectcategorias && selectcategorias.length > 0) {
-      return data.filter((item: any) => selectcategorias.includes(item[key]));
-    }
-    return data;
-  };
-
-  const getLegendIngresos = () => {
-    const selectcategorias = getSelectCategorias();
-    let legend = legendCategoriasIngresos;
-    if (selectcategorias && selectcategorias.length > 0) {
-      legend = (finanzas?.data?.ingresosHist ?? [])
-        .filter((item: any) => selectcategorias.includes(item.category_id))
-        .reduce((acc: any[], item: any) => {
-          let found = acc.find((a) => a.id === item.categ_id);
-          if (found) {
-            found.total = roundMoney(found.total + parseFloat(item.amount ?? 0));
-          } else {
-            acc.push({
-              id: item.categ_id,
-              name: item.name,
-              total: roundMoney(parseFloat(item.amount ?? 0)),
-            });
-          }
-          return acc;
-        }, []);
-    }
-    return legend;
-  };
-
-  const getLegendEgresos = () => {
-    const selectcategorias = getSelectCategorias();
-    let legend = legendCategoriasEgresos;
-    if (selectcategorias && selectcategorias.length > 0) {
-      legend = (finanzas?.data?.egresosHist ?? [])
-        .filter((item: any) => selectcategorias.includes(item.category_id))
-        .reduce((acc: any[], item: any) => {
-          let found = acc.find((a) => a.id === item.categ_id);
-          if (found) {
-            found.total = roundMoney(found.total + parseFloat(item.amount ?? 0));
-          } else {
-            acc.push({
-              id: item.categ_id,
-              name: item.name,
-              total: roundMoney(parseFloat(item.amount ?? 0)),
-            });
-          }
-          return acc;
-        }, []);
-    }
-    return legend;
-  };
+  // 🔴 CDT-31: la gráfica quedaba VACÍA al elegir una categoría.
+  //
+  // Acá vivían tres filtros por categoría del lado del cliente —uno para la
+  // gráfica y uno por cada leyenda— y los tres comparaban con `includes()`
+  // estricto contra `item.category_id`. Ese campo lo estampa la API como
+  // CADENA (`UtilsGraph::formatExpenseResultsWithAllMonths` hace
+  // `'' . $category['category_id']`, y un padre sin padre se vuelve `""`),
+  // mientras que las opciones del Select salen de `categI`/`categE`, cuyo `id`
+  // es bigint y viaja como NÚMERO. `[12].includes("12")` es `false`: el filtro
+  // devolvía SIEMPRE un arreglo vacío, la gráfica no dibujaba nada y el total
+  // del título daba 0.
+  //
+  // No se arreglaron las tres comparaciones: se BORRARON. `POST /v3/balances`
+  // ya filtra por categoría en SQL (`UtilsGraph::getEgresosHist`, y el
+  // `getIncomeReport` del lado de ingresos, con
+  // `whereIn('e.category_id', $categ)->orWhereIn('cat.category_id', $categ)`),
+  // así que `ingresosHist`/`egresosHist` llegan filtrados. Volver a filtrarlos
+  // acá era una segunda fuente de verdad que sólo podía equivocarse.
+  //
+  // ⚠️ Las tablas (`TableIngresos`/`TableEgresos`) SÍ siguen recibiendo
+  // `selectcategorias`: ellas arman sus filas desde `categI`/`categE`, que
+  // llega COMPLETO, y sin ese filtro mostrarían las categorías no elegidas en
+  // cero. Ahí la comparación es número contra número —por eso el resumen sí
+  // funcionaba mientras la gráfica no—.
 
   let ingresosContent;
   if (loadingLocal || !loaded) {
@@ -505,16 +425,12 @@ const BalanceGeneral: React.FC = () => {
           <div className={styles.chartContainer}>
             <WidgetGrafIngresos
               ingresos={filtrarHastaMesActual(
-                filtrarPorCategorias(
-                  finanzas?.data.ingresosHist || [],
-                  "category_id",
-                ),
-                "I",
+                finanzas?.data.ingresosHist || [],
               )}
               chartTypes={[charType.filter_charType]}
               h={360}
               title={`Bs ${formatNumber(
-                getLegendIngresos().reduce(
+                legendCategoriasIngresos.reduce(
                   (acc: number, cat: any) => acc + cat.total,
                   0,
                 ),
@@ -525,7 +441,7 @@ const BalanceGeneral: React.FC = () => {
             />
             <div className={styles.legendAndExportWrapper}>
               <div className={styles.legendContainer}>
-                {getLegendIngresos().map((cat, idx) => (
+                {legendCategoriasIngresos.map((cat, idx) => (
                   <div className={styles.legendItem} key={cat.name ?? idx}>
                     <div
                       className={styles.legendColor}
@@ -627,16 +543,12 @@ const BalanceGeneral: React.FC = () => {
           <div className={styles.chartContainer}>
             <WidgetGrafEgresos
               egresos={filtrarHastaMesActual(
-                filtrarPorCategorias(
-                  finanzas?.data.egresosHist || [],
-                  "category_id",
-                ),
-                "E",
+                finanzas?.data.egresosHist || [],
               )}
               chartTypes={[charType.filter_charType]}
               h={360}
               title={`Bs ${formatNumber(
-                getLegendEgresos().reduce(
+                legendCategoriasEgresos.reduce(
                   (acc: number, cat: any) => acc + cat.total,
                   0,
                 ),
@@ -647,7 +559,7 @@ const BalanceGeneral: React.FC = () => {
             />
             <div className={styles.legendAndExportWrapper}>
               <div className={styles.legendContainer}>
-                {getLegendEgresos().map((cat, idx) => (
+                {legendCategoriasEgresos.map((cat, idx) => (
                   <div className={styles.legendItem} key={cat.name ?? idx}>
                     <div
                       className={styles.legendColor}
@@ -1077,7 +989,6 @@ const BalanceGeneral: React.FC = () => {
       <DateRangeFilterModal
         open={openCustomFilter}
         onClose={() => {
-          setFormState({});
           setOpenCustomFilter(false);
           setErrors({});
         }}
