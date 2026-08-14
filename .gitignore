@@ -69,4 +69,9 @@ WARP.md
 
 #package-lock.json
 package-lock.json
-pnpm-workspace.yaml
+
+# pnpm-workspace.yaml is versioned on purpose. It holds the dependency overrides
+# that pull the security fixes into packages next pins for itself, and pnpm
+# records those same overrides inside pnpm-lock.yaml. If the file is missing, the
+# two no longer agree and any clean install stops with
+# ERR_PNPM_LOCKFILE_CONFIG_MISMATCH. Measured on 2026-08-13.
