@@ -428,11 +428,35 @@ export const getDateStrMesShort = (
 //   return `${date[2]} ${MONTHS_S[parseInt(date[1])]} ${date[0]}, ${time}`;
 // };
 
+/**
+ * El día de HOY (YYYY-MM-DD) en la zona del usuario — helper CANÓNICO.
+ *
+ * 🔴 `new Date().toISOString()` devuelve el día en UTC. Bolivia es UTC-4, así
+ * que entre las 20:00 y la medianoche ese cálculo da MAÑANA: cuatro horas por
+ * día en las que el admin cree que es otro día. Medido en CDT-36 (precargaba
+ * `paid_at` con el día siguiente) y en CDT-43 (una deuda que vencía HOY se
+ * pintaba "En mora" después de las 20:00).
+ *
+ * Para un INSTANTE (`created_at`, un mensaje de chat, un cronómetro)
+ * `toISOString()` sigue siendo lo correcto; esto es sólo para el día calendario.
+ */
 export const getNow = (): string => {
   const fec: any = convertirFechaUTCaLocal(new Date().toISOString());
   return fec.toISOString().substring(0, 10);
   // return new Date().toISOString().substring(0, 10);
 };
+
+/**
+ * La MEDIANOCHE LOCAL del día de hoy, como `Date`.
+ *
+ * 🔴 No usar `new Date(getNow())`. Un `"YYYY-MM-DD"` pelado se parsea como
+ * medianoche **UTC**, o sea las 20:00 del día ANTERIOR en Bolivia: queda
+ * corrido 4 horas las 24 horas del día, peor que el bug que se quería
+ * arreglar. La `T00:00:00` **sin `Z`** es la que fuerza el parseo local.
+ * Medido en la review de CDT-43, donde ese `new Date(getNow())` entró como
+ * regresión en Events y Surveys.
+ */
+export const getNowDate = (): Date => new Date(`${getNow()}T00:00:00`);
 
 export const getDateDesdeHasta = (date: any, locale?: AppLocale) => {
   const fechaActual = new Date();

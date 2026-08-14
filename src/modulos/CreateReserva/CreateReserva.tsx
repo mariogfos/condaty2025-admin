@@ -28,6 +28,7 @@ import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import RenderView from "../DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
+import { getNow } from "@/mk/utils/date";
 
 const initialState: FormState = {
   unidad: "",
@@ -50,15 +51,31 @@ interface FormErrors {
   telefono_responsable?: string;
   email_responsable?: string;
 }
+// 🔴 El orden es el de `Date.getDay()`: DOMINGO primero. No lo "arregles" a
+// lunes-primero: se indexa siempre con `getDay()`. Las cadenas tienen que
+// coincidir con las de `available_days`, que el admin elige en
+// `Areas/RenderForm/Partes/SecondPart.tsx` (con acentos).
 const weekDay = [
+  "Domingo",
   "Lunes",
   "Martes",
   "Miércoles",
   "Jueves",
   "Viernes",
   "Sábado",
-  "Domingo",
 ];
+
+/**
+ * El nombre del día de la semana de un `"YYYY-MM-DD"`, leído en zona LOCAL.
+ *
+ * 🔴 La `T00:00:00` **sin `Z`** es la que fuerza el parseo local: un
+ * `"YYYY-MM-DD"` pelado se lee como medianoche UTC y en Bolivia (UTC-4)
+ * devuelve el día ANTERIOR. Antes había dos errores acá que se cancelaban
+ * exactamente — el array arrancaba en lunes y la fecha venía corrida un día —
+ * así que "arreglar" cualquiera de las dos mitades sola rompía la pantalla.
+ */
+export const diaDeLaSemanaDe = (fecha: string): string =>
+  weekDay[new Date(`${fecha}T00:00:00`).getDay()];
 const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [formState, setFormState] = useState<FormState>(initialState);
@@ -123,7 +140,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         "GET",
         {
           area_id: formState?.area_social || "none",
-          date_at: date || new Date().toISOString()?.split("T")[0],
+          date_at: date || getNow(),
           owner_id:
             ownerId ||
             extraData?.dptos?.find(
@@ -251,7 +268,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     let daysAvailable = [];
     let unavailableSlots = [];
 
-    if (dateString == new Date().toISOString().split("T")?.[0]) {
+    if (dateString == getNow()) {
       daysAvailable = dataDay?.available.filter(
         (d: any) => parseInt(d.split("-")[1]) > new Date().getHours(),
       );
@@ -297,20 +314,12 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   };
   const nextStep = (): void => {
     if (currentStep === 1) {
-      const dateNow = new Date().toISOString().split("T")?.[0];
-      const day = new Date(dateNow).getDay();
-      const weekday = [
-        "Lunes",
-        "Martes",
-        "Miércoles",
-        "Jueves",
-        "Viernes",
-        "Sábado",
-        "Domingo",
-      ];
+      const dateNow = getNow();
 
       if (
-        selectedAreaDetails?.available_days?.includes(weekday[day]) &&
+        selectedAreaDetails?.available_days?.includes(
+          diaDeLaSemanaDe(dateNow),
+        ) &&
         !formState?.fecha
       ) {
         handleDateChange(dateNow);
@@ -710,7 +719,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     >
                       <IconCalendar />
                       <p>
-                        {weekDay[new Date(formState.fecha).getDay()] +
+                        {diaDeLaSemanaDe(formState.fecha) +
                           ", " +
                           getDateStrMes(formState.fecha)}
                       </p>

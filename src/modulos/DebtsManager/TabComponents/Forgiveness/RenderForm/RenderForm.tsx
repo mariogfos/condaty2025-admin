@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import { formatBs } from "../../../../../mk/utils/numbers";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import Br from "@/components/Detail/Br";
+import { getNow } from "@/mk/utils/date";
 
 const RenderForm = ({
   open,
@@ -274,7 +275,7 @@ const RenderForm = ({
           value={formState?.due_at}
           onChange={handleChange}
           error={errors}
-          min={new Date().toISOString().split("T")[0]}
+          min={getNow()}
         />
       </div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>

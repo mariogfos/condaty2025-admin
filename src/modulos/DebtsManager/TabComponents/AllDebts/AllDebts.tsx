@@ -2,7 +2,7 @@
 import { useMemo, useEffect, useState } from "react";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import useCrudUtils from "../../../shared/useCrudUtils";
-import { getDateStrMesShort } from "@/mk/utils/date";
+import { getDateStrMesShort, getNow } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
@@ -550,7 +550,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
     // getStatusConfig applies the overdue rule internally
     const dueAtString = item?.due_at;
-    const displayStatus = dueAtString && dueAtString < new Date().toISOString().split("T")[0] && numericStatus === DebtStatus.PENDING
+    const displayStatus = dueAtString && dueAtString < getNow() && numericStatus === DebtStatus.PENDING
       ? DebtStatus.OVERDUE
       : numericStatus;
 

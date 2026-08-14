@@ -7,7 +7,7 @@ import EmptyData from "@/components/NoData/EmptyData";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { TableSkeleton } from "@/mk/components/ui/Skeleton/Skeleton";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
-import { MONTHS_S, getDateStrMes, getDateStrMesShort } from "@/mk/utils/date";
+import { MONTHS_S, getDateStrMes, getDateStrMesShort, getNow } from "@/mk/utils/date";
 import { getPaymentStatusConfig } from "@/modulos/Payments/Type/PaymentType";
 import { DebtStatus } from "@/types/PaymentType";
 import {
@@ -135,7 +135,7 @@ const normalizeDebtRow = (row: any) => ({
 const resolveDebtStatus = (row: any): number => {
   const status = getDebtNumericStatus(row);
   const dueAtString = row?.due_at || "";
-  const todayString = new Date().toISOString().split("T")[0];
+  const todayString = getNow();
 
   if (status === DebtStatus.PENDING && dueAtString && dueAtString < todayString) {
     return DebtStatus.OVERDUE;

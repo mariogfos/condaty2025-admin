@@ -14,6 +14,7 @@ import { IconX } from "@/components/layout/icons/IconsBiblioteca";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
 import { ReservationStatus } from "@/modulos/Reservas/Type/ReservaType";
+import { getNow } from "@/mk/utils/date";
 
 interface Props {
   open: boolean;
@@ -218,12 +219,12 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                   error={errors}
                   value={formState?.date_at}
                   onChange={handleChange}
-                  min={new Date().toISOString().split("T")[0] + "T00:00"}
+                  min={getNow() + "T00:00"}
                 />
                 <Input
                   label="Fecha de finalización"
                   type="datetime-local"
-                  min={new Date().toISOString().split("T")[0] + "T00:00"}
+                  min={getNow() + "T00:00"}
                   name="date_end"
                   error={errors}
                   value={formState?.date_end}

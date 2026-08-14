@@ -9,6 +9,7 @@ import Toast from "@/mk/components/ui/Toast/Toast";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import { checkRules } from "@/mk/utils/validate/Rules";
 import { FORM_PAYMENT_METHODS } from "@/modulos/Payments/Type/PaymentType";
+import { getNow } from "@/mk/utils/date";
 
 interface Category {
   id: number | string;
@@ -81,8 +82,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   onSave,
 }) => {
   const [_formState, _setFormState] = useState<OutlayFormState>(() => {
-    const today = new Date();
-    const formattedDate = today.toISOString().split("T")[0];
+    const formattedDate = getNow();
     return {
       ...(item || {}),
       ...(item || {}),
@@ -115,8 +115,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       return;
     }
     if (!isInitialized && open) {
-      const today = new Date();
-      const formattedDate = today.toISOString().split("T")[0];
+      const formattedDate = getNow();
       _setFormState({
         ...(item || {}),
         date_at: (item && item.date_at) || formattedDate,
@@ -274,7 +273,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const onCloseModal = useCallback(() => {
     setIsInitialized(false);
     _setFormState((prev) => ({
-      date_at: new Date().toISOString().split("T")[0],
+      date_at: getNow(),
       type: "",
       category_id: "",
       subcategory_id: "",

@@ -77,9 +77,6 @@ const RenderView: React.FC<RenderViewProps> = ({
     string | number | null
   >(getResolvedPaymentId(item));
 
-  // Declarar la variable today
-  const today = new Date();
-
   const { data, execute, loaded } = useAxios(
     "/v3/debt-dptos",
     "GET",
@@ -104,7 +101,7 @@ const RenderView: React.FC<RenderViewProps> = ({
 
   // Numeric overdue rule: PENDING + past dueDate => OVERDUE
   const resolveStatus = (status: number, dueDate?: string): number => {
-    const todayString = new Date().toISOString().split("T")[0];
+    const todayString = getNow();
     if (dueDate && dueDate < todayString && status === DebtStatus.PENDING) {
       return DebtStatus.OVERDUE;
     }

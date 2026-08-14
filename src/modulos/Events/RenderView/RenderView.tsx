@@ -18,10 +18,10 @@ import Table from "@/mk/components/ui/Table/Table";
 import HorizontalProgresiveBar from "@/mk/components/ui/HorizontalProgresiveBar/HorizontalProgresiveBar";
 import { lComDestinies, RandomsColors } from "@/mk/utils/utils";
 import {
-  GMT,
   getDateStrMes,
   getDateTimeStrMes,
   getUTCNow,
+  getNowDate,
 } from "@/mk/utils/date";
 import StatsCard from "@/mk/components/ui/StatsCard/StatsCard";
 import EventStatsCard from "@/mk/components/ui/EventsStatsCard/EventStatsCards";
@@ -39,9 +39,9 @@ const RenderView = (props: {
   const extraData = props?.extraData;
   const entidad = ["", "", "Lista", "Departamento", "Municipio", "Barrio"];
 
-  let hoy: any = new Date();
-  hoy.setHours(hoy.getHours() - GMT);
-  hoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+  // CDT-43: el dia de HOY es el LOCAL (Bolivia UTC-4). Desplazar el reloj a UTC
+  // adelantaba un dia entre las 20:00 y la medianoche.
+  const hoy: any = getNowDate();
 
   const [sexGraphData, setSexGraphData] = useState<any>({
     labels: [],

@@ -1,6 +1,7 @@
 import { ValidFunctionType } from "@/mk/utils/validate/Rules";
 import { getIdentityDocumentCode } from "@/i18n/identity";
 import { getCurrentClientLocale } from "@/i18n/runtime";
+import { getNow } from "@/mk/utils/date";
 
 const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
@@ -99,7 +100,7 @@ export const validDateGreater: ValidFunctionType = (
   let compareDate =
     param && param[0]
       ? normalizeDateToUTC(field ? field[param[0]] : "")
-      : normalizeDateToUTC(new Date().toISOString());
+      : normalizeDateToUTC(getNow());
 
   if (!compareDate) return "La fecha de comparación no es válida";
 
@@ -127,9 +128,10 @@ export const validDateFuture: ValidFunctionType = (
     return "La fecha ingresada no es válida";
   }
 
-  // Obtener la fecha actual en UTC sin la parte de la hora
-  let today = new Date();
-  today.setUTCHours(0, 0, 0, 0); // Asegurar que solo comparamos fechas, sin horas
+  // CDT-43: el ancla es el día LOCAL (Bolivia, UTC-4) normalizado igual que el
+  // valor del input. Truncar el reloj en UTC adelantaba un día entre las 20:00
+  // y la medianoche, y rechazaba "mañana" como si no fuera futuro.
+  const today = normalizeDateToUTC(getNow()) as Date;
 
   // console.log("rules day", date, today);
 
@@ -151,7 +153,7 @@ export const validDateLess: ValidFunctionType = (
   let compareDate =
     param && param[0]
       ? normalizeDateToUTC(field ? field[param[0]] : "")
-      : normalizeDateToUTC(new Date().toISOString());
+      : normalizeDateToUTC(getNow());
 
   if (!compareDate) return "La fecha de comparación no es válida";
 
