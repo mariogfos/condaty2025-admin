@@ -70,6 +70,17 @@ WARP.md
 #package-lock.json
 package-lock.json
 
+# Los worktrees efímeros de los tickets viven acá y no se versionan.
+#
+# Git guarda un worktree anidado como gitlink (modo 160000), o sea como si
+# fuera un submódulo. Eso ya pasó: `.worktrees/cdt-34-ver-recibo` quedó
+# commiteado apuntando a un commit suelto, y cada build de Vercel arrancaba con
+#
+#     Warning: Failed to fetch one or more git submodules
+#
+# El directorio ya no existía, así que el puntero quedó huérfano.
+.worktrees/
+
 # pnpm-workspace.yaml is versioned on purpose. It holds the dependency overrides
 # that pull the security fixes into packages next pins for itself, and pnpm
 # records those same overrides inside pnpm-lock.yaml. If the file is missing, the
