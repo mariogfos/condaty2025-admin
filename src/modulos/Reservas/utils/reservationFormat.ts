@@ -7,6 +7,7 @@ import type {
   ReservationPeriod,
   ReservationResident,
 } from "../Type/ReservaType";
+import { esGratis } from "@/modulos/Areas/Type/AreaEnums";
 
 /**
  * Cómo se escriben en pantalla los datos de una reserva.
@@ -136,7 +137,11 @@ export const getPriceDetails = (
 
   const price = Number.parseFloat(String(area.price || 0));
   const total = Number.parseFloat(String(safeTotalAmount));
-  const isFreeExplicit = area.is_free === true;
+  // 🔴 Decia `area.is_free === true`. Con `is_free` como enum numerico
+  // (1 = con costo, 2 = gratis) eso es SIEMPRE falso, y el area gratis pasa a
+  // mostrarse con precio. Es el modulo del piloto: la migracion de Areas lo
+  // destapo.
+  const isFreeExplicit = esGratis(area.is_free);
   const isPriceZero = Number.isNaN(price) || price <= 0;
 
   if (isFreeExplicit || isPriceZero) {

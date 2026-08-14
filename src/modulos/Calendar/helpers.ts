@@ -23,6 +23,9 @@ import type {
 } from "@/modulos/Reservas/Type/ReservaType";
 import { resolveReservationDisplayStatus } from "@/modulos/Reservas/utils/reservationStatus";
 import { getReservationDisplayStatusInput } from "@/modulos/Reservas/utils/reservationPayment";
+import {
+  esPorHora,
+} from "../Areas/Type/AreaEnums";
 
 const WEEK_STARTS_ON_SUNDAY = { weekStartsOn: 0 as const };
 
@@ -324,7 +327,7 @@ export const buildAreaAvailabilitySnapshot = (
   const isScheduledDay =
     scheduledDays.length > 0
       ? scheduledDays.includes(weekdayName)
-      : configuredSlots.length > 0 || area.booking_mode !== "hour";
+      : configuredSlots.length > 0 || !esPorHora(area.booking_mode);
   const areaName = getAreaName(area);
 
   if (liveAvailability) {
@@ -334,7 +337,7 @@ export const buildAreaAvailabilitySnapshot = (
       return {
         areaId: String(area.id),
         areaName,
-        bookingMode: String(area.booking_mode || "day"),
+        bookingMode: esPorHora(area.booking_mode) ? "hour" : "day",
         isAvailable: true,
         slots: normalizedLiveSlots,
         source: "live",
@@ -343,7 +346,7 @@ export const buildAreaAvailabilitySnapshot = (
     }
 
     if (
-      area.booking_mode !== "hour" &&
+      !esPorHora(area.booking_mode) &&
       isScheduledDay &&
       !liveAvailability.reserved &&
       liveAvailability.unavailable.length === 0 &&
@@ -352,7 +355,7 @@ export const buildAreaAvailabilitySnapshot = (
       return {
         areaId: String(area.id),
         areaName,
-        bookingMode: String(area.booking_mode || "day"),
+        bookingMode: esPorHora(area.booking_mode) ? "hour" : "day",
         isAvailable: true,
         slots: configuredSlots.length > 0 ? configuredSlots : ["Todo el dia"],
         source: "schedule",
@@ -363,7 +366,7 @@ export const buildAreaAvailabilitySnapshot = (
     return {
       areaId: String(area.id),
       areaName,
-      bookingMode: String(area.booking_mode || "day"),
+      bookingMode: esPorHora(area.booking_mode) ? "hour" : "day",
       isAvailable: false,
       slots: [],
       source: "live",
@@ -380,7 +383,7 @@ export const buildAreaAvailabilitySnapshot = (
     return {
       areaId: String(area.id),
       areaName,
-      bookingMode: String(area.booking_mode || "day"),
+      bookingMode: esPorHora(area.booking_mode) ? "hour" : "day",
       isAvailable: false,
       slots: [],
       source: "schedule",
@@ -388,7 +391,7 @@ export const buildAreaAvailabilitySnapshot = (
     };
   }
 
-  if (area.booking_mode === "hour") {
+  if (esPorHora(area.booking_mode)) {
     return {
       areaId: String(area.id),
       areaName,
@@ -406,7 +409,7 @@ export const buildAreaAvailabilitySnapshot = (
   return {
     areaId: String(area.id),
     areaName,
-    bookingMode: String(area.booking_mode || "day"),
+    bookingMode: esPorHora(area.booking_mode) ? "hour" : "day",
     isAvailable: true,
     slots: configuredSlots.length > 0 ? configuredSlots : ["Todo el dia"],
     source: "schedule",

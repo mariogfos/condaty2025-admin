@@ -29,6 +29,7 @@ import {
   ReservationStatus,
   type ReservationDetailItem,
 } from "../Type/ReservaType";
+import { AreaPricing } from "@/modulos/Areas/Type/AreaEnums";
 
 vi.mock("@/modulos/Payments/RenderView/RenderView", () => ({
   default: () => <div data-testid="payment-modal" />,
@@ -52,8 +53,8 @@ const RESERVA: ReservationDetailItem = {
   start_time: "10:00:00",
   end_time: "12:00:00",
   people_count: 5,
-  // `is_free` es boolean en el tipo: el char "N" es de antes del flip.
-  area: { id: 3, title: "Salón de eventos", is_free: false, price: 100 },
+  // `is_free` es un enum numerico: 1 = con costo, 2 = gratis.
+  area: { id: 3, title: "Salón de eventos", is_free: AreaPricing.PAID, price: 100 },
   owner: { id: 9, name: "Ana", last_name: "Quiroga" },
   dpto: { id: 4, nro: "B-12" },
 };

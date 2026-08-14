@@ -102,17 +102,27 @@ export type ReservationArea = {
   available_days?: string[] | null;
   available_hours?: Record<string, string[]> | null;
   price?: string | number | null;
-  is_free?: boolean | null;
-  booking_mode?: string | null;
+  /**
+   * 🔴 Las banderas del área son ENUMS NUMÉRICOS, no booleanos ni strings.
+   *
+   * Este tipo las declaraba como `boolean` y `string`, y por eso `tsc` no veía
+   * las comparaciones contra `"hour"` y `=== true` del módulo Calendar: eran
+   * string contra string, y booleano contra booleano. Al corregir el tipo, el
+   * compilador señaló los diez sitios de una.
+   *
+   * Los valores viven en `@/modulos/Areas/Type/AreaEnums`.
+   */
+  is_free?: number | null;
+  booking_mode?: number | null;
   max_reservations_per_day?: number | null;
   max_booking_duration?: number | null;
   usage_rules?: string | null;
   special_restrictions?: string | null;
   cancellation_policy?: string | null;
-  penalty_or_debt_restriction?: string | null;
-  requires_approval?: boolean | null;
-  show_real_time_availability?: string | null;
-  show_in_calendar?: string | null;
+  penalty_or_debt_restriction?: number | null;
+  requires_approval?: number | null;
+  show_real_time_availability?: number | null;
+  show_in_calendar?: number | null;
   images?: string[] | null;
 };
 

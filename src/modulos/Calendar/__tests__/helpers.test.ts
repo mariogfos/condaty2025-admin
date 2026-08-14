@@ -9,6 +9,12 @@ import { shouldShowReservationPaymentTimeLimit } from "@/modulos/Reservas/utils/
 import { mergeResolvedPaymentIntoReservation } from "@/modulos/Reservas/utils/reservationPayment";
 import { ReservationStatus } from "@/modulos/Reservas/Type/ReservaType";
 import type { ReservationListItem } from "@/modulos/Reservas/Type/ReservaType";
+// 🔴 Estos casos alimentaban `booking_mode: "hour"` / `"day"` — strings que el
+// API ya no manda. Los 9 tests pasaban igual con la entrada NUMERICA real, o
+// sea que no median nada sobre booking_mode, y tapaban diez comparaciones
+// vivas contra chars en `helpers.ts` y `CalendarPage.tsx`. Lo encontro el
+// review 4R reemplazando la entrada comoda por la real.
+import { AreaBookingMode } from "@/modulos/Areas/Type/AreaEnums";
 
 describe("buildCalendarEntries", () => {
   it("muestra primero el nombre del area y luego la hora", () => {
@@ -200,7 +206,7 @@ describe("buildCalendarEntries", () => {
       {
         id: 9,
         title: "Piscina",
-        booking_mode: "hour",
+        booking_mode: AreaBookingMode.HOUR,
         available_days: ["Lunes"],
         available_hours: {
           Lunes: ["08:00-09:00", "09:00-10:00"],
@@ -227,7 +233,7 @@ describe("buildCalendarEntries", () => {
       {
         id: 10,
         title: "Terraza",
-        booking_mode: "day",
+        booking_mode: AreaBookingMode.DAY,
         available_days: ["Lunes"],
       },
       new Date("2026-05-18T00:00:00"),
