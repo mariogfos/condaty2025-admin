@@ -364,7 +364,7 @@ const BalanceGeneral: React.FC = () => {
     }
     return "Total del saldo acumulado";
   };
-  const filtrarHastaMesActual = (data: any[], tipo: string) => {
+  const filtrarHastaMesActual = (data: any[]) => {
     if (formStateFilter.filter_date === "y" && Array.isArray(data)) {
       const mesActual = new Date().getMonth();
       return data.filter((item: any) => {
@@ -393,59 +393,30 @@ const BalanceGeneral: React.FC = () => {
     return formStateFilter.filter_categ;
   };
 
-  const filtrarPorCategorias = (data: any[], key: string) => {
-    const selectcategorias = getSelectCategorias();
-    if (selectcategorias && selectcategorias.length > 0) {
-      return data.filter((item: any) => selectcategorias.includes(item[key]));
-    }
-    return data;
-  };
-
-  const getLegendIngresos = () => {
-    const selectcategorias = getSelectCategorias();
-    let legend = legendCategoriasIngresos;
-    if (selectcategorias && selectcategorias.length > 0) {
-      legend = (finanzas?.data?.ingresosHist ?? [])
-        .filter((item: any) => selectcategorias.includes(item.category_id))
-        .reduce((acc: any[], item: any) => {
-          let found = acc.find((a) => a.id === item.categ_id);
-          if (found) {
-            found.total = roundMoney(found.total + parseFloat(item.amount ?? 0));
-          } else {
-            acc.push({
-              id: item.categ_id,
-              name: item.name,
-              total: roundMoney(parseFloat(item.amount ?? 0)),
-            });
-          }
-          return acc;
-        }, []);
-    }
-    return legend;
-  };
-
-  const getLegendEgresos = () => {
-    const selectcategorias = getSelectCategorias();
-    let legend = legendCategoriasEgresos;
-    if (selectcategorias && selectcategorias.length > 0) {
-      legend = (finanzas?.data?.egresosHist ?? [])
-        .filter((item: any) => selectcategorias.includes(item.category_id))
-        .reduce((acc: any[], item: any) => {
-          let found = acc.find((a) => a.id === item.categ_id);
-          if (found) {
-            found.total = roundMoney(found.total + parseFloat(item.amount ?? 0));
-          } else {
-            acc.push({
-              id: item.categ_id,
-              name: item.name,
-              total: roundMoney(parseFloat(item.amount ?? 0)),
-            });
-          }
-          return acc;
-        }, []);
-    }
-    return legend;
-  };
+  // 🔴 CDT-31: la gráfica quedaba VACÍA al elegir una categoría.
+  //
+  // Acá vivían tres filtros por categoría del lado del cliente —uno para la
+  // gráfica y uno por cada leyenda— y los tres comparaban con `includes()`
+  // estricto contra `item.category_id`. Ese campo lo estampa la API como
+  // CADENA (`UtilsGraph::formatExpenseResultsWithAllMonths` hace
+  // `'' . $category['category_id']`, y un padre sin padre se vuelve `""`),
+  // mientras que las opciones del Select salen de `categI`/`categE`, cuyo `id`
+  // es bigint y viaja como NÚMERO. `[12].includes("12")` es `false`: el filtro
+  // devolvía SIEMPRE un arreglo vacío, la gráfica no dibujaba nada y el total
+  // del título daba 0.
+  //
+  // No se arreglaron las tres comparaciones: se BORRARON. `POST /v3/balances`
+  // ya filtra por categoría en SQL (`UtilsGraph::getEgresosHist`, y el
+  // `getIncomeReport` del lado de ingresos, con
+  // `whereIn('e.category_id', $categ)->orWhereIn('cat.category_id', $categ)`),
+  // así que `ingresosHist`/`egresosHist` llegan filtrados. Volver a filtrarlos
+  // acá era una segunda fuente de verdad que sólo podía equivocarse.
+  //
+  // ⚠️ Las tablas (`TableIngresos`/`TableEgresos`) SÍ siguen recibiendo
+  // `selectcategorias`: ellas arman sus filas desde `categI`/`categE`, que
+  // llega COMPLETO, y sin ese filtro mostrarían las categorías no elegidas en
+  // cero. Ahí la comparación es número contra número —por eso el resumen sí
+  // funcionaba mientras la gráfica no—.
 
   let ingresosContent;
   if (loadingLocal || !loaded) {
@@ -505,16 +476,12 @@ const BalanceGeneral: React.FC = () => {
           <div className={styles.chartContainer}>
             <WidgetGrafIngresos
               ingresos={filtrarHastaMesActual(
-                filtrarPorCategorias(
-                  finanzas?.data.ingresosHist || [],
-                  "category_id",
-                ),
-                "I",
+                finanzas?.data.ingresosHist || [],
               )}
               chartTypes={[charType.filter_charType]}
               h={360}
               title={`Bs ${formatNumber(
-                getLegendIngresos().reduce(
+                legendCategoriasIngresos.reduce(
                   (acc: number, cat: any) => acc + cat.total,
                   0,
                 ),
@@ -525,7 +492,7 @@ const BalanceGeneral: React.FC = () => {
             />
             <div className={styles.legendAndExportWrapper}>
               <div className={styles.legendContainer}>
-                {getLegendIngresos().map((cat, idx) => (
+                {legendCategoriasIngresos.map((cat, idx) => (
                   <div className={styles.legendItem} key={cat.name ?? idx}>
                     <div
                       className={styles.legendColor}
@@ -627,16 +594,12 @@ const BalanceGeneral: React.FC = () => {
           <div className={styles.chartContainer}>
             <WidgetGrafEgresos
               egresos={filtrarHastaMesActual(
-                filtrarPorCategorias(
-                  finanzas?.data.egresosHist || [],
-                  "category_id",
-                ),
-                "E",
+                finanzas?.data.egresosHist || [],
               )}
               chartTypes={[charType.filter_charType]}
               h={360}
               title={`Bs ${formatNumber(
-                getLegendEgresos().reduce(
+                legendCategoriasEgresos.reduce(
                   (acc: number, cat: any) => acc + cat.total,
                   0,
                 ),
@@ -647,7 +610,7 @@ const BalanceGeneral: React.FC = () => {
             />
             <div className={styles.legendAndExportWrapper}>
               <div className={styles.legendContainer}>
-                {getLegendEgresos().map((cat, idx) => (
+                {legendCategoriasEgresos.map((cat, idx) => (
                   <div className={styles.legendItem} key={cat.name ?? idx}>
                     <div
                       className={styles.legendColor}
