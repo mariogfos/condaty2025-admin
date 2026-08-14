@@ -154,8 +154,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
           subcategory_id: "",
         }));
         if (newValue && extraData?.subcategories) {
+          // Se compara como texto de los DOS lados. Antes era
+          // `subcat.category_id === Number(String(newValue))`: `===` contra un
+          // Number, así que alcanzaba con que la API mandara el `category_id`
+          // de la subcategoría como string —o el Select devolviera el id como
+          // texto— para que el filtro no encontrara nada y la Subcategoría
+          // quedara vacía. Mismo síntoma que CDT-37, otra causa.
           const filtered = extraData.subcategories.filter(
-            (subcat) => subcat.category_id === Number(String(newValue))
+            (subcat) => String(subcat.category_id) === String(newValue)
           );
           setFilteredSubcategories(filtered || []);
         } else {

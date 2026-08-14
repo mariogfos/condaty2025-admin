@@ -1,4 +1,7 @@
 import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
+import RenderForm from "../RenderForm/RenderForm";
+import RenderView from "../RenderView/RenderView";
+import RenderDel from "../RenderDel/RenderDel";
 
 /**
  * getOutlaysMod (S43 — NEW-NEW-43 Expenses async export frontend)
@@ -35,12 +38,44 @@ import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
  * @see D-37.5-3 (S37.5) — factory pattern para configs `mod` (patrón reusable)
  * @see S41 (Outlays discovery) — modulo: "v3/expenses" + permiso: "outlays"
  *   es alias del módulo Expenses canónico
+ *
+ * 🔴 CDT-37 + CDT-39: la mudanza del `mod` a esta factory se llevó puestas
+ * CINCO claves —`renderForm`, `renderView`, `renderDel`, `titleAdd` y
+ * `titleDel`— y nada avisó. El módulo siguió compilando y la lista siguió
+ * andando, así que el agujero vivió 23 días con dos pantallas rotas:
+ *
+ * - CDT-37 (registrar egreso): sin `renderForm`, `useCrud` cae a su form
+ *   genérico, que arma la Subcategoría con las opciones declaradas en
+ *   `Outlays.tsx` — y esa lista estaba hardcodeada vacía. Un campo obligatorio
+ *   que no ofrecía NINGUNA opción: no se podía registrar un egreso.
+ * - CDT-39 (ver el detalle): sin `renderView`, `useCrud` cae a su Detail
+ *   genérico, que mete `item[key]` crudo dentro de `KeyValue` para todo campo
+ *   con label y sin `onRender`. El campo `user` ("Responsable") viene como
+ *   OBJETO en `fullType=DET`, React tira "Objects are not valid as a React
+ *   child" al montar el modal y se desmonta el árbol entero: pantalla negra.
+ *
+ * 🔴 Estas cinco claves son la interfaz del módulo. Si alguien vuelve a mudar
+ * este objeto, `config/__tests__/outlaysMod.test.ts` se pone rojo antes de que
+ * una clave se pierda de nuevo en silencio.
  */
 export const getOutlaysMod = (): ModCrudType => ({
   modulo: "v3/expenses",
   singular: "Egreso",
   plural: "Egresos",
   filter: true,
+  // El form propio de Egresos: cascada categoría→subcategoría y cuenta
+  // bancaria heredada de la subcategoría. Sin esta clave `useCrud` renderea su
+  // form genérico a partir de `fields` — ver CDT-37 arriba.
+  renderForm: RenderForm,
+  titleAdd: "Nuevo",
+  // El detalle propio: resuelve categoría/subcategoría, el estado y los
+  // comprobantes. Sin esta clave el detalle genérico revienta con el `user`
+  // objeto — ver CDT-39 arriba.
+  renderView: RenderView,
+  titleDel: "Anular",
+  // El modal de anular pide el motivo (`canceled_obs`, obligatorio) y hace el
+  // DELETE él mismo. El modal genérico de borrado no tiene dónde pedirlo.
+  renderDel: RenderDel,
   // S43: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
   // S118b: type: "outlays" → matchea el nuevo OutlaysReportType del back.
   //        extraParams.title: "Reporte de Egresos" → title dinámico del PDF.
