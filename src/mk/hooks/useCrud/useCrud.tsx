@@ -8,6 +8,7 @@ import {
   useCallback,
   useRef,
   useMemo,
+  isValidElement,
 } from "react";
 import useAxios, { type MethodType } from "../useAxios";
 import { capitalize, getUrlImages } from "../../utils/string";
@@ -339,6 +340,39 @@ const mergeRowsById = (currentRows: any[] = [], incomingRows: any[] = []) => {
   });
 
   return merged;
+};
+
+/**
+ * Un valor que React puede pintar como hijo, o `null`.
+ *
+ * 🔴 CDT-39: el Detail genérico mete `item[key]` CRUDO adentro de `KeyValue`
+ * para todo campo que tenga label y no declare `onRender`. Un campo cuyo valor
+ * es un objeto —una relación que el back manda expandida en `fullType=DET`,
+ * como el `user` de Egresos— hace que React tire "Objects are not valid as a
+ * React child" al montar el modal. Eso no rompe el modal: rompe el árbol
+ * ENTERO, la pantalla queda en negro y el usuario reporta "deja de responder".
+ *
+ * El síntoma se vio en Egresos, pero el defecto es de acá: cualquier módulo sin
+ * `mod.renderView` con una relación expandida y un label encima cae igual. La
+ * guarda va en el punto por donde pasan todos y no en cada módulo.
+ *
+ * Se deja pasar TODO lo que hoy funciona —primitivos, elementos de React y
+ * arrays de primitivos— y sólo se descarta lo que hoy revienta. Un campo vacío
+ * es peor que el dato, pero es muchísimo mejor que la pantalla en negro; el
+ * módulo que quiera mostrarlo declara su `onRender`, que es justo lo que le
+ * faltaba a Egresos.
+ */
+const isRenderableChild = (value: any): boolean =>
+  value === null ||
+  value === undefined ||
+  typeof value !== "object" ||
+  isValidElement(value);
+
+export const asRenderableValue = (value: any) => {
+  if (Array.isArray(value)) {
+    return value.every(isRenderableChild) ? value : null;
+  }
+  return isRenderableChild(value) ? value : null;
 };
 
 const CrudRendererHost = memo(
@@ -1370,7 +1404,7 @@ const useCrud = ({
                                 item,
                                 i,
                               })
-                            : item[col.key]
+                            : asRenderableValue(item[col.key])
                         }
                       />
                       {col.onBottom && (

@@ -8,9 +8,6 @@ import { formatNumber } from "@/mk/utils/numbers";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
 import { getDateStrMes } from "@/mk/utils/date";
-import RenderForm from "./RenderForm/RenderForm";
-import RenderView from "./RenderView/RenderView";
-import RenderDel from "./RenderDel/RenderDel";
 
 import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
@@ -233,16 +230,23 @@ const Outlays = () => {
         },
       },
 
+      // 🔴 CDT-37: acá había un `form: { type: "select", options: () => [] }`.
+      // La lista vacía no era un placeholder inofensivo: mientras el `mod` se
+      // quedó sin `renderForm`, ESE era el campo que veía el usuario, y como es
+      // `required` y no ofrecía ninguna opción, no se podía registrar un egreso.
+      //
+      // El form de Egresos es propio (`RenderForm/RenderForm.tsx`): arma la
+      // Subcategoría filtrando `extraData.subcategories` por la categoría
+      // elegida. Este campo se declara igual porque `useCrud` lo necesita para
+      // validar (`rules`) y para armar el payload (`api: "ae"`) — el back
+      // colapsa `subcategory_id` dentro de `category_id` en `beforeCreate`, así
+      // que si el form dejara de mandar los DOS el egreso quedaría colgado del
+      // padre y la columna de abajo mostraría "-/-".
       subcategory_id: {
         rules: ["required"],
         api: "ae",
         label: "Subcategoría",
         order: 4,
-        form: {
-          type: "select",
-          disabled: (formState: { category_id: any }) => !formState.category_id,
-          options: () => [],
-        },
         list: {
           order: 4,
           onRender: (props: any) => {
@@ -382,6 +386,17 @@ const Outlays = () => {
         rules: [""],
         api: "ae",
         label: "Usuario",
+      },
+      // Los comprobantes que sube `UploadFileV3` viajan acá: el archivo ya está
+      // en el storage y `url_file` guarda las URLs. Hay que declararlo porque
+      // `getParamFields` arma el payload recorriendo ESTE objeto, y lo que no
+      // esté declarado no se manda: sin esta clave el egreso se crea igual, sin
+      // ningún comprobante y sin un solo mensaje de error.
+      // Sin `label` a propósito: el Detail genérico arma su header con todo
+      // campo que tenga uno, y este valor es una lista de URLs que no se lee.
+      url_file: {
+        rules: [],
+        api: "ae",
       },
       avatar: {
         rules: [],

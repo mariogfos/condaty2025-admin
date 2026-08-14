@@ -112,12 +112,24 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
     return { categoryName, subCategoryName };
   };
 
-  const getStatusText = (status: number | string) => {
-    const statusMap: Record<string, string> = {
-      A: "Pagado",
-      X: "Anulado",
+  /**
+   * 🔴 Segundo defecto de CDT-39, tapado por el primero.
+   *
+   * Este mapa estaba keyeado por los chars legacy `'A'` y `'X'`. `expenses.status`
+   * es numérico desde S140 (0 = anulado, 1 = pagado), así que ninguna key
+   * matcheaba y el `|| status` devolvía el número crudo: la fila "Estado" del
+   * detalle mostraba "1" en vez de "Pagado". No se veía porque sin `renderView`
+   * este archivo no se renderizaba desde el 2026-07-21.
+   *
+   * "Desconocido" y no el valor crudo: un número suelto en la fila "Estado" se
+   * lee como un dato del egreso, no como un defecto de la pantalla.
+   */
+  const getStatusText = (value: number) => {
+    const statusMap: Record<number, string> = {
+      [ExpenseStatus.ACTIVE]: "Pagado",
+      [ExpenseStatus.CANCELLED]: "Anulado",
     };
-    return statusMap[status] || status;
+    return statusMap[value] ?? "Desconocido";
   };
 
   if (!item) {
@@ -145,15 +157,21 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   }
 
   const currentItem = item;
+  // El estado, normalizado UNA vez. Abajo se compara en cuatro lugares distintos
+  // (color, "Anulado por", "Motivo de anulación" y el botón de anular) y hasta
+  // ahora cada uno decidía por su cuenta si coercionaba o no: el botón hacía
+  // `Number(...)` y los otros tres comparaban con `===` contra el enum, así que
+  // un `status` que llegara como texto los apagaba a los tres sin un error.
+  const status = Number(currentItem.status);
 
   const { categoryName, subCategoryName } = item
     ? getCategoryNames()
     : { categoryName: "", subCategoryName: "" };
   const parsedDescription = parseExpenseDescription(item?.description);
 
-  const getStatusStyle = (status: number | string) => {
-    if (status === ExpenseStatus.ACTIVE) return styles.statusPaid;
-    if (status === ExpenseStatus.CANCELLED) return styles.statusCancelled;
+  const getStatusStyle = (value: number) => {
+    if (value === ExpenseStatus.ACTIVE) return styles.statusPaid;
+    if (value === ExpenseStatus.CANCELLED) return styles.statusCancelled;
     return "";
   };
 
@@ -324,7 +342,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
           })
         : "-/-",
     },
-    currentItem.status === ExpenseStatus.CANCELLED && currentItem.canceled_by
+    status === ExpenseStatus.CANCELLED && currentItem.canceled_by
       ? {
           key: "canceledBy",
           label: "Anulado por",
@@ -400,10 +418,10 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
     {
       key: "status",
       label: "Estado",
-      value: getStatusText(currentItem.status),
-      valueClassName: getStatusStyle(currentItem.status),
+      value: getStatusText(status),
+      valueClassName: getStatusStyle(status),
     },
-    currentItem.status === ExpenseStatus.CANCELLED && currentItem.canceled_obs
+    status === ExpenseStatus.CANCELLED && currentItem.canceled_obs
       ? {
           key: "canceledReason",
           label: "Motivo de anulación",
@@ -466,11 +484,10 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
           `0 !== "X"` es SIEMPRE verdadero: el botón "Anular egreso" seguía
           apareciendo en egresos que YA estaban anulados.
 
-          Este archivo ya usaba `ExpenseStatus.CANCELLED` bien en otros cuatro
-          lugares; sólo esta línea quedó con el char. `Number()` porque el tipo
-          de `status` admite string y el JSON a veces lo manda así.
+          La coerción ya no está acá: `status` se normaliza una sola vez arriba
+          y las cuatro comparaciones de estado leen esa misma variable.
         */}
-        {onDel && Number(currentItem.status) !== ExpenseStatus.CANCELLED && (
+        {onDel && status !== ExpenseStatus.CANCELLED && (
           <Button
             variant="danger"
             onClick={handleAnularClick}

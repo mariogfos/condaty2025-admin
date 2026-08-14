@@ -85,4 +85,35 @@ describe("Outlays mod config (S43 + S118b)", () => {
     const mod = getOutlaysMod();
     expect(mod.exportAsync?.extraParams?.title).toBeUndefined();
   });
+
+  /**
+   * 🔴 CDT-37 + CDT-39 — el pin que impide que esto vuelva a pasar.
+   *
+   * Cuando el `mod` se mudó de `Outlays.tsx` a esta factory (ed9beaf6), la
+   * mudanza perdió CINCO claves y nada avisó: no hay tipo que las exija, el
+   * módulo siguió compilando y la lista siguió andando. El agujero vivió 23
+   * días con el registro de egresos bloqueado (sin `renderForm`, la
+   * Subcategoría no ofrecía nada) y el detalle en pantalla negra (sin
+   * `renderView`, el Detail genérico explotaba con el `user` objeto).
+   *
+   * Las pantallas propias del módulo se prueban en `__tests__/` del módulo, que
+   * es donde se mide el comportamiento. Esto de acá es más chico y más bruto: la
+   * próxima mudanza de este objeto se pone ROJA en vez de borrar una clave en
+   * silencio.
+   */
+  it("declara sus pantallas propias y los titulos de sus acciones", () => {
+    const mod = getOutlaysMod();
+
+    // Lo que exige `CrudRendererHost`: o una función, o un componente envuelto
+    // en `memo` (un objeto con `.type` función). RenderView y RenderDel son
+    // `memo`, RenderForm no — por eso no alcanza con `toBeTypeOf("function")`.
+    const esRenderizable = (renderer: any) =>
+      typeof renderer === "function" || typeof renderer?.type === "function";
+
+    expect(esRenderizable(mod.renderForm)).toBe(true);
+    expect(esRenderizable(mod.renderView)).toBe(true);
+    expect(esRenderizable(mod.renderDel)).toBe(true);
+    expect(mod.titleAdd).toBe("Nuevo");
+    expect(mod.titleDel).toBe("Anular");
+  });
 });
