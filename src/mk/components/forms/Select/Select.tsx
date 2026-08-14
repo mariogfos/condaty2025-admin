@@ -82,8 +82,7 @@ const Section = ({
         />
       </div>
       <ul>
-        {_options.map
-          ? _options.map((option: any, key: any) => (
+        {_options.map((option: any, key: any) => (
               (() => {
                 const isGroupLabel = Boolean(option?.isGroupLabel);
                 const isSelected = isGroupLabel
@@ -150,18 +149,6 @@ const Section = ({
               </li>
                 );
               })()
-            ))
-          : Object.keys(_options).map((key) => (
-              <li
-                key={`li${name}${key}`}
-                onClick={() =>
-                  handleSelectClickElement(
-                    _options[key][optionValue] || _options[key].label,
-                  )
-                }
-              >
-                {_options[key][optionValue] || _options[key].label}
-              </li>
             ))}
       </ul>
     </section>
@@ -190,8 +177,21 @@ const Select = ({
   onBlur = () => {},
   onChange = (e: any) => {},
 }: PropsType) => {
+  // La segunda trampa de CDT-30, y cada modo la resuelve distinto.
+  //
+  // Simple: `??` y no `||`. Con `||`, un `value` de 0 —una opción legítimamente
+  // seleccionada— se convertía en cadena vacía en el primer render, y el efecto
+  // de más abajo tenía que corregirlo después.
+  //
+  // Múltiple: se exige un ARRAY. Esto es DEFENSIVO, no un bug reproducido: hoy
+  // un escalar falsy se colaría como `selectValue`, pero el spread y el
+  // `.includes()` de más abajo van los dos detrás de un `Array.isArray`, así
+  // que nada se rompe. Se intentó escribir el test que lo pusiera en rojo y
+  // quedó verde — o sea que no hay comportamiento observable que cubrir. Se
+  // deja la guarda porque el invariante "en múltiple esto es un array" es más
+  // barato de sostener acá que en cada consumidor.
   const [selectValue, setSelectValue] = useState(
-    value || (multiSelect ? [] : ""),
+    multiSelect ? (Array.isArray(value) ? value : []) : (value ?? ""),
   );
   const [openOptions, setOpenOptions] = useState(false);
   const [search, setSearch] = useState("");
@@ -346,8 +346,25 @@ const Select = ({
 
   const selectedOption = useMemo(() => {
     if (multiSelect || safeOptions.length === 0) return null;
+
+    // "Sin selección" es null, undefined o cadena vacía — y NADA MÁS.
+    //
+    // 🔴 Este chequeo explícito es el arreglo de CDT-30. Antes la comparación
+    // de abajo era `==` flojo contra `value`, y con `value = ""` (que es lo que
+    // vale un select sin elegir) `0 == ""` da `true` en JavaScript: cualquier
+    // opción cuyo id fuera 0 aparecía seleccionada sola, sin que el usuario
+    // tocara nada. Se vio en el filtro de estado de Condominios, donde
+    // `ClientStatus.INACTIVE` vale 0.
+    if (value === null || value === undefined || value === "") return null;
+
+    // Se compara como texto, no con `===` a secas, para conservar lo ÚNICO
+    // útil que hacía el `==` flojo: enganchar el id numérico que manda el
+    // backend (1) con el id string que arman las pantallas ("1"). Lo que se
+    // pierde es la coerción con vacío y con booleanos, que es justo el bug.
     return (
-      safeOptions.find((option: any) => option?.[optionValue] == value) || null
+      safeOptions.find(
+        (option: any) => String(option?.[optionValue]) === String(value),
+      ) || null
     );
   }, [multiSelect, optionValue, safeOptions, value]);
 
