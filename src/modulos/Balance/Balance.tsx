@@ -2,13 +2,10 @@
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import useAxios from "@/mk/hooks/useAxios";
-import { getUrlImages } from "@/mk/utils/string";
 import { useAsyncExport } from "@/mk/hooks/useAsyncExport/useAsyncExport";
 import ExportProgressModal from "@/mk/components/ui/ExportProgressModal/ExportProgressModal";
 import Select from "@/mk/components/forms/Select/Select";
 import Button from "@/mk/components/forms/Button/Button";
-import Input from "@/mk/components/forms/Input/Input";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import TableIngresos from "./TableIngresos";
 import TableEgresos from "./TableEgresos";
@@ -41,11 +38,6 @@ interface FilterState {
   filter_mov: string;
   filter_categ: string[];
 }
-interface FormStateType {
-  date_inicio?: string;
-  date_fin?: string;
-  [key: string]: string | undefined;
-}
 
 interface ErrorType {
   [key: string]: string;
@@ -66,7 +58,6 @@ const BalanceGeneral: React.FC = () => {
   const [errors, setErrors] = useState<ErrorType>({});
   const [lchars, setLchars] = useState<ChartTypeOption[]>([]);
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
-  const [formState, setFormState] = useState<FormStateType>({});
 
   const chartRefBalance = useRef<HTMLDivElement>(null);
   const chartRefIngresos = useRef<HTMLDivElement>(null);
@@ -177,48 +168,6 @@ const BalanceGeneral: React.FC = () => {
       filter_mov: formStateFilter.filter_mov,
       filter_categ: formStateFilter.filter_categ,
     });
-  };
-  const onSaveCustomFilter = () => {
-    let err: ErrorType = {};
-    if (!formState.date_inicio) {
-      err = { ...err, date_inicio: "La fecha de inicio es obligatoria" };
-    }
-    if (!formState.date_fin) {
-      err = { ...err, date_fin: "La fecha de fin es obligatoria" };
-    }
-    if (
-      formState.date_inicio &&
-      formState.date_fin &&
-      formState.date_inicio > formState.date_fin
-    ) {
-      err = {
-        ...err,
-        date_inicio: "La fecha de inicio no puede ser mayor a la de fin",
-      };
-    }
-    if (
-      formState.date_inicio &&
-      formState.date_fin &&
-      formState.date_inicio.slice(0, 4) !== formState.date_fin.slice(0, 4)
-    ) {
-      err = {
-        ...err,
-        date_inicio: "El periodo personalizado debe estar dentro del mismo año",
-        date_fin: "El periodo personalizado debe estar dentro del mismo año",
-      };
-    }
-    if (Object.keys(err).length > 0) {
-      setErrors(err);
-      return;
-    }
-    if (formState.date_inicio && formState.date_fin) {
-      setFormStateFilter({
-        ...formStateFilter,
-        filter_date: "c:" + formState.date_inicio + "," + formState.date_fin,
-      });
-    }
-    setOpenCustomFilter(false);
-    setErrors({});
   };
   const getCategories = () => {
     let data = [];
@@ -1040,7 +989,6 @@ const BalanceGeneral: React.FC = () => {
       <DateRangeFilterModal
         open={openCustomFilter}
         onClose={() => {
-          setFormState({});
           setOpenCustomFilter(false);
           setErrors({});
         }}
