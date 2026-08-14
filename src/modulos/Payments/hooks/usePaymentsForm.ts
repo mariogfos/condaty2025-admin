@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { getFullName } from "@/mk/utils/string";
-import { MONTHS_S } from "@/mk/utils/date";
+import { MONTHS_S, getNow } from "@/mk/utils/date";
 import { getTitular } from "@/mk/utils/adapters";
 import { paymentsApi } from "../api";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -251,7 +251,10 @@ export const usePaymentsForm = (
     const isAmountLocked = item?.isAmountLocked || false;
 
     return {
-      paid_at: item?.paid_at || new Date().toISOString().split("T")[0],
+      // El reloj del navegador es UTC: entre las 20:00 y la medianoche de
+      // Bolivia (UTC-4) `toISOString()` ya devuelve MAÑANA y el pago se
+      // guardaba con la fecha equivocada. getNow() da el día LOCAL.
+      paid_at: item?.paid_at || getNow(),
       type: item?.type,
       file: item?.file || null,
       url_file: Array.isArray(item?.url_file) ? item.url_file : [],
