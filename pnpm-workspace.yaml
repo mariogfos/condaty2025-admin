@@ -1,20 +1,40 @@
+# 🔴 `packages` tiene que estar, aunque este repo no sea un monorepo.
+#
+# Vercel corre pnpm 9 (lo elige por el lockfileVersion y la fecha de creación
+# del proyecto). pnpm 9 exige este campo apenas ve el archivo, y sin él corta
+# la instalación con "packages field missing or empty" — el deploy no arranca.
+# Medido el 2026-08-13 contra pnpm 9.15.9.
+packages:
+  - "."
+
 allowBuilds:
   esbuild: true
   msw: true
   sharp: true
   unrs-resolver: true
 
-# Next pins its own copies of these, and they are older than the ones with the
-# security fix. The pins are transitive, so bumping our own dependency does not
-# reach them: only an override does.
+# Next fija por su cuenta copias más viejas de estos tres, y las fija de forma
+# transitiva, así que subir nuestra propia dependencia no las alcanza: sólo un
+# override llega.
 #
-#   postcss      next pins 8.4.31 — arbitrary file read + path traversal in the
-#                source-map reader, fixed in 8.5.23. Same minor line we already
-#                use directly, so this only deduplicates to one copy.
-#   sharp        next pins 0.34.5 — inherited libvips CVEs, fixed in 0.35.0.
-#   @babel/core  arbitrary file read via sourceMappingURL, fixed in 7.29.1.
+#   postcss      next fija 8.4.31 — lectura arbitraria de archivos y path
+#                traversal en el lector de source maps, arreglado en 8.5.23.
+#                Es la misma línea menor que ya usamos directo, así que esto
+#                sólo deja una copia en vez de dos.
+#   sharp        next fija 0.34.5 — CVEs heredados de libvips, arreglado en 0.35.0.
+#   @babel/core  lectura arbitraria de archivos vía sourceMappingURL, en 7.29.1.
 #
-# Verified against a real production build and the running app before merging.
+# 🔴 Estos mismos overrides están DUPLICADOS en package.json, bajo `pnpm`.
+# No es un descuido: cada gestor lee uno solo de los dos.
+#
+#   pnpm 11 (local)   lee este archivo e IGNORA el de package.json, avisando
+#                     por stderr y siguiendo de largo.
+#   pnpm 9 (Vercel)   al revés: lee el de package.json e ignora este, en
+#                     silencio y sin avisar nada.
+#
+# Si se toca uno hay que tocar el otro. Con sólo este archivo, Vercel compila
+# en VERDE y se lleva postcss 8.4.31 y sharp 0.34.5 de vuelta — o sea, un
+# deploy exitoso con las vulnerabilidades adentro. Medido, no supuesto.
 overrides:
   postcss: ^8.5.26
   sharp: ^0.35.0
