@@ -406,7 +406,27 @@ export function useAsyncExport(
               body: JSON.stringify(params ?? {}),
             });
 
-        if (res.status === 202) {
+        // 🔴 200 y 202 son el MISMO caso: el reporte quedó encolado.
+        //
+        // Lo correcto para algo asíncrono es 202 Accepted, y así estaba. Pero
+        // en el servidor de dev nginx esconde el `Access-Control-Allow-Origin`
+        // que pone Laravel y lo vuelve a agregar con `add_header` SIN el flag
+        // `always`. Sin `always`, `add_header` sólo se aplica a una lista fija
+        // de estados:
+        //
+        //     200, 201, 204, 206, 301, 302, 303, 304, 307, 308
+        //
+        // El 202 no está en esa lista, así que la respuesta llegaba sin esa
+        // cabecera y el navegador la descartaba: en DevTools se veía el 202 en
+        // rojo y acá llegaba un "Failed to fetch" pelado, mientras el log del
+        // back decía que el job había terminado y el PDF estaba escrito.
+        //
+        // Medido el 2026-08-14 contra el servidor de dev: 200 y 204 traen la
+        // cabecera; 202, 401 y 404 no. Por eso el back pasó a devolver 200.
+        //
+        // Se aceptan los dos a propósito: el día que nginx lleve `always`, el
+        // back puede volver a 202 sin coordinar el despliegue de los dos lados.
+        if (res.status === 202 || res.status === 200) {
           const data = await res.json();
           setState((s) => ({
             ...s,
