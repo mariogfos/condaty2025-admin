@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { MONTHS_S } from "@/mk/utils/date";
+import { MONTHS_S, getNow } from "@/mk/utils/date";
 import { DebtStatus } from "@/types/PaymentType";
 import {
   getPaymentStatusConfig,
@@ -58,7 +58,7 @@ const getDebtNumericStatus = (row: any): number => {
 const resolveDebtStatus_numeric = (row: any): number => {
   const status = getDebtNumericStatus(row);
   const dueAtString = row?.due_at || "";
-  const todayString = new Date().toISOString().split("T")[0];
+  const todayString = getNow();
 
   if (status === DebtStatus.PENDING && dueAtString && dueAtString < todayString) {
     return DebtStatus.OVERDUE;

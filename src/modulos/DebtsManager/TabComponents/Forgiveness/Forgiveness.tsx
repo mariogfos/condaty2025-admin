@@ -5,7 +5,7 @@ import { getFullName } from '@/mk/utils/string';
 import React, { useEffect, useMemo } from 'react';
 import styles from './Forgiveness.module.css';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
-import { getDateStrMesShort } from '@/mk/utils/date';
+import { getDateStrMesShort, getNow } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import { formatBs } from '@/mk/utils/numbers';
 import { DebtStatus } from '@/types/PaymentType';
@@ -118,7 +118,7 @@ const Forgiveness = ({
           onRender: ({ item }: any) => {
             const numericStatus = Number(item?.status);
             const isOverdue =
-              item?.due_at < new Date().toISOString().split('T')[0] &&
+              item?.due_at < getNow() &&
               numericStatus === DebtStatus.PENDING;
             const displayStatus = isOverdue ? DebtStatus.OVERDUE : numericStatus;
             // getStatusConfig aplica la regla de mora (PENDING + vencido → OVERDUE)

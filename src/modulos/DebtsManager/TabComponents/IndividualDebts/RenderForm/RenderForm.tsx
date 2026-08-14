@@ -11,6 +11,7 @@ import { hasMaintenanceValue, UnitsType } from '@/mk/utils/utils';
 import styles from './RenderForm.module.css';
 import { IconArrowDown, IconQuestion } from '@/components/layout/icons/IconsBiblioteca';
 import { checkRules } from '@/mk/utils/validate/Rules';
+import { getNow } from "@/mk/utils/date";
 
 interface DebtFormState {
   id?: string | number;
@@ -62,8 +63,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   action,
 }) => {
   const [_formState, _setFormState] = useState<DebtFormState>(() => {
-    const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
+    const formattedDate = getNow();
     return {
       ...(item || {}),
       begin_at: (item && item.begin_at) || formattedDate,
@@ -111,8 +111,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       return;
     }
     if (!isInitialized && open) {
-      const today = new Date();
-      const formattedDate = today.toISOString().split('T')[0];
+      const formattedDate = getNow();
 
       _setFormState({
         ...(item || {}),
@@ -237,8 +236,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
   const onCloseModal = useCallback(() => {
     setIsInitialized(false);
-    const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
+    const formattedDate = getNow();
     _setFormState({
       begin_at: formattedDate,
       due_at: '',
@@ -293,8 +291,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   useEffect(() => {
     if (!open && isInitialized) {
       setIsInitialized(false);
-      const today = new Date();
-      const formattedDate = today.toISOString().split('T')[0];
+      const formattedDate = getNow();
       _setFormState({
         begin_at: formattedDate,
         due_at: '',

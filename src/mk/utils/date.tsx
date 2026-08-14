@@ -428,6 +428,18 @@ export const getDateStrMesShort = (
 //   return `${date[2]} ${MONTHS_S[parseInt(date[1])]} ${date[0]}, ${time}`;
 // };
 
+/**
+ * El día de HOY (YYYY-MM-DD) en la zona del usuario — helper CANÓNICO.
+ *
+ * 🔴 `new Date().toISOString()` devuelve el día en UTC. Bolivia es UTC-4, así
+ * que entre las 20:00 y la medianoche ese cálculo da MAÑANA: cuatro horas por
+ * día en las que el admin cree que es otro día. Medido en CDT-36 (precargaba
+ * `paid_at` con el día siguiente) y en CDT-43 (una deuda que vencía HOY se
+ * pintaba "En mora" después de las 20:00).
+ *
+ * Para un INSTANTE (`created_at`, un mensaje de chat, un cronómetro)
+ * `toISOString()` sigue siendo lo correcto; esto es sólo para el día calendario.
+ */
 export const getNow = (): string => {
   const fec: any = convertirFechaUTCaLocal(new Date().toISOString());
   return fec.toISOString().substring(0, 10);

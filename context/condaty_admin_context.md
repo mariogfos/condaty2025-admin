@@ -713,7 +713,12 @@ const fields: Record<string, FieldConfig> = {
 - Interceptors para JWT automático
 
 ##### Utilidades de la Librería
-- **date.tsx**: Utilidades completas de fechas
+- **date.tsx**: Utilidades completas de fechas.
+  🔴 El día de HOY sale SIEMPRE de `getNow()` (día calendario en la zona del
+  usuario, con el caso SSR resuelto). `new Date().toISOString()` devuelve el día
+  en **UTC** y en Bolivia (UTC-4) adelanta un día entre las 20:00 y la
+  medianoche — CDT-36 y CDT-43. Para un **instante** (`created_at`, chat,
+  cronómetros) `toISOString()` sí es lo correcto.
 - **numbers.tsx**: Formateo de números y monedas
 - **string.tsx**: Manipulación de strings
 - **images.tsx**: Procesamiento de imágenes

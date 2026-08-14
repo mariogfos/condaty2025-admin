@@ -28,6 +28,7 @@ import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import RenderView from "../DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
+import { getNow } from "@/mk/utils/date";
 
 const initialState: FormState = {
   unidad: "",
@@ -123,7 +124,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         "GET",
         {
           area_id: formState?.area_social || "none",
-          date_at: date || new Date().toISOString()?.split("T")[0],
+          date_at: date || getNow(),
           owner_id:
             ownerId ||
             extraData?.dptos?.find(
@@ -251,7 +252,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     let daysAvailable = [];
     let unavailableSlots = [];
 
-    if (dateString == new Date().toISOString().split("T")?.[0]) {
+    if (dateString == getNow()) {
       daysAvailable = dataDay?.available.filter(
         (d: any) => parseInt(d.split("-")[1]) > new Date().getHours(),
       );
@@ -297,7 +298,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   };
   const nextStep = (): void => {
     if (currentStep === 1) {
-      const dateNow = new Date().toISOString().split("T")?.[0];
+      const dateNow = getNow();
       const day = new Date(dateNow).getDay();
       const weekday = [
         "Lunes",

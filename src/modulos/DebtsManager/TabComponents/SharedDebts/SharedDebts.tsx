@@ -2,7 +2,7 @@
 import React, { useMemo, useEffect, useState } from "react";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import useCrudUtils from "../../../shared/useCrudUtils";
-import { getDateStrMesShort } from "@/mk/utils/date";
+import { getDateStrMesShort, getNow } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
@@ -555,7 +555,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     const rawStatus = Number(item?.status);
     const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
     const dueAtString = item?.due_at;
-    const todayString = new Date().toISOString().split("T")[0];
+    const todayString = getNow();
     const displayStatus = dueAtString && dueAtString < todayString && numericStatus === DebtStatus.PENDING
       ? DebtStatus.OVERDUE
       : numericStatus;

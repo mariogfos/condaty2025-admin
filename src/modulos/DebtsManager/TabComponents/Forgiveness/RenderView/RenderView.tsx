@@ -1,6 +1,6 @@
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Table from '@/mk/components/ui/Table/Table';
-import { getDateStrMesShort } from '@/mk/utils/date';
+import { getDateStrMesShort, getNow } from '@/mk/utils/date';
 import { formatBs } from '@/mk/utils/numbers';
 import { getFullName } from '@/mk/utils/string';
 import React from 'react';
@@ -93,7 +93,7 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
   const getStatus = (item: any) => {
     const numericStatus = Number(item?.status);
     if (
-      item?.due_at < new Date().toISOString().split('T')[0] &&
+      item?.due_at < getNow() &&
       numericStatus === DebtStatus.PENDING
     ) {
       return DebtStatus.OVERDUE;
@@ -109,7 +109,7 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
     DebtStatus.SUBMITTED,
     DebtStatus.CANCELLED,
   ].includes(numericStatus);
-  const isOverdue = item?.due_at < new Date().toISOString().split('T')[0];
+  const isOverdue = item?.due_at < getNow();
   return (
     <DataModal
       title="Detalle de condonación"

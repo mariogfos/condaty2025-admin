@@ -1,5 +1,6 @@
 import { DebtStatus } from "@/types/PaymentType";
 import { maintenanceAmountFor } from "@/mk/utils/utils";
+import { getNow } from "@/mk/utils/date";
 
 // ---------------------------------------------------------------------------
 // Numeric-native debt status maps — keyed by DebtStatus enum (int 1-10)
@@ -120,8 +121,7 @@ export const getStatusText = (status: number): string => {
 // Overdue rule: PENDING + past dueDate => treat as OVERDUE for display
 export const getStatusConfig = (status: number, dueDate?: string): { color: string; bgColor: string } => {
   let finalStatus = status;
-  const today = new Date();
-  const todayString = today.toISOString().split('T')[0];
+  const todayString = getNow();
   const due = dueDate ?? null;
 
   if (due && due < todayString && status === DebtStatus.PENDING) {
