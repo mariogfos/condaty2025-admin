@@ -1,0 +1,21 @@
+allowBuilds:
+  esbuild: true
+  msw: true
+  sharp: true
+  unrs-resolver: true
+
+# Next pins its own copies of these, and they are older than the ones with the
+# security fix. The pins are transitive, so bumping our own dependency does not
+# reach them: only an override does.
+#
+#   postcss      next pins 8.4.31 — arbitrary file read + path traversal in the
+#                source-map reader, fixed in 8.5.23. Same minor line we already
+#                use directly, so this only deduplicates to one copy.
+#   sharp        next pins 0.34.5 — inherited libvips CVEs, fixed in 0.35.0.
+#   @babel/core  arbitrary file read via sourceMappingURL, fixed in 7.29.1.
+#
+# Verified against a real production build and the running app before merging.
+overrides:
+  postcss: ^8.5.26
+  sharp: ^0.35.0
+  "@babel/core": ^7.29.1
