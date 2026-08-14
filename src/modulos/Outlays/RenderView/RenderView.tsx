@@ -486,8 +486,12 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
 
           La coerción ya no está acá: `status` se normaliza una sola vez arriba
           y las cuatro comparaciones de estado leen esa misma variable.
+
+          Se exige ACTIVE en vez de negar CANCELLED: un status ilegible da
+          `NaN`, y `NaN !== CANCELLED` es verdadero, así que la negación volvía
+          a mostrar el botón sobre un egreso cuyo estado no se pudo leer.
         */}
-        {onDel && status !== ExpenseStatus.CANCELLED && (
+        {onDel && status === ExpenseStatus.ACTIVE && (
           <Button
             variant="danger"
             onClick={handleAnularClick}
