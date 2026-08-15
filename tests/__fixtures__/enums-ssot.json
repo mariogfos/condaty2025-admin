@@ -258,12 +258,8 @@
     },
     "SurveyStatus": {
       "type": "string",
-      "comment": "Char-backed. Sincronizado con backend App\\Modules\\Surveys\\Enums\\SurveyStatus (PHP).",
+      "comment": "Char-backed. Sincronizado con backend App\\Modules\\Surveys\\Enums\\SurveyStatus (PHP).\n\nEl API llamaba `Voting` a este case y significaba lo CONTRARIO: es el estado donde los participantes ven la encuesta pero NO pueden votar. El propio enum se contradecía —el case decía Voting y su label() devolvía 'Visible'— y los tres fronts siempre dijeron `Visible`. Se renombró en el API el 2026-08-15 en vez de dejarlo como alias: no tenía un solo call site fuera de su propio archivo, así que el rename costó dos líneas.",
       "apps": ["api", "admin", "rnOwner"],
-      "aliasesByApp": {
-        "api": { "Visible": "Voting" }
-      },
-      "aliasesComment": "🔴 El valor coincide ('V') y el nombre no, y acá el nombre del API está MAL: `Voting` es el estado en el que los participantes ven la encuesta pero NO pueden votar — lo dice su propio comentario en el PHP, 'Visible - participantes ven PERO no votan'. Renombrarlo toca los call sites de Surveys, que no está migrado: anotado en HALLAZGOS_CRUZADOS.md.",
       "values": [
         { "name": "Draft", "value": "D" },
         { "name": "Visible", "value": "V", "comment": "Visible, participants can see but NOT vote" },
