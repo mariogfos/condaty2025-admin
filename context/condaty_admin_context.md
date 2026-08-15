@@ -322,6 +322,11 @@ Modulo/
 - Reportes de morosidad
 - Condonación selectiva
 
+**SharedDebts** sigue la misma regla que las expensas (ver *14. Expenses →
+Qué se puede editar y qué no*): el grupo sólo se crea, y el reparto por unidad
+(`DetalleDeudaCompartida`) es donde se edita el monto y se elimina la deuda de
+UNA unidad, contra `/v3/debt-dptos/{id}` con `type: 4`.
+
 ### 10. Defaulters (Morosos)
 **Ubicación**: `src/modulos/Defaulters/`
 **Funcionalidad**: Gestión de usuarios morosos
@@ -366,19 +371,40 @@ Modulo/
 - Control de asistencia
 - Integración con calendario
 
-### 14. Expenses (Gastos)
+### 14. Expenses (Expensas)
 **Ubicación**: `src/modulos/Expenses/`
-**Funcionalidad**: Gestión de gastos
+**Funcionalidad**: Expensas de las unidades, agrupadas por periodo
 
 #### Submódulos:
-- **ExpensesDetails**: Detalles de gastos
-- **RenderForm**: Formulario de gastos
+- **ExpensesDetails**: el periodo abierto, una fila por unidad
+- **RenderForm**: crear el periodo (año + mes + descripción)
 
 **Características**:
-- Categorización de gastos
-- Aprobación de gastos
-- Reportes detallados
-- Integración con presupuestos
+- Listado por periodo con totales cobrados, en mora y por cobrar
+- Detalle por unidad con su estado, multa y mantenimiento de valor
+- Exportación por el motor async (`debt-groups-expenses` / `expenses-periodo`)
+
+#### 🔴 Qué se puede editar y qué no (CDT-50, decisión del CTO)
+
+Un **grupo** —el periodo de expensas o una deuda compartida— **sólo se crea**.
+No se edita ni se elimina: `PUT` y `DELETE` de `/debt-groups/{id}` no existen
+(404 en `/api/v3`, 405 en el alias legacy `/api`). Un grupo es una agrupación
+que ya repartió su cometido; editarlo o borrarlo entero significaba borrar duro
+las N deudas de las unidades y regenerarlas, arrastrando a las que no tenían
+nada que ver.
+
+Lo que se edita y se elimina es la **deuda individual**, con el lápiz y el
+tacho de su fila en el detalle por unidad → `PUT`/`DELETE /v3/debt-dptos/{id}`.
+Condiciones del back (`DebtDptoController`):
+
+- No se puede si la deuda tiene **cualquier pago vivo**, ni parcial ni sin
+  confirmar (CDT-45). El rechazo vuelve con el motivo en `message` y ese texto
+  es el que se le muestra al usuario: las pantallas no lo tapan con un texto
+  fijo propio.
+- El `PUT` **exige `type`**: sin él el back rutea a NORMAL y pide otras cinco
+  claves. Para EXPENSE exige además `penalty_amount` (`required|numeric|min:0`).
+- El `PUT` **ignora** `dpto_id`, `year`, `month`, `debt_id` y `shared_id`:
+  editar corrige la plata, nunca muda la deuda de unidad ni de grupo.
 
 ### 15. Guards (Guardias)
 **Ubicación**: `src/modulos/Guards/`

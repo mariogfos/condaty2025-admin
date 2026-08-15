@@ -106,6 +106,28 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
+      /**
+       * 🔴 Va en el `PUT` aunque no se vea ni se edite.
+       *
+       * `DebtDptoController::beforeUpdate` rutea por `type`: sin él,
+       * `(int) null` es 0 —NORMAL— y entonces exige `begin_at`, `due_at`,
+       * `subcategory_id`, `amount` y `dpto_id`, que esta pantalla no tiene.
+       * El valor sale de la fila (`debt_dptos.type`); todas son SHARED porque
+       * la lista se pide con `type: 4`.
+       *
+       * Sin `form` a propósito: `useCrud` sólo dibuja los campos que lo
+       * declaran, así que no ocupa una celda del grid del formulario.
+       */
+      type: { rules: [], api: "e" },
+      obs: {
+        rules: ["required"],
+        api: "e",
+        label: "Motivo del cambio",
+        form: {
+          type: "text",
+          label: "Motivo del cambio",
+        },
+      },
       unit: {
         rules: [""],
         api: "",
@@ -141,9 +163,17 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           order: 3,
         },
       },
+      /**
+       * El monto de ESTA unidad. El back congela `dpto_id`, `debt_id`,
+       * `shared_id`, `year` y `month`, así que editar corrige la plata y nunca
+       * muda la deuda de unidad ni de grupo.
+       *
+       * La multa NO se edita acá: `beforeUpdate` no la pide para SHARED (sí
+       * para EXPENSE) y la aplica el proceso de mora.
+       */
       amount: {
-        rules: [""],
-        api: "",
+        rules: ["required", "number", "positive"],
+        api: "e",
         label: (
           <label
             style={{ display: "block", textAlign: "right", width: "100%" }}
@@ -155,6 +185,10 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           onRender: renderDebtAmountCell,
           order: 4,
           sumarize: true,
+        },
+        form: {
+          type: "number",
+          label: "Monto",
         },
       },
       penalty_amount: {
@@ -224,7 +258,8 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     // leen `extraData.debt`, que arma `DebtDptoController` buscando por
     // `shared_id` — justo el que no se estaba llamando.
     modulo: "v3/debt-dptos",
-    singular: "Detalle",
+    // Titula los modales de editar y eliminar ("Editar deuda de la unidad").
+    singular: "deuda de la unidad",
     plural: "Detalles",
     // Motor nuevo (Fase 6): lo atiende `DetalleDeCompartidaExportConfig`.
     //
@@ -248,12 +283,15 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     // GRUPO —`PUT`/`DELETE /v3/debt-groups/{id}` con `type: 4`—, que borraban
     // duro las N deudas de todas las unidades. El grupo ya no se edita ni se
     // borra (esos endpoints devuelven 404). Lo que se edita y se elimina es la
-    // deuda de UNA unidad.
+    // deuda de UNA unidad, con el lápiz y el tacho de su fila, que `useCrud`
+    // manda a `PUT`/`DELETE /v3/debt-dptos/{id}`.
+    //
+    // Como en el detalle de expensas, no hay `onHideActions` que adivine si la
+    // deuda tiene pagos: esa regla vive en `beforeUpdate`/`beforeDelete` y su
+    // rechazo llega con el texto del back.
     hideActions: {
       add: true,
       view: false,
-      edit: true,
-      del: true,
     },
     renderView: (props: any) => (
       <RenderView

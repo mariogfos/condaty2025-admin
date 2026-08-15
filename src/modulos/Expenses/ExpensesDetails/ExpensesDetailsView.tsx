@@ -152,7 +152,8 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
 
   const mod: ModCrudType = {
     modulo: "v3/debt-dptos",
-    singular: "",
+    // Titula los modales de editar y eliminar ("Editar expensa de la unidad").
+    singular: "expensa de la unidad",
     plural: "",
     filter: true,
     export: false,
@@ -171,10 +172,23 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       endpoint: "/v3/debt-dptos",
     },
     permiso: "expenses",
+    // 🔴 CDT-50: acá se editaba y se borraba el PERIODO ENTERO desde la
+    // pantalla anterior, y esta —la única que muestra la deuda de CADA
+    // unidad— no tenía ninguna acción. La única forma de sacar la expensa de
+    // UNA unidad era borrar el mes completo.
+    //
+    // Ahora el lápiz y el tacho de la fila van a `PUT`/`DELETE
+    // /v3/debt-dptos/{id}`, que es lo que `useCrud` arma con `mod.modulo`.
+    // `add` sigue oculto: las expensas de un periodo las genera el back al
+    // crear el grupo, no se agregan de a una desde acá.
+    //
+    // No hay `onHideActions` que adivine si la deuda tiene pagos: la regla es
+    // "ningún pago vivo, ni parcial ni sin confirmar" y vive en
+    // `DebtDptoController::beforeUpdate`/`beforeDelete` (CDT-45). Copiarla acá
+    // la dejaría en dos lenguajes esperando a separarse; el back rechaza con
+    // su texto y ese texto es el que ve el usuario.
     hideActions: {
       add: true,
-      edit: true,
-      del: true,
     },
     loadView: {},
     renderView: (props: {
@@ -210,6 +224,19 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
+      /**
+       * 🔴 Va en el `PUT` aunque no se vea ni se edite.
+       *
+       * `DebtDptoController::beforeUpdate` rutea por `type`: sin él,
+       * `(int) null` es 0 —NORMAL— y entonces exige `begin_at`, `due_at`,
+       * `subcategory_id`, `amount` y `dpto_id`, que esta pantalla no tiene.
+       * El valor sale de la fila (`debt_dptos.type`); todas son EXPENSE
+       * porque la lista se pide con `type: 1`.
+       *
+       * Sin `form` a propósito: `useCrud` sólo dibuja los campos que lo
+       * declaran, así que no ocupa una celda del grid del formulario.
+       */
+      type: { rules: [], api: "e" },
       unit: {
         rules: [""],
         api: "",
@@ -248,7 +275,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         },
       },
       amount: {
-        rules: ["required"],
+        rules: ["required", "number", "positive"],
         api: "e",
         label: (
           <span style={{ display: "block", textAlign: "right", width: "100%" }}>
@@ -259,7 +286,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           onRender: renderAmountCell,
         },
         form: {
-          type: "text",
+          type: "number",
           label: "Monto",
         },
       },
@@ -272,9 +299,19 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           label: "Motivo del cambio",
         },
       },
+      /**
+       * 🔴 `required` de este lado no es cosmético: el back valida
+       * `penalty_amount => required|numeric|min:0` para EXPENSE y responde
+       * **422**. Un 422 hace que axios tire, así que `execute` vuelve con
+       * `data: null` y el toast de error de `useCrud` saldría VACÍO — el
+       * usuario no vería nada. Con la regla acá el formulario ni sale.
+       *
+       * Cero es un valor válido (la regla `required` de `mk` acepta 0 y "0"):
+       * una expensa sin multa se guarda con 0, no se deja vacía.
+       */
       penalty_amount: {
-        rules: [""],
-        api: "",
+        rules: ["required", "number", "positive"],
+        api: "e",
         label: (
           <span style={{ display: "block", textAlign: "right", width: "100%" }}>
             Multa
@@ -282,6 +319,10 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         ),
         list: {
           onRender: renderPenaltyAmountCell,
+        },
+        form: {
+          type: "number",
+          label: "Multa",
         },
       },
       maintenance_amount: {
