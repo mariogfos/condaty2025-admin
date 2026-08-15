@@ -37,6 +37,7 @@ vi.mock("@/mk/contexts/AuthProvider", () => ({
 }));
 
 import BankEntities from "../BankEntities";
+import { BankEntityStatus } from "@/modulos/BankAccounts/Type/BankType";
 
 describe("BankEntities", () => {
   beforeEach(() => {
@@ -88,7 +89,13 @@ describe("BankEntities", () => {
     for (const opcion of sinTodos) {
       expect(typeof opcion.id).toBe("number");
     }
-    expect(sinTodos.map((o: any) => o.id).sort()).toEqual([0, 1]);
+    // ⚠️ Los valores salen del enum, no de una lista escrita a mano. La
+    // versión anterior fijaba `[0, 1]` y el día del renumerado a 1/2 se puso
+    // roja diciendo "esperaba 0" — que es un número que ya no existe en
+    // ninguna parte del sistema.
+    expect(sinTodos.map((o: any) => o.id).sort()).toEqual(
+      [BankEntityStatus.ACTIVE, BankEntityStatus.INACTIVE].sort()
+    );
   });
 
   it("el select del formulario manda los mismos números que el filtro", () => {
@@ -96,7 +103,9 @@ describe("BankEntities", () => {
 
     const delForm = camposRecibidos?.status?.form?.options ?? [];
 
-    expect(delForm.map((o: any) => o.id).sort()).toEqual([0, 1]);
+    expect(delForm.map((o: any) => o.id).sort()).toEqual(
+      [BankEntityStatus.ACTIVE, BankEntityStatus.INACTIVE].sort()
+    );
   });
 
   it("le pasa a useCrud el mod del catálogo compartido", () => {

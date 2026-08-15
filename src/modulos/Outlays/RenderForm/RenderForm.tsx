@@ -10,6 +10,10 @@ import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import { checkRules } from "@/mk/utils/validate/Rules";
 import { FORM_PAYMENT_METHODS } from "@/modulos/Payments/Type/PaymentType";
 import { getNow } from "@/mk/utils/date";
+// 🔴 `is_main == 1` quedó acá cuando el enum se renumeró: desde el 2026-08-15
+// el 1 es NO. La pantalla de Egresos elegía como cuenta destino exactamente las
+// cuentas NO asignadas, sin error y sin log. Es camino de plata.
+import { BankAccountAssignment } from "@/modulos/BankAccounts/Type/BankType";
 
 interface Category {
   id: number | string;
@@ -305,7 +309,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       (subcat) => subcat.id === _formState.subcategory_id
     );
     const mainAccount: any = extraData?.bankAccounts?.find(
-      (bank: any) => bank.is_main == 1
+      (bank: any) => Number(bank.is_main) === BankAccountAssignment.YES
     );
 
     const resolvedDefault =
@@ -367,7 +371,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       (subcat) => subcat.id === _formState.subcategory_id
     );
     const mainAccount: any = extraData?.bankAccounts?.find(
-      (bank: any) => bank.is_main == 1
+      (bank: any) => Number(bank.is_main) === BankAccountAssignment.YES
     );
 
     if (searchSubcategory?.bank_account_id) return searchSubcategory.bank_account_id;

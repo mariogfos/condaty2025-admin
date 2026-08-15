@@ -6,6 +6,7 @@ import { paymentsApi } from "../api";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { FormPaymentType } from "../Type/PaymentType";
 import { CategoryFixed } from "@/modulos/Categories/Type/CategoryType";
+import { BankAccountAssignment } from "@/modulos/BankAccounts/Type/BankType";
 
 export interface Dpto {
   id: string | number;
@@ -1044,21 +1045,30 @@ export const usePaymentsForm = (
       owner_id = titular?.id;
     }
     let bank_account_id;
-    const existBankAccount = extraData?.bankAccounts?.find(
-      (item: any) => item.is_main == 1
+
+    // 🔴 Las tres asignaciones se comparaban con `== 1`. Desde el 2026-08-15
+    // `bank_accounts.is_main` y compañía son `BankAccountAssignment`, donde
+    // **1 es NO** y 2 es SÍ: con la comparación vieja, este formulario habría
+    // elegido como cuenta destino del pago exactamente las cuentas NO
+    // asignadas — sin error, sin log y con el pago cobrado igual.
+    const isAssigned = (value: unknown) =>
+      Number(value) === BankAccountAssignment.YES;
+
+    const existBankAccount = extraData?.bankAccounts?.find((item: any) =>
+      isAssigned(item.is_main)
     )?.id;
 
     switch (formState.type) {
       case FormPaymentType.EXPENSE: {
         const id =
-          extraData?.bankAccounts?.find((i: any) => i.is_expense == 1)?.id ||
+          extraData?.bankAccounts?.find((i: any) => isAssigned(i.is_expense))?.id ||
           existBankAccount;
         bank_account_id = id;
         break;
       }
       case FormPaymentType.RESERVATION: {
         const id =
-          extraData?.bankAccounts?.find((i: any) => i.is_reserve == 1)?.id ||
+          extraData?.bankAccounts?.find((i: any) => isAssigned(i.is_reserve))?.id ||
           existBankAccount;
         bank_account_id = id;
         break;

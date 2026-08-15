@@ -7,7 +7,7 @@ import { formatNumber } from "@/mk/utils/numbers";
 import RenderForm from "../RenderForm/RenderForm";
 import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import { BankAccountStatus } from "../Type/BankType";
+import { BankAccountStatus, getAssignmentLabels } from "../Type/BankType";
 import { bankAccountsApi } from "../api";
 
 const RenderView = (props: any) => {
@@ -171,16 +171,7 @@ const RenderView = (props: any) => {
                 <div className={styles.bankDetailField}>
                   <p className={styles.bankDetailLabel}>Asignada a</p>
                   <div className={styles.bankDetailValue}>
-                    {["Expensa", "Reserva", "Principal"]
-                      .filter((label, index) => {
-                        const flags = [
-                          item?.is_expense,
-                          item?.is_reserve,
-                          item?.is_main,
-                        ];
-                        return flags[index] > 0;
-                      })
-                      .join(", ") || "-/-"}
+                    {getAssignmentLabels(item)}
                   </div>
                 </div>
 
