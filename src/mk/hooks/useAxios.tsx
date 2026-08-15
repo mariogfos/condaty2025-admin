@@ -97,6 +97,21 @@ export type UseAxiosType<T = any> = {
    */
   data: ApiEnvelope<T> | null;
   error: ApiError | "";
+  /**
+   * Hay dato viejo en `data` y el último intento de refrescarlo FALLÓ: lo que
+   * se está mostrando ya no se sabe si sigue siendo cierto.
+   *
+   * 🔴 NO es `!!error`. `error` se limpia al ARRANCAR cada petición (`:171`),
+   * así que un reintento que vuelve a fallar lo apaga y lo prende: el aviso
+   * parpadea. Esta bandera se escribe sólo cuando una petición TERMINA, y por
+   * eso se sostiene sola mientras el reintento está en vuelo.
+   *
+   * ⚠️ Sólo la mueven las peticiones que escriben el estado del hook
+   * (`saveInState`): son las que refrescan `data`. Un `execute` suelto —un
+   * guardado, un export— que falla NO ensucia el dato de la lista, que sigue
+   * siendo tan fresco como era.
+   */
+  isStale: boolean;
   loaded: boolean;
   execute: ExecuteFn<T>;
   reLoad: ReLoadFn;
@@ -118,6 +133,7 @@ const useAxios = <T = any,>(
 ): UseAxiosType<T> => {
   const [data, setData] = useState<ApiEnvelope<T> | null>(null);
   const [error, setError] = useState<ApiError | "">("");
+  const [isStale, setIsStale] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [countAxios, setCountAxios] = useState(0);
   const { contextInstance, waiting, setWaiting }: any =
@@ -195,6 +211,8 @@ const useAxios = <T = any,>(
       });
       if (Act) {
         setData(response.data);
+        // El dato de pantalla se acaba de refrescar: deja de estar viejo.
+        setIsStale(false);
       }
 
       // setData(response.data);
@@ -207,6 +225,10 @@ const useAxios = <T = any,>(
         status: (err as any).response?.status || 0,
       };
       setError(error);
+      // 🔴 Sólo las peticiones que refrescan `data` marcan el dato como viejo.
+      // Y se marca al TERMINAR, nunca al arrancar: así el reintento en vuelo no
+      // apaga el aviso.
+      if (Act) setIsStale(true);
     } finally {
       if (!notWaiting) {
         setLoaded(true);
@@ -265,6 +287,9 @@ const useAxios = <T = any,>(
     cancel,
     data,
     error,
+    // Sin dato en pantalla no hay nada "viejo" que avisar: eso es la carga
+    // inicial fallida, y tiene su propio estado de error.
+    isStale: data !== null && isStale,
     loaded,
     execute,
     reLoad,

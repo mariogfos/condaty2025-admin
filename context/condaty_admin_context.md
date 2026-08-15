@@ -582,6 +582,37 @@ interface UseCrudType {
 - ✅ **Validación de formularios** con reglas personalizables
 - ✅ **Manejo de datos extra** para selects dependientes
 
+##### Los CUATRO estados de la lista (`List`)
+
+Cuál se muestra lo decide el render de `useCrud.tsx`, y son excluyentes: nunca
+salen dos carteles a la vez.
+
+| Estado | Cuándo | Qué se ve |
+|---|---|---|
+| Cargando | `showTableSkeleton` | Esqueleto de filas |
+| Carga inicial fallida | `error` y **sin** filas | "No se pudo cargar el listado." + **Recargar** |
+| 🔴 **Dato desactualizado** | `isStale` y **con** filas | Banner ámbar "No se pudo actualizar: estos datos están desactualizados." + **Reintentar**, y la tabla al 50% de opacidad |
+| Vacío | `data` cargado, cero filas | `EmptyData` |
+
+Aparte, el scroll infinito tiene el renglón de **"No se pudieron cargar más
+resultados."** cuando falla un "cargar más". El banner de dato desactualizado se
+apaga si ese renglón está puesto: los dos dirían lo mismo.
+
+🔴 **Decisión de producto (CDT-42, Alexander)**: ante un refresco fallido el dato
+viejo **se queda visible pero marcado**, no se borra ni se reemplaza por un
+error. Se aceptó con la condición de que el aviso sea **imposible de pasar por
+alto** — de ahí el ámbar sólido y la atenuación de la tabla; un cartel discreto
+deja al usuario igual que antes.
+
+⚠️ El caso muerde en los módulos **sin** scroll infinito (`perPage: -1`), que son
+12 de 40: ahí un refresco conserva las filas. Con scroll infinito el refresco
+arranca por `beginListReset`, que las borra, y cae en el estado de carga inicial
+fallida.
+
+⚠️ **Pendiente**: las pantallas de plata (Balance, dashboard) NO usan este
+tratamiento todavía — un monto viejo atenuado es un número que alguien puede
+cobrar. Está esperando definición de producto.
+
 #### Configuración del useCrud
 ```typescript
 const modConfig: ModCrudType = {
@@ -711,6 +742,15 @@ const fields: Record<string, FieldConfig> = {
 - Cancelación automática de requests
 - Error handling centralizado
 - Interceptors para JWT automático
+- 🔴 **`isStale`**: hay dato viejo en `data` y el último intento de refrescarlo
+  falló. Un request que falla **NO pisa `data`** (a propósito: pisarlo hace
+  desaparecer la lista entera), así que sin esta bandera la pantalla muestra el
+  payload anterior como si fuera fresco — CDT-42.
+  **No es `!!error`**: `error` se limpia al ARRANCAR cada petición, así que un
+  aviso colgado de él parpadea en cada reintento. `isStale` se escribe sólo
+  cuando la petición TERMINA, y únicamente en las que llevan `saveInState`, que
+  son las que refrescan `data`: un guardado o un export que falla no ensucia el
+  dato de la lista.
 
 ##### Utilidades de la Librería
 - **date.tsx**: Utilidades completas de fechas.

@@ -43,6 +43,7 @@ import {
   IconTrash,
   IconExport,
   IconFilter,
+  IconAlertCircle,
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import FormElement from "./FormElement";
@@ -195,6 +196,8 @@ type UseCrudType = {
   setSearchs: Function;
   data: any;
   loaded: boolean;
+  /** Hay dato viejo en pantalla y el último intento de refrescarlo falló. */
+  isStale: boolean;
   setAction: Function;
   reLoad: Function;
   execute: Function;
@@ -508,6 +511,7 @@ const useCrud = ({
     execute,
     loaded: axiosLoaded,
     error: axiosError,
+    isStale: axiosIsStale,
   } = useAxios(
     useInfiniteList ? null : "/" + mod.modulo,
     "GET",
@@ -517,11 +521,22 @@ const useCrud = ({
   const [manualData, setManualData] = useState<any>(null);
   const [manualLoaded, setManualLoaded] = useState(!useInfiniteList);
   const [manualError, setManualError]: any = useState("");
+  /**
+   * El gemelo de `isStale` de `useAxios` para el scroll infinito, que no usa
+   * `saveInState`: acá el dato de pantalla es `listRows`, y lo maneja este hook.
+   *
+   * 🔴 Se escribe SÓLO cuando el request termina (`fetchInfiniteCrudData`), no
+   * cuando arranca. `manualError` sí se limpia al arrancar —`setManualError("")`
+   * un poco más abajo—, y colgar el aviso de él lo haría parpadear en cada
+   * reintento fallido.
+   */
+  const [manualIsStale, setManualIsStale] = useState(false);
   const latestRequestIdRef = useRef(0);
   const lastResolvedParamsRef = useRef<Record<string, any>>(params);
   const data = useInfiniteList ? manualData : axiosData;
   const loaded = useInfiniteList ? manualLoaded : axiosLoaded;
   const error = useInfiniteList ? manualError : axiosError;
+  const isStale = useInfiniteList ? manualIsStale : axiosIsStale;
   const [listRows, setListRows] = useState<any[]>([]);
   const [listTotal, setListTotal] = useState(0);
   const [listHasMore, setListHasMore] = useState(false);
@@ -651,6 +666,9 @@ const useCrud = ({
         setManualData(result.data);
       }
       setManualError(result.error);
+      // Al TERMINAR: si falló, lo que quedó en pantalla es dato viejo; si
+      // respondió, se refrescó y deja de serlo.
+      setManualIsStale(!!result.error);
       setManualLoaded(true);
       return result;
     },
@@ -2239,6 +2257,7 @@ const useCrud = ({
     data: resolvedData,
     loaded,
     error,
+    isStale,
     searchs,
     params,
     mod,
@@ -2479,6 +2498,30 @@ const useCrud = ({
         return () => window.clearTimeout(timeout);
       }, [shouldRequestTableSkeleton, showTableSkeleton]);
 
+      /**
+       * 🔴 CDT-42: el request falló pero las filas viejas siguen en pantalla.
+       *
+       * El estado de error de más abajo (`listErrorState`) es INALCANZABLE en
+       * este caso: con filas, el primer branch del ternario se lleva el render
+       * y la tabla se dibuja igual que si el dato fuera fresco. El usuario ve
+       * datos viejos sin un solo aviso.
+       *
+       * Las tres condiciones que lo apagan, y por qué:
+       *
+       * - `showTableSkeleton`: mientras carga no hay nada que avisar todavía.
+       * - `filteredData?.length > 0`: sin filas gana el estado de error de
+       *   siempre. Cubre también el primer render (`error` en `""`, `data` en
+       *   `[]`), donde no hay ni error ni filas.
+       * - `loadMoreFailed`: el "cargar más" fallido YA tiene su propio renglón
+       *   (`loadMoreErrorRow`); sin esto salen dos carteles diciendo lo mismo,
+       *   porque `fetchInfiniteCrudData` prende las dos banderas a la vez.
+       */
+      const showStaleBanner =
+        !!runtime.isStale &&
+        !showTableSkeleton &&
+        filteredData?.length > 0 &&
+        !runtime.loadMoreFailed;
+
       let emptyContent;
       if (props.onRenderEmpty) {
         emptyContent = props.onRenderEmpty();
@@ -2528,8 +2571,35 @@ const useCrud = ({
           {runtime.openList && (
             <div className={styles.contentRow}>
               <section className={styles.contentMain}>
+                {showStaleBanner && (
+                  <div className={styles.staleBanner} role="alert">
+                    <IconAlertCircle size={28} />
+                    <div className={styles.staleBannerText}>
+                      <p>
+                        No se pudo actualizar: estos datos están
+                        desactualizados.
+                      </p>
+                      <span>
+                        Es la última información que se pudo cargar y puede
+                        haber cambiado. No tomes decisiones con esto sin
+                        reintentar.
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.loadMoreErrorRetry}
+                      onClick={() => runtime.reLoad()}
+                    >
+                      Reintentar
+                    </button>
+                  </div>
+                )}
                 {showTableSkeleton || filteredData?.length > 0 ? (
                   <Table
+                    // La atenuación del dato viejo. Sólo opacidad: un `filter`
+                    // acá crearía un containing block y movería cualquier
+                    // descendiente posicionado de la tabla.
+                    style={showStaleBanner ? { opacity: 0.5 } : undefined}
                     data={showTableSkeleton ? [] : sortedData}
                     onRowClick={
                       props.onRowClick
@@ -2822,6 +2892,8 @@ const useCrud = ({
     setSearchs,
     data: resolvedData,
     loaded,
+    /** Hay dato viejo en pantalla y el último intento de refrescarlo falló. */
+    isStale,
     setAction,
     reLoad: reloadCrudList,
     execute,
