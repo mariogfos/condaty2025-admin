@@ -11,6 +11,12 @@ import {
   IconArrowRight,
   IconArrowLeft,
   IconGenericQr} from "@/components/layout/icons/IconsBiblioteca";
+import {
+  InvitationStatus,
+  InvitationType,
+  esEstado,
+  esTipo,
+} from "../invitationEnums";
 
 interface RenderViewProps {
   open: boolean;
@@ -32,7 +38,7 @@ const RenderView: React.FC<RenderViewProps> = ({
 
   // Determinar el estado de la invitación
   const getStatusInfo = () => {
-    if (item?.status === "X") {
+    if (esEstado(item?.status, InvitationStatus.CANCELLED)) {
       return {
         label: "Anulada",
         className: styles.statusCancelled
@@ -63,7 +69,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       <div className={styles.container}>
         <div className={styles.iconHeader}>
           <div className={styles.iconCircle}>
-            {item?.type === "G" ? (
+            {esTipo(item?.type, InvitationType.GROUP) ? (
               <IconGroupsQr className={styles.qrIcon} />
             ) : (
               <IconSingleQr className={styles.qrIcon} />
@@ -85,7 +91,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           <div className={styles.detailRow}>
             <div className={styles.label}>Tipo:</div>
             <div className={styles.value}>
-              {item?.type === "G" ? "Grupal" : "Individual"}
+              {esTipo(item?.type, InvitationType.GROUP) ? "Grupal" : "Individual"}
             </div>
           </div>
 
@@ -118,7 +124,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           )}
 
           {/* Mostrar invitados si es una invitación grupal */}
-          {item?.type === "G" && item?.guests && item?.guests.length > 0 && (
+          {esTipo(item?.type, InvitationType.GROUP) && item?.guests && item?.guests.length > 0 && (
             <>
               <div className={styles.guestsHeader}>
                 <div className={styles.guestsTitle}>Invitados ({item.guests.length})</div>
@@ -153,7 +159,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           )}
 
           {/* Para invitaciones individuales, mostrar el acceso */}
-          {item?.type === "I" && item?.access && (
+          {esTipo(item?.type, InvitationType.INDIVIDUAL) && item?.access && (
             <div className={styles.detailRow}>
               <div className={styles.label}>Acceso:</div>
               <div className={styles.value}>
