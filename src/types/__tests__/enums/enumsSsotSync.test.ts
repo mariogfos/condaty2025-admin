@@ -40,11 +40,21 @@ import {
   AccessTaxiMark,
 } from '@/modulos/Activities/AccessTab/shared/accessEnums';
 
+// Invitaciones: migradas a enum numérico desde 1 el 2026-08-15. El admin sólo
+// consume dos de los cuatro — no muestra la configuración horaria ni la lista
+// de invitados de una grupal, que son de rnOwner y rnGuard.
+import {
+  InvitationStatus,
+  InvitationType,
+} from '@/modulos/Activities/QrTab/invitationEnums';
+
 const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
   AccessType,
   AccessStoredStatus,
   AccessConfirmation,
   AccessTaxiMark,
+  InvitationStatus,
+  InvitationType,
   ReservationStatus,
   PaymentStatus,
   PaymentMethod,

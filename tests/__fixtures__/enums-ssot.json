@@ -1,14 +1,15 @@
 {
   "$schema": "./enums-ssot.schema.json",
   "version": "1.1.0",
-  "lastUpdated": "2026-08-09",
+  "lastUpdated": "2026-08-15",
   "maintainer": "Condaty cross-app team",
-  "source": "SSoT canónico de enums compartidos entre admin/rnGuard/rnOwner. Cada app mantiene su enum local sincronizado vía test de reflection contra esta fuente. NO es runtime: se usa solo en CI/tests para detectar drift.",
+  "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\nDesde 1.1.0 el API entra al contrato con la app `api`, y ésa es la diferencia que importa: hasta 1.0.0 esto pineaba que los tres fronts coincidieran ENTRE ELLOS, no que coincidieran con las columnas. Tres fronts de acuerdo y los tres equivocados contra el API era exactamente el caso que no se podía detectar. El PHP es la fuente real: es lo que está guardado en la base.",
   "sync": {
     "strategy": "manual-copy",
-    "rationale": "Repos privados, sin registry npm compartido. El SSoT se versiona en humandistor y se copia a tests/fixtures/ de cada app cuando cambia. El test de reflection detecta drift si alguien modifica el enum local sin actualizar el SSoT.",
-    "copyCommand": "cp /Users/marioguzman/.mavis/projects/condaty/sprints/enums-ssot.json <app>/tests/fixtures/enums-ssot.json",
+    "rationale": "Repos privados, sin registry npm compartido. El SSoT se versiona en humandistor (Makromania) y se copia a cada repo cuando cambia. El test de reflection detecta drift si alguien modifica el enum local sin actualizar el SSoT.\n\n⚠️ La copia manual es el eslabón débil y no hay nada que la fuerce: si actualizás este archivo y no lo copiás, los repos siguen midiendo contra la versión vieja y NO se ponen rojos. Por eso `version` se sube en el mismo commit y cada test la afirma: una copia vieja tiene otra `version` y se nota.",
+    "copyCommand": "cp ~/Desktop/Makromania/.makromania/projects/condaty/sprints/enums-ssot.json <repo>/tests/__fixtures__/enums-ssot.json   # en condaty-api el destino es tests/Fixtures/enums-ssot.json",
     "apps": [
+      "condaty-api",
       "condaty-admin",
       "rnGuard",
       "rnOwner"
@@ -17,51 +18,80 @@
   "enums": {
     "AccessType": {
       "type": "int",
-      "comment": "accesses.type. Sincronizado con backend App\\Modules\\Access\\Enums\\TipoDeAcceso (PHP). Char legacy (pre 2026-08-09) en cada comment.",
-      "apps": ["admin", "rnGuard", "rnOwner"],
+      "comment": "Cómo entró un visitante — `accesses.type`. En el API se llama `TipoDeAcceso` y sus cases están en castellano: ver `aliasesByApp`.\n\n🔴 Estos cuatro enums de Access estaban importados en el `LOCAL_ENUMS` de los tres fronts desde el 2026-07-15 y el SSoT NUNCA los declaró, así que el test los saltaba en silencio: eran cuatro enums que nadie comparaba, en el módulo cuyo flip de chars ya mordió tres veces. Entran al contrato el 2026-08-15.",
+      "apps": ["api", "admin", "rnGuard", "rnOwner"],
+      "aliasesByApp": {
+        "api": {
+          "WITHOUT_QR": "SinQr",
+          "QR_INDIVIDUAL": "QrIndividual",
+          "QR_GROUP": "QrGrupal",
+          "QR_FREQUENT": "QrFrecuente",
+          "ORDER": "Pedido",
+          "QR_KEY": "LlaveQr"
+        }
+      },
+      "aliasesComment": "Los VALORES coinciden en los cuatro repos; los nombres de los cases no. El API los tiene en castellano porque el módulo Access se escribió así, y los fronts en inglés. Se declara el alias en vez de renombrar: el rename toca los call sites de Access, que todavía no se migró a Mk2.",
       "values": [
-        { "name": "WITHOUT_QR", "value": 1, "comment": "C: Sin QR — 359.634 filas" },
-        { "name": "QR_INDIVIDUAL", "value": 2, "comment": "I: QR Individual — 2.397" },
-        { "name": "QR_GROUP", "value": 3, "comment": "G: QR Grupal — 1.422" },
-        { "name": "QR_FREQUENT", "value": 4, "comment": "F: QR frecuente — 17.200" },
-        { "name": "ORDER", "value": 5, "comment": "P: Pedido — 97" },
-        { "name": "QR_KEY", "value": 6, "comment": "O: Llave QR — 1.269" }
+        { "name": "WITHOUT_QR", "value": 1, "comment": "SinQr" },
+        { "name": "QR_INDIVIDUAL", "value": 2, "comment": "QrIndividual" },
+        { "name": "QR_GROUP", "value": 3, "comment": "QrGrupal" },
+        { "name": "QR_FREQUENT", "value": 4, "comment": "QrFrecuente" },
+        { "name": "ORDER", "value": 5, "comment": "Pedido" },
+        { "name": "QR_KEY", "value": 6, "comment": "LlaveQr — la llave del residente, que no es una invitación" }
       ]
     },
     "AccessStoredStatus": {
       "type": "int",
-      "comment": "accesses.status. Backend App\\Modules\\Access\\Enums\\EstadoGuardado. 🔴 NO es el estado que muestra la pantalla: ese se DERIVA de in_at/out_at/confirm_at (getAccessStatusInfo).",
-      "apps": ["admin", "rnGuard", "rnOwner"],
+      "comment": "El estado GUARDADO de un acceso — `accesses.status`. En el API es `EstadoGuardado`.\n\n⚠️ No confundir con `EstadoDelAcceso` del API, que es el estado DERIVADO que ve el usuario (sin salida, completado, por salir…) y no es una columna: se calcula. Por eso no está en este SSoT.",
+      "apps": ["api", "admin", "rnGuard", "rnOwner"],
+      "aliasesByApp": {
+        "api": {
+          "WAITING": "Esperando",
+          "INSIDE": "Adentro",
+          "OUTSIDE": "Afuera",
+          "REJECTED": "Rechazado"
+        }
+      },
       "values": [
-        { "name": "WAITING", "value": 1, "comment": "A: Aprobado, esperando entrar — 824" },
-        { "name": "INSIDE", "value": 2, "comment": "I: Adentro — 10.004" },
-        { "name": "OUTSIDE", "value": 3, "comment": "O: Afuera — 367.900" },
-        { "name": "REJECTED", "value": 4, "comment": "N: Rechazado — 3.291" }
+        { "name": "WAITING", "value": 1, "comment": "Esperando" },
+        { "name": "INSIDE", "value": 2, "comment": "Adentro" },
+        { "name": "OUTSIDE", "value": 3, "comment": "Afuera" },
+        { "name": "REJECTED", "value": 4, "comment": "Rechazado" }
       ]
     },
     "AccessConfirmation": {
       "type": "int",
-      "comment": "accesses.confirm. Backend App\\Modules\\Access\\Enums\\Confirmacion. Es la RESPUESTA (¿lo dejo pasar?), no un estado.",
-      "apps": ["admin", "rnGuard", "rnOwner"],
+      "comment": "Si el residente confirmó el ingreso — `accesses.confirm`. En el API es `Confirmacion`. Era un char Y/N: un booleano disfrazado, de la misma familia que `invitations.is_advanced`.\n\n🔴 El flip de esta columna se corrió creyendo que afectaba 0 filas —la consulta preguntaba `where('confirm', 1)` contra una columna que todavía guardaba 'Y'— y en realidad eran 77.",
+      "apps": ["api", "admin", "rnGuard", "rnOwner"],
+      "aliasesByApp": {
+        "api": { "YES": "Si", "NO": "No" }
+      },
       "values": [
-        { "name": "YES", "value": 1, "comment": "Y: Autorizado — 354.623" },
-        { "name": "NO", "value": 2, "comment": "N: No autorizado — 27.396" }
+        { "name": "YES", "value": 1, "comment": "Si — era 'Y'" },
+        { "name": "NO", "value": 2, "comment": "No — era 'N'" }
       ]
     },
     "AccessTaxiMark": {
       "type": "int",
-      "comment": "accesses.taxi. Backend App\\Modules\\Access\\Enums\\MarcaDeTaxi. 🔴 No es un booleano: IS_THE_DRIVER es lo unico que distingue al taxista de un acompanante.",
-      "apps": ["admin", "rnGuard", "rnOwner"],
+      "comment": "Si el visitante llegó en taxi, y en qué rol — `accesses.taxi`. En el API es `MarcaDeTaxi`. Distingue al acompañante del taxista, que es lo que decide si se le registra la placa.",
+      "apps": ["api", "admin", "rnGuard", "rnOwner"],
+      "aliasesByApp": {
+        "api": {
+          "NO_TAXI": "SinTaxi",
+          "CAME_BY_TAXI": "LlegoEnTaxi",
+          "IS_THE_DRIVER": "EsElTaxista"
+        }
+      },
       "values": [
-        { "name": "NO_TAXI", "value": 1, "comment": "N: Sin taxi — 269.751" },
-        { "name": "CAME_BY_TAXI", "value": 2, "comment": "Y: Llego en taxi — 110.465" },
-        { "name": "IS_THE_DRIVER", "value": 3, "comment": "C: Es el taxista — 1.803" }
+        { "name": "NO_TAXI", "value": 1, "comment": "SinTaxi" },
+        { "name": "CAME_BY_TAXI", "value": 2, "comment": "LlegoEnTaxi" },
+        { "name": "IS_THE_DRIVER", "value": 3, "comment": "EsElTaxista" }
       ]
     },
     "ReservationStatus": {
       "type": "int",
       "comment": "Sincronizado con backend App\\Modules\\Reservations\\Enums\\ReservationStatus (PHP). Char legacy mapeado en comments.",
-      "apps": ["admin", "rnGuard", "rnOwner"],
+      "apps": ["api", "admin", "rnGuard", "rnOwner"],
       "values": [
         { "name": "AWAITING_APPROVAL", "value": 1, "comment": "W: Esperando confirmación" },
         { "name": "PENDING_PAYMENT", "value": 2, "comment": "A: Pago pendiente" },
@@ -79,7 +109,7 @@
     "PaymentStatus": {
       "type": "int",
       "comment": "Sincronizado con backend App\\Modules\\Payments\\Enums\\PaymentStatus (PHP).",
-      "apps": ["admin", "rnOwner"],
+      "apps": ["api", "admin", "rnOwner"],
       "values": [
         { "name": "SUBMITTED", "value": 1, "comment": "Por confirmar", "rnOwnerAlias": "PENDING" },
         { "name": "PAID", "value": 2, "comment": "Confirmado/Pagado" },
@@ -90,7 +120,7 @@
     "PaymentMethod": {
       "type": "int",
       "comment": "Sincronizado con backend App\\Modules\\Payments\\Enums\\PaymentMethod (PHP).",
-      "apps": ["admin", "rnOwner"],
+      "apps": ["api", "admin", "rnOwner"],
       "values": [
         { "name": "TRANSFER", "value": 1 },
         { "name": "OFFICE", "value": 2 },
@@ -102,7 +132,7 @@
     "PaymentType": {
       "type": "int",
       "comment": "Sincronizado con backend App\\Modules\\Payments\\Enums\\PaymentType (PHP). NO confundir con QrDinamico/types.ts PaymentType (string char, semántica distinta — son enums DIFERENTES, no se pueden unificar). SOLO consumido por admin — rnOwner usa `DebtType` (semántica diferente, no equivalente).",
-      "apps": ["admin"],
+      "apps": ["api", "admin"],
       "values": [
         { "name": "ALL_DEBTS", "value": 1 },
         { "name": "EXPENSES", "value": 2 },
@@ -116,7 +146,7 @@
     "DebtStatus": {
       "type": "int",
       "comment": "Sincronizado con backend App\\Modules\\Payments\\Enums\\DebtStatus (PHP).",
-      "apps": ["admin", "rnOwner"],
+      "apps": ["api", "admin", "rnOwner"],
       "values": [
         { "name": "PENDING", "value": 1, "comment": "Por cobrar" },
         { "name": "OVERDUE", "value": 2, "comment": "En mora" },
@@ -144,7 +174,7 @@
     "AssemblyStatus": {
       "type": "string",
       "comment": "Char-backed (string). Sincronizado con backend App\\Modules\\Assemblies\\Enums\\AssemblyStatus (PHP enum: string).",
-      "apps": ["admin", "rnOwner"],
+      "apps": ["api", "admin", "rnOwner"],
       "values": [
         { "name": "Scheduled", "value": "S" },
         { "name": "InProgress", "value": "P" },
@@ -155,7 +185,7 @@
     "AssemblyType": {
       "type": "string",
       "comment": "Char-backed. Backend enums Assemblies son string, no int.",
-      "apps": ["admin", "rnOwner"],
+      "apps": ["api", "admin", "rnOwner"],
       "values": [
         { "name": "Ordinary", "value": "O" },
         { "name": "Extraordinary", "value": "E" },
@@ -165,7 +195,11 @@
     "AssemblyModality": {
       "type": "string",
       "comment": "Char-backed.",
-      "apps": ["admin", "rnOwner"],
+      "apps": ["api", "admin", "rnOwner"],
+      "aliasesByApp": {
+        "api": { "Presencial": "InPerson", "Hibrid": "Hybrid" }
+      },
+      "aliasesComment": "Los VALORES coinciden; los nombres de los cases no. El API dice `InPerson` y `Hybrid` donde los fronts dicen `Presencial` e `Hibrid`. Se declara el alias en vez de renombrar porque Assemblies todavía no se migró y el rename toca sus call sites. Nadie lo había visto porque hasta 1.1.0 el API no entraba a este contrato.",
       "values": [
         { "name": "Virtual", "value": "V" },
         { "name": "Presencial", "value": "P" },
@@ -182,10 +216,54 @@
         { "name": "Dependents", "value": "dependents" }
       ]
     },
+    "InvitationStatus": {
+      "type": "int",
+      "comment": "En qué situación está una invitación — `invitations.status`. Era char(1) A/I/O/X hasta el 2026-08-15; migrado a enum numérico desde 1 sobre 5.420 filas. Lo escriben CINCO módulos del API (Invitation, Access, Visits, HomeOwner), y por eso el contrato importa más que de costumbre.\n\n⚠️ NO es el estado que ve el usuario en el listado del admin: ése es derivado (Anulada/Expirada/Activa) y se calcula cruzando esta columna con los accesos registrados.",
+      "apps": ["api", "admin", "rnGuard", "rnOwner"],
+      "values": [
+        { "name": "ACTIVE", "value": 1, "comment": "A — 2.090 filas al migrar" },
+        { "name": "INACTIVE", "value": 2, "comment": "I — 788" },
+        { "name": "USED", "value": 3, "comment": "O — 2.264" },
+        { "name": "CANCELLED", "value": 4, "comment": "X — 278" }
+      ]
+    },
+    "InvitationType": {
+      "type": "int",
+      "comment": "Qué clase de invitación es — `invitations.type`. Era char(1) I/G/F.\n\n🔴 La letra del QR FÍSICO usa el mismo alfabeto y NO es esta columna: el texto impreso dice `condaty|qr|G|<uuid>` y el lector del guardia manda `?qr=G`. Está en 5.432 filas de `qrs` y en los QR compartidos por WhatsApp, así que no se migró. Y sólo existen I (4.777) y G (655): ninguna F, porque los frecuentes se emitieron con I.",
+      "apps": ["api", "admin", "rnGuard", "rnOwner"],
+      "values": [
+        { "name": "INDIVIDUAL", "value": 1, "comment": "I — 3.725 filas al migrar" },
+        { "name": "GROUP", "value": 2, "comment": "G — 652" },
+        { "name": "FREQUENT", "value": 3, "comment": "F — 1.043" }
+      ]
+    },
+    "InvitationSchedule": {
+      "type": "int",
+      "comment": "Si la invitación lleva días y horario — `invitations.is_advanced`. Era un char(1) N/Y, o sea un booleano disfrazado: entra al enum por la regla del proyecto y porque los tres fronts lo comparaban contra 'Y' a mano, cada uno en su archivo.\n\nEl admin no lo consume: no muestra ni edita la configuración horaria.",
+      "apps": ["api", "rnGuard", "rnOwner"],
+      "values": [
+        { "name": "SIMPLE", "value": 1, "comment": "N — 5.099 filas al migrar" },
+        { "name": "ADVANCED", "value": 2, "comment": "Y — 321" }
+      ]
+    },
+    "InvitationGuestStatus": {
+      "type": "int",
+      "comment": "🔴 El estado de UN invitado de una grupal — `invitation_visits.status`. NO es InvitationStatus.\n\nComparte los tres valores a propósito: la columna guardaba las mismas letras, y hacer que un 1 signifique cosas distintas según la tabla convertiría cualquier consulta de diagnóstico en una trampa. No tiene CANCELLED: anular es una operación sobre la invitación entera.\n\nSon enums SEPARADOS —no un alias— para que confundirlos sea un error de tipo. Sólo rnOwner lo consume: es la pantalla que lista los invitados de un QR grupal.",
+      "apps": ["api", "rnOwner"],
+      "values": [
+        { "name": "ACTIVE", "value": 1, "comment": "A — 3.846 de 5.262 filas al migrar" },
+        { "name": "INACTIVE", "value": 2, "comment": "I — 190" },
+        { "name": "USED", "value": 3, "comment": "O — 1.226" }
+      ]
+    },
     "SurveyStatus": {
       "type": "string",
       "comment": "Char-backed. Sincronizado con backend App\\Modules\\Surveys\\Enums\\SurveyStatus (PHP).",
-      "apps": ["admin", "rnOwner"],
+      "apps": ["api", "admin", "rnOwner"],
+      "aliasesByApp": {
+        "api": { "Visible": "Voting" }
+      },
+      "aliasesComment": "🔴 El valor coincide ('V') y el nombre no, y acá el nombre del API está MAL: `Voting` es el estado en el que los participantes ven la encuesta pero NO pueden votar — lo dice su propio comentario en el PHP, 'Visible - participantes ven PERO no votan'. Renombrarlo toca los call sites de Surveys, que no está migrado: anotado en HALLAZGOS_CRUZADOS.md.",
       "values": [
         { "name": "Draft", "value": "D" },
         { "name": "Visible", "value": "V", "comment": "Visible, participants can see but NOT vote" },
