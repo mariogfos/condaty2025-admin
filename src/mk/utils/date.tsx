@@ -458,6 +458,21 @@ export const getNow = (): string => {
  */
 export const getNowDate = (): Date => new Date(`${getNow()}T00:00:00`);
 
+/**
+ * El DÍA CALENDARIO que trae una fecha del back, como medianoche LOCAL.
+ *
+ * 🔴 `new Date("2026-08-14")` y `new Date("2026-08-14T00:00:00.000000Z")` son el
+ * MISMO instante: medianoche **UTC**, o sea las 20:00 del 13 en Bolivia. Las
+ * columnas `date` del back (`due_at`, con cast `'date'`) llegan en ese formato,
+ * así que comparar `new Date(due_at)` contra el hoy local corre un día entero.
+ *
+ * El par para comparar un día calendario es `getLocalDate(x) < getNowDate()`:
+ * los dos lados truncados a medianoche local. Medido en CDT-44, donde una deuda
+ * que vencía HOY se pintaba "En mora" las 24 horas del día.
+ */
+export const getLocalDate = (dateStr: string | null): Date =>
+  new Date(`${getDateStr(dateStr)}T00:00:00`);
+
 export const getDateDesdeHasta = (date: any, locale?: AppLocale) => {
   const fechaActual = new Date();
   //convertir fechaActual a hora local
