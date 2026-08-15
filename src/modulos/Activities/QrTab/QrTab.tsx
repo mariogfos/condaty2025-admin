@@ -9,10 +9,9 @@ import { IconGroupsQr, IconSingleQr } from "@/components/layout/icons/IconsBibli
 import RenderView from "./RenderView/RenderView";
 import {
   INVITATION_TYPE_LABELS,
-  InvitationStatus,
   InvitationType,
-  esEstado,
-  esTipo,
+  esAnulada,
+  esGrupal,
 } from "./invitationEnums";
 
 interface QRTabProps {
@@ -205,14 +204,14 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
             // El ícono solo no alcanza para distinguir tres cosas, así que va
             // con su nombre al lado. El reporte usa las mismas palabras.
             const type = Number(props.item.type);
-            const esGrupal = esTipo(type, InvitationType.GROUP);
+            const grupal = esGrupal(type);
             const label =
               INVITATION_TYPE_LABELS[type] ??
               INVITATION_TYPE_LABELS[InvitationType.INDIVIDUAL];
 
             return (
               <div className={styles.invitationTypeIcon} title={label}>
-                {esGrupal ? (
+                {grupal ? (
                   <IconGroupsQr className={styles.groupIcon} />
                 ) : (
                   <IconSingleQr className={styles.singleIcon} />
@@ -239,7 +238,7 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
             let statusLabel = "Activa";
             let statusClass = "statusA";
 
-            if (esEstado(props.item.status, InvitationStatus.CANCELLED)) {
+            if (esAnulada(props.item.status)) {
               statusLabel = "Anulada";
               statusClass = "statusX";
             } else if (props.item.access && props.item.access.length === 0) {

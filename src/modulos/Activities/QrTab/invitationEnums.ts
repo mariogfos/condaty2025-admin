@@ -58,3 +58,28 @@ export const esTipo = (valor: unknown, tipo: number): boolean =>
 
 export const esEstado = (valor: unknown, estado: number): boolean =>
   valor !== null && valor !== undefined && Number(valor) === estado;
+
+/**
+ * 🔴 Los predicados con nombre existen para que el enum se nombre UNA vez.
+ *
+ * `esTipo` y `esEstado` reciben un `number` pelado, así que acá ni siquiera hay
+ * la media red que dan los enums de TypeScript en las apps de React Native:
+ * `esEstado(x, InvitationType.GROUP)` compila perfecto y compara el estado
+ * contra un tipo. Y equivocarse de case dentro del mismo enum compila en
+ * cualquier caso.
+ *
+ * Medido el 2026-08-15 sobre la rama de la migración: cambiar el case en
+ * `RenderView.tsx` no ponía **nada** en rojo, porque este archivo no tenía un
+ * solo test. Ahora `__tests__/invitationEnums.test.ts` lo fija.
+ */
+export const esGrupal = (tipo: unknown): boolean =>
+  esTipo(tipo, InvitationType.GROUP);
+
+export const esIndividual = (tipo: unknown): boolean =>
+  esTipo(tipo, InvitationType.INDIVIDUAL);
+
+export const esFrecuente = (tipo: unknown): boolean =>
+  esTipo(tipo, InvitationType.FREQUENT);
+
+export const esAnulada = (estado: unknown): boolean =>
+  esEstado(estado, InvitationStatus.CANCELLED);
