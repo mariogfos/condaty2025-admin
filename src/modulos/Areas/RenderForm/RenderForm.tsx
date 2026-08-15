@@ -12,6 +12,13 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import FourPart from "./Partes/FourPart";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import {
+  AreaApproval,
+  AreaBookingMode,
+  AreaDebtRestriction,
+  AreaPricing,
+  esPorHora,
+} from "../Type/AreaEnums";
 
 const hasCoordinateValue = (value: unknown) => {
   if (value === 0 || value === "0") {
@@ -81,11 +88,20 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     ...item,
     coordinates:
       item?.coordinates || buildCoordinatesValue(item?.latitude, item?.longitude),
-    booking_mode: item?.booking_mode || "day",
+    // 🔴 El formulario ya NO traduce a chars. Acá había
+    // `requires_approval === false ? "X" : "A"` y su inverso al guardar: el
+    // form tenía su propia representación interna en chars, distinta de la del
+    // API y distinta de la de la base. Tres formas para el mismo dato.
+    //
+    // Desde que las banderas son enums numéricos, el estado del form guarda
+    // el mismo número que viaja por HTTP y que está en la columna. Una sola
+    // forma, y el `??` cubre el alta (item vacío) con el mismo default que la
+    // tabla.
+    booking_mode: item?.booking_mode ?? AreaBookingMode.DAY,
     has_price: item?.price ? "S" : "N",
-    requires_approval: item?.requires_approval === false ? "X" : "A",
+    requires_approval: item?.requires_approval ?? AreaApproval.REQUIRED,
     penalty_or_debt_restriction:
-      item?.penalty_or_debt_restriction === true ? "A" : "X",
+      item?.penalty_or_debt_restriction ?? AreaDebtRestriction.NONE,
     min_reservation_advance_hours:
       item?.min_reservation_advance_hours ?? 0,
   });
@@ -197,7 +213,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   const validateLevel2 = () => {
     let errors: any = {};
 
-    if (formState?.booking_mode === "hour") {
+    if (esPorHora(formState?.booking_mode)) {
       errors = checkRules({
         value: formState?.max_reservations_per_day,
         rules: [
@@ -306,7 +322,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         longitude: parseCoordinateValue(formState?.longitude),
         max_capacity: formState?.max_capacity,
         status: formState?.status,
-        requires_approval: formState?.requires_approval === "A",
+        requires_approval: formState?.requires_approval,
         price: formState?.price,
         max_reservations_per_week: formState?.max_reservations_per_week,
         min_cancel_hours: formState?.min_cancel_hours,
@@ -320,11 +336,14 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
           formState?.min_reservation_advance_hours === ""
             ? 0
             : Number(formState?.min_reservation_advance_hours || 0),
-        penalty_or_debt_restriction: formState?.penalty_or_debt_restriction === "A",
+        penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
         booking_mode: formState?.booking_mode,
         max_reservations_per_day: formState?.max_reservations_per_day,
         reservation_duration: parseFloat(formState?.reservation_duration),
-        is_free: formState?.has_price !== "S",
+        // `has_price` es un control del formulario, no una columna: "S" =
+        // el area tiene precio = NO es gratis.
+        is_free:
+          formState?.has_price === "S" ? AreaPricing.PAID : AreaPricing.FREE,
       },
     );
 

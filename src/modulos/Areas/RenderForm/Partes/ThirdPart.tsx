@@ -4,6 +4,7 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import Input from "@/mk/components/forms/Input/Input";
 import Br from "@/components/Detail/Br";
+import { AreaApproval, AreaDebtRestriction } from "../../Type/AreaEnums";
 interface PropsType {
   handleChange: any;
   errors: any;
@@ -22,12 +23,14 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
         </div>
         <Switch
           name="penalty_or_debt_restriction"
-          optionValue={["A", "X"]}
+          optionValue={[AreaDebtRestriction.BLOCKS, AreaDebtRestriction.NONE]}
           onChange={(e: any) => {
             handleChange({
               target: {
                 name: "penalty_or_debt_restriction",
-                value: e.target.checked ? "A" : "X",
+                value: e.target.checked
+                  ? AreaDebtRestriction.BLOCKS
+                  : AreaDebtRestriction.NONE,
               },
             });
           }}
@@ -91,12 +94,14 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
         </div>
         <Switch
           name="requires_approval"
-          optionValue={["A", "X"]}
+          optionValue={[AreaApproval.REQUIRED, AreaApproval.AUTOMATIC]}
           onChange={(e: any) => {
             handleChange({
               target: {
                 name: "requires_approval",
-                value: e.target.checked ? "A" : "X",
+                value: e.target.checked
+                  ? AreaApproval.REQUIRED
+                  : AreaApproval.AUTOMATIC,
               },
             });
           }}

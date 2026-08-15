@@ -16,7 +16,14 @@ import Button from "@/mk/components/forms/Button/Button";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Br from "@/components/Detail/Br";
-import { AreaStatus } from "@/modulos/Payments/Type/PaymentType";
+import {
+  AREA_BOOKING_MODE_LABEL,
+  AreaBookingMode,
+  AreaStatus,
+  bloqueaConDeuda,
+  esPorHora,
+  requiereAprobacion,
+} from "../Type/AreaEnums";
 
 // S130 (HALLAZGO-NEW-39, binding cross-project): areas.status ahora
 // es TINYINT enum (AreaStatus::ACTIVE=1, MAINTENANCE=2), post S17-T3
@@ -189,7 +196,7 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
               />
               <KeyValue
                 title={"Tipo de reserva"}
-                value={item?.booking_mode === "hour" ? "Por hora" : "Por día"}
+                value={AREA_BOOKING_MODE_LABEL[item?.booking_mode as AreaBookingMode] ?? "—"}
               />
 
               <KeyValue
@@ -210,13 +217,13 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
               />
               <KeyValue
                 title={"Restricción por mora"}
-                value={item?.penalty_or_debt_restriction ? "Sí" : "No"}
+                value={bloqueaConDeuda(item?.penalty_or_debt_restriction) ? "Sí" : "No"}
               />
               <KeyValue
                 title={"Aprobación de administración"}
-                value={item?.requires_approval ? "Sí" : "No"}
+                value={requiereAprobacion(item?.requires_approval) ? "Sí" : "No"}
               />
-              {item?.booking_mode === "hour" && (
+              {esPorHora(item?.booking_mode) && (
                 <KeyValue
                   title={"Reservación por día"}
                   value={item?.max_reservations_per_day}

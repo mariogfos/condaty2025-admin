@@ -13,6 +13,7 @@ import {
   getFormattedReservationTime,
   getPriceDetails,
 } from "../utils/reservationFormat";
+import { AreaPricing } from "@/modulos/Areas/Type/AreaEnums";
 
 describe("getFormattedReservationDate", () => {
   // 🔴 El runner corre en UTC, y en UTC el borde del día NO EXISTE: la primera
@@ -84,13 +85,13 @@ describe("getPriceDetails", () => {
   it("un área gratuita con deuda muestra las DOS cosas", () => {
     // El caso que se olvida: gratis no siempre significa cero cobrado (una
     // multa, un consumo). Mostrar sólo "Gratis" esconde la deuda.
-    expect(getPriceDetails({ id: 1, price: "0", is_free: true }, "120")).toBe(
+    expect(getPriceDetails({ id: 1, price: "0", is_free: AreaPricing.FREE }, "120")).toBe(
       "Gratis · Total Bs 120.00",
     );
   });
 
   it("un área gratuita sin deuda dice sólo Gratis", () => {
-    expect(getPriceDetails({ id: 1, price: "0", is_free: true }, 0)).toBe(
+    expect(getPriceDetails({ id: 1, price: "0", is_free: AreaPricing.FREE }, 0)).toBe(
       "Gratis",
     );
   });

@@ -17,7 +17,13 @@ import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
 import { getFullName } from "@/mk/utils/string";
 import { ApiArea, FormState } from "./Type";
-import { AreaStatus } from "@/modulos/Payments/Type/PaymentType";
+import {
+  AreaStatus,
+  bloqueaConDeuda,
+  esGratis,
+  esPorHora,
+  requiereAprobacion,
+} from "@/modulos/Areas/Type/AreaEnums";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Button from "@/mk/components/forms/Button/Button";
@@ -180,7 +186,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     }
     let data: any[] = [];
     extraData?.dptos?.forEach((unidad: any) => {
-      if (selectedArea?.penalty_or_debt_restriction === true) {
+      if (bloqueaConDeuda(selectedArea?.penalty_or_debt_restriction)) {
         if (unidad?.defaulter == "X") {
           data.push({
             id: String(unidad.id),
@@ -625,8 +631,9 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                         <KeyValue
                           title={"Restricción por mora"}
                           value={
-                            selectedAreaDetails?.penalty_or_debt_restriction ===
-                            true
+                            bloqueaConDeuda(
+                              selectedAreaDetails?.penalty_or_debt_restriction,
+                            )
                               ? "Si"
                               : "No"
                           }
@@ -634,12 +641,14 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                         <KeyValue
                           title={"Aprobación de administración"}
                           value={
-                            selectedAreaDetails?.requires_approval === true
+                            requiereAprobacion(
+                              selectedAreaDetails?.requires_approval,
+                            )
                               ? "Si"
                               : "No"
                           }
                         />
-                        {selectedAreaDetails.booking_mode == "hour" && (
+                        {esPorHora(selectedAreaDetails.booking_mode) && (
                           <KeyValue
                             title={"Reservación por día"}
                             value={
@@ -982,7 +991,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     Reserva por periodo
                   </p>
                   <span className={styles.priceInfoBottom}>
-                    {selectedAreaDetails.is_free === true
+                    {esGratis(selectedAreaDetails.is_free)
                       ? "Gratis"
                       : `Bs ${formatNumber(selectedAreaDetails.price || 0)}`}
                   </span>

@@ -5,7 +5,7 @@ import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Br from "@/components/Detail/Br";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
-import { AreaStatus } from "@/modulos/Payments/Type/PaymentType";
+import { AreaStatus } from "../../Type/AreaEnums";
 interface PropsType {
   handleChange: any;
   errors: any;
@@ -116,28 +116,6 @@ const FirstPart = ({
         error={errors}
         placeholder="-17.743141946618167, -63.22323747678199"
       />
-      {/* <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <div>
-          <p className={styles.title}>¿Aprobación de administración?</p>
-          <p className={styles.subtitle}>
-            Activa esta opción si deseas que cada reserva de esta área deba ser
-            revisada y aprobada por administración antes de aprobarse
-          </p>
-        </div>
-        <Switch
-          name="requires_approval"
-          optionValue={["A", "X"]}
-          onChange={(e: any) => {
-            handleChange({
-              target: {
-                name: "requires_approval",
-                value: e.target.checked ? "A" : "X",
-              },
-            });
-          }}
-          value={formState?.requires_approval}
-        />
-      </div> */}
     </div>
   );
 };

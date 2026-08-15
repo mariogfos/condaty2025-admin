@@ -10,6 +10,11 @@ import Switch from "@/mk/components/forms/Switch/Switch";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { IconOptions } from "@/components/layout/icons/IconsBiblioteca";
 import Br from "@/components/Detail/Br";
+import {
+  AreaBookingMode,
+  esPorDia,
+  esPorHora,
+} from "../../Type/AreaEnums";
 
 interface PropsType {
   handleChange: any;
@@ -46,7 +51,7 @@ const SecondPart = ({
   const handleChangeWeekday = (day: string) => {
     if (
       !formState?.reservation_duration &&
-      formState?.booking_mode === "hour"
+      esPorHora(formState?.booking_mode)
     ) {
       return showToast("Debe seleccionar una hora primero", "error");
     }
@@ -121,7 +126,7 @@ const SecondPart = ({
     }
     const updatedHours: any = {};
     selectedDays.forEach((day: string) => {
-      if (formState?.booking_mode === "hour") {
+      if (esPorHora(formState?.booking_mode)) {
         updatedHours[day] = [...(periods || [])];
       } else {
         updatedHours[day] = [`${formState?.start_hour}-${formState.end_hour}`];
@@ -182,7 +187,7 @@ const SecondPart = ({
   const getEndHours = () => {
     if (!formState?.start_hour) return [];
 
-    if (formState?.booking_mode == "hour") {
+    if (esPorHora(formState?.booking_mode)) {
       const durationInMinutes =
         parseFloat(formState?.reservation_duration) * 60;
       const startMinutes = parseTimeToMinutes(formState.start_hour);
@@ -254,7 +259,7 @@ const SecondPart = ({
   useEffect(() => {
     if (openModal.edit) {
       let day = selectedDays[0];
-      if (formState.booking_mode == "day") {
+      if (esPorDia(formState.booking_mode)) {
         setFormState({
           ...formState,
           start_hour: formState?.available_hours[day][0].split("-")[0],
@@ -278,19 +283,19 @@ const SecondPart = ({
       <div className={styles.radioRow}>
         <Radio
           disabled={formState?.id}
-          checked={formState?.booking_mode == "day"}
+          checked={esPorDia(formState?.booking_mode)}
           label="Por dia"
-          onChange={() => setFormState({ ...formState, booking_mode: "day" })}
+          onChange={() => setFormState({ ...formState, booking_mode: AreaBookingMode.DAY })}
         />
         <Radio
           disabled={formState?.id}
-          checked={formState?.booking_mode == "hour"}
+          checked={esPorHora(formState?.booking_mode)}
           label="Por hora"
-          onChange={() => setFormState({ ...formState, booking_mode: "hour" })}
+          onChange={() => setFormState({ ...formState, booking_mode: AreaBookingMode.HOUR })}
         />
       </div>
       <Br />
-      {formState?.booking_mode == "hour" && (
+      {esPorHora(formState?.booking_mode) && (
         <>
           <p className={styles.title}>Duración de reserva</p>
           <p className={styles.subtitle}>
@@ -312,12 +317,12 @@ const SecondPart = ({
       {formState?.booking_mode && (
         <>
           <p className={styles.title}>
-            {formState?.booking_mode == "day"
+            {esPorDia(formState?.booking_mode)
               ? "Días disponibles"
               : "Días y periodos disponibles"}
           </p>
           <p className={styles.subtitle}>
-            {formState?.booking_mode == "day"
+            {esPorDia(formState?.booking_mode)
               ? "Selecciona los días en que esta área estará disponible para reservar."
               : "Selecciona los días y crea los periodos de horas en que esta área estará disponible para reservar."}
           </p>
@@ -369,7 +374,7 @@ const SecondPart = ({
                   )}
                 </div>
                 <p className={styles.availabilityMeta}>
-                  {formState?.booking_mode == "hour"
+                  {esPorHora(formState?.booking_mode)
                     ? "Periodos de horas"
                     : "Horario disponible"}
                 </p>
@@ -386,7 +391,7 @@ const SecondPart = ({
             ))}
           </div>
         )}
-      {formState?.booking_mode == "hour" && (
+      {esPorHora(formState?.booking_mode) && (
         <>
           <Br />
           <p className={styles.title}>Reservaciones por día</p>
@@ -526,12 +531,12 @@ const SecondPart = ({
           </div>
 
           <p className={styles.title} style={{ marginTop: 12 }}>
-            {formState?.booking_mode == "hour"
+            {esPorHora(formState?.booking_mode)
               ? "Aplicar periodos a los demás días"
               : "Aplicar horarios a los demás días"}
           </p>
           <p className={styles.subtitle}>
-            {formState?.booking_mode == "hour"
+            {esPorHora(formState?.booking_mode)
               ? "Simplifica tu tarea aplicando los mismos bloques a los demás días. Selecciona los días en los que quieras repetir estos mismos bloques"
               : "Simplifica tu tarea aplicando el mismo horario a los demás días. Selecciona los días en los que quieras repetir este mismo horario"}
           </p>
@@ -557,7 +562,7 @@ const SecondPart = ({
                           <p className={styles.periodChipText}>{period}</p>
                         </div>
                       ))}
-                      {formState?.booking_mode == "day" && (
+                      {esPorDia(formState?.booking_mode) && (
                         <div className={styles.daysPreviewChip}>
                           {formState?.start_hour + "-" + formState?.end_hour}
                         </div>

@@ -9,7 +9,7 @@ import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import { AreaStatus } from "@/modulos/Payments/Type/PaymentType";
+import { AREA_STATUS_LABEL, AreaStatus } from "./Type/AreaEnums";
 
 const paramsInitial = {
   perPage: 20,
@@ -18,9 +18,31 @@ const paramsInitial = {
   searchBy: "",
   extraData: true,
 };
-const statusColor: any = {
-  A: { color: "var(--cSuccess)", background: "var(--cHoverCompl2)" },
-  X: { color: "var(--cError)", background: "var(--cHoverError)" },
+/**
+ * 🔴 Acá las claves eran los chars `A` y `X`, de antes de S17-T8.
+ *
+ * `areas.status` es numerico desde entonces, asi que `statusColor[1]` y
+ * `statusColor[2]` daban `undefined` y el badge se pintaba **sin color**:
+ * ni verde ni rojo, gris del default. No rompia nada visible como error, y por
+ * eso sobrevivio al sweep de chars — el filtro de la misma pantalla si se
+ * habia arreglado el 2026-08-05, este mapa no.
+ *
+ * Y `X` nunca fue un estado de un area: es un char de otra tabla que llego
+ * copiando y pegando.
+ */
+const statusColor: Record<AreaStatus, { color: string; background: string }> = {
+  [AreaStatus.ACTIVE]: {
+    color: "var(--cSuccess)",
+    background: "var(--cHoverCompl2)",
+  },
+  [AreaStatus.MAINTENANCE]: {
+    color: "var(--cError)",
+    background: "var(--cHoverError)",
+  },
+  [AreaStatus.ARCHIVED]: {
+    color: "var(--cWhiteV2)",
+    background: "var(--cBlackV2)",
+  },
 };
 
 const Areas = () => {
@@ -302,14 +324,13 @@ const Areas = () => {
           width: "120px",
         },
         onRender: (props: any) => {
-          let status = "";
-          if (props?.item?.status === AreaStatus.ACTIVE) status = "Activa";
-          if (props?.item?.status === AreaStatus.MAINTENANCE) status = "Inactiva";
+          const estado = props?.item?.status as AreaStatus | undefined;
+          const status = estado ? (AREA_STATUS_LABEL[estado] ?? "") : "";
 
           return (
             <StatusBadge
-              backgroundColor={statusColor[props?.item?.status]?.background}
-              color={statusColor[props?.item?.status]?.color}
+              backgroundColor={estado ? statusColor[estado]?.background : undefined}
+              color={estado ? statusColor[estado]?.color : undefined}
             >
               {status}
             </StatusBadge>
@@ -330,8 +351,15 @@ const Areas = () => {
           // quedado en chars. Y `"X"` ni siquiera existe como estado.
           options: () => [
             { id: "ALL", name: "Todos" },
-            { id: AreaStatus.ACTIVE, name: "Activa" },
-            { id: AreaStatus.MAINTENANCE, name: "Inactiva" },
+            { id: AreaStatus.ACTIVE, name: AREA_STATUS_LABEL[AreaStatus.ACTIVE] },
+            {
+              id: AreaStatus.MAINTENANCE,
+              name: AREA_STATUS_LABEL[AreaStatus.MAINTENANCE],
+            },
+            {
+              id: AreaStatus.ARCHIVED,
+              name: AREA_STATUS_LABEL[AreaStatus.ARCHIVED],
+            },
           ],
         },
       },

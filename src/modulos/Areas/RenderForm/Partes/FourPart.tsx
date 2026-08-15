@@ -11,12 +11,28 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import { formatNumber } from "@/mk/utils/numbers";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Br from "@/components/Detail/Br";
-import { AreaStatus } from "@/modulos/Payments/Type/PaymentType";
+import { AREA_STATUS_LABEL, AreaStatus } from "../../Type/AreaEnums";
+import {
+  AREA_BOOKING_MODE_LABEL,
+  AreaBookingMode,
+  bloqueaConDeuda,
+  esPorHora,
+  requiereAprobacion,
+} from "../../Type/AreaEnums";
 
-const status: any = {
-  A: "Activa",
-  X: "Inactiva",
-};
+/**
+ * 🔴 Acá las claves eran los chars `A` y `X`, igual que en `Areas.tsx`.
+ *
+ * `areas.status` es numérico desde S17-T8, así que `status[1]`, `status[2]` y
+ * `status[3]` daban `undefined` y **el campo "Estado" del detalle salía
+ * vacío**. Y `X` nunca fue un estado de un área: es un char de otra tabla que
+ * llegó copiando y pegando.
+ *
+ * ⚠️ El mismo bug se arregló en `Areas.tsx` y esta copia quedó viva — dos
+ * archivos de la misma carpeta. Es la forma exacta que describe la regla del
+ * proyecto: un `rg` de `AreaStatus` daba este archivo por migrado, porque el
+ * import ya estaba.
+ */
 
 const formatCoordinateValue = (value: any) => {
   if (value === null || value === undefined || value === "") {
@@ -167,14 +183,14 @@ const FourPart = ({ item }: { item: any }) => {
             <p className={styles.title}>Datos generales</p>
             <KeyValue
               title={"Estado"}
-              value={status[item?.status]}
+              value={AREA_STATUS_LABEL[item?.status as AreaStatus] ?? "—"}
               colorValue={
                 item?.status === AreaStatus.ACTIVE ? "var(--cSuccess)" : "var(--cError)"
               }
             />
             <KeyValue
               title={"Tipo de reserva"}
-              value={item?.booking_mode === "hour" ? "Por hora" : "Por día"}
+              value={AREA_BOOKING_MODE_LABEL[item?.booking_mode as AreaBookingMode] ?? "—"}
             />
 
             <KeyValue
@@ -195,13 +211,13 @@ const FourPart = ({ item }: { item: any }) => {
             />
             <KeyValue
               title={"Restricción por mora"}
-              value={item?.penalty_or_debt_restriction ? "Sí" : "No"}
+              value={bloqueaConDeuda(item?.penalty_or_debt_restriction) ? "Sí" : "No"}
             />
             <KeyValue
               title={"Aprobación de administración"}
-              value={item?.requires_approval ? "Sí" : "No"}
+              value={requiereAprobacion(item?.requires_approval) ? "Sí" : "No"}
             />
-            {item?.booking_mode === "hour" && (
+            {esPorHora(item?.booking_mode) && (
               <KeyValue
                 title={"Reservación por día"}
                 value={item?.max_reservations_per_day}

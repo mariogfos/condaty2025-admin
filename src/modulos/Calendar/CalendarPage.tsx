@@ -84,6 +84,10 @@ import {
   splitRangeByYear,
 } from "./helpers";
 import styles from "./CalendarPage.module.css";
+import {
+  esGratis,
+  esPorDia,
+} from "../Areas/Type/AreaEnums";
 
 const DEFAULT_DAY_ENTRY_SLOTS = 3;
 const DAY_ENTRY_ROW_HEIGHT = 24;
@@ -847,7 +851,7 @@ const CalendarPage = () => {
       )
         ? (matchingHoursKey ? area.available_hours?.[matchingHoursKey] : []) || []
         : [];
-      const bookingMode = area.booking_mode === "day" ? "day" : "hour";
+      const bookingMode = esPorDia(area.booking_mode) ? "day" : "hour";
       const normalizedSlots = slots
         .map((slot) => formatSlotLabel(slot))
         .filter(Boolean);
@@ -1280,7 +1284,7 @@ const CalendarPage = () => {
   }, [selectedReservationUnitChoice]);
 
   const reservationIsFree =
-    selectedReservationAreaChoice?.area.is_free === true ||
+    esGratis(selectedReservationAreaChoice?.area.is_free) ||
     Number(selectedReservationAreaChoice?.area.price || 0) <= 0;
 
   const reservationPriceLabel = reservationIsFree
