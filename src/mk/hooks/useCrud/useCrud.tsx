@@ -196,6 +196,8 @@ type UseCrudType = {
   setSearchs: Function;
   data: any;
   loaded: boolean;
+  /** Hay dato viejo en pantalla y el último intento de refrescarlo falló. */
+  isStale: boolean;
   setAction: Function;
   reLoad: Function;
   execute: Function;
@@ -2890,6 +2892,8 @@ const useCrud = ({
     setSearchs,
     data: resolvedData,
     loaded,
+    /** Hay dato viejo en pantalla y el último intento de refrescarlo falló. */
+    isStale,
     setAction,
     reLoad: reloadCrudList,
     execute,

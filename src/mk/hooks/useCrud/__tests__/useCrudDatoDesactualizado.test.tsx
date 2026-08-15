@@ -45,9 +45,25 @@ import { AxiosContext } from "@/mk/contexts/AxiosInstanceProvider";
  * escribe sólo cuando la petición TERMINA, y por eso se sostiene.
  */
 
+/**
+ * 🔴 El mock NO reenvía `style` al DOM: lo GUARDA.
+ *
+ * La primera versión hacía `<div style={style} />` y después afirmaba
+ * `toHaveStyle("opacity: 0.5")`. Eso no medía nada: el reenvío lo fabricaba el
+ * propio mock, así que el test quedaba verde aunque la `Table` real ignorara el
+ * prop —y entonces el banner sale pero la tabla NO se atenúa, que es media
+ * condición de producto perdida en silencio—.
+ *
+ * Acá se mide lo único que es de `useCrud`: qué prop manda. Que la `Table` de
+ * verdad lo aplique al DOM lo pinea
+ * `src/mk/components/ui/Table/__tests__/tablaReenviaStyle.test.tsx`.
+ */
+const tableProps: { current: any } = { current: undefined };
 vi.mock("@/mk/components/ui/Table/Table", () => ({
-  // Reenvía `style`: la atenuación del dato viejo viaja por ahí.
-  default: ({ style }: any) => <div data-testid="table-mock" style={style} />,
+  default: (props: any) => {
+    tableProps.current = props;
+    return <div data-testid="table-mock" />;
+  },
 }));
 vi.mock("@/mk/components/ui/Pagination/Pagination", () => ({
   default: () => null,
@@ -113,18 +129,28 @@ const respuestaOk = (cuantas = 3) => ({
 
 const fallo = () => Promise.reject(new Error("Network Error"));
 
+const LOTE = 40;
+
+/** La respuesta de un listado con scroll infinito: quedan páginas por pedir. */
+const respuestaConMas = (total = 100) => ({
+  data: { data: filas(LOTE), message: { total } },
+});
+
 /**
- * 🔴 `perPage: -1` a propósito: es el modo SIN scroll infinito, el que usan 12
- * de los 40 módulos, y es exactamente donde vive el bug. Con scroll infinito un
- * refresco arranca por `beginListReset`, que borra las filas de pantalla, así
- * que ahí no hay dato viejo que marcar.
+ * 🔴 `perPage` decide QUÉ RAMA de `useCrud` se ejerce, y son dos distintas:
+ *
+ * - `-1` → sin scroll infinito: `data`/`error`/`isStale` salen de `useAxios`.
+ *   Son 12 de los 40 módulos, y es donde vive el bug: un refresco fallido
+ *   conserva las filas.
+ * - `> 0` → scroll infinito: el hook maneja `manualData`/`manualError`/
+ *   `manualIsStale` por su cuenta, con `saveInState` en false.
  */
-const montar = () => {
+const montar = (perPage = -1) => {
   const runtime: { current: any } = { current: null };
 
   const Comp = () => {
     runtime.current = useCrud({
-      paramsInitial: { page: 1, perPage: -1, fullType: "L", searchBy: "" },
+      paramsInitial: { page: 1, perPage, fullType: "L", searchBy: "" },
       mod,
       fields,
     });
@@ -174,7 +200,7 @@ describe("useCrud: el dato viejo tras un request fallido se marca como desactual
     // 🔴 Acá la tabla se seguía dibujando idéntica a una recién cargada.
     expect(await screen.findByText(AVISO)).toBeInTheDocument();
     expect(screen.getByText("Reintentar")).toBeInTheDocument();
-    expect(screen.getByTestId("table-mock")).toHaveStyle("opacity: 0.5");
+    expect(tableProps.current.style).toEqual({ opacity: 0.5 });
     // Las filas viejas SIGUEN ahí: la opción B es marcarlas, no esconderlas.
     expect(runtime.current.data?.data).toHaveLength(3);
   });
@@ -226,7 +252,7 @@ describe("useCrud: el dato viejo tras un request fallido se marca como desactual
     await waitFor(() =>
       expect(screen.queryByText(AVISO)).not.toBeInTheDocument(),
     );
-    expect(screen.getByTestId("table-mock")).not.toHaveStyle("opacity: 0.5");
+    expect(tableProps.current.style).toBeUndefined();
   });
 
   it("(e) el aviso NO parpadea mientras el reintento está en vuelo", async () => {
@@ -262,5 +288,112 @@ describe("useCrud: el dato viejo tras un request fallido se marca como desactual
     await waitFor(() =>
       expect(screen.queryByText(AVISO)).not.toBeInTheDocument(),
     );
+  });
+});
+
+/**
+ * La rama de scroll infinito (`perPage > 0`, 28 de los 40 módulos) lleva su
+ * propia bandera —`manualIsStale`—, porque no usa `saveInState` y por lo tanto
+ * el `isStale` de `useAxios` nunca se mueve para ella.
+ *
+ * ⚠️ Acá el banner NO puede salir, y es a propósito. En modo infinito lo único
+ * que falla con filas ya dibujadas es el "cargar más": todo otro refresco
+ * arranca por `beginListReset`, que borra las filas antes de pedir. Y el
+ * "cargar más" fallido YA tiene su renglón propio. Por eso la tercera guarda
+ * del banner es `!runtime.loadMoreFailed`: sin ella salen DOS carteles
+ * diciendo lo mismo, porque `fetchInfiniteCrudData` prende `loadMoreFailed` y
+ * `manualIsStale` en el mismo fallo.
+ *
+ * Así que lo que se mide es: la bandera se mueve bien, y aun así el usuario ve
+ * UN solo cartel.
+ */
+describe("useCrud: la bandera de dato viejo en el scroll infinito", () => {
+  beforeEach(() => {
+    request.mockReset();
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  /**
+   * 🔴 Esperar el ESQUELETO no es opcional.
+   *
+   * `showTableSkeleton` se sostiene `MIN_TABLE_SKELETON_MS` (300 ms) después de
+   * que la respuesta llegó, y mientras está puesto el banner se apaga por su
+   * PROPIA guarda. La primera versión de estos dos tests afirmaba antes de esos
+   * 300 ms: pasaban en verde con la guarda de `loadMoreFailed` REINYECTADA
+   * afuera, porque lo que suprimía el banner era el esqueleto y no la guarda
+   * que se creía estar midiendo.
+   */
+  const esperarSinEsqueleto = () =>
+    waitFor(() => expect(tableProps.current?.showSkeletonRows).toBe(false));
+
+  const cargarPrimeraPagina = async () => {
+    request.mockResolvedValueOnce(respuestaConMas());
+    const runtime = montar(LOTE);
+
+    await screen.findByTestId("table-mock");
+    await waitFor(() => expect(runtime.current.listHasMore).toBe(true));
+    await esperarSinEsqueleto();
+    expect(runtime.current.isStale).toBe(false);
+
+    return runtime;
+  };
+
+  it("un 'cargar más' fallido prende la bandera pero deja UN SOLO cartel", async () => {
+    const runtime = await cargarPrimeraPagina();
+
+    request.mockImplementationOnce(fallo);
+    await act(async () => {
+      runtime.current.onLoadMore();
+    });
+
+    await waitFor(() => expect(runtime.current.isStale).toBe(true));
+    expect(runtime.current.loadMoreFailed).toBe(true);
+    await esperarSinEsqueleto();
+    // Con el esqueleto apagado y 40 filas dibujadas, lo ÚNICO que puede estar
+    // conteniendo al banner es la guarda de `loadMoreFailed`.
+    expect(tableProps.current.data).toHaveLength(LOTE);
+
+    // 🔴 El renglón de "cargar más", que ya existía. Y NADA más.
+    expect(
+      screen.getByText("No se pudieron cargar más resultados."),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(AVISO),
+      "el banner no puede duplicar el aviso que ya da el renglón de cargar más",
+    ).not.toBeInTheDocument();
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
+  });
+
+  it("cuando el 'cargar más' funciona, la bandera se apaga y no queda ningún cartel", async () => {
+    const runtime = await cargarPrimeraPagina();
+
+    request.mockImplementationOnce(fallo);
+    await act(async () => {
+      runtime.current.onLoadMore();
+    });
+    await waitFor(() => expect(runtime.current.isStale).toBe(true));
+
+    request.mockResolvedValueOnce({
+      data: {
+        data: filas(LOTE).map((f, i) => ({ ...f, id: `p2-${i}` })),
+        message: { total: 100 },
+      },
+    });
+    await act(async () => {
+      runtime.current.onLoadMore();
+    });
+
+    // 🔴 Una bandera que no se apaga deja la pantalla marcada para siempre.
+    await waitFor(() => expect(runtime.current.isStale).toBe(false));
+    expect(runtime.current.loadMoreFailed).toBe(false);
+    await esperarSinEsqueleto();
+    expect(
+      screen.queryByText("No se pudieron cargar más resultados."),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(AVISO)).not.toBeInTheDocument();
+    expect(screen.queryAllByRole("alert")).toHaveLength(0);
   });
 });
