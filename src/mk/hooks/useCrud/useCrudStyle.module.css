@@ -147,6 +147,64 @@
   color: var(--cWhiteV3);
 }
 
+/*
+ * El aviso de DATO DESACTUALIZADO (CDT-42): el request falló pero las filas
+ * viejas siguen en pantalla.
+ *
+ * 🔴 Va en ámbar SÓLIDO, no en un gris discreto. La decisión de producto fue
+ * "dejar el dato viejo visible pero marcado", y eso sólo sirve si el aviso es
+ * imposible de pasar por alto: un cartel tenue deja al usuario exactamente
+ * igual que antes y encima con la sensación de que está arreglado.
+ *
+ * Vive FUERA del área que scrollea la tabla, así que no se va de la vista.
+ */
+.staleBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--spM);
+  flex: 0 0 auto;
+  padding: 12px var(--spM);
+  margin-bottom: var(--spS, 8px);
+  border-radius: var(--bRadiusS, 8px);
+  border: 2px solid var(--cWarning);
+  background-color: var(--cWarning);
+  /* Texto oscuro sobre el ámbar: ~10:1 de contraste. */
+  color: #1a1a1a;
+}
+
+.staleBannerText {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.staleBannerText > p {
+  font-size: var(--sM);
+  font-weight: 900;
+}
+
+.staleBannerText > span {
+  font-size: var(--sS, 12px);
+}
+
+/*
+ * El botón reusa `.loadMoreErrorRetry` (misma forma y tamaño que el resto de
+ * los reintentos), pero ahí el borde y el texto son blancos y sobre el ámbar
+ * no se leerían.
+ */
+.staleBanner button {
+  flex: 0 0 auto;
+  border-color: rgba(0, 0, 0, 0.55);
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.staleBanner button:hover {
+  border-color: #1a1a1a;
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
 /* El renglón de "no se pudo cargar más" del scroll infinito, con su reintento. */
 .loadMoreErrorRow {
   display: flex;
