@@ -39,6 +39,9 @@ describe("expense summarizers — numeric DebtStatus", () => {
     expect(unitsPayable(asignados)).toBe(2);
   });
 
+  // 🔴 Este caso NO mide el borde del día: con mil años de distancia pasa con
+  // el bug de CDT-44 puesto y sin él. El borde (vence hoy / mañana / ayer, a
+  // mediodía y a las 22:00) está en `CDT44VencimientoLocal.test.tsx`.
   it("isUnitInDefault is true only when there are payable units and it is past due", () => {
     const pastDue = "2000-01-01";
     const future = "2999-01-01";

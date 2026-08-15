@@ -12,7 +12,7 @@ import Table from "@/mk/components/ui/Table/Table";
 import { paymentsApi } from "../../../Payments/api";
 import { DebtStatus } from "@/types/PaymentType";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { maintenanceAmountFor } from "@/mk/utils/utils";
+import { isPastDue, maintenanceAmountFor } from "@/mk/utils/utils";
 
 const RenderView = (props: {
   open: boolean;
@@ -71,13 +71,11 @@ const RenderView = (props: {
   };
   const getStatus = (item: any) => {
     const numericStatus = Number(item?.status);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (numericStatus === DebtStatus.PENDING && item.due_at) {
-      const dueDate = new Date(item.due_at);
-      if (today > dueDate) {
-        return { text: "En mora", code: DebtStatus.OVERDUE };
-      }
+    // La regla de mora es UNA sola y vive en `isPastDue`: acá estaba copiada y
+    // leía el vencimiento en UTC, así que la que vencía HOY salía "En mora" las
+    // 24 horas del día (CDT-44).
+    if (numericStatus === DebtStatus.PENDING && isPastDue(item?.due_at)) {
+      return { text: "En mora", code: DebtStatus.OVERDUE };
     }
     switch (numericStatus) {
       case DebtStatus.PENDING:

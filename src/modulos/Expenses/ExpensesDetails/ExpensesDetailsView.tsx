@@ -20,7 +20,7 @@ import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDash
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import { hasMaintenanceValue } from "@/mk/utils/utils";
+import { hasMaintenanceValue, isPastDue } from "@/mk/utils/utils";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { DebtStatus, DEBT_STATUS_TEXT, getDebtStatusText } from "@/types/PaymentType";
 
@@ -99,13 +99,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   const { user } = useAuth();
   const getDisplayStatus = (item: any) => {
     const numericStatus = Number(item?.status);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (numericStatus === DebtStatus.PENDING && item.due_at) {
-      const dueDate = new Date(item.due_at);
-      if (today > dueDate) {
-        return { text: "En mora", code: DebtStatus.OVERDUE };
-      }
+    // La regla de mora es UNA sola y vive en `isPastDue`: acá estaba copiada y
+    // leía el vencimiento en UTC, así que la que vencía HOY salía "En mora" las
+    // 24 horas del día (CDT-44).
+    if (numericStatus === DebtStatus.PENDING && isPastDue(item?.due_at)) {
+      return { text: "En mora", code: DebtStatus.OVERDUE };
     }
 
     // 🔴 Acá había un `switch` con 5 de los 10 estados y un `default` que

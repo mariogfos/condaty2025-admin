@@ -1,4 +1,5 @@
 import { DebtStatus } from "@/types/PaymentType";
+import { getLocalDate, getNowDate } from "@/mk/utils/date";
 
 export const setParamsCrud = (
   modulo: string,
@@ -241,7 +242,6 @@ interface Debt {
   year: number;
 }
 
-const today = new Date();
 export const units = (unidades: AssignedList) => {
   return unidades.length;
 };
@@ -285,8 +285,28 @@ export const unitsPayable = (unidades: AssignedList) => {
   });
   return cont;
 };
+/**
+ * ¿El día de vencimiento YA PASÓ? El día del vencimiento NO está vencido.
+ *
+ * 🔴 La regla estaba copiada en tres lugares y en los tres con los mismos DOS
+ * defectos que se tapaban entre sí (CDT-44):
+ *   1. `const today = new Date()` a nivel de MÓDULO: se evaluaba una sola vez al
+ *      cargar el bundle. Una pestaña abierta que cruzaba la medianoche seguía
+ *      anclada al día anterior.
+ *   2. `today` era un INSTANTE sin truncar y `new Date(due_at)` se parseaba en
+ *      UTC (las 20:00 del día ANTERIOR en Bolivia).
+ * Una deuda vencida ayer salía bien por CASUALIDAD: el corrimiento −1 del UTC
+ * cancelaba que `today` no estuviera truncado. Pero la que vencía HOY salía "En
+ * mora" las 24 horas del día, y la que vencía MAÑANA a partir de las 20:00.
+ * Arreglar una sola mitad no alcanza: los dos lados van truncados a medianoche
+ * LOCAL, y el "hoy" se lee en CADA llamada.
+ */
+export const isPastDue = (due_at?: string | null): boolean =>
+  !!due_at && getLocalDate(due_at) < getNowDate();
+
+/** Está en mora cuando queda algo por cobrar y el vencimiento ya pasó. */
 export const isUnitInDefault = (props: Debt) => {
-  return unitsPayable(props?.asignados) > 0 && new Date(props?.due_at) < today;
+  return unitsPayable(props?.asignados) > 0 && isPastDue(props?.due_at);
 };
 export const sumPenalty = (unidades: AssignedList) => {
   let sum: number = 0;
