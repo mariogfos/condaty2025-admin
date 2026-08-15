@@ -391,16 +391,19 @@ const RenderForm: React.FC<RenderFormProps> = ({
     setLdpto(lista);
   }, [client?.type_dpto, extraData?.dptos]);
 
+  // 🔴 CDT-50: este formulario SÓLO crea. El título y el botón tenían dos
+  // variantes ("Editar deuda compartida" / "Actualizar") para el botón Editar
+  // del detalle, que pegaba a `PUT /v3/debt-groups/{id}`. Ese endpoint ya no
+  // existe y un grupo dejó de editarse: lo que se edita es la deuda de UNA
+  // unidad, desde el detalle del reparto.
   return (
     <DataModal
       open={open}
       onClose={onCloseModal}
       onSave={handleSave}
       buttonCancel="Cancelar"
-      buttonText={_formState.id ? "Actualizar" : "Crear deuda compartida"}
-      title={
-        _formState.id ? "Editar deuda compartida" : "Crear deuda compartida"
-      }
+      buttonText="Crear deuda compartida"
+      title="Crear deuda compartida"
       variant={"mini"}
     >
       <div className={styles.formContainer}>

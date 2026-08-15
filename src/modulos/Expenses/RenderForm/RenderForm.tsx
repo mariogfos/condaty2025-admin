@@ -47,14 +47,19 @@ const RenderForm = ({
     return errs;
   };
   const onSave = async () => {
-    let method = formState.id ? "PUT" : "POST";
     if (hasErrors(validate())) return;
     // TODO(advance-payments): selective expense creation moved to the payment form.
     // EXPENSE create now generates for the whole condominio (period-only);
     // the backend derives due_at/begin_at from the period and generates for all active units.
+    //
+    // 🔴 CDT-50: este formulario SÓLO crea. Antes armaba `PUT /debt-groups/{id}`
+    // cuando el item traía `id`; ese endpoint ya no existe (404 en `v3`, 405 en
+    // la ruta legacy) y el único camino que lo abría —el long press del listado
+    // de periodos— se sacó. Editar un periodo entero no es una operación: se
+    // edita la deuda de UNA unidad, desde el detalle del periodo.
     const { data: response } = await execute(
-      "/debt-groups" + (formState.id ? "/" + formState.id : ""),
-      method,
+      "/debt-groups",
+      "POST",
       {
         year: formState.year,
         month: formState.month,

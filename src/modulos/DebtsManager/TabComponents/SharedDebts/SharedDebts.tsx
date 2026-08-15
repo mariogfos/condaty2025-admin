@@ -1,14 +1,11 @@
 "use client";
 import React, { useMemo, useEffect, useState } from "react";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import useCrudUtils from "../../../shared/useCrudUtils";
-import { getDateStrMesShort, getNow } from "@/mk/utils/date";
+import { getDateStrMesShort } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import RenderItem from "../../../shared/RenderItem";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Button from "@/mk/components/forms/Button/Button";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
@@ -33,7 +30,7 @@ interface SharedDebtsProps {
 }
 
 const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
-  const { user, setStore, store } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
@@ -484,6 +481,11 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     permiso: "expense",
     extraData: true,
     sumarize: false,
+    // 🔴 CDT-50 (decisión del CTO): una deuda compartida es una agrupación que
+    // ya repartió su cometido. Sólo se crea; `PUT` y `DELETE` de
+    // `/debt-groups/{id}` ya no existen en el back. Lo que se edita y se
+    // elimina es la deuda de UNA unidad, desde el detalle del reparto
+    // (`DetalleDeudaCompartida`).
     hideActions: {
       view: true,
       edit: true,
@@ -518,71 +520,20 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     </Button>,
   ];
 
-  const {
-    userCan,
-    List,
-    onEdit,
-    onDel,
-    extraData,
-    onFilter,
-    execute,
-    reLoad,
-    showToast,
-  } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-    extraButtons,
-    getFilter: handleGetFilter,
-  });
+  const { userCan, List, extraData, onFilter, execute, reLoad, showToast } =
+    useCrud({
+      paramsInitial,
+      mod,
+      fields,
+      extraButtons,
+      getFilter: handleGetFilter,
+    });
 
   useEffect(() => {
     if (extraData && onExtraDataChange) {
       onExtraDataChange(extraData);
     }
   }, [extraData, onExtraDataChange]);
-
-  const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => {},
-    searchs: {},
-    setStore,
-    mod,
-    onEdit,
-    onDel,
-  });
-
-  const renderItem = (item: Record<string, any>) => {
-    const rawStatus = Number(item?.status);
-    const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
-    const dueAtString = item?.due_at;
-    const todayString = getNow();
-    const displayStatus = dueAtString && dueAtString < todayString && numericStatus === DebtStatus.PENDING
-      ? DebtStatus.OVERDUE
-      : numericStatus;
-
-    const debtAmount = montoDelGrupo(item);
-    const totalPenalty =
-      item?.asignados?.reduce((sum: number, asignado: any) => {
-        return sum + (parseFloat(asignado?.penalty_amount) || 0);
-      }, 0) || 0;
-    const totalBalance =
-      debtAmount + totalPenalty + maintenanceAmountFor(user, item);
-
-    return (
-      <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
-        <ItemList
-          title={`${item?.description || "Sin concepto"} - ${getStatusText(displayStatus)}`}
-          subtitle={`Deuda: Bs ${debtAmount.toFixed(
-            2,
-          )} | Multa: Bs ${totalPenalty.toFixed(
-            2,
-          )} | Total: Bs ${totalBalance.toFixed(2)}`}
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
 
   const onClickDetail = (row: any) => {
     if (row?.id) {
@@ -594,7 +545,6 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     <>
       <List
         height={"100%"}
-        onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de deudas grupales vacía. Una vez generes las cuotas"
         emptyLine2="grupales las verás aquí."

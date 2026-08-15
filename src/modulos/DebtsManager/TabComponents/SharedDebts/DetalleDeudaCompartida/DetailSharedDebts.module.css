@@ -118,30 +118,6 @@
   flex: 1;
 }
 
-.actionButtons {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spS);
-  min-width: 120px;
-}
-
-.actionButton {
-  display: flex;
-  align-items: center;
-  gap: var(--spXS);
-  justify-content: center;
-  padding: var(--spS) var(--spM);
-  border-radius: var(--bRadiusM);
-  font-size: var(--sM);
-  font-weight: var(--bMedium);
-  transition: all 0.2s ease;
-}
-
-.actionButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
 /* Modal de confirmación */
 .modalOverlay {
   position: fixed;
@@ -188,16 +164,6 @@
 @media (max-width: 768px) {
   .summarySection {
     flex-direction: column;
-  }
-
-  .actionButtons {
-    flex-direction: row;
-    min-width: auto;
-    width: 100%;
-  }
-
-  .actionButton {
-    flex: 1;
   }
 }
 

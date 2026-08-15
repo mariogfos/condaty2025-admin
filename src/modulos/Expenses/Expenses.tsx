@@ -1,13 +1,10 @@
 'use client';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import NotAccess from '@/components/auth/NotAccess/NotAccess';
-import ItemList from '@/mk/components/ui/ItemList/ItemList';
-import useCrudUtils from '../shared/useCrudUtils';
 import { useEffect, useMemo, useState } from 'react';
-import RenderItem from '../shared/RenderItem';
 import { MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
-import { isUnitInDefault, paidUnits } from '@/mk/utils/utils';
+import { isUnitInDefault } from '@/mk/utils/utils';
 import ExpensesDetails from './ExpensesDetails/ExpensesDetailsView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
@@ -100,16 +97,22 @@ const mod: ModCrudType = {
   permiso: 'expense',
   extraData: true,
   search: { hide: true },
+  // 🔴 CDT-50 (decisión del CTO): un periodo de expensas SÓLO se crea. Editarlo
+  // o borrarlo entero significaba borrar duro las N deudas de las unidades y
+  // regenerarlas, arrastrando a las que no tenían nada que ver — y `PUT` y
+  // `DELETE` de `/debt-groups/{id}` ya no existen en el back (404 en `v3`, 405
+  // en la ruta legacy). Lo que se edita y se elimina es la deuda INDIVIDUAL,
+  // desde el detalle por unidad del periodo (`ExpensesDetails`).
+  //
+  // Acá vivía además un `onHideActions` que escondía lápiz y tacho según
+  // `paidUnits(asignados)`: era código muerto —su único consumidor es el
+  // `onButtonActions` de `useCrud`, que no se monta cuando `edit` y `del`
+  // están ocultas— y la regla de "no si tiene pagos" ahora la aplica el back
+  // sobre la deuda individual, que es donde se puede medir.
   hideActions: {
     view: true,
     edit: true,
     del: true,
-  },
-  onHideActions: (item: any) => {
-    return {
-      hideEdit: paidUnits(item?.asignados) > 0,
-      hideDel: paidUnits(item?.asignados) > 0,
-    };
   },
   renderForm: (props: {
     item: any;
@@ -288,33 +291,12 @@ const Expenses = () => {
     };
   }, []);
 
-  const { userCan, List, setStore, onEdit, onDel } = useCrud({
+  const { userCan, List, setStore } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
 
-  const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => {},
-    searchs: {},
-    setStore,
-    mod,
-    onEdit,
-    onDel,
-  });
-
-  const renderItem = (item: Record<string, any>) => {
-    return (
-      <RenderItem item={item} onClick={onClickDetail} onLongPress={onLongPress}>
-        <ItemList
-          title={item?.name}
-          subtitle={item?.description}
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
   const onClickDetail = (row: any) => {
     setDetailItem(row);
     setOpenDetail(true);
@@ -337,7 +319,6 @@ const Expenses = () => {
       <>
         <List
           height={"100%"}
-          onTabletRow={renderItem}
           onRowClick={onClickDetail}
           emptyMsg="Lista de expensas vacía. Una vez generes las cuotas"
           emptyLine2="de los residentes las verás aquí."
