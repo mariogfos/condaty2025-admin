@@ -177,6 +177,10 @@ const SecondPart = ({
       setFormState({
         ...formState,
         price: "",
+        // ⚠️ La garantía también se limpia al pasar el área a gratuita. Si se
+        // queda cargada, el área dice "sin costo" y el servidor le sigue
+        // congelando una garantía a cada reserva.
+        guarantee_amount: 0,
         min_cancel_hours: "",
         penalty_fee: "",
       });
@@ -458,6 +462,15 @@ const SecondPart = ({
             label="Monto (Bs)"
             name="price"
             value={formState?.price}
+            onChange={handleChange}
+            error={errors}
+          />
+          <Br />
+          <Input
+            type="number"
+            label="Garantía (Bs)"
+            name="guarantee_amount"
+            value={formState?.guarantee_amount}
             onChange={handleChange}
             error={errors}
           />

@@ -102,6 +102,8 @@ export type ReservationArea = {
   available_days?: string[] | null;
   available_hours?: Record<string, string[]> | null;
   price?: string | number | null;
+  /** Deposito en garantia del area. El servidor lo CONGELA en cada reserva. */
+  guarantee_amount?: string | number | null;
   /**
    * 🔴 Las banderas del área son ENUMS NUMÉRICOS, no booleanos ni strings.
    *

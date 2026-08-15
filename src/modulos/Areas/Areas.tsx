@@ -183,6 +183,15 @@ const Areas = () => {
         list: false,
         form: { type: "number" },
       },
+      // El depósito en garantía que pide el área, además del precio. No es
+      // obligatorio: un área con costo puede no pedir garantía.
+      guarantee_amount: {
+        rules: ["number"],
+        api: "ae",
+        label: "Garantía",
+        list: false,
+        form: { type: "number" },
+      },
       is_free: {
         rules: ["required"],
         api: "ae",

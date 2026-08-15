@@ -77,6 +77,8 @@ export interface ApiArea {
   available_hours?: Record<string, string[]> | null;
   booking_mode?: number | null;
   price?: string | null;
+  /** Deposito en garantia del area. */
+  guarantee_amount?: string | number | null;
   is_free?: number | null;
   max_booking_duration?: number | null;
   special_restrictions?: string | null;
