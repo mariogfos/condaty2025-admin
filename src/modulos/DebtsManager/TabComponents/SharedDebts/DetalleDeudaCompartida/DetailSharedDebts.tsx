@@ -1,21 +1,16 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import {
   IconCategories,
   IconArrowLeft,
-  IconEdit,
-  IconTrash,
 } from "@/components/layout/icons/IconsBiblioteca";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import Button from "@/mk/components/forms/Button/Button";
-import RenderForm from "../RenderForm/RenderForm";
 import RenderView from "../../AllDebts/RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { capitalize } from "@/mk/utils/string";
 import styles from "./DetailSharedDebts.module.css";
 import { getDateStrMes } from "@/mk/utils/date";
 import UnifiedCard from "../../../UnifiedCard/UnifiedCard";
@@ -31,37 +26,13 @@ interface DetailSharedDebtsProps {
   debtId: string;
   debtTitle?: string;
 }
-interface DebtData {
-  id?: string | number;
-  begin_at?: string;
-  due_at?: string;
-  type?: number;
-  description?: string;
-  category_id?: string | number;
-  subcategory_id?: string | number;
-  asignar?: string;
-  dpto_id?: any[];
-  amount_type?: string;
-  amount?: string | number;
-  is_advance?: string;
-  interest?: number;
-  show_advanced?: boolean;
-  has_mv?: boolean;
-  is_forgivable?: boolean;
-  has_pp?: boolean;
-  is_blocking?: boolean;
-}
 
 const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   debtId,
   debtTitle = "Deuda Compartida",
 }) => {
   const router = useRouter();
-  const { user, showToast } = useAuth();
-
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [debtData, setDebtData] = useState<DebtData | undefined>(undefined);
+  const { user } = useAuth();
 
   const getSegmentationText = (segmentation: string) => {
     const segmentationMap: { [key: string]: string } = {
@@ -273,6 +244,11 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     permiso: "expense",
     extraData: true,
     sumarize: false,
+    // 🔴 CDT-50: esta pantalla tenía los botones "Editar" y "Eliminar" del
+    // GRUPO —`PUT`/`DELETE /v3/debt-groups/{id}` con `type: 4`—, que borraban
+    // duro las N deudas de todas las unidades. El grupo ya no se edita ni se
+    // borra (esos endpoints devuelven 404). Lo que se edita y se elimina es la
+    // deuda de UNA unidad.
     hideActions: {
       add: true,
       view: false,
@@ -311,7 +287,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     </Button>,
   ];
 
-  const { List, extraData, execute, reLoad, onSave } = useCrud({
+  const { List, extraData } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -353,100 +329,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
   const handleVolver = () => {
     router.back();
-  };
-
-  const fetchDebtData = async () => {
-    try {
-      const response = await execute(`/v3/debt-groups/${debtId}`, "GET", {
-        id: debtId,
-      });
-      if (response?.data?.success) {
-        return response.data.data;
-      }
-    } catch (error) {}
-    return null;
-  };
-
-  const handleEdit = async () => {
-    const fullDebtData = await fetchDebtData();
-    if (fullDebtData) {
-      setDebtData(fullDebtData);
-    } else {
-      setDebtData({ id: debtId });
-    }
-    setShowEditForm(true);
-  };
-
-  const handleDelete = () => {
-    setShowDeleteConfirm(true);
-  };
-
-  const confirmDelete = async () => {
-    try {
-      const response = await execute(`/v3/debt-groups/${debtId}`, "DELETE", {
-        id: debtId,
-        type: 4,
-      });
-      if (response?.data?.success) {
-        showToast("Deuda eliminada exitosamente", "success");
-        router.back();
-      } else {
-        showToast("Error al eliminar la deuda", "error");
-      }
-    } catch (error) {
-      showToast("Error al eliminar la deuda", "error");
-    }
-    setShowDeleteConfirm(false);
-  };
-
-  const handleFormSave = async (data: any) => {
-    try {
-      const response = await execute(`/v3/debt-groups/${debtId}`, "PUT", data);
-
-      if (response?.data?.success) {
-        setShowEditForm(false);
-        reLoad();
-        showToast("Deuda actualizada exitosamente", "success");
-      } else {
-        showToast(
-          response?.data?.message || "Error al actualizar la deuda",
-          "error",
-        );
-      }
-    } catch (error) {
-      showToast("Error al actualizar la deuda", "error");
-    }
-  };
-
-  const FormDelete = ({
-    open,
-    onClose,
-    item,
-    onConfirm,
-    message = "",
-  }: any) => {
-    return (
-      <DataModal
-        id="Eliminar"
-        title={capitalize("eliminar") + " deuda compartida"}
-        buttonText={capitalize("eliminar")}
-        buttonCancel="Cancelar"
-        onSave={(e) => (onConfirm ? onConfirm(item) : confirmDelete())}
-        onClose={onClose}
-        open={open}
-        variant="mini"
-      >
-        {message ? (
-          message
-        ) : (
-          <p>
-            ¿Estás seguro de eliminar esta información?
-            <br />
-            Recuerda que, al momento de eliminar, ya no podrás recuperarla.
-          </p>
-        )}
-      </DataModal>
-    );
   };
 
   return (
@@ -510,27 +392,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               current={summaryData.enMora.count}
             />
           </div>
-
-          <div className={styles.actionButtons}>
-            <>
-              <Button
-                onClick={handleEdit}
-                variant="primary"
-                className={styles.actionButton}
-              >
-                <IconEdit size={16} />
-                Editar
-              </Button>
-              <Button
-                onClick={handleDelete}
-                variant="secondary"
-                className={styles.actionButton}
-              >
-                <IconTrash size={16} />
-                Eliminar
-              </Button>
-            </>
-          </div>
         </div>
 
         <div className={styles.listContainer}>
@@ -544,41 +405,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           />
         </div>
       </div>
-
-      {showEditForm && debtData && (
-        <RenderForm
-          open={showEditForm}
-          onClose={() => setShowEditForm(false)}
-          item={debtData}
-          onSave={handleFormSave}
-          extraData={extraData}
-          execute={
-            execute as (
-              url: string,
-              method: string,
-              params: any,
-            ) => Promise<any>
-          }
-          showToast={
-            showToast as (
-              msg: string,
-              type?: "info" | "success" | "error" | "warning",
-            ) => void
-          }
-          reLoad={reLoad as () => void}
-          user={user}
-        />
-      )}
-
-      {showDeleteConfirm && (
-        <FormDelete
-          open={showDeleteConfirm}
-          onClose={() => setShowDeleteConfirm(false)}
-          item={{ id: debtId }}
-          onConfirm={confirmDelete}
-          message=""
-        />
-      )}
     </>
   );
 };
