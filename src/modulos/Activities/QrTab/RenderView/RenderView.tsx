@@ -11,6 +11,7 @@ import {
   IconArrowRight,
   IconArrowLeft,
   IconGenericQr} from "@/components/layout/icons/IconsBiblioteca";
+import {esAnulada, esGrupal, esIndividual} from "../invitationEnums";
 
 interface RenderViewProps {
   open: boolean;
@@ -32,7 +33,7 @@ const RenderView: React.FC<RenderViewProps> = ({
 
   // Determinar el estado de la invitación
   const getStatusInfo = () => {
-    if (item?.status === "X") {
+    if (esAnulada(item?.status)) {
       return {
         label: "Anulada",
         className: styles.statusCancelled
@@ -63,7 +64,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       <div className={styles.container}>
         <div className={styles.iconHeader}>
           <div className={styles.iconCircle}>
-            {item?.type === "G" ? (
+            {esGrupal(item?.type) ? (
               <IconGroupsQr className={styles.qrIcon} />
             ) : (
               <IconSingleQr className={styles.qrIcon} />
@@ -85,7 +86,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           <div className={styles.detailRow}>
             <div className={styles.label}>Tipo:</div>
             <div className={styles.value}>
-              {item?.type === "G" ? "Grupal" : "Individual"}
+              {esGrupal(item?.type) ? "Grupal" : "Individual"}
             </div>
           </div>
 
@@ -118,7 +119,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           )}
 
           {/* Mostrar invitados si es una invitación grupal */}
-          {item?.type === "G" && item?.guests && item?.guests.length > 0 && (
+          {esGrupal(item?.type) && item?.guests && item?.guests.length > 0 && (
             <>
               <div className={styles.guestsHeader}>
                 <div className={styles.guestsTitle}>Invitados ({item.guests.length})</div>
@@ -153,7 +154,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           )}
 
           {/* Para invitaciones individuales, mostrar el acceso */}
-          {item?.type === "I" && item?.access && (
+          {esIndividual(item?.type) && item?.access && (
             <div className={styles.detailRow}>
               <div className={styles.label}>Acceso:</div>
               <div className={styles.value}>

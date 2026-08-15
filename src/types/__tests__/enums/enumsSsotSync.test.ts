@@ -40,11 +40,21 @@ import {
   AccessTaxiMark,
 } from '@/modulos/Activities/AccessTab/shared/accessEnums';
 
+// Invitaciones: migradas a enum numérico desde 1 el 2026-08-15. El admin sólo
+// consume dos de los cuatro — no muestra la configuración horaria ni la lista
+// de invitados de una grupal, que son de rnOwner y rnGuard.
+import {
+  InvitationStatus,
+  InvitationType,
+} from '@/modulos/Activities/QrTab/invitationEnums';
+
 const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
   AccessType,
   AccessStoredStatus,
   AccessConfirmation,
   AccessTaxiMark,
+  InvitationStatus,
+  InvitationType,
   ReservationStatus,
   PaymentStatus,
   PaymentMethod,
@@ -56,6 +66,27 @@ const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
   TargetAudience,
   SurveyStatus,
 };
+
+const APP = 'admin';
+
+/**
+ * 🔴 Desde la versión 1.2.0 el nombre canónico de un case es el que usa el
+ * **API**, y cada front declara el suyo en `aliasesByApp`.
+ *
+ * Antes era al revés: el canónico era el nombre de los fronts y el API
+ * declaraba sus alias — o sea que el JSON decía que la fuente eran los fronts.
+ * Es la misma confusión que dejó al API un mes entero fuera del contrato,
+ * cuando el que manda es el PHP: es lo que está guardado en la base.
+ *
+ * Un alias significa que el **valor** coincide y el nombre del case no. Acá los
+ * cuatro enums de Access son el caso grande: el API los tiene en castellano
+ * (`SinQr`) y los tres fronts en inglés (`WITHOUT_QR`). Medido el 2026-08-15,
+ * unificarlos por rename toca **507 call sites** y ninguno de los dos nombres
+ * está mal, así que no hay corrección que ganar: se unifican cuando Access se
+ * migre a Mk2, que es cuando se tocan sus call sites igual.
+ */
+const nombreLocal = (enumSsot: any, ssotName: string): string =>
+  enumSsot.aliasesByApp?.[APP]?.[ssotName] ?? ssotName;
 
 describe('Enums SSoT sync (admin vs cross-app SSoT)', () => {
   it('JSON SSoT es válido y tiene la estructura esperada', () => {
@@ -69,7 +100,7 @@ describe('Enums SSoT sync (admin vs cross-app SSoT)', () => {
       it(`existe en admin y todos los valores matchean el SSoT`, () => {
         const localEnum = LOCAL_ENUMS[enumName];
         if (!localEnum) {
-          if (!enumSsot.apps.includes('admin')) {
+          if (!enumSsot.apps.includes(APP)) {
             return; // skip silencioso — admin no consume este enum
           }
           throw new Error(
@@ -78,19 +109,22 @@ describe('Enums SSoT sync (admin vs cross-app SSoT)', () => {
         }
 
         for (const ssotVal of enumSsot.values) {
-          const localVal = localEnum[ssotVal.name];
+          const local = nombreLocal(enumSsot, ssotVal.name);
+          const localVal = localEnum[local];
           expect(
             localVal,
-            `${enumName}.${ssotVal.name} debería ser ${JSON.stringify(ssotVal.value)} (SSoT), pero el enum local retorna ${JSON.stringify(localVal)}`
+            `${enumName}.${local} debería ser ${JSON.stringify(ssotVal.value)} (SSoT lo llama ${ssotVal.name}), pero el enum local retorna ${JSON.stringify(localVal)}`
           ).toBe(ssotVal.value);
         }
       });
 
       it(`admin no tiene valores extra que no estén en el SSoT`, () => {
         const localEnum = LOCAL_ENUMS[enumName];
-        if (!localEnum || !enumSsot.apps.includes('admin')) return;
+        if (!localEnum || !enumSsot.apps.includes(APP)) return;
 
-        const ssotNames = new Set(enumSsot.values.map((v) => v.name));
+        const ssotNames = new Set(
+          enumSsot.values.map((v) => nombreLocal(enumSsot, v.name))
+        );
         for (const localKey of Object.keys(localEnum)) {
           // Filter TypeScript reverse-mappings en enums numéricos:
           // Para `enum X { A = 1 }`, el runtime también tiene `X[1] = "A"`.

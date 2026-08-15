@@ -7,6 +7,12 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { IconGroupsQr, IconSingleQr } from "@/components/layout/icons/IconsBiblioteca";
 import RenderView from "./RenderView/RenderView";
+import {
+  INVITATION_TYPE_LABELS,
+  InvitationType,
+  esAnulada,
+  esGrupal,
+} from "./invitationEnums";
 
 interface QRTabProps {
   paramsInitial: any;
@@ -19,23 +25,14 @@ interface QRTabProps {
 }
 
 /**
- * Los tres tipos de invitación, con las palabras que ya usa el detalle.
- *
- * ⚠️ Las mismas que imprime `InvitacionesExportConfig` en el back: la lista y
- * el reporte tienen que decir lo mismo.
- */
-const INVITATION_TYPE_LABELS: Record<string, string> = {
-  I: "Individual",
-  G: "Grupal",
-  F: "Frecuente",
-};
-
-/**
  * ⚠️ Los valores viajan al back en `filterBy` y los interpreta
  * `InvitationController::porEstado()`. Son las palabras que la lista MUESTRA,
- * no los cuatro chars de `invitations.status` —'O', 'A', 'I', 'X'— que el
- * usuario no ve por ningún lado: un filtro que hable otro idioma que la
- * columna filtra por algo distinto de lo que se está mirando.
+ * no los cuatro valores de `invitations.status` —USED, ACTIVE, INACTIVE,
+ * CANCELLED— que el usuario no ve por ningún lado: un filtro que hable otro
+ * idioma que la columna filtra por algo distinto de lo que se está mirando.
+ *
+ * 🔴 Por eso este filtro NO cambió con la migración a enums numéricos: nunca
+ * mandó el valor de la columna.
  */
 const getStatusOptions = () => [
   { id: "ALL", name: "Todos" },
@@ -44,17 +41,42 @@ const getStatusOptions = () => [
   { id: "ANULADA", name: "Anulada" },
 ];
 
+/**
+ * ⚠️ Los ids van como NÚMERO, no como el string que devolvería
+ * `Object.entries` —las claves de un objeto son strings siempre, aunque se
+ * hayan escrito numéricas—. El back lo tolera porque castea, pero el `Select`
+ * compartido compara el id contra el valor del form con `==`, y mezclar `"2"`
+ * con `2` en esa comparación es la clase de cosa que después nadie encuentra.
+ */
 const getTypeOptions = () => [
   { id: "ALL", name: "Todos" },
-  ...Object.entries(INVITATION_TYPE_LABELS).map(([id, name]) => ({ id, name })),
+  ...Object.entries(INVITATION_TYPE_LABELS).map(([id, name]) => ({
+    id: Number(id),
+    name,
+  })),
 ];
-// Función actualizada para obtener las opciones de período
+/**
+ * 🔴 Los códigos son los CORTOS, y el cambio no es cosmético.
+ *
+ * Hasta el 2026-08-15 este filtro mandaba `week`/`lweek`/`month`/`lmonth`, y
+ * el API los traducía con una tabla propia a los cortos que entiende
+ * `PeriodFilterService`. Esa traducción era lo ÚNICO que había dejado al
+ * filtro de fechas de Invitaciones afuera de la unificación de 2026-08-04 — y
+ * por eso seguía arrastrando los dos bugs que se arreglaron allá: en enero
+ * "mes pasado" devolvía cero filas, y parado un día 31 devolvía el mes actual.
+ *
+ * Con los códigos cortos el listado usa el mismo filtro que los otros 44
+ * módulos y la copia desaparece.
+ *
+ * ⚠️ `t` (Todos) no es un período: el back lo ignora porque no matchea ningún
+ * caso, que es exactamente lo que tiene que pasar.
+ */
 const getPeriodOptions = () => [
   { id: "t", name: "Todos" },
-  { id: "week", name: "Esta Semana" },
-  { id: "lweek", name: "Ant. Semana" },
-  { id: "month", name: "Este Mes" },
-  { id: "lmonth", name: "Ant. Mes" }
+  { id: "w", name: "Esta Semana" },
+  { id: "lw", name: "Ant. Semana" },
+  { id: "m", name: "Este Mes" },
+  { id: "lm", name: "Ant. Mes" }
 ];
 
 const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
@@ -181,13 +203,15 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
             //
             // El ícono solo no alcanza para distinguir tres cosas, así que va
             // con su nombre al lado. El reporte usa las mismas palabras.
-            const type = props.item.type;
-            const esGrupal = type === "G";
-            const label = INVITATION_TYPE_LABELS[type] ?? INVITATION_TYPE_LABELS.I;
+            const type = Number(props.item.type);
+            const grupal = esGrupal(type);
+            const label =
+              INVITATION_TYPE_LABELS[type] ??
+              INVITATION_TYPE_LABELS[InvitationType.INDIVIDUAL];
 
             return (
               <div className={styles.invitationTypeIcon} title={label}>
-                {esGrupal ? (
+                {grupal ? (
                   <IconGroupsQr className={styles.groupIcon} />
                 ) : (
                   <IconSingleQr className={styles.singleIcon} />
@@ -214,7 +238,7 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
             let statusLabel = "Activa";
             let statusClass = "statusA";
 
-            if (props.item.status === "X") {
+            if (esAnulada(props.item.status)) {
               statusLabel = "Anulada";
               statusClass = "statusX";
             } else if (props.item.access && props.item.access.length === 0) {
