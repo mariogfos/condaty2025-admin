@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { usePaymentsForm } from "../hooks/usePaymentsForm";
 import { FormPaymentType, PaymentMethod } from "../Type/PaymentType";
 import { paymentsApi } from "../api";
+import { BankAccountAssignment } from "@/modulos/BankAccounts/Type/BankType";
 
 const mockExecute = vi.fn();
 const mockShowToast = vi.fn();
@@ -136,7 +137,7 @@ describe("usePaymentsForm", () => {
       dptos: [{ id: 5, nro: "101", description: "Dpto 101", homeowner: { id: 9, name: "Mario" } }],
       categories: [],
       client_config: { cat_expensas: 100, cat_reservations: 200, cat_forgiveness: 300 },
-      bankAccounts: [{ id: 7, is_expense: 1 }],
+      bankAccounts: [{ id: 7, is_expense: BankAccountAssignment.YES }],
       subcategories: [],
     },
     execute: mockExecute,
@@ -699,7 +700,7 @@ describe("usePaymentsForm", () => {
         dptos: [{ id: 5, nro: "101", description: "Dpto 101", homeowner: { id: 9, name: "Mario" } }],
         categories: [],
         client_config: { cat_expensas: 100, cat_reservations: 200, cat_forgiveness: 300 },
-        bankAccounts: [{ id: 7, is_expense: 1 }],
+        bankAccounts: [{ id: 7, is_expense: BankAccountAssignment.YES }],
         subcategories: [],
       },
       execute: localExecute,

@@ -8,7 +8,11 @@ import useCrud from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import { BankAccountStatus, BANK_ACCOUNT_STATUS_LABELS } from "./Type/BankType";
+import {
+  BankAccountStatus,
+  BANK_ACCOUNT_STATUS_LABELS,
+  getAssignmentLabels,
+} from "./Type/BankType";
 import { bankAccountsApi } from "./api";
 import { getBankAccountsMod } from "./config/bankAccountsMod";
 
@@ -76,22 +80,9 @@ const BankAccounts = () => {
           required: true,
         },
         list: {
-          onRender: ({ item }: Record<string, any>) => {
-            return (
-              <p>
-                {["Expensa", "Reserva", "Principal"]
-                  .filter((label, index) => {
-                    const flags = [
-                      item?.is_expense,
-                      item?.is_reserve,
-                      item?.is_main,
-                    ];
-                    return flags[index] > 0;
-                  })
-                  .join(", ") || "-/-"}
-              </p>
-            );
-          },
+          onRender: ({ item }: Record<string, any>) => (
+            <p>{getAssignmentLabels(item)}</p>
+          ),
         },
       },
       status: {

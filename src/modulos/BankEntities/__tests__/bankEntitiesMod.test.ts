@@ -112,8 +112,23 @@ describe("BankEntities: el estado va numérico", () => {
     expect(fuente).toContain("BankEntityStatus.INACTIVE");
   });
 
-  it("los valores del enum son los que espera la columna", () => {
+  /**
+   * 🔴 Ningún case puede valer 0. Es la regla del proyecto y acá tiene un
+   * motivo medido: `0 == ""` es `true` en JavaScript, y el `Select` compartido
+   * llegó a auto-elegir la opción con id 0 como si el usuario la hubiera
+   * tocado (CDT-30). Este test no fija los números uno por uno —eso sería otra
+   * lista que mantener— sino la invariante.
+   */
+  it("ningún valor del enum arranca en 0", () => {
     expect(BankEntityStatus.ACTIVE).toBe(1);
-    expect(BankEntityStatus.INACTIVE).toBe(0);
+
+    const valores = Object.values(BankEntityStatus).filter(
+      (v) => typeof v === "number"
+    ) as number[];
+
+    expect(valores.length).toBeGreaterThan(0);
+    for (const valor of valores) {
+      expect(valor).toBeGreaterThanOrEqual(1);
+    }
   });
 });
