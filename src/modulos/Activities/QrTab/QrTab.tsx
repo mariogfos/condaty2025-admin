@@ -56,13 +56,28 @@ const getTypeOptions = () => [
     name,
   })),
 ];
-// Función actualizada para obtener las opciones de período
+/**
+ * 🔴 Los códigos son los CORTOS, y el cambio no es cosmético.
+ *
+ * Hasta el 2026-08-15 este filtro mandaba `week`/`lweek`/`month`/`lmonth`, y
+ * el API los traducía con una tabla propia a los cortos que entiende
+ * `PeriodFilterService`. Esa traducción era lo ÚNICO que había dejado al
+ * filtro de fechas de Invitaciones afuera de la unificación de 2026-08-04 — y
+ * por eso seguía arrastrando los dos bugs que se arreglaron allá: en enero
+ * "mes pasado" devolvía cero filas, y parado un día 31 devolvía el mes actual.
+ *
+ * Con los códigos cortos el listado usa el mismo filtro que los otros 44
+ * módulos y la copia desaparece.
+ *
+ * ⚠️ `t` (Todos) no es un período: el back lo ignora porque no matchea ningún
+ * caso, que es exactamente lo que tiene que pasar.
+ */
 const getPeriodOptions = () => [
   { id: "t", name: "Todos" },
-  { id: "week", name: "Esta Semana" },
-  { id: "lweek", name: "Ant. Semana" },
-  { id: "month", name: "Este Mes" },
-  { id: "lmonth", name: "Ant. Mes" }
+  { id: "w", name: "Esta Semana" },
+  { id: "lw", name: "Ant. Semana" },
+  { id: "m", name: "Este Mes" },
+  { id: "lm", name: "Ant. Mes" }
 ];
 
 const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
