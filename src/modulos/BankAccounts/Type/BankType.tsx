@@ -54,16 +54,16 @@ export const BANK_ACCOUNT_STATUS_LABELS = {
  * también es mayor que cero, así que las dos habrían pintado las tres
  * etiquetas en todas las cuentas y ninguna habría salido con "-/-".
  *
- * Espeja al `CONCAT_WS` de `BankAccountRepository`, que es el que arma la
- * misma columna para el listado y el reporte.
+ * Espeja al `CONCAT_WS` de `BankAccountController::sqlDeLaAsignacion()`, que
+ * es el que arma la misma columna para el listado y el reporte.
  */
 export const getAssignmentLabels = (item: {
   is_expense?: unknown;
   is_reserve?: unknown;
   is_main?: unknown;
 }): string => {
-  const asignada = (valor: unknown) =>
-    Number(valor) === BankAccountAssignment.YES;
+  const isAssigned = (value: unknown) =>
+    Number(value) === BankAccountAssignment.YES;
 
   return (
     [
@@ -72,7 +72,7 @@ export const getAssignmentLabels = (item: {
       ["Principal", item?.is_main],
     ] as const
   )
-    .filter(([, valor]) => asignada(valor))
+    .filter(([, value]) => isAssigned(value))
     .map(([label]) => label)
     .join(", ") || "-/-";
 };

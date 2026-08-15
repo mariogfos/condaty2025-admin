@@ -1051,24 +1051,24 @@ export const usePaymentsForm = (
     // **1 es NO** y 2 es SÍ: con la comparación vieja, este formulario habría
     // elegido como cuenta destino del pago exactamente las cuentas NO
     // asignadas — sin error, sin log y con el pago cobrado igual.
-    const asignada = (valor: unknown) =>
-      Number(valor) === BankAccountAssignment.YES;
+    const isAssigned = (value: unknown) =>
+      Number(value) === BankAccountAssignment.YES;
 
     const existBankAccount = extraData?.bankAccounts?.find((item: any) =>
-      asignada(item.is_main)
+      isAssigned(item.is_main)
     )?.id;
 
     switch (formState.type) {
       case FormPaymentType.EXPENSE: {
         const id =
-          extraData?.bankAccounts?.find((i: any) => asignada(i.is_expense))?.id ||
+          extraData?.bankAccounts?.find((i: any) => isAssigned(i.is_expense))?.id ||
           existBankAccount;
         bank_account_id = id;
         break;
       }
       case FormPaymentType.RESERVATION: {
         const id =
-          extraData?.bankAccounts?.find((i: any) => asignada(i.is_reserve))?.id ||
+          extraData?.bankAccounts?.find((i: any) => isAssigned(i.is_reserve))?.id ||
           existBankAccount;
         bank_account_id = id;
         break;
