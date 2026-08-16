@@ -3,7 +3,13 @@ import { useMemo, useEffect, useState } from "react";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import useCrudUtils from "../../../shared/useCrudUtils";
 import { getDateStrMesShort, getNow } from "@/mk/utils/date";
-import RenderForm from "./RenderForm/RenderForm";
+// 🔴 CDT-52: el RenderForm propio de esta pestaña pegaba a
+// `PUT /debt-groups/{id}`, ruta que CDT-50 retiró (en `debt-groups` sólo
+// quedan `POST ''` y `GET ''`). Se borró. Lo único que "Todas" edita es la
+// deuda individual —`getAvailableActions` no ofrece Editar para `type !== 0`—
+// y esa es exactamente la que edita el formulario de Individuales, contra
+// `PUT /v3/debt-dptos/{id}`.
+import RenderForm from "../IndividualDebts/RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
@@ -285,6 +291,20 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
 
     return {
       id: { rules: [], api: "e" },
+      // 🔴 Las llaves que viajan en el `PUT` las elige `getParamFields` mirando
+      // el `api` de CADA campo: lo que no está declarado acá no sale, aunque el
+      // formulario lo tenga cargado. Sin estas ocho, "Editar" desde el detalle
+      // mandaba un `PUT` con el `id` y nada más. Son las mismas de Individuales
+      // —es el mismo formulario y el mismo endpoint—; van con `api: "e"` porque
+      // en esta pestaña el alta está oculta (`hideActions.add`).
+      begin_at: { rules: ["required"], api: "e", label: "Fecha de inicio" },
+      description: { rules: [], api: "e", label: "Descripción" },
+      dpto_id: { rules: ["required"], api: "e", label: "Unidad" },
+      interest: { rules: [], api: "e", label: "Interés" },
+      has_mv: { rules: [], api: "e", label: "Tiene Mant. Valor" },
+      is_forgivable: { rules: [], api: "e", label: "Es condonable" },
+      has_pp: { rules: [], api: "e", label: "Tiene plan de pago" },
+      is_blocking: { rules: [], api: "e", label: "Es bloqueante" },
       unit: {
         rules: [""],
         api: "",
@@ -295,8 +315,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
         },
       },
       due_at: {
-        rules: [""],
-        api: "",
+        rules: ["required"],
+        api: "e",
         label: "Vencimiento",
         list: {
           onRender: renderDueDateCell,
@@ -325,8 +345,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
         },
       },
       subcategory_id: {
-        rules: [""],
-        api: "",
+        rules: ["required"],
+        api: "e",
         label: "Subcategoría",
         list: {
           onRender: renderSubcategoryCell,
@@ -341,8 +361,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
         },
       },
       type: {
-        rules: [""],
-        api: "",
+        rules: [],
+        api: "e",
         label: "Tipo",
         list: {
           onRender: renderDebtTypeCell,
@@ -381,8 +401,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
         },
       },
       amount: {
-        rules: [""],
-        api: "",
+        rules: ["required"],
+        api: "e",
         label: (
           <label
             style={{ display: "block", textAlign: "right", width: "100%" }}
@@ -486,6 +506,17 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     permiso: "expense",
     extraData: true,
     sumarize: false,
+    // 🔴 CDT-52, decisión de producto: en "Todas" el lápiz y el tacho de la
+    // fila NO van. Acá conviven deudas de los seis tipos y la regla de quién se
+    // edita vive en UN solo lado —el back, `DebtDptoController::beforeUpdate` y
+    // `beforeDelete`—; una segunda copia en el front es lo que se desincroniza.
+    // La acción alcanzable es el detalle: `view: false` deja que el click de
+    // fila caiga en `onView`, y adentro del modal están Editar y Anular con la
+    // regla de `getAvailableActions`.
+    //
+    // ⚠️ `edit` y `del` en true son los que hacen que `useCrud` mande
+    // `onButtonActions: undefined` y la tabla ni monte la columna de acciones.
+    // Sacarlos repone la columna.
     hideActions: {
       add: true,
       view: false,
@@ -503,32 +534,26 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
         onDel={props.onDel}
       />
     ),
-    renderForm: (props: any) => (
-      <RenderForm
-        open={props.open}
-        onClose={props.onClose}
-        item={props.item}
-        setItem={props.setItem}
-        execute={props.execute}
-        extraData={props.extraData}
-        user={user}
-        reLoad={props.reLoad}
-        errors={props.errors}
-        setErrors={props.setErrors}
-        onSave={props.onSave}
-        action={props.action}
-      />
-    ),
+    renderForm: (props: any) => <RenderForm {...props} />,
   };
 
-  const { userCan, List, onEdit, onDel, extraData, onFilter, reLoad } = useCrud(
-    {
-      paramsInitial,
-      mod,
-      fields,
-      getFilter: handleGetFilter,
-    },
-  );
+  const {
+    userCan,
+    List,
+    onEdit,
+    onDel,
+    onView,
+    onSearch,
+    searchs,
+    extraData,
+    onFilter,
+    reLoad,
+  } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+    getFilter: handleGetFilter,
+  });
 
   useEffect(() => {
     if (extraData && onExtraDataChange) {
@@ -536,9 +561,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     }
   }, [extraData, onExtraDataChange]);
 
+  // 🔴 CDT-52: `onSearch` y `searchs` alimentan la lupa del header
+  // (`Layout` → `Header`). Con el no-op de antes, escribir ahí no mandaba nada
+  // al servidor: la lupa se abría, aceptaba texto y no pasaba nada.
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => {},
-    searchs: {},
+    onSearch,
+    searchs,
     setStore,
     mod,
     onEdit,
@@ -558,8 +586,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
     const totalBalance = debtAmount + penaltyAmount;
 
+    // La tarjeta de tablet abre el mismo detalle que la fila. Hoy no se
+    // alcanza —`Table` tiene `const isMobile = false`, que es CDT-51—, pero
+    // dejarla en no-op es el mismo bug esperando a que ese ticket la reviva.
     return (
-      <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
+      <RenderItem item={item} onClick={onView} onLongPress={onLongPress}>
         <ItemList
           title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusTextConst(displayStatus)}`}
           subtitle={`Deuda: ${formatBs(debtAmount)} | Multa: ${formatBs(penaltyAmount)} | Total: ${formatBs(totalBalance)}`}
@@ -570,14 +601,14 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     );
   };
 
-  const onClickDetail = (row: any) => {};
-
   return (
     <>
+      {/* 🔴 Sin `onRowClick`: `useCrud` le gana a `runtime.onView` con
+          cualquier `props.onRowClick`, y el que había era un no-op. Ahora el
+          click de fila abre el detalle. */}
       <List
         height={"100%"}
         onTabletRow={renderItem}
-        onRowClick={onClickDetail}
         emptyMsg="Lista de todas las deudas vacía. Una vez generes las cuotas"
         emptyLine2="de los residentes las verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}

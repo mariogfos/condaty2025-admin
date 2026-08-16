@@ -245,10 +245,18 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     filter: true,
     permiso: 'expense',
     extraData: true,
+    // 🔴 CDT-52: toda esta pestaña es `type: 0`, la única que la API deja
+    // editar y borrar por unidad (`PUT`/`DELETE /v3/debt-dptos/{id}`). Con
+    // `edit` y `del` en true, `useCrud` mandaba `onButtonActions: undefined` y
+    // la tabla ni montaba la columna de acciones: la pestaña entera quedaba sin
+    // una sola acción alcanzable.
+    //
+    // No hay filtro de pagos en el front a propósito: esa regla es del back
+    // (`beforeUpdate`/`beforeDelete` con `withActivePayment()`) y su rechazo ya
+    // le llega al usuario con el texto del API (CDT-60). Misma forma que
+    // `DetailSharedDebts`.
     hideActions: {
       view: false,
-      edit: true,
-      del: true,
     },
     renderView: (props: any) => (
       <RenderView
@@ -400,7 +408,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     },
   };
 
-  const { userCan, List, onEdit, onDel, extraData, execute, reLoad, showToast, onFilter } = useCrud({
+  const { userCan, List, onEdit, onDel, onView, onSearch, searchs, extraData, execute, reLoad, showToast, onFilter } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -415,9 +423,11 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     }
   }, [extraData, onExtraDataChange]);
 
+  // 🔴 CDT-52: la lupa del header (`Layout` → `Header`) se alimenta de acá. Con
+  // el no-op de antes aceptaba texto y no mandaba nada al servidor.
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => { },
-    searchs: {},
+    onSearch,
+    searchs,
     setStore,
     mod,
     onEdit,
@@ -437,8 +447,11 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
     const totalBalance = debtAmount + penaltyAmount;
 
+    // La tarjeta de tablet abre el mismo detalle que la fila. Hoy no se
+    // alcanza —`Table` tiene `const isMobile = false`, que es CDT-51—, pero
+    // dejarla en no-op es el mismo bug esperando a que ese ticket la reviva.
     return (
-      <RenderItem item={item} onClick={() => { }} onLongPress={onLongPress}>
+      <RenderItem item={item} onClick={onView} onLongPress={onLongPress}>
         <ItemList
           title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(displayStatus)}`}
           subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${penaltyAmount.toFixed(2)} | Total: Bs ${totalBalance.toFixed(2)}`}
@@ -449,15 +462,14 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     );
   };
 
-  const onClickDetail = (row: any) => {
-  };
-
   return (
     <>
+      {/* 🔴 Sin `onRowClick`: `useCrud` le gana a `runtime.onView` con
+          cualquier `props.onRowClick`, y el que había era un no-op. Ahora el
+          click de fila abre el detalle. */}
       <List
         height={"100%"}
         onTabletRow={renderItem}
-        onRowClick={onClickDetail}
         emptyMsg="Lista de deudas individuales vacía. Una vez generes las cuotas"
         emptyLine2="individuales las verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
