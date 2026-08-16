@@ -261,8 +261,11 @@ const Defaulters = () => {
       calculatedTotals.porCobrarMv,
     ],
   );
+  // CDT-56: Morosos no tiene detalle propio, manda al de Unidades. Sin el
+  // origen en el query string, el botón "atrás" de ese detalle caía al default
+  // (`/units`) y encima lo anunciaba con la etiqueta equivocada.
   const handleRowClick = (item: any) => {
-    router.push(`/units/${item.dpto_id}`);
+    router.push(`/units/${item.dpto_id}?returnTo=defaulters`);
   };
 
   const renderRightPanel = useCallback(() => {

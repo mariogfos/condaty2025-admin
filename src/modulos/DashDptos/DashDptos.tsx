@@ -25,6 +25,7 @@ import {
 } from "@/mk/components/ui/Skeleton/Skeleton";
 import OwnersRenderForm from "../Owners/RenderForm/RenderForm";
 import UnitFinanceHistory from "./UnitFinanceHistory/UnitFinanceHistory";
+import { getBackTarget } from "./backTarget";
 
 interface DashDptosProps {
   id: string | number;
@@ -258,24 +259,15 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
   };
 
-  const handleBackNavigation = () => {
-    if (returnTo === "owners") {
-      router.push("/owners");
-    } else {
-      router.push("/units");
-    }
-  };
+  const backTarget = getBackTarget(returnTo);
 
-  const getBackLabel = () => {
-    if (returnTo === "owners") {
-      return "Volver a residentes";
-    }
-    return "Volver a lista de unidades";
+  const handleBackNavigation = () => {
+    router.push(backTarget.href);
   };
 
   return (
     <div className={styles.container}>
-      <HeaderBack label={getBackLabel()} onClick={handleBackNavigation} />
+      <HeaderBack label={backTarget.label} onClick={handleBackNavigation} />
       <section>
         <div className={styles.firtsPanel}>
           {!loaded ? (
