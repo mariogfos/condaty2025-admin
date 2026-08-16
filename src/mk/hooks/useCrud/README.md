@@ -435,6 +435,30 @@ if (userCan('USER', 'D')) { // D = Delete
 - Implement proper loading states
 - Use pagination for large datasets
 
+### 2.1 Scroll infinito dentro de un `<LoadingScreen>` (CDT-53)
+
+Con `paramsInitial.perPage > 0` el hook usa scroll infinito y pide las páginas
+solo. Ese pedido decide por sí mismo si mueve el contador global `waiting` del
+`AxiosInstanceProvider` —el que `LoadingScreen` usa para tapar a sus hijos con
+un esqueleto—, y el criterio es la PÁGINA:
+
+| situación                                | `page` | esqueleto |
+|------------------------------------------|--------|-----------|
+| carga inicial                            | 1      | **sí**    |
+| reset por filtro, búsqueda u orden        | 1      | **sí**    |
+| append del scroll infinito                | > 1    | **no**    |
+
+🔴 Un append que moviera `waiting` desmontaría el contenedor scrolleable y lo
+remontaría con `scrollTop = 0`: la lista salta al inicio sola y con muchas filas
+nunca se llega al final. Y al revés, apagarlo también en los resets dejaría al
+usuario mirando las filas del filtro anterior como si fueran el resultado del
+nuevo.
+
+⚠️ El "cargando más" del pie de la lista NO sale de acá: lo dibuja
+`isAppendingList`, que es del hook. Un módulo no necesita declarar `noWaiting`
+para arreglar el salto de scroll — ya está resuelto en el hook, y declararlo
+apagaría también el esqueleto de la carga inicial y el de los filtros.
+
 ### 3. User Experience
 - Provide meaningful labels and messages
 - Use custom renderers for complex UI requirements

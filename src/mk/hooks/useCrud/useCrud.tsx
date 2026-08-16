@@ -627,12 +627,39 @@ const useCrud = ({
       setManualError("");
       setManualLoaded(false);
 
+      /**
+       * 🔴 CDT-53: un APPEND del scroll infinito no es una carga de pantalla.
+       *
+       * El contador global `waiting` del `AxiosInstanceProvider` es lo que mira
+       * `LoadingScreen`: con `waiting > 0` reemplaza a sus hijos por un
+       * esqueleto. Si la página N+1 lo incrementa, el contenedor scrolleable se
+       * DESMONTA mientras el request vuela y se remonta con `scrollTop = 0`:
+       * la lista salta al inicio sola y, con muchas filas, nunca se llega al
+       * final. Medido en el detalle de un período de Expensas
+       * (`ExpensesDetailsView`, `perPage: 20` dentro de un `<LoadingScreen>`).
+       *
+       * ⚠️ El corte es por PÁGINA, no por módulo, y esa es toda la gracia:
+       *
+       * - carga inicial  → `page === 1` → sí mueve `waiting` → esqueleto.
+       * - reset por filtro, búsqueda u orden → `beginListReset` vuelve a
+       *   `page = 1` → sí mueve `waiting` → esqueleto. 🔴 Sin esto el usuario
+       *   filtra con la lista scrolleada y se queda mirando las filas VIEJAS
+       *   como si fueran el resultado del filtro nuevo: un bug de scroll
+       *   cambiado por uno de datos mentirosos, que es peor.
+       * - append (`page > 1`) → NO lo mueve → la lista no se desmonta.
+       *
+       * El "cargando más" del pie de la lista no depende de esto: lo dibuja
+       * `isAppendingList`, que es del hook y no del contador global.
+       */
+      const requestedPage = Number(nextRequestParams?.page || 1);
+      const esAppend = requestedPage > 1;
+
       const result = await execute(
         "/" + mod.modulo,
         "GET",
         nextRequestParams,
         false,
-        noWaiting,
+        noWaiting || esAppend,
       );
 
       if (requestId !== latestRequestIdRef.current) {
@@ -647,7 +674,6 @@ const useCrud = ({
       // viejos apenas `loadMoreRows` cambia la página — antes de que el
       // request responda —, así que cualquier flag que se mire o se escriba
       // ahí llega tarde o confirma páginas que nunca respondieron.
-      const requestedPage = Number(nextRequestParams?.page || 1);
       if (result.error) {
         // Sólo `loadMoreRows` pide páginas > 1 (el inicio y los resets van
         // siempre a la 1): un fallo con página > 1 es un "cargar más" perdido.
@@ -2627,7 +2653,6 @@ const useCrud = ({
                     extraData={runtime.extraData}
                     onSort={hasSortableColumns ? runtime.onSort : undefined}
                     sortCol={runtime.sortCol}
-                    id={runtime.mod?.modulo}
                     useInfiniteScroll={runtime.useInfiniteList}
                     hasMore={runtime.useInfiniteList && runtime.listHasMore}
                     isLoadingMore={runtime.isAppendingList}
