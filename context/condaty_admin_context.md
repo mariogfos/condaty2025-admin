@@ -327,6 +327,31 @@ Qué se puede editar y qué no*): el grupo sólo se crea, y el reparto por unida
 (`DetalleDeudaCompartida`) es donde se edita el monto y se elimina la deuda de
 UNA unidad, contra `/v3/debt-dptos/{id}` con `type: 4`.
 
+#### Dónde vive cada acción (CDT-52)
+
+En las cuatro pestañas el click de fila abre el **detalle** (`RenderView` de
+`AllDebts`, que las demás importan). Lo que cambia es el lápiz y el tacho de la
+columna de acciones:
+
+| Pestaña | Fila | Detalle |
+|---|---|---|
+| **Todas** | sin lápiz ni tacho | Registrar pago, Ver pago, Editar y Anular, según `getAvailableActions` |
+| **Individuales** | lápiz y tacho (`PUT`/`DELETE /v3/debt-dptos/{id}`) | ídem |
+| **Detalle de compartida** | lápiz y tacho por unidad | sin Editar ni Anular (ya están en la fila) |
+
+"Todas" mezcla los seis tipos y **no** repone la columna a propósito: la regla
+de qué deuda se puede editar o anular vive en **un solo lado**, el back
+(`DebtDptoController::beforeUpdate`/`beforeDelete`, con `withActivePayment()`),
+y su rechazo se muestra con el texto del API. Una segunda copia de esa regla en
+el front es lo que se desincroniza — pasaba ya: `constants.ts` negaba editar
+para `type !== 0` mientras la API sí deja editar la individual de expensa y la
+compartida.
+
+El grupo (`/debt-groups`) **no se edita ni se borra** desde ningún lado: CDT-50
+retiró esos endpoints y CDT-52 borró el último formulario que les pegaba
+(`AllDebts/RenderForm`). "Todas" e "Individuales" comparten hoy el formulario de
+`IndividualDebts/RenderForm`, que guarda contra `/v3/debt-dptos/{id}`.
+
 ### 10. Defaulters (Morosos)
 **Ubicación**: `src/modulos/Defaulters/`
 **Funcionalidad**: Gestión de usuarios morosos

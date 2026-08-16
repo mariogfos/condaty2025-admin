@@ -204,8 +204,24 @@ export const getAvailableActions = (status: number, type: number) => {
         showRegistrarPago: false,
         showVerPago: false,
       };
+    // 🔴 CDT-52: estos siete estados devuelven lo mismo, pero antes cinco de
+    // ellos —SUBMITTED, WORKFLOW_PENDING, CANCELLED, AWAITING_VOUCHER,
+    // REJECTED— llegaban por el `default`, que era permisivo. O sea: un estado
+    // nuevo del enum heredaba "editable y anulable" sin que nadie lo decidiera,
+    // y nadie se enteraba hasta que alguien abría la pantalla.
+    //
+    // Ahora los diez del enum están nombrados y el `default` no ofrece nada:
+    // un estado que no está acá no muestra acciones hasta que se decida qué
+    // hace. El comportamiento de los diez actuales no cambia — CANCELLED sigue
+    // ofreciendo Anular y Editar, que es lo que ya hacía y lo que pinea
+    // `constants.test.ts`.
     case DebtStatus.PENDING:
     case DebtStatus.OVERDUE:
+    case DebtStatus.SUBMITTED:
+    case DebtStatus.WORKFLOW_PENDING:
+    case DebtStatus.CANCELLED:
+    case DebtStatus.AWAITING_VOUCHER:
+    case DebtStatus.REJECTED:
       return {
         showAnular: true,
         showEditar: true,
@@ -214,9 +230,9 @@ export const getAvailableActions = (status: number, type: number) => {
       };
     default:
       return {
-        showAnular: true,
-        showEditar: true,
-        showRegistrarPago: true,
+        showAnular: false,
+        showEditar: false,
+        showRegistrarPago: false,
         showVerPago: false,
       };
   }
