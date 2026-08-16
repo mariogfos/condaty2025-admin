@@ -18,7 +18,6 @@ import styles from "./styles.module.css";
 import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
 import { formatNumber } from "@/mk/utils/numbers";
 import useScrollbarWidth from "@/mk/hooks/useScrollbarWidth";
-import { useAuth } from "@/mk/contexts/AuthProvider";
 import ContextMenu, {
   ContextMenuActionParams,
   ContextMenuItem,
@@ -62,7 +61,6 @@ type PropsType = {
     sortabled?: boolean;
     onHide?: () => boolean;
   }[];
-  id?: string;
   data: any;
   footer?: any;
   sumarize?: boolean;
@@ -463,7 +461,6 @@ const Row = memo(function Row({
 
 const Table = ({
   header = [],
-  id = "0",
   data,
   footer,
   sumarize = false,
@@ -666,7 +663,6 @@ const Table = ({
               setScrollbarWidth={setScrollbarWidth}
               onRenderBody={onRenderBody}
               extraData={extraData}
-              id={id}
               manualWidths={manualWidths}
               measuredWidths={measuredWidths}
               fillColumnIndex={fillColumnIndex}
@@ -942,7 +938,6 @@ const Body = ({
   onRenderBody,
   extraData,
   onRenderCard,
-  id,
   manualWidths,
   measuredWidths,
   fillColumnIndex,
@@ -968,7 +963,6 @@ const Body = ({
   onRenderBody?: null | ((row: any, i: number, onClick: Function) => any);
   extraData?: any;
   onRenderCard?: any;
-  id?: string;
   manualWidths: Record<number, number>;
   measuredWidths?: Record<number, string>;
   fillColumnIndex: number;
@@ -982,7 +976,6 @@ const Body = ({
   skeletonRowCount?: number;
   rowContextMenu?: TableRowContextMenuConfig;
 }) => {
-  const { store, setStore } = useAuth();
   const isMobile = false;
   const divRef: any = useRef(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -1062,26 +1055,12 @@ const Body = ({
   useEffect(() => {
     if (setScrollbarWidth) setScrollbarWidth(scrollWidth);
   }, [scrollWidth]);
-  useLayoutEffect(() => {
-    if (store && id) {
-      const scrollTop = store["scrollTop" + id];
-
-      if (scrollTop && divRef.current) divRef.current.scrollTop = scrollTop;
-    }
-  }, []);
-
   // Memoizada porque baja como prop a cada fila: como función suelta, su
   // identidad nueva por render invalidaba el memo de TODAS las filas y la
   // extracción del componente `Row` no servía de nada.
   const _onRowClick = useCallback((e: any) => {
     closeContextMenu();
-    if (onRowClick) {
-      // const scrollTop = divRef?.current?.scrollTop;
-      // if (scrollTop !== undefined && store && id) {
-      //   setStore({ ["scrollTop" + id]: scrollTop });
-      // }
-      onRowClick(e);
-    }
+    if (onRowClick) onRowClick(e);
   }, [closeContextMenu, onRowClick]);
 
   const resolveScrollContainer = useCallback(() => {
