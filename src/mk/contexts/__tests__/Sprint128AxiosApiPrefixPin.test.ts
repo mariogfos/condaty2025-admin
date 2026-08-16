@@ -54,6 +54,23 @@ describe("S128 (front) - axios.url drop /api prefix pin (HALLAZGO-NEW-38)", () =
     files = walkSrc(SRC_DIR);
   });
 
+  /**
+   * 🔴 Los dos barridos de abajo afirman "no hay culpables". Si el recorrido
+   * se rompe —`src/` que se mueve, una extensión mal escrita, un `cwd`
+   * distinto— la lista sale vacía POR ESO y los dos quedan verdes para
+   * siempre, anunciando una cobertura que no existe.
+   *
+   * No es hipotético: `SprintS137FeCriticalFixesPin.test.ts` vivía en este
+   * repo armando rutas `src/src/...` que no existían, y sus cuatro tests no
+   * leyeron un solo archivo en su vida (CDT-46, corte 4).
+   */
+  it("el barrido efectivamente lee el código de la app", () => {
+    expect(files.length).toBeGreaterThan(100);
+    expect(files).toContain(
+      path.join(SRC_DIR, "mk/contexts/AxiosInstanceProvider.tsx"),
+    );
+  });
+
   // --- SOURCE-PARSING PINE GENÉRICO CROSS-PROJECT ---
 
   it("S128 pin genérico: ningún archivo pineá axios.request/get/post/... con url: '/api/...'", () => {
@@ -156,34 +173,21 @@ describe("S128 (front) - axios.url drop /api prefix pin (HALLAZGO-NEW-38)", () =
     ).toEqual([]);
   });
 
-  it("S128 pin: AxiosInstanceProvider baseURL viene de NEXT_PUBLIC_API_URL", () => {
-    // El pin complementario: la SSoT del baseURL es
-    // `process.env.NEXT_PUBLIC_API_URL`. Si alguien refactorea a
-    // hardcodear `http://localhost:8000/api`, el pin grita.
-    const providerPath = path.join(
-      SRC_DIR,
-      "mk/contexts/AxiosInstanceProvider.tsx",
-    );
-    const src = fs.readFileSync(providerPath, "utf-8");
-    expect(src).toMatch(/NEXT_PUBLIC_API_URL/);
-  });
-
-  it("S128 pin: helper buildBackendUrl pinea strip /api (HALLAZGO-NEW-24 backward-compat)", () => {
-    // El helper buildBackendUrl pinea en useAsyncExport.ts y
-    // DownloadHistory.tsx. S117 lo pineó para fetch(). S128 pinea que
-    // el helper sigue pineando el strip /api/ (consistencia con la
-    // nueva convención drop-prefix).
-    const useAsyncExport = fs.readFileSync(
-      path.join(SRC_DIR, "mk/hooks/useAsyncExport/useAsyncExport.ts"),
-      "utf-8",
-    );
-    const downloadHistory = fs.readFileSync(
-      path.join(SRC_DIR, "mk/components/ui/DownloadHistory/DownloadHistory.tsx"),
-      "utf-8",
-    );
-    expect(useAsyncExport).toMatch(/buildBackendUrl/);
-    expect(useAsyncExport).toMatch(/path\.startsWith\(["']\/api\/["']\)/);
-    expect(downloadHistory).toMatch(/buildBackendUrl/);
-    expect(downloadHistory).toMatch(/path\.startsWith\(["']\/api\/["']\)/);
-  });
+  /**
+   * Acá vivían otros dos pines de texto. Se fueron en CDT-46, corte 4:
+   *
+   * - "AxiosInstanceProvider baseURL viene de NEXT_PUBLIC_API_URL": miraba
+   *   que el string estuviera escrito. Lo reemplaza
+   *   `elBaseUrlDeAxiosSaleDelEnv.test.tsx`, que arma el provider y mira el
+   *   `baseURL` con el que quedó el axios.
+   *
+   * - "helper buildBackendUrl pinea strip /api": miraba que existiera un
+   *   `const buildBackendUrl =` y un `path.startsWith("/api/")`. Se rompió
+   *   el helper a mano dejando esas dos líneas intactas —o sea, el bug
+   *   S117 exacto, la URL de descarga con `/api/api/`— y la suite entera
+   *   quedó verde. Lo reemplazan
+   *   `useAsyncExport/__tests__/laUrlQueSaleAlBackend.test.ts` y
+   *   `DownloadHistory/__tests__/DownloadHistoryLasRequestsQueSalen.test.tsx`,
+   *   que miran la URL que sale por `fetch`.
+   */
 });

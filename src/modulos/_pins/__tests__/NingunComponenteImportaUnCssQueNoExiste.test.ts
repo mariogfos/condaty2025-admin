@@ -54,15 +54,36 @@ const archivosDeCodigo = (dir: string): string[] => {
   return salida;
 };
 
+/** Una sola definición: si el regex cambia, cambia también lo que se cuenta. */
+const REGEX_IMPORT_CSS =
+  /^\s*import\s+\w+\s+from\s+["'](\.[^"']+\.module\.css)["']/gm;
+
+const contarImportesDeCss = (archivos: string[]): number =>
+  archivos.reduce(
+    (total, archivo) =>
+      total + [...readFileSync(archivo, "utf8").matchAll(REGEX_IMPORT_CSS)].length,
+    0,
+  );
+
 describe("los imports de css modules", () => {
+  /**
+   * 🔴 El test de abajo afirma "no hay imports rotos". Si el recorrido o el
+   * regex se rompen, la lista sale vacía POR ESO y el test queda verde para
+   * siempre, anunciando una cobertura que no existe. Este de acá mide que el
+   * barrido efectivamente esté mirando algo. (CDT-46, corte 4.)
+   */
+  it("el barrido lee el código y encuentra imports de css que revisar", () => {
+    const archivos = archivosDeCodigo(RAIZ);
+    expect(archivos.length).toBeGreaterThan(100);
+    expect(contarImportesDeCss(archivos)).toBeGreaterThan(50);
+  });
+
   it("apuntan todos a un archivo que existe", () => {
     const rotos: string[] = [];
 
     for (const archivo of archivosDeCodigo(RAIZ)) {
       const fuente = readFileSync(archivo, "utf8");
-      const importes = fuente.matchAll(
-        /^\s*import\s+\w+\s+from\s+["'](\.[^"']+\.module\.css)["']/gm,
-      );
+      const importes = fuente.matchAll(REGEX_IMPORT_CSS);
 
       for (const importe of importes) {
         const destino = normalize(join(archivo, "..", importe[1]));

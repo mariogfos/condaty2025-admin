@@ -44,6 +44,55 @@ describe("DownloadButton — reportes custom", () => {
     vi.restoreAllMocks();
   });
 
+  /**
+   * El botón es SOLO un ícono (S143e): sin `title`/`aria-label` no tiene
+   * nombre accesible y queda mudo — ni tooltip para el que mira, ni etiqueta
+   * para el lector de pantalla.
+   *
+   * Lo cubría `SprintS143eFeDownloadButton.test.ts` con un regex buscando
+   * `title={title}` en el fuente. Se sacaron los dos atributos del JSX y, de
+   * 772 tests, el único rojo fue ese pin (CDT-46, corte 4): era la única red,
+   * así que se cambia por esto en vez de borrarse.
+   */
+  it("el botón de solo ícono tiene nombre accesible y tooltip", () => {
+    vi.stubGlobal("fetch", mockFetch([]));
+
+    render(<DownloadButton {...props} supportedFormats={["pdf"]} title="Exportar pagos" />);
+
+    expect(screen.getByLabelText("Exportar pagos")).toBeTruthy();
+    expect(
+      screen.getByTestId("download-btn-payments").getAttribute("title"),
+    ).toBe("Exportar pagos");
+  });
+
+  /**
+   * Sin `supportedFormats` hay un solo formato: el botón exporta de un click
+   * y NO abre menú.
+   *
+   * ⚠️ Esto NO mide el default `["pdf"]` del destructuring, y no puede: tres
+   * líneas más abajo `handleExport(supportedFormats[0] ?? "pdf")` repite el
+   * mismo fallback, así que cambiar el default a `[]` no cambia nada de lo
+   * que se observa. `SprintS143eFeDownloadButton.test.ts` lo pineaba con un
+   * regex sobre el fuente — o sea, pineaba una línea sin consecuencia.
+   * Lo que sí importa, y es lo que se mide acá, es el formato que sale.
+   */
+  it("sin supportedFormats exporta pdf de un click, sin menú", async () => {
+    const fetchMock = mockFetch([]);
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<DownloadButton type="payments" params={{}} />);
+    await abrirMenu();
+
+    expect(screen.queryByTestId("download-menu-payments")).toBeNull();
+    await waitFor(() => {
+      const exportCall = fetchMock.mock.calls.find((c) =>
+        String(c[0]).includes("/export"),
+      );
+      expect(exportCall).toBeTruthy();
+      expect(JSON.parse(String((exportCall![1] as any).body)).format).toBe("pdf");
+    });
+  });
+
   it("muestra el custom con su titulo, debajo de los formatos y arriba del historial", async () => {
     vi.stubGlobal(
       "fetch",
