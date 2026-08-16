@@ -59,7 +59,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
   user,
   setItem,
   errors: externalErrors,
-  setErrors: externalSetErrors,
   action,
 }) => {
   const [_formState, _setFormState] = useState<DebtFormState>(() => {
@@ -262,10 +261,21 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const dataToSave = {
       ..._formState,
 
-      has_mv: _formState.has_mv ? 'Y' : 'N',
-      is_forgivable: _formState.is_forgivable ? 'Y' : 'N',
-      has_pp: _formState.has_pp ? 'Y' : 'N',
-      is_blocking: _formState.is_blocking ? 'Y' : 'N',
+      // 🔴 Booleanos, NO 'Y'/'N' (CDT-60). Las cuatro columnas son
+      // `tinyint(1)` desde la migración de 2026-06-30 y son `$fillable` en
+      // `DebtDpto`, así que el string entra crudo al INSERT: Laravel castea al
+      // LEER, no al escribir. Con la base en modo estricto el alta muere con
+      // `ERROR 1366: Incorrect integer value: 'N' for column has_mv`; sin modo
+      // estricto pasa y guarda 0 en las cuatro. Los dos casos son el bug.
+      //
+      // ⚠️ El alta individual (`type: 0`) va por `parent::store()` del kernel,
+      // que NO normaliza. El `boolFlag()` de `SharedDebtService` sólo cubre el
+      // camino compartido (`type: 4`), por eso este formulario era el único que
+      // moría.
+      has_mv: !!_formState.has_mv,
+      is_forgivable: !!_formState.is_forgivable,
+      has_pp: !!_formState.has_pp,
+      is_blocking: !!_formState.is_blocking,
       // Asegurar que amount e interest sean números
       amount: parseFloat(String(_formState.amount || '0')),
       interest: parseFloat(String(_formState.interest || '0')),
@@ -284,8 +294,13 @@ const RenderForm: React.FC<RenderFormProps> = ({
   }, [_formState, validar, onSave]);
 
 
-  const currentErrors = externalErrors || _errors;
-  const currentSetErrors = externalSetErrors || set_Errors;
+  // 🔴 Los DOS juegos de errores, mezclados (CDT-60).
+  //
+  // Era `externalErrors || _errors`, y `externalErrors` es un objeto: `{}` es
+  // truthy, así que el `||` se quedaba SIEMPRE con el del kernel y los locales
+  // no llegaban nunca. Encima los inputs pintaban `_errors` a mano, con lo cual
+  // un rechazo de `checkRulesFields` era invisible. Se mezclan y se pinta esto.
+  const currentErrors: Errors = { ..._errors, ...(externalErrors || {}) };
 
 
   useEffect(() => {
@@ -376,7 +391,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               optionLabel="label"
               optionValue="id"
               onChange={handleChangeInput}
-              error={_errors}
+              error={currentErrors}
               required
               placeholder="Seleccionar unidad"
               className={currentErrors.dpto_id ? styles.error : ''}
@@ -395,10 +410,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
               onChange={handleChangeInput}
               type="number"
               min="0"
-              error={_errors}
+              error={currentErrors}
               required
               placeholder="0.00"
-              className={_errors.amount ? styles.error : ''}
+              className={currentErrors.amount ? styles.error : ''}
             />
           </div>
           <div className={styles.formField}>
@@ -410,9 +425,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
               type="number"
               min="0"
               max="100"
-              error={_errors}
+              error={currentErrors}
               placeholder="0.00"
-              className={_errors.interest ? styles.error : ''}
+              className={currentErrors.interest ? styles.error : ''}
             />
           </div>
         </div>
@@ -426,9 +441,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
               value={_formState.begin_at}
               onChange={handleChangeInput}
               type="date"
-              error={_errors}
+              error={currentErrors}
               required
-              className={_errors.begin_at ? styles.error : ''}
+              className={currentErrors.begin_at ? styles.error : ''}
             />
           </div>
           <div className={styles.formField}>
@@ -438,9 +453,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
               value={_formState.due_at}
               onChange={handleChangeInput}
               type="date"
-              error={_errors}
+              error={currentErrors}
               required
-              className={_errors.due_at ? styles.error : ''}
+              className={currentErrors.due_at ? styles.error : ''}
             />
           </div>
         </div>
@@ -454,10 +469,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
               value={_formState.subcategory_id}
               options={getSubcategoryOptions()}
               onChange={handleChangeInput}
-              error={_errors}
+              error={currentErrors}
               required
               placeholder="Seleccionar subcategoría"
-              className={_errors.subcategory_id ? styles.error : ''}
+              className={currentErrors.subcategory_id ? styles.error : ''}
             />
           </div>
         </div>
@@ -471,9 +486,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
             onChange={handleChangeInput}
             maxLength={500}
             required={false}
-            error={_errors}
+            error={currentErrors}
             placeholder="Descripción adicional de la deuda (opcional)..."
-            className={_errors.description ? styles.error : ''}
+            className={currentErrors.description ? styles.error : ''}
           />
         </div>
 
@@ -505,7 +520,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                         value={_formState.has_mv ? 'Y' : 'N'}
                         checked={_formState.has_mv}
                         onChange={handleChangeInput}
-                        error={_errors}
+                        error={currentErrors}
                         reverse={true}
                       />
                       <Tooltip
@@ -524,7 +539,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     value={_formState.is_forgivable ? 'Y' : 'N'}
                     checked={_formState.is_forgivable}
                     onChange={handleChangeInput}
-                    error={_errors}
+                    error={currentErrors}
                     reverse={true}
                   />
                   <Tooltip
@@ -542,7 +557,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     value={_formState.is_blocking ? 'Y' : 'N'}
                     checked={_formState.is_blocking}
                     onChange={handleChangeInput}
-                    error={_errors}
+                    error={currentErrors}
                     reverse={true}
                   />
                   <Tooltip
@@ -560,7 +575,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     value={_formState.has_pp ? 'Y' : 'N'}
                     checked={_formState.has_pp}
                     onChange={handleChangeInput}
-                    error={_errors}
+                    error={currentErrors}
                     reverse={true}
                   />
                   <Tooltip

@@ -109,8 +109,18 @@ const useToast = (setToastQueue?: Function) => {
 
     const normalized = normalizeToastArgs(message, type, time);
 
+    // 🔴 Un mensaje vacío NO vacía la cola (CDT-60).
+    //
+    // Antes hacía `setToastQueue([])`, y eso convertía cualquier
+    // `showToast(response?.message, "error")` con `response === undefined` —un
+    // request caído— en un borrado silencioso: el usuario apretaba Guardar, no
+    // aparecía nada, y encima se llevaba puesto el aviso que YA estaba en
+    // pantalla. Pedir un toast sin texto no es una orden de limpiar: es una
+    // llamada que se quedó sin mensaje. Se ignora y la cola queda como está.
+    //
+    // Para sacar un toast de la pantalla está `onDismiss` del `ToastViewport`,
+    // que lo quita por `id` sin tocar los demás.
     if (!normalized.message) {
-      setToastQueue([]);
       return;
     }
 
