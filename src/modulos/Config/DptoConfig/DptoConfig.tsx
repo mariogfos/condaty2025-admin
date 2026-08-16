@@ -40,6 +40,14 @@ const paymentMethodOptions = [
 type PaymentDebtType = (typeof paymentDebtTypes)[number]["id"];
 type PaymentMethod = (typeof paymentMethodOptions)[number]["id"];
 
+import {
+  normalizeOperationalPermissionsConfig,
+  operationalActionOptions,
+  operationalRoleOptions,
+  type OperationalAction,
+  type OperationalRole,
+} from "./operationalPermissions";
+
 const normalizePaymentMethodsConfig = (value: any) => {
   const parsed =
     typeof value === "string"
@@ -128,6 +136,10 @@ export const createFormState = (client_config: Record<string, any>) => ({
   payment_methods_config: normalizePaymentMethodsConfig(
     client_config?.payment_methods_config,
   ),
+  operational_permissions_config: normalizeOperationalPermissionsConfig(
+    client_config?.operational_permissions_config,
+    client_config,
+  ),
   payment_whatsapp_phone: client_config?.payment_whatsapp_phone || "",
   /**
    * 🔴 `?? 0` y no `|| 0`: son distintos y acá importa.
@@ -149,6 +161,9 @@ export const getComparableState = (formState: Record<string, any>) => ({
   url_banner: getSingleUrl(formState.url_banner),
   payment_methods_config: normalizePaymentMethodsConfig(
     formState.payment_methods_config,
+  ),
+  operational_permissions_config: normalizeOperationalPermissionsConfig(
+    formState.operational_permissions_config,
   ),
   payment_time_limit: formState.bookingRequiresPayment
     ? formState.payment_time_limit || ""
@@ -245,6 +260,30 @@ const DptoConfig = ({
       [name]: value,
     }));
   };
+
+  /**
+   * Un switch de la matriz. Se guarda como booleano en el JSON, que es como
+   * está escrito en los condominios que ya lo tienen cargado.
+   */
+  const handleOperationalPermissionSwitch =
+    (role: OperationalRole, action: OperationalAction) =>
+    ({ target: { value } }: any) => {
+      const isEnabled = value === "Y";
+
+      setFormState((prev: any) => {
+        const currentConfig = normalizeOperationalPermissionsConfig(
+          prev.operational_permissions_config,
+        );
+
+        return {
+          ...prev,
+          operational_permissions_config: {
+            ...currentConfig,
+            [role]: { ...currentConfig[role], [action]: isEnabled },
+          },
+        };
+      });
+    };
 
   const handleSwitchChange = ({ target: { name, value } }: any) => {
     if (name === "bookingRequiresPayment") {
@@ -583,6 +622,9 @@ const DptoConfig = ({
   const condoTypeLabel =
     condoTypeOptions.find((option) => option.id === formState.type)?.name ||
     "Condominio";
+  const operationalPermissionsConfig = normalizeOperationalPermissionsConfig(
+    formState.operational_permissions_config,
+  );
   const paymentMethodsConfig = normalizePaymentMethodsConfig(
     formState.payment_methods_config,
   );
@@ -1085,6 +1127,71 @@ const DptoConfig = ({
                   disabled={!editMode}
                 />
               </div>
+
+                <div className={styles.sectionDivider} />
+
+                <div className={styles.cardHeader}>
+                  <p className={styles.textTitle}>
+                    Permisos operativos por vínculo
+                  </p>
+                  <p className={styles.textSubtitle}>
+                    Controla qué puede hacer cada perfil y sus dependientes en
+                    la app y en guardia.
+                  </p>
+                </div>
+
+                <div className={styles.permissionMatrix}>
+                  <div
+                    className={`${styles.permissionMatrixRow} ${styles.permissionMatrixHeader}`}
+                  >
+                    <div>Vínculo</div>
+                    {operationalActionOptions.map((action) => (
+                      <div key={action.id}>{action.name}</div>
+                    ))}
+                  </div>
+
+                  {operationalRoleOptions.map((role) => (
+                    <div className={styles.permissionMatrixRow} key={role.id}>
+                      <div className={styles.permissionRoleCell}>
+                        <span className={styles.permissionRoleName}>
+                          {role.name}
+                        </span>
+                        <span className={styles.permissionRoleDescription}>
+                          {role.description}
+                        </span>
+                      </div>
+
+                      {operationalActionOptions.map((action) => (
+                        <div
+                          className={styles.permissionActionCell}
+                          key={`${role.id}-${action.id}`}
+                        >
+                          <span className={styles.permissionMobileLabel}>
+                            {action.name}
+                          </span>
+                          <Switch
+                            name={`${role.id}_${action.id}`}
+                            label=""
+                            value={
+                              operationalPermissionsConfig[role.id]?.[action.id]
+                                ? "Y"
+                                : "N"
+                            }
+                            onChange={handleOperationalPermissionSwitch(
+                              role.id,
+                              action.id,
+                            )}
+                            optionValue={["Y", "N"]}
+                            checked={Boolean(
+                              operationalPermissionsConfig[role.id]?.[action.id],
+                            )}
+                            disabled={!editMode}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </section>
