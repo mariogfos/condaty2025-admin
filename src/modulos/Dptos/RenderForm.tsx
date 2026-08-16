@@ -9,6 +9,13 @@ import type { MethodType } from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getFullName } from "@/mk/utils/string";
 import useAxios from "@/mk/hooks/useAxios";
+import Switch from "@/mk/components/forms/Switch/Switch";
+import {
+  DPTO_CON_PLAN_DE_PAGOS,
+  DPTO_SIN_PLAN_DE_PAGOS,
+  desdeElInterruptor,
+  tienePlanDePagos,
+} from "./dptoPaymentPlan";
 
 const RenderForm = ({
   open,
@@ -19,7 +26,12 @@ const RenderForm = ({
   user,
   reLoad,
 }: any) => {
-  const [formState, setFormState]: any = useState({ ...item });
+  const [formState, setFormState]: any = useState({
+    ...item,
+    // 🔴 Se guarda el NÚMERO del enum, no un booleano. Ver `dptoPaymentPlan.ts`:
+    // acá `1` es SIN plan, al revés que el booleano de producción.
+    has_payment_plan: desdeElInterruptor(tienePlanDePagos(item?.has_payment_plan)),
+  });
   const [errors, setErrors]: any = useState({});
   const [typeFields, setTypeFields]: any = useState([]);
   const [enabledFields, setEnabledFields]: any = useState({});
@@ -37,7 +49,11 @@ const RenderForm = ({
 
         // Inicializar los campos habilitados y sus valores
         const enabledFieldsInit: any = {};
-        const formStateUpdate = { ...item, type: item.type_id };
+        const formStateUpdate = {
+          ...item,
+          type: item.type_id,
+          has_payment_plan: desdeElInterruptor(tienePlanDePagos(item?.has_payment_plan)),
+        };
 
         // Procesar field_values si existen
         if (item.field_values && Array.isArray(item.field_values)) {
@@ -152,6 +168,7 @@ const RenderForm = ({
         type_id: parseInt(formState.type_id),
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
+        has_payment_plan: Number(formState.has_payment_plan),
         homeowner_id:
           formState.homeowner_id == "X" ? null : formState.homeowner_id,
         fields: fields,
@@ -190,6 +207,22 @@ const RenderForm = ({
         error={errors}
         required={true}
         disabled={!!formState.id}
+      />
+
+      {/*
+        🔴 El plan de pagos: mientras esté vigente, la mora de esta unidad deja
+        de bloquear a quien vive ahí. Sigue debiendo; deja de estar frenado.
+
+        ⚠️ `optionValue` va con los números del enum y NO con booleanos. El
+        parche de producción manda `Boolean(...)`, y con el enum desde 1 eso
+        llega al API como el case OPUESTO. Ver `dptoPaymentPlan.ts`.
+      */}
+      <Switch
+        label="Tiene plan de pagos"
+        name="has_payment_plan"
+        optionValue={[DPTO_CON_PLAN_DE_PAGOS, DPTO_SIN_PLAN_DE_PAGOS]}
+        value={formState.has_payment_plan}
+        onChange={handleChange}
       />
 
       <Select
