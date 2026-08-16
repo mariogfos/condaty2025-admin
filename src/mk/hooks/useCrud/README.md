@@ -493,6 +493,39 @@ apagaría también el esqueleto de la carga inicial y el de los filtros.
    - Check validation function implementations
    - Verify form data structure
 
+## 🔴 `onSave` nunca es mudo
+
+Un guardado que no llega a buen puerto **siempre** dice algo. Son tres salidas y
+las tres avisan:
+
+| salida | qué se ve |
+|---|---|
+| `checkRulesFields` rechaza | toast de error `"Revisa los datos del formulario"`, y los mensajes por campo quedan en `errors` / el `setErrors` que le hayas pasado. **No se despacha request.** |
+| el request responde `success: false` | el `message` del API |
+| el request **muere** (500, red, un `1366` de MySQL) | `"No se pudo guardar. Intenta nuevamente."` — no hay sobre, así que no hay `message` |
+
+⚠️ Que el rechazo de validación tenga toast **no exime al formulario de pintar
+los errores por campo**. Si tu `renderForm` arma su propia validación local,
+mezclá los dos juegos de errores; quedarte sólo con los locales tapa lo que
+rechazó el kernel:
+
+```tsx
+// ❌ `{}` es truthy: este `||` se queda SIEMPRE con el del kernel
+const errores = externalErrors || _errors;
+// ✅
+const errores = { ..._errors, ...(externalErrors || {}) };
+```
+
+Y `showToast("")` **no limpia la cola de toasts**: un pedido sin mensaje se
+ignora. Para sacar un toast de la pantalla está el `onDismiss` del
+`ToastViewport`, que lo quita por `id`.
+
+Contexto: CDT-60. El alta de Deudas Individuales mandaba cuatro banderas como
+`'Y'`/`'N'` a columnas `tinyint(1)`, el INSERT moría con
+`ERROR 1366: Incorrect integer value: 'N' for column has_mv`, el toast salía sin
+mensaje y `useToast` con mensaje vacío vaciaba la cola. Se apretaba Crear y la
+pantalla no se movía.
+
 ## API Reference
 
 ### Types

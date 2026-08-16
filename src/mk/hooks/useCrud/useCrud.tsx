@@ -1056,7 +1056,18 @@ const useCrud = ({
         } else {
           setErrors(errors);
         }
-        if (hasErrors(errors)) return;
+        // 🔴 El rechazo de la validación del kernel tiene que DECIRSE (CDT-60).
+        //
+        // Este `return` era mudo: `setErrors` deja los mensajes en el estado,
+        // pero un formulario que pinta sólo sus errores locales —el de Deudas
+        // Individuales pintaba `_errors` y usaba `errors` nada más que para una
+        // clase CSS— no muestra ni uno. Se apretaba Guardar y no pasaba nada.
+        // El aviso va acá, en el kernel, porque es el único punto por el que
+        // pasan las ~40 pantallas.
+        if (hasErrors(errors)) {
+          showToast("Revisa los datos del formulario", "error");
+          return;
+        }
       }
 
       const url = "/" + mod.modulo + (data.id ? "/" + data.id : "");
@@ -1135,7 +1146,16 @@ const useCrud = ({
         }
         showToast(mod.saveMsg?.[action] || response?.message, "success");
       } else {
-        showToast(response?.message, "error");
+        // 🔴 Un guardado fallido NUNCA puede ser mudo (CDT-60).
+        //
+        // Cuando el request revienta —un 500, un 1366 de MySQL, la red— el
+        // sobre no llega y `response` es `undefined`, así que `response.message`
+        // era `undefined` y no se veía nada. El genérico es la red de abajo: el
+        // mensaje del API sigue teniendo prioridad cuando existe.
+        showToast(
+          response?.message || "No se pudo guardar. Intenta nuevamente.",
+          "error",
+        );
         logError("Error onSave:", err);
       }
     } finally {

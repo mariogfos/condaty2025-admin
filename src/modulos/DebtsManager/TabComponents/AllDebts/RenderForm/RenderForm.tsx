@@ -104,10 +104,15 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
       amount: formState.amount,
       is_advance: formState.is_advance,
       interest: formState.interest,
-      has_mv: formState.has_mv ? 'Y' : 'N',
-      is_forgivable: formState.is_forgivable ? 'Y' : 'N',
-      has_pp: formState.has_pp ? 'Y' : 'N',
-      is_blocking: formState.is_blocking ? 'Y' : 'N',
+      // Booleanos, NO 'Y'/'N' (CDT-60): las cuatro son `tinyint(1)` en
+      // `debt_dptos`. Acá el `boolFlag()` de `SharedDebtService` todavía traduce
+      // el string —por eso este camino no explotaba—, pero mandarlo mal deja el
+      // alta dependiendo de una traducción del back que el camino individual no
+      // tiene. Se manda el tipo real de la columna desde el origen.
+      has_mv: !!formState.has_mv,
+      is_forgivable: !!formState.is_forgivable,
+      has_pp: !!formState.has_pp,
+      is_blocking: !!formState.is_blocking,
     };
 
     const { data: response } = await execute(
