@@ -21,7 +21,16 @@ const TOAST_ICON: Record<ToastKind, typeof CheckCircle2> = {
 
 const MAX_VISIBLE_TOASTS = 4;
 
-const EXIT_ANIMATION_MS = 180;
+/**
+ * Cuánto dura la animación de salida antes de sacar el toast de la cola.
+ *
+ * Exportada a propósito: el test la importa en vez de repetir el 180. Medido con
+ * el literal duplicado — el fallo era en UNA dirección, que es la que engaña:
+ * bajando esta constante a 90 el test seguía VERDE, porque avanzaba 180 y el
+ * descarte ya había ocurrido; subiéndola a 500 sí caía en rojo. O sea que sin el
+ * vínculo, acortar la animación deja el test pasando sin medirla.
+ */
+export const EXIT_ANIMATION_MS = 180;
 
 /**
  * Las tres etapas de un toast, en orden y sin volver atrás.

@@ -1,7 +1,7 @@
 import { act, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ToastItem } from "@/mk/hooks/useToast";
-import ToastViewport from "../ToastViewport";
+import ToastViewport, { EXIT_ANIMATION_MS } from "../ToastViewport";
 
 /**
  * CDT-68 — el toast que se emite con la pestaña oculta no se iba nunca.
@@ -18,8 +18,12 @@ import ToastViewport from "../ToastViewport";
  * y DESPUÉS se descarta; con la pestaña visible la animación de entrada y los
  * 5 s de siempre no cambian.
  */
+/**
+ * `TOAST_TIME` es la entrada que ELIGE el test (el `time` del toast), así que va
+ * como literal. `EXIT_ANIMATION_MS` se importa del componente: repetir el 180
+ * acá dejaba el test verde midiendo la duración vieja si alguien la cambiaba.
+ */
 const TOAST_TIME = 5000;
-const EXIT_ANIMATION_MS = 180;
 
 const buildToast = (): ToastItem => ({
   id: "toast-recibo",
