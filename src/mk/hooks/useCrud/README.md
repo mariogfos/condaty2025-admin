@@ -526,6 +526,20 @@ Contexto: CDT-60. El alta de Deudas Individuales mandaba cuatro banderas como
 mensaje y `useToast` con mensaje vacío vaciaba la cola. Se apretaba Crear y la
 pantalla no se movía.
 
+### 🔴 Los 5 s del toast cuentan desde que se VE, no desde que se emite
+
+El `time` de `showToast` (5 s por defecto) empieza a correr cuando el toast se
+vuelve visible, no cuando nace. Con la pestaña oculta —cualquier acción que haga
+`window.open`, como el recibo y el envío por WhatsApp de Pagos— el navegador
+suspende el `requestAnimationFrame` de la animación de entrada, así que el toast
+espera: aparece cuando el usuario vuelve y recién ahí arranca su reloj.
+
+Contexto: CDT-68. Antes el reloj arrancaba en el montaje y el descarte estaba
+condicionado a que el `rAF` hubiera corrido: el timeout vencía con la pestaña al
+fondo, no encontraba la entrada hecha y **nunca agendaba el descarte**. Al volver
+el toast aparecía y se quedaba para siempre, hasta 4 apilados y tapando el
+buscador. No se podía cerrar a mano: la tarjeta tiene `pointer-events: none`.
+
 ## API Reference
 
 ### Types

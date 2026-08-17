@@ -276,7 +276,7 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
         onSave={_onSavePago}
         buttonCancel={"Cancelar"}
         buttonText={"Crear ingreso"}
-        title={"Crear ingreso2"}
+        title={"Crear ingreso"}
         minWidth={680}
         maxWidth={860}
         disabled={isSubmitDisabled}
