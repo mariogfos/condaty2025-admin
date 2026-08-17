@@ -4,7 +4,6 @@ export const paymentsApi = {
   unitFinancialState: (dptoId: string | number) =>
     `${PAYMENTS_V3_BASE}/units/${dptoId}/financial-state`,
   adminDebts: `${PAYMENTS_V3_BASE}/admin/debts`,
-  adminPartialDebts: `${PAYMENTS_V3_BASE}/admin/partial-debts`,
   create: PAYMENTS_V3_BASE,
   simulate: `${PAYMENTS_V3_BASE}/simulate`,
   partialSummary: (debtId: string | number) =>
