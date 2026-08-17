@@ -1,6 +1,6 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "lastUpdated": "2026-08-15",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
@@ -333,7 +333,7 @@
     },
     "PaymentMethod": {
       "type": "int",
-      "comment": "Sincronizado con backend App\\Modules\\Payments\\Enums\\PaymentMethod (PHP).",
+      "comment": "Sincronizado con backend App\\Modules\\Payments\\Enums\\PaymentMethod (PHP).\n\nEXTERNAL_AUTOMATIC (6) es el pago que acredita una integración externa sin que nadie lo cargue a mano: hoy el webhook de Orange/Luka para Urubó Village, y cualquier integración que venga después. Es deliberadamente genérico — no dice 'Orange' — porque la integración de Orange es temporal y el case no debería morir con ella. El proveedor concreto va en `payments.ext` (`orange:{transaction_id}`), no en el método.",
       "apps": [
         "api",
         "admin",
@@ -359,6 +359,10 @@
         {
           "name": "CHEQUE",
           "value": 5
+        },
+        {
+          "name": "EXTERNAL_AUTOMATIC",
+          "value": 6
         }
       ],
       "apiClass": "PaymentMethod"
