@@ -12,6 +12,7 @@ import ExpenseDetailModal from "@/modulos/Expenses/ExpensesDetails/RenderView/Re
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
 import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
 import PaymentRenderForm from "@/modulos/Payments/RenderForm/RenderForm";
+import { METHOD_MAP } from "@/modulos/Payments/Type/PaymentType";
 import {
   MONTHS_ES,
   formatToDayDDMMYYYY,
@@ -108,16 +109,20 @@ const RenderView: React.FC<RenderViewProps> = ({
     return status;
   };
 
-  const getPaymentTypeText = (type: string) => {
-    const paymentTypeMap: { [key: string]: string } = {
-      T: "Transferencia bancaria",
-      E: "Efectivo",
-      C: "Cheque",
-      Q: "Pago QR",
-      O: "Pago en oficina",
-    };
-    return paymentTypeMap[type] || type;
-  };
+  /**
+   * 🔴 Esta tabla tenía las claves viejas —`T`, `E`, `C`, `Q`, `O`— y
+   * `payments.method` es `tinyint` desde la migración a enums numéricos:
+   * medido en la base local, 10.537 pagos con valores 1..5 y ninguno con
+   * letra. O sea que no matcheaba NUNCA y el `|| type` de abajo dejaba el
+   * número pelado en la pantalla, igual que el "3" que ya se reportó en
+   * Expensas.
+   *
+   * Ahora usa el mapa compartido, que es el que se actualiza cuando aparece
+   * un método nuevo. Una tabla propia por consumidor es justamente cómo se
+   * llegó a esto.
+   */
+  const getPaymentTypeText = (type: number | string) =>
+    METHOD_MAP[type] || String(type ?? "");
 
   const getStatusStyle = (status: number, dueDate?: string) => {
     return getStatusConfig(status, dueDate);

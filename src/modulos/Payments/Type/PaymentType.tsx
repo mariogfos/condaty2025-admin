@@ -12,6 +12,15 @@ export enum PaymentMethod {
   QR = 3,
   CASH = 4,
   CHEQUE = 5,
+  /**
+   * Pago acreditado por una integración externa, sin que nadie lo cargue a
+   * mano (hoy el webhook de Orange/Luka de Urubó Village).
+   *
+   * ⚠️ No dice "Orange" a propósito: esa integración es temporal y el case
+   * sirve para las que vengan después. Qué proveedor lo trajo se lee en
+   * `payments.ext`, no en el método.
+   */
+  EXTERNAL_AUTOMATIC = 6,
 }
 
 export enum PaymentType {
@@ -194,6 +203,7 @@ export const PAYMENT_METHOD_OPTIONS = [
   { id: PaymentMethod.CHEQUE, name: "Cheque" },
   { id: PaymentMethod.QR, name: "Pago QR" },
   { id: PaymentMethod.OFFICE, name: "Pago en oficina" },
+  { id: PaymentMethod.EXTERNAL_AUTOMATIC, name: "Pago externo automático" },
 ];
 
 export const STATUS_OPTIONS = [
@@ -212,6 +222,13 @@ export const TYPE_OPTIONS = [
   { id: FormPaymentType.DIRECT, name: "Pago directo" },
 ];
 
+/**
+ * Los métodos que administración puede elegir al CARGAR un pago a mano.
+ *
+ * ⚠️ `EXTERNAL_AUTOMATIC` no está acá a propósito: ese método lo escribe una
+ * integración externa cuando acredita un pago sola. Nadie lo carga a mano, y
+ * ofrecerlo en el formulario dejaría marcar como automático algo que no lo es.
+ */
 export const FORM_PAYMENT_METHODS = [
   { id: PaymentMethod.QR, name: "Pago QR" },
   { id: PaymentMethod.TRANSFER, name: "Transferencia bancaria" },
@@ -226,6 +243,7 @@ export const METHOD_MAP: Record<string | number, string> = {
   [PaymentMethod.QR]: "Pago QR",
   [PaymentMethod.CASH]: "Efectivo",
   [PaymentMethod.CHEQUE]: "Cheque",
+  [PaymentMethod.EXTERNAL_AUTOMATIC]: "Pago externo automático",
 };
 
 export const FORM_LABELS = {
