@@ -101,7 +101,14 @@ export const createFormState = (client_config: Record<string, any>) => ({
   description: client_config?.client?.description || "",
   month: client_config?.month || "",
   year: client_config?.year || "",
-  initial_amount: client_config?.initial_amount || "",
+  // 🔴 `??` y no `||`: el saldo inicial es un NÚMERO y `0` es un valor válido.
+  // Con `||`, un condominio sin cuentas bancarias —o cuyas cuentas suman 0—
+  // recibía `0` del API y acá se convertía en `""`. Y `""` no pasa la regla
+  // `required`, que sí sabe aceptar `0` y `"0"` (`Rules.tsx:50`) pero nunca
+  // llegaba a verlo. Con el input además `disabled`, el administrador quedaba
+  // sin poder guardar NINGÚN cambio de la pantalla de Configuración, y sin
+  // forma de destrabarlo.
+  initial_amount: client_config?.initial_amount ?? 0,
   has_maintenance_value:
     Number(client_config?.has_maintenance_value) === 1 ||
     client_config?.has_maintenance_value === true ||
@@ -496,13 +503,11 @@ const DptoConfig = ({
         data: formState,
       });
 
-      nextErrors = checkRules({
-        value: formState.initial_amount,
-        rules: ["required"],
-        key: "initial_amount",
-        errors: nextErrors,
-        data: formState,
-      });
+      // ⚠️ `initial_amount` NO se valida: es un valor CALCULADO por el API
+      // —la suma de los montos iniciales de las cuentas bancarias, ver
+      // `ClientConfig::getInitialAmountAttribute()`— y el input está
+      // `disabled`. Exigir un campo que el usuario no puede escribir sólo
+      // sirve para trabar el formulario.
     }
 
     if (formState.bookingRequiresPayment) {
@@ -1017,7 +1022,6 @@ const DptoConfig = ({
                 label="Saldo inicial"
                 name="initial_amount"
                 error={errors}
-                required
                 disabled
                 value={formState.initial_amount}
                 onChange={handleChange}
