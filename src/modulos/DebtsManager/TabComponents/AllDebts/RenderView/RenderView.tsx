@@ -23,6 +23,7 @@ import { getFullName } from "@/mk/utils/string";
 import { getTitular } from "@/mk/utils/adapters";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import { DebtStatus } from "@/types/PaymentType";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import {
   getStatusText,
   getStatusConfig,
@@ -370,8 +371,20 @@ const RenderView: React.FC<RenderViewProps> = ({
   const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
   const finalStatus = resolveStatus(numericStatus, debtDetail?.due_at);
   const statusText = getStatusText(finalStatus);
-  const { color } = getStatusStyle(finalStatus);
+  const { color, bgColor } = getStatusStyle(finalStatus);
   const actions = getAvailableActions(numericStatus, debtType);
+  /**
+   * CDT-89: sobre una deuda anulada se oculta "Registrar Pago"
+   * (`getAvailableActions`). El cartel de la cabecera es la otra mitad de esa
+   * decisión: sin él, el administrador que conocía la pantalla busca un botón
+   * que ya no está en vez de entender por qué no está.
+   *
+   * Se compara contra el enum numérico —`debt_dptos.status` es `tinyint` desde
+   * la migración a enums—, igual que el resto del módulo. No hay comparación
+   * contra la `'X'` vieja en ningún lado de DebtsManager: medido con
+   * `rg "status\s*===?\s*['\"]"`, cero resultados.
+   */
+  const isCancelledDebt = numericStatus === DebtStatus.CANCELLED;
   const detailButtonText = getDetailButtonText(debtType);
   const showDistribution = debtType === 4;
   const ownerDisplay = getFullName(debtDetail?.dpto?.homeowner) || "-/-";
@@ -434,6 +447,11 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={paymentStyles.dateDisplay}>
                   {headerSubtitle || "-/-"}
                 </div>
+                {isCancelledDebt ? (
+                  <StatusBadge color={color} backgroundColor={bgColor}>
+                    Esta deuda está anulada
+                  </StatusBadge>
+                ) : null}
               </div>
             </div>
 
@@ -588,7 +606,16 @@ const RenderView: React.FC<RenderViewProps> = ({
             <div
               className={`${paymentStyles.voucherButtonContainer} ${styles.actionsWrap}`}
             >
-              {actions.showRegistrarPago && numericStatus !== DebtStatus.FORGIVEN && (
+              {/*
+                CDT-89: acá había un `&& numericStatus !== DebtStatus.FORGIVEN`
+                que ya no hacía nada — `getAvailableActions` niega el cobro de
+                una condonada en sus DOS ramas (`type === 0` y `type !== 0`).
+                Era una guarda de llamador sobre una regla que vive en la
+                función compartida, y es exactamente el patrón que dejó vivo
+                este bug: quien agregó "anulada" al enum tocó un solo lado.
+                La regla de quién puede cobrarse vive en un único lugar.
+              */}
+              {actions.showRegistrarPago && (
                 <Button
                   onClick={() => setShowPaymentForm(true)}
                   className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}

@@ -233,11 +233,11 @@ describe("CDT-52 · las dos pestañas de Deudas tienen acciones alcanzables", ()
    * caso: abre, pinta la unidad y el estado, y no ofrece ni Editar ni Anular
    * —`getAvailableActions` los niega para `type !== 0`—.
    *
-   * ⚠️ Lo que sí ofrece, y no debería, es "Registrar Pago": la rama
-   * `type !== 0` de `getAvailableActions` excluye pagada, por confirmar,
-   * parcial y condonada, pero NO anulada. Es anterior a CDT-52 y ya se alcanza
-   * hoy desde el detalle de una compartida; tocarlo cambia comportamiento en
-   * otra pantalla, así que va anotado y no se toca acá.
+   * Tampoco ofrece "Registrar Pago", pero eso NO era así cuando se escribió
+   * este test: la rama `type !== 0` de `getAvailableActions` excluía pagada,
+   * por confirmar, parcial y condonada, pero no anulada. Se anotó acá y se
+   * cerró en CDT-89, en las dos ramas de la función compartida. Lo cubre
+   * `AllDebts/__tests__/CDT89DeudaAnuladaNoSeCobra.test.tsx`.
    */
   it('"Todas": una condonación anulada abre el detalle sin Editar ni Anular', async () => {
     montar(<AllDebts {...propsDeLaPestania} />);
