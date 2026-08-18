@@ -63,7 +63,7 @@
 .cardTitle {
   margin: 0;
   font-size: clamp(1.05rem, 1.8vw, 1.4rem);
-  font-weight: var(--bSemiBold);
+  font-weight: var(--bSemibold);
   color: var(--cWhite);
 }
 
@@ -146,7 +146,7 @@
   color: var(--cWhite);
   font-size: clamp(1.05rem, 1.7vw, 1.45rem);
   text-align: center;
-  font-weight: var(--bSemiBold);
+  font-weight: var(--bSemibold);
 }
 
 .dropSubtitle {
@@ -174,7 +174,7 @@
   margin: 0;
   color: var(--cWhite);
   font-size: var(--sM);
-  font-weight: var(--bSemiBold);
+  font-weight: var(--bSemibold);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -211,7 +211,7 @@
   margin: 8px 0 0;
   color: #fca5a5;
   font-size: var(--sS);
-  font-weight: var(--bSemiBold);
+  font-weight: var(--bSemibold);
 }
 
 .actions {
@@ -231,7 +231,7 @@
   justify-content: center;
   gap: var(--spS);
   font-size: var(--sM);
-  font-weight: var(--bSemiBold);
+  font-weight: var(--bSemibold);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -322,4 +322,45 @@
   .actions {
     grid-template-columns: 1fr;
   }
+}
+
+/* Los errores por fila que devuelve el API en `errors[]` (CDT-73).
+   Antes se descartaban y la pantalla sólo mostraba el mensaje suelto. */
+.errorList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS);
+  padding: var(--spM);
+  border: 1px solid rgba(228, 96, 85, 0.35);
+  border-radius: 12px;
+  background-color: rgba(228, 96, 85, 0.08);
+}
+
+.errorListTitle {
+  margin: 0;
+  font-size: var(--sM);
+  font-weight: var(--bSemibold);
+  color: var(--cError);
+}
+
+/* El tope de altura es lo que evita que 500 filas malas empujen la pantalla
+   entera. Los ítems siguen TODOS en el DOM, así que el Ctrl+F del navegador
+   los encuentra igual que el buscador de arriba. */
+.errorListScroll {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.errorItem {
+  margin: 0;
+  padding: var(--spXs) 0;
+  font-size: var(--sS);
+  line-height: 1.4;
+  color: var(--cWhiteV1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  word-break: break-word;
+}
+
+.errorItem:last-child {
+  border-bottom: none;
 }
