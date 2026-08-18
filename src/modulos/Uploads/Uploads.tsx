@@ -9,9 +9,56 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import List from "@/mk/components/ui/List/List";
+import Input from "@/mk/components/forms/Input/Input";
 import styles from "./Uploads.module.css";
 
 type UploadType = "propietarios" | "expensas" | "deudas";
+
+/** A partir de cuántos errores aparece el buscador. Con tres, estorba. */
+const MINIMO_PARA_BUSCAR = 6;
+
+/**
+ * Deja la lista de errores del API en `string[]`, venga como venga.
+ *
+ * 🔴 `errors` NO tiene una forma sola, y suponerla era el bug: la pantalla
+ * ofrece los tres tipos y cada importador del back arma la lista a su manera.
+ * Medido leyendo los cuatro services el 2026-08-18:
+ *
+ * | `type`                   | forma real                                            |
+ * |--------------------------|-------------------------------------------------------|
+ * | `deudas`, `pagoexpensas` | `string[]` — `"Fila 5: Unidad 101 no existe…"`        |
+ * | `expensas`               | `{row, error, data}[]`, cortada en 50 por el back     |
+ * | `owners`                 | `string[]`, y **un `string` pelado** en el camino de  |
+ * |                          | "Faltan datos de propietario o dpto"                  |
+ *
+ * Y con `400` de validación llega el bag de Laravel, que es un objeto
+ * `{campo: [mensaje]}`. Son cuatro formas para un mismo cartel.
+ */
+const comoListaDeErrores = (errors: unknown): string[] => {
+  if (!errors) return [];
+  if (typeof errors === "string") return [errors];
+
+  const crudos = Array.isArray(errors)
+    ? errors
+    : Object.values(errors as Record<string, unknown>);
+
+  return crudos
+    .flat()
+    .map((item) => {
+      if (typeof item === "string") return item;
+      if (item && typeof item === "object" && "error" in item) {
+        const { row, error } = item as { row?: number; error?: string };
+        // ⚠️ `row === undefined || row === null`, no `!row`: la fila es un
+        // número y un `!` lo trataría igual que la ausencia del dato.
+        return row === undefined || row === null
+          ? String(error)
+          : `Fila ${row}: ${error}`;
+      }
+      return "";
+    })
+    .filter((linea): linea is string => linea.length > 0);
+};
 
 const options = [
   {
@@ -41,6 +88,8 @@ export default function Uploads() {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
+  const [uploadErrors, setUploadErrors] = useState<string[]>([]);
+  const [errorFilter, setErrorFilter] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { execute } = useAxios();
   const { showToast } = useAuth();
@@ -50,6 +99,14 @@ export default function Uploads() {
       options.find((item) => item.id === selectedType)?.title || "Propietarios"
     );
   }, [selectedType]);
+
+  const erroresVisibles = useMemo(() => {
+    const buscado = errorFilter.trim().toLowerCase();
+    if (!buscado) return uploadErrors;
+    return uploadErrors.filter((linea) =>
+      linea.toLowerCase().includes(buscado),
+    );
+  }, [uploadErrors, errorFilter]);
 
   const isAllowedFile = (file: File) => {
     const extension = file.name.split(".").pop()?.toLowerCase() || "";
@@ -79,12 +136,12 @@ export default function Uploads() {
     if (!isAllowedFile(file)) {
       setSelectedFile(null);
       setFileError("Solo se permiten archivos .xls o .xlsx");
-      setUploadMessage("");
+      limpiarResultado();
       return;
     }
     setSelectedFile(file);
     setFileError("");
-    setUploadMessage("");
+    limpiarResultado();
   };
 
   const onInputFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -106,10 +163,16 @@ export default function Uploads() {
     setIsDragging(false);
   };
 
+  const limpiarResultado = () => {
+    setUploadMessage("");
+    setUploadErrors([]);
+    setErrorFilter("");
+  };
+
   const clearSelectedFile = () => {
     setSelectedFile(null);
     setFileError("");
-    setUploadMessage("");
+    limpiarResultado();
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -133,7 +196,7 @@ export default function Uploads() {
     formData.append("_debug", "2");
 
     setIsUploading(true);
-    setUploadMessage("");
+    limpiarResultado();
 
     const { data, error } = await execute("/masivexls", "POST", formData);
 
@@ -151,6 +214,11 @@ export default function Uploads() {
         data?.message ||
         "No se pudo procesar el archivo";
       setUploadMessage(errMessage);
+      // 🔴 Acá se leía sólo el `message` y se tiraba `errors[]` a la basura. El
+      // API ya manda qué fila falló y por qué; sin esto la pantalla decía "no se
+      // guardó ningún cambio" y nada más, y con 500 filas y una mala el
+      // administrador no tenía dónde mirar en su Excel.
+      setUploadErrors(comoListaDeErrores(error?.data?.errors ?? data?.errors));
       showToast(errMessage, "error");
     }
 
@@ -255,6 +323,39 @@ export default function Uploads() {
       </div>
       {!!uploadMessage && (
         <p className={styles.uploadMessage}>{uploadMessage}</p>
+      )}
+
+      {uploadErrors.length > 0 && (
+        <div className={styles.errorList}>
+          <p className={styles.errorListTitle}>
+            {uploadErrors.length === 1
+              ? "Se encontró 1 problema en el archivo:"
+              : `Se encontraron ${uploadErrors.length} problemas en el archivo:`}
+          </p>
+
+          {uploadErrors.length >= MINIMO_PARA_BUSCAR && (
+            <Input
+              type="search"
+              name="errorFilter"
+              label="Buscar (por fila o por motivo)"
+              value={errorFilter}
+              required={false}
+              onChange={(event: any) => setErrorFilter(event.target.value)}
+            />
+          )}
+
+          {/* ⚠️ El scroll vive acá y no en la lista: con 500 filas malas el
+              cartel empujaba la pantalla entera hacia abajo. */}
+          <div className={styles.errorListScroll}>
+            <List
+              data={erroresVisibles}
+              emptyLabel="Ningún problema coincide con la búsqueda"
+              renderItem={(linea: string) => (
+                <p className={styles.errorItem}>{linea}</p>
+              )}
+            />
+          </div>
+        </div>
       )}
     </section>
   );
