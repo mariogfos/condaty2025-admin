@@ -47,6 +47,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import FormElement from "./FormElement";
+import { leerElErrorDelApi } from "./leerElErrorDelApi";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
 import EmptyData from "@/components/NoData/EmptyData";
@@ -1146,16 +1147,41 @@ const useCrud = ({
         }
         showToast(mod.saveMsg?.[action] || response?.message, "success");
       } else {
-        // 🔴 Un guardado fallido NUNCA puede ser mudo (CDT-60).
+        // 🔴 Un guardado fallido NUNCA puede ser mudo (CDT-60) y tiene que
+        // decir QUÉ corregir (CDT-94).
         //
-        // Cuando el request revienta —un 500, un 1366 de MySQL, la red— el
-        // sobre no llega y `response` es `undefined`, así que `response.message`
-        // era `undefined` y no se veía nada. El genérico es la red de abajo: el
-        // mensaje del API sigue teniendo prioridad cuando existe.
-        showToast(
-          response?.message || "No se pudo guardar. Intenta nuevamente.",
-          "error",
-        );
+        // Antes acá se leía sólo `response?.message`, y ante CUALQUIER no-2xx
+        // axios rechaza: `response` queda `null` y el toast caía SIEMPRE al
+        // genérico. El campo `message` del sobre no se leía nunca. El API sí
+        // decía cuál campo falta —`DebtDptoController::checkValidationRules()`
+        // valida con siete mensajes en castellano— y ninguno llegaba a la
+        // pantalla. Es el kernel: le pasaba a las ~40 pantallas, no a Deudas.
+        //
+        // ⚠️ POR QUÉ EL ARREGLO ES ACÁ Y NO EN `useAxios`. El sobre no se
+        // pierde allá: su catch ya lo guarda en `error.data`
+        // (`err.response?.data || {}`, `useAxios.tsx:220`), y 30 llamadas del
+        // repo ya lo leen así —`error?.data?.message`, `error?.data?.errors`—.
+        // Lo que faltaba era mirarlo acá. Hacer que `useAxios` devolviera el
+        // sobre en `data` ante un no-2xx sí lo habría arreglado, pero cambia el
+        // significado de `ExecuteResult.data` para las 168 llamadas que tratan
+        // «hay data» como «el request salió bien»: mucho más grande, y en
+        // sitios que este PR no mide.
+        const { mensaje, errores } = leerElErrorDelApi(response, err);
+
+        // Los errores por campo van al MISMO destino que los de
+        // `checkRulesFields` unas líneas más arriba: si el formulario trajo su
+        // propio `_setErrors`, es ahí donde mira para pintar debajo del input.
+        // Mandarlos al estado del hook cuando el form usa el suyo los deja
+        // guardados donde nadie los lee, que es el bug de CDT-60 otra vez.
+        if (errores) {
+          if (_setErrors) {
+            _setErrors(errores);
+          } else {
+            setErrors(errores);
+          }
+        }
+
+        showToast(mensaje, "error");
         logError("Error onSave:", err);
       }
     } finally {
