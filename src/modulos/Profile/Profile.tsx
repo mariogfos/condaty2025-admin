@@ -181,6 +181,26 @@ const Profile = () => {
     setOpenAuthModal(true);
   };
 
+  /**
+   * Quien todavía tiene la clave con la que nació llega acá con
+   * `?cambiar=clave`, mandado por el interceptor: el API le está contestando
+   * 403 en todas las demás pantallas.
+   *
+   * ⚠️ Se abre el modal en vez de dejarlo buscar el botón. Es lo único que
+   * puede hacer hasta cambiarla, así que pedirle que lo encuentre es pedirle
+   * que adivine por qué el resto de la aplicación no le responde.
+   */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (new URLSearchParams(window.location.search).get("cambiar") === "clave") {
+      onChangePassword();
+    }
+    // Sólo al montar: si se repitiera en cada render, cerrar el modal lo
+    // volvería a abrir y no habría forma de salir.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className={styles.profileContainer}>
       <div className={styles.mainContent}>
