@@ -225,8 +225,7 @@ export const useFileUpload = ({
 
       try {
         const results = await Promise.allSettled(uploadPromises);
-
-        let hasError = false;
+        const hasError = results.some((result) => result.status === "rejected");
 
         setFilePreviews((prev) => {
           const kept: PreviewItem[] = [];
@@ -250,7 +249,6 @@ export const useFileUpload = ({
                   file: undefined,
                 });
               } else {
-                hasError = true;
                 if (p.type === "image" && p.url?.startsWith("blob:")) {
                   URL.revokeObjectURL(p.url);
                 }
@@ -268,6 +266,11 @@ export const useFileUpload = ({
           setFilePreviews([oldPreview]);
           showToast(
             "Error al subir la nueva imagen. Se mantuvo la imagen anterior.",
+            "error",
+          );
+        } else if (hasError) {
+          showToast(
+            "No se pudo subir la imagen. Revisa el archivo e intenta nuevamente.",
             "error",
           );
         }

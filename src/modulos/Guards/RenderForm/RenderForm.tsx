@@ -2,16 +2,31 @@ import Input from "@/mk/components/forms/Input/Input";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import UploadFileSingle from "@/mk/components/forms/UploadFileSingle/UploadFileSingle";
+
+const normalizeApiErrors = (apiErrors: any) => {
+  if (!apiErrors || typeof apiErrors !== "object") return {};
+
+  return Object.fromEntries(
+    Object.entries(apiErrors).map(([field, value]) => [
+      field,
+      Array.isArray(value) ? value[0] : String(value),
+    ]),
+  );
+};
 
 const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
   const [formState, setFormState] = useState({ ...item });
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [isCheckingCi, setIsCheckingCi] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [existingInCurrentCondo, setExistingInCurrentCondo] = useState(false);
+  const [ciLookupFailed, setCiLookupFailed] = useState(false);
+  const ciLookupRef = useRef("");
   const { showToast } = useAuth();
 
   const handleChange = (
@@ -20,11 +35,30 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
     const { name, value } = e.target;
 
     if (name === "ci" && !formState.id) {
-      setFormState((prev: any) => ({
-        ...prev,
-        ci: value,
-        _disabled: false,
-      }));
+      ciLookupRef.current = String(value || "").trim();
+      setFormState((prev: any) => {
+        const wasAutofilled = Boolean(prev._disabled);
+
+        return {
+          ...prev,
+          ...(wasAutofilled
+            ? {
+                name: "",
+                middle_name: "",
+                last_name: "",
+                mother_last_name: "",
+                email: "",
+                phone: "",
+                address: "",
+                url_avatar: [],
+              }
+            : {}),
+          ci: value,
+          _disabled: false,
+        };
+      });
+      setExistingInCurrentCondo(false);
+      setCiLookupFailed(false);
       setErrors((prev: any) => ({ ...prev, ci: "" }));
       return;
     }
@@ -100,17 +134,23 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
       errors,
       data: formState,
     });
+    if (!formState.id && existingInCurrentCondo) {
+      errors.ci = "Ese CI ya esta en uso en este condominio.";
+    }
+    if (!formState.id && ciLookupFailed) {
+      errors.ci = "No se pudo verificar el CI. Intenta nuevamente.";
+    }
     setErrors(errors);
     return errors;
   };
   const _onSave = async () => {
-    if (isSaving) return;
+    if (isSaving || isCheckingCi || isUploading) return;
     if (hasErrors(validate())) return;
     let method = formState.id ? "PUT" : "POST";
 
     setIsSaving(true);
     try {
-      const { data } = await execute(
+      const { data, error } = await execute(
         "/guards" + (formState.id ? "/" + formState.id : ""),
         method,
         {
@@ -128,12 +168,22 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
         true,
       );
 
+      const apiErrors = normalizeApiErrors(data?.errors || error?.data?.errors);
+      if (Object.keys(apiErrors).length > 0) {
+        setErrors((prev: any) => ({ ...prev, ...apiErrors }));
+      }
+
       if (data?.success) {
         onClose();
         reLoad(null, true);
         showToast(data?.message || "Documento guardado con éxito", "success");
       } else {
-        showToast(data?.message || "Error al guardar el documento", "error");
+        showToast(
+          data?.message ||
+            error?.data?.message ||
+            "No se pudo guardar el guardia. Intenta nuevamente.",
+          "error",
+        );
       }
     } finally {
       setIsSaving(false);
@@ -145,9 +195,10 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
       const ci = String(ciValue || "").trim();
       if (!ci || formState.id || isCheckingCi) return;
 
+      ciLookupRef.current = ci;
       setIsCheckingCi(true);
       try {
-        const { data } = await execute(
+        const { data, error } = await execute(
           "/guards",
           "GET",
           {
@@ -159,11 +210,29 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
           true,
         );
 
+        if (ciLookupRef.current !== ci) return;
+
+        if (error || !data?.success) {
+          setExistingInCurrentCondo(false);
+          setCiLookupFailed(true);
+          setErrors((prev: any) => ({
+            ...prev,
+            ci: "No se pudo verificar el CI. Intenta nuevamente.",
+          }));
+          showToast("No se pudo verificar el CI. Intenta nuevamente.", "error");
+          return;
+        }
+
         if (data?.success && data.data?.data?.id) {
           const filteredData = data?.data?.data;
           if (filteredData.existCondo) {
+            setExistingInCurrentCondo(true);
+            setCiLookupFailed(false);
             showToast("El guardia ya existe en este condominio", "warning");
-            setErrors({ ci: "Ese CI ya esta en uso en este condominio." });
+            setErrors((prev: any) => ({
+              ...prev,
+              ci: "Ese CI ya esta en uso en este condominio.",
+            }));
             setFormState((prev: any) => ({
               ...prev,
               ci,
@@ -172,7 +241,9 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
             return;
           }
 
-          setErrors({ ci: "" });
+          setExistingInCurrentCondo(false);
+          setCiLookupFailed(false);
+          setErrors((prev: any) => ({ ...prev, ci: "" }));
           setFormState((prev: any) => ({
             ...prev,
             ci: filteredData.ci,
@@ -193,7 +264,9 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
           return;
         }
 
-        setErrors({ ci: "" });
+        setExistingInCurrentCondo(false);
+        setCiLookupFailed(false);
+        setErrors((prev: any) => ({ ...prev, ci: "" }));
         setFormState((prev: any) => ({
           ...prev,
           ci,
@@ -217,28 +290,6 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
     }
   };
 
-  const onBlurEmail = useCallback(async () => {
-    if (!formState.email) return;
-    const { data } = await execute(
-      "/guards",
-      "GET",
-      {
-        fullType: "EXIST",
-        type: "email",
-        searchBy: formState.email,
-      },
-      false,
-      true,
-    );
-
-    if (data?.success && data.data?.data?.id) {
-      showToast("El email ya esta en uso", "warning");
-      setErrors({ email: "El email ya esta en uso" });
-      setFormState({ ...formState, email: "" });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formState?.email]);
-
   return (
     <DataModal
       open={open}
@@ -249,13 +300,20 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
       buttonText={
         isSaving ? "Guardando..." : formState.id ? "Actualizar" : "Guardar"
       }
-      disabled={isSaving || isCheckingCi}
+      disabled={
+        isSaving ||
+        isCheckingCi ||
+        isUploading ||
+        existingInCurrentCondo ||
+        ciLookupFailed
+      }
       variant={"mini"}
     >
       <UploadFileSingle
         formState={formState}
         name="url_avatar"
         setFormState={setFormState}
+        onUploadStateChange={setIsUploading}
         error={errors}
       />
       <Input
@@ -300,7 +358,6 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
         name="email"
         value={formState.email || ""}
         disabled={formState._disabled}
-        onBlur={onBlurEmail}
         onChange={handleChange}
         label="Correo electrónico"
         error={errors}
