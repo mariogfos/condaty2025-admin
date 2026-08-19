@@ -94,6 +94,11 @@ const QrDynamicConfig: React.FC<QrDynamicConfigProps> = ({
     // account_referenceSandbox: "",
   });
 
+  // 🔴 El usuario configurado llega ENMASCARADO del API (`us••••co`), no en
+  // claro. Se guarda aparte para poder distinguir "lo que ya estaba" de "lo que
+  // el admin escribió": si no, guardar cualquier otro campo mandaría la
+  // máscara como usuario y el banco recibiría `us••••co`.
+  const [loadedUsernameMask, setLoadedUsernameMask] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newApiKey, setNewApiKey] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -133,6 +138,7 @@ const QrDynamicConfig: React.FC<QrDynamicConfigProps> = ({
         qr_dynamic_account_reference_sandbox: "",
       };
 
+      setLoadedUsernameMask(client_config.qr_dynamic_username_active ?? "");
       setFormState(nextState);
       setInitialSnapshot(nextState);
       setErrors({});
@@ -219,7 +225,14 @@ const QrDynamicConfig: React.FC<QrDynamicConfigProps> = ({
         payload.qr_dynamic_api_key = newApiKey;
       }
 
-      if (formState.qr_dynamic_username) {
+      // 🔴 Sólo se manda si el admin lo REESCRIBIÓ. Lo que se cargó es la
+      // máscara del usuario configurado: mandarla de vuelta la guardaría como
+      // usuario real —cifrada y todo— y el banco rechazaría cada QR, sin que
+      // nada en la pantalla lo diga.
+      if (
+        formState.qr_dynamic_username &&
+        formState.qr_dynamic_username !== loadedUsernameMask
+      ) {
         payload.qr_dynamic_username = formState.qr_dynamic_username;
       }
 
