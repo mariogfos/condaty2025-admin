@@ -13,6 +13,10 @@ import {
   IconAlertCircle,
 } from "@/components/layout/icons/IconsBiblioteca";
 import useAxios from "@/mk/hooks/useAxios";
+// ⚠️ Esta pantalla RENDERIZA texto escrito por el servidor. Antes de CDT-47 no
+// lo hacía: el mensaje de un sobre no-5xx llega tal cual a la vista. El riesgo
+// residual de eso —para los 4xx el único guardián es la lista de patrones
+// técnicos— está medido y explicado en el docblock del helper.
 import { leerElErrorDelApi } from "@/mk/hooks/useCrud/leerElErrorDelApi";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import EmptyData from "@/components/NoData/EmptyData";
@@ -43,6 +47,21 @@ const Reel = () => {
    * más» de «no se pudo traer más», y habilita el reintento.
    */
   const [loadMoreFailed, setLoadMoreFailed] = useState(false);
+  /**
+   * La CARGA INICIAL no dejó un muro utilizable (CDT-47).
+   *
+   * 🔴 No es `!!initialError`. El efecto de abajo tiene TRES ramas y la tercera
+   * —el `else`— también vacía la lista, pero sin ningún error de transporte:
+   * ahí caen el **HTTP 200 rechazado en el cuerpo** (`success:false`, que es
+   * como el API responde los rechazos de negocio) y el **200 sin
+   * `message.total`**. Con el render mirando sólo `initialError`, esas dos
+   * formas seguían pintando el `EmptyData` que afirma que el condominio no
+   * publicó nada.
+   *
+   * La paginación ya distingue «no se pudo traer» de «se acabó» para esa misma
+   * forma; esta bandera cierra la asimetría del lado de la página 1.
+   */
+  const [initialLoadFailed, setInitialLoadFailed] = useState(false);
   const [totalDBItems, setTotalDBItems] = useState(0);
   const itemsPerPage = 20;
   const [selectedContentForModal, setSelectedContentForModal] =
@@ -103,6 +122,7 @@ const Reel = () => {
     }
 
     if (initialError) {
+      setInitialLoadFailed(true);
       setContents([]);
       setHasMore(false);
     } else if (initialData?.data && initialData?.message?.total !== undefined) {
@@ -113,6 +133,7 @@ const Reel = () => {
         currentImageIndex: 0,
         isDescriptionExpanded: false,
       }));
+      setInitialLoadFailed(false);
       setContents(initialItems);
 
       const totalFromAPI = initialData.message.total;
@@ -126,6 +147,10 @@ const Reel = () => {
         setHasMore(false);
       }
     } else {
+      // Sin `error` de transporte pero sin sobre utilizable: un 200 rechazado
+      // en el cuerpo o un listado sin `total`. Vaciar la lista sin marcarlo
+      // dejaba al `EmptyData` afirmando que no hay publicaciones.
+      setInitialLoadFailed(true);
       setContents([]);
       setHasMore(false);
     }
@@ -606,7 +631,10 @@ const Reel = () => {
    * token vencido, y un reintento no cuesta nada.
    */
   const { mensaje: mensajeDeCargaFallida } = leerElErrorDelApi(
-    null,
+    // ⚠️ El sobre del 200 rechazado (`success:false`) NO viaja en el error
+    // —axios no rechaza un 200—, viaja en `initialData`. `leerElErrorDelApi`
+    // mira los dos justamente por eso.
+    initialData,
     initialError,
     "Revisa tu conexión e intenta de nuevo.",
   );
@@ -831,7 +859,7 @@ const Reel = () => {
             );
           })
         : !initialLoadingState &&
-          (initialError ? (
+          (initialLoadFailed ? (
             /*
              * 🔴 CDT-47: «falló el request» y «el condominio no publicó nada»
              * NO se ven iguales.

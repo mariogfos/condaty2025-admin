@@ -228,6 +228,58 @@ describe("CDT-47 — el muro no confunde un fallo de red con un muro vacío", ()
     ).toBeInTheDocument();
   });
 
+  /*
+   * LA TERCERA RAMA del efecto inicial: el `else`.
+   *
+   * 🔴 No hay `error` de transporte —axios no rechaza un 200— y sin embargo el
+   * efecto vacía la lista igual. Con el render mirando sólo `initialError`,
+   * estas dos formas caían en el `EmptyData` mentiroso.
+   *
+   * Y el motivo por el que esto NO es un caso teórico: este mismo cambio ya
+   * cerró la forma del 200 rechazado del lado de la PAGINACIÓN. La página 2
+   * distinguía «no se pudo traer» de «se acabó» y la página 1 no: una
+   * asimetría entre dos ramas del mismo arreglo.
+   */
+  it("un HTTP 200 rechazado en el cuerpo (`success:false`) NO es un muro vacío", async () => {
+    estadoInicial = {
+      data: {
+        success: false,
+        message: "El módulo de contenidos no está habilitado para este condominio",
+        errors: [],
+      },
+      loaded: true,
+      error: "",
+    };
+
+    render(<Reel />);
+
+    expect(screen.queryByText(EL_VACIO_MENTIROSO)).not.toBeInTheDocument();
+
+    await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
+
+    // Y como es un rechazo de negocio, se muestra lo que el API dice.
+    expect(
+      screen.getByText(
+        "El módulo de contenidos no está habilitado para este condominio",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("un 200 sin `message.total` tampoco es un muro vacío", async () => {
+    estadoInicial = {
+      data: { data: [] },
+      loaded: true,
+      error: "",
+    };
+
+    render(<Reel />);
+
+    expect(screen.queryByText(EL_VACIO_MENTIROSO)).not.toBeInTheDocument();
+
+    await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
+    expect(screen.getByText("No se pudo cargar el muro.")).toBeInTheDocument();
+  });
+
   /**
    * El caso de CONTROL. Sin esto, «arreglar» el error es tan fácil como borrar
    * el `EmptyData`, y un condominio recién creado dejaría de saber que su muro
@@ -343,10 +395,19 @@ describe("CDT-47 — la segunda puerta: la página siguiente que falla", () => {
      * lista sigue, el scroll sigue, y ahí faltan.
      *
      * ⚠️ NO pinea ningún ORDEN DE EJECUCIÓN, y conviene decirlo porque es fácil
-     * leerlo al revés. El `IntersectionObserver` de este archivo es un stub:
-     * su `observe()` es un no-op y no entrega nada por su cuenta, sólo se le
-     * disparan las callbacks a mano. Un centinela que se adelantara al efecto
-     * de paginación NO haría caer esta aserción.
+     * leerlo al revés. El `IntersectionObserver` de este archivo es un stub: su
+     * `observe()` es un no-op y no entrega nada por su cuenta, sólo se le
+     * disparan las callbacks a mano. Por eso este test **no puede detectar** un
+     * centinela que se adelante al efecto: porque el stub nunca lo produce —
+     * NO porque el adelanto sea inofensivo.
+     *
+     * 🔴 De hecho es dañino y se puede forzar: entregando el centinela dentro
+     * del mismo `act` que el `fireEvent.click`, la aserción de abajo se pone
+     * ROJA («expected 4 to be 2»), y la página que falló se pierde. En ese
+     * montaje `act` difiere el vaciado de los efectos pasivos hasta cerrar su
+     * ámbito, así que el centinela ya existe cuando se lo hace entregar y el
+     * `setPage` llega antes que el pedido. Es un artefacto del planificador de
+     * los tests, no un orden que el navegador produzca.
      *
      * ────────────────────────────────────────────────────────────────────
      * La carrera que esto NO cubre, y por qué no hace falta cubrirla
@@ -354,25 +415,28 @@ describe("CDT-47 — la segunda puerta: la página siguiente que falla", () => {
      *
      * El reintento devuelve `hasMore` a `true`, y eso re-monta el centinela
      * justo donde el usuario está parado. Si su entrega le ganara al efecto de
-     * paginación, `page` saltaría de largo. Se midió el 2026-08-19 como
-     * EXPERIMENTO APARTE —no como test, y por eso no quedó en el repo—, con un
-     * click nativo sin `act` para no forzar el vaciado de efectos. El orden
-     * observado:
+     * paginación, `page` saltaría de largo y la página que falló no se pediría
+     * nunca.
      *
-     *   IO:construido → IO:observe → fetch:page=2 → IO:construido
-     *   → rAF:proximo-frame → rAF:despues-del-click
+     * Lo que sostiene que en el NAVEGADOR eso no pasa es un argumento de
+     * ordenamiento, no este test: la entrega de un `IntersectionObserver`
+     * ocurre en «update intersection observations», que corre DESPUÉS de las
+     * callbacks de `requestAnimationFrame`, mientras que React vacía los
+     * efectos pasivos en una tarea encolada durante el propio click. Medido el
+     * 2026-08-19 como experimento aparte —con click nativo, sin `act`— el
+     * pedido de la página salió antes del primer `rAF`, y `rAF` es un piso
+     * CONSERVADOR: la entrega real llega todavía más tarde que ese piso, así
+     * que la conclusión se sostiene a fortiori.
      *
-     * El pedido de la página correcta sale dos pasos antes del primer `rAF`, y
-     * `rAF` es un piso CONSERVADOR: «update intersection observations» corre
-     * después de las callbacks de animación, así que la entrega real llega aún
-     * más tarde que ese piso. Forzando el peor orden posible —entrega en el
-     * mismo tick que el click— el pedido igual salió con `page=2`, porque
-     * React vacía los efectos pasivos pendientes de un commit antes de
-     * procesar el siguiente update.
+     * ⚠️ Ese experimento mide el argumento de ordenamiento, NO el peor caso:
+     * sin `act` el re-render no ocurre, así que el centinela nuevo todavía no
+     * existía cuando se entregó. La precaución que lo hacía honesto es la misma
+     * que lo dejó fuera del caso peligroso.
      *
      * Escribir un test de ordenamiento acá sería peor que no tenerlo: para que
-     * pudiera fallar habría que provocar a mano un orden que React no produce,
-     * o sea quedaría verde por construcción y anunciando una red que no está.
+     * fallara habría que reproducir el diferimiento de `act`, que es del
+     * entorno de tests y no del navegador — verde o rojo por construcción, y
+     * en cualquiera de los dos casos anunciando una red que no está.
      */
     const paginaDelFallo = executePaginacion.mock.calls[0][2].page;
     const paginaDelReintento = executePaginacion.mock.calls[1][2].page;

@@ -144,6 +144,31 @@ describe("CDT-47 — el widget Comunidad tampoco confunde fallo con vacío", () 
     ).not.toBeInTheDocument();
   });
 
+  /*
+   * La TERCERA rama del efecto: el `else`. Sin error de transporte —axios no
+   * rechaza un 200— pero sin sobre utilizable. Mismo `EmptyData` mentiroso.
+   */
+  it("un HTTP 200 rechazado en el cuerpo (`success:false`) NO es un widget vacío", async () => {
+    estado = {
+      data: {
+        success: false,
+        message: "El módulo de contenidos no está habilitado para este condominio",
+        errors: [],
+      },
+      loaded: true,
+      error: "",
+    };
+
+    render(<WidgetContentsResume />);
+
+    expect(screen.queryByText(EL_VACIO_MENTIROSO)).not.toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        "El módulo de contenidos no está habilitado para este condominio",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("sin error y sin publicaciones el EmptyData SIGUE apareciendo", async () => {
     estado = { data: { data: [] }, loaded: true, error: "" };
 
