@@ -8,12 +8,16 @@
  * error llegaba recién al guardar. El daño no es de datos: es trabajo perdido.
  *
  * La causa raíz está en `getAvailableActions` (`../../constants`), que es la
- * ÚNICA decisión de este botón y la comparten los seis consumidores del
- * detalle (AllDebts, IndividualDebts, DetailSharedDebts, DebtsManager,
- * CreateReserva y UnitFinanceHistory). Sus dos ramas se olvidaban de
- * CANCELLED: la de `type !== 0` excluía pagada/por confirmar/parcial/condonada
- * pero no anulada, y la de `type === 0` la metía en el mismo grupo permisivo
- * que "Por cobrar".
+ * regla de quién puede cobrarse y la comparten los CINCO consumidores de este
+ * detalle (AllDebts, IndividualDebts, DetailSharedDebts, CreateReserva y
+ * UnitFinanceHistory — `DebtsManager.tsx:9` importa otro componente,
+ * `./RenderView/RenderView`). Sus dos ramas se olvidaban de CANCELLED: la de
+ * `type !== 0` excluía pagada/por confirmar/parcial/condonada pero no anulada,
+ * y la de `type === 0` la metía en el mismo grupo permisivo que "Por cobrar".
+ *
+ * ⚠️ Esa función NO era la única decisión del botón de cobro: al mismo
+ * formulario se entra por DOS puertas y la segunda no miraba el estado. Está
+ * medida en `CDT89SegundaPuertaDelCobro.test.tsx`, al lado de este archivo.
  *
  * Los dos casos van juntos a propósito: el de la deuda normal es el que evita
  * que el arreglo se lleve puesto al caso bueno.
