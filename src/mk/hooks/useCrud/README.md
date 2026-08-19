@@ -537,6 +537,29 @@ pantallas mostraban siempre el genérico. Los siete mensajes en castellano de
 indicar el monto de la deuda.»…— no llegaban a la pantalla, así que CDT-93, que
 los hizo salir como 422 por campo, no se notaba.
 
+### La regla: manda el código HTTP, no el texto
+
+- **4xx** (422, 400, 403, 404, 409…) = rechazo de negocio ⇒ el `message` **está
+  escrito para el usuario** y se muestra.
+- **5xx** = reventó el motor ⇒ **siempre el genérico**, sin mirar el texto.
+- **0** (sin respuesta HTTP: red, timeout, CORS) ⇒ genérico.
+
+El filtro de texto (`SQLSTATE`, `.php`, trazas…) es la **segunda** línea, y sólo
+para los 4xx: hay cinco sitios que concatenan un `getMessage()` dentro de un
+rechazo de negocio. No es la primera porque una lista negra siempre va un paso
+atrás — con `app.debug` prendido pasaban enteros `Access denied for user
+'condaty'@'10.0.0.5'`, `cURL error 7: … port 8000` y
+`file_get_contents(/var/www/storage/x)`, con usuario de base, IP, host, puerto y
+rutas del servidor adentro. Los tres son 500: la regla por código los tapa sin
+tener que nombrarlos.
+
+`onExport` usa el mismo lector, con su propio genérico.
+
+⚠️ **Pendiente, anotado y NO tocado en este PR**: `getItemApi` (`useCrud.tsx:962`)
+y `getExtraData` (`:1407`) también se comen el `error` de `execute`, pero hoy no
+muestran ningún toast. Darles voz es otra decisión de producto —cuántos toasts
+salen al abrir una pantalla— y no entra acá.
+
 ⚠️ Que el rechazo de validación tenga toast **no exime al formulario de pintar
 los errores por campo**. Si tu `renderForm` arma su propia validación local,
 mezclá los dos juegos de errores; quedarte sólo con los locales tapa lo que

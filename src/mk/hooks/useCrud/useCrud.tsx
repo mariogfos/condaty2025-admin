@@ -1304,7 +1304,7 @@ const useCrud = ({
     if (isExporting) return; // Evitar múltiples clics
     setIsExporting(true);
 
-    const { data: file } = await execute(
+    const { data: file, error: errFile } = await execute(
       "/" + mod.modulo,
       "GET",
       {
@@ -1373,8 +1373,23 @@ const useCrud = ({
         setIsExporting(false);
       }
     } else {
-      showToast("Hubo un error al exportar el archivo", "error");
-      logError("Error onExport:", file);
+      // 🔴 Mismo defecto que `onSave`, en la puerta de al lado (CDT-94).
+      //
+      // Esto destructuraba sólo `{ data: file }` y TIRABA el error, así que
+      // ante cualquier no-2xx —el caso normal cuando un export falla— `file`
+      // es `null` y el usuario leía siempre el mismo genérico fijo, aunque el
+      // API hubiera dicho por qué. Mismo lector que el guardado: un 4xx muestra
+      // su mensaje, un 5xx cae al genérico sin mirar el texto.
+      //
+      // ⚠️ Acá NO se marcan campos: un export no tiene formulario donde
+      // pintarlos. Sólo se usa el mensaje.
+      const { mensaje } = leerElErrorDelApi(
+        file,
+        errFile,
+        "Hubo un error al exportar el archivo",
+      );
+      showToast(mensaje, "error");
+      logError("Error onExport:", errFile ?? file);
       setIsExporting(false);
     }
   };

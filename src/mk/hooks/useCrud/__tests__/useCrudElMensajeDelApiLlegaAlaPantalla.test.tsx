@@ -262,18 +262,54 @@ describe("useCrud: el mensaje del API llega a la pantalla (CDT-94)", () => {
     expect(Object.keys(ultima)).toHaveLength(0);
   });
 
-  it("con texto técnico —SQLSTATE, tabla, traza— se muestra el genérico", async () => {
-    // 🔴 El API sanitiza desde CDT-93… salvo con `app.debug` encendido, que
-    // devuelve `$e->getMessage()` CRUDO. El front no puede confiar en eso.
+  it("un 5xx NUNCA muestra su mensaje, aunque el texto parezca inofensivo", async () => {
+    // 🔴 LA REGLA: manda el código, no el texto. Estos tres pasaban la lista
+    // negra ENTEROS —los midió el review con `app.debug` prendido, que es como
+    // están los servidores de testers— y llevan adentro usuario de base, IP,
+    // host, puerto y rutas del servidor. Ninguno se nombra en el filtro: los
+    // tapa el 500.
+    const delMotor = [
+      "Access denied for user 'condaty'@'10.0.0.5' (using password: YES)",
+      "cURL error 7: Failed to connect to internal-api port 8000",
+      "file_get_contents(/var/www/storage/x): failed to open stream",
+    ];
+
+    for (const mensaje of delMotor) {
+      showToast.mockReset();
+      conElPostFallando(
+        rechazoDelApi({ success: false, message: mensaje, errors: [] }, 500),
+      );
+
+      const runtime = montar();
+      await waitFor(() => expect(execute).toHaveBeenCalled());
+      await guardar(runtime);
+
+      expect(toastsVisibles()).toHaveLength(1);
+      expect(
+        toastsVisibles()[0][0],
+        `🔴 un 500 le mostró el motor al usuario: «${mensaje}»`,
+      ).toBe(MENSAJE_GENERICO_DE_GUARDADO);
+      cleanup();
+    }
+  });
+
+  it("con texto técnico en un 4xx —SQLSTATE, tabla, traza— se muestra el genérico", async () => {
+    // La segunda línea, para donde el código HTTP dice «esto es de negocio»:
+    // hay cinco sitios que concatenan un `getMessage()` dentro de un rechazo
+    // —`ExpenseImportService:53` y `:293`, `AreaBlockingService:129`,
+    // `SurveyController:725`, `DebtGroupController:145`—.
+    //
+    // ⚠️ Va como 4xx A PROPÓSITO: con 500 este test pasaría por la regla del
+    // código y no mediría el filtro de texto que dice medir.
     conElPostFallando(
       rechazoDelApi(
         {
           success: false,
           message:
-            "SQLSTATE[42S22]: Column not found: 1054 Unknown column 'columna_que_no_existe' in 'field list' (SQL: insert into `debt_dptos` ...)",
+            "No se pudo importar: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'monto' (SQL: insert into `expenses` ...)",
           errors: [],
         },
-        500,
+        409,
       ),
     );
 
@@ -286,6 +322,66 @@ describe("useCrud: el mensaje del API llega a la pantalla (CDT-94)", () => {
       toastsVisibles()[0][0],
       "🔴 se le mostró el SQL al usuario",
     ).toBe(MENSAJE_GENERICO_DE_GUARDADO);
+  });
+
+  it("un 4xx de negocio muestra su mensaje, que está escrito para el usuario", async () => {
+    conElPostFallando(
+      rechazoDelApi(
+        { success: false, message: "No puede crear este registro en otro condominio.", errors: [] },
+        403,
+      ),
+    );
+
+    const runtime = montar();
+    await waitFor(() => expect(execute).toHaveBeenCalledTimes(1));
+    await guardar(runtime);
+
+    expect(toastsVisibles()).toHaveLength(1);
+    expect(toastsVisibles()[0][0]).toBe(
+      "No puede crear este registro en otro condominio.",
+    );
+  });
+
+  it("el `errors: []` de `sendError` NO pisa los errores locales del formulario", async () => {
+    // 🔴 `sendError($msg, [], 4xx)` manda `errors` como ARRAY vacío, no objeto,
+    // y pasárselo a `setErrors` le borra al formulario los errores que ya tenía
+    // pintados.
+    //
+    // ⚠️ MEDIDO: el caso está defendido DOS VECES y cada defensa alcanza sola,
+    // así que reinyectar una sola deja este test VERDE —y verde por el motivo
+    // equivocado—. Son:
+    //   1. el `!Array.isArray(valor)` de `comoSobre`, que devuelve `null`;
+    //   2. el `if (Object.keys(limpios).length > 0)`, que deja `errores` en
+    //      `null` en vez de `{}` — y `{}` es TRUTHY, así que `onSave` llamaría
+    //      al `setErrors` del formulario con un objeto vacío.
+    // Sacando las dos, este caso se pone rojo con
+    // «expected [ [ {} ], [ {} ] ] to have a length of 1 but got 2».
+    //
+    // (Un array NO vacío en `errors` no existe: `$validator->errors()` es un
+    // `MessageBag` y serializa a objeto en cuanto tiene una clave.)
+    conElPostFallando(
+      rechazoDelApi(
+        { success: false, message: "La deuda ya fue cobrada.", errors: [] },
+        409,
+      ),
+    );
+
+    const runtime = montar();
+    await waitFor(() => expect(execute).toHaveBeenCalledTimes(1));
+
+    const setErrorsDelForm = vi.fn();
+    await guardar(runtime, setErrorsDelForm);
+
+    expect(toastsVisibles()[0][0]).toBe("La deuda ya fue cobrada.");
+
+    // La única llamada válida es la de `checkRulesFields`, con su objeto vacío.
+    for (const [recibido] of setErrorsDelForm.mock.calls) {
+      expect(
+        Array.isArray(recibido),
+        "🔴 se le mandó un array al `setErrors` del formulario",
+      ).toBe(false);
+    }
+    expect(setErrorsDelForm.mock.calls).toHaveLength(1);
   });
 
   it("CONTROL: un guardado exitoso sigue funcionando igual", async () => {
@@ -315,6 +411,62 @@ describe("useCrud: el mensaje del API llega a la pantalla (CDT-94)", () => {
     // Y el formulario no queda con errores pintados encima de un éxito.
     const ultima = setErrorsDelForm.mock.calls.at(-1)![0];
     expect(Object.keys(ultima)).toHaveLength(0);
+  });
+
+  it("el EXPORT también dice lo que dijo el API, no su genérico fijo", async () => {
+    // 🔴 Mismo defecto, en la puerta de al lado del mismo hook: `onExport`
+    // destructuraba sólo `{ data: file }` y tiraba el error, así que ante
+    // cualquier no-2xx mostraba siempre "Hubo un error al exportar el archivo".
+    execute.mockImplementation(async (_url: string, _method: string, pay: any) => {
+      if (pay?._export) {
+        return rechazoDelApi(
+          {
+            success: false,
+            message: "El listado supera las 10.000 filas: acotá el período.",
+            errors: [],
+          },
+          413,
+        );
+      }
+      return listaOk();
+    });
+
+    const runtime = montar();
+    await waitFor(() => expect(execute).toHaveBeenCalledTimes(1));
+
+    await act(async () => {
+      void runtime.current.onExport("xls");
+      await new Promise((resolve) => setTimeout(resolve, 80));
+    });
+
+    expect(toastsVisibles()).toHaveLength(1);
+    expect(toastsVisibles()[0][0]).toBe(
+      "El listado supera las 10.000 filas: acotá el período.",
+    );
+  });
+
+  it("el EXPORT con un 5xx cae a SU genérico, no al del guardado", async () => {
+    execute.mockImplementation(async (_url: string, _method: string, pay: any) => {
+      if (pay?._export) {
+        return rechazoDelApi(
+          { success: false, message: "Allowed memory size exhausted", errors: [] },
+          500,
+        );
+      }
+      return listaOk();
+    });
+
+    const runtime = montar();
+    await waitFor(() => expect(execute).toHaveBeenCalledTimes(1));
+
+    await act(async () => {
+      void runtime.current.onExport("pdf");
+      await new Promise((resolve) => setTimeout(resolve, 80));
+    });
+
+    expect(toastsVisibles()).toHaveLength(1);
+    // Cada puerta conserva SU genérico: el del export nombra el export.
+    expect(toastsVisibles()[0][0]).toBe("Hubo un error al exportar el archivo");
   });
 
   it("el rechazo de negocio (HTTP 200 con `success: false`) sigue mostrando su mensaje", async () => {

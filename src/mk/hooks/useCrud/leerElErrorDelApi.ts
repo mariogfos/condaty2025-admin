@@ -12,22 +12,26 @@ export const MENSAJE_GENERICO_DE_GUARDADO =
 /**
  * Rastros de que el texto es del MOTOR y no para el usuario (CDT-94).
  *
- * 🔴 Es defensa en profundidad, no la defensa. El API ya sanitiza desde CDT-93
- * (`App\Mk\Controller::mensajeSeguroDe()` devuelve un texto escrito por
- * nosotros)… salvo cuando `app.debug` está encendido, que devuelve
- * `$e->getMessage()` CRUDO. O sea que un entorno con debug prendido —y los de
- * testers lo tienen— le manda el SQL al front tal cual. El front no puede
- * confiar en la sanitización del otro lado.
+ * ⚠️ ES LA SEGUNDA LÍNEA, NO LA PRIMERA. La que decide es el código HTTP
+ * (`esDelMotor`): un 5xx nunca muestra su mensaje, sin mirar el texto. Una
+ * lista negra de expresiones regulares es una carrera que se pierde —siempre
+ * falta la próxima—, y el review lo midió: con `app.debug` prendido (como están
+ * los servidores de testers) estos tres pasaban el filtro ENTEROS, con usuario
+ * de base, IP, host, puerto y rutas del servidor adentro:
  *
- * Los cuatro primeros son literalmente los que pinea el test del API
- * (`UnaDeudaSinUnCampoObligatorioDiceCualFaltaTest::un_error_de_base_sigue_sin_devolver_el_sql`).
- * `incorrect ... value` es el 1366 de MySQL que originó CDT-60 y que ya viajó
- * entero una vez.
+ *   Access denied for user 'condaty'@'10.0.0.5' (using password: YES)
+ *   cURL error 7: Failed to connect to internal-api port 8000
+ *   file_get_contents(/var/www/storage/x): failed to open stream
  *
- * ⚠️ Ninguno matchea contra los siete mensajes en castellano de
- * `DebtDptoController::checkValidationRules()` —verificado uno por uno—: el
- * acento de «Excepción» rompe el `\bexception\b`, y ningún mensaje nuestro
- * nombra una tabla ni un verbo SQL.
+ * Los tres son 500, así que la regla por código los tapa sin nombrarlos. Esto
+ * queda para los **4xx**, donde el mensaje sí está escrito para el usuario pero
+ * puede venir contaminado: hay cinco sitios que concatenan un `getMessage()`
+ * dentro de un rechazo de negocio —`ExpenseImportService:53` y `:293`,
+ * `AreaBlockingService:129`, `SurveyController:725`, `DebtGroupController:145`—.
+ *
+ * ⚠️ Medido por el review: **cero falsos positivos** sobre 399 mensajes reales
+ * del API; en un barrido ancho de 1.130 frases los 22 matches eran SQL de
+ * migraciones y ejemplos dentro de docblocks.
  */
 const RASTROS_TECNICOS: RegExp[] = [
   /SQLSTATE/i,
@@ -48,6 +52,24 @@ const RASTROS_TECNICOS: RegExp[] = [
 /** Si el texto tiene pinta de venir del motor y no de una regla de negocio. */
 export const esTextoTecnico = (texto: string): boolean =>
   RASTROS_TECNICOS.some((rastro) => rastro.test(texto));
+
+/**
+ * 🔴 LA REGLA QUE MANDA: lo decide el código HTTP, no el texto.
+ *
+ * - **5xx** — reventó el motor. El mensaje **nunca** está escrito para el
+ *   usuario: sale de `$e->getMessage()`, que con `app.debug` prendido viaja
+ *   crudo. Siempre el genérico.
+ * - **4xx** (422, 400, 403, 404, 409…) — rechazo de negocio. El mensaje lo
+ *   escribimos nosotros y es justamente lo que hay que decir.
+ * - **0** — no hubo respuesta HTTP (red caída, timeout, CORS). Tampoco hay
+ *   sobre, así que igual cae al genérico por falta de `message`.
+ *
+ * La diferencia con la lista negra es que esto es una regla y aquello una lista
+ * de parches: un modo de falla nuevo del motor queda tapado sin que nadie lo
+ * tenga que nombrar.
+ */
+const esDelMotor = (estado: unknown): boolean =>
+  typeof estado === "number" && estado >= 500;
 
 export type ErrorDelApi = {
   /** El texto para el toast. Nunca vacío: cae al genérico. */
@@ -73,34 +95,48 @@ const comoSobre = (valor: any): Record<string, any> | null =>
  * mensajes escritos en castellano— y ninguno llegaba a la pantalla. Le pasaba a
  * las ~40 pantallas del kernel, no sólo a Deudas.
  *
- * ⚠️ El sobre NO se pierde en `useAxios`: su catch lo guarda en
- * `error.data` (`err.response?.data || {}`). Por eso el arreglo es acá y no
+ * ⚠️ El sobre NO se pierde en `useAxios`: su catch lo guarda en `error.data`
+ * (`err.response?.data || {}`) y el código HTTP en `error.status`
+ * (`useAxios.tsx:225`, `0` si no hubo respuesta). Por eso el arreglo es acá y no
  * allá — ver el porqué en el comentario de `onSave`.
  *
  * ────────────────────────────────────────────────────────────────────────
- * Las dos formas de sobre que llegan, medidas en el API
+ * Las formas de sobre que llegan, medidas en el API
  * ────────────────────────────────────────────────────────────────────────
  *
  * - **422 de validación** (CDT-93): lo arma el handler de Laravel, no
  *   `sendError`, así que **no trae `success`**:
  *   `{ message: "La unidad es obligatoria.", errors: { dpto_id: [...] } }`.
- * - **500 del motor**: `sendError()` →
- *   `{ success: false, message: <genérico>, errors: [], debugMsg: [] }`.
+ * - **4xx de negocio**: `sendError($msg, [], 403|404|409)` →
+ *   `{ success: false, message, errors: [], debugMsg: [] }`.
  *   🔴 Ahí `errors` es un ARRAY vacío, no un objeto: por eso se descarta con
  *   `comoSobre`, si no `setErrors([])` pisaba los errores locales del form.
+ * - **500 del motor**: mismo sobre, y su `message` se descarta entero por
+ *   `esDelMotor`.
  * - **rechazo de negocio**: HTTP 200 con `success: false`. Ese llega por
  *   `response`, con `err` en `null`, y por eso se miran los dos.
- * - **sin sobre** (red caída, timeout, CORS): `err.data` es `{}`. No hay nada
- *   que mostrar y el genérico es lo correcto.
+ * - **sin sobre** (red caída, timeout, CORS): `err.data` es `{}` y
+ *   `err.status` es `0`. No hay nada que mostrar y el genérico es lo correcto.
+ *
+ * ⚠️ DEFECTO CONOCIDO, severidad baja, medido por el review de CDT-94: si un
+ * campo trae varios mensajes y **uno solo** es técnico, `getFieldErrorMessage`
+ * une el array en un texto y el campo entero se descarta — se pierde el mensaje
+ * de negocio legítimo que venía al lado. Se prefiere así antes que colar el
+ * técnico: el toast sigue diciendo algo y el campo queda sin marcar, no con
+ * basura. Si alguna vez pasa de verdad, se filtra elemento por elemento.
  *
  * @param response El sobre de una respuesta 2xx, o `null` si axios rechazó.
- * @param err El error de transporte de `useAxios`, con el sobre en `.data`.
+ * @param err El error de `useAxios`: el sobre en `.data`, el código en `.status`.
  */
 export const leerElErrorDelApi = (
   response: any,
   err: any,
   generico: string = MENSAJE_GENERICO_DE_GUARDADO,
 ): ErrorDelApi => {
+  // 🔴 Primero el código, después el texto. Un 5xx no se mira: no trae errores
+  // por campo (su `errors` es `[]`) y su `message` es del motor.
+  if (esDelMotor(err?.status)) return { mensaje: generico, errores: null };
+
   const sobre = comoSobre(err?.data) ?? comoSobre(response);
 
   const porCampo = comoSobre(sobre?.errors);
