@@ -51,3 +51,43 @@
   color: var(--cWhiteV1);
   font-size: var(--sS);
 }
+
+/*
+ * El estado de CARGA FALLIDA del widget (CDT-47). Distinto del vacío a simple
+ * vista: ícono en ámbar y un botón, que el `EmptyData` no tiene.
+ */
+.loadErrorState {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spS, 8px);
+  min-height: 200px;
+  padding: var(--spM);
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+.loadErrorState > p {
+  font-size: var(--sM);
+  font-weight: 900;
+}
+
+.loadErrorState > span {
+  font-size: var(--sS, 12px);
+  color: var(--cWhiteV3);
+}
+
+.retryButton {
+  background: none;
+  border: 1px solid var(--cWhiteV3);
+  border-radius: var(--bRadiusS, 8px);
+  color: var(--cWhite);
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: var(--sM);
+}
+
+.retryButton:hover {
+  border-color: var(--cWhite);
+}

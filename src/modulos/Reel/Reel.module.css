@@ -564,3 +564,62 @@
     border-radius: 8px;
   }
 }
+
+/*
+ * El estado de CARGA FALLIDA del muro (CDT-47).
+ *
+ * 🔴 Tiene que distinguirse del vacío A SIMPLE VISTA — es la condición que puso
+ * producto al elegir la opción B de CDT-42. Por eso no reusa la forma de
+ * `EmptyData` (ícono grande gris + dos renglones tenues): ícono en ámbar, y un
+ * botón, que el vacío no tiene. Con el mismo gris de siempre los dos estados se
+ * leen igual y el arreglo no arregla nada.
+ */
+.loadErrorState {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spM);
+  min-height: 300px;
+  padding: var(--spXxl);
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+.loadErrorState > p {
+  font-size: var(--sL);
+  font-weight: 900;
+}
+
+.loadErrorState > span {
+  font-size: var(--sM);
+  color: var(--cWhiteV3);
+}
+
+/* El renglón del fallo al paginar: se corta el scroll, pero se dice por qué. */
+.loadMoreErrorRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spM);
+  min-height: 100px;
+  padding: var(--spM);
+  text-align: center;
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+}
+
+.retryButton {
+  background: none;
+  border: 1px solid var(--cWhiteV3);
+  border-radius: var(--bRadiusS, 8px);
+  color: var(--cWhite);
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: var(--sM);
+}
+
+.retryButton:hover {
+  border-color: var(--cWhite);
+}

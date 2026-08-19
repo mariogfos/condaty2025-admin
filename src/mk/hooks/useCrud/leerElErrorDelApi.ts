@@ -118,6 +118,28 @@ const comoSobre = (valor: any): Record<string, any> | null =>
  * - **sin sobre** (red caída, timeout, CORS): `err.data` es `{}` y
  *   `err.status` es `0`. No hay nada que mostrar y el genérico es lo correcto.
  *
+ * ────────────────────────────────────────────────────────────────────────
+ * ⚠️ DÓNDE SE USA ESTO, Y POR QUÉ IMPORTA (ensanchado en CDT-47)
+ * ────────────────────────────────────────────────────────────────────────
+ *
+ * Nació para el TOAST de guardado de `useCrud`. CDT-47 lo llevó a dos
+ * pantallas de LECTURA que nunca habían mostrado texto escrito por el
+ * servidor: el muro (`Reel.tsx`) y el widget «Comunidad» del dashboard
+ * (`WidgetContentsResume.tsx`). Las dos renderizan ahora el `message` de
+ * cualquier sobre que no sea 5xx.
+ *
+ * 🔴 Eso mueve el riesgo residual de lugar. Para 5xx y para la red caída la
+ * regla por código tapa todo sin mirar el texto. Para los **4xx** el único
+ * guardián que queda es `RASTROS_TECNICOS` —una lista de patrones, o sea la
+ * carrera que este mismo archivo documenta como perdida de antemano—, y acá
+ * abajo están nombrados los cinco call sites del API que concatenan un
+ * `getMessage()` adentro de un rechazo de negocio.
+ *
+ * Es residual y conocido, no un defecto abierto: se prefiere mostrar el
+ * mensaje del API en un 4xx antes que un genérico inútil («no tiene permisos»
+ * no se arregla reintentando). Pero queda dicho acá porque el que sume la
+ * próxima pantalla de lectura tiene que saber qué está aceptando.
+ *
  * ⚠️ DEFECTO CONOCIDO, severidad baja, medido por el review de CDT-94: si un
  * campo trae varios mensajes y **uno solo** es técnico, `getFieldErrorMessage`
  * une el array en un texto y el campo entero se descarta — se pierde el mensaje
