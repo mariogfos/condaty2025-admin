@@ -298,12 +298,58 @@ describe("CDT-47 — la segunda puerta: la página siguiente que falla", () => {
       ),
     ).toBeInTheDocument();
 
-    // Y el reintento pide de verdad, otra vez.
+    // 🔴 El reintento que FUNCIONA. Dejarlo fallando otra vez sólo afirma que
+    // se volvió a llamar: nunca ejercita el camino bueno y no pinea el
+    // invariante de más abajo, que es justo el que se rompería si el centinela
+    // le ganara la carrera al efecto y `page` saltara de largo.
+    executePaginacion.mockResolvedValue({
+      data: { data: [unaPublicacion(3), unaPublicacion(4)] },
+      error: null,
+    });
+
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
     });
 
     await waitFor(() => expect(executePaginacion).toHaveBeenCalledTimes(2));
+
+    // Llegan las publicaciones que faltaban...
+    expect(await screen.findByText("publicación 3")).toBeInTheDocument();
+    expect(screen.getByText("publicación 4")).toBeInTheDocument();
+
+    // ...y el cartel de error se va.
+    expect(
+      screen.queryByText(
+        "No se pudieron cargar más publicaciones. Revisa tu conexión.",
+      ),
+    ).not.toBeInTheDocument();
+
+    /*
+     * 🔴 EL INVARIANTE: el reintento re-pide LA MISMA página, no la siguiente.
+     *
+     * Si alguna vez `handleRetryLoadMore` mueve `page`, o si el centinela que
+     * se re-monta al volver `hasMore` a `true` alcanza a disparar
+     * `setPage(p+1)` antes de que corra el efecto de paginación, la página que
+     * falló NO se pide nunca y el usuario pierde 20 publicaciones sin un solo
+     * síntoma: la lista sigue, el scroll sigue, y ahí faltan.
+     *
+     * ⚠️ Esa carrera se midió el 2026-08-19 y NO es real: React vacía los
+     * efectos pasivos pendientes de un commit antes de procesar el siguiente
+     * update, y la entrega de un `IntersectionObserver` no puede ocurrir antes
+     * del próximo paso de renderizado. Medido con un click nativo (sin `act`,
+     * o sea con la planificación real de React) el orden fue:
+     *
+     *   IO:construido → IO:observe → fetch:page=2 → IO:construido
+     *   → rAF:proximo-frame → rAF:despues-del-click
+     *
+     * El pedido de la página 2 sale DOS pasos antes del primer `rAF`, que es
+     * el piso temporal de cualquier entrega del observer. Este pin existe para
+     * que siga siendo cierto, no porque hoy esté roto.
+     */
+    const paginaDelFallo = executePaginacion.mock.calls[0][2].page;
+    const paginaDelReintento = executePaginacion.mock.calls[1][2].page;
+    expect(paginaDelFallo).toBe(2);
+    expect(paginaDelReintento).toBe(2);
   });
 
   it("cuando de verdad no hay más páginas SIGUE diciendo «Has llegado al final»", async () => {

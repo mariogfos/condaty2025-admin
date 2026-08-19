@@ -214,6 +214,12 @@ const Reel = () => {
 
   const loadMoreRef = useCallback(
     (node: HTMLDivElement | null) => {
+      // ⚠️ ANOTADO, NO ARREGLADO acá (review de CDT-47): con `node` en `null`
+      // —el desmontaje del centinela— este `return` temprano se va SIN llamar
+      // `observer.current.disconnect()` cuando `loadingMoreState` es true. El
+      // observador viejo queda vivo apuntando a un nodo desmontado. Es
+      // preexistente y ajeno al vacío mentiroso que arregla este ticket; tocarlo
+      // acá mezcla dos cambios en el mismo diff.
       if (initialLoadingState || loadingMoreState) return;
       if (observer.current) observer.current.disconnect();
 
@@ -521,6 +527,17 @@ const Reel = () => {
     handleCloseContentModal();
   };
 
+  /**
+   * ⚠️ ANOTADO, NO ARREGLADO (review de CDT-47): este es el camino
+   * post-publicación (`reLoad` de `RenderView`). Si el refresco FALLA, el
+   * efecto de arriba hace `setContents([])` y le BORRA al usuario el muro que
+   * estaba leyendo, para reemplazarlo por el estado de error.
+   *
+   * `useAxios` ya expone `isStale`, hecho exactamente para «hay dato viejo y
+   * el refresco falló» — es el tratamiento de CDT-42, y acá sí habría dato
+   * viejo que marcar. Cuál de los dos corresponde en el muro es una decisión
+   * de producto, no del arreglo de este ticket.
+   */
   const handleReloadReel = () => {
     setPage(1);
     setHasMore(true);
@@ -825,6 +842,11 @@ const Reel = () => {
              * red. El error ya estaba en la mano (`initialError`) y se usaba
              * sólo para vaciar la lista.
              */
+            /* ⚠️ ANOTADO: estos textos van hardcodeados en castellano, como
+             * TODO el resto de `Reel.tsx` (que nunca usó `useScopedI18n`),
+             * mientras que el widget hermano del mismo commit los resuelve por
+             * `translate`. Es inconsistencia introducida por este PR, no una
+             * regresión: traducir el muro entero es su propio cambio. */
             <div className={styles.loadErrorState} role="alert">
               <IconAlertCircle size={56} color="var(--cWarning)" />
               <p>No se pudo cargar el muro.</p>

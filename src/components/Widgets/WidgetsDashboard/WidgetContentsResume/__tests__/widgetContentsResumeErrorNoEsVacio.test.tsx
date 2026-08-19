@@ -18,6 +18,13 @@ import React from "react";
  * 🔴 Arreglar sólo `Reel.tsx` dejaba el dashboard afirmando lo mismo que el
  * ticket vino a corregir — es el patrón CDT-26 → CDT-30: el arreglo tapa una
  * puerta y el mismo defecto reaparece por la de al lado.
+ *
+ * ⚠️ HUECO DE COBERTURA ANOTADO (review de CDT-47): acá se cubre `status: 0`
+ * (red caída) y el vacío de control, pero NO hay caso de 4xx ni de 5xx — que
+ * es justo donde el mensaje CAMBIA DE FUENTE: el 4xx muestra el texto del API
+ * y el 5xx lo descarta por el genérico. Esa bifurcación sí está pineada del
+ * lado del muro (`reelErrorDeRedNoEsVacio.test.tsx`), sobre el mismo
+ * `leerElErrorDelApi`, así que el hueco es de este archivo, no de la regla.
  */
 
 let estado: { data: any; loaded: boolean; error: any };
