@@ -353,3 +353,45 @@
   cursor: pointer;
 }
 
+
+/*
+ * CDT-98: el estado de error del pedido de deudas. Misma forma que el del muro
+ * (CDT-47): icono en ambar + titulo + renglon + boton, para que no se confunda
+ * a simple vista con el vacio legitimo de «esta unidad no tiene deudas».
+ */
+.deudas-error-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spM);
+  min-height: 200px;
+  padding: var(--spXxl);
+  margin: 15px 0;
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+.deudas-error-state > p {
+  font-size: var(--sL);
+  font-weight: 900;
+}
+
+.deudas-error-state > span {
+  font-size: var(--sM);
+  color: var(--cWhiteV3);
+}
+
+.retry-button {
+  background: none;
+  border: 1px solid var(--cWhiteV3);
+  border-radius: var(--bRadiusS, 8px);
+  color: var(--cWhite);
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: var(--sM);
+}
+
+.retry-button:hover {
+  border-color: var(--cWhite);
+}

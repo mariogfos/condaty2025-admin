@@ -7,6 +7,7 @@ import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Input from "@/mk/components/forms/Input/Input";
 import {
+  IconAlertCircle,
   IconCheckOff,
   IconCheckSquare,
 } from "@/components/layout/icons/IconsBiblioteca";
@@ -47,6 +48,8 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
     selectedPeriodo,
     periodoTotal,
     isLoadingDeudas,
+    deudasError,
+    reintentarDeudas,
     lDptos,
     filteredCategories,
     showCategoryFields,
@@ -103,6 +106,32 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
       );
     } else if (isLoadingDeudas) {
       return <EmptyData message="Cargando deudas..." h={200} />;
+    } else if (deudasError) {
+      /*
+       * 🔴 CDT-98: «no se pudo traer la lista» y «esta unidad no debe nada» NO
+       * se ven iguales, y ninguno de los dos deja abajo la lista de la unidad
+       * anterior. Antes el pedido fallido no tocaba nada: quedaban en pantalla
+       * las deudas de la unidad de la que se venia, rotuladas como de esta, y
+       * el operador podia imputar el cobro a la unidad equivocada.
+       *
+       * ⚠️ Esta pantalla renderiza texto escrito por el SERVIDOR (el `message`
+       * de cualquier sobre que no sea 5xx). Antes no lo hacia. El porque y el
+       * riesgo residual estan en el docblock de `leerElErrorDelApi`.
+       */
+      return (
+        <div className={styles["deudas-error-state"]} role="alert">
+          <IconAlertCircle size={56} color="var(--cWarning)" />
+          <p>No se pudieron cargar las deudas de esta unidad.</p>
+          <span>{deudasError}</span>
+          <button
+            type="button"
+            className={styles["retry-button"]}
+            onClick={reintentarDeudas}
+          >
+            Reintentar
+          </button>
+        </div>
+      );
     } else if (deudas.length === 0) {
       return (
         <div className={styles["no-deudas-container"]}>
@@ -255,6 +284,8 @@ const RenderForm: React.FC<RenderFormProps> = (props) => {
     formState.type,
     formState.newExpenses,
     isLoadingDeudas,
+    deudasError,
+    reintentarDeudas,
     deudas,
     selectedPeriodo,
     periodoTotal,
