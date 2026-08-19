@@ -501,8 +501,64 @@ las tres avisan:
 | salida | qué se ve |
 |---|---|
 | `checkRulesFields` rechaza | toast de error `"Revisa los datos del formulario"`, y los mensajes por campo quedan en `errors` / el `setErrors` que le hayas pasado. **No se despacha request.** |
-| el request responde `success: false` | el `message` del API |
-| el request **muere** (500, red, un `1366` de MySQL) | `"No se pudo guardar. Intenta nuevamente."` — no hay sobre, así que no hay `message` |
+| el request responde `success: false` con HTTP 200 | el `message` del API |
+| el API rechaza con **no-2xx** (422 de validación, 403, 404, 500) | el `message` del sobre, y si trae `errors` por campo **también se marcan los campos** |
+| el request **muere** sin sobre (red caída, timeout, CORS) | `"No se pudo guardar. Intenta nuevamente."` |
+| el `message` trae **texto técnico** (SQLSTATE, una tabla, una traza) | el genérico: nunca se le muestra el motor al usuario |
+
+### 🔴 El sobre de un no-2xx NO se pierde: está en `error.data`
+
+Ante cualquier no-2xx axios **rechaza**, así que `execute` devuelve
+`{ data: null, error }` y el sobre del API queda en **`error.data`**
+(`useAxios.tsx`, `err.response?.data || {}`). Si escribís un guardado a mano
+fuera del kernel, esa es la puerta — es la forma que ya usan ~30 llamadas del
+repo:
+
+```tsx
+const { data, error } = await execute(url, "POST", payload);
+// el message y los errores por campo del 422 viven ACÁ, no en `data`
+showToast(error?.data?.message || data?.message || "…", "error");
+setErrors(error?.data?.errors ?? data?.errors);
+```
+
+Las dos formas de sobre, medidas en el API:
+
+- **422 de validación**: lo arma el handler de Laravel, no `sendError`, así que
+  **no trae `success`** — `{ message, errors: { campo: ["…"] } }`. `errors` es un
+  **objeto**.
+- **500 del motor**: `sendError()` → `{ success: false, message, errors: [], debugMsg: [] }`.
+  Ahí `errors` es un **array vacío**: pasárselo a `setErrors` pisa los errores
+  locales del formulario, por eso el kernel lo descarta.
+
+Contexto: CDT-94. El kernel leía sólo `response?.message`, y como en un no-2xx
+`response` es `null`, el `message` del sobre **no se leía nunca**: las ~40
+pantallas mostraban siempre el genérico. Los siete mensajes en castellano de
+`DebtDptoController::checkValidationRules()` —«La unidad es obligatoria.», «Debe
+indicar el monto de la deuda.»…— no llegaban a la pantalla, así que CDT-93, que
+los hizo salir como 422 por campo, no se notaba.
+
+### La regla: manda el código HTTP, no el texto
+
+- **4xx** (422, 400, 403, 404, 409…) = rechazo de negocio ⇒ el `message` **está
+  escrito para el usuario** y se muestra.
+- **5xx** = reventó el motor ⇒ **siempre el genérico**, sin mirar el texto.
+- **0** (sin respuesta HTTP: red, timeout, CORS) ⇒ genérico.
+
+El filtro de texto (`SQLSTATE`, `.php`, trazas…) es la **segunda** línea, y sólo
+para los 4xx: hay cinco sitios que concatenan un `getMessage()` dentro de un
+rechazo de negocio. No es la primera porque una lista negra siempre va un paso
+atrás — con `app.debug` prendido pasaban enteros `Access denied for user
+'condaty'@'10.0.0.5'`, `cURL error 7: … port 8000` y
+`file_get_contents(/var/www/storage/x)`, con usuario de base, IP, host, puerto y
+rutas del servidor adentro. Los tres son 500: la regla por código los tapa sin
+tener que nombrarlos.
+
+`onExport` usa el mismo lector, con su propio genérico.
+
+⚠️ **Pendiente, anotado y NO tocado en este PR**: `getItemApi` (`useCrud.tsx:962`)
+y `getExtraData` (`:1407`) también se comen el `error` de `execute`, pero hoy no
+muestran ningún toast. Darles voz es otra decisión de producto —cuántos toasts
+salen al abrir una pantalla— y no entra acá.
 
 ⚠️ Que el rechazo de validación tenga toast **no exime al formulario de pintar
 los errores por campo**. Si tu `renderForm` arma su propia validación local,
