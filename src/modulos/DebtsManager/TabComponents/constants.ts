@@ -172,12 +172,15 @@ export const getAvailableActions = (status: number, type: number) => {
   const isPartial    = status === DebtStatus.PARTIAL;
   const isSubmitted  = status === DebtStatus.SUBMITTED;
   const isForgiven   = status === DebtStatus.FORGIVEN;
+  const isCancelled  = status === DebtStatus.CANCELLED;
 
   if (type !== 0) {
     return {
       showAnular: false,
       showEditar: false,
-      showRegistrarPago: !(isPaid || isSubmitted || isPartial || isForgiven),
+      showRegistrarPago: !(
+        isPaid || isSubmitted || isPartial || isForgiven || isCancelled
+      ),
       showVerPago: isPaid || isSubmitted || isPartial,
     };
   }
@@ -204,22 +207,39 @@ export const getAvailableActions = (status: number, type: number) => {
         showRegistrarPago: false,
         showVerPago: false,
       };
-    // 🔴 CDT-52: estos siete estados devuelven lo mismo, pero antes cinco de
-    // ellos —SUBMITTED, WORKFLOW_PENDING, CANCELLED, AWAITING_VOUCHER,
-    // REJECTED— llegaban por el `default`, que era permisivo. O sea: un estado
-    // nuevo del enum heredaba "editable y anulable" sin que nadie lo decidiera,
-    // y nadie se enteraba hasta que alguien abría la pantalla.
+    // 🔴 CDT-89: una deuda ANULADA no se cobra. El servidor ya lo rechaza
+    // desde CDT-63 (`DebtDptoController::beforeCreate` del pago), pero la
+    // pantalla seguía ofreciendo "Registrar Pago": el administrador cargaba el
+    // cobro entero —con el comprobante en la mano y el vecino delante— y el
+    // error llegaba recién al guardar. No es un problema de datos, es trabajo
+    // perdido.
+    //
+    // Va oculto y no `disabled`: decisión de producto de Mario, un control
+    // muerto en pantalla no explica nada. Lo que explica es el cartel de estado
+    // de la cabecera del detalle (`AllDebts/RenderView`).
+    //
+    // ⚠️ Editar y Anular siguen ofreciéndose sobre una anulada. No es olvido:
+    // está fuera del alcance de CDT-89 y anotado para producto.
+    case DebtStatus.CANCELLED:
+      return {
+        showAnular: true,
+        showEditar: true,
+        showRegistrarPago: false,
+        showVerPago: false,
+      };
+    // 🔴 CDT-52: estos seis estados devuelven lo mismo, pero antes cuatro de
+    // ellos —SUBMITTED, WORKFLOW_PENDING, AWAITING_VOUCHER, REJECTED— llegaban
+    // por el `default`, que era permisivo. O sea: un estado nuevo del enum
+    // heredaba "editable y anulable" sin que nadie lo decidiera, y nadie se
+    // enteraba hasta que alguien abría la pantalla.
     //
     // Ahora los diez del enum están nombrados y el `default` no ofrece nada:
     // un estado que no está acá no muestra acciones hasta que se decida qué
-    // hace. El comportamiento de los diez actuales no cambia — CANCELLED sigue
-    // ofreciendo Anular y Editar, que es lo que ya hacía y lo que pinea
-    // `constants.test.ts`.
+    // hace.
     case DebtStatus.PENDING:
     case DebtStatus.OVERDUE:
     case DebtStatus.SUBMITTED:
     case DebtStatus.WORKFLOW_PENDING:
-    case DebtStatus.CANCELLED:
     case DebtStatus.AWAITING_VOUCHER:
     case DebtStatus.REJECTED:
       return {

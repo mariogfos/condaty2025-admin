@@ -154,10 +154,20 @@ describe("getAvailableActions — numeric DebtStatus", () => {
     expect(a.showVerPago).toBe(false);
   });
 
-  it("CANCELLED (8) + type 0: falls through default (showAnular=true)", () => {
+  // 🔴 CDT-89: una deuda anulada NO se cobra. Editar y Anular siguen
+  // ofreciéndose — está fuera del alcance de CDT-89 y anotado para producto.
+  it("CANCELLED (8) + type 0: showRegistrarPago=false (Editar y Anular siguen)", () => {
     const a = getAvailableActions(DebtStatus.CANCELLED, 0);
+    expect(a.showRegistrarPago).toBe(false);
+    expect(a.showVerPago).toBe(false);
     expect(a.showAnular).toBe(true);
     expect(a.showEditar).toBe(true);
+  });
+
+  it("CANCELLED (8) + type 1: showRegistrarPago=false", () => {
+    const a = getAvailableActions(DebtStatus.CANCELLED, 1);
+    expect(a.showRegistrarPago).toBe(false);
+    expect(a.showVerPago).toBe(false);
   });
 
   // type != 0 — simplified rules

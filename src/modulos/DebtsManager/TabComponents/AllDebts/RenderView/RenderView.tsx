@@ -23,6 +23,7 @@ import { getFullName } from "@/mk/utils/string";
 import { getTitular } from "@/mk/utils/adapters";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import { DebtStatus } from "@/types/PaymentType";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import {
   getStatusText,
   getStatusConfig,
@@ -188,6 +189,27 @@ const RenderView: React.FC<RenderViewProps> = ({
     return getDetailButtonTextFromConstants(type, hideSharedDebtButton);
   };
 
+  /**
+   * 🔴 CDT-89: este botón es la SEGUNDA puerta al formulario de pago.
+   *
+   * Su etiqueta sale de `getDetailButtonText`, que mira sólo el TIPO, así que
+   * el botón se pinta igual para una deuda anulada. Los casos 1, 2 y 4 abren
+   * vistas de detalle —ver la expensa, la reserva o la deuda compartida de una
+   * anulada es legítimo y sigue funcionando—, pero el `case 3` abre el MISMO
+   * formulario de cobro que "Registrar Pago".
+   *
+   * Por eso consulta `actions.showRegistrarPago`, la misma regla y el mismo
+   * lugar, y no una condición propia escrita acá: dos copias de una regla es
+   * exactamente cómo esta puerta quedó abierta cuando se cerró la otra.
+   *
+   * Sobre una anulada el botón de `type 3` ni siquiera se pinta
+   * (`showDetailButton`). Este guard es la segunda línea, con la MISMA
+   * constante: protege el día en que alguien vuelva a mostrar el botón.
+   *
+   * ⚠️ Para `type 3` la etiqueta dice "Ver reserva" y abre un cobro, y no hay
+   * ninguna otra puerta a la reserva de la multa (`penalty_reservation`).
+   * Es una decisión de producto y va en ticket aparte.
+   */
   const handleDetailButtonClick = (type: number) => {
     const targetId = debtDetail?.shared_id;
 
@@ -199,7 +221,9 @@ const RenderView: React.FC<RenderViewProps> = ({
         setShowReservationDetail(true);
         break;
       case 3:
-        setShowPaymentForm(true);
+        if (actions.showRegistrarPago) {
+          setShowPaymentForm(true);
+        }
         break;
       case 4:
         window.location.href = `/debts_manager/shared-debt-detail/${targetId}`;
@@ -370,9 +394,46 @@ const RenderView: React.FC<RenderViewProps> = ({
   const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
   const finalStatus = resolveStatus(numericStatus, debtDetail?.due_at);
   const statusText = getStatusText(finalStatus);
-  const { color } = getStatusStyle(finalStatus);
+  const { color, bgColor } = getStatusStyle(finalStatus);
   const actions = getAvailableActions(numericStatus, debtType);
+  /**
+   * CDT-89: sobre una deuda anulada el formulario de cobro no se abre por
+   * NINGUNA de sus dos puertas —"Registrar Pago" y el `case 3` de
+   * `handleDetailButtonClick`—, y las dos preguntan lo mismo:
+   * `actions.showRegistrarPago`.
+   *
+   * Este cartel es la parte que explica la ausencia: sin él, el administrador
+   * que conocía la pantalla busca un botón que ya no está en vez de entender
+   * por qué no está.
+   *
+   * Se compara contra el enum numérico —`debt_dptos.status` es `tinyint` desde
+   * la migración a enums—, igual que el resto del módulo. No hay comparación
+   * contra la `'X'` vieja en ningún lado de DebtsManager: medido con
+   * `rg "status\s*===?\s*['\"]"`, cero resultados.
+   */
+  const isCancelledDebt = numericStatus === DebtStatus.CANCELLED;
   const detailButtonText = getDetailButtonText(debtType);
+  /**
+   * CDT-89: para el `type 3` este botón NO abre una vista de detalle — abre el
+   * formulario de cobro (`case 3` de `handleDetailButtonClick`), y no tiene
+   * ninguna otra función: la reserva de una multa vive en
+   * `penalty_reservation` y el `case 2` lee `debtDetail.reservation`, así que
+   * este botón nunca la mostró. Cuando el cobro no se ofrece, entonces, el
+   * botón no tiene nada que hacer y no se pinta: oculto, ni `disabled` ni
+   * muerto, la misma decisión de producto que "Registrar Pago".
+   *
+   * ⚠️ SÓLO el `type 3`. Los tipos 1, 2 y 4 abren la expensa, la reserva y la
+   * deuda compartida: sobre una deuda anulada eso sigue siendo legítimo y el
+   * botón se queda.
+   *
+   * La condición no es una regla nueva: es la MISMA constante que decide
+   * "Registrar Pago". Se consulta acá y otra vez adentro del `case 3` a
+   * propósito — acá para no dejar un control muerto en pantalla, y allá como
+   * segunda línea, para que quien mañana vuelva a mostrar este botón no
+   * reabra la puerta al cobro sin darse cuenta.
+   */
+  const showDetailButton =
+    Boolean(detailButtonText) && (debtType !== 3 || actions.showRegistrarPago);
   const showDistribution = debtType === 4;
   const ownerDisplay = getFullName(debtDetail?.dpto?.homeowner) || "-/-";
   const tenantDisplay = getFullName(debtDetail?.dpto?.tenant) || "-/-";
@@ -434,6 +495,11 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={paymentStyles.dateDisplay}>
                   {headerSubtitle || "-/-"}
                 </div>
+                {isCancelledDebt ? (
+                  <StatusBadge color={color} backgroundColor={bgColor}>
+                    Esta deuda está anulada
+                  </StatusBadge>
+                ) : null}
               </div>
             </div>
 
@@ -588,7 +654,22 @@ const RenderView: React.FC<RenderViewProps> = ({
             <div
               className={`${paymentStyles.voucherButtonContainer} ${styles.actionsWrap}`}
             >
-              {actions.showRegistrarPago && numericStatus !== DebtStatus.FORGIVEN && (
+              {/*
+                CDT-89: acá había un `&& numericStatus !== DebtStatus.FORGIVEN`
+                que ya no hacía nada — `getAvailableActions` niega el cobro de
+                una condonada en sus DOS ramas (`type === 0` y `type !== 0`).
+                Era una guarda de llamador sobre una regla que vive en la
+                función compartida, y es exactamente el patrón que dejó vivo
+                este bug: quien agregó "anulada" al enum tocó un solo lado.
+
+                La regla de quién puede cobrarse vive en un único lugar
+                —`getAvailableActions`—, pero al formulario de cobro se entra
+                por DOS botones: éste y el de detalle de abajo, cuyo `case 3`
+                abre el mismo formulario. Los dos consultan
+                `actions.showRegistrarPago`. Si aparece una tercera puerta,
+                pregunta lo mismo; no escribe la regla de nuevo.
+              */}
+              {actions.showRegistrarPago && (
                 <Button
                   onClick={() => setShowPaymentForm(true)}
                   className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
@@ -605,7 +686,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                   Ver pago
                 </Button>
               )}
-              {detailButtonText && (
+              {showDetailButton && (
                 <Button
                   onClick={() => handleDetailButtonClick(debtType)}
                   variant="secondary"
