@@ -217,6 +217,9 @@ export const messages = {
       emptyMessage: "Sin publicaciones.",
       emptyLine2:
         "Las noticias de administración aparecerán aquí, una vez comiences a crear y publicar contenido.",
+      loadErrorTitle: "No se pudo cargar la comunidad.",
+      loadErrorLine2: "Revisa tu conexión e intenta de nuevo.",
+      retry: "Reintentar",
       unknownUser: "Usuario desconocido",
       noDescription: "Sin descripción",
       seeMore: "Ver más",
@@ -549,6 +552,9 @@ export const messages = {
       emptyMessage: "Sem publicações.",
       emptyLine2:
         "Os comunicados da administração aparecerão aqui assim que você começar a criar e publicar conteúdo.",
+      loadErrorTitle: "Não foi possível carregar a comunidade.",
+      loadErrorLine2: "Verifique sua conexão e tente novamente.",
+      retry: "Tentar novamente",
       unknownUser: "Usuário desconhecido",
       noDescription: "Sem descrição",
       seeMore: "Ver mais",
@@ -879,6 +885,9 @@ export const messages = {
       emptyMessage: "No posts yet.",
       emptyLine2:
         "Management news will appear here once you start creating and publishing content.",
+      loadErrorTitle: "The community could not be loaded.",
+      loadErrorLine2: "Check your connection and try again.",
+      retry: "Retry",
       unknownUser: "Unknown user",
       noDescription: "No description",
       seeMore: "See more",

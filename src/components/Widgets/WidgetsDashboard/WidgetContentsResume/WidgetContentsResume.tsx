@@ -5,7 +5,11 @@ import useAxios from "@/mk/hooks/useAxios";
 import { ReelCompactList } from "@/modulos/Reel/Reel";
 
 import EmptyData from "@/components/NoData/EmptyData";
-import { IconPublicacion } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconPublicacion,
+  IconAlertCircle,
+} from "@/components/layout/icons/IconsBiblioteca";
+import { leerElErrorDelApi } from "@/mk/hooks/useCrud/leerElErrorDelApi";
 import { useRouter } from "next/navigation";
 import { ContentItem } from "@/modulos/Reel/types";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -67,6 +71,31 @@ const WidgetContentsResume = ({
     router.push("/reels");
   };
 
+  /**
+   * 🔴 CDT-47, TERCERA puerta al mismo vacío mentiroso.
+   *
+   * Este widget es hermano del muro: mismo endpoint (`/contents`), mismo
+   * `if (error) setContents([])`, y el mismo `EmptyData` afirmando que el
+   * condominio no publicó nada cuando lo que falló fue la red. Arreglar sólo
+   * `Reel.tsx` dejaba el dashboard mintiendo igual.
+   *
+   * El `setLoading(true)` es necesario: `useAxios` limpia su `error` al arrancar
+   * la petición, así que sin volver al estado de carga el reintento repinta el
+   * vacío mentiroso mientras el request está en vuelo.
+   */
+  const handleRetry = () => {
+    setLoading(true);
+    reLoad();
+  };
+
+  // Manda el código HTTP (CDT-94): 5xx y red caída caen al genérico; un 4xx
+  // —un 403 de permisos— trae su propio texto, que es el que hay que leer.
+  const { mensaje: mensajeDeCargaFallida } = leerElErrorDelApi(
+    null,
+    error,
+    translate("loadErrorLine2"),
+  );
+
   return (
     <WidgetBase
       variant={"V1"}
@@ -96,6 +125,19 @@ const WidgetContentsResume = ({
             onImageClick={handleRedirectToReel}
             onOpenRenderView={onOpenRenderView}
           />
+        </div>
+      ) : error ? (
+        <div className={styles.loadErrorState} role="alert">
+          <IconAlertCircle size={40} color="var(--cWarning)" />
+          <p>{translate("loadErrorTitle")}</p>
+          <span>{mensajeDeCargaFallida}</span>
+          <button
+            type="button"
+            className={styles.retryButton}
+            onClick={handleRetry}
+          >
+            {translate("retry")}
+          </button>
         </div>
       ) : (
         <EmptyData
