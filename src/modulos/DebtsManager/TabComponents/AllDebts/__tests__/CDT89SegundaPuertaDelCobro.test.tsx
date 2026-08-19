@@ -8,12 +8,18 @@
  * `case 3` abre el MISMO `PaymentRenderForm`. O sea: una "Reserva con multa"
  * (type 3) anulada seguía teniendo un botón que abría el cobro.
  *
+ * Para el type 3 ese botón no tiene NINGUNA otra función: la reserva de una
+ * multa vive en `penalty_reservation` y el `case 2` lee
+ * `debtDetail.reservation`. Así que sobre una anulada no se pinta —oculto, ni
+ * `disabled` ni muerto, la misma decisión de producto que "Registrar Pago"—.
+ *
  * Este archivo mide las dos mitades del arreglo y su control:
- *   1. type 3 ANULADA  → el botón no abre el formulario de pago.
- *   2. type 3 normal   → sí lo abre (si no, el arreglo rompió el caso bueno).
- *   3. types 1, 2 y 4 ANULADOS → siguen abriendo su VISTA DE DETALLE. Ver la
- *      expensa, la reserva o la deuda compartida de una deuda anulada es
- *      legítimo; el arreglo no puede taparlo.
+ *   1. type 3 ANULADA  → el botón no está en el árbol y no hay cobro.
+ *   2. type 3 normal   → el botón está y abre el cobro (si no, el arreglo se
+ *      llevó puesto el caso bueno).
+ *   3. types 1, 2 y 4 ANULADOS → el botón SIGUE estando y abre su VISTA DE
+ *      DETALLE. Ver la expensa, la reserva o la deuda compartida de una deuda
+ *      anulada es legítimo; el arreglo no puede taparlo.
  *
  * ⚠️ El botón de un type 3 dice "Ver reserva" y abre un cobro. La etiqueta
  * mentirosa NO se arregla acá: es una decisión de producto y va en ticket
@@ -94,18 +100,14 @@ describe("CDT-89 · el botón de detalle es la segunda puerta al cobro", () => {
     mocks.debt = null;
   });
 
-  it("type 3 ANULADA: el botón de detalle NO abre el formulario de pago", () => {
+  it("type 3 ANULADA: el botón de detalle no se pinta, y no hay cobro", () => {
     abrirDetalle(DebtStatus.CANCELLED, 3);
 
-    const boton = botonDeDetalle("Ver reserva");
-    expect((boton as HTMLButtonElement).disabled).toBe(false);
-
-    fireEvent.click(boton);
-
+    expect(screen.queryByRole("button", { name: "Ver reserva" })).toBeNull();
     expect(screen.queryByTestId("payment-form")).toBeNull();
   });
 
-  it("type 3 POR COBRAR: el mismo botón sí abre el formulario de pago", () => {
+  it("type 3 POR COBRAR: el mismo botón está y abre el formulario de pago", () => {
     abrirDetalle(DebtStatus.PENDING, 3);
 
     fireEvent.click(botonDeDetalle("Ver reserva"));

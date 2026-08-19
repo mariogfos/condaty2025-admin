@@ -202,6 +202,10 @@ const RenderView: React.FC<RenderViewProps> = ({
    * lugar, y no una condición propia escrita acá: dos copias de una regla es
    * exactamente cómo esta puerta quedó abierta cuando se cerró la otra.
    *
+   * Sobre una anulada el botón de `type 3` ni siquiera se pinta
+   * (`showDetailButton`). Este guard es la segunda línea, con la MISMA
+   * constante: protege el día en que alguien vuelva a mostrar el botón.
+   *
    * ⚠️ Para `type 3` la etiqueta dice "Ver reserva" y abre un cobro, y no hay
    * ninguna otra puerta a la reserva de la multa (`penalty_reservation`).
    * Es una decisión de producto y va en ticket aparte.
@@ -409,6 +413,27 @@ const RenderView: React.FC<RenderViewProps> = ({
    */
   const isCancelledDebt = numericStatus === DebtStatus.CANCELLED;
   const detailButtonText = getDetailButtonText(debtType);
+  /**
+   * CDT-89: para el `type 3` este botón NO abre una vista de detalle — abre el
+   * formulario de cobro (`case 3` de `handleDetailButtonClick`), y no tiene
+   * ninguna otra función: la reserva de una multa vive en
+   * `penalty_reservation` y el `case 2` lee `debtDetail.reservation`, así que
+   * este botón nunca la mostró. Cuando el cobro no se ofrece, entonces, el
+   * botón no tiene nada que hacer y no se pinta: oculto, ni `disabled` ni
+   * muerto, la misma decisión de producto que "Registrar Pago".
+   *
+   * ⚠️ SÓLO el `type 3`. Los tipos 1, 2 y 4 abren la expensa, la reserva y la
+   * deuda compartida: sobre una deuda anulada eso sigue siendo legítimo y el
+   * botón se queda.
+   *
+   * La condición no es una regla nueva: es la MISMA constante que decide
+   * "Registrar Pago". Se consulta acá y otra vez adentro del `case 3` a
+   * propósito — acá para no dejar un control muerto en pantalla, y allá como
+   * segunda línea, para que quien mañana vuelva a mostrar este botón no
+   * reabra la puerta al cobro sin darse cuenta.
+   */
+  const showDetailButton =
+    Boolean(detailButtonText) && (debtType !== 3 || actions.showRegistrarPago);
   const showDistribution = debtType === 4;
   const ownerDisplay = getFullName(debtDetail?.dpto?.homeowner) || "-/-";
   const tenantDisplay = getFullName(debtDetail?.dpto?.tenant) || "-/-";
@@ -661,7 +686,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                   Ver pago
                 </Button>
               )}
-              {detailButtonText && (
+              {showDetailButton && (
                 <Button
                   onClick={() => handleDetailButtonClick(debtType)}
                   variant="secondary"
