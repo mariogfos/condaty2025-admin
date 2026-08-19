@@ -414,6 +414,148 @@ describe("CDT-98 — el cambio de unidad y el pedido de deudas fallido", () => {
 });
 
 /*
+ * Lo que encontró el review de CDT-98. Los tres son puertas que ABRIÓ o dejó
+ * abiertas el arreglo, no el defecto original.
+ */
+describe("CDT-98 (review) — lo que el arreglo no podía dejar", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  /** Deja el pedido de deudas colgado para siempre. */
+  const pedidoColgado = () => {
+    const execute = vi.fn().mockImplementation((url: string) => {
+      if (url === paymentsApi.adminDebts) return new Promise(() => {});
+      return Promise.resolve({ data: { success: true }, error: null });
+    });
+    return execute;
+  };
+
+  const cambiarTipo = async (result: any, tipo: FormPaymentType) => {
+    await act(async () => {
+      result.current.handleChangeInput({
+        target: { name: "type", value: String(tipo), type: "text" },
+      } as any);
+    });
+  };
+
+  it("🔴 un pago DIRECTO no queda con el botón muerto por un pedido de deudas en vuelo", async () => {
+    // La compuerta de carga apagaba el guardado sin decir NADA: para DIRECTO el
+    // panel de deudas ni se renderiza, asi que no habia texto ni reintento.
+    //
+    // ⚠️ Medido: este caso tiene DOS cerraduras —la cancelacion apaga el estado
+    // de carga y la compuerta no aplica a los tipos que no usan deudas— y se
+    // pone rojo con las dos reinyectadas, no con una sola. Pinea el resultado
+    // (el boton no queda muerto), no cual de las dos lo consigue.
+    const execute = pedidoColgado();
+    const props = propsBase(execute);
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+
+    await waitFor(() => expect(result.current.isLoadingDeudas).toBe(true));
+    expect(result.current.isSubmitDisabled).toBe(true); // EXPENSE: sí bloquea
+
+    await cambiarTipo(result, FormPaymentType.DIRECT);
+
+    // El pedido sigue colgado: nunca va a contestar.
+    expect(result.current.isSubmitDisabled).toBe(false);
+    expect(result.current.isLoadingDeudas).toBe(false);
+  });
+
+  it("🔴 el pedido en vuelo se CANCELA al pasar a DIRECTO: su respuesta no repuebla la lista NI POR UN RENDER", async () => {
+    let responder: (v: any) => void = () => {};
+    const execute = vi.fn().mockImplementation((url: string) => {
+      if (url === paymentsApi.adminDebts) {
+        return new Promise((res) => {
+          responder = res;
+        });
+      }
+      return Promise.resolve({ data: { success: true }, error: null });
+    });
+
+    // 🔴 Se mira CADA render, no el estado final: si la respuesta cancelada se
+    // admite, `deudas` se repuebla y el efecto siguiente la limpia enseguida.
+    // Mirando solo el final la carrera queda tapada y el test no mide nada.
+    const largosVistos: number[] = [];
+    const props = propsBase(execute);
+    const { result } = renderHook(() => {
+      const hook = usePaymentsForm(props, true);
+      largosVistos.push(hook.deudas.length);
+      return hook;
+    });
+    await waitFor(() => expect(result.current.isLoadingDeudas).toBe(true));
+
+    await cambiarTipo(result, FormPaymentType.DIRECT);
+    const rendersAntes = largosVistos.length;
+
+    // Contesta el pedido de un tipo que ya no está elegido.
+    await act(async () => {
+      responder(okConDeudas([DEUDA_DE_A]));
+    });
+
+    expect(largosVistos.slice(rendersAntes)).not.toContain(1);
+    expect(result.current.deudas).toHaveLength(0);
+  });
+
+  it("🔴 un simulate FALLIDO no deja el desglose anterior presentado como verificado", async () => {
+    // El guard de sobrepago vive dentro del `if (data?.success)`: un simulate
+    // que revienta lo saltea entero y deja el resultado del monto viejo.
+    const execute = vi.fn().mockImplementation((url: string) => {
+      if (url === paymentsApi.adminDebts) {
+        return Promise.resolve(okConDeudas([DEUDA_DE_A]));
+      }
+      return Promise.resolve({ data: { success: true }, error: null });
+    });
+
+    const props = propsBase(execute);
+    const { result } = renderHook(() => usePaymentsForm(props, true));
+    await waitFor(() => expect(result.current.deudas).toHaveLength(1));
+
+    await act(async () => {
+      result.current.handleSelectPeriodo(DEUDA_DE_A as any);
+    });
+    await act(async () => {
+      result.current.handleChangeInput({
+        target: { name: "amount", value: "1000", type: "text" },
+      } as any);
+    });
+
+    // 1) simulate OK con 1.000: hay desglose en pantalla y ningún aviso.
+    execute.mockImplementationOnce(() =>
+      Promise.resolve({
+        data: { success: true, data: { payment_is_partial: true, is_overpayment: false, items: [] } },
+        error: null,
+      }),
+    );
+    await act(async () => {
+      result.current.handleAmountBlur();
+    });
+    await waitFor(() => expect(result.current.simulateResult).not.toBeNull());
+    expect(result.current.simulateError).toBeNull();
+
+    // 2) el operador sube el monto por encima de la deuda y ESE simulate falla.
+    await act(async () => {
+      result.current.handleChangeInput({
+        target: { name: "amount", value: "999999", type: "text" },
+      } as any);
+    });
+    execute.mockImplementationOnce(() =>
+      Promise.resolve({
+        data: null,
+        error: { message: "Request failed", data: {}, status: 0 },
+      }),
+    );
+    await act(async () => {
+      result.current.handleAmountBlur();
+    });
+    await waitFor(() => expect(result.current.isSimulating).toBe(false));
+
+    // Sin resultado en mano no hay nada verificado que mostrar: el desglose de
+    // 1.000 no puede seguir en pantalla junto a un monto de 999.999.
+    expect(result.current.simulateResult).toBeNull();
+  });
+});
+
+/*
  * La otra mitad: que el ERROR y el VACÍO no se vean iguales. Es la condición
  * que puso Alexander en CDT-42 y la forma que dejó CDT-47 (ícono ámbar +
  * título + renglón + botón de reintentar).
