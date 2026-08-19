@@ -192,17 +192,25 @@ describe("CDT-47 — el muro no confunde un fallo de red con un muro vacío", ()
     ).toBeInTheDocument();
   });
 
-  it("un 5xx NO filtra el mensaje del motor: cae al genérico", async () => {
+  /*
+   * El cuerpo del fixture es a propósito INOCUO y no se parece en nada a un
+   * volcado del motor: así queda demostrado que lo que descarta el mensaje es
+   * EL CÓDIGO HTTP y no la lista de patrones técnicos. Con un volcado de
+   * verdad el caso pasaría igual y no se sabría cuál de las dos reglas actuó.
+   *
+   * ⚠️ Y de paso evita pegar en el repo literales con pinta de credencial: un
+   * fixture no es un lugar seguro para eso —rompen capturas y barridos aunque
+   * estén dentro de un string de test—. Lo que hay que decir se dice en el
+   * nombre del caso.
+   */
+  it("un 5xx cae al genérico SIN MIRAR el cuerpo, aunque el texto sea inofensivo", async () => {
     estadoInicial = {
       data: null,
       loaded: true,
       error: {
         message: "Request failed with status code 500",
         status: 500,
-        data: {
-          message:
-            "SQLSTATE[HY000] [1045] Access denied for user 'condaty'@'10.0.0.5'",
-        },
+        data: { message: "detalle interno del servidor" },
       },
     };
 
@@ -212,7 +220,9 @@ describe("CDT-47 — el muro no confunde un fallo de red con un muro vacío", ()
       expect(screen.getByRole("alert")).toBeInTheDocument(),
     );
 
-    expect(screen.queryByText(/SQLSTATE/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("detalle interno del servidor"),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByText("Revisa tu conexión e intenta de nuevo."),
     ).toBeInTheDocument();
@@ -325,26 +335,44 @@ describe("CDT-47 — la segunda puerta: la página siguiente que falla", () => {
     ).not.toBeInTheDocument();
 
     /*
-     * 🔴 EL INVARIANTE: el reintento re-pide LA MISMA página, no la siguiente.
+     * 🔴 QUÉ PINEA ESTO, EXACTAMENTE: el ARGUMENTO del reintento.
      *
-     * Si alguna vez `handleRetryLoadMore` mueve `page`, o si el centinela que
-     * se re-monta al volver `hasMore` a `true` alcanza a disparar
-     * `setPage(p+1)` antes de que corra el efecto de paginación, la página que
-     * falló NO se pide nunca y el usuario pierde 20 publicaciones sin un solo
-     * síntoma: la lista sigue, el scroll sigue, y ahí faltan.
+     * Que `handleRetryLoadMore` vuelva a pedir la misma página que falló y no
+     * mueva `page`. Nada más que eso. Si la mueve, la página que falló no se
+     * pide nunca y el usuario pierde 20 publicaciones sin un solo síntoma: la
+     * lista sigue, el scroll sigue, y ahí faltan.
      *
-     * ⚠️ Esa carrera se midió el 2026-08-19 y NO es real: React vacía los
-     * efectos pasivos pendientes de un commit antes de procesar el siguiente
-     * update, y la entrega de un `IntersectionObserver` no puede ocurrir antes
-     * del próximo paso de renderizado. Medido con un click nativo (sin `act`,
-     * o sea con la planificación real de React) el orden fue:
+     * ⚠️ NO pinea ningún ORDEN DE EJECUCIÓN, y conviene decirlo porque es fácil
+     * leerlo al revés. El `IntersectionObserver` de este archivo es un stub:
+     * su `observe()` es un no-op y no entrega nada por su cuenta, sólo se le
+     * disparan las callbacks a mano. Un centinela que se adelantara al efecto
+     * de paginación NO haría caer esta aserción.
+     *
+     * ────────────────────────────────────────────────────────────────────
+     * La carrera que esto NO cubre, y por qué no hace falta cubrirla
+     * ────────────────────────────────────────────────────────────────────
+     *
+     * El reintento devuelve `hasMore` a `true`, y eso re-monta el centinela
+     * justo donde el usuario está parado. Si su entrega le ganara al efecto de
+     * paginación, `page` saltaría de largo. Se midió el 2026-08-19 como
+     * EXPERIMENTO APARTE —no como test, y por eso no quedó en el repo—, con un
+     * click nativo sin `act` para no forzar el vaciado de efectos. El orden
+     * observado:
      *
      *   IO:construido → IO:observe → fetch:page=2 → IO:construido
      *   → rAF:proximo-frame → rAF:despues-del-click
      *
-     * El pedido de la página 2 sale DOS pasos antes del primer `rAF`, que es
-     * el piso temporal de cualquier entrega del observer. Este pin existe para
-     * que siga siendo cierto, no porque hoy esté roto.
+     * El pedido de la página correcta sale dos pasos antes del primer `rAF`, y
+     * `rAF` es un piso CONSERVADOR: «update intersection observations» corre
+     * después de las callbacks de animación, así que la entrega real llega aún
+     * más tarde que ese piso. Forzando el peor orden posible —entrega en el
+     * mismo tick que el click— el pedido igual salió con `page=2`, porque
+     * React vacía los efectos pasivos pendientes de un commit antes de
+     * procesar el siguiente update.
+     *
+     * Escribir un test de ordenamiento acá sería peor que no tenerlo: para que
+     * pudiera fallar habría que provocar a mano un orden que React no produce,
+     * o sea quedaría verde por construcción y anunciando una red que no está.
      */
     const paginaDelFallo = executePaginacion.mock.calls[0][2].page;
     const paginaDelReintento = executePaginacion.mock.calls[1][2].page;

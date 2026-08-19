@@ -18,13 +18,6 @@ import React from "react";
  * 🔴 Arreglar sólo `Reel.tsx` dejaba el dashboard afirmando lo mismo que el
  * ticket vino a corregir — es el patrón CDT-26 → CDT-30: el arreglo tapa una
  * puerta y el mismo defecto reaparece por la de al lado.
- *
- * ⚠️ HUECO DE COBERTURA ANOTADO (review de CDT-47): acá se cubre `status: 0`
- * (red caída) y el vacío de control, pero NO hay caso de 4xx ni de 5xx — que
- * es justo donde el mensaje CAMBIA DE FUENTE: el 4xx muestra el texto del API
- * y el 5xx lo descarta por el genérico. Esa bifurcación sí está pineada del
- * lado del muro (`reelErrorDeRedNoEsVacio.test.tsx`), sobre el mismo
- * `leerElErrorDelApi`, así que el hueco es de este archivo, no de la regla.
  */
 
 let estado: { data: any; loaded: boolean; error: any };
@@ -96,6 +89,59 @@ describe("CDT-47 — el widget Comunidad tampoco confunde fallo con vacío", () 
     reLoad.mockClear();
     fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
     expect(reLoad).toHaveBeenCalledTimes(1);
+  });
+
+  /*
+   * La bifurcación de CDT-94: de dónde sale el texto lo decide el CÓDIGO HTTP.
+   * Es la misma regla y el mismo `leerElErrorDelApi` que en el muro, pero el
+   * widget la ejercita por su cuenta: comparten el helper, no el render.
+   */
+  it("un 4xx muestra el mensaje del API: reintentar no arregla un permiso", async () => {
+    estado = {
+      data: null,
+      loaded: true,
+      error: {
+        message: "Request failed with status code 403",
+        status: 403,
+        data: { success: false, message: "No tiene permisos para visualizar" },
+      },
+    };
+
+    render(<WidgetContentsResume />);
+
+    expect(screen.queryByText(EL_VACIO_MENTIROSO)).not.toBeInTheDocument();
+    expect(
+      await screen.findByText("No tiene permisos para visualizar"),
+    ).toBeInTheDocument();
+  });
+
+  /*
+   * ⚠️ Cuerpo INOCUO a propósito: si el fixture trajera un volcado del motor,
+   * el caso pasaría por la lista de patrones técnicos y no se sabría cuál de
+   * las dos reglas actuó. Así queda demostrado que basta el código HTTP. Y
+   * evita pegar literales con pinta de credencial en el repo: eso se dice en
+   * el nombre del caso, no en un string.
+   */
+  it("un 5xx cae al genérico SIN MIRAR el cuerpo, aunque el texto sea inofensivo", async () => {
+    estado = {
+      data: null,
+      loaded: true,
+      error: {
+        message: "Request failed with status code 500",
+        status: 500,
+        data: { message: "detalle interno del servidor" },
+      },
+    };
+
+    render(<WidgetContentsResume />);
+
+    expect(screen.queryByText(EL_VACIO_MENTIROSO)).not.toBeInTheDocument();
+    expect(
+      await screen.findByText("Revisa tu conexión e intenta de nuevo."),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("detalle interno del servidor"),
+    ).not.toBeInTheDocument();
   });
 
   it("sin error y sin publicaciones el EmptyData SIGUE apareciendo", async () => {
