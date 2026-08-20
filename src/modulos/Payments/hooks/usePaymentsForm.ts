@@ -7,6 +7,15 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { FormPaymentType } from "../Type/PaymentType";
 import { CategoryFixed } from "@/modulos/Categories/Type/CategoryType";
 import { BankAccountAssignment } from "@/modulos/BankAccounts/Type/BankType";
+import { leerElErrorDelApi } from "@/mk/hooks/useCrud/leerElErrorDelApi";
+
+/**
+ * Lo que se le dice al operador cuando el pedido de deudas no trajo nada
+ * utilizable. Igual que en CDT-47: un 5xx o la red caida no muestran el texto
+ * del motor, y un 4xx si muestra el del API (un 403 es «no tiene permisos» y no
+ * se arregla reintentando).
+ */
+const DEUDAS_ERROR_GENERICO = "Revisa tu conexión e intenta de nuevo.";
 
 export interface Dpto {
   id: string | number;
@@ -283,6 +292,16 @@ export const usePaymentsForm = (
   const [periodoTotal, setPeriodoTotal] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoadingDeudas, setIsLoadingDeudas] = useState(false);
+  /**
+   * 🔴 CDT-98: «fallo el pedido» y «esta unidad no debe nada» NO son lo mismo.
+   *
+   * `useAxios` no lanza: devuelve `{ data, error }` y deja `data` en `null`
+   * cuando revento. El `if (data?.success)` sin rama `else` hacia que un fallo
+   * no tocara NADA, y la lista de la unidad ANTERIOR se quedaba en pantalla
+   * rotulada como de la nueva. Mientras esto no sea `null` no hay lista y no se
+   * puede cobrar.
+   */
+  const [deudasError, setDeudasError] = useState<string | null>(null);
   const [simulateResult, setSimulateResult] = useState<any>(null);
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulateError, setSimulateError] = useState<string | null>(null);
@@ -298,8 +317,11 @@ export const usePaymentsForm = (
     // S87 inline-create-expense (modal): si hay expensas virtuales en memoria,
     // vamos a crearlas en el submit, así que "no hay deudas" ya no es un error.
     if ((formState.newExpenses?.length ?? 0) > 0) return false;
+    // 🔴 CDT-98: con el pedido fallido NO se sabe si tiene deudas. Afirmar que
+    // no tiene bloquearia un cobro legitimo con una frase falsa.
+    if (deudasError) return false;
     return formState.type === FormPaymentType.EXPENSE && deudas.length === 0 && !isLoadingDeudas;
-  }, [formState.type, formState.newExpenses, deudas.length, isLoadingDeudas]);
+  }, [formState.type, formState.newExpenses, deudas.length, isLoadingDeudas, deudasError]);
 
   // S87: suma de los montos de las expensas virtuales. El front lo usa para
   // mostrar el "Total a pagar" = periodoTotal + newExpensesTotal.
@@ -308,8 +330,9 @@ export const usePaymentsForm = (
   }, [formState.newExpenses]);
 
   const isReservationsWithoutDebt = useMemo(() => {
+    if (deudasError) return false;
     return formState.type === FormPaymentType.RESERVATION && deudas.length === 0 && !isLoadingDeudas;
-  }, [formState.type, deudas.length, isLoadingDeudas]);
+  }, [formState.type, deudas.length, isLoadingDeudas, deudasError]);
 
   const lDptos = useMemo(
     () =>
@@ -333,7 +356,47 @@ export const usePaymentsForm = (
     [extraData?.dptos, store.Unitstype]
   );
 
+  /**
+   * La clave `dpto_type` de la lista que HAY EN PANTALLA.
+   *
+   * 🔴 Se escribe DESPUES del pedido exitoso, nunca antes (CDT-98). Escribirla
+   * antes hacia que un pedido fallido dejara la clave apuntando a la unidad
+   * nueva con las deudas de la vieja abajo, y ademas bloqueaba el reintento: el
+   * efecto ya veia la clave "cargada".
+   */
   const lastLoadedDeudas = useRef<string>("");
+  /**
+   * La clave del pedido EN CURSO, o `""`. Es lo unico que dedupe al efecto:
+   * como `lastLoadedDeudas` ya no se adelanta, sin esto el efecto volveria a
+   * pedir en cuanto `deudas.length` cayera a 0 al limpiar.
+   */
+  const deudasEnVuelo = useRef<string>("");
+  /**
+   * Ordinal de pedido, para descartar toda respuesta que ya no corresponde.
+   *
+   * La clave no alcanza: en un A→B→A rapido el primero y el tercero tienen la
+   * misma, y la respuesta vieja de A pisaria la nueva sin que nadie lo note.
+   *
+   * 🔴 Sube en DOS lugares, no en uno: cuando sale un pedido nuevo y cuando el
+   * pedido en curso se CANCELA (pasar a tipo DIRECTO o vaciar la unidad).
+   * Subirlo solo al salir dejaba admitida la respuesta de una unidad/tipo que
+   * ya no estan elegidos: repoblaba `deudas` para nadie. Lo cancela
+   * `cancelarPedidoDeDeudas`.
+   */
+  const deudasPedidoId = useRef(0);
+
+  /**
+   * Da por perdido el pedido en curso: la respuesta que llegue despues se
+   * descarta por ordinal, y el estado de carga no queda trabado.
+   *
+   * ⚠️ Que el estado de carga no quede trabado NO es cosmetico: `isSubmitDisabled`
+   * lo usa de compuerta.
+   */
+  const cancelarPedidoDeDeudas = useCallback(() => {
+    deudasPedidoId.current += 1;
+    deudasEnVuelo.current = "";
+    setIsLoadingDeudas(false);
+  }, []);
 
   const findSelectedDpto = useCallback(
     (dptoKey: string | number) =>
@@ -352,11 +415,49 @@ export const usePaymentsForm = (
       const selectedDpto = findSelectedDpto(nroDpto);
       const realDptoId = selectedDpto?.id;
 
-      if (!realDptoId) return;
+      const clave = `${nroDpto}_${paymentmethod}`;
+      const miPedido = ++deudasPedidoId.current;
 
+      /**
+       * 🔴 Se limpia ANTES de pedir, no al recibir. Es la mitad del defecto de
+       * CDT-98: mientras el pedido de la unidad B estaba en vuelo —o si nunca
+       * volvia— la pantalla seguia mostrando las deudas de A, y el operador
+       * podia imputarle un cobro a la unidad equivocada.
+       */
+      lastLoadedDeudas.current = "";
+      setDeudas([]);
+      setSelectedPeriodo([]);
+      setPeriodoTotal(0);
+      setDeudasError(null);
+
+      // La unidad no esta en el catalogo (`extraData.dptos` a medio cargar, o
+      // filtrada): no hay pedido que hacer, pero tampoco se puede cobrar a
+      // ciegas. Antes se salia con un `return` mudo y la lista vieja adentro.
+      if (!realDptoId) {
+        deudasEnVuelo.current = "";
+        setIsLoadingDeudas(false);
+        setDeudasError(
+          "No se pudo identificar la unidad seleccionada. Vuelve a elegirla en la lista.",
+        );
+        return;
+      }
+
+      deudasEnVuelo.current = clave;
       setIsLoadingDeudas(true);
+
+      // ⚠️ El `execute` de `useAxios` NO lanza: atrapa adentro y devuelve el
+      // error en el sobre (`useAxios.tsx:218`). Por eso el `catch` que habia
+      // acá era codigo muerto y el fallo salia por la puerta del
+      // `if (data?.success)` sin `else`.
+      //
+      // El `try` queda igual, y no por el `toSorted` —ese esta afuera—: `execute`
+      // entra por PROPS, asi que este hook no puede afirmar de quien es. Si el
+      // que llega rechaza, sin esto el fallo sale por un rejection sin atrapar
+      // en vez de por el estado de error que se acaba de construir.
+      let data: any = null;
+      let error: any = null;
       try {
-        const { data } = await execute(
+        ({ data, error } = await execute(
           paymentsApi.adminDebts,
           "GET",
           {
@@ -365,29 +466,50 @@ export const usePaymentsForm = (
           },
           false,
           true
-        );
-
-        if (data?.success) {
-          const deudasArray: Deuda[] = data?.data?.deudas || [];
-
-          const deudasArrayOrdenado = deudasArray.toSorted(
-            (a, b) =>
-              (a.year ?? 0) - (b.year ?? 0) ||
-              (a.month ?? 0) - (b.month ?? 0)
-          );
-          setDeudas(deudasArrayOrdenado);
-          if (deudasArrayOrdenado.length === 0) {
-            setSelectedPeriodo([]);
-            setPeriodoTotal(0);
-          }
-        }
+        ));
       } catch (err) {
-      } finally {
-        setIsLoadingDeudas(false);
+        error = err;
       }
+
+      // Llego tarde: ya salio un pedido mas nuevo. No se toca NADA —ni el
+      // spinner— o se apagaria el estado de carga del que sigue en vuelo.
+      if (miPedido !== deudasPedidoId.current) return;
+
+      deudasEnVuelo.current = "";
+      setIsLoadingDeudas(false);
+
+      if (error || !data?.success) {
+        // ⚠️ Un HTTP 200 rechazado (`success:false`) no viaja por `error`
+        // —axios no rechaza un 200—: viaja en `data`. El helper mira los dos.
+        const { mensaje } = leerElErrorDelApi(data, error, DEUDAS_ERROR_GENERICO);
+        setDeudasError(mensaje);
+        return;
+      }
+
+      const deudasArray: Deuda[] = data?.data?.deudas || [];
+      const deudasArrayOrdenado = deudasArray.toSorted(
+        (a, b) =>
+          (a.year ?? 0) - (b.year ?? 0) ||
+          (a.month ?? 0) - (b.month ?? 0)
+      );
+      setDeudas(deudasArrayOrdenado);
+      lastLoadedDeudas.current = clave;
     },
     [execute, findSelectedDpto]
   );
+
+  /**
+   * Reintento del pedido fallido.
+   *
+   * ⚠️ Volver al estado de carga no es decorativo: `getDeudas` limpia el error
+   * al ARRANCAR, asi que sin eso el estado de error se repintaria un instante
+   * mientras el pedido esta en vuelo. Lo hace `getDeudas` misma.
+   */
+  const reintentarDeudas = useCallback(() => {
+    if (formState.dpto_id && formState.type) {
+      getDeudas(formState.dpto_id, formState.type);
+    }
+  }, [formState.dpto_id, formState.type, getDeudas]);
 
   const filteredCategories = useMemo(() => {
     const list = extraData?.categories || [];
@@ -512,18 +634,31 @@ export const usePaymentsForm = (
       setIsInitialized(true);
 
       if (item && item.dpto_id && item.type && item.type !== FormPaymentType.DIRECT) {
-        const deudasKey = `${item.dpto_id}_${item.type}`;
-        lastLoadedDeudas.current = deudasKey;
         getDeudas(item.dpto_id, item.type);
       }
     }
 
     return () => {
+      /*
+       * ⚠️ ANOTADO, no arreglado (review de CDT-98): esto es INALCANZABLE.
+       * `useCrud` desmonta el subarbol al cerrar, asi que la limpieza corre
+       * sobre un componente que ya no existe — el `setDeudasError(null)` de acá
+       * es codigo muerto, igual que los otros cuatro `set` que ya estaban.
+       *
+       * 🔴 Cerrar y volver a abrir queda cubierto igual, pero POR EL DESMONTAJE,
+       * no por esto: el estado y los tres refs nacen de cero. Si algun dia el
+       * modal se deja MONTADO, esto pasa a correr de verdad y se vuelve una
+       * trampa: vacia `deudas` sin tocar `lastLoadedDeudas`, y con la clave
+       * vieja apuntando a una lista vacia el efecto ve «esa unidad ya esta
+       * cargada» y NO vuelve a pedir nunca. Quien lo deje montado tiene que
+       * limpiar acá tambien los refs.
+       */
       if (!open) {
         setDeudas([]);
         setFormState({});
         setSelectedPeriodo([]);
         setPeriodoTotal(0);
+        setDeudasError(null);
       }
     };
   }, [open, item, getDeudas, isInitialized]);
@@ -531,21 +666,37 @@ export const usePaymentsForm = (
   useEffect(() => {
     if (formState.dpto_id && formState.type && formState.type !== FormPaymentType.DIRECT) {
       const deudasKey = `${formState.dpto_id}_${formState.type}`;
-      if (deudasKey !== lastLoadedDeudas.current || deudas.length === 0) {
-        lastLoadedDeudas.current = deudasKey;
+      // 🔴 Dos claves, no una: la de lo que HAY (sólo tras exito) y la del
+      // pedido EN CURSO. El `|| deudas.length === 0` de antes ya no va: ahora
+      // `getDeudas` vacia la lista al arrancar, asi que ese OR volveria a pedir
+      // en bucle sobre el mismo pedido que acaba de salir.
+      if (
+        deudasKey !== lastLoadedDeudas.current &&
+        deudasKey !== deudasEnVuelo.current
+      ) {
         setSelectedPeriodo([]);
         setPeriodoTotal(0);
         getDeudas(formState.dpto_id, formState.type);
       }
     } else {
+      // Tipo DIRECTO o unidad vacia: acá ya no hay deudas que mostrar. Esto es
+      // una CANCELACION, no una limpieza: si habia un pedido en vuelo, su
+      // respuesta ya no corresponde a nada elegido y se descarta por ordinal.
       if (deudas.length > 0 || isLoadingDeudas) {
+        cancelarPedidoDeDeudas();
         setDeudas([]);
         setSelectedPeriodo([]);
         setPeriodoTotal(0);
+        setDeudasError(null);
         lastLoadedDeudas.current = "";
       }
     }
-  }, [formState.dpto_id, formState.type, getDeudas, deudas.length]);
+    // ⚠️ `deudasError` NO va en las dependencias, y es a propósito: medido, hace
+    // un BUCLE. El efecto volvería a pedir, `getDeudas` limpia el error al
+    // arrancar, eso vuelve a disparar el efecto, y así para siempre — el test
+    // se cuelga en 5 s. El error lo limpia quien cambia de unidad o de tipo
+    // (`handleChangeInput`), el cierre del modal, y el propio `getDeudas`.
+  }, [formState.dpto_id, formState.type, getDeudas, deudas.length, cancelarPedidoDeDeudas]);
 
   useEffect(() => {
     if (
@@ -599,6 +750,7 @@ export const usePaymentsForm = (
           setDeudas([]);
           setSelectedPeriodo([]);
           setPeriodoTotal(0);
+          setDeudasError(null);
           lastLoadedDeudas.current = "";
         }
 
@@ -678,16 +830,13 @@ export const usePaymentsForm = (
         setPeriodoTotal(0);
         setSimulateResult(null);
         setSimulateError(null);
+        setDeudasError(null);
         lastLoadedDeudas.current = "";
-        if (typeValue && typeValue !== FormPaymentType.DIRECT && formState.dpto_id) {
-          setTimeout(() => {
-            const deudasKey = `${formState.dpto_id}_${typeValue}`;
-            lastLoadedDeudas.current = deudasKey;
-            if (formState.dpto_id) {
-              getDeudas(formState.dpto_id, typeValue);
-            }
-          }, 0);
-        }
+        // ⚠️ Acá habia un `setTimeout` que volvia a pedir las deudas. Era un
+        // pedido DUPLICADO: el efecto de [dpto_id, type] ya corre con el tipo
+        // nuevo en el mismo commit y pide lo mismo. Medido reinyectandolo:
+        // DOS GET a `adminDebts` por cada cambio de tipo, uno solo sin el.
+        // Lo pinea el test «un cambio de TIPO pide las deudas UNA sola vez».
       } else if (name === "dpto_id") {
         // Cambio de unidad → las expensas virtuales ya no aplican (estaban
         // asociadas al dpto anterior). Reset.
@@ -701,7 +850,18 @@ export const usePaymentsForm = (
         setPeriodoTotal(0);
         setSimulateResult(null);
         setSimulateError(null);
+        setDeudasError(null);
         lastLoadedDeudas.current = "";
+        /*
+         * ⚠️ ANOTADO, no arreglado (review de CDT-98): acá se resetea la clave
+         * de lo cargado pero NO `deudasEnVuelo`, que sigue con la clave del
+         * pedido en curso. Hoy sale bien porque el efecto que corre despues
+         * compara contra la clave NUEVA, que es distinta de la que quedo en
+         * vuelo, y porque si React batchea un A→B→A la clave coincide y saltear
+         * el pedido es justamente lo correcto: el de A ya viene en camino. Es
+         * un invariante sostenido en prosa entre dos lugares del archivo, no
+         * por el codigo. Si alguien toca el efecto, mirar esto primero.
+         */
       } else {
         setFormState((prev: FormState) => ({
           ...prev,
@@ -709,7 +869,7 @@ export const usePaymentsForm = (
         }));
       }
     },
-    [formState.dpto_id, getDeudas]
+    []
   );
 
   const handleSelectAllPeriodos = useCallback(() => {
@@ -773,6 +933,14 @@ export const usePaymentsForm = (
     if (!isDebtBasedPayment || !formState.amount) return;
     if (selectedPeriodo.length === 0 && (formState.newExpenses?.length ?? 0) === 0) return;
 
+    // 🔴 Se limpian los DOS al arrancar. El guard de sobrepago vive dentro del
+    // `if (data?.success)`, asi que un simulate FALLIDO lo saltea entero: con
+    // 1.000 verificado, subir el monto por encima de la deuda y que ese segundo
+    // simulate reviente dejaba `simulateError` en `null`, el desglose de 1.000
+    // en pantalla y el boton habilitado. Un monto equivocado presentado como
+    // verificado. Sin resultado en mano no hay nada verificado que mostrar.
+    setSimulateResult(null);
+    setSimulateError(null);
     setIsSimulating(true);
     try {
       const body: any = {
@@ -956,6 +1124,14 @@ export const usePaymentsForm = (
       err.type = "Este campo es requerido";
     }
 
+    // 🔴 CDT-98: sin la lista de deudas de ESTA unidad no se registra un cobro.
+    // Tras `isDebtBasedPayment` por lo mismo que `isSubmitDisabled`: un pago
+    // DIRECTO no toca deudas y no tiene por que quedar bloqueado por ellas.
+    if (isDebtBasedPayment && deudasError) {
+      err.general =
+        "No se pudieron cargar las deudas de esta unidad. Reintenta antes de registrar el pago.";
+    }
+
     if (isExpensasWithoutDebt) {
       err.general =
         "No se puede registrar un pago de expensas cuando no hay deudas pendientes";
@@ -1019,6 +1195,7 @@ export const usePaymentsForm = (
   }, [
     formState,
     deudas,
+    deudasError,
     isExpensasWithoutDebt,
     isReservationsWithoutDebt,
     isDebtBasedPayment,
@@ -1117,6 +1294,15 @@ export const usePaymentsForm = (
     const newExpensesList = formState.newExpenses || [];
     const hasNewExpense = newExpensesList.length > 0 && formState.type === FormPaymentType.EXPENSE;
 
+    /*
+     * ⚠️ ANOTADO, no arreglado (review de CDT-98): `dpto_id` y `debt_dpto_ids`
+     * se arman por separado y NADA en este payload afirma que las deudas
+     * elegidas sean de la unidad que se esta cobrando. Toda la garantia es la
+     * maquina de estados de la pantalla —`getDeudas` vacia `selectedPeriodo` al
+     * arrancar cada pedido—, que es lo que este ticket vino a arreglar. La red
+     * de verdad seria que el API rechace un `debt_dpto_id` que no pertenece al
+     * `dpto_id`: es del lado del back y no de este PR.
+     */
     const params: any = {
       dpto_id: dptoId,
       paid_at: formState.paid_at,
@@ -1209,7 +1395,42 @@ export const usePaymentsForm = (
     return false;
   }, [selectedPeriodo]);
 
-  const isSubmitDisabled = Boolean(simulateError) || isSubmitting;
+  /**
+   * 🔴 CDT-98: no se puede cobrar sobre una lista que no corresponde a la
+   * unidad elegida. `deudasError` es «no se sabe que debe» y `isLoadingDeudas`
+   * es «todavia no se sabe»: en los dos el boton queda apagado.
+   *
+   * 🔴 El defecto que encontro el review: `isLoadingDeudas` era compuerta dura y
+   * sin timeout, asi que cambiar a DIRECTO con un pedido en vuelo dejaba el
+   * boton muerto SIN texto y SIN reintento —el panel de deudas ni se renderiza
+   * para DIRECTO—. Peor que el defecto que el ticket fue a arreglar: aquel al
+   * menos mostraba algo.
+   *
+   * ⚠️ Lo que lo cierra NO es esta linea: es `cancelarPedidoDeDeudas` en la
+   * rama de cancelacion del efecto, que apaga el estado de carga en cuanto el
+   * pedido deja de corresponder. Medido reinyectando: sacar el
+   * `isDebtBasedPayment` de acá NO pone rojo ningun test, ni solo ni junto con
+   * lo otro; sacar la cancelacion pone rojo dos.
+   *
+   * Este `isDebtBasedPayment` queda igual, como segunda cerradura y porque es
+   * lo que corresponde decir —un pago DIRECTO no toca ninguna deuda, su carga
+   * no tiene por que apagarle el boton— y ahorra el render que va entre el
+   * cambio de tipo y el efecto. Pero no se lo puede llamar «el arreglo».
+   *
+   * Para un pago que SI usa deudas el boton apagado nunca es mudo: al lado esta
+   * «Cargando deudas...» o el estado de error con su boton de reintentar.
+   *
+   * ⚠️ ANOTADO, no arreglado: `validar()` cubre `deudasError` pero no
+   * `isLoadingDeudas`. Para el estado de carga el boton deshabilitado es la
+   * UNICA red — hoy alcanza porque `_onSavePago` sale solo del boton del
+   * footer (medido: la cadena de modales renderiza un `<section>` pelado, sin
+   * `<form>`, sin `onSubmit` y sin handler de teclado, o sea sin Enter
+   * implicito). Si alguna vez se agrega otro disparador, esto se cae.
+   */
+  const isSubmitDisabled =
+    Boolean(simulateError) ||
+    isSubmitting ||
+    (isDebtBasedPayment && (Boolean(deudasError) || isLoadingDeudas));
 
   return {
     formState,
@@ -1219,6 +1440,8 @@ export const usePaymentsForm = (
     selectedPeriodo,
     periodoTotal,
     isLoadingDeudas,
+    deudasError,
+    reintentarDeudas,
     lDptos,
     filteredCategories,
     showCategoryFields,
