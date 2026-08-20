@@ -7,7 +7,7 @@ import RenderForm from "./RenderForm/RenderForm";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { getDateTimeStrMes } from "@/mk/utils/date";
 import RenderDel from "./RenderDel/RenderDel";
-import { ClientStatus } from "@/modulos/Payments/Type/PaymentType";
+import { ClientPrivacy, ClientStatus } from "@/modulos/Payments/Type/PaymentType";
 
 const paramsInitial = {
   perPage: 20,
@@ -25,7 +25,9 @@ const mod: ModCrudType = {
   extraData: true,
   onHideActions: (item: any) => {
     return {
-      hideDel: item.privacy == "P" || item.status === ClientStatus.INACTIVE,
+      hideDel:
+        item.privacy === ClientPrivacy.PUBLICO ||
+        item.status === ClientStatus.INACTIVE,
     };
   },
   hideActions: {
@@ -59,9 +61,10 @@ const statusCondominios: Record<
     color: "var(--cError)",
   },
 };
-const privacyCondominios: Record<string, string> = {
-  T: "Prueba",
-  P: "Público",
+// Las claves son los valores del enum numérico, no los chars legacy 'P'/'T'.
+const privacyCondominios: Record<number, string> = {
+  [ClientPrivacy.PUBLICO]: "Público",
+  [ClientPrivacy.PRUEBA]: "Prueba",
 };
 const Condominios = () => {
   const fields = useMemo(() => {
@@ -134,9 +137,12 @@ const Condominios = () => {
           width: "280px",
           options: () => [
             { id: "ALL", name: "Todos" },
-            ...Object.keys(privacyCondominios).map((key) => ({
-              id: key,
-              name: privacyCondominios[key] || key,
+            // `Object.keys` devuelve strings aunque las claves sean numéricas,
+            // así que el id del filtro se manda como número: el backend ahora
+            // compara contra un `tinyint` y un `'1'` de texto no matchea.
+            ...Object.entries(privacyCondominios).map(([key, label]) => ({
+              id: Number(key),
+              name: label,
             })),
           ],
         },
