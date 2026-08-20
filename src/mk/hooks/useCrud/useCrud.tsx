@@ -2696,11 +2696,9 @@ const useCrud = ({
                           : runtime.onView
                     }
                     header={header}
-                    onTabletRow={props.onTabletRow}
                     onRenderBody={props.onRenderBody}
                     onRenderFoot={props.onRenderFoot}
                     onRenderHead={props.onRenderHead}
-                    onRenderCard={props.onRenderCard}
                     onButtonActions={
                       runtime.mod.hideActions?.edit &&
                       runtime.mod.hideActions?.del

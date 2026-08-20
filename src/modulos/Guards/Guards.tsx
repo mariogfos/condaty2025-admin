@@ -372,7 +372,6 @@ const Guards = () => {
         />
       </div>
       <List
-        // onTabletRow={renderItem}
         height={"100%"}
         emptyMsg="Lista de guardias vacía. Aquí verás a todos los guardias"
         emptyLine2="del condominio una vez los registres."

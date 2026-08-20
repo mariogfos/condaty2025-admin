@@ -22,8 +22,6 @@ import {
   IconSurvey,
 } from "@/components/layout/icons/IconsBiblioteca";
 import useCrudUtils from "../shared/useCrudUtils";
-import RenderItem from "../shared/RenderItem";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
 import TaskDetailModal from "@/modulos/Tasks/TaskDetailModal";
@@ -405,7 +403,7 @@ const Notifications = () => {
   // ELIMINAR filteredData - no es necesario
   // const filteredData = useMemo(() => { ... });
 
-  const { onLongPress, selItem } = useCrudUtils({
+  useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -491,30 +489,6 @@ const Notifications = () => {
     }
   };
 
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function,
-  ) => {
-    try {
-      const parsedMessage = parseNotificationMessage(item.message);
-
-      return (
-        <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-          <ItemList
-            title={parsedMessage.msg?.title || "Sin título"}
-            subtitle={parsedMessage.msg?.body || "Sin contenido"}
-            variant="V1"
-            active={selItem && selItem.id === item.id}
-          />
-        </RenderItem>
-      );
-    } catch (error) {
-      console.error("Error in renderItem:", error);
-      return null;
-    }
-  };
-
   const { dispatch } = useEvent("onReset");
 
   useEffect(() => {
@@ -527,7 +501,6 @@ const Notifications = () => {
     <div className={styles.notificationsContainer}>
       <List
         height={"100%"}
-        onTabletRow={renderItem}
         onRowClick={handleRowClick}
         emptyMsg="Lista vacía. Una vez comiencen las interacciones"
         emptyLine2="con el sistema, verás las notificaciones aquí."

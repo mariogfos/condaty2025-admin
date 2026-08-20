@@ -18,7 +18,6 @@ import {
 import { formatNumber } from "@/mk/utils/numbers";
 import RenderView from "../RenderView/RenderView";
 import useCrudUtils from "@/modulos/shared/useCrudUtils";
-import RenderItem from "@/modulos/shared/RenderItem";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import { lComDestinies } from "@/mk/utils/utils";
 
@@ -649,7 +648,7 @@ const EventsAdmin = () => {
     _onChange,
     // _onImport: onImport,
   });
-  const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
+  const { searchState, setSearchState } = useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -664,31 +663,6 @@ const EventsAdmin = () => {
   //   setOpenImport(searchState == 3);
   // }, [searchState]);
 
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <div className={styles["cardEventContainer"]}>
-          <div>
-            <img
-              style={{ width: 156, height: 156, borderRadius: 8 }}
-              src={getUrlImages(
-                "/EVENT-" + item?.id + "." + item?.ext + "?" + item?.updated_at
-              )}
-            />
-          </div>
-          <div>
-            <div className="tTitle">{item?.name} Hola</div>
-            <div className="tSubtitle">{item?.description}</div>
-            <div>{item?.assists} asistiran</div>
-          </div>
-        </div>
-      </RenderItem>
-    );
-  };
   // F3: onResponse fue removido — llamaba a /events-automatic, endpoint
   // que NO existe en el API. Era código muerto (solo se invocaba desde
   // un <IconLike onClick={...} /> comentado en la línea que sigue).
@@ -696,7 +670,7 @@ const EventsAdmin = () => {
   return (
     <div className={styles.roles}>
       {/* <IconLike onClick={() => onResponse()} /> */}
-      <List onTabletRow={renderItem} actionsWidth="300px" />
+      <List actionsWidth="300px" />
       {/* {openImport && (
         <ImportDataModal
           open={openImport}

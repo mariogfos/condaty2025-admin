@@ -6,12 +6,10 @@ import useCrud, {
 } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Roles.module.css";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { RenderColType } from "@/mk/components/ui/Table/Table";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useEffect, useMemo } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import RenderItem from "../shared/RenderItem";
 import Permisos from "./Permisos";
 
 const lLevel = ["Fos", "Partido", "Provincia", "Canton", "Parroquia", "Barrio"];
@@ -152,7 +150,7 @@ const Roles = () => {
     }
   );
 
-  const { onLongPress, selItem } = useCrudUtils({
+  useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -161,32 +159,10 @@ const Roles = () => {
     onDel,
   });
 
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <ItemList
-          title={item?.description}
-          subtitle={
-            "Cod: " +
-            item?.name +
-            " - Nivel: " +
-            levelRender({ value: item?.level })
-          }
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
-
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.Roles}>
-      <List onTabletRow={renderItem} actionsWidth="300px" />
+      <List actionsWidth="300px" />
     </div>
   );
 };
