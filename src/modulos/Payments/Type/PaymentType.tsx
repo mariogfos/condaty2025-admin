@@ -85,6 +85,34 @@ export enum ClientStatus {
 }
 
 /**
+ * ClientType — enum numérico.
+ *
+ * Sincronizado con el backend `App\Modules\Clients\Enums\ClientType` (PHP):
+ * - CONDOMINIO = 1 (legacy 'C') — 23 de los 37, y el default del esquema
+ * - EDIFICIO = 2 (legacy 'E') — 14 de los 37
+ */
+export enum ClientType {
+  CONDOMINIO = 1,
+  EDIFICIO = 2,
+}
+
+/**
+ * ClientPrivacy — enum numérico.
+ *
+ * Sincronizado con el backend `App\Modules\Clients\Enums\ClientPrivacy` (PHP):
+ * - PUBLICO = 1 (legacy 'P') — 34 de los 37, y el default del esquema
+ * - PRUEBA = 2 (legacy 'T') — 3 de los 37
+ *
+ * 🔴 No es cosmético: `PUBLICO` es lo que decide qué condominios ve el residente
+ * al registrarse desde rnOwner, y lo que impide borrar un condominio público
+ * desde este panel.
+ */
+export enum ClientPrivacy {
+  PUBLICO = 1,
+  PRUEBA = 2,
+}
+
+/**
  * S18.5a — OwnerStatus numeric enum.
  *
  * Sincronizado con backend `App\Modules\HomeOwner\Enums\OwnerStatus` (PHP):
