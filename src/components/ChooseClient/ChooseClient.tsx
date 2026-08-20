@@ -15,6 +15,30 @@ import Button from "@/mk/components/forms/Button/Button";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 import { StatusBadge } from "../StatusBadge/StatusBadge";
+/**
+ * 🔴 CDT-115 — los dos badges de abajo NO SE PINTABAN NUNCA.
+ *
+ * Comparaban `c.privacy === "P"` y `=== "T"`, los valores viejos. `privacy`
+ * pasó a enum numérico en el corte de #725 (`ClientPrivacy.PUBLICO = 1`,
+ * `PRUEBA = 2`), así que las dos condiciones eran SIEMPRE falsas.
+ *
+ * ⚠️ Lo que se perdía no era decorativo: el badge «Prueba» marca los 3
+ * condominios de prueba sobre 37, justamente para que nadie los confunda con
+ * uno real. En el selector se veían iguales a los otros 34.
+ *
+ * Por qué no lo agarró nada: una comparación contra un valor que ya no llega
+ * NO da error — simplemente no entra nunca. El SSoT pinea las DEFINICIONES;
+ * las comparaciones no las mira nadie. Y esta pantalla lee de `user.clients`,
+ * así que no aparece en ningún barrido del módulo Condominios.
+ *
+ * Comparación estricta contra el enum, igual que `Condominios.tsx:29`. Se
+ * midió que llega como NÚMERO y no como texto: el modelo del API tiene
+ * `'privacy' => ClientPrivacy::class` (`Client.php:68`), un cast de enum
+ * entero, que Laravel serializa como `1` / `2`. Por eso no lleva un
+ * `Number(...)` defensivo — un cast «por las dudas» acá taparía justo el
+ * desacuerdo que uno querría ver.
+ */
+import { ClientPrivacy } from "@/modulos/Payments/Type/PaymentType";
 
 interface Props {
   open: boolean;
@@ -83,7 +107,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          {c.privacy === "P" && (
+          {c.privacy === ClientPrivacy.PUBLICO && (
             <StatusBadge
               backgroundColor="rgba(0, 227, 140, 0.1)"
               color="#00E38C"
@@ -92,7 +116,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
               Público
             </StatusBadge>
           )}
-          {c.privacy === "T" && (
+          {c.privacy === ClientPrivacy.PRUEBA && (
             <StatusBadge
               backgroundColor="rgba(228, 96, 85, 0.1)"
               color="#E46055"
