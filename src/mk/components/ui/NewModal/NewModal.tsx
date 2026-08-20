@@ -76,14 +76,26 @@ const NewModal = ({
     setMounted(true);
   }, []);
 
+  /**
+   * 🔴 El temporizador se limpia al desmontar (CDT-95).
+   *
+   * Sin esto, la apertura programada corre igual después de que el modal ya no
+   * existe: en el navegador es un `setState` sobre algo desmontado, y en la
+   * suite —donde jsdom ya se desarmó— React tira
+   * `ReferenceError: window is not defined`, que vitest cuenta como error no
+   * manejado. La suite sale con código 1 CON TODOS LOS TESTS EN VERDE, y se lo
+   * cuelga al archivo que esté corriendo cuando el temporizador vence, así que
+   * manda a buscar el bug al módulo equivocado.
+   */
   useEffect(() => {
-    if (open) {
-      setTimeout(() => {
-        setOpenModal(open);
-      }, 100);
-    } else {
+    if (!open) {
       setOpenModal(open);
+      return;
     }
+    const t = setTimeout(() => {
+      setOpenModal(open);
+    }, 100);
+    return () => clearTimeout(t);
   }, [open]);
 
   if (minWidth) {
