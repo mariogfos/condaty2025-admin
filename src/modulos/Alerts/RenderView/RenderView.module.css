@@ -311,7 +311,7 @@
   font-weight: var(--bNormal, 400);
   font-size: var(--sL, 16px);
   color: var(--figma-text-gray, #a7a7a7);
-  margin-bottom: var(--spXS);
+  margin-bottom: var(--spXs);
 }
 
 .actionButtonWrapper {

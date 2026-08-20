@@ -73,7 +73,7 @@
 
 .title {
   flex: 1;
-  color: var(--twhite);
+  color: var(--tWhite);
   font-size: 32px;
   font-weight: bold;
   align-items: center;
@@ -131,7 +131,7 @@
 }
 
 .accountTitle {
-  color: var(--twhite);
+  color: var(--tWhite);
   font-size: 24px;
   font-weight: 600;
   margin: 0;
