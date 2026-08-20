@@ -64,7 +64,7 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
           pedido_id: pedido.id,
           begin_at: getUTCNow(),
           // 🔴 Numerico, no "P". `accesses.type` es TINYINT desde el flip a
-          // enums: `TipoDeAcceso::de("P")` hace `ctype_digit` y devuelve null,
+          // enums: `AccessType::de("P")` hace `ctype_digit` y devuelve null,
           // asi que la rama de Pedido de `beforeCreate` no corria y el admin no
           // podia registrar la entrada de un pedido.
           type: AccessType.ORDER,

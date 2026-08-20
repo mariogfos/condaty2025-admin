@@ -5,8 +5,8 @@
  * `TINYINT` y el API dejó de mandar `type: 'C'` para mandar `type: 1`
  * (decisión de Mario, opción B: flip completo, se despliega todo junto).
  *
- * Backend: `App\Modules\Access\Enums\{TipoDeAcceso, EstadoGuardado,
- * Confirmacion, MarcaDeTaxi}`. El drift lo pinea `enumsSsotSync.test.ts`
+ * Backend: `App\Modules\Access\Enums\{AccessType, AccessStoredStatus,
+ * AccessConfirmation, AccessTaxiMark}`. El drift lo pinea `enumsSsotSync.test.ts`
  * contra `tests/__fixtures__/enums-ssot.json`.
  *
  * ⚠️ No hay lectura tolerante que acepte la letra vieja, a propósito. Un

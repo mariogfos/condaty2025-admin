@@ -290,7 +290,7 @@ const sameDateTimeValue = (
  * usuario está leyendo — y esa hora es falsa: es la de entrada repetida.
  *
  * ⚠️ Una copia de esta regla en el modal sería la cuarta escritura de la misma
- * definición (ya está en `EstadoDelAcceso` y en los scopes del modelo, del lado
+ * definición (ya está en `AccessDisplayState` y en los scopes del modelo, del lado
  * del back). Exportarla es más barato que sincronizar cuatro.
  */
 export const esCierreSinSalidaRegistrada = (

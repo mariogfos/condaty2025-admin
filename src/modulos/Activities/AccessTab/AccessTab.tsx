@@ -388,7 +388,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
        *   de la irregularidad. Medido: 18.129.
        *
        * La regla en SQL vive en los scopes del modelo del back: ya está escrita
-       * dos veces —`EstadoDelAcceso` y `getAccessStatusInfo`— y una tercera
+       * dos veces —`AccessDisplayState` y `getAccessStatusInfo`— y una tercera
        * copia suelta sería la que se desincroniza.
        */
       salida: {
