@@ -470,12 +470,13 @@ const BalanceGeneral: React.FC = () => {
   /**
    * Un solo cartel para los tres renders: es un solo pedido el que falló.
    *
-   * Se deja como constante local y NO como componente exportable: la forma ya
-   * está escrita cuatro veces en el repo (muro, widget «Comunidad», formulario
-   * de cobro y acá) y extraerla es un refactor de otro tamaño. Cuando aparezca
-   * la quinta pantalla, ahí sí.
-   */
-  const contenidoDeCargaFallida = (
+   * ⚠️ Queda como constante local y NO como componente compartido, pero eso es
+   * una DEUDA, no una decisión cómoda: con esta pantalla la misma forma queda
+   * escrita CINCO veces en el repo (muro, widget «Comunidad», formulario de
+   * cobro, el panel y acá). Extraerla es un refactor de otro tamaño que no
+   * entra en este ticket — y el que llegue sexto que no lo escriba de nuevo:
+   * que la extraiga.
+   */  const contenidoDeCargaFallida = (
     <div className={styles.loadErrorState} role="alert">
       <IconAlertCircle size={40} color="var(--cWarning)" />
       <p>No se pudo cargar la información financiera.</p>

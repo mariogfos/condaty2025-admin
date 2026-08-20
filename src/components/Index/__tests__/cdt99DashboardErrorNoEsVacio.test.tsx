@@ -183,12 +183,20 @@ vi.mock(
 vi.mock(
   "@/components/Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume",
   () => ({
-    default: ({ showEmptyData, emptyDataProps }: any) =>
-      showEmptyData ? (
-        <div data-testid="grafico-vacio">{emptyDataProps?.message}</div>
-      ) : (
-        <div data-testid="grafico" />
-      ),
+    default: ({ showEmptyData, emptyDataProps }: any) => {
+      // 🔴 El gráfico NO pasa por `EmptyData`: pinta su vacío por su cuenta
+      // (review 4R). Sin empujar acá el mensaje, la primera de las cinco
+      // vueltas del bucle de `LOS_VACIOS_MENTIROSOS` —justo la que nombraba el
+      // ticket— comparaba contra una lista donde ese texto NUNCA podía estar:
+      // una aserción que no puede fallar.
+      if (showEmptyData) {
+        mensajesPintados.push(String(emptyDataProps?.message ?? ""));
+        return (
+          <div data-testid="grafico-vacio">{emptyDataProps?.message}</div>
+        );
+      }
+      return <div data-testid="grafico" />;
+    },
   }),
 );
 
@@ -433,6 +441,52 @@ describe("CDT-99 — el panel no confunde «falló el pedido» con «no hay nada
    * Un test que mire el DOM final no lo vería nunca: el render siguiente lo
    * borra.
    */
+  /**
+   * 🔴 Hallazgo del review 4R: la guarda de la banda estaba MUERTA.
+   *
+   * `datoDesactualizado` se apoyaba en `!cargandoDashboard`, que comparte el
+   * predicado `!dashboard?.data` con `cargaFallida`. En el único caso donde
+   * `isStale` está prendido —hay dato viejo EN PANTALLA— las dos son `false`,
+   * así que no suprimían nada: la banda y su botón de Reintentar se pintaban
+   * durante el reintento, prometiendo resolver algo que ya se estaba
+   * resolviendo.
+   */
+  it("mientras el reintento está en vuelo NO se ve la banda de dato viejo", async () => {
+    respuesta = {
+      data: {
+        success: true,
+        data: {
+          ...SOBRE_VACIO_LEGITIMO.data.data,
+          TotalIngresos: 4500,
+          TotalEgresos: 1200,
+        },
+      },
+      error: "",
+    };
+    await montar();
+
+    // Primero se rompe un refresco: ahí sí tiene que aparecer la banda.
+    respuesta = LA_RED_SE_CAYO;
+    const objetivo = respuestasAterrizadas + 1;
+    await act(async () => {
+      dispararRefrescoExterno({});
+    });
+    await waitFor(() =>
+      expect(respuestasAterrizadas).toBeGreaterThanOrEqual(objetivo),
+    );
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "No se pudo actualizar",
+    );
+
+    // Ahora se aprieta Reintentar y se mira el render de EN MEDIO, con el
+    // pedido todavía en vuelo: `isStale` sigue prendido —el hook lo apaga
+    // recién cuando un refresco entra bien— pero la banda no tiene que estar.
+    await act(async () => {
+      fireEvent.click(screen.getByText("Reintentar"));
+    });
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
   it("durante el reintento NUNCA se pinta un vacío mentiroso, en ningún render", async () => {
     respuesta = LA_RED_SE_CAYO;
     await montar();

@@ -155,7 +155,22 @@ const HomePage = () => {
    * El dato quedó viejo: se avisa SIN sacar de pantalla lo que el usuario
    * está leyendo. Se apaga solo en cuanto un refresco entra bien.
    */
-  const datoDesactualizado = isStale && !cargaFallida && !cargandoDashboard;
+  /**
+   * 🔴 La guarda pregunta por `loaded`, NO por `cargandoDashboard` (review 4R).
+   *
+   * `cargandoDashboard` y `cargaFallida` comparten el predicado
+   * `!dashboard?.data`, así que durante un refresco fallado —que es el ÚNICO
+   * caso donde `isStale` está prendido, porque hay dato viejo en pantalla— las
+   * dos son `false` y no suprimen nada: la banda se pintaba igual, encima del
+   * panel, mientras el reintento estaba en vuelo. La guarda existía y estaba
+   * MUERTA.
+   *
+   * `loaded` sí distingue: `execute` lo baja de forma síncrona al arrancar
+   * cada pedido, así que mientras hay uno en vuelo la banda —y su botón de
+   * Reintentar, que prometía resolver algo que ya se estaba resolviendo— no se
+   * pintan.
+   */
+  const datoDesactualizado = isStale && !cargaFallida && loaded;
 
   // Manda el código HTTP (CDT-94): 5xx y red caída caen al genérico; un 4xx
   // —un 403 de permisos— trae su propio texto, que es el que hay que leer,
