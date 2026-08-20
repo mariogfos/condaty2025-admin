@@ -15,7 +15,7 @@
 
 .subtitle {
   color: var(--cWhite);
-  font-size: var(--sLg);
+  font-size: var(--sL);
   font-family: var(--fPrimary);
   font-weight: var(--bRegular);
   margin-bottom: 8px;

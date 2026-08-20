@@ -172,7 +172,7 @@
 
 .advancedSectionTitle {
   font-size: var(--sL);
-  font-weight: var(--bSemiBold);
+  font-weight: var(--bSemibold);
   color: var(--cAccent);
   margin: 0;
   padding-bottom: var(--spS);
@@ -218,7 +218,7 @@
 .advancedItem .infoValue {
   color: var(--cWhite);
   font-size: var(--sL);
-  font-weight: var(--bSemiBold);
+  font-weight: var(--bSemibold);
   margin: 0;
 }
 
@@ -228,22 +228,22 @@
 
 .statusActive {
   color: var(--cSuccess) !important;
-  font-weight: var(--bSemiBold) !important;
+  font-weight: var(--bSemibold) !important;
 }
 
 .statusCompleted {
   color: var(--cInfo) !important;
-  font-weight: var(--bSemiBold) !important;
+  font-weight: var(--bSemibold) !important;
 }
 
 .statusCancelled {
   color: var(--cError) !important;
-  font-weight: var(--bSemiBold) !important;
+  font-weight: var(--bSemibold) !important;
 }
 
 .statusPartial {
   color: var(--cWhiteV1) !important;
-  font-weight: var(--bSemiBold) !important;
+  font-weight: var(--bSemibold) !important;
 }
 
 .canceledReason {
@@ -277,7 +277,7 @@
   padding: var(--spM) var(--spXl);
   border-radius: var(--bRadiusS);
   text-align: center;
-  font-weight: var(--bSemiBold);
+  font-weight: var(--bSemibold);
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
   min-width: 220px;

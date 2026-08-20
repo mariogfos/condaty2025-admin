@@ -25,10 +25,10 @@
 
       & > label {
         display: flex;
-        gap: var(--sPs);
+        gap: var(--spS);
         font-size: var(--sS);
         color: var(--cWhiteV1);
-        margin-right: var(--sPs);
+        margin-right: var(--spS);
       }
 
       & > .label-active {
@@ -71,7 +71,7 @@
   font-size: var(--sS);
   color: var(--cWhiteV1);
   cursor: pointer;
-  margin-right: var(--sPs);
+  margin-right: var(--spS);
   align-items: center;
 }
 

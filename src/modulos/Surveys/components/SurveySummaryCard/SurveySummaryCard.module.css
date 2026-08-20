@@ -21,7 +21,7 @@
 }
 
 .title {
-  font-size: var(--sSm);
+  font-size: var(--sS);
   font-weight: var(--bBold);
   color: var(--cWhite);
   letter-spacing: 1px;

@@ -9,9 +9,9 @@
   /* Estilos si decides añadir un título general encima de las pestañas */
   .title {
     color: var(--cWhite);
-    font-size: var(--sXL); /* Ajusta según tus variables de tamaño */
+    font-size: var(--sXl); /* Ajusta según tus variables de tamaño */
     font-weight: 600;     /* O el peso que uses */
-    margin-bottom: var(--spXS); /* Espacio debajo del título */
+    margin-bottom: var(--spXs); /* Espacio debajo del título */
   }
   
   /* Estilos si decides añadir un subtítulo general */

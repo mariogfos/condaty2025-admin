@@ -13,7 +13,7 @@
 
 .title {
   font-size: var(--sS);
-  font-weight: var(--bSemiBold);
+  font-weight: var(--bSemibold);
   color: var(--cAccent);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -27,7 +27,7 @@
 }
 
 .amount {
-  font-size: var(--sXL);
+  font-size: var(--sXl);
   font-weight: var(--bBold);
   color: var(--cWhite);
   text-shadow: 1px 1px 2px var(--cBlackV3);

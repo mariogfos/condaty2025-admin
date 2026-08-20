@@ -29,14 +29,14 @@
 }
 
 .emptyTitle {
-  font-size: var(--sMd);
+  font-size: var(--sM);
   font-weight: var(--bBold);
   color: var(--cWhiteV1);
   margin: 0 0 var(--spS) 0;
 }
 
 .emptyDescription {
-  font-size: var(--sSm);
+  font-size: var(--sS);
   color: var(--cWhiteV3);
   margin: 0;
 }
@@ -73,7 +73,7 @@
 }
 
 .itemTitle {
-  font-size: var(--sMd);
+  font-size: var(--sM);
   font-weight: var(--bBold);
   color: var(--cWhite);
   margin: 0;
@@ -108,7 +108,7 @@
 }
 
 .itemDescription {
-  font-size: var(--sSm);
+  font-size: var(--sS);
   color: var(--cWhiteV3);
   margin: 0 0 var(--spS) 0;
 }

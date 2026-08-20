@@ -248,7 +248,7 @@ h1 {
 h2 {
   font-size: var(--sL);
   color: var(--cWhiteV2);
-  font-weight: var(--bSemiBold);
+  font-weight: var(--bSemibold);
 }
 
 .tMedium {
