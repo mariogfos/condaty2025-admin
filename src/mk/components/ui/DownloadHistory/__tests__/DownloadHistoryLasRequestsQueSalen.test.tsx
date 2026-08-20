@@ -209,12 +209,34 @@ describe("DownloadHistory — las requests que salen", () => {
     expect(llamadas.some((l) => l.url.includes("/download"))).toBe(false);
   });
 
+  /**
+   * 🔴 CDT-75 — este caso fallaba 1 de cada 6 corridas de la suite completa, y
+   * pasaba SIEMPRE en aislamiento (medido: 30 de 30 verdes).
+   *
+   * La falla era `expected 1 to be greater than 1`, y la causa es que esperaba
+   * LA SEÑAL EQUIVOCADA. El intervalo de polling sólo se arma cuando el `items`
+   * del componente ya tiene un reporte `pending`/`processing`
+   * (`DownloadHistory.tsx:483-490`). Pero el `waitFor` esperaba a que se
+   * REGISTRARA EL REQUEST, que es la red, no el estado: entre que la respuesta
+   * se anota en `llamadas` y que React aplica el estado y corre el efecto hay
+   * una ventana. Si el `advanceTimersByTimeAsync` caía adentro de esa ventana,
+   * el intervalo todavía no existía y no salía ningún poll.
+   *
+   * ⚠️ Por eso pasaba en aislamiento: la ventana se abre bajo CARGA, cuando la
+   * máquina está corriendo 137 archivos de test a la vez.
+   *
+   * El arreglo es esperar el ESTADO RENDERIZADO —la fila del reporte en
+   * pantalla—, que sí prueba que `items` se aplicó y que el efecto corrió.
+   * `shouldAdvanceTime: true` se queda: lo necesita `waitFor`, que usa
+   * temporizadores propios.
+   */
   it("sin reportes en curso NO hay polling; con uno pending, sí", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     try {
       vi.stubGlobal("fetch", mockFetch(llamadas));
       const { unmount } = render(<DownloadHistory pollIntervalMs={1000} />);
-      await waitFor(() => expect(elListado(llamadas)).toBeTruthy());
+      // El estado, no la red: la fila pintada prueba que `items` se aplicó.
+      await screen.findByTestId("download-history-item");
       const listadosQuietos = llamadas.filter((l) => l.url.includes("status=")).length;
       await vi.advanceTimersByTimeAsync(3500);
       // Todo completed: el intervalo no se arma, no hay requests de más.
@@ -229,7 +251,10 @@ describe("DownloadHistory — las requests que salen", () => {
         mockFetch(conPendiente, [item({ status: "processing", progress: 40 })]),
       );
       render(<DownloadHistory pollIntervalMs={1000} initialStatus="all" />);
-      await waitFor(() => expect(elListado(conPendiente)).toBeTruthy());
+      // 🔴 ACÁ vivía el defecto: esto era `waitFor(() => elListado(...))`, o sea
+      // la red. Ahora se espera la fila en pantalla, que es lo que garantiza
+      // que el efecto del polling ya se armó.
+      await screen.findByTestId("download-history-item");
       const antes = conPendiente.filter((l) => l.url.includes("status=")).length;
       await vi.advanceTimersByTimeAsync(3500);
       expect(
