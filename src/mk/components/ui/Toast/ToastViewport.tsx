@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, AlertTriangle, CheckCircle2, Info } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle2, Info, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ToastItem, ToastKind } from "@/mk/hooks/useToast";
 import styles from "./toast.module.css";
@@ -124,6 +124,32 @@ const ToastCard = ({
         <Icon size={18} strokeWidth={2.1} />
       </div>
       <div className={styles.toastMessage}>{toast.msg}</div>
+      {/*
+        🔴 CDT-74 — el botón de cerrar es lo que faltaba, NO el
+        `pointer-events`.
+
+        El `.viewport` es `position: fixed`, 720 px de ancho, arriba y al
+        centro: con eventos activos se come los clicks del header y del
+        buscador que tiene debajo, incluso estando invisible. Por eso el `none`
+        se queda donde está, tanto en el viewport como en la tarjeta.
+
+        Un descendiente con `pointer-events: auto` SÍ recibe clicks aunque sus
+        ancestros estén en `none` — la propiedad no se hereda como un candado,
+        se resuelve por elemento. Así el botón es clickeable y el resto de la
+        tarjeta sigue siendo transparente al mouse.
+
+        ⚠️ Cerrar pasa por la etapa `leaving`, igual que el vencimiento del
+        reloj: NO llama a `onDismiss` de una. Eso mantiene la animación de
+        salida y, sobre todo, no toca la máquina de estados que arregló CDT-68.
+      */}
+      <button
+        type="button"
+        className={styles.toastClose}
+        onClick={() => setPhase("leaving")}
+        aria-label="Cerrar aviso"
+      >
+        <X size={16} strokeWidth={2.4} />
+      </button>
     </div>
   );
 };

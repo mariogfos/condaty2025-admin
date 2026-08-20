@@ -85,7 +85,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   const [item, setItem] = useState<PaymentDetail | null>(propItem || null);
   const { execute } = useAxios();
   const executeRef = useRef(execute);
-  const { user, showToast } = useAuth();
+  const { user, showToast, dismissToast } = useAuth();
   const [openVoucherModal, setOpenVoucherModal] = useState(false);
   const [voucherValue, setVoucherValue] = useState("");
   const [voucherErrors, setVoucherErrors] = useState<{ voucher?: string }>({});
@@ -151,7 +151,16 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       return;
     }
 
-    showToast("Generando recibo...", "info");
+    /**
+     * 🔴 El id del toast de progreso, para poder sacarlo cuando deje de ser
+     * cierto (CDT-74).
+     *
+     * Antes se emitía con el `time` por defecto —5 s— y el de éxito llegaba
+     * después, así que quedaban los DOS en pantalla unos segundos: uno diciendo
+     * que está generando y el otro que ya se generó. No es un bug de la cola,
+     * es que nadie retiraba el primero.
+     */
+    const idDelProgreso = showToast("Generando recibo...", "info");
 
     const { data: file, error } = await execute(
       paymentsApi.receipt(paymentId),
@@ -160,6 +169,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       false,
       true,
     );
+
+    // Llegó la respuesta: «Generando recibo…» ya no es cierto, salga bien o
+    // mal. Se retira ANTES de emitir el que corresponda, para que no se
+    // superpongan.
+    dismissToast(idDelProgreso);
 
     if (file?.success === true && file?.data?.path) {
       const receiptUrl = getUrlImages("/" + file.data.path);
@@ -186,7 +200,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       showToast("Número de teléfono no disponible", "error");
       return;
     }
-    showToast("Generando recibo...", "info");
+    const idDelProgreso = showToast("Generando recibo...", "info");
     const { data: file, error } = await execute(
       paymentsApi.receipt(paymentId),
       "POST",
@@ -194,6 +208,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       false,
       true,
     );
+    dismissToast(idDelProgreso);
+
     if (file?.success === true && file?.data?.path) {
       const receiptUrl = getUrlImages("/" + file.data.path);
       const waLink = generateWhatsAppLink(
