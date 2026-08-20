@@ -150,9 +150,6 @@ vi.mock("@/mk/hooks/useAsyncExport/useAsyncExport", () => ({
   }),
 }));
 
-// El `LoadingScreen` real lee `waiting` del `AxiosContext`, que en el test no
-// existe. El doble deja pasar los hijos: así lo que se mide es la rama que
-// eligió la pantalla, no el skeleton.
 // El modal de rango personalizado, sólo para poder afirmar que se ABRE: sin un
 // observable, el test del centinela era una negación sobre una lista vacía y
 // quedaba verde con cualquier implementación que no mandara nada (review 4R).
@@ -170,8 +167,18 @@ vi.mock("@/components/DateRangeFilterModal/DateRangeFilterModal", () => ({
     ) : null,
 }));
 
+// 🔴 El `LoadingScreen` real lee `waiting` del `AxiosContext`, que en el test
+// no existe, así que el doble deja pasar los hijos. Eso tiene una consecuencia
+// que hay que tener presente al leer los casos de abajo (review 4R): el doble
+// NO tapa nada, o sea que si una rama de la pantalla se olvidara de preguntar
+// por la carga, acá se vería el contenido crudo — que es exactamente lo que
+// pasaba con el render del filtro `T` y lo que estos casos ahora pinean.
+// En producción el `LoadingScreen` compartido sí tapa, y por eso el defecto
+// podía vivir ahí sin que nadie lo notara.
 vi.mock("@/mk/components/ui/LoadingScreen/LoadingScreen", () => ({
-  default: ({ children }: any) => <div>{children}</div>,
+  default: ({ children }: any) => (
+    <div data-testid="pantalla-de-carga">{children}</div>
+  ),
 }));
 
 vi.mock("@/components/Widgets/WidgetGrafIngresos/WidgetGrafIngresos", () => ({
@@ -469,6 +476,45 @@ describe("CDT-99 — Balance no confunde «falló el pedido» con «no hay finan
   });
 
   /**
+   * 🔴 Hallazgo del review 4R: el render del filtro POR DEFECTO no preguntaba
+   * por la carga.
+   *
+   * Los tres renders de esta pantalla cuelgan del mismo pedido, pero sólo dos
+   * abrían con `if (estaCargando)`. El tercero —`filter_mov === "T"`, el que
+   * viene seleccionado al entrar— era `cargaFallida ? … : loaded && vacío ? …
+   * : gráficas`, así que con un reintento EN VUELO y sin dato caía derecho a
+   * las gráficas con las series en `undefined`.
+   *
+   * ⚠️ Por qué nadie lo veía: en producción lo tapa el contador global del
+   * `LoadingScreen` compartido, que no es de este código; y en la suite lo
+   * tapaba el doble, que deja pasar los hijos. Dos tapas distintas sobre el
+   * mismo agujero.
+   */
+  it("con el filtro por defecto, el reintento en vuelo muestra la carga y no las gráficas", async () => {
+    respuesta = LA_RED_SE_CAYO;
+    await montarEn(null);
+    await screen.findByText(TITULO_DEL_FALLO);
+
+    // Se aprieta Reintentar y se mira el render de EN MEDIO.
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
+    });
+
+    // 🔴 LA ASERCIÓN QUE MIDE ESTA RAMA es la de la GRÁFICA, no la de la
+    // pantalla de carga: los tres renders cuelgan del mismo pedido, así que
+    // los otros dos ya mostraban su carga y `getAllByTestId(...).length > 0`
+    // quedaba verde con el defecto puesto. Lo MEDÍ reinyectando: sin la rama
+    // de carga en `T`, ese render cae en las GRÁFICAS con las series en
+    // `undefined`, y eso es lo único que lo distingue.
+    expect(screen.queryByTestId("graf-balance")).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("pantalla-de-carga").length).toBeGreaterThan(0);
+    // Tampoco el cartel de fallo viejo ni el vacío: mientras no se sepa, no se
+    // afirma nada.
+    expect(screen.queryByText(TITULO_DEL_FALLO)).not.toBeInTheDocument();
+    expect(screen.queryByText(EL_VACIO_MENTIROSO)).not.toBeInTheDocument();
+  });
+
+  /**
    * 🔴 El borde que el corte de `cargaFallida` ahora es dueño, y que no estaba
    * medido en ninguna de las dos pantallas (review 4R).
    *
@@ -519,8 +565,11 @@ describe("CDT-99 — Balance no confunde «falló el pedido» con «no hay finan
     expect(
       screen.getByText("No tenés acceso a las finanzas."),
     ).toBeInTheDocument();
-    // Y NO la banda de dato viejo: el dato viejo ya no está para mostrar.
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    // ⚠️ Acá NO va una aserción sobre la banda de dato viejo, y es a propósito
+    // (review 4R): en este camino `isStale` no se puede prender ni queriendo
+    // —el hook lo apaga por la rama de éxito, porque un 200 NO es un rechazo
+    // de axios—, así que afirmar que la banda no está sería una aserción que
+    // no puede fallar. Lo que este caso mide es dónde CAE el render.
   });
 
   /**

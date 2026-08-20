@@ -495,8 +495,11 @@ describe("CDT-99 — el panel no confunde «falló el pedido» con «no hay nada
     // Dice lo que pasó, con el texto del API.
     expect(screen.getByText(TITULO_DEL_FALLO)).toBeInTheDocument();
     expect(screen.getByText("No tenés acceso al panel.")).toBeInTheDocument();
-    // Y NO la banda de dato viejo: el dato viejo ya no está para mostrar.
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    // ⚠️ Acá NO va una aserción sobre la banda de dato viejo, y es a propósito
+    // (review 4R): en este camino `isStale` no se puede prender ni queriendo
+    // —el hook lo apaga por la rama de éxito, porque un 200 NO es un rechazo
+    // de axios—, así que afirmar que la banda no está sería una aserción que
+    // no puede fallar. Lo que este caso mide es dónde CAE el render.
   });
 
   /**

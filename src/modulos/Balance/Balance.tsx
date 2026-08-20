@@ -446,10 +446,16 @@ const BalanceGeneral: React.FC = () => {
    *
    * ⚠️ Acá NO hace falta un `setLoadingLocal(true)`, y se MIDIÓ: `execute`
    * hace `setLoaded(false)` de forma síncrona dentro del mismo evento, así que
-   * el primer render después del click ya entra por `loadingLocal || !loaded`
-   * y muestra el `LoadingScreen`. Lo que sostiene el invariante es el ORDEN de
-   * las ramas —carga, después fallo, después vacío—, y eso sí está pineado:
-   * mover el vacío arriba pone el test en rojo.
+   * el primer render después del click ya entra por `estaCargando`.
+   *
+   * 🔴 CORRECCIÓN DEL REVIEW 4R. Antes acá decía que el invariante lo sostenía
+   * el ORDEN de las ramas, y que estaba pineado. Era cierto para DOS de los
+   * tres renders y FALSO justo para el tercero: el de `filter_mov === "T"`, que
+   * es el que viene seleccionado por defecto, no tenía rama de carga. Con un
+   * reintento en vuelo y sin dato caía a las gráficas con las series en
+   * `undefined`; lo único que lo tapaba era el contador global del
+   * `LoadingScreen` compartido, que no es de este código. Los tres abren ahora
+   * por `estaCargando`.
    *
    * Se le pasan los filtros vigentes porque `reLoad` sin payload manda el del
    * montaje (`payloadRef`), o sea `{}`: el reintento traería el período por
@@ -924,7 +930,9 @@ const BalanceGeneral: React.FC = () => {
                 {/* El fallo se pregunta ANTES que el vacío: es la tercera
                     puerta al mismo `EmptyData` mentiroso, y la del filtro que
                     viene seleccionado por defecto. */}
-                {cargaFallida ? (
+                {estaCargando ? (
+                  <LoadingScreen />
+                ) : cargaFallida ? (
                   contenidoDeCargaFallida
                 ) : loaded &&
                   (!finanzas?.data?.ingresosHist ||
