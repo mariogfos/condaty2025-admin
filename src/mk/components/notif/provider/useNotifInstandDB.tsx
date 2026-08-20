@@ -66,29 +66,46 @@ export const initSocket = async () => {
   }
 
   if (typeof window !== "undefined") {
-    const unDiaAtras = Date.now() - 24 * 60 * 60 * 1000;
-    const del: any[] = [];
-    const query = {
-      notif: {
-        $: {
-          where: {
-            created_at: { $lt: unDiaAtras },
+    // La purga de notificaciones viejas es best-effort: si InstantDB no
+    // responde, `queryOnce`/`transact` rechazan y antes se llevaban puesta la
+    // inicialización entera. El `transact` además NO se esperaba, así que su
+    // rechazo quedaba flotando como unhandled rejection (CDT-95).
+    try {
+      const unDiaAtras = Date.now() - 24 * 60 * 60 * 1000;
+      const del: any[] = [];
+      const query = {
+        notif: {
+          $: {
+            where: {
+              created_at: { $lt: unDiaAtras },
+            },
+            limit: 1000,
           },
-          limit: 1000,
         },
-      },
-    };
-    const { data: _notif } = await db.queryOnce(query);
-    _notif.notif.forEach((e: any) => {
-      del.push(db.tx.notif[e.id].delete());
-    });
-    if (del.length > 0) db.transact(del);
+      };
+      const { data: _notif } = await db.queryOnce(query);
+      _notif.notif.forEach((e: any) => {
+        del.push(db.tx.notif[e.id].delete());
+      });
+      if (del.length > 0) await db.transact(del);
+    } catch (error) {
+      console.warn(
+        "[notif] no se pudieron purgar las notificaciones viejas de InstantDB",
+        error,
+      );
+    }
   }
 
   return db;
 };
 
-initSocket();
+// Arranque en background: nadie espera esta promesa, así que su rechazo tiene
+// que morir acá. Sin el `catch` un `appId` inválido (o InstantDB caído) queda
+// como unhandled rejection en cada carga del navegador — y en la suite hacía
+// salir a vitest con código 1 con todos los tests en verde (CDT-95).
+initSocket().catch((error) => {
+  console.warn("[notif] no se pudo inicializar InstantDB", error);
+});
 
 export type NotifType = {
   user: Record<string, any>;
