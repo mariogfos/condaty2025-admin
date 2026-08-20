@@ -76,6 +76,7 @@ const BalanceGeneral: React.FC = () => {
     reLoad: reLoadFinanzas,
     loaded,
     error,
+    isStale,
   } = useAxios("/v3/balances", "POST", {});
 
   const [loadingLocal, setLoadingLocal] = useState(false);
@@ -409,7 +410,14 @@ const BalanceGeneral: React.FC = () => {
    * ⚠️ NO se toca el resto de la pantalla: filtros, período y tipo de
    * transacción quedan operativos, porque son los que disparan el pedido.
    */
-  const cargaFallida = loaded && (!!error || !finanzas?.data);
+  /**
+   * 🔴 Pregunta por el DATO, no por `error` (review de CDT-99): `useAxios` no
+   * limpia `data` al fallar, así que preguntar por `error` haría que un
+   * refresco fallado le borre al usuario un balance correcto y lo reemplace
+   * por un cartel. Para «hay dato viejo y el refresco falló» está `isStale`.
+   */
+  const cargaFallida = loaded && !finanzas?.data;
+  const datoDesactualizado = isStale && !cargaFallida;
 
   // Manda el código HTTP (CDT-94): 5xx y red caída caen al genérico; un 4xx
   // —un 403 de permisos— trae su propio texto, porque reintentar no arregla un
@@ -437,6 +445,14 @@ const BalanceGeneral: React.FC = () => {
    * defecto en vez del que el usuario tiene elegido.
    */
   const handleRetryBalance = () => {
+    // 🔴 La misma guarda que el efecto de arriba (`:87`), y por el mismo
+    // motivo: `sc` no es un período, es «abrí el modal de rango
+    // personalizado». Sin esto, reintentar después de abrir y descartar ese
+    // modal le manda el centinela al API en vez de un rango.
+    if (formStateFilter.filter_date === "sc") {
+      setOpenCustomFilter(true);
+      return;
+    }
     reLoadFinanzas(formStateFilter);
   };
 
@@ -706,6 +722,21 @@ const BalanceGeneral: React.FC = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Flujo de efectivo</h1>
+      {/* No saca de pantalla el balance que el usuario está leyendo: sólo
+          avisa que no se pudo actualizar. */}
+      {datoDesactualizado && (
+        <div className={styles.staleBanner} role="status">
+          <IconAlertCircle size={20} color="var(--cWarning)" />
+          <span>No se pudo actualizar: estás viendo el último dato que cargó.</span>
+          <button
+            type="button"
+            className={styles.retryButton}
+            onClick={handleRetryBalance}
+          >
+            Reintentar
+          </button>
+        </div>
+      )}
       <div>
         <div className={styles.filterContainer}>
           <div className={styles.filterItem}>

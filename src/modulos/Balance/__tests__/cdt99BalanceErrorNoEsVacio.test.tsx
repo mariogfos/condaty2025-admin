@@ -30,6 +30,7 @@ import {
   within,
   waitFor,
   cleanup,
+  act,
 } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
@@ -38,6 +39,12 @@ let respuesta: { data: any; error: any } = { data: null, error: "" };
 
 /** El payload de cada pedido, para afirmar que el reintento pide de verdad. */
 const pedidos: any[] = [];
+
+/**
+ * El `reLoad` vivo del componente, para simular el refresco que dispara el
+ * efecto de los filtros cuando ya hay un balance bueno en pantalla.
+ */
+let dispararRefrescoExterno: (p?: any) => void = () => {};
 
 /**
  * Cuántas respuestas ya aterrizaron. El doble responde en un tick aparte —no
@@ -75,22 +82,36 @@ vi.mock("@/mk/hooks/useAxios", async () => {
     const [enVuelo, setEnVuelo] = React.useState(0);
     const [loaded, setLoaded] = React.useState(true);
     const [estado, setEstado] = React.useState<any>({ data: null, error: "" });
+    const [viejo, setViejo] = React.useState(false);
 
     const reLoad = React.useCallback((p: any) => {
       pedidos.push(p);
-      // El hook REAL, al ARRANCAR: limpia el error y baja `loaded`. Esa es la
-      // ventana en la que el render de en medio ya no sabe que hubo un fallo.
-      setEstado({ data: null, error: "" });
+      // 🔴 FIEL AL HOOK REAL (review de CDT-99): al ARRANCAR limpia el `error`
+      // y baja `loaded`, pero NO toca `data`. El doble anterior lo borraba, y
+      // por eso el estado «cargado + falló + dato viejo todavía en pantalla»
+      // era IRREPRESENTABLE: la suite no podía ver que un refresco fallado
+      // borraba un panel correcto.
+      setEstado((e: any) => ({ data: e.data, error: "" }));
       setLoaded(false);
-      setEnVuelo((n) => n + 1);
+      setEnVuelo((n: number) => n + 1);
     }, []);
+
+    dispararRefrescoExterno = reLoad;
 
     React.useEffect(() => {
       if (enVuelo === 0) return;
       let vigente = true;
       const t = setTimeout(() => {
         if (!vigente) return;
-        setEstado({ ...respuesta });
+        // El hook real, al fallar, hace `setError` y NADA MÁS: `data` sigue
+        // siendo la de antes. Y marca `isStale` sólo si había dato que quedara
+        // viejo (`useAxios.tsx:292`).
+        setEstado((e: any) =>
+          respuesta.error
+            ? { data: e.data, error: respuesta.error }
+            : { ...respuesta },
+        );
+        setViejo(!!respuesta.error);
         setLoaded(true);
         respuestasAterrizadas += 1;
       }, 0);
@@ -103,6 +124,8 @@ vi.mock("@/mk/hooks/useAxios", async () => {
     return {
       data: estado.data,
       error: estado.error,
+      // Igual que el real: sin dato en pantalla no hay nada "viejo" que avisar.
+      isStale: estado.data !== null && viejo,
       loaded,
       reLoad,
       execute: vi.fn(),
@@ -390,6 +413,73 @@ describe("CDT-99 — Balance no confunde «falló el pedido» con «no hay finan
    * `data`. Axios no rechaza un 200, así que acá no hay `error` que mirar y
    * mirando sólo `error` esta forma seguía cayendo en el vacío mentiroso.
    */
+  /**
+   * 🔴 EL MISMO DEFECTO DADO VUELTA (review de CDT-99).
+   *
+   * `useAxios` no limpia `data` al fallar. Si el cartel preguntara por
+   * `error`, un refresco fallado le borraría al usuario un balance CORRECTO
+   * para poner «no se pudo cargar». Se avisa, no se borra.
+   */
+  it("un refresco fallado NO borra el balance correcto: avisa que el dato quedó viejo", async () => {
+    respuesta = {
+      data: {
+        success: true,
+        data: {
+          ...SOBRE_VACIO_LEGITIMO.data.data,
+          saldoInicial: "7350.00",
+        },
+      },
+      error: "",
+    };
+    await montarEn(null);
+    expect(screen.queryByText(TITULO_DEL_FALLO)).not.toBeInTheDocument();
+
+    respuesta = LA_RED_SE_CAYO;
+    const objetivo = respuestasAterrizadas + 1;
+    await act(async () => {
+      dispararRefrescoExterno({ filter_date: "m", filter_mov: "T" });
+    });
+    await waitFor(() =>
+      expect(respuestasAterrizadas).toBeGreaterThanOrEqual(objetivo),
+    );
+
+    // No aparece el cartel de carga fallida: había datos y siguen estando.
+    expect(screen.queryByText(TITULO_DEL_FALLO)).not.toBeInTheDocument();
+    // Y tampoco se calla: avisa que no se pudo actualizar.
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "No se pudo actualizar",
+    );
+  });
+
+  /**
+   * 🔴 `sc` NO es un período: es «abrí el modal de rango personalizado». El
+   * efecto de los filtros lo trata así (`Balance.tsx:87`), y el reintento
+   * tenía que hacer lo mismo — si no, reintentar después de abrir y descartar
+   * ese modal le manda el centinela al API en vez de un rango de fechas.
+   */
+  it("reintentar con el período personalizado a medio elegir NO manda el centinela al API", async () => {
+    respuesta = LA_RED_SE_CAYO;
+    await montarEn(null);
+    await screen.findByText(TITULO_DEL_FALLO);
+
+    // El usuario abre «Personalizado» y lo descarta sin elegir fechas: el
+    // filtro queda en `sc`.
+    const periodo = screen
+      .getByText("Periodo")
+      .closest("button") as HTMLButtonElement;
+    fireEvent.click(periodo);
+    const portal = within(document.getElementById("portal-root") as HTMLElement);
+    fireEvent.click(portal.getByText("Personalizado"));
+
+    const pedidosAntes = pedidos.length;
+    fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
+
+    // No sale ningún pedido con el centinela.
+    expect(
+      pedidos.slice(pedidosAntes).some((p) => p?.filter_date === "sc"),
+    ).toBe(false);
+  });
+
   it("un HTTP 200 rechazado en el cuerpo tampoco es un condominio sin finanzas", async () => {
     respuesta = {
       data: {

@@ -93,6 +93,7 @@ const HomePage = () => {
     reLoad,
     loaded,
     error,
+    isStale,
     execute,
   } = useAxios("/dashboard", "GET", {
     ...paramsInitial,
@@ -132,8 +133,29 @@ const HomePage = () => {
    * siempre, que es lo que tiene que pasar.
    */
   const cargandoDashboard = !loaded && !dashboard?.data;
-  const cargaFallida = loaded && (!!error || !dashboard?.data);
+  /**
+   * 🔴 La condición pregunta por el DATO, no por `error`, y eso NO es un
+   * descuido (review de CDT-99).
+   *
+   * `useAxios` NO limpia `data` cuando falla (`useAxios.tsx:227`: `setError`
+   * y nada más). Si la condición fuera `!!error || !dashboard?.data`, un
+   * refresco fallado —el que dispara un modal al cerrarse, o el botón de
+   * reintentar— le BORRARÍA al usuario un panel correcto que estaba mirando,
+   * para poner un cartel de error. Cambiar «no se pudo actualizar» por «no
+   * hay nada» es el mismo defecto que este ticket vino a cerrar, con el
+   * signo al revés.
+   *
+   * Para ese caso —hay dato viejo en pantalla y el refresco falló— está
+   * `isStale`, que el hook expone justo para esto (CDT-42).
+   */
+  const cargaFallida = loaded && !dashboard?.data;
   const sinPanel = cargandoDashboard || cargaFallida;
+
+  /**
+   * El dato quedó viejo: se avisa SIN sacar de pantalla lo que el usuario
+   * está leyendo. Se apaga solo en cuanto un refresco entra bien.
+   */
+  const datoDesactualizado = isStale && !cargaFallida && !cargandoDashboard;
 
   // Manda el código HTTP (CDT-94): 5xx y red caída caen al genérico; un 4xx
   // —un 403 de permisos— trae su propio texto, que es el que hay que leer,
@@ -473,6 +495,21 @@ const HomePage = () => {
               </div>
             ) : (
               <>
+                {/* No saca de pantalla lo que el usuario está leyendo: sólo
+                    avisa que no se pudo actualizar. */}
+                {datoDesactualizado && (
+                  <div className={styles.staleBanner} role="status">
+                    <IconAlertCircle size={20} color="var(--cWarning)" />
+                    <span>{translate("staleData")}</span>
+                    <button
+                      type="button"
+                      className={styles.retryButton}
+                      onClick={handleRetryDashboard}
+                    >
+                      {translate("retry")}
+                    </button>
+                  </div>
+                )}
                 <WidgetBase
                   variant={"V1"}
                   title={translate("currentSummary")}

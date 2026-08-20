@@ -423,3 +423,20 @@
   color: var(--cWhiteV1);
   font-size: var(--sM);
 }
+
+.staleBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--cWarning);
+  border-radius: 8px;
+  background-color: var(--cHover);
+  color: var(--cWhite);
+  font-size: 14px;
+}
+
+.staleBanner > span {
+  flex: 1;
+}

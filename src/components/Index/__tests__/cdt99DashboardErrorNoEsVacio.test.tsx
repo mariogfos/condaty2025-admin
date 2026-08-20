@@ -26,6 +26,7 @@ import {
   fireEvent,
   waitFor,
   cleanup,
+  act,
 } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
@@ -34,6 +35,13 @@ let respuesta: { data: any; error: any } = { data: null, error: "" };
 
 /** Cuántas veces se pidió, para afirmar que el reintento pide de verdad. */
 const pedidos: any[] = [];
+
+/**
+ * El `reLoad` vivo del componente. Sirve para simular un refresco disparado
+ * DESDE AFUERA —el que hace `store.reLoadDashboard` cuando se cierra un modal
+ * (`Index.tsx:461`)—, que es el camino donde ya hay un panel bueno en pantalla.
+ */
+let dispararRefrescoExterno: (p?: any) => void = () => {};
 
 /**
  * Cuántas respuestas ya aterrizaron. El doble responde en un tick aparte —no
@@ -71,15 +79,21 @@ vi.mock("@/mk/hooks/useAxios", async () => {
     // Arranca en `false`, como el hook real: el pedido del montaje ya salió.
     const [loaded, setLoaded] = React.useState(false);
     const [estado, setEstado] = React.useState<any>({ data: null, error: "" });
+    const [viejo, setViejo] = React.useState(false);
 
     const reLoad = React.useCallback((p: any) => {
       pedidos.push(p);
-      // El hook REAL, al ARRANCAR: limpia el error y baja `loaded`. Esa es la
-      // ventana en la que el render de en medio ya no sabe que hubo un fallo.
-      setEstado({ data: null, error: "" });
+      // 🔴 FIEL AL HOOK REAL (review de CDT-99): al ARRANCAR limpia el `error`
+      // y baja `loaded`, pero NO toca `data`. El doble anterior lo borraba, y
+      // por eso el estado «cargado + falló + dato viejo todavía en pantalla»
+      // era IRREPRESENTABLE: la suite no podía ver que un refresco fallado
+      // borraba un panel correcto.
+      setEstado((e: any) => ({ data: e.data, error: "" }));
       setLoaded(false);
-      setEnVuelo((n) => n + 1);
+      setEnVuelo((n: number) => n + 1);
     }, []);
+
+    dispararRefrescoExterno = reLoad;
 
     // El pedido del montaje (`enVuelo === 0`) y cada reintento resuelven acá,
     // en un tick posterior: así hay al menos un render con el pedido en vuelo.
@@ -87,7 +101,15 @@ vi.mock("@/mk/hooks/useAxios", async () => {
       let vigente = true;
       const t = setTimeout(() => {
         if (!vigente) return;
-        setEstado({ ...respuesta });
+        // El hook real, al fallar, hace `setError` y NADA MÁS: `data` sigue
+        // siendo la de antes. Y marca `isStale` sólo si había dato que quedara
+        // viejo (`useAxios.tsx:292`).
+        setEstado((e: any) =>
+          respuesta.error
+            ? { data: e.data, error: respuesta.error }
+            : { ...respuesta },
+        );
+        setViejo(!!respuesta.error);
         setLoaded(true);
         respuestasAterrizadas += 1;
       }, 0);
@@ -100,6 +122,8 @@ vi.mock("@/mk/hooks/useAxios", async () => {
     return {
       data: estado.data,
       error: estado.error,
+      // Igual que el real: sin dato en pantalla no hay nada "viejo" que avisar.
+      isStale: estado.data !== null && viejo,
       loaded,
       reLoad,
       execute: vi.fn(),
@@ -263,7 +287,10 @@ describe("CDT-99 — el panel no confunde «falló el pedido» con «no hay nada
     await montar();
     await screen.findByRole("alert");
 
-    expect(screen.queryByText("Bs. 0")).not.toBeInTheDocument();
+    // 🔴 «Bs. 0» NO matchea: `formatNumber` usa dos decimales y lo que se
+    // pinta es «Bs. 0.00» (review de CDT-99). La aserción que este test
+    // declara como su propósito quedaba verde incluso con el bug reinyectado.
+    expect(screen.queryByText("Bs. 0.00")).not.toBeInTheDocument();
     expect(screen.queryByText("Resumen actual")).not.toBeInTheDocument();
     expect(screen.queryByText("Resumen de usuarios")).not.toBeInTheDocument();
   });
@@ -338,6 +365,53 @@ describe("CDT-99 — el panel no confunde «falló el pedido» con «no hay nada
     expect(pedidos.length).toBe(pedidosAntes + 1);
     expect(await screen.findByTestId("grafico")).toBeInTheDocument();
     expect(screen.getByText("Bs. 4,500.00")).toBeInTheDocument();
+  });
+
+  /**
+   * 🔴 EL OTRO SIGNO DEL MISMO DEFECTO (review de CDT-99).
+   *
+   * `useAxios` NO limpia `data` cuando falla: sólo hace `setError`. Si la
+   * condición del cartel preguntara por `error`, un refresco fallado le
+   * BORRARÍA al usuario un panel CORRECTO que estaba leyendo para poner un
+   * «no se pudo cargar». Cambiar «no se pudo actualizar» por «no hay nada» es
+   * exactamente el defecto que este ticket vino a cerrar, dado vuelta.
+   *
+   * Lo que corresponde ahí es `isStale`: se avisa, no se borra.
+   */
+  it("un refresco fallado NO borra el panel correcto: avisa que el dato quedó viejo", async () => {
+    respuesta = {
+      data: {
+        success: true,
+        // Egresos distinto de ingresos a propósito: si fueran iguales, el
+        // monto del balance coincidiría y la aserción no sabría cuál miró.
+        data: {
+          ...SOBRE_VACIO_LEGITIMO.data.data,
+          TotalIngresos: 4500,
+          TotalEgresos: 1200,
+        },
+      },
+      error: "",
+    };
+    await montar();
+    expect(await screen.findByText("Bs. 4,500.00")).toBeInTheDocument();
+
+    // Ahora se cae la red en el REFRESCO, con el panel bueno en pantalla.
+    respuesta = LA_RED_SE_CAYO;
+    const objetivo = respuestasAterrizadas + 1;
+    await act(async () => {
+      dispararRefrescoExterno({});
+    });
+    await waitFor(() => expect(respuestasAterrizadas).toBe(objetivo));
+
+    // El panel sigue: no se le borró al usuario lo que estaba mirando.
+    expect(screen.getByText("Bs. 4,500.00")).toBeInTheDocument();
+    expect(screen.getByText("Resumen actual")).toBeInTheDocument();
+    // Y NO se pinta el cartel de carga fallida, que sería mentira.
+    expect(screen.queryByText(TITULO_DEL_FALLO)).not.toBeInTheDocument();
+    // Pero tampoco se calla: avisa que el dato quedó viejo.
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "No se pudo actualizar",
+    );
   });
 
   /**

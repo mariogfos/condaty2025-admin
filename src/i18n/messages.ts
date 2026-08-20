@@ -198,6 +198,8 @@ export const messages = {
       loadingDashboard: "Cargando la información del panel...",
       loadErrorTitle: "No se pudo cargar la información del panel.",
       loadErrorLine2: "Revisa tu conexión e intenta de nuevo.",
+      staleData:
+        "No se pudo actualizar: estás viendo el último dato que cargó.",
       retry: "Reintentar",
     },
     graph: {
@@ -537,6 +539,8 @@ export const messages = {
       loadingDashboard: "Carregando as informações do painel...",
       loadErrorTitle: "Não foi possível carregar as informações do painel.",
       loadErrorLine2: "Verifique sua conexão e tente novamente.",
+      staleData:
+        "Não foi possível atualizar: você está vendo o último dado carregado.",
       retry: "Tentar novamente",
     },
     graph: {
@@ -874,6 +878,8 @@ export const messages = {
       loadingDashboard: "Loading dashboard information...",
       loadErrorTitle: "The dashboard information could not be loaded.",
       loadErrorLine2: "Check your connection and try again.",
+      staleData:
+        "Could not refresh: you are seeing the last data that loaded.",
       retry: "Retry",
     },
     graph: {
