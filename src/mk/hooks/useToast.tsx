@@ -124,12 +124,23 @@ const useToast = (setToastQueue?: Function) => {
       return;
     }
 
-    setToastQueue((prev: ToastItem[] = []) =>
-      appendToastItem(
-        prev,
-        createToastItem(normalized.message, normalized.type, normalized.time),
-      ),
+    // 🔴 El item se crea ACÁ y no adentro del updater (CDT-74): así se puede
+    // devolver su `id` a quien pidió el toast. Un updater de `setState` puede
+    // correr dos veces en modo estricto, y con el `createToastItem` adentro
+    // devolvería un id distinto del que quedó en la cola.
+    const item = createToastItem(
+      normalized.message,
+      normalized.type,
+      normalized.time,
     );
+
+    setToastQueue((prev: ToastItem[] = []) => appendToastItem(prev, item));
+
+    // ⚠️ Devolver el id NO garantiza que el toast esté en la cola: si era un
+    // duplicado reciente, `appendToastItem` lo descarta. Descartar por un id
+    // que no está es inofensivo —el filtro no encuentra nada—, así que quien
+    // lo use no necesita chequearlo.
+    return item.id;
   };
 
   return { showToast };

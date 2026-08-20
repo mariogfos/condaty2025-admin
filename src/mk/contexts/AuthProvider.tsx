@@ -22,6 +22,8 @@ export interface AuthContextType {
   logout: Function;
   userCan: Function;
   showToast: Function;
+  /** Saca un toast por su `id`, el que devuelve `showToast` (CDT-74). */
+  dismissToast: Function;
   waiting: number;
   setWaiting: Function;
   splash: boolean;
@@ -41,6 +43,23 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const router: any = useRouter();
   const { showToast } = useToast(setToasts);
+
+  /**
+   * Descarta un toast por id. Es el mismo filtro que ya usaba el `onDismiss`
+   * del viewport; acá se expone para que una pantalla pueda sacar el suyo
+   * cuando deja de ser cierto —el caso del ticket: «Generando recibo…» cuando
+   * el recibo ya está (CDT-74)—.
+   *
+   * ⚠️ Sale de la cola SIN animación de salida, a diferencia del botón de
+   * cerrar. Es a propósito: acá el toast no se está despidiendo, está siendo
+   * REEMPLAZADO por el de éxito que llega en el mismo instante. Animar la
+   * salida haría que los dos convivan justo el rato que el ticket quiere
+   * evitar.
+   */
+  const dismissToast = useCallback((id: string) => {
+    if (!id) return;
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
 
   const _setStore = useCallback(async (newStore: object) => {
     setStore((old: object | Function) => {
@@ -212,6 +231,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
       logout,
       userCan,
       showToast,
+      dismissToast,
       waiting,
       setWaiting,
       splash,
