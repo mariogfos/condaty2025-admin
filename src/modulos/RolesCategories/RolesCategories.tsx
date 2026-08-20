@@ -1,10 +1,8 @@
 "use client";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
-import RenderItem from "../shared/RenderItem";
 
 const mod: ModCrudType = {
   modulo: "v3/ability-categories",
@@ -58,7 +56,7 @@ const RolesCategories = () => {
       fields,
     }
   );
-  const { onLongPress, selItem } = useCrudUtils({
+  useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -67,27 +65,10 @@ const RolesCategories = () => {
     onDel,
   });
 
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <ItemList
-          title={item?.name}
-          subtitle={item?.description}
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
-
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
-      <List onTabletRow={renderItem} />
+      <List />
     </div>
   );
 };

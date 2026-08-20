@@ -68,11 +68,6 @@ type PropsType = {
   onRenderHead?: null | ((item: any, row: any) => any);
   onRenderFoot?: null | ((item: any, row: any) => any);
   onRowClick?: null | ((e: any, scrollTo?: number) => void);
-  onTabletRow?: (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function,
-  ) => any;
   onButtonActions?: Function;
   actionsWidth?: string;
   style?: CSSProperties;
@@ -82,11 +77,6 @@ type PropsType = {
   extraData?: any;
   sortCol?: { col: string; asc: boolean };
   onSort?: (col: string, asc: boolean) => void;
-  onRenderCard?: (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function,
-  ) => any;
   useInfiniteScroll?: boolean;
   hasMore?: boolean;
   isLoadingMore?: boolean;
@@ -468,9 +458,7 @@ const Table = ({
   onRenderHead = null,
   onRenderFoot = null,
   onRowClick,
-  onTabletRow,
   onButtonActions,
-  onRenderCard,
   actionsWidth,
   style = {},
   className = "",
@@ -489,7 +477,6 @@ const Table = ({
   skeletonRowCount = 20,
   rowContextMenu,
 }: PropsType) => {
-  const isMobile = false;
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
   const [manualWidths, setManualWidths] = useState<Record<number, number>>({});
   const [measuredWidths, setMeasuredWidths] = useState<Record<number, string>>(
@@ -541,7 +528,7 @@ const Table = ({
   }, [resizeState]);
 
   useLayoutEffect(() => {
-    if (!tableRef.current || onRenderCard) return;
+    if (!tableRef.current) return;
 
     const root = tableRef.current;
     let frame = 0;
@@ -595,7 +582,7 @@ const Table = ({
       cancelAnimationFrame(frame);
       resizeObserver.disconnect();
     };
-  }, [data, header, onButtonActions, onRenderCard, resolvedHeight, showHeader]);
+  }, [data, header, onButtonActions, resolvedHeight, showHeader]);
 
   const onStartResize = (
     index: number,
@@ -626,7 +613,7 @@ const Table = ({
     >
       <div className={styles.scrollArea}>
         <div className={styles.canvas}>
-          {(!isMobile || !onTabletRow) && showHeader && !onRenderCard && (
+          {showHeader && (
             <Head
               header={header}
               actionsWidth={actionsWidth}
@@ -651,8 +638,6 @@ const Table = ({
             style={bodyViewportHeight ? { height: bodyViewportHeight } : undefined}
           >
             <Body
-              onTabletRow={onTabletRow}
-              onRenderCard={onRenderCard}
               onRowClick={onRowClick}
               data={data}
               header={header}
@@ -926,7 +911,6 @@ const Sumarize = memo(function Sumarize({
 });
 
 const Body = ({
-  onTabletRow,
   onRowClick,
   data,
   header,
@@ -937,7 +921,6 @@ const Body = ({
   setScrollbarWidth,
   onRenderBody,
   extraData,
-  onRenderCard,
   manualWidths,
   measuredWidths,
   fillColumnIndex,
@@ -951,7 +934,6 @@ const Body = ({
   skeletonRowCount,
   rowContextMenu,
 }: {
-  onTabletRow: any;
   onRowClick: any;
   data: any;
   header: any;
@@ -962,7 +944,6 @@ const Body = ({
   setScrollbarWidth?: Function;
   onRenderBody?: null | ((row: any, i: number, onClick: Function) => any);
   extraData?: any;
-  onRenderCard?: any;
   manualWidths: Record<number, number>;
   measuredWidths?: Record<number, string>;
   fillColumnIndex: number;
@@ -976,7 +957,6 @@ const Body = ({
   skeletonRowCount?: number;
   rowContextMenu?: TableRowContextMenuConfig;
 }) => {
-  const isMobile = false;
   const divRef: any = useRef(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const canTriggerNextLoadRef = useRef(true);
@@ -1161,7 +1141,7 @@ const Body = ({
   const renderSkeletonRows = (rowsCount: number) => {
     const totalRows = Math.max(1, rowsCount || 1);
 
-    if (onRenderBody || onRenderCard) {
+    if (onRenderBody) {
       return Array.from({ length: totalRows }, (_, index) => (
         <div
           key={`row-skeleton-${index}`}
@@ -1265,19 +1245,16 @@ const Body = ({
               overscrollBehavior: "contain",
             }
           : {
-              display: onRenderCard ? "grid" : "flex",
-              flexDirection: onRenderCard ? "row" : "column",
-              gridTemplateColumns: onRenderCard ? "1fr 1fr 1fr 1fr 1fr" : "",
-              gap: onRenderCard ? "16px" : "0px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0px",
             }
       }
     >
       {!showSkeletonRows &&
         data?.map((row: Record<string, any>, index: number) => (
           <Fragment key={"r_" + index}>
-            {isMobile && onTabletRow ? (
-              onTabletRow(row, index, onRowClick)
-            ) : onRenderBody ? (
+            {onRenderBody ? (
               <div
                 key={"row" + index}
                 className={
@@ -1291,8 +1268,6 @@ const Body = ({
               >
                 {onRenderBody(row, index + 1, onRowClick)}
               </div>
-            ) : onRenderCard ? (
-              onRenderCard(row, index, onRowClick)
             ) : (
               <Row
                 row={row}

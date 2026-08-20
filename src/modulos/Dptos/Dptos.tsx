@@ -1,10 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import styles from "./Dptos.module.css";
-import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useEffect, useMemo, useState } from "react";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -385,7 +383,7 @@ const Dptos = () => {
     _onImport: onImport,
   });
 
-  const { onLongPress, selItem } = useCrudUtils({
+  useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -395,23 +393,6 @@ const Dptos = () => {
   });
   const handleRowClick = (item: any) => {
     router.push(`/units/${item.id}`);
-  };
-
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function,
-  ) => {
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <ItemList
-          title={`Departamento Nº ${item?.numero}`}
-          subtitle={item?.descripcion}
-          variant="V1"
-          active={selItem && selItem.id === item.id}
-        />
-      </RenderItem>
-    );
   };
 
   const getFormatTypeUnit = () => {
@@ -472,7 +453,6 @@ const Dptos = () => {
 
       <div className={styles.listContainer}>
         <List
-          onTabletRow={renderItem}
           height={"100%"}
           onRowClick={handleRowClick}
           emptyMsg="Lista vacía. Una vez registres las diferentes unidades"

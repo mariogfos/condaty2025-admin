@@ -462,7 +462,6 @@ const Users = () => {
       </div>
       <List
         height={"100%"}
-        // onTabletRow={renderItem}
         emptyMsg="¡Sin personal registrados! Aquí verás la lista de todo"
         emptyLine2="tu personal administrativo."
         emptyIcon={<IconPersonElegant size={80} color="var(--cWhiteV1)" />}

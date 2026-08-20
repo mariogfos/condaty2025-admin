@@ -14,8 +14,6 @@ import RenderView from "./RenderView/RenderView";
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import RenderItem from "../../../shared/RenderItem";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
@@ -564,7 +562,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
   // 🔴 CDT-52: `onSearch` y `searchs` alimentan la lupa del header
   // (`Layout` → `Header`). Con el no-op de antes, escribir ahí no mandaba nada
   // al servidor: la lupa se abría, aceptaba texto y no pasaba nada.
-  const { onLongPress, selItem } = useCrudUtils({
+  useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -573,34 +571,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     onDel,
   });
 
-  const renderItem = (item: Record<string, any>) => {
-    const rawStatus = Number(item?.status);
-    const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
-    // getStatusConfig applies the overdue rule internally
-    const dueAtString = item?.due_at;
-    const displayStatus = dueAtString && dueAtString < getNow() && numericStatus === DebtStatus.PENDING
-      ? DebtStatus.OVERDUE
-      : numericStatus;
-
-    const debtAmount = parseFloat(item?.amount) || 0;
-    const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
-    const totalBalance = debtAmount + penaltyAmount;
-
-    // La tarjeta de tablet abre el mismo detalle que la fila. Hoy no se
-    // alcanza —`Table` tiene `const isMobile = false`, que es CDT-51—, pero
-    // dejarla en no-op es el mismo bug esperando a que ese ticket la reviva.
-    return (
-      <RenderItem item={item} onClick={onView} onLongPress={onLongPress}>
-        <ItemList
-          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusTextConst(displayStatus)}`}
-          subtitle={`Deuda: ${formatBs(debtAmount)} | Multa: ${formatBs(penaltyAmount)} | Total: ${formatBs(totalBalance)}`}
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
-
   return (
     <>
       {/* 🔴 Sin `onRowClick`: `useCrud` le gana a `runtime.onView` con
@@ -608,7 +578,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
           click de fila abre el detalle. */}
       <List
         height={"100%"}
-        onTabletRow={renderItem}
         emptyMsg="Lista de todas las deudas vacía. Una vez generes las cuotas"
         emptyLine2="de los residentes las verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}

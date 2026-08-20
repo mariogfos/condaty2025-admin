@@ -7,8 +7,6 @@ import RenderForm from './RenderForm/RenderForm';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
-import ItemList from '@/mk/components/ui/ItemList/ItemList';
-import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
@@ -425,7 +423,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
 
   // 🔴 CDT-52: la lupa del header (`Layout` → `Header`) se alimenta de acá. Con
   // el no-op de antes aceptaba texto y no mandaba nada al servidor.
-  const { onLongPress, selItem } = useCrudUtils({
+  useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -434,34 +432,6 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     onDel,
   });
 
-  const renderItem = (item: Record<string, any>) => {
-    const rawStatus = Number(item?.status);
-    const numericStatus = Number.isFinite(rawStatus) && rawStatus > 0 ? rawStatus : DebtStatus.PENDING;
-    const dueAtString = item?.due_at;
-    const todayString = getNow();
-    const displayStatus = dueAtString && dueAtString < todayString && numericStatus === DebtStatus.PENDING
-      ? DebtStatus.OVERDUE
-      : numericStatus;
-
-    const debtAmount = parseFloat(item?.amount) || 0;
-    const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
-    const totalBalance = debtAmount + penaltyAmount;
-
-    // La tarjeta de tablet abre el mismo detalle que la fila. Hoy no se
-    // alcanza —`Table` tiene `const isMobile = false`, que es CDT-51—, pero
-    // dejarla en no-op es el mismo bug esperando a que ese ticket la reviva.
-    return (
-      <RenderItem item={item} onClick={onView} onLongPress={onLongPress}>
-        <ItemList
-          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(displayStatus)}`}
-          subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${penaltyAmount.toFixed(2)} | Total: Bs ${totalBalance.toFixed(2)}`}
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
-
   return (
     <>
       {/* 🔴 Sin `onRowClick`: `useCrud` le gana a `runtime.onView` con
@@ -469,7 +439,6 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
           click de fila abre el detalle. */}
       <List
         height={"100%"}
-        onTabletRow={renderItem}
         emptyMsg="Lista de deudas individuales vacía. Una vez generes las cuotas"
         emptyLine2="individuales las verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
