@@ -86,6 +86,13 @@ const BalanceGeneral: React.FC = () => {
 
   useEffect(() => {
     if (formStateFilter.filter_date === "sc") {
+      // 🔴 Bajar `loadingLocal` acá NO es de adorno (review 4R). Sube al
+      // cambiar «Tipo de transacción» (`:796`) y sólo baja en el efecto que
+      // escucha CAMBIOS de `loaded`. Por esta rama no sale ningún pedido, así
+      // que `loaded` no transiciona, ese efecto no vuelve a correr y la
+      // pantalla queda cargando PARA SIEMPRE. Se llega así: elegir
+      // «Personalizado», descartar el modal, y cambiar el tipo de transacción.
+      setLoadingLocal(false);
       setOpenCustomFilter(true);
     } else {
       reLoadFinanzas(formStateFilter);
@@ -424,10 +431,13 @@ const BalanceGeneral: React.FC = () => {
    * apaga recién cuando el refresco entra bien—, así que sin esta condición la
    * banda «no se pudo actualizar» y su botón de Reintentar quedan pintados
    * ENCIMA del `LoadingScreen`: el usuario ve al mismo tiempo que está
-   * cargando y que falló. Es la misma guarda que tiene el panel
-   * (`Index.tsx:158`), que ahí se llama `cargandoDashboard`.
-   */
-  const estaCargando = loadingLocal || !loaded;
+   * cargando y que falló.
+   *
+   * ⚠️ El panel resuelve lo mismo, pero NO con la misma forma, y acá antes
+   * decía que sí: allá la guarda es `loaded` a secas (`Index.tsx:173`).
+   * `!estaCargando` es `!loadingLocal && loaded`, un conjunto más angosto,
+   * porque esta pantalla tiene además su propio `loadingLocal`.
+   */  const estaCargando = loadingLocal || !loaded;
   const datoDesactualizado = isStale && !cargaFallida && !estaCargando;
 
   // Manda el código HTTP (CDT-94): 5xx y red caída caen al genérico; un 4xx

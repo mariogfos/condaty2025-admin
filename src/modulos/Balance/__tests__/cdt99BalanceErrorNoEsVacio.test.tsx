@@ -476,6 +476,66 @@ describe("CDT-99 — Balance no confunde «falló el pedido» con «no hay finan
   });
 
   /**
+   * 🔴 Hallazgo del review 4R, y es una REGRESIÓN QUE INTRODUJO ESTE MISMO
+   * TICKET: la pantalla quedaba cargando para siempre.
+   *
+   * `loadingLocal` sube al cambiar «Tipo de transacción» y sólo baja en un
+   * efecto que escucha CAMBIOS de `loaded`. Con `filter_date === "sc"` el
+   * efecto de los filtros abre el modal y NO pide, así que `loaded` no
+   * transiciona, ese efecto no vuelve a correr y `estaCargando` queda `true`
+   * sin nada que lo apague.
+   *
+   * ⚠️ Antes de este ticket el colgado varaba sólo «Ingresos» y «Egresos»,
+   * porque eran los únicos dos renders que preguntaban por la carga. Al
+   * agregarle la rama de carga al filtro por defecto —que es el arreglo de
+   * otro hallazgo de este mismo review— el colgado pasó a alcanzar también a
+   * la pantalla de entrada. Un arreglo que ensanchó un defecto vecino.
+   */
+  it("descartar el rango personalizado y cambiar el tipo NO deja la pantalla cargando", async () => {
+    respuesta = {
+      data: {
+        success: true,
+        data: {
+          ...SOBRE_VACIO_LEGITIMO.data.data,
+          ingresosHist: [{ mes: "01", total: 100 }],
+          egresosHist: [{ mes: "01", total: 50 }],
+        },
+      },
+      error: "",
+    };
+    await montarEn(null);
+
+    // El usuario abre «Personalizado» y lo descarta sin elegir fechas.
+    const periodo = screen
+      .getByText("Periodo")
+      .closest("button") as HTMLButtonElement;
+    fireEvent.click(periodo);
+    const portal = within(document.getElementById("portal-root") as HTMLElement);
+    fireEvent.click(portal.getByText("Personalizado"));
+    fireEvent.click(screen.getByText("cerrar-rango"));
+
+    // Y después cambia el tipo de transacción, que es lo que sube
+    // `loadingLocal`. Con `sc` puesto, no sale ningún pedido.
+    const tipo = screen
+      .getByText("Tipo de transacción")
+      .closest("button") as HTMLButtonElement;
+    fireEvent.click(tipo);
+    const portalTipo = within(
+      document.getElementById("portal-root") as HTMLElement,
+    );
+    await act(async () => {
+      fireEvent.click(await portalTipo.findByText("Ingresos"));
+    });
+
+    // 🔴 La pantalla NO puede quedar varada: si no hay pedido en vuelo, no hay
+    // nada que esperar. Lo que se afirma es que el contenido vuelve.
+    await waitFor(() =>
+      expect(screen.queryByText(EL_VACIO_MENTIROSO)).not.toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("graf-ingresos")).toBeInTheDocument();
+  });
+
+  /**
    * 🔴 Hallazgo del review 4R: el render del filtro POR DEFECTO no preguntaba
    * por la carga.
    *
@@ -500,14 +560,19 @@ describe("CDT-99 — Balance no confunde «falló el pedido» con «no hay finan
       fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
     });
 
-    // 🔴 LA ASERCIÓN QUE MIDE ESTA RAMA es la de la GRÁFICA, no la de la
-    // pantalla de carga: los tres renders cuelgan del mismo pedido, así que
-    // los otros dos ya mostraban su carga y `getAllByTestId(...).length > 0`
-    // quedaba verde con el defecto puesto. Lo MEDÍ reinyectando: sin la rama
-    // de carga en `T`, ese render cae en las GRÁFICAS con las series en
-    // `undefined`, y eso es lo único que lo distingue.
+    // 🔴 LA ASERCIÓN QUE MIDE ESTA RAMA es la de la GRÁFICA, y es la única.
+    //
+    // ⚠️ Acá había también un `getAllByTestId("pantalla-de-carga").length > 0`
+    // que NO PODÍA FALLAR, y mi propio comentario explicaba mal por qué: no es
+    // que «los otros dos renders ya muestran su carga». Es peor: el
+    // `<LoadingScreen>` de `Balance.tsx` envuelve la pantalla ENTERA y es
+    // incondicional, así que el doble le pinta ese testid en TODOS los renders
+    // de TODOS los casos, incluido el de datos cargados. Ninguna
+    // implementación podía ponerla roja (review 4R).
+    //
+    // Lo que sí distingue a esta rama: sin su `estaCargando`, cae en las
+    // GRÁFICAS con las series en `undefined`. Medido por reinyección.
     expect(screen.queryByTestId("graf-balance")).not.toBeInTheDocument();
-    expect(screen.getAllByTestId("pantalla-de-carga").length).toBeGreaterThan(0);
     // Tampoco el cartel de fallo viejo ni el vacío: mientras no se sepa, no se
     // afirma nada.
     expect(screen.queryByText(TITULO_DEL_FALLO)).not.toBeInTheDocument();
