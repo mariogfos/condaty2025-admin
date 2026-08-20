@@ -29,6 +29,12 @@ import EmptyData from "@/components/NoData/EmptyData";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import { MONTHS_GRAPH } from "@/mk/utils/date";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
+import { IconAlertCircle } from "@/components/layout/icons/IconsBiblioteca";
+// ⚠️ Esta pantalla RENDERIZA texto escrito por el servidor (CDT-99, como el muro
+// y el widget «Comunidad» desde CDT-47): el `message` de un sobre que no sea 5xx
+// llega tal cual a la vista. El riesgo residual —para los 4xx el único guardián
+// es la lista de patrones técnicos— está medido en el docblock del helper.
+import { leerElErrorDelApi } from "@/mk/hooks/useCrud/leerElErrorDelApi";
 interface ChartTypeOption {
   id: ChartType;
   name: string;
@@ -69,6 +75,7 @@ const BalanceGeneral: React.FC = () => {
     data: finanzas,
     reLoad: reLoadFinanzas,
     loaded,
+    error,
   } = useAxios("/v3/balances", "POST", {});
 
   const [loadingLocal, setLoadingLocal] = useState(false);
@@ -367,9 +374,101 @@ const BalanceGeneral: React.FC = () => {
   // cero. Ahí la comparación es número contra número —por eso el resumen sí
   // funcionaba mientras la gráfica no—.
 
+  /**
+   * ────────────────────────────────────────────────────────────────────────
+   * 🔴 CDT-99 — la pantalla afirmaba que el condominio no tiene finanzas.
+   * ────────────────────────────────────────────────────────────────────────
+   *
+   * `useAxios` pone `loaded = true` en su `finally` pase lo que pase y deja
+   * `data` en `null` (`useAxios.tsx:234`). Sin mirar `error` —que acá ni se
+   * desestructuraba— un fallo de red y un condominio recién creado son el
+   * mismo render: «Gráfica y tablas financieras sin datos. verás la evolución
+   * del flujo de efectivo a medida que tengas ingresos y egresos».
+   *
+   * Es una afirmación FALSA sobre las finanzas del condominio, en la pantalla
+   * entera de Balance, y con el mismo tono tranquilizador que el vacío real.
+   *
+   * ⚠️ SON TRES RENDERS, NO DOS. El mismo `EmptyData` está escrito tres veces
+   * —«Ingresos» (`ingresosContent`), «Egresos» (`egresosContent`) y el
+   * combinado «Ingresos y egresos», que vive suelto en el JSX del filtro `T`—.
+   * Los tres cuelgan del MISMO y ÚNICO pedido a `/v3/balances`, así que un
+   * fallo los rompe a los tres a la vez; arreglar sólo los dos que el ticket
+   * nombraba dejaba mintiendo justo al que está seleccionado por defecto.
+   *
+   * Las dos formas del fallo, las mismas que cerró CDT-47:
+   * - `error` — axios rechazó (5xx, 4xx, red caída, timeout).
+   * - sin `data` en el sobre — el HTTP 200 rechazado en el cuerpo
+   *   (`sendError($msg, [], 200)` devuelve `{success:false, message}` y NINGÚN
+   *   `data`). Axios no rechaza un 200: ahí no hay `error` que mirar.
+   *
+   * ⚠️ Un condominio sin movimientos SÍ trae `data`, con sus listas vacías:
+   * `sendResponse` siempre arma la clave. El vacío legítimo sigue cayendo en
+   * el `EmptyData` de siempre — que es lo que tiene que pasar, y por eso el
+   * cartel de fallo se ve distinto (ícono ámbar + botón).
+   *
+   * ⚠️ NO se toca el resto de la pantalla: filtros, período y tipo de
+   * transacción quedan operativos, porque son los que disparan el pedido.
+   */
+  const cargaFallida = loaded && (!!error || !finanzas?.data);
+
+  // Manda el código HTTP (CDT-94): 5xx y red caída caen al genérico; un 4xx
+  // —un 403 de permisos— trae su propio texto, porque reintentar no arregla un
+  // permiso. El sobre del 200 rechazado viaja en `finanzas`, no en `error`.
+  const { mensaje: mensajeDeCargaFallida } = leerElErrorDelApi(
+    finanzas,
+    error,
+    "Revisa tu conexión e intenta de nuevo.",
+  );
+
+  /**
+   * 🔴 El reintento tiene que volver al estado de CARGA, no repintar el viejo:
+   * `useAxios` limpia su `error` al ARRANCAR la petición, así que el render de
+   * en medio ya no sabe que hubo un fallo.
+   *
+   * ⚠️ Acá NO hace falta un `setLoadingLocal(true)`, y se MIDIÓ: `execute`
+   * hace `setLoaded(false)` de forma síncrona dentro del mismo evento, así que
+   * el primer render después del click ya entra por `loadingLocal || !loaded`
+   * y muestra el `LoadingScreen`. Lo que sostiene el invariante es el ORDEN de
+   * las ramas —carga, después fallo, después vacío—, y eso sí está pineado:
+   * mover el vacío arriba pone el test en rojo.
+   *
+   * Se le pasan los filtros vigentes porque `reLoad` sin payload manda el del
+   * montaje (`payloadRef`), o sea `{}`: el reintento traería el período por
+   * defecto en vez del que el usuario tiene elegido.
+   */
+  const handleRetryBalance = () => {
+    reLoadFinanzas(formStateFilter);
+  };
+
+  /**
+   * Un solo cartel para los tres renders: es un solo pedido el que falló.
+   *
+   * Se deja como constante local y NO como componente exportable: la forma ya
+   * está escrita cuatro veces en el repo (muro, widget «Comunidad», formulario
+   * de cobro y acá) y extraerla es un refactor de otro tamaño. Cuando aparezca
+   * la quinta pantalla, ahí sí.
+   */
+  const contenidoDeCargaFallida = (
+    <div className={styles.loadErrorState} role="alert">
+      <IconAlertCircle size={40} color="var(--cWarning)" />
+      <p>No se pudo cargar la información financiera.</p>
+      <span>{mensajeDeCargaFallida}</span>
+      <button
+        type="button"
+        className={styles.retryButton}
+        onClick={handleRetryBalance}
+      >
+        Reintentar
+      </button>
+    </div>
+  );
+
   let ingresosContent;
   if (loadingLocal || !loaded) {
     ingresosContent = <LoadingScreen />;
+  } else if (cargaFallida) {
+    // Va ANTES del vacío: si no, un fallo sigue cayendo en el `EmptyData`.
+    ingresosContent = contenidoDeCargaFallida;
   } else if (
     !finanzas?.data?.ingresosHist ||
     finanzas?.data?.ingresosHist?.length === 0
@@ -488,6 +587,8 @@ const BalanceGeneral: React.FC = () => {
   let egresosContent;
   if (loadingLocal || !loaded) {
     egresosContent = <LoadingScreen />;
+  } else if (cargaFallida) {
+    egresosContent = contenidoDeCargaFallida;
   } else if (
     !finanzas?.data?.egresosHist ||
     finanzas?.data?.egresosHist?.length === 0
@@ -542,9 +643,7 @@ const BalanceGeneral: React.FC = () => {
         <div ref={chartRefEgresos} className={styles.chartContainerOuter}>
           <div className={styles.chartContainer}>
             <WidgetGrafEgresos
-              egresos={filtrarHastaMesActual(
-                finanzas?.data.egresosHist || [],
-              )}
+              egresos={filtrarHastaMesActual(finanzas?.data.egresosHist || [])}
               chartTypes={[charType.filter_charType]}
               h={360}
               title={`Bs ${formatNumber(
@@ -779,11 +878,16 @@ const BalanceGeneral: React.FC = () => {
           <LoadingScreen>
             {formStateFilter.filter_mov === "T" && (
               <>
-                {loaded &&
-                (!finanzas?.data?.ingresosHist ||
-                  finanzas?.data?.ingresosHist?.length === 0) &&
-                (!finanzas?.data?.egresosHist ||
-                  finanzas?.data?.egresosHist?.length === 0) ? (
+                {/* El fallo se pregunta ANTES que el vacío: es la tercera
+                    puerta al mismo `EmptyData` mentiroso, y la del filtro que
+                    viene seleccionado por defecto. */}
+                {cargaFallida ? (
+                  contenidoDeCargaFallida
+                ) : loaded &&
+                  (!finanzas?.data?.ingresosHist ||
+                    finanzas?.data?.ingresosHist?.length === 0) &&
+                  (!finanzas?.data?.egresosHist ||
+                    finanzas?.data?.egresosHist?.length === 0) ? (
                   <EmptyData
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."

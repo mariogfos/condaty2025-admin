@@ -313,3 +313,48 @@
 .legendAmount.exportando {
   color: var(--blackv1) !important;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * CDT-99 — «Gráfica y tablas financieras sin datos» era una afirmación FALSA
+ * sobre las finanzas del condominio cuando lo que falló fue el pedido.
+ *
+ * Misma forma y mismo vocabulario que el muro (`Reel.module.css`), el widget
+ * «Comunidad» (CDT-47) y el formulario de cobro (CDT-98): ícono ámbar, título,
+ * renglón y botón de reintentar. Que el fallo se distinga del vacío legítimo a
+ * simple vista es la mitad del arreglo.
+ * ───────────────────────────────────────────────────────────────────────── */
+.loadErrorState {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spS, 8px);
+  min-height: 400px;
+  padding: var(--spM);
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+.loadErrorState > p {
+  font-size: var(--sM);
+  font-weight: 900;
+}
+
+.loadErrorState > span {
+  font-size: var(--sS, 12px);
+  color: var(--cWhiteV3);
+}
+
+.retryButton {
+  background: none;
+  border: 1px solid var(--cWhiteV3);
+  border-radius: var(--bRadiusS, 8px);
+  color: var(--cWhite);
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: var(--sM);
+}
+
+.retryButton:hover {
+  border-color: var(--cWhite);
+}

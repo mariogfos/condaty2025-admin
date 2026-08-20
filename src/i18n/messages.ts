@@ -195,6 +195,10 @@ export const messages = {
       preRegistrationIdLabel: "CI",
       preRegistrationPermissionDenied:
         "No tiene permisos para aceptar cuentas pre-registradas",
+      loadingDashboard: "Cargando la información del panel...",
+      loadErrorTitle: "No se pudo cargar la información del panel.",
+      loadErrorLine2: "Revisa tu conexión e intenta de nuevo.",
+      retry: "Reintentar",
     },
     graph: {
       title: "Resumen general",
@@ -530,6 +534,10 @@ export const messages = {
       preRegistrationIdLabel: "CPF",
       preRegistrationPermissionDenied:
         "Você não tem permissão para aprovar contas pré-cadastradas",
+      loadingDashboard: "Carregando as informações do painel...",
+      loadErrorTitle: "Não foi possível carregar as informações do painel.",
+      loadErrorLine2: "Verifique sua conexão e tente novamente.",
+      retry: "Tentar novamente",
     },
     graph: {
       title: "Resumo geral",
@@ -863,6 +871,10 @@ export const messages = {
       preRegistrationIdLabel: "SSN",
       preRegistrationPermissionDenied:
         "You do not have permission to approve pre-registered accounts",
+      loadingDashboard: "Loading dashboard information...",
+      loadErrorTitle: "The dashboard information could not be loaded.",
+      loadErrorLine2: "Check your connection and try again.",
+      retry: "Retry",
     },
     graph: {
       title: "Overview",
