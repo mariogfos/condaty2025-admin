@@ -417,7 +417,18 @@ const BalanceGeneral: React.FC = () => {
    * por un cartel. Para «hay dato viejo y el refresco falló» está `isStale`.
    */
   const cargaFallida = loaded && !finanzas?.data;
-  const datoDesactualizado = isStale && !cargaFallida;
+  /**
+   * 🔴 El `!estaCargando` NO es de adorno (review 4R de CDT-99).
+   *
+   * `isStale` sigue prendido mientras el reintento está EN VUELO —el hook lo
+   * apaga recién cuando el refresco entra bien—, así que sin esta condición la
+   * banda «no se pudo actualizar» y su botón de Reintentar quedan pintados
+   * ENCIMA del `LoadingScreen`: el usuario ve al mismo tiempo que está
+   * cargando y que falló. Es la misma guarda que tiene el panel
+   * (`Index.tsx:158`), que ahí se llama `cargandoDashboard`.
+   */
+  const estaCargando = loadingLocal || !loaded;
+  const datoDesactualizado = isStale && !cargaFallida && !estaCargando;
 
   // Manda el código HTTP (CDT-94): 5xx y red caída caen al genérico; un 4xx
   // —un 403 de permisos— trae su propio texto, porque reintentar no arregla un
@@ -480,7 +491,7 @@ const BalanceGeneral: React.FC = () => {
   );
 
   let ingresosContent;
-  if (loadingLocal || !loaded) {
+  if (estaCargando) {
     ingresosContent = <LoadingScreen />;
   } else if (cargaFallida) {
     // Va ANTES del vacío: si no, un fallo sigue cayendo en el `EmptyData`.
@@ -601,7 +612,7 @@ const BalanceGeneral: React.FC = () => {
 
   // --- Render condicional para egresos ---
   let egresosContent;
-  if (loadingLocal || !loaded) {
+  if (estaCargando) {
     egresosContent = <LoadingScreen />;
   } else if (cargaFallida) {
     egresosContent = contenidoDeCargaFallida;

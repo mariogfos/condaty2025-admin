@@ -242,13 +242,19 @@ const SOBRE_VACIO_LEGITIMO = {
 const montar = async () => {
   const objetivo = respuestasAterrizadas + 1;
   render(<HomePage />);
-  await waitFor(() => expect(respuestasAterrizadas).toBe(objetivo));
+  await waitFor(() =>
+    expect(respuestasAterrizadas).toBeGreaterThanOrEqual(objetivo),
+  );
 };
 
 beforeEach(() => {
   pedidos.length = 0;
   mensajesPintados.length = 0;
   respuesta = { data: null, error: "" };
+  // 🔴 Se resetea entre casos (review 4R de CDT-99): un contador de módulo
+  // que sólo crece hace que el objetivo de cada `waitFor` dependa de cuántos
+  // casos corrieron antes, o sea del ORDEN. El archivo de Balance ya lo hacía.
+  respuestasAterrizadas = 0;
 });
 
 afterEach(() => {
@@ -359,7 +365,9 @@ describe("CDT-99 — el panel no confunde «falló el pedido» con «no hay nada
 
     const objetivo = respuestasAterrizadas + 1;
     fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
-    await waitFor(() => expect(respuestasAterrizadas).toBe(objetivo));
+    await waitFor(() =>
+      expect(respuestasAterrizadas).toBeGreaterThanOrEqual(objetivo),
+    );
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     expect(pedidos.length).toBe(pedidosAntes + 1);
@@ -401,7 +409,9 @@ describe("CDT-99 — el panel no confunde «falló el pedido» con «no hay nada
     await act(async () => {
       dispararRefrescoExterno({});
     });
-    await waitFor(() => expect(respuestasAterrizadas).toBe(objetivo));
+    await waitFor(() =>
+      expect(respuestasAterrizadas).toBeGreaterThanOrEqual(objetivo),
+    );
 
     // El panel sigue: no se le borró al usuario lo que estaba mirando.
     expect(screen.getByText("Bs. 4,500.00")).toBeInTheDocument();
@@ -438,7 +448,9 @@ describe("CDT-99 — el panel no confunde «falló el pedido» con «no hay nada
     expect(screen.getByText(CARGANDO)).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 
-    await waitFor(() => expect(respuestasAterrizadas).toBe(objetivo));
+    await waitFor(() =>
+      expect(respuestasAterrizadas).toBeGreaterThanOrEqual(objetivo),
+    );
     await screen.findByRole("alert");
 
     for (const mentira of LOS_VACIOS_MENTIROSOS) {

@@ -80,7 +80,12 @@ vi.mock("@/mk/hooks/useAxios", async () => {
 
   const useAxiosFalso = () => {
     const [enVuelo, setEnVuelo] = React.useState(0);
-    const [loaded, setLoaded] = React.useState(true);
+    // 🔴 Arranca en `false`, como el hook real: el pedido del montaje ya salió
+    // (review 4R de CDT-99). Antes arrancaba en `true` y salteaba ese tick, o
+    // sea que el primer commit era `loaded && !data` — un estado que el hook
+    // REAL no puede producir, y que dejaba sin ejercitar justamente el orden
+    // «primero LoadingScreen, después el cartel de fallo».
+    const [loaded, setLoaded] = React.useState(false);
     const [estado, setEstado] = React.useState<any>({ data: null, error: "" });
     const [viejo, setViejo] = React.useState(false);
 
@@ -98,8 +103,9 @@ vi.mock("@/mk/hooks/useAxios", async () => {
 
     dispararRefrescoExterno = reLoad;
 
+    // El pedido del montaje (`enVuelo === 0`) y cada reintento aterrizan acá,
+    // en un tick posterior: así hay al menos un render con el pedido en vuelo.
     React.useEffect(() => {
-      if (enVuelo === 0) return;
       let vigente = true;
       const t = setTimeout(() => {
         if (!vigente) return;
@@ -408,12 +414,6 @@ describe("CDT-99 — Balance no confunde «falló el pedido» con «no hay finan
   });
 
   /**
-   * La segunda forma del fallo: HTTP 200 rechazado en el CUERPO.
-   * `sendError($msg, [], 200)` devuelve `{success:false, message}` y ningún
-   * `data`. Axios no rechaza un 200, así que acá no hay `error` que mirar y
-   * mirando sólo `error` esta forma seguía cayendo en el vacío mentiroso.
-   */
-  /**
    * 🔴 EL MISMO DEFECTO DADO VUELTA (review de CDT-99).
    *
    * `useAxios` no limpia `data` al fallar. Si el cartel preguntara por
@@ -449,6 +449,51 @@ describe("CDT-99 — Balance no confunde «falló el pedido» con «no hay finan
     expect(screen.getByRole("status")).toHaveTextContent(
       "No se pudo actualizar",
     );
+  });
+
+  /**
+   * 🔴 Hallazgo del review 4R: la banda de «dato viejo» NO puede convivir con
+   * la pantalla de carga.
+   *
+   * `isStale` sigue prendido mientras el reintento está EN VUELO —el hook lo
+   * apaga recién cuando un refresco entra bien—, así que sin la guarda de
+   * `estaCargando` el usuario ve al mismo tiempo «cargando» y «no se pudo
+   * actualizar», con un botón de Reintentar encima de algo que ya se está
+   * reintentando.
+   */
+  it("mientras el reintento está en vuelo NO se ve la banda de dato viejo", async () => {
+    respuesta = {
+      data: {
+        success: true,
+        data: {
+          ...SOBRE_VACIO_LEGITIMO.data.data,
+          saldoInicial: "7350.00",
+        },
+      },
+      error: "",
+    };
+    await montarEn(null);
+
+    // Primero se rompe un refresco: ahí sí tiene que aparecer la banda.
+    respuesta = LA_RED_SE_CAYO;
+    const objetivo = respuestasAterrizadas + 1;
+    await act(async () => {
+      dispararRefrescoExterno({ filter_date: "m", filter_mov: "T" });
+    });
+    await waitFor(() =>
+      expect(respuestasAterrizadas).toBeGreaterThanOrEqual(objetivo),
+    );
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "No se pudo actualizar",
+    );
+
+    // Ahora se aprieta Reintentar y se mira el render de EN MEDIO, con el
+    // pedido todavía en vuelo: `isStale` sigue en `true`, pero la banda no
+    // tiene que estar.
+    await act(async () => {
+      fireEvent.click(screen.getByText("Reintentar"));
+    });
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
   /**
