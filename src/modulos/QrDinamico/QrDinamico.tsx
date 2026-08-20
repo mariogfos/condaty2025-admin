@@ -16,6 +16,8 @@ import {
 import GenerateQrModal from './GenerateQrModal/GenerateQrModal';
 import RenderView from './RenderView/RenderView';
 import Conciliation from './Conciliation/Conciliation';
+import BankTransactionsModal, { BankTxn } from './BankTransactionsModal/BankTransactionsModal';
+import Button from '@/mk/components/forms/Button/Button';
 
 // ─── Tabs ────────────────────────────────────────────────────────────────────
 type ActiveTab = 'orders' | 'conciliation';
@@ -103,11 +105,33 @@ const QrDinamico = () => {
 
   const [showGenerate, setShowGenerate] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<QrOrder | null>(null);
+
+  // Modal "Últimos QR en el banco" (verificación contra el banco)
+  const [showBankModal, setShowBankModal] = useState(false);
+  const [bankTxns, setBankTxns] = useState<BankTxn[] | null>(null);
+  const [bankLoading, setBankLoading] = useState(false);
+  const [bankError, setBankError] = useState('');
   const ordersLoadSentinelRef = React.useRef<HTMLDivElement | null>(null);
 
   // ─── API calls ──────────────────────────────────────────────────────────────
   const { execute: fetchOrders, loaded: ordersLoaded } = useAxios();
   const { execute: cancelOrder } = useAxios();
+  const { execute: fetchBankTxns } = useAxios();
+
+  const openBankModal = useCallback(async () => {
+    setShowBankModal(true);
+    setBankLoading(true);
+    setBankError('');
+    setBankTxns(null);
+    const response = await fetchBankTxns('v3/bank-qr/recent-transactions', 'GET');
+    const payload = response?.data;
+    if (payload?.success) {
+      setBankTxns(payload.data.orders ?? []);
+    } else {
+      setBankError(payload?.message || response?.error?.message || 'No se pudo consultar el banco.');
+    }
+    setBankLoading(false);
+  }, [fetchBankTxns]);
 
   const buildQueryString = useCallback((f: QrOrderFilters) => {
     const params = new URLSearchParams();
@@ -234,13 +258,14 @@ const QrDinamico = () => {
         </div>
         <div className={styles.headerActions}>
           {activeTab === 'orders' && (
-            <button
-              id="btn-generate-qr"
-              className={styles.generateBtn}
-              onClick={() => setShowGenerate(true)}
-            >
-              + Generar QR
-            </button>
+            <>
+              <Button variant="secondary" onClick={openBankModal}>
+                Últimos QR en el banco
+              </Button>
+              <Button variant="primary" onClick={() => setShowGenerate(true)}>
+                + Generar QR de Prueba
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -416,6 +441,16 @@ const QrDinamico = () => {
             setSelectedOrder(null);
             loadOrders();
           }}
+        />
+      )}
+
+      {showBankModal && (
+        <BankTransactionsModal
+          loading={bankLoading}
+          error={bankError}
+          txns={bankTxns}
+          onReload={openBankModal}
+          onClose={() => setShowBankModal(false)}
         />
       )}
     </div>

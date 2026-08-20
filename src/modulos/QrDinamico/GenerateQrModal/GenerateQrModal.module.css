@@ -11,7 +11,9 @@
 }
 
 .modal {
-  background: #fff;
+  background: var(--cModalSurface);
+  color: var(--cWhite);
+  border: 1px solid var(--cModalBorder);
   border-radius: 8px;
   padding: 24px;
   width: 100%;
@@ -36,6 +38,7 @@
 .closeBtn {
   background: none;
   border: none;
+  color: var(--cWhite);
   font-size: 20px;
   cursor: pointer;
   padding: 4px 8px;
@@ -71,7 +74,7 @@
 .label {
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--cWhiteV1);
 }
 
 .amountRow {
@@ -82,7 +85,9 @@
 .input {
   flex: 1;
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  background: var(--cBlackV1);
+  color: var(--cWhite);
+  border: 1px solid var(--cModalBorder);
   border-radius: 4px;
   font-size: 14px;
 }
@@ -93,10 +98,11 @@
 
 .select {
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--cModalBorder);
   border-radius: 4px;
   font-size: 14px;
-  background: #fff;
+  background: var(--cBlackV1);
+  color: var(--cWhite);
 }
 
 .errorMsg {
@@ -135,8 +141,8 @@
 .btnOutline {
   padding: 10px 20px;
   background: transparent;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  color: var(--cWhite);
+  border: 1px solid var(--cModalBorder);
   border-radius: 4px;
   font-size: 14px;
   cursor: pointer;
@@ -149,7 +155,7 @@
 
 .successRef {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--cWhiteV1);
   margin: 0 0 4px;
 }
 
