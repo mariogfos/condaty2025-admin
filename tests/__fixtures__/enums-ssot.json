@@ -1,6 +1,6 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "lastUpdated": "2026-08-15",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
@@ -27,64 +27,38 @@
       ],
       "values": [
         {
-          "name": "SinQr",
+          "name": "WITHOUT_QR",
           "value": 1,
-          "comment": "SinQr"
+          "comment": "WITHOUT_QR"
         },
         {
-          "name": "QrIndividual",
+          "name": "QR_INDIVIDUAL",
           "value": 2,
-          "comment": "QrIndividual"
+          "comment": "QR_INDIVIDUAL"
         },
         {
-          "name": "QrGrupal",
+          "name": "QR_GROUP",
           "value": 3,
-          "comment": "QrGrupal"
+          "comment": "QR_GROUP"
         },
         {
-          "name": "QrFrecuente",
+          "name": "QR_FREQUENT",
           "value": 4,
-          "comment": "QrFrecuente"
+          "comment": "QR_FREQUENT"
         },
         {
-          "name": "Pedido",
+          "name": "ORDER",
           "value": 5,
-          "comment": "Pedido"
+          "comment": "ORDER"
         },
         {
-          "name": "LlaveQr",
+          "name": "QR_KEY",
           "value": 6,
-          "comment": "LlaveQr — la llave del residente, que no es una invitación"
+          "comment": "QR_KEY — la llave del residente, que no es una invitación"
         }
       ],
-      "apiClass": "TipoDeAcceso",
-      "aliasesComment": "Los VALORES coinciden en los cuatro repos; los nombres de los cases no. El canónico es el del API y cada front declara el suyo. Medido el 2026-08-15: unificarlos por rename toca **507 call sites** (221 en el API, 286 en los tres fronts), y ninguno de los dos nombres está mal —sólo están en idiomas distintos—, así que no hay ninguna corrección que ganar. Se unifican cuando el módulo se migre a Mk2, que es cuando se tocan sus call sites igual.",
-      "aliasesByApp": {
-        "admin": {
-          "SinQr": "WITHOUT_QR",
-          "QrIndividual": "QR_INDIVIDUAL",
-          "QrGrupal": "QR_GROUP",
-          "QrFrecuente": "QR_FREQUENT",
-          "Pedido": "ORDER",
-          "LlaveQr": "QR_KEY"
-        },
-        "rnGuard": {
-          "SinQr": "WITHOUT_QR",
-          "QrIndividual": "QR_INDIVIDUAL",
-          "QrGrupal": "QR_GROUP",
-          "QrFrecuente": "QR_FREQUENT",
-          "Pedido": "ORDER",
-          "LlaveQr": "QR_KEY"
-        },
-        "rnOwner": {
-          "SinQr": "WITHOUT_QR",
-          "QrIndividual": "QR_INDIVIDUAL",
-          "QrGrupal": "QR_GROUP",
-          "QrFrecuente": "QR_FREQUENT",
-          "Pedido": "ORDER",
-          "LlaveQr": "QR_KEY"
-        }
-      }
+      "apiClass": "AccessType",
+      "aliasesComment": "🔴 UNIFICADOS AL INGLÉS el 2026-08-20, al migrar Access a Mk2. Hasta ese día el API los llamaba en castellano (`TipoDeAcceso::SinQr`) y los tres fronts en inglés (`AccessType.WITHOUT_QR`): los VALORES coincidían case por case, así que no había nada roto — eran dos idiomas. Se difirió en su momento porque unificar tocaba 507 call sites, y quedó escrito que si se hacía sería al migrar Access, que es cuando esos archivos se tocan igual. Decisión de Mario. Con la unificación **desaparece el `aliasesByApp` de este enum**: los cuatro repos dicen lo mismo, y un alias que ya no aliasa nada es una excusa para que vuelvan a separarse."
     },
     "AccessStoredStatus": {
       "type": "int",
@@ -97,48 +71,28 @@
       ],
       "values": [
         {
-          "name": "Esperando",
+          "name": "WAITING",
           "value": 1,
-          "comment": "Esperando"
+          "comment": "WAITING"
         },
         {
-          "name": "Adentro",
+          "name": "INSIDE",
           "value": 2,
-          "comment": "Adentro"
+          "comment": "INSIDE"
         },
         {
-          "name": "Afuera",
+          "name": "OUTSIDE",
           "value": 3,
-          "comment": "Afuera"
+          "comment": "OUTSIDE"
         },
         {
-          "name": "Rechazado",
+          "name": "REJECTED",
           "value": 4,
-          "comment": "Rechazado"
+          "comment": "REJECTED"
         }
       ],
-      "apiClass": "EstadoGuardado",
-      "aliasesComment": "Los VALORES coinciden en los cuatro repos; los nombres de los cases no. El canónico es el del API y cada front declara el suyo. Medido el 2026-08-15: unificarlos por rename toca **507 call sites** (221 en el API, 286 en los tres fronts), y ninguno de los dos nombres está mal —sólo están en idiomas distintos—, así que no hay ninguna corrección que ganar. Se unifican cuando el módulo se migre a Mk2, que es cuando se tocan sus call sites igual.",
-      "aliasesByApp": {
-        "admin": {
-          "Esperando": "WAITING",
-          "Adentro": "INSIDE",
-          "Afuera": "OUTSIDE",
-          "Rechazado": "REJECTED"
-        },
-        "rnGuard": {
-          "Esperando": "WAITING",
-          "Adentro": "INSIDE",
-          "Afuera": "OUTSIDE",
-          "Rechazado": "REJECTED"
-        },
-        "rnOwner": {
-          "Esperando": "WAITING",
-          "Adentro": "INSIDE",
-          "Afuera": "OUTSIDE",
-          "Rechazado": "REJECTED"
-        }
-      }
+      "apiClass": "AccessStoredStatus",
+      "aliasesComment": "🔴 UNIFICADOS AL INGLÉS el 2026-08-20, al migrar Access a Mk2. Hasta ese día el API los llamaba en castellano (`TipoDeAcceso::SinQr`) y los tres fronts en inglés (`AccessType.WITHOUT_QR`): los VALORES coincidían case por case, así que no había nada roto — eran dos idiomas. Se difirió en su momento porque unificar tocaba 507 call sites, y quedó escrito que si se hacía sería al migrar Access, que es cuando esos archivos se tocan igual. Decisión de Mario. Con la unificación **desaparece el `aliasesByApp` de este enum**: los cuatro repos dicen lo mismo, y un alias que ya no aliasa nada es una excusa para que vuelvan a separarse."
     },
     "AccessConfirmation": {
       "type": "int",
@@ -151,32 +105,18 @@
       ],
       "values": [
         {
-          "name": "Si",
+          "name": "YES",
           "value": 1,
-          "comment": "Si — era 'Y'"
+          "comment": "YES — era 'Y'"
         },
         {
-          "name": "No",
+          "name": "NO",
           "value": 2,
-          "comment": "No — era 'N'"
+          "comment": "NO — era 'N'"
         }
       ],
-      "apiClass": "Confirmacion",
-      "aliasesComment": "Los VALORES coinciden en los cuatro repos; los nombres de los cases no. El canónico es el del API y cada front declara el suyo. Medido el 2026-08-15: unificarlos por rename toca **507 call sites** (221 en el API, 286 en los tres fronts), y ninguno de los dos nombres está mal —sólo están en idiomas distintos—, así que no hay ninguna corrección que ganar. Se unifican cuando el módulo se migre a Mk2, que es cuando se tocan sus call sites igual.",
-      "aliasesByApp": {
-        "admin": {
-          "Si": "YES",
-          "No": "NO"
-        },
-        "rnGuard": {
-          "Si": "YES",
-          "No": "NO"
-        },
-        "rnOwner": {
-          "Si": "YES",
-          "No": "NO"
-        }
-      }
+      "apiClass": "AccessConfirmation",
+      "aliasesComment": "🔴 UNIFICADOS AL INGLÉS el 2026-08-20, al migrar Access a Mk2. Hasta ese día el API los llamaba en castellano (`TipoDeAcceso::SinQr`) y los tres fronts en inglés (`AccessType.WITHOUT_QR`): los VALORES coincidían case por case, así que no había nada roto — eran dos idiomas. Se difirió en su momento porque unificar tocaba 507 call sites, y quedó escrito que si se hacía sería al migrar Access, que es cuando esos archivos se tocan igual. Decisión de Mario. Con la unificación **desaparece el `aliasesByApp` de este enum**: los cuatro repos dicen lo mismo, y un alias que ya no aliasa nada es una excusa para que vuelvan a separarse."
     },
     "AccessTaxiMark": {
       "type": "int",
@@ -189,40 +129,23 @@
       ],
       "values": [
         {
-          "name": "SinTaxi",
+          "name": "NO_TAXI",
           "value": 1,
-          "comment": "SinTaxi"
+          "comment": "NO_TAXI"
         },
         {
-          "name": "LlegoEnTaxi",
+          "name": "CAME_BY_TAXI",
           "value": 2,
-          "comment": "LlegoEnTaxi"
+          "comment": "CAME_BY_TAXI"
         },
         {
-          "name": "EsElTaxista",
+          "name": "IS_THE_DRIVER",
           "value": 3,
-          "comment": "EsElTaxista"
+          "comment": "IS_THE_DRIVER"
         }
       ],
-      "apiClass": "MarcaDeTaxi",
-      "aliasesComment": "Los VALORES coinciden en los cuatro repos; los nombres de los cases no. El canónico es el del API y cada front declara el suyo. Medido el 2026-08-15: unificarlos por rename toca **507 call sites** (221 en el API, 286 en los tres fronts), y ninguno de los dos nombres está mal —sólo están en idiomas distintos—, así que no hay ninguna corrección que ganar. Se unifican cuando el módulo se migre a Mk2, que es cuando se tocan sus call sites igual.",
-      "aliasesByApp": {
-        "admin": {
-          "SinTaxi": "NO_TAXI",
-          "LlegoEnTaxi": "CAME_BY_TAXI",
-          "EsElTaxista": "IS_THE_DRIVER"
-        },
-        "rnGuard": {
-          "SinTaxi": "NO_TAXI",
-          "LlegoEnTaxi": "CAME_BY_TAXI",
-          "EsElTaxista": "IS_THE_DRIVER"
-        },
-        "rnOwner": {
-          "SinTaxi": "NO_TAXI",
-          "LlegoEnTaxi": "CAME_BY_TAXI",
-          "EsElTaxista": "IS_THE_DRIVER"
-        }
-      }
+      "apiClass": "AccessTaxiMark",
+      "aliasesComment": "🔴 UNIFICADOS AL INGLÉS el 2026-08-20, al migrar Access a Mk2. Hasta ese día el API los llamaba en castellano (`TipoDeAcceso::SinQr`) y los tres fronts en inglés (`AccessType.WITHOUT_QR`): los VALORES coincidían case por case, así que no había nada roto — eran dos idiomas. Se difirió en su momento porque unificar tocaba 507 call sites, y quedó escrito que si se hacía sería al migrar Access, que es cuando esos archivos se tocan igual. Decisión de Mario. Con la unificación **desaparece el `aliasesByApp` de este enum**: los cuatro repos dicen lo mismo, y un alias que ya no aliasa nada es una excusa para que vuelvan a separarse."
     },
     "ReservationStatus": {
       "type": "int",
