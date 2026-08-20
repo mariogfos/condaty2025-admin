@@ -367,3 +367,76 @@
   color: var(--cWhite);
   font-size: 14px;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * CDT-99 — el panel no puede afirmar «no hay» cuando lo que hubo fue un fallo.
+ *
+ * Misma forma y mismo vocabulario que el widget «Comunidad» de al lado
+ * (`WidgetContentsResume.module.css`, CDT-47) y que el muro: ícono ámbar,
+ * título, renglón y botón de reintentar. Que se vea IGUAL entre pantallas es
+ * la mitad del arreglo — el vacío legítimo tiene que distinguirse del fallo a
+ * simple vista, y el usuario aprende una sola forma.
+ * ───────────────────────────────────────────────────────────────────────── */
+.loadErrorState {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spS, 8px);
+  min-height: 320px;
+  padding: var(--spM);
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+.loadErrorState > p {
+  font-size: var(--sM);
+  font-weight: 900;
+}
+
+.loadErrorState > span {
+  font-size: var(--sS, 12px);
+  color: var(--cWhiteV3);
+}
+
+.retryButton {
+  background: none;
+  border: 1px solid var(--cWhiteV3);
+  border-radius: var(--bRadiusS, 8px);
+  color: var(--cWhite);
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: var(--sM);
+}
+
+.retryButton:hover {
+  border-color: var(--cWhite);
+}
+
+.loadingState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 320px;
+  padding: var(--spM);
+  text-align: center;
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+}
+
+.staleBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--cWarning);
+  border-radius: 8px;
+  background-color: var(--cHover);
+  color: var(--cWhite);
+  font-size: 14px;
+}
+
+.staleBanner > span {
+  flex: 1;
+}

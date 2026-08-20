@@ -29,6 +29,12 @@ import EmptyData from "@/components/NoData/EmptyData";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import { MONTHS_GRAPH } from "@/mk/utils/date";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
+import { IconAlertCircle } from "@/components/layout/icons/IconsBiblioteca";
+// ⚠️ Esta pantalla RENDERIZA texto escrito por el servidor (CDT-99, como el muro
+// y el widget «Comunidad» desde CDT-47): el `message` de un sobre que no sea 5xx
+// llega tal cual a la vista. El riesgo residual —para los 4xx el único guardián
+// es la lista de patrones técnicos— está medido en el docblock del helper.
+import { leerElErrorDelApi } from "@/mk/hooks/useCrud/leerElErrorDelApi";
 interface ChartTypeOption {
   id: ChartType;
   name: string;
@@ -69,6 +75,8 @@ const BalanceGeneral: React.FC = () => {
     data: finanzas,
     reLoad: reLoadFinanzas,
     loaded,
+    error,
+    isStale,
   } = useAxios("/v3/balances", "POST", {});
 
   const [loadingLocal, setLoadingLocal] = useState(false);
@@ -78,6 +86,13 @@ const BalanceGeneral: React.FC = () => {
 
   useEffect(() => {
     if (formStateFilter.filter_date === "sc") {
+      // 🔴 Bajar `loadingLocal` acá NO es de adorno (review 4R). Sube al
+      // cambiar «Tipo de transacción» (`:796`) y sólo baja en el efecto que
+      // escucha CAMBIOS de `loaded`. Por esta rama no sale ningún pedido, así
+      // que `loaded` no transiciona, ese efecto no vuelve a correr y la
+      // pantalla queda cargando PARA SIEMPRE. Se llega así: elegir
+      // «Personalizado», descartar el modal, y cambiar el tipo de transacción.
+      setLoadingLocal(false);
       setOpenCustomFilter(true);
     } else {
       reLoadFinanzas(formStateFilter);
@@ -367,9 +382,137 @@ const BalanceGeneral: React.FC = () => {
   // cero. Ahí la comparación es número contra número —por eso el resumen sí
   // funcionaba mientras la gráfica no—.
 
+  /**
+   * ────────────────────────────────────────────────────────────────────────
+   * 🔴 CDT-99 — la pantalla afirmaba que el condominio no tiene finanzas.
+   * ────────────────────────────────────────────────────────────────────────
+   *
+   * `useAxios` pone `loaded = true` en su `finally` pase lo que pase y deja
+   * `data` en `null` (`useAxios.tsx:234`). Sin mirar `error` —que acá ni se
+   * desestructuraba— un fallo de red y un condominio recién creado son el
+   * mismo render: «Gráfica y tablas financieras sin datos. verás la evolución
+   * del flujo de efectivo a medida que tengas ingresos y egresos».
+   *
+   * Es una afirmación FALSA sobre las finanzas del condominio, en la pantalla
+   * entera de Balance, y con el mismo tono tranquilizador que el vacío real.
+   *
+   * ⚠️ SON TRES RENDERS, NO DOS. El mismo `EmptyData` está escrito tres veces
+   * —«Ingresos» (`ingresosContent`), «Egresos» (`egresosContent`) y el
+   * combinado «Ingresos y egresos», que vive suelto en el JSX del filtro `T`—.
+   * Los tres cuelgan del MISMO y ÚNICO pedido a `/v3/balances`, así que un
+   * fallo los rompe a los tres a la vez; arreglar sólo los dos que el ticket
+   * nombraba dejaba mintiendo justo al que está seleccionado por defecto.
+   *
+   * Las dos formas del fallo, las mismas que cerró CDT-47:
+   * - `error` — axios rechazó (5xx, 4xx, red caída, timeout).
+   * - sin `data` en el sobre — el HTTP 200 rechazado en el cuerpo
+   *   (`sendError($msg, [], 200)` devuelve `{success:false, message}` y NINGÚN
+   *   `data`). Axios no rechaza un 200: ahí no hay `error` que mirar.
+   *
+   * ⚠️ Un condominio sin movimientos SÍ trae `data`, con sus listas vacías:
+   * `sendResponse` siempre arma la clave. El vacío legítimo sigue cayendo en
+   * el `EmptyData` de siempre — que es lo que tiene que pasar, y por eso el
+   * cartel de fallo se ve distinto (ícono ámbar + botón).
+   *
+   * ⚠️ NO se toca el resto de la pantalla: filtros, período y tipo de
+   * transacción quedan operativos, porque son los que disparan el pedido.
+   */
+  /**
+   * 🔴 Pregunta por el DATO, no por `error` (review de CDT-99): `useAxios` no
+   * limpia `data` al fallar, así que preguntar por `error` haría que un
+   * refresco fallado le borre al usuario un balance correcto y lo reemplace
+   * por un cartel. Para «hay dato viejo y el refresco falló» está `isStale`.
+   */
+  const cargaFallida = loaded && !finanzas?.data;
+  /**
+   * 🔴 El `!estaCargando` NO es de adorno (review 4R de CDT-99).
+   *
+   * `isStale` sigue prendido mientras el reintento está EN VUELO —el hook lo
+   * apaga recién cuando el refresco entra bien—, así que sin esta condición la
+   * banda «no se pudo actualizar» y su botón de Reintentar quedan pintados
+   * ENCIMA del `LoadingScreen`: el usuario ve al mismo tiempo que está
+   * cargando y que falló.
+   *
+   * ⚠️ El panel resuelve lo mismo, pero NO con la misma forma, y acá antes
+   * decía que sí: allá la guarda es `loaded` a secas (`Index.tsx:173`).
+   * `!estaCargando` es `!loadingLocal && loaded`, un conjunto más angosto,
+   * porque esta pantalla tiene además su propio `loadingLocal`.
+   */  const estaCargando = loadingLocal || !loaded;
+  const datoDesactualizado = isStale && !cargaFallida && !estaCargando;
+
+  // Manda el código HTTP (CDT-94): 5xx y red caída caen al genérico; un 4xx
+  // —un 403 de permisos— trae su propio texto, porque reintentar no arregla un
+  // permiso. El sobre del 200 rechazado viaja en `finanzas`, no en `error`.
+  const { mensaje: mensajeDeCargaFallida } = leerElErrorDelApi(
+    finanzas,
+    error,
+    "Revisa tu conexión e intenta de nuevo.",
+  );
+
+  /**
+   * 🔴 El reintento tiene que volver al estado de CARGA, no repintar el viejo:
+   * `useAxios` limpia su `error` al ARRANCAR la petición, así que el render de
+   * en medio ya no sabe que hubo un fallo.
+   *
+   * ⚠️ Acá NO hace falta un `setLoadingLocal(true)`, y se MIDIÓ: `execute`
+   * hace `setLoaded(false)` de forma síncrona dentro del mismo evento, así que
+   * el primer render después del click ya entra por `estaCargando`.
+   *
+   * 🔴 CORRECCIÓN DEL REVIEW 4R. Antes acá decía que el invariante lo sostenía
+   * el ORDEN de las ramas, y que estaba pineado. Era cierto para DOS de los
+   * tres renders y FALSO justo para el tercero: el de `filter_mov === "T"`, que
+   * es el que viene seleccionado por defecto, no tenía rama de carga. Con un
+   * reintento en vuelo y sin dato caía a las gráficas con las series en
+   * `undefined`; lo único que lo tapaba era el contador global del
+   * `LoadingScreen` compartido, que no es de este código. Los tres abren ahora
+   * por `estaCargando`.
+   *
+   * Se le pasan los filtros vigentes porque `reLoad` sin payload manda el del
+   * montaje (`payloadRef`), o sea `{}`: el reintento traería el período por
+   * defecto en vez del que el usuario tiene elegido.
+   */
+  const handleRetryBalance = () => {
+    // 🔴 La misma guarda que el efecto de arriba (`:87`), y por el mismo
+    // motivo: `sc` no es un período, es «abrí el modal de rango
+    // personalizado». Sin esto, reintentar después de abrir y descartar ese
+    // modal le manda el centinela al API en vez de un rango.
+    if (formStateFilter.filter_date === "sc") {
+      setOpenCustomFilter(true);
+      return;
+    }
+    reLoadFinanzas(formStateFilter);
+  };
+
+  /**
+   * Un solo cartel para los tres renders: es un solo pedido el que falló.
+   *
+   * ⚠️ Queda como constante local y NO como componente compartido, pero eso es
+   * una DEUDA, no una decisión cómoda: con esta pantalla la misma forma queda
+   * escrita CINCO veces en el repo (muro, widget «Comunidad», formulario de
+   * cobro, el panel y acá). Extraerla es un refactor de otro tamaño que no
+   * entra en este ticket — y el que llegue sexto que no lo escriba de nuevo:
+   * que la extraiga.
+   */  const contenidoDeCargaFallida = (
+    <div className={styles.loadErrorState} role="alert">
+      <IconAlertCircle size={40} color="var(--cWarning)" />
+      <p>No se pudo cargar la información financiera.</p>
+      <span>{mensajeDeCargaFallida}</span>
+      <button
+        type="button"
+        className={styles.retryButton}
+        onClick={handleRetryBalance}
+      >
+        Reintentar
+      </button>
+    </div>
+  );
+
   let ingresosContent;
-  if (loadingLocal || !loaded) {
+  if (estaCargando) {
     ingresosContent = <LoadingScreen />;
+  } else if (cargaFallida) {
+    // Va ANTES del vacío: si no, un fallo sigue cayendo en el `EmptyData`.
+    ingresosContent = contenidoDeCargaFallida;
   } else if (
     !finanzas?.data?.ingresosHist ||
     finanzas?.data?.ingresosHist?.length === 0
@@ -486,8 +629,10 @@ const BalanceGeneral: React.FC = () => {
 
   // --- Render condicional para egresos ---
   let egresosContent;
-  if (loadingLocal || !loaded) {
+  if (estaCargando) {
     egresosContent = <LoadingScreen />;
+  } else if (cargaFallida) {
+    egresosContent = contenidoDeCargaFallida;
   } else if (
     !finanzas?.data?.egresosHist ||
     finanzas?.data?.egresosHist?.length === 0
@@ -542,9 +687,7 @@ const BalanceGeneral: React.FC = () => {
         <div ref={chartRefEgresos} className={styles.chartContainerOuter}>
           <div className={styles.chartContainer}>
             <WidgetGrafEgresos
-              egresos={filtrarHastaMesActual(
-                finanzas?.data.egresosHist || [],
-              )}
+              egresos={filtrarHastaMesActual(finanzas?.data.egresosHist || [])}
               chartTypes={[charType.filter_charType]}
               h={360}
               title={`Bs ${formatNumber(
@@ -607,6 +750,21 @@ const BalanceGeneral: React.FC = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Flujo de efectivo</h1>
+      {/* No saca de pantalla el balance que el usuario está leyendo: sólo
+          avisa que no se pudo actualizar. */}
+      {datoDesactualizado && (
+        <div className={styles.staleBanner} role="status">
+          <IconAlertCircle size={20} color="var(--cWarning)" />
+          <span>No se pudo actualizar: estás viendo el último dato que cargó.</span>
+          <button
+            type="button"
+            className={styles.retryButton}
+            onClick={handleRetryBalance}
+          >
+            Reintentar
+          </button>
+        </div>
+      )}
       <div>
         <div className={styles.filterContainer}>
           <div className={styles.filterItem}>
@@ -779,11 +937,18 @@ const BalanceGeneral: React.FC = () => {
           <LoadingScreen>
             {formStateFilter.filter_mov === "T" && (
               <>
-                {loaded &&
-                (!finanzas?.data?.ingresosHist ||
-                  finanzas?.data?.ingresosHist?.length === 0) &&
-                (!finanzas?.data?.egresosHist ||
-                  finanzas?.data?.egresosHist?.length === 0) ? (
+                {/* El fallo se pregunta ANTES que el vacío: es la tercera
+                    puerta al mismo `EmptyData` mentiroso, y la del filtro que
+                    viene seleccionado por defecto. */}
+                {estaCargando ? (
+                  <LoadingScreen />
+                ) : cargaFallida ? (
+                  contenidoDeCargaFallida
+                ) : loaded &&
+                  (!finanzas?.data?.ingresosHist ||
+                    finanzas?.data?.ingresosHist?.length === 0) &&
+                  (!finanzas?.data?.egresosHist ||
+                    finanzas?.data?.egresosHist?.length === 0) ? (
                   <EmptyData
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
