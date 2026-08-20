@@ -59,14 +59,27 @@ const DataModal = ({
   const [openModal, setOpenModal] = useState(false);
   const { isMobile, width } = useScreenSize();
 
+  /**
+   * 🔴 El temporizador se limpia al desmontar (CDT-95).
+   *
+   * Sin esto, el `setOpenModal(true)` de los 100 ms corre igual después de que
+   * el modal ya no existe. En el navegador eso es un `setState` sobre un
+   * componente desmontado; en la suite, el entorno de jsdom ya se desarmó y
+   * React explota con `ReferenceError: window is not defined`, que vitest
+   * cuenta como error no manejado: la suite sale con código 1 CON TODOS LOS
+   * TESTS EN VERDE, y se lo cuelga a un archivo al azar —el que esté corriendo
+   * cuando el temporizador vence—, así que manda a buscar el bug al módulo
+   * equivocado.
+   */
   useEffect(() => {
-    if (open) {
-      setTimeout(() => {
-        setOpenModal(true);
-      }, 100);
-    } else {
+    if (!open) {
       setOpenModal(false);
+      return;
     }
+    const t = setTimeout(() => {
+      setOpenModal(true);
+    }, 100);
+    return () => clearTimeout(t);
   }, [open]);
 
   const _close = (a: any = false) => {
