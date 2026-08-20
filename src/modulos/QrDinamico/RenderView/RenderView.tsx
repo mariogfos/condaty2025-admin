@@ -15,6 +15,15 @@ const formatDate = (d: string | null) => {
   return new Date(d + 'T00:00:00').toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' });
 };
 
+const formatDateTime = (d: string | null) => {
+  if (!d) return '—';
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return '—';
+  return dt.toLocaleString('es-BO', {
+    day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+};
+
 const RenderView = ({ order, onClose, onCancel }: Props) => {
   const { execute: doCancel, loaded } = useAxios();
   const printRef = useRef<HTMLDivElement>(null);
@@ -25,7 +34,7 @@ const RenderView = ({ order, onClose, onCancel }: Props) => {
     // El sobre del API viene dentro de `data`. Leyendo `res.success` esto era
     // siempre `undefined`: el QR se anulaba en el servidor y la pantalla no se
     // enteraba nunca.
-    const { data: sobre } = await doCancel(`qr-dynamic/orders/${order.id}/cancel`, 'POST');
+    const { data: sobre } = await doCancel(`v3/qr-dynamic/orders/${order.id}/cancel`, 'POST');
     if (sobre?.success) onCancel();
   };
 
@@ -83,8 +92,8 @@ const RenderView = ({ order, onClose, onCancel }: Props) => {
           <InfoRow label="Referencia banco" value={order.qr_id_banco ?? '—'} />
           <InfoRow label="Monto" value={`${parseFloat(order.amount).toFixed(2)} ${order.currency}`} />
           <InfoRow label="Tipo de pago" value={order.payment_type ? PAYMENT_TYPE_LABEL[order.payment_type] : '—'} />
-          <InfoRow label="Fecha orden" value={formatDate(order.order_date)} />
-          <InfoRow label="Fecha pago" value={formatDate(order.pay_date)} />
+          <InfoRow label="Generado" value={formatDateTime(order.created_at)} />
+          <InfoRow label="Fecha pago" value={order.pay_date ? `${formatDate(order.pay_date)}${order.pay_hour ? ' ' + order.pay_hour.slice(0, 5) : ''}` : '—'} />
           <InfoRow label="Hora pago" value={order.pay_hour ?? '—'} />
           <InfoRow label="N° transacción" value={order.transaction_id ?? '—'} />
           <InfoRow label="Vencimiento" value={formatDate(order.expiration_date)} />

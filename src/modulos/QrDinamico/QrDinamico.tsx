@@ -34,6 +34,23 @@ const formatDate = (dateStr: string | null) => {
   return d.toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
+const formatDateTime = (dateStr: string | null) => {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleString('es-BO', {
+    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+};
+
+// pay_date es fecha pura; la hora del pago vive aparte en pay_hour (H:i:s).
+const formatDateWithHour = (dateStr: string | null, hour: string | null) => {
+  if (!dateStr) return '—';
+  const day = formatDate(dateStr);
+  if (!hour) return day;
+  return `${day} ${hour.slice(0, 5)}`;
+};
+
 const StateBadge = ({ state }: { state: QrOrderState }) => {
   const cfg = QR_STATE_COLOR[state];
   return (
@@ -112,7 +129,7 @@ const QrDinamico = () => {
     if (append) {
       setLoadingMoreOrders(true);
     }
-    const response = await fetchOrders(`qr-dynamic/orders?${qs}`, 'GET');
+    const response = await fetchOrders(`v3/qr-dynamic/orders?${qs}`, 'GET');
     const payload = response?.data;
 
     if (payload?.success) {
@@ -157,7 +174,7 @@ const QrDinamico = () => {
 
   const handleCancel = async (order: QrOrder) => {
     if (!confirm(`¿Anular el QR ${order.reference}? Esta acción no se puede deshacer.`)) return;
-    const res = await cancelOrder(`qr-dynamic/orders/${order.id}/cancel`, 'POST');
+    const res = await cancelOrder(`v3/qr-dynamic/orders/${order.id}/cancel`, 'POST');
     if (res?.data?.success) {
       const freshFilters = { ...filters, page: 1, per_page: QR_BATCH_SIZE };
       setFilters(freshFilters);
@@ -298,7 +315,7 @@ const QrDinamico = () => {
                 <tr>
                   <th>Referencia</th>
                   <th>Tipo</th>
-                  <th>Fecha orden</th>
+                  <th>Generado</th>
                   <th>Fecha pago</th>
                   <th>Vencimiento</th>
                   <th style={{ textAlign: 'right' }}>Monto</th>
@@ -328,8 +345,8 @@ const QrDinamico = () => {
 	                  <tr key={order.id} onClick={() => setSelectedOrder(order)}>
                     <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{order.reference}</td>
                     <td>{order.payment_type ? PAYMENT_TYPE_LABEL[order.payment_type] : '—'}</td>
-                    <td>{formatDate(order.order_date)}</td>
-                    <td>{formatDate(order.pay_date)}</td>
+                    <td>{formatDateTime(order.created_at)}</td>
+                    <td>{formatDateWithHour(order.pay_date, order.pay_hour)}</td>
                     <td>{formatDate(order.expiration_date)}</td>
                     <td>{formatAmount(order.amount, order.currency)}</td>
                     <td style={{ textAlign: 'center' }}>
