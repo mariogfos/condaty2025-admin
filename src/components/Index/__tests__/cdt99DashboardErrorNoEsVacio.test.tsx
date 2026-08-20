@@ -442,6 +442,64 @@ describe("CDT-99 — el panel no confunde «falló el pedido» con «no hay nada
    * borra.
    */
   /**
+   * 🔴 El borde que el corte de `cargaFallida` ahora es dueño, y que no estaba
+   * medido (review 4R): un 200 rechazado en el cuerpo llegando como REFRESCO,
+   * con el panel bueno ya en pantalla.
+   *
+   * Ahí no hay `error` —axios no rechaza un 200— y `useAxios` hace
+   * `setData(response.data)` igual, así que el sobre sin `data` PISA al bueno.
+   * `isStale` no se puede prender, porque el dato viejo ya no existe.
+   *
+   * ⚠️ Que se vea el cartel de fallo en vez de la banda NO es un descuido: es
+   * lo único honesto cuando el dato anterior ya no está. Lo que se fija acá es
+   * que caiga en el CARTEL y no en los nueve «no hay» de antes del ticket.
+   */
+  it("un 200 rechazado llegando como REFRESCO cae en el cartel, no en los vacíos", async () => {
+    respuesta = {
+      data: {
+        success: true,
+        data: {
+          ...SOBRE_VACIO_LEGITIMO.data.data,
+          TotalIngresos: 4500,
+          TotalEgresos: 1200,
+        },
+      },
+      error: "",
+    };
+    await montar();
+    expect(await screen.findByText("Bs. 4,500.00")).toBeInTheDocument();
+
+    respuesta = {
+      data: { success: false, message: "No tenés acceso al panel." },
+      error: "",
+    };
+    const objetivo = respuestasAterrizadas + 1;
+    await act(async () => {
+      dispararRefrescoExterno({});
+    });
+    await waitFor(() =>
+      expect(respuestasAterrizadas).toBeGreaterThanOrEqual(objetivo),
+    );
+
+    // ⚠️ Acá se mide el DOM final, no el registro por render, y eso es a
+    // propósito: mientras el refresco está en vuelo el panel sigue mostrando
+    // el dato ANTERIOR —que es lo que queremos— y ese dato tiene sus listas
+    // vacías de verdad. O sea que el registro por render trae vacíos
+    // LEGÍTIMOS, no mentiras. La mentira sería que queden en pantalla DESPUÉS
+    // de que el pedido volvió rechazado, y eso es lo que se afirma.
+    for (const mentira of LOS_VACIOS_MENTIROSOS) {
+      expect(screen.queryByText(mentira)).not.toBeInTheDocument();
+    }
+    // Ni los montos en cero, que son la misma mentira con dígitos.
+    expect(screen.queryByText("Bs. 0.00")).not.toBeInTheDocument();
+    // Dice lo que pasó, con el texto del API.
+    expect(screen.getByText(TITULO_DEL_FALLO)).toBeInTheDocument();
+    expect(screen.getByText("No tenés acceso al panel.")).toBeInTheDocument();
+    // Y NO la banda de dato viejo: el dato viejo ya no está para mostrar.
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  /**
    * 🔴 Hallazgo del review 4R: la guarda de la banda estaba MUERTA.
    *
    * `datoDesactualizado` se apoyaba en `!cargandoDashboard`, que comparte el

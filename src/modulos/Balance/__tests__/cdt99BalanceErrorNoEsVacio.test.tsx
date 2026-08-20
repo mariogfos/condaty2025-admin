@@ -153,6 +153,23 @@ vi.mock("@/mk/hooks/useAsyncExport/useAsyncExport", () => ({
 // El `LoadingScreen` real lee `waiting` del `AxiosContext`, que en el test no
 // existe. El doble deja pasar los hijos: así lo que se mide es la rama que
 // eligió la pantalla, no el skeleton.
+// El modal de rango personalizado, sólo para poder afirmar que se ABRE: sin un
+// observable, el test del centinela era una negación sobre una lista vacía y
+// quedaba verde con cualquier implementación que no mandara nada (review 4R).
+vi.mock("@/components/DateRangeFilterModal/DateRangeFilterModal", () => ({
+  // ⚠️ El botón de cerrar NO es decorativo: tiene que llamar al `onClose` real.
+  // Con un doble que sólo se pinta, «descartar el modal» no lo cerraba nunca y
+  // la aserción de que vuelve a abrirse pasaba sin medir nada.
+  default: ({ open, onClose }: any) =>
+    open ? (
+      <div data-testid="modal-rango-personalizado">
+        <button type="button" onClick={() => onClose?.()}>
+          cerrar-rango
+        </button>
+      </div>
+    ) : null,
+}));
+
 vi.mock("@/mk/components/ui/LoadingScreen/LoadingScreen", () => ({
   default: ({ children }: any) => <div>{children}</div>,
 }));
@@ -452,6 +469,61 @@ describe("CDT-99 — Balance no confunde «falló el pedido» con «no hay finan
   });
 
   /**
+   * 🔴 El borde que el corte de `cargaFallida` ahora es dueño, y que no estaba
+   * medido en ninguna de las dos pantallas (review 4R).
+   *
+   * Un 200 rechazado en el cuerpo llegando como REFRESCO, con un balance bueno
+   * ya en pantalla. Ahí no hay `error` —axios no rechaza un 200— y `useAxios`
+   * hace `setData(response.data)` igual, así que el sobre sin `data` PISA al
+   * bueno: `isStale` no se puede prender, porque el dato viejo ya no existe.
+   *
+   * ⚠️ Que se vea el cartel de fallo en vez de la banda NO es un descuido: es
+   * lo único honesto que se puede pintar cuando el dato anterior ya no está.
+   * Lo que este test fija es que caiga en el CARTEL y no en el vacío mentiroso
+   * — que es donde caía antes del ticket.
+   *
+   * Lo que sí queda pendiente y no es de esta pantalla: que el hook pise un
+   * sobre bueno con uno rechazado le pega a TODOS los módulos. Va aparte.
+   */
+  it("un 200 rechazado llegando como REFRESCO cae en el cartel, no en el vacío", async () => {
+    respuesta = {
+      data: {
+        success: true,
+        data: {
+          ...SOBRE_VACIO_LEGITIMO.data.data,
+          saldoInicial: "7350.00",
+        },
+      },
+      error: "",
+    };
+    await montarEn(null);
+    expect(screen.queryByText(TITULO_DEL_FALLO)).not.toBeInTheDocument();
+
+    // El refresco vuelve con un 200 rechazado en el CUERPO: sin `data`.
+    respuesta = {
+      data: { success: false, message: "No tenés acceso a las finanzas." },
+      error: "",
+    };
+    const objetivo = respuestasAterrizadas + 1;
+    await act(async () => {
+      dispararRefrescoExterno({ filter_date: "m", filter_mov: "T" });
+    });
+    await waitFor(() =>
+      expect(respuestasAterrizadas).toBeGreaterThanOrEqual(objetivo),
+    );
+
+    // No dice que el condominio no tiene finanzas.
+    expect(screen.queryByText(EL_VACIO_MENTIROSO)).not.toBeInTheDocument();
+    // Dice lo que pasó, con el texto que mandó el API.
+    expect(screen.getByText(TITULO_DEL_FALLO)).toBeInTheDocument();
+    expect(
+      screen.getByText("No tenés acceso a las finanzas."),
+    ).toBeInTheDocument();
+    // Y NO la banda de dato viejo: el dato viejo ya no está para mostrar.
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  /**
    * 🔴 Hallazgo del review 4R: la banda de «dato viejo» NO puede convivir con
    * la pantalla de carga.
    *
@@ -516,10 +588,26 @@ describe("CDT-99 — Balance no confunde «falló el pedido» con «no hay finan
     const portal = within(document.getElementById("portal-root") as HTMLElement);
     fireEvent.click(portal.getByText("Personalizado"));
 
+    // El modal se descarta de verdad: el filtro queda en `sc` y sin rango.
+    fireEvent.click(screen.getByText("cerrar-rango"));
+    expect(
+      screen.queryByTestId("modal-rango-personalizado"),
+    ).not.toBeInTheDocument();
+
     const pedidosAntes = pedidos.length;
     fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
 
-    // No sale ningún pedido con el centinela.
+    // 🔴 LA MITAD POSITIVA, que faltaba (review 4R). Sin esto la aserción de
+    // abajo era una negación sobre una lista VACÍA: quedaba verde con
+    // cualquier implementación cuyo Reintentar no hiciera nada, incluida una
+    // regresión de la guarda a un `return` mudo. Lo que el botón promete es
+    // resolver, y acá se afirma QUÉ hace: vuelve a abrir el modal para que el
+    // usuario elija el rango que le falta.
+    expect(
+      screen.getByTestId("modal-rango-personalizado"),
+    ).toBeInTheDocument();
+
+    // Y recién entonces, la negativa: no sale ningún pedido con el centinela.
     expect(
       pedidos.slice(pedidosAntes).some((p) => p?.filter_date === "sc"),
     ).toBe(false);
