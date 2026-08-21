@@ -212,6 +212,41 @@ describe("useAsyncExport", () => {
     );
   });
 
+  /**
+   * CDT-116: el test de arriba manda un 400 CON `message`, y ese es justo el
+   * ÚNICO caso donde la rama del 400 y el `else` genérico producen lo MISMO:
+   * las dos emiten `data.message` tal cual. Medido reinyectando
+   * `res.status === 400` → `4000`: el test quedaba VERDE con la rama del 400
+   * muerta, o sea que anunciaba una cobertura que no existía.
+   *
+   * Lo que SÓLO puede dar la rama del 400 es su fallback. Un 400 sin `message`
+   * dice "Tipo de reporte no válido"; el `else`, para ese mismo status, diría
+   * "Error 400 al encolar el reporte". Esa es la diferencia que se pinea acá.
+   *
+   * El código NO es el defecto: preferir el mensaje del back cuando viene es
+   * lo correcto en las dos ramas. El defecto era la entrada que elegía el test.
+   */
+  it("start() → POST → 400 SIN message → el fallback propio del 400", async () => {
+    const fetchMock = mockFetchSequence([{ status: 400, body: {} }]);
+    global.fetch = fetchMock;
+
+    const onError = vi.fn();
+    const { result } = renderHook(() =>
+      useAsyncExport({ type: "foo", onError }),
+    );
+
+    await act(async () => {
+      await result.current.start({});
+    });
+
+    expect(result.current.state.status).toBe("failed");
+    // 🔴 `toBe` exacto y no `toContain`: el texto ES lo que distingue esta rama
+    // del `else`. Con un `toContain("reporte")` los dos mensajes pasarían.
+    expect(result.current.state.errorMessage).toBe("Tipo de reporte no válido");
+    expect(onError).toHaveBeenCalledWith("Tipo de reporte no válido");
+    expect(fetchMock).toHaveBeenCalledTimes(1); // Solo el POST, no polling
+  });
+
   it("start() → POST → 401 (unauthenticated) → fail", async () => {
     const fetchMock = mockFetchSequence([{ status: 401, body: {} }]);
     global.fetch = fetchMock;
