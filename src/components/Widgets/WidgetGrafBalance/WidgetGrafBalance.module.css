@@ -25,6 +25,9 @@
  *
  * Estaban INERTES porque apuntaban a `--blackv1`, que no existe; corregir esa
  * errata las habria reactivado con el bug adentro. Se borran.
+ *
+ * CDT-120 — este motivo tambien vale para WidgetGrafEgresos y WidgetGrafIngresos, que
+ * lo tenian copiado verbatim y ahora apuntan aca. Si cambia, cambia para los tres.
  */
 .container {
   width: 100%;
