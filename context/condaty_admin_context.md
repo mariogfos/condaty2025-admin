@@ -1066,10 +1066,18 @@ api.interceptors.request.use((config) => {
 - **Vitest + Testing Library**: `pnpm exec vitest run` — **142 archivos, 917
   tests** (medido en CDT-116). 🔴 `vitest.config.ts` tiene una **lista blanca**
   de `include`: un test fuera de esos árboles no se corre y **no avisa**. Por eso
-  el job `test` verifica un **piso de 100 archivos** ANTES de correr la suite —
-  medido con la lista blanca rota a propósito: `vitest run` a secas salía
-  **verde con 58 archivos y 292 tests**, o sea 84 archivos y 625 tests
-  desaparecidos sin un solo rojo.
+  el job `test` verifica **dos pisos**, porque son dos formas distintas de morir
+  en verde y ninguna caza a la otra:
+
+  | piso | qué caza | medido con el defecto puesto |
+  |---|---|---|
+  | **100 archivos** (antes de correr) | un glob del `include` que deja de matchear un árbol | `vitest run` a secas: **verde**, 58 archivos / 292 tests |
+  | **750 tests en verde** (después de correr) | un `describe.skip` masivo o un guard que dejó de matchear | `vitest run` a secas: **verde**, 142 archivos / 704 pasados + 197 skippeados |
+
+  🔴 El segundo existe porque un `describe.skip` **mantiene los 142 archivos** y
+  `vitest run` sale con **0** cuando los tests están skippeados: el piso de
+  archivos no lo ve. Se cuenta `numPassedTests` (los que ejecutaron y quedaron en
+  verde), NO `numTotalTests`, que sigue contando a los skippeados y no se movería.
 - **E2E**: Playwright instalado (`playwright.config.ts`, `tests/`). NO lo corre
   el CI: necesita navegador y un servidor levantado.
 - **TypeScript**: `pnpm exec tsc --noEmit`, `strict: true`.
@@ -1082,7 +1090,7 @@ Dos jobs, en paralelo:
 | job | corre | para qué |
 |---|---|---|
 | `analyse` | `pnpm exec tsc --noEmit` | los tipos, incluidos los de los tests |
-| `test` | `vitest list --filesOnly` + `pnpm exec vitest run` | el piso de archivos, y después la suite entera |
+| `test` | `vitest list --filesOnly` → `pnpm exec vitest run` → piso de tests | los dos pisos y la suite entera |
 
 🔴 **Antes de CDT-116 el repo no tenía NINGÚN workflow propio.** Los checks
 verdes de un PR eran Socket, Snyk y Vercel: dependencias, vulnerabilidades y

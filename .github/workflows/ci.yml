@@ -57,6 +57,14 @@ permissions:
 # mira. Con el `sha` adentro cada commit tiene su propio grupo, no compite con nadie
 # y `cancel-in-progress` queda de adorno en ese camino (se deja explícito igual, para
 # que se lea la intención y no haya que deducirla).
+#
+# ⚠️ Lo que este bloque NO cubre, y conviene saberlo porque el síntoma se parece:
+# en un push de N commits GitHub crea **una sola corrida, la del commit tip**. Los
+# N-1 intermedios no quedan cancelados — directamente nunca tienen corrida. Eso es
+# del evento `push` y no lo arregla ningún nombre de grupo. Lo que sí los cubre es
+# la ruta de PR con los checks requeridos, donde el veredicto se pide antes de
+# integrar. Si ves un commit de `dev` sin checks, mirá si entró en un push
+# múltiple antes de venir a tocar este bloque.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -197,5 +205,51 @@ jobs:
       # Sin `continue-on-error` y sin reintentos, a propósito. Si un test es
       # inestable eso es un HALLAZGO para arreglar, no algo para tapar con un
       # retry: un CI que se reintenta solo hasta ponerse verde miente.
+      #
+      # Emite el reporte JSON ADEMÁS del humano (`--reporter=default` explícito, si
+      # no el json lo reemplaza y el log del job queda ilegible). El JSON es lo que
+      # lee el piso de tests del paso siguiente: así se cuenta sobre la corrida que
+      # de verdad pasó, sin correr la suite dos veces.
       - name: Correr la suite
-        run: pnpm exec vitest run
+        run: |
+          pnpm exec vitest run \
+            --reporter=default \
+            --reporter=json \
+            --outputFile.json=/tmp/vitest-resultado.json
+
+      # 🔴 El piso de ARCHIVOS de arriba no caza esta otra forma de morir en verde:
+      # un `describe.skip` masivo, o un guard que deje de matchear adentro de los
+      # archivos, mantiene los 142 archivos intactos y hace caer los tests — y
+      # `vitest run` sale con 0 cuando los tests están SKIPPEADOS. Gate verde, suite
+      # muerta. Son dos agujeros distintos y por eso son dos pisos distintos.
+      #
+      # Se cuenta `numPassedTests` —los que EJECUTARON y quedaron en verde— y no
+      # `numTotalTests`, que incluye a los skippeados y por lo tanto no se movería.
+      #
+      # De dónde sale el 750, medido el 2026-08-20 (CDT-116). Hoy son 917 tests:
+      # src/modulos 625, src/mk 213, src/types 51, src/components 24, src/styles 2,
+      # src/test 2. Mismo criterio que el piso de archivos: apagar un ÁRBOL entero
+      # es el daño realista, y de los dos grandes el que menos se lleva es `src/mk`,
+      # que deja 704. El piso tiene que estar POR ENCIMA de 704 para cazar
+      # cualquiera de los dos (perder `src/modulos` deja 292) y bien por debajo de
+      # 917 para no ponerse rojo solo. 750 cumple las dos y deja 167 de margen.
+      #
+      # 🔴 El piso es ESTÁTICO y la suite crece: si `src/modulos` se agranda mucho,
+      # el resto puede pasar los 750 por sí solo y perder `src/mk` dejaría de
+      # cazarse. El disparador para revisarlo es concreto y medible: cuando
+      # `total - tests(src/mk)` se acerque a 750 (hoy da 704). Ahí se sube el piso Y
+      # se actualiza este reparto, juntos.
+      - name: Verificar el piso de tests ejecutados
+        run: |
+          set -euo pipefail
+          node -e '
+            const r = require("/tmp/vitest-resultado.json");
+            const piso = 750;
+            const verdes = r.numPassedTests;
+            const dormidos = r.numPendingTests + r.numTodoTests;
+            console.log(`Tests ejecutados y en verde: ${verdes} (piso: ${piso}) — sin ejecutar: ${dormidos}`);
+            if (verdes < piso) {
+              console.log(`::error::La suite ejecuto ${verdes} tests en verde y el piso es ${piso}. Hay ${dormidos} sin ejecutar: buscá un describe.skip/it.skip o un guard que dejó de matchear. Los archivos pueden seguir estando TODOS y aun así no correr nada.`);
+              process.exit(1);
+            }
+          '
