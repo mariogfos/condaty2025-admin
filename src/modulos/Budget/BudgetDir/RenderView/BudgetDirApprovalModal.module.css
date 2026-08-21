@@ -233,7 +233,10 @@
 }
 
 /* Responsive */
-@media (max-width: var(--responsive-tablet)) {
+/* 768px literal, no `var(--responsive-tablet)`: una media query se evalua
+   antes de que existan las custom properties, asi que con var() este bloque
+   entero NUNCA aplico. Medido en el navegador el 2026-08-21. */
+@media (max-width: 768px) {
   .container {
     padding: var(--spL);
     gap: var(--spM);
