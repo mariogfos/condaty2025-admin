@@ -31,7 +31,6 @@ type PropsType = {
   subtitle?: string;
   className?: string;
   periodo?: string;
-  exportando?: boolean;
 };
 
 const WidgetGrafEgresos: React.FC<PropsType> = ({
@@ -42,7 +41,6 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
   subtitle,
   className,
   periodo,
-  exportando,
 }) => {
   const getMonths = (
     data: Transaction[] | undefined,
@@ -159,7 +157,6 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
           label: '',
           height: h,
         }}
-        exportando={exportando}
       />
     </div>
   );

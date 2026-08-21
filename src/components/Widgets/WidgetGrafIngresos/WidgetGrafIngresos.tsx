@@ -30,7 +30,6 @@ type PropsType = {
   subtitle?: string;
   className?: string;
   periodo?: string; // <-- 1. Se añade la prop 'periodo'
-  exportando?: boolean;
 };
 
 const WidgetGrafIngresos = ({
@@ -41,7 +40,6 @@ const WidgetGrafIngresos = ({
   subtitle,
   className,
   periodo, // <-- Se recibe la prop
-  exportando,
 }: PropsType) => {
   // 2. La función ahora considera el 'periodo' para generar los meses
   const getMonths = (
@@ -161,7 +159,6 @@ const WidgetGrafIngresos = ({
           label: '',
           height: h,
         }}
-        exportando={exportando}
       />
     </div>
   );

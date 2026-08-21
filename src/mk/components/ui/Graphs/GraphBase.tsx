@@ -16,8 +16,7 @@ const GraphBase = ({
   options,
   background = "#333536",
   downloadPdf = false,
-  exportando = false,
-}: ProptypesBase & { exportando?: boolean }) => {
+}: ProptypesBase) => {
   const { translate } = useScopedI18n("graph");
   const [chartType, setChartType] = React.useState<ChartType>(
     chartTypes?.[0] || "bar",
@@ -72,7 +71,6 @@ const GraphBase = ({
           chartType={chartType}
           options={options}
           downloadPdf={downloadPdf}
-          exportando={exportando}
         />
       </div>
     </div>

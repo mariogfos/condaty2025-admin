@@ -13,8 +13,7 @@ const GraphsAdapter = ({
   chartType,
   options,
   downloadPdf,
-  exportando = false,
-}: ProptypesAdapter & { exportando?: boolean }) => {
+}: ProptypesAdapter) => {
   const chartConfig = useMemo(() => {
     if (!data) return null;
 

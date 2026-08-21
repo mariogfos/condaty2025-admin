@@ -11,8 +11,14 @@
  * todavia hace `import { fontWeight } from 'html2canvas/dist/types/...'`. Es un tipo
  * que ni se usa, pero el import existe y sacar el paquete rompe el build.
  *
- * Hoy `exportando` es nada mas un estado de carga: el widget se sigue viendo sobre el
- * fondo OSCURO de la app, y la regla dejaba el texto en #1b2229 sobre #1b2229 = 1,0:1.
+ * CDT-119 — el prop `exportando` ya ni llega hasta aca: lo que sobrevivio a esas
+ * reglas fue la cañeria que las alimentaba (Balance -> WidgetGraf* -> GraphBase ->
+ * GraphsAdapter), y nadie leia su valor. Se borro. El estado de carga del export
+ * vive SOLO en Balance.tsx (`exportState.isExporting`), y su unico efecto es
+ * deshabilitar los botones mientras el informe se genera.
+ *
+ * El widget se ve SIEMPRE sobre el fondo OSCURO de la app, y la regla dejaba el
+ * texto en #1b2229 sobre #1b2229 = 1,0:1.
  *
  * Estaban INERTES porque apuntaban a `--blackv1`, que no existe; corregir esa
  * errata las habria reactivado con el bug adentro. Se borran.
