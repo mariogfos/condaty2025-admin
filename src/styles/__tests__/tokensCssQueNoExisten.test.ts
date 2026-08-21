@@ -46,7 +46,9 @@
  * `.container` de `BankProviderTester`, y usarlo desde otro módulo pasaría este
  * test y seguiría sin pintar. El guardián acota, no reemplaza mirar la pantalla.
  *
- * ⚠️ Lo que sigue fuera de alcance, a propósito (0 instancias vivas hoy, medido):
+ * ⚠️ AL CERRAR UNA ASIMETRÍA DE ESTE BARRIDO, PREGUNTATE CUÁL QUEDA ABIERTA: pasó dos
+ * veces acá y las dos la mitad que faltaba DABA PERMISO. 🔴 Y «fuera de alcance» no es
+ * «no pasa»: esta lista decía «medido» y era falso. Si ponés un número, medilo:
  *   - CSS dentro de un template literal que se inyecta —`<style>{`:root{--x:…}`}</style>`,
  *     `setAttribute("style", …)`, `cssText`—. Las declaraciones por backtick sí se
  *     leen; armar el nombre del token concatenando (`--c${nombre}`) no.
@@ -88,15 +90,53 @@ const archivosCss = () => archivos(/\.(css|scss)$/);
 const archivosTs = () => archivos(/\.tsx?$/);
 
 /**
- * 🔴 El texto se lee SIN comentarios, en los dos barridos.
+ * 🔴 Escáner con estado y no un regex: dentro de un string no hay comentarios.
  *
- * Un regex ciego a comentarios miente en las dos direcciones: da por DECLARADO
- * un token que sólo aparece en prosa —pasó con `--accentColor`, nombrado en un
- * comentario de CDT-114— y da por USADO un `var()` de código muerto comentado.
- * Ninguna de las dos cosas llega al navegador.
+ * Despintar hace falta porque un comentario da por DECLARADO un token que sólo está
+ * en prosa —`--btn-width`, comentado en `theme.css:284`, es hoy el único— y por USADO
+ * un `var()` comentado. Pero hacerlo SIN VER LOS STRINGS da permiso: el
+ * `accept="image/*"` de `Config/DptoConfig/DptoConfig.tsx` abre un comentario falso en
+ * la 741 que cierra en la 1441 —655 líneas, la pantalla de configuración entera— y un
+ * token roto ahí adentro deja el guardián en VERDE.
+ *
+ * ⚠️ Sin cubrir: regex que abra con barra-asterisco, `url()` sin comillas y `//` a mitad
+ * de línea. Ejemplos descritos, no literales: asterisco-barra cerraría este docblock.
  */
-const sinComentarios = (texto: string): string =>
-  texto.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
+const sinComentarios = (texto: string, conTemplate: boolean): string => {
+  let salida = "";
+  for (let i = 0, abreLinea = true; i < texto.length; ) {
+    const c = texto[i];
+    const sig = texto[i + 1];
+    if (c === '"' || c === "'" || (conTemplate && c === "`")) {
+      salida += c;
+      for (i++; i < texto.length; i++) {
+        const escapado = texto[i] === "\\";
+        salida += escapado ? texto.slice(i, i + 2) : texto[i];
+        if (escapado) i++;
+        else if (texto[i] === c) {
+          i++;
+          break;
+        }
+      }
+      abreLinea = false;
+    } else if (c === "/" && sig === "*") {
+      const fin = texto.indexOf("*/", i + 2);
+      const hasta = fin < 0 ? texto.length : fin + 2;
+      salida += texto.slice(i, hasta).replace(/[^\n]/g, " ");
+      i = hasta;
+    } else if (c === "/" && sig === "/" && abreLinea) {
+      const fin = texto.indexOf("\n", i);
+      const hasta = fin < 0 ? texto.length : fin;
+      salida += " ".repeat(hasta - i);
+      i = hasta;
+    } else {
+      abreLinea = c === "\n" || (abreLinea && (c === " " || c === "\t"));
+      salida += c;
+      i++;
+    }
+  }
+  return salida;
+};
 
 /** Las formas en que TS/TSX declara una custom property. */
 const DECLARA_DESDE_TS: RegExp[] = [
@@ -112,13 +152,13 @@ const DECLARA_DESDE_TS: RegExp[] = [
 const tokensDefinidos = (): Set<string> => {
   const definidos = new Set<string>();
   for (const ruta of archivosCss()) {
-    const texto = sinComentarios(readFileSync(ruta, "utf-8"));
+    const texto = sinComentarios(readFileSync(ruta, "utf-8"), false);
     for (const m of texto.matchAll(/(--[A-Za-z][\w-]*)\s*:/g)) definidos.add(m[1]);
   }
   for (const ruta of archivosTs()) {
     // El propio guardián nombra tokens en sus tests: no se cuenta a sí mismo.
     if (ruta === __filename) continue;
-    const texto = sinComentarios(readFileSync(ruta, "utf-8"));
+    const texto = sinComentarios(readFileSync(ruta, "utf-8"), true);
     for (const re of DECLARA_DESDE_TS) {
       for (const m of texto.matchAll(re)) definidos.add(m[1]);
     }
@@ -134,7 +174,7 @@ const tokensUsados = (): Map<string, string[]> => {
   const usados = new Map<string, string[]>();
   for (const ruta of [...archivosCss(), ...archivosTs()]) {
     if (ruta === __filename) continue;
-    const texto = sinComentarios(readFileSync(ruta, "utf-8"));
+    const texto = sinComentarios(readFileSync(ruta, "utf-8"), /\.tsx?$/.test(ruta));
     for (const m of texto.matchAll(/var\(\s*(--[A-Za-z][\w-]*)\s*\)/g)) {
       const lista = usados.get(m[1]) ?? [];
       lista.push(relative(RAIZ, ruta));
@@ -175,13 +215,13 @@ describe("CDT-84 — ningún `var()` apunta a un token que no existe", () => {
     ).toEqual([]);
   });
 
-  it("la lista de deuda conocida no tiene entradas que ya se hayan definido", () => {
-    const definidos = tokensDefinidos();
-    const yaResueltos = [...FALTAN_DE_VERDAD].filter((t) => definidos.has(t));
+  // Con el Set vacío, «ninguna ya está definida» comparaba [] contra []: no podía
+  // fallar. Se afirma la política, que sí puede fallar.
+  it("la lista de deuda quedó vacía y sigue vacía", () => {
     expect(
-      yaResueltos,
-      `Estos ya están definidos: sacalos de FALTAN_DE_VERDAD. Una lista de deuda ` +
-        `que no se achica deja de leerse.\n  ${yaResueltos.join(", ")}`,
+      [...FALTAN_DE_VERDAD],
+      `Volvieron a meter tokens acá. La lista se vació midiendo el contraste de cada ` +
+        `reemplazo sobre su superficie real: arreglá el token en vez de aplazarlo.`,
     ).toEqual([]);
   });
 
@@ -195,7 +235,7 @@ describe("CDT-84 — ningún `var()` apunta a un token que no existe", () => {
     const definidos = tokensDefinidos();
     const soloCss = new Set<string>();
     for (const ruta of archivosCss()) {
-      for (const m of sinComentarios(readFileSync(ruta, "utf-8")).matchAll(
+      for (const m of sinComentarios(readFileSync(ruta, "utf-8"), false).matchAll(
         /(--[A-Za-z][\w-]*)\s*:/g,
       )) {
         soloCss.add(m[1]);
@@ -217,6 +257,21 @@ describe("CDT-84 — ningún `var()` apunta a un token que no existe", () => {
           `inexistente. Así se manda al próximo a romper una pantalla que anda.`,
       ).toBe(true);
     }
+  });
+
+  it("no toma el `image/*` de DptoConfig como apertura de comentario", () => {
+    const ruta = join(RAIZ, "modulos", "Config", "DptoConfig", "DptoConfig.tsx");
+    const crudo = readFileSync(ruta, "utf-8");
+    // Sin esto el test se vuelve vacío el día que el input desaparezca.
+    expect(crudo, `DptoConfig ya no tiene el caso: buscá otro o borrá el test.`)
+      .toContain('accept="image/*"');
+    // CONTENIDO, no cantidad de líneas: el escáner las conserva y contarlas da 0
+    const limpio = sinComentarios(crudo, true); // siempre, aun con el bug puesto.
+    expect(
+      ["coverAvatarAnchor", "profileLogoShell"].filter((m) => !limpio.includes(m)),
+      `Despintador otra vez ciego a los strings: el \`/*\` de \`image/*\` (741) tapa ` +
+        `hasta la 1441 y el guardián pasa a dar VERDE sobre tokens rotos.`,
+    ).toEqual([]);
   });
 
   it("cuenta también los `var()` que viven en TS/TSX", () => {

@@ -45,7 +45,7 @@
    * `--primary-dark` no lleva token propio: era `--accent-dark` con otro nombre.
    */
   --accentDark: #00b16d; /* de --accentColor #00e38c; con texto --cBlack da 6,55:1 */
-  --errorDark: #bb362a; /* de --error #ea4335; con texto blanco da 5,70:1 */
+  --errorDark: #bb362a; /* de --error #ea4335; con texto blanco da 5,72:1 */
 
   /* Etiquetas */
   --accentBg: #00e38c26;

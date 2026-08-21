@@ -199,7 +199,9 @@
   gap: 8px;
   /* CDT-114: ⚠️ este boton NO TENIA FONDO. El fondo era `var(--primary-color)`, que
      no existe, asi que la declaracion caia a transparent y el `color: white` quedaba
-     sobre el fondo oscuro de la pantalla (16,06:1): legible, pero no parecia un boton.
+     sobre la superficie de atras: este RenderView va como `renderView` de useCrud y se
+     monta DENTRO del modal, --cModalSurface #0d1218 = 18,80:1 (no --cBackground, que
+     esta pantalla no toca). Legible, pero no parecia un boton.
      Corregir el token le DA fondo verde, y recien ahi el blanco pasa a ser un problema
      —1,70:1— que antes no existia. Por eso el texto va oscuro: 10,78:1 en reposo y
      6,55:1 sobre --accentDark. */

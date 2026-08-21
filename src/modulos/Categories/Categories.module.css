@@ -191,9 +191,9 @@
 }
 
 /* CDT-114: apuntaba a --cDarkv2 (inexistente), y cambiarlo a --darkv2 #333536 por
-   parecido de nombre dejaba 1,56:1 sobre --category-surface-strong: ilegible. El
-   color base de este boton es --cAccent, asi que el hover es su version aclarada,
-   --accentv1 #4ee7ac = 12,22:1. Mismo criterio que .viewMore:hover de DashDptos. */
+   parecido de nombre lo dejaba ilegible. Componiendo los alfa (layout #0d1116 +
+   tarjeta .72 + contenedor .92) la superficie es rgb(12,15,18): --darkv2 da 1,55:1 y
+   --accentv1 12,18:1. Base --cAccent -> su version aclarada. */
 .addSubcategoryButton:hover {
   color: var(--accentv1);
 }
@@ -253,8 +253,7 @@
   width: fit-content;
 }
 
-/* CDT-114: idem. Aca dolia mas: es el UNICO camino de vuelta de esta pantalla, y
-   con #333536 quedaba el subrayado sin texto legible. Base --cAccent -> --accentv1. */
+/* CDT-114: idem, y es el UNICO camino de vuelta. ⚠️ NO va sobre una tarjeta sino sobre el layout #0d1116: --darkv2 da 1,54:1 y --accentv1 12,04:1. */
 .backLink:hover {
   text-decoration: underline;
   color: var(--accentv1);

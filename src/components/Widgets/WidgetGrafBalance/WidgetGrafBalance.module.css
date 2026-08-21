@@ -1,6 +1,6 @@
 /*
- * CDT-114 — aca vivian `.title.exportando` / `.subtitle.exportando`, que forzaban
- * `color: var(--cBlackV1) !important` para oscurecer el texto sobre el lienzo
+ * CDT-114 — aca vivian `.title.exportando` / `.subtitle.exportando`, que PEDIAN
+ * `var(--blackv1)` —v minuscula, inexistente— para oscurecer el texto sobre el lienzo
  * BLANCO que dibujaba html2canvas en el front.
  *
  * Ese lienzo ya no existe: el export es del servidor (POST /api/v3/reports/{type}

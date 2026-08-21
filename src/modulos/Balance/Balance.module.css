@@ -298,7 +298,7 @@
   font-family: var(--fPrimary);
   margin-left: 0.25em;
 }
-/* CDT-114: `.legendAmount.exportando` forzaba --cBlackV1 para el lienzo blanco de
+/* CDT-114: `.legendAmount.exportando` PEDIA --blackv1 (inexistente) para el lienzo de
    html2canvas, que ya no se usa: el export es del servidor. Sobre el fondo oscuro
    real daba 1,0:1. Estaba inerte por la errata --blackv1; se borra en vez de
    reactivarla. Ver el mismo comentario en los tres WidgetGraf*. */
