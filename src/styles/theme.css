@@ -282,8 +282,22 @@
   --controlSecondaryHoverText: var(--cWhite);
   /* button search size */
   /* --btn-width: 8rem; */
-  --responsive-tablet: 768px;
-  --responsive-mobile: 480px;
+  /* 🔴 Aca NO va una variable de breakpoint, y no es un olvido.
+
+     Habia dos, `--responsive-tablet: 768px` y `--responsive-mobile: 480px`.
+     La segunda no la uso NADIE nunca. La primera se uso en cuatro
+     `@media (max-width: var(--responsive-tablet))` —Budget, BudgetDir,
+     ExpensesDetails y Payments— y los cuatro bloques estaban MUERTOS: una
+     media query se evalua antes de que existan las custom properties, asi
+     que `var()` adentro de la condicion no resuelve en ningun navegador.
+
+     Lo peor es como falla: el navegador GUARDA la regla (aparece en
+     `document.styleSheets` y en devtools, se ve perfecta) y simplemente no
+     la aplica nunca. Medido el 2026-08-21 metiendo las dos versiones en la
+     misma hoja: la literal pinto, la de `var()` no.
+
+     Los breakpoints van literales. El proyecto ya escribia 81 `@media` con
+     `768px` a mano; los cuatro rotos eran la excepcion, no la regla. */
 
   --figma-main-bg: #333536;
   --figma-border-color: #a7a7a7; /* Similar a --cWhiteV1 */
