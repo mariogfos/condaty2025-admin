@@ -1063,9 +1063,13 @@ api.interceptors.request.use((config) => {
 ## 🧪 Testing y Calidad
 
 ### Estrategia de Testing
-- **Vitest + Testing Library**: `pnpm exec vitest run` — 142 archivos, 916 tests
-  (medido en CDT-116). ⚠️ `vitest.config.ts` tiene una **lista blanca** de
-  `include`: un test fuera de esos árboles no se corre y **no avisa**.
+- **Vitest + Testing Library**: `pnpm exec vitest run` — **142 archivos, 917
+  tests** (medido en CDT-116). 🔴 `vitest.config.ts` tiene una **lista blanca**
+  de `include`: un test fuera de esos árboles no se corre y **no avisa**. Por eso
+  el job `test` verifica un **piso de 100 archivos** ANTES de correr la suite —
+  medido con la lista blanca rota a propósito: `vitest run` a secas salía
+  **verde con 58 archivos y 292 tests**, o sea 84 archivos y 625 tests
+  desaparecidos sin un solo rojo.
 - **E2E**: Playwright instalado (`playwright.config.ts`, `tests/`). NO lo corre
   el CI: necesita navegador y un servidor levantado.
 - **TypeScript**: `pnpm exec tsc --noEmit`, `strict: true`.
@@ -1078,7 +1082,7 @@ Dos jobs, en paralelo:
 | job | corre | para qué |
 |---|---|---|
 | `analyse` | `pnpm exec tsc --noEmit` | los tipos, incluidos los de los tests |
-| `test` | `pnpm exec vitest run` | la suite entera |
+| `test` | `vitest list --filesOnly` + `pnpm exec vitest run` | el piso de archivos, y después la suite entera |
 
 🔴 **Antes de CDT-116 el repo no tenía NINGÚN workflow propio.** Los checks
 verdes de un PR eran Socket, Snyk y Vercel: dependencias, vulnerabilidades y

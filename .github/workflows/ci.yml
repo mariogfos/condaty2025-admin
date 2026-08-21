@@ -40,16 +40,25 @@ on:
 permissions:
   contents: read
 
-# 🔴 Se cancela en los PR y NO en los push, y la diferencia importa.
+# 🔴 Lo que decide si un commit puede quedarse sin veredicto es el NOMBRE DEL
+# GRUPO, no `cancel-in-progress`. Esa es la parte que es fácil escribir mal.
 #
-# En un PR, si empujás tres veces seguidas sólo interesa el veredicto de la
-# última: cancelar las viejas ahorra runners y no pierde información.
+# En un PR agrupamos por rama: si empujás tres veces seguidas sólo interesa el
+# veredicto de la última, así que cancelar las viejas ahorra runners y no pierde
+# información.
 #
-# En `dev` es al revés: cada commit necesita su propio veredicto. Con
-# `cancel-in-progress` a secas, dos merges seguidos cancelan la corrida del
-# primero y ese commit queda sin saberse si estaba verde.
+# 🔴 Fuera de los PR el grupo lleva el `sha`, y NO es cosmético. `cancel-in-progress:
+# false` protege la corrida EN CURSO, pero GitHub igual cancela la que está PENDING
+# cuando entra otra al MISMO grupo. Con `group: ci-${github.ref}` los tres merges
+# seguidos a `dev` caen todos en el grupo `ci-refs/heads/dev`: A corre, B queda
+# encolada, llega C y **B se cancela sin veredicto** — el commit de B queda sin
+# saberse si estaba verde, que es exactamente lo que este bloque existe para evitar.
+# Y degrada EN SILENCIO: la corrida aparece `cancelled`, no roja, así que nadie la
+# mira. Con el `sha` adentro cada commit tiene su propio grupo, no compite con nadie
+# y `cancel-in-progress` queda de adorno en ese camino (se deja explícito igual, para
+# que se lea la intención y no haya que deducirla).
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
@@ -84,7 +93,17 @@ jobs:
       # pnpm ANTES que setup-node: el `cache: pnpm` de abajo necesita el binario
       # para preguntarle dónde está el store. Al revés, el paso de caché falla.
       - name: Preparar pnpm
-        uses: pnpm/action-setup@v4
+        # Pineada a SHA y no a `@v4`: un tag de git es MUTABLE — quien controla el
+        # repo de la action puede moverlo y este job pasaría a ejecutar código
+        # distinto sin que cambie una línea acá. El radio está acotado
+        # (`contents: read`, sin secretos), pero igual corre código de terceros con
+        # escritura sobre la caché del store de pnpm.
+        #
+        # El SHA es el que `@v4` resolvía el 2026-08-20, así que pinear NO cambia
+        # de versión: congela la que ya venía corriendo. Para subirla se cambia el
+        # SHA y el comentario JUNTOS — si sólo se toca el número, el comentario
+        # miente y es peor que no tenerlo.
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
@@ -117,7 +136,17 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Preparar pnpm
-        uses: pnpm/action-setup@v4
+        # Pineada a SHA y no a `@v4`: un tag de git es MUTABLE — quien controla el
+        # repo de la action puede moverlo y este job pasaría a ejecutar código
+        # distinto sin que cambie una línea acá. El radio está acotado
+        # (`contents: read`, sin secretos), pero igual corre código de terceros con
+        # escritura sobre la caché del store de pnpm.
+        #
+        # El SHA es el que `@v4` resolvía el 2026-08-20, así que pinear NO cambia
+        # de versión: congela la que ya venía corriendo. Para subirla se cambia el
+        # SHA y el comentario JUNTOS — si sólo se toca el número, el comentario
+        # miente y es peor que no tenerlo.
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
@@ -129,6 +158,41 @@ jobs:
 
       - name: Instalar dependencias
         run: pnpm install --frozen-lockfile
+
+      # 🔴 Un piso de archivos, porque `vitest run` hereda la LISTA BLANCA de
+      # `include` de `vitest.config.ts`. Si un glob se rompe o alguien recorta un
+      # árbol, vitest recolecta MENOS archivos, los que quedan pasan, y el check
+      # sale VERDE: «pasaron los tests recolectados» no es «corrió la suite».
+      #
+      # Ya mordió a este proyecto: en los rn el CI de Jest nunca corrió y ocho
+      # suites estaban muertas en verde. Vitest sale con 1 si recolecta CERO, pero
+      # cero no es el caso peligroso — el peligroso es recolectar la mitad.
+      #
+      # De dónde sale el 100, medido el 2026-08-20 (CDT-116). Hoy son 142 archivos:
+      # src/modulos 84, src/mk 48, src/components 5, src/types 3, src/styles 1,
+      # src/test 1. Lo que se rompe no es un archivo suelto, es un ÁRBOL entero del
+      # `include`: perder el más grande (modulos) deja 58, perder el segundo (mk)
+      # deja 94. El piso tiene que estar POR ENCIMA de 94 para cazar cualquiera de
+      # los dos, y bien por debajo de 142 para no ponerse rojo solo cada vez que
+      # alguien agrega un test. 100 cumple las dos y deja 42 de margen.
+      #
+      # Si la suite baja de 100 sin que nadie lo haya decidido, eso ES el hallazgo.
+      # Si se decide de verdad (se borra un módulo), se baja el piso Y se actualiza
+      # este comentario con el reparto nuevo.
+      - name: Verificar el piso de archivos de la suite
+        run: |
+          set -euo pipefail
+          # 🔴 A un archivo y NO por tubería a `wc`: una tubería se come el exit
+          # code, así que `vitest list | wc -l` devolvería el 0 de `wc` aunque la
+          # recolección hubiera reventado. Con `set -e` y sin tubería, si vitest
+          # falla el paso muere acá.
+          pnpm exec vitest list --filesOnly > /tmp/archivos-recolectados.txt
+          n="$(wc -l < /tmp/archivos-recolectados.txt | tr -d '[:space:]')"
+          echo "Archivos de test recolectados: $n (piso: 100)"
+          if [ "$n" -lt 100 ]; then
+            echo "::error::La suite recolecto $n archivos y el piso es 100. Mira la lista blanca de \`include\` en vitest.config.ts: lo mas probable es que un glob dejo de matchear un arbol entero."
+            exit 1
+          fi
 
       # Sin `continue-on-error` y sin reintentos, a propósito. Si un test es
       # inestable eso es un HALLAZGO para arreglar, no algo para tapar con un
