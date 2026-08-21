@@ -111,24 +111,48 @@ const archivosTs = () => archivos(/\.tsx?$/);
  * rojo, y con un apóstrofe delante los 5 casos pasan.
  *
  * Por eso la comilla simple y la doble ahora sólo abren string si CIERRAN EN LA MISMA
- * LÍNEA (ver `cierraEnLaLinea`), y hay un caso ejecutable más abajo que se pone rojo si
- * alguien vuelve a la regla vieja.
+ * LÍNEA **y** no vienen pegadas a una letra o un dígito (ver `abreString`), y hay un caso
+ * ejecutable más abajo que se pone rojo si alguien vuelve a cualquiera de las dos reglas
+ * viejas.
  *
- * ⚠️ Sin cubrir: regex que abra con barra-asterisco, `url()` sin comillas, `//` a mitad
- * de línea, y dos apóstrofes de prosa en la MISMA línea, que siguen leyéndose como un
- * string —el daño queda acotado a esa línea, no al resto del archivo—.
+ * 🔴 LA SEGUNDA CONDICIÓN NO ES DE ADORNO, Y ACÁ HABÍA UN LÍMITE AFIRMADO SIN MEDIR.
+ * Esta lista decía que el hueco que quedaba —prosa y atributo en la misma línea— dejaba
+ * «el daño acotado a esa línea». Se midió y era FALSO, en la misma dirección de siempre:
+ * `<p>d'ía</p><input accept='image/*' />` en UNA sola línea —ni siquiera hacen falta dos
+ * apóstrofes— hace que el apóstrofe cierre sobre la comilla que ABRE el atributo, la
+ * barra-asterisco quede en estado código y borre desde ahí hasta el próximo cierre o el
+ * fin del archivo. La condición nueva lo cierra: el apóstrofe pegado a la `d` ya no abre
+ * nada. Caso ejecutable con las dos variantes —una línea y dos— más abajo.
+ *
+ * ⚠️ Sin cubrir, y NINGUNO acotado a su línea: regex que abra con barra-asterisco,
+ * `url()` sin comillas, `//` a mitad de línea, y una comilla de prosa que NO venga pegada
+ * a letra o dígito —`<p>Los '90</p>`— con un atributo de comilla simple después en la
+ * misma línea. Cualquiera de esos desparea las comillas, y una barra-asterisco que quede
+ * en estado código borra hasta el fin del archivo. No hay cota de línea: la única cota
+ * real es que el escáner no es un parser, y la pantalla sigue siendo la última palabra.
  * Ejemplos descritos, no literales: asterisco-barra cerraría este docblock.
  */
 
 /**
- * ¿La comilla de `i` abre un string de verdad? Sólo si cierra antes del fin de línea.
+ * ¿La comilla de `i` abre un string de verdad? Dos condiciones, las dos necesarias.
  *
- * No es una heurística: en JS/TS y en CSS un salto de línea crudo dentro de un string de
- * comilla simple o doble es error de sintaxis, así que una comilla que no cierra en su
- * línea NUNCA era un string. La barra invertida se saltea de a dos, con lo que la
- * continuación de línea de CSS sigue contando como string.
+ * 1. Cierra antes del fin de línea. No es una heurística: en JS/TS y en CSS un salto de
+ *    línea crudo dentro de un string de comilla simple o doble es error de sintaxis, así
+ *    que una comilla que no cierra en su línea NUNCA era un string. La barra invertida se
+ *    saltea de a dos, con lo que la continuación de línea de CSS sigue contando como
+ *    string.
+ * 2. No viene pegada a una letra o un dígito. `d'ía`, `don't`: en JS/TS un delimitador de
+ *    string pegado a un identificador es error de sintaxis, así que una comilla en esa
+ *    posición es prosa —de JSX o de un comentario— y nunca abrió nada. Los delimitadores
+ *    de verdad vienen después de `=`, `(`, `,`, `:`, `[` o espacio.
+ *
+ * 🔴 La 2 no es cosmética y la 1 sola NO alcanza: medido, `<p>d'ía</p><input
+ * accept='image/*' />` en UNA línea hace que el apóstrofe cierre sobre la comilla que
+ * ABRE el atributo, la barra-asterisco quede en estado código y se coma desde ahí hasta
+ * el próximo cierre o el fin del archivo. Un solo apóstrofe, no dos.
  */
-const cierraEnLaLinea = (texto: string, i: number): boolean => {
+const abreString = (texto: string, i: number): boolean => {
+  if (/[A-Za-z0-9]/.test(texto[i - 1] ?? "")) return false;
   const comilla = texto[i];
   for (let j = i + 1; j < texto.length; j++) {
     if (texto[j] === "\\") {
@@ -148,7 +172,7 @@ const sinComentarios = (texto: string, conTemplate: boolean): string => {
     const sig = texto[i + 1];
     if (
       (conTemplate && c === "`") ||
-      ((c === '"' || c === "'") && cierraEnLaLinea(texto, i))
+      ((c === '"' || c === "'") && abreString(texto, i))
     ) {
       salida += c;
       for (i++; i < texto.length; i++) {
@@ -333,9 +357,13 @@ describe("CDT-84 — ningún `var()` apunta a un token que no existe", () => {
     );
     expect(
       MARCADORES.filter((m) => ciego.includes(m)),
-      `Un despintador ciego a los strings YA NO borra estos marcadores: el caso que ` +
-        `este test reproduce dejó de ocurrir acá y el test pasó a medir nada. Movelos ` +
-        `adentro de la zona que tapa el \`/*\` de \`image/*\` o elegí otros dos.`,
+      `Un despintador ciego a los strings YA NO borra estos marcadores. Dos causas ` +
+        `posibles y hay que distinguirlas antes de tocar nada: o el \`accept\` dejó de ` +
+        `abrir una zona que los cubra —el caso que este test reproduce dejó de ocurrir ` +
+        `acá—, o los marcadores se movieron a un tramo que ningún bloque tapa. Ojo que ` +
+        `esta afirmación sola tampoco prueba CUÁL bloque los borraba: sólo que alguno lo ` +
+        `hacía. Movelos adentro de la zona que abre el \`/*\` de \`image/*\`, o elegí ` +
+        `otros dos que vivan ahí.`,
     ).toEqual([]);
 
     // CONTENIDO, no cantidad de líneas: el escáner las conserva y contarlas da 0
@@ -354,19 +382,34 @@ describe("CDT-84 — ningún `var()` apunta a un token que no existe", () => {
    * despintar—, no cómo la logra el escáner. Reponé la regla vieja (la comilla simple
    * como delimitador SIEMPRE, sin mirar si cierra en la línea) y esto se pone rojo.
    */
-  it("un apóstrofe en prosa JSX no se traga un `var()`", () => {
-    const muestra = [
-      "<p>Subí la foto el d'ía de la alerta</p>",
-      "<input accept='image/*' type='file' />",
-      'const color = { background: "var(--cTokenDePruebaCdt125)" };',
-    ].join("\n");
-
+  it.each([
+    [
+      "el apóstrofe y el `accept` en LÍNEAS distintas",
+      [
+        "<p>Subí la foto el d'ía de la alerta</p>",
+        "<input accept='image/*' type='file' />",
+        'const color = { background: "var(--cTokenDePruebaCdt125)" };',
+      ].join("\n"),
+    ],
+    [
+      // 🔴 La variante que el docblock daba por acotada a su línea SIN medirla: no lo
+      // está. Un solo apóstrofe pegado a una letra, el atributo en la MISMA línea, y el
+      // borrado se escapa hasta el fin del archivo. Reponé cualquiera de las dos reglas
+      // viejas y este caso —no el de dos líneas— es el que se pone rojo.
+      "el apóstrofe y el `accept` en la MISMA línea",
+      [
+        "<p>Subí la foto el d'ía</p><input accept='image/*' type='file' />",
+        'const color = { background: "var(--cTokenDePruebaCdt125)" };',
+      ].join("\n"),
+    ],
+  ])("un apóstrofe en prosa JSX no se traga un `var()` — %s", (_caso, muestra) => {
     expect(
       sinComentarios(muestra, true),
       `El apóstrofe de la prosa cerró sobre la comilla que ABRE el \`accept\`, la ` +
         `barra-asterisco de adentro quedó en estado código y abrió un comentario que ` +
-        `se comió el resto. El \`var()\` desaparece, se da por NO USADO y nunca se ` +
-        `compara contra el catálogo: el guardián sale VERDE con el token roto adentro.`,
+        `se comió el resto —del archivo, no de la línea—. El \`var()\` desaparece, se ` +
+        `da por NO USADO y nunca se compara contra el catálogo: el guardián sale VERDE ` +
+        `con el token roto adentro.`,
     ).toContain("var(--cTokenDePruebaCdt125)");
   });
 
