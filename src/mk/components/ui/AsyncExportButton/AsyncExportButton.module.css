@@ -22,9 +22,9 @@
    que el botón quede cuadrado y compacto — un "icon button" clásico.
 
    Importante: pineamos `flex: none` para que el botón NO estire a
-   `width: 100%` heredado del `Button.module.css`. Sin esto, en un
-   flex container el icon-button se vería gigante (full width del
-   card). */
+   `width: 100%` heredado del `src/mk/components/forms/Button/button.module.css`.
+   Sin esto, en un flex container el icon-button se vería gigante (full
+   width del card). */
 .iconOnly {
   width: 36px !important;
   min-width: 36px !important;
