@@ -1063,16 +1063,55 @@ api.interceptors.request.use((config) => {
 ## 🧪 Testing y Calidad
 
 ### Estrategia de Testing
-- **Unit Tests**: Componentes individuales
-- **Integration Tests**: Flujos completos
-- **E2E Tests**: Playwright (planeado)
-- **TypeScript**: Type checking estricto
+- **Vitest + Testing Library**: `pnpm exec vitest run` — **142 archivos, 917
+  tests** (medido en CDT-116). 🔴 `vitest.config.ts` tiene una **lista blanca**
+  de `include`: un test fuera de esos árboles no se corre y **no avisa**. Por eso
+  el job `test` verifica **dos pisos**, porque son dos formas distintas de morir
+  en verde y ninguna caza a la otra:
+
+  | piso | qué caza | medido con el defecto puesto |
+  |---|---|---|
+  | **100 archivos** (antes de correr) | un glob del `include` que deja de matchear un árbol | `vitest run` a secas: **verde**, 58 archivos / 292 tests |
+  | **750 tests en verde** (después de correr) | un `describe.skip` masivo o un guard que dejó de matchear | `vitest run` a secas: **verde**, 142 archivos / 704 pasados + 197 skippeados |
+
+  🔴 El segundo existe porque un `describe.skip` **mantiene los 142 archivos** y
+  `vitest run` sale con **0** cuando los tests están skippeados: el piso de
+  archivos no lo ve. Se cuenta `numPassedTests` (los que ejecutaron y quedaron en
+  verde), NO `numTotalTests`, que sigue contando a los skippeados y no se movería.
+- **E2E**: Playwright instalado (`playwright.config.ts`, `tests/`). NO lo corre
+  el CI: necesita navegador y un servidor levantado.
+- **TypeScript**: `pnpm exec tsc --noEmit`, `strict: true`.
+
+### Qué corre el CI (y qué NO)
+
+Workflow único: `.github/workflows/ci.yml`, sobre PR y sobre push a `dev`/`main`.
+Dos jobs, en paralelo:
+
+| job | corre | para qué |
+|---|---|---|
+| `analyse` | `pnpm exec tsc --noEmit` | los tipos, incluidos los de los tests |
+| `test` | `vitest list --filesOnly` → `pnpm exec vitest run` → piso de tests | los dos pisos y la suite entera |
+
+🔴 **Antes de CDT-116 el repo no tenía NINGÚN workflow propio.** Los checks
+verdes de un PR eran Socket, Snyk y Vercel: dependencias, vulnerabilidades y
+build. Ninguno corre `tsc` sobre los tests ni ejecuta un test. «Los checks
+pasaron» nunca significó que la suite corrió — y así `dev` llegó a tener `tsc`
+en **exit 2 con 23 errores** sin que nada lo frenara.
+
+🔴 **Que el job exista no protege el merge.** GitHub sólo frena si el check está
+marcado como **requerido** en Settings → Branches → `dev`. Son los DOS,
+`analyse` y `test`, y se marcan a mano una vez.
+
+Instala con **pnpm 9** (`--frozen-lockfile`), que es el que corre Vercel — ver
+el encabezado de `pnpm-workspace.yaml`.
 
 ### Code Quality
-- **ESLint**: Reglas estrictas
-- **Prettier**: Formateo automático
-- **Husky**: Pre-commit hooks
-- **Commitlint**: Conventional commits
+- **ESLint**: `eslint.config.mjs` (flat config) + `eslint-config-next`.
+  ⚠️ **El CI todavía NO lo corre**: `pnpm lint` se corre a mano.
+- ⚠️ **No hay Prettier, ni Husky, ni Commitlint.** Esta lista los daba por
+  puestos y ninguno de los tres está en `package.json`, en el lockfile ni como
+  archivo de configuración (medido en CDT-116). El formateo y el mensaje de
+  commit hoy no los verifica nada automático.
 
 ---
 

@@ -41,7 +41,15 @@ const mockFetchSequence = (
   responses: Array<{ status: number; body: any; headers?: Record<string, string> }>,
 ) => {
   let callIndex = 0;
-  return vi.fn(async () => {
+  /**
+   * CDT-116: el doble se tipa con `typeof fetch`. Sin eso el `vi.fn(async () => …)`
+   * declaraba CERO parámetros, `mock.calls` quedaba como la tupla vacía `[]` y
+   * leer `calls[0][0]` (la URL) o `calls[0][1]` (las options) era un error de
+   * tipos que se tapaba a mano. Tipado así, las aserciones sobre la URL y el
+   * método del request tipan solas, y la asignación a `global.fetch` deja de
+   * necesitar un `@ts-expect-error`.
+   */
+  return vi.fn<typeof fetch>(async () => {
     const r = responses[callIndex] ?? responses[responses.length - 1];
     callIndex++;
     return {
@@ -57,7 +65,6 @@ const mockFetchSequence = (
 describe("useAsyncExport", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // @ts-expect-error — global fetch mock
     global.fetch = vi.fn();
   });
 
@@ -115,7 +122,6 @@ describe("useAsyncExport", () => {
         },
       },
     ]);
-    // @ts-expect-error
     global.fetch = fetchMock;
 
     const onCompleted = vi.fn();
@@ -155,7 +161,6 @@ describe("useAsyncExport", () => {
         },
       },
     ]);
-    // @ts-expect-error
     global.fetch = fetchMock;
 
     const onError = vi.fn();
@@ -177,16 +182,16 @@ describe("useAsyncExport", () => {
   });
 
   it("start() → POST → 400 (unregistered type) → fail sin polling", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      json: async () => ({
-        success: false,
-        message: "ReportType 'foo' no registrado.",
-        available_types: ["array_chunked"],
-      }),
-    }));
-    // @ts-expect-error
+    const fetchMock = mockFetchSequence([
+      {
+        status: 400,
+        body: {
+          success: false,
+          message: "ReportType 'foo' no registrado.",
+          available_types: ["array_chunked"],
+        },
+      },
+    ]);
     global.fetch = fetchMock;
 
     const onError = vi.fn();
@@ -207,13 +212,43 @@ describe("useAsyncExport", () => {
     );
   });
 
+  /**
+   * CDT-116: el test de arriba manda un 400 CON `message`, y ese es justo el
+   * ÚNICO caso donde la rama del 400 y el `else` genérico producen lo MISMO:
+   * las dos emiten `data.message` tal cual. Medido reinyectando
+   * `res.status === 400` → `4000`: el test quedaba VERDE con la rama del 400
+   * muerta, o sea que anunciaba una cobertura que no existía.
+   *
+   * Lo que SÓLO puede dar la rama del 400 es su fallback. Un 400 sin `message`
+   * dice "Tipo de reporte no válido"; el `else`, para ese mismo status, diría
+   * "Error 400 al encolar el reporte". Esa es la diferencia que se pinea acá.
+   *
+   * El código NO es el defecto: preferir el mensaje del back cuando viene es
+   * lo correcto en las dos ramas. El defecto era la entrada que elegía el test.
+   */
+  it("start() → POST → 400 SIN message → el fallback propio del 400", async () => {
+    const fetchMock = mockFetchSequence([{ status: 400, body: {} }]);
+    global.fetch = fetchMock;
+
+    const onError = vi.fn();
+    const { result } = renderHook(() =>
+      useAsyncExport({ type: "foo", onError }),
+    );
+
+    await act(async () => {
+      await result.current.start({});
+    });
+
+    expect(result.current.state.status).toBe("failed");
+    // 🔴 `toBe` exacto y no `toContain`: el texto ES lo que distingue esta rama
+    // del `else`. Con un `toContain("reporte")` los dos mensajes pasarían.
+    expect(result.current.state.errorMessage).toBe("Tipo de reporte no válido");
+    expect(onError).toHaveBeenCalledWith("Tipo de reporte no válido");
+    expect(fetchMock).toHaveBeenCalledTimes(1); // Solo el POST, no polling
+  });
+
   it("start() → POST → 401 (unauthenticated) → fail", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 401,
-      json: async () => ({}),
-    }));
-    // @ts-expect-error
+    const fetchMock = mockFetchSequence([{ status: 401, body: {} }]);
     global.fetch = fetchMock;
 
     const onError = vi.fn();
@@ -242,7 +277,6 @@ describe("useAsyncExport", () => {
       // GET /status (segundo poll) — processing, no terminal
       { status: 200, body: { status: "processing", progress: 60 } },
     ]);
-    // @ts-expect-error
     global.fetch = fetchMock;
 
     const { result } = renderHook(() =>
@@ -277,7 +311,6 @@ describe("useAsyncExport", () => {
       // Polls que se demoran (van a ser cancelados por reset)
       delayed({ status: 200, body: { status: "processing" } }, 1000) as any,
     ]);
-    // @ts-expect-error
     global.fetch = fetchMock;
 
     const { result } = renderHook(() =>
@@ -318,7 +351,6 @@ describe("useAsyncExport", () => {
         },
       },
     ]);
-    // @ts-expect-error
     global.fetch = fetchMock;
 
     const { result } = renderHook(() =>
@@ -344,10 +376,9 @@ describe("useAsyncExport", () => {
     });
 
     // El primer fetch debe ser GET con query string conteniendo los filtros.
-    const firstCall = fetchMock.mock.calls[0];
-    const url: string = firstCall[0];
-    const options = firstCall[1];
-    expect(options.method).toBe("GET");
+    const [input, options] = fetchMock.mock.calls[0];
+    const url = String(input);
+    expect(options?.method).toBe("GET");
     expect(url).toContain("/v3/payments");
     expect(url).toContain("_export=pdf");
     // S143e-bk-18 (HALLAZGO-NEW-76): el flow S143e pinea `fullType=L`
@@ -381,7 +412,6 @@ describe("useAsyncExport", () => {
         },
       },
     ]);
-    // @ts-expect-error
     global.fetch = fetchMock;
 
     const { result } = renderHook(() =>
@@ -401,12 +431,11 @@ describe("useAsyncExport", () => {
     });
 
     // El primer fetch debe ser POST con body JSON conteniendo los params.
-    const firstCall = fetchMock.mock.calls[0];
-    const url: string = firstCall[0];
-    const options = firstCall[1];
-    expect(options.method).toBe("POST");
+    const [input, options] = fetchMock.mock.calls[0];
+    const url = String(input);
+    expect(options?.method).toBe("POST");
     expect(url).toContain("/v3/reports/payments/export");
-    expect(options.body).toBe(
+    expect(options?.body).toBe(
       JSON.stringify({
         filterBy: ["paid_at:m"],
         searchBy: { searchBy: "foo" },
@@ -489,7 +518,6 @@ describe("useAsyncExport", () => {
         body: { blob: new Blob(["PDF"], { type: "application/pdf" }) },
       },
     ]);
-    // @ts-expect-error
     global.fetch = fetchMock;
 
     const { result } = renderHook(() =>
@@ -612,7 +640,6 @@ describe("useAsyncExport", () => {
         },
       },
     ]);
-    // @ts-expect-error
     global.fetch = fetchMock;
 
     const { result } = renderHook(() =>
@@ -648,7 +675,6 @@ describe("useAsyncExport", () => {
         },
       },
     ]);
-    // @ts-expect-error
     global.fetch = fetchMock;
 
     const { result } = renderHook(() =>
@@ -684,7 +710,6 @@ describe("useAsyncExport", () => {
         },
       },
     ]);
-    // @ts-expect-error
     global.fetch = fetchMock;
 
     const { result } = renderHook(() =>
@@ -723,7 +748,6 @@ describe("useAsyncExport", () => {
         },
       },
     ]);
-    // @ts-expect-error
     global.fetch = fetchMock;
 
     const { result } = renderHook(() =>
