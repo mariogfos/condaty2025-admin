@@ -99,8 +99,13 @@ const archivosTs = () => archivos(/\.tsx?$/);
  * la 741 que cierra en la 1441 —655 líneas, la pantalla de configuración entera— y un
  * token roto ahí adentro deja el guardián en VERDE.
  *
- * ⚠️ Sin cubrir: regex que abra con barra-asterisco, `url()` sin comillas y `//` a mitad
- * de línea. Ejemplos descritos, no literales: asterisco-barra cerraría este docblock.
+ * ⚠️ Sin cubrir: regex que abra con barra-asterisco, `url()` sin comillas, `//` a mitad
+ * de línea, y la comilla simple, que el escáner toma como delimitador de string SIEMPRE,
+ * también en prosa JSX: un apóstrofe en copia visible abre un string que se traga
+ * el texto hasta la próxima comilla simple del archivo. Hoy no muerde y si mordiera
+ * fallaría ruidosamente —el `var()` que quede adentro se da por no usado—, pero se anota
+ * acá porque es donde el próximo lo va a buscar.
+ * Ejemplos descritos, no literales: asterisco-barra cerraría este docblock.
  */
 const sinComentarios = (texto: string, conTemplate: boolean): string => {
   let salida = "";
@@ -265,6 +270,38 @@ describe("CDT-84 — ningún `var()` apunta a un token que no existe", () => {
     // Sin esto el test se vuelve vacío el día que el input desaparezca.
     expect(crudo, `DptoConfig ya no tiene el caso: buscá otro o borrá el test.`)
       .toContain('accept="image/*"');
+
+    // Y sin lo que sigue se vuelve HUECO sin desaparecer. La medición son dos
+    // marcadores que tienen que caer DENTRO de la zona que un despintador ciego a
+    // strings tapa; si alguien los mueve fuera —por arriba de la apertura o por
+    // debajo del cierre— el input sigue existiendo, el test sigue verde y ya no mide
+    // nada. Se acota la zona con posiciones sobre el MISMO string crudo: contar
+    // líneas no sirve, se corren solas.
+    //
+    // `accept="image/*"` aparece TRES veces (741, 803, 864) y la que importa es la
+    // PRIMERA: es la única que ABRE el comentario falso. Las otras dos ya nacen
+    // adentro de la zona, donde el escáner ingenuo no ve nada que abrir. Por eso la
+    // apertura se busca con indexOf a secas y el cierre es el primer cierre real que
+    // venga después — la misma aritmética que hace el escáner al despintar un bloque.
+    const apertura = crudo.indexOf("/*", crudo.indexOf('accept="image/*"'));
+    const cierre = crudo.indexOf("*/", apertura + 2);
+    expect(
+      cierre,
+      `El comentario falso de DptoConfig ya no cierra en ninguna parte: la zona no se ` +
+        `puede acotar y esta medición no significa nada. Volvé a medirla.`,
+    ).toBeGreaterThan(apertura);
+    expect(
+      // Primera Y última ocurrencia adentro ⇒ todas adentro: una copia del marcador
+      // fuera de la zona hueca el test igual que moverlo.
+      ["coverAvatarAnchor", "profileLogoShell"].filter(
+        (m) => !(crudo.indexOf(m) > apertura && crudo.lastIndexOf(m) < cierre),
+      ),
+      `Estos marcadores se salieron de la zona tapada por el \`/*\` de \`image/*\`: ` +
+        `dentro de ese tramo es donde el despintador ciego a strings borra, así que ` +
+        `afuera el test queda VERDE midiendo nada. Movelos de vuelta adentro o elegí ` +
+        `otros dos que sí caigan entre la apertura y su cierre.`,
+    ).toEqual([]);
+
     // CONTENIDO, no cantidad de líneas: el escáner las conserva y contarlas da 0
     const limpio = sinComentarios(crudo, true); // siempre, aun con el bug puesto.
     expect(

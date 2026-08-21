@@ -1,30 +1,10 @@
 /*
- * CDT-114 — aca vivian `.title.exportando` / `.subtitle.exportando`, que PEDIAN
- * `var(--blackv1)` —v minuscula, inexistente— para oscurecer el texto sobre el lienzo
- * BLANCO que dibujaba html2canvas en el front.
- *
- * Ese lienzo ya no existe: el export es del servidor (POST /api/v3/reports/{type}
- * /export + polling + download_url, ver mk/hooks/useAsyncExport, y el aviso de
- * Balance.tsx:144). No queda NINGUN uso de html2canvas en tiempo de ejecucion.
- *
- * ⚠️ Eso NO quiere decir que la dependencia se pueda borrar: `GraphAdapterDonut.tsx:2`
- * todavia hace `import { fontWeight } from 'html2canvas/dist/types/...'`. Es un tipo
- * que ni se usa, pero el import existe y sacar el paquete rompe el build.
- *
- * CDT-119 — el prop `exportando` ya ni llega hasta aca: lo que sobrevivio a esas
- * reglas fue la cañeria que las alimentaba (Balance -> WidgetGraf* -> GraphBase ->
- * GraphsAdapter), y nadie leia su valor. Se borro. El estado de carga del export
- * NO vive en Balance.tsx: vive en el hook compartido `useAsyncExport`
- * (src/mk/hooks/useAsyncExport/useAsyncExport.ts), y Balance lo consume con
- * `useAsyncExport({type:"balance"})`. De ese estado, `isExporting` sirve para una
- * sola cosa: deshabilitar los botones mientras el informe se genera. Quien busque
- * el estado del export tiene que ir al hook, no a la pantalla.
- *
- * El widget se ve SIEMPRE sobre el fondo OSCURO de la app, y la regla dejaba el
- * texto en #1b2229 sobre #1b2229 = 1,0:1.
- *
- * Estaban INERTES porque apuntaban a `--blackv1`, que no existe; corregir esa
- * errata las habria reactivado con el bug adentro. Se borran.
+ * CDT-114 / CDT-119 — el motivo de por qué acá NO hay reglas `.exportando` (el lienzo
+ * blanco de html2canvas ya no existe, el export es del servidor y su estado vive en
+ * `src/mk/hooks/useAsyncExport`) está escrito UNA sola vez, en
+ * `WidgetGrafBalance/WidgetGrafBalance.module.css`. Los tres widgets de gráficos
+ * salieron del mismo borrado; el texto estaba triplicado verbatim y se dedupó en
+ * CDT-120. Si cambia el motivo, cambia allá.
  */
 .container {
   width: 100%;
