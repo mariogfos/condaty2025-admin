@@ -14,8 +14,11 @@
  * CDT-119 — el prop `exportando` ya ni llega hasta aca: lo que sobrevivio a esas
  * reglas fue la cañeria que las alimentaba (Balance -> WidgetGraf* -> GraphBase ->
  * GraphsAdapter), y nadie leia su valor. Se borro. El estado de carga del export
- * vive SOLO en Balance.tsx (`exportState.isExporting`), y su unico efecto es
- * deshabilitar los botones mientras el informe se genera.
+ * NO vive en Balance.tsx: vive en el hook compartido `useAsyncExport`
+ * (src/mk/hooks/useAsyncExport/useAsyncExport.ts), y Balance lo consume con
+ * `useAsyncExport({type:"balance"})`. De ese estado, `isExporting` sirve para una
+ * sola cosa: deshabilitar los botones mientras el informe se genera. Quien busque
+ * el estado del export tiene que ir al hook, no a la pantalla.
  *
  * El widget se ve SIEMPRE sobre el fondo OSCURO de la app, y la regla dejaba el
  * texto en #1b2229 sobre #1b2229 = 1,0:1.
