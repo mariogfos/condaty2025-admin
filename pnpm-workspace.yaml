@@ -13,6 +13,32 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 
+# 🔴 Esto lo escribe pnpm SOLO, no se agrega a mano.
+#
+# pnpm 11 trae una guarda de cadena de suministro: no instala un paquete
+# publicado hace muy poco a menos que este listado aca. Al subir a Next 16.3.2
+# —publicado dias antes— pnpm agrego estas entradas por su cuenta y siguio.
+#
+# No se borran: sin ellas un `pnpm add`/`pnpm update` que tenga que resolver
+# estas versiones vuelve a frenarse. Envejecen solas y dejan de hacer falta
+# cuando los paquetes pasan la edad minima; se limpian recien ahi, no antes.
+#
+# ⚠️ No confundir con `overrides`: esto NO fija versiones ni protege de nada,
+# solo desactiva la espera para estos paquetes puntuales.
+minimumReleaseAgeExclude:
+  - '@next/env@16.3.2'
+  - '@next/swc-darwin-arm64@16.3.2'
+  - '@next/swc-darwin-x64@16.3.2'
+  - '@next/swc-linux-arm64-gnu@16.3.2'
+  - '@next/swc-linux-arm64-musl@16.3.2'
+  - '@next/swc-linux-x64-gnu@16.3.2'
+  - '@next/swc-linux-x64-musl@16.3.2'
+  - '@next/swc-win32-arm64-msvc@16.3.2'
+  - '@next/swc-win32-x64-msvc@16.3.2'
+  - next@16.3.2
+  - '@next/eslint-plugin-next@16.3.2'
+  - eslint-config-next@16.3.2
+
 # Next fija por su cuenta copias más viejas de estos tres, y las fija de forma
 # transitiva, así que subir nuestra propia dependencia no las alcanza: sólo un
 # override llega.

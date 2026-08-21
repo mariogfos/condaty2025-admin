@@ -16,6 +16,13 @@
 // 3. Patrón reusable: si tenés un `eslint.config.mjs` que importa
 //    `eslint-config-next` y rompe en ESLint 9, este es el workaround.
 //    NO requiere bumpear dependencias.
+//
+// 4. 2026-08-21, al subir a Next 16: los paquetes pasaron a 16.3.2 y esta
+//    config sigue igual, importando los plugins directo. No se volvió a probar
+//    el camino de `import eslint-config-next` porque este anda; si algún día se
+//    prueba, medí que `pnpm lint` arranque, no que instale.
+//    ⚠️ Y `pnpm lint` ya NO es `next lint`: ese comando **se eliminó en Next
+//    16** y el script pasó a llamar a `eslint` directo.
 
 import nextPlugin from "@next/eslint-plugin-next";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
