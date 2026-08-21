@@ -107,7 +107,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--cWhiteV);
+  color: var(--cWhiteV1);
 }
 
 .reactionsSection > h2 {

@@ -1,6 +1,6 @@
 .dateMarker {
   position: relative;
-  background: var(--cHovertablepdf);
+  background: var(--cHoveTablePdf);
   color: var(--cWhiteV1);
   padding: 8px 16px;
   border-radius: 8px;

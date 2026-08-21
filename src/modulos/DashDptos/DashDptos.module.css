@@ -156,7 +156,9 @@
 }
 
 .viewMore:hover {
-  color: var(--cPrimaryHover);
+  /* CDT-114: no existe un hover de --cPrimary. Sobre fondo oscuro el hover de un
+     link verde se ACLARA: --accentv1 #4ee7ac es ese mismo verde mas claro. */
+  color: var(--accentv1);
 }
 
 .visitsSection {
@@ -173,7 +175,7 @@
 }
 
 .visitsTitle {
-  color: var(--white);
+  color: var(--cWhite);
   font-size: 1.25rem;
   font-weight: 600;
 }
@@ -192,7 +194,7 @@
   align-items: center;
   gap: 1rem;
   padding: 0.75rem;
-  background-color: var(--dark-color);
+  background-color: var(--darkColor);
   border-radius: 0.75rem;
   margin-bottom: 0.5rem;
 }
@@ -206,17 +208,17 @@
 }
 
 .historyItemName {
-  color: var(--white);
+  color: var(--cWhite);
   margin-bottom: 0.25rem;
 }
 
 .historyItemDate {
-  color: var(--light-v3);
+  color: var(--lightv3);
   font-size: 0.875rem;
 }
 
 .currentStatus {
-  color: var(--accent-color);
+  color: var(--accentColor);
   margin-left: 0.5rem;
 }
 
@@ -350,12 +352,12 @@
 }
 
 .visitorName {
-  color: var(--white);
+  color: var(--cWhite);
   font-size: 0.875rem;
 }
 
 .visitorCI {
-  color: var(--light-v3);
+  color: var(--lightv3);
   font-size: 0.75rem;
 }
 
@@ -393,19 +395,19 @@
 
 .accountList::-webkit-scrollbar-track,
 .visitsList::-webkit-scrollbar-track {
-  background: var(--dark-v2);
+  background: var(--darkv2);
   border-radius: 3px;
 }
 
 .accountList::-webkit-scrollbar-thumb,
 .visitsList::-webkit-scrollbar-thumb {
-  background: var(--light-v3);
+  background: var(--lightv3);
   border-radius: 3px;
 }
 
 .accountList::-webkit-scrollbar-thumb:hover,
 .visitsList::-webkit-scrollbar-thumb:hover {
-  background: var(--light-color);
+  background: var(--lightColor);
 }
 .dependentesSection {
   margin-top: 1rem;

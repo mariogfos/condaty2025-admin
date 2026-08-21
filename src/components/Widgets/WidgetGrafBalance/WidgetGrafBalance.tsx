@@ -203,12 +203,12 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
   return (
     <div className={`${styles.container} ${className || ""}`}>
       <p
-        className={`${styles.subtitle} ${exportando ? styles.exportando : ""}`}
+        className={styles.subtitle}
       >
         {subtitle ||
           `Este es un resumen general de los ingresos, egresos y el saldo a favor al ${formattedTodayDate}`}
       </p>
-      <p className={`${styles.title} ${exportando ? styles.exportando : ""}`}>
+      <p className={styles.title}>
         {title || "Resumen general"}
       </p>
 

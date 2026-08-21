@@ -197,9 +197,12 @@ export const PAYMENT_STATUS_MAP: Record<number, PaymentStatusConfig> = {
 
 export const getPaymentStatusConfig = (status: number): PaymentStatusConfig => {
   return PAYMENT_STATUS_MAP[status] || {
+    // CDT-114: el estado DESCONOCIDO apuntaba a --cLight/--cLightDark/--cHoverLight,
+    // que no existen: el badge quedaba en transparent. --cStatusNeutral #c2cad4 sobre
+    // --cStatusNeutralSoft es el par neutro del sistema (8,54:1).
     label: "Desconocido",
-    color: "var(--cLight)",
-    backgroundColor: "var(--cHoverLight)",
+    color: "var(--cStatusNeutral)",
+    backgroundColor: "var(--cStatusNeutralSoft)",
   };
 };
 

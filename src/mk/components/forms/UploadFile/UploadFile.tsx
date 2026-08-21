@@ -318,7 +318,7 @@ export const UploadFile = ({
             : value?.file || isDraggingFile
               ? "var(--cPrimary)"
               : "var(--cWhiteV3)",
-          borderRadius: avatar ? "50%" : "var(--borderRadius)",
+          borderRadius: avatar ? "50%" : "var(--bRadius)",
           width: avatar ? sizePreview.width : "100%",
           height: avatar ? sizePreview.height : "100%",
           overflow: "hidden",

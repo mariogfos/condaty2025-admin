@@ -89,7 +89,7 @@
 .arrowIcon {
   transform: rotate(0);
   transition: transform 0.3s ease;
-  color: var(--cLightv2);
+  color: var(--lightv2);
   flex-shrink: 0;
   cursor: pointer;
   min-width: 24px;
@@ -156,7 +156,7 @@
 .actionButtonSub {
   background-color: transparent;
   border: none;
-  color: var(--cLightv2);
+  color: var(--lightv2);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -190,8 +190,12 @@
   justify-content: flex-start;
 }
 
+/* CDT-114: apuntaba a --cDarkv2 (inexistente), y cambiarlo a --darkv2 #333536 por
+   parecido de nombre dejaba 1,56:1 sobre --category-surface-strong: ilegible. El
+   color base de este boton es --cAccent, asi que el hover es su version aclarada,
+   --accentv1 #4ee7ac = 12,22:1. Mismo criterio que .viewMore:hover de DashDptos. */
 .addSubcategoryButton:hover {
-  color: var(--cDarkv2);
+  color: var(--accentv1);
 }
 .formModalContent {
   padding: 0;
@@ -249,9 +253,11 @@
   width: fit-content;
 }
 
+/* CDT-114: idem. Aca dolia mas: es el UNICO camino de vuelta de esta pantalla, y
+   con #333536 quedaba el subrayado sin texto legible. Base --cAccent -> --accentv1. */
 .backLink:hover {
   text-decoration: underline;
-  color: var(--cDarkv2);
+  color: var(--accentv1);
 }
 .categoryCard.accordionOpen {
   border-color: rgba(215, 255, 240, 0.14);

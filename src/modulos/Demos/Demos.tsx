@@ -1040,7 +1040,7 @@ const DemosModule = () => {
                     style={{
                       height: "100%",
                       background:
-                        "linear-gradient(90deg, var(--cPrimary), var(--cEmerald))",
+                        "linear-gradient(90deg, var(--cPrimary), var(--accentv1))",
                       borderRadius: "999px",
                     }}
                   />
@@ -1161,10 +1161,10 @@ const DemosModule = () => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               className={styles.modalContent}
-              style={{ borderColor: "var(--cEmerald)", maxWidth: "550px" }}
+              style={{ borderColor: "var(--accentv1)", maxWidth: "550px" }}
             >
               <div className={styles.modalHeader}>
-                <CheckCircle2 size={48} style={{ color: "var(--cEmerald)" }} />
+                <CheckCircle2 size={48} style={{ color: "var(--accentv1)" }} />
                 <h2>¡Demo Creado Exitosamente!</h2>
               </div>
               <div className={styles.modalBody}>

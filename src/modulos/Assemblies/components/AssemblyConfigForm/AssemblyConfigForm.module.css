@@ -10,10 +10,17 @@
   gap: 16px;
 }
 
+/*
+ * CDT-114 — --cText/--cTextMuted no existian. La familia --bpt-text-* tiene los
+ * valores parecidos pero esta declarada dentro de `.container` de
+ * BankProviderTester: usarla aca pasaria el guardian y seguiria sin pintar.
+ * Se usan los tokens globales, que conservan el orden primario > apagado:
+ * --cWhite #f4f7fa sobre --cBackground #1b2229, y --cWhiteV3 #8693a0 para el hint.
+ */
 .section h3 {
   font-size: 16px;
   font-weight: 600;
-  color: var(--cText);
+  color: var(--cWhite);
   margin: 0;
 }
 
@@ -26,7 +33,7 @@
 .label {
   font-size: 14px;
   font-weight: 500;
-  color: var(--cText);
+  color: var(--cWhite);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -40,7 +47,7 @@
 
 .hint {
   font-size: 12px;
-  color: var(--cTextMuted);
+  color: var(--cWhiteV3);
 }
 
 .actions {

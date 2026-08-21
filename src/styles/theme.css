@@ -22,6 +22,31 @@
   --accentv1: #4ee7ac;
   --accentv2: #bfffe7;
 
+  /*
+   * CDT-114 — variantes OSCURAS para el `:hover` de los botones sólidos.
+   *
+   * La escala sólo tenía variantes más claras (v1, v2), así que tres hovers se
+   * escribieron contra tokens que no existían: `--accent-dark`, `--primary-dark`
+   * y `--error-dark`.
+   *
+   * 🔴 Lo que pasaba NO era «el hover no cambiaba nada». Los tres eran
+   * `background-color`, que no hereda: la declaración quedaba inválida a la hora
+   * de computar (IACVT) y caía a `initial`, o sea **`transparent`**. El botón
+   * sólido se volvía invisible al pasarle el mouse por encima.
+   *
+   * Valores fijos y no `color-mix(var(--accentColor) …)` a propósito: un
+   * `color-mix` malformado deja el token igual de «declarado», el guardián de
+   * CDT-84 en verde y el `background-color` otra vez en `transparent`. Y derivar
+   * no aseguraba nada contra un cambio de marca, porque el mismo #00e38c está
+   * escrito por separado en `--accentColor`, `--accent` y `--cPrimary`, y los
+   * consumidores de estos hovers pintan con los otros dos.
+   *
+   * De dónde salen: el verde y el rojo base oscurecidos ~22% y ~20%.
+   * `--primary-dark` no lleva token propio: era `--accent-dark` con otro nombre.
+   */
+  --accentDark: #00b16d; /* de --accentColor #00e38c; con texto --cBlack da 6,55:1 */
+  --errorDark: #bb362a; /* de --error #ea4335; con texto blanco da 5,70:1 */
+
   /* Etiquetas */
   --accentBg: #00e38c26;
   --errorBg: #ea433526;

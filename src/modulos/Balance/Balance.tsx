@@ -595,9 +595,7 @@ const BalanceGeneral: React.FC = () => {
                     <span>
                       <span>{cat.name}:</span>
                       <span
-                        className={`${styles.legendAmount} ${
-                          exportando ? styles.exportando : ""
-                        }`}
+                        className={styles.legendAmount}
                       >
                         {" "}
                         Bs {formatNumber(cat.total)}
@@ -713,9 +711,7 @@ const BalanceGeneral: React.FC = () => {
                     <span>
                       <span>{cat.name}:</span>
                       <span
-                        className={`${styles.legendAmount} ${
-                          exportando ? styles.exportando : ""
-                        }`}
+                        className={styles.legendAmount}
                       >
                         {" "}
                         Bs {formatNumber(cat.total)}
@@ -1025,9 +1021,7 @@ const BalanceGeneral: React.FC = () => {
                               <span>
                                 Saldo Inicial:{" "}
                                 <span
-                                  className={`${styles.legendAmount} ${
-                                    exportando ? styles.exportando : ""
-                                  }`}
+                                  className={styles.legendAmount}
                                 >
                                   Bs{" "}
                                   {formatNumber(calculatedTotals.saldoInicial)}
@@ -1045,9 +1039,7 @@ const BalanceGeneral: React.FC = () => {
                                 <span>Total de ingresos:</span>
 
                                 <span
-                                  className={`${styles.legendAmount} ${
-                                    exportando ? styles.exportando : ""
-                                  }`}
+                                  className={styles.legendAmount}
                                 >
                                   {" "}
                                   Bs{" "}
@@ -1065,9 +1057,7 @@ const BalanceGeneral: React.FC = () => {
                               <span>
                                 Total de egresos:{" "}
                                 <span
-                                  className={`${styles.legendAmount} ${
-                                    exportando ? styles.exportando : ""
-                                  }`}
+                                  className={styles.legendAmount}
                                 >
                                   Bs{" "}
                                   {formatNumber(calculatedTotals.totalEgresos)}
@@ -1084,9 +1074,7 @@ const BalanceGeneral: React.FC = () => {
                               <span>
                                 Total de saldo acumulado:{" "}
                                 <span
-                                  className={`${styles.legendAmount} ${
-                                    exportando ? styles.exportando : ""
-                                  }`}
+                                  className={styles.legendAmount}
                                 >
                                   Bs {formatNumber(calculatedTotals.saldoFinal)}
                                 </span>

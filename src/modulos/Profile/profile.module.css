@@ -41,7 +41,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--darkv3);
+  /* CDT-114: la familia Darks termina en --darkv2 (#333536). Es el fondo detras del
+     avatar: se toma el ultimo escalon existente en vez de inventar un v3. */
+  background-color: var(--darkv2);
 }
 
 .mobileAvatarWrapper {
