@@ -2,7 +2,7 @@
   width: 100%;
 }
 .description {
-  color: var(--light-v3);
+  color: var(--lightv3);
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
   font-size: 0.875rem;
@@ -135,29 +135,20 @@
   margin-bottom: 1rem;
   margin-top: 1rem;
 }
-.exportButton {
-  width: auto;
-  min-width: 100px;
-  padding: 0.75rem 1.5rem;
-  font-weight: 500;
-  border-radius: 0.5rem;
-  background-color: var(--primary-color);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-align: center;
-}
-.exportButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-.exportButton:active {
-  transform: translateY(0);
-}
+/*
+ * CDT-114 — aca vivian `.exportButton`, `:hover` y `:active` (y su override en la
+ * media query de 768px, borrado tambien).
+ *
+ * No tienen consumidor: `exportButton` no aparece en ningun .ts/.tsx del repo.
+ * Estaban ademas rotas — el fondo era `var(--primary-color)`, que no existe, asi
+ * que caia a transparent — y la regla nunca declaro un `color`. Corregir esa
+ * errata a `--cPrimary` les habria dado fondo verde solido con el texto heredado
+ * claro encima: 1,58:1. Se borran en vez de recolorear un boton muerto.
+ */
 .divider {
   height: 1px;
   width: 100%;
-  background-color: var(--light-v3);
+  background-color: var(--lightv3);
   opacity: 0.2;
   margin-top: 1rem;
   margin-bottom: 1rem;
@@ -173,9 +164,6 @@
   .chartTypeSelectorContainer {
     width: 100%;
     flex-basis: auto;
-  }
-  .exportButton {
-    width: 100%;
   }
   .legendAndExportWrapper {
     flex-direction: column;
@@ -310,9 +298,10 @@
   font-family: var(--fPrimary);
   margin-left: 0.25em;
 }
-.legendAmount.exportando {
-  color: var(--blackv1) !important;
-}
+/* CDT-114: `.legendAmount.exportando` PEDIA --blackv1 (inexistente) para el lienzo de
+   html2canvas, que ya no se usa: el export es del servidor. Sobre el fondo oscuro
+   real daba 1,0:1. Estaba inerte por la errata --blackv1; se borra en vez de
+   reactivarla. Ver el mismo comentario en los tres WidgetGraf*. */
 
 /* ─────────────────────────────────────────────────────────────────────────
  * CDT-99 — «Gráfica y tablas financieras sin datos» era una afirmación FALSA

@@ -16,7 +16,9 @@
 .noTitular {
   display: flex;
   align-items: center;
-  color: var(--cGrayV2);
+  /* CDT-114: no hay familia --cGray*. Es el texto apagado de "sin titular":
+     --cWhiteV3 #8693a0 es el gris de texto secundario del sistema. */
+  color: var(--cWhiteV3);
   font-style: italic;
   font-size: 14px;
   padding: 4px 0;

@@ -1,6 +1,6 @@
 .container {
     padding: 20px;
-    color: var(--light-v1);
+    color: var(--lightv1);
   }
   
   .iconHeader {
@@ -15,7 +15,7 @@
   .pedidoIcon {
     width: 40px;
     height: 40px;
-    color: var(--light-v1);
+    color: var(--lightv1);
     position: absolute;
     top: 50%;
     left: 50%;
@@ -27,13 +27,13 @@
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 16px;
-    color: var(--light-v1);
+    color: var(--lightv1);
   }
   
   .divider {
     height: 1px;
     width: 100%;
-    background-color: var(--light-v3);
+    background-color: var(--lightv3);
     opacity: 0.3;
     margin: 16px 0;
   }
@@ -62,7 +62,7 @@
   .value {
     text-align: left;
     flex: 0 0 50%;
-    color: var(--light-v3);
+    color: var(--lightv3);
   }
   
   .valueAccent {
@@ -96,9 +96,12 @@
     margin-top: 20px;
   }
   
+  /* CDT-114: a diferencia del boton de QrTab, este SI se renderizaba verde: `--accent`
+     existe. O sea que el `color: white` sobre el verde de marca daba 1,70:1 de verdad,
+     ilegible, y era un bug vivo. Pasa a texto oscuro: 10,78:1. */
   .entryButton {
     background-color: var(--accent);
-    color: white;
+    color: var(--cBlack);
     border: none;
     padding: 8px 16px;
     border-radius: 6px;
@@ -106,8 +109,11 @@
     transition: all 0.2s ease;
   }
   
+  /* CDT-114: el hover, en cambio, NO se renderizaba: `--accent-dark` no existia y el
+     fondo caia a transparent (IACVT), asi que pasar el mouse BORRABA el verde en vez de
+     oscurecerlo. Con --accentDark y texto oscuro queda en 6,55:1. */
   .entryButton:hover {
-    background-color: var(--accent-dark);
+    background-color: var(--accentDark);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
@@ -122,8 +128,10 @@
     transition: all 0.2s ease;
   }
   
+  /* CDT-114: idem: el reposo si se veia (`--error` existe, blanco sobre rojo = 3,92:1,
+     preexistente y no tocado), pero el hover caia a transparent. Ahora da 5,72:1. */
   .exitButton:hover {
-    background-color: var(--error-dark);
+    background-color: var(--errorDark);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }

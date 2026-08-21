@@ -4,8 +4,10 @@
   gap: 12px;
 }
 
+/* CDT-114: --cTextSecondary no existia; --cWhiteV1 #aab6c3 es el texto secundario
+   global y da 9,12:1 sobre --cModalSurface #0d1218, el fondo de este modal. */
 .warningText {
-  color: var(--cTextSecondary);
+  color: var(--cWhiteV1);
   font-size: 14px;
   line-height: 1.4;
   margin: 0;
@@ -18,7 +20,7 @@
 }
 
 .charCount {
-  color: var(--cTextSecondary);
+  color: var(--cWhiteV1);
   font-size: 12px;
   text-align: right;
   margin: -8px 0 0 0;

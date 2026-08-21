@@ -77,8 +77,8 @@ const getReservationStatus = (status: ReservationStatus | number) => {
     default:
       return {
         label: "Desconocido",
-        backgroundColor: "var(--cHoverLight)",
-        color: "var(--cLightDark)",
+        backgroundColor: "var(--cStatusNeutralSoft)",
+        color: "var(--cStatusNeutral)",
       };
   }
 };

@@ -1,3 +1,22 @@
+/*
+ * CDT-114 — aca vivian `.title.exportando` / `.subtitle.exportando`, que PEDIAN
+ * `var(--blackv1)` —v minuscula, inexistente— para oscurecer el texto sobre el lienzo
+ * BLANCO que dibujaba html2canvas en el front.
+ *
+ * Ese lienzo ya no existe: el export es del servidor (POST /api/v3/reports/{type}
+ * /export + polling + download_url, ver mk/hooks/useAsyncExport, y el aviso de
+ * Balance.tsx:144). No queda NINGUN uso de html2canvas en tiempo de ejecucion.
+ *
+ * ⚠️ Eso NO quiere decir que la dependencia se pueda borrar: `GraphAdapterDonut.tsx:2`
+ * todavia hace `import { fontWeight } from 'html2canvas/dist/types/...'`. Es un tipo
+ * que ni se usa, pero el import existe y sacar el paquete rompe el build.
+ *
+ * Hoy `exportando` es nada mas un estado de carga: el widget se sigue viendo sobre el
+ * fondo OSCURO de la app, y la regla dejaba el texto en #1b2229 sobre #1b2229 = 1,0:1.
+ *
+ * Estaban INERTES porque apuntaban a `--blackv1`, que no existe; corregir esa
+ * errata las habria reactivado con el bug adentro. Se borran.
+ */
 .container {
   width: 100%;
 }
@@ -8,9 +27,6 @@
   font-weight: var(--bBold);
   color: var(--cWhite);
 }
-.title.exportando {
-  color: var(--blackv1) !important;
-}
 .subtitle {
   color: var(--cWhite);
   font-size: var(--sL);
@@ -18,7 +34,4 @@
   font-family: var(--fPrimary);
   font-weight: var(--bRegular);
   margin-bottom: 8px;
-}
-.subtitle.exportando {
-  color: var(--blackv1) !important;
 }

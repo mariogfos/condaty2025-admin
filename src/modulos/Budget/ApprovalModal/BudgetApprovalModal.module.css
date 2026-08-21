@@ -9,7 +9,7 @@
   .contentContainer p {
     margin: 0;
     line-height: 1.5;
-    color: var(--White); /* Ajusta el color si es necesario */
+    color: var(--cWhite); /* Ajusta el color si es necesario */
   }
   
   .contentContainer strong {

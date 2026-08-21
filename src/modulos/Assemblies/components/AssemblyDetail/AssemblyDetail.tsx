@@ -781,7 +781,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                           gap: 12,
                           alignItems: "center",
                           flexShrink: 1,
-                          color: "var(--cText)",
+                          color: "var(--cWhite)",
                           padding: "4px 8px",
                           borderRadius: 4,
                         }}

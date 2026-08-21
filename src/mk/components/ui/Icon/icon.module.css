@@ -7,9 +7,9 @@
     cursor: pointer;
     /* padding: 4px; */
     /* background-color: var(--cWhiteV2); */
-    &:hover {
-      /* background-color: var(--cHoverTable); */
-    }
+    /* CDT-114: aca habia un `&:hover {}` vacio cuyo unico contenido era un
+       background-color comentado contra el token --cHoverTable, que no existe.
+       La regla no pintaba nada y el bloque quedaba vacio: se borra. */
   }
   &.circle {
     border-radius: 100%;

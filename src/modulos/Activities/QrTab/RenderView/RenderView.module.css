@@ -1,6 +1,6 @@
 .container {
   padding: 20px;
-  color: var(--light-v1);
+  color: var(--lightv1);
 }
 
 .iconHeader {
@@ -19,14 +19,14 @@
   border-radius: 50%;
   background-color: var(--darkv2);
   margin: 0 auto;
-  border: 2px solid var(--light-v3);
+  border: 2px solid var(--lightv3);
   position: relative;
 }
 
 .qrIcon {
   width: 40px;
   height: 40px;
-  color: var(--light-v1);
+  color: var(--lightv1);
 }
 
 .invitationTitle {
@@ -34,7 +34,7 @@
   font-size: 24px;
   font-weight: 600;
   margin-bottom: 8px;
-  color: var(--light-v1);
+  color: var(--lightv1);
 }
 
 .invitationStatus {
@@ -72,7 +72,7 @@
 .divider {
   height: 1px;
   width: 100%;
-  background-color: var(--light-v3);
+  background-color: var(--lightv3);
   opacity: 0.3;
   margin: 16px 0;
 }
@@ -99,7 +99,7 @@
 
 .value {
   flex: 0 0 50%;
-  color: var(--light-v3);
+  color: var(--lightv3);
 }
 
 .guestsHeader {
@@ -110,7 +110,7 @@
 .guestsTitle {
   font-size: 16px;
   font-weight: 600;
-  color: var(--light-v1);
+  color: var(--lightv1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 8px;
 }
@@ -136,7 +136,7 @@
 
 .guestName {
   font-weight: 500;
-  color: var(--light-v2);
+  color: var(--lightv2);
 }
 
 .guestStatus {
@@ -154,7 +154,7 @@
 }
 
 .guestNotAccessed {
-  color: var(--light-v3);
+  color: var(--lightv3);
   font-style: italic;
 }
 
@@ -197,8 +197,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: var(--primary-color);
-  color: white;
+  /* CDT-114: ⚠️ este boton NO TENIA FONDO. El fondo era `var(--primary-color)`, que
+     no existe, asi que la declaracion caia a transparent y el `color: white` quedaba
+     sobre la superficie de atras: este RenderView va como `renderView` de useCrud y se
+     monta DENTRO del modal, --cModalSurface #0d1218 = 18,80:1 (no --cBackground, que
+     esta pantalla no toca). Legible, pero no parecia un boton.
+     Corregir el token le DA fondo verde, y recien ahi el blanco pasa a ser un problema
+     —1,70:1— que antes no existia. Por eso el texto va oscuro: 10,78:1 en reposo y
+     6,55:1 sobre --accentDark. */
+  background-color: var(--cPrimary);
+  color: var(--cBlack);
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
@@ -206,8 +214,11 @@
   transition: all 0.2s ease;
 }
 
+/* CDT-114: --cPrimary es el mismo #00e38c que --accentColor, asi que su hover es
+   --accentDark. En la base este hover tambien caia a transparent (IACVT) — igual que
+   el reposo — asi que pasar el mouse no se notaba: no habia fondo ni antes ni durante. */
 .qrButton:hover {
-  background-color: var(--primary-dark);
+  background-color: var(--accentDark);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

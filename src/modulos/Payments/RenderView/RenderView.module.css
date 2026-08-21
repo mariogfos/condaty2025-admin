@@ -391,7 +391,9 @@
   width: 100%;
   margin-top: var(--spXl);
   padding-top: var(--spL);
-  border-top: 1px solid var(--cBlackV5);
+  /* CDT-114: --cBlackV5 no existe (la familia llega a V3). Es una linea separadora,
+     y el token de borde del sistema es --cBorder #313b46, ya usado en formularios. */
+  border-top: 1px solid var(--cBorder);
 }
 
 .actionButton {

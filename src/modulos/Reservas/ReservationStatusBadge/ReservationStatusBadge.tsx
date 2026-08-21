@@ -65,9 +65,9 @@ const ReservationStatusBadge = ({ item }: ReservationStatusBadgeProps) => {
   return (
     <StatusBadge
       backgroundColor={
-        currentStatus ? currentStatus.backgroundColor : "var(--cHoverLight)"
+        currentStatus ? currentStatus.backgroundColor : "var(--cStatusNeutralSoft)"
       }
-      color={currentStatus ? currentStatus.color : "var(--cLightDark)"}
+      color={currentStatus ? currentStatus.color : "var(--cStatusNeutral)"}
     >
       {currentStatus ? currentStatus.label : RESERVATIONS_COPY.unknownStatus}
     </StatusBadge>

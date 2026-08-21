@@ -260,7 +260,9 @@
   gap: 10px;
   margin-top: 12px;
   padding: 8px 12px;
-  background: var(--cHoverNeutral-300);
+  /* CDT-114: no existe un hover de --cNeutral-300. Es un panel tenue sobre el fondo,
+     y --cHover #20262d es justo el escalon por encima de --cBackground #1b2229. */
+  background: var(--cHover);
   border: 1px solid var(--cNeutral-300);
   border-radius: 8px;
   font-size: 12px;
