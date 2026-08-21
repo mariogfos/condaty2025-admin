@@ -580,7 +580,6 @@ const BalanceGeneral: React.FC = () => {
               )}`}
               subtitle={"Total de ingresos"}
               periodo={formStateFilter?.filter_date}
-              exportando={exportando}
             />
             <div className={styles.legendAndExportWrapper}>
               <div className={styles.legendContainer}>
@@ -696,7 +695,6 @@ const BalanceGeneral: React.FC = () => {
               )}`}
               subtitle={"Total de egresos"}
               periodo={formStateFilter?.filter_date}
-              exportando={exportando}
             />
             <div className={styles.legendAndExportWrapper}>
               <div className={styles.legendContainer}>
@@ -1008,7 +1006,6 @@ const BalanceGeneral: React.FC = () => {
                           )}`}
                           periodo={formStateFilter?.filter_date}
                           className={styles.lightChart}
-                          exportando={exportando}
                         />
                         <div className={styles.legendAndExportWrapper}>
                           <div className={styles.legendContainer}>

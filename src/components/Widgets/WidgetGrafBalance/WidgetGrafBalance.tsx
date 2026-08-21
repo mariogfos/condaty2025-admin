@@ -34,7 +34,6 @@ type PropsType = {
   subtitle?: string;
   className?: string;
   periodo?: string;
-  exportando?: boolean;
 };
 
 const WidgetGrafBalance: React.FC<PropsType> = ({
@@ -47,7 +46,6 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
   subtitle,
   className,
   periodo = "",
-  exportando = false,
 }: PropsType) => {
   const [balance, setBalance] = useState<BalanceData>({
     inicial: [],
@@ -238,7 +236,6 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
             },
           },
         }}
-        exportando={exportando}
       />
     </div>
   );
