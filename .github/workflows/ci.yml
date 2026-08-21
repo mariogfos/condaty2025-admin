@@ -1,0 +1,137 @@
+# Los tipos y la suite, corriendo en cada PR.
+#
+# 🔴 Por qué existe: hasta este archivo, el repo NO tenía ni un solo workflow
+# propio. Los checks verdes de un PR eran Socket, Snyk y Vercel — dependencias,
+# vulnerabilidades y build. Ninguno corre `tsc` sobre los tests ni ejecuta un
+# test. «Los checks pasaron» nunca significó que la suite corrió.
+#
+# Medido en CDT-116: `dev` tenía `npx tsc --noEmit` saliendo con exit 2 y 23
+# errores, todos en archivos de test, y nadie se enteró. El build de Vercel no
+# los ve porque `next build` no compila los `__tests__` (y aunque los viera,
+# Next ignora los errores de tipo si el build no está configurado para fallar).
+#
+# 🔴🔴 ESTE ARCHIVO NO PROTEGE EL MERGE POR SÍ SOLO. Que un job salga rojo no
+# impide mergear nada: GitHub sólo frena si el check está marcado como
+# **requerido** en la protección de rama de `dev` (Settings → Branches → dev →
+# Require status checks to pass → `analyse` y `test`). Eso lo hace Mario a mano,
+# una vez, y son LOS DOS. Mientras no estén marcados, esto es un semáforo que se
+# puede cruzar en rojo. Si estás leyendo esto para saber si el merge está
+# protegido: la respuesta está en Settings, no acá.
+#
+# ── Por qué DOS jobs y no uno con dos pasos ──────────────────────────────────
+# Porque en un solo job secuencial, un `tsc` rojo corta antes del `vitest` y te
+# deja sin saber si la suite TAMBIÉN está rota: arreglás los tipos, volvés a
+# empujar, y recién ahí te enterás del segundo problema. Separados, cada uno da
+# su veredicto en la misma corrida y en paralelo. El costo es una segunda
+# instalación, que con la caché del store de pnpm es barata.
+#
+# Los nombres `analyse` y `test` son los MISMOS que en condaty-api (phpstan.yml
+# y tests.yml) a propósito: los dos repos se marcan igual en Settings.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [dev, main]
+
+# Los dos jobs ejecutan código del árbol. Para eso alcanza con leer el repo: no
+# publican, no comentan, no tocan releases. Sin este bloque heredan el default
+# del repositorio, que puede ser de escritura.
+permissions:
+  contents: read
+
+# 🔴 Se cancela en los PR y NO en los push, y la diferencia importa.
+#
+# En un PR, si empujás tres veces seguidas sólo interesa el veredicto de la
+# última: cancelar las viejas ahorra runners y no pierde información.
+#
+# En `dev` es al revés: cada commit necesita su propio veredicto. Con
+# `cancel-in-progress` a secas, dos merges seguidos cancelan la corrida del
+# primero y ese commit queda sin saberse si estaba verde.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Fuente ÚNICA de las versiones: las leen los dos jobs.
+  #
+  # Node 22 porque es el que corre en local (22.19.0) y el que Vercel usa para
+  # Next 15. La versión ES parte de lo que se mide: la suite corre sobre jsdom
+  # y el runtime de Node de verdad.
+  NODE_VERSION: '22'
+
+  # 🔴 pnpm 9, NO el 11 que hay en local. Vercel corre pnpm 9 (lo elige por el
+  # `lockfileVersion: '9.0'` y la fecha del proyecto) — está documentado en el
+  # encabezado de `pnpm-workspace.yaml`, que existe justamente porque pnpm 9 lo
+  # exige. El CI instala como instala el deploy; si un día divergen, se ve acá
+  # y no en un deploy roto.
+  #
+  # ⚠️ Los `overrides` están DUPLICADOS en `package.json` (bajo `pnpm`) y en
+  # `pnpm-workspace.yaml`: pnpm 9 lee el primero y pnpm 11 el segundo. Los dos
+  # aplican, así que la versión del CI no cambia el árbol resuelto.
+  PNPM_VERSION: '9'
+
+jobs:
+  # Los tipos. Barato, sin navegador ni jsdom: es el que más rápido te dice
+  # «esto ni compila».
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm ANTES que setup-node: el `cache: pnpm` de abajo necesita el binario
+      # para preguntarle dónde está el store. Al revés, el paso de caché falla.
+      - name: Preparar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # 🔴 El lock manda. `--frozen-lockfile` falla si `pnpm-lock.yaml` quedó
+      # desincronizado de `package.json`, en vez de resolver el árbol de cero y
+      # medir dependencias que nadie versionó.
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      # `pnpm exec` y no `npx`: si el binario no estuviera instalado, `npx` lo
+      # baja del registro y el job sigue verde midiendo otra versión. `pnpm exec`
+      # falla.
+      - name: Analizar los tipos
+        run: pnpm exec tsc --noEmit
+
+  # La suite de vitest. NO incluye Playwright: `vitest.config.ts` tiene una lista
+  # blanca de `include` que sólo alcanza los `__tests__` de src (los e2e de
+  # `tests/` necesitan un navegador y un servidor levantado, y son otro trabajo).
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      # Sin `continue-on-error` y sin reintentos, a propósito. Si un test es
+      # inestable eso es un HALLAZGO para arreglar, no algo para tapar con un
+      # retry: un CI que se reintenta solo hasta ponerse verde miente.
+      - name: Correr la suite
+        run: pnpm exec vitest run

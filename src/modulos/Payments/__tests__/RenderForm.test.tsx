@@ -2,6 +2,16 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import RenderForm from "../RenderForm/RenderForm";
+import type { usePaymentsForm } from "../hooks/usePaymentsForm";
+
+/**
+ * CDT-116: los dos campos que arrancan en `null` se tipan contra el hook real.
+ * Sin la anotación TS los infería como `null` a secas, y `Partial<typeof
+ * mockHookBase>` volvía IMPOSIBLE de escribir el caso que el test mide (un
+ * `simulateError` con texto, un `simulateResult` con items): el fixture no
+ * podía representar el estado que la pantalla sí produce.
+ */
+type PaymentsFormHook = ReturnType<typeof usePaymentsForm>;
 
 const mockChangeInput = vi.fn();
 const mockSavePago = vi.fn();
@@ -34,9 +44,9 @@ const mockHookBase = {
   getSubtotal: vi.fn(() => 0),
   getConceptByType: vi.fn(() => ""),
   getDebtType: vi.fn(() => ""),
-  simulateResult: null,
+  simulateResult: null as PaymentsFormHook["simulateResult"],
   isSimulating: false,
-  simulateError: null,
+  simulateError: null as PaymentsFormHook["simulateError"],
   handleAmountBlur: vi.fn(),
   isSubmitDisabled: false,
 };

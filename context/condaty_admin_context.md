@@ -1063,16 +1063,43 @@ api.interceptors.request.use((config) => {
 ## 🧪 Testing y Calidad
 
 ### Estrategia de Testing
-- **Unit Tests**: Componentes individuales
-- **Integration Tests**: Flujos completos
-- **E2E Tests**: Playwright (planeado)
-- **TypeScript**: Type checking estricto
+- **Vitest + Testing Library**: `pnpm exec vitest run` — 142 archivos, 916 tests
+  (medido en CDT-116). ⚠️ `vitest.config.ts` tiene una **lista blanca** de
+  `include`: un test fuera de esos árboles no se corre y **no avisa**.
+- **E2E**: Playwright instalado (`playwright.config.ts`, `tests/`). NO lo corre
+  el CI: necesita navegador y un servidor levantado.
+- **TypeScript**: `pnpm exec tsc --noEmit`, `strict: true`.
+
+### Qué corre el CI (y qué NO)
+
+Workflow único: `.github/workflows/ci.yml`, sobre PR y sobre push a `dev`/`main`.
+Dos jobs, en paralelo:
+
+| job | corre | para qué |
+|---|---|---|
+| `analyse` | `pnpm exec tsc --noEmit` | los tipos, incluidos los de los tests |
+| `test` | `pnpm exec vitest run` | la suite entera |
+
+🔴 **Antes de CDT-116 el repo no tenía NINGÚN workflow propio.** Los checks
+verdes de un PR eran Socket, Snyk y Vercel: dependencias, vulnerabilidades y
+build. Ninguno corre `tsc` sobre los tests ni ejecuta un test. «Los checks
+pasaron» nunca significó que la suite corrió — y así `dev` llegó a tener `tsc`
+en **exit 2 con 23 errores** sin que nada lo frenara.
+
+🔴 **Que el job exista no protege el merge.** GitHub sólo frena si el check está
+marcado como **requerido** en Settings → Branches → `dev`. Son los DOS,
+`analyse` y `test`, y se marcan a mano una vez.
+
+Instala con **pnpm 9** (`--frozen-lockfile`), que es el que corre Vercel — ver
+el encabezado de `pnpm-workspace.yaml`.
 
 ### Code Quality
-- **ESLint**: Reglas estrictas
-- **Prettier**: Formateo automático
-- **Husky**: Pre-commit hooks
-- **Commitlint**: Conventional commits
+- **ESLint**: `eslint.config.mjs` (flat config) + `eslint-config-next`.
+  ⚠️ **El CI todavía NO lo corre**: `pnpm lint` se corre a mano.
+- ⚠️ **No hay Prettier, ni Husky, ni Commitlint.** Esta lista los daba por
+  puestos y ninguno de los tres está en `package.json`, en el lockfile ni como
+  archivo de configuración (medido en CDT-116). El formateo y el mensaje de
+  commit hoy no los verifica nada automático.
 
 ---
 
