@@ -93,9 +93,10 @@ const Users = () => {
     extraData: true,
   };
   const onBlurEmail = useCallback(async (e: any, props: any) => {
+    const email = e.target.value.trim();
     if (
-      e.target.value.trim() == "" ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
+      email == "" ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
     )
       return;
 
@@ -105,46 +106,70 @@ const Users = () => {
       {
         fullType: "EXIST",
         type: "email",
-        searchBy: e.target.value,
+        searchBy: email,
       },
       false,
       true,
     );
 
+    // Do not let an older lookup overwrite fields selected while it was pending.
+    if (e.target.value.trim() !== email) return;
+
     if (data?.success && data.data?.data?.id) {
       showToast("El email ya esta en uso", "warning");
-      props.setError({ email: "El email ya esta en uso" });
-      props.setItem({ ...props.item, email: "" });
+      props.setError((current: Record<string, string>) => ({
+        ...current,
+        email: "El email ya esta en uso",
+      }));
+      props.setItem((current: Record<string, any>) => ({
+        ...current,
+        email: "",
+      }));
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onBlurCi = useCallback(async (e: any, props: any) => {
-    if (e.target.value.trim() == "") return;
+    const ci = e.target.value.trim();
+    if (ci == "") return;
     const { data, error } = await execute(
       "/users",
       "GET",
       {
         fullType: "EXIST",
         type: "ci",
-        searchBy: e.target.value,
+        searchBy: ci,
       },
       false,
       true,
     );
 
+    // The user can select a role before this request returns.  Apply the
+    // lookup result over the latest form state, never over the stale snapshot
+    // captured at blur time.
+    if (e.target.value.trim() !== ci) return;
+
     if (data?.success && data.data?.data?.id) {
       const filteredData = data.data.data;
       if (filteredData.existCondo) {
         showToast("El administrador ya existe en este Condominio", "warning");
-        props.setItem({});
-        props.setError({ ci: "Ese CI ya esta en uso en este condominio" });
+        props.setItem((current: Record<string, any>) => ({
+          ...current,
+          ci,
+        }));
+        props.setError((current: Record<string, string>) => ({
+          ...current,
+          ci: "Ese CI ya esta en uso en este condominio",
+        }));
         return;
       }
-      props.setError({ ci: "" });
-      props.setItem({
-        ...props.item,
+      props.setError((current: Record<string, string>) => ({
+        ...current,
+        ci: "",
+      }));
+      props.setItem((current: Record<string, any>) => ({
+        ...current,
         ci: filteredData.ci,
         name: filteredData.name,
         middle_name: filteredData.middle_name,
@@ -154,18 +179,21 @@ const Users = () => {
         phone: filteredData.phone,
         _disabled: true,
         _emailDisabled: true,
-      });
+      }));
       showToast(
         "El administrador ya existe en Condaty, se va a vincular al Condominio",
         "warning",
       );
     } else {
-      props.setError({ ci: "" });
-      props.setItem({
-        ...props.item,
+      props.setError((current: Record<string, string>) => ({
+        ...current,
+        ci: "",
+      }));
+      props.setItem((current: Record<string, any>) => ({
+        ...current,
         _disabled: false,
         _emailDisabled: false,
-      });
+      }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
