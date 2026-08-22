@@ -24,6 +24,74 @@ export enum DebtType {
   PAYMENT_PLAN = 7,         // Plan de pago
 }
 
+/**
+ * Cómo se repartió el monto de una deuda compartida — `debt_dptos.amount_type`.
+ *
+ * 🔴 No es un rótulo: decide EL CÁLCULO. `FIJO` le cobra el monto entero a cada
+ * unidad, `PROMEDIO` lo divide entre ellas, `POR_M2` es proporcional a la
+ * superficie.
+ *
+ * ⚠️ La columna es NULLABLE y eso es correcto: NULL significa «no aplica» en
+ * las deudas que no son expensa ni compartida, donde no hay nada que repartir.
+ *
+ * Era `varchar(1)` `'F'`/`'A'`/`'M'` hasta el 2026-08-22. SSoT v1.6.0.
+ */
+export enum AmountType {
+  FIJO = 1,
+  PROMEDIO = 2,
+  POR_M2 = 3,
+}
+
+/**
+ * A qué unidades se le cargó la deuda — `debt_dptos.segmentation`.
+ *
+ * Era `char(255)` —para guardar UNA letra— con `'T'`/`'O'`/`'L'`/`'S'`.
+ */
+export enum DebtSegmentation {
+  TODOS = 1,
+  OCUPADAS = 2,
+  DISPONIBLES = 3,
+  LISTA = 4,
+}
+
+/**
+ * Las cuatro banderas de una deuda.
+ *
+ * 🔴🔴 **Esta es la mudanza que NO DA ERROR.** Fueron `char(1)` `'Y'`/`'N'`,
+ * después `tinyint(1)` con cast booleano, y desde el 2026-08-22 son enums desde
+ * 1: el `1` que significaba SÍ pasa a significar **NO**.
+ *
+ * Un `(item && item.has_mv) || false` lee `1` y `2` como verdaderos — o sea que
+ * TODAS las deudas pasan a tener la bandera puesta. Y `esCondonable`, que
+ * aceptaba `=== 1` por las formas viejas, pasa a decir que sí justo sobre las
+ * NO condonables.
+ *
+ * ⚠️ Ya mordió una vez por lo mismo: cuando la columna pasó a booleana, el
+ * formulario de condonaciones siguió preguntando `=== "Y"` —siempre falso— y el
+ * capital de **689 deudas de 15.210** no entraba en el techo que valida el
+ * monto. Por eso ahora se compara contra el CASE, nunca contra la verdad del
+ * valor.
+ */
+export enum DebtMaintenanceValue {
+  NO_APLICA = 1,
+  APLICA = 2,
+}
+
+export enum DebtForgivable {
+  NO_CONDONABLE = 1,
+  CONDONABLE = 2,
+}
+
+export enum DebtPaymentPlan {
+  NO_ADMITE = 1,
+  ADMITE = 2,
+}
+
+export enum DebtBlocking {
+  NO_BLOQUEA = 1,
+  BLOQUEA = 2,
+}
+
 export enum DebtStatus {
   PENDING = 1,            // Por cobrar
   OVERDUE = 2,            // En mora

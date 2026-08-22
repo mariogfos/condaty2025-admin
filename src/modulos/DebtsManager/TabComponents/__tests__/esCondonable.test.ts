@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { esCondonable } from "../constants";
+import { DebtForgivable } from "@/types/PaymentType";
 
 /**
  * `is_forgivable` se lee con `esCondonable`, no comparando contra "Y".
@@ -21,6 +22,16 @@ import { esCondonable } from "../constants";
  *
  * 🔴 Es la misma familia que los chars sobre columnas numéricas: el barrido de
  * enums cubrió MOSTRAR, y esto es LEER PARA CALCULAR — una cuarta superficie.
+ *
+ * ## 🔴🔴 Y volvió a mudarse el 2026-08-22
+ *
+ * La columna pasó de `tinyint(1)` a {@link DebtForgivable}, un enum desde 1: el
+ * **`1` que significaba SÍ ahora significa NO**. El arreglo de la mudanza
+ * anterior aceptaba `1` por las formas viejas, así que sin tocarlo habría
+ * empezado a decir que sí justo sobre las NO condonables — la misma inversión,
+ * con otra ropa, y otra vez sin dar error.
+ *
+ * Por eso el `1` pelado ya no se acepta: es ambiguo entre las dos numeraciones.
  */
 describe("esCondonable", () => {
   it("entiende la forma nueva: booleano", () => {
@@ -29,12 +40,23 @@ describe("esCondonable", () => {
   });
 
   /**
-   * ⚠️ El tinyint puede llegar como número si algo se saltea el cast del
-   * modelo — una query cruda, un snapshot viejo, un cache.
+   * ⚠️ El enum puede llegar como número o como string si algo se saltea el
+   * cast del modelo — una query cruda, un snapshot viejo, un cache.
    */
-  it("entiende el tinyint crudo", () => {
-    expect(esCondonable({ is_forgivable: 1 })).toBe(true);
-    expect(esCondonable({ is_forgivable: 0 })).toBe(false);
+  it("entiende el número del enum, y también como texto", () => {
+    expect(esCondonable({ is_forgivable: DebtForgivable.CONDONABLE })).toBe(true);
+    expect(esCondonable({ is_forgivable: DebtForgivable.NO_CONDONABLE })).toBe(false);
+    expect(esCondonable({ is_forgivable: String(DebtForgivable.CONDONABLE) })).toBe(true);
+  });
+
+  /**
+   * 🔴🔴 EL CASO QUE MIDE LA TERCERA MUDANZA. Con la numeración vieja el `1`
+   * era SÍ; con el enum es `NO_CONDONABLE`. Si esto vuelve a dar `true`, el
+   * formulario está contando como condonables justo las que no lo son.
+   */
+  it("el 1 de la numeración vieja YA NO es condonable", () => {
+    expect(esCondonable({ is_forgivable: 1 })).toBe(false);
+    expect(esCondonable({ is_forgivable: "1" })).toBe(false);
   });
 
   it("sigue entendiendo la forma vieja, que todavía circula", () => {
@@ -50,6 +72,7 @@ describe("esCondonable", () => {
   it("no confunde valores que parecen verdaderos", () => {
     expect(esCondonable({ is_forgivable: "N" })).toBe(false);
     expect(esCondonable({ is_forgivable: "0" })).toBe(false);
+    expect(esCondonable({ is_forgivable: 0 })).toBe(false);
     expect(esCondonable({ is_forgivable: null })).toBe(false);
     expect(esCondonable({ is_forgivable: undefined })).toBe(false);
     expect(esCondonable({})).toBe(false);

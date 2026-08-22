@@ -138,9 +138,15 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
   // 🔴 El filtro sale de la MISMA tabla que la columna. Escrito a mano ofrecía
   // "Variable" y "Porcentual", dos repartos que el back no sabe hacer: elegir
   // cualquiera de los dos devolvía cero filas para siempre.
+  // ⚠️ `Object.entries` devuelve las claves como STRING aunque el enum sea
+  // numérico. Se convierten acá: el filtro del API valida que sea un número y
+  // corta con 400 si no lo es.
   const getDistributionOptions = () => [
     { id: "ALL", name: "Todas los tipos" },
-    ...Object.entries(AMOUNT_TYPE_MAP).map(([id, name]) => ({ id, name })),
+    ...Object.entries(AMOUNT_TYPE_MAP).map(([id, name]) => ({
+      id: Number(id),
+      name,
+    })),
   ];
 
   const getCategoryOptions = (extraData?: any) => {

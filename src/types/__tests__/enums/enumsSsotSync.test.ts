@@ -23,7 +23,16 @@ import {
   PaymentMethod,
   PaymentType,
 } from '@/modulos/Payments/Type/PaymentType';
-import { DebtStatus, DebtType } from '@/types/PaymentType';
+import {
+  AmountType,
+  DebtBlocking,
+  DebtForgivable,
+  DebtMaintenanceValue,
+  DebtPaymentPlan,
+  DebtSegmentation,
+  DebtStatus,
+  DebtType,
+} from '@/types/PaymentType';
 import {
   AssemblyStatus,
   AssemblyType,
@@ -61,6 +70,12 @@ const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
   PaymentType,
   DebtStatus,
   DebtType,
+  AmountType,
+  DebtSegmentation,
+  DebtMaintenanceValue,
+  DebtForgivable,
+  DebtPaymentPlan,
+  DebtBlocking,
   AssemblyStatus,
   AssemblyType,
   AssemblyModality,

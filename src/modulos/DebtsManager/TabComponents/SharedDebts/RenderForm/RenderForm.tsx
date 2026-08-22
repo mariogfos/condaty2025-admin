@@ -15,7 +15,15 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import { checkRules } from "@/mk/utils/validate/Rules";
 import { getNow } from "@/mk/utils/date";
-import { DebtType } from "@/types/PaymentType";
+import {
+  DebtType,
+  AmountType,
+  DebtBlocking,
+  DebtForgivable,
+  DebtMaintenanceValue,
+  DebtPaymentPlan,
+  DebtSegmentation,
+} from "@/types/PaymentType";
 
 interface DebtFormState {
   id?: string | number;
@@ -27,7 +35,7 @@ interface DebtFormState {
   subcategory_id: string | number;
   asignar: string;
   dpto_id?: any[];
-  amount_type: string;
+  amount_type: number;
   amount: string | number;
   interest: number;
   show_advanced: boolean;
@@ -78,14 +86,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
       subcategory_id: (item && item.subcategory_id) || "",
       asignar: (item && item.asignar) || "T",
       dpto_id: (item && item.dpto_id) || [],
-      amount_type: (item && item.amount_type) || "F",
+      amount_type: (item && item.amount_type) ?? AmountType.FIJO,
       amount: (item && item.amount) || "",
       interest: (item && item.interest) || 0,
       show_advanced: (item && item.show_advanced) || false,
-      has_mv: (item && item.has_mv) || false,
-      is_forgivable: (item && item.is_forgivable) || false,
-      has_pp: (item && item.has_pp) || false,
-      is_blocking: (item && item.is_blocking) || false,
+      has_mv: Number(item?.has_mv) === DebtMaintenanceValue.APLICA,
+      is_forgivable: Number(item?.is_forgivable) === DebtForgivable.CONDONABLE,
+      has_pp: Number(item?.has_pp) === DebtPaymentPlan.ADMITE,
+      is_blocking: Number(item?.is_blocking) === DebtBlocking.BLOQUEA,
     };
   });
 
@@ -137,14 +145,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
         subcategory_id: (item && item.subcategory_id) || "",
         asignar: (item && item.asignar) || "T",
         dpto_id: (item && item.dpto_id) || [],
-        amount_type: (item && item.amount_type) || "F",
+        amount_type: (item && item.amount_type) ?? AmountType.FIJO,
         amount: (item && item.amount) || "",
         interest: (item && item.interest) || 0,
         show_advanced: (item && item.show_advanced) || false,
-        has_mv: (item && item.has_mv) || false,
-        is_forgivable: (item && item.is_forgivable) || false,
-        has_pp: (item && item.has_pp) || false,
-        is_blocking: (item && item.is_blocking) || false,
+        has_mv: Number(item?.has_mv) === DebtMaintenanceValue.APLICA,
+        is_forgivable: Number(item?.is_forgivable) === DebtForgivable.CONDONABLE,
+        has_pp: Number(item?.has_pp) === DebtPaymentPlan.ADMITE,
+        is_blocking: Number(item?.is_blocking) === DebtBlocking.BLOQUEA,
       });
       setIsInitialized(true);
     }
@@ -154,7 +162,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const { name, value, type, checked } = e.target;
     let newValue = type === "checkbox" ? checked : value;
 
-    if (name === "segmentation" && value !== "S") {
+    if (name === "segmentation" && Number(value) !== DebtSegmentation.LISTA) {
       _setFormState((prev) => ({
         ...prev,
         [name]: newValue,
@@ -288,7 +296,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       subcategory_id: "",
       asignar: "T",
       dpto_id: [],
-      amount_type: "F",
+      amount_type: AmountType.FIJO,
       amount: "",
       interest: 0,
       show_advanced: false,
@@ -316,10 +324,22 @@ const RenderForm: React.FC<RenderFormProps> = ({
       amount_type: _formState.amount_type,
       amount: parseFloat(String(_formState.amount || "0")),
       interest: parseFloat(String(_formState.interest || "0")),
-      has_mv: _formState.has_mv,
-      is_forgivable: _formState.is_forgivable,
-      has_pp: _formState.has_pp,
-      is_blocking: _formState.is_blocking,
+      // ⚠️ El estado del formulario sigue siendo booleano —son checkboxes—
+      // pero lo que VIAJA es el case del enum. Mandar `true`/`false` seguiría
+      // andando por compatibilidad del API, pero deja el número al azar de esa
+      // traducción en vez de decirlo acá.
+      has_mv: _formState.has_mv
+        ? DebtMaintenanceValue.APLICA
+        : DebtMaintenanceValue.NO_APLICA,
+      is_forgivable: _formState.is_forgivable
+        ? DebtForgivable.CONDONABLE
+        : DebtForgivable.NO_CONDONABLE,
+      has_pp: _formState.has_pp
+        ? DebtPaymentPlan.ADMITE
+        : DebtPaymentPlan.NO_ADMITE,
+      is_blocking: _formState.is_blocking
+        ? DebtBlocking.BLOQUEA
+        : DebtBlocking.NO_BLOQUEA,
     };
 
     const dataToSave =
@@ -363,17 +383,19 @@ const RenderForm: React.FC<RenderFormProps> = ({
     return [];
   };
 
+  // ⚠️ Los ids salen del enum: el API los recibe como número desde el
+  // 2026-08-22 y una letra suelta acá se guardaría como el reparto equivocado.
   const getAsignarOptions = () => [
-    { id: "T", name: "Todas las unidades" },
-    { id: "O", name: "Unidades ocupadas" },
-    { id: "L", name: "Unidades libres" },
-    { id: "S", name: "Seleccionar Unidades" },
+    { id: DebtSegmentation.TODOS, name: "Todas las unidades" },
+    { id: DebtSegmentation.OCUPADAS, name: "Unidades ocupadas" },
+    { id: DebtSegmentation.DISPONIBLES, name: "Unidades libres" },
+    { id: DebtSegmentation.LISTA, name: "Seleccionar Unidades" },
   ];
 
   const getAmountTypeOptions = () => [
-    { id: "F", name: "Fijo" },
-    { id: "M", name: "Por m²" },
-    { id: "A", name: "Promedio" },
+    { id: AmountType.FIJO, name: "Fijo" },
+    { id: AmountType.POR_M2, name: "Por m²" },
+    { id: AmountType.PROMEDIO, name: "Promedio" },
   ];
 
   useEffect(() => {
@@ -430,7 +452,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           </div>
         </div>
 
-        {_formState.asignar === "S" && (
+        {Number(_formState.asignar) === DebtSegmentation.LISTA && (
           <div className={styles.formRow}>
             <div className={styles.formField}>
               <Select

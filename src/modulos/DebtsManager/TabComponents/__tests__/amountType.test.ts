@@ -4,6 +4,7 @@ import {
   getAmountTypeText,
   montoACobrarDeLaDeuda,
 } from "../constants";
+import { AmountType } from "@/types/PaymentType";
 
 /**
  * 🔴 Cómo se reparte una deuda compartida: UNA tabla, no cuatro.
@@ -16,28 +17,35 @@ import {
  * eran opciones de filtro que no podían traer ni una fila.
  *
  * ⚠️ Su gemela en PHP es `App\Modules\DebtDptos\Export\TipoDeMonto`, y ese lado
- * tiene el mismo test. Mientras `amount_type` siga siendo un `char(1)` esto se
- * sostiene a mano; el trinquete va en el sprint de guard-rails de enums.
+ * tiene el mismo test. 🟢 Desde el 2026-08-22 las dos salen del enum
+ * {@link AmountType}, que está en el SSoT: el trinquete ahora es el test de
+ * drift y no la disciplina.
  */
 describe("AMOUNT_TYPE_MAP", () => {
   it("tiene los tres repartos que el back sabe hacer", () => {
-    expect(Object.keys(AMOUNT_TYPE_MAP)).toEqual(["F", "A", "M"]);
-  });
-
-  it("no ofrece repartos que el back no conoce", () => {
-    expect(AMOUNT_TYPE_MAP.P).toBeUndefined();
-    expect(AMOUNT_TYPE_MAP.V).toBeUndefined();
+    expect(Object.keys(AMOUNT_TYPE_MAP).map(Number)).toEqual([
+      AmountType.FIJO,
+      AmountType.PROMEDIO,
+      AmountType.POR_M2,
+    ]);
   });
 
   it("usa las mismas palabras que el reporte", () => {
-    expect(getAmountTypeText("F")).toBe("Fijo");
-    expect(getAmountTypeText("A")).toBe("Promedio");
-    expect(getAmountTypeText("M")).toBe("Por m²");
+    expect(getAmountTypeText(AmountType.FIJO)).toBe("Fijo");
+    expect(getAmountTypeText(AmountType.PROMEDIO)).toBe("Promedio");
+    expect(getAmountTypeText(AmountType.POR_M2)).toBe("Por m²");
   });
 
-  it("sin dato muestra el placeholder, no el código crudo", () => {
-    expect(getAmountTypeText("")).toBe("-/-");
-    expect(getAmountTypeText("P")).toBe("-/-");
+  /**
+   * 🔴 NULL es legítimo: significa «no aplica» en las deudas que no son
+   * expensa ni compartida. Y la letra vieja tiene que caer en el placeholder,
+   * no en una etiqueta inventada — un front sin actualizar mandaría `'F'`.
+   */
+  it("sin dato, con la letra vieja o con un número que no es case: placeholder", () => {
+    expect(getAmountTypeText(null)).toBe("-/-");
+    expect(getAmountTypeText(undefined)).toBe("-/-");
+    expect(getAmountTypeText("F" as unknown as number)).toBe("-/-");
+    expect(getAmountTypeText(99)).toBe("-/-");
   });
 });
 
