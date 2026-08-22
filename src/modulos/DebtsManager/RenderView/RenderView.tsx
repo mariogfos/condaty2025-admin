@@ -9,8 +9,9 @@ import { UnitsType } from "@/mk/utils/utils";
 import { IconEdit, IconTrash } from "@/components/layout/icons/IconsBiblioteca";
 import useAxios from "@/mk/hooks/useAxios";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
-import { DebtStatus } from "@/types/PaymentType";
+import { DebtStatus, AmountType, DebtSegmentation } from "@/types/PaymentType";
 import styles from "./RenderView.module.css";
+import { AMOUNT_TYPE_MAP } from "@/modulos/DebtsManager/TabComponents/constants";
 
 interface DebtItem {
   id?: number | string;
@@ -103,19 +104,23 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
     return types[type] || `Tipo ${type}`;
   };
 
-  const getAsignarName = (asignar?: string) => {
-    if (!asignar) return "No especificado";
-    return asignar === "S" ? "Sí" : "No";
+  const getAsignarName = (asignar?: number | string | null) => {
+    if (asignar === null || asignar === undefined || asignar === "") {
+      return "No especificado";
+    }
+    return Number(asignar) === DebtSegmentation.LISTA ? "Sí" : "No";
   };
 
-  const getAmountTypeName = (amountType?: string) => {
-    if (!amountType) return "No especificado";
-    const types: { [key: string]: string } = {
-      F: "Fijo",
-      V: "Variable",
-      P: "Porcentual",
-    };
-    return types[amountType] || "No especificado";
+  /**
+   * 🔴 Esta tabla ofrecía `V` (Variable) y `P` (Porcentual), dos repartos que
+   * el back NO sabe hacer, y le faltaban el promedio y el por m², que sí. Era
+   * la cuarta copia de un catálogo que ahora vive en {@link AmountType}.
+   */
+  const getAmountTypeName = (amountType?: number | string | null) => {
+    if (amountType === null || amountType === undefined || amountType === "") {
+      return "No especificado";
+    }
+    return AMOUNT_TYPE_MAP[Number(amountType) as AmountType] ?? "No especificado";
   };
 
   const getIsAdvanceName = (isAdvance?: string) => {

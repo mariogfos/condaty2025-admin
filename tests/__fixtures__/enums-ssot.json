@@ -1,6 +1,6 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "lastUpdated": "2026-08-22",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
@@ -696,6 +696,147 @@
         }
       ],
       "apiClass": "SurveyStatus"
+    },
+    "AmountType": {
+      "type": "int",
+      "comment": "Cómo se repartió el monto entre las unidades — `debt_dptos.amount_type`.\n\n🔴 No es un rótulo: decide EL CÁLCULO. `FIJO` le cobra el monto entero a cada unidad; `PROMEDIO` lo divide entre ellas; `POR_M2`, proporcional a la superficie.\n\n⚠️ La columna es NULLABLE y eso es correcto: las 1.091 filas en NULL son las que no son expensa ni compartida, donde no hay nada que repartir. NULL significa «no aplica», no «no se sabe».\n\nEra `varchar(1)` `'F'`/`'A'`/`'M'` hasta el 2026-08-22.",
+      "apps": [
+        "api",
+        "admin"
+      ],
+      "values": [
+        {
+          "name": "FIJO",
+          "value": 1,
+          "comment": "'F' — 16.174 filas al migrar"
+        },
+        {
+          "name": "PROMEDIO",
+          "value": 2,
+          "comment": "'A' — 0 filas locales"
+        },
+        {
+          "name": "POR_M2",
+          "value": 3,
+          "comment": "'M' — 0 filas locales"
+        }
+      ],
+      "apiClass": "AmountType"
+    },
+    "DebtSegmentation": {
+      "type": "int",
+      "comment": "A qué unidades se le cargó la deuda — `debt_dptos.segmentation`.\n\nEra `char(255)` —para guardar UNA letra— con `'T'`/`'O'`/`'L'`/`'S'`. El catálogo estaba escrito dos veces en el API: la constante global `SEGMENTATION` y el comentario del `$fillable`.\n\n⚠️ Los cuatro casos existen en el dominio pero sólo dos en la base (11.048 en TODOS, 6.217 en LISTA). Se migran igual: los escribe el código y una base local vacía de un caso no es la ausencia del caso.",
+      "apps": [
+        "api",
+        "admin"
+      ],
+      "values": [
+        {
+          "name": "TODOS",
+          "value": 1,
+          "comment": "'T' — 11.048 filas al migrar"
+        },
+        {
+          "name": "OCUPADAS",
+          "value": 2,
+          "comment": "'O' — 0 filas locales"
+        },
+        {
+          "name": "DISPONIBLES",
+          "value": 3,
+          "comment": "'L' — 0 filas locales"
+        },
+        {
+          "name": "LISTA",
+          "value": 4,
+          "comment": "'S' — 6.217 filas al migrar"
+        }
+      ],
+      "apiClass": "DebtSegmentation"
+    },
+    "DebtMaintenanceValue": {
+      "type": "int",
+      "comment": "¿La deuda se ajusta por mantenimiento de valor? — `debt_dptos.has_mv`.\n\n🔴 Un booleano es un enum de dos casos que no puede crecer, y viaja mal entre repos: el mismo campo aparecía como \"N\", false y 0 según quién lo escribiera, y tsc no lo ve dentro de una cadena any.\n\n🔴 La mudanza de tinyint(1) a enum desde 1 es la que NO DA ERROR: el `1` que significaba SÍ pasó a significar NO. Un front viejo que manda `1` guarda el caso opuesto sin quejarse.",
+      "apps": [
+        "api",
+        "admin"
+      ],
+      "values": [
+        {
+          "name": "NO_APLICA",
+          "value": 1,
+          "comment": "0 — 17.071 filas"
+        },
+        {
+          "name": "APLICA",
+          "value": 2,
+          "comment": "1 — 194 filas"
+        }
+      ],
+      "apiClass": "DebtMaintenanceValue"
+    },
+    "DebtForgivable": {
+      "type": "int",
+      "comment": "¿El CAPITAL de la deuda se puede condonar? — `debt_dptos.is_forgivable`.\n\n🔴🔴 Esta bandera ya mordió: cuando pasó de char(1) a tinyint con cast boolean, el formulario de condonaciones del admin siguió preguntando === \"Y\" —siempre falso— y el capital de las condonables no entraba en el techo que valida el monto. 689 deudas de 15.210, medido el 2026-08-08. El arreglo de aquel día acepta true/1/\"Y\"/\"1\": con el enum, `=== 1` pasa a significar NO_CONDONABLE.\n\n🔴 Un booleano es un enum de dos casos que no puede crecer, y viaja mal entre repos: el mismo campo aparecía como \"N\", false y 0 según quién lo escribiera, y tsc no lo ve dentro de una cadena any.\n\n🔴 La mudanza de tinyint(1) a enum desde 1 es la que NO DA ERROR: el `1` que significaba SÍ pasó a significar NO. Un front viejo que manda `1` guarda el caso opuesto sin quejarse.",
+      "apps": [
+        "api",
+        "admin"
+      ],
+      "values": [
+        {
+          "name": "NO_CONDONABLE",
+          "value": 1,
+          "comment": "0 — 16.503 filas"
+        },
+        {
+          "name": "CONDONABLE",
+          "value": 2,
+          "comment": "1 — 762 filas"
+        }
+      ],
+      "apiClass": "DebtForgivable"
+    },
+    "DebtPaymentPlan": {
+      "type": "int",
+      "comment": "¿La deuda admite entrar en un plan de pago? — `debt_dptos.has_pp`.\n\n⚠️ Es la única de las cuatro cuyo default es el caso ALTO: por defecto una deuda SÍ admite plan de pago, así que el default nuevo es 2. Es la trampa que el 4R de Áreas midió — una guarda que pregunta «¿queda alguna fila en 0?» declara migrada una columna que valía 1 en todas y la deja en el caso opuesto.\n\n🔴 Un booleano es un enum de dos casos que no puede crecer, y viaja mal entre repos: el mismo campo aparecía como \"N\", false y 0 según quién lo escribiera, y tsc no lo ve dentro de una cadena any.\n\n🔴 La mudanza de tinyint(1) a enum desde 1 es la que NO DA ERROR: el `1` que significaba SÍ pasó a significar NO. Un front viejo que manda `1` guarda el caso opuesto sin quejarse.",
+      "apps": [
+        "api",
+        "admin"
+      ],
+      "values": [
+        {
+          "name": "NO_ADMITE",
+          "value": 1,
+          "comment": "0 — 1.433 filas"
+        },
+        {
+          "name": "ADMITE",
+          "value": 2,
+          "comment": "1 — 15.832 filas"
+        }
+      ],
+      "apiClass": "DebtPaymentPlan"
+    },
+    "DebtBlocking": {
+      "type": "int",
+      "comment": "¿La deuda le bloquea los servicios al residente? — `debt_dptos.is_blocking`.\n\n⚠️ Medido el 2026-08-22: vale 1 en exactamente las mismas 194 filas que has_mv. No se unifican —son preguntas distintas— pero queda anotado de dónde sale la coincidencia.\n\n🔴 Un booleano es un enum de dos casos que no puede crecer, y viaja mal entre repos: el mismo campo aparecía como \"N\", false y 0 según quién lo escribiera, y tsc no lo ve dentro de una cadena any.\n\n🔴 La mudanza de tinyint(1) a enum desde 1 es la que NO DA ERROR: el `1` que significaba SÍ pasó a significar NO. Un front viejo que manda `1` guarda el caso opuesto sin quejarse.",
+      "apps": [
+        "api",
+        "admin"
+      ],
+      "values": [
+        {
+          "name": "NO_BLOQUEA",
+          "value": 1,
+          "comment": "0 — 17.071 filas"
+        },
+        {
+          "name": "BLOQUEA",
+          "value": 2,
+          "comment": "1 — 194 filas"
+        }
+      ],
+      "apiClass": "DebtBlocking"
     }
   },
   "excluded": {

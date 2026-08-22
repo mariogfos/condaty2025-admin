@@ -15,7 +15,7 @@ import styles from "./DetailSharedDebts.module.css";
 import { getDateStrMes } from "@/mk/utils/date";
 import UnifiedCard from "../../../UnifiedCard/UnifiedCard";
 import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
-import { DebtStatus } from "@/types/PaymentType";
+import { DebtStatus, AmountType, DebtSegmentation } from "@/types/PaymentType";
 import { DebtType } from "@/types/PaymentType";
 import {
   getStatusText as getStatusTextConst,
@@ -35,14 +35,21 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   const router = useRouter();
   const { user } = useAuth();
 
-  const getSegmentationText = (segmentation: string) => {
-    const segmentationMap: { [key: string]: string } = {
-      T: "Todas las unidades",
-      O: "Unidades ocupadas",
-      L: "Unidades libres",
-      S: "Seleccionar Unidades",
+  /**
+   * ⚠️ Las claves son el número de {@link DebtSegmentation} desde el
+   * 2026-08-22: la columna era `char(255)` para guardar UNA letra.
+   */
+  const getSegmentationText = (segmentation: number | string | null | undefined) => {
+    const segmentationMap: { [key in DebtSegmentation]: string } = {
+      [DebtSegmentation.TODOS]: "Todas las unidades",
+      [DebtSegmentation.OCUPADAS]: "Unidades ocupadas",
+      [DebtSegmentation.DISPONIBLES]: "Unidades libres",
+      [DebtSegmentation.LISTA]: "Seleccionar Unidades",
     };
-    return segmentationMap[segmentation] || segmentation;
+    return (
+      segmentationMap[Number(segmentation) as DebtSegmentation] ??
+      String(segmentation ?? "-/-")
+    );
   };
 
   const goToCategories = (type = "") => {
@@ -393,10 +400,10 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               variant="detail"
               label="DISTRIBUCIÓN & ASIGNACIÓN"
               mainContent={getAmountTypeText(
-                extraData?.debt?.amount_type || "F",
+                extraData?.debt?.amount_type ?? AmountType.FIJO,
               )}
               subtitle={getSegmentationText(
-                extraData?.debt?.segmentation || "T",
+                extraData?.debt?.segmentation ?? DebtSegmentation.TODOS,
               )}
             />
 

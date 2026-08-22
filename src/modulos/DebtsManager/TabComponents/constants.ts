@@ -1,4 +1,9 @@
-import { DebtStatus, DebtType } from "@/types/PaymentType";
+import {
+  AmountType,
+  DebtForgivable,
+  DebtStatus,
+  DebtType,
+} from "@/types/PaymentType";
 import { maintenanceAmountFor } from "@/mk/utils/utils";
 import { getNow } from "@/mk/utils/date";
 
@@ -56,11 +61,14 @@ export const PAYMENT_TYPE_MAP: { [key: string]: string } = {
  * filtro que nunca podían traer una fila.
  *
  * Su gemela en PHP es `App\Modules\DebtDptos\Export\TipoDeMonto`.
+ *
+ * ⚠️ Desde el 2026-08-22 la columna es {@link AmountType}: la clave es el
+ * número del enum, no la letra.
  */
-export const AMOUNT_TYPE_MAP: { [key: string]: string } = {
-  F: 'Fijo',
-  A: 'Promedio',
-  M: 'Por m²'
+export const AMOUNT_TYPE_MAP: { [key in AmountType]: string } = {
+  [AmountType.FIJO]: 'Fijo',
+  [AmountType.PROMEDIO]: 'Promedio',
+  [AmountType.POR_M2]: 'Por m²'
 };
 
 
@@ -158,8 +166,10 @@ export const getPaymentTypeText = (type: string): string => {
 };
 
 
-export const getAmountTypeText = (amountType: string): string => {
-  return AMOUNT_TYPE_MAP[amountType] || '-/-';
+export const getAmountTypeText = (amountType: number | null | undefined): string => {
+  // ⚠️ La letra vieja o un número que no es case caen en el placeholder, no en
+  // una etiqueta inventada. Y NULL es legítimo: significa «no aplica».
+  return AMOUNT_TYPE_MAP[Number(amountType) as AmountType] || '-/-';
 };
 
 
@@ -353,26 +363,32 @@ export const montoACobrarDeLaDeuda = (iamData: any, debt: any): number =>
 /**
  * ¿Es condonable el CAPITAL de esta deuda?
  *
- * ## 🔴 Por qué esto no es un `=== "Y"`
+ * ## 🔴🔴 Por qué esto no es un `=== "Y"`, ni un `=== 1`, ni un `if (debt.is_forgivable)`
  *
- * `debt_dptos.is_forgivable` fue `char(1)` con `'Y'`/`'N'` hasta la migración
- * del 2026-06-30, que la pasó a `tinyint(1)` y le puso el cast `'boolean'` al
- * modelo. Desde entonces la API manda `true`/`false`, pero el formulario de
- * condonaciones seguía preguntando `=== "Y"`: **siempre falso**.
+ * `debt_dptos.is_forgivable` cambió de forma **tres veces**: `char(1)`
+ * `'Y'`/`'N'` → `tinyint(1)` con cast booleano (2026-06-30) → enum desde 1
+ * (2026-08-22). Las dos primeras ya mordieron acá.
  *
- * ⚠️ Se pagaba en silencio y en el peor lugar. El capital de las deudas
- * condonables no entraba en `amountForgiveness`, que es a la vez el techo que
- * valida el monto y la base con la que se convierte porcentaje ⇄ monto. O sea:
- * el operador no podía condonar más que la mora, y el porcentaje que veía
- * estaba calculado sobre otro número. Medido el 2026-08-08: **689 deudas
+ * ⚠️ La segunda se pagó en silencio y en el peor lugar: el formulario seguía
+ * preguntando `=== "Y"` contra un `true`, o sea **siempre falso**. El capital
+ * de las condonables no entraba en `amountForgiveness`, que es a la vez el
+ * techo que valida el monto y la base con la que se convierte porcentaje ⇄
+ * monto. El operador no podía condonar más que la mora, y el porcentaje que
+ * veía estaba calculado sobre otro número. Medido el 2026-08-08: **689 deudas
  * condonables** de 15.210.
  *
- * Acepta las dos formas a propósito: la nueva y la vieja. Todavía quedan filas
- * viejas circulando por caches y snapshots, y una lectura que sólo entiende una
- * forma es exactamente lo que produjo este bug.
+ * 🔴 **La tercera es la que no da error, y por eso el `=== 1` se FUE.** Con el
+ * enum, `1` es `NO_CONDONABLE`: el arreglo de la segunda mudanza —que aceptaba
+ * `1` por las formas viejas— habría dicho que sí justo sobre las que no lo son.
+ * Es la misma inversión, con otra ropa.
+ *
+ * Sigue aceptando `true` y `"Y"`: quedan filas viejas circulando por caches y
+ * snapshots, y una lectura que sólo entiende una forma es exactamente lo que
+ * produjo este bug. Lo que ya no se acepta es el `1` pelado, que ahora es
+ * ambiguo.
  */
 export const esCondonable = (debt: any): boolean =>
+  debt?.is_forgivable === DebtForgivable.CONDONABLE ||
+  debt?.is_forgivable === String(DebtForgivable.CONDONABLE) ||
   debt?.is_forgivable === true ||
-  debt?.is_forgivable === 1 ||
-  debt?.is_forgivable === "Y" ||
-  debt?.is_forgivable === "1";
+  debt?.is_forgivable === "Y";
