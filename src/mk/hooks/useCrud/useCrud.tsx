@@ -54,6 +54,19 @@ import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 import { encodeReportViewerState } from "@/modulos/Reports/reportViewerState";
 import { shouldUseNewReportsViewer } from "@/modulos/Reports/reportFeatureFlags";
 
+const normalizeApiErrors = (apiErrors: unknown): Record<string, string> => {
+  if (!apiErrors || typeof apiErrors !== "object") return {};
+
+  return Object.fromEntries(
+    Object.entries(apiErrors as Record<string, unknown>).map(
+      ([field, value]) => [
+        field,
+        Array.isArray(value) ? String(value[0] ?? "") : String(value),
+      ],
+    ),
+  );
+};
+
 export type ModCrudType = {
   modulo: string;
   singular: string;
@@ -869,7 +882,21 @@ const useCrud = ({
         }
         showToast(mod.saveMsg?.[action] || response?.message, "success");
       } else {
-        showToast(response?.message, "error");
+        const apiErrors = normalizeApiErrors(
+          response?.errors || err?.data?.errors,
+        );
+        if (_setErrors && Object.keys(apiErrors).length > 0) {
+          _setErrors((current: Record<string, string>) => ({
+            ...current,
+            ...apiErrors,
+          }));
+        }
+        showToast(
+          response?.message ||
+            err?.data?.message ||
+            "No se pudo guardar el registro. Intenta nuevamente.",
+          "error",
+        );
         logError("Error onSave:", err);
       }
     } finally {
