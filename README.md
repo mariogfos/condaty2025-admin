@@ -1,3 +1,8 @@
+> 🔴 **No hay CI.** El workflow de GitHub Actions se saco el 2026-08-22 porque
+> este repo paso a privado y ahi los minutos se pagan. Lo que hacia hay que
+> correrlo a mano: esta en [docs/CI-LOCAL.md](docs/CI-LOCAL.md), con los dos
+> pisos de la suite y de donde salen sus numeros.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
