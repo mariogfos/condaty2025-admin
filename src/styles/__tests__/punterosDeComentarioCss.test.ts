@@ -21,7 +21,8 @@
  * es la forma vieja exacta que este candidato corrigió en el CSS de `AsyncExportButton`.
  */
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { join, relative, resolve, dirname, sep } from "node:path";
 
@@ -52,9 +53,12 @@ const REPO = join(RAIZ, "..");
  * Un puntero a algo NO versionado (`node_modules/…`, una salida de compilación) da cero a
  * propósito: en un clon limpio ese archivo no existe, así que es un puntero colgado.
  */
-const versionados = execFileSync("git", ["ls-files"], { cwd: REPO, encoding: "utf-8" })
-  .split("\n")
-  .filter(Boolean);
+const listarVersionados = (cwd: string): string[] =>
+  execFileSync("git", ["ls-files", "-z"], { cwd, encoding: "utf-8" })
+    .split("\0")
+    .filter(Boolean);
+
+const versionados = listarVersionados(REPO);
 
 /** `git ls-files` lista archivos; un puntero también puede apuntar a una carpeta. */
 const reales = [
@@ -65,8 +69,15 @@ const reales = [
   ),
 ];
 
+/**
+ * 🔴 CDT-127 — SE BARRE `src`, aunque el inventario contra el que se RESUELVE sea el repo
+ * entero. Son dos conjuntos distintos y sólo el segundo tenía motivo para crecer: sacar el
+ * recorrido propio ensanchó el barrido sin que ningún comentario lo dijera.
+ */
 const archivosCss = () =>
-  versionados.filter((r) => /\.(css|scss)$/.test(r)).map((r) => join(REPO, r));
+  versionados
+    .filter((r) => r.startsWith("src/") && /\.(css|scss)$/.test(r))
+    .map((r) => join(REPO, r));
 
 /**
  * Qué cuenta como puntero: lo que va entre backticks y tiene forma de ruta del repo.
@@ -147,6 +158,47 @@ describe("CDT-125 — los punteros de comentario de los .css apuntan a algo que 
         `árbol, así que no señalan un motivo, señalan varios candidatos y el próximo ` +
         `abre el que no es. Agregales directorio hasta que el sufijo sea único.`,
     ).toEqual([]);
+  });
+
+  /**
+   * 🔴 CDT-127 — LA IRONÍA. Este ticket existe porque una condición sólo-ASCII era ciega a
+   * los acentos en un producto en castellano, y el arreglo trajo OTRA condición sólo-ASCII
+   * por la puerta de al lado. `git ls-files` a secas CITA las rutas no-ASCII y escapa los
+   * bytes en octal: `acción.module.css` sale como la cadena entrecomillada con `\303\263`
+   * adentro, un puntero correcto a ese archivo resuelve a CERO y la guarda se pone roja
+   * sobre algo que está bien — la clase exacta que este candidato dice cerrar. Hoy las 971
+   * rutas versionadas son ASCII puro: está armado y el disparador todavía no existe.
+   *
+   * 🔴 Lo apaga `-z`, NO `core.quotePath=false`. Medido con git 2.53.0 en un repo
+   * desechable: con `-z` la ruta sale limpia con y sin `quotePath`, porque el separador NUL
+   * ya hace innecesario el entrecomillado. Por eso `-z` va solo: sumarle `quotePath=false`
+   * daría una bandera INERTE que ningún caso puede poner en rojo, con un comentario al lado
+   * jurando que es la que protege — la falla que este archivo persigue. `-z` de paso cubre
+   * un nombre con salto de línea adentro, que la separación por líneas partía en dos.
+   *
+   * Se mide contra un repo desechable: el caso mide el PARSEO de la salida de git, que es
+   * lo que puede romperse, y no depende de versionar un archivo con tilde en este repo.
+   */
+  it("el inventario sale de git y sobrevive a un acento en el nombre", () => {
+    const repo = mkdtempSync(join(tmpdir(), "cdt127-"));
+    const nombre = "acción.module.css";
+    writeFileSync(join(repo, nombre), "");
+    execFileSync("git", ["init", "-q"], { cwd: repo });
+    execFileSync("git", ["add", "."], { cwd: repo });
+
+    expect(
+      listarVersionados(repo).map((r) => r.normalize("NFC")),
+      `git citó la ruta con acento y escapó sus bytes en octal. Un puntero correcto a ese ` +
+        `archivo resuelve a CERO y la guarda se pone roja sobre algo que ya estaba bien: ` +
+        `es el mismo defecto sólo-ASCII que este ticket vino a cerrar, entrando por el ` +
+        `archivo hermano. Devolvé \`-z\` a la invocación y la separación por NUL.`,
+    ).toEqual([nombre]);
+
+    // Y que el inventario derivado de git sea el que dice ser. Se afirma con ESTE archivo
+    // —se lista solo— y con su carpeta, que sólo existe como prefijo derivado: la fila no
+    // se calibra al inventario del día, así que ningún rename ajeno la pone roja.
+    expect(reales).toContain("src/styles/__tests__/punterosDeComentarioCss.test.ts");
+    expect(reales).toContain("src/styles/__tests__");
   });
 
   /**
