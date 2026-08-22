@@ -24,6 +24,7 @@ import { hasMaintenanceValue, isPastDue } from "@/mk/utils/utils";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { DebtStatus, DEBT_STATUS_TEXT, getDebtStatusText } from "@/types/PaymentType";
 
+import { DebtType } from "@/types/PaymentType";
 const renderUnitCell = ({ item }: { item: any }) => (
   <div>{item?.dpto?.nro}</div>
 );
@@ -161,7 +162,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     // comentario que estaba acá decía que "el export nunca funcionó
     // productivamente" y lo dejaba apagado; ahora sale por el motor nuevo.
     //
-    // `debt_id` + `type: 1` viajan en los params de la lista, así que el
+    // `debt_id` + `type: DebtType.EXPENSE` viajan en los params de la lista, así que el
     // reporte trae exactamente las expensas del periodo que está en pantalla
     // —y el título del archivo lleva el periodo, que lo resuelve el back.
     exportAsync: {
@@ -218,7 +219,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     // detalle pide el periodo, que es lo que el usuario clickeó.
     year: data.year,
     month: data.month,
-    type: 1,
+    type: DebtType.EXPENSE,
   };
 
   const fields = useMemo(() => {
@@ -231,7 +232,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
        * `(int) null` es 0 —NORMAL— y entonces exige `begin_at`, `due_at`,
        * `subcategory_id`, `amount` y `dpto_id`, que esta pantalla no tiene.
        * El valor sale de la fila (`debt_dptos.type`); todas son EXPENSE
-       * porque la lista se pide con `type: 1`.
+       * porque la lista se pide con `type: DebtType.EXPENSE`.
        *
        * Sin `form` a propósito: `useCrud` sólo dibuja los campos que lo
        * declaran, así que no ocupa una celda del grid del formulario.

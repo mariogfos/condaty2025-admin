@@ -8,6 +8,7 @@ import { FormPaymentType } from "../Type/PaymentType";
 import { CategoryFixed } from "@/modulos/Categories/Type/CategoryType";
 import { BankAccountAssignment } from "@/modulos/BankAccounts/Type/BankType";
 import { leerElErrorDelApi } from "@/mk/hooks/useCrud/leerElErrorDelApi";
+import { DebtType } from "@/types/PaymentType";
 
 /**
  * Lo que se le dice al operador cuando el pedido de deudas no trajo nada
@@ -527,7 +528,11 @@ export const usePaymentsForm = (
     const maintenanceAmount = parseFloat(String(periodo?.maintenance_amount)) || 0;
 
     let total;
-    if (Number(periodo?.type) === 3) {
+    // 🔴 La multa por cancelar una reserva no tiene `amount`: lo que se cobra
+    // es la multa. Acá había un `=== 3` pelado, y decide EL MONTO. Con el
+    // corrimiento de valores del API el 3 pasó a ser la RESERVA: se habría
+    // dejado de cobrar el importe de cada reserva, sin dar un solo error.
+    if (Number(periodo?.type) === DebtType.PENALTY_RESERVATION) {
       total = penaltyAmount + maintenanceAmount;
     } else {
       total = amount + penaltyAmount + maintenanceAmount;
@@ -539,8 +544,8 @@ export const usePaymentsForm = (
   const getConceptByType = useCallback((periodo: Deuda) => {
     const type = periodo?.type;
 
-    switch (type) {
-      case 1: {
+    switch (Number(type)) {
+      case DebtType.EXPENSE: {
         const monthNum = periodo?.month ?? periodo?.shared?.month;
         const yearNum = periodo?.year ?? periodo?.shared?.year;
         if (monthNum != null && yearNum != null) {
@@ -550,14 +555,14 @@ export const usePaymentsForm = (
         }
         return "-/-";
       }
-      case 2:
+      case DebtType.RESERVATION:
         return `Reserva: ${periodo?.reservation?.area?.title || "-/-"}`;
-      case 3:
+      case DebtType.PENALTY_RESERVATION:
         return `Multa por Cancelación: ${
           periodo?.penalty_reservation?.area?.title || "-/-"
         }`;
-      case 0:
-      case 4:
+      case DebtType.NORMAL:
+      case DebtType.SHARED:
         return periodo?.description || "-/-";
       default:
         return (
@@ -569,19 +574,21 @@ export const usePaymentsForm = (
   }, []);
 
   const getDebtType = useCallback((type: number) => {
-    switch (type) {
-      case 0:
+    switch (Number(type)) {
+      case DebtType.NORMAL:
         return "Individual";
-      case 1:
+      case DebtType.EXPENSE:
         return "Expensas";
-      case 2:
+      case DebtType.RESERVATION:
         return "Reservas";
-      case 3:
+      case DebtType.PENALTY_RESERVATION:
         return "Multa por Cancelación";
-      case 4:
+      case DebtType.SHARED:
         return "Compartida";
-      case 5:
+      case DebtType.FORGIVENESS:
         return "Condonación";
+      case DebtType.PAYMENT_PLAN:
+        return "Plan de pago";
       default:
         return "Desconocido";
     }

@@ -12,6 +12,7 @@ import styles from './RenderForm.module.css';
 import { IconArrowDown, IconQuestion } from '@/components/layout/icons/IconsBiblioteca';
 import { checkRules } from '@/mk/utils/validate/Rules';
 import { getNow } from "@/mk/utils/date";
+import { DebtType } from '@/types/PaymentType';
 
 interface DebtFormState {
   id?: string | number;
@@ -67,7 +68,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       ...(item || {}),
       begin_at: (item && item.begin_at) || formattedDate,
       due_at: (item && item.due_at) || '',
-      type: 0, // Tipo para deudas individuales
+      type: DebtType.NORMAL,
       description: (item && item.description) || '',
       subcategory_id: (item && item.subcategory_id) || '',
       dpto_id: (item && item.dpto_id) || '',
@@ -116,7 +117,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         ...(item || {}),
         begin_at: (item && item.begin_at) || formattedDate,
         due_at: (item && item.due_at) || '',
-        type: 0,
+        type: DebtType.NORMAL,
         description: (item && item.description) || '',
         subcategory_id: (item && item.subcategory_id) || '',
         dpto_id: (item && item.dpto_id) || '',
@@ -239,7 +240,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     _setFormState({
       begin_at: formattedDate,
       due_at: '',
-      type: 0,
+      type: DebtType.NORMAL,
       description: '',
       subcategory_id: '',
       dpto_id: '',
@@ -268,9 +269,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       // `ERROR 1366: Incorrect integer value: 'N' for column has_mv`; sin modo
       // estricto pasa y guarda 0 en las cuatro. Los dos casos son el bug.
       //
-      // ⚠️ El alta individual (`type: 0`) va por `parent::store()` del kernel,
+      // ⚠️ El alta individual (`DebtType.NORMAL`) va por `parent::store()` del kernel,
       // que NO normaliza. El `boolFlag()` de `SharedDebtService` sólo cubre el
-      // camino compartido (`type: 4`), por eso este formulario era el único que
+      // camino compartido (`DebtType.SHARED`), por eso este formulario era el único que
       // moría.
       has_mv: !!_formState.has_mv,
       is_forgivable: !!_formState.is_forgivable,
@@ -310,7 +311,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       _setFormState({
         begin_at: formattedDate,
         due_at: '',
-        type: 0,
+        type: DebtType.NORMAL,
         description: '',
         subcategory_id: '',
         dpto_id: '',

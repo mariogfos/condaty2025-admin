@@ -1,7 +1,7 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.4.0",
-  "lastUpdated": "2026-08-15",
+  "version": "1.5.0",
+  "lastUpdated": "2026-08-22",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
   "sync": {
@@ -393,29 +393,50 @@
     },
     "DebtType": {
       "type": "int",
-      "comment": "Solo rnOwner lo define. admin no tiene equivalente directo (mapea a PaymentType en su lugar). NO es el mismo enum que PaymentType — semántica y valores distintos.",
+      "comment": "Qué clase de deuda es — `debt_dptos.type`.\n\n🔴🔴 ENTRA AL CONTRATO EL 2026-08-22, y hasta ese día no era un enum en NINGÚN repo. En el API era `Constants::DEBT_TYPE`, un **array de constantes** con 153 usos de producción; en `condaty-admin`, dos tablas de etiquetas y quince literales numéricos; en `rnOwner`, un enum con **cuatro de los siete casos**. Un array de constantes no se puede reflejar, así que este enum estaba declarado acá con `apiClass: \"?\"` y una sola app: el test de drift no medía nada.\n\n🔴 Y se separaron. La entrada vieja declaraba el valor 4 como *«salto reservado (gap histórico del backend)»* cuando el 4 era `SHARED`, con **1.107 filas** en la base local: `rnOwner` no tenía case para la deuda compartida y su propio contrato decía que ese número no existía.\n\n🔴 **Todos los valores se corrieron un lugar** (viejo 0..6 → nuevo 1..7). Antes `NORMAL` era 0, y el costo estaba escrito en el docblock de `rnOwner`: *«CRITICAL — type-0 preservation: use `??` not `||`»*. Un solo `||` convertía una deuda individual en «sin tipo» sin dar error. Migración del API: `2026_08_22_120000_debt_dptos_type_a_enum_desde_1`.\n\n⚠️ Los nombres se unificaron a los del API en el mismo movimiento —`rnOwner` decía `FINE` por `PENALTY_RESERVATION` y `FORGIVEN` por `FORGIVENESS`—, con el criterio que dejó `AccessType`: se unifica cuando esos archivos se tocan igual. Por eso este enum NO tiene `aliasesByApp`.\n\n⚠️ NO es el mismo enum que `PaymentType`: semántica y valores distintos.",
       "apps": [
+        "api",
+        "admin",
         "rnOwner"
       ],
       "values": [
         {
+          "name": "NORMAL",
+          "value": 1,
+          "comment": "Deuda individual cargada por la administración — viejo 0, 520 filas"
+        },
+        {
           "name": "EXPENSE",
-          "value": 1
+          "value": 2,
+          "comment": "Expensa del periodo, la genera el cron — viejo 1, 15.067 filas"
         },
         {
           "name": "RESERVATION",
-          "value": 2
+          "value": 3,
+          "comment": "El cobro por reservar un área — viejo 2, 568 filas"
         },
         {
-          "name": "FINE",
-          "value": 3
+          "name": "PENALTY_RESERVATION",
+          "value": 4,
+          "comment": "La multa por cancelar una reserva fuera de plazo — viejo 3, 0 filas locales. `rnOwner` lo llamaba FINE"
         },
         {
-          "name": "FORGIVEN",
+          "name": "SHARED",
           "value": 5,
-          "comment": "Salto 4 reservado (gap histórico del backend)"
+          "comment": "Gasto repartido entre varias unidades — viejo 4, 1.107 filas. `rnOwner` NO lo tenía"
+        },
+        {
+          "name": "FORGIVENESS",
+          "value": 6,
+          "comment": "Condonación — viejo 5, 3 filas. `rnOwner` lo llamaba FORGIVEN"
+        },
+        {
+          "name": "PAYMENT_PLAN",
+          "value": 7,
+          "comment": "Cuota de un plan de pago — viejo 6, 0 filas locales. `rnOwner` NO lo tenía"
         }
-      ]
+      ],
+      "apiClass": "DebtType"
     },
     "AssemblyStatus": {
       "type": "string",

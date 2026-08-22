@@ -1,3 +1,29 @@
+/**
+ * Qué clase de deuda es — `debt_dptos.type` del API.
+ *
+ * 🔴 Hasta el 2026-08-22 el admin NO tenía este enum. Tenía dos tablas de
+ * etiquetas con las claves escritas a mano y quince comparaciones contra
+ * literales numéricos repartidas en cuatro archivos. El API tampoco lo tenía:
+ * era un array de constantes, que no se puede reflejar, así que el tipo de
+ * deuda nunca entró al test de drift del SSoT y los repos podían separarse sin
+ * ponerse rojos.
+ *
+ * 🔴 Y los valores CAMBIARON: el API los corrió todos un lugar para que ningún
+ * caso sea falsy (antes `NORMAL` era 0). Cada literal numérico que quedara
+ * escrito a mano pasa a nombrar otro tipo de deuda, sin dar error.
+ *
+ * SSoT: `enums-ssot.json` v1.5.0.
+ */
+export enum DebtType {
+  NORMAL = 1,               // Individual
+  EXPENSE = 2,              // Expensas
+  RESERVATION = 3,          // Reservas
+  PENALTY_RESERVATION = 4,  // Multa por cancelación
+  SHARED = 5,               // Compartida
+  FORGIVENESS = 6,          // Condonación
+  PAYMENT_PLAN = 7,         // Plan de pago
+}
+
 export enum DebtStatus {
   PENDING = 1,            // Por cobrar
   OVERDUE = 2,            // En mora

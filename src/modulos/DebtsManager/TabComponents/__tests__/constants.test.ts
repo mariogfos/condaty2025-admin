@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { DebtStatus } from "@/types/PaymentType";
+import { DebtStatus, DebtType } from "@/types/PaymentType";
 
 // These imports will fail (RED) until constants.ts is migrated to numeric.
 import {
@@ -116,38 +116,38 @@ describe("getStatusConfig — numeric DebtStatus + overdue rule", () => {
 
 describe("getAvailableActions — numeric DebtStatus", () => {
   // type=0 (individual) — full switch
-  it("PAID (5) + type 0: showVerPago=true, showRegistrarPago=false, showAnular=false", () => {
-    const a = getAvailableActions(DebtStatus.PAID, 0);
+  it("PAID (5) + NORMAL: showVerPago=true, showRegistrarPago=false, showAnular=false", () => {
+    const a = getAvailableActions(DebtStatus.PAID, DebtType.NORMAL);
     expect(a.showVerPago).toBe(true);
     expect(a.showRegistrarPago).toBe(false);
     expect(a.showAnular).toBe(false);
     expect(a.showEditar).toBe(false);
   });
 
-  it("PARTIAL (3) + type 0: showVerPago=true, showRegistrarPago=false", () => {
-    const a = getAvailableActions(DebtStatus.PARTIAL, 0);
+  it("PARTIAL (3) + NORMAL: showVerPago=true, showRegistrarPago=false", () => {
+    const a = getAvailableActions(DebtStatus.PARTIAL, DebtType.NORMAL);
     expect(a.showVerPago).toBe(true);
     expect(a.showRegistrarPago).toBe(false);
   });
 
-  it("FORGIVEN (6) + type 0: no payments, no actions", () => {
-    const a = getAvailableActions(DebtStatus.FORGIVEN, 0);
+  it("FORGIVEN (6) + NORMAL: no payments, no actions", () => {
+    const a = getAvailableActions(DebtStatus.FORGIVEN, DebtType.NORMAL);
     expect(a.showVerPago).toBe(false);
     expect(a.showRegistrarPago).toBe(false);
     expect(a.showAnular).toBe(false);
     expect(a.showEditar).toBe(false);
   });
 
-  it("PENDING (1) + type 0: showAnular=true, showEditar=true, showRegistrarPago=true", () => {
-    const a = getAvailableActions(DebtStatus.PENDING, 0);
+  it("PENDING (1) + NORMAL: showAnular=true, showEditar=true, showRegistrarPago=true", () => {
+    const a = getAvailableActions(DebtStatus.PENDING, DebtType.NORMAL);
     expect(a.showAnular).toBe(true);
     expect(a.showEditar).toBe(true);
     expect(a.showRegistrarPago).toBe(true);
     expect(a.showVerPago).toBe(false);
   });
 
-  it("OVERDUE (2) + type 0: same as PENDING (showAnular=true)", () => {
-    const a = getAvailableActions(DebtStatus.OVERDUE, 0);
+  it("OVERDUE (2) + NORMAL: same as PENDING (showAnular=true)", () => {
+    const a = getAvailableActions(DebtStatus.OVERDUE, DebtType.NORMAL);
     expect(a.showAnular).toBe(true);
     expect(a.showEditar).toBe(true);
     expect(a.showRegistrarPago).toBe(true);
@@ -156,59 +156,59 @@ describe("getAvailableActions — numeric DebtStatus", () => {
 
   // 🔴 CDT-89: una deuda anulada NO se cobra. Editar y Anular siguen
   // ofreciéndose — está fuera del alcance de CDT-89 y anotado para producto.
-  it("CANCELLED (8) + type 0: showRegistrarPago=false (Editar y Anular siguen)", () => {
-    const a = getAvailableActions(DebtStatus.CANCELLED, 0);
+  it("CANCELLED (8) + NORMAL: showRegistrarPago=false (Editar y Anular siguen)", () => {
+    const a = getAvailableActions(DebtStatus.CANCELLED, DebtType.NORMAL);
     expect(a.showRegistrarPago).toBe(false);
     expect(a.showVerPago).toBe(false);
     expect(a.showAnular).toBe(true);
     expect(a.showEditar).toBe(true);
   });
 
-  it("CANCELLED (8) + type 1: showRegistrarPago=false", () => {
-    const a = getAvailableActions(DebtStatus.CANCELLED, 1);
+  it("CANCELLED (8) + EXPENSE: showRegistrarPago=false", () => {
+    const a = getAvailableActions(DebtStatus.CANCELLED, DebtType.EXPENSE);
     expect(a.showRegistrarPago).toBe(false);
     expect(a.showVerPago).toBe(false);
   });
 
   // type != 0 — simplified rules
-  it("PAID (5) + type 1: showRegistrarPago=false, showVerPago=true", () => {
-    const a = getAvailableActions(DebtStatus.PAID, 1);
+  it("PAID (5) + EXPENSE: showRegistrarPago=false, showVerPago=true", () => {
+    const a = getAvailableActions(DebtStatus.PAID, DebtType.EXPENSE);
     expect(a.showRegistrarPago).toBe(false);
     expect(a.showVerPago).toBe(true);
     expect(a.showAnular).toBe(false);
   });
 
-  it("PENDING (1) + type 1: showRegistrarPago=true, showVerPago=false", () => {
-    const a = getAvailableActions(DebtStatus.PENDING, 1);
+  it("PENDING (1) + EXPENSE: showRegistrarPago=true, showVerPago=false", () => {
+    const a = getAvailableActions(DebtStatus.PENDING, DebtType.EXPENSE);
     expect(a.showRegistrarPago).toBe(true);
     expect(a.showVerPago).toBe(false);
   });
 
-  it("FORGIVEN (6) + type 1: showRegistrarPago=false", () => {
-    const a = getAvailableActions(DebtStatus.FORGIVEN, 1);
+  it("FORGIVEN (6) + EXPENSE: showRegistrarPago=false", () => {
+    const a = getAvailableActions(DebtStatus.FORGIVEN, DebtType.EXPENSE);
     expect(a.showRegistrarPago).toBe(false);
   });
 
-  it("SUBMITTED (4) + type 1: showRegistrarPago=false, showVerPago=true", () => {
-    const a = getAvailableActions(DebtStatus.SUBMITTED, 1);
+  it("SUBMITTED (4) + EXPENSE: showRegistrarPago=false, showVerPago=true", () => {
+    const a = getAvailableActions(DebtStatus.SUBMITTED, DebtType.EXPENSE);
     expect(a.showRegistrarPago).toBe(false);
     expect(a.showVerPago).toBe(true);
   });
 
-  it("AWAITING_VOUCHER (9) + type 0: falls through default", () => {
-    const a = getAvailableActions(DebtStatus.AWAITING_VOUCHER, 0);
+  it("AWAITING_VOUCHER (9) + NORMAL: falls through default", () => {
+    const a = getAvailableActions(DebtStatus.AWAITING_VOUCHER, DebtType.NORMAL);
     expect(a.showAnular).toBe(true);
     expect(a.showEditar).toBe(true);
     expect(a.showRegistrarPago).toBe(true);
   });
 
-  it("REJECTED (10) + type 0: falls through default", () => {
-    const a = getAvailableActions(DebtStatus.REJECTED, 0);
+  it("REJECTED (10) + NORMAL: falls through default", () => {
+    const a = getAvailableActions(DebtStatus.REJECTED, DebtType.NORMAL);
     expect(a.showAnular).toBe(true);
   });
 
-  it("WORKFLOW_PENDING (7) + type 0: falls through default", () => {
-    const a = getAvailableActions(DebtStatus.WORKFLOW_PENDING, 0);
+  it("WORKFLOW_PENDING (7) + NORMAL: falls through default", () => {
+    const a = getAvailableActions(DebtStatus.WORKFLOW_PENDING, DebtType.NORMAL);
     expect(a.showAnular).toBe(true);
     expect(a.showEditar).toBe(true);
   });

@@ -6,6 +6,7 @@ import { MONTHS } from "@/mk/utils/date";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import { DebtType } from "@/types/PaymentType";
 
 type yearProps = { id: string | number; name: string }[];
 
@@ -19,7 +20,7 @@ const RenderForm = ({
 }: any) => {
   const [formState, setFormState]: any = useState({
     ...item,
-    type: 1,
+    type: DebtType.EXPENSE,
   });
   const [errors, setErrors]: any = useState({});
   const { showToast } = useAuth();
@@ -63,7 +64,7 @@ const RenderForm = ({
       {
         year: formState.year,
         month: formState.month,
-        type: 1,
+        type: DebtType.EXPENSE,
         description: formState.description,
       },
       false

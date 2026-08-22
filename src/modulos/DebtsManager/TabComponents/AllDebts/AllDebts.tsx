@@ -6,7 +6,7 @@ import { getDateStrMesShort, getNow } from "@/mk/utils/date";
 // 🔴 CDT-52: el RenderForm propio de esta pestaña pegaba a
 // `PUT /debt-groups/{id}`, ruta que CDT-50 retiró (en `debt-groups` sólo
 // quedan `POST ''` y `GET ''`). Se borró. Lo único que "Todas" edita es la
-// deuda individual —`getAvailableActions` no ofrece Editar para `type !== 0`—
+// deuda individual —`getAvailableActions` sólo ofrece Editar para `DebtType.NORMAL`—
 // y esa es exactamente la que edita el formulario de Individuales, contra
 // `PUT /v3/debt-dptos/{id}`.
 import RenderForm from "../IndividualDebts/RenderForm/RenderForm";
@@ -18,7 +18,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
-import { DebtStatus } from "@/types/PaymentType";
+import { DebtStatus, DebtType } from "@/types/PaymentType";
 import {
   getStatusText as getStatusTextConst,
   getStatusConfig as getStatusConfigConst,
@@ -55,25 +55,33 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     </div>
   );
 
+  /**
+   * ⚠️ La QUINTA tabla de nombres del tipo de deuda del admin, y con las
+   * palabras del API ("Individual", "Compartida"). Las claves se unifican; las
+   * palabras se dejan porque son de producto. Le faltaba el plan de pago.
+   */
   const renderDebtTypeCell = ({ item }: { item: any }) => {
-    switch (item?.type) {
-      case 0: {
+    switch (Number(item?.type)) {
+      case DebtType.NORMAL: {
         return <div>Individual</div>;
       }
-      case 1: {
+      case DebtType.EXPENSE: {
         return <div>Expensas</div>;
       }
-      case 2: {
+      case DebtType.RESERVATION: {
         return <div>Reservas</div>;
       }
-      case 3: {
+      case DebtType.PENALTY_RESERVATION: {
         return <div>Multa por Cancelación</div>;
       }
-      case 4: {
+      case DebtType.SHARED: {
         return <div>Compartida</div>;
       }
-      case 5: {
+      case DebtType.FORGIVENESS: {
         return <div>Condonación</div>;
+      }
+      case DebtType.PAYMENT_PLAN: {
+        return <div>Plan de pago</div>;
       }
       default: {
         return <div>-/-</div>;

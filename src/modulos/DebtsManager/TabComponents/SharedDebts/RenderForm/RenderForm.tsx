@@ -15,6 +15,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import { checkRules } from "@/mk/utils/validate/Rules";
 import { getNow } from "@/mk/utils/date";
+import { DebtType } from "@/types/PaymentType";
 
 interface DebtFormState {
   id?: string | number;
@@ -71,7 +72,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       ...(item || {}),
       begin_at: (item && item.begin_at) || formattedDate,
       due_at: (item && item.due_at) || "",
-      type: 4,
+      type: DebtType.SHARED,
       description: (item && item.description) || "",
       category_id: (item && item.category_id) || "",
       subcategory_id: (item && item.subcategory_id) || "",
@@ -130,7 +131,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         ...(item || {}),
         begin_at: (item && item.begin_at) || formattedDate,
         due_at: (item && item.due_at) || "",
-        type: 4,
+        type: DebtType.SHARED,
         description: (item && item.description) || "",
         category_id: categoryId,
         subcategory_id: (item && item.subcategory_id) || "",
@@ -281,7 +282,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     _setFormState({
       begin_at: formattedDate,
       due_at: "",
-      type: 4,
+      type: DebtType.SHARED,
       description: "",
       category_id: "",
       subcategory_id: "",
@@ -307,7 +308,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       id: _formState.id,
       begin_at: _formState.begin_at,
       due_at: _formState.due_at,
-      type: 4,
+      type: DebtType.SHARED,
       description: _formState.description,
       category_id: _formState.category_id,
       subcategory_id: _formState.subcategory_id,
