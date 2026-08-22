@@ -21,12 +21,13 @@
  * es la forma vieja exacta que este candidato corrigió en el CSS de `AsyncExportButton`.
  */
 import { describe, it, expect } from "vitest";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join, relative, resolve, dirname, sep } from "node:path";
 
 const RAIZ = join(__dirname, "..", "..");
 /**
- * El recorrido arranca en la RAÍZ DEL REPO, no en `src`.
+ * El inventario arranca en la RAÍZ DEL REPO, no en `src`.
  *
  * CDT-125 — con la raíz en `src` un puntero correcto que saliera de ahí —`./x.css`,
  * `../../otro.css`, `scripts/algo.ts`— era IRRESOLUBLE y ponía el test en rojo mandando a
@@ -35,28 +36,37 @@ const RAIZ = join(__dirname, "..", "..");
  */
 const REPO = join(RAIZ, "..");
 
-/** Archivos Y carpetas: un puntero puede apuntar a cualquiera de las dos cosas. */
-const inventario = (dir: string = REPO): string[] => {
-  const salida: string[] = [];
-  for (const entrada of readdirSync(dir, { withFileTypes: true })) {
-    if (entrada.name === "node_modules" || entrada.name.startsWith(".")) continue;
-    const ruta = join(dir, entrada.name);
-    salida.push(ruta);
-    if (entrada.isDirectory()) salida.push(...inventario(ruta));
-  }
-  return salida;
-};
+/**
+ * 🔴 CDT-127 — EL INVENTARIO SALE DE GIT, NO DE RECORRER EL DISCO.
+ *
+ * El recorrido propio saltaba `node_modules` y lo que empieza con punto, y eso hacía que
+ * el resultado dependiera de si la máquina ya había compilado. Medido: con un `dist/` que
+ * contenga una copia de un `.css`, el puntero `Reel.module.css` —correcto, único en el
+ * árbol versionado— resuelve a DOS y el test se pone rojo sobre algo que está bien:
+ * «src/modulos/Balance/Balance.module.css → Reel.module.css (dist/assets/Reel.module.css,
+ * src/modulos/Reel/Reel.module.css)». Y por la otra punta, un puntero legítimo bajo una
+ * carpeta con punto (`.github/…`) no lo encontraba NINGÚN recorrido y resolvía a cero.
+ *
+ * Git ya sabe qué archivos son del repo: cierra las dos clases sin lista de exclusiones
+ * que después hay que ir manteniendo —`dist`, `coverage`, `storybook-static`, la próxima—.
+ * Un puntero a algo NO versionado (`node_modules/…`, una salida de compilación) da cero a
+ * propósito: en un clon limpio ese archivo no existe, así que es un puntero colgado.
+ */
+const versionados = execFileSync("git", ["ls-files"], { cwd: REPO, encoding: "utf-8" })
+  .split("\n")
+  .filter(Boolean);
 
-const archivosCss = (dir: string = RAIZ): string[] => {
-  const salida: string[] = [];
-  for (const entrada of readdirSync(dir, { withFileTypes: true })) {
-    if (entrada.name === "node_modules" || entrada.name.startsWith(".")) continue;
-    const ruta = join(dir, entrada.name);
-    if (entrada.isDirectory()) salida.push(...archivosCss(ruta));
-    else if (/\.(css|scss)$/.test(entrada.name)) salida.push(ruta);
-  }
-  return salida;
-};
+/** `git ls-files` lista archivos; un puntero también puede apuntar a una carpeta. */
+const reales = [
+  ...new Set(
+    versionados.flatMap((r) =>
+      r.split("/").map((_, i, partes) => partes.slice(0, i + 1).join("/")),
+    ),
+  ),
+];
+
+const archivosCss = () =>
+  versionados.filter((r) => /\.(css|scss)$/.test(r)).map((r) => join(REPO, r));
 
 /**
  * Qué cuenta como puntero: lo que va entre backticks y tiene forma de ruta del repo.
@@ -68,8 +78,6 @@ const archivosCss = (dir: string = RAIZ): string[] => {
 const esPuntero = (t: string): boolean =>
   t.startsWith("src/") || /\.(module\.)?(css|scss|tsx?)$/.test(t);
 
-const reales = inventario().map((r) => relative(REPO, r).split(sep).join("/"));
-
 /**
  * A qué resuelve un puntero. Todo se compara contra el MISMO inventario, con
  * comparación de cadenas: `existsSync` en macOS es ciego a las mayúsculas y el puntero
@@ -80,14 +88,17 @@ const reales = inventario().map((r) => relative(REPO, r).split(sep).join("/"));
  *   es lo que un puntero relativo significa. Puede salir de `src`.
  * - con directorio o desde la raíz (`src/x/y`): sufijo de ruta.
  * - nombre suelto (`Reel.module.css`): también sufijo — y por eso hay que CONTAR.
+ *
+ * El árbol entra por parámetro: el barrido lo llama con el inventario real y los casos de
+ * abajo con uno fijo (CDT-127, ver el comentario del `it.each`).
  */
-const resuelve = (puntero: string, desdeAbs: string): string[] => {
+const resuelve = (puntero: string, desdeAbs: string, arbol: string[] = reales): string[] => {
   if (/^\.\.?\//.test(puntero)) {
     const abs = resolve(dirname(desdeAbs), puntero);
     const rel = relative(REPO, abs).split(sep).join("/");
-    return reales.filter((r) => r === rel);
+    return arbol.filter((r) => r === rel);
   }
-  return reales.filter((r) => r === puntero || r.endsWith(`/${puntero}`));
+  return arbol.filter((r) => r === puntero || r.endsWith(`/${puntero}`));
 };
 
 describe("CDT-125 — los punteros de comentario de los .css apuntan a algo que existe", () => {
@@ -139,17 +150,31 @@ describe("CDT-125 — los punteros de comentario de los .css apuntan a algo que 
   });
 
   /**
-   * CDT-125 — las tres formas del puntero, clavadas contra archivos reales.
+   * CDT-125 — las formas del puntero, clavadas contra un árbol FIJO.
    *
    * Se afirma la CONSECUENCIA, no la implementación. Las dos primeras filas son las que
    * el review destapó: un puntero relativo correcto se ponía rojo porque el recorrido
    * arrancaba en `src` y nunca podía resolverlo, y un nombre suelto lo daba por bueno sin
    * mirar cuántos homónimos tiene el árbol.
+   *
+   * 🔴 CDT-127 — EL ÁRBOL ES FIJO Y NO EL DEL REPO. Antes las filas interrogaban el árbol
+   * real y acá la CATEGORÍA ES EL NÚMERO: «nombre suelto único» exigía que ese archivo
+   * siguiera siendo el único con ese nombre y «AMBIGUO» que siguieran existiendo dos
+   * homónimos del otro. Un rename ajeno los ponía rojos diciendo «la resolución cambió»,
+   * que es justo lo que no habría pasado — la misma calibración al inventario del día que
+   * el comentario de acá decía haber evitado. Que el árbol real esté sano lo mide el
+   * barrido de arriba, que para eso recorre el conjunto entero.
    */
-  const DESDE = join(RAIZ, "modulos", "Balance", "Balance.module.css");
-  // Se afirma la CATEGORÍA, no el número: «16 homónimos» sería otro umbral calibrado al
-  // inventario de hoy, y el día que alguien borre 15 el caso se pondría rojo diciendo
-  // que la resolución cambió, que es justo lo que no habría pasado.
+  const ARBOL = [
+    "package.json",
+    "src/modulos/Balance/Balance.module.css",
+    "src/mk/components/forms/Button/button.module.css",
+    "src/mk/hooks/useAsyncExport",
+    "src/modulos/Reel/Reel.module.css",
+    "src/mk/components/RenderView/RenderView.module.css",
+    "src/modulos/Adm/RenderView.module.css",
+  ];
+  const DESDE = join(REPO, "src", "modulos", "Balance", "Balance.module.css");
   it.each([
     ["relativo dentro de src", "./Balance.module.css", "uno"],
     ["relativo que SALE de src", "../../../package.json", "uno"],
@@ -160,7 +185,7 @@ describe("CDT-125 — los punteros de comentario de los .css apuntan a algo que 
     ["inexistente", "NoExisteEnNingunLado.module.css", "ninguno"],
     ["nombre suelto AMBIGUO", "RenderView.module.css", "varios"],
   ])("resuelve un puntero %s", (_caso, puntero, esperado) => {
-    const donde = resuelve(puntero as string, DESDE);
+    const donde = resuelve(puntero as string, DESDE, ARBOL);
     const categoria = donde.length === 0 ? "ninguno" : donde.length === 1 ? "uno" : "varios";
     expect(
       categoria,
