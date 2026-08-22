@@ -9,6 +9,16 @@ import { UAParser } from "ua-parser-js";
 import useAxios from "../../hooks/useAxios";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 
+const authEndpoints = {
+  login: process.env.NEXT_PUBLIC_AUTH_LOGIN || "/adm-login",
+  iam: process.env.NEXT_PUBLIC_AUTH_IAM || "/adm-iam",
+  validatePin: process.env.NEXT_PUBLIC_AUTH_VALIDATE_PIN || "/adm-validatepin",
+  trustDevice: process.env.NEXT_PUBLIC_AUTH_TRUST_DEVICE || "/trust-device",
+  getPin: process.env.NEXT_PUBLIC_AUTH_GET_PIN || "/adm-getpin",
+};
+
+const authTokenKey = `${authEndpoints.iam}token`;
+
 const Login = () => {
   const { user, getUser } = useAuth();
   const { execute } = useAxios();
@@ -119,7 +129,7 @@ const Login = () => {
     }
 
     const { data, error }: any = await execute(
-      process.env.NEXT_PUBLIC_AUTH_LOGIN,
+      authEndpoints.login,
       "POST",
       { ...formState, deviceInfo },
     );
@@ -131,7 +141,7 @@ const Login = () => {
         localStorage.removeItem(getBlockKey(userKey));
       }
       localStorage.setItem(
-        (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+        authTokenKey,
         JSON.stringify({ token: data?.data?.token, user: data?.data?.user }),
       );
       // Actualizar estado global del usuario para redirigir
@@ -174,7 +184,7 @@ const Login = () => {
     if (isBlocked) return;
 
     const { data, error }: any = await execute(
-      process.env.NEXT_PUBLIC_AUTH_VALIDATE_PIN || "/adm-validatepin",
+      authEndpoints.validatePin,
       "POST",
       {
         pin: verificationCode,
@@ -229,7 +239,7 @@ const Login = () => {
 
   const handleTrustDevice = async (trust: boolean) => {
     const { data, error }: any = await execute(
-      process.env.NEXT_PUBLIC_AUTH_TRUST_DEVICE || "/trust-device",
+      authEndpoints.trustDevice,
       "POST",
       {
         trustDevice: trust ? "Y" : "N",
@@ -247,7 +257,7 @@ const Login = () => {
       }
 
       localStorage.setItem(
-        (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+        authTokenKey,
         JSON.stringify({ token: data?.data?.token, user: data?.data?.user }),
       );
       // Redirigir al sistema
@@ -257,7 +267,7 @@ const Login = () => {
 
   const handleResendCode = async () => {
     const { data, error }: any = await execute(
-      process.env.NEXT_PUBLIC_AUTH_GET_PIN || "/adm-getpin",
+      authEndpoints.getPin,
       "POST",
       {
         email: formState.email,
