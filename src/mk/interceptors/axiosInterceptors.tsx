@@ -2,6 +2,7 @@
 import { logError } from "../utils/logs";
 
 const LOGIN_SCREEN_ROUTE = "/";
+const authTokenKey = `${process.env.NEXT_PUBLIC_AUTH_IAM || "/adm-iam"}token`;
 
 const axiosInterceptors = (instance: any) => {
   instance.interceptors.request.use(
@@ -10,7 +11,7 @@ const axiosInterceptors = (instance: any) => {
       try {
         apiToken = JSON.parse(
           localStorage.getItem(
-            (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
+            authTokenKey
           ) + ""
         ).token;
       } catch (e) {
@@ -36,7 +37,7 @@ const axiosInterceptors = (instance: any) => {
     (response: any) => {
       if (response?.status === 401) {
         localStorage.removeItem(
-          (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
+          authTokenKey
         );
         window.location.href = LOGIN_SCREEN_ROUTE;
       }
@@ -45,7 +46,7 @@ const axiosInterceptors = (instance: any) => {
     (error: any) => {
       if (error.response?.status === 401) {
         localStorage.removeItem(
-          (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
+          authTokenKey
         );
         window.location.href = LOGIN_SCREEN_ROUTE;
       }
