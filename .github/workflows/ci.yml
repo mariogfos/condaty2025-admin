@@ -1,0 +1,255 @@
+# Los tipos y la suite, corriendo en cada PR.
+#
+# 🔴 Por qué existe: hasta este archivo, el repo NO tenía ni un solo workflow
+# propio. Los checks verdes de un PR eran Socket, Snyk y Vercel — dependencias,
+# vulnerabilidades y build. Ninguno corre `tsc` sobre los tests ni ejecuta un
+# test. «Los checks pasaron» nunca significó que la suite corrió.
+#
+# Medido en CDT-116: `dev` tenía `npx tsc --noEmit` saliendo con exit 2 y 23
+# errores, todos en archivos de test, y nadie se enteró. El build de Vercel no
+# los ve porque `next build` no compila los `__tests__` (y aunque los viera,
+# Next ignora los errores de tipo si el build no está configurado para fallar).
+#
+# 🔴🔴 ESTE ARCHIVO NO PROTEGE EL MERGE POR SÍ SOLO. Que un job salga rojo no
+# impide mergear nada: GitHub sólo frena si el check está marcado como
+# **requerido** en la protección de rama de `dev` (Settings → Branches → dev →
+# Require status checks to pass → `analyse` y `test`). Eso lo hace Mario a mano,
+# una vez, y son LOS DOS. Mientras no estén marcados, esto es un semáforo que se
+# puede cruzar en rojo. Si estás leyendo esto para saber si el merge está
+# protegido: la respuesta está en Settings, no acá.
+#
+# ── Por qué DOS jobs y no uno con dos pasos ──────────────────────────────────
+# Porque en un solo job secuencial, un `tsc` rojo corta antes del `vitest` y te
+# deja sin saber si la suite TAMBIÉN está rota: arreglás los tipos, volvés a
+# empujar, y recién ahí te enterás del segundo problema. Separados, cada uno da
+# su veredicto en la misma corrida y en paralelo. El costo es una segunda
+# instalación, que con la caché del store de pnpm es barata.
+#
+# Los nombres `analyse` y `test` son los MISMOS que en condaty-api (phpstan.yml
+# y tests.yml) a propósito: los dos repos se marcan igual en Settings.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [dev, main]
+
+# Los dos jobs ejecutan código del árbol. Para eso alcanza con leer el repo: no
+# publican, no comentan, no tocan releases. Sin este bloque heredan el default
+# del repositorio, que puede ser de escritura.
+permissions:
+  contents: read
+
+# 🔴 Lo que decide si un commit puede quedarse sin veredicto es el NOMBRE DEL
+# GRUPO, no `cancel-in-progress`. Esa es la parte que es fácil escribir mal.
+#
+# En un PR agrupamos por rama: si empujás tres veces seguidas sólo interesa el
+# veredicto de la última, así que cancelar las viejas ahorra runners y no pierde
+# información.
+#
+# 🔴 Fuera de los PR el grupo lleva el `sha`, y NO es cosmético. `cancel-in-progress:
+# false` protege la corrida EN CURSO, pero GitHub igual cancela la que está PENDING
+# cuando entra otra al MISMO grupo. Con `group: ci-${github.ref}` los tres merges
+# seguidos a `dev` caen todos en el grupo `ci-refs/heads/dev`: A corre, B queda
+# encolada, llega C y **B se cancela sin veredicto** — el commit de B queda sin
+# saberse si estaba verde, que es exactamente lo que este bloque existe para evitar.
+# Y degrada EN SILENCIO: la corrida aparece `cancelled`, no roja, así que nadie la
+# mira. Con el `sha` adentro cada commit tiene su propio grupo, no compite con nadie
+# y `cancel-in-progress` queda de adorno en ese camino (se deja explícito igual, para
+# que se lea la intención y no haya que deducirla).
+#
+# ⚠️ Lo que este bloque NO cubre, y conviene saberlo porque el síntoma se parece:
+# en un push de N commits GitHub crea **una sola corrida, la del commit tip**. Los
+# N-1 intermedios no quedan cancelados — directamente nunca tienen corrida. Eso es
+# del evento `push` y no lo arregla ningún nombre de grupo. Lo que sí los cubre es
+# la ruta de PR con los checks requeridos, donde el veredicto se pide antes de
+# integrar. Si ves un commit de `dev` sin checks, mirá si entró en un push
+# múltiple antes de venir a tocar este bloque.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Fuente ÚNICA de las versiones: las leen los dos jobs.
+  #
+  # Node 22 porque es el que corre en local (22.19.0) y el que Vercel usa para
+  # Next 15. La versión ES parte de lo que se mide: la suite corre sobre jsdom
+  # y el runtime de Node de verdad.
+  NODE_VERSION: '22'
+
+  # 🔴 pnpm 9, NO el 11 que hay en local. Vercel corre pnpm 9 (lo elige por el
+  # `lockfileVersion: '9.0'` y la fecha del proyecto) — está documentado en el
+  # encabezado de `pnpm-workspace.yaml`, que existe justamente porque pnpm 9 lo
+  # exige. El CI instala como instala el deploy; si un día divergen, se ve acá
+  # y no en un deploy roto.
+  #
+  # ⚠️ Los `overrides` están DUPLICADOS en `package.json` (bajo `pnpm`) y en
+  # `pnpm-workspace.yaml`: pnpm 9 lee el primero y pnpm 11 el segundo. Los dos
+  # aplican, así que la versión del CI no cambia el árbol resuelto.
+  PNPM_VERSION: '9'
+
+jobs:
+  # Los tipos. Barato, sin navegador ni jsdom: es el que más rápido te dice
+  # «esto ni compila».
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm ANTES que setup-node: el `cache: pnpm` de abajo necesita el binario
+      # para preguntarle dónde está el store. Al revés, el paso de caché falla.
+      - name: Preparar pnpm
+        # Pineada a SHA y no a `@v4`: un tag de git es MUTABLE — quien controla el
+        # repo de la action puede moverlo y este job pasaría a ejecutar código
+        # distinto sin que cambie una línea acá. El radio está acotado
+        # (`contents: read`, sin secretos), pero igual corre código de terceros con
+        # escritura sobre la caché del store de pnpm.
+        #
+        # El SHA es el que `@v4` resolvía el 2026-08-20, así que pinear NO cambia
+        # de versión: congela la que ya venía corriendo. Para subirla se cambia el
+        # SHA y el comentario JUNTOS — si sólo se toca el número, el comentario
+        # miente y es peor que no tenerlo.
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # 🔴 El lock manda. `--frozen-lockfile` falla si `pnpm-lock.yaml` quedó
+      # desincronizado de `package.json`, en vez de resolver el árbol de cero y
+      # medir dependencias que nadie versionó.
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      # `pnpm exec` y no `npx`: si el binario no estuviera instalado, `npx` lo
+      # baja del registro y el job sigue verde midiendo otra versión. `pnpm exec`
+      # falla.
+      - name: Analizar los tipos
+        run: pnpm exec tsc --noEmit
+
+  # La suite de vitest. NO incluye Playwright: `vitest.config.ts` tiene una lista
+  # blanca de `include` que sólo alcanza los `__tests__` de src (los e2e de
+  # `tests/` necesitan un navegador y un servidor levantado, y son otro trabajo).
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar pnpm
+        # Pineada a SHA y no a `@v4`: un tag de git es MUTABLE — quien controla el
+        # repo de la action puede moverlo y este job pasaría a ejecutar código
+        # distinto sin que cambie una línea acá. El radio está acotado
+        # (`contents: read`, sin secretos), pero igual corre código de terceros con
+        # escritura sobre la caché del store de pnpm.
+        #
+        # El SHA es el que `@v4` resolvía el 2026-08-20, así que pinear NO cambia
+        # de versión: congela la que ya venía corriendo. Para subirla se cambia el
+        # SHA y el comentario JUNTOS — si sólo se toca el número, el comentario
+        # miente y es peor que no tenerlo.
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      # 🔴 Un piso de archivos, porque `vitest run` hereda la LISTA BLANCA de
+      # `include` de `vitest.config.ts`. Si un glob se rompe o alguien recorta un
+      # árbol, vitest recolecta MENOS archivos, los que quedan pasan, y el check
+      # sale VERDE: «pasaron los tests recolectados» no es «corrió la suite».
+      #
+      # Ya mordió a este proyecto: en los rn el CI de Jest nunca corrió y ocho
+      # suites estaban muertas en verde. Vitest sale con 1 si recolecta CERO, pero
+      # cero no es el caso peligroso — el peligroso es recolectar la mitad.
+      #
+      # De dónde sale el 100, medido el 2026-08-20 (CDT-116). Hoy son 142 archivos:
+      # src/modulos 84, src/mk 48, src/components 5, src/types 3, src/styles 1,
+      # src/test 1. Lo que se rompe no es un archivo suelto, es un ÁRBOL entero del
+      # `include`: perder el más grande (modulos) deja 58, perder el segundo (mk)
+      # deja 94. El piso tiene que estar POR ENCIMA de 94 para cazar cualquiera de
+      # los dos, y bien por debajo de 142 para no ponerse rojo solo cada vez que
+      # alguien agrega un test. 100 cumple las dos y deja 42 de margen.
+      #
+      # Si la suite baja de 100 sin que nadie lo haya decidido, eso ES el hallazgo.
+      # Si se decide de verdad (se borra un módulo), se baja el piso Y se actualiza
+      # este comentario con el reparto nuevo.
+      - name: Verificar el piso de archivos de la suite
+        run: |
+          set -euo pipefail
+          # 🔴 A un archivo y NO por tubería a `wc`: una tubería se come el exit
+          # code, así que `vitest list | wc -l` devolvería el 0 de `wc` aunque la
+          # recolección hubiera reventado. Con `set -e` y sin tubería, si vitest
+          # falla el paso muere acá.
+          pnpm exec vitest list --filesOnly > /tmp/archivos-recolectados.txt
+          n="$(wc -l < /tmp/archivos-recolectados.txt | tr -d '[:space:]')"
+          echo "Archivos de test recolectados: $n (piso: 100)"
+          if [ "$n" -lt 100 ]; then
+            echo "::error::La suite recolecto $n archivos y el piso es 100. Mira la lista blanca de \`include\` en vitest.config.ts: lo mas probable es que un glob dejo de matchear un arbol entero."
+            exit 1
+          fi
+
+      # Sin `continue-on-error` y sin reintentos, a propósito. Si un test es
+      # inestable eso es un HALLAZGO para arreglar, no algo para tapar con un
+      # retry: un CI que se reintenta solo hasta ponerse verde miente.
+      #
+      # Emite el reporte JSON ADEMÁS del humano (`--reporter=default` explícito, si
+      # no el json lo reemplaza y el log del job queda ilegible). El JSON es lo que
+      # lee el piso de tests del paso siguiente: así se cuenta sobre la corrida que
+      # de verdad pasó, sin correr la suite dos veces.
+      - name: Correr la suite
+        run: |
+          pnpm exec vitest run \
+            --reporter=default \
+            --reporter=json \
+            --outputFile.json=/tmp/vitest-resultado.json
+
+      # 🔴 El piso de ARCHIVOS de arriba no caza esta otra forma de morir en verde:
+      # un `describe.skip` masivo, o un guard que deje de matchear adentro de los
+      # archivos, mantiene los 142 archivos intactos y hace caer los tests — y
+      # `vitest run` sale con 0 cuando los tests están SKIPPEADOS. Gate verde, suite
+      # muerta. Son dos agujeros distintos y por eso son dos pisos distintos.
+      #
+      # Se cuenta `numPassedTests` —los que EJECUTARON y quedaron en verde— y no
+      # `numTotalTests`, que incluye a los skippeados y por lo tanto no se movería.
+      #
+      # De dónde sale el 750, medido el 2026-08-20 (CDT-116). Hoy son 917 tests:
+      # src/modulos 625, src/mk 213, src/types 51, src/components 24, src/styles 2,
+      # src/test 2. Mismo criterio que el piso de archivos: apagar un ÁRBOL entero
+      # es el daño realista, y de los dos grandes el que menos se lleva es `src/mk`,
+      # que deja 704. El piso tiene que estar POR ENCIMA de 704 para cazar
+      # cualquiera de los dos (perder `src/modulos` deja 292) y bien por debajo de
+      # 917 para no ponerse rojo solo. 750 cumple las dos y deja 167 de margen.
+      #
+      # 🔴 El piso es ESTÁTICO y la suite crece: si `src/modulos` se agranda mucho,
+      # el resto puede pasar los 750 por sí solo y perder `src/mk` dejaría de
+      # cazarse. El disparador para revisarlo es concreto y medible: cuando
+      # `total - tests(src/mk)` se acerque a 750 (hoy da 704). Ahí se sube el piso Y
+      # se actualiza este reparto, juntos.
+      - name: Verificar el piso de tests ejecutados
+        run: |
+          set -euo pipefail
+          node -e '
+            const r = require("/tmp/vitest-resultado.json");
+            const piso = 750;
+            const verdes = r.numPassedTests;
+            const dormidos = r.numPendingTests + r.numTodoTests;
+            console.log(`Tests ejecutados y en verde: ${verdes} (piso: ${piso}) — sin ejecutar: ${dormidos}`);
+            if (verdes < piso) {
+              console.log(`::error::La suite ejecuto ${verdes} tests en verde y el piso es ${piso}. Hay ${dormidos} sin ejecutar: buscá un describe.skip/it.skip o un guard que dejó de matchear. Los archivos pueden seguir estando TODOS y aun así no correr nada.`);
+              process.exit(1);
+            }
+          '
