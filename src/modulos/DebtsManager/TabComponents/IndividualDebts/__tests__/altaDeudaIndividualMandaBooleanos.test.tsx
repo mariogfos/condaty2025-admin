@@ -107,6 +107,12 @@ vi.mock("@/components/layout/icons/IconsBiblioteca", async (importOriginal) => {
 
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "../RenderForm/RenderForm";
+import {
+  DebtBlocking,
+  DebtForgivable,
+  DebtMaintenanceValue,
+  DebtPaymentPlan,
+} from "@/types/PaymentType";
 
 const BANDERAS = ["has_mv", "is_forgivable", "has_pp", "is_blocking"] as const;
 
@@ -196,8 +202,9 @@ const montar = (
   render(<Pantalla />);
 };
 
-const apretarCrear = async () => {
-  const boton = await screen.findByText("Crear deuda individual", {
+/** ⚠️ Con `id` el modal es de EDICIÓN y el botón cambia de texto. */
+const apretarGuardar = async (rotulo = "Crear deuda individual") => {
+  const boton = await screen.findByText(rotulo, {
     selector: "button, button *",
   });
   await act(async () => {
@@ -210,6 +217,12 @@ const apretarCrear = async () => {
 const cuerpoDelPost = () => {
   const post = execute.mock.calls.find((c) => c[1] === "POST");
   return post?.[2];
+};
+
+/** Lo mismo para la EDICIÓN, que sale por `PUT`. */
+const cuerpoDelPut = () => {
+  const put = execute.mock.calls.find((c) => c[1] === "PUT");
+  return put?.[2];
 };
 
 describe("Deudas Individuales: el cuerpo del alta", () => {
@@ -231,7 +244,7 @@ describe("Deudas Individuales: el cuerpo del alta", () => {
   it("el POST sale con las cuatro banderas como booleanos", async () => {
     montar();
     await waitFor(() => expect(execute).toHaveBeenCalled());
-    await apretarCrear();
+    await apretarGuardar();
 
     const cuerpo = cuerpoDelPost();
     expect(cuerpo, "el alta tiene que despachar un POST").toBeDefined();
@@ -250,7 +263,7 @@ describe("Deudas Individuales: el cuerpo del alta", () => {
   it("ninguna bandera viaja como 'Y' ni como 'N'", async () => {
     montar();
     await waitFor(() => expect(execute).toHaveBeenCalled());
-    await apretarCrear();
+    await apretarGuardar();
 
     const cuerpo = cuerpoDelPost();
     for (const bandera of BANDERAS) {
@@ -262,7 +275,7 @@ describe("Deudas Individuales: el cuerpo del alta", () => {
   it("una bandera prendida viaja como `true`, no como 'Y'", async () => {
     montar({ ...deudaValida, is_blocking: true, has_pp: true });
     await waitFor(() => expect(execute).toHaveBeenCalled());
-    await apretarCrear();
+    await apretarGuardar();
 
     const cuerpo = cuerpoDelPost();
     expect(cuerpo.is_blocking).toBe(true);
@@ -271,10 +284,69 @@ describe("Deudas Individuales: el cuerpo del alta", () => {
     expect(cuerpo.is_forgivable).toBe(false);
   });
 
+  /**
+   * 🔴🔴 Abrir una deuda para EDITARLA no enciende sus banderas.
+   *
+   * El formulario las leía con `(item && item.has_mv) || false`, y desde el
+   * 2026-08-22 son enums desde 1: **`1` y `2` son los dos truthy**. Una deuda
+   * con las cuatro apagadas —el caso BAJO, que es `1`— abría con los cuatro
+   * checkboxes tildados, y guardarla las encendía de verdad.
+   *
+   * `is_blocking`, con `check_mora`, le bloquea al residente el acceso físico
+   * al edificio.
+   *
+   * ⚠️ Reinyectando el `||`: **1 rojo**, éste. El de abajo NO puede ponerse
+   * rojo —el `||` también lee el caso ALTO como encendido— y por eso vale:
+   * afirma que el arreglo no cerró el camino de las que sí lo están.
+   */
+  it("una deuda con las banderas en el caso BAJO no las despierta al editarla", async () => {
+    montar({
+      ...deudaValida,
+      id: 42,
+      has_mv: DebtMaintenanceValue.NO_APLICA,
+      is_forgivable: DebtForgivable.NO_CONDONABLE,
+      has_pp: DebtPaymentPlan.NO_ADMITE,
+      is_blocking: DebtBlocking.NO_BLOQUEA,
+    });
+    await waitFor(() => expect(execute).toHaveBeenCalled());
+    await apretarGuardar("Actualizar");
+
+    const cuerpo = cuerpoDelPut();
+    expect(cuerpo, "la edición tiene que despachar un PUT").toBeDefined();
+
+    for (const bandera of BANDERAS) {
+      expect(
+        cuerpo[bandera],
+        `${bandera} estaba APAGADA y el formulario la mandó ${JSON.stringify(
+          cuerpo[bandera],
+        )}`,
+      ).toBe(false);
+    }
+  });
+
+  /** La otra punta: una bandera que SÍ está encendida sigue encendida. */
+  it("una deuda con las banderas en el caso ALTO las conserva", async () => {
+    montar({
+      ...deudaValida,
+      id: 42,
+      has_mv: DebtMaintenanceValue.APLICA,
+      is_forgivable: DebtForgivable.CONDONABLE,
+      has_pp: DebtPaymentPlan.ADMITE,
+      is_blocking: DebtBlocking.BLOQUEA,
+    });
+    await waitFor(() => expect(execute).toHaveBeenCalled());
+    await apretarGuardar("Actualizar");
+
+    const cuerpo = cuerpoDelPut();
+    for (const bandera of BANDERAS) {
+      expect(cuerpo[bandera], `${bandera} estaba encendida`).toBe(true);
+    }
+  });
+
   it("el alta con datos válidos termina en éxito visible", async () => {
     montar();
     await waitFor(() => expect(execute).toHaveBeenCalled());
-    await apretarCrear();
+    await apretarGuardar();
 
     const avisos = showToast.mock.calls.filter(([msg]) => !!msg);
     expect(avisos.length, "el alta tiene que decir algo").toBeGreaterThan(0);
@@ -313,7 +385,7 @@ describe("Deudas Individuales: el rechazo del kernel se ve", () => {
       fieldsConDescripcionRequerida,
     );
     await waitFor(() => expect(execute).toHaveBeenCalled());
-    await apretarCrear();
+    await apretarGuardar();
 
     expect(
       execute.mock.calls.some((c) => c[1] === "POST"),
@@ -334,7 +406,7 @@ describe("Deudas Individuales: el rechazo del kernel se ve", () => {
   it("y el error local sigue pintándose (el merge no se come ninguno)", async () => {
     montar({ ...deudaValida, amount: "" });
     await waitFor(() => expect(execute).toHaveBeenCalled());
-    await apretarCrear();
+    await apretarGuardar();
 
     const mensajes = await screen.findAllByText(/Este campo es requerido/i);
     expect(mensajes.length).toBeGreaterThan(0);

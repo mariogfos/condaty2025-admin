@@ -12,7 +12,14 @@ import styles from './RenderForm.module.css';
 import { IconArrowDown, IconQuestion } from '@/components/layout/icons/IconsBiblioteca';
 import { checkRules } from '@/mk/utils/validate/Rules';
 import { getNow } from "@/mk/utils/date";
-import { DebtType } from '@/types/PaymentType';
+import {
+  DebtBlocking,
+  DebtForgivable,
+  DebtMaintenanceValue,
+  DebtPaymentPlan,
+  DebtType,
+} from '@/types/PaymentType';
+import { banderaEncendida } from '../../constants';
 
 interface DebtFormState {
   id?: string | number;
@@ -75,10 +82,13 @@ const RenderForm: React.FC<RenderFormProps> = ({
       amount: (item && item.amount) || '',
       interest: (item && item.interest) || 0,
       show_advanced: (item && item.show_advanced) || false,
-      has_mv: (item && item.has_mv) || false,
-      is_forgivable: (item && item.is_forgivable) || false,
-      has_pp: (item && item.has_pp) || false,
-      is_blocking: (item && item.is_blocking) || false,
+      // 🔴 `(item && item.has_mv) || false` leía `1` y `2` como verdaderos:
+      // abrir una deuda para editarla mostraba las cuatro tildadas, fuera cual
+      // fuera su valor, y guardarla las encendía de verdad. Ver `banderaEncendida`.
+      has_mv: banderaEncendida(item?.has_mv, DebtMaintenanceValue.APLICA),
+      is_forgivable: banderaEncendida(item?.is_forgivable, DebtForgivable.CONDONABLE),
+      has_pp: banderaEncendida(item?.has_pp, DebtPaymentPlan.ADMITE),
+      is_blocking: banderaEncendida(item?.is_blocking, DebtBlocking.BLOQUEA),
     };
   });
 
@@ -124,10 +134,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
         amount: (item && item.amount) || '',
         interest: (item && item.interest) || 0,
         show_advanced: (item && item.show_advanced) || false,
-        has_mv: (item && item.has_mv) || false,
-        is_forgivable: (item && item.is_forgivable) || false,
-        has_pp: (item && item.has_pp) || false,
-        is_blocking: (item && item.is_blocking) || false,
+        has_mv: banderaEncendida(item?.has_mv, DebtMaintenanceValue.APLICA),
+        is_forgivable: banderaEncendida(item?.is_forgivable, DebtForgivable.CONDONABLE),
+        has_pp: banderaEncendida(item?.has_pp, DebtPaymentPlan.ADMITE),
+        is_blocking: banderaEncendida(item?.is_blocking, DebtBlocking.BLOQUEA),
       });
       setIsInitialized(true);
     }

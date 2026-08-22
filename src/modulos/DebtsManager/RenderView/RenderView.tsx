@@ -9,9 +9,20 @@ import { UnitsType } from "@/mk/utils/utils";
 import { IconEdit, IconTrash } from "@/components/layout/icons/IconsBiblioteca";
 import useAxios from "@/mk/hooks/useAxios";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
-import { DebtStatus, AmountType, DebtSegmentation } from "@/types/PaymentType";
+import {
+  DebtStatus,
+  AmountType,
+  DebtSegmentation,
+  DebtBlocking,
+  DebtForgivable,
+  DebtMaintenanceValue,
+  DebtPaymentPlan,
+} from "@/types/PaymentType";
 import styles from "./RenderView.module.css";
-import { AMOUNT_TYPE_MAP } from "@/modulos/DebtsManager/TabComponents/constants";
+import {
+  AMOUNT_TYPE_MAP,
+  banderaEncendida,
+} from "@/modulos/DebtsManager/TabComponents/constants";
 
 interface DebtItem {
   id?: number | string;
@@ -26,10 +37,10 @@ interface DebtItem {
   amount?: number | string;
   is_advance?: string;
   interest?: number | string;
-  has_mv?: string | boolean;
-  is_forgivable?: string | boolean;
-  has_pp?: string | boolean;
-  is_blocking?: string | boolean;
+  has_mv?: string | number | boolean;
+  is_forgivable?: string | number | boolean;
+  has_pp?: string | number | boolean;
+  is_blocking?: string | number | boolean;
   status?: number;
   created_at?: string;
   updated_at?: string;
@@ -165,10 +176,16 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
     });
   };
 
-  const getBooleanText = (value?: string | boolean) => {
+  /**
+   * 🔴 El `=== "Y"` del final era la mudanza sin arreglar: desde el 2026-08-22
+   * estas cuatro columnas llegan como el número de su enum, así que el detalle
+   * de una deuda mostraba **"No" en las cuatro**, siempre. La lectura vive en
+   * `banderaEncendida`, que es la misma que usan los dos formularios.
+   */
+  const getBooleanText = (value: unknown, casoAlto: number) => {
     if (value === undefined || value === null) return "No especificado";
-    if (typeof value === "boolean") return value ? "Sí" : "No";
-    return value === "Y" ? "Sí" : "No";
+
+    return banderaEncendida(value, casoAlto) ? "Sí" : "No";
   };
 
   const getStatusStyle = (status?: number) => {
@@ -385,25 +402,25 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
                     Tiene Mantenimiento de Valor
                   </span>
                   <span className={styles.infoValue}>
-                    {getBooleanText(debtDetail.has_mv)}
+                    {getBooleanText(debtDetail.has_mv, DebtMaintenanceValue.APLICA)}
                   </span>
                 </div>
                 <div className={styles.advancedItem}>
                   <span className={styles.infoLabel}>Es perdonable</span>
                   <span className={styles.infoValue}>
-                    {getBooleanText(debtDetail.is_forgivable)}
+                    {getBooleanText(debtDetail.is_forgivable, DebtForgivable.CONDONABLE)}
                   </span>
                 </div>
                 <div className={styles.advancedItem}>
                   <span className={styles.infoLabel}>Tiene Plan de Pago</span>
                   <span className={styles.infoValue}>
-                    {getBooleanText(debtDetail.has_pp)}
+                    {getBooleanText(debtDetail.has_pp, DebtPaymentPlan.ADMITE)}
                   </span>
                 </div>
                 <div className={styles.advancedItem}>
                   <span className={styles.infoLabel}>Es bloqueante</span>
                   <span className={styles.infoValue}>
-                    {getBooleanText(debtDetail.is_blocking)}
+                    {getBooleanText(debtDetail.is_blocking, DebtBlocking.BLOQUEA)}
                   </span>
                 </div>
               </div>

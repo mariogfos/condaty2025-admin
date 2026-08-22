@@ -24,6 +24,7 @@ import {
   DebtPaymentPlan,
   DebtSegmentation,
 } from "@/types/PaymentType";
+import { banderaEncendida } from "../../constants";
 
 interface DebtFormState {
   id?: string | number;
@@ -33,7 +34,7 @@ interface DebtFormState {
   description: string;
   category_id: string | number;
   subcategory_id: string | number;
-  asignar: string;
+  asignar: string | number;
   dpto_id?: any[];
   amount_type: number;
   amount: string | number;
@@ -84,16 +85,18 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description: (item && item.description) || "",
       category_id: (item && item.category_id) || "",
       subcategory_id: (item && item.subcategory_id) || "",
-      asignar: (item && item.asignar) || "T",
+      // ⚠️ El default es el CASE, no la letra: `"T"` no está entre las
+      // opciones del Select —son 1..4—, así que el campo abría vacío.
+      asignar: (item && item.asignar) || DebtSegmentation.TODOS,
       dpto_id: (item && item.dpto_id) || [],
       amount_type: (item && item.amount_type) ?? AmountType.FIJO,
       amount: (item && item.amount) || "",
       interest: (item && item.interest) || 0,
       show_advanced: (item && item.show_advanced) || false,
-      has_mv: Number(item?.has_mv) === DebtMaintenanceValue.APLICA,
-      is_forgivable: Number(item?.is_forgivable) === DebtForgivable.CONDONABLE,
-      has_pp: Number(item?.has_pp) === DebtPaymentPlan.ADMITE,
-      is_blocking: Number(item?.is_blocking) === DebtBlocking.BLOQUEA,
+      has_mv: banderaEncendida(item?.has_mv, DebtMaintenanceValue.APLICA),
+      is_forgivable: banderaEncendida(item?.is_forgivable, DebtForgivable.CONDONABLE),
+      has_pp: banderaEncendida(item?.has_pp, DebtPaymentPlan.ADMITE),
+      is_blocking: banderaEncendida(item?.is_blocking, DebtBlocking.BLOQUEA),
     };
   });
 
@@ -143,16 +146,18 @@ const RenderForm: React.FC<RenderFormProps> = ({
         description: (item && item.description) || "",
         category_id: categoryId,
         subcategory_id: (item && item.subcategory_id) || "",
-        asignar: (item && item.asignar) || "T",
+        // ⚠️ El default es el CASE, no la letra: `"T"` no está entre las
+        // opciones del Select —son 1..4—, así que el campo abría vacío.
+        asignar: (item && item.asignar) || DebtSegmentation.TODOS,
         dpto_id: (item && item.dpto_id) || [],
         amount_type: (item && item.amount_type) ?? AmountType.FIJO,
         amount: (item && item.amount) || "",
         interest: (item && item.interest) || 0,
         show_advanced: (item && item.show_advanced) || false,
-        has_mv: Number(item?.has_mv) === DebtMaintenanceValue.APLICA,
-        is_forgivable: Number(item?.is_forgivable) === DebtForgivable.CONDONABLE,
-        has_pp: Number(item?.has_pp) === DebtPaymentPlan.ADMITE,
-        is_blocking: Number(item?.is_blocking) === DebtBlocking.BLOQUEA,
+        has_mv: banderaEncendida(item?.has_mv, DebtMaintenanceValue.APLICA),
+        is_forgivable: banderaEncendida(item?.is_forgivable, DebtForgivable.CONDONABLE),
+        has_pp: banderaEncendida(item?.has_pp, DebtPaymentPlan.ADMITE),
+        is_blocking: banderaEncendida(item?.is_blocking, DebtBlocking.BLOQUEA),
       });
       setIsInitialized(true);
     }
@@ -162,7 +167,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const { name, value, type, checked } = e.target;
     let newValue = type === "checkbox" ? checked : value;
 
-    if (name === "segmentation" && Number(value) !== DebtSegmentation.LISTA) {
+    // 🔴 Acá decía `name === "segmentation"`, y el Select se llama `asignar`:
+    // la rama no corría NUNCA. Cambiar de «Seleccionar Unidades» a otra opción
+    // dejaba las unidades elegidas en el estado, así que volver a elegirla las
+    // traía de vuelta sin que nadie las hubiera vuelto a marcar.
+    if (name === "asignar" && Number(value) !== DebtSegmentation.LISTA) {
       _setFormState((prev) => ({
         ...prev,
         [name]: newValue,
@@ -263,7 +272,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
       "subcategory_id"
     );
 
-    if (_formState.asignar === "S") {
+    // 🔴 Acá decía `=== "S"`, con la letra vieja. El Select manda el número de
+    // `DebtSegmentation` desde el 2026-08-22, así que era FALSO SIEMPRE: elegir
+    // unidades a mano no validaba que hubiera alguna elegida.
+    if (Number(_formState.asignar) === DebtSegmentation.LISTA) {
       addError(
         checkRules({
           value: _formState.dpto_id,
@@ -294,7 +306,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description: "",
       category_id: "",
       subcategory_id: "",
-      asignar: "T",
+      asignar: DebtSegmentation.TODOS,
       dpto_id: [],
       amount_type: AmountType.FIJO,
       amount: "",
@@ -342,8 +354,12 @@ const RenderForm: React.FC<RenderFormProps> = ({
         : DebtBlocking.NO_BLOQUEA,
     };
 
+    // 🔴 La otra mitad del mismo `=== "S"`, y la que cobraba: sin `dpto_id` en el
+    // cuerpo, `SharedDebtService::resolveDptos` no entra en la rama LISTA y le
+    // carga la deuda a TODO el condominio. Elegir tres unidades le cobraba a
+    // todas, sin un solo error.
     const dataToSave =
-      _formState.asignar === "S"
+      Number(_formState.asignar) === DebtSegmentation.LISTA
         ? { ...baseData, dpto_id: _formState.dpto_id }
         : baseData;
 
