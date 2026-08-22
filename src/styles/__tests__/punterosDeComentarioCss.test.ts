@@ -20,8 +20,8 @@
  * varios: un nombre suelto sin directorio lo satisface cualquier homónimo del árbol, que
  * es la forma vieja exacta que este candidato corrigió en el CSS de `AsyncExportButton`.
  */
-import { describe, it, expect } from "vitest";
-import { readFileSync, mkdtempSync, writeFileSync } from "node:fs";
+import { describe, it, expect, onTestFinished } from "vitest";
+import { readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { join, relative, resolve, dirname, sep } from "node:path";
@@ -52,22 +52,48 @@ const REPO = join(RAIZ, "..");
  * que después hay que ir manteniendo —`dist`, `coverage`, `storybook-static`, la próxima—.
  * Un puntero a algo NO versionado (`node_modules/…`, una salida de compilación) da cero a
  * propósito: en un clon limpio ese archivo no existe, así que es un puntero colgado.
+ *
+ * 🔴 CDT-128 — LO QUE GIT LISTA ES EL ÍNDICE, NO EL ÁRBOL DE TRABAJO. Un archivo recién
+ * creado y todavía no agregado NO figura, y uno borrado sin registrar sigue figurando. Es
+ * la semántica que este guardián quiere —en un clon limpio el archivo sin agregar no
+ * existe, así que un puntero hacia él está colgado de verdad— pero estaba implícita, y una
+ * diferencia implícita se lee como que no existe.
+ *
+ * 🔴 CDT-128 — EL INVENTARIO SALE EN NFC, Y ESA ES LA GUARDA. Antes la normalización vivía
+ * en la aserción del caso de abajo, donde era INERTE: medido con git 2.53.0 en esta
+ * máquina, con el nombre en NFC en disco git devuelve NFC con `core.precomposeunicode` en
+ * `true` Y en `false`, así que borrarla no cambiaba nada. Lo que decide la forma es el
+ * ÍNDICE, no la bandera al leer: `git -c core.precomposeunicode=false ls-files` sobre un
+ * índice ya precompuesto devuelve NFC igual, porque la precomposición pasa cuando la ruta
+ * ENTRA al índice. Una ruta agregada en NFD —un mac con la bandera apagada— queda en NFD
+ * para todos, también en Linux; contra ese inventario un puntero escrito en NFC resuelve a
+ * CERO y la guarda se pone roja sobre algo correcto, que es su peor falla. Se normaliza el
+ * conjunto entero acá, una vez, y el puntero del otro lado en `resuelve`. Las dos tienen
+ * su fila abajo.
+ *
+ * 🔴 CDT-128 — SE LLAMA DENTRO DE LOS CASOS, NO AL IMPORTAR. Antes esto corría al cargar el
+ * módulo: si git falta o falla, el error revienta en el import y el reporte no dice qué
+ * guarda dejó de medir, sólo que el archivo no se pudo cargar.
  */
 const listarVersionados = (cwd: string): string[] =>
   execFileSync("git", ["ls-files", "-z"], { cwd, encoding: "utf-8" })
     .split("\0")
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((r) => r.normalize("NFC"));
 
-const versionados = listarVersionados(REPO);
+let cacheVersionados: string[] | undefined;
+const versionados = (): string[] => (cacheVersionados ??= listarVersionados(REPO));
 
 /** `git ls-files` lista archivos; un puntero también puede apuntar a una carpeta. */
-const reales = [
-  ...new Set(
-    versionados.flatMap((r) =>
-      r.split("/").map((_, i, partes) => partes.slice(0, i + 1).join("/")),
+let cacheReales: string[] | undefined;
+const reales = (): string[] =>
+  (cacheReales ??= [
+    ...new Set(
+      versionados().flatMap((r) =>
+        r.split("/").map((_, i, partes) => partes.slice(0, i + 1).join("/")),
+      ),
     ),
-  ),
-];
+  ]);
 
 /**
  * 🔴 CDT-127 — SE BARRE `src`, aunque el inventario contra el que se RESUELVE sea el repo
@@ -75,7 +101,7 @@ const reales = [
  * recorrido propio ensanchó el barrido sin que ningún comentario lo dijera.
  */
 const archivosCss = () =>
-  versionados
+  versionados()
     .filter((r) => r.startsWith("src/") && /\.(css|scss)$/.test(r))
     .map((r) => join(REPO, r));
 
@@ -102,8 +128,19 @@ const esPuntero = (t: string): boolean =>
  *
  * El árbol entra por parámetro: el barrido lo llama con el inventario real y los casos de
  * abajo con uno fijo (CDT-127, ver el comentario del `it.each`).
+ *
+ * 🔴 CDT-128 — EL PUNTERO SE NORMALIZA A NFC, igual que el inventario. Son los dos lados de
+ * la misma comparación de cadenas: normalizar uno solo abre el agujero por la otra punta.
+ * Un `.css` escrito o pegado en macOS lleva el acento DESCOMPUESTO —se ve idéntico en el
+ * editor— y contra un inventario en NFC ese puntero, que es correcto, resuelve a CERO.
+ * Tiene su fila en el `it.each` de las formas.
  */
-const resuelve = (puntero: string, desdeAbs: string, arbol: string[] = reales): string[] => {
+const resuelve = (
+  crudo: string,
+  desdeAbs: string,
+  arbol: string[] = reales(),
+): string[] => {
+  const puntero = crudo.normalize("NFC");
   if (/^\.\.?\//.test(puntero)) {
     const abs = resolve(dirname(desdeAbs), puntero);
     const rel = relative(REPO, abs).split(sep).join("/");
@@ -178,27 +215,53 @@ describe("CDT-125 — los punteros de comentario de los .css apuntan a algo que 
    *
    * Se mide contra un repo desechable: el caso mide el PARSEO de la salida de git, que es
    * lo que puede romperse, y no depende de versionar un archivo con tilde en este repo.
+   *
+   * 🔴 CDT-128 — Y AHORA MIDE LAS DOS FORMAS UNICODE, porque antes la normalización de la
+   * aserción no la defendía NADIE. Medido en esta máquina: con el nombre en NFC en disco,
+   * git devuelve NFC con `core.precomposeunicode` en `true` y en `false`, o sea que el
+   * `.normalize("NFC")` era un no-op y el caso pasaba igual sin él — la misma bandera
+   * inerte que CDT-127 le sacó al arreglo del inventario, aparecida dentro del caso que
+   * persigue esa clase. La única combinación donde muerde es nombre en NFD **más** la
+   * bandera apagada, y es la fila de abajo: ahí git devuelve NFD, `listarVersionados`
+   * normaliza y la comparación cierra. La bandera se fija ANTES del `add`: leerla después
+   * no cambia nada, la forma ya quedó grabada en el índice.
+   *
+   * Las dos formas van por punto de código y no por literal acentuado: así el caso no
+   * depende de en qué forma quedó guardado ESTE archivo, que es justo la variable que mide.
    */
-  it("el inventario sale de git y sobrevive a un acento en el nombre", () => {
+  const NOMBRE_NFC = "acci\u00F3n.module.css";
+  const NOMBRE_NFD = "accio\u0301n.module.css";
+  it.each([
+    ["el mac precompone (el default)", "true"],
+    ["el mac NO precompone: git devuelve el nombre en NFD", "false"],
+  ])("el inventario sale de git y sobrevive a un acento en el nombre — %s", (_caso, precompone) => {
     const repo = mkdtempSync(join(tmpdir(), "cdt127-"));
-    const nombre = "acción.module.css";
-    writeFileSync(join(repo, nombre), "");
+    // CDT-128 — el repo desechable se borra. Sin esto cada corrida de la suite dejaba un
+    // directorio más en el temporal del sistema. Va por `onTestFinished` y no al final del
+    // caso: si una aserción falla, la limpieza corre igual.
+    onTestFinished(() => rmSync(repo, { recursive: true, force: true }));
+    writeFileSync(join(repo, NOMBRE_NFD), "");
     execFileSync("git", ["init", "-q"], { cwd: repo });
+    execFileSync("git", ["config", "core.precomposeunicode", precompone], { cwd: repo });
     execFileSync("git", ["add", "."], { cwd: repo });
 
     expect(
-      listarVersionados(repo).map((r) => r.normalize("NFC")),
-      `git citó la ruta con acento y escapó sus bytes en octal. Un puntero correcto a ese ` +
-        `archivo resuelve a CERO y la guarda se pone roja sobre algo que ya estaba bien: ` +
-        `es el mismo defecto sólo-ASCII que este ticket vino a cerrar, entrando por el ` +
-        `archivo hermano. Devolvé \`-z\` a la invocación y la separación por NUL.`,
-    ).toEqual([nombre]);
+      listarVersionados(repo),
+      `El inventario no salió como una ruta limpia en NFC. Dos causas y hay que ` +
+        `distinguirlas: o git citó la ruta con acento y escapó sus bytes en octal —volvé ` +
+        `\`-z\` a la invocación, es el defecto sólo-ASCII que CDT-127 cerró—, o salió en ` +
+        `NFD y \`listarVersionados\` dejó de normalizar. Lo segundo sólo se ve en esta ` +
+        `fila: contra un inventario en NFD, un puntero correcto escrito en NFC resuelve a ` +
+        `CERO y la guarda se pone roja sobre algo que ya estaba bien.`,
+    ).toEqual([NOMBRE_NFC]);
+  });
 
-    // Y que el inventario derivado de git sea el que dice ser. Se afirma con ESTE archivo
-    // —se lista solo— y con su carpeta, que sólo existe como prefijo derivado: la fila no
-    // se calibra al inventario del día, así que ningún rename ajeno la pone roja.
-    expect(reales).toContain("src/styles/__tests__/punterosDeComentarioCss.test.ts");
-    expect(reales).toContain("src/styles/__tests__");
+  // Y que el inventario derivado de git sea el que dice ser. Se afirma con ESTE archivo
+  // —se lista solo— y con su carpeta, que sólo existe como prefijo derivado: la fila no
+  // se calibra al inventario del día, así que ningún rename ajeno la pone roja.
+  it("el árbol derivado incluye los archivos versionados y sus carpetas", () => {
+    expect(reales()).toContain("src/styles/__tests__/punterosDeComentarioCss.test.ts");
+    expect(reales()).toContain("src/styles/__tests__");
   });
 
   /**
@@ -225,6 +288,10 @@ describe("CDT-125 — los punteros de comentario de los .css apuntan a algo que 
     "src/modulos/Reel/Reel.module.css",
     "src/mk/components/RenderView/RenderView.module.css",
     "src/modulos/Adm/RenderView.module.css",
+    // CDT-128 — el árbol viene del inventario, que sale en NFC: la `ó` va precompuesta y
+    // por punto de código, para que la fila no dependa de en qué forma se guardó ESTE
+    // archivo — que es justo la variable que mide.
+    "src/modulos/Adm/secci\u00F3n.module.css",
   ];
   const DESDE = join(REPO, "src", "modulos", "Balance", "Balance.module.css");
   it.each([
@@ -236,6 +303,11 @@ describe("CDT-125 — los punteros de comentario de los .css apuntan a algo que 
     ["errata de mayúscula", "src/mk/components/forms/Button/Button.module.css", "ninguno"],
     ["inexistente", "NoExisteEnNingunLado.module.css", "ninguno"],
     ["nombre suelto AMBIGUO", "RenderView.module.css", "varios"],
+    // 🔴 CDT-128 — el mismo nombre que la entrada del árbol, pero DESCOMPUESTO: `o` +
+    // tilde combinante, que es lo que macOS escribe al copiar y pegar y se ve idéntico en
+    // el editor. Sin el `normalize` de `resuelve` esta fila da «ninguno»: la guarda se
+    // pone roja sobre un puntero correcto, que es su peor falla.
+    ["escrito en NFD contra un inventario en NFC", "secci\u006F\u0301n.module.css", "uno"],
   ])("resuelve un puntero %s", (_caso, puntero, esperado) => {
     const donde = resuelve(puntero as string, DESDE, ARBOL);
     const categoria = donde.length === 0 ? "ninguno" : donde.length === 1 ? "uno" : "varios";

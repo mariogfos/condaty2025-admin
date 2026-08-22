@@ -143,14 +143,20 @@ const archivosTs = () => archivos(/\.tsx?$/);
  * copiar y pegar: ahí el carácter anterior a la comilla no es la letra, es la tilde
  * combinante, y `\p{L}` sola tampoco lo habría cazado. Las dos formas tienen su fila.
  *
- * ⚠️ CDT-127 — LO QUE SIGUE SIN CUBRIR ES PROSA SIN GUARDA EJECUTABLE, dicho con todas las
- * letras: regex que abra con barra-asterisco, `url()` sin comillas, `//` a mitad de línea,
- * y una comilla de prosa que NO venga pegada a un identificador —`<p>Los '90</p>`— con un
- * atributo de comilla simple en la MISMA línea (en líneas distintas sí está cubierto: es
- * la fila que discrimina la regla 1). Ninguno tiene caso, y a propósito no se afirma acá
- * cuánto daño hace cada uno: eso sería el quinto límite escrito sin medir de esta familia
- * de tickets. Cerrarlos no es agregar otra condición encima, es escribir un parser, y
- * mientras tanto la pantalla sigue siendo la última palabra.
+ * ⚠️ LO QUE SIGUE SIN CUBRIR SON CUATRO HUECOS, Y CDT-128 LOS DEJÓ MEDIDOS: una comilla de
+ * prosa que NO venga pegada a un identificador —`Los '90`— con un atributo de comilla
+ * simple en la MISMA línea (en líneas distintas sí está CUBIERTO: es la fila que discrimina
+ * la regla 1), una regex con la barra y el asterisco pegados adentro, un `url()` sin
+ * comillas con esos dos pegados, y un `//` a mitad de línea. CDT-127 los declaraba como
+ * prosa sin guarda y no afirmaba el daño de ninguno, para no escribir otro límite sin
+ * medir; ahora cada uno tiene su fila que reproduce el hueco y afirma su consecuencia, y
+ * los tres primeros se COMEN el `var()` —el guardián sale verde con el token roto adentro—
+ * mientras que el `//` lo CONSERVA de más —cuenta como uso un `var()` comentado, y el
+ * guardián se pone rojo sobre algo que no se pinta—. El review de CDT-127 midió uno solo
+ * como clavable; medidos, los cuatro entran en una fila.
+ *
+ * Medidos no es cerrados: cerrarlos no es agregar otra condición encima, es escribir un
+ * parser, y mientras tanto la pantalla sigue siendo la última palabra.
  * Ejemplos descritos, no literales: asterisco-barra cerraría este docblock.
  */
 
@@ -447,7 +453,7 @@ describe("CDT-84 — ningún `var()` apunta a un token que no existe", () => {
       // viene después de un espacio, así que la regla 2 no lo bloquea y lo único que
       // impide que abra un string es que no cierra en su línea. Borrá la 1 y ésta —sola—
       // se pone roja. Con el atributo en la MISMA línea el escáner todavía se lo come:
-      // ese hueco está declarado arriba como prosa sin guarda, a propósito.
+      // ese hueco no se cierra acá, pero tiene su propia fila que lo MIDE más abajo.
       "una comilla de prosa NO pegada, con el `accept` en la línea SIGUIENTE",
       [
         "<p>Los '90 fueron otra época</p>",
@@ -501,6 +507,84 @@ describe("CDT-84 — ningún `var()` apunta a un token que no existe", () => {
         `acusar de roto un token que no existe en el producto, que es su peor falla: ` +
         `manda al próximo a "arreglar" una pantalla que anda.`,
     ).toBe(false);
+  });
+
+  /**
+   * 🔴 CDT-128 — LOS CUATRO HUECOS DECLARADOS DEJAN DE SER PROSA.
+   *
+   * Ninguno se CIERRA acá —cerrarlos es escribir un parser— pero los cuatro se MIDEN: cada
+   * fila reproduce el hueco y afirma su consecuencia sobre la salida del escáner, que es lo
+   * único que el guardián consume. El review de CDT-127 dio uno solo por clavable; medidos,
+   * los cuatro entran en una fila.
+   *
+   * Las consecuencias son de DOS signos opuestos y por eso la fila los distingue:
+   *
+   *   - «se lo come»: el tramo se borra, el `var()` se da por NO USADO y nunca se compara
+   *     contra el catálogo. El guardián sale VERDE con el token roto adentro.
+   *   - «lo conserva de más»: el `var()` está comentado y aun así cuenta como uso. Si ese
+   *     token no existe, el guardián se pone ROJO sobre algo que no se pinta en ninguna
+   *     pantalla, que es su peor falla: manda al próximo a "arreglar" lo que anda.
+   *
+   * Las filas afirman el hueco, no lo tapan. Si alguien cierra uno, su fila se pone roja y
+   * pide moverla a la lista de cubiertos y bajar la cuenta del docblock de arriba.
+   */
+  const USO_TS = 'const color = { background: "var(--cTokenDePruebaCdt125)" };';
+  it.each([
+    [
+      // Con el `accept` en la línea SIGUIENTE está cubierto por la regla 1 y esa fila vive
+      // arriba, en verde. Acá el apóstrofe no viene pegado a un identificador —la regla 2
+      // no lo bloquea— y CIERRA en su línea sobre la comilla que ABRE el atributo, así que
+      // la regla 1 tampoco: el borrado se escapa hasta el fin del archivo.
+      "prosa NO pegada al identificador y `accept` en la MISMA línea",
+      ["<p>Los '90 fueron otra época</p><input accept='image/*' type='file' />", USO_TS].join(
+        "\n",
+      ),
+      true,
+      "se lo come",
+    ],
+    [
+      // Una regex NO puede empezar con barra-asterisco —para el parser de JS eso ya es un
+      // comentario— así que el hueco real es la barra y el asterisco pegados ADENTRO, que
+      // es lo que hace una clase de caracteres con los dos.
+      "una regex con la barra y el asterisco pegados adentro",
+      ["const re = /[/*]/;", USO_TS].join("\n"),
+      true,
+      "se lo come",
+    ],
+    [
+      "un `url()` de CSS sin comillas con la barra y el asterisco pegados",
+      [
+        ".a { background: url(foo/*bar.svg); }",
+        ".b { color: var(--cTokenDePruebaCdt125); }",
+      ].join("\n"),
+      false,
+      "se lo come",
+    ],
+    [
+      // Este va para el otro lado: `//` sólo se despinta cuando ABRE la línea, a propósito,
+      // para no comerse el `//` de una URL. El precio es que un `var()` comentado a mitad
+      // de línea sobrevive y cuenta como uso.
+      "un `//` a mitad de línea",
+      "const alto = 1; // var(--cTokenDePruebaCdt125) quedó comentado",
+      true,
+      "lo conserva de más",
+    ],
+  ])("hueco MEDIDO — %s: %s el `var()`", (_caso, muestra, conTemplate, consecuencia) => {
+    const conserva = consecuencia === "lo conserva de más";
+    expect(
+      sinComentarios(muestra as string, conTemplate as boolean).includes(
+        "var(--cTokenDePruebaCdt125)",
+      ),
+      conserva
+        ? `Este hueco YA NO muerde: el escáner dejó de contar como uso un \`var()\` ` +
+            `comentado a mitad de línea. Es una buena noticia y hay que registrarla donde ` +
+            `se lee: mové la fila a los casos cubiertos y bajá la cuenta de huecos del ` +
+            `docblock de arriba.`
+        : `Este hueco YA NO muerde: el escáner conservó el \`var()\` en vez de comérselo. ` +
+            `Mové la muestra al \`it.each\` de los apóstrofes con \`toContain\` y bajá la ` +
+            `cuenta de huecos del docblock de arriba. Dejar una fila afirmando un daño que ` +
+            `ya no ocurre es la falla que esta familia de tickets persigue.`,
+    ).toBe(conserva);
   });
 
   it("cuenta también los `var()` que viven en TS/TSX", () => {
