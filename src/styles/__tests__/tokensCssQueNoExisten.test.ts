@@ -111,9 +111,15 @@ const archivosTs = () => archivos(/\.tsx?$/);
  * rojo, y con un apóstrofe delante los 5 casos pasan.
  *
  * Por eso la comilla simple y la doble ahora sólo abren string si CIERRAN EN LA MISMA
- * LÍNEA **y** no vienen pegadas a una letra o un dígito (ver `abreString`), y hay un caso
- * ejecutable más abajo que se pone rojo si alguien vuelve a cualquiera de las dos reglas
- * viejas.
+ * LÍNEA **y** no vienen pegadas a un carácter de identificador (ver `abreString`).
+ *
+ * 🔴 CDT-127 — CADA REGLA TIENE ABAJO LA FILA QUE LA DISCRIMINA, Y ANTES NO. Acá decía que
+ * un caso se ponía rojo «si alguien vuelve a cualquiera de las dos reglas viejas», y era
+ * falso: borrando sólo la 1 los dos casos seguían VERDES, porque en los dos el apóstrofe
+ * está pegado a una letra y los tapaba la regla 2. La entrada que discrimina la 1 —una
+ * comilla de prosa que NO viene pegada a nada, `Los '90`, con el atributo en la línea
+ * SIGUIENTE— ahora existe. Medido borrando cada regla por separado: sin la 1 se pone roja
+ * ésa; sin la 2, las del apóstrofe pegado.
  *
  * 🔴 LA SEGUNDA CONDICIÓN NO ES DE ADORNO, Y ACÁ HABÍA UN LÍMITE AFIRMADO SIN MEDIR.
  * Esta lista decía que el hueco que quedaba —prosa y atributo en la misma línea— dejaba
@@ -124,12 +130,27 @@ const archivosTs = () => archivos(/\.tsx?$/);
  * fin del archivo. La condición nueva lo cierra: el apóstrofe pegado a la `d` ya no abre
  * nada. Caso ejecutable con las dos variantes —una línea y dos— más abajo.
  *
- * ⚠️ Sin cubrir, y NINGUNO acotado a su línea: regex que abra con barra-asterisco,
- * `url()` sin comillas, `//` a mitad de línea, y una comilla de prosa que NO venga pegada
- * a letra o dígito —`<p>Los '90</p>`— con un atributo de comilla simple después en la
- * misma línea. Cualquiera de esos desparea las comillas, y una barra-asterisco que quede
- * en estado código borra hasta el fin del archivo. No hay cota de línea: la única cota
- * real es que el escáner no es un parser, y la pantalla sigue siendo la última palabra.
+ * 🔴 CDT-127 — Y LA CONDICIÓN ERA CIEGA A LOS ACENTOS, EN UN PRODUCTO CON LA COPIA EN
+ * CASTELLANO. Decía `[A-Za-z0-9]`: una comilla pegada a una vocal con tilde, a la eñe, a
+ * un guion bajo o a un signo peso NO entraba, volvía a contar como delimitador y reabría
+ * el camino entero. Medido end-to-end contra el árbol real, no sobre una muestra: un
+ * `.tsx` con `<p>El acta se subió'l lunes</p><input accept='image/*' />` y un `var()` de
+ * un token inexistente debajo dejaba los 7 casos VERDES, y el MISMO archivo escrito
+ * `subio` sin tilde ponía el guardián en rojo nombrando el token. Un acento decidía si el
+ * guardián veía o no un token roto. Ahora la condición es `\p{ID_Continue}` —el conjunto
+ * que define un identificador de JS, que es de lo que habla la regla— más el signo peso,
+ * y con eso entra también el acento DESCOMPUESTO (NFD), que es lo que escribe macOS al
+ * copiar y pegar: ahí el carácter anterior a la comilla no es la letra, es la tilde
+ * combinante, y `\p{L}` sola tampoco lo habría cazado. Las dos formas tienen su fila.
+ *
+ * ⚠️ CDT-127 — LO QUE SIGUE SIN CUBRIR ES PROSA SIN GUARDA EJECUTABLE, dicho con todas las
+ * letras: regex que abra con barra-asterisco, `url()` sin comillas, `//` a mitad de línea,
+ * y una comilla de prosa que NO venga pegada a un identificador —`<p>Los '90</p>`— con un
+ * atributo de comilla simple en la MISMA línea (en líneas distintas sí está cubierto: es
+ * la fila que discrimina la regla 1). Ninguno tiene caso, y a propósito no se afirma acá
+ * cuánto daño hace cada uno: eso sería el quinto límite escrito sin medir de esta familia
+ * de tickets. Cerrarlos no es agregar otra condición encima, es escribir un parser, y
+ * mientras tanto la pantalla sigue siendo la última palabra.
  * Ejemplos descritos, no literales: asterisco-barra cerraría este docblock.
  */
 
@@ -141,18 +162,26 @@ const archivosTs = () => archivos(/\.tsx?$/);
  *    que una comilla que no cierra en su línea NUNCA era un string. La barra invertida se
  *    saltea de a dos, con lo que la continuación de línea de CSS sigue contando como
  *    string.
- * 2. No viene pegada a una letra o un dígito. `d'ía`, `don't`: en JS/TS un delimitador de
- *    string pegado a un identificador es error de sintaxis, así que una comilla en esa
- *    posición es prosa —de JSX o de un comentario— y nunca abrió nada. Los delimitadores
- *    de verdad vienen después de `=`, `(`, `,`, `:`, `[` o espacio.
+ * 2. No viene pegada a un carácter de identificador. `d'ía`, `don't`: en JS/TS un
+ *    delimitador de string pegado a un identificador es error de sintaxis, así que una
+ *    comilla en esa posición es prosa —de JSX o de un comentario— y nunca abrió nada. Los
+ *    delimitadores de verdad vienen después de `=`, `(`, `,`, `:`, `[` o espacio.
  *
  * 🔴 La 2 no es cosmética y la 1 sola NO alcanza: medido, `<p>d'ía</p><input
  * accept='image/*' />` en UNA línea hace que el apóstrofe cierre sobre la comilla que
  * ABRE el atributo, la barra-asterisco quede en estado código y se coma desde ahí hasta
  * el próximo cierre o el fin del archivo. Un solo apóstrofe, no dos.
+ *
+ * 🔴 CDT-127 — «identificador» se escribe `\p{ID_Continue}`, NO `[A-Za-z0-9]`. Con el
+ * rango ASCII, `subió'`, `añ'o`, `_'` y `$'` NO entraban y el apóstrofe volvía a abrir
+ * string: la copia de este producto está en castellano, así que el hueco era la regla, no
+ * el borde. `ID_Continue` incluye las tildes COMBINANTES, con lo que también entra el
+ * mismo texto en NFD —lo que escribe macOS al copiar y pegar—, donde el carácter anterior
+ * a la comilla es la tilde y no la letra. El `$` va aparte: es identificador en JS pero no
+ * en Unicode.
  */
 const abreString = (texto: string, i: number): boolean => {
-  if (/[A-Za-z0-9]/.test(texto[i - 1] ?? "")) return false;
+  if (/[\p{ID_Continue}$]/u.test(texto[i - 1] ?? "")) return false;
   const comilla = texto[i];
   for (let j = i + 1; j < texto.length; j++) {
     if (texto[j] === "\\") {
@@ -379,9 +408,20 @@ describe("CDT-84 — ningún `var()` apunta a un token que no existe", () => {
    * CDT-125 — el hueco del apóstrofe, con guarda ejecutable y no con prosa.
    *
    * Se afirma la CONSECUENCIA que importa —que el `var()` sigue estando después de
-   * despintar—, no cómo la logra el escáner. Reponé la regla vieja (la comilla simple
-   * como delimitador SIEMPRE, sin mirar si cierra en la línea) y esto se pone rojo.
+   * despintar—, no cómo la logra el escáner.
+   *
+   * CDT-127 — cada regla de `abreString` tiene su fila, y se verificó borrándolas por
+   * separado: sin la 1 (cerrar en la misma línea) se pone roja la de `Los '90`, la única
+   * donde el apóstrofe no viene pegado a nada; sin la 2 (no pegada a un identificador) se
+   * ponen rojas las del apóstrofe pegado. La familia de abajo es la que el rango ASCII
+   * dejaba pasar: tilde, eñe, guion bajo, signo peso y la tilde COMBINANTE del NFD.
    */
+  const conApostrofePegadoA = (palabra: string) =>
+    [
+      `<p>El acta se ${palabra}'l lunes</p><input accept='image/*' type='file' />`,
+      'const color = { background: "var(--cTokenDePruebaCdt125)" };',
+    ].join("\n");
+
   it.each([
     [
       "el apóstrofe y el `accept` en LÍNEAS distintas",
@@ -402,6 +442,26 @@ describe("CDT-84 — ningún `var()` apunta a un token que no existe", () => {
         'const color = { background: "var(--cTokenDePruebaCdt125)" };',
       ].join("\n"),
     ],
+    [
+      // 🔴 CDT-127 — la fila que discrimina la REGLA 1, y que no existía: acá el apóstrofe
+      // viene después de un espacio, así que la regla 2 no lo bloquea y lo único que
+      // impide que abra un string es que no cierra en su línea. Borrá la 1 y ésta —sola—
+      // se pone roja. Con el atributo en la MISMA línea el escáner todavía se lo come:
+      // ese hueco está declarado arriba como prosa sin guarda, a propósito.
+      "una comilla de prosa NO pegada, con el `accept` en la línea SIGUIENTE",
+      [
+        "<p>Los '90 fueron otra época</p>",
+        "<input accept='image/*' type='file' />",
+        'const color = { background: "var(--cTokenDePruebaCdt125)" };',
+      ].join("\n"),
+    ],
+    ["una vocal con TILDE pegada al apóstrofe", conApostrofePegadoA("subió")],
+    ["la EÑE pegada al apóstrofe", conApostrofePegadoA("añ")],
+    ["un GUION BAJO pegado al apóstrofe", conApostrofePegadoA("dia_")],
+    ["un SIGNO PESO pegado al apóstrofe", conApostrofePegadoA("100$")],
+    // El mismo texto que la fila de la tilde, pero en NFD: `o` + tilde combinante. Es lo
+    // que macOS escribe al copiar y pegar, y se ve IDÉNTICO en el editor.
+    ["una tilde COMBINANTE (NFD) pegada al apóstrofe", conApostrofePegadoA("subio\u0301")],
   ])("un apóstrofe en prosa JSX no se traga un `var()` — %s", (_caso, muestra) => {
     expect(
       sinComentarios(muestra, true),
@@ -411,6 +471,36 @@ describe("CDT-84 — ningún `var()` apunta a un token que no existe", () => {
         `da por NO USADO y nunca se compara contra el catálogo: el guardián sale VERDE ` +
         `con el token roto adentro.`,
     ).toContain("var(--cTokenDePruebaCdt125)");
+  });
+
+  /**
+   * CDT-127 — la autoexclusión es lo que sostiene la propiedad, y no tenía guarda.
+   *
+   * Una lente levantó como CRITICAL que el token de prueba de este archivo envenenara al
+   * guardián, y se refutó con evidencia: el barrido se saltea su propio archivo. Pero lo
+   * que refuta es ESA línea, no el recorrido — el recorrido sí llega hasta acá. Borrá el
+   * `if (ruta === __filename) continue` de `tokensUsados` y el `var()` de los fixtures de
+   * arriba se cuenta como un uso real de un token que no existe: el guardián se pone rojo
+   * contra sí mismo y el próximo lo lee como un token roto del producto.
+   */
+  it("el barrido se excluye a sí mismo: su token de prueba no cuenta como uso", () => {
+    // Sin esto el caso se vuelve hueco el día que alguien borre las filas de arriba: no
+    // habría fixture que excluir y la aserción de abajo pasaría por vacía.
+    expect(
+      (readFileSync(__filename, "utf-8").match(/var\(--cTokenDePruebaCdt125\)/g) ?? [])
+        .length,
+      `Este archivo ya no usa el token de prueba en ningún fixture: sin fixture no hay ` +
+        `nada que excluir y este caso dejó de medir la autoexclusión. Buscá el fixture ` +
+        `nuevo o borrá este test.`,
+    ).toBeGreaterThan(0);
+
+    expect(
+      tokensUsados().has("--cTokenDePruebaCdt125"),
+      `El barrido se está contando A SÍ MISMO: sacaron la autoexclusión por __filename y ` +
+        `el token de mentira de los fixtures entró como uso real. El guardián pasa a ` +
+        `acusar de roto un token que no existe en el producto, que es su peor falla: ` +
+        `manda al próximo a "arreglar" una pantalla que anda.`,
+    ).toBe(false);
   });
 
   it("cuenta también los `var()` que viven en TS/TSX", () => {
