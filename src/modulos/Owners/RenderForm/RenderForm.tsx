@@ -3,7 +3,7 @@ import Select from "@/mk/components/forms/Select/Select";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import styles from "./Renderform.module.css";
 import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import { IconAdd } from "@/components/layout/icons/IconsBiblioteca";
@@ -43,6 +43,17 @@ const TYPE_OWNERS = [
     name: "Residente",
   },
 ];
+
+const normalizeApiErrors = (apiErrors: any): OwnerFormErrors => {
+  if (!apiErrors || typeof apiErrors !== "object") return {};
+
+  return Object.fromEntries(
+    Object.entries(apiErrors).map(([field, value]) => [
+      field,
+      Array.isArray(value) ? String(value[0] ?? "") : String(value),
+    ]),
+  );
+};
 
 const getUnitNro = (unitsList: any[] = [], id?: string | number) => {
   if (id === undefined || id === null) return undefined;
@@ -157,7 +168,7 @@ const RenderForm = ({
     data: any,
     showLoader?: boolean,
     silent?: boolean,
-  ) => Promise<{ data?: any }>;
+  ) => Promise<{ data?: any; error?: any }>;
   extraData: any;
   reLoad: () => void;
   defaultUnitId?: string | number;
@@ -166,6 +177,11 @@ const RenderForm = ({
   disableUnitEditing?: boolean;
   disableTypeEditing?: boolean;
 }) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const [isCheckingCi, setIsCheckingCi] = useState(false);
+  const [existingInCurrentCondo, setExistingInCurrentCondo] = useState(false);
+  const [ciLookupFailed, setCiLookupFailed] = useState(false);
+  const ciLookupRef = useRef("");
   const [formState, setFormState] = useState<OwnerFormState>(() => {
     const initialState: OwnerFormState = {
       ci: "",
@@ -238,6 +254,13 @@ const RenderForm = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
+    if (name === "ci" && !formState.id) {
+      ciLookupRef.current = String(value || "").trim();
+      setExistingInCurrentCondo(false);
+      setCiLookupFailed(false);
+      setIsCheckingCi(false);
+      setErrors((prev) => ({ ...prev, ci: undefined }));
+    }
     if (name === "type_owner") {
       setFormState((prev: OwnerFormState) => ({
         ...prev,
@@ -312,10 +335,13 @@ const RenderForm = ({
 
   const onBlurCi = async (e: React.FocusEvent<HTMLInputElement>) => {
     const ci = e.target.value.trim();
-    if (!ci) return;
+    if (!ci || formState.id || isCheckingCi) return;
+
+    ciLookupRef.current = ci;
+    setIsCheckingCi(true);
 
     try {
-      const { data } = await execute(
+      const { data, error } = await execute(
         "/owners",
         "GET",
         {
@@ -327,9 +353,24 @@ const RenderForm = ({
         true,
       );
 
+      if (ciLookupRef.current !== ci) return;
+
+      if (error || !data?.success) {
+        setExistingInCurrentCondo(false);
+        setCiLookupFailed(true);
+        setErrors((prev) => ({
+          ...prev,
+          ci: "No se pudo verificar el CI. Intenta nuevamente.",
+        }));
+        showToast("No se pudo verificar el CI", "error");
+        return;
+      }
+
       if (data?.success && data.data?.data?.id) {
         const ownerData = data.data.data;
         if (ownerData.existCondo) {
+          setExistingInCurrentCondo(true);
+          setCiLookupFailed(false);
           showToast("El residente ya existe en este Condominio", "warning");
           setErrors((prev) => ({
             ...prev,
@@ -350,12 +391,17 @@ const RenderForm = ({
           _disabled: true,
           _emailDisabled: true,
         }));
+        setExistingInCurrentCondo(false);
+        setCiLookupFailed(false);
 
         showToast(
           "El residente ya existe en Condaty, se va a vincular al Condominio",
           "warning",
         );
       } else {
+        setExistingInCurrentCondo(false);
+        setCiLookupFailed(false);
+        setErrors((prev) => ({ ...prev, ci: undefined }));
         setFormState((prev: OwnerFormState) => ({
           ...prev,
           _disabled: false,
@@ -363,8 +409,17 @@ const RenderForm = ({
         }));
       }
     } catch (error) {
+      if (ciLookupRef.current !== ci) return;
+      setExistingInCurrentCondo(false);
+      setCiLookupFailed(true);
+      setErrors((prev) => ({
+        ...prev,
+        ci: "No se pudo verificar el CI. Intenta nuevamente.",
+      }));
       console.error("Error al validar CI:", error);
       showToast("Error al validar el CI", "error");
+    } finally {
+      if (ciLookupRef.current === ci) setIsCheckingCi(false);
     }
   };
 
@@ -405,7 +460,14 @@ const RenderForm = ({
   };
 
   const onSave = async () => {
+    if (isSaving || isCheckingCi) return;
     const validationErrors = validate();
+    if (!formState.id && existingInCurrentCondo) {
+      validationErrors.ci = "Ese CI ya está en uso en este Condominio";
+    }
+    if (!formState.id && ciLookupFailed) {
+      validationErrors.ci = "No se pudo verificar el CI. Intenta nuevamente.";
+    }
     if (hasErrors(validationErrors)) {
       setErrors(validationErrors);
 
@@ -426,6 +488,7 @@ const RenderForm = ({
       return;
     }
 
+    setIsSaving(true);
     try {
       const dptoIds = (formState.dptos || []).map((d) => d.dpto_id);
 
@@ -444,7 +507,12 @@ const RenderForm = ({
       const endpoint = formState.id ? `/owners/${formState.id}` : "/owners";
       const method = formState.id ? "PUT" : "POST";
 
-      const { data: response } = await execute(endpoint, method, payload, true);
+      const { data: response, error } = await execute(
+        endpoint,
+        method,
+        payload,
+        true,
+      );
 
       if (response?.success) {
         reLoad();
@@ -453,11 +521,24 @@ const RenderForm = ({
         showToast(response?.message || "Operación exitosa", "success");
         onClose();
       } else {
-        showToast(response?.message || "Error al guardar los datos", "error");
+        const apiErrors = normalizeApiErrors(
+          response?.errors || error?.data?.errors,
+        );
+        if (Object.keys(apiErrors).length > 0) {
+          setErrors((prev) => ({ ...prev, ...apiErrors }));
+        }
+        showToast(
+          response?.message ||
+            error?.data?.message ||
+            "Error al guardar los datos",
+          "error",
+        );
       }
     } catch (error) {
       console.error("Error al guardar el residente:", error);
       showToast("Error al guardar el residente", "error");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -479,6 +560,13 @@ const RenderForm = ({
         ? `Editar ${formState.type_owner || "Residente"}`
         : `Nuevo ${item?.type_owner || "Residente"}`}
       onSave={onSave}
+      buttonText={isSaving ? "Guardando..." : "Guardar"}
+      disabled={
+        isSaving ||
+        isCheckingCi ||
+        existingInCurrentCondo ||
+        ciLookupFailed
+      }
       variant={"mini"}
     >
       <div className={styles.fieldSet}>
