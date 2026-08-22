@@ -115,7 +115,10 @@ const RenderForm = ({
       "GET",
       {
         dpto_id: formState?.dpto_id,
-        type: formState?.id ? "edit" : "add",
+        // ⚠️ Se llama `mode`, no `type`: en el resto de las rutas de
+        // `debt-dptos` el `type` es el TIPO de deuda (DebtType), y mandar
+        // "add" ahí se leía como un tipo inválido.
+        mode: formState?.id ? "edit" : "add",
       },
       false,
       true
