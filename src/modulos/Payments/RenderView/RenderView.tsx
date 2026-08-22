@@ -27,6 +27,7 @@ import { generateWhatsAppLink } from "@/mk/utils/phone";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 import { paymentsApi } from "../api";
 import { PaymentMethod, PaymentStatus } from "../Type/PaymentType";
+import { DebtType } from "@/types/PaymentType";
 interface PaymentDetail {
   id: string | number;
   status: number;
@@ -1002,21 +1003,27 @@ RenderView.displayName = "RenderViewPayment";
 
 export default RenderView;
 
-// Función para obtener el tipo de deuda
+/**
+ * Cómo se llama el tipo de deuda en el detalle de un pago.
+ *
+ * ⚠️ Le faltaba el plan de pago, que salía como "Desconocido".
+ */
 const getDebtType = (type: number) => {
   switch (Number(type)) {
-    case 0:
+    case DebtType.NORMAL:
       return "Individual";
-    case 1:
+    case DebtType.EXPENSE:
       return "Expensas";
-    case 2:
+    case DebtType.RESERVATION:
       return "Reservas";
-    case 3:
+    case DebtType.PENALTY_RESERVATION:
       return "Multa por Cancelación";
-    case 4:
+    case DebtType.SHARED:
       return "Compartida";
-    case 5:
+    case DebtType.FORGIVENESS:
       return "Condonación";
+    case DebtType.PAYMENT_PLAN:
+      return "Plan de pago";
     default:
       return "Desconocido";
   }
@@ -1027,10 +1034,10 @@ const getConceptByType = (periodo: any) => {
   const type = Number(periodo?.debt_dpto?.type);
 
   switch (type) {
-    case 0: // Individual
-    case 4: // Compartida
+    case DebtType.NORMAL:
+    case DebtType.SHARED:
       return periodo?.subcategory?.name || "-/-";
-    case 1: {
+    case DebtType.EXPENSE: {
       // Expensas: mostrar periodo (MES y AÑO)
       const monthNumRaw =
         periodo?.debt_dpto?.month ?? periodo?.debt_dpto?.shared?.month;
@@ -1056,8 +1063,7 @@ const getConceptByType = (periodo: any) => {
       }
       return periodo?.subcategory?.name || "-/-";
     }
-    case 2: {
-      // Reservas
+    case DebtType.RESERVATION: {
       const penaltyAmount = getDetailAmount(periodo, "penalty_amount");
       const areaTitle =
         periodo?.debt_dpto?.reservation?.area?.title || "-/-";
@@ -1068,7 +1074,7 @@ const getConceptByType = (periodo: any) => {
         return `Reserva: ${areaTitle}`;
       }
     }
-    case 3: // Multa por Cancelación
+    case DebtType.PENALTY_RESERVATION:
       return `Multa por Cancelación: ${
         periodo?.debt_dpto?.penalty_reservation?.area?.title || "-/-"
       }`;

@@ -30,7 +30,7 @@ import React from "react";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import RenderView from "../RenderView/RenderView";
-import { DebtStatus } from "@/types/PaymentType";
+import { DebtStatus, DebtType } from "@/types/PaymentType";
 
 // El botón de detalle va `disabled={!hasApiData}`, y `hasApiData` es la fila
 // que devuelve la API. Sin ella el botón existe pero no se puede apretar y el
@@ -100,15 +100,15 @@ describe("CDT-89 · el botón de detalle es la segunda puerta al cobro", () => {
     mocks.debt = null;
   });
 
-  it("type 3 ANULADA: el botón de detalle no se pinta, y no hay cobro", () => {
-    abrirDetalle(DebtStatus.CANCELLED, 3);
+  it("la MULTA de reserva ANULADA: el botón de detalle no se pinta, y no hay cobro", () => {
+    abrirDetalle(DebtStatus.CANCELLED, DebtType.PENALTY_RESERVATION);
 
     expect(screen.queryByRole("button", { name: "Ver reserva" })).toBeNull();
     expect(screen.queryByTestId("payment-form")).toBeNull();
   });
 
-  it("type 3 POR COBRAR: el mismo botón está y abre el formulario de pago", () => {
-    abrirDetalle(DebtStatus.PENDING, 3);
+  it("la MULTA de reserva POR COBRAR: el mismo botón está y abre el formulario de pago", () => {
+    abrirDetalle(DebtStatus.PENDING, DebtType.PENALTY_RESERVATION);
 
     fireEvent.click(botonDeDetalle("Ver reserva"));
 
@@ -117,8 +117,8 @@ describe("CDT-89 · el botón de detalle es la segunda puerta al cobro", () => {
 
   // --- control: el arreglo no puede llevarse puesto el caso bueno ---
 
-  it("type 1 ANULADA: sigue abriendo el detalle de la expensa", () => {
-    abrirDetalle(DebtStatus.CANCELLED, 1);
+  it("la EXPENSA ANULADA: sigue abriendo el detalle de la expensa", () => {
+    abrirDetalle(DebtStatus.CANCELLED, DebtType.EXPENSE);
 
     fireEvent.click(botonDeDetalle("Ver expensa"));
 
@@ -126,8 +126,8 @@ describe("CDT-89 · el botón de detalle es la segunda puerta al cobro", () => {
     expect(screen.queryByTestId("payment-form")).toBeNull();
   });
 
-  it("type 2 ANULADA: sigue abriendo el detalle de la reserva", () => {
-    abrirDetalle(DebtStatus.CANCELLED, 2);
+  it("la RESERVA ANULADA: sigue abriendo el detalle de la reserva", () => {
+    abrirDetalle(DebtStatus.CANCELLED, DebtType.RESERVATION);
 
     fireEvent.click(botonDeDetalle("Ver reserva"));
 
@@ -136,13 +136,13 @@ describe("CDT-89 · el botón de detalle es la segunda puerta al cobro", () => {
   });
 
   /**
-   * El type 4 no abre un modal: navega a `/debts_manager/shared-debt-detail/`.
+   * La COMPARTIDA no abre un modal: navega a `/debts_manager/shared-debt-detail/`.
    * jsdom no implementa la navegación, así que lo que se afirma es que el
    * botón sigue ofreciéndose y apretable — que es todo lo que el arreglo
    * podría haberle roto.
    */
-  it("type 4 ANULADA: sigue ofreciendo ir a la deuda compartida", () => {
-    abrirDetalle(DebtStatus.CANCELLED, 4);
+  it("la COMPARTIDA ANULADA: sigue ofreciendo ir a la deuda compartida", () => {
+    abrirDetalle(DebtStatus.CANCELLED, DebtType.SHARED);
 
     const boton = botonDeDetalle("Ver deuda compartida");
     expect((boton as HTMLButtonElement).disabled).toBe(false);

@@ -1,4 +1,4 @@
-import { DebtStatus } from "@/types/PaymentType";
+import { DebtStatus, DebtType } from "@/types/PaymentType";
 import { maintenanceAmountFor } from "@/mk/utils/utils";
 import { getNow } from "@/mk/utils/date";
 
@@ -64,19 +64,40 @@ export const AMOUNT_TYPE_MAP: { [key: string]: string } = {
 };
 
 
-export const DEBT_TYPE_MAP: { [key: number]: string } = {
-  0: 'Deuda individual',
-  1: 'Expensa',
-  2: 'Reserva',
-  3: 'Reserva con multa',
-  4: 'Deuda compartida'
+/**
+ * Cómo se llama cada tipo de deuda en esta pantalla.
+ *
+ * 🔴 Le faltaban DOS casos —la condonación y el plan de pago— y una tabla
+ * parcial no falla: cae al `||` del consumidor y muestra el número pelado o un
+ * guion. Entran los siete.
+ *
+ * ⚠️ Las palabras NO son las mismas que las de `getDebtTypeLabel` en
+ * `DashDptos/UnitFinanceHistory` ("Deuda individual" acá, "Otras deudas" allá)
+ * ni las del API ("Individual"). Eso es una decisión de producto, no un bug de
+ * tipos, y se deja como está: acá se unifican las CLAVES.
+ */
+export const DEBT_TYPE_MAP: { [key in DebtType]?: string } = {
+  [DebtType.NORMAL]: 'Deuda individual',
+  [DebtType.EXPENSE]: 'Expensa',
+  [DebtType.RESERVATION]: 'Reserva',
+  [DebtType.PENALTY_RESERVATION]: 'Reserva con multa',
+  [DebtType.SHARED]: 'Deuda compartida',
+  [DebtType.FORGIVENESS]: 'Condonación',
+  [DebtType.PAYMENT_PLAN]: 'Plan de pago'
 };
 
-export const DEBT_TYPE_BUTTON_TEXT: { [key: number]: string } = {
-  1: 'Ver expensa',
-  2: 'Ver reserva',
-  3: 'Ver reserva',
-  4: 'Ver deuda compartida'
+/**
+ * El texto del botón que abre el ORIGEN de la deuda.
+ *
+ * ⚠️ `NORMAL` no está a propósito: una deuda individual no tiene otra pantalla
+ * adonde ir, y `getDetailButtonText` devuelve `null` para que el botón no se
+ * dibuje. Lo mismo la condonación y el plan de pago.
+ */
+export const DEBT_TYPE_BUTTON_TEXT: { [key in DebtType]?: string } = {
+  [DebtType.EXPENSE]: 'Ver expensa',
+  [DebtType.RESERVATION]: 'Ver reserva',
+  [DebtType.PENALTY_RESERVATION]: 'Ver reserva',
+  [DebtType.SHARED]: 'Ver deuda compartida'
 };
 
 
@@ -148,10 +169,14 @@ export const getBalanceTitle = (status: number): string => {
 
 
 export const getDetailButtonText = (type: number, hideSharedDebtButton: boolean = false): string | null => {
-  if (type === 4 && hideSharedDebtButton) {
+  if (type === DebtType.SHARED && hideSharedDebtButton) {
     return null;
   }
-  return DEBT_TYPE_BUTTON_TEXT[type] || null;
+  // ⚠️ El `type` llega del sobre del API, así que es un `number` cualquiera y
+  // no un `DebtType`. El cast es lo que hace de frontera: un tipo que el enum
+  // no conoce no está en la tabla y devuelve `null`, que es lo que la pantalla
+  // espera para no dibujar el botón.
+  return DEBT_TYPE_BUTTON_TEXT[type as DebtType] || null;
 };
 
 
@@ -174,7 +199,13 @@ export const getAvailableActions = (status: number, type: number) => {
   const isForgiven   = status === DebtStatus.FORGIVEN;
   const isCancelled  = status === DebtStatus.CANCELLED;
 
-  if (type !== 0) {
+  // 🔴 Acá había `type !== 0`, un literal pelado — y decide qué botones ve el
+  // administrador sobre una deuda. Con la numeración vieja el 0 era la deuda
+  // INDIVIDUAL, el único tipo que se puede editar y anular desde esta pantalla.
+  // Desde el 2026-08-22 el 0 no es ningún tipo, así que la condición habría
+  // sido cierta SIEMPRE: el `switch` de abajo —Anular, Editar y las reglas de
+  // CDT-63 y CDT-89— dejaba de correr para todas las deudas, sin dar error.
+  if (type !== DebtType.NORMAL) {
     return {
       showAnular: false,
       showEditar: false,

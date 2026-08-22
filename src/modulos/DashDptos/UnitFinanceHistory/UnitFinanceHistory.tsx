@@ -9,7 +9,7 @@ import { TableSkeleton } from "@/mk/components/ui/Skeleton/Skeleton";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { MONTHS_S, getDateStrMes, getDateStrMesShort, getNow } from "@/mk/utils/date";
 import { getPaymentStatusConfig } from "@/modulos/Payments/Type/PaymentType";
-import { DebtStatus } from "@/types/PaymentType";
+import { DebtStatus, DebtType } from "@/types/PaymentType";
 import {
   getStatusConfig as getDebtStatusConfig,
   getStatusText as getDebtStatusText,
@@ -48,7 +48,7 @@ const getReservationAreaLabel = (row: any) =>
 const getDebtConceptLabel = (row: any) => {
   const debtType = Number(row?.type ?? -1);
 
-  if (debtType === 1) {
+  if (debtType === DebtType.EXPENSE) {
     return (
       getMonthPeriodLabel(
         row?.month ?? row?.shared?.month,
@@ -57,11 +57,11 @@ const getDebtConceptLabel = (row: any) => {
     );
   }
 
-  if (debtType === 2) {
+  if (debtType === DebtType.RESERVATION) {
     return getReservationAreaLabel(row) || "-/-";
   }
 
-  if (debtType === 3) {
+  if (debtType === DebtType.PENALTY_RESERVATION) {
     return getReservationAreaLabel(row) || row?.description || "-/-";
   }
 
@@ -73,20 +73,27 @@ const getDebtConceptLabel = (row: any) => {
   );
 };
 
+/**
+ * ⚠️ Le faltaba el plan de pago, que caía en el `default` y se veía como un
+ * guion. Y las palabras no son las de `DEBT_TYPE_MAP` de DebtsManager
+ * ("Otras deudas" acá, "Deuda individual" allá): eso es de producto y se deja.
+ */
 const getDebtTypeLabel = (row: any) => {
   switch (Number(row?.type ?? -1)) {
-    case 0:
+    case DebtType.NORMAL:
       return "Otras deudas";
-    case 1:
+    case DebtType.EXPENSE:
       return "Expensas";
-    case 2:
+    case DebtType.RESERVATION:
       return "Reservas";
-    case 3:
+    case DebtType.PENALTY_RESERVATION:
       return "Reserva con multa";
-    case 4:
+    case DebtType.SHARED:
       return "Compartida";
-    case 5:
+    case DebtType.FORGIVENESS:
       return "Condonación";
+    case DebtType.PAYMENT_PLAN:
+      return "Plan de pago";
     default:
       return "-/-";
   }
@@ -162,7 +169,7 @@ const getPaymentConceptLabel = (payment: any) => {
 
         const debtType = Number(debt?.type ?? -1);
 
-        if (debtType === 1) {
+        if (debtType === DebtType.EXPENSE) {
           return (
             getMonthPeriodLabel(
               debt?.month ?? debt?.shared?.month,
@@ -171,7 +178,7 @@ const getPaymentConceptLabel = (payment: any) => {
           );
         }
 
-        if (debtType === 2 || debtType === 3) {
+        if (debtType === DebtType.RESERVATION || debtType === DebtType.PENALTY_RESERVATION) {
           return (
             getReservationAreaLabel(debt) ||
             debt?.description ||

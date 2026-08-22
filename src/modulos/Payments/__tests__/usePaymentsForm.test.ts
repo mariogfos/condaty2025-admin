@@ -4,6 +4,7 @@ import { usePaymentsForm } from "../hooks/usePaymentsForm";
 import { FormPaymentType, PaymentMethod } from "../Type/PaymentType";
 import { paymentsApi } from "../api";
 import { BankAccountAssignment } from "@/modulos/BankAccounts/Type/BankType";
+import { DebtType } from "@/types/PaymentType";
 
 const mockExecute = vi.fn();
 const mockShowToast = vi.fn();
@@ -403,22 +404,22 @@ describe("usePaymentsForm", () => {
     expect(result.current.deudas[1].id).toBe("2");
   });
 
-  it("getConceptByType devuelve periodo desde dpto-level para tipo 1 (EXPENSE)", () => {
+  it("getConceptByType devuelve periodo desde dpto-level para EXPENSE", () => {
     const props = makeExpenseProps() as any;
     const { result } = renderHook(() => usePaymentsForm(props, false));
 
-    const periodo = { type: 1, month: 4, year: 2025, debt: { month: 99, year: 9999 }, shared: { month: 11, year: 2020 } } as any;
+    const periodo = { type: DebtType.EXPENSE, month: 4, year: 2025, debt: { month: 99, year: 9999 }, shared: { month: 11, year: 2020 } } as any;
     const concept = result.current.getConceptByType(periodo);
 
     // dpto-level year used (2025), NOT debt head (9999)
     expect(concept).toContain("2025");
   });
 
-  it("getConceptByType usa shared fallback para tipo 1 cuando dpto month/year son null (SHARED row)", () => {
+  it("getConceptByType usa shared fallback para EXPENSE cuando dpto month/year son null", () => {
     const props = makeExpenseProps() as any;
     const { result } = renderHook(() => usePaymentsForm(props, false));
 
-    const periodo = { type: 1, month: null, year: null, shared: { month: 8, year: 2023 } } as any;
+    const periodo = { type: DebtType.EXPENSE, month: null, year: null, shared: { month: 8, year: 2023 } } as any;
     const concept = result.current.getConceptByType(periodo);
 
     expect(concept).toContain("2023");
@@ -517,7 +518,7 @@ describe("usePaymentsForm", () => {
           data: {
             success: true,
             data: {
-              deudas: [{ id: "1", month: 7, year: 2026, amount: 1000, type: 1 }],
+              deudas: [{ id: "1", month: 7, year: 2026, amount: 1000, type: DebtType.EXPENSE }],
             },
           },
         });

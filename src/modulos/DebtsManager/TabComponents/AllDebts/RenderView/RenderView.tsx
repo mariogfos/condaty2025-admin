@@ -22,7 +22,7 @@ import {
 import { getFullName } from "@/mk/utils/string";
 import { getTitular } from "@/mk/utils/adapters";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
-import { DebtStatus } from "@/types/PaymentType";
+import { DebtStatus, DebtType } from "@/types/PaymentType";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import {
   getStatusText,
@@ -129,28 +129,37 @@ const RenderView: React.FC<RenderViewProps> = ({
     return getStatusConfig(status, dueDate);
   };
 
+  /**
+   * ⚠️ La CUARTA tabla de nombres del tipo de deuda, con sus propias palabras
+   * ("Otras deudas" donde `DEBT_TYPE_MAP` dice "Deuda individual"). Las
+   * palabras son decisión de producto y se dejan; las claves se unifican.
+   *
+   * Le faltaba el plan de pago, que caía en el guion.
+   */
   const getDebtTypeText = (type: number) => {
     switch (Number(type)) {
-      case 0:
+      case DebtType.NORMAL:
         return "Otras deudas";
-      case 1:
+      case DebtType.EXPENSE:
         return "Expensas";
-      case 2:
+      case DebtType.RESERVATION:
         return "Reservas";
-      case 3:
+      case DebtType.PENALTY_RESERVATION:
         return "Reserva con multa";
-      case 4:
+      case DebtType.SHARED:
         return "Deuda compartida";
-      case 5:
+      case DebtType.FORGIVENESS:
         return "Condonación";
+      case DebtType.PAYMENT_PLAN:
+        return "Plan de pago";
       default:
         return "-/-";
     }
   };
 
   const getConceptText = (detail: any) => {
-    switch (Number(detail?.type ?? 0)) {
-      case 1: {
+    switch (Number(detail?.type)) {
+      case DebtType.EXPENSE: {
         const month = detail?.month ?? detail?.shared?.month;
         const year = detail?.year ?? detail?.shared?.year;
         if (month && year) {
@@ -158,19 +167,19 @@ const RenderView: React.FC<RenderViewProps> = ({
         }
         return detail?.description || detail?.subcategory?.name || "-/-";
       }
-      case 2:
+      case DebtType.RESERVATION:
         return (
           detail?.reservation?.area?.title ||
           detail?.description ||
           "-/-"
         );
-      case 3:
+      case DebtType.PENALTY_RESERVATION:
         return (
           detail?.penalty_reservation?.area?.title ||
           detail?.description ||
           "-/-"
         );
-      case 4:
+      case DebtType.SHARED:
         return detail?.shared?.description || detail?.description || "-/-";
       default:
         return (
@@ -214,18 +223,18 @@ const RenderView: React.FC<RenderViewProps> = ({
     const targetId = debtDetail?.shared_id;
 
     switch (type) {
-      case 1:
+      case DebtType.EXPENSE:
         setShowExpenseDetail(true);
         break;
-      case 2:
+      case DebtType.RESERVATION:
         setShowReservationDetail(true);
         break;
-      case 3:
+      case DebtType.PENALTY_RESERVATION:
         if (actions.showRegistrarPago) {
           setShowPaymentForm(true);
         }
         break;
-      case 4:
+      case DebtType.SHARED:
         window.location.href = `/debts_manager/shared-debt-detail/${targetId}`;
         break;
     }
@@ -334,10 +343,12 @@ const RenderView: React.FC<RenderViewProps> = ({
       finalCategoryId = foundCategory?.id;
     }
 
-    const isIndividualDebt = debtType === 0; // Tipo 0 = Deudas individuales
-    const isExpensasDebt = debtType === 1; // Tipo 1 = Expensas
-    const isReservationsDebt = debtType === 2 || debtType === 3; // Tipo 2 y 3 = Reservas
-    const isSharedDebt = debtType === 4; // Tipo 4 = Deudas compartidas
+    const isIndividualDebt = debtType === DebtType.NORMAL;
+    const isExpensasDebt = debtType === DebtType.EXPENSE;
+    const isReservationsDebt =
+      debtType === DebtType.RESERVATION ||
+      debtType === DebtType.PENALTY_RESERVATION;
+    const isSharedDebt = debtType === DebtType.SHARED;
 
     const isForgivenessDebt =
       debtDetail?.description?.toLowerCase().includes("condonación") ||
@@ -398,8 +409,8 @@ const RenderView: React.FC<RenderViewProps> = ({
   const actions = getAvailableActions(numericStatus, debtType);
   /**
    * CDT-89: sobre una deuda anulada el formulario de cobro no se abre por
-   * NINGUNA de sus dos puertas —"Registrar Pago" y el `case 3` de
-   * `handleDetailButtonClick`—, y las dos preguntan lo mismo:
+   * NINGUNA de sus dos puertas —"Registrar Pago" y la rama de
+   * `PENALTY_RESERVATION` de `handleDetailButtonClick`—, y las dos preguntan lo mismo:
    * `actions.showRegistrarPago`.
    *
    * Este cartel es la parte que explica la ausencia: sin él, el administrador
@@ -414,16 +425,16 @@ const RenderView: React.FC<RenderViewProps> = ({
   const isCancelledDebt = numericStatus === DebtStatus.CANCELLED;
   const detailButtonText = getDetailButtonText(debtType);
   /**
-   * CDT-89: para el `type 3` este botón NO abre una vista de detalle — abre el
-   * formulario de cobro (`case 3` de `handleDetailButtonClick`), y no tiene
+   * CDT-89: para `PENALTY_RESERVATION` este botón NO abre una vista de detalle
+   * — abre el formulario de cobro (su rama de `handleDetailButtonClick`), y no tiene
    * ninguna otra función: la reserva de una multa vive en
-   * `penalty_reservation` y el `case 2` lee `debtDetail.reservation`, así que
+   * `penalty_reservation` y la rama de `RESERVATION` lee `debtDetail.reservation`, así que
    * este botón nunca la mostró. Cuando el cobro no se ofrece, entonces, el
    * botón no tiene nada que hacer y no se pinta: oculto, ni `disabled` ni
    * muerto, la misma decisión de producto que "Registrar Pago".
    *
-   * ⚠️ SÓLO el `type 3`. Los tipos 1, 2 y 4 abren la expensa, la reserva y la
-   * deuda compartida: sobre una deuda anulada eso sigue siendo legítimo y el
+   * ⚠️ SÓLO `PENALTY_RESERVATION`. La expensa, la reserva y la compartida abren
+   * su propia pantalla: sobre una deuda anulada eso sigue siendo legítimo y el
    * botón se queda.
    *
    * La condición no es una regla nueva: es la MISMA constante que decide
@@ -431,10 +442,17 @@ const RenderView: React.FC<RenderViewProps> = ({
    * propósito — acá para no dejar un control muerto en pantalla, y allá como
    * segunda línea, para que quien mañana vuelva a mostrar este botón no
    * reabra la puerta al cobro sin darse cuenta.
+   *
+   * 🔴 Hasta el 2026-08-22 la condición decía `debtType !== 3`. El API corrió
+   * los valores un lugar y el 3 pasó a ser la RESERVA: la guarda habría
+   * empezado a esconder el botón de la reserva anulada —que sí abre su
+   * pantalla— y a mostrar el de la multa, que abre el cobro. Los dos casos
+   * dados vuelta, sin un solo error.
    */
   const showDetailButton =
-    Boolean(detailButtonText) && (debtType !== 3 || actions.showRegistrarPago);
-  const showDistribution = debtType === 4;
+    Boolean(detailButtonText) &&
+    (debtType !== DebtType.PENALTY_RESERVATION || actions.showRegistrarPago);
+  const showDistribution = debtType === DebtType.SHARED;
   const ownerDisplay = getFullName(debtDetail?.dpto?.homeowner) || "-/-";
   const tenantDisplay = getFullName(debtDetail?.dpto?.tenant) || "-/-";
   const holderDisplay =
@@ -657,7 +675,7 @@ const RenderView: React.FC<RenderViewProps> = ({
               {/*
                 CDT-89: acá había un `&& numericStatus !== DebtStatus.FORGIVEN`
                 que ya no hacía nada — `getAvailableActions` niega el cobro de
-                una condonada en sus DOS ramas (`type === 0` y `type !== 0`).
+                una condonada en sus DOS ramas (`DebtType.NORMAL` y el resto).
                 Era una guarda de llamador sobre una regla que vive en la
                 función compartida, y es exactamente el patrón que dejó vivo
                 este bug: quien agregó "anulada" al enum tocó un solo lado.
