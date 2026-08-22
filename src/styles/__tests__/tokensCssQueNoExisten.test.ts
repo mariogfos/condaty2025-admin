@@ -99,20 +99,81 @@ const archivosTs = () => archivos(/\.tsx?$/);
  * la 741 que cierra en la 1441 —655 líneas, la pantalla de configuración entera— y un
  * token roto ahí adentro deja el guardián en VERDE.
  *
- * ⚠️ Sin cubrir: regex que abra con barra-asterisco, `url()` sin comillas, `//` a mitad
- * de línea, y la comilla simple, que el escáner toma como delimitador de string SIEMPRE,
- * también en prosa JSX: un apóstrofe en copia visible abre un string que se traga
- * el texto hasta la próxima comilla simple del archivo. Hoy no muerde y si mordiera
- * fallaría ruidosamente —el `var()` que quede adentro se da por no usado—, pero se anota
- * acá porque es donde el próximo lo va a buscar.
+ * 🔴 CDT-125 — LA COMILLA SIMPLE FALLA EN SILENCIO, NO RUIDOSAMENTE. Acá decía que un
+ * apóstrofe en prosa JSX «si mordiera fallaría ruidosamente». Se midió y es FALSO, y en
+ * la dirección peor: el apóstrofe cierra sobre la comilla que ABRE un string real, el
+ * contenido de ese string queda en estado código y una barra-asterisco adentro —el
+ * `accept` con comillas simples de un input de imagen es la forma exacta— abre un
+ * comentario que corre hasta el próximo cierre o hasta el fin del archivo. Todo ese
+ * tramo se BORRA, el `var()` que quede adentro se da por NO USADO y por lo tanto NUNCA
+ * se compara contra el catálogo: el guardián sale VERDE con el token roto adentro.
+ * Medido end-to-end sobre una copia de HEAD: el mismo token inexistente pone el test en
+ * rojo, y con un apóstrofe delante los 5 casos pasan.
+ *
+ * Por eso la comilla simple y la doble ahora sólo abren string si CIERRAN EN LA MISMA
+ * LÍNEA **y** no vienen pegadas a una letra o un dígito (ver `abreString`), y hay un caso
+ * ejecutable más abajo que se pone rojo si alguien vuelve a cualquiera de las dos reglas
+ * viejas.
+ *
+ * 🔴 LA SEGUNDA CONDICIÓN NO ES DE ADORNO, Y ACÁ HABÍA UN LÍMITE AFIRMADO SIN MEDIR.
+ * Esta lista decía que el hueco que quedaba —prosa y atributo en la misma línea— dejaba
+ * «el daño acotado a esa línea». Se midió y era FALSO, en la misma dirección de siempre:
+ * `<p>d'ía</p><input accept='image/*' />` en UNA sola línea —ni siquiera hacen falta dos
+ * apóstrofes— hace que el apóstrofe cierre sobre la comilla que ABRE el atributo, la
+ * barra-asterisco quede en estado código y borre desde ahí hasta el próximo cierre o el
+ * fin del archivo. La condición nueva lo cierra: el apóstrofe pegado a la `d` ya no abre
+ * nada. Caso ejecutable con las dos variantes —una línea y dos— más abajo.
+ *
+ * ⚠️ Sin cubrir, y NINGUNO acotado a su línea: regex que abra con barra-asterisco,
+ * `url()` sin comillas, `//` a mitad de línea, y una comilla de prosa que NO venga pegada
+ * a letra o dígito —`<p>Los '90</p>`— con un atributo de comilla simple después en la
+ * misma línea. Cualquiera de esos desparea las comillas, y una barra-asterisco que quede
+ * en estado código borra hasta el fin del archivo. No hay cota de línea: la única cota
+ * real es que el escáner no es un parser, y la pantalla sigue siendo la última palabra.
  * Ejemplos descritos, no literales: asterisco-barra cerraría este docblock.
  */
+
+/**
+ * ¿La comilla de `i` abre un string de verdad? Dos condiciones, las dos necesarias.
+ *
+ * 1. Cierra antes del fin de línea. No es una heurística: en JS/TS y en CSS un salto de
+ *    línea crudo dentro de un string de comilla simple o doble es error de sintaxis, así
+ *    que una comilla que no cierra en su línea NUNCA era un string. La barra invertida se
+ *    saltea de a dos, con lo que la continuación de línea de CSS sigue contando como
+ *    string.
+ * 2. No viene pegada a una letra o un dígito. `d'ía`, `don't`: en JS/TS un delimitador de
+ *    string pegado a un identificador es error de sintaxis, así que una comilla en esa
+ *    posición es prosa —de JSX o de un comentario— y nunca abrió nada. Los delimitadores
+ *    de verdad vienen después de `=`, `(`, `,`, `:`, `[` o espacio.
+ *
+ * 🔴 La 2 no es cosmética y la 1 sola NO alcanza: medido, `<p>d'ía</p><input
+ * accept='image/*' />` en UNA línea hace que el apóstrofe cierre sobre la comilla que
+ * ABRE el atributo, la barra-asterisco quede en estado código y se coma desde ahí hasta
+ * el próximo cierre o el fin del archivo. Un solo apóstrofe, no dos.
+ */
+const abreString = (texto: string, i: number): boolean => {
+  if (/[A-Za-z0-9]/.test(texto[i - 1] ?? "")) return false;
+  const comilla = texto[i];
+  for (let j = i + 1; j < texto.length; j++) {
+    if (texto[j] === "\\") {
+      j++;
+      continue;
+    }
+    if (texto[j] === "\n") return false;
+    if (texto[j] === comilla) return true;
+  }
+  return false;
+};
+
 const sinComentarios = (texto: string, conTemplate: boolean): string => {
   let salida = "";
   for (let i = 0, abreLinea = true; i < texto.length; ) {
     const c = texto[i];
     const sig = texto[i + 1];
-    if (c === '"' || c === "'" || (conTemplate && c === "`")) {
+    if (
+      (conTemplate && c === "`") ||
+      ((c === '"' || c === "'") && abreString(texto, i))
+    ) {
       salida += c;
       for (i++; i < texto.length; i++) {
         const escapado = texto[i] === "\\";
@@ -273,42 +334,83 @@ describe("CDT-84 — ningún `var()` apunta a un token que no existe", () => {
 
     // Y sin lo que sigue se vuelve HUECO sin desaparecer. La medición son dos
     // marcadores que tienen que caer DENTRO de la zona que un despintador ciego a
-    // strings tapa; si alguien los mueve fuera —por arriba de la apertura o por
-    // debajo del cierre— el input sigue existiendo, el test sigue verde y ya no mide
-    // nada. Se acota la zona con posiciones sobre el MISMO string crudo: contar
-    // líneas no sirve, se corren solas.
+    // strings tapa; si alguien los mueve fuera, el input sigue existiendo, el test
+    // sigue verde y ya no mide nada.
     //
-    // `accept="image/*"` aparece TRES veces (741, 803, 864) y la que importa es la
-    // PRIMERA: es la única que ABRE el comentario falso. Las otras dos ya nacen
-    // adentro de la zona, donde el escáner ingenuo no ve nada que abrir. Por eso la
-    // apertura se busca con indexOf a secas y el cierre es el primer cierre real que
-    // venga después — la misma aritmética que hace el escáner al despintar un bloque.
-    const apertura = crudo.indexOf("/*", crudo.indexOf('accept="image/*"'));
-    const cierre = crudo.indexOf("*/", apertura + 2);
+    // CDT-125 — antes la zona se acotaba con `indexOf` desde el propio `accept`, y eso
+    // probaba la condición NECESARIA (los marcadores están en ese tramo), no la
+    // SUFICIENTE (que ese tramo sea el que el despintador ciego borra). Peor: las dos
+    // aperturas que este archivo lista como sin cubrir podrían adelantar la zona real y
+    // la aritmética ni se enteraba. Ahora se corre el despintador CIEGO de verdad y se
+    // afirma sobre su salida: no hay tramo que calcular.
+    const MARCADORES = ["coverAvatarAnchor", "profileLogoShell"];
+    // Un rename entra por su propia rama: si no, `-1` diagnosticaba un movimiento
+    // que nunca pasó y mandaba al próximo a buscar algo que no ocurrió.
     expect(
-      cierre,
-      `El comentario falso de DptoConfig ya no cierra en ninguna parte: la zona no se ` +
-        `puede acotar y esta medición no significa nada. Volvé a medirla.`,
-    ).toBeGreaterThan(apertura);
+      MARCADORES.filter((m) => !crudo.includes(m)),
+      `Estos marcadores ya no existen en DptoConfig —renombrados o borrados—, así que ` +
+        `no se movieron: no los busques en otra parte del archivo. Elegí otros dos que ` +
+        `vivan dentro de la zona que tapa el \`/*\` de \`image/*\` y actualizá la lista.`,
+    ).toEqual([]);
+    const ciego = crudo.replace(/\/\*[\s\S]*?\*\//g, (b) =>
+      b.replace(/[^\n]/g, " "),
+    );
     expect(
-      // Primera Y última ocurrencia adentro ⇒ todas adentro: una copia del marcador
-      // fuera de la zona hueca el test igual que moverlo.
-      ["coverAvatarAnchor", "profileLogoShell"].filter(
-        (m) => !(crudo.indexOf(m) > apertura && crudo.lastIndexOf(m) < cierre),
-      ),
-      `Estos marcadores se salieron de la zona tapada por el \`/*\` de \`image/*\`: ` +
-        `dentro de ese tramo es donde el despintador ciego a strings borra, así que ` +
-        `afuera el test queda VERDE midiendo nada. Movelos de vuelta adentro o elegí ` +
-        `otros dos que sí caigan entre la apertura y su cierre.`,
+      MARCADORES.filter((m) => ciego.includes(m)),
+      `Un despintador ciego a los strings YA NO borra estos marcadores. Dos causas ` +
+        `posibles y hay que distinguirlas antes de tocar nada: o el \`accept\` dejó de ` +
+        `abrir una zona que los cubra —el caso que este test reproduce dejó de ocurrir ` +
+        `acá—, o los marcadores se movieron a un tramo que ningún bloque tapa. Ojo que ` +
+        `esta afirmación sola tampoco prueba CUÁL bloque los borraba: sólo que alguno lo ` +
+        `hacía. Movelos adentro de la zona que abre el \`/*\` de \`image/*\`, o elegí ` +
+        `otros dos que vivan ahí.`,
     ).toEqual([]);
 
     // CONTENIDO, no cantidad de líneas: el escáner las conserva y contarlas da 0
     const limpio = sinComentarios(crudo, true); // siempre, aun con el bug puesto.
     expect(
-      ["coverAvatarAnchor", "profileLogoShell"].filter((m) => !limpio.includes(m)),
+      MARCADORES.filter((m) => !limpio.includes(m)),
       `Despintador otra vez ciego a los strings: el \`/*\` de \`image/*\` (741) tapa ` +
         `hasta la 1441 y el guardián pasa a dar VERDE sobre tokens rotos.`,
     ).toEqual([]);
+  });
+
+  /**
+   * CDT-125 — el hueco del apóstrofe, con guarda ejecutable y no con prosa.
+   *
+   * Se afirma la CONSECUENCIA que importa —que el `var()` sigue estando después de
+   * despintar—, no cómo la logra el escáner. Reponé la regla vieja (la comilla simple
+   * como delimitador SIEMPRE, sin mirar si cierra en la línea) y esto se pone rojo.
+   */
+  it.each([
+    [
+      "el apóstrofe y el `accept` en LÍNEAS distintas",
+      [
+        "<p>Subí la foto el d'ía de la alerta</p>",
+        "<input accept='image/*' type='file' />",
+        'const color = { background: "var(--cTokenDePruebaCdt125)" };',
+      ].join("\n"),
+    ],
+    [
+      // 🔴 La variante que el docblock daba por acotada a su línea SIN medirla: no lo
+      // está. Un solo apóstrofe pegado a una letra, el atributo en la MISMA línea, y el
+      // borrado se escapa hasta el fin del archivo. Reponé cualquiera de las dos reglas
+      // viejas y este caso —no el de dos líneas— es el que se pone rojo.
+      "el apóstrofe y el `accept` en la MISMA línea",
+      [
+        "<p>Subí la foto el d'ía</p><input accept='image/*' type='file' />",
+        'const color = { background: "var(--cTokenDePruebaCdt125)" };',
+      ].join("\n"),
+    ],
+  ])("un apóstrofe en prosa JSX no se traga un `var()` — %s", (_caso, muestra) => {
+    expect(
+      sinComentarios(muestra, true),
+      `El apóstrofe de la prosa cerró sobre la comilla que ABRE el \`accept\`, la ` +
+        `barra-asterisco de adentro quedó en estado código y abrió un comentario que ` +
+        `se comió el resto —del archivo, no de la línea—. El \`var()\` desaparece, se ` +
+        `da por NO USADO y nunca se compara contra el catálogo: el guardián sale VERDE ` +
+        `con el token roto adentro.`,
+    ).toContain("var(--cTokenDePruebaCdt125)");
   });
 
   it("cuenta también los `var()` que viven en TS/TSX", () => {
