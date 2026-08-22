@@ -361,6 +361,40 @@ export const montoACobrarDeLaDeuda = (iamData: any, debt: any): number =>
   maintenanceAmountFor(iamData, debt);
 
 /**
+ * ¿Está ENCENDIDA esta bandera de la deuda?
+ *
+ * ## 🔴🔴 Por qué no es un `if (debt.has_mv)` ni un `Number(x) === CASO`
+ *
+ * Las cuatro banderas —`has_mv`, `is_forgivable`, `has_pp`, `is_blocking`—
+ * cambiaron de forma **tres veces**: `char(1)` `'Y'`/`'N'` → `tinyint(1)` con
+ * cast booleano → enum desde 1 (2026-08-22). Y la tercera es la que **no da
+ * error**: con el enum el `1` que significaba SÍ pasa a significar NO.
+ *
+ * Cada forma de leerlas falla distinto, y ninguna la encuentra el patrón de otra:
+ *
+ * | forma | por qué falla |
+ * |---|---|
+ * | `(item && item.flag) \|\| false` | `1` y `2` son los dos truthy: SIEMPRE encendida |
+ * | `x === 1` | el `1` cambió de significado |
+ * | `Number(x) === CASO` | `Number("Y")` es `NaN`: las filas viejas se leen apagadas |
+ *
+ * El primero es el que mordió: el formulario de deudas INDIVIDUALES leía así,
+ * así que abrir una deuda para editarla mostraba las cuatro tildadas —fuera cual
+ * fuera su valor— y guardarla las encendía de verdad. Incluida `is_blocking`,
+ * que con `check_mora` le bloquea al residente el acceso físico al edificio.
+ *
+ * ⚠️ Sigue aceptando `true` y `"Y"` por el mismo motivo que {@link esCondonable}:
+ * quedan filas viejas circulando por caches y snapshots, y una lectura que
+ * entiende una sola forma es exactamente lo que produjo este bug. Lo que NO se
+ * acepta es un número distinto del caso alto — el `1` pelado ya no significa sí.
+ */
+export const banderaEncendida = (valor: unknown, casoAlto: number): boolean =>
+  valor === casoAlto ||
+  valor === String(casoAlto) ||
+  valor === true ||
+  valor === "Y";
+
+/**
  * ¿Es condonable el CAPITAL de esta deuda?
  *
  * ## 🔴🔴 Por qué esto no es un `=== "Y"`, ni un `=== 1`, ni un `if (debt.is_forgivable)`
