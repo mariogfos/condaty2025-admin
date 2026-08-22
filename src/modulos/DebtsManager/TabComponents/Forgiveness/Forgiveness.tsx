@@ -13,11 +13,12 @@ import { getStatusText, getStatusConfig, STATUS_FILTER_OPTIONS } from '../consta
 import RenderView from './RenderView/RenderView';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 
+import { DebtType } from "@/types/PaymentType";
 const paramsInitial = {
   fullType: 'FG',
   page: 1,
   perPage: -1,
-  type: 5,
+  type: DebtType.FORGIVENESS,
 };
 const Forgiveness = ({
   openView,
@@ -34,7 +35,7 @@ const Forgiveness = ({
     permiso: 'defaulters',
     sumarize: true,
     extraData: true,
-    loadView: { fullType: 'DET', type: 5 },
+    loadView: { fullType: 'DET', type: DebtType.FORGIVENESS },
     // S47.5: kill legacy IconExport (D-38-5 pattern) + slot async pineado.
     // - export: false → kill legacy GET /api/v3/debt-dptos?_export=pdf.
     // - exportAsync: {...} → slot async que useCrud auto-renderea via
@@ -42,7 +43,7 @@ const Forgiveness = ({
     //   S43 Outlays, S45 Areas).
     // - type: "debt-dptos" → matchea el DebtDptoReportType pineado en
     //   S47 backend (ReportTypeRegistry.auto-discovery, 11 tipos).
-    // - extraParams.type: 5 (FORGIVENESS) → branch FORGIVENESS del
+    // - extraParams.type: DebtType.FORGIVENESS → branch FORGIVENESS del
     //   ReportType (8 cols: dpto_nro, titular, due_at_date1, status_texto,
     //   categoria_padre_nombre, forgiveness_cobrar_cur, forgiveness_amount_cur,
     // Motor declarativo: `endpoint` + `supportedFormats` juntos, si no `useCrud`
@@ -50,7 +51,7 @@ const Forgiveness = ({
     //
     // ⚠️ Condonaciones NO comparte la clave de la lista plana: son otras ocho
     // columnas (Titular, Categoría, Deuda total, Condonado, Total a cobrar).
-    // El `extraParams.type: 5` es el que hace que el back resuelva esa clave, y
+    // El `extraParams.type: DebtType.FORGIVENESS` es el que hace que el back resuelva esa clave, y
     // es el mismo `type` con el que se filtró la lista.
     export: false,
     exportAsync: {
@@ -59,7 +60,7 @@ const Forgiveness = ({
       supportedFormats: ['pdf', 'xlsx', 'csv'],
       endpoint: '/v3/debt-dptos',
       label: 'Exportar',
-      extraParams: { type: 5 },
+      extraParams: { type: DebtType.FORGIVENESS },
     },
     titleDel: "Anular",
 

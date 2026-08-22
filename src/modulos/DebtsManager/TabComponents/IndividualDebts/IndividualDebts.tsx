@@ -16,6 +16,7 @@ import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFil
 import { DebtStatus } from "@/types/PaymentType";
 import { getStatusText, getStatusConfig, STATUS_FILTER_OPTIONS } from '../constants';
 
+import { DebtType } from "@/types/PaymentType";
 interface IndividualDebtsProps {
   openView: boolean;
   setOpenView: (open: boolean) => void;
@@ -228,7 +229,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     // Motor declarativo: `endpoint` + `supportedFormats` juntos, si no
     // `useCrud` renderea el par de botones legacy.
     //
-    // ⚠️ `extraParams.type: 0` se mantiene porque ES el filtro de esta
+    // ⚠️ `extraParams.type: DebtType.NORMAL` se mantiene porque ES el filtro de esta
     // pestaña: sin él el export traería TODAS las deudas y no las
     // individuales. Es el mismo `type` que ya viaja en la lista.
     export: false,
@@ -238,12 +239,12 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       label: 'Exportar',
       supportedFormats: ['pdf', 'xlsx', 'csv'],
       endpoint: '/v3/debt-dptos',
-      extraParams: { type: 0 },
+      extraParams: { type: DebtType.NORMAL },
     },
     filter: true,
     permiso: 'expense',
     extraData: true,
-    // 🔴 CDT-52: toda esta pestaña es `type: 0`, la única que la API deja
+    // 🔴 CDT-52: toda esta pestaña es `DebtType.NORMAL`, la única que la API deja
     // editar y borrar por unidad (`PUT`/`DELETE /v3/debt-dptos/{id}`). Con
     // `edit` y `del` en true, `useCrud` mandaba `onButtonActions: undefined` y
     // la tabla ni montaba la columna de acciones: la pestaña entera quedaba sin

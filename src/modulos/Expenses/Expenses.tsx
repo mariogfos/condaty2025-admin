@@ -10,6 +10,7 @@ import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import styles from './Expenses.module.css';
 import { useAuth } from '@/mk/contexts/AuthProvider';
+import { DebtType } from '@/types/PaymentType';
 
 const renderPeriodCell = (props: any) => {
   const month = props?.item?.month;
@@ -169,7 +170,7 @@ const Expenses = () => {
 
   const paramsInitial = {
     fullType: 'L',
-    type: 1,
+    type: DebtType.EXPENSE,
     page: 1,
     perPage: 20,
   };

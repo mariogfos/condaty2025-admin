@@ -14,7 +14,7 @@
  * **Bug #2 (Deudas Compartidas vs Expensas)**: SharedDebts (lista)
  * pineá `type: "debt-groups"` → DebtGroupReportType EXPENSE branch
  * ("Listado de EXPENSAS", 7 cols agregado). Debería pinear
- * `type: "debt-dptos"` con `extraParams: { type: 4 }` →
+ * `type: "debt-dptos"` con `extraParams: { type: DebtType.SHARED }` →
  * DebtDptoReportType NORMAL branch ("TODAS LAS DEUDAS COMPARTIDAS",
  * 6 cols por deuda individual). DetailSharedDebts (click en fila)
  * pineá el reporte equivocado. Fix: cambiar el `mod.exportAsync.type`
@@ -137,26 +137,31 @@ describe("S139-fe — displayName dinámico + SharedDebts/DetailSharedDebts fix"
   // verifica que las filas de cada endpoint llenen las columnas de su reporte y
   // que las del otro las dejen vacías.
 
+  /**
+   * ⚠️ Desde el 2026-08-22 se pinea el NOMBRE del case, no el número. El API
+   * corrió todos los valores del tipo de deuda un lugar, y un pin sobre el
+   * número se habría puesto rojo pidiendo justamente el valor equivocado.
+   */
   describe("Las 4 vistas de `debt-dptos` pinean tipos distintos (no EXPENSE)", () => {
-    it("IndividualDebts pineá type=0 (NORMAL)", () => {
+    it("IndividualDebts pineá DebtType.NORMAL", () => {
       const src = loadSourceWithoutComments(
         "modulos/DebtsManager/TabComponents/IndividualDebts/IndividualDebts.tsx"
       );
-      expect(src).toMatch(/extraParams:\s*\{\s*type:\s*0\s*\}/);
+      expect(src).toMatch(/extraParams:\s*\{\s*type:\s*DebtType\.NORMAL\s*\}/);
     });
 
-    it("SharedDebts pineá type=4 (SHARED) — verificado arriba", () => {
+    it("SharedDebts pineá DebtType.SHARED — verificado arriba", () => {
       const src = loadSourceWithoutComments(
         "modulos/DebtsManager/TabComponents/SharedDebts/SharedDebts.tsx"
       );
-      expect(src).toMatch(/extraParams:\s*\{\s*type:\s*4\s*\}/);
+      expect(src).toMatch(/extraParams:\s*\{\s*type:\s*DebtType\.SHARED\s*\}/);
     });
 
-    it("Forgiveness pineá type=5 (FORGIVENESS)", () => {
+    it("Forgiveness pineá DebtType.FORGIVENESS", () => {
       const src = loadSourceWithoutComments(
         "modulos/DebtsManager/TabComponents/Forgiveness/Forgiveness.tsx"
       );
-      expect(src).toMatch(/extraParams:\s*\{\s*type:\s*5\s*\}/);
+      expect(src).toMatch(/extraParams:\s*\{\s*type:\s*DebtType\.FORGIVENESS\s*\}/);
     });
 
     it("AllDebts NO pineá extraParams.type (default 'TODAS LAS DEUDAS')", () => {

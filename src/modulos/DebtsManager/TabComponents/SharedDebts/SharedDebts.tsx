@@ -13,6 +13,7 @@ import { formatNumber } from "@/mk/utils/numbers";
 import { useRouter } from "next/navigation";
 import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
 import { DebtStatus } from "@/types/PaymentType";
+import { DebtType } from "@/types/PaymentType";
 import {
   getStatusText,
   getStatusConfig,
@@ -232,7 +233,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
     fullType: "L",
     page: 1,
     perPage: 20,
-    type: 4,
+    type: DebtType.SHARED,
   };
 
   const fields = useMemo(() => {
@@ -475,7 +476,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
       label: "Exportar",
       supportedFormats: ["pdf", "xlsx", "csv"],
       endpoint: "/v3/debt-groups",
-      extraParams: { type: 4 },
+      extraParams: { type: DebtType.SHARED },
     },
     filter: true,
     permiso: "expense",

@@ -16,6 +16,7 @@ import { getDateStrMes } from "@/mk/utils/date";
 import UnifiedCard from "../../../UnifiedCard/UnifiedCard";
 import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
 import { DebtStatus } from "@/types/PaymentType";
+import { DebtType } from "@/types/PaymentType";
 import {
   getStatusText as getStatusTextConst,
   getStatusConfig as getStatusConfigConst,
@@ -100,7 +101,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     page: 1,
     perPage: 20,
     debt_id: debtId,
-    type: 4,
+    type: DebtType.SHARED,
   };
 
   const fields = useMemo(() => {
@@ -113,7 +114,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
        * `(int) null` es 0 —NORMAL— y entonces exige `begin_at`, `due_at`,
        * `subcategory_id`, `amount` y `dpto_id`, que esta pantalla no tiene.
        * El valor sale de la fila (`debt_dptos.type`); todas son SHARED porque
-       * la lista se pide con `type: 4`.
+       * la lista se pide con `type: DebtType.SHARED`.
        *
        * Sin `form` a propósito: `useCrud` sólo dibuja los campos que lo
        * declaran, así que no ocupa una celda del grid del formulario.
@@ -263,8 +264,8 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     plural: "Detalles",
     // Motor nuevo (Fase 6): lo atiende `DetalleDeCompartidaExportConfig`.
     //
-    // 🔴 Acá el `extraParams` mandaba `type: 1` (EXPENSE) mientras la lista
-    // pedía `type: 4`: el PDF de esta pantalla era el resumen de expensas por
+    // 🔴 Acá el `extraParams` mandaba la EXPENSA mientras la lista
+    // pedía la COMPARTIDA: el PDF de esta pantalla era el resumen de expensas por
     // periodo. Otro reporte, no un reporte mal formateado.
     export: false,
     exportAsync: {
@@ -273,14 +274,14 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       label: "Exportar",
       supportedFormats: ["pdf", "xlsx", "csv"],
       endpoint: "/v3/debt-dptos",
-      extraParams: { type: 4, debt_id: debtId },
+      extraParams: { type: DebtType.SHARED, debt_id: debtId },
     },
     filter: false,
     permiso: "expense",
     extraData: true,
     sumarize: false,
     // 🔴 CDT-50: esta pantalla tenía los botones "Editar" y "Eliminar" del
-    // GRUPO —`PUT`/`DELETE /v3/debt-groups/{id}` con `type: 4`—, que borraban
+    // GRUPO —`PUT`/`DELETE /v3/debt-groups/{id}` con `DebtType.SHARED`—, que borraban
     // duro las N deudas de todas las unidades. El grupo ya no se edita ni se
     // borra (esos endpoints devuelven 404). Lo que se edita y se elimina es la
     // deuda de UNA unidad, con el lápiz y el tacho de su fila, que `useCrud`
