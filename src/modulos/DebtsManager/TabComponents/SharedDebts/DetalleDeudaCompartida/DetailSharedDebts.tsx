@@ -22,6 +22,7 @@ import {
   getStatusConfig as getStatusConfigConst,
   getAmountTypeText,
 } from "../../constants";
+import { lasTresTarjetasDelGrupo } from "./lasTresTarjetasDelGrupo";
 
 interface DetailSharedDebtsProps {
   debtId: string;
@@ -340,38 +341,10 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     extraButtons,
   });
 
-  const summaryData = useMemo(() => {
-    if (!extraData) {
-      return {
-        cobradas: { amount: 0, count: 0, total: 0 },
-        porCobrar: { amount: 0, count: 0, total: 0 },
-        enMora: { amount: 0, count: 0, total: 0 },
-      };
-    }
-
-    const total = extraData.totalReceivable || 0;
-    const collected = extraData.totalCollected || 0;
-    const arrears = extraData.totalArrears || 0;
-    const pending = total - collected - arrears;
-
-    return {
-      cobradas: {
-        amount: parseFloat(extraData.collected || "0"),
-        count: collected,
-        total: total,
-      },
-      porCobrar: {
-        amount: parseFloat(extraData.receivable || "0"),
-        count: pending,
-        total: total,
-      },
-      enMora: {
-        amount: parseFloat(extraData.arrears || "0"),
-        count: arrears,
-        total: total,
-      },
-    };
-  }, [extraData]);
+  // 🔴 La cuenta vive en `lasTresTarjetasDelGrupo`, con su test: acá adentro
+  // hacía `totalReceivable - collected - arrears`, y `totalReceivable` nunca fue
+  // el total del grupo. Con la mayoría ya pagada el conteo salía NEGATIVO.
+  const summaryData = useMemo(() => lasTresTarjetasDelGrupo(extraData), [extraData]);
 
   const handleVolver = () => {
     router.back();
