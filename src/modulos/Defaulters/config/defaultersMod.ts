@@ -1,21 +1,6 @@
 import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 
 /**
- * Type que extiende ModCrudType con el slot opcional `onSearch`.
- *
- * El mod de Defaulters pineá `onSearch` como callback custom (closure
- * definida en el componente, no en el factory). El type base de
- * `ModCrudType` no tiene ese slot — es una extensión específica de
- * este módulo (S38.5).
- *
- * Si en el futuro S38+ generaliza `onSearch` en `ModCrudType`, este type
- * se puede colapsar.
- */
-export type DefaultersModType = ModCrudType & {
-  onSearch?: (items: any[], search: any) => any[];
-};
-
-/**
  * getDefaultersMod (S38.5 — NEW-NEW-43 Defaulter async export frontend)
  *
  * Factory que retorna el `mod` literal para el módulo Defaulters (Morosos).
@@ -38,7 +23,7 @@ export type DefaultersModType = ModCrudType & {
  * @see D-36.5-3 (S36.5) — si pinean AMBOS `mod.export: true` Y `mod.exportAsync`,
  *   el async override el legacy
  */
-export const getDefaultersMod = (): DefaultersModType => ({
+export const getDefaultersMod = (): ModCrudType => ({
   modulo: "v3/defaulters",
   singular: "Moroso",
   plural: "Morosos",

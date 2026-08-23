@@ -25,28 +25,24 @@ import { getDefaultersMod } from "./config/defaultersMod";
 
 const Defaulters = () => {
   const router = useRouter();
-  const onSearch = (items: any[], search: any) => {
-    const d: any[] = [];
-
-    items.map((item) => {
-      const titular = getTitular(item);
-      const name = getFullName(titular);
-      if (
-        item.dpto?.toLowerCase().includes(search.searchBy?.toLowerCase()) ||
-        name.toLowerCase().includes(search.searchBy?.toLowerCase())
-      ) {
-        d.push(item);
-      }
-    });
-    return d;
-  };
   // S38.5 (HALLAZGO-NEW-58): el mod ahora viene del factory `getDefaultersMod()`.
   // Pineá `mod.export: false` + `mod.exportAsync: { type: "defaulters", ... }`
   // (slot S36.5, matchea DefaulterReportType pineado en S38 backend).
   // El pre-S38.5 pineaba `export: ["pdf", "xls"]` (array, bug type) — IconExport
   // legacy nunca se rendereaba. S38.5 fixea con el slot async.
+  // 🔴 El buscador lo hace el BACK, como en el resto de las pantallas.
+  //
+  // Acá vivía un `mod.onSearch` que filtraba `data.data` en el navegador. Con
+  // ese slot puesto, `useCrud` **no manda `searchBy` al API** (`useCrud.tsx`:
+  // `if (!mod.onSearch) { setParams({… searchBy …}) }`), y el botón de
+  // Exportar arma sus params desde los mismos `params`: sin `searchBy` ahí, el
+  // PDF salía con TODOS los morosos aunque la pantalla mostrara tres.
+  //
+  // ⚠️ Y las dos reglas ya habían divergido: la del back buscaba además por
+  // `expensa` y `multa`, la de acá no. Ahora hay una sola, en
+  // `ElReporteDeMorosos::coincide()`, y es la que este front aplicaba: unidad
+  // o nombre del titular.
   const mod = getDefaultersMod();
-  mod.onSearch = onSearch;
 
   const paramsInitial = {
     fullType: "L",
