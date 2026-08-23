@@ -1196,23 +1196,32 @@ const useCrud = ({
     let searchBy = { searchBy: _search };
     if (getSearch) searchBy = getSearch(_search, oldSearch);
     setSearchs(searchBy);
-    // console.log("apappaa", searchBy, mod?.searchLocal);
-    if (!mod.onSearch) {
-      beginListReset();
-      setParams((old: any) => ({
-        ...old,
-        ...searchBy,
-        page: 1,
-        ...(useInfiniteList
-          ? {
-              perPage: getNormalizedPerPage(
-                old?.perPage ?? paramsInitial?.perPage,
-                true,
-              ),
-            }
-          : {}),
-      }));
-    }
+    // 🔴 El término SIEMPRE va al API, sin excepción.
+    //
+    // Acá había una guarda sobre un slot `onSearch` del `mod`: el módulo que
+    // lo declarara filtraba `data.data` en el navegador y **`searchBy` no
+    // entraba nunca a los params**. El único que lo usaba era Morosos, y le
+    // costó dos cosas: el botón de Exportar arma sus params desde `params`,
+    // así que el PDF salía con la lista COMPLETA aunque la pantalla mostrara
+    // tres filas; y la regla quedó escrita dos veces —acá y en el back—, que
+    // es exactamente como divergieron.
+    //
+    // El slot se fue con él: un buscador local es un buscador que el export
+    // no ve.
+    beginListReset();
+    setParams((old: any) => ({
+      ...old,
+      ...searchBy,
+      page: 1,
+      ...(useInfiniteList
+        ? {
+            perPage: getNormalizedPerPage(
+              old?.perPage ?? paramsInitial?.perPage,
+              true,
+            ),
+          }
+        : {}),
+    }));
     setOldSearch(searchBy);
   };
   // ⚠️ `oldFilter` arranca CON el filtro inicial del módulo, no vacío.
@@ -2465,16 +2474,8 @@ const useCrud = ({
           return { header: head, filters: lFilter };
         }, [runtime.fields, runtime.extraData, runtime.renderField]);
 
-      const filteredData = useMemo(() => {
-        if (
-          runtime.data?.data &&
-          runtime.mod.onSearch &&
-          runtime.searchs.searchBy
-        ) {
-          return runtime.mod.onSearch(runtime.data.data, runtime.searchs);
-        }
-        return runtime.data?.data;
-      }, [runtime.data, runtime.mod, runtime.searchs]);
+      // Las filas son las que devolvió el API: el buscador vive allá.
+      const filteredData = runtime.data?.data;
 
       const sortedData = useMemo(() => {
         if (!Array.isArray(filteredData)) return filteredData;
@@ -2781,18 +2782,12 @@ const useCrud = ({
                       setParams={runtime.setParams}
                       params={runtime.params}
                       totalPages={Math.ceil(
-                        (runtime.mod.onSearch
-                          ? (filteredData?.length ?? 0)
-                          : (runtime.data?.message?.total ?? 1)) /
+                        (runtime.data?.message?.total ?? 1) /
                           (runtime.params.perPage ?? 1),
                       )}
                       previousLabel=""
                       nextLabel=""
-                      total={
-                        runtime.mod.onSearch
-                          ? (filteredData?.length ?? 0)
-                          : (runtime.data?.message?.total ?? 0)
-                      }
+                      total={runtime.data?.message?.total ?? 0}
                     />
                   </div>
                 )}
