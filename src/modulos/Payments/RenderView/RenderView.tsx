@@ -82,6 +82,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   } = props;
   const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
   const [onRechazar, setOnRechazar] = useState(false);
+  const [onCancelQr, setOnCancelQr] = useState(false);
   const [errors, setErrors] = useState<{ confirm_obs?: string }>({});
   const [item, setItem] = useState<PaymentDetail | null>(propItem || null);
   const { execute } = useAxios();
@@ -305,6 +306,31 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       }
     } else {
       showToast(error?.data?.message || error?.message || "No se pudo verificar el pago.", "error");
+    }
+  };
+
+  const handleCancelQr = async () => {
+    const paymentId = item?.id ?? payment_id;
+    if (paymentId == null) {
+      showToast("No se encontró el pago para anular.", "error");
+      return;
+    }
+
+    const { data, error } = await execute(
+      paymentsApi.qrCancel(paymentId),
+      "POST",
+      {},
+      false,
+      noWaiting,
+    );
+
+    setOnCancelQr(false);
+    if (data?.success === true) {
+      showToast(data?.message || "QR anulado.", "success");
+      if (reLoad) reLoad();
+      onClose();
+    } else {
+      showToast(error?.data?.message || error?.message || "No se pudo anular el QR.", "error");
     }
   };
 
@@ -990,6 +1016,15 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   Verificar pago
                 </Button>
               )}
+              {isQrWaiting && (
+                <Button
+                  variant="danger"
+                  className={styles.textButtonDanger}
+                  onClick={() => setOnCancelQr(true)}
+                >
+                  Anular QR
+                </Button>
+              )}
             </div>
           </>
         )}
@@ -1048,6 +1083,23 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
           onChange={handleChangeInput}
           value={formState?.confirm_obs || ""}
         />
+      </DataModal>
+
+      <DataModal
+        title="Anular QR"
+        buttonText="Anular QR"
+        buttonCancel="Volver"
+        onSave={handleCancelQr}
+        open={onCancelQr}
+        onClose={() => setOnCancelQr(false)}
+        style={style}
+        minWidth={480}
+        maxWidth={620}
+      >
+        <p style={{ padding: "8px 0" }}>
+          Se anulará este QR y su pago. Las deudas asociadas volverán a estar
+          pendientes de pago. Esta acción no se puede deshacer.
+        </p>
       </DataModal>
     </>
   );
