@@ -206,6 +206,34 @@ export const getPaymentStatusConfig = (status: number): PaymentStatusConfig => {
   };
 };
 
+// Un pago QR SUBMITTED NO es "Por confirmar" (eso implica que el admin decide):
+// lo confirma el banco. Se muestra como estado propio aunque en la base comparta
+// `status=SUBMITTED` con el comprobante manual.
+export const WAITING_BANK_CONFIG: PaymentStatusConfig = {
+  label: "Esperando confirmación del banco",
+  color: "var(--cWarning)",
+  backgroundColor: "var(--cHoverCompl4)",
+};
+
+// Ids-sentinela del filtro de estado (el back los entiende en la clave `status`).
+export const WAITING_BANK_FILTER = 100;   // QR esperando banco
+export const PENDING_MANUAL_FILTER = 101;  // por confirmar (manual, sin QR)
+
+/**
+ * Config del badge de estado que distingue el QR esperando banco. `method`
+ * viene de la fila; si es QR y está SUBMITTED, es "Esperando confirmación del
+ * banco", no "Por confirmar".
+ */
+export const getPaymentStatusConfigFor = (
+  status: number,
+  method?: number
+): PaymentStatusConfig => {
+  if (method === PaymentMethod.QR && status === PaymentStatus.SUBMITTED) {
+    return WAITING_BANK_CONFIG;
+  }
+  return getPaymentStatusConfig(status);
+};
+
 export enum FormPaymentType {
   EXPENSE = PaymentType.EXPENSES,
   RESERVATION = PaymentType.RESERVATIONS,
@@ -240,7 +268,10 @@ export const PAYMENT_METHOD_OPTIONS = [
 export const STATUS_OPTIONS = [
   { id: "ALL", name: "Todos" },
   { id: PaymentStatus.PAID, name: "Cobrado" },
-  { id: PaymentStatus.SUBMITTED, name: "Por confirmar" },
+  // "Por confirmar" ahora es SÓLO lo manual (lo que el admin puede accionar);
+  // los QR esperando banco salen aparte. Ids-sentinela que el back entiende.
+  { id: PENDING_MANUAL_FILTER, name: "Por confirmar" },
+  { id: WAITING_BANK_FILTER, name: "Esperando banco" },
   { id: PaymentStatus.REJECTED, name: "Rechazado" },
   { id: PaymentStatus.CANCELLED, name: "Anulado" },
 ];
