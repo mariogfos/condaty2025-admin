@@ -93,4 +93,80 @@ describe("RenderView", () => {
       expect(screen.getByRole("button", { name: "Rechazar pago" })).toBeInTheDocument();
     });
   });
+
+  /**
+   * El administrador puede anular CUALQUIER ingreso — decisión de Alexander
+   * del 2026-08-14, consultada con Douglas.
+   *
+   * La pantalla exigía además `item.user`, que es quien REGISTRÓ el pago y
+   * sólo se llena cuando lo carga un administrador. Un pago cargado por el
+   * residente llega con `user: null` y el botón no se dibujaba, aunque el API
+   * sí lo dejaba anular (`canCancelPayment()` es `isAdmin($actor)` a secas).
+   *
+   * Medido en PRODUCCIÓN el 2026-08-24: 1.462 pagos cobrados sin `user_id`.
+   *
+   * ⚠️ El control de abajo NO es decorado: sin él, borrar la condición ENTERA
+   * —y no sólo el `item.user`— dejaría este archivo verde.
+   */
+  const pagoCobrado = (extra: Record<string, unknown> = {}) => ({
+    id: "pay-1",
+    status: PaymentStatus.PAID,
+    amount: 250,
+    paid_at: "2026-06-14T10:00:00.000Z",
+    dptos: "101",
+    method: PaymentMethod.TRANSFER,
+    owner: { name: "Mario Guzman" },
+    url_file: [],
+    details: [],
+    ...extra,
+  });
+
+  it("un pago cobrado que cargó el residente TAMBIÉN se puede anular", async () => {
+    // ⚠️ `RenderView` REEMPLAZA el `item` con lo que trae del API al abrirse
+    // (`setItem(data.data)`), así que el estado hay que ponerlo en la
+    // respuesta, no sólo en la prop: con la prop sola el test mide el pago
+    // `SUBMITTED` del `beforeEach` y nunca llega a esta pantalla.
+    mockExecute.mockResolvedValue({
+      data: { data: pagoCobrado({ user: null }) },
+    });
+
+    render(
+      <RenderView
+        open
+        onClose={vi.fn()}
+        onDel={vi.fn()}
+        item={pagoCobrado({ user: null })}
+        extraData={{ dptos: [] }}
+      />
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Anular ingreso" })
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("CONTROL: un pago que todavía no está cobrado no se anula", async () => {
+    mockExecute.mockResolvedValue({
+      data: { data: pagoCobrado({ status: PaymentStatus.SUBMITTED, user: null }) },
+    });
+
+    render(
+      <RenderView
+        open
+        onClose={vi.fn()}
+        onDel={vi.fn()}
+        item={pagoCobrado({ status: PaymentStatus.SUBMITTED, user: null })}
+        extraData={{ dptos: [] }}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Aprobar pago" })).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByRole("button", { name: "Anular ingreso" })
+    ).not.toBeInTheDocument();
+  });
 });

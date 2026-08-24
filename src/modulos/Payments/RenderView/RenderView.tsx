@@ -947,7 +947,29 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               )}
 
             <div className={styles.voucherButtonContainer}>
-              {item && onDel && item.status === PaymentStatus.PAID && item.user && (
+              {/*
+                Acá había un `&& item.user`, y escondía el botón de anular en
+                todo pago que hubiera cargado el RESIDENTE.
+
+                `item.user` es quien REGISTRÓ el pago, y el API sólo lo llena
+                cuando el actor es un administrador (`PaymentsService:388`:
+                `'user_id' => $this->isAdmin($actor) ? $actor->id : null`). O
+                sea que la condición no preguntaba "¿se puede anular?":
+                preguntaba "¿lo cargó un admin?".
+
+                Medido en PRODUCCIÓN el 2026-08-24: 1.462 pagos cobrados sin
+                `user_id` —Bs 1.095.499,88 en 8 condominios, el mayor con
+                1.022— que ningún administrador podía anular desde la pantalla.
+
+                Y el API nunca estuvo de acuerdo: `canCancelPayment()` es
+                `isAdmin($actor)` a secas. La pantalla era más restrictiva que
+                la regla, que es la forma que no da la cara — no hay error, el
+                botón simplemente no está.
+
+                Decisión de Alexander del 2026-08-14, con Douglas: el
+                administrador puede anular CUALQUIER ingreso.
+              */}
+              {item && onDel && item.status === PaymentStatus.PAID && (
                 <Button
                   onClick={handleAnularClick}
                   className={styles.textButtonDanger}
