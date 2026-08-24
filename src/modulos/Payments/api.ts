@@ -18,6 +18,9 @@ export const paymentsApi = {
   // Verifica un pago QR contra el banco (reconciliación por si el webhook no llegó).
   qrVerify: (paymentId: string | number) =>
     `/v3/qr-dynamic/payments/${paymentId}/verify`,
+  // Anula el QR pendiente de un pago (orden + pago + deudas revertidas).
+  qrCancel: (paymentId: string | number) =>
+    `/v3/qr-dynamic/payments/${paymentId}/cancel`,
   cancel: (paymentId: string | number) => `${PAYMENTS_V3_BASE}/${paymentId}`,
   partialReceipt: (debtId: string | number) =>
     `${PAYMENTS_V3_BASE}/debts/${debtId}/partial-receipt`,
