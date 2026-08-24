@@ -12,7 +12,7 @@ import {
   STATUS_OPTIONS,
   METHOD_MAP,
   FORM_PAYMENT_METHODS,
-  getPaymentStatusConfig,
+  getPaymentStatusConfigFor,
 } from "../Type/PaymentType";
 
 const renderDptosCell = (props: any) => (
@@ -29,7 +29,7 @@ const renderMethodCell = (props: any) => (
 
 const renderStatusCell = (props: any) => {
   const status = props.item.status;
-  const info = getPaymentStatusConfig(Number(status));
+  const info = getPaymentStatusConfigFor(Number(status), Number(props.item.method));
   return (
     <StatusBadge color={info.color} backgroundColor={info.backgroundColor}>
       {info.label}

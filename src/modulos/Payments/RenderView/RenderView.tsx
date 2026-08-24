@@ -276,6 +276,38 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     }
   };
 
+  const handleVerifyPayment = async () => {
+    const paymentId = item?.id ?? payment_id;
+    if (paymentId == null) {
+      showToast("No se encontró el pago para verificar.", "error");
+      return;
+    }
+
+    const { data, error } = await execute(
+      paymentsApi.qrVerify(paymentId),
+      "POST",
+      {},
+      false,
+      noWaiting,
+    );
+
+    if (data?.success === true) {
+      // order_state 2 = PAID: el banco ya confirmó.
+      if (Number(data?.data?.order_state) === 2) {
+        showToast("Pago confirmado por el banco.", "success");
+        if (reLoad) reLoad();
+        onClose();
+      } else {
+        showToast(
+          "El banco todavía no registra el pago. Si ya pagaste, esperá unos minutos y volvé a verificar.",
+          "info",
+        );
+      }
+    } else {
+      showToast(error?.data?.message || error?.message || "No se pudo verificar el pago.", "error");
+    }
+  };
+
   const openVoucherEditor = () => {
     setVoucherErrors({});
     setVoucherValue(item?.voucher || "");
@@ -349,7 +381,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     return typeMap[type] || String(type);
   };
 
-  const getStatus = (status: number) => {
+  const getStatus = (status: number, method?: number) => {
+    // Un QR sin confirmar NO es "Por confirmar" (eso es del admin): lo confirma
+    // el banco.
+    if (method === PaymentMethod.QR && status === PaymentStatus.SUBMITTED) {
+      return "Esperando confirmación del banco";
+    }
     const statusMap: Record<number, string> = {
       [PaymentStatus.PAID]: "Cobrado",
       [PaymentStatus.SUBMITTED]: "Por confirmar",
@@ -621,7 +658,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       handleDownloadVouchers();
     }
   };
-  const canReviewPayment = item?.status === PaymentStatus.SUBMITTED;
+  // Un pago QR sin confirmar lo resuelve el banco, no el admin: no se aprueba,
+  // no se rechaza y no lleva comprobante. En su lugar se ofrece "Verificar pago".
+  const isQrWaiting =
+    item?.method === PaymentMethod.QR && item?.status === PaymentStatus.SUBMITTED;
+  const canReviewPayment =
+    item?.status === PaymentStatus.SUBMITTED && !isQrWaiting;
 
   return (
     <>
@@ -757,7 +799,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>Estado</span>
                     <span className={`${styles.infoValue} ${statusClass}`}>
-                      {getStatus(item.status)}
+                      {getStatus(item.status, item.method)}
                     </span>
                   </div>
 
@@ -817,8 +859,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     </>
                   )}
 
-                  {/* Ocultar completamente el bloque de respaldo si está rechazado */}
-                  {item.status !== PaymentStatus.REJECTED && (
+                  {/* Ocultar el bloque de respaldo si está rechazado o si es un
+                      pago QR: el QR no lleva comprobante manual, el banco es la
+                      prueba del pago. */}
+                  {item.status !== PaymentStatus.REJECTED &&
+                    item.method !== PaymentMethod.QR && (
                     <div className={styles.infoBlock}>
                       <span className={styles.infoLabel}>
                         Nro. de respaldo de pago
@@ -934,6 +979,15 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   onClick={() => onConfirm(true)}
                 >
                   Aprobar pago
+                </Button>
+              )}
+              {isQrWaiting && (
+                <Button
+                  variant="primary"
+                  className={styles.voucherButton}
+                  onClick={handleVerifyPayment}
+                >
+                  Verificar pago
                 </Button>
               )}
             </div>
