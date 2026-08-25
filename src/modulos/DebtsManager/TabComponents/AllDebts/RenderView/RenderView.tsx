@@ -75,6 +75,29 @@ const RenderView: React.FC<RenderViewProps> = ({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [currentItem, setCurrentItem] = useState(item);
+  /**
+   * Los abonos de la deuda, cuando se cobró en partes.
+   *
+   * 🔴 Esto se había PERDIDO. En producción existe una pantalla «Detalle de
+   * pago parcial» que muestra esta tabla; `4a4f6f5c` (2026-06-24) borró el
+   * módulo `PartialPayments` entero —3.262 líneas— y nada la reemplazó.
+   *
+   * Lo que quedó en `dev` es el botón «Ver pago», que abre UN pago: el
+   * ÚLTIMO (`DebtPaymentStateService::pickLatestDetail`). Sobre una deuda
+   * cobrada en dos abonos, el administrador veía el segundo y el primero no
+   * aparecía en ningún lado — ni el total pagado, ni el saldo, ni quién pagó
+   * cada parte.
+   *
+   * Medido en PRODUCCIÓN el 2026-08-24: **610 deudas** con 2 a 6 abonos, en
+   * **3 condominios** (314, 273 y 23).
+   *
+   * ⚠️ Se repone como SECCIÓN de esta pantalla, no como el módulo de antes: el
+   * endpoint que la alimenta (`partial-summary`) sigue vivo, y de aquellas
+   * 3.262 líneas la vista eran 419 — el resto era un CRUD que hoy no hace
+   * falta.
+   */
+  const [abonos, setAbonos] = useState<any[]>([]);
+
   const [resolvedPaymentId, setResolvedPaymentId] = useState<
     string | number | null
   >(getResolvedPaymentId(item));
@@ -270,8 +293,28 @@ const RenderView: React.FC<RenderViewProps> = ({
         true,
       );
 
-      if (!cancelled && response?.data?.success) {
-        setResolvedPaymentId(response.data.data?.payment_id || null);
+      if (cancelled || !response?.data?.success) return;
+
+      setResolvedPaymentId(response.data.data?.payment_id || null);
+
+      // ⚠️ `partial-summary` contesta 422 cuando la deuda NO tiene abonos, así
+      // que se pide sólo si `resolved-payment` dice que está en flujo parcial.
+      // Esa clave sale como BOOLEANO del API a propósito.
+      if (!response.data.data?.is_partial) {
+        setAbonos([]);
+        return;
+      }
+
+      const resumen = await executeRef.current(
+        paymentsApi.partialSummary(item.id),
+        "GET",
+        {},
+        false,
+        true,
+      );
+
+      if (!cancelled && resumen?.data?.success) {
+        setAbonos(resumen.data.data?.history || []);
       }
     };
 
@@ -668,6 +711,75 @@ const RenderView: React.FC<RenderViewProps> = ({
               <div className={styles.sectionHeading}>Detalles de la deuda</div>
               <div className={styles.detailsContent}>{debtDescription}</div>
             </div>
+
+            {/*
+              Los abonos, cuando la deuda se cobró en partes.
+
+              🔴 Sin esto el administrador veía UN pago —el último— y no tenía
+              forma de saber cuánto se pagó ni quién pagó cada parte. Ver el
+              comentario de `abonos` arriba: son 610 deudas en producción.
+
+              El total sale de sumar los abonos, no de una clave del sobre: es
+              la cuenta que el administrador querría rehacer a mano.
+            */}
+            {abonos.length > 0 ? (
+              <div className={paymentStyles.container}>
+                <div className={styles.sectionHeading}>
+                  Abonos de esta deuda
+                </div>
+
+                <div className={styles.abonosTable}>
+                  {abonos.map((abono: any, i: number) => (
+                    <div
+                      key={abono?.payment_id ?? i}
+                      className={styles.abonoRow}
+                    >
+                      <div className={styles.abonoMain}>
+                        <span className={styles.abonoAmount}>
+                          {formatBs(Number(abono?.amount ?? 0))}
+                        </span>
+                        <span className={styles.abonoDate}>
+                          {abono?.paid_at
+                            ? formatToDayDDMMYYYY(abono.paid_at)
+                            : "-/-"}
+                        </span>
+                      </div>
+                      <div className={styles.abonoMeta}>
+                        <span>
+                          {getPaymentTypeText(abono?.method) || "-/-"}
+                        </span>
+                        <span>{abono?.registered_by || "Sistema"}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className={styles.abonosTotals}>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>
+                      Total pagado
+                    </span>
+                    <span className={paymentStyles.infoValue}>
+                      {formatBs(
+                        abonos.reduce(
+                          (suma: number, a: any) =>
+                            suma + Number(a?.amount ?? 0),
+                          0,
+                        ),
+                      )}
+                    </span>
+                  </div>
+                  <div className={paymentStyles.infoBlock}>
+                    <span className={paymentStyles.infoLabel}>
+                      Saldo restante
+                    </span>
+                    <span className={paymentStyles.infoValue}>
+                      {formatBs(totalBalance)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             <div
               className={`${paymentStyles.voucherButtonContainer} ${styles.actionsWrap}`}

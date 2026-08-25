@@ -613,3 +613,55 @@
   font-weight: 600;
   color: var(--cWhite);
 }
+
+/* Los abonos de una deuda cobrada en partes. Ver el comentario de `abonos`
+   en RenderView.tsx: la pantalla que mostraba esto se borró en `4a4f6f5c` y
+   nada la reemplazó. */
+.abonosTable {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.abonoRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  /* ⚠️ Acá puse `--cHoverA`, que NO existe: lo cazó el guardián de tokens
+     (CDT-84). `--cModalSurfaceRaised` es el que usa el bloque equivalente de
+     `Payments/RenderView`, o sea el mismo fondo de modal sobre el que esto se
+     dibuja — elegido por dónde se renderiza, no por parecido de nombre. */
+  background-color: var(--cModalSurfaceRaised);
+}
+
+.abonoMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.abonoAmount {
+  font-weight: 600;
+  color: var(--cWhite);
+}
+
+.abonoDate {
+  font-size: 12px;
+  color: var(--cWhiteV1);
+}
+
+.abonoMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--cWhiteV1);
+}
+
+.abonosTotals {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
