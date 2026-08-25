@@ -98,6 +98,44 @@ describe("BankEntities", () => {
     );
   });
 
+  /**
+   * 🔴 La configuración del proveedor QR se carga desde ESTE formulario.
+   *
+   * Hasta ahora sólo se podía tocar por la base. Sin `form` en cada campo,
+   * `useCrud` no lo dibuja: la pantalla se ve entera, el campo no está, y la
+   * única forma de configurar el banco vuelve a ser un UPDATE a mano.
+   */
+  it("los campos del proveedor QR se pueden cargar desde el formulario", () => {
+    render(<BankEntities />);
+
+    for (const campo of [
+      "qr_status",
+      "qr_base_url",
+      "qr_sandbox_base_url",
+      "qr_webhook_username",
+      "qr_webhook_password",
+    ]) {
+      expect(camposRecibidos?.[campo]?.form).toBeTruthy();
+      // `ae` = alta y edición. Sin la `e` se cargan una vez y no se corrigen
+      // nunca más desde la pantalla.
+      expect(camposRecibidos?.[campo]?.api).toBe("ae");
+    }
+  });
+
+  /**
+   * 🔴 La clave del webhook NO va en el listado.
+   *
+   * El back manda `qr_has_webhook_password` (un booleano) y nunca el hash, pero
+   * el front no tiene por qué pedir una columna de credenciales en una grilla
+   * que se exporta a PDF y Excel.
+   */
+  it("la clave del webhook no es una columna del listado", () => {
+    render(<BankEntities />);
+
+    expect(camposRecibidos?.qr_webhook_password?.list).toBe(false);
+    expect(camposRecibidos?.qr_webhook_username?.list).toBe(false);
+  });
+
   it("el select del formulario manda los mismos números que el filtro", () => {
     render(<BankEntities />);
 
