@@ -5,7 +5,7 @@ import useCrudUtils from "../shared/useCrudUtils";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { BankEntityStatus } from "../BankAccounts/Type/BankType";
+import { BankEntityStatus, QrProviderStatus } from "../BankAccounts/Type/BankType";
 import { getBankEntitiesMod } from "./config/bankEntitiesMod";
 
 const paramsInitial = {
@@ -27,6 +27,31 @@ const ESTADO_OPCIONES = [
   { id: BankEntityStatus.ACTIVE, name: "Activo" },
   { id: BankEntityStatus.INACTIVE, name: "Inactivo" },
 ];
+
+/**
+ * Las mismas dos opciones para el proveedor de QR dinámico.
+ *
+ * Va aparte de `ESTADO_OPCIONES` aunque hoy los valores coincidan: son dos
+ * enums distintos del back (`BankEntityStatus` y `QrProviderStatus`) y
+ * compartir la constante los ata a evolucionar juntos sin que nadie lo decida.
+ */
+const QR_OPCIONES = [
+  { id: QrProviderStatus.ACTIVE, name: "Habilitado" },
+  { id: QrProviderStatus.INACTIVE, name: "Deshabilitado" },
+];
+
+const renderQrEstado = ({ item }: Record<string, any>) => {
+  const habilitado = Number(item.qr_status) === QrProviderStatus.ACTIVE;
+
+  return (
+    <StatusBadge
+      color={habilitado ? "var(--cSuccess)" : "var(--cWhiteV2)"}
+      backgroundColor={habilitado ? "var(--cHoverSuccess)" : "var(--cBlackV2)"}
+    >
+      {habilitado ? "Con QR" : "Sin QR"}
+    </StatusBadge>
+  );
+};
 
 const renderEstado = ({ item }: Record<string, any>) => {
   const activo = Number(item.status) === BankEntityStatus.ACTIVE;
@@ -94,6 +119,49 @@ const BankEntities = () => {
           optionLabel: "name",
           optionValue: "id",
         },
+      },
+
+      // ── QR dinámico ────────────────────────────────────────────────────
+      // La configuración del banco como proveedor de QR. El back la manda y la
+      // acepta SÓLO del superadmin (`BankEntityPolicy::update`), que es el
+      // mismo permiso con el que se entra a esta pantalla.
+      qr_status: {
+        rules: [],
+        api: "ae",
+        label: "QR dinámico",
+        list: { width: "130px", onRender: renderQrEstado },
+        form: { type: "select", options: QR_OPCIONES },
+      },
+      qr_base_url: {
+        rules: [],
+        api: "ae",
+        label: "URL de producción (QR)",
+        list: false,
+        form: { type: "text" },
+      },
+      qr_sandbox_base_url: {
+        rules: [],
+        api: "ae",
+        label: "URL de pruebas (QR)",
+        list: false,
+        form: { type: "text" },
+      },
+      qr_webhook_username: {
+        rules: [],
+        api: "ae",
+        label: "Usuario del webhook",
+        list: false,
+        form: { type: "text" },
+      },
+      // 🔴 La clave viaja HASHEADA y el back NO la devuelve nunca, así que este
+      // campo SIEMPRE se abre vacío — no es un dato que se perdió. Vacío
+      // significa "dejala como está"; sólo se escribe lo que se tipea acá.
+      qr_webhook_password: {
+        rules: [],
+        api: "ae",
+        label: "Clave del webhook (vacío = no cambiar)",
+        list: false,
+        form: { type: "text" },
       },
     }),
     []

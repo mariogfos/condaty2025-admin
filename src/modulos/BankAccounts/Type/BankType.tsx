@@ -23,6 +23,19 @@ export enum BankEntityStatus {
 }
 
 /**
+ * Si el banco está habilitado como proveedor de QR dinámico —
+ * `bank_entities.qr_status`.
+ *
+ * Hoy el único banco con QR implementado es Banco Ganadero; los demás se van a
+ * ir configurando a medida que se implemente el suyo. Por eso la mayoría de las
+ * entidades del catálogo están en `INACTIVE`, que es el default de la columna.
+ */
+export enum QrProviderStatus {
+  ACTIVE = 1,
+  INACTIVE = 2,
+}
+
+/**
  * Si la cuenta está designada para un uso — `is_main`, `is_reserve`,
  * `is_expense`.
  *
