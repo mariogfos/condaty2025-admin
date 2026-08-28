@@ -4,6 +4,7 @@ import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import RenderForm from "../components/RenderForm/RenderForm";
 import RenderView from "../components/RenderView/RenderView";
 import { SURVEY_STATUSES } from "./surveys.constants";
+import { SurveyStatus } from "../types/surveys.types";
 import { getPeriodOptions } from "@/mk/utils/periodFilterOptions";
 
 import styles from "../Surveys.module.css";
@@ -178,12 +179,19 @@ export const getSurveyConfig = (
       list: {
         width: "100px",
         onRender: (props: any) => {
-          if (!props.item.status) return null;
+          const status = props.item.status as SurveyStatus | undefined;
+          if (!status) return null;
+
+          // The badge class is built from the enum's NAME, not its value.
+          // It used to interpolate the value -- `status${"A"}` -> `.statusA`.
+          // `SurveyStatus` went numeric on 2026-08-28, which would have turned
+          // every class into `.status4`, `.status6`... none of which exist:
+          // the badges would have lost their colour with no error anywhere.
           return (
             <div
-              className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}
+              className={`${styles.statusBadge} ${styles[`status${SurveyStatus[status]}`]}`}
             >
-              {SURVEY_STATUSES[props.item.status]}
+              {SURVEY_STATUSES[status]}
             </div>
           );
         },

@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import useAxios from "@/mk/hooks/useAxios";
 import Button from "@/mk/components/forms/Button/Button";
 import styles from "./SurveyList.module.css";
-import { SurveyItemData } from "../../types/surveys.types";
+import { SurveyItemData, SurveyStatus } from "../../types/surveys.types";
 import { IconSurvey } from "@/components/layout/icons/IconsBiblioteca";
 
 interface SurveyListProps {
@@ -31,14 +31,14 @@ const SurveyList: React.FC<SurveyListProps> = ({
     if (survey.has_responded) {
       return <span className={styles.badgeSuccess}>✓ Respondida</span>;
     }
-    if (survey.status === "C") {
+    if (survey.status === SurveyStatus.Closed) {
       return <span className={styles.badgeDefault}>Cerrada</span>;
     }
     return <span className={styles.badgeActive}>Activa</span>;
   };
 
   const canAnswer = (survey: any) => {
-    return survey.can_respond && !survey.has_responded && survey.status === "A";
+    return survey.can_respond && !survey.has_responded && survey.status === SurveyStatus.Active;
   };
 
   if (loading) {

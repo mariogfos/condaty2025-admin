@@ -1,14 +1,18 @@
-import { SurveyItemData } from "../types/surveys.types";
+import {
+  SurveyItemData,
+  SurveyStatus,
+  SurveyStatusMap,
+} from "../types/surveys.types";
 
-export const SURVEY_STATUSES: Record<string, string> = {
-  D: "Borrador",
-  V: "Visible",
-  S: "Programada",
-  A: "Activa",
-  P: "Pausada",
-  C: "Cerrada",
-  X: "Deshabilitada",
-};
+/**
+ * Status labels.
+ *
+ * This used to be a second, hand-written copy of `SurveyStatusMap` keyed by the
+ * old letters and typed `Record<string, string>`. Two copies of the same map is
+ * where a value goes missing, and the loose type is what stops `tsc` from
+ * pointing at the call sites when the values change.
+ */
+export const SURVEY_STATUSES: Record<SurveyStatus, string> = SurveyStatusMap;
 
 export const QUESTION_TYPES: Record<string, string> = {
   S: "Opción Única",

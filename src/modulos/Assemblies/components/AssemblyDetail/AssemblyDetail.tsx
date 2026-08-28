@@ -247,8 +247,12 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
   const getSortedSurveys = (surveys: any[]) => {
     if (!surveys?.length) return [];
     return [...surveys].sort((a, b) => {
-      const isActiveA = a.status === "A";
-      const isActiveB = b.status === "A";
+      // 🔴 Estas dos comparaban la LETRA. `SurveyStatus` ya es numérico
+      // (api#444) y `surveys` llega como `any[]`, así que `tsc` no las ve: el
+      // orden de las votaciones —activas primero— habría dejado de aplicarse
+      // sin un solo error.
+      const isActiveA = a.status === SurveyStatus.Active;
+      const isActiveB = b.status === SurveyStatus.Active;
       // Si una está activa y otra no, la activa va primero
       if (isActiveA && !isActiveB) return -1;
       if (!isActiveA && isActiveB) return 1;
@@ -365,9 +369,13 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     setIsSavingActa(false);
   };
 
+  // Typed with the enum on purpose: the 17 call sites below used to pass the
+  // raw letters ("V", "S", "A"...). `SurveyStatus` went numeric on 2026-08-28
+  // (api#444), and a `string` parameter would have kept every one of them
+  // compiling while the API stopped recognising the value.
   const handleStatusChange = async (
     surveyId: number | string,
-    status: string,
+    status: SurveyStatus,
   ) => {
     if (isFinished) return;
     try {
@@ -383,7 +391,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
         loadAssembly();
 
         const survey = assembly?.surveys?.find((s: any) => s.id == surveyId);
-        const oldStatus = survey?.status;
+        const oldStatus = survey?.status as SurveyStatus | undefined;
         const isResuming =
           oldStatus === SurveyStatus.Paused && status === SurveyStatus.Active;
 
@@ -797,7 +805,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 variant="secondary"
                                 small
                                 onClick={() =>
-                                  handleStatusChange(survey.id, "V")
+                                  handleStatusChange(survey.id, SurveyStatus.Visible)
                                 }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               > */}
@@ -806,7 +814,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   color="var(--cPrimary)"
                                   style={{ cursor: "pointer" }}
                                   onClick={() =>
-                                    handleStatusChange(survey.id, "V")
+                                    handleStatusChange(survey.id, SurveyStatus.Visible)
                                   }
                                   title="Hacer visible"
                                 />
@@ -815,7 +823,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 variant="terciary"
                                 small
                                 onClick={() =>
-                                  handleStatusChange(survey.id, "S")
+                                  handleStatusChange(survey.id, SurveyStatus.Scheduled)
                                 }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
@@ -832,7 +840,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   color="var(--cPrimary)"
                                   style={{ cursor: "pointer" }}
                                   onClick={() =>
-                                    handleStatusChange(survey.id, "D")
+                                    handleStatusChange(survey.id, SurveyStatus.Draft)
                                   }
                                   title="Volver a borrador"
                                 />
@@ -840,7 +848,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 variant="terciary"
                                 small
                                 onClick={() =>
-                                  handleStatusChange(survey.id, "D")
+                                  handleStatusChange(survey.id, SurveyStatus.Draft)
                                 }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
@@ -851,7 +859,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   color="var(--cPrimary)"
                                   style={{ cursor: "pointer" }}
                                   onClick={() =>
-                                    handleStatusChange(survey.id, "A")
+                                    handleStatusChange(survey.id, SurveyStatus.Active)
                                   }
                                   title="Activar"
                                 />
@@ -859,7 +867,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 variant="primary"
                                 small
                                 onClick={() =>
-                                  handleStatusChange(survey.id, "A")
+                                  handleStatusChange(survey.id, SurveyStatus.Active)
                                 }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
@@ -870,7 +878,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   color="var(--cError)"
                                   style={{ cursor: "pointer" }}
                                   onClick={() =>
-                                    handleStatusChange(survey.id, "X")
+                                    handleStatusChange(survey.id, SurveyStatus.Disabled)
                                   }
                                   title="Cancelar"
                                 />
@@ -878,7 +886,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                 variant="danger"
                                 small
                                 onClick={() =>
-                                  handleStatusChange(survey.id, "X")
+                                  handleStatusChange(survey.id, SurveyStatus.Disabled)
                                 }
                                 style={{ fontSize: 11, padding: "4px 8px" }}
                               >
@@ -930,7 +938,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                       cursor: "pointer",
                                     }}
                                     onClick={() =>
-                                      handleStatusChange(survey.id, "P")
+                                      handleStatusChange(survey.id, SurveyStatus.Paused)
                                     }
                                     title="Pausar"
                                   />
@@ -939,7 +947,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                     color="var(--cError)"
                                     style={{ cursor: "pointer" }}
                                     onClick={() =>
-                                      handleStatusChange(survey.id, "C")
+                                      handleStatusChange(survey.id, SurveyStatus.Closed)
                                     }
                                     title="Finalizar"
                                   />
@@ -961,7 +969,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   color="var(--cWarning)"
                                   style={{ cursor: "pointer" }}
                                   onClick={() =>
-                                    handleStatusChange(survey.id, "A")
+                                    handleStatusChange(survey.id, SurveyStatus.Active)
                                   }
                                   title="Reanudar"
                                 />
@@ -969,7 +977,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   variant="primary"
                                   small
                                   onClick={() =>
-                                    handleStatusChange(survey.id, "A")
+                                    handleStatusChange(survey.id, SurveyStatus.Active)
                                   }
                                   style={{ fontSize: 11, padding: "4px 8px" }}
                                 >
@@ -980,7 +988,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   color="var(--cError)"
                                   style={{ cursor: "pointer" }}
                                   onClick={() =>
-                                    handleStatusChange(survey.id, "C")
+                                    handleStatusChange(survey.id, SurveyStatus.Closed)
                                   }
                                   title="Finalizar"
                                 />
@@ -988,7 +996,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   variant="danger"
                                   small
                                   onClick={() =>
-                                    handleStatusChange(survey.id, "C")
+                                    handleStatusChange(survey.id, SurveyStatus.Closed)
                                   }
                                   style={{ fontSize: 11, padding: "4px 8px" }}
                                 >
@@ -999,7 +1007,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   color="var(--cError)"
                                   style={{ cursor: "pointer" }}
                                   onClick={() =>
-                                    handleStatusChange(survey.id, "C")
+                                    handleStatusChange(survey.id, SurveyStatus.Closed)
                                   }
                                   title="Cancelar"
                                 />
@@ -1007,7 +1015,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                                   variant="terciary"
                                   small
                                   onClick={() =>
-                                    handleStatusChange(survey.id, "X")
+                                    handleStatusChange(survey.id, SurveyStatus.Disabled)
                                   }
                                   style={{ fontSize: 11, padding: "4px 8px" }}
                                 >
