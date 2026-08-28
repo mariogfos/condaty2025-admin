@@ -5,6 +5,7 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { useEffect, useMemo } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderView from "./RenderView/RenderView";
+import { loDefineElSistema } from "./typeEnums";
 
 const mod = {
   modulo: "v3/types",
@@ -12,7 +13,7 @@ const mod = {
   plural: "Tipos de unidades",
   onHideActions: (item: any) => {
     return {
-      hideDel: item.is_fixed == "A",
+      hideDel: loDefineElSistema(item.is_fixed),
     };
   },
   permiso: "unittypes",

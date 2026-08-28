@@ -1,6 +1,6 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "lastUpdated": "2026-08-28",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
@@ -892,10 +892,37 @@
           "Yes": "YES"
         }
       }
+    },
+    "TypeFixed": {
+      "type": "int",
+      "comment": "Quien define un tipo de unidad -- types.is_fixed. Numerico desde 1 (flip 2026-08-28, api#452). Era char(255) -- NO char(1): la columna se creo con el largo equivocado y quedo asi -- con 'X' = No y 'Y' = Yes.\n\nMELLIZO DE RoleFixed: el mismo concepto (del sistema o de la administracion) sobre otra tabla. Son dos porque cada modulo es dueno de sus enums; si divergen, es un bug.\n\nPOR QUE EL FRONT COMPARABA CONTRA \"A\": porque en las columnas vecinas el \"si\" ES 'A'.\n  types.is_fixed         'X' = no   'Y' = si\n  type_fields.is_visible 'X' = no   'A' = si\n  type_fields.is_editable'X' = no   'A' = si\n  type_fields.is_required'X' = no   'A' = si\n'X' es el no en las cuatro; el si es 'A' en tres y 'Y' en una -- y la excepcion es justo la que el admin mira. `item.is_fixed === \"A\"` no era un descuido: era la comparacion correcta DE LA COLUMNA DE AL LADO, escrita sobre esta. Nunca dio verdadera, asi que ni escondia el boton de borrar ni deshabilitaba el nombre de un tipo del sistema.\n\nLos cases empiezan en 1 porque es un booleano disfrazado: con 0/1 un valor heredado seguiria siendo valido con el significado contrario.\n\nSincronizado con backend App\\Modules\\Types\\Enums\\TypeFixed (PHP enum: int).",
+      "apps": [
+        "api",
+        "admin"
+      ],
+      "aliasesByApp": {
+        "admin": {
+          "No": "NO",
+          "Yes": "YES"
+        }
+      },
+      "values": [
+        {
+          "name": "No",
+          "value": 1,
+          "comment": "Lo creo la administracion del condominio: se renombra y se borra"
+        },
+        {
+          "name": "Yes",
+          "value": 2,
+          "comment": "Lo crea el sistema al dar de alta el condominio: no se toca"
+        }
+      ]
     }
   },
   "excluded": {
     "PaymentType (QrDinamico)": "String char, semántica distinta a PaymentType numeric. NO son el mismo enum. Vive en admin/src/modulos/QrDinamico/types.ts sin contraparte cross-app.",
-    "BankAccountStatus/Type, BankEntityStatus, CategoryType/Status/Fixed, CurrencyTypeStatus, ExpenseStatus, LimitType, QrDynamicMode, QrEnvironment, QrOrderState, FormPaymentType, NetworkStateBits, MediaType, PaymentUiMethod": "Enums únicos por app, no compartidos cross-app. Si en el futuro se comparten, agregarlos a este SSoT con sus apps[] correspondientes."
+    "BankAccountStatus/Type, BankEntityStatus, CategoryType/Status/Fixed, CurrencyTypeStatus, ExpenseStatus, LimitType, QrDynamicMode, QrEnvironment, QrOrderState, FormPaymentType, NetworkStateBits, MediaType, PaymentUiMethod": "Enums únicos por app, no compartidos cross-app. Si en el futuro se comparten, agregarlos a este SSoT con sus apps[] correspondientes.",
+    "TypeFieldFlag": "El si/no de type_fields.is_visible, is_editable e is_required. Numerico desde 1 en el API desde el 2026-08-28 (eran char(255) con 'A' = si, 'X' = no). NO cruza a ningun front: cero lecturas de esas tres columnas en admin, rnOwner y rnGuard, y type_fields tiene UNA sola fila en produccion. Se flipearon igual porque su 'A' es la mitad de la trampa que rompio la comparacion de types.is_fixed en el admin -- dejar tres columnas con el vocabulario viejo al lado de una numerica es dejarla armada para el proximo."
   }
 }
