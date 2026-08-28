@@ -15,6 +15,7 @@ import {
   Assembly,
   AssemblySurvey,
   AssemblyStats,
+  AssemblyModality,
   AssemblyStatus,
 } from "../../types/assemblies.types";
 import {
@@ -533,7 +534,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
         <span onClick={() => router.push("/assemblies")}>Asambleas</span>
         <span>{">"}</span>
         <span className={styles.active}>
-          {TYPE_LABELS[assembly.type as any] || assembly.type}:{" "}
+          {TYPE_LABELS[assembly.type] || assembly.type}:{" "}
           {assembly?.subject || "Cargando..."}
         </span>
       </div>
@@ -608,7 +609,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
           >
             <h1 className={styles.mainSubject}>{assembly.subject}</h1>
             <span className={styles.typeLabel}>
-              {TYPE_LABELS[assembly.type as any] || assembly.type}
+              {TYPE_LABELS[assembly.type] || assembly.type}
             </span>
             <div className={styles.metricsGrid}>
               <div className={styles.metricItem}>
@@ -693,7 +694,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                 assemblyId={String(assembly.id)}
                 refreshKey={attendanceRefreshKey}
                 readOnly={isFinished}
-                assemblyModality={assembly.modality as "P" | "V" | "H"}
+                assemblyModality={assembly.modality}
                 onAttendanceChange={() => {
                   setAttendanceRefreshKey((prev) => prev + 1);
                   loadAssembly();
@@ -1344,13 +1345,13 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Modalidad:</span>
               <span className={styles.detailValue}>
-                {MODALITY_LABELS[assembly.modality as any] ||
+                {MODALITY_LABELS[assembly.modality] ||
                   "" ||
                   "No definida"}
               </span>
             </div>
 
-            {["V", "H"].includes(assembly.modality as string) && (
+            {[AssemblyModality.Virtual, AssemblyModality.Hibrid].includes(assembly.modality) && (
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Reunión virtual:</span>
                 <span className={styles.detailValue}>
@@ -1370,7 +1371,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
               </div>
             )}
 
-            {["P", "H"].includes(assembly.modality as string) && (
+            {[AssemblyModality.Presencial, AssemblyModality.Hibrid].includes(assembly.modality) && (
               <>
                 <div className={styles.detailRow}>
                   <span className={styles.detailLabel}>Dirección:</span>
@@ -1508,7 +1509,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
                 assemblyId={String(assembly.id)}
                 refreshKey={attendanceRefreshKey}
                 readOnly={isFinished}
-                assemblyModality={assembly.modality as "P" | "V" | "H"}
+                assemblyModality={assembly.modality}
                 onAttendanceChange={() => {
                   // P.23: Actualizar todo al cambiar asistencia (agrega o elimina)
                   setAttendanceRefreshKey((prev) => prev + 1);
@@ -1626,7 +1627,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
         open={isRegisteringParticipant}
         onClose={() => setIsRegisteringParticipant(false)}
         assemblyId={String(id)}
-        assemblyModality={assembly?.modality as "P" | "V" | "H"}
+        assemblyModality={assembly?.modality}
         onSuccess={() => {
           setAttendanceRefreshKey((prev) => prev + 1);
           // Opcionalmente recargar stats si es necesario

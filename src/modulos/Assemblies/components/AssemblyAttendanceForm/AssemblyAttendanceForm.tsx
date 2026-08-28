@@ -1,6 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import {
+  AssemblyModality,
+  AttendanceModality,
+} from "../../types/assemblyStatus";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
 import Button from "@/mk/components/forms/Button/Button";
@@ -26,7 +30,7 @@ interface AssemblyAttendanceFormProps {
   open: boolean;
   onClose: () => void;
   assemblyId: string;
-  assemblyModality?: "P" | "V" | "H"; // P.27: Modalidad de la asamblea para restringir opciones
+  assemblyModality?: AssemblyModality; // P.27: Modalidad de la asamblea para restringir opciones
   onSuccess?: () => void;
 }
 
@@ -41,7 +45,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
   const [residents, setResidents] = useState<any[]>([]);
   const [selectedResident, setSelectedResident] = useState<any>(null);
   const [selectedDptoId, setSelectedDptoId] = useState<string | null>(null);
-  const [modality, setModality] = useState<"P" | "V">("P");
+  const [modality, setModality] = useState<AttendanceModality>(AttendanceModality.Presencial);
   const [isSearching, setIsSearching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
@@ -57,11 +61,19 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
       setSelectedResident(null);
       setSelectedDptoId(null);
       // P.27: Resetear modalidad al cerrar, usando la modalidad de la asamblea como default
-      setModality(assemblyModality === "V" ? "V" : "P");
+      setModality(
+        assemblyModality === AssemblyModality.Virtual
+          ? AttendanceModality.Virtual
+          : AttendanceModality.Presencial,
+      );
       setIsScannerOpen(false);
     } else {
       // P.27: Al abrir, setear la modalidad predeterminada según la asamblea
-      setModality(assemblyModality === "V" ? "V" : "P");
+      setModality(
+        assemblyModality === AssemblyModality.Virtual
+          ? AttendanceModality.Virtual
+          : AttendanceModality.Presencial,
+      );
     }
   }, [open, assemblyModality]);
 
@@ -320,21 +332,21 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
               <div className={styles.modalityOptions}>
                 {/* P.27: Solo mostrar modalidades compatibles con la asamblea */}
                 {(!assemblyModality ||
-                  assemblyModality === "P" ||
-                  assemblyModality === "H") && (
+                  assemblyModality === AssemblyModality.Presencial ||
+                  assemblyModality === AssemblyModality.Hibrid) && (
                   <Radio
                     label="Presencial"
-                    checked={modality === "P"}
-                    onChange={() => setModality("P")}
+                    checked={modality === AttendanceModality.Presencial}
+                    onChange={() => setModality(AttendanceModality.Presencial)}
                   />
                 )}
                 {(!assemblyModality ||
-                  assemblyModality === "V" ||
-                  assemblyModality === "H") && (
+                  assemblyModality === AssemblyModality.Virtual ||
+                  assemblyModality === AssemblyModality.Hibrid) && (
                   <Radio
                     label="Virtual"
-                    checked={modality === "V"}
-                    onChange={() => setModality("V")}
+                    checked={modality === AttendanceModality.Virtual}
+                    onChange={() => setModality(AttendanceModality.Virtual)}
                   />
                 )}
               </div>

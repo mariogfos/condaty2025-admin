@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { AssemblyStatus } from "../types/assemblies.types";
+import {
+  AssemblyModality,
+  AssemblyStatus,
+  AssemblyType,
+} from "../types/assemblies.types";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
@@ -13,16 +17,21 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css";
 
+// ⚠️ Estas dos DUPLICAN las de `config/assemblies.constants.ts`, con los
+// mismos nombres y —en el caso de la modalidad— otro ORDEN. Se dejan acá para
+// no reordenar los radios del formulario en un PR de enums, pero los VALORES
+// salen del enum: dos tablas pueden divergir en el orden sin que importe, en
+// los valores no.
 const TYPE_OPTIONS = [
-  { id: "O", name: "Ordinaria" },
-  { id: "E", name: "Extraordinaria" },
-  { id: "I", name: "Informativa" },
+  { id: AssemblyType.Ordinary, name: "Ordinaria" },
+  { id: AssemblyType.Extraordinary, name: "Extraordinaria" },
+  { id: AssemblyType.Informative, name: "Informativa" },
 ];
 
 const MODALITY_OPTIONS = [
-  { id: "P", name: "Presencial" },
-  { id: "V", name: "Virtual" },
-  { id: "H", name: "Híbrida" },
+  { id: AssemblyModality.Presencial, name: "Presencial" },
+  { id: AssemblyModality.Virtual, name: "Virtual" },
+  { id: AssemblyModality.Hibrid, name: "Híbrida" },
 ];
 
 const TARGET_AUDIENCE_OPTIONS = [
