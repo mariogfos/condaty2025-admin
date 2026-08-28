@@ -2,12 +2,10 @@
  * Tipos para el módulo de Asambleas
  */
 
-export enum AssemblyStatus {
-  Scheduled = "S",
-  InProgress = "P",
-  Completed = "C",
-  Cancelled = "X",
-}
+import { AssemblyStatus } from "./assemblyStatus";
+
+// Se re-exporta para no tocar los ~20 archivos que ya lo importan de acá.
+export { AssemblyStatus };
 
 export enum AssemblyType {
   Ordinary = "O",
@@ -61,7 +59,18 @@ export interface Assembly {
   declarations?: string[];
   acta_file?: string;
   acta_uploaded_at?: string;
-  status: AssemblyStatus | string;
+  /**
+   * 🔴 `AssemblyStatus` a secas: se le sacó el `| string` en el flip del
+   * 2026-08-27.
+   *
+   * Ese `| string` era lo que dejaba indexar `STATUS_STYLE` y
+   * `API_STATUS_LABELS` con cualquier cosa. Con las tablas ya en
+   * `Record<number, …>`, el compilador es el que barre — y es el único que
+   * puede: un estado que viaja como número y se compara contra una letra no da
+   * error en runtime, da `undefined`, y `undefined` en una etiqueta se ve como
+   * una celda vacía.
+   */
+  status: AssemblyStatus;
   cancellation_observation?: string;
   quorum_required?: number;
   anonymous_voting?: boolean;

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { AssemblyStatus } from "../types/assemblies.types";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
@@ -125,7 +126,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       address: item?.address || item?.physical_address || "",
       address_url: item?.address_url || "",
       files: normalizeUrls(item?.files),
-      status: item?.status || "S", // S=Scheduled por defecto
+      status: item?.status ?? AssemblyStatus.Scheduled, // numérico desde el flip
       quorum_required: item?.quorum_required ?? 50,
       anonymous_voting: item?.anonymous_voting ?? false,
       count_abstention: item?.count_abstention ?? false, // P.23: Contar abstenciones en resultados
