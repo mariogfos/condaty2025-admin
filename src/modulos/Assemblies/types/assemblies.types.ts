@@ -2,22 +2,15 @@
  * Tipos para el módulo de Asambleas
  */
 
-import { AssemblyStatus } from "./assemblyStatus";
+import {
+  AssemblyModality,
+  AssemblyStatus,
+  AssemblyType,
+  AttendanceModality,
+} from "./assemblyStatus";
 
 // Se re-exporta para no tocar los ~20 archivos que ya lo importan de acá.
-export { AssemblyStatus };
-
-export enum AssemblyType {
-  Ordinary = "O",
-  Extraordinary = "E",
-  Informative = "I",
-}
-
-export enum AssemblyModality {
-  Virtual = "V",
-  Presencial = "P",
-  Hibrid = "H",
-}
+export { AssemblyModality, AssemblyStatus, AssemblyType, AttendanceModality };
 
 export enum TargetAudience {
   AllOwners = "all_owners",
@@ -47,11 +40,12 @@ export interface Assembly {
   user_id: string;
   subject: string;
   description?: string;
-  type: AssemblyType | string;
+  /** 🔴 Sin `| string` desde el flip del 2026-08-27: el `| string` es lo que deja indexar las tablas de etiquetas con cualquier cosa, y el compilador es el único que puede barrer esto. */
+  type: AssemblyType;
   participation?: string;
   start_time: string;
   end_time?: string;
-  modality: AssemblyModality | string;
+  modality: AssemblyModality;
   meeting_url?: string;
   address?: string;
   address_url?: string;
@@ -108,7 +102,8 @@ export interface AssemblyAttendance {
   role?: string;
   user_id?: number;
   joined_at: string;
-  modality_type: "P" | "V"; // Presencial, Virtual
+  /** 🔴 Numérico desde el flip: comparte escala con `AssemblyModality`. */
+  modality_type: AttendanceModality;
   represented_roles?: string[];
   // Relaciones cargadas
   owner?: {

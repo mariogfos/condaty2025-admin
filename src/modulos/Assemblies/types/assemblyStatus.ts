@@ -34,3 +34,47 @@ export enum AssemblyStatus {
   Completed = 3,
   Cancelled = 4,
 }
+
+/**
+ * Qué clase de asamblea es.
+ *
+ * 🔴 Numérico desde 1 (flip del 2026-08-27, api#440). Era "O" / "E" / "I".
+ *
+ * ⚠️ Esas tres letras son también valores de OTROS enums del sistema —Visitas,
+ * Encuestas, Mascotas— que siguen siendo char. Las letras se repiten; los
+ * significados no.
+ */
+export enum AssemblyType {
+  Ordinary = 1,
+  Extraordinary = 2,
+  Informative = 3,
+}
+
+/**
+ * Cómo se hace la asamblea.
+ *
+ * 🔴 Numérico desde 1 (flip del 2026-08-27, api#440). Era "V" / "P" / "H".
+ *
+ * ⚠️ **Comparte escala con {@link AttendanceModality}**: Virtual es 1 y
+ * Presencial es 2 en los dos. Son el mismo concepto en dos columnas del back
+ * —`assemblies.modality` y `assembly_attendance.modality_type`— y tienen que
+ * decir lo mismo.
+ */
+export enum AssemblyModality {
+  Virtual = 1,
+  // ⚠️ `Presencial` y `Hibrid`, no `InPerson`/`Hybrid`: son los nombres que el
+  // SSoT declara para este front en `aliasesByApp`. Unificarlos con el API es
+  // un rename aparte, no parte de un flip de valores.
+  Presencial = 2,
+  Hibrid = 3,
+}
+
+/**
+ * Cómo asistió una persona.
+ *
+ * 🔴 Los números son los de {@link AssemblyModality}, no un orden propio.
+ */
+export enum AttendanceModality {
+  Virtual = 1,
+  Presencial = 2,
+}

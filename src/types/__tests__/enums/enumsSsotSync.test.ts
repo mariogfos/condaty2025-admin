@@ -37,6 +37,7 @@ import {
   AssemblyStatus,
   AssemblyType,
   AssemblyModality,
+  AttendanceModality,
   TargetAudience,
 } from '@/modulos/Assemblies/types/assemblies.types';
 import { SurveyStatus } from '@/modulos/Surveys/types/surveys.types';
@@ -79,6 +80,7 @@ const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
   AssemblyStatus,
   AssemblyType,
   AssemblyModality,
+  AttendanceModality,
   TargetAudience,
   SurveyStatus,
 };

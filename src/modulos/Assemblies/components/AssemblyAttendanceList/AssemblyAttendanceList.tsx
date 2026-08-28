@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  AssemblyModality,
+  AttendanceModality,
+} from "../../types/assemblyStatus";
 import styles from "./AssemblyAttendanceList.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -28,7 +32,7 @@ interface AssemblyAttendanceListProps {
   refreshKey?: number;
   onAttendanceChange?: () => void;
   readOnly?: boolean;
-  assemblyModality?: "P" | "V" | "H";
+  assemblyModality?: AssemblyModality;
 }
 
 const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
@@ -131,18 +135,17 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
     }
   };
 
-  const getModalityLabel = (modality: string) => {
-    return modality === "P" ? "Presencial" : "Virtual";
-  };
+  const getModalityLabel = (modality: AttendanceModality) =>
+    modality === AttendanceModality.Presencial ? "Presencial" : "Virtual";
 
-  const isInPersonOnly = assemblyModality === "P";
+  const isInPersonOnly = assemblyModality === AssemblyModality.Presencial;
 
   // console.log("attendances", attendances);
   const inPersonCount = attendances?.filter(
-    (a) => a.modality_type === "P",
+    (a) => a.modality_type === AttendanceModality.Presencial,
   ).length;
   const virtualCount = attendances?.filter(
-    (a) => a.modality_type === "V",
+    (a) => a.modality_type === AttendanceModality.Virtual,
   ).length;
 
   const { isMobile } = useScreenSize();
@@ -261,7 +264,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                         "-"}
                     </span>
                     <span
-                      className={`${styles.modalityBadge} ${attendance.modality_type === "P" ? styles.inPerson : styles.virtual}`}
+                      className={`${styles.modalityBadge} ${attendance.modality_type === AttendanceModality.Presencial ? styles.inPerson : styles.virtual}`}
                     >
                       {getModalityLabel(attendance.modality_type)}
                     </span>
@@ -314,7 +317,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
                     </td>
                     <td>
                       <span
-                        className={`${styles.modalityBadge} ${attendance.modality_type === "P" ? styles.inPerson : styles.virtual}`}
+                        className={`${styles.modalityBadge} ${attendance.modality_type === AttendanceModality.Presencial ? styles.inPerson : styles.virtual}`}
                       >
                         {getModalityLabel(attendance.modality_type)}
                       </span>

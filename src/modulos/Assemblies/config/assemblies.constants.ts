@@ -1,4 +1,8 @@
-import { AssemblyStatus } from "../types/assemblyStatus";
+import {
+  AssemblyModality,
+  AssemblyStatus,
+  AssemblyType,
+} from "../types/assemblyStatus";
 
 /**
  * 🔴 Las claves son NÚMEROS desde el flip del 2026-08-27 (api#439).
@@ -33,15 +37,15 @@ export const STATUS_OPTIONS = [
 ];
 
 export const TYPE_OPTIONS = [
-  { id: "O", name: "Ordinaria" },
-  { id: "E", name: "Extraordinaria" },
-  { id: "I", name: "Informativa" },
+  { id: AssemblyType.Ordinary, name: "Ordinaria" },
+  { id: AssemblyType.Extraordinary, name: "Extraordinaria" },
+  { id: AssemblyType.Informative, name: "Informativa" },
 ];
 
 export const MODALITY_OPTIONS = [
-  { id: "V", name: "Virtual" },
-  { id: "P", name: "Presencial" },
-  { id: "H", name: "Híbrida" },
+  { id: AssemblyModality.Virtual, name: "Virtual" },
+  { id: AssemblyModality.Presencial, name: "Presencial" },
+  { id: AssemblyModality.Hibrid, name: "Híbrida" },
 ];
 
 export const AUDIENCE_OPTIONS = [
@@ -50,18 +54,18 @@ export const AUDIENCE_OPTIONS = [
   { id: "dependents", name: "Solo dependientes" },
 ];
 
-export const STATUS_LABELS: Record<string, string> = API_STATUS_LABELS;
+export const STATUS_LABELS: Record<number, string> = API_STATUS_LABELS;
 
-export const TYPE_LABELS: Record<string, string> = {
-  O: "Asamblea Ordinaria",
-  E: "Asamblea Extraordinaria",
-  I: "Asamblea Informativa",
+export const TYPE_LABELS: Record<number, string> = {
+  [AssemblyType.Ordinary]: "Asamblea Ordinaria",
+  [AssemblyType.Extraordinary]: "Asamblea Extraordinaria",
+  [AssemblyType.Informative]: "Asamblea Informativa",
 };
 
-export const MODALITY_LABELS: Record<string, string> = {
-  V: "Virtual",
-  P: "Presencial",
-  H: "Híbrida",
+export const MODALITY_LABELS: Record<number, string> = {
+  [AssemblyModality.Virtual]: "Virtual",
+  [AssemblyModality.Presencial]: "Presencial",
+  [AssemblyModality.Hibrid]: "Híbrida",
 };
 
 export const COLOR_BARS = [
