@@ -57,6 +57,7 @@ import {
   InvitationStatus,
   InvitationType,
 } from '@/modulos/Activities/QrTab/invitationEnums';
+import { RoleFixed } from '@/modulos/Roles/roleEnums';
 
 const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
   AccessType,
@@ -83,6 +84,7 @@ const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
   AttendanceModality,
   TargetAudience,
   SurveyStatus,
+  RoleFixed,
 };
 
 const APP = 'admin';

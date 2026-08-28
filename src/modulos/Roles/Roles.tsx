@@ -11,6 +11,7 @@ import useCrudUtils from "../shared/useCrudUtils";
 import { useEffect, useMemo } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Permisos from "./Permisos";
+import { loDefineElSistema, tieneGenteAsignada } from "./roleEnums";
 
 const lLevel = ["Fos", "Partido", "Provincia", "Canton", "Parroquia", "Barrio"];
 
@@ -28,9 +29,9 @@ const mod: ModCrudType = {
   },
   onHideActions: (item: any) => {
     return {
-      hideEdit: item.is_fixed == "1",
+      hideEdit: loDefineElSistema(item.is_fixed),
 
-      hideDel: item.is_fixed == "1" || item.is_assigned == "1",
+      hideDel: loDefineElSistema(item.is_fixed) || tieneGenteAsignada(item.is_assigned),
     };
   },
 };
