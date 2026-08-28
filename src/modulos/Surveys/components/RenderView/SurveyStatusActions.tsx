@@ -18,7 +18,7 @@ type StatusAction = {
   needsDates?: boolean;
 };
 
-const STATUS_ACTIONS: Record<string, StatusAction[]> = {
+const STATUS_ACTIONS: Record<SurveyStatus, StatusAction[]> = {
   [SurveyStatus.Draft]: [
     {
       label: "Hacer visible",
@@ -107,7 +107,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
 
 type Props = {
   surveyId: number;
-  currentStatus: string;
+  currentStatus: SurveyStatus;
   hasAnswers?: boolean;
   /** Current survey data to pre-fill dates in the modal */
   surveyData?: Record<string, any>;
@@ -125,9 +125,13 @@ export default function SurveyStatusActions({
   const { execute } = useAxios();
   const { showToast } = useAuth();
   const { notifySegmented, notifyAll } = useInstantMsg();
-  const [loading, setLoading] = useState<string | null>(null);
+  // `loading` holds the status being applied, or the "duplicate" sentinel:
+  // duplicating is the one action on this bar that is not a status change.
+  const [loading, setLoading] = useState<SurveyStatus | "duplicate" | null>(
+    null,
+  );
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
-  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<SurveyStatus | null>(null);
 
   const actions = STATUS_ACTIONS[currentStatus] ?? [];
 
@@ -187,7 +191,7 @@ export default function SurveyStatusActions({
   };
 
   const callChangeStatus = async (
-    targetStatus: string,
+    targetStatus: SurveyStatus,
     scheduledAt?: string,
     expiresAt?: string | null,
   ) => {

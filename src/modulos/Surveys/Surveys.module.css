@@ -28,6 +28,18 @@
   text-overflow: ellipsis;
 }
 
+/*
+ * Status badges.
+ *
+ * Named after the SurveyStatus case, not its value. These used to be
+ * `.statusA`, `.statusD`... built by interpolating the value into the class
+ * name. `SurveyStatus` went numeric on 2026-08-28 (api#444), which would have
+ * asked for `.status4`, `.status6`... -- classes that do not exist, so every
+ * badge would have silently lost its colour.
+ *
+ * `.statusI` and `.statusF` were removed at the same time: no interpolation in
+ * this module could ever produce them.
+ */
 .statusBadge {
   display: inline-block;
   padding: 0.25rem 0.5rem;
@@ -37,47 +49,37 @@
   text-align: center;
 }
 
-.statusA {
+.statusActive {
   background-color: var(--cSuccess, #10b981);
   color: white;
 }
 
-.statusS {
+.statusScheduled {
   background-color: var(--cPrimary);
   color: white;
 }
 
-.statusV {
+.statusVisible {
   background-color: #6366f1;
   color: white;
 }
 
-.statusP {
+.statusPaused {
   background-color: var(--cWarning, #f59e0b);
   color: white;
 }
 
-.statusC {
+.statusClosed {
   background-color: var(--cError, #ef4444);
   color: white;
 }
 
-.statusX {
+.statusDisabled {
   background-color: var(--cError, #ef4444);
   color: white;
 }
 
-.statusI {
-  background-color: var(--cWarning, #f59e0b);
-  color: white;
-}
-
-.statusF {
-  background-color: var(--cPrimary);
-  color: white;
-}
-
-.statusD {
+.statusDraft {
   background-color: var(--cWhiteV2);
   color: white;
 }

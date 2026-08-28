@@ -7,6 +7,7 @@ import { formatNumber } from "@/mk/utils/numbers";
 import styles from "../../Surveys.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { SURVEY_STATUSES } from "../../config/surveys.constants";
+import { SurveyStatus } from "../../types/surveys.types";
 import SurveyStatusActions from "./SurveyStatusActions";
 import { SurveyDashboard } from "../SurveyDashboard/SurveyDashboard";
 
@@ -327,7 +328,7 @@ const RenderView = (props: {
                     }}
                   >
                     {surveyData.status_label ||
-                      SURVEY_STATUSES[surveyData.status]}
+                      SURVEY_STATUSES[surveyData.status as SurveyStatus]}
                   </span>
                 )}
                 {surveyData?.is_mandatory === true ||

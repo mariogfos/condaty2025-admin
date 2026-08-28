@@ -1,3 +1,5 @@
+import { SurveyStatus } from "./surveys.types";
+
 // condaty-admin/src/modulos/Surveys/types/mySurveys.types.ts
 
 export type SurveyFilterType = "P" | "R" | "E"; // Pending, Responded, Expired
@@ -31,7 +33,7 @@ export interface SurveyDetail {
   id: string;
   title: string;
   description?: string;
-  status: "D" | "V" | "S" | "A" | "P" | "C" | "X";
+  status: SurveyStatus;
   is_mandatory: boolean;
   expires_at?: string;
   questions_count: number;
@@ -42,7 +44,7 @@ export interface SurveyListItem {
   id: string;
   title: string;
   description?: string;
-  status: "A" | "C";
+  status: SurveyStatus.Active | SurveyStatus.Closed;
   is_mandatory: boolean;
   expires_at?: string;
   questions_count: number;

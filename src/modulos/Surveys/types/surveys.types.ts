@@ -1,14 +1,30 @@
+/**
+ * En que situacion esta una encuesta.
+ *
+ * Numeric since 1 (flip 2026-08-28, api#444). It used to be char-backed
+ * (D/V/S/A/P/C/X). The order follows the survey lifecycle -- draft, visible,
+ * scheduled, active, paused, closed, disabled -- not the old letters.
+ *
+ * `Visible` means participants can SEE the survey but cannot vote yet; the one
+ * that accepts votes is `Active`.
+ */
 export enum SurveyStatus {
-  Draft = "D",
-  Visible = "V", // Visible, participants can see but NOT vote
-  Scheduled = "S",
-  Active = "A",
-  Paused = "P",
-  Closed = "C",
-  Disabled = "X",
+  Draft = 1,
+  Visible = 2, // Visible, participants can see but NOT vote
+  Scheduled = 3,
+  Active = 4,
+  Paused = 5,
+  Closed = 6,
+  Disabled = 7,
 }
 
-export const SurveyStatusMap = {
+/**
+ * Labels, typed by the enum on purpose.
+ *
+ * A `Record<string, string>` here would let any key index the map, which is
+ * exactly what keeps `tsc` from finding the call sites when the values change.
+ */
+export const SurveyStatusMap: Record<SurveyStatus, string> = {
   [SurveyStatus.Draft]: "Borrador",
   [SurveyStatus.Visible]: "Visible",
   [SurveyStatus.Scheduled]: "Programada",

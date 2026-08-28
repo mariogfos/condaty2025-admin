@@ -9,6 +9,7 @@ import MultipleChoice from "../Questions/MultipleChoice";
 import ScaleChoice from "../Questions/ScaleChoice";
 import TextChoice from "../Questions/TextChoice";
 import { SURVEY_STATUSES } from "../../config/surveys.constants";
+import { SurveyStatus } from "../../types/surveys.types";
 
 interface SurveyDetailModalProps {
   survey: any;
@@ -100,8 +101,8 @@ const SurveyDetailModal: React.FC<SurveyDetailModalProps> = ({
       ? Math.round((totalParticipants / estimatedAudience) * 100)
       : 0;
   const statusLabel =
-    SURVEY_STATUSES[surveyDetail.status] ||
-    SURVEY_STATUSES[initialSurvey.status] ||
+    SURVEY_STATUSES[surveyDetail.status as SurveyStatus] ||
+    SURVEY_STATUSES[initialSurvey.status as SurveyStatus] ||
     "N/A";
 
   return (

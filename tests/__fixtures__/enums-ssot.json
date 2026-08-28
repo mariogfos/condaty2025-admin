@@ -1,6 +1,6 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "lastUpdated": "2026-08-27",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
@@ -685,8 +685,8 @@
       "apiClass": "InvitationGuestStatus"
     },
     "SurveyStatus": {
-      "type": "string",
-      "comment": "Char-backed. Sincronizado con backend App\\Modules\\Surveys\\Enums\\SurveyStatus (PHP).\n\nEl API llamaba `Voting` a este case y significaba lo CONTRARIO: es el estado donde los participantes ven la encuesta pero NO pueden votar. El propio enum se contradecía —el case decía Voting y su label() devolvía 'Visible'— y los tres fronts siempre dijeron `Visible`. Se renombró en el API el 2026-08-15 en vez de dejarlo como alias: no tenía un solo call site fuera de su propio archivo, así que el rename costó dos líneas.",
+      "type": "int",
+      "comment": "Numerico desde 1 (flip 2026-08-28, api#444). Era char-backed: D/V/S/A/P/C/X. El orden es el del CICLO DE VIDA (borrador, visible, programada, activa, pausada, cerrada, deshabilitada), no el alfabetico de las letras viejas.\n\nOJO con dos coincidencias que este flip NO toca:\n1) 'P' era Paused ACA y es tambien el valor de SurveyFilter::Pending, que sigue siendo char y viaja en el MISMO parametro filterBy. Son dos vocabularios distintos: uno es el estado de la encuesta, el otro es que mitad de su historia pide el residente.\n2) D/V/S/A/P/C/X se cruzaban con las letras de AssemblyStatus (S/P/C/X) en las mismas consultas mientras este enum seguia siendo char. Con los dos numericos, esa ambiguedad desaparece.\n\nEl API acepta TODAVIA las letras viejas en la entrada (SurveyStatus::desdeLoQuePideElCliente), por la ventana en que una app de tienda no se actualizo. Lo que se GUARDA es siempre el numero. Su marca de caducidad son los tests que cubren esas letras.\n\nEl API llamaba `Voting` a Visible y significaba lo CONTRARIO: es el estado donde los participantes ven la encuesta pero NO pueden votar. Se renombro el 2026-08-15.\n\nSincronizado con backend App\\Modules\\Surveys\\Enums\\SurveyStatus (PHP enum: int).",
       "apps": [
         "api",
         "admin",
@@ -695,32 +695,33 @@
       "values": [
         {
           "name": "Draft",
-          "value": "D"
+          "value": 1,
+          "comment": "Solo la administracion la ve; los participantes NO"
         },
         {
           "name": "Visible",
-          "value": "V",
+          "value": 2,
           "comment": "Visible, participants can see but NOT vote"
         },
         {
           "name": "Scheduled",
-          "value": "S"
+          "value": 3
         },
         {
           "name": "Active",
-          "value": "A"
+          "value": 4
         },
         {
           "name": "Paused",
-          "value": "P"
+          "value": 5
         },
         {
           "name": "Closed",
-          "value": "C"
+          "value": 6
         },
         {
           "name": "Disabled",
-          "value": "X"
+          "value": 7
         }
       ],
       "apiClass": "SurveyStatus"

@@ -28,6 +28,30 @@ const TYPE_OPTIONS = [
   { id: AssemblyType.Informative, name: "Informativa" },
 ];
 
+/**
+ * 🔴 REGRESION DE #761, arreglada acá.
+ *
+ * Ese PR paso `MODALITY_OPTIONS` a tomar sus valores del enum —o sea que el
+ * selector escribe `AssemblyModality.Presencial` (2) en `formState`— y dejo
+ * intactas las SIETE comparaciones contra las letras `"P"`, `"V"` y `"H"` que
+ * hay en este mismo archivo, mas los dos defaults `|| "O"` y `|| "P"`.
+ *
+ * `tsc` no las vio porque `formState` es `any`: es exactamente la leccion que
+ * ese PR escribio en su propio mensaje —*"el compilador no barre solo"*— y el
+ * agujero que la quedaba. El efecto es mudo y visible: los bloques
+ * condicionales del formulario —el enlace de la reunion virtual, la direccion
+ * fisica— **no se renderizan nunca**, en alta y en edicion.
+ *
+ * Se centraliza en estos dos predicados para que la proxima renumeracion no
+ * tenga siete lugares donde fallar.
+ */
+const tieneParteVirtual = (modality: AssemblyModality): boolean =>
+  modality === AssemblyModality.Virtual || modality === AssemblyModality.Hibrid;
+
+const tieneParteFisica = (modality: AssemblyModality): boolean =>
+  modality === AssemblyModality.Presencial ||
+  modality === AssemblyModality.Hibrid;
+
 const MODALITY_OPTIONS = [
   { id: AssemblyModality.Presencial, name: "Presencial" },
   { id: AssemblyModality.Virtual, name: "Virtual" },
@@ -124,13 +148,13 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       id: item?.id,
       subject: item?.subject || "",
       description: item?.description || "",
-      type: item?.type || "O", // O=Ordinaria por defecto
+      type: item?.type || AssemblyType.Ordinary,
       start_date: start.date,
       start_time: start.time,
       // P.1: Duración en lugar de hora de fin directa
       duration_hours: dur.hours,
       duration_minutes: dur.minutes,
-      modality: item?.modality || "P", // P=Presencial por defecto
+      modality: item?.modality || AssemblyModality.Presencial,
       meeting_url: item?.meeting_url || "",
       address: item?.address || item?.physical_address || "",
       address_url: item?.address_url || "",
@@ -255,7 +279,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       }
     }
 
-    if (["V", "H"].includes(formState.modality)) {
+    if (tieneParteVirtual(formState.modality)) {
       newErrors = checkRules({
         value: formState.meeting_url,
         rules: ["required"],
@@ -268,7 +292,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       }
     }
 
-    if (["P", "H"].includes(formState.modality)) {
+    if (tieneParteFisica(formState.modality)) {
       newErrors = checkRules({
         value: formState.address,
         rules: ["required"],
@@ -385,10 +409,10 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
       modality: formState.modality,
       files: buildFileObjects(formState.files, "documento_asamblea"),
       status: formState.status || "Scheduled",
-      ...(formState.modality !== "P"
+      ...(formState.modality !== AssemblyModality.Presencial
         ? { meeting_url: formState.meeting_url }
         : {}),
-      ...(formState.modality !== "V"
+      ...(formState.modality !== AssemblyModality.Virtual
         ? {
             address: formState.address,
             address_url: formState.address_url,
@@ -689,7 +713,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             modalidad.
           </p>
 
-          {["V", "H"].includes(formState.modality) && (
+          {tieneParteVirtual(formState.modality) && (
             <Input
               type="text"
               name="meeting_url"
@@ -701,7 +725,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             />
           )}
 
-          {["P", "H"].includes(formState.modality) && (
+          {tieneParteFisica(formState.modality) && (
             <Input
               type="text"
               name="address"
@@ -713,7 +737,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
             />
           )}
 
-          {["P", "H"].includes(formState.modality) && (
+          {tieneParteFisica(formState.modality) && (
             <Input
               type="text"
               name="address_url"
