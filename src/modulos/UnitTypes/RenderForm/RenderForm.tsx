@@ -3,6 +3,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useState, useEffect } from "react";
 import styles from "./RenderForm.module.css";
+import { loDefineElSistema } from "../typeEnums";
 import { IconTrash } from "@/components/layout/icons/IconsBiblioteca";
 import { checkRules } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -247,7 +248,15 @@ const RenderForm = ({
     };
 
     const method = action === "add" ? "POST" : "PUT";
-    const endpoint = action === "add" ? "/v3/types" : `/types/${formState.id}`;
+    // 🔴🔴 La edición iba a `/types/{id}` — SIN `v3`— y esa ruta NO EXISTE.
+    //
+    // La migración a v3 dejó comentada la legacy (`routes/api.php:198`) y
+    // `route:list` no tiene ni una `api/types` sin prefijo. Medido con un
+    // request real el 2026-08-28: `PUT api/types/{id}` → **404**,
+    // `PUT api/v3/types/{id}` → 200. O sea que **editar un tipo de unidad
+    // estaba roto**, y el alta de dos líneas más arriba sí andaba porque esa
+    // sí llevaba el `v3`.
+    const endpoint = action === "add" ? "/v3/types" : `/v3/types/${formState.id}`;
 
     const { data: response } = await execute(endpoint, method, formData, false);
 
@@ -274,7 +283,7 @@ const RenderForm = ({
         value={formState?.name || ""}
         onChange={handleChange}
         error={currentErrors}
-        disabled={action !== "add" && item.is_fixed === "A"}
+        disabled={action !== "add" && loDefineElSistema(item.is_fixed)}
         required
       />
       <div className={styles.textContainer}>
