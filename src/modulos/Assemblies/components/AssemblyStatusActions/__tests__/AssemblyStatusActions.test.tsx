@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
+import { AssemblyStatus } from "../../../types/assemblyStatus";
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import AssemblyStatusActions from '../AssemblyStatusActions';
 
@@ -29,7 +30,7 @@ describe('AssemblyStatusActions', () => {
   describe('Estado Scheduled (S)', () => {
     const scheduledAssembly = {
       id: 1,
-      status: 'S',
+      status: AssemblyStatus.Scheduled,
       subject: 'Asamblea Programada',
     };
 
@@ -66,7 +67,7 @@ describe('AssemblyStatusActions', () => {
         expect(mockExecute).toHaveBeenCalledWith(
           '/assemblies/1/status',
           'PATCH',
-          { status: 'P' },
+          { status: AssemblyStatus.InProgress },
           false,
           true,
         );
@@ -109,7 +110,7 @@ describe('AssemblyStatusActions', () => {
           'PATCH',
           // ⚠️ El motivo va recortado: el componente hace `trim()`, y un motivo
           // que es sólo espacios NO se manda (ver el test de acá abajo).
-          { status: 'X', cancellation_observation: 'Sin quórum' },
+          { status: AssemblyStatus.Cancelled, cancellation_observation: 'Sin quórum' },
           false,
           true,
         );
@@ -129,7 +130,7 @@ describe('AssemblyStatusActions', () => {
         expect(mockExecute).toHaveBeenCalledWith(
           '/assemblies/1/status',
           'PATCH',
-          { status: 'X' },
+          { status: AssemblyStatus.Cancelled },
           false,
           true,
         );
@@ -140,7 +141,7 @@ describe('AssemblyStatusActions', () => {
   describe('Estado InProgress (P)', () => {
     const inProgressAssembly = {
       id: 2,
-      status: 'P',
+      status: AssemblyStatus.InProgress,
       subject: 'Asamblea En Progreso',
     };
 
@@ -176,7 +177,7 @@ describe('AssemblyStatusActions', () => {
         expect(mockExecute).toHaveBeenCalledWith(
           '/assemblies/2/status',
           'PATCH',
-          { status: 'C' },
+          { status: AssemblyStatus.Completed },
           false,
           true,
         );
@@ -187,7 +188,7 @@ describe('AssemblyStatusActions', () => {
   describe('Estado Completed (C)', () => {
     const completedAssembly = {
       id: 3,
-      status: 'C',
+      status: AssemblyStatus.Completed,
       subject: 'Asamblea Finalizada',
     };
 
@@ -218,7 +219,7 @@ describe('AssemblyStatusActions', () => {
         expect(mockExecute).toHaveBeenCalledWith(
           '/assemblies/3/status',
           'PATCH',
-          { status: 'S' },
+          { status: AssemblyStatus.Scheduled },
           false,
           true,
         );
@@ -229,7 +230,7 @@ describe('AssemblyStatusActions', () => {
   describe('Estado Cancelled (X)', () => {
     const cancelledAssembly = {
       id: 4,
-      status: 'X',
+      status: AssemblyStatus.Cancelled,
       subject: 'Asamblea Cancelada',
     };
 
@@ -246,7 +247,7 @@ describe('AssemblyStatusActions', () => {
         data: { success: true },
       });
 
-      const scheduledAssembly = { id: 1, status: 'S', subject: 'Test' };
+      const scheduledAssembly = { id: 1, status: AssemblyStatus.Scheduled, subject: 'Test' };
       renderComponent(scheduledAssembly);
 
       const iniciarBtn = screen.getByRole('button', { name: /Iniciar/i });
@@ -255,7 +256,7 @@ describe('AssemblyStatusActions', () => {
       await waitFor(() => {
         expect(mockOnStatusChange).toHaveBeenCalledWith({
           id: 1,
-          status: 'P',
+          status: AssemblyStatus.InProgress,
           subject: 'Test',
         });
       });
@@ -264,7 +265,7 @@ describe('AssemblyStatusActions', () => {
     it('no llama a onStatusChange si la petición falla', async () => {
       mockExecute.mockRejectedValueOnce(new Error('Error'));
 
-      const scheduledAssembly = { id: 1, status: 'S', subject: 'Test' };
+      const scheduledAssembly = { id: 1, status: AssemblyStatus.Scheduled, subject: 'Test' };
       renderComponent(scheduledAssembly);
 
       const iniciarBtn = screen.getByRole('button', { name: /Iniciar/i });
@@ -278,7 +279,7 @@ describe('AssemblyStatusActions', () => {
     it('no llama a onStatusChange si no hay respuesta', async () => {
       mockExecute.mockResolvedValueOnce({ data: null });
 
-      const scheduledAssembly = { id: 1, status: 'S', subject: 'Test' };
+      const scheduledAssembly = { id: 1, status: AssemblyStatus.Scheduled, subject: 'Test' };
       renderComponent(scheduledAssembly);
 
       const iniciarBtn = screen.getByRole('button', { name: /Iniciar/i });
@@ -294,7 +295,7 @@ describe('AssemblyStatusActions', () => {
     it('deshabilita botones mientras está cargando', async () => {
       mockExecute.mockImplementation(() => new Promise(() => {})); // Never resolves
 
-      const scheduledAssembly = { id: 1, status: 'S', subject: 'Test' };
+      const scheduledAssembly = { id: 1, status: AssemblyStatus.Scheduled, subject: 'Test' };
       renderComponent(scheduledAssembly);
 
       const iniciarBtn = screen.getByRole('button', { name: /Iniciar/i });
@@ -309,7 +310,7 @@ describe('AssemblyStatusActions', () => {
     it('habilita botones después de cargar', async () => {
       mockExecute.mockResolvedValueOnce({ data: { success: true } });
 
-      const scheduledAssembly = { id: 1, status: 'S', subject: 'Test' };
+      const scheduledAssembly = { id: 1, status: AssemblyStatus.Scheduled, subject: 'Test' };
       renderComponent(scheduledAssembly);
 
       const iniciarBtn = screen.getByRole('button', { name: /Iniciar/i });
@@ -323,28 +324,28 @@ describe('AssemblyStatusActions', () => {
 
   describe('Display de estado actual', () => {
     it('muestra el estado actual correctamente para Scheduled', async () => {
-      const assembly = { id: 1, status: 'S' };
+      const assembly = { id: 1, status: AssemblyStatus.Scheduled };
       renderComponent(assembly);
 
       expect(screen.getByText('Estado: Programada')).toBeInTheDocument();
     });
 
     it('muestra el estado actual correctamente para InProgress', async () => {
-      const assembly = { id: 1, status: 'P' };
+      const assembly = { id: 1, status: AssemblyStatus.InProgress };
       renderComponent(assembly);
 
       expect(screen.getByText('Estado: En progreso')).toBeInTheDocument();
     });
 
     it('muestra el estado actual correctamente para Completed', async () => {
-      const assembly = { id: 1, status: 'C' };
+      const assembly = { id: 1, status: AssemblyStatus.Completed };
       renderComponent(assembly);
 
       expect(screen.getByText('Estado: Finalizada')).toBeInTheDocument();
     });
 
     it('muestra el estado actual correctamente para Cancelled', async () => {
-      const assembly = { id: 1, status: 'X' };
+      const assembly = { id: 1, status: AssemblyStatus.Cancelled };
       renderComponent(assembly);
 
       expect(screen.getByText('Estado: Cancelada')).toBeInTheDocument();
@@ -359,7 +360,7 @@ describe('AssemblyStatusActions', () => {
         return new Promise((resolve) => setTimeout(() => resolve({ data: { success: true } }), 100));
       });
 
-      const scheduledAssembly = { id: 1, status: 'S', subject: 'Test' };
+      const scheduledAssembly = { id: 1, status: AssemblyStatus.Scheduled, subject: 'Test' };
       renderComponent(scheduledAssembly);
 
       const iniciarBtn = screen.getByRole('button', { name: /Iniciar/i });

@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import { AssemblyStatus } from "../../types/assemblyStatus";
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { useAssemblies } from '../useAssemblies';
 
@@ -29,8 +30,8 @@ describe('useAssemblies Hook', () => {
   describe('fetchAssemblies', () => {
     it('carga asambleas exitosamente', async () => {
       const mockAssemblies = [
-        { id: 1, subject: 'Asamblea 1', status: 'S' },
-        { id: 2, subject: 'Asamblea 2', status: 'P' },
+        { id: 1, subject: 'Asamblea 1', status: AssemblyStatus.Scheduled },
+        { id: 2, subject: 'Asamblea 2', status: AssemblyStatus.InProgress },
       ];
       const mockResponse = {
         success: true,
@@ -69,7 +70,7 @@ describe('useAssemblies Hook', () => {
       const mockAssembly = {
         id: 1,
         subject: 'Asamblea Anual',
-        status: 'S',
+        status: AssemblyStatus.Scheduled,
         surveys: [],
       };
       mockExecute.mockResolvedValueOnce({

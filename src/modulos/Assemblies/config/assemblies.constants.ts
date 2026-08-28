@@ -1,26 +1,35 @@
-export const API_STATUS_LABELS: Record<string, string> = {
-  S: "Programada",
-  P: "En progreso",
-  C: "Finalizada", // Cambiado de Completada a Finalizada según diseño
-  X: "Cancelada",
+import { AssemblyStatus } from "../types/assemblyStatus";
+
+/**
+ * 🔴 Las claves son NÚMEROS desde el flip del 2026-08-27 (api#439).
+ *
+ * Van por el enum y no por el literal a propósito: un `Record<number, string>`
+ * escrito a mano se desincroniza en silencio, y el estado que falte no se ve
+ * como un error — se ve como una celda vacía.
+ */
+export const API_STATUS_LABELS: Record<number, string> = {
+  [AssemblyStatus.Scheduled]: "Programada",
+  [AssemblyStatus.InProgress]: "En progreso",
+  [AssemblyStatus.Completed]: "Finalizada", // Cambiado de Completada a Finalizada según diseño
+  [AssemblyStatus.Cancelled]: "Cancelada",
 };
 
 export const STATUS_STYLE: Record<
-  string,
+  number,
   { color: string; backgroundColor: string }
 > = {
-  S: { color: "#A78BFA", backgroundColor: "rgba(167, 139, 250, 0.15)" }, // Programada - Púrpura
-  P: { color: "#FFCF4A", backgroundColor: "rgba(255, 207, 74, 0.15)" }, // En progreso - Oro/Amarillo
-  C: { color: "var(--cSuccess)", backgroundColor: "var(--cHoverSuccess)" }, // Finalizada - Verde
-  X: { color: "var(--cError)", backgroundColor: "var(--cHoverError)" }, // Cancelada - Rojo
+  [AssemblyStatus.Scheduled]: { color: "#A78BFA", backgroundColor: "rgba(167, 139, 250, 0.15)" }, // Púrpura
+  [AssemblyStatus.InProgress]: { color: "#FFCF4A", backgroundColor: "rgba(255, 207, 74, 0.15)" }, // Oro/Amarillo
+  [AssemblyStatus.Completed]: { color: "var(--cSuccess)", backgroundColor: "var(--cHoverSuccess)" }, // Verde
+  [AssemblyStatus.Cancelled]: { color: "var(--cError)", backgroundColor: "var(--cHoverError)" }, // Rojo
 };
 
 export const STATUS_OPTIONS = [
   { id: "ALL", name: "Todos" },
-  { id: "S", name: "Programada" },
-  { id: "P", name: "En progreso" },
-  { id: "C", name: "Finalizada" },
-  { id: "X", name: "Cancelada" },
+  { id: AssemblyStatus.Scheduled, name: "Programada" },
+  { id: AssemblyStatus.InProgress, name: "En progreso" },
+  { id: AssemblyStatus.Completed, name: "Finalizada" },
+  { id: AssemblyStatus.Cancelled, name: "Cancelada" },
 ];
 
 export const TYPE_OPTIONS = [

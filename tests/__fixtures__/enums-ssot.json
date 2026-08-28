@@ -1,7 +1,7 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.6.0",
-  "lastUpdated": "2026-08-22",
+  "version": "1.7.0",
+  "lastUpdated": "2026-08-27",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
   "sync": {
@@ -439,8 +439,8 @@
       "apiClass": "DebtType"
     },
     "AssemblyStatus": {
-      "type": "string",
-      "comment": "Char-backed (string). Sincronizado con backend App\\Modules\\Assemblies\\Enums\\AssemblyStatus (PHP enum: string).",
+      "type": "int",
+      "comment": "Numerico desde 1 (flip 2026-08-27, api#439). Era char-backed: S/P/C/X. OJO: 'P' significaba InProgress en status y Presencial en modality, las dos columnas char(1) de la misma fila; y S/P/C/X son cuatro de los siete valores de SurveyStatus, que SIGUE siendo char y viaja en las mismas consultas. Sincronizado con backend App\\Modules\\Assemblies\\Enums\\AssemblyStatus (PHP enum: int).",
       "apps": [
         "api",
         "admin",
@@ -449,19 +449,19 @@
       "values": [
         {
           "name": "Scheduled",
-          "value": "S"
+          "value": 1
         },
         {
           "name": "InProgress",
-          "value": "P"
+          "value": 2
         },
         {
           "name": "Completed",
-          "value": "C"
+          "value": 3
         },
         {
           "name": "Cancelled",
-          "value": "X"
+          "value": 4
         }
       ],
       "apiClass": "AssemblyStatus"

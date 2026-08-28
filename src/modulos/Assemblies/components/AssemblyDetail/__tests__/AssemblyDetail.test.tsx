@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import { AssemblyStatus } from "../../../types/assemblyStatus";
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import AssemblyDetail from '../AssemblyDetail';
 import React from 'react';
@@ -13,7 +14,7 @@ vi.mock('next/navigation', () => ({
 const mockAssemblyData = {
   id: "1",
   subject: "Asamblea Anual 2026",
-  status: "S",
+  status: AssemblyStatus.Scheduled,
   modality: "V",
   date: "2026-04-10",
   time: "10:00",
@@ -36,7 +37,7 @@ vi.mock('../../../hooks/useAssemblies', () => ({
     fetchAssemblyDetail: vi.fn(async () => ({
       id: "1",
       subject: "Asamblea Anual 2026",
-      status: "S",
+      status: AssemblyStatus.Scheduled,
       modality: "V",
       date: "2026-04-10",
       time: "10:00",
