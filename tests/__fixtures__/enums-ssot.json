@@ -1,7 +1,7 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.9.0",
-  "lastUpdated": "2026-08-27",
+  "version": "1.10.0",
+  "lastUpdated": "2026-08-28",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
   "sync": {
@@ -866,6 +866,32 @@
         }
       ],
       "apiClass": "DebtBlocking"
+    },
+    "RoleFixed": {
+      "type": "int",
+      "comment": "Quien define un rol del condominio -- roles.is_fixed. Numerico desde 1 (flip 2026-08-28, api#451). Era char(1): 'X' = NO fijo, 'Y' = SI fijo.\n\nOJO: 'X' no es la inicial de nada, es el \"no marcado\" de los formularios viejos del proyecto, y el comentario de la migracion unificada que dice (Y: Yes, N: No) es el de TYPES, no el de roles.\n\nLOS CASES EMPIEZAN EN 1 Y NO EN 0 A PROPOSITO. Esta columna tiene forma de booleano, y una mudanza de booleano NO REVIENTA: con 0/1 cualquier valor heredado seguiria siendo valido con el significado contrario y todo contestaria 200 contestando mal. Con 1/2 un 0 es invalido y se ve.\n\nEl caso concreto que lo obligo: condaty-admin comparaba `item.is_fixed == \"1\"` para esconder los botones de editar y borrar. Contra 'Y' eso era false SIEMPRE -- guarda INERTE. Con la columna en numerico y sin tocar el front, `1 == \"1\"` es true para los NO fijos: la guarda pasaria de inerte a INVERTIDA, escondiendo los botones justo en los roles que si se pueden tocar. Por eso admin va en el MISMO release.\n\ntypes.is_fixed NO se toca en este flip y sigue en char(1) con el vocabulario viejo: al leer un is_fixed hay que mirar de que tabla sale.\n\nSincronizado con backend App\\Modules\\Roles\\Enums\\RoleFixed (PHP enum: int).",
+      "apps": [
+        "api",
+        "admin"
+      ],
+      "values": [
+        {
+          "name": "No",
+          "value": 1,
+          "comment": "Lo creo la administracion del condominio: se edita y se borra"
+        },
+        {
+          "name": "Yes",
+          "value": 2,
+          "comment": "Lo crea el sistema al dar de alta el condominio: no se toca"
+        }
+      ],
+      "aliasesByApp": {
+        "admin": {
+          "No": "NO",
+          "Yes": "YES"
+        }
+      }
     }
   },
   "excluded": {
