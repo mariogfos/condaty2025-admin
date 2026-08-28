@@ -7,7 +7,6 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import DefaulterConfig from "./DefaulterConfig/DefaulterConfig";
 import PaymentsConfig from "./PaymentsConfig/PaymentsConfig";
 import DptoConfig from "./DptoConfig/DptoConfig";
-import QrDynamicConfig from "../QrDinamico/QrDynamicConfig/QrDynamicConfig";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
@@ -59,7 +58,6 @@ const Config = () => {
               { value: "R", text: "Reglas Operativas" },
               { value: "P", text: "Cuentas de pagos" },
               { value: "M", text: "Morosidad" },
-              // { value: "Q", text: "QR Dinámico" },
               { value: "T", text: "Tipos de unidades" },
             ]}
             sel={typeSearch}
@@ -110,15 +108,9 @@ const Config = () => {
             <UnitsType />
           </div>
         )}
-        {typeSearch == "Q" && (
-          <LoadingScreen>
-            <QrDynamicConfig
-              client_config={client_config?.data?.[0]}
-              onSave={onSave}
-              availableBanks={client_config?.extraData?.available_banks || []}
-            />
-          </LoadingScreen>
-        )}
+        {/* La config de QR dinámico ya no es por condominio: es POR CUENTA
+            BANCARIA y solo FOS, desde la edición de la cuenta (DES-20).
+            Las rutas de la config vieja fueron retiradas del backend. */}
       </div>
     </div>
   );
