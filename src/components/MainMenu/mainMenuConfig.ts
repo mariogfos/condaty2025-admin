@@ -94,11 +94,11 @@ export const menuConfig: MenuConfigItem[] = [
       //   labelKey: "bankTester",
       //   perm: "balance",
       // },
-      // {
-      //   href: "/qr-dinamico",
-      //   labelKey: "QR Dinámico",
-      //   perm: "payments",
-      // },
+      {
+        href: "/qr-dinamico",
+        labelKey: "qrDynamic",
+        perm: "payments",
+      },
     ],
   },
   {

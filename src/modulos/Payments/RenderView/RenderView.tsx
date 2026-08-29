@@ -26,6 +26,7 @@ import Table from "@/mk/components/ui/Table/Table";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
 import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 import { paymentsApi } from "../api";
+import PaymentQrSection from "@/modulos/QrDinamico/PaymentQrSection/PaymentQrSection";
 interface PaymentDetail {
   id: string | number;
   status: string;
@@ -912,6 +913,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                 </div>
               </section>
             </div>
+
+            {/* Origen QR dinámico (DES-25/26/27): solo para ingresos con
+                método "Código QR"; si el ingreso es manual, la consulta da
+                404 y la sección no aparece. */}
+            {item.method === "Q" && item.id != null && (
+              <PaymentQrSection paymentId={item.id} />
+            )}
 
             {paymentDetails.length > 0 && (
                 <div

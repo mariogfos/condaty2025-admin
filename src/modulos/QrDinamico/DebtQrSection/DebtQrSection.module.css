@@ -1,0 +1,100 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.pendingBanner {
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  background: rgba(245, 158, 11, 0.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.pendingTitle {
+  color: #f59e0b;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.verifying {
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.pendingInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 6px;
+  color: var(--cWhite);
+  font-size: 12px;
+}
+
+.verifyMessage {
+  color: var(--cWhiteV1, #a7a7a7);
+  font-size: 13px;
+  margin: 0;
+}
+
+.historyBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.historyToggle {
+  background: none;
+  border: none;
+  color: var(--cAccent, #00e38c);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.historyItem {
+  border: 1px solid var(--cWhiteV1, rgba(255, 255, 255, 0.12));
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.historyRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.historyAmount {
+  color: var(--cWhite);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.historyDate {
+  color: var(--cWhiteV1, #a7a7a7);
+  font-size: 12px;
+}
+
+.historyMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 4px;
+  color: var(--cWhiteV1, #a7a7a7);
+  font-size: 12px;
+}
+
+.badge {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}

@@ -1,0 +1,79 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filterInput {
+  background: var(--cBlackV2, #1a1a1a);
+  color: var(--cWhite);
+  border: 1px solid var(--cWhiteV1, rgba(255, 255, 255, 0.12));
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--cWhiteV1, rgba(255, 255, 255, 0.12));
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.cardValue {
+  color: var(--cWhite);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.cardLabel {
+  color: var(--cWhiteV1, #a7a7a7);
+  font-size: 12px;
+}
+
+.stateGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.stateItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid var(--cWhiteV1, rgba(255, 255, 255, 0.12));
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.stateCount {
+  color: var(--cWhite);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.stateLabel {
+  color: var(--cWhiteV1, #a7a7a7);
+  font-size: 12px;
+}
+
+.muted {
+  color: var(--cWhiteV1, #a7a7a7);
+  font-size: 13px;
+}

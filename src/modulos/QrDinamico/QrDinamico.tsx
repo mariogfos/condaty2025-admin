@@ -13,12 +13,12 @@ import {
   QR_STATE_COLOR,
   PAYMENT_TYPE_LABEL,
 } from './types';
-import GenerateQrModal from './GenerateQrModal/GenerateQrModal';
 import RenderView from './RenderView/RenderView';
 import Conciliation from './Conciliation/Conciliation';
+import QrMetrics from './QrMetrics/QrMetrics';
 
 // ─── Tabs ────────────────────────────────────────────────────────────────────
-type ActiveTab = 'orders' | 'conciliation';
+type ActiveTab = 'orders' | 'conciliation' | 'metrics';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const formatAmount = (amount: string, currency: string) => (
@@ -84,13 +84,11 @@ const QrDinamico = () => {
   const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0 });
   const [loadingMoreOrders, setLoadingMoreOrders] = useState(false);
 
-  const [showGenerate, setShowGenerate] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<QrOrder | null>(null);
   const ordersLoadSentinelRef = React.useRef<HTMLDivElement | null>(null);
 
   // ─── API calls ──────────────────────────────────────────────────────────────
   const { execute: fetchOrders, loaded: ordersLoaded } = useAxios();
-  const { execute: cancelOrder } = useAxios();
 
   const buildQueryString = useCallback((f: QrOrderFilters) => {
     const params = new URLSearchParams();
@@ -155,23 +153,6 @@ const QrDinamico = () => {
     void loadOrders(nextFilters, { append: true });
   }, [filters, loadOrders, loadingMoreOrders, ordersLoaded, pagination.current_page, pagination.last_page]);
 
-  const handleCancel = async (order: QrOrder) => {
-    if (!confirm(`¿Anular el QR ${order.reference}? Esta acción no se puede deshacer.`)) return;
-    const res = await cancelOrder(`qr-dynamic/orders/${order.id}/cancel`, 'POST');
-    if (res?.data?.success) {
-      const freshFilters = { ...filters, page: 1, per_page: QR_BATCH_SIZE };
-      setFilters(freshFilters);
-      loadOrders(freshFilters);
-    }
-  };
-
-  const handleGenerateSuccess = () => {
-    setShowGenerate(false);
-    const freshFilters = { ...filters, page: 1, per_page: QR_BATCH_SIZE };
-    setFilters(freshFilters);
-    loadOrders(freshFilters);
-  };
-
   useEffect(() => {
     if (activeTab !== 'orders') return;
     if (!ordersLoadSentinelRef.current) return;
@@ -215,17 +196,7 @@ const QrDinamico = () => {
         <div className={styles.headerLeft}>
           <h1 className={styles.headerTitle}>QR Dinámico</h1>
         </div>
-        <div className={styles.headerActions}>
-          {activeTab === 'orders' && (
-            <button
-              id="btn-generate-qr"
-              className={styles.generateBtn}
-              onClick={() => setShowGenerate(true)}
-            >
-              + Generar QR
-            </button>
-          )}
-        </div>
+        {/* RN-ADM-04: el admin no genera ni anula QR dinámicos */}
       </div>
 
       {/* Tabs */}
@@ -244,6 +215,13 @@ const QrDinamico = () => {
         >
           Conciliación
         </button>
+        <button
+          id="tab-metrics"
+          className={`${styles.tab} ${activeTab === 'metrics' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('metrics')}
+        >
+          Métricas
+        </button>
       </div>
 
       {/* ── Tab: Orders ──────────────────────────────────────────────────────── */}
@@ -258,8 +236,10 @@ const QrDinamico = () => {
               onChange={(e) => handleFilterChange('order_state', e.target.value === '' ? '' : Number(e.target.value))}
             >
               <option value="">Todos los estados</option>
-              <option value={QrOrderState.REGISTERED}>Registrado</option>
+              <option value={QrOrderState.PENDING}>Pendiente</option>
               <option value={QrOrderState.PAID}>Pagado</option>
+              <option value={QrOrderState.REPLACED}>Reemplazado</option>
+              <option value={QrOrderState.EXPIRED}>Expirado</option>
               <option value={QrOrderState.CANCELLED}>Anulado</option>
             </select>
 
@@ -273,6 +253,7 @@ const QrDinamico = () => {
               <option value={PaymentType.EXPENSE}>Expensas</option>
               <option value={PaymentType.RESERVATION}>Reservas</option>
               <option value={PaymentType.OUTLAY}>Egresos</option>
+              <option value={PaymentType.OTHER}>Otras deudas</option>
             </select>
 
             <input
@@ -319,7 +300,7 @@ const QrDinamico = () => {
                     <td colSpan={8}>
                       <div className={styles.emptyState}>
                         <p>No hay órdenes QR registradas.</p>
-                        <p>Usa el botón <strong>Generar QR</strong> para crear una nueva.</p>
+                        <p>Los QR dinámicos se generan desde la App Residente.</p>
                       </div>
                     </td>
                   </tr>
@@ -344,15 +325,6 @@ const QrDinamico = () => {
                         >
                           Ver
                         </button>
-                        {order.order_state === QrOrderState.REGISTERED && (
-                          <button
-                            id={`btn-cancel-${order.id}`}
-                            className={`${styles.actionBtn} ${styles.btnCancel}`}
-                            onClick={() => handleCancel(order)}
-                          >
-                            Anular
-                          </button>
-                        )}
                       </div>
 	                    </td>
 	                  </tr>
@@ -382,23 +354,14 @@ const QrDinamico = () => {
       {/* ── Tab: Conciliation ────────────────────────────────────────────────── */}
       {activeTab === 'conciliation' && <Conciliation />}
 
-      {/* ── Modals ────────────────────────────────────────────────────────────── */}
-      {showGenerate && (
-        <GenerateQrModal
-          open={showGenerate}
-          onClose={() => setShowGenerate(false)}
-          onSuccess={handleGenerateSuccess}
-        />
-      )}
+      {/* ── Tab: Metrics (DES-28) ────────────────────────────────────────────── */}
+      {activeTab === 'metrics' && <QrMetrics />}
 
+      {/* ── Modals ────────────────────────────────────────────────────────────── */}
       {selectedOrder && (
         <RenderView
           order={selectedOrder}
           onClose={() => setSelectedOrder(null)}
-          onCancel={() => {
-            setSelectedOrder(null);
-            loadOrders();
-          }}
         />
       )}
     </div>
