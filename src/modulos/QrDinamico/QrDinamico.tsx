@@ -15,9 +15,10 @@ import {
 } from './types';
 import RenderView from './RenderView/RenderView';
 import Conciliation from './Conciliation/Conciliation';
+import QrMetrics from './QrMetrics/QrMetrics';
 
 // ─── Tabs ────────────────────────────────────────────────────────────────────
-type ActiveTab = 'orders' | 'conciliation';
+type ActiveTab = 'orders' | 'conciliation' | 'metrics';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const formatAmount = (amount: string, currency: string) => (
@@ -214,6 +215,13 @@ const QrDinamico = () => {
         >
           Conciliación
         </button>
+        <button
+          id="tab-metrics"
+          className={`${styles.tab} ${activeTab === 'metrics' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('metrics')}
+        >
+          Métricas
+        </button>
       </div>
 
       {/* ── Tab: Orders ──────────────────────────────────────────────────────── */}
@@ -345,6 +353,9 @@ const QrDinamico = () => {
 
       {/* ── Tab: Conciliation ────────────────────────────────────────────────── */}
       {activeTab === 'conciliation' && <Conciliation />}
+
+      {/* ── Tab: Metrics (DES-28) ────────────────────────────────────────────── */}
+      {activeTab === 'metrics' && <QrMetrics />}
 
       {/* ── Modals ────────────────────────────────────────────────────────────── */}
       {selectedOrder && (

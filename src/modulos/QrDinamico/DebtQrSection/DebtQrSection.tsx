@@ -1,6 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAxios from "@/mk/hooks/useAxios";
+import { useEvent } from "@/mk/hooks/useEvents";
 import { formatBs } from "@/mk/utils/numbers";
 import {
   QR_STATE_COLOR,
@@ -138,6 +139,14 @@ const DebtQrSection = ({ debtDptoId, onPaymentConfirmed }: Props) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debtDptoId]);
+
+  // DES-30: un pago QR confirmado en tiempo real (webhook/conciliación)
+  // refresca la deuda abierta sin que el administrador haga nada
+  const onRealtimeConfirm = useCallback(async () => {
+    const stillPending = await load();
+    if (!stillPending) onPaymentConfirmed?.();
+  }, [load, onPaymentConfirmed]);
+  useEvent("payment:confirmed", onRealtimeConfirm);
 
   if (!pendingQr && history.length === 0) return null;
 

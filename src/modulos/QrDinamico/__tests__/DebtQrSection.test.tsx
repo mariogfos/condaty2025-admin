@@ -124,6 +124,52 @@ describe("DebtQrSection (DES-22/23/24)", () => {
     ).toBeInTheDocument();
   });
 
+  it("DES-30: el evento en vivo payment:confirmed refresca y avisa al padre", async () => {
+    // Arranca pendiente; tras el evento, el backend ya lo da por resuelto
+    let pendingNow = true;
+    executeMock.mockImplementation(async (url: string) => {
+      if (String(url).includes("/pending-qr"))
+        return {
+          data: {
+            success: true,
+            data: pendingNow
+              ? { pending: true, qr: PENDING_QR }
+              : { pending: false, qr: null },
+          },
+        };
+      if (String(url).includes("/qr-history"))
+        return { data: { success: true, data: { history: HISTORY } } };
+      if (String(url).includes("/verify"))
+        return {
+          data: {
+            success: true,
+            data: { id: "orden-1", order_state: QrOrderState.PENDING },
+          },
+        };
+      return { data: { success: false } };
+    });
+    const onPaymentConfirmed = vi.fn();
+    render(
+      <DebtQrSection debtDptoId={11} onPaymentConfirmed={onPaymentConfirmed} />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByText(/En espera de confirmación de QR Dinámico/),
+      ).toBeInTheDocument(),
+    );
+    expect(onPaymentConfirmed).not.toHaveBeenCalled();
+
+    pendingNow = false;
+    window.dispatchEvent(
+      new CustomEvent("payment:confirmed", { detail: { paymentId: 4242 } }),
+    );
+
+    await waitFor(() => expect(onPaymentConfirmed).toHaveBeenCalledTimes(1));
+    expect(
+      screen.queryByText(/En espera de confirmación de QR Dinámico/),
+    ).toBeNull();
+  });
+
   it("sin QR pendiente no verifica, pero el historial sí se muestra", async () => {
     mockApi({ pending: false });
     render(<DebtQrSection debtDptoId={11} />);
