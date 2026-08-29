@@ -1,6 +1,6 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "lastUpdated": "2026-08-28",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
@@ -916,6 +916,32 @@
           "name": "Yes",
           "value": 2,
           "comment": "Lo crea el sistema al dar de alta el condominio: no se toca"
+        }
+      ]
+    },
+    "PetGender": {
+      "type": "int",
+      "comment": "El sexo de la mascota -- pets.gender. Numerico desde 1 (flip 2026-08-28, api#456). Era char(1) con 'M'/'F'.\n\nMedido en produccion: 26 mascotas, 15 'M' y 11 'F'. Es de los pocos enums del proyecto donde los DOS valores estan realmente en uso.\n\nNO decide nada de permisos: decide el genero gramatical del aviso que se publica cuando una mascota se pierde (\"ha sido encontrada\" vs \"encontrado\"). Un valor equivocado no rompe nada, escribe mal.\n\nVENTANA DE LA APP DE TIENDA: rnOwner manda 'M'/'F' desde un Select con {id: 'M'} y la version instalada lo seguira haciendo hasta que el usuario actualice. Con el cast puesto, un forceFill(['gender' => 'M']) lanza TypeError -no ValueError- y sale 500. Por eso el API traduce la entrada con PetGender::desdeLoQuePideElCliente(); lo que se GUARDA es siempre el numero. Su marca de caducidad son los tests que cubren las letras.\n\nSincronizado con backend App\\Modules\\Pets\\Enums\\PetGender (PHP enum: int).",
+      "apps": [
+        "api",
+        "rnOwner"
+      ],
+      "aliasesByApp": {
+        "rnOwner": {
+          "Male": "MALE",
+          "Female": "FEMALE"
+        }
+      },
+      "values": [
+        {
+          "name": "Male",
+          "value": 1,
+          "comment": "Macho"
+        },
+        {
+          "name": "Female",
+          "value": 2,
+          "comment": "Hembra"
         }
       ]
     }
