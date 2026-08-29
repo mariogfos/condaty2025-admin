@@ -19,6 +19,7 @@ export interface CustomWindowEventMap extends WindowEventMap {
   "assembly:status": AppEvent<any>;
   "attendance-registered": AppEvent<any>;
   "survey-stats": AppEvent<any>;
+  "payment:confirmed": AppEvent<any>;
 }
 
 export const useEvent = <PayloadType = unknown,>(
