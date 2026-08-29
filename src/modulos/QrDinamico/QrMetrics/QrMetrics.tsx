@@ -1,9 +1,15 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatBs } from "@/mk/utils/numbers";
 import { QR_STATE_LABEL, QrOrderState } from "../types";
+
+interface AccountOption {
+  id: number | string;
+  alias_holder?: string;
+  account_number?: string;
+}
 import styles from "./QrMetrics.module.css";
 
 /**
@@ -36,7 +42,7 @@ const QrMetrics = () => {
   const isFos = Boolean(user?.fosrole_id);
 
   const [metrics, setMetrics] = useState<Metrics | null>(null);
-  const [accounts, setAccounts] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<AccountOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
     date_from: "",
@@ -46,26 +52,35 @@ const QrMetrics = () => {
     client_id: "",
   });
 
+  // id incremental: dos filtros rápidos pueden responder fuera de orden y
+  // la respuesta vieja no debe pisar a la nueva
+  const requestSeq = useRef(0);
+
   const load = useCallback(
     async (f: typeof filters) => {
+      const seq = ++requestSeq.current;
       setLoading(true);
-      const params = new URLSearchParams();
-      if (f.date_from) params.set("date_from", f.date_from);
-      if (f.date_to) params.set("date_to", f.date_to);
-      if (f.bank_account_id) params.set("bank_account_id", f.bank_account_id);
-      if (f.order_state) params.set("order_state", f.order_state);
-      if (isFos && f.client_id) params.set("client_id", f.client_id);
+      // Los filtros van como payload: useAxios arma el query string en GET.
+      // Armar la URL a mano duplica el "?" y corrompe el último parámetro.
+      const params: Record<string, string> = {};
+      if (f.date_from) params.date_from = f.date_from;
+      if (f.date_to) params.date_to = f.date_to;
+      if (f.bank_account_id) params.bank_account_id = f.bank_account_id;
+      if (f.order_state) params.order_state = f.order_state;
+      if (isFos && f.client_id) params.client_id = f.client_id;
       const res = await execute(
-        `/qr-dynamic/debts/metrics?${params.toString()}`,
+        "/qr-dynamic/debts/metrics",
         "GET",
-        {},
+        params,
         false,
         true,
       );
+      if (seq !== requestSeq.current) return; // llegó tarde: descartar
       setMetrics(res?.data?.success ? res.data.data : null);
       setLoading(false);
     },
-    [execute, isFos],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isFos],
   );
 
   useEffect(() => {
@@ -116,7 +131,7 @@ const QrMetrics = () => {
             onChange={(e) => handleFilter("bank_account_id", e.target.value)}
           >
             <option value="">Todas las cuentas</option>
-            {accounts.map((a: any) => (
+            {accounts.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.alias_holder || a.account_number}
               </option>
@@ -144,7 +159,7 @@ const QrMetrics = () => {
             onChange={(e) => handleFilter("client_id", e.target.value)}
           >
             <option value="">Todos los condominios</option>
-            {user.clients.map((c: any) => (
+            {user.clients.map((c: { id: string; name: string }) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>

@@ -56,7 +56,15 @@ const mockApi = (opts: {
       return { data: { success: true, data: { history: HISTORY } } };
     if (url.includes("/verify")) {
       if (opts.verifyFail)
-        return { data: { success: false, message: opts.verifyFail } };
+        // Forma REAL de useAxios ante un 422: data null, cuerpo en error.data
+        return {
+          data: null,
+          error: {
+            status: 422,
+            message: "Request failed with status code 422",
+            data: { success: false, message: opts.verifyFail },
+          },
+        };
       return {
         data: {
           success: true,
@@ -172,7 +180,10 @@ describe("DebtQrSection (DES-22/23/24)", () => {
 
   it("sin QR pendiente no verifica, pero el historial sí se muestra", async () => {
     mockApi({ pending: false });
-    render(<DebtQrSection debtDptoId={11} />);
+    const onPaymentConfirmed = vi.fn();
+    render(
+      <DebtQrSection debtDptoId={11} onPaymentConfirmed={onPaymentConfirmed} />,
+    );
 
     await waitFor(() =>
       expect(screen.getByText(/Historial de QR dinámicos \(1\)/)).toBeInTheDocument(),
@@ -181,5 +192,14 @@ describe("DebtQrSection (DES-22/23/24)", () => {
     expect(
       screen.queryByText(/En espera de confirmación de QR Dinámico/),
     ).toBeNull();
+
+    // Un pago QR ajeno del condominio NO dispara recargas de esta deuda
+    const callsBefore = executeMock.mock.calls.length;
+    window.dispatchEvent(
+      new CustomEvent("payment:confirmed", { detail: { paymentId: 777 } }),
+    );
+    await new Promise((r) => setTimeout(r, 50));
+    expect(executeMock.mock.calls.length).toBe(callsBefore);
+    expect(onPaymentConfirmed).not.toHaveBeenCalled();
   });
 });

@@ -80,8 +80,10 @@ describe("QrAccountConfig (DES-20/21)", () => {
   });
 
   it("sin acceso (403) no renderiza nada", async () => {
+    // Forma REAL de useAxios ante un 403: data null, cuerpo en error.data
     executeMock.mockResolvedValue({
-      data: { success: false, message: "No autorizado" },
+      data: null,
+      error: { status: 403, data: { success: false, message: "No autorizado" } },
     });
     const { container } = render(<QrAccountConfig bankAccountId={7} />);
     await waitFor(() =>

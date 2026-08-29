@@ -3,11 +3,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAxios from "@/mk/hooks/useAxios";
 import { useEvent } from "@/mk/hooks/useEvents";
 import { formatBs } from "@/mk/utils/numbers";
-import {
-  QR_STATE_COLOR,
-  QR_STATE_LABEL,
-  QrOrderState,
-} from "../types";
+import { QrOrderState } from "../types";
+import { StateBadge, apiMessage } from "../shared";
 import styles from "./DebtQrSection.module.css";
 
 /**
@@ -56,19 +53,6 @@ interface Props {
   onPaymentConfirmed?: () => void;
 }
 
-const StateBadge = ({ state }: { state: QrOrderState }) => {
-  const cfg = QR_STATE_COLOR[state];
-  if (!cfg) return <span>{String(state)}</span>;
-  return (
-    <span
-      className={styles.badge}
-      style={{ color: cfg.color, backgroundColor: cfg.bg }}
-    >
-      {QR_STATE_LABEL[state] ?? state}
-    </span>
-  );
-};
-
 const DebtQrSection = ({ debtDptoId, onPaymentConfirmed }: Props) => {
   const { execute } = useAxios();
 
@@ -77,7 +61,10 @@ const DebtQrSection = ({ debtDptoId, onPaymentConfirmed }: Props) => {
   const [verifyMessage, setVerifyMessage] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   const verifiedOrderRef = useRef<string | null>(null);
+  // Espejo del estado pendiente para el listener de tiempo real
+  const pendingQrRef = useRef<PendingQr | null>(null);
 
   const load = useCallback(async () => {
     const [pendingRes, historyRes] = await Promise.all([
@@ -85,11 +72,16 @@ const DebtQrSection = ({ debtDptoId, onPaymentConfirmed }: Props) => {
       execute(`/qr-dynamic/debts/${debtDptoId}/qr-history`, "GET", {}, false, true),
     ]);
     const pending = pendingRes?.data?.success ? pendingRes.data.data : null;
-    setPendingQr(pending?.pending ? pending.qr : null);
+    const qr: PendingQr | null = pending?.pending ? pending.qr : null;
+    setPendingQr(qr);
+    pendingQrRef.current = qr;
     setHistory(
       historyRes?.data?.success ? (historyRes.data.data.history ?? []) : [],
     );
-    return pending?.pending ? (pending.qr as PendingQr) : null;
+    // Backend caído (error HTTP, no un 200 con pending:false): avisar en vez
+    // de desaparecer — que "sin QR" nunca se confunda con "no pude consultar"
+    setLoadFailed(Boolean(pendingRes?.error));
+    return qr;
   }, [debtDptoId, execute]);
 
   // RN-ADM-07: al abrir con QR pendiente, UNA revalidación automática
@@ -108,7 +100,7 @@ const DebtQrSection = ({ debtDptoId, onPaymentConfirmed }: Props) => {
       );
       setVerifying(false);
       if (res?.data?.success) {
-        const state = res.data.data?.order_state;
+        const state = Number(res.data.data?.order_state);
         if (state === QrOrderState.PAID) {
           setVerifyMessage(
             "El banco confirmó el pago de este QR: la deuda quedó pagada y el ingreso ya está disponible.",
@@ -119,10 +111,11 @@ const DebtQrSection = ({ debtDptoId, onPaymentConfirmed }: Props) => {
           // Expiró o se anuló en la última consulta: refrescar el indicador
           await load();
         }
-      } else if (res?.data?.message) {
-        // Banco sin responder (422): mostrar el mensaje del backend tal cual,
-        // sin tocar estados locales
-        setVerifyMessage(res.data.message);
+      } else {
+        // Banco sin responder (422): se muestra el mensaje del backend tal
+        // cual, sin tocar estados locales ni exponer detalles (DES-32)
+        const message = apiMessage(res);
+        if (message) setVerifyMessage(message);
       }
     },
     [execute, load, onPaymentConfirmed],
@@ -130,6 +123,7 @@ const DebtQrSection = ({ debtDptoId, onPaymentConfirmed }: Props) => {
 
   useEffect(() => {
     let cancelled = false;
+    setVerifyMessage(null);
     (async () => {
       const qr = await load();
       if (!cancelled && qr) verify(qr);
@@ -141,17 +135,25 @@ const DebtQrSection = ({ debtDptoId, onPaymentConfirmed }: Props) => {
   }, [debtDptoId]);
 
   // DES-30: un pago QR confirmado en tiempo real (webhook/conciliación)
-  // refresca la deuda abierta sin que el administrador haga nada
+  // refresca la deuda abierta sin que el administrador haga nada.
+  // Solo reacciona si ESTA deuda esperaba un QR: un pago ajeno del mismo
+  // condominio no dispara recargas en cascada.
   const onRealtimeConfirm = useCallback(async () => {
+    if (!pendingQrRef.current) return;
     const stillPending = await load();
     if (!stillPending) onPaymentConfirmed?.();
   }, [load, onPaymentConfirmed]);
   useEvent("payment:confirmed", onRealtimeConfirm);
 
-  if (!pendingQr && history.length === 0) return null;
+  if (!pendingQr && history.length === 0 && !loadFailed) return null;
 
   return (
     <div className={styles.container} id="debt-qr-section">
+      {loadFailed && !pendingQr && (
+        <p className={styles.verifyMessage}>
+          No se pudo consultar el estado QR de esta deuda. Intente nuevamente.
+        </p>
+      )}
       {pendingQr && (
         <div className={styles.pendingBanner}>
           <div className={styles.pendingTitle}>

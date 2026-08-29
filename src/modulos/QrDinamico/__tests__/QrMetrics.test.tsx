@@ -50,6 +50,30 @@ describe("QrMetrics (DES-28)", () => {
     expect(screen.getAllByText("Expirado")).toHaveLength(2);
   });
 
+  it("los filtros viajan como payload, nunca pegados a la URL", async () => {
+    mockApi();
+    const { container } = render(<QrMetrics />);
+    await waitFor(() =>
+      expect(container.querySelector("#metrics-state")).not.toBeNull(),
+    );
+
+    const stateSelect = container.querySelector(
+      "#metrics-state",
+    ) as HTMLSelectElement;
+    stateSelect.value = "2";
+    stateSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    await waitFor(() => {
+      const call = executeMock.mock.calls.find(
+        (c) => c[0] === "/qr-dynamic/debts/metrics" && c[2]?.order_state,
+      );
+      expect(call).toBeTruthy();
+      // URL limpia + filtros en el payload: useAxios arma el query en GET
+      expect(call?.[0]).toBe("/qr-dynamic/debts/metrics");
+      expect(call?.[2]).toEqual({ order_state: "2" });
+    });
+  });
+
   it("el filtro de condominio existe solo para FOS", async () => {
     mockApi();
     mockUser = {
