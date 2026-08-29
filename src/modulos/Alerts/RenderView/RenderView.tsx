@@ -11,6 +11,7 @@ import {
   getAlertLevelFigmaColor,
   ALERT_LEVELS,
   ALERT_LEVEL_LABELS,
+  ALERT_TYPE,
 } from "../alertConstants";
 import {
   IconAlert,
@@ -21,7 +22,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
 
-const getAlertTypeBoxDetails = (item: any) => {
+export const getAlertTypeBoxDetails = (item: any) => {
   const details = {
     boxBgColor: "var(--cGrayMd, #55595c)",
     borderColor: "var(--cGrayDark, #404244)",
@@ -30,8 +31,11 @@ const getAlertTypeBoxDetails = (item: any) => {
     title: item.descrip || `Alerta de ${ALERT_LEVEL_LABELS[ALERT_LEVELS.HIGH]}`,
   };
 
-  switch (item.type) {
-    case "E":
+  // 🔴 `Number()` y no el crudo: el sobre puede traer el tipo como string, y
+  // `4 === '4'` es `false`. Un tipo que no reconocemos cae al `default` —una
+  // tarjeta gris con la campana genérica—, nunca rompe la alerta.
+  switch (Number(item.type)) {
+    case ALERT_TYPE.MEDICAL:
       return {
         ...details,
         boxBgColor: "rgba(218, 94, 85, 0.55)",
@@ -39,7 +43,7 @@ const getAlertTypeBoxDetails = (item: any) => {
         icon: <IconAmbulance size={36} color={details.textColor} />,
         title: getEmergencyTitle(item.descrip),
       };
-    case "F":
+    case ALERT_TYPE.FIRE:
       return {
         ...details,
         boxBgColor: "rgba(218, 93, 93, 0.2)",
@@ -47,7 +51,7 @@ const getAlertTypeBoxDetails = (item: any) => {
         icon: <IconFlame size={36} color={details.textColor} />,
         title: getFireTitle(item.descrip),
       };
-    case "T":
+    case ALERT_TYPE.THEFT:
       return {
         ...details,
         boxBgColor: "rgba(112, 66, 112, 0.2)",

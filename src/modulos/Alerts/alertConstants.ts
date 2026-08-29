@@ -1,3 +1,18 @@
+/**
+ * 🔴 `type` es el tipo de EMERGENCIA; `level` es a quién le llega. Son dos
+ * columnas distintas y las dos son numéricas — no las mezcles.
+ *
+ * Pasó de `varchar(255)` con letras a enum numérico el 2026-08-28 (api#463).
+ * ⚠️ El sobre puede traer el número como string, así que **se compara
+ * normalizado con `Number()`**: `4 === '4'` es `false`.
+ */
+export const ALERT_TYPE = {
+  MEDICAL: 1,
+  THEFT: 2,
+  FIRE: 3,
+  OTHER: 4,
+} as const;
+
 export const ALERT_LEVELS = {
   PANIC: 4,
   HIGH: 3,
