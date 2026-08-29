@@ -19,7 +19,7 @@ import { formatNumber } from "@/mk/utils/numbers";
 import RenderView from "../RenderView/RenderView";
 import useCrudUtils from "@/modulos/shared/useCrudUtils";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
-import { lComDestinies } from "@/mk/utils/utils";
+import { OPCIONES_DE_DESTINO } from "../eventEnums";
 
 const paramsInitial = {
   perPage: 20,
@@ -94,37 +94,26 @@ const EventsAdmin = () => {
     action: any;
   }) => {
     const extraData = data?.extraData;
-    if (data?.item?.destiny == 0) {
-      return;
-    }
-    let selDestinies = [];
-    if (data?.item?.destiny == 2) selDestinies = extraData.listas;
-    if (data?.item?.destiny == 3) selDestinies = extraData.dptos;
-    if (data?.item?.destiny == 4) selDestinies = extraData.muns;
-    // if (data?.item?.destiny == 4) selDestinies = extraData.locals;
-    if (data?.item?.destiny == 5) selDestinies = extraData.barrios;
-    let lDestinies: any = data?.item?.lDestiny || [];
-    // let dataDestinies =
-    //   data?.action == "edit" ? data?.item?.cdestinies : data?.item?.lDestiny;
-    if (data?.action == "edit" && !data?.item?.lDestiny) {
-      data?.item?.edestinies?.map((d: any) => {
-        if (data?.item?.destiny == 2) {
-          lDestinies.push(d.lista_id);
-        }
-        if (data?.item?.destiny == 3) {
-          lDestinies.push(d.dpto_id);
-        }
-        if (data?.item?.destiny == 4) {
-          lDestinies.push(d.mun_id);
-        }
-        if (data?.item?.destiny == 5) {
-          lDestinies.push(d.barrio_id);
-        }
-        // if (data?.item?.destiny == 5) {
-        //   lDestinies.push(d.local_id);
-        // }
-      });
-    }
+    // 🔴 Acá había una cascada de destinos SEGMENTADOS —listas, departamentos,
+    // municipios, barrios— y estaba muerta desde siempre. Se sacó con el flip
+    // de `destiny` a numérico (api#458), y no por prolijidad: **el flip la
+    // despertaba hasta el crash**.
+    //
+    // Cuatro evidencias de que nunca corrió:
+    //
+    //  1. comparaba `destiny == 2 | 3 | 4 | 5` mientras el `Select` de esta
+    //     misma pantalla ofrecía `{id: "T" | "D" | "G" | "R"}`. Dos vocabularios
+    //     en el mismo archivo: ninguna comparación dio verdadera jamás;
+    //  2. leía `extraData.listas`, `.dptos`, `.muns` y `.barrios`, que los
+    //     tendría que mandar una rama `EXTRA` del controller — **que no existe**;
+    //  3. recorría `item.edestinies`, y la relación `edestinies()` del modelo
+    //     está **comentada**: devuelve `null`;
+    //  4. en producción no hay **una sola fila** de `events`.
+    //
+    // Con `destiny` ya numérico, `destiny == 2` pasaba a ser cierta y asignaba
+    // `selDestinies = undefined`; el `.map()` de abajo reventaba la pantalla.
+    const selDestinies: any[] = [];
+    const lDestinies: any = data?.item?.lDestiny || [];
 
     return (
       <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
@@ -189,7 +178,7 @@ const EventsAdmin = () => {
         list: false,
         form: {
           type: "select",
-          options: lComDestinies,
+          options: OPCIONES_DE_DESTINO,
           // onLeft: leftDestiny,
           onTop: onTop,
           precarga: 0,
@@ -470,158 +459,27 @@ const EventsAdmin = () => {
       return true;
     }
 
+    // 🔴 La misma cascada muerta que en `onTop`, con la misma evidencia — y acá
+    // era peor: abría un `ModalDestiny` con `extraData.listas` indefinido.
     let lDestiny = item.lDestiny || [];
-    if (action == "edit") {
-      item?.edestinies?.map((d: any) => {
-        if (item?.destiny == 2) {
-          lDestiny.push(d.lista_id);
-        }
-        if (item?.destiny == 3) {
-          lDestiny.push(d.dpto_id);
-        }
-        if (item?.destiny == 4) {
-          lDestiny.push(d.mun_id);
-        }
-        if (item?.destiny == 5) {
-          lDestiny.push(d.barrio_id);
-        }
-        // if (item?.destiny == 4) {
-        //   lDestiny.push(d.local_id);
-        // }
-      });
-    }
     if (name == "destiny") {
-      selDestinies = null;
-      if (value == 2) selDestinies = extraData.listas;
-      if (value == 3) selDestinies = extraData.dptos;
-      if (value == 4) selDestinies = extraData.muns;
-      // if (value == 4) selDestinies = extraData.locals;
-      // if (value == 5) selDestinies = extraData.barrios;
-
       if (value != item.destiny) {
         setItem({ ...item, lDestiny: [] });
         lDestiny = [];
       }
 
-      if (selDestinies)
-        setShowExtraModal(
-          <ModalDestiny
-            item={{ ...item, destiny: value, lDestiny: lDestiny }}
-            setItem={setItem}
-            selDestinies={selDestinies}
-            setShowExtraModal={setShowExtraModal}
-          />
-        );
-      else setShowExtraModal(null);
+      // ⚠️ Acá se abría el `ModalDestiny` con la lista segmentada. Sin esa
+      // lista —que el back nunca mandó— el modal no tiene qué mostrar.
+      setShowExtraModal(null);
     }
     return false;
   };
-  const ModalDestiny = ({
-    item,
-    setItem,
-    selDestinies,
-    setShowExtraModal,
-  }: {
-    item: any;
-    setItem: Function;
-    selDestinies: any;
-    setShowExtraModal: Function;
-  }) => {
-    const [openDestiny, setOpenDestiny] = useState(true);
-    const [sel, setSel]: any = useState([]);
-    const [destiniesFiltered, setDestiniesFiltered]: any = useState([]);
-    const [search, setSearch] = useState("");
-    useEffect(() => {
-      setSel(item?.lDestiny || []);
-    }, [item]);
-    const setOnSearch = (e: any) => {
-      setSearch(e);
-    };
+    // 🔴 Acá vivía `ModalDestiny`, el selector de destinos segmentados. Se
+    // fue con las dos cascadas que lo abrían (api#458): nunca se pudo mostrar
+    // —el back no manda las listas y la relación `edestinies()` del modelo está
+    // comentada— y quedó sin un solo llamador. Se saca en vez de dejarlo
+    // huérfano: un componente muerto invita a que alguien lo reconecte.
 
-    const normalizeText = (text: string) =>
-      text
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toUpperCase();
-
-    useEffect(() => {
-      if (search == "") {
-        setDestiniesFiltered(selDestinies);
-        return;
-      }
-      const filtered = selDestinies.filter((d: any) =>
-        normalizeText(d.name).includes(normalizeText(search))
-      );
-      setDestiniesFiltered(filtered);
-    }, [search]);
-    const _onSave = () => {
-      if (sel.length <= 0) {
-        showToast("Debe seleccionar al menos un destino", "error");
-        return;
-      }
-      setItem((old: any) => ({ ...old, lDestiny: sel }));
-      setShowExtraModal(null);
-      setOpenDestiny(false);
-    };
-    const _onClose = () => {
-      if (item?.destiny && item?.lDestiny?.length <= 0) {
-        setItem((old: any) => ({ ...old, destiny: null }));
-      }
-      setOpenDestiny(false);
-      setShowExtraModal(null);
-    };
-    return (
-      <DataModal
-        title="Destino"
-        open={openDestiny}
-        onClose={_onClose}
-        onSave={() => {
-          _onSave();
-        }}
-      >
-        {/* <Check
-          key={"check0"}
-          name={"destiny_0"}
-          label="Todos"
-          checked={sel.length == 0}
-          onChange={(e: any) => {
-            const { name, checked } = e.target;
-            if (checked) {
-              setSel([]);
-            }
-          }}
-          value={0}
-          optionValue={["0", "N"]}
-        /> */}
-        <DataSearch
-          name="searchDestiny"
-          setSearch={setOnSearch}
-          value={search}
-        />
-        {destiniesFiltered.map((d: any, i: number) => (
-          <Check
-            key={"check" + i}
-            name={"destiny_" + d.id}
-            label={d.name}
-            reverse
-            checked={sel.includes(d.id)}
-            onChange={(e: any) => {
-              const { name, checked } = e.target;
-              const id: any = parseInt(name.replace("destiny_", ""));
-
-              const il: any = sel?.filter((d: number) => d != id) || [];
-              if (checked) {
-                il.push(d.id);
-              }
-              setSel(il);
-            }}
-            value={d.id}
-            optionValue={[d.id, "N"]}
-          />
-        ))}
-      </DataModal>
-    );
-  };
 
   // const onImport = () => {
   //   setOpenImport(true);
