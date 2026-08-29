@@ -10,6 +10,7 @@ import {
 import Image from "next/image";
 import { getFullName } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { ContentType, esDocumento, esImagen, esVideo } from "../contentEnums";
 
 type PostData = {
   userName: string;
@@ -245,7 +246,7 @@ const Preview = ({ formState }: Props) => {
     time: "Hace un momento",
     title: formState?.title || null,
     description: formState?.description || dataFake.description,
-    hasImage: formState?.type === "I" && formState?.files?.length >= 1,
+    hasImage: esImagen(formState?.type) && formState?.files?.length >= 1,
     files: formState?.files,
     imageCount: getImageCount(formState),
     likes: 36,

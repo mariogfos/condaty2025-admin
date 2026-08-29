@@ -19,6 +19,7 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TagContents from "./TagContents";
 import Br from "@/components/Detail/Br";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
+import { ContentType, esDocumento, esImagen, esVideo } from "../contentEnums";
 
 const AddContent = ({
   onClose,
@@ -54,7 +55,7 @@ const AddContent = ({
     }
 
     // Manejar documentos existentes
-    if (action === "edit" && item?.type === "D" && item?.url) {
+    if (action === "edit" && esDocumento(item?.type) && item?.url) {
       initialState.file = {
         ext: item.url || "pdf",
         file: "", // Archivo existente
@@ -79,7 +80,7 @@ const AddContent = ({
         setFormState((prev: any) => ({ ...prev, type: item.type }));
       }
     } else {
-      setFormState((prev: any) => ({ ...prev, isType: "N", type: "I" }));
+      setFormState((prev: any) => ({ ...prev, isType: "N", type: ContentType.IMAGEN }));
     }
   }, []);
 
@@ -117,7 +118,7 @@ const AddContent = ({
         setFormState({
           ...formState,
           title: null,
-          type: "I",
+          type: ContentType.IMAGEN,
           url: null,
           // file: null,
           // avatar: formState?.avatar,
@@ -127,7 +128,7 @@ const AddContent = ({
       if (formState?.isType == "N") {
         setFormState({
           ...formState,
-          type: "I",
+          type: ContentType.IMAGEN,
           url: null,
           // file: null,
           // avatar: formState?.avatar,
@@ -197,7 +198,7 @@ const AddContent = ({
       });
     }
 
-    if (formState?.type == "V") {
+    if (esVideo(formState?.type)) {
       errors = checkRules({
         value: formState?.url,
         rules: ["required"],
@@ -331,12 +332,12 @@ const AddContent = ({
                 <div className={styles.contentTypeContainer}>
                   <TagContents
                     icon={<IconGallery size={16} />}
-                    isActive={formState.type == "I"}
+                    isActive={esImagen(formState.type)}
                     text="Contenido multimedia"
                     onClick={() =>
                       setFormState({
                         ...formState,
-                        type: "I",
+                        type: ContentType.IMAGEN,
                         url: null,
                         file: null,
                       })
@@ -346,13 +347,13 @@ const AddContent = ({
                   {formState.isType == "P" && (
                     <>
                       <TagContents
-                        isActive={formState.type == "V"}
+                        isActive={esVideo(formState.type)}
                         icon={<IconVideo size={16} />}
                         text={"Video"}
                         onClick={() =>
                           setFormState({
                             ...formState,
-                            type: "V",
+                            type: ContentType.VIDEO,
                             file: null,
                             avatar: null,
                           })
@@ -360,13 +361,13 @@ const AddContent = ({
                         disabled={action == "edit"}
                       />
                       <TagContents
-                        isActive={formState.type == "D"}
+                        isActive={esDocumento(formState.type)}
                         icon={<IconDocs size={16} />}
                         text="Documento"
                         onClick={() =>
                           setFormState({
                             ...formState,
-                            type: "D",
+                            type: ContentType.DOCUMENTO,
                             url: null,
                             avatar: null,
                           })
@@ -377,7 +378,7 @@ const AddContent = ({
                   )}
                 </div>
 
-                {formState?.type == "I" && (
+                {esImagen(formState?.type) && (
                   <div className={styles.uploadContainer}>
                     {/* <UploadFileMultiple
                       name="avatar"
@@ -403,7 +404,7 @@ const AddContent = ({
                     />
                   </div>
                 )}
-                {formState?.type == "V" && (
+                {esVideo(formState?.type) && (
                   <div className={styles.uploadContainer}>
                     <Input
                       name="url"
@@ -414,7 +415,7 @@ const AddContent = ({
                     />
                   </div>
                 )}
-                {formState?.type == "D" && (
+                {esDocumento(formState?.type) && (
                   <div className={styles.uploadContainer}>
                     {/* <UploadFile
                       name={"file"}

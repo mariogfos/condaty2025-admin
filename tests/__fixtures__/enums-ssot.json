@@ -1,6 +1,6 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "lastUpdated": "2026-08-28",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
@@ -944,11 +944,50 @@
           "comment": "Hembra"
         }
       ]
+    },
+    "ContentType": {
+      "type": "int",
+      "comment": "Que clase de publicacion del muro es -- contents.type. Numerico desde 1 (flip 2026-08-28, api#461). Era char(1): 'I' Imagen, 'D' Documento, 'V' Video.\n\nES EL FLIP QUE MAS COMPARACIONES **VIVAS** TOCA de toda la ronda. En types.is_fixed y events.destiny las comparaciones del front estaban INERTES; aca FUNCIONAN y deciden que se ve: rnOwner pinta el video, el documento o el carrusel segun este valor (6 comparaciones en 2 pantallas), y el admin decide con 17 mas que boton queda activo, que campo mostrar y que columna pintar. Con la columna numerica todas darian false: el muro deja de pintar videos y documentos SIN UN SOLO ERROR.\n\nOJO: 'D' significaba DOS cosas segun la columna -- Documento en type y Departamentos en destiny. El mismo caracter con dos vocabularios en la misma fila. Con las dos numericas esa ambiguedad desaparece.\n\nProduccion 2026-08-28: 140 'I', 2 'D', 1 'V' sobre 143 publicaciones. Los tres valores en uso.\n\nSincronizado con backend App\\Modules\\Contents\\Enums\\ContentType (PHP enum: int).",
+      "apps": [
+        "api",
+        "admin",
+        "rnOwner"
+      ],
+      "aliasesByApp": {
+        "admin": {
+          "Imagen": "IMAGEN",
+          "Documento": "DOCUMENTO",
+          "Video": "VIDEO"
+        },
+        "rnOwner": {
+          "Imagen": "IMAGEN",
+          "Documento": "DOCUMENTO",
+          "Video": "VIDEO"
+        }
+      },
+      "values": [
+        {
+          "name": "Imagen",
+          "value": 1,
+          "comment": "Publicacion con imagenes"
+        },
+        {
+          "name": "Documento",
+          "value": 2,
+          "comment": "Publicacion con un archivo adjunto"
+        },
+        {
+          "name": "Video",
+          "value": 3,
+          "comment": "Publicacion con un video"
+        }
+      ]
     }
   },
   "excluded": {
     "PaymentType (QrDinamico)": "String char, semántica distinta a PaymentType numeric. NO son el mismo enum. Vive en admin/src/modulos/QrDinamico/types.ts sin contraparte cross-app.",
     "BankAccountStatus/Type, BankEntityStatus, CategoryType/Status/Fixed, CurrencyTypeStatus, ExpenseStatus, LimitType, QrDynamicMode, QrEnvironment, QrOrderState, FormPaymentType, NetworkStateBits, MediaType, PaymentUiMethod": "Enums únicos por app, no compartidos cross-app. Si en el futuro se comparten, agregarlos a este SSoT con sus apps[] correspondientes.",
-    "TypeFieldFlag": "El si/no de type_fields.is_visible, is_editable e is_required. Numerico desde 1 en el API desde el 2026-08-28 (eran char(255) con 'A' = si, 'X' = no). NO cruza a ningun front: cero lecturas de esas tres columnas en admin, rnOwner y rnGuard, y type_fields tiene UNA sola fila en produccion. Se flipearon igual porque su 'A' es la mitad de la trampa que rompio la comparacion de types.is_fixed en el admin -- dejar tres columnas con el vocabulario viejo al lado de una numerica es dejarla armada para el proximo."
+    "TypeFieldFlag": "El si/no de type_fields.is_visible, is_editable e is_required. Numerico desde 1 en el API desde el 2026-08-28 (eran char(255) con 'A' = si, 'X' = no). NO cruza a ningun front: cero lecturas de esas tres columnas en admin, rnOwner y rnGuard, y type_fields tiene UNA sola fila en produccion. Se flipearon igual porque su 'A' es la mitad de la trampa que rompio la comparacion de types.is_fixed en el admin -- dejar tres columnas con el vocabulario viejo al lado de una numerica es dejarla armada para el proximo.",
+    "ContentDestiny / ContentStatus": "contents.destiny y contents.status tambien pasaron a numerico el 2026-08-28 (api#461). destiny cruza al admin pero con su propia lista local -lComDestinies de @/mk/utils/utils sigue en letras porque lo comparte Encuestas, sin migrar- y status no cruza a ningun front: sus dos lectores son del API (OwnerHomeService::getCommunityContent y DashboardController). Se agregan al SSoT cuando Encuestas se migre y la lista comun se pueda unificar.\n\nNOTA: contents.status NO se borro, a diferencia de roles.status, types.status, pets.status y events.status. La diferencia es QUIEN LA LEE: esas cuatro no tenian un solo lector; esta tiene dos vivos. Columna muerta y capacidad sin ejercer no son lo mismo."
   }
 }

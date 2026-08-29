@@ -24,6 +24,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import CommentsModal from "@/components/CommentsModal/CommentsModal";
+import { ContentType, esDocumento, esImagen, esVideo } from "./contentEnums";
 
 const paramsInitial = {
   perPage: 20,
@@ -37,8 +38,8 @@ const isType = (data: {
   user?: Record<string, any>;
   item: Record<string, any>;
 }) => {
-  if (data.key == "url" && data.item.type == "V") return false;
-  if (data.key == "avatar" && data.item.type == "I") return false;
+  if (data.key == "url" && esVideo(data.item.type)) return false;
+  if (data.key == "avatar" && esImagen(data.item.type)) return false;
   if (data.key == "file" && data.item.type == "D") return false;
   return true;
 };
