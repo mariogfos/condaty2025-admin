@@ -54,8 +54,13 @@ describe("PaymentQrSection (DES-25/26/27)", () => {
   });
 
   it("ingreso manual (404): no renderiza nada", async () => {
+    // Forma REAL de useAxios ante un 404: data null, cuerpo en error.data
     executeMock.mockResolvedValue({
-      data: { success: false, message: "El ingreso no proviene de un QR dinámico." },
+      data: null,
+      error: {
+        status: 404,
+        data: { success: false, message: "El ingreso no proviene de un QR dinámico." },
+      },
     });
     const { container } = render(<PaymentQrSection paymentId={999} />);
     await waitFor(() => expect(executeMock).toHaveBeenCalled());

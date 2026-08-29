@@ -1,8 +1,9 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useAxios from "@/mk/hooks/useAxios";
 import { formatBs } from "@/mk/utils/numbers";
-import { QR_STATE_COLOR, QR_STATE_LABEL, QrOrderState } from "../types";
+import { QR_STATE_LABEL, QrOrderState } from "../types";
+import { StateBadge } from "../shared";
 import styles from "./PaymentQrSection.module.css";
 
 /**
@@ -55,12 +56,9 @@ const PaymentQrSection = ({ paymentId }: Props) => {
   const { execute } = useAxios();
   const [audit, setAudit] = useState<QrAudit | null>(null);
   const [expanded, setExpanded] = useState(false);
-  const loadedForRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!paymentId) return;
-    if (loadedForRef.current === String(paymentId)) return;
-    loadedForRef.current = String(paymentId);
     let cancelled = false;
     (async () => {
       const res = await execute(
@@ -77,24 +75,18 @@ const PaymentQrSection = ({ paymentId }: Props) => {
     return () => {
       cancelled = true;
     };
-  }, [paymentId, execute]);
+    // execute cambia de identidad en cada render (useAxios): con él en las
+    // deps el fetch en vuelo se cancela y la sección no renderiza nunca
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paymentId]);
 
   if (!audit) return null;
-
-  const stateCfg = QR_STATE_COLOR[audit.order_state];
 
   return (
     <div className={styles.container} id="payment-qr-section">
       <div className={styles.header}>
         <span className={styles.originBadge}>Origen: QR Dinámico</span>
-        {stateCfg && (
-          <span
-            className={styles.stateBadge}
-            style={{ color: stateCfg.color, backgroundColor: stateCfg.bg }}
-          >
-            {QR_STATE_LABEL[audit.order_state]}
-          </span>
-        )}
+        <StateBadge state={audit.order_state} />
       </div>
 
       <div className={styles.grid}>

@@ -7,6 +7,7 @@ import Switch from "@/mk/components/forms/Switch/Switch";
 import Button from "@/mk/components/forms/Button/Button";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { apiMessage } from "../shared";
 import styles from "./QrAccountConfig.module.css";
 
 /**
@@ -56,8 +57,8 @@ const QrAccountConfig = ({ bankAccountId }: Props) => {
   const load = useCallback(async () => {
     setLoading(true);
     const [cfgRes, provRes] = await Promise.all([
-      execute(`/qr-dynamic/accounts/${bankAccountId}/config`, "GET"),
-      execute("/qr-dynamic/providers", "GET"),
+      execute(`/qr-dynamic/accounts/${bankAccountId}/config`, "GET", {}, false, true),
+      execute("/qr-dynamic/providers", "GET", {}, false, true),
     ]);
     if (cfgRes?.data?.success) setConfig(cfgRes.data.data);
     if (provRes?.data?.success) setProviders(provRes.data.data.providers ?? []);
@@ -67,7 +68,10 @@ const QrAccountConfig = ({ bankAccountId }: Props) => {
 
   useEffect(() => {
     load();
-  }, [load]);
+    // execute (useAxios) cambia de identidad en cada render: colgar el
+    // efecto de load provoca un bucle infinito de requests. Solo la cuenta.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bankAccountId]);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -96,9 +100,12 @@ const QrAccountConfig = ({ bankAccountId }: Props) => {
     const payload: Record<string, unknown> = {};
     if ("qr_dynamic_enabled" in form)
       payload.qr_dynamic_enabled = form.qr_dynamic_enabled === "Y";
+    // La referencia y el proveedor viajan aunque estén vacíos (limpiar es
+    // válido); una credencial vacía NO viaja (vacío = "no la toques")
+    for (const key of ["qr_dynamic_bank_id", "qr_dynamic_account_reference"]) {
+      if (key in form) payload[key] = form[key];
+    }
     for (const key of [
-      "qr_dynamic_bank_id",
-      "qr_dynamic_account_reference",
       "qr_dynamic_api_key",
       "qr_dynamic_username",
       "qr_dynamic_password",
@@ -120,7 +127,8 @@ const QrAccountConfig = ({ bankAccountId }: Props) => {
       showToast(res.data.message || "Configuración guardada", "success");
       load();
     } else {
-      showToast(res?.data?.message || "No se pudo guardar", "error");
+      // 422: axios tira y el mensaje del backend llega en error.data (DES-32)
+      showToast(apiMessage(res) || "No se pudo guardar", "error");
     }
   };
 
@@ -175,11 +183,13 @@ const QrAccountConfig = ({ bankAccountId }: Props) => {
         escribí el valor nuevo; los campos vacíos no se tocan.
       </p>
 
-      <Input
+      <InputPassword
         label="API Key"
         name="qr_dynamic_api_key"
         value={(form.qr_dynamic_api_key as string) ?? ""}
         onChange={handleChange}
+        autoComplete="new-password"
+        error={{}}
       />
       <Input
         label="Usuario"
@@ -192,6 +202,7 @@ const QrAccountConfig = ({ bankAccountId }: Props) => {
         name="qr_dynamic_password"
         value={(form.qr_dynamic_password as string) ?? ""}
         onChange={handleChange}
+        autoComplete="new-password"
         error={{}}
       />
 
