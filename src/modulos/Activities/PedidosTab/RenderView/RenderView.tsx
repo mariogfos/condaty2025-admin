@@ -1,4 +1,8 @@
 import React from "react";
+import {
+  ORDER_STATUS,
+  esEstadoDePedido,
+} from "../types/orderStatus";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderView.module.css";
 import { getFullName } from "@/mk/utils/string";
@@ -110,14 +114,14 @@ const RenderView: React.FC<RenderViewProps> = ({
             </div>
           </div>
 
-          {item?.status === "X" && (
+          {esEstadoDePedido(item?.status, ORDER_STATUS.CANCELADO) && (
             <div className={styles.detailRow}>
               <div className={styles.label}>Estado:</div>
               <div className={styles.valueError}>Anulado</div>
             </div>
           )}
 
-          {item?.status === "A" && !item?.access && (
+          {esEstadoDePedido(item?.status, ORDER_STATUS.ESPERANDO) && !item?.access && (
             <div className={styles.detailRow}>
               <div className={styles.label}>Estado:</div>
               <div className={styles.valueError}>Vencido</div>
@@ -191,7 +195,7 @@ const RenderView: React.FC<RenderViewProps> = ({
 
         {/* Botones de acción según el estado del pedido */}
         <div className={styles.actionContainer}>
-          {!item?.access?.in_at && item?.status !== "X" && (
+          {!item?.access?.in_at && !esEstadoDePedido(item?.status, ORDER_STATUS.CANCELADO) && (
             <Button 
               className={styles.entryButton} 
               onClick={handleEntrada}
