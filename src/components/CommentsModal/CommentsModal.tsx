@@ -59,7 +59,7 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
     setComments([]);
     try {
       const response = await executeFetchComments(
-        `/comments?fullType=L&id=${id}&type=C&perPage=-1&page=1`,
+        `/v3/comments?fullType=L&id=${id}&type=C&perPage=-1&page=1`,
         "GET",
       );
       if (response?.data && Array.isArray(response.data)) {
@@ -84,7 +84,7 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
     }
     setPostingComment(true);
     try {
-      const response = await executePostComment("/comments", "POST", {
+      const response = await executePostComment("/v3/comments", "POST", {
         id: contentId,
         comment: newCommentText,
         type: "C",

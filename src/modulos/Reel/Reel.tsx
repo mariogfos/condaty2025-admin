@@ -383,7 +383,7 @@ const Reel = () => {
     setComments([]);
     try {
       const response = await executeFetchComments(
-        `/comments?fullType=L&id=${contentId}&type=C&perPage=-1&page=1`,
+        `/v3/comments?fullType=L&id=${contentId}&type=C&perPage=-1&page=1`,
         "GET",
       );
       if (response?.data && Array.isArray(response.data)) {
@@ -412,7 +412,7 @@ const Reel = () => {
     }
     setPostingComment(true);
     try {
-      const response = await executePostComment("/comments", "POST", {
+      const response = await executePostComment("/v3/comments", "POST", {
         id: selectedContentIdForComments,
         comment: newCommentText,
         type: "C",
