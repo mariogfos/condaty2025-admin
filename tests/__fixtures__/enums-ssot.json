@@ -1,6 +1,6 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "lastUpdated": "2026-08-28",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
@@ -980,6 +980,51 @@
           "name": "Video",
           "value": 3,
           "comment": "Publicacion con un video"
+        }
+      ]
+    },
+    "AlertType": {
+      "type": "int",
+      "comment": "Que clase de emergencia es -- alerts.type. Numerico desde 1 (flip 2026-08-28, api#463). Era varchar(255) -- NO char(1), otra columna creada con el largo equivocado -- con 'E'/'T'/'F'/'O'.\n\nES EL FLIP MAS DELICADO DE LA RONDA, y no por el codigo: por QUE PANTALLA TOCA. Es el boton de panico, y lo leen LAS DOS APPS DE TIENDA con mapas indexados por letra: EMERGENCY_TYPES/typeAlerts/EMERGENCY_TYPE_CONFIGS en rnGuard (4 archivos), y statusColorPanic/PANIC_TYPES/typeAlerts mas un switch en rnOwner. Con la columna numerica esos mapas dan undefined: el guardia ve la alerta SIN ICONO Y SIN DECIR DE QUE EMERGENCIA SE TRATA, justo cuando importa. No hay error; hay una tarjeta en blanco.\n\nProduccion 2026-08-28: E=30, O=22, F=10, T=10 sobre 72 alertas (58 de nivel 4). Los cuatro valores en uso.\n\nEl API sigue aceptando las letras en la entrada. Lo que la traduccion NO puede arreglar es la SALIDA: una app vieja recibe el numero igual. Esa es la ventana, y en este modulo es la que mas cuesta.\n\nSincronizado con backend App\\Modules\\Alerts\\Enums\\AlertType (PHP enum: int).",
+      "apps": [
+        "api",
+        "rnGuard",
+        "rnOwner"
+      ],
+      "aliasesByApp": {
+        "rnGuard": {
+          "EmergenciaMedica": "EMERGENCIA_MEDICA",
+          "RoboOIntrusion": "ROBO_O_INTRUSION",
+          "Incendio": "INCENDIO",
+          "Otro": "OTRO"
+        },
+        "rnOwner": {
+          "EmergenciaMedica": "EMERGENCIA_MEDICA",
+          "RoboOIntrusion": "ROBO_O_INTRUSION",
+          "Incendio": "INCENDIO",
+          "Otro": "OTRO"
+        }
+      },
+      "values": [
+        {
+          "name": "EmergenciaMedica",
+          "value": 1,
+          "comment": "Emergencia medica"
+        },
+        {
+          "name": "RoboOIntrusion",
+          "value": 2,
+          "comment": "Robo o intrusion"
+        },
+        {
+          "name": "Incendio",
+          "value": 3,
+          "comment": "Incendio"
+        },
+        {
+          "name": "Otro",
+          "value": 4,
+          "comment": "Otro -- y el lado seguro del backfill: una alerta con tipo desconocido sigue llegando a la garita"
         }
       ]
     }
