@@ -5,7 +5,11 @@ import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
 
 const mod: ModCrudType = {
-  modulo: "abilities",
+  // 🔴 `v3/abilities`, no `abilities`. El catálogo de permisos vivía en
+  // `/api/abilities` —`routes/api.php`, sin prefijo— y se mudó a
+  // `/api/v3/abilities` con el módulo el 2026-08-30. La ruta vieja ya no
+  // existe: sin este cambio la pantalla de Permisos come 404.
+  modulo: "v3/abilities",
   singular: "permiso",
   plural: "permisos",
   // import: true,
