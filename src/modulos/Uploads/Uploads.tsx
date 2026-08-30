@@ -137,6 +137,9 @@ export default function Uploads() {
   const [fileError, setFileError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [accionEnCurso, setAccionEnCurso] = useState<"subir" | "simular" | null>(
+    null,
+  );
   const [uploadMessage, setUploadMessage] = useState("");
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   /** `total_errors` del API, o `null` si ese importador no lo manda. */
@@ -257,7 +260,21 @@ export default function Uploads() {
     return `${(size / (1024 * 1024)).toFixed(2)} MB`;
   };
 
-  const onUpload = async () => {
+  /**
+   * `simular` corre el importador de verdad y revierte SIEMPRE, así que
+   * devuelve los errores reales sin tocar el padrón.
+   *
+   * 🔴 El backend lo soporta desde CDT-73 y hasta el 2026-08-30 esta pantalla
+   * —la única que llama al endpoint— nunca mandaba el flag: la red de
+   * seguridad existía y no había forma de usarla. Importa porque
+   * `type=owners` con `clean=1` arranca con cuatro `forceDelete()` sobre las
+   * unidades del condominio, y eso no vuelve.
+   *
+   * ⚠️ Se recibe el modo explícito y NO se pasa `onUpload` directo a un
+   * `onClick`: React le pasaría el evento como primer argumento y todo click
+   * simularía.
+   */
+  const onUpload = async (simular: boolean) => {
     if (!selectedFile || isUploading) return;
     if (!isAllowedFile(selectedFile)) {
       setFileError("Solo se permiten archivos .xls o .xlsx");
@@ -268,8 +285,12 @@ export default function Uploads() {
     formData.append("file", selectedFile, selectedFile.name);
     formData.append("type", apiTypeBySelection[selectedType]);
     formData.append("_debug", "2");
+    if (simular) {
+      formData.append("simular", "1");
+    }
 
     setIsUploading(true);
+    setAccionEnCurso(simular ? "simular" : "subir");
     limpiarResultado();
 
     const { data, error } = await execute("/masivexls", "POST", formData);
@@ -307,10 +328,15 @@ export default function Uploads() {
       // "Salió, pero con reparos" es `warning` en este admin (14 archivos lo
       // usan así). Un verde con filas rechazadas adentro miente.
       showToast(mensaje, errores.length ? "warning" : "success");
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+      // ⚠️ Una simulación NO limpia el archivo: el paso siguiente de quien
+      // simula es subir ese mismo archivo. Vaciarlo lo obliga a elegirlo otra
+      // vez y convierte la red de seguridad en un estorbo.
+      if (!simular) {
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        setSelectedFile(null);
       }
-      setSelectedFile(null);
     } else {
       // ⚠️ El 400 de "archivo vacío" manda la clave `error`, en SINGULAR, y sin
       // `message` (`BulkOperationsController:158`): leyendo sólo `message` el
@@ -327,6 +353,7 @@ export default function Uploads() {
     }
 
     setIsUploading(false);
+    setAccionEnCurso(null);
   };
 
   const onDownloadTemplate = () => {
@@ -418,11 +445,19 @@ export default function Uploads() {
         </button>
         <button
           type="button"
+          className={styles.secondaryButton}
+          disabled={!selectedFile || !!fileError || isUploading}
+          onClick={() => onUpload(true)}
+        >
+          {accionEnCurso === "simular" ? "Simulando..." : "Simular"}
+        </button>
+        <button
+          type="button"
           className={styles.primaryButton}
           disabled={!selectedFile || !!fileError || isUploading}
-          onClick={onUpload}
+          onClick={() => onUpload(false)}
         >
-          {isUploading ? "Subiendo..." : "Subir archivo"}
+          {accionEnCurso === "subir" ? "Subiendo..." : "Subir archivo"}
         </button>
       </div>
       {!!uploadMessage && (
