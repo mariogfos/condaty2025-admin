@@ -1,6 +1,6 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "lastUpdated": "2026-08-28",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
@@ -1025,6 +1025,58 @@
           "name": "Otro",
           "value": 4,
           "comment": "Otro -- y el lado seguro del backfill: una alerta con tipo desconocido sigue llegando a la garita"
+        }
+      ]
+    },
+    "OtherStatus": {
+      "type": "int",
+      "comment": "En que esta un pedido -- others.status. Numerico desde 1 (flip 2026-08-30, api#...). Era char(1): 'A' Esperando, 'I' Ingreso, 'O' Salio, 'X' Cancelado.\n\nSON CUATRO Y EL CONTROLLER SOLO NOMBRABA TRES. 'O' no aparecia en una sola linea del modulo Others: lo escribe CerrarAcceso::cerrarElPedido() del modulo Access cuando el pedido sale. En produccion son 105 filas -- el 12% de los pedidos. Un enum armado leyendo solo el controller habria tenido tres casos y dejado esas 105 sin traducir. Un estado que ningun archivo nombra igual existe: hay que buscarlo en la BASE.\n\nLO QUE EL FLIP ROMPE SI NO SE BARRE: AccessController vetaba el ingreso con `$pedido->status != 'A'`. Con el cast, comparar un enum contra la letra da true SIEMPRE, asi que la porteria no podria registrar NINGUN ingreso -- no es la forma inerte de siempre (un where que devuelve cero filas), es una guarda que pasa a bloquear todo.\n\nEn los fronts decide lo que se puede HACER, no solo lo que se ve: en rnOwner el boton 'Dejar entrar' aparecia en un pedido anulado, y en rnGuard la tarjeta cancelada no decia 'Cancelado'. OJO: getOrderDetailStatus() de rnGuard devuelve 'Y'|'I'|'C', que son estados DERIVADOS de la UI y NO esta columna.\n\nProduccion 2026-08-30: 735 'A', 105 'O', 43 'X', 6 'I' sobre 889 pedidos.\n\nSincronizado con backend App\\Modules\\Others\\Enums\\OtherStatus (PHP enum: int).",
+      "apps": [
+        "api",
+        "admin",
+        "rnOwner",
+        "rnGuard"
+      ],
+      "aliasesByApp": {
+        "admin": {
+          "Esperando": "ESPERANDO",
+          "Ingreso": "INGRESO",
+          "Salio": "SALIO",
+          "Cancelado": "CANCELADO"
+        },
+        "rnOwner": {
+          "Esperando": "ESPERANDO",
+          "Ingreso": "INGRESO",
+          "Salio": "SALIO",
+          "Cancelado": "CANCELADO"
+        },
+        "rnGuard": {
+          "Esperando": "ESPERANDO",
+          "Ingreso": "INGRESO",
+          "Salio": "SALIO",
+          "Cancelado": "CANCELADO"
+        }
+      },
+      "values": [
+        {
+          "name": "Esperando",
+          "value": 1,
+          "comment": "El residente lo cargo, la porteria todavia no lo vio"
+        },
+        {
+          "name": "Ingreso",
+          "value": 2,
+          "comment": "El guardia le registro la entrada"
+        },
+        {
+          "name": "Salio",
+          "value": 3,
+          "comment": "El acceso se cerro. Lo escribe CerrarAcceso, del modulo Access -- 105 filas en produccion y CERO menciones en el modulo Others"
+        },
+        {
+          "name": "Cancelado",
+          "value": 4,
+          "comment": "El residente lo anulo antes de que llegara"
         }
       ]
     }
