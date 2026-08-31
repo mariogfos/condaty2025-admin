@@ -1,4 +1,5 @@
 import { ORDER_STATUS } from "@/modulos/Activities/PedidosTab/types/orderStatus";
+import { DOCUMENT_AUDIENCE } from "@/modulos/Documents/types/documentAudience";
 /**
  * Enums SSoT cross-app sync test (admin).
  *
@@ -64,6 +65,7 @@ import { ContentType } from '@/modulos/Contents/contentEnums';
 
 const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
   OtherStatus: ORDER_STATUS,
+  DocumentAudience: DOCUMENT_AUDIENCE,
   AccessType,
   AccessStoredStatus,
   AccessConfirmation,

@@ -7,12 +7,10 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderView from "./RenderView/RenderView";
 import { IconDocs } from "@/components/layout/icons/IconsBiblioteca";
 import RenderForm from "./RenderForm/RenderForm";
+import { lOptionsFortoDocument } from "./types/documentAudience";
 
-export const lOptionsFortoDocument = [
-  { id: "A", name: "Guardias y residentes" },
-  { id: "O", name: "Residentes" },
-  { id: "G", name: "Guardias" },
-];
+export { lOptionsFortoDocument };
+
 
 const Documents = () => {
   const { setStore } = useAuth();

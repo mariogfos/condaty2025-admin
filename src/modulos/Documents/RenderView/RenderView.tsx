@@ -10,6 +10,7 @@ import { Card } from "@/mk/components/ui/Card/Card";
 import ContainerDetail from "@/components/Detail/ContainerDetail";
 import LabelValueDetail from "@/components/Detail/LabelValueDetail";
 import Br from "@/components/Detail/Br";
+import { nombreDeAudiencia } from "../types/documentAudience";
 
 const RenderView = (props: {
   open: boolean;
@@ -18,12 +19,6 @@ const RenderView = (props: {
   onConfirm?: Function;
   extraData?: any;
 }) => {
-  const DocDestiny: any = {
-    O: { name: "Residentes" },
-    G: { name: "Guardias" },
-    A: { name: "Guardias y residentes" },
-  };
-
   const handleDownload = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
 
@@ -109,7 +104,7 @@ const RenderView = (props: {
           />
 
           <LabelValueDetail
-            value={DocDestiny[props?.item?.for_to]?.name}
+            value={nombreDeAudiencia(props?.item?.for_to)}
             label="Segmentación"
           />
 
