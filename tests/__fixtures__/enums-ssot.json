@@ -1,7 +1,7 @@
 {
   "$schema": "./enums-ssot.schema.json",
-  "version": "1.15.0",
-  "lastUpdated": "2026-08-28",
+  "version": "1.16.0",
+  "lastUpdated": "2026-08-30",
   "maintainer": "Condaty cross-app team",
   "source": "SSoT canónico de los enums compartidos entre condaty-api, admin, rnGuard y rnOwner. Cada repo mantiene su enum local sincronizado con un test de reflection contra esta fuente. NO es runtime: se usa sólo en CI/tests para detectar drift.\n\n🔴 Desde 1.2.0 los nombres canónicos de los cases son los del API, y cada front declara sus alias en `aliasesByApp`. Antes era al revés —el canónico era el nombre de los fronts— y eso decía justo al contrario de dónde está la verdad: el PHP es lo que está guardado en la base. Esa inversión no es cosmética: mientras el SSoT trató a los fronts como fuente, el API estuvo un mes entero FUERA del contrato sin que se notara.\n\nLa CLAVE de cada enum sigue siendo el nombre con el que lo llaman los fronts (`AccessType`), porque es la clave del `LOCAL_ENUMS` de cada uno. El nombre de la clase en PHP va en `apiClass`.",
   "sync": {
@@ -1077,6 +1077,38 @@
           "name": "Cancelado",
           "value": 4,
           "comment": "El residente lo anulo antes de que llegara"
+        }
+      ]
+    },
+    "DocumentAudience": {
+      "type": "int",
+      "comment": "A quien va dirigido un documento del condominio -- `documents.for_to`. Numerico desde 1 (flip 2026-08-30, api#475). Era char(1): 'A' Todos, 'O' Residentes, 'G' Guardias.\n\nSOLO LO LEE EL ADMIN. Medido en los tres fronts: `for_to` aparece en 7 sitios de `condaty-admin/src/modulos/Documents` y en CERO de rnOwner y rnGuard -- los dos rn listan documentos, pero el recorte por audiencia lo hace el backend, asi que nunca ven la columna.\n\nHABIA UN CUARTO VALOR Y NO ERA DEL VOCABULARIO: 'T', el DEFAULT de la columna. No figuraba en el CASE que armaba `for_to_text` (salia como 'No definido') y el recorte por rol lo dejaba VER A LOS DOS, porque estaba escrito con un `!=` y no con una lista. Ninguna fila de produccion lo tenia; la migracion lo manda a Todos, que es lo que ya hacia.\n\nEl recorte paso de `for_to = 'G' OR for_to != 'O'` a `whereIn(...)` desde el enum: con el `!=`, cualquier valor NUEVO caia del lado de 'se ve'.\n\nProduccion 2026-08-30: 42 documentos en 11 condominios -- 10 'A', 32 'O', CERO 'G'. A los guardias todavia no se les dirigio un documento.\n\nOJO CON LA VENTANA DEL DEPLOY: con el cast puesto, un `for_to` que el enum no reconoce revienta adentro de Eloquent y sale 500. Medido antes de la guarda: '', 'A', '9' y 'perro' dieron los cuatro 500. 'A' es el valor VIEJO, o sea que un admin cacheado rompe cada guardado. El controller ahora lo RECHAZA con mensaje (no lo descarta: descartarlo dejaria el default Todos sobre un campo que decide quien ve el documento).\n\nSincronizado con backend App\\Modules\\Documents\\Enums\\DocumentAudience (PHP enum: int).",
+      "apps": [
+        "api",
+        "admin"
+      ],
+      "aliasesByApp": {
+        "admin": {
+          "Todos": "TODOS",
+          "Residentes": "RESIDENTES",
+          "Guardias": "GUARDIAS"
+        }
+      },
+      "values": [
+        {
+          "name": "Todos",
+          "value": 1,
+          "comment": "TODOS -- guardias y residentes. Era 'A'. 10 filas en produccion"
+        },
+        {
+          "name": "Residentes",
+          "value": 2,
+          "comment": "RESIDENTES. Era 'O'. 32 filas en produccion"
+        },
+        {
+          "name": "Guardias",
+          "value": 3,
+          "comment": "GUARDIAS. Era 'G'. CERO filas en produccion"
         }
       ]
     }
