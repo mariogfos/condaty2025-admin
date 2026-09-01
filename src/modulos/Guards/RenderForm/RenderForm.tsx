@@ -6,6 +6,7 @@ import React, { useCallback, useRef, useState } from "react";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import UploadFileSingle from "@/mk/components/forms/UploadFileSingle/UploadFileSingle";
+import { getRequestErrorMessage } from "@/mk/utils/axiosError";
 
 const normalizeApiErrors = (apiErrors: any) => {
   if (!apiErrors || typeof apiErrors !== "object") return {};
@@ -16,6 +17,12 @@ const normalizeApiErrors = (apiErrors: any) => {
       Array.isArray(value) ? value[0] : String(value),
     ]),
   );
+};
+
+const optionalText = (value: unknown) => {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  return normalized || null;
 };
 
 const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
@@ -157,12 +164,12 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
           ci: formState.ci,
           url_avatar: formState.url_avatar,
           name: formState.name,
-          middle_name: formState.middle_name,
+          middle_name: optionalText(formState.middle_name),
           last_name: formState.last_name,
-          mother_last_name: formState.mother_last_name,
+          mother_last_name: optionalText(formState.mother_last_name),
           email: formState.email,
-          phone: formState.phone,
-          address: formState.address,
+          phone: optionalText(formState.phone),
+          address: optionalText(formState.address),
         },
         false,
         true,
@@ -181,10 +188,21 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
         showToast(
           data?.message ||
             error?.data?.message ||
-            "No se pudo guardar el guardia. Intenta nuevamente.",
+            getRequestErrorMessage(
+              error,
+              "No se pudo guardar el guardia. Intenta nuevamente.",
+            ),
           "error",
         );
       }
+    } catch (requestError) {
+      showToast(
+        getRequestErrorMessage(
+          requestError,
+          "No se pudo guardar el guardia. Intenta nuevamente.",
+        ),
+        "error",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -352,7 +370,7 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
         error={errors}
       />
       <p style={{ margin: "8px 0px" }}>
-        La contraseña será enviada al correo que indiques en este campo
+        El CI y la contraseña inicial se enviarán al correo que indiques.
       </p>
       <Input
         name="email"
