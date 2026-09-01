@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Ban, Copy, KeyRound, Smartphone } from "lucide-react";
+import { Ban, Copy, KeyRound, RotateCcw, Smartphone } from "lucide-react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import Button from "@/mk/components/forms/Button/Button";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
@@ -32,16 +32,40 @@ const formatDate = (value?: string | null) => {
   });
 };
 
+const SECURITY_EVENT_LABELS: Record<string, string> = {
+  code_generated: "Código generado",
+  authorized_with_code: "Dispositivo autorizado con código",
+  revoked: "Dispositivo revocado",
+  reactivated: "Dispositivo reactivado",
+};
+
+type HistoryTab = "activity" | "security";
+
+const formatSecurityActor = (actor?: {
+  name?: string | null;
+  type?: string | null;
+}) => {
+  if (!actor?.name) return "Sin responsable historico";
+
+  const typeLabel = actor.type === "administrator" ? "Administrador" : "Guardia";
+  return `${actor.name} (${typeLabel})`;
+};
+
 const GuardDevices = () => {
   const { userCan } = useAuth();
+  const canGenerateDeviceCodes = userCan("guards", "C");
+  const canManageDevices = userCan("guards", "U");
   const crudRef = useRef<any>({});
   const [codeModalOpen, setCodeModalOpen] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<any>(null);
   const [generatingCode, setGeneratingCode] = useState(false);
   const [deviceToRevoke, setDeviceToRevoke] = useState<any>(null);
   const [revoking, setRevoking] = useState(false);
+  const [deviceToReactivate, setDeviceToReactivate] = useState<any>(null);
+  const [reactivating, setReactivating] = useState(false);
   const [deviceDetail, setDeviceDetail] = useState<any>(null);
   const [loadingDeviceDetail, setLoadingDeviceDetail] = useState(false);
+  const [historyTab, setHistoryTab] = useState<HistoryTab>("activity");
 
   const generateAuthorizationCode = useCallback(async () => {
     setCodeModalOpen(true);
@@ -77,20 +101,24 @@ const GuardDevices = () => {
   }, []);
 
   const extraButtons = useMemo(
-    () => [
-      <Button key="authorize-device" onClick={generateAuthorizationCode}>
-        <span className={styles.buttonContent}>
-          <KeyRound size={16} />
-          Autorizar dispositivo
-        </span>
-      </Button>,
-    ],
-    [generateAuthorizationCode],
+    () =>
+      canGenerateDeviceCodes
+        ? [
+            <Button key="authorize-device" onClick={generateAuthorizationCode}>
+              <span className={styles.buttonContent}>
+                <KeyRound size={16} />
+                Autorizar dispositivo
+              </span>
+            </Button>,
+          ]
+        : [],
+    [canGenerateDeviceCodes, generateAuthorizationCode],
   );
 
   const handleOpenDeviceDetail = useCallback(async (device: any) => {
     if (!device?.id) return;
 
+    setHistoryTab("activity");
     setDeviceDetail({ ...device, loading: true });
     setLoadingDeviceDetail(true);
 
@@ -235,18 +263,38 @@ const GuardDevices = () => {
         label: "Acciones",
         order: 7,
         list: {
-          width: "150px",
+          width: "185px",
           onRender: ({ item }: any) => {
+            if (!canManageDevices) return null;
+
             const revoked = !!item?.revoked_at;
+
+            if (revoked) {
+              return (
+                <Button
+                  variant="secondary"
+                  small
+                  className={styles.reactivateButton}
+                  onClick={(event: any) => {
+                    event?.stopPropagation?.();
+                    setDeviceToReactivate(item);
+                  }}
+                >
+                  <span className={styles.actionButtonContent}>
+                    <RotateCcw size={14} />
+                    Reactivar dispositivo
+                  </span>
+                </Button>
+              );
+            }
 
             return (
               <Button
                 variant="danger"
                 small
-                disabled={revoked}
                 onClick={(event: any) => {
                   event?.stopPropagation?.();
-                  if (!revoked) setDeviceToRevoke(item);
+                  setDeviceToRevoke(item);
                 }}
               >
                 <span className={styles.actionButtonContent}>
@@ -259,7 +307,7 @@ const GuardDevices = () => {
         },
       },
     };
-  }, []);
+  }, [canManageDevices]);
 
   const { List, showToast, execute, reLoad } = useCrud({
     paramsInitial,
@@ -322,6 +370,42 @@ const GuardDevices = () => {
       setRevoking(false);
     }
   }, [deviceToRevoke?.id, execute, reLoad, showToast]);
+
+  const handleConfirmReactivate = useCallback(async () => {
+    if (!deviceToReactivate?.id) return;
+
+    setReactivating(true);
+    try {
+      const { data, error }: any = await execute(
+        `/guard-device-authorizations/${deviceToReactivate.id}/reactivate`,
+        "POST",
+        {},
+        false,
+        false,
+      );
+
+      if (data?.success) {
+        showToast("Dispositivo reactivado.", "success");
+        setDeviceToReactivate(null);
+        setDeviceDetail((current: any) =>
+          current?.id === deviceToReactivate.id
+            ? { ...current, ...data.data }
+            : current,
+        );
+        await reLoad({ extraData: true }, false, false);
+        return;
+      }
+
+      showToast(
+        data?.message ||
+          error?.message ||
+          "No se pudo reactivar el dispositivo.",
+        "error",
+      );
+    } finally {
+      setReactivating(false);
+    }
+  }, [deviceToReactivate?.id, execute, reLoad, showToast]);
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
@@ -392,6 +476,31 @@ const GuardDevices = () => {
       </DataModal>
 
       <DataModal
+        open={!!deviceToReactivate}
+        onClose={() => setDeviceToReactivate(null)}
+        onSave={handleConfirmReactivate}
+        title="Reactivar dispositivo"
+        buttonText={reactivating ? "Reactivando..." : "Reactivar"}
+        buttonCancel="Cancelar"
+        disabled={reactivating}
+        maxWidth={480}
+      >
+        <p className={styles.revokeText}>
+          Se reactivara este dispositivo para <strong>todos los guardias activos
+          del condominio</strong>. No necesitara un nuevo codigo de autorizacion
+          en el dispositivo{" "}
+          <strong>
+            {deviceToReactivate?.device_name ||
+              [deviceToReactivate?.brand, deviceToReactivate?.model]
+                .filter(Boolean)
+                .join(" ") ||
+              "seleccionado"}
+          </strong>
+          . Esta accion quedara registrada en el historial de seguridad.
+        </p>
+      </DataModal>
+
+      <DataModal
         open={!!deviceDetail}
         onClose={() => setDeviceDetail(null)}
         title="Detalle del dispositivo"
@@ -451,50 +560,72 @@ const GuardDevices = () => {
           {loadingDeviceDetail ? (
             <p className={styles.detailLoading}>Cargando historial...</p>
           ) : (
-            <>
-              <section className={styles.historySection}>
-                <div className={styles.historyHeader}>
-                  <h2>Autorizaciones</h2>
-                  <p>Quien uso un codigo para habilitar este dispositivo.</p>
-                </div>
+            <section className={styles.historySection}>
+              <div className={styles.historyHeader}>
+                <h2>Historial</h2>
+                <p>
+                  Separa la operación cotidiana de los cambios de seguridad del
+                  dispositivo.
+                </p>
+              </div>
+              <div className={styles.historyTabs} role="tablist" aria-label="Historial del dispositivo">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={historyTab === "activity"}
+                  className={`${styles.historyTab} ${
+                    historyTab === "activity" ? styles.historyTabActive : ""
+                  }`}
+                  onClick={() => setHistoryTab("activity")}
+                >
+                  Actividad de guardias
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={historyTab === "security"}
+                  className={`${styles.historyTab} ${
+                    historyTab === "security" ? styles.historyTabActive : ""
+                  }`}
+                  onClick={() => setHistoryTab("security")}
+                >
+                  Seguridad del dispositivo
+                </button>
+              </div>
+
+              {historyTab === "security" ? (
                 <div className={styles.historyTableWrap}>
                   <table className={styles.historyTable}>
                     <thead>
                       <tr>
-                        <th>Guardia</th>
-                        <th>CI</th>
                         <th>Fecha</th>
+                        <th>Evento</th>
+                        <th>Responsable</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {deviceDetail?.authorization_history?.length ? (
-                        deviceDetail.authorization_history.map((item: any) => (
-                          <tr key={`authorization-${item.id}`}>
-                            <td>{item?.guard?.name || "Sin registro"}</td>
-                            <td>{item?.guard?.ci || "-/-"}</td>
-                            <td>{formatDate(item?.used_at)}</td>
+                      {deviceDetail?.security_history?.length ? (
+                        deviceDetail.security_history.map((item: any) => (
+                          <tr key={`security-${item.id}`}>
+                            <td>{formatDate(item?.occurred_at)}</td>
+                            <td>
+                              {SECURITY_EVENT_LABELS[item?.event_type] ||
+                                "Evento de seguridad"}
+                            </td>
+                            <td>{formatSecurityActor(item?.actor)}</td>
                           </tr>
                         ))
                       ) : (
                         <tr>
                           <td colSpan={3} className={styles.emptyHistory}>
-                            Sin autorizaciones vinculadas.
+                            Aun no hay eventos de seguridad registrados.
                           </td>
                         </tr>
                       )}
                     </tbody>
                   </table>
                 </div>
-              </section>
-
-              <section className={styles.historySection}>
-                <div className={styles.historyHeader}>
-                  <h2>Actividad</h2>
-                  <p>
-                    {deviceDetail?.activity_tracking_note ||
-                      "Ingresos de sesion y acciones realizadas desde este dispositivo."}
-                  </p>
-                </div>
+              ) : (
                 <div className={styles.historyTableWrap}>
                   <table className={styles.historyTable}>
                     <thead>
@@ -525,8 +656,8 @@ const GuardDevices = () => {
                     </tbody>
                   </table>
                 </div>
-              </section>
-            </>
+              )}
+            </section>
           )}
         </div>
       </DataModal>
