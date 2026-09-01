@@ -123,8 +123,10 @@ describe("RenderForm de Guardias", () => {
         "POST",
         expect.objectContaining({
           email: "guardias@condaty.test",
-          middle_name: "",
-          mother_last_name: "",
+          middle_name: null,
+          mother_last_name: null,
+          phone: null,
+          address: null,
         }),
         false,
         true,
@@ -160,5 +162,42 @@ describe("RenderForm de Guardias", () => {
     fireEvent.click(screen.getByRole("button", { name: "Simular subida" }));
 
     expect(screen.getByRole("button", { name: "Guardar" })).toBeDisabled();
+  });
+
+  it("muestra el mensaje devuelto por el endpoint cuando la creación falla", async () => {
+    const execute = vi.fn().mockResolvedValue({
+      data: null,
+      error: {
+        status: 500,
+        data: { message: "No se pudo crear el registro." },
+      },
+    });
+
+    renderForm(execute);
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => {
+      expect(mocks.showToast).toHaveBeenCalledWith(
+        "No se pudo crear el registro.",
+        "error",
+      );
+    });
+  });
+
+  it("muestra un mensaje accionable cuando el navegador no recibe respuesta", async () => {
+    const execute = vi.fn().mockResolvedValue({
+      data: null,
+      error: { status: 0, message: "Network Error", data: {} },
+    });
+
+    renderForm(execute);
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => {
+      expect(mocks.showToast).toHaveBeenCalledWith(
+        "No se pudo contactar al servidor. Verifica tu conexión e intenta nuevamente.",
+        "error",
+      );
+    });
   });
 });
