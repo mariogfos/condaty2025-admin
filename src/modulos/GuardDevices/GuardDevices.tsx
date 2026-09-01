@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Ban, Copy, KeyRound, Smartphone } from "lucide-react";
+import { Ban, Copy, KeyRound, RotateCcw, ShieldAlert, Smartphone } from "lucide-react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import Button from "@/mk/components/forms/Button/Button";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
@@ -32,6 +32,17 @@ const formatDate = (value?: string | null) => {
   });
 };
 
+/**
+ * Que ofrece la fila de un dispositivo.
+ *
+ * Un telefono revocado ofrecia un boton "Revocar" DESHABILITADO: ninguna
+ * salida. Para devolverlo al turno habia que generar otro codigo y volver a
+ * autorizarlo, y ahi el aparato perdia su historia.
+ */
+export const accionDelDispositivo = (
+  item: { revoked_at?: string | null } | null | undefined,
+): "revocar" | "reactivar" => (item?.revoked_at ? "reactivar" : "revocar");
+
 const GuardDevices = () => {
   const { userCan } = useAuth();
   const crudRef = useRef<any>({});
@@ -39,6 +50,8 @@ const GuardDevices = () => {
   const [generatedCode, setGeneratedCode] = useState<any>(null);
   const [generatingCode, setGeneratingCode] = useState(false);
   const [deviceToRevoke, setDeviceToRevoke] = useState<any>(null);
+  const [deviceToReactivate, setDeviceToReactivate] = useState<any>(null);
+  const [reactivating, setReactivating] = useState(false);
   const [revoking, setRevoking] = useState(false);
   const [deviceDetail, setDeviceDetail] = useState<any>(null);
   const [loadingDeviceDetail, setLoadingDeviceDetail] = useState(false);
@@ -237,16 +250,31 @@ const GuardDevices = () => {
         list: {
           width: "150px",
           onRender: ({ item }: any) => {
-            const revoked = !!item?.revoked_at;
+            if (accionDelDispositivo(item) === "reactivar") {
+              return (
+                <Button
+                  variant="secondary"
+                  small
+                  onClick={(event: any) => {
+                    event?.stopPropagation?.();
+                    setDeviceToReactivate(item);
+                  }}
+                >
+                  <span className={styles.actionButtonContent}>
+                    <RotateCcw size={14} />
+                    Reactivar
+                  </span>
+                </Button>
+              );
+            }
 
             return (
               <Button
                 variant="danger"
                 small
-                disabled={revoked}
                 onClick={(event: any) => {
                   event?.stopPropagation?.();
-                  if (!revoked) setDeviceToRevoke(item);
+                  setDeviceToRevoke(item);
                 }}
               >
                 <span className={styles.actionButtonContent}>
@@ -323,6 +351,37 @@ const GuardDevices = () => {
     }
   }, [deviceToRevoke?.id, execute, reLoad, showToast]);
 
+  const handleConfirmReactivate = useCallback(async () => {
+    if (!deviceToReactivate?.id) return;
+
+    setReactivating(true);
+    try {
+      const { data, error }: any = await execute(
+        `/v3/guard-device-authorizations/${deviceToReactivate.id}/reactivate`,
+        "POST",
+        {},
+        false,
+        false,
+      );
+
+      if (data?.success) {
+        showToast("Dispositivo reactivado.", "success");
+        setDeviceToReactivate(null);
+        await reLoad({ extraData: true }, false, false);
+        return;
+      }
+
+      showToast(
+        data?.message ||
+          error?.message ||
+          "No se pudo reactivar el dispositivo.",
+        "error",
+      );
+    } finally {
+      setReactivating(false);
+    }
+  }, [deviceToReactivate?.id, execute, reLoad, showToast]);
+
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
@@ -388,6 +447,31 @@ const GuardDevices = () => {
               "seleccionado"}
           </strong>
           .
+        </p>
+      </DataModal>
+
+      <DataModal
+        open={!!deviceToReactivate}
+        onClose={() => setDeviceToReactivate(null)}
+        onSave={handleConfirmReactivate}
+        title="Reactivar dispositivo"
+        buttonText={reactivating ? "Reactivando..." : "Reactivar"}
+        buttonCancel="Cancelar"
+        disabled={reactivating}
+        maxWidth={480}
+      >
+        <p className={styles.revokeText}>
+          Este dispositivo volvera a abrir la garita para{" "}
+          <strong>todos los guardias activos del condominio</strong>, sin
+          necesidad de un codigo nuevo:{" "}
+          <strong>
+            {deviceToReactivate?.device_name ||
+              [deviceToReactivate?.brand, deviceToReactivate?.model]
+                .filter(Boolean)
+                .join(" ") ||
+              "el seleccionado"}
+          </strong>
+          . Queda registrado en el historial de seguridad.
         </p>
       </DataModal>
 
@@ -463,6 +547,7 @@ const GuardDevices = () => {
                       <tr>
                         <th>Guardia</th>
                         <th>CI</th>
+                        <th>Emitido por</th>
                         <th>Fecha</th>
                       </tr>
                     </thead>
@@ -472,13 +557,57 @@ const GuardDevices = () => {
                           <tr key={`authorization-${item.id}`}>
                             <td>{item?.guard?.name || "Sin registro"}</td>
                             <td>{item?.guard?.ci || "-/-"}</td>
+                            <td>{item?.generated_by?.name || "Sin registro"}</td>
                             <td>{formatDate(item?.used_at)}</td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={3} className={styles.emptyHistory}>
+                          <td colSpan={4} className={styles.emptyHistory}>
                             Sin autorizaciones vinculadas.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section className={styles.historySection}>
+                <div className={styles.historyHeader}>
+                  <h2>
+                    <ShieldAlert size={16} /> Seguridad
+                  </h2>
+                  <p>
+                    Quien genero, autorizo, revoco o reactivo este dispositivo.
+                    Es el unico historial que sobrevive a una reactivacion: al
+                    reactivar, la fecha de revocacion se borra.
+                  </p>
+                </div>
+                <div className={styles.historyTableWrap}>
+                  <table className={styles.historyTable}>
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Evento</th>
+                        <th>Responsable</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {deviceDetail?.security_history?.length ? (
+                        deviceDetail.security_history.map((item: any) => (
+                          <tr key={`security-${item.id}`}>
+                            <td>{formatDate(item?.occurred_at)}</td>
+                            {/* La etiqueta viene del API: el enum no se espeja
+                                aca para no mantener dos listas de textos. */}
+                            <td>{item?.event_label || "Evento"}</td>
+                            <td>{item?.actor?.name || "Sin registro"}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={3} className={styles.emptyHistory}>
+                            Sin eventos de seguridad registrados.
                           </td>
                         </tr>
                       )}
