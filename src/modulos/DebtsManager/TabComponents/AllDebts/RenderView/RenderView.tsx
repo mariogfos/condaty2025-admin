@@ -27,6 +27,7 @@ import {
   getAvailableActions as getAvailableActionsFromConstants,
 } from "../../constants";
 import { paymentsApi } from "@/modulos/Payments/api";
+import DebtQrSection from "@/modulos/QrDinamico/DebtQrSection/DebtQrSection";
 
 interface RenderViewProps {
   open: boolean;
@@ -654,6 +655,16 @@ const RenderView: React.FC<RenderViewProps> = ({
             <div className={paymentStyles.container}>
               <div className={styles.sectionHeading}>Detalles de la deuda</div>
               <div className={styles.detailsContent}>{debtDescription}</div>
+            </div>
+
+            {/* QR dinámico (DES-22/23/24): indicador de espera, revalidación
+                automática al abrir e historial. La sección se oculta sola si
+                la deuda nunca tuvo QR. */}
+            <div className={paymentStyles.container}>
+              <DebtQrSection
+                debtDptoId={debtDetail?.id ?? item?.id}
+                onPaymentConfirmed={reloadItem}
+              />
             </div>
           </>
         )}

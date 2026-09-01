@@ -5,6 +5,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useState, useEffect } from "react";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
+import QrAccountConfig from "@/modulos/QrDinamico/QrAccountConfig/QrAccountConfig";
 
 const RenderForm = ({
   open,
@@ -16,7 +17,7 @@ const RenderForm = ({
 }: any) => {
   const [formState, setFormState] = useState({ ...item, initial_amount: item?.initial_amount ?? 0 });
   const [errors, setErrors] = useState({});
-  const { showToast } = useAuth();
+  const { showToast, user } = useAuth();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -244,6 +245,12 @@ const RenderForm = ({
         error={errors}
         required
       />
+      {/* QR Dinámico por cuenta (DES-20/21): SOLO usuarios FOS y solo al
+          editar — la config vive en su propio endpoint, no en este CRUD.
+          RN-ADM-01: un admin de condominio no ve esta sección. */}
+      {Boolean(user?.fosrole_id) && formState.id && (
+        <QrAccountConfig bankAccountId={formState.id} />
+      )}
     </DataModal>
   );
 };
