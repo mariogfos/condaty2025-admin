@@ -69,6 +69,26 @@
   justify-content: center;
 }
 
+.reactivateButton {
+  background-color: var(--cSuccess, #29c46a) !important;
+  border-color: var(--cSuccess, #29c46a) !important;
+  color: var(--cBlack) !important;
+  font-weight: 700;
+}
+
+.reactivateButton:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--cSuccess, #29c46a) 82%,
+    var(--cWhite) 18%
+  ) !important;
+  border-color: color-mix(
+    in srgb,
+    var(--cSuccess, #29c46a) 82%,
+    var(--cWhite) 18%
+  ) !important;
+}
+
 .codeBox {
   align-items: center;
   background: var(--cHover);
@@ -202,9 +222,39 @@
   margin: 5px 0 0;
 }
 
+.historyTabs {
+  align-items: center;
+  border-bottom: 1px solid var(--cBlackV2);
+  display: flex;
+  gap: 4px;
+}
+
+.historyTab {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--cWhiteV1);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 12px 9px;
+}
+
+.historyTab:hover,
+.historyTab:focus-visible {
+  color: var(--cWhite);
+  outline: none;
+}
+
+.historyTabActive {
+  border-bottom-color: var(--cAccent);
+  color: var(--cWhite);
+}
+
 .historyTableWrap {
   border: 1px solid var(--cBlackV2);
   border-radius: 8px;
+  max-height: 360px;
   overflow: auto;
 }
 
@@ -222,9 +272,13 @@
 }
 
 .historyTable th {
+  background: var(--cBackground-foreground, var(--cBackground));
   color: var(--cWhiteV1);
   font-size: 12px;
   font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .historyTable td {
