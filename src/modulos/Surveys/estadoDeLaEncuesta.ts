@@ -68,3 +68,88 @@ export const accionesEscondidas = (item: {
 
   return { hideDel: esconder, hideEdit: esconder };
 };
+
+/**
+ * Las letras que guardaba `surveys.status` antes del flip de api#444.
+ *
+ * ⚠️ Se siguen aceptando a propósito. El aviso de cambio de estado lo emite
+ * OTRO admin, y nada garantiza que las dos pestañas tengan el mismo build: la
+ * que emite puede ser un deploy viejo que todavía manda la letra. Es la misma
+ * ventana que abre `desdeLoQuePideElCliente()` del API.
+ */
+const LETRAS_VIEJAS: Record<string, SurveyStatus> = {
+  D: SurveyStatus.Draft,
+  V: SurveyStatus.Visible,
+  S: SurveyStatus.Scheduled,
+  A: SurveyStatus.Active,
+  P: SurveyStatus.Paused,
+  C: SurveyStatus.Closed,
+  X: SurveyStatus.Disabled,
+};
+
+/**
+ * El estado que viaja dentro del aviso de InstantDB, resuelto al enum.
+ *
+ * 🔴 El payload entra sin tipo y el mismo campo aparece como `5` o como `"5"`
+ * según por dónde pasó. Devuelve `null` para lo que no sepa traducir: es lo
+ * que hace que el llamador no muestre un aviso inventado.
+ */
+export const estadoDelAviso = (valor: unknown): SurveyStatus | null => {
+  if (typeof valor === "number") {
+    return SurveyStatus[valor] === undefined ? null : (valor as SurveyStatus);
+  }
+
+  const texto = String(valor ?? "").trim().toUpperCase();
+  if (texto === "") return null;
+
+  if (/^\d+$/.test(texto)) {
+    const numero = Number(texto);
+    return SurveyStatus[numero] === undefined ? null : (numero as SurveyStatus);
+  }
+
+  return LETRAS_VIEJAS[texto] ?? null;
+};
+
+/**
+ * 🔴🔴 EL AVISO DE «PAUSADA / CERRADA / REANUDADA» NO SALÍA NUNCA.
+ *
+ * `Surveys/notifications.ts` decidía así:
+ *
+ * ```ts
+ * if (["A", "P", "C"].includes(payload?.status)) {
+ *   if (payload.status === "P") sub = `${term} pausada`;
+ *   …
+ * ```
+ *
+ * Y el `payload.status` lo pone el propio admin al emitir: `SurveyStatusActions`
+ * manda `status: targetStatus` y `AssemblyDetail` manda `status: status`, los
+ * dos valores de `SurveyStatus`, que es un enum NUMÉRICO desde 1
+ * (`surveys.status` es `tinyint`). Un `includes` de letras contra un `4`, `5` o
+ * `6` es siempre falso, así que el `if` entero no entraba: **ningún admin veía
+ * el aviso de que otro pausó, cerró o reanudó la encuesta**.
+ *
+ * ⚠️ El `dispatch` está FUERA del `if`, así que el listado sí refrescaba. Por
+ * eso el defecto no se nota mirando la pantalla: los datos llegan, y lo único
+ * que falta es el aviso que explica por qué cambiaron.
+ *
+ * Devuelve `null` cuando el estado no es ninguno de los tres —un borrador o una
+ * programada no anuncian nada— y el llamador no muestra toast.
+ *
+ * ⚠️ `ACTIVE` es siempre "reanudada" y no "iniciada": el arranque viaja por
+ * `new-survey`, que es otro evento.
+ */
+export const subtituloDelCambioDeEstado = (
+  termino: string,
+  valor: unknown,
+): string | null => {
+  switch (estadoDelAviso(valor)) {
+    case SurveyStatus.Paused:
+      return `${termino} pausada`;
+    case SurveyStatus.Closed:
+      return `${termino} cerrada`;
+    case SurveyStatus.Active:
+      return `${termino} reanudada`;
+    default:
+      return null;
+  }
+};
