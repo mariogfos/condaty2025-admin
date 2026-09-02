@@ -1,7 +1,34 @@
 "use client";
 import { logError } from "../utils/logs";
+import { loQueSePuedeLoguear } from "../utils/errorDeRed";
+import { recordarQueLaSesionVencio } from "../utils/sesionVencida";
 
 const LOGIN_SCREEN_ROUTE = "/";
+
+/**
+ * El 401: se cierra la sesión y se avisa POR QUÉ.
+ *
+ * 🔴 Antes borraba el token y hacía el redirect, y nada más. Desde el asiento
+ * del usuario eso es: apreté Guardar y la aplicación me devolvió al login. Sin
+ * mensaje, la lectura natural es "se rompió", y eso es una llamada a soporte.
+ *
+ * ⚠️ El aviso va al `sessionStorage` y no a un toast: `window.location.href`
+ * recarga la página entera y se lleva puesto cualquier estado de React.
+ *
+ * ⚠️ Y el `finally`: si guardar el aviso falla —modo privado, storage lleno—
+ * el redirect tiene que pasar igual. Se pierde el mensaje, no el cierre de
+ * sesión.
+ */
+const cerrarLaSesionYAvisar = () => {
+  try {
+    localStorage.removeItem(
+      (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
+    );
+    recordarQueLaSesionVencio();
+  } finally {
+    window.location.href = LOGIN_SCREEN_ROUTE;
+  }
+};
 
 /**
  * A dónde se manda a quien todavía tiene la clave con la que nació.
@@ -58,7 +85,7 @@ const axiosInterceptors = (instance: any) => {
       return config;
     },
     (error: any) => {
-      logError("Network error1:", error);
+      logError("Network error1:", loQueSePuedeLoguear(error));
       return Promise.reject(error);
     }
   );
@@ -70,10 +97,7 @@ const axiosInterceptors = (instance: any) => {
         return response;
       }
       if (response?.status === 401) {
-        localStorage.removeItem(
-          (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
-        );
-        window.location.href = LOGIN_SCREEN_ROUTE;
+        cerrarLaSesionYAvisar();
       }
       return response;
     },
@@ -84,12 +108,9 @@ const axiosInterceptors = (instance: any) => {
         return Promise.reject(error);
       }
       if (error.response?.status === 401) {
-        localStorage.removeItem(
-          (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
-        );
-        window.location.href = LOGIN_SCREEN_ROUTE;
+        cerrarLaSesionYAvisar();
       }
-      logError("Network error:", error);
+      logError("Network error:", loQueSePuedeLoguear(error));
       return Promise.reject(error);
     }
   );
