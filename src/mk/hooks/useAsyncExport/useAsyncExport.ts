@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import useToast from "../useToast";
 import { nombreDeArchivoDelHeader } from "@/mk/utils/contentDisposition";
+import { CLAVE_DEL_TOKEN } from "@/mk/utils/claveDelToken";
 
 /**
  * S113: el bug original pineaba `fetch("/api/v3/reports/...")` con RUTA
@@ -109,7 +110,7 @@ const buildQueryString = (params: Record<string, any> | undefined): string => {
 const getAuthToken = (): string | null => {
   try {
     const raw = localStorage.getItem(
-      (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
+      CLAVE_DEL_TOKEN
     );
     if (!raw) return null;
     return JSON.parse(raw + "").token ?? null;

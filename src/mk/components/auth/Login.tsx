@@ -9,6 +9,7 @@ import { UAParser } from "ua-parser-js";
 import useAxios from "../../hooks/useAxios";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 import { tomarElAvisoDeSesion } from "@/mk/utils/sesionVencida";
+import { CLAVE_DEL_TOKEN } from "@/mk/utils/claveDelToken";
 
 const Login = () => {
   const { user, getUser } = useAuth();
@@ -147,7 +148,7 @@ const Login = () => {
         localStorage.removeItem(getBlockKey(userKey));
       }
       localStorage.setItem(
-        (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+        CLAVE_DEL_TOKEN,
         JSON.stringify({ token: data?.data?.token, user: data?.data?.user }),
       );
       // Actualizar estado global del usuario para redirigir
@@ -281,7 +282,7 @@ const Login = () => {
       }
 
       localStorage.setItem(
-        (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+        CLAVE_DEL_TOKEN,
         JSON.stringify({ token: data?.data?.token, user: data?.data?.user }),
       );
       // Redirigir al sistema
