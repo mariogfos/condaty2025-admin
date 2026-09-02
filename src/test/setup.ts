@@ -57,6 +57,11 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+// ⚠️ Este mock GLOBAL sólo exporta `useAuth`: el `default` no existe, así que
+// un test que quiera **renderizar** `AuthProvider` falla con *"No 'default'
+// export is defined on the mock"*. Para eso, `vi.unmock('@/mk/contexts/
+// AuthProvider')` arriba de todo en ese archivo — ver
+// `src/mk/contexts/__tests__/elAccesoIncorrectoNoDejaElTokenViejo.test.tsx`.
 vi.mock('@/mk/contexts/AuthProvider', () => ({
   useAuth: () => ({
     user: { id: 1, name: 'Test User' },
