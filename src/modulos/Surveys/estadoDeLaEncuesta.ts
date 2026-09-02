@@ -46,3 +46,25 @@ export const sePuedeResponder = (
   Boolean(puedeResponder) &&
   !yaRespondio &&
   status === SurveyStatus.Active;
+
+/**
+ * Qué botones ofrece el listado de encuestas.
+ *
+ * 🔴 El config decidía con `["C", "X"].includes(item.status)`, y esa forma el
+ * barrido de comparaciones **no la ve**: un `includes` no matchea un grep de
+ * igualdad. Con `surveys.status` en `tinyint` (`'C' → 6`, `'X' → 7`) el
+ * `includes` era siempre falso.
+ *
+ * ⚠️ Y acá el fallo va en la dirección PERMISIVA, al revés que en Asambleas:
+ * la guarda que protege una encuesta cerrada no protegía nada. Una encuesta
+ * cerrada **sin votos** se podía editar y borrar; lo único que seguía
+ * frenando era `total_voters > 0`.
+ */
+export const accionesEscondidas = (item: {
+  status?: unknown;
+  total_voters?: number;
+}) => {
+  const esconder = estaCerrada(item?.status) || (item?.total_voters || 0) > 0;
+
+  return { hideDel: esconder, hideEdit: esconder };
+};

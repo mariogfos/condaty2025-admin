@@ -35,7 +35,11 @@
 import { describe, it, expect } from "vitest";
 import { SurveyStatus } from "../types/surveys.types";
 // Las funciones REALES que llama `SurveyDetailModal`, no una copia parecida.
-import { estaCerrada, sePuedeResponder } from "../estadoDeLaEncuesta";
+import {
+  accionesEscondidas,
+  estaCerrada,
+  sePuedeResponder,
+} from "../estadoDeLaEncuesta";
 
 describe("el mapeo de los chars viejos", () => {
   it("es el que documenta el enum del API", () => {
@@ -79,5 +83,50 @@ describe("esta cerrada", () => {
 
   it("una activa no esta cerrada", () => {
     expect(estaCerrada(SurveyStatus.Active)).toBe(false);
+  });
+});
+
+/**
+ * ────────────────────────────────────────────────────────────────────────
+ * 🔴 UNA ENCUESTA CERRADA SE PODIA BORRAR
+ * ────────────────────────────────────────────────────────────────────────
+ *
+ * `surveys.config.tsx` decidia con
+ * `["C", "X"].includes(item.status) || item.total_voters > 0`.
+ *
+ * Esa forma el barrido de comparaciones **no la ve**: un `includes` no matchea
+ * un grep de igualdad. Y con `surveys.status` en `tinyint` el `includes` era
+ * siempre falso.
+ *
+ * ⚠️ Acá el fallo va en la direccion PERMISIVA, al reves que en Asambleas: la
+ * guarda que protege una encuesta cerrada no protegia nada. Una cerrada SIN
+ * VOTOS se podia editar y borrar; lo unico que seguia frenando era
+ * `total_voters > 0`.
+ */
+describe("editar y borrar una encuesta", () => {
+  it("una cerrada se protege aunque no tenga votos", () => {
+    const r = accionesEscondidas({ status: SurveyStatus.Closed, total_voters: 0 });
+    expect(r.hideDel).toBe(true);
+    expect(r.hideEdit).toBe(true);
+  });
+
+  it("el char viejo NO alcanza: era lo que dejaba borrarla", () => {
+    const r = accionesEscondidas({ status: "C", total_voters: 0 });
+    expect(r.hideDel).toBe(false);
+  });
+
+  it("una deshabilitada tambien se protege", () => {
+    expect(accionesEscondidas({ status: SurveyStatus.Disabled }).hideDel).toBe(true);
+  });
+
+  it("una activa con votos se protege por los votos", () => {
+    const r = accionesEscondidas({ status: SurveyStatus.Active, total_voters: 5 });
+    expect(r.hideDel).toBe(true);
+  });
+
+  it("un borrador sin votos se puede editar y borrar", () => {
+    const r = accionesEscondidas({ status: SurveyStatus.Draft, total_voters: 0 });
+    expect(r.hideDel).toBe(false);
+    expect(r.hideEdit).toBe(false);
   });
 });

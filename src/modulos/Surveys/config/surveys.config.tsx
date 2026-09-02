@@ -1,4 +1,5 @@
 import React from "react";
+import { accionesEscondidas } from "../estadoDeLaEncuesta";
 import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import RenderForm from "../components/RenderForm/RenderForm";
@@ -39,12 +40,7 @@ export const getSurveyConfig = (
     ),
     filter: true,
     permiso: "surveys",
-    onHideActions: (item: any) => {
-      return {
-        hideDel: ["C", "X"].includes(item.status) || item.total_voters > 0,
-        hideEdit: ["C", "X"].includes(item.status) || item.total_voters > 0,
-      };
-    },
+    onHideActions: (item: any) => accionesEscondidas(item),
     search: true,
     renderForm: (props: any) => {
       return (
