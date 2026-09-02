@@ -4,7 +4,7 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import Input from "@/mk/components/forms/Input/Input";
 import Br from "@/components/Detail/Br";
-import { AreaApproval, AreaDebtRestriction } from "../../Type/AreaEnums";
+import { AreaApproval, AreaDebtRestriction, AreaMembership } from "../../Type/AreaEnums";
 interface PropsType {
   handleChange: any;
   errors: any;
@@ -106,6 +106,41 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
             });
           }}
           value={formState?.requires_approval}
+        />
+      </div>
+      <Br />
+      {/*
+        🔴 Este interruptor NO EXISTÍA, y el API aplica la regla completa desde
+        que `VisibilidadDeAreasPorMembresia` llegó a `dev`: el listado del
+        residente recorta las áreas que piden membresía, `AreaWriteRequest`
+        acepta el campo y la migración dejó la columna en `OPEN`.
+
+        Sin pantalla que lo escriba, `requires_membership` se quedaba en `OPEN`
+        para siempre: el servicio, el enum, sus tests y su doc corrían sin
+        recortar nada. Una feature entera, completa en el API e inalcanzable.
+      */}
+      <div className={styles.switchRow}>
+        <div className={styles.switchContent}>
+          <p className={styles.title}>¿Requiere membresía?</p>
+          <p className={styles.subtitle}>
+            Si activas esta opción, solo las unidades con membresía verán esta
+            área social en la app de residentes.
+          </p>
+        </div>
+        <Switch
+          name="requires_membership"
+          optionValue={[AreaMembership.REQUIRED, AreaMembership.OPEN]}
+          onChange={(e: any) => {
+            handleChange({
+              target: {
+                name: "requires_membership",
+                value: e.target.checked
+                  ? AreaMembership.REQUIRED
+                  : AreaMembership.OPEN,
+              },
+            });
+          }}
+          value={formState?.requires_membership}
         />
       </div>
       <Br />

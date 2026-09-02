@@ -84,9 +84,16 @@ export enum AreaRealTimeAvailability {
 /**
  * `areas.requires_membership` — si el área sólo la ven los socios.
  *
- * ⚠️ El API tiene la columna pero **no el código que la aplica**: el servicio
- * que filtra por membresía vive sólo en la rama `prodnew`. Acá está declarada
- * para que cuando ese código llegue a `dev` no haya que migrarla otra vez.
+ * El API la aplica de punta a punta desde que `VisibilidadDeAreasPorMembresia`
+ * llegó a `dev`: el servicio recorta el listado para quien no es socio
+ * (`whereNull('requires_membership')->orWhere(…, AreaMembership::OPEN)`),
+ * `AreaWriteRequest` acepta el campo con `Rule::enum(AreaMembership::class)` y
+ * la migración del 2026-08-14 dejó la columna en `OPEN`.
+ *
+ * ⚠️ La nota anterior decía que el servicio *"vive sólo en la rama `prodnew`"*.
+ * Era cierta cuando se escribió y dejó de serlo sin que nadie la tocara —y una
+ * nota vieja no se lee como incompleta, se lee como cierta—: mandaba a no
+ * cablear la pantalla porque el back "no estaba". Medido el 2026-09-02.
  */
 export enum AreaMembership {
   OPEN = 1,
@@ -120,6 +127,14 @@ export const esGratis = (valor: AreaPricing | number | null | undefined): boolea
 
 export const requiereAprobacion = (valor: AreaApproval | number | null | undefined): boolean =>
   valor === AreaApproval.REQUIRED;
+
+/**
+ * ⚠️ `null` es OPEN: la columna es nullable y las áreas anteriores a la
+ * migración del 2026-08-14 la tienen vacía. Sólo `REQUIRED` recorta.
+ */
+export const requiereMembresia = (
+  valor: AreaMembership | number | null | undefined,
+): boolean => valor === AreaMembership.REQUIRED;
 
 export const esPorDia = (valor: AreaBookingMode | number | null | undefined): boolean =>
   valor === AreaBookingMode.DAY;

@@ -23,6 +23,7 @@ import {
   bloqueaConDeuda,
   esPorHora,
   requiereAprobacion,
+  requiereMembresia,
 } from "../Type/AreaEnums";
 
 // S130 (HALLAZGO-NEW-39, binding cross-project): areas.status ahora
@@ -222,6 +223,10 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
               <KeyValue
                 title={"Aprobación de administración"}
                 value={requiereAprobacion(item?.requires_approval) ? "Sí" : "No"}
+              />
+              <KeyValue
+                title={"Requiere membresía"}
+                value={requiereMembresia(item?.requires_membership) ? "Sí" : "No"}
               />
               {esPorHora(item?.booking_mode) && (
                 <KeyValue
