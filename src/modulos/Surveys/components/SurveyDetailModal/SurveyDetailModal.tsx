@@ -10,6 +10,7 @@ import ScaleChoice from "../Questions/ScaleChoice";
 import TextChoice from "../Questions/TextChoice";
 import { SURVEY_STATUSES } from "../../config/surveys.constants";
 import { SurveyStatus } from "../../types/surveys.types";
+import { estaCerrada, sePuedeResponder } from "../../estadoDeLaEncuesta";
 
 interface SurveyDetailModalProps {
   survey: any;
@@ -35,8 +36,11 @@ const SurveyDetailModal: React.FC<SurveyDetailModalProps> = ({
       setIsLoadingDetail(true);
 
       const hasResponded = initialSurvey.has_responded;
-      const isClosed =
-        initialSurvey.status === "C" || initialSurvey.status === "X";
+      // 🔴 Comparaba contra `"C"` y `"X"`, los chars viejos. `surveys.status`
+      // es `tinyint` (medido con SHOW COLUMNS) y el enum mapea
+      // `'C' → 6` (Closed) y `'X' → 7` (Disabled). Las dos eran siempre
+      // falsas, así que una encuesta cerrada nunca traía sus resultados.
+      const isClosed = estaCerrada(initialSurvey.status);
 
       if (hasResponded || isClosed) {
         // Only fetch results if we are viewing stats
@@ -73,10 +77,19 @@ const SurveyDetailModal: React.FC<SurveyDetailModalProps> = ({
     filters,
   ]);
 
-  const canAnswer =
-    surveyDetail?.can_respond &&
-    !initialSurvey.has_responded &&
-    initialSurvey.status === "A";
+  // 🔴🔴 Y ésta apagaba el botón. `=== "A"` era siempre falso —`'A' → 4`, o sea
+  // `SurveyStatus.Active`—, así que `buttonText` quedaba en `""` y **el botón
+  // «Responder encuesta» no aparecía nunca**: desde este modal no se podía
+  // votar una encuesta ni una votación de asamblea.
+  //
+  // ⚠️ `SurveyStatus` ya estaba IMPORTADO en la línea 12 de este archivo, sin
+  // un solo uso. El enum estaba a mano y las dos comparaciones se quedaron en
+  // los chars.
+  const canAnswer = sePuedeResponder(
+    initialSurvey.status,
+    surveyDetail?.can_respond,
+    initialSurvey.has_responded,
+  );
 
   const formatDate = (value?: string | null) => {
     if (!value) return "N/A";

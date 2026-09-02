@@ -42,13 +42,32 @@
  *     SHOW COLUMNS FROM <tabla> WHERE Field = 'status';
  *
  * Si dice `tinyint`, va en esta tabla. Si dice `char`, NO —hay columnas que
- * siguen siendo char legítimamente (`guards.status`, y los enums string de
- * Asambleas, Contents y Budget) y meterlas acá daría un rojo falso.
+ * siguen siendo char legítimamente y meterlas acá daría un rojo falso.
  *
  * Estado al 2026-08-05, medido: `areas.status`, `expenses.status`,
  * `expenses.type`, `client_owners.type`, `client_owners.status` y
  * `alerts.level` son numéricas. `guards.status` y `alerts.status` siguen siendo
  * `char(1)`.
+ *
+ * ⚠️ **Corrección del 2026-09-02.** La nota decía que los enums de *"Asambleas,
+ * Contents y Budget"* eran de string. Medido con `SHOW COLUMNS`:
+ *
+ * | columna | tipo |
+ * |---|---|
+ * | `contents.type` | **tinyint** |
+ * | `contents.status` | **tinyint** |
+ * | `surveys.status` | **tinyint** |
+ * | `squestions.type` | `char(1)` — ésta sí sigue siendo char |
+ *
+ * Contents migró en api#461 y la nota no se tocó. Una nota vieja no se lee como
+ * incompleta: se lee como cierta, y ésta mandaba a EXCLUIR justo el módulo
+ * donde el detalle mostraba «Sin contenido disponible» para las 143
+ * publicaciones (admin#802).
+ *
+ * 🔴 **Y el backing importa tanto como el tipo de la columna.** `QuestionType`
+ * del API es `enum QuestionType: string` con casos `'S'`, `'M'`, `'E'`, `'T'`:
+ * las siete comparaciones de Encuestas contra esas letras están BIEN y no se
+ * tocan. Mirar sólo "¿tiene enum?" habría roto el módulo.
  */
 import { describe, it, expect } from "vitest";
 import fs from "fs";
