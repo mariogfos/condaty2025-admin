@@ -1,20 +1,8 @@
 "use client";
 import { logError } from "../utils/logs";
-import { toSafeAxiosError } from "../utils/axiosError";
-import { rememberExpiredSession } from "../utils/authSession";
 
 const LOGIN_SCREEN_ROUTE = "/";
 const authTokenKey = `${process.env.NEXT_PUBLIC_AUTH_IAM || "/adm-iam"}token`;
-
-const redirectExpiredSession = () => {
-  try {
-    localStorage.removeItem(authTokenKey);
-    localStorage.removeItem("condaty_client_id");
-    rememberExpiredSession();
-  } finally {
-    window.location.href = LOGIN_SCREEN_ROUTE;
-  }
-};
 
 const axiosInterceptors = (instance: any) => {
   instance.interceptors.request.use(
@@ -40,7 +28,7 @@ const axiosInterceptors = (instance: any) => {
       return config;
     },
     (error: any) => {
-      logError("Network error1:", toSafeAxiosError(error));
+      logError("Network error1:", error);
       return Promise.reject(error);
     }
   );
@@ -48,15 +36,21 @@ const axiosInterceptors = (instance: any) => {
   instance.interceptors.response.use(
     (response: any) => {
       if (response?.status === 401) {
-        redirectExpiredSession();
+        localStorage.removeItem(
+          authTokenKey
+        );
+        window.location.href = LOGIN_SCREEN_ROUTE;
       }
       return response;
     },
     (error: any) => {
       if (error.response?.status === 401) {
-        redirectExpiredSession();
+        localStorage.removeItem(
+          authTokenKey
+        );
+        window.location.href = LOGIN_SCREEN_ROUTE;
       }
-      logError("Network error:", toSafeAxiosError(error));
+      logError("Network error:", error);
       return Promise.reject(error);
     }
   );
