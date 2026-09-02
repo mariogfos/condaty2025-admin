@@ -7,6 +7,7 @@ import { IconArrowDown } from "@/components/layout/icons/LucideIcons";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import Input from "../Input/Input";
 import styles from "./select.module.css";
+import { calcularPosicionDelDesplegable } from "./posicionDelDesplegable";
 import { PropsTypeInputBase, getFieldErrorMessage } from "../ControlLabel";
 import { createPortal } from "react-dom";
 import { useOnClickOutside } from "@/mk/hooks/useOnClickOutside";
@@ -299,26 +300,33 @@ const Select = ({
 
     if (!select) return;
 
-    let parent: any = select.getBoundingClientRect();
-    let childPosition: any = child?.getBoundingClientRect();
+    const campo = select.getBoundingClientRect();
+    const desplegable = child?.getBoundingClientRect();
 
-    let up = 57;
-    if (childPosition) {
-      if (parent.top + 57 + childPosition.height > window.innerHeight) {
-        up = childPosition.height * -1;
-      }
-    }
-    setPosition({
-      top: parent.top + up,
-      left: parent.left,
-      width: parent.width,
-    });
+    setPosition(
+      calcularPosicionDelDesplegable(
+        campo,
+        { width: window.innerWidth, height: window.innerHeight },
+        desplegable?.height,
+        desplegable?.width,
+      ),
+    );
   };
 
   useEffect(() => {
     if (openOptions) {
       calcPosition();
     }
+  }, [openOptions]);
+
+  // 🔴 Sólo se escuchaba el scroll del contenedor. Al cambiar el tamaño de la
+  // ventana —o al rotar una tablet— el desplegable es `fixed`: se queda donde
+  // estaba, separado de su campo.
+  useEffect(() => {
+    if (!openOptions) return;
+
+    window.addEventListener("resize", calcPosition);
+    return () => window.removeEventListener("resize", calcPosition);
   }, [openOptions]);
   //cambio for value in multiselect
   useEffect(() => {
