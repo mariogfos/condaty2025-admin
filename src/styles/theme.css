@@ -297,11 +297,13 @@
   --cBrand-primary: #00e38c;
 }
 
-/* Reset */
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+/* Reset en base para que las utilidades explicitas puedan sobreescribirlo. */
+@layer base {
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
 }
 
 html,

@@ -1,6 +1,98 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tw-animate-css";
+
+/*
+ * rAdmin is still mostly CSS Modules. Scope the incremental Tailwind/shadcn
+ * adoption so legacy class names such as `flex`, `hidden` or `grid` do not
+ * acquire new global behavior.
+ */
+@scope (.financial-ui) {
+  @import "tailwindcss/utilities.css" layer(utilities);
+}
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant data-open (&:where([data-state="open"], [data-open]:not([data-open="false"])));
+@custom-variant data-closed (&:where([data-state="closed"], [data-closed]:not([data-closed="false"])));
+@custom-variant data-checked (&:where([data-state="checked"], [data-checked]:not([data-checked="false"])));
+@custom-variant data-unchecked (&:where([data-state="unchecked"], [data-unchecked]:not([data-unchecked="false"])));
+@custom-variant data-selected (&:where([data-selected="true"]));
+@custom-variant data-disabled (&:where([data-disabled="true"], [data-disabled]:not([data-disabled="false"])));
+@custom-variant data-active (&:where([data-state="active"], [data-active]:not([data-active="false"])));
+@custom-variant data-horizontal (&:where([data-orientation="horizontal"]));
+@custom-variant data-vertical (&:where([data-orientation="vertical"]));
+
+@theme inline {
+  --font-heading: var(--fPrimary);
+  --font-sans: var(--fPrimary);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+}
+
+/*
+ * shadcn base-vega scoped to the financial workspace. Keeping these semantic
+ * tokens local avoids redefining legacy variables such as --primary and
+ * --accent throughout rAdmin.
+ */
+.financial-ui {
+  --background: var(--cModalSurface);
+  --foreground: var(--cNeutral-50);
+  --card: var(--cModalSurfaceRaised);
+  --card-foreground: var(--cNeutral-50);
+  --popover: var(--cModalSurfaceRaised);
+  --popover-foreground: var(--cNeutral-50);
+  --primary: #00e38c;
+  --primary-foreground: #07120d;
+  --secondary: var(--cNeutral-700);
+  --secondary-foreground: var(--cNeutral-50);
+  --muted: var(--cNeutral-800);
+  --muted-foreground: var(--cNeutral-300);
+  --accent: #1f2d27;
+  --accent-foreground: var(--cNeutral-50);
+  --destructive: var(--cStatusDanger);
+  --border: var(--cModalBorder);
+  --input: var(--cNeutral-600);
+  --ring: #00e38c;
+  --radius: 0.875rem;
+  color: var(--foreground);
+  font-family: var(--fPrimary);
+}
+
+.financial-ui button:not(:disabled),
+.financial-ui [role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+.financial-ui-portal {
+  display: contents;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -25,10 +117,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+@layer base {
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
 }
 
 button,

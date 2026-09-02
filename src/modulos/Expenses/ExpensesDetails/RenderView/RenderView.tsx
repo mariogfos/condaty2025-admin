@@ -1,19 +1,25 @@
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import styles from "./RenderView.module.css";
+"use client";
+
+import { useEffect, useState } from "react";
 import { getFullName } from "@/mk/utils/string";
 import { getDateStrMes, MONTHS_S } from "@/mk/utils/date";
-import { useEffect, useState } from "react";
-import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
-
-import PaymentRenderView from "../../../Payments/RenderView/RenderView";
+import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
 import { formatBs } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
 import Table from "@/mk/components/ui/Table/Table";
-import { paymentsApi } from "../../../Payments/api";
+import { paymentsApi } from "@/modulos/Payments/api";
+import { Button } from "@/components/ui/button";
+import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
+import {
+  FinancialDetailGrid,
+  FinancialDetailSection,
+  type FinancialDetailField,
+} from "@/features/financial-records/FinancialDetailPrimitives";
+import styles from "./RenderView.module.css";
 
 const RenderView = (props: {
   open: boolean;
-  onClose: any;
+  onClose: () => void;
   item: Record<string, any>;
   execute: Function;
 }) => {
@@ -44,250 +50,218 @@ const RenderView = (props: {
 
   useEffect(() => {
     if (!props.open || !props.item?.id) return;
-    refreshResolvedPayment(props.item.id);
+    void refreshResolvedPayment(props.item.id);
+    // execute is stable within the active CRUD screen.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.open, props.item?.id]);
 
   const reloadItem = async () => {
+    const debtId = item?.id ?? props.item?.id;
+    if (!debtId) return;
+
     const { data } = await props.execute(
       "/debt-dptos",
       "GET",
       {
         fullType: "DET",
-        searchBy: item.id,
+        searchBy: debtId,
         page: 1,
         perPage: 1,
       },
       false,
       true,
     );
-    if (data.success) {
-      setItem({ ...data.data });
+    const detail = Array.isArray(data?.data) ? data.data[0] : data?.data;
+    if (data?.success && detail) {
+      setItem(detail);
     }
-    await refreshResolvedPayment(item.id);
+    await refreshResolvedPayment(debtId);
   };
-  const getStatus = (item: any) => {
+
+  const getStatus = (detail: any) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (item.status === "A" && item.due_at) {
-      const dueDate = new Date(item.due_at);
-      if (today > dueDate) {
-        return { text: "En mora", code: "M" };
-      }
+    if (detail?.status === "A" && detail?.due_at) {
+      const dueDate = new Date(detail.due_at);
+      if (today > dueDate) return { text: "En mora", code: "M" };
     }
-    switch (item.status) {
-      case "A":
-        return { text: "Por cobrar", code: "A" };
-      case "P":
-        return { text: "Cobrado", code: "P" };
-      case "S":
-        return { text: "Por confirmar", code: "S" };
-      case "M":
-        return { text: "En mora", code: "M" };
-      case "F":
-        return { text: "Condonada", code: "F" };
-      default:
-        return { text: item.status || "Desconocido", code: item.status || "" };
-    }
+
+    const statuses: Record<string, string> = {
+      A: "Por cobrar",
+      P: "Cobrado",
+      S: "Por confirmar",
+      M: "En mora",
+      F: "Condonada",
+      X: "Anulada",
+    };
+    return {
+      text: statuses[detail?.status] || detail?.status || "Desconocido",
+      code: detail?.status || "",
+    };
   };
 
-  const colorStatus: any = {
-    A: "var(--cInfo)",
-    M: "var(--cError)",
-    S: "var(--cWarning)",
-    P: "var(--cSuccess)",
-    F: "var(--cInfo)",
-  };
-
-  type InfoBlockProps = {
-    value: string;
-    label: string;
-    colorValue?: string;
-    className?: string;
-  };
-
-  const InfoBlock = ({
-    value,
-    label,
-    colorValue,
-    className,
-  }: InfoBlockProps) => {
-    const ignoreValueTranslation = shouldIgnoreValueTranslationContext({
-      label,
-    });
-
-    return (
-      <div className={`${styles.infoBlock} ${className}`}>
-        <span className={styles.infoLabel}>{label}</span>
-        <span
-          data-i18n-ignore={ignoreValueTranslation ? "true" : undefined}
-          className={styles.infoValue}
-          style={{
-            color: colorValue || "var(--cWhite)",
-          }}
-        >
-          {value}
-        </span>
-      </div>
-    );
-  };
-  const titular = getTitular(item.dpto);
+  const titular = getTitular(item?.dpto);
   const pendingPeriods = Array.isArray(item?.pendingPeriods)
     ? item.pendingPeriods
     : [];
   const pendingPeriodsTableHeight = `${
     Math.min(Math.max(pendingPeriods.length || 1, 1), 4) * 56
   }`;
+  const status = getStatus(item);
+  const debtAmount = Number(item?.amount || 0);
+  const maintenanceAmount = Number(item?.maintenance_amount || 0);
+  const penaltyAmount = Number(item?.penalty_amount || 0);
+  const totalAmount = debtAmount + maintenanceAmount + penaltyAmount;
+  const period =
+    item?.debt?.month && item?.debt?.year
+      ? `${MONTHS_S[item.debt.month]}/${item.debt.year}`
+      : "-/-";
+
+  const fields: FinancialDetailField[] = [
+    { id: "unit", label: "Unidad", value: item?.dpto?.nro || "Sin unidad" },
+    { id: "period", label: "Periodo", value: period },
+    { id: "due-at", label: "Fecha de plazo", value: getDateStrMes(item?.due_at) },
+    { id: "holder", label: "Titular", value: getFullName(titular) || "-/-" },
+    {
+      id: "status",
+      label: "Estado",
+      value: status.text,
+      tone:
+        status.code === "P"
+          ? "success"
+          : status.code === "M" || status.code === "X"
+            ? "danger"
+            : "warning",
+    },
+    {
+      id: "paid-at",
+      label: "Fecha de pago",
+      value: getDateStrMes(item?.paid_at) || "-/-",
+    },
+    {
+      id: "description",
+      label: "Descripción de unidad",
+      value: item?.dpto?.description || "-/-",
+    },
+    {
+      id: "homeowner",
+      label: "Propietario",
+      value: getFullName(item?.dpto?.homeowner) || "-/-",
+    },
+    { id: "principal", label: "Deuda", value: formatBs(debtAmount) },
+    { id: "penalty", label: "Multa", value: formatBs(penaltyAmount) },
+    {
+      id: "maintenance",
+      label: "Mantenimiento de valor",
+      value: formatBs(maintenanceAmount),
+    },
+    { id: "total", label: "Monto total", value: formatBs(totalAmount) },
+  ];
+
   const pendingPeriodsHeader = [
     {
       key: "period",
       label: "Periodo",
       width: "100%",
-      onRender: ({ item: period }: any) =>
-        `${MONTHS_S[period.month]}/${period.year}`,
+      onRender: ({ item: pending }: any) =>
+        `${MONTHS_S[pending.month]}/${pending.year}`,
     },
     {
       key: "amount",
       label: "Monto",
       width: "124px",
       className: styles.amountColumn,
-      onRender: ({ item: period }: any) => formatBs(period.amount),
+      onRender: ({ item: pending }: any) => formatBs(pending.amount),
     },
     {
       key: "penalty",
       label: "Multa",
       width: "124px",
       className: styles.amountColumn,
-      onRender: ({ item: period }: any) => formatBs(period.penalty || 0),
+      onRender: ({ item: pending }: any) => formatBs(pending.penalty || 0),
     },
     {
       key: "subtotal",
       label: "Subtotal",
       width: "132px",
       className: styles.amountColumn,
-      onRender: ({ item: period }: any) =>
-        formatBs(parseFloat(period.amount) + parseFloat(period.penalty || 0)),
+      onRender: ({ item: pending }: any) =>
+        formatBs(Number(pending.amount || 0) + Number(pending.penalty || 0)),
     },
   ];
 
   return (
     <>
-      <DataModal
-        open={props.open}
-        onClose={props?.onClose}
+      <FinancialDetailModal
+        open={props.open && !openPayment}
+        onClose={props.onClose}
         title="Detalle de expensa"
-        buttonText={resolvedPaymentId ? "Ver pago" : ""}
-        onSave={resolvedPaymentId ? () => setOpenPayment(true) : undefined}
-        buttonCancel=""
-        variant={"mini"}
+        description="Periodo, composición del monto, pago relacionado e historial de correcciones."
+        record={{
+          type: "debt",
+          id: item?.id ?? props.item?.id,
+          penaltyAmount,
+        }}
+        summary={{
+          amount: formatBs(totalAmount),
+          date: period,
+          eyebrow: status.code === "P" ? "Monto cobrado" : "Monto por cobrar",
+          status: {
+            label: status.text,
+            tone:
+              status.code === "P"
+                ? "success"
+                : status.code === "M" || status.code === "X"
+                  ? "danger"
+                  : "warning",
+          },
+        }}
+        onRecordChanged={reloadItem}
+        footer={
+          resolvedPaymentId ? (
+            <Button onClick={() => setOpenPayment(true)}>Ver pago</Button>
+          ) : null
+        }
       >
-        <div className={styles.container}>
-          <div className={styles.headerSection}>
-            <div className={styles.totalAmount}>
-              {formatBs(
-                (parseFloat(item?.amount || "0") || 0) +
-                  (parseFloat(item?.maintenance_amount || "0") || 0) +
-                  (parseFloat(item?.penalty_amount || "0") || 0),
-              )}
-            </div>
-            <div className={styles.paymentDate}>
-              {getDateStrMes(item?.paid_at) || "-/-"}
-            </div>
-          </div>
+        <FinancialDetailSection title="Datos de la expensa">
+          <FinancialDetailGrid fields={fields} />
+        </FinancialDetailSection>
 
-          <hr className={styles.sectionDivider} />
-
-          <section className={styles.detailsSection}>
-            <div className={styles.detailsColumn}>
-              <InfoBlock
-                label="Unidad"
-                value={item?.dpto?.nro || "Sin unidad"}
+        {pendingPeriods.length > 0 && (
+          <FinancialDetailSection title="Periodos por pagar">
+            <div className={styles.tableWrapper}>
+              <Table
+                className="striped"
+                style={{
+                  borderBottomLeftRadius: 0,
+                  borderBottomRightRadius: 0,
+                }}
+                height={pendingPeriodsTableHeight}
+                data={pendingPeriods}
+                header={pendingPeriodsHeader as any}
               />
-
-              <InfoBlock
-                label="Periodo"
-                value={MONTHS_S[item?.debt?.month] + "/" + item?.debt?.year}
-              />
-
-              <InfoBlock
-                label="Fecha de plazo"
-                value={getDateStrMes(item?.due_at)}
-              />
-
-              <InfoBlock
-                label="Titular"
-                value={getFullName(titular) || "-/-"}
-              />
-            </div>
-
-            <div className={styles.detailsColumn}>
-              <InfoBlock
-                label="Estado"
-                value={getStatus(item).text}
-                colorValue={colorStatus[getStatus(item).code]}
-              />
-
-              <InfoBlock
-                label="Fecha de pago"
-                value={getDateStrMes(item?.paid_at) || "-/-"}
-              />
-
-              <InfoBlock
-                label="Descripción"
-                value={item?.dpto?.description || "-/-"}
-              />
-
-              <InfoBlock
-                label="Propietario"
-                value={getFullName(item?.dpto?.homeowner) || "-/-"}
-              />
-            </div>
-          </section>
-
-          {/* Sección de periodos por pagar si existen */}
-          {pendingPeriods.length > 0 && (
-            <>
-              <hr className={styles.sectionDivider} />
-
-              <div className={styles.periodsSection}>
-                <div className={styles.periodsTitle}>Periodos por pagar</div>
-
-                <div className={styles.tableWrapper}>
-                  <Table
-                    className="striped"
-                    style={{
-                      borderBottomLeftRadius: 0,
-                      borderBottomRightRadius: 0,
-                    }}
-                    height={pendingPeriodsTableHeight}
-                    data={pendingPeriods}
-                    header={pendingPeriodsHeader as any}
-                  />
-                  <div className={styles.tableFooter}>
-                    <div className={styles.tableFooterLabels}>
-                      <p>Total pagado</p>
-                    </div>
-                    <div className={styles.tableFooterValues}>
-                      <p className={styles.footerValue}>
-                        {formatBs(item?.amount)}
-                      </p>
-                    </div>
-                  </div>
+              <div className={styles.tableFooter}>
+                <div className={styles.tableFooterLabels}>
+                  <p>Total pagado</p>
+                </div>
+                <div className={styles.tableFooterValues}>
+                  <p className={styles.footerValue}>{formatBs(item?.amount)}</p>
                 </div>
               </div>
-            </>
-          )}
-        </div>
-      </DataModal>
-      {/* Modal de detalles de pago */}
+            </div>
+          </FinancialDetailSection>
+        )}
+      </FinancialDetailModal>
+
       {openPayment && (
         <PaymentRenderView
           open={openPayment}
           onClose={() => {
-            reloadItem();
+            void reloadItem();
             setOpenPayment(false);
           }}
           payment_id={resolvedPaymentId as string | number}
-          noWaiting={true}
+          noWaiting
         />
       )}
     </>
