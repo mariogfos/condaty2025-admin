@@ -6,6 +6,7 @@ import React, { useCallback, useState } from "react";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import UploadFileSingle from "@/mk/components/forms/UploadFileSingle/UploadFileSingle";
+import { mensajeDelError } from "@/mk/utils/errorDeRed";
 
 const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
   const [formState, setFormState] = useState({ ...item });
@@ -94,7 +95,7 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
   const _onSave = async () => {
     if (hasErrors(validate())) return;
     let method = formState.id ? "PUT" : "POST";
-    const { data } = await execute(
+    const { data, error } = await execute(
       "/v3/guards" + (formState.id ? "/" + formState.id : ""),
       method,
       {
@@ -113,9 +114,20 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
     if (data?.success) {
       onClose();
       reLoad();
-      showToast(data?.message || "Documento guardado con éxito", "success");
+      showToast(data?.message || "Guardia guardado con éxito", "success");
     } else {
-      showToast(data?.message || "Error al guardar el documento", "error");
+      // ⚠️ Decía «documento», copiado del formulario de Documentos. Y sólo
+      // miraba `data`: cuando el pedido no llega —servidor caído, sin red—
+      // `data` viene en `null` y el usuario leía «Error al guardar el
+      // documento», que no nombra lo que estaba guardando ni dice que el
+      // problema fue de conexión.
+      showToast(
+        mensajeDelError(
+          error ?? data,
+          "No se pudo guardar el guardia. Intentá nuevamente."
+        ),
+        "error"
+      );
     }
   };
   const onBlurCi = async () => {

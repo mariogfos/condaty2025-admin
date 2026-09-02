@@ -8,6 +8,7 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { UAParser } from "ua-parser-js";
 import useAxios from "../../hooks/useAxios";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
+import { tomarElAvisoDeSesion } from "@/mk/utils/sesionVencida";
 
 const Login = () => {
   const { user, getUser } = useAuth();
@@ -30,6 +31,21 @@ const Login = () => {
   const getUserKey = () => (formState.email || "").trim();
   const getAttemptsKey = (userKey: string) => `login_attempts_${userKey}`;
   const getBlockKey = (userKey: string) => `login_block_until_${userKey}`;
+
+  /**
+   * Si llegamos acá porque venció la sesión, decirlo.
+   *
+   * 🔴 El interceptor tira al login con `window.location.href` ante un 401, y
+   * hasta ahora no decía nada: el usuario apretaba Guardar y aparecía en el
+   * login. Sin mensaje, la lectura natural es "se rompió".
+   *
+   * ⚠️ El aviso se consume: sin eso volvería a aparecer cada vez que el usuario
+   * vuelve al login en esta pestaña, incluso después de haber entrado bien.
+   */
+  useEffect(() => {
+    const aviso = tomarElAvisoDeSesion();
+    if (aviso) setErrors({ email: aviso });
+  }, []);
 
   useEffect(() => {
     const getDeviceData = async () => {
