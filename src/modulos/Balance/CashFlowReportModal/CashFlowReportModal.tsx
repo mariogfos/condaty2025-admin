@@ -7,6 +7,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { logError } from "@/mk/utils/logs";
 import styles from "./CashFlowReportModal.module.css";
+import { CLAVE_DEL_TOKEN } from "@/mk/utils/claveDelToken";
 
 interface CashFlowReportModalProps {
   open: boolean;
@@ -34,7 +35,7 @@ const getApiInstance = () => {
       try {
         apiToken = JSON.parse(
           localStorage.getItem(
-            (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+            CLAVE_DEL_TOKEN,
           ) + "",
         ).token;
       } catch (e) {

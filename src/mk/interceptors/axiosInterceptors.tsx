@@ -2,6 +2,7 @@
 import { logError } from "../utils/logs";
 import { loQueSePuedeLoguear } from "../utils/errorDeRed";
 import { recordarQueLaSesionVencio } from "../utils/sesionVencida";
+import { CLAVE_DEL_TOKEN } from "@/mk/utils/claveDelToken";
 
 const LOGIN_SCREEN_ROUTE = "/";
 
@@ -22,7 +23,7 @@ const LOGIN_SCREEN_ROUTE = "/";
 const cerrarLaSesionYAvisar = () => {
   try {
     localStorage.removeItem(
-      (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
+      CLAVE_DEL_TOKEN
     );
     recordarQueLaSesionVencio();
   } finally {
@@ -68,7 +69,7 @@ const axiosInterceptors = (instance: any) => {
       try {
         apiToken = JSON.parse(
           localStorage.getItem(
-            (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
+            CLAVE_DEL_TOKEN
           ) + ""
         ).token;
       } catch (e) {

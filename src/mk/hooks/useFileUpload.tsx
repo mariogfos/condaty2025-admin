@@ -226,7 +226,23 @@ export const useFileUpload = ({
       try {
         const results = await Promise.allSettled(uploadPromises);
 
-        let hasError = false;
+        // 🔴 Se calcula ACÁ, no adentro del updater de estado.
+        //
+        // Antes era un `let hasError = false` que se ponía en `true` dentro del
+        // callback de `setFilePreviews`. Ese callback lo corre React DESPUÉS,
+        // durante el render, no en esta línea: para cuando el código llega a
+        // los dos `if` de abajo, `hasError` todavía vale `false`.
+        //
+        // Y las consecuencias no son cosméticas: con una subida fallida en modo
+        // single, el `if (hasError && …)` no restauraba la imagen anterior ni
+        // avisaba, y el `if (!hasError && oldItemToDelete && deleteOldOnReplace)`
+        // BORRABA la imagen vieja del storage. El usuario se quedaba sin la
+        // nueva y sin la que tenía.
+        //
+        // ⚠️ Además el updater tiene que ser PURO: en `StrictMode` React lo
+        // llama dos veces, así que escribir una variable de afuera desde
+        // adentro corre dos veces por definición.
+        const hasError = results.some((result) => result.status === "rejected");
 
         setFilePreviews((prev) => {
           const kept: PreviewItem[] = [];
@@ -250,7 +266,6 @@ export const useFileUpload = ({
                   file: undefined,
                 });
               } else {
-                hasError = true;
                 if (p.type === "image" && p.url?.startsWith("blob:")) {
                   URL.revokeObjectURL(p.url);
                 }

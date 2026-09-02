@@ -56,6 +56,7 @@ import Button from "../../forms/Button/Button";
 import { nombreDeArchivoDelHeader } from "@/mk/utils/contentDisposition";
 import NewModal from "../NewModal/NewModal";
 import styles from "./DownloadHistory.module.css";
+import { CLAVE_DEL_TOKEN } from "@/mk/utils/claveDelToken";
 
 /**
  * URL base del back (S113 pattern). Termina en `/api` en producción
@@ -86,7 +87,7 @@ const buildBackendUrl = (path: string): string => {
 const getAuthToken = (): string | null => {
   try {
     const raw = localStorage.getItem(
-      (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+      CLAVE_DEL_TOKEN,
     );
     if (!raw) return null;
     return JSON.parse(raw + "").token ?? null;

@@ -14,6 +14,7 @@ import Login from "../components/auth/Login";
 import useToast, { ToastItem } from "../hooks/useToast";
 import Splash from "../../components/req/Splash";
 import ToastViewport from "../components/ui/Toast/ToastViewport";
+import { CLAVE_DEL_TOKEN } from "@/mk/utils/claveDelToken";
 export interface AuthContextType {
   user: any;
   error: any;
@@ -74,7 +75,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     try {
       const token = await JSON.parse(
         localStorage.getItem(
-          (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+          CLAVE_DEL_TOKEN,
         ) + "",
       );
       currentUser = user || token.user;
@@ -108,14 +109,14 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
           }
 
           localStorage.setItem(
-            (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+            CLAVE_DEL_TOKEN,
             JSON.stringify({ token: token.token, user: currentUser }),
           );
         } else {
           if (error.status == 500) {
             setTimeout(async () => {
               localStorage.removeItem(
-                (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+                CLAVE_DEL_TOKEN,
               );
               setUser(false);
               setSplash(false);
@@ -123,7 +124,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
             return;
           }
           localStorage.removeItem(
-            (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+            CLAVE_DEL_TOKEN,
           );
           localStorage.removeItem("condaty_client_id");
           setUser(false);
@@ -191,7 +192,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     if (data?.success && !error) {
       setUser(data?.data?.user);
       localStorage.setItem(
-        (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+        CLAVE_DEL_TOKEN,
         JSON.stringify({ token: data?.data?.token, user: data?.data?.user }),
       );
       setWaiting(-1, "-login");
@@ -211,7 +212,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
       "POST",
     );
     localStorage.removeItem(
-      (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+      CLAVE_DEL_TOKEN,
     );
     setUser(false);
     if (data?.success) {

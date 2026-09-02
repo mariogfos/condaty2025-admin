@@ -42,6 +42,7 @@ import {
 import ExportProgressModal from "../ExportProgressModal/ExportProgressModal";
 import { DownloadHistoryModal } from "../DownloadHistory";
 import styles from "./DownloadButton.module.css";
+import { CLAVE_DEL_TOKEN } from "@/mk/utils/claveDelToken";
 
 /** Mismo origen del back que usan el hook y el historial. */
 const API_BASE_URL =
@@ -60,7 +61,7 @@ const API_BASE_URL =
 const getAuthToken = (): string | null => {
   try {
     const raw = localStorage.getItem(
-      (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token",
+      CLAVE_DEL_TOKEN,
     );
     if (!raw) return null;
     return JSON.parse(raw + "").token ?? null;
