@@ -113,7 +113,20 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
             JSON.stringify({ token: token.token, user: currentUser }),
           );
         } else {
-          if (error.status == 500) {
+          // 🔴 Acá decía `error.status`, sin `?`. `useAxios.execute()` sólo
+          // llena `error` cuando axios TIRA, o sea cuando la respuesta no es
+          // 2xx — y `LoginBaseController::iam()` termina con
+          // `sendError(INCORRECT_ACCESS, $error, 200)` cuando el usuario no
+          // tiene acceso al condominio: **HTTP 200 con `success: false`**. En
+          // esa rama `error` es `null` y leerle `.status` tira un TypeError,
+          // que se lo traga el `try/catch` de afuera. Resultado: la limpieza de
+          // abajo NO CORRÍA, y el usuario caía al login con el token viejo
+          // guardado. Al recargar pasaba lo mismo: no se destrababa solo.
+          if (error?.status == 500) {
+            // Este `return` se saltea el `setWaiting(-1)` de más abajo, y
+            // `waiting` es un acumulador global (`state + newWaiting`): sin
+            // esto queda en +1 para siempre.
+            setWaiting(-1, "-getUser500");
             setTimeout(async () => {
               localStorage.removeItem(
                 CLAVE_DEL_TOKEN,
