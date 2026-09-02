@@ -1,4 +1,5 @@
 import { ModuleNotifConfig } from "@/mk/notif/types";
+import { subtituloDelCambioDeEstado } from "./estadoDeLaEncuesta";
 
 /**
  * Surveys Module — Notification Config
@@ -25,11 +26,12 @@ export const surveyNotifications: ModuleNotifConfig = {
     },
     "survey-status-change": ({ payload, showToast, dispatch }) => {
       const term = payload?.source === "assembly" ? "Votación" : "Encuesta";
-      if (["A", "P", "C"].includes(payload?.status)) {
-        let sub = `${term} actualizada`;
-        if (payload.status === "P") sub = `${term} pausada`;
-        if (payload.status === "C") sub = `${term} cerrada`;
-        if (payload.status === "A") sub = `${term} reanudada`; // Siempre reanudada; el inicio usa new-survey
+      // 🔴 `payload.status` es un `SurveyStatus` NUMÉRICO: lo pone el propio
+      // admin al emitir. Comparar contra las letras no entraba nunca. Ver el
+      // docblock de `subtituloDelCambioDeEstado`.
+      const sub = subtituloDelCambioDeEstado(term, payload?.status);
+
+      if (sub) {
         showToast(
           payload?.source === "assembly"
             ? `📢 ${sub}`
