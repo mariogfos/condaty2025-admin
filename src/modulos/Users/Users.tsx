@@ -14,6 +14,7 @@ import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import Br from "@/components/Detail/Br";
+import { buscarPorCi, buscarPorCorreo } from "./buscarAdministradorExistente";
 
 const paramsInitial = {
   perPage: 20,
@@ -99,83 +100,17 @@ const Users = () => {
 
     extraData: true,
   };
-  const onBlurEmail = useCallback(async (e: any, props: any) => {
-    if (
-      e.target.value.trim() == "" ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
-    )
-      return;
-
-    const { data, error } = await execute(
-      "/v3/users",
-      "GET",
-      {
-        fullType: "EXIST",
-        type: "email",
-        searchBy: e.target.value,
-      },
-      false,
-      true,
-    );
-
-    if (data?.success && data.data?.data?.id) {
-      showToast("El email ya esta en uso", "warning");
-      props.setError({ email: "El email ya esta en uso" });
-      props.setItem({ ...props.item, email: "" });
-    }
-
+  const onBlurEmail = useCallback(
+    (e: any, props: any) => buscarPorCorreo(e, props, { execute, showToast }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    []
+  );
 
-  const onBlurCi = useCallback(async (e: any, props: any) => {
-    if (e.target.value.trim() == "") return;
-    const { data, error } = await execute(
-      "/v3/users",
-      "GET",
-      {
-        fullType: "EXIST",
-        type: "ci",
-        searchBy: e.target.value,
-      },
-      false,
-      true,
-    );
-
-    if (data?.success && data.data?.data?.id) {
-      const filteredData = data.data.data;
-      if (filteredData.existCondo) {
-        showToast("El administrador ya existe en este Condominio", "warning");
-        props.setItem({});
-        props.setError({ ci: "Ese CI ya esta en uso en este condominio" });
-        return;
-      }
-      props.setError({ ci: "" });
-      props.setItem({
-        ...props.item,
-        ci: filteredData.ci,
-        name: filteredData.name,
-        middle_name: filteredData.middle_name,
-        last_name: filteredData.last_name,
-        mother_last_name: filteredData.mother_last_name,
-        email: filteredData.email ?? "",
-        phone: filteredData.phone,
-        _disabled: true,
-        _emailDisabled: true,
-      });
-      showToast(
-        "El administrador ya existe en Condaty, se va a vincular al Condominio",
-        "warning",
-      );
-    } else {
-      props.setError({ ci: "" });
-      props.setItem({
-        ...props.item,
-        _disabled: false,
-        _emailDisabled: false,
-      });
-    }
+  const onBlurCi = useCallback(
+    (e: any, props: any) => buscarPorCi(e, props, { execute, showToast }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    []
+  );
 
   const onDisbled = ({ item, field }: any) => {
     if (field?.name === "email") {
