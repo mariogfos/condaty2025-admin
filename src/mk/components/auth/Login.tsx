@@ -8,7 +8,6 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { UAParser } from "ua-parser-js";
 import useAxios from "../../hooks/useAxios";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
-import { consumeAuthSessionMessage } from "../../utils/authSession";
 
 const authEndpoints = {
   login: process.env.NEXT_PUBLIC_AUTH_LOGIN || "/adm-login",
@@ -41,13 +40,6 @@ const Login = () => {
   const getUserKey = () => (formState.email || "").trim();
   const getAttemptsKey = (userKey: string) => `login_attempts_${userKey}`;
   const getBlockKey = (userKey: string) => `login_block_until_${userKey}`;
-
-  useEffect(() => {
-    const sessionMessage = consumeAuthSessionMessage();
-    if (!sessionMessage) return;
-
-    setErrors({ email: sessionMessage });
-  }, []);
 
   useEffect(() => {
     const getDeviceData = async () => {

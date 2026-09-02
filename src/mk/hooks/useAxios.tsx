@@ -3,7 +3,6 @@ import axios from "axios";
 import { useState, useContext, useMemo, useRef, useEffect } from "react";
 import { AxiosContext } from "../contexts/AxiosInstanceProvider";
 import { logError } from "../utils/logs";
-import { toSafeAxiosError } from "../utils/axiosError";
 
 export type MethodType = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -90,8 +89,7 @@ const useAxios = (
       // setData(response.data);
       data = response.data;
     } catch (err) {
-      // Axios errors include config.data, which can contain credentials.
-      logError("error useAxios", toSafeAxiosError(err));
+      logError("error useAxios", err);
       error = {
         message: (err as any).message,
         data: (err as any).response?.data || {},
