@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { esDocumento } from "@/modulos/Contents/contentEnums";
 import {
   IconArrowLeft,
   IconDocs,
@@ -46,10 +47,19 @@ export const UploadFile = ({
   const [loadedImage, setLoadedImage] = useState(false);
   const { showToast } = useAuth();
 
+  // 🔴 Acá se comparaba `item?.type === "D"`. El ÚNICO consumidor que pasa
+  // `item` es `Contents/AddContent`, y su `formState.type` es el enum numérico
+  // (`ContentType.DOCUMENTO = 2`) desde api#461: la comparación era siempre
+  // falsa, así que al editar una publicación de tipo Documento el componente
+  // no reconocía el archivo que ya estaba.
+  //
+  // Los otros cinco consumidores —Invitations, Guards, BankAccounts, Outlays y
+  // PerformBudget— no pasan `item`, así que `item?.type` es `undefined` y para
+  // ellos no cambia nada.
   // Función para verificar si hay un documento existente
   const hasExistingDocument = () => {
     // Verificar si es un documento existente
-    if (item?.type === "D" && item?.url) {
+    if (esDocumento(item?.type) && item?.url) {
       return true;
     }
     // Verificar si value tiene información de documento
@@ -88,7 +98,7 @@ export const UploadFile = ({
 
   // Función para obtener la URL del documento existente
   const getExistingDocumentUrl = () => {
-    if (item?.id && item?.type === "D") {
+    if (item?.id && esDocumento(item?.type)) {
       return getUrlImages(`/CONT-${item.id}.pdf?d=${item.updated_at}`);
     }
     return null;
