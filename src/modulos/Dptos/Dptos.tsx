@@ -14,6 +14,7 @@ import RenderForm from "./RenderForm";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { contadoresPorNombre } from "@/mk/utils/tarjetasDeContadores";
 import {
   IconDepartments2,
   IconHome,
@@ -395,16 +396,10 @@ const Dptos = () => {
     router.push(`/units/${item.id}`);
   };
 
-  const getFormatTypeUnit = () => {
-    let untis: any = [];
-    Object?.keys(extraData?.units || {}).map((c: any, i: number) => {
-      if (i !== 0) {
-        untis.push({ id: c, name: c, value: extraData?.units[c] });
-      }
-    });
-
-    return untis;
-  };
+  // 🔴 Acá se salteaba `total_units` con un `if (i !== 0)` — una clave CON
+  // NOMBRE, salteada por POSICIÓN. Ver el docblock de `tarjetasDeContadores`.
+  const getFormatTypeUnit = () =>
+    contadoresPorNombre(extraData?.units, "total_units");
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (

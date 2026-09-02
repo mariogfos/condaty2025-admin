@@ -15,6 +15,7 @@ import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDash
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import Br from "@/components/Detail/Br";
 import { buscarPorCi, buscarPorCorreo } from "./buscarAdministradorExistente";
+import { contadoresPorId } from "@/mk/utils/tarjetasDeContadores";
 
 const paramsInitial = {
   perPage: 20,
@@ -339,16 +340,11 @@ const Users = () => {
       fields,
     });
 
-  const getFormatTypeUnit = () => {
-    let rolesU: any = [];
-    Object?.keys(extraData?.users || {}).map((c: any, i: number) => {
-      if (i !== 0) {
-        rolesU.push({ id: c, name: c, value: extraData?.users[c] });
-      }
-    });
-
-    return rolesU;
-  };
+  // 🔴 Acá se salteaba `total_users` por POSICIÓN, y además el contador venía
+  // keyeado por el NOMBRE del rol: dos roles con el mismo nombre se pisaban y
+  // uno perdía su cuenta. Ver el docblock de `tarjetasDeContadores`.
+  const getFormatTypeUnit = () =>
+    contadoresPorId(extraData?.users, extraData?.roles, "total_users");
   useEffect(() => {
     setStore({ ...store, title: "" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
