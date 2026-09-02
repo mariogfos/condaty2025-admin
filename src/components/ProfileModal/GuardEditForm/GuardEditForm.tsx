@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
@@ -8,6 +8,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import Br from "@/components/Detail/Br";
 import styles from "./GuardEditForm.module.css";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
+import { buscarGuardiaPorCi } from "@/modulos/Guards/buscarGuardiaExistente";
 
 interface GuardEditFormProps {
   open: boolean;
@@ -60,6 +61,10 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
   const { showToast } = useAuth();
   const { execute } = useAxios();
   const [localErrors, setLocalErrors] = useState<Errors>({});
+  // 🔴 Guarda de en-vuelo: ver el comentario gemelo en
+  // `Guards/RenderForm`. `guards.ci` tiene índice único, así que el doble click
+  // creaba el guardia con el primer POST y el segundo volvía con error.
+  const guardadoEnVuelo = useRef(false);
   const handleChangeInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
@@ -75,58 +80,19 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
   );
 
   const onBlurCi = useCallback(
-    async (e: React.FocusEvent<HTMLInputElement>) => {
-      if (e.target.value.trim() === "") return;
-
-      const { data } = await execute(
-        "/v3/guards",
-        "GET",
+    (e: React.FocusEvent<HTMLInputElement>) =>
+      buscarGuardiaPorCi(
+        e,
+        { execute, showToast },
         {
-          fullType: "EXIST",
-          type: "ci",
-          searchBy: e.target.value,
-          value: formState.id,
+          setFormState,
+          setErrors: (actualizar: any) =>
+            setLocalErrors((actual: any) => actualizar(actual ?? {})),
+          vaciarFormulario: () => setFormState({}),
         },
-        false,
-        true,
-      );
-
-      if (data?.success && data.data?.data?.id) {
-        const filteredData = data.data.data;
-        if (filteredData.existCondo) {
-          showToast("El guardia ya existe en este condominio", "warning");
-          setFormState({});
-          setLocalErrors({ ci: "Ese CI ya esta en uso en este condominio." });
-          return;
-        }
-        setLocalErrors({ ci: "" });
-        setFormState({
-          ...formState,
-          ci: filteredData.ci,
-          name: filteredData.name,
-          middle_name: filteredData.middle_name,
-          last_name: filteredData.last_name,
-          mother_last_name: filteredData.mother_last_name,
-          email: filteredData.email ?? "",
-          phone: filteredData.phone,
-          _disabled: true,
-          _emailDisabled: true,
-        });
-
-        showToast(
-          "El guardia ya existe en condaty, se va a vincular al condominio",
-          "warning",
-        );
-      } else {
-        setLocalErrors({ ci: "" });
-        setFormState({
-          ...formState,
-          _disabled: false,
-          _emailDisabled: false,
-        });
-      }
-    },
-    [execute, showToast, formState, setFormState],
+        formState.id,
+      ),
+    [execute, showToast, setFormState, setLocalErrors, formState.id],
   );
 
   const onBlurEmail = useCallback(
@@ -229,6 +195,9 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
       return;
     }
 
+    if (guardadoEnVuelo.current) return;
+    guardadoEnVuelo.current = true;
+
     const url = formState.id ? `/v3/guards/${formState.id}` : "/v3/guards";
     const method = formState.id ? "PUT" : "POST";
 
@@ -273,6 +242,8 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
     } catch (error) {
       console.error(error);
       showToast("Error al guardar guardia", "error");
+    } finally {
+      guardadoEnVuelo.current = false;
     }
   };
 
