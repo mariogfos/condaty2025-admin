@@ -16,6 +16,12 @@ import {
   desdeElInterruptor,
   tienePlanDePagos,
 } from "./dptoPaymentPlan";
+import {
+  DPTO_NO_RECIBE_VISITAS,
+  DPTO_RECIBE_VISITAS,
+  desdeElInterruptorDeVisitas,
+  recibeVisitas,
+} from "./dptoVisitReception";
 
 const RenderForm = ({
   open,
@@ -31,6 +37,9 @@ const RenderForm = ({
     // 🔴 Se guarda el NÚMERO del enum, no un booleano. Ver `dptoPaymentPlan.ts`:
     // acá `1` es SIN plan, al revés que el booleano de producción.
     has_payment_plan: desdeElInterruptor(tienePlanDePagos(item?.has_payment_plan)),
+    can_receive_visits: desdeElInterruptorDeVisitas(
+      recibeVisitas(item?.can_receive_visits),
+    ),
   });
   const [errors, setErrors]: any = useState({});
   const [typeFields, setTypeFields]: any = useState([]);
@@ -53,6 +62,9 @@ const RenderForm = ({
           ...item,
           type: item.type_id,
           has_payment_plan: desdeElInterruptor(tienePlanDePagos(item?.has_payment_plan)),
+          can_receive_visits: desdeElInterruptorDeVisitas(
+            recibeVisitas(item?.can_receive_visits),
+          ),
         };
 
         // Procesar field_values si existen
@@ -169,6 +181,7 @@ const RenderForm = ({
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
         has_payment_plan: Number(formState.has_payment_plan),
+        can_receive_visits: Number(formState.can_receive_visits),
         homeowner_id:
           formState.homeowner_id == "X" ? null : formState.homeowner_id,
         fields: fields,
@@ -222,6 +235,24 @@ const RenderForm = ({
         name="has_payment_plan"
         optionValue={[DPTO_CON_PLAN_DE_PAGOS, DPTO_SIN_PLAN_DE_PAGOS]}
         value={formState.has_payment_plan}
+        onChange={handleChange}
+      />
+
+      {/*
+        🔴 Recibir visitas es una regla de la PUERTA: la matriz de permisos
+        operativos sólo corre `ACTION_VISIT_APPROVAL` sobre unidades que
+        reciben visitas, y `AccessHomeService` filtra por ella al armar el
+        inicio del guardia. El API la aplica entera y NINGUNA pantalla la
+        escribía: `can_receive_visits` no aparecía ni una vez en todo el admin.
+
+        ⚠️ Los números del enum, NO booleanos — y acá el `1` es el case OPUESTO
+        al de producción. Ver `dptoVisitReception.ts`.
+      */}
+      <Switch
+        label="Puede recibir visitas"
+        name="can_receive_visits"
+        optionValue={[DPTO_RECIBE_VISITAS, DPTO_NO_RECIBE_VISITAS]}
+        value={formState.can_receive_visits}
         onChange={handleChange}
       />
 
