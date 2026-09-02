@@ -41,6 +41,30 @@ export const esDocumento = (valor: unknown): boolean => esTipo(valor, ContentTyp
 export const esVideo = (valor: unknown): boolean => esTipo(valor, ContentType.VIDEO);
 
 /**
+ * Las opciones del selector de tipo y del filtro de la lista.
+ *
+ * 🔴 Vivían escritas a mano en `Contents.tsx` con los ids `"I"`, `"V"` y `"D"`,
+ * o sea con los chars que la columna dejó de tener. Van acá, al lado del enum
+ * que definen, para que no vuelvan a quedar de un lado del flip.
+ *
+ * ⚠️ El `ext` de cada tipo es del formulario, no del enum: dice qué archivos
+ * acepta el input de subida.
+ */
+export const OPCIONES_DE_TIPO = [
+  { id: ContentType.IMAGEN, name: "Imagen", ext: "png,jpg,jpeg,svg" },
+  { id: ContentType.VIDEO, name: "Video", ext: "mp4" },
+  { id: ContentType.DOCUMENTO, name: "Documento", ext: "pdf,doc,docx" },
+];
+
+/** El mismo catálogo con el «Todos» que el filtro de la lista necesita. */
+export const FILTRO_DE_TIPO = [
+  { id: "ALL", name: "Todos" },
+  { id: ContentType.DOCUMENTO, name: "Documento" },
+  { id: ContentType.VIDEO, name: "Video" },
+  { id: ContentType.IMAGEN, name: "Imagen" },
+];
+
+/**
  * A quién va dirigida — espejo de `ContentDestiny`.
  *
  * ⚠️ En producción está **143 de 143 en "Todos"**: los otros tres existen en el

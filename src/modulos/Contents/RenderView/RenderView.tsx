@@ -1,4 +1,5 @@
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { esDocumento, esImagen, esVideo } from "../contentEnums";
 import { Image } from "@/mk/components/ui/Image/Image";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
@@ -187,7 +188,7 @@ const RenderView = (props: {
     if (currentData?.files?.length > 0) {
       return currentData?.files?.[0];
     }
-    if (currentData?.type === "D" && currentData?.id && currentData?.url) {
+    if (esDocumento(currentData?.type) && currentData?.id && currentData?.url) {
       return getUrlImages(
         `/CONT-${currentData.id}.pdf?d=${currentData.updated_at}`,
       );
@@ -196,7 +197,7 @@ const RenderView = (props: {
   };
 
   const hasDocument = () =>
-    (currentData?.type === "D" &&
+    (esDocumento(currentData?.type) &&
       currentData?.url &&
       currentData?.url !== "null") ||
     currentData?.files?.length > 0;
@@ -239,7 +240,21 @@ const RenderView = (props: {
 
         <div className={styles.content}>
           <div className={styles.imageContainer}>
-            {currentData?.type === "I" ? (
+            {/*
+              🔴 Las tres ramas comparaban contra `"I"`, `"V"` y `"D"`.
+              `contents.type` es un enum numérico desde api#461
+              (`Content.php:56`, `'type' => ContentType::class`), así que las
+              TRES eran siempre falsas y todo caía al último `else`:
+              **«Sin contenido disponible»**.
+
+              En producción hay 143 publicaciones —140 imágenes, 2 documentos y
+              1 video—: el detalle no mostraba NINGUNA.
+
+              ⚠️ `contentEnums.ts` ya existía, escrito justo para esto, y
+              `AddContent.tsx` ya lo usaba. El flip migró el lado que ESCRIBE y
+              dejó atrás el que LEE.
+            */}
+            {esImagen(currentData?.type) ? (
               hasImagesContent ? (
                 <div>
                   <div className={styles.imageWrapper}>
@@ -304,14 +319,14 @@ const RenderView = (props: {
                   </div>
                 </div>
               )
-            ) : currentData?.type === "V" ? (
+            ) : esVideo(currentData?.type) ? (
               <ReactPlayer
                 url={currentData?.url}
                 width="100%"
                 height="100%"
                 controls
               />
-            ) : currentData?.type === "D" ? (
+            ) : esDocumento(currentData?.type) ? (
               <div
                 className={styles.imageWrapper}
                 style={{

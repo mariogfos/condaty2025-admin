@@ -1,4 +1,9 @@
 import React from "react";
+import {
+  esDocumento,
+  esImagen,
+  esVideo,
+} from "@/modulos/Contents/contentEnums";
 import Image from "next/image";
 import { ContentItem } from "../types";
 import ImageMosaic from "../ImageMosaic/ImageMosaic";
@@ -48,7 +53,10 @@ const MediaRenderer: React.FC<MediaRendererProps> = ({
   const getInstagramEmbedUrl = (url: string) => `${url}embed/`;
 
   // Render
-  if (item.type === "I" && hasImages) {
+  // 🔴 Las tres ramas comparaban contra los chars viejos y `contents.type` es
+  // numérico desde api#461: las tres eran siempre falsas y la función caía al
+  // `return null` final. El reel no pintaba NADA.
+  if (esImagen(item.type) && hasImages) {
     if (normalizedImages.length === 1) {
       const imageSrc: any = normalizedImages[0];
 
@@ -79,7 +87,7 @@ const MediaRenderer: React.FC<MediaRendererProps> = ({
   }
 
   // Video
-  if (item.type === "V" && item.url) {
+  if (esVideo(item.type) && item.url) {
     if (isYouTubeUrl(item.url)) {
       const embedUrl = getYouTubeEmbedUrl(item.url);
       if (embedUrl) {
@@ -128,7 +136,7 @@ const MediaRenderer: React.FC<MediaRendererProps> = ({
   }
 
   // Documento
-  if (item.type === "D" && item?.files?.length > 0) {
+  if (esDocumento(item.type) && item?.files?.length > 0) {
     const documentUrl = item.files?.[0];
 
     return (
