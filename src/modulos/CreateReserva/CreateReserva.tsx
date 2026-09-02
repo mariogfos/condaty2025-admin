@@ -16,6 +16,7 @@ import {
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
 import { getFullName } from "@/mk/utils/string";
+import { opcionesDeUnidades } from "./opcionesDeUnidad";
 import { ApiArea, FormState } from "./Type";
 import {
   AreaStatus,
@@ -184,23 +185,16 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     if (!selectedArea) {
       return [];
     }
-    let data: any[] = [];
-    extraData?.dptos?.forEach((unidad: any) => {
-      if (bloqueaConDeuda(selectedArea?.penalty_or_debt_restriction)) {
-        if (unidad?.defaulter == "X") {
-          data.push({
-            id: String(unidad.id),
-            name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)}`,
-          });
-        }
-      } else {
-        data.push({
-          id: String(unidad.id),
-          name: `Unidad: ${unidad.nro} - ${getFullName(unidad.tenant)} `,
-        });
-      }
-    });
-    return data;
+    // 🔴 Acá la etiqueta se armaba con `getFullName(unidad.tenant)` —el
+    // INQUILINO— y la reserva se crea para el TITULAR, que el back resuelve
+    // como `holder === 'H' ? homeowner : tenant` y pisa el `owner_id` que
+    // manda este formulario. En producción, 2026-09-02: en 168 unidades el
+    // administrador leía un nombre y reservaba para otra persona, y en 112 la
+    // opción salía sin ningún nombre porque no había inquilino cargado.
+    return opcionesDeUnidades(
+      extraData?.dptos ?? [],
+      bloqueaConDeuda(selectedArea?.penalty_or_debt_restriction),
+    );
   }, [extraData?.dptos, extraData?.areas, formState.area_social]);
 
   const selectedAreaDetails: ApiArea | undefined = useMemo(() => {
@@ -357,8 +351,13 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     const selectedUnit = extraData?.dptos.find(
       (u: any) => String(u.id) === formState.unidad,
     );
+    // ⚠️ El `owner_id` que viaja acá abajo lo IGNORA el back: `beforeCreate` lo
+    // pisa con el titular de la unidad y ni siquiera está en las reglas del
+    // Request. La guarda se queda igual —sin titular el back responde 404— pero
+    // antes cortaba el submit en silencio: el botón no hacía nada y no decía nada.
     const ownerId = selectedUnit?.titular?.id;
     if (!ownerId) {
+      showToast("Esa unidad no tiene titular definido: no se le puede reservar.", "error");
       setIsSubmitting(false);
       return;
     }
