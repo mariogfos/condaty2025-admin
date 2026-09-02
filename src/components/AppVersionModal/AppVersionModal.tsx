@@ -46,6 +46,12 @@ export const AppVersionModal: React.FC = () => {
             min_version_ios_guard: json?.guard?.min_version?.ios || '',
             update_url_android_guard: json?.guard?.update_url?.android || '',
             update_url_ios_guard: json?.guard?.update_url?.ios || '',
+            // ⚠️ La forma de ida y la de vuelta NO son la misma: el GET los
+            // entrega anidados en `support`, y el PUT los toma planos con el
+            // prefijo `support_`. Se mapea acá, en el único lugar que ve las
+            // dos puntas.
+            support_whatsapp_phone: json?.support?.whatsapp_phone || '',
+            support_whatsapp_message: json?.support?.whatsapp_message || '',
           });
         }
       } catch (err) {
@@ -206,6 +212,45 @@ export const AppVersionModal: React.FC = () => {
                     name="update_url_ios_guard"
                     label="Update URL iOS"
                     value={form.update_url_ios_guard || ''}
+                    onChange={handleChange}
+                    required={false}
+                    styleInput={{ margin: '4px 0' }}
+                  />
+                </div>
+              </div>
+
+              {/*
+                🔴 Estos dos campos NO EXISTÍAN en ninguna pantalla. El API los
+                entrega y los acepta desde api#496 —`GET /app-version` los manda
+                en `support`, `PUT` los valida y normaliza el teléfono— y la app
+                de residentes los usa: el botón de ayuda de su login abre este
+                WhatsApp con este mensaje.
+
+                Sin pantalla que los escriba, el teléfono se quedaba en lo que
+                hubiera en la base, sin forma de cambiarlo. Es la misma familia
+                que `requires_membership` (#794), `can_receive_visits` (#796) y
+                `has_membership` (#798) — y ésta la dejé yo al cerrar api#496.
+
+                ⚠️ El nombre lleva el prefijo `support_` porque así los toma el
+                PUT; el GET los devuelve anidados en `support`. Ver el mapeo del
+                `load`.
+              */}
+              <div className={formStyles['input-row']}>
+                <div className={formStyles['input-half']}>
+                  <Input
+                    name="support_whatsapp_phone"
+                    label="WhatsApp de soporte"
+                    value={form.support_whatsapp_phone || ''}
+                    onChange={handleChange}
+                    required={false}
+                    styleInput={{ margin: '4px 0' }}
+                  />
+                </div>
+                <div className={formStyles['input-half']}>
+                  <Input
+                    name="support_whatsapp_message"
+                    label="Mensaje inicial del WhatsApp"
+                    value={form.support_whatsapp_message || ''}
                     onChange={handleChange}
                     required={false}
                     styleInput={{ margin: '4px 0' }}
