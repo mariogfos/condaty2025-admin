@@ -17,6 +17,12 @@ import {
   tienePlanDePagos,
 } from "./dptoPaymentPlan";
 import {
+  DPTO_CON_MEMBRESIA,
+  DPTO_SIN_MEMBRESIA,
+  desdeElInterruptorDeMembresia,
+  tieneMembresia,
+} from "./dptoMembership";
+import {
   DPTO_NO_RECIBE_VISITAS,
   DPTO_RECIBE_VISITAS,
   desdeElInterruptorDeVisitas,
@@ -39,6 +45,9 @@ const RenderForm = ({
     has_payment_plan: desdeElInterruptor(tienePlanDePagos(item?.has_payment_plan)),
     can_receive_visits: desdeElInterruptorDeVisitas(
       recibeVisitas(item?.can_receive_visits),
+    ),
+    has_membership: desdeElInterruptorDeMembresia(
+      tieneMembresia(item?.has_membership),
     ),
   });
   const [errors, setErrors]: any = useState({});
@@ -64,6 +73,9 @@ const RenderForm = ({
           has_payment_plan: desdeElInterruptor(tienePlanDePagos(item?.has_payment_plan)),
           can_receive_visits: desdeElInterruptorDeVisitas(
             recibeVisitas(item?.can_receive_visits),
+          ),
+          has_membership: desdeElInterruptorDeMembresia(
+            tieneMembresia(item?.has_membership),
           ),
         };
 
@@ -182,6 +194,7 @@ const RenderForm = ({
         dimension: formState.dimension,
         has_payment_plan: Number(formState.has_payment_plan),
         can_receive_visits: Number(formState.can_receive_visits),
+        has_membership: Number(formState.has_membership),
         homeowner_id:
           formState.homeowner_id == "X" ? null : formState.homeowner_id,
         fields: fields,
@@ -253,6 +266,23 @@ const RenderForm = ({
         name="can_receive_visits"
         optionValue={[DPTO_RECIBE_VISITAS, DPTO_NO_RECIBE_VISITAS]}
         value={formState.can_receive_visits}
+        onChange={handleChange}
+      />
+
+      {/*
+        🔴🔴 La OTRA MITAD de `requires_membership` de Áreas (admin#794). La
+        visibilidad se decide con las dos columnas: el área dice si pide
+        membresía, la unidad dice si la tiene. Sin este interruptor, un área
+        marcada como "sólo para socios" no la veía NADIE — no había forma de
+        marcar una unidad como socia.
+
+        ⚠️ Los números del enum: `NONE = 1`, `ACTIVE = 2`. Ver `dptoMembership.ts`.
+      */}
+      <Switch
+        label="Tiene membresía"
+        name="has_membership"
+        optionValue={[DPTO_CON_MEMBRESIA, DPTO_SIN_MEMBRESIA]}
+        value={formState.has_membership}
         onChange={handleChange}
       />
 
