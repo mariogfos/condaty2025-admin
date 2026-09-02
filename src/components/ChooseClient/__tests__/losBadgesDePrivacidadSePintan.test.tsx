@@ -17,11 +17,16 @@
 import React from "react";
 import { render, screen, cleanup } from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { ClientPrivacy } from "@/modulos/Payments/Type/PaymentType";
+import { ClientPrivacy, ClientType } from "@/modulos/Payments/Type/PaymentType";
 
+// ⚠️ El `type` iba como `"U"` y `"C"` —los chars viejos— en el fixture del test
+// que se escribió justamente para cerrar las comparaciones contra chars. Un
+// fixture que manda lo que el API ya no manda no puede destapar nada: `type`
+// también es enum numérico (`Client.php:67`, `'type' => ClientType::class`), y
+// con el char puesto la comparación rota de al lado seguía invisible.
 const condominios = [
-  { id: 1, name: "Urubó Village", type: "U", privacy: ClientPrivacy.PUBLICO },
-  { id: 2, name: "Condominio de prueba", type: "C", privacy: ClientPrivacy.PRUEBA },
+  { id: 1, name: "Urubó Village", type: ClientType.CONDOMINIO, privacy: ClientPrivacy.PUBLICO },
+  { id: 2, name: "Condominio de prueba", type: ClientType.EDIFICIO, privacy: ClientPrivacy.PRUEBA },
 ];
 
 vi.mock("@/mk/contexts/AuthProvider", () => ({

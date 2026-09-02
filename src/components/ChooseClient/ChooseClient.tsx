@@ -1,7 +1,7 @@
 "use client";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   IconArrowRight,
   IconLogo,
@@ -38,7 +38,7 @@ import { StatusBadge } from "../StatusBadge/StatusBadge";
  * `Number(...)` defensivo — un cast «por las dudas» acá taparía justo el
  * desacuerdo que uno querría ver.
  */
-import { ClientPrivacy } from "@/modulos/Payments/Type/PaymentType";
+import { ClientPrivacy, ClientType } from "@/modulos/Payments/Type/PaymentType";
 
 interface Props {
   open: boolean;
@@ -47,6 +47,21 @@ interface Props {
 const ChooseClient = ({ open, onClose }: Props) => {
   const { user, getUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
+  /**
+   * 🔴 Guarda de en-vuelo: el modal queda ABIERTO y clickeable durante el
+   * `await getUser(id)`, que es un request entero. Dos clicks seguidos
+   * despachan dos `getUser`, cada uno escribe `condaty_client_id` y el token, y
+   * **gana el que CONTESTA último, que no es el que se pidió último**. El
+   * usuario apretó un condominio y puede terminar en el otro.
+   *
+   * En un sistema multi-tenant es de las cosas peores que pueden pasar, y es
+   * justo lo que el comentario de `onClick` explica que se quiso cerrar con la
+   * recarga completa. La recarga tapa el estado viejo; no tapa esta carrera.
+   *
+   * Un ref y no un estado: se lee ya actualizado en el mismo tick, un
+   * `useState` no.
+   */
+  const cambioEnVuelo = useRef(false);
   const { translate } = useScopedI18n("chooseClient");
 
   /**
@@ -73,13 +88,24 @@ const ChooseClient = ({ open, onClose }: Props) => {
    * del condominio nuevo. Recargar antes de que termine volvería con las viejas.
    */
   const onClick = async (id: any) => {
-    await getUser(id);
-    onClose();
+    if (cambioEnVuelo.current) return;
+    cambioEnVuelo.current = true;
 
-    // Sin `router.push` ni `reLoadDashboard`: la recarga completa los hace
-    // innecesarios —el store se rearma solo— y dejarlos sería prometer un
-    // refresco parcial que ya no ocurre.
-    window.location.href = "/";
+    try {
+      await getUser(id);
+      onClose();
+
+      // Sin `router.push` ni `reLoadDashboard`: la recarga completa los hace
+      // innecesarios —el store se rearma solo— y dejarlos sería prometer un
+      // refresco parcial que ya no ocurre.
+      window.location.href = "/";
+    } catch (e) {
+      // ⚠️ Sólo se suelta si falló. En el camino bueno la página se recarga y
+      // el ref se va con ella: soltarlo antes reabriría la carrera durante el
+      // rato que tarda la navegación.
+      cambioEnVuelo.current = false;
+      throw e;
+    }
   };
 
   const renderClient = (c: any) => {
@@ -96,12 +122,23 @@ const ChooseClient = ({ open, onClose }: Props) => {
             style={{ width: 40, height: 40, borderRadius: "50%" }}
           />
           <div className={styles.clientText}>
+            {/*
+              🔴 Acá pasaba EXACTAMENTE lo mismo que con los dos badges de más
+              abajo, y quedó vivo en la línea siguiente: `c.type == "C"` y
+              `== "U"` comparan contra los valores viejos. `type` es un enum
+              numérico —`Client.php:67` lo castea con `'type' => ClientType::class`,
+              que Laravel serializa como `1` / `2`—, así que las DOS ramas eran
+              siempre falsas y **los 37 condominios caían al `else`: todos
+              decían «Edificio»**, incluidos los 23 que son condominios.
+
+              ⚠️ Y la rama «Urbanización» no existe: el enum tiene dos casos,
+              CONDOMINIO y EDIFICIO. Comparaba contra una `"U"` que el API no
+              manda ni mandó nunca.
+            */}
             <span className={styles.clientType}>
-              {c.type == "C"
+              {c.type === ClientType.CONDOMINIO
                 ? translate("condominium")
-                : c.type == "U"
-                  ? translate("urbanization")
-                  : translate("building")}
+                : translate("building")}
             </span>
             <span className={styles.clientName}>{c.name}</span>
           </div>
