@@ -18,6 +18,7 @@ import {
   AreaDebtRestriction,
   AreaPricing,
   esPorHora,
+  AreaMembership,
 } from "../Type/AreaEnums";
 
 const hasCoordinateValue = (value: unknown) => {
@@ -100,6 +101,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     booking_mode: item?.booking_mode ?? AreaBookingMode.DAY,
     has_price: item?.price ? "S" : "N",
     requires_approval: item?.requires_approval ?? AreaApproval.REQUIRED,
+    requires_membership: item?.requires_membership ?? AreaMembership.OPEN,
     penalty_or_debt_restriction:
       item?.penalty_or_debt_restriction ?? AreaDebtRestriction.NONE,
     min_reservation_advance_hours:
@@ -323,6 +325,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         max_capacity: formState?.max_capacity,
         status: formState?.status,
         requires_approval: formState?.requires_approval,
+        requires_membership: formState?.requires_membership,
         price: formState?.price,
         max_reservations_per_week: formState?.max_reservations_per_week,
         min_cancel_hours: formState?.min_cancel_hours,
