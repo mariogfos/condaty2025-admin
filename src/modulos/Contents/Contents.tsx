@@ -24,7 +24,10 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import CommentsModal from "@/components/CommentsModal/CommentsModal";
-import { ContentType, esDocumento, esImagen, esVideo } from "./contentEnums";
+import { ContentType, esDocumento, esImagen, esVideo,
+  OPCIONES_DE_TIPO,
+  FILTRO_DE_TIPO,
+} from "./contentEnums";
 
 const paramsInitial = {
   perPage: 20,
@@ -40,22 +43,19 @@ const isType = (data: {
 }) => {
   if (data.key == "url" && esVideo(data.item.type)) return false;
   if (data.key == "avatar" && esImagen(data.item.type)) return false;
-  if (data.key == "file" && data.item.type == "D") return false;
+  // 🔴 Las dos de arriba se migraron y ésta NO, en la misma función y en la
+  // línea siguiente. `contents.type` es un enum numérico (`Content.php:56`,
+  // `'type' => ContentType::class`), así que `== "D"` era siempre falso.
+  if (data.key == "file" && esDocumento(data.item.type)) return false;
   return true;
 };
 
-const lType = [
-  { id: "I", name: "Imagen", ext: "png,jpg,jpeg,svg" },
-  { id: "V", name: "Video", ext: "mp4" },
-  { id: "D", name: "Documento", ext: "pdf,doc,docx" },
-];
+// 🔴 Los ids eran `"I"`, `"V"` y `"D"`: el selector del formulario ofrecía
+// chars y el filtro de la lista mandaba `filterBy=type:D` contra una columna
+// numérica. Ahora salen de `contentEnums.ts`, al lado del enum.
+const lType = OPCIONES_DE_TIPO;
 
-const getTypefilter = () => [
-  { id: "ALL", name: "Todos" },
-  { id: "D", name: "Documento" },
-  { id: "V", name: "Video" },
-  { id: "I", name: "Imagen" },
-];
+const getTypefilter = () => FILTRO_DE_TIPO;
 
 const getTypeContentsfilter = () => [
   { id: "ALL", name: "Todos" },

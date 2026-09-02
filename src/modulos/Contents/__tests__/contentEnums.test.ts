@@ -7,6 +7,8 @@ import {
   esDocumento,
   esImagen,
   esVideo,
+  OPCIONES_DE_TIPO,
+  FILTRO_DE_TIPO,
 } from "../contentEnums";
 
 /**
@@ -66,5 +68,56 @@ describe("contentEnums — qué clase de publicación es", () => {
   it("las opciones de destino mandan el número que el API guarda", () => {
     expect(OPCIONES_DE_DESTINO.map((o) => o.id)).toEqual([1, 2, 3, 4]);
     expect(ContentDestiny.TODOS).toBe(1);
+  });
+});
+
+/**
+ * ────────────────────────────────────────────────────────────────────────
+ * 🔴🔴 ESTE ARCHIVO PASABA MIENTRAS TRES PANTALLAS ESTABAN ROTAS
+ * ────────────────────────────────────────────────────────────────────────
+ *
+ * Los casos de arriba miden el HELPER. Y el helper estaba bien: lo que faltaba
+ * era que las pantallas lo usaran.
+ *
+ * Medido el 2026-09-02, `contents.type` seguia comparado contra chars en:
+ *
+ * | pantalla | que pasaba |
+ * |---|---|
+ * | `Contents/RenderView` | las tres ramas falsas → el ultimo `else`: **«Sin contenido disponible»** |
+ * | `Reel/MediaRenderer`  | las tres falsas → `return null`: el reel no pintaba NADA |
+ * | `Contents.tsx:43`     | `type == "D"`, en la linea siguiente a dos que SI estaban migradas |
+ *
+ * En produccion hay 143 publicaciones —140 imagenes, 2 documentos, 1 video—:
+ * el detalle no mostraba ninguna.
+ *
+ * Los catalogos de abajo son lo que faltaba pinear: mientras los ids del
+ * selector y del filtro fueran chars, la pantalla podia seguir mandando letras
+ * aunque el helper supiera leer numeros.
+ */
+describe("los catalogos que arman el selector y el filtro", () => {
+  it("el selector del formulario ofrece los numeros del enum", () => {
+    expect(OPCIONES_DE_TIPO.map((o) => o.id)).toEqual([
+      ContentType.IMAGEN,
+      ContentType.VIDEO,
+      ContentType.DOCUMENTO,
+    ]);
+    // Ni uno solo puede ser un char: el API valida con `Rule::enum(ContentType)`.
+    for (const opcion of OPCIONES_DE_TIPO) {
+      expect(typeof opcion.id).toBe("number");
+    }
+  });
+
+  it("el filtro de la lista tambien, y conserva su ALL", () => {
+    expect(FILTRO_DE_TIPO[0]).toMatchObject({ id: "ALL" });
+    for (const opcion of FILTRO_DE_TIPO.slice(1)) {
+      expect(typeof opcion.id).toBe("number");
+    }
+  });
+
+  it("el selector conserva las extensiones que acepta cada tipo", () => {
+    const porTipo = Object.fromEntries(OPCIONES_DE_TIPO.map((o) => [o.id, o.ext]));
+    expect(porTipo[ContentType.IMAGEN]).toContain("png");
+    expect(porTipo[ContentType.VIDEO]).toBe("mp4");
+    expect(porTipo[ContentType.DOCUMENTO]).toContain("pdf");
   });
 });
