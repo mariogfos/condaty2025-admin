@@ -1,5 +1,6 @@
 // src/modulos/Assemblies/config/assemblies.config.tsx
 import React from "react";
+import { accionesEscondidas } from "../accionesDeLaAsamblea";
 import { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
 import { getPeriodOptions } from "@/mk/utils/periodFilterOptions";
@@ -68,14 +69,7 @@ export const getAssemblyConfig = (
       edit: "Asamblea actualizada con éxito",
       del: "Asamblea eliminada con éxito",
     },
-    onHideActions: (item: any) => {
-      const hasAttendances = (item.attendances_count || 0) > 0;
-      const notScheduled = item.status !== "S";
-      return {
-        hideEdit: hasAttendances || notScheduled,
-        hideDel: hasAttendances || notScheduled,
-      };
-    },
+    onHideActions: (item: any) => accionesEscondidas(item),
     renderForm: (props: any) => <RenderForm {...props} />,
   };
 

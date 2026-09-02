@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { AssemblyStatus } from "../../types/assemblyStatus";
 import { useRouter } from "next/navigation";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -59,7 +60,12 @@ export const AssemblyDashboardCard = ({ assembly: initialAssembly = null }: { as
     router.push(`/assemblies/${assembly.id}`);
   };
 
-  const statusClass = assembly.status === "P" ? styles.statusActive : styles.statusScheduled;
+  // 🔴 Era `assembly.status === "P"`, y el enum mapea `'P' → 2` (InProgress):
+  // siempre falso, así que la tarjeta nunca se pintaba como «en curso».
+  const statusClass =
+    assembly.status === AssemblyStatus.InProgress
+      ? styles.statusActive
+      : styles.statusScheduled;
 
   return (
     <WidgetBase
