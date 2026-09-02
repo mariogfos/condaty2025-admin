@@ -286,21 +286,19 @@ const Owners = () => {
                     CI: {cedulaIdentidad}
                   </span>
                 )}
-                {/* Estado de Administrador Principal (si aplica) */}
-                {residente?.is_main == "M" && (
-                  <span
-                    style={{
-                      color: "var(--cSuccess)",
-                      fontSize: 10,
-                      backgroundColor: "#00af900D",
-                      padding: "2px 4px",
-                      borderRadius: 4,
-                      display: "inline-block",
-                    }}
-                  >
-                    Administrador principal
-                  </span>
-                )}
+                {/*
+                  🔴 Acá había un badge «Administrador Principal» condicionado a
+                  `residente?.is_main == "M"`. Medido el 2026-09-02:
+                  `is_main` **no existe** en ninguna tabla de residentes
+                  —`owners`, `client_owners`, `dpto_owners`— ni se selecciona en
+                  el listado del padrón. El campo nunca llegaba, la condición
+                  era siempre falsa y el badge no se pintó jamás.
+
+                  Se borra en vez de adivinar a qué se refería: la condición de
+                  "principal" de un residente vive en `client_owners.type`
+                  (`HOMEOWNER = 1`, `HOMEOWNER_RESIDENT = 4`), y mapearla sin
+                  saber qué se quiso mostrar sería inventar la regla.
+                */}
               </div>
             </div>
           );
