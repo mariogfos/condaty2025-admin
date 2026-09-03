@@ -524,6 +524,24 @@ const RenderView: React.FC<RenderViewProps> = ({
         ]
       : []),
   ];
+  const debtContextFieldIds = new Set([
+    "unit",
+    "homeowner",
+    "holder",
+    "category",
+    "subcategory",
+    "type",
+    "concept",
+    "start-date",
+    "due-date",
+    "distribution",
+  ]);
+  const debtContextFields = debtFields.filter((field) =>
+    debtContextFieldIds.has(field.id),
+  );
+  const debtAmountFields = debtFields.filter(
+    (field) => !debtContextFieldIds.has(field.id),
+  );
 
   const customActions = [
     ...(showEditAction
@@ -588,7 +606,11 @@ const RenderView: React.FC<RenderViewProps> = ({
         footer={debtActionButtons}
       >
         <FinancialDetailSection title="Datos de la deuda">
-          <FinancialDetailGrid fields={debtFields} />
+          <FinancialDetailGrid fields={debtContextFields} />
+        </FinancialDetailSection>
+
+        <FinancialDetailSection title="Importes y estado" defaultOpen={false}>
+          <FinancialDetailGrid fields={debtAmountFields} />
         </FinancialDetailSection>
 
         <FinancialDetailSection title="Descripción" defaultOpen={false}>

@@ -263,6 +263,13 @@ const RenderView = ({
       tone: remainingAmount > 0 ? "warning" : "success",
     },
   ];
+  const partialContextFieldIds = new Set(["concept", "unit", "homeowner", "holder"]);
+  const partialContextFields = fields.filter((field) =>
+    partialContextFieldIds.has(field.id),
+  );
+  const partialAmountFields = fields.filter(
+    (field) => !partialContextFieldIds.has(field.id),
+  );
 
   const footer = (
     <div className={styles.actionsRow}>
@@ -313,7 +320,11 @@ const RenderView = ({
         footer={footer}
       >
         <FinancialDetailSection title="Resumen de la deuda">
-          <FinancialDetailGrid fields={fields} />
+          <FinancialDetailGrid fields={partialContextFields} />
+        </FinancialDetailSection>
+
+        <FinancialDetailSection title="Importes y estado" defaultOpen={false}>
+          <FinancialDetailGrid fields={partialAmountFields} />
         </FinancialDetailSection>
 
         <FinancialDetailSection

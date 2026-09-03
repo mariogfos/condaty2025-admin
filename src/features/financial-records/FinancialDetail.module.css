@@ -85,7 +85,7 @@
   color: var(--cWhiteV1);
   background: var(--cModalSurfaceRaised);
   border: 1px solid var(--cModalBorder);
-  border-radius: 999px;
+  border-radius: var(--bRadiusS);
   cursor: pointer;
   transition:
     color 160ms ease,
@@ -130,7 +130,7 @@
   color: var(--cWhiteV1);
   background: var(--cModalSurfaceRaised);
   border: 1px solid var(--cModalBorder);
-  border-radius: 999px;
+  border-radius: var(--bRadiusS);
   font-size: 14px;
   font-weight: var(--font-weight-medium);
   cursor: pointer;
@@ -454,19 +454,30 @@
   gap: var(--spM);
   padding: 14px 24px 20px;
   background: var(--cModalSurface);
-  border-top: 0;
+  border-top: 1px solid var(--cModalDivider);
 }
 
 .footer > div {
   width: auto;
   display: flex;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
   justify-content: flex-end;
   gap: var(--spM);
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.footer button {
+.footer > div::-webkit-scrollbar {
+  display: none;
+}
+
+.footer > button,
+.footer > div > button {
   width: auto;
-  min-width: 148px;
+  min-width: 132px;
+  flex: 1 0 132px;
   padding-right: 16px;
   padding-left: 16px;
   border-radius: 999px;
@@ -614,7 +625,7 @@
   color: var(--cWhiteV1);
   background: transparent;
   border: 1px solid var(--cModalBorder);
-  border-radius: 999px;
+  border-radius: var(--bRadiusS);
   cursor: pointer;
 }
 
@@ -643,7 +654,7 @@
 .actionFooter button {
   width: auto;
   min-width: 160px;
-  border-radius: 999px;
+  border-radius: var(--bRadiusS);
 }
 
 .formError {
