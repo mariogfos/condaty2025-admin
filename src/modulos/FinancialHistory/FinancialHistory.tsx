@@ -17,8 +17,8 @@ type HistoryItem = {
   label: string;
   client: string;
   record: { title: string; subtitle?: string | null };
-  before: { status?: string | null };
-  after: { status?: string | null };
+  before: { status?: string | null; penalty_amount?: number | string | null };
+  after: { status?: string | null; penalty_amount?: number | string | null };
   actor: { name: string };
   reason?: string | null;
   occurred_at: string;
@@ -37,6 +37,18 @@ const STATE_LABELS: Record<string, string> = {
 };
 
 const stateLabel = (value?: string | null) => STATE_LABELS[String(value || "")] || value || "Sin estado";
+
+const formatAmount = (value?: number | string | null) => new Intl.NumberFormat("es-BO", {
+  style: "currency",
+  currency: "BOB",
+  minimumFractionDigits: 2,
+}).format(Number(value || 0));
+
+const amountChanged = (item: HistoryItem) =>
+  Number(item.before?.penalty_amount || 0) !== Number(item.after?.penalty_amount || 0);
+
+const stateChanged = (item: HistoryItem) =>
+  String(item.before?.status || "") !== String(item.after?.status || "");
 
 const formatDate = (value: string) => {
   const parsed = new Date(value);
@@ -93,6 +105,7 @@ export default function FinancialHistory() {
   const types = history?.available_types || [
     { id: "all", label: "Todos los tipos" },
     { id: "payment_state_repair", label: "Correcciones de estados de pago" },
+    { id: "penalty_accrual", label: "Multas y saldos por mora" },
   ];
 
   return (
@@ -131,7 +144,7 @@ export default function FinancialHistory() {
           <div><h2>Acciones registradas</h2><p>{pagination ? `${pagination.total} registro${pagination.total === 1 ? "" : "s"}` : "Cargando registros…"}</p></div>
         </div>
         {!loading && (history?.items?.length || 0) === 0 ? (
-          <div className={styles.emptyState}><HistoryIcon size={22} /><div><strong>Aún no hay correcciones registradas.</strong><span>El historial se poblará cuando se aplique una corrección desde Integridad financiera.</span></div></div>
+          <div className={styles.emptyState}><HistoryIcon size={22} /><div><strong>Aún no hay acciones registradas.</strong><span>Aquí aparecerán las correcciones y reconciliaciones automáticas de multas.</span></div></div>
         ) : (
           <Table
             data={history?.items || []}
@@ -142,8 +155,32 @@ export default function FinancialHistory() {
               { key: "occurred_at", label: "Fecha", responsive: "onlyDesktop", width: "185", onRender: ({ value }: any) => formatDate(value) },
               { key: "label", label: "Acción", responsive: "onlyDesktop", width: "225", onRender: ({ item }: any) => <div className={styles.actionCell}><strong>{item.label}</strong><span>{item.client}</span></div> },
               { key: "record", label: "Registro", responsive: "onlyDesktop", width: "100%", onRender: ({ value }: any) => <div className={styles.recordCell}><strong>{value?.title || "Registro financiero"}</strong>{value?.subtitle ? <span>{value.subtitle}</span> : null}</div> },
-              { key: "before", label: "Cambio", responsive: "onlyDesktop", width: "190", onRender: ({ item }: any) => <span className={styles.stateChange}><b>{stateLabel(item.before?.status)}</b><ArrowRight size={14} /><strong>{stateLabel(item.after?.status)}</strong></span> },
-              { key: "actor", label: "Administrador", responsive: "onlyDesktop", width: "190", onRender: ({ value }: any) => value?.name || "Administrador" },
+              {
+                key: "before",
+                label: "Cambio",
+                responsive: "onlyDesktop",
+                width: "220",
+                onRender: ({ item }: { item: HistoryItem }) => (
+                  <span className={styles.changeCell}>
+                    {amountChanged(item) ? (
+                      <span className={styles.stateChange}>
+                        <b>{formatAmount(item.before?.penalty_amount)}</b>
+                        <ArrowRight size={14} />
+                        <strong>{formatAmount(item.after?.penalty_amount)}</strong>
+                      </span>
+                    ) : null}
+                    {stateChanged(item) ? (
+                      <span className={styles.stateChange}>
+                        <b>{stateLabel(item.before?.status)}</b>
+                        <ArrowRight size={14} />
+                        <strong>{stateLabel(item.after?.status)}</strong>
+                      </span>
+                    ) : null}
+                    {!amountChanged(item) && !stateChanged(item) ? "Datos derivados sincronizados" : null}
+                  </span>
+                ),
+              },
+              { key: "actor", label: "Responsable", responsive: "onlyDesktop", width: "190", onRender: ({ value }: any) => value?.name || "Sistema" },
             ]}
           />
         )}

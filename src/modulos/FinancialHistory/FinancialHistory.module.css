@@ -154,6 +154,13 @@
   font-size: 12px;
 }
 
+.changeCell {
+  display: grid;
+  gap: 4px;
+  color: var(--cWhiteV1);
+  font-size: 12px;
+}
+
 .stateChange b {
   font-weight: 500;
 }
