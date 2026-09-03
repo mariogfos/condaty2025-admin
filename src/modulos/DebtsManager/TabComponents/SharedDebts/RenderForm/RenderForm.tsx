@@ -7,7 +7,6 @@ import Check from "@/mk/components/forms/Check/Check";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { getFullName } from "@/mk/utils/string";
-import { UnitsType } from "@/mk/utils/utils";
 import styles from "./RenderForm.module.css";
 import {
   IconArrowDown,
@@ -428,7 +427,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       };
     });
     setLdpto(lista);
-  }, [client?.type_dpto, extraData?.dptos]);
+  }, [extraData?.dptos]);
 
   // 🔴 CDT-50: este formulario SÓLO crea. El título y el botón tenían dos
   // variantes ("Editar deuda compartida" / "Actualizar") para el botón Editar

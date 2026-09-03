@@ -194,16 +194,6 @@ export const cStatusAc: any = {
   E: "var(--cAccent)",
   F: "var(--cSuccess)",
 };
-export const UnitsType: any = {
-  D: "Departamento",
-  C: "Casa",
-  L: "Lote",
-  O: "Oficina",
-  _D: "Piso",
-  _C: "Calle",
-  _L: "Calle/Mz",
-  _O: "Piso",
-};
 
 export const StatusDetailExpColor: any = {
   A: "var(--cWhiteV1)", // por cobrar

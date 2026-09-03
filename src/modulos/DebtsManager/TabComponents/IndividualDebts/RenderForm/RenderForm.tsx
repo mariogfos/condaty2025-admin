@@ -7,7 +7,7 @@ import Check from '@/mk/components/forms/Check/Check';
 import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import { getFullName } from '@/mk/utils/string';
-import { hasMaintenanceValue, UnitsType } from '@/mk/utils/utils';
+import { hasMaintenanceValue } from '@/mk/utils/utils';
 import styles from './RenderForm.module.css';
 import { IconArrowDown, IconQuestion } from '@/components/layout/icons/IconsBiblioteca';
 import { checkRules } from '@/mk/utils/validate/Rules';
@@ -372,7 +372,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       };
     });
     setLdpto(lista);
-  }, [client?.type_dpto, extraData?.dptos]);
+  }, [extraData?.dptos]);
 
   return (
     <DataModal

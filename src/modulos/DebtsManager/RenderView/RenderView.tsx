@@ -5,7 +5,6 @@ import Button from "@/mk/components/forms/Button/Button";
 import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
 import { formatBs } from "@/mk/utils/numbers";
 import { getFullName } from "@/mk/utils/string";
-import { UnitsType } from "@/mk/utils/utils";
 import { IconEdit, IconTrash } from "@/components/layout/icons/IconsBiblioteca";
 import useAxios from "@/mk/hooks/useAxios";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
@@ -35,7 +34,6 @@ interface DebtItem {
   dpto_id?: number;
   amount_type?: string;
   amount?: number | string;
-  is_advance?: string;
   interest?: number | string;
   has_mv?: string | number | boolean;
   is_forgivable?: string | number | boolean;
@@ -134,11 +132,6 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
     return AMOUNT_TYPE_MAP[Number(amountType) as AmountType] ?? "No especificado";
   };
 
-  const getIsAdvanceName = (isAdvance?: string) => {
-    if (!isAdvance) return "No especificado";
-    return isAdvance === "Y" ? "Sí" : "No";
-  };
-
   const getStatusText = (status?: number) => {
     const statusMap: { [key: number]: string } = {
       [DebtStatus.PENDING]: "Activa",
@@ -161,9 +154,12 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
     const dpto = extraData.dptos.find((d: any) => d.id === debtDetail.dpto_id);
     if (!dpto) return "No especificado";
 
-    return `${getFullName(dpto?.titular) || "Sin titular"} - ${dpto.nro} ${
-      UnitsType["_" + client?.type_dpto]
-    } ${dpto.description}`;
+    // 🔴 Acá iba `UnitsType["_" + client?.type_dpto]`, y `clients` NO TIENE la
+    // columna `type_dpto` — ni en dev ni viva en producción, donde el
+    // `$fillable` la declaraba pero todo el código que la escribía está
+    // comentado. O sea que esto interpolaba literalmente «undefined» en el
+    // medio del nombre de la unidad, en el detalle de cada deuda.
+    return `${getFullName(dpto?.titular) || "Sin titular"} - ${dpto.nro} ${dpto.description}`;
   };
 
   const formatDate = (dateString?: string) => {
@@ -366,12 +362,6 @@ const RenderView: React.FC<RenderViewProps> = memo((props) => {
                   <span className={styles.infoLabel}>Monto</span>
                   <span className={styles.infoValue}>
                     {formatAmount(debtDetail.amount)}
-                  </span>
-                </div>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Es anticipo</span>
-                  <span className={styles.infoValue}>
-                    {getIsAdvanceName(debtDetail.is_advance)}
                   </span>
                 </div>
                 <div className={styles.infoBlock}>
