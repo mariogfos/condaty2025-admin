@@ -85,7 +85,7 @@
   color: var(--cWhiteV1);
   background: var(--cModalSurfaceRaised);
   border: 1px solid var(--cModalBorder);
-  border-radius: var(--bRadiusS);
+  border-radius: 999px;
   cursor: pointer;
   transition:
     color 160ms ease,
@@ -130,7 +130,7 @@
   color: var(--cWhiteV1);
   background: var(--cModalSurfaceRaised);
   border: 1px solid var(--cModalBorder);
-  border-radius: var(--bRadiusS);
+  border-radius: 999px;
   font-size: 14px;
   font-weight: var(--font-weight-medium);
   cursor: pointer;
@@ -480,7 +480,7 @@
   flex: 1 0 132px;
   padding-right: 16px;
   padding-left: 16px;
-  border-radius: 999px;
+  border-radius: var(--bRadiusS);
   font-size: 14px;
   white-space: nowrap;
 }
@@ -625,7 +625,7 @@
   color: var(--cWhiteV1);
   background: transparent;
   border: 1px solid var(--cModalBorder);
-  border-radius: var(--bRadiusS);
+  border-radius: 999px;
   cursor: pointer;
 }
 
