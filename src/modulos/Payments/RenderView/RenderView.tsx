@@ -28,6 +28,7 @@ import { Ban, PencilLine } from "lucide-react";
 import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
 import {
   FinancialDetailGrid,
+  FinancialDetailMessage,
   FinancialDetailSection,
   type FinancialDetailField,
 } from "@/features/financial-records/FinancialDetailPrimitives";
@@ -409,9 +410,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         title="Detalle del ingreso"
       >
         <FinancialDetailSection>
-          <p className="text-sm text-muted-foreground">
+          <FinancialDetailMessage>
             No se encontró información del ingreso.
-          </p>
+          </FinancialDetailMessage>
         </FinancialDetailSection>
       </FinancialDetailModal>
     );
@@ -778,7 +779,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
             label: item.voucher
               ? "Editar número de respaldo"
               : "Añadir número de respaldo",
-            icon: <PencilLine className="size-4" />,
+            icon: <PencilLine size={18} />,
             onSelect: openVoucherEditor,
           },
         ]
@@ -788,7 +789,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
           {
             id: "cancel-income",
             label: "Anular ingreso",
-            icon: <Ban className="size-4" />,
+            icon: <Ban size={18} />,
             destructive: true,
             onSelect: handleAnularClick,
           },

@@ -29,6 +29,7 @@ import { Ban, PencilLine } from "lucide-react";
 import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
 import {
   FinancialDetailGrid,
+  FinancialDetailMessage,
   FinancialDetailSection,
   type FinancialDetailField,
 } from "@/features/financial-records/FinancialDetailPrimitives";
@@ -530,7 +531,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           {
             id: "edit-debt",
             label: "Editar deuda",
-            icon: <PencilLine className="size-4" />,
+            icon: <PencilLine size={18} />,
             onSelect: () => onEdit?.(debtDetail),
           },
         ]
@@ -540,7 +541,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           {
             id: "cancel-debt",
             label: "Anular deuda",
-            icon: <Ban className="size-4" />,
+            icon: <Ban size={18} />,
             destructive: true,
             onSelect: () => onDel?.(debtDetail),
           },
@@ -591,9 +592,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         </FinancialDetailSection>
 
         <FinancialDetailSection title="Descripción">
-          <p className="whitespace-pre-wrap text-sm leading-6 text-foreground/90">
-            {debtDescription}
-          </p>
+          <FinancialDetailMessage>{debtDescription}</FinancialDetailMessage>
         </FinancialDetailSection>
 
         <DebtQrSection

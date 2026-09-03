@@ -8,7 +8,7 @@ import { formatBs } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
 import Table from "@/mk/components/ui/Table/Table";
 import { paymentsApi } from "@/modulos/Payments/api";
-import { Button } from "@/components/ui/button";
+import Button from "@/mk/components/forms/Button/Button";
 import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
 import {
   FinancialDetailGrid,

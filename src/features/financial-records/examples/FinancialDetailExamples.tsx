@@ -2,13 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { Copy, Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Button from "@/mk/components/forms/Button/Button";
 import { FinancialDetailModal } from "../FinancialDetailModal";
 import {
   FinancialDetailGrid,
   FinancialDetailSection,
   type FinancialDetailField,
 } from "../FinancialDetailPrimitives";
+import styles from "../FinancialDetail.module.css";
 import type {
   FinancialRecordReference,
   FinancialStatusTone,
@@ -155,90 +156,75 @@ export const FinancialDetailExamples = () => {
   };
 
   return (
-    <div className="financial-ui">
-      <div className="min-h-full rounded-2xl bg-background p-5 text-foreground sm:p-7">
-        <div className="mx-auto max-w-5xl">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary">
-            UI Lab · sólo Test
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-            Detalles financieros
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Muestras ensambladas del componente común. Sirven para revisar
-            jerarquía, estados, scroll, acciones e historial sin modificar datos.
-          </p>
+    <div className={styles.labPage}>
+      <div className={styles.labContainer}>
+        <p className={styles.labEyebrow}>UI Lab · sólo Test</p>
+        <h1 className={styles.labTitle}>Detalles financieros</h1>
+        <p className={styles.labDescription}>
+          Muestras del componente común para revisar jerarquía, estados,
+          scroll, acciones e historial sin modificar datos.
+        </p>
 
-          <div className="mt-7 grid gap-3 sm:grid-cols-2">
-            {(Object.entries(EXAMPLES) as [ExampleKey, Example][]).map(
-              ([key, item]) => (
-                <article
-                  key={key}
-                  className="rounded-2xl border border-border bg-card p-5"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h2 className="font-medium">{item.title}</h2>
-                      <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                        {item.description}
-                      </p>
-                    </div>
-                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs text-primary">
-                      {item.status}
-                    </span>
+        <div className={styles.labGrid}>
+          {(Object.entries(EXAMPLES) as [ExampleKey, Example][]).map(
+            ([key, item]) => (
+              <article key={key} className={styles.labCard}>
+                <div className={styles.labCardHeader}>
+                  <div>
+                    <h2 className={styles.labCardTitle}>{item.title}</h2>
+                    <p className={styles.labCardDescription}>{item.description}</p>
                   </div>
-                  <Button className="mt-5" onClick={() => setSelected(key)}>
-                    <Eye className="size-4" />
-                    Abrir muestra
-                  </Button>
-                </article>
-              ),
-            )}
-          </div>
-
-          {feedback ? (
-            <p className="mt-4 text-sm text-primary" role="status">
-              {feedback}
-            </p>
-          ) : null}
+                  <span className={styles.labStatus}>{item.status}</span>
+                </div>
+                <Button onClick={() => setSelected(key)}>
+                  <Eye size={18} aria-hidden="true" />
+                  Abrir muestra
+                </Button>
+              </article>
+            ),
+          )}
         </div>
 
-        {example && workspace ? (
-          <FinancialDetailModal
-            open
-            onClose={() => {
-              setSelected(null);
-              setFeedback("");
-            }}
-            title={example.title}
-            description={example.description}
-            record={example.record}
-            summary={{
-              amount: example.amount,
-              date: example.date,
-              eyebrow: "Monto del comprobante",
-              status: { label: example.status, tone: example.tone },
-            }}
-            customActions={[
-              {
-                id: "copy-example-reference",
-                label: "Copiar referencia",
-                icon: <Copy className="size-4" />,
-                onSelect: () => void copyReference(),
-              },
-            ]}
-            previewMode
-            workspaceOverride={workspace}
-            footer={
-              <Button variant="secondary">Acción principal de muestra</Button>
-            }
-          >
-            <FinancialDetailSection title="Datos del registro">
-              <FinancialDetailGrid fields={example.fields} />
-            </FinancialDetailSection>
-          </FinancialDetailModal>
+        {feedback ? (
+          <p className={styles.labFeedback} role="status">
+            {feedback}
+          </p>
         ) : null}
       </div>
+
+      {example && workspace ? (
+        <FinancialDetailModal
+          open
+          onClose={() => {
+            setSelected(null);
+            setFeedback("");
+          }}
+          title={example.title}
+          description={example.description}
+          record={example.record}
+          summary={{
+            amount: example.amount,
+            date: example.date,
+            eyebrow: "Monto del comprobante",
+            status: { label: example.status, tone: example.tone },
+          }}
+          customActions={[
+            {
+              id: "copy-example-reference",
+              label: "Copiar referencia",
+              icon: <Copy size={18} aria-hidden="true" />,
+              onSelect: () => void copyReference(),
+            },
+          ]}
+          previewMode
+          workspaceOverride={workspace}
+          footer={<Button variant="secondary">Acción principal de muestra</Button>}
+        >
+          <FinancialDetailSection title="Datos del registro">
+            <FinancialDetailGrid fields={example.fields} />
+          </FinancialDetailSection>
+        </FinancialDetailModal>
+      ) : null}
     </div>
   );
 };

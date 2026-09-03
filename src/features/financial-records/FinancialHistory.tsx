@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, CheckCircle2, Clock3, ShieldCheck } from "lucide-react";
-import { cn } from "@/lib/utils";
+import styles from "./FinancialDetail.module.css";
 import type { FinancialAuditEvent } from "./types";
 
 const ACTION_LABELS: Record<string, string> = {
@@ -133,8 +133,8 @@ type Props = {
 export const FinancialHistory = ({ events, loading, error, notice }: Props) => {
   if (loading) {
     return (
-      <div className="flex min-h-48 items-center justify-center text-sm text-muted-foreground">
-        <Clock3 className="mr-2 size-4 animate-pulse" />
+      <div className={`${styles.historyState} ${styles.history}`}>
+        <Clock3 className={styles.spinner} size={20} aria-hidden="true" />
         Cargando historial…
       </div>
     );
@@ -144,76 +144,76 @@ export const FinancialHistory = ({ events, loading, error, notice }: Props) => {
     return (
       <div
         role="alert"
-        className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+        className={`${styles.historyState} ${styles.historyError} ${styles.history}`}
       >
-        <AlertCircle className="mb-2 size-5" />
+        <AlertCircle size={20} aria-hidden="true" />
         {error}
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className={styles.history}>
       {notice ? (
-        <div className="flex gap-2 rounded-xl border border-border bg-muted/45 px-3 py-2.5 text-xs text-muted-foreground">
-          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
+        <div className={styles.historyNotice}>
+          <ShieldCheck size={18} aria-hidden="true" />
           <span>{notice}</span>
         </div>
       ) : null}
 
       {events.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <div className={styles.historyState}>
           Todavía no hay acciones registradas.
         </div>
       ) : (
-        <ol className="relative space-y-0 before:absolute before:top-4 before:bottom-4 before:left-[15px] before:w-px before:bg-border">
+        <ol className={styles.historyList}>
           {events.map((event) => {
             const changes = flattenChanges(event);
             const repaired = event.action === "payment_state_repaired";
             return (
-              <li key={event.id} className="relative grid grid-cols-[32px_1fr] gap-3 pb-5 last:pb-0">
+              <li key={event.id} className={styles.historyItem}>
                 <span
-                  className={cn(
-                    "relative z-10 flex size-8 items-center justify-center rounded-full border bg-card",
-                    repaired ? "border-primary/60 text-primary" : "border-border text-muted-foreground",
-                  )}
+                  className={`${styles.historyMarker} ${
+                    repaired ? styles.historyMarkerSuccess : ""
+                  }`.trim()}
                 >
-                  {repaired ? <CheckCircle2 className="size-4" /> : <Clock3 className="size-4" />}
+                  {repaired ? (
+                    <CheckCircle2 size={18} aria-hidden="true" />
+                  ) : (
+                    <Clock3 size={18} aria-hidden="true" />
+                  )}
                 </span>
-                <div className="min-w-0 rounded-xl border border-border bg-card/75 p-3.5">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className={styles.historyBody}>
+                  <div className={styles.historyHeader}>
                     <div>
-                      <p className="font-medium text-foreground">
+                      <h3 className={styles.historyTitle}>
                         {ACTION_LABELS[event.action] || event.action.replaceAll("_", " ")}
-                      </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
+                      </h3>
+                      <p className={styles.historyActor}>
                         {event.actor?.name || "Sistema"}
                       </p>
                     </div>
-                    <time className="text-xs text-muted-foreground">
+                    <time className={styles.historyTime}>
                       {formatDate(event.occurred_at)}
                     </time>
                   </div>
 
                   {event.reason ? (
-                    <p className="mt-3 rounded-lg bg-muted px-3 py-2 text-xs leading-5 text-foreground/85">
-                      <span className="font-medium text-muted-foreground">Motivo: </span>
+                    <p className={styles.historyReason}>
+                      <span className={styles.historyReasonLabel}>Motivo: </span>
                       {event.reason}
                     </p>
                   ) : null}
 
                   {changes.length > 0 ? (
-                    <div className="mt-3 space-y-2">
+                    <div className={styles.changes}>
                       {changes.map((change) => (
-                        <div
-                          key={change.field}
-                          className="grid gap-1 text-xs sm:grid-cols-[132px_1fr]"
-                        >
-                          <span className="capitalize text-muted-foreground">{change.label}</span>
-                          <span className="min-w-0 break-words text-foreground/85">
-                            <span className="line-through opacity-60">{change.before}</span>
-                            <span className="mx-1.5 text-muted-foreground">→</span>
-                            <span className="font-medium text-foreground">{change.after}</span>
+                        <div key={change.field} className={styles.changeRow}>
+                          <span className={styles.changeLabel}>{change.label}</span>
+                          <span className={styles.changeValue}>
+                            <span className={styles.changeBefore}>{change.before}</span>
+                            <span className={styles.changeArrow}>→</span>
+                            <span className={styles.changeAfter}>{change.after}</span>
                           </span>
                         </div>
                       ))}

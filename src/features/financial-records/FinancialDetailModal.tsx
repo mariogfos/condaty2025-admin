@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
-import { cn } from "@/lib/utils";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
+import { createPortal } from "react-dom";
+import { X } from "lucide-react";
 import { FinancialHistory } from "./FinancialHistory";
 import { FinancialRecordActions } from "./FinancialRecordActions";
 import { useFinancialWorkspace } from "./useFinancialWorkspace";
+import styles from "./FinancialDetail.module.css";
 import type {
   FinancialMenuAction,
   FinancialRecordReference,
@@ -39,12 +40,14 @@ type Props = {
   previewMode?: boolean;
 };
 
+type DetailTab = "detail" | "history";
+
 const STATUS_CLASSES: Record<FinancialStatusTone, string> = {
-  success: "border-primary/25 bg-primary/10 text-primary",
-  warning: "border-amber-400/25 bg-amber-400/10 text-amber-200",
-  danger: "border-destructive/25 bg-destructive/10 text-destructive",
-  info: "border-blue-400/25 bg-blue-400/10 text-blue-200",
-  neutral: "border-border bg-muted text-muted-foreground",
+  success: styles.statusSuccess,
+  warning: styles.statusWarning,
+  danger: styles.statusDanger,
+  info: styles.statusInfo,
+  neutral: styles.statusNeutral,
 };
 
 export const FinancialDetailModal = ({
@@ -59,11 +62,15 @@ export const FinancialDetailModal = ({
   loading = false,
   customActions = [],
   onRecordChanged,
-  className,
+  className = "",
   workspaceOverride,
   previewMode = false,
 }: Props) => {
-  const [tab, setTab] = useState("detail");
+  const [tab, setTab] = useState<DetailTab>("detail");
+  const [mounted, setMounted] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
   const {
     workspace: remoteWorkspace,
     loading: remoteWorkspaceLoading,
@@ -82,8 +89,17 @@ export const FinancialDetailModal = ({
   const workspaceLoading = workspaceOverride ? false : remoteWorkspaceLoading;
   const error = workspaceOverride ? "" : remoteWorkspaceError;
 
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
-    if (open) setTab("detail");
+    if (!open) return;
+    setTab("detail");
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.setTimeout(() => dialogRef.current?.focus(), 0);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
   }, [open, record?.id, record?.type]);
 
   const handleRecordChanged = async () => {
@@ -91,137 +107,140 @@ export const FinancialDetailModal = ({
     if (onRecordChanged) await onRecordChanged();
   };
 
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(nextOpen) => {
-        if (!nextOpen) onClose();
-      }}
-    >
-      <DialogContent
-        className={cn(
-          "financial-ui max-h-[calc(100vh-24px)] w-[calc(100vw-24px)] max-w-[1040px] grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden rounded-2xl border border-border bg-background p-0 shadow-2xl sm:max-w-[1040px]",
-          className,
-        )}
+  const handleBackdrop = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) onClose();
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") onClose();
+  };
+
+  if (!mounted || !open) return null;
+
+  return createPortal(
+    <div className={styles.overlay} onMouseDown={handleBackdrop}>
+      <div
+        ref={dialogRef}
+        className={`${styles.modal} ${className}`.trim()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
+        tabIndex={-1}
+        onKeyDown={handleKeyDown}
       >
-        <DialogHeader className="border-b border-border py-4 pl-5 pr-28 text-left sm:pl-6 sm:pr-28">
-          <div className="flex min-w-0 items-start justify-between gap-4">
-            <div className="min-w-0">
-              <DialogTitle className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
+        <header className={styles.header}>
+          <div className={styles.headerTop}>
+            <div className={styles.headingGroup}>
+              <h2 id={titleId} className={styles.title}>
                 {title}
-              </DialogTitle>
+              </h2>
               {description ? (
-                <DialogDescription className="mt-1 max-w-2xl text-sm leading-5">
+                <p id={descriptionId} className={styles.description}>
                   {description}
-                </DialogDescription>
+                </p>
               ) : null}
             </div>
+
+            <div className={styles.headerActions}>
+              {record ? (
+                <FinancialRecordActions
+                  record={record}
+                  capabilities={workspace?.capabilities}
+                  customActions={customActions}
+                  onChanged={handleRecordChanged}
+                  previewMode={previewMode}
+                />
+              ) : null}
+              <button
+                type="button"
+                className={styles.iconButton}
+                aria-label="Cerrar detalle"
+                onClick={onClose}
+              >
+                <X size={22} aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.tabs} role="tablist" aria-label="Vista del registro">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === "detail"}
+              className={`${styles.tab} ${tab === "detail" ? styles.tabActive : ""}`}
+              onClick={() => setTab("detail")}
+            >
+              Detalle
+            </button>
             {record ? (
-              <FinancialRecordActions
-                record={record}
-                capabilities={workspace?.capabilities}
-                customActions={customActions}
-                onChanged={handleRecordChanged}
-                previewMode={previewMode}
-              />
+              <button
+                type="button"
+                role="tab"
+                aria-selected={tab === "history"}
+                className={`${styles.tab} ${tab === "history" ? styles.tabActive : ""}`}
+                onClick={() => setTab("history")}
+              >
+                Historial
+                {workspace?.history?.length ? (
+                  <span className={styles.historyCount}>{workspace.history.length}</span>
+                ) : null}
+              </button>
             ) : null}
           </div>
-        </DialogHeader>
+        </header>
 
-        <Tabs
-          value={tab}
-          onValueChange={(value) => setTab(String(value))}
-          className="min-h-0 gap-0 overflow-hidden"
-        >
-          <div className="border-b border-border px-5 sm:px-6">
-            <TabsList variant="line" className="h-11 gap-5 p-0">
-              <TabsTrigger value="detail" className="px-0">
-                Detalle
-              </TabsTrigger>
-              {record ? (
-                <TabsTrigger value="history" className="px-0">
-                  Historial
-                  {workspace?.history?.length ? (
-                    <Badge variant="secondary" className="ml-1 min-w-5 justify-center px-1.5">
-                      {workspace.history.length}
-                    </Badge>
-                  ) : null}
-                </TabsTrigger>
-              ) : null}
-            </TabsList>
-          </div>
+        <main className={styles.scrollBody}>
+          {tab === "detail" ? (
+            <>
+              {summary ? <SummaryRow summary={summary} /> : null}
+              <div className={styles.detailContent}>
+                {loading ? <DetailSkeleton /> : children}
+              </div>
+            </>
+          ) : (
+            <FinancialHistory
+              events={workspace?.history || []}
+              loading={workspaceLoading}
+              error={error}
+              notice={workspace?.history_notice}
+            />
+          )}
+        </main>
 
-          <TabsContent
-            value="detail"
-            className="min-h-0 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6"
-          >
-            {summary ? <SummaryCard summary={summary} /> : null}
-            <div className={cn("space-y-4", summary ? "mt-4" : "")}>
-              {loading ? <DetailSkeleton /> : children}
-            </div>
-          </TabsContent>
-
-          {record ? (
-            <TabsContent
-              value="history"
-              className="min-h-0 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6"
-            >
-              <FinancialHistory
-                events={workspace?.history || []}
-                loading={workspaceLoading}
-                error={error}
-                notice={workspace?.history_notice}
-              />
-            </TabsContent>
-          ) : null}
-        </Tabs>
-
-        {footer ? (
-          <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-border bg-card/55 px-5 py-3 sm:px-6">
-            {footer}
-          </footer>
+        {footer && tab === "detail" ? (
+          <footer className={styles.footer}>{footer}</footer>
         ) : null}
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>,
+    document.body,
   );
 };
 
-const SummaryCard = ({ summary }: { summary: FinancialSummary }) => {
+const SummaryRow = ({ summary }: { summary: FinancialSummary }) => {
   const tone = summary.status?.tone || "neutral";
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-5">
-      <div className="absolute inset-y-0 left-0 w-1 bg-primary" />
-      <div className="flex flex-wrap items-start justify-between gap-4 pl-1">
-        <div>
-          {summary.eyebrow ? (
-            <p className="mb-1 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-              {summary.eyebrow}
-            </p>
-          ) : null}
-          <div className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            {summary.amount}
-          </div>
-          {summary.date ? (
-            <div className="mt-1.5 text-sm text-muted-foreground">{summary.date}</div>
-          ) : null}
-        </div>
-        {summary.status ? (
-          <Badge
-            variant="outline"
-            className={cn("rounded-full px-3 py-1", STATUS_CLASSES[tone])}
-          >
-            {summary.status.label}
-          </Badge>
+    <section className={styles.summary} aria-label="Resumen del registro">
+      <div className={styles.summaryAmountGroup}>
+        {summary.eyebrow ? (
+          <p className={styles.summaryEyebrow}>{summary.eyebrow}</p>
         ) : null}
+        <strong className={styles.summaryAmount}>{summary.amount}</strong>
       </div>
+      {summary.date ? <p className={styles.summaryDate}>{summary.date}</p> : null}
+      {summary.status ? (
+        <span className={`${styles.statusBadge} ${STATUS_CLASSES[tone]}`}>
+          {summary.status.label}
+        </span>
+      ) : null}
     </section>
   );
 };
 
 const DetailSkeleton = () => (
-  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Cargando detalle">
-    {Array.from({ length: 6 }).map((_, index) => (
-      <div key={index} className="h-20 animate-pulse rounded-xl bg-muted" />
+  <div className={styles.skeletonGrid} aria-label="Cargando detalle">
+    {Array.from({ length: 8 }).map((_, index) => (
+      <div key={index} className={styles.skeletonItem} />
     ))}
   </div>
 );

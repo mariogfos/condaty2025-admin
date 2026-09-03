@@ -1,38 +1,31 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import {
+  Fragment,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
+import { createPortal } from "react-dom";
 import {
   CalendarDays,
   CircleDollarSign,
   MoreVertical,
   RefreshCw,
   ShieldCheck,
+  X,
 } from "lucide-react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import Button from "@/mk/components/forms/Button/Button";
+import Input from "@/mk/components/forms/Input/Input";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { financialRecordsApi } from "./api";
+import styles from "./FinancialDetail.module.css";
 import type {
   FinancialCapabilities,
   FinancialMenuAction,
@@ -98,6 +91,8 @@ export const FinancialRecordActions = ({
 }: Props) => {
   const { execute } = useAxios();
   const { showToast } = useAuth();
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [penaltyOpen, setPenaltyOpen] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
   const [verificationOpen, setVerificationOpen] = useState(false);
@@ -108,6 +103,22 @@ export const FinancialRecordActions = ({
   const [submitting, setSubmitting] = useState(false);
   const [verification, setVerification] = useState<VerificationResult | null>(null);
   const [verificationLoading, setVerificationLoading] = useState(false);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleOutside = (event: globalThis.MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    const handleEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [menuOpen]);
 
   const notifyChanged = async () => {
     if (onChanged) await onChanged();
@@ -280,7 +291,7 @@ export const FinancialRecordActions = ({
     actions.push({
       id: "edit-penalty",
       label: "Editar multa",
-      icon: <CircleDollarSign className="size-4" />,
+      icon: <CircleDollarSign size={18} aria-hidden="true" />,
       onSelect: openPenaltyEditor,
     });
   }
@@ -288,7 +299,7 @@ export const FinancialRecordActions = ({
     actions.push({
       id: "verify-payment",
       label: "Verificar estado del pago",
-      icon: <ShieldCheck className="size-4" />,
+      icon: <ShieldCheck size={18} aria-hidden="true" />,
       onSelect: () => void scanPaymentState(),
     });
   }
@@ -296,7 +307,7 @@ export const FinancialRecordActions = ({
     actions.push({
       id: "edit-paid-at",
       label: "Editar fecha de pago",
-      icon: <CalendarDays className="size-4" />,
+      icon: <CalendarDays size={18} aria-hidden="true" />,
       onSelect: openDateEditor,
     });
   }
@@ -312,158 +323,168 @@ export const FinancialRecordActions = ({
     Number(verification?.parent_debts_found || 0) +
     Number(verification?.reservations_found || 0);
 
+  const selectAction = (action: FinancialMenuAction) => {
+    if (action.disabled) return;
+    setMenuOpen(false);
+    action.onSelect();
+  };
+
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
+      <div
+        ref={menuRef}
+        className={styles.actions}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && menuOpen) {
+            event.stopPropagation();
+            setMenuOpen(false);
+          }
+        }}
+      >
+        <button
+          type="button"
+          className={styles.menuButton}
           aria-label="Más acciones"
-          className="inline-flex size-9 items-center justify-center rounded-lg border border-border bg-card text-foreground transition hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((current) => !current)}
         >
-          <MoreVertical className="size-4" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="financial-ui w-72">
-          <DropdownMenuGroup>
-            <DropdownMenuLabel>Acciones del registro</DropdownMenuLabel>
-            <DropdownMenuSeparator />
+          <MoreVertical size={21} aria-hidden="true" />
+        </button>
+
+        {menuOpen ? (
+          <div className={styles.actionMenu} role="menu">
+            <p className={styles.menuLabel}>Acciones del registro</p>
+            <div className={styles.menuDivider} />
             {actions.map((action, index) => (
               <Fragment key={action.id}>
                 {action.destructive && index > 0 ? (
-                  <DropdownMenuSeparator />
+                  <div className={styles.menuDivider} />
                 ) : null}
-                <DropdownMenuItem
+                <button
+                  type="button"
+                  role="menuitem"
                   disabled={action.disabled}
-                  variant={action.destructive ? "destructive" : "default"}
-                  onClick={action.onSelect}
-                  className="min-h-9"
+                  className={`${styles.menuItem} ${
+                    action.destructive ? styles.menuItemDanger : ""
+                  }`.trim()}
+                  onClick={() => selectAction(action)}
                 >
-                  {action.icon}
-                  {action.label}
-                </DropdownMenuItem>
+                  <span className={styles.menuIcon}>{action.icon}</span>
+                  <span>{action.label}</span>
+                </button>
               </Fragment>
             ))}
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </div>
+        ) : null}
+      </div>
 
-      <AlertDialog open={penaltyOpen} onOpenChange={setPenaltyOpen}>
-        <AlertDialogContent className="financial-ui max-w-lg">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Editar multa</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cambia únicamente el monto de la multa. La deuda y sus pagos se
-              recalcularán sin crear ni eliminar ingresos.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="financial-penalty-amount">Monto en bolivianos</Label>
-              <Input
-                id="financial-penalty-amount"
-                type="number"
-                min="0"
-                step="0.01"
-                inputMode="decimal"
-                value={penaltyAmount}
-                onChange={(event) => setPenaltyAmount(event.target.value)}
-              />
+      <ActionDialog
+        open={penaltyOpen}
+        title="Editar multa"
+        description="Cambia únicamente la multa. La deuda se recalculará sin crear ni eliminar ingresos."
+        onClose={() => setPenaltyOpen(false)}
+        onSubmit={() => void savePenalty()}
+        submitLabel={submitting ? "Guardando…" : "Guardar corrección"}
+        busy={submitting}
+      >
+        <div className={styles.formStack}>
+          <Input
+            name="financial-penalty-amount"
+            label="Monto en bolivianos"
+            type="number"
+            min={0}
+            value={penaltyAmount}
+            onChange={(event: any) => setPenaltyAmount(event.target.value)}
+          />
+          <ReasonField
+            id="financial-penalty-reason"
+            value={reason}
+            onChange={setReason}
+          />
+          <FormError message={formError} />
+        </div>
+      </ActionDialog>
+
+      <ActionDialog
+        open={dateOpen}
+        title="Editar fecha de pago"
+        description="Actualiza el comprobante y los registros vinculados. No modifica el monto ni el estado."
+        onClose={() => setDateOpen(false)}
+        onSubmit={() => void savePaidAt()}
+        submitLabel={submitting ? "Guardando…" : "Guardar corrección"}
+        busy={submitting}
+      >
+        <div className={styles.formStack}>
+          <Input
+            name="financial-paid-at"
+            label="Fecha de pago"
+            type="date"
+            max={getLocalToday()}
+            value={paidAt}
+            onChange={(event: any) => setPaidAt(event.target.value)}
+          />
+          <ReasonField
+            id="financial-paid-at-reason"
+            value={reason}
+            onChange={setReason}
+          />
+          <FormError message={formError} />
+        </div>
+      </ActionDialog>
+
+      <ActionDialog
+        open={verificationOpen}
+        title="Verificar estado del pago"
+        description="Compara la deuda con sus ingresos y pagos parciales. Verificar no cambia ningún estado."
+        onClose={() => setVerificationOpen(false)}
+        onSubmit={
+          verification?.has_changes ? () => void repairPaymentState() : undefined
+        }
+        submitLabel={
+          verification?.has_changes
+            ? submitting
+              ? "Corrigiendo…"
+              : "Corregir estados"
+            : undefined
+        }
+        busy={submitting || verificationLoading}
+        cancelLabel="Cerrar"
+      >
+        <div className={styles.formStack}>
+          {verificationLoading ? (
+            <div
+              className={`${styles.verificationState} ${styles.verificationLoading}`}
+            >
+              <RefreshCw className={styles.spinner} size={19} aria-hidden="true" />
+              Verificando datos relacionados…
             </div>
-            <ReasonField id="financial-penalty-reason" value={reason} onChange={setReason} />
-            <FormError message={formError} />
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={submitting}>Cancelar</AlertDialogCancel>
-            <Button onClick={() => void savePenalty()} disabled={submitting}>
-              {submitting ? "Guardando…" : "Guardar corrección"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={dateOpen} onOpenChange={setDateOpen}>
-        <AlertDialogContent className="financial-ui max-w-lg">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Editar fecha de pago</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta corrección actualiza el comprobante y los registros
-              financieros vinculados. No cambia el monto ni el estado.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="financial-paid-at">Fecha de pago</Label>
-              <Input
-                id="financial-paid-at"
-                type="date"
-                max={getLocalToday()}
-                value={paidAt}
-                onChange={(event) => setPaidAt(event.target.value)}
-              />
-            </div>
-            <ReasonField id="financial-paid-at-reason" value={reason} onChange={setReason} />
-            <FormError message={formError} />
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={submitting}>Cancelar</AlertDialogCancel>
-            <Button onClick={() => void savePaidAt()} disabled={submitting}>
-              {submitting ? "Guardando…" : "Guardar corrección"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={verificationOpen} onOpenChange={setVerificationOpen}>
-        <AlertDialogContent className="financial-ui max-w-xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Verificar estado del pago</AlertDialogTitle>
-            <AlertDialogDescription>
-              Se compara la deuda con sus ingresos y pagos parciales. La
-              verificación no marca nada como pagado por sí sola.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <div className="grid gap-4">
-            {verificationLoading ? (
-              <div className="flex min-h-28 items-center justify-center rounded-xl border border-border bg-muted/35 text-sm text-muted-foreground">
-                <RefreshCw className="mr-2 size-4 animate-spin" />
-                Verificando datos relacionados…
-              </div>
-            ) : verification?.has_changes ? (
-              <>
-                <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-100">
-                  Se encontraron {changedGroups} grupo{changedGroups === 1 ? "" : "s"}{" "}
-                  con estados inconsistentes. La reparación usará los detalles
-                  de pago existentes como fuente de verdad.
-                </div>
-                <ReasonField
-                  id="financial-payment-state-reason"
-                  value={reason}
-                  onChange={setReason}
-                />
-              </>
-            ) : verification ? (
-              <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 text-sm text-foreground">
-                No se encontraron inconsistencias. La deuda, sus ingresos y las
-                reservas vinculadas ya tienen un estado coherente.
-              </div>
-            ) : null}
-            <FormError message={formError} />
-          </div>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={submitting || verificationLoading}>
-              Cerrar
-            </AlertDialogCancel>
-            {verification?.has_changes ? (
-              <Button
-                onClick={() => void repairPaymentState()}
-                disabled={submitting || verificationLoading}
+          ) : verification?.has_changes ? (
+            <>
+              <div
+                className={`${styles.verificationState} ${styles.verificationWarning}`}
               >
-                {submitting ? "Corrigiendo…" : "Corregir estados"}
-              </Button>
-            ) : null}
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+                Se encontraron {changedGroups} grupo{changedGroups === 1 ? "" : "s"}{" "}
+                con estados inconsistentes. La corrección utilizará los detalles
+                de pago existentes como fuente de verdad.
+              </div>
+              <ReasonField
+                id="financial-payment-state-reason"
+                value={reason}
+                onChange={setReason}
+              />
+            </>
+          ) : verification ? (
+            <div
+              className={`${styles.verificationState} ${styles.verificationSuccess}`}
+            >
+              No se encontraron inconsistencias. La deuda, sus ingresos y las
+              reservas vinculadas ya tienen un estado coherente.
+            </div>
+          ) : null}
+          <FormError message={formError} />
+        </div>
+      </ActionDialog>
     </>
   );
 };
@@ -477,23 +498,110 @@ const ReasonField = ({
   value: string;
   onChange: (value: string) => void;
 }) => (
-  <div className="grid gap-2">
-    <Label htmlFor={id}>Motivo de la corrección</Label>
-    <Textarea
-      id={id}
-      required
-      value={value}
-      maxLength={500}
-      placeholder="Describe brevemente por qué se realiza este cambio"
-      onChange={(event) => onChange(event.target.value)}
-    />
-    <span className="text-right text-xs text-muted-foreground">{value.length}/500</span>
-  </div>
+  <TextArea
+    name={id}
+    label="Motivo de la corrección"
+    value={value}
+    lines={4}
+    maxLength={500}
+    isLimit
+    placeholder="Describe brevemente por qué se realiza este cambio"
+    onChange={(event: any) => onChange(event.target.value)}
+  />
 );
 
 const FormError = ({ message }: { message?: string }) =>
   message ? (
-    <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+    <p role="alert" className={styles.formError}>
       {message}
     </p>
   ) : null;
+
+type ActionDialogProps = {
+  open: boolean;
+  title: string;
+  description: string;
+  children: ReactNode;
+  onClose: () => void;
+  onSubmit?: () => void;
+  submitLabel?: string;
+  cancelLabel?: string;
+  busy?: boolean;
+};
+
+const ActionDialog = ({
+  open,
+  title,
+  description,
+  children,
+  onClose,
+  onSubmit,
+  submitLabel,
+  cancelLabel = "Cancelar",
+  busy = false,
+}: ActionDialogProps) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+
+  useEffect(() => {
+    if (open) window.setTimeout(() => dialogRef.current?.focus(), 0);
+  }, [open]);
+
+  if (!open) return null;
+
+  const handleBackdrop = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget && !busy) onClose();
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape" && !busy) onClose();
+  };
+
+  return createPortal(
+    <div className={styles.actionOverlay} onMouseDown={handleBackdrop}>
+      <div
+        ref={dialogRef}
+        className={styles.actionDialog}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        tabIndex={-1}
+        onKeyDown={handleKeyDown}
+      >
+        <header className={styles.actionHeader}>
+          <div>
+            <h2 id={titleId} className={styles.actionTitle}>
+              {title}
+            </h2>
+            <p id={descriptionId} className={styles.actionDescription}>
+              {description}
+            </p>
+          </div>
+          <button
+            type="button"
+            className={styles.actionClose}
+            aria-label="Cerrar"
+            disabled={busy}
+            onClick={onClose}
+          >
+            <X size={20} aria-hidden="true" />
+          </button>
+        </header>
+        <div className={styles.actionBody}>{children}</div>
+        <footer className={styles.actionFooter}>
+          <Button variant="secondary" disabled={busy} onClick={onClose}>
+            {cancelLabel}
+          </Button>
+          {onSubmit && submitLabel ? (
+            <Button disabled={busy} onClick={onSubmit}>
+              {submitLabel}
+            </Button>
+          ) : null}
+        </footer>
+      </div>
+    </div>,
+    document.body,
+  );
+};

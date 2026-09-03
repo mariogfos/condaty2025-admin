@@ -12,6 +12,7 @@ import { Ban } from "lucide-react";
 import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
 import {
   FinancialDetailGrid,
+  FinancialDetailMessage,
   FinancialDetailSection,
   type FinancialDetailField,
 } from "@/features/financial-records/FinancialDetailPrimitives";
@@ -142,9 +143,9 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
         title="Detalle del egreso"
       >
         <FinancialDetailSection>
-          <p className="text-sm text-muted-foreground">
+          <FinancialDetailMessage>
             No se encontró información del egreso. Cierra el detalle e intenta nuevamente.
-          </p>
+          </FinancialDetailMessage>
         </FinancialDetailSection>
       </FinancialDetailModal>
     );
@@ -491,7 +492,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
               {
                 id: "cancel-expense",
                 label: "Anular egreso",
-                icon: <Ban className="size-4" />,
+                icon: <Ban size={18} />,
                 destructive: true,
                 onSelect: handleAnularClick,
               },
