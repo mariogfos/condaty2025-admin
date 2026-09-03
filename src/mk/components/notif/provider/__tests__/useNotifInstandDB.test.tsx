@@ -123,4 +123,22 @@ describe("useNotifInstandDB", () => {
       }),
     );
   });
+
+  it("contains an InstantDB timeout instead of leaking an unhandled rejection", async () => {
+    const { runInstantDbTask } = await import("../useNotifInstandDB");
+    const timeout = new Error("transaction timed out");
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await expect(
+      runInstantDbTask("test transaction", async () => {
+        throw timeout;
+      }),
+    ).resolves.toEqual({ ok: false, error: timeout });
+
+    expect(consoleError).toHaveBeenCalledWith(
+      "[InstantDB] test transaction failed",
+      timeout,
+    );
+    consoleError.mockRestore();
+  });
 });

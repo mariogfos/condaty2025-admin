@@ -6,7 +6,10 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { IconX } from "@/components/layout/icons/IconsBiblioteca";
 import { SendEmoticonType, SendMessageType } from "../chat-types";
 import { useEvent } from "@/mk/hooks/useEvents";
-import { initSocket } from "../../notif/provider/useNotifInstandDB";
+import {
+  initSocket,
+  runInstantDbTask,
+} from "../../notif/provider/useNotifInstandDB";
 
 let initToken = false;
 const roomGral: string = process.env
@@ -59,22 +62,24 @@ const useInstandDB = (): useInstantDbType => {
   const onChatCloseRoom = useCallback(
     async (payload: any) => {
       if (payload.indexOf("chatBot") > -1) {
-        const del: any[] = [];
-        const query = {
-          messages: {
-            $: {
-              where: {
-                and: [{ roomId: payload }, { client_id: user.client_id }],
+        await runInstantDbTask("delete chatbot room", async () => {
+          const del: any[] = [];
+          const query = {
+            messages: {
+              $: {
+                where: {
+                  and: [{ roomId: payload }, { client_id: user.client_id }],
+                },
               },
             },
-          },
-        };
-        const { data: _chats } = await db.queryOnce(query);
-        _chats.messages.forEach((e: any) => {
-          del.push(db.tx.messages[e.id].delete());
-        });
+          };
+          const { data: _chats } = await db.queryOnce(query);
+          _chats.messages.forEach((e: any) => {
+            del.push(db.tx.messages[e.id].delete());
+          });
 
-        if (del.length > 0) db.transact(del);
+          if (del.length > 0) await db.transact(del);
+        });
       }
     },
     [user.client_id]
@@ -84,12 +89,14 @@ const useInstandDB = (): useInstantDbType => {
   const onChatSendMsg = useCallback(
     async (payload: any) => {
       if (payload?.roomId.indexOf("chatBot") > -1) {
-        await db.transact(
-          db.tx.chatbot[id()].update({
-            ...payload,
-            status: "N",
-            client_id: user.client_id,
-          })
+        await runInstantDbTask("send chatbot request", () =>
+          db.transact(
+            db.tx.chatbot[id()].update({
+              ...payload,
+              status: "N",
+              client_id: user.client_id,
+            }),
+          ),
         );
       }
     },
@@ -121,39 +128,48 @@ const useInstandDB = (): useInstantDbType => {
       credentials: "include", // Envía cookies
       body: JSON.stringify({ id: user?.id }),
     });
-    const data = await response.json();
-    if (data?.success) {
-      token = data?.token;
-      await db.auth.signInWithToken(data.token);
-      publishPresence({ name: getFullName(user), userapp_id: user?.id });
-      if (user?.id) {
-        const now: any = new Date().toISOString();
-        db.transact(
-          db.tx.usersapp[user.id].update({
-            last_login_at: now,
-            name: getFullName(user),
-            ci: user.ci,
-            phone: user.phone,
-            address: user.address,
-            email: user.email,
-            type: user.type,
-            has_image: user.has_image,
-            created_at: user.created_at,
-            condominio_id: user.client_id,
-            condominio: user?.clients?.find((c: any) => c.id == user?.client_id)
-              ?.name,
-            rol: user.role.name,
-            permisos: user.role.abilities,
-          })
-        );
-      }
+    if (!response.ok) {
+      throw new Error(`Chat authentication failed with status ${response.status}`);
     }
+    const data = await response.json();
+    if (!data?.success || !data?.token) {
+      throw new Error("Chat authentication did not return a token");
+    }
+
+    token = data.token;
+    await db.auth.signInWithToken(data.token);
+    publishPresence({ name: getFullName(user), userapp_id: user?.id });
+    if (user?.id) {
+      const now: any = new Date().toISOString();
+      await db.transact(
+        db.tx.usersapp[user.id].update({
+          last_login_at: now,
+          name: getFullName(user),
+          ci: user.ci,
+          phone: user.phone,
+          address: user.address,
+          email: user.email,
+          type: user.type,
+          has_image: user.has_image,
+          created_at: user.created_at,
+          condominio_id: user.client_id,
+          condominio: user?.clients?.find((c: any) => c.id == user?.client_id)
+            ?.name,
+          rol: user.role.name,
+          permisos: user.role.abilities,
+        }),
+      );
+    }
+
+    return true;
   };
 
   useEffect(() => {
     if (!token && !initToken) {
       initToken = true;
-      connectDB();
+      void runInstantDbTask("connect chat", connectDB).then((result) => {
+        if (!result.ok) initToken = false;
+      });
     }
     return () => {
       publishPresence(undefined);
@@ -208,15 +224,16 @@ const useInstandDB = (): useInstantDbType => {
   useEffect(() => {
     if (chats?.messages?.length > 0) {
       const now = Date.now();
-      chats?.messages?.map((m: any) => {
-        if (m.sender !== user.id && !m.received_at) {
-          db.transact(
-            db.tx.messages[m.id].update({
-              received_at: now,
-            })
-          );
-        }
-      });
+      const updates = chats.messages
+        .filter((message: any) => message.sender !== user.id && !message.received_at)
+        .map((message: any) =>
+          db.tx.messages[message.id].update({ received_at: now }),
+        );
+      if (updates.length > 0) {
+        void runInstantDbTask("mark messages received", () =>
+          db.transact(updates),
+        );
+      }
     }
   }, [chats?.messages, user?.id]);
 
@@ -224,15 +241,16 @@ const useInstandDB = (): useInstantDbType => {
     async (msgsRead: any[]) => {
       if (msgsRead?.length > 0) {
         const now = Date.now();
-        msgsRead?.map((m: any) => {
-          if (m.sender !== user.id && m.received_at && !m.read_at) {
-            db.transact(
-              db.tx.messages[m.id].update({
-                read_at: now,
-              })
-            );
-          }
-        });
+        const updates = msgsRead
+          .filter((message: any) =>
+            message.sender !== user.id && message.received_at && !message.read_at
+          )
+          .map((message: any) =>
+            db.tx.messages[message.id].update({ read_at: now }),
+          );
+        if (updates.length > 0) {
+          await runInstantDbTask("mark messages read", () => db.transact(updates));
+        }
       }
     },
     [user?.id]
@@ -242,15 +260,18 @@ const useInstandDB = (): useInstantDbType => {
     async (msgsReceived: any[]) => {
       if (msgsReceived?.length > 0) {
         const now = Date.now();
-        msgsReceived?.map((m: any) => {
-          if (m.sender !== user.id && !m.received_at && !m.read_at) {
-            db.transact(
-              db.tx.messages[m.id].update({
-                received_at: now,
-              })
-            );
-          }
-        });
+        const updates = msgsReceived
+          .filter((message: any) =>
+            message.sender !== user.id && !message.received_at && !message.read_at
+          )
+          .map((message: any) =>
+            db.tx.messages[message.id].update({ received_at: now }),
+          );
+        if (updates.length > 0) {
+          await runInstantDbTask("mark messages received", () =>
+            db.transact(updates),
+          );
+        }
       }
     },
     [user?.id]
@@ -284,22 +305,31 @@ const useInstandDB = (): useInstantDbType => {
     async (text, roomId, userId, file) => {
       if (text.trim() || file) {
         setSending(true);
-        const _id = id();
-        const now = Date.now();
-        const msg = {
-          text,
-          sender: userId || user.id,
-          roomId,
-          created_at: now,
-          client_id: user.client_id,
-        };
-        await db.transact(db.tx.messages[_id].update(msg));
-        if (file) {
-          await uploadImageInstantDB(file, roomId, _id);
+        try {
+          const _id = id();
+          const now = Date.now();
+          const msg = {
+            text,
+            sender: userId || user.id,
+            roomId,
+            created_at: now,
+            client_id: user.client_id,
+          };
+          const sent = await runInstantDbTask("send chat message", () =>
+            db.transact(db.tx.messages[_id].update(msg)),
+          );
+          if (!sent.ok) {
+            showToast("No se pudo enviar el mensaje. Intenta nuevamente.", "error");
+            return false;
+          }
+          if (file) {
+            await uploadImageInstantDB(file, roomId, _id);
+          }
+          sendMsgEvent({ ...msg, msgId: _id });
+          return _id;
+        } finally {
+          setSending(false);
         }
-        sendMsgEvent({ ...msg, msgId: _id });
-        setSending(false);
-        return _id;
       }
       setSending(false);
       return false;
@@ -310,12 +340,14 @@ const useInstandDB = (): useInstantDbType => {
   const sendEmoticon: SendEmoticonType = useCallback(
     async (emoticon: string, msgId: string) => {
       if (emoticon.trim()) {
-        const data = await db.transact(
-          db.tx.messages[msgId].update({
-            emoticon,
-          })
+        const data = await runInstantDbTask("send chat reaction", () =>
+          db.transact(
+            db.tx.messages[msgId].update({
+              emoticon,
+            }),
+          ),
         );
-        return data;
+        return data.ok ? data.value : false;
       }
       return false;
     },
