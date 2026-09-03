@@ -1,10 +1,235 @@
-.page { width: min(1320px, 100%); margin: 0 auto; padding: 26px clamp(18px, 3vw, 42px) 44px; color: var(--cWhite); }
-.pageHeader { padding: 8px 0 28px; }.page h1, .page h2, .page p { margin: 0; }.page h1 { margin-top: 8px; font-size: clamp(28px, 3vw, 36px); line-height: 1.12; }.page h2 { font-size: 19px; }.pageHeader p { max-width: 820px; margin-top: 9px; color: var(--cWhiteV1); line-height: 1.5; }
-.eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--cAccent); font-size: 13px; font-weight: 750; letter-spacing: 0.05em; text-transform: uppercase; }
-.filterCard, .tableCard, .notice { border: 1px solid var(--cBorder); background: var(--cBackground-foreground); box-shadow: 0 12px 30px rgba(0,0,0,.12); }.filterCard { display: flex; align-items: flex-end; gap: 14px; padding: 18px; border-radius: 18px; }.filterCard label { display: grid; gap: 6px; flex: 1; color: var(--cWhiteV1); font-size: 13px; font-weight: 650; }.filterCard select { min-height: 42px; padding: 0 12px; border: 1px solid var(--cBorder); border-radius: var(--controlRadius); color: var(--cWhite); background: var(--cModalSurfaceRaised); font: inherit; outline: none; }.filterCard select:focus { border-color: var(--cAccent); }.filterCard > button { width: auto; min-width: 128px; }
-.notice { display: flex; align-items: center; gap: 9px; margin: 18px 0; padding: 13px 15px; border-radius: 14px; color: var(--cWhiteV1); font-size: 14px; line-height: 1.45; }.notice svg { flex: 0 0 auto; color: var(--cAccent); }
-.tableCard { overflow: hidden; border-radius: 18px; }.tableHeader { display: flex; align-items: center; justify-content: space-between; padding: 20px; border-bottom: 1px solid var(--cBorder); }.tableHeader p { margin-top: 5px; color: var(--cWhiteV1); font-size: 14px; }
-.actionCell, .recordCell { display: grid; gap: 2px; overflow: hidden; }.actionCell strong, .recordCell strong { overflow: hidden; text-overflow: ellipsis; }.actionCell span, .recordCell span { overflow: hidden; color: var(--cWhiteV1); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }.stateChange { display: inline-flex; align-items: center; gap: 7px; color: var(--cWhiteV1); font-size: 12px; }.stateChange b { font-weight: 500; }.stateChange strong { color: var(--cAccent); }
-.emptyState { display: flex; align-items: center; justify-content: center; gap: 13px; min-height: 190px; padding: 24px; color: var(--cWhiteV1); text-align: left; }.emptyState svg { color: var(--cAccent); }.emptyState div { display: grid; gap: 4px; }.emptyState span { font-size: 14px; }
-.pagination { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 18px; border-top: 1px solid var(--cBorder); color: var(--cWhiteV1); font-size: 14px; }.pagination div { display: flex; gap: 8px; }.pagination button { width: auto; }
-@media (max-width: 680px) { .page { padding-inline: 14px; }.filterCard { align-items: stretch; flex-direction: column; }.filterCard > button { width: 100%; }.pagination { align-items: stretch; flex-direction: column; }.pagination div { width: 100%; }.pagination button { flex: 1; } }
+.page {
+  width: min(1320px, 100%);
+  margin: 0 auto;
+  padding: 26px clamp(18px, 3vw, 42px) 44px;
+  color: var(--cWhite);
+}
+
+.pageHeader {
+  padding: 8px 0 28px;
+}
+
+.page h1,
+.page h2,
+.page p {
+  margin: 0;
+}
+
+.page h1 {
+  margin-top: 8px;
+  font-size: clamp(28px, 3vw, 36px);
+  line-height: 1.12;
+}
+
+.page h2 {
+  font-size: 19px;
+}
+
+.pageHeader p {
+  max-width: 820px;
+  margin-top: 9px;
+  color: var(--cWhiteV1);
+  line-height: 1.5;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cAccent);
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.filterCard,
+.tableCard,
+.notice {
+  border: 1px solid var(--cBorder);
+  background: var(--cNeutral-900);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.filterCard {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 18px;
+}
+
+.filterCard label {
+  display: grid;
+  flex: 1;
+  gap: 6px;
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.filterCard select {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--cBorder);
+  border-radius: var(--controlRadius);
+  background: var(--cModalSurfaceRaised);
+  color: var(--cWhite);
+  font: inherit;
+  outline: none;
+}
+
+.filterCard select:focus {
+  border-color: var(--cAccent);
+}
+
+.filterCard > button {
+  width: auto;
+  min-width: 128px;
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 18px 0;
+  padding: 13px 15px;
+  border-radius: 14px;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.notice svg {
+  flex: 0 0 auto;
+  color: var(--cAccent);
+}
+
+.tableCard {
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.tableHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid var(--cBorder);
+}
+
+.tableHeader p {
+  margin-top: 5px;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+}
+
+.actionCell,
+.recordCell {
+  display: grid;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.actionCell strong,
+.recordCell strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actionCell span,
+.recordCell span {
+  overflow: hidden;
+  color: var(--cWhiteV1);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stateChange {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--cWhiteV1);
+  font-size: 12px;
+}
+
+.stateChange b {
+  font-weight: 500;
+}
+
+.stateChange strong {
+  color: var(--cAccent);
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  min-height: 190px;
+  padding: 24px;
+  color: var(--cWhiteV1);
+  text-align: left;
+}
+
+.emptyState svg {
+  color: var(--cAccent);
+}
+
+.emptyState div {
+  display: grid;
+  gap: 4px;
+}
+
+.emptyState span {
+  font-size: 14px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--cBorder);
+  color: var(--cWhiteV1);
+  font-size: 14px;
+}
+
+.pagination div {
+  display: flex;
+  gap: 8px;
+}
+
+.pagination button {
+  width: auto;
+}
+
+@media (max-width: 680px) {
+  .page {
+    padding-inline: 14px;
+  }
+
+  .filterCard {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .filterCard > button {
+    width: 100%;
+  }
+
+  .pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pagination div {
+    width: 100%;
+  }
+
+  .pagination button {
+    flex: 1;
+  }
+}

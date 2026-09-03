@@ -135,6 +135,7 @@ export default function FinancialHistory() {
         ) : (
           <Table
             data={history?.items || []}
+            height="min(56dvh, 620px)"
             showSkeletonRows={loading}
             skeletonRowCount={6}
             header={[
