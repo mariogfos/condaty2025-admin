@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock3, ReceiptText, X } from "lucide-react";
 import { FinancialHistory } from "./FinancialHistory";
 import { FinancialRecordActions } from "./FinancialRecordActions";
 import { useFinancialWorkspace } from "./useFinancialWorkspace";
@@ -70,7 +70,6 @@ export const FinancialDetailModal = ({
   const [mounted, setMounted] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
-  const descriptionId = useId();
   const {
     workspace: remoteWorkspace,
     loading: remoteWorkspaceLoading,
@@ -125,7 +124,7 @@ export const FinancialDetailModal = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        aria-describedby={description ? descriptionId : undefined}
+        aria-label={description ? `${title}. ${description}` : title}
         tabIndex={-1}
         onKeyDown={handleKeyDown}
       >
@@ -135,11 +134,6 @@ export const FinancialDetailModal = ({
               <h2 id={titleId} className={styles.title}>
                 {title}
               </h2>
-              {description ? (
-                <p id={descriptionId} className={styles.description}>
-                  {description}
-                </p>
-              ) : null}
             </div>
 
             <div className={styles.headerActions}>
@@ -163,17 +157,21 @@ export const FinancialDetailModal = ({
             </div>
           </div>
 
-          <div className={styles.tabs} role="tablist" aria-label="Vista del registro">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === "detail"}
-              className={`${styles.tab} ${tab === "detail" ? styles.tabActive : ""}`}
-              onClick={() => setTab("detail")}
-            >
-              Detalle
-            </button>
-            {record ? (
+        </header>
+
+        <main className={styles.scrollBody}>
+          {summary ? <SummaryRow summary={summary} /> : null}
+          {record ? (
+            <div className={styles.tabs} role="tablist" aria-label="Vista del registro">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={tab === "detail"}
+                className={`${styles.tab} ${tab === "detail" ? styles.tabActive : ""}`}
+                onClick={() => setTab("detail")}
+              >
+                Detalle
+              </button>
               <button
                 type="button"
                 role="tab"
@@ -186,18 +184,13 @@ export const FinancialDetailModal = ({
                   <span className={styles.historyCount}>{workspace.history.length}</span>
                 ) : null}
               </button>
-            ) : null}
-          </div>
-        </header>
+            </div>
+          ) : null}
 
-        <main className={styles.scrollBody}>
           {tab === "detail" ? (
-            <>
-              {summary ? <SummaryRow summary={summary} /> : null}
-              <div className={styles.detailContent}>
-                {loading ? <DetailSkeleton /> : children}
-              </div>
-            </>
+            <div className={styles.detailContent}>
+              {loading ? <DetailSkeleton /> : children}
+            </div>
           ) : (
             <FinancialHistory
               events={workspace?.history || []}
@@ -219,8 +212,23 @@ export const FinancialDetailModal = ({
 
 const SummaryRow = ({ summary }: { summary: FinancialSummary }) => {
   const tone = summary.status?.tone || "neutral";
+  const Icon =
+    tone === "success"
+      ? CheckCircle2
+      : tone === "warning"
+        ? Clock3
+        : tone === "danger"
+          ? AlertCircle
+          : ReceiptText;
+
   return (
     <section className={styles.summary} aria-label="Resumen del registro">
+      <span
+        className={`${styles.summaryIcon} ${styles[`summaryIcon${tone[0].toUpperCase()}${tone.slice(1)}`]}`}
+        aria-hidden="true"
+      >
+        <Icon size={26} strokeWidth={2.25} />
+      </span>
       <div className={styles.summaryAmountGroup}>
         {summary.eyebrow ? (
           <p className={styles.summaryEyebrow}>{summary.eyebrow}</p>
