@@ -288,7 +288,6 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
         },
       },
       amount: { rules: ["required"], api: "ae", label: "Monto" },
-      is_advance: { rules: [], api: "ae", label: "Es adelanto" },
       interest: { rules: [], api: "ae", label: "Interés" },
       has_mv: { rules: [], api: "ae", label: "Tiene Mant. Valor" },
       is_forgivable: { rules: [], api: "ae", label: "Es condonable" },

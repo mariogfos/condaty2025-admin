@@ -9,7 +9,6 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getFullName, pluralize } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useRouter } from "next/navigation";
-import { UnitsType } from "@/mk/utils/utils";
 import RenderForm from "./RenderForm";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
@@ -102,7 +101,11 @@ const Dptos = () => {
   )[0];
 
   useEffect(() => {
-    setStore({ ...store, UnitsType: UnitsType[client?.type_dpto], title: "" });
+    // ⚠️ Acá se guardaba `UnitsType[client?.type_dpto]` en el store. La columna
+    // `type_dpto` no existe, así que guardaba `undefined` — y su único
+    // consumidor (`label: "Número de " + store?.UnitsType`, más abajo) está
+    // comentado desde antes. Queda el `title` vacío, que sí se usa.
+    setStore({ ...store, title: "" });
   }, []);
 
   const mod: ModCrudType = {
