@@ -319,6 +319,7 @@ const RenderView = ({
         <FinancialDetailSection
           title="Pagos aplicados"
           description="Selecciona una fila para abrir el comprobante individual."
+          defaultOpen={false}
         >
           <div className={styles.tableWrapper}>
             <Table

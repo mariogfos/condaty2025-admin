@@ -591,7 +591,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           <FinancialDetailGrid fields={debtFields} />
         </FinancialDetailSection>
 
-        <FinancialDetailSection title="Descripción">
+        <FinancialDetailSection title="Descripción" defaultOpen={false}>
           <FinancialDetailMessage>{debtDescription}</FinancialDetailMessage>
         </FinancialDetailSection>
 

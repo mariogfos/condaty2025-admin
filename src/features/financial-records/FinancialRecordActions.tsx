@@ -354,8 +354,6 @@ export const FinancialRecordActions = ({
 
         {menuOpen ? (
           <div className={styles.actionMenu} role="menu">
-            <p className={styles.menuLabel}>Acciones del registro</p>
-            <div className={styles.menuDivider} />
             {actions.map((action, index) => (
               <Fragment key={action.id}>
                 {action.destructive && index > 0 ? (

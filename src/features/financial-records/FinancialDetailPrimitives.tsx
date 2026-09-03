@@ -1,4 +1,7 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { ChevronDown } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import styles from "./FinancialDetail.module.css";
 
 export type FinancialDetailField = {
@@ -14,26 +17,47 @@ export const FinancialDetailSection = ({
   description,
   children,
   className = "",
+  defaultOpen = true,
 }: {
   title?: ReactNode;
   description?: ReactNode;
   children: ReactNode;
   className?: string;
-}) => (
-  <section className={`${styles.detailSection} ${className}`.trim()}>
-    {title || description ? (
-      <header className={styles.sectionHeader}>
-        <div>
-          {title ? <h3 className={styles.sectionTitle}>{title}</h3> : null}
-          {description ? (
-            <p className={styles.sectionDescription}>{description}</p>
-          ) : null}
-        </div>
-      </header>
-    ) : null}
-    <div className={styles.sectionBody}>{children}</div>
-  </section>
-);
+  defaultOpen?: boolean;
+}) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const isCollapsible = Boolean(title || description);
+
+  return (
+    <section className={`${styles.detailSection} ${className}`.trim()}>
+      {isCollapsible ? (
+        <button
+          type="button"
+          className={styles.sectionToggle}
+          aria-expanded={isOpen}
+          onClick={() => setIsOpen((current) => !current)}
+        >
+          <span>
+            {title ? <span className={styles.sectionTitle}>{title}</span> : null}
+            {description ? (
+              <span className={styles.sectionDescription}>{description}</span>
+            ) : null}
+          </span>
+          <ChevronDown
+            className={`${styles.sectionChevron} ${
+              isOpen ? styles.sectionChevronOpen : ""
+            }`.trim()}
+            size={20}
+            aria-hidden="true"
+          />
+        </button>
+      ) : null}
+      {!isCollapsible || isOpen ? (
+        <div className={styles.sectionBody}>{children}</div>
+      ) : null}
+    </section>
+  );
+};
 
 export const FinancialDetailGrid = ({ fields }: { fields: FinancialDetailField[] }) => (
   <div className={styles.detailGrid}>

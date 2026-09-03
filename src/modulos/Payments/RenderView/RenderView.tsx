@@ -841,7 +841,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         )}
 
         {paymentDetails.length > 0 && (
-          <FinancialDetailSection title="Detalles del pago">
+          <FinancialDetailSection title="Detalles del pago" defaultOpen={false}>
             <div className={styles.periodsTableWrapper}>
               <Table
                 className="striped"

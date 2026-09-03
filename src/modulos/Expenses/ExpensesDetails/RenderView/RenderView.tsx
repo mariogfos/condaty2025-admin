@@ -228,7 +228,7 @@ const RenderView = (props: {
         </FinancialDetailSection>
 
         {pendingPeriods.length > 0 && (
-          <FinancialDetailSection title="Periodos por pagar">
+          <FinancialDetailSection title="Periodos por pagar" defaultOpen={false}>
             <div className={styles.tableWrapper}>
               <Table
                 className="striped"
