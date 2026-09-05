@@ -56,7 +56,7 @@ const InputFullName = ({
       </div>
       <div className={styles.inputFullNameContainer}>
         <Input
-          label="Segundo nombre"
+          label="Segundo nombre (opcional)"
           type="text"
           name={"middle_name" + prefijo}
           disabled={disabled}
@@ -69,7 +69,7 @@ const InputFullName = ({
           onBlur={() => onBlur("middle_name" + prefijo)}
         />
         <Input
-          label="Apellido materno"
+          label="Apellido materno (opcional)"
           type="text"
           name={"mother_last_name" + prefijo}
           disabled={disabled}

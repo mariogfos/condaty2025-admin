@@ -599,7 +599,10 @@ const RenderForm = ({
         />
 
         <div className={styles.sectionHeader}>
-          <p>La contraseña será enviada al correo que indique en este campo </p>
+          <p>
+            La contraseña inicial será el carnet de identidad y se enviará al
+            correo que indique en este campo.
+          </p>
         </div>
 
         <Input
