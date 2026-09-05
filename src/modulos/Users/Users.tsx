@@ -412,8 +412,8 @@ const Users = () => {
               <div style={{ width: "100%" }}>
                 <Br style={{ marginBottom: "12px" }} />
                 <p>
-                  La contraseña será enviada al correo que indiques en este
-                  campo
+                  La contraseña inicial será 12345678 y se enviará al correo
+                  que indiques en este campo.
                 </p>
               </div>
             );
