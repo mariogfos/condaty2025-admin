@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./Config.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import DefaulterConfig from "./DefaulterConfig/DefaulterConfig";
 import PaymentsConfig from "./PaymentsConfig/PaymentsConfig";
 import DptoConfig from "./DptoConfig/DptoConfig";
+import AccessEvidenceConfig from "./AccessEvidenceConfig/AccessEvidenceConfig";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
@@ -21,6 +22,13 @@ const Config = () => {
   const { getUser, user } = useAuth();
   const { showToast, userCan }: any = useAuth();
   const [typeSearch, setTypeSearch] = useState("C");
+  const isFosAdmin = user?.type === "ADM" && Boolean(user?.fosrole_id);
+
+  useEffect(() => {
+    if (!isFosAdmin && typeSearch === "E") {
+      setTypeSearch("C");
+    }
+  }, [isFosAdmin, typeSearch]);
 
   const {
     data: client_config,
@@ -56,6 +64,9 @@ const Config = () => {
             tabs={[
               { value: "C", text: "Condominio" },
               { value: "R", text: "Reglas Operativas" },
+              ...(isFosAdmin
+                ? [{ value: "E", text: "Reglas de evidencia" }]
+                : []),
               { value: "P", text: "Cuentas de pagos" },
               { value: "M", text: "Morosidad" },
               { value: "T", text: "Tipos de unidades" },
@@ -103,6 +114,7 @@ const Config = () => {
             />
           </LoadingScreen>
         )}
+        {isFosAdmin && typeSearch == "E" && <AccessEvidenceConfig />}
         {typeSearch == "T" && (
           <div className={styles.tablePanel}>
             <UnitsType />
