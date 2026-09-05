@@ -42,13 +42,6 @@
   flex-direction: column;
   gap: 16px;
 }
-.categoriesButton {
-  min-width: var(--controlMinWidth);
-  width: auto !important;
-  margin: 0 !important;
-  white-space: nowrap;
-}
-
 .summaryHeader {
   margin-bottom: 0;
 }
@@ -64,6 +57,101 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 16px;
+}
+
+.actionsCard {
+  display: flex;
+  min-height: 116px;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 20px;
+  border: 1px solid var(--cModalBorder);
+  border-radius: 16px;
+  background: var(--cModalSection);
+}
+
+.actionsTitle {
+  flex: 0 0 auto;
+  margin: 0;
+  color: var(--cWhite);
+  font-size: var(--title-xxs-size);
+  font-weight: var(--font-weight-bold);
+}
+
+.actionsList {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.actionItem {
+  display: inline-flex;
+  width: 92px;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--cWhiteV1);
+  cursor: pointer;
+  font: inherit;
+}
+
+.actionCircle {
+  display: inline-flex;
+  width: 52px;
+  height: 52px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--controlSecondaryBorder);
+  border-radius: 50%;
+  background: var(--controlSecondaryBg);
+  color: var(--cAccent);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.actionItem:hover .actionCircle {
+  border-color: color-mix(in srgb, var(--cAccent) 56%, var(--controlSecondaryBorder));
+  background: color-mix(in srgb, var(--cAccent) 10%, var(--controlSecondaryBg));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cAccent) 10%, transparent);
+}
+
+.actionItem:active .actionCircle {
+  transform: scale(0.96);
+}
+
+.actionItem:focus-visible {
+  outline: none;
+}
+
+.actionItem:focus-visible .actionCircle {
+  border-color: var(--cAccent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cAccent) 18%, transparent);
+}
+
+.actionItem:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}
+
+.actionLabel {
+  color: inherit;
+  font-size: var(--body-xs-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.25;
+  text-align: center;
+}
+
+.accountStatementForm {
+  width: 100%;
+  padding: 4px 0 8px;
 }
 
 .tabsSection {
@@ -109,5 +197,11 @@
 
   .container {
     padding: var(--spS);
+  }
+
+  .actionsCard {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
   }
 }

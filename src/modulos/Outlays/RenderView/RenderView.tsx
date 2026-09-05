@@ -1,6 +1,5 @@
 "use client";
 import React, { memo } from "react";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import { formatToDayFdMYH } from "@/mk/utils/date";
@@ -9,6 +8,14 @@ import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatBs } from "@/mk/utils/numbers";
 import { parseExpenseDescription } from "../utils/expenseDescription";
+import { Ban } from "lucide-react";
+import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
+import {
+  FinancialDetailGrid,
+  FinancialDetailMessage,
+  FinancialDetailSection,
+  type FinancialDetailField,
+} from "@/features/financial-records/FinancialDetailPrimitives";
 interface Category {
   id: number | string;
   name: string;
@@ -50,6 +57,7 @@ interface DetailOutlayProps {
   item?: OutlayItem;
   extraData?: ExtraData;
   onDel?: (item: OutlayItem) => void;
+  reLoad?: () => void | Promise<void>;
 }
 
 interface DetailItem {
@@ -65,7 +73,7 @@ const typeAccountMap: Record<string, string> = {
   S: "Caja de ahorro",
 };
 const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
-  const { open, onClose, extraData, item, onDel } = props;
+  const { open, onClose, extraData, item, onDel, reLoad } = props;
   const { execute } = useAxios();
   const { showToast } = useAuth();
 
@@ -129,25 +137,17 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
 
   if (!item) {
     return (
-      <DataModal
+      <FinancialDetailModal
         open={open}
         onClose={onClose}
-        title="Información del Egreso"
-        buttonText=""
-        buttonCancel=""
-        maxWidth={980}
+        title="Detalle del egreso"
       >
-        <div className={styles.container}>
-          <div className={styles.messageContainer}>
-            <p className={styles.messageText}>
-              No se encontró información del egreso.
-            </p>
-            <p className={styles.messageSuggestion}>
-              Por favor, verifica los detalles o intenta de nuevo más tarde.
-            </p>
-          </div>
-        </div>
-      </DataModal>
+        <FinancialDetailSection>
+          <FinancialDetailMessage>
+            No se encontró información del egreso. Cierra el detalle e intenta nuevamente.
+          </FinancialDetailMessage>
+        </FinancialDetailSection>
+      </FinancialDetailModal>
     );
   }
 
@@ -427,75 +427,87 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
       : null,
   ].filter(Boolean) as DetailItem[];
 
+  const detailFields: FinancialDetailField[] = detailItems.map((detail) => ({
+    id: detail.key,
+    label: detail.label,
+    value: detail.value,
+    wide: detail.multiline,
+    tone:
+      detail.key === "status"
+        ? currentItem.status === "A"
+          ? "success"
+          : currentItem.status === "X"
+            ? "danger"
+            : "default"
+        : detail.key === "canceledReason"
+          ? "danger"
+          : "default",
+  }));
+
+  const footer = (
+    <>
+      <Button
+        variant="secondary"
+        className={styles.voucherButton}
+        onClick={handleGenerateReceipt}
+      >
+        Descargar nota de egreso
+      </Button>
+
+      {hasVoucherUrls && (
+        <Button
+          variant="primary"
+          className={styles.voucherButton}
+          onClick={handleViewOrDownloadVouchers}
+        >
+          {voucherUrls.length > 1 ? "Descargar comprobantes" : "Ver comprobante"}
+        </Button>
+      )}
+    </>
+  );
+
   return (
-    <DataModal
+    <FinancialDetailModal
       open={open}
       onClose={onClose}
-      title="Detalle del Egreso"
-      buttonText=""
-      buttonCancel=""
-      maxWidth={980}
-      headerDivider={false}
+      title="Detalle del egreso"
+      description="Información contable, respaldo e historial de cambios del egreso."
+      record={{
+        type: "expense",
+        id: currentItem.id,
+        paidAt: currentItem.date_at,
+      }}
+      summary={{
+        amount: formatBs(currentItem.amount),
+        date: formatToDayFdMYH(currentItem.date_at),
+        eyebrow: "Monto pagado",
+        status: {
+          label: getStatusText(currentItem.status),
+          tone: currentItem.status === "A" ? "success" : "danger",
+        },
+      }}
+      customActions={
+        onDel && currentItem.status !== "X"
+          ? [
+              {
+                id: "cancel-expense",
+                label: "Anular egreso",
+                icon: <Ban size={18} />,
+                destructive: true,
+                onSelect: handleAnularClick,
+              },
+            ]
+          : []
+      }
+      onRecordChanged={async () => {
+        await reLoad?.();
+      }}
+      footer={footer}
     >
-      <div className={styles.container}>
-        <div className={styles.headerSection}>
-          <div className={styles.amountDisplay}>{formatBs(currentItem.amount)}</div>
-          <div className={styles.dateDisplay}>
-            {formatToDayFdMYH(currentItem.date_at)}
-          </div>
-        </div>
-      </div>
-      <div className={styles.container}>
-        <section className={styles.detailsSection}>
-          {detailItems.map((detail) => (
-            <div key={detail.key} className={styles.infoBlock}>
-              <span className={styles.infoLabel}>{detail.label}</span>
-              <span
-                className={[
-                  styles.infoValue,
-                  detail.multiline ? styles.multilineValue : "",
-                  detail.valueClassName || "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                {detail.value}
-              </span>
-            </div>
-          ))}
-        </section>
-      </div>
-
-      <div className={styles.voucherButtonContainer}>
-        {onDel && currentItem.status !== "X" && (
-          <Button
-            variant="danger"
-            onClick={handleAnularClick}
-            className={styles.textButtonDanger}
-          >
-            Anular egreso
-          </Button>
-        )}
-
-        <Button
-          variant="secondary"
-          className={styles.voucherButton}
-          onClick={handleGenerateReceipt}
-        >
-          Descargar nota de egreso
-        </Button>
-
-        {hasVoucherUrls && (
-          <Button
-            variant="secondary"
-            className={styles.voucherButton}
-            onClick={handleViewOrDownloadVouchers}
-          >
-            {voucherUrls.length > 1 ? "Descargar comprobantes" : "Ver comprobante"}
-          </Button>
-        )}
-      </div>
-    </DataModal>
+      <FinancialDetailSection title="Datos del egreso">
+        <FinancialDetailGrid fields={detailFields} />
+      </FinancialDetailSection>
+    </FinancialDetailModal>
   );
 });
 

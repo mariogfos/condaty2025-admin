@@ -29,12 +29,16 @@ import {
   decodeReportViewerState,
   type ReportViewerState,
 } from "./reportViewerState";
-import { formatToDayDDMMYYYY } from "@/mk/utils/date";
 import styles from "./ReportsPage.module.css";
 
 type ReportFormat = "pdf" | "excel";
 
-type RangePresetId = "year-to-date" | "this-month" | "last-30-days" | "custom";
+type RangePresetId =
+  | "all"
+  | "year-to-date"
+  | "this-month"
+  | "last-30-days"
+  | "custom";
 
 type ReportColumn = {
   id: string;
@@ -53,6 +57,24 @@ type ReportPageMode = {
   heightMm: number;
   previewWidth: number;
   rowsPerPage: number;
+  firstPageRows?: number;
+};
+
+type ReportOverview = {
+  identity: Array<{ label: string; value: string }>;
+  metrics: Array<{
+    id: string;
+    label: string;
+    value: string;
+    amount: number;
+    highlight?: boolean;
+  }>;
+  breakdown: Array<{
+    label: string;
+    charges: string;
+    payments: string;
+    balance: string;
+  }>;
 };
 
 type ReportSummary = {
@@ -70,6 +92,7 @@ type ReportSummary = {
   criteria: {
     startDate: string;
     endDate: string;
+    allDates?: boolean;
     searchBy: string;
     filterBy: string;
   };
@@ -90,6 +113,7 @@ type ReportSummary = {
   };
   previewMarginMm: number;
   fileBaseName: string;
+  overview?: ReportOverview;
 };
 
 type PreviewPageRow = {
@@ -128,35 +152,52 @@ const getPastIsoDate = (daysBack: number) => {
   return date.toISOString().slice(0, 10);
 };
 
-const getDateRangePresets = () => {
+const getDateRangePresets = (allowsAllDates = false) => {
   const today = getTodayIsoDate();
 
   return [
+    ...(allowsAllDates
+      ? [
+          {
+            id: "all" as const,
+            name: "Todo",
+            allDates: true,
+            startDate: getYearStartIsoDate(),
+            endDate: today,
+          },
+        ]
+      : []),
     {
       id: "year-to-date" as const,
       name: "Desde enero hasta hoy",
       startDate: getYearStartIsoDate(),
       endDate: today,
+      allDates: false,
     },
     {
       id: "this-month" as const,
       name: "Este mes",
       startDate: getMonthStartIsoDate(),
       endDate: today,
+      allDates: false,
     },
     {
       id: "last-30-days" as const,
       name: "Ultimos 30 dias",
       startDate: getPastIsoDate(29),
       endDate: today,
+      allDates: false,
     },
   ];
 };
 
 const resolveRangePresetId = (
+  allDates: boolean,
   startDate: string,
   endDate: string,
 ): RangePresetId => {
+  if (allDates) return "all";
+
   const match = getDateRangePresets().find(
     (preset) => preset.startDate === startDate && preset.endDate === endDate,
   );
@@ -170,6 +211,23 @@ const clamp = (value: number, min: number, max: number) =>
 const arraysEqual = (left: string[], right: string[]) =>
   left.length === right.length &&
   left.every((value, index) => value === right[index]);
+
+const calculatePageCount = (totalRows: number, pageMode: ReportPageMode) => {
+  if (totalRows <= 0) return 0;
+
+  const firstPageRows = Math.max(
+    1,
+    pageMode.firstPageRows || pageMode.rowsPerPage,
+  );
+  if (totalRows <= firstPageRows) return 1;
+
+  return (
+    1 +
+    Math.ceil(
+      (totalRows - firstPageRows) / Math.max(1, pageMode.rowsPerPage),
+    )
+  );
+};
 
 const sanitizeBaseParams = (baseParams?: Record<string, any>) => {
   if (!baseParams) return {};
@@ -187,12 +245,47 @@ const sanitizeBaseParams = (baseParams?: Record<string, any>) => {
   return next;
 };
 
+const getReportDownloadHeaders = (): Record<string, string> => {
+  if (typeof window === "undefined") return { Accept: "*/*" };
+
+  const tokenKey = `${process.env.NEXT_PUBLIC_AUTH_IAM || "/adm-iam"}token`;
+
+  try {
+    const storedSession = JSON.parse(localStorage.getItem(tokenKey) || "null");
+    const token = String(storedSession?.token || "").trim();
+
+    return token
+      ? { Accept: "*/*", Authorization: `Bearer ${token}` }
+      : { Accept: "*/*" };
+  } catch (_error) {
+    return { Accept: "*/*" };
+  }
+};
+
+const resolveDownloadError = (body: string, fallback: string) => {
+  const normalized = String(body || "").trim();
+  if (!normalized || normalized.startsWith("<!DOCTYPE") || normalized.startsWith("<html")) {
+    return fallback;
+  }
+
+  return normalized.length > 240 ? `${normalized.slice(0, 237)}...` : normalized;
+};
+
 const parseInitialDateRange = (state: ReportViewerState) => {
   const filterBy = String(state?.params?.filterBy || "");
   const tokens = filterBy
     .split("|")
     .map((token) => token.trim())
     .filter(Boolean);
+
+  const allDatesToken = tokens.find((token) => /^due_at:all$/i.test(token));
+  if (allDatesToken) {
+    return {
+      startDate: getYearStartIsoDate(),
+      endDate: getTodayIsoDate(),
+      allDates: true,
+    };
+  }
 
   const rangeToken = tokens.find((token) =>
     /\d{4}-\d{2}-\d{2},\d{4}-\d{2}-\d{2}/.test(token),
@@ -202,6 +295,7 @@ const parseInitialDateRange = (state: ReportViewerState) => {
     return {
       startDate: getYearStartIsoDate(),
       endDate: getTodayIsoDate(),
+      allDates: false,
     };
   }
 
@@ -211,12 +305,29 @@ const parseInitialDateRange = (state: ReportViewerState) => {
   return {
     startDate: startDate || getYearStartIsoDate(),
     endDate: endDate || getTodayIsoDate(),
+    allDates: false,
   };
 };
 
-const buildTriggerLabel = (startDate: string, endDate: string) => {
+const buildTriggerLabel = (
+  allDates: boolean,
+  startDate: string,
+  endDate: string,
+) => {
+  if (allDates) return "Todo";
   if (!startDate || !endDate) return "Seleccionar";
-  return `${formatToDayDDMMYYYY(startDate)} - ${formatToDayDDMMYYYY(endDate)}`;
+
+  const formatDateOnly = (value: string) => {
+    const [year, month, day] = value.split("-").map(Number);
+    if (!year || !month || !day) return value;
+
+    const weekdays = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+    const weekday = weekdays[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
+
+    return `${weekday}, ${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${year}`;
+  };
+
+  return `${formatDateOnly(startDate)} - ${formatDateOnly(endDate)}`;
 };
 
 const buildColumnsTriggerLabel = (
@@ -439,26 +550,100 @@ const ReportCircleButton = ({
   </button>
 );
 
+const ReportOverviewBlock = ({ overview }: { overview: ReportOverview }) => (
+  <section className={styles.accountOverview}>
+    <div className={styles.accountIdentity}>
+      {overview.identity.map((item) => (
+        <div key={item.label} className={styles.accountIdentityItem}>
+          <span className={styles.accountLabel}>{item.label}</span>
+          <span className={styles.accountValue} title={item.value}>
+            {item.value}
+          </span>
+        </div>
+      ))}
+    </div>
+
+    <div className={styles.accountMetrics}>
+      {overview.metrics.map((metric) => (
+        <div
+          key={metric.id}
+          className={`${styles.accountMetric} ${
+            metric.highlight ? styles.accountMetricHighlight : ""
+          }`}
+        >
+          <span className={styles.accountLabel}>{metric.label}</span>
+          <span className={styles.accountValue}>{metric.value}</span>
+        </div>
+      ))}
+    </div>
+
+    {overview.breakdown.length > 0 ? (
+      <div className={styles.accountBreakdown}>
+        <div className={styles.accountBreakdownHeader}>Concepto</div>
+        <div
+          className={`${styles.accountBreakdownHeader} ${styles.accountBreakdownNumber}`}
+        >
+          Cargos
+        </div>
+        <div
+          className={`${styles.accountBreakdownHeader} ${styles.accountBreakdownNumber}`}
+        >
+          Pagos
+        </div>
+        <div
+          className={`${styles.accountBreakdownHeader} ${styles.accountBreakdownNumber}`}
+        >
+          Saldo
+        </div>
+        {overview.breakdown.map((item) => (
+          <div key={item.label} className={styles.accountBreakdownRow}>
+            <div className={styles.accountBreakdownCell}>{item.label}</div>
+            <div
+              className={`${styles.accountBreakdownCell} ${styles.accountBreakdownNumber}`}
+            >
+              {item.charges}
+            </div>
+            <div
+              className={`${styles.accountBreakdownCell} ${styles.accountBreakdownNumber}`}
+            >
+              {item.payments}
+            </div>
+            <div
+              className={`${styles.accountBreakdownCell} ${styles.accountBreakdownNumber}`}
+            >
+              {item.balance}
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : null}
+  </section>
+);
+
 const buildSummaryParams = (input: {
   baseParams: Record<string, any>;
   startDate: string;
   endDate: string;
+  allDates: boolean;
 }) => ({
   ...input.baseParams,
   startDate: input.startDate,
   endDate: input.endDate,
+  ...(input.allDates ? { allDates: "1" } : {}),
 });
 
 const buildDataParams = (input: {
   baseParams: Record<string, any>;
   startDate: string;
   endDate: string;
+  allDates: boolean;
   pageMode: string;
   selectedColumnIds: string[];
 }) => ({
   ...input.baseParams,
   startDate: input.startDate,
   endDate: input.endDate,
+  ...(input.allDates ? { allDates: "1" } : {}),
   pageMode: input.pageMode,
   columns: input.selectedColumnIds.join(","),
 });
@@ -492,6 +677,7 @@ const ReportsPage = () => {
   const [pageMode, setPageMode] = useState("legal-landscape");
   const [startDate, setStartDate] = useState(initialRange.startDate);
   const [endDate, setEndDate] = useState(initialRange.endDate);
+  const [allDates, setAllDates] = useState(initialRange.allDates);
   const [openPopover, setOpenPopover] = useState<
     null | "page" | "range" | "columns" | "download"
   >(null);
@@ -518,7 +704,7 @@ const ReportsPage = () => {
   }, [execute]);
 
   const hasValidDateRange =
-    Boolean(startDate) && Boolean(endDate) && startDate <= endDate;
+    allDates || (Boolean(startDate) && Boolean(endDate) && startDate <= endDate);
 
   const selectedColumnIdsKey = useMemo(
     () => selectedColumnIds.join("|"),
@@ -533,9 +719,10 @@ const ReportsPage = () => {
           baseParams,
           startDate,
           endDate,
+          allDates,
         }),
       ),
-    [baseParams, endDate, startDate],
+    [allDates, baseParams, endDate, startDate],
   );
 
   const summaryRequestParams = useMemo(
@@ -592,10 +779,11 @@ const ReportsPage = () => {
         baseParams,
         startDate,
         endDate,
+        allDates,
         pageMode,
         selectedColumnIds: requestColumnIds,
       }),
-    [baseParams, endDate, pageMode, requestColumnIdsKey, startDate],
+    [allDates, baseParams, endDate, pageMode, requestColumnIdsKey, startDate],
   );
 
   const dataRequestParams = useMemo(
@@ -616,7 +804,8 @@ const ReportsPage = () => {
   useEffect(() => {
     setStartDate(initialRange.startDate);
     setEndDate(initialRange.endDate);
-  }, [initialRange.endDate, initialRange.startDate, reportKey]);
+    setAllDates(initialRange.allDates);
+  }, [initialRange.allDates, initialRange.endDate, initialRange.startDate, reportKey]);
 
   useEffect(() => {
     if (!hasValidDateRange || !reportKey) return;
@@ -773,7 +962,7 @@ const ReportsPage = () => {
       return 0;
     }
 
-    return Math.max(1, Math.ceil(summary.totalRows / pageSpec.rowsPerPage));
+    return calculatePageCount(summary.totalRows, pageSpec);
   }, [pageSpec, summary]);
 
   const effectivePdf = useMemo(() => {
@@ -1021,8 +1210,13 @@ const ReportsPage = () => {
   );
 
   const rangePresetId = useMemo(
-    () => resolveRangePresetId(startDate, endDate),
-    [endDate, startDate],
+    () => resolveRangePresetId(allDates, startDate, endDate),
+    [allDates, endDate, startDate],
+  );
+  const supportsAllDates = reportKey === "unit-account-statement";
+  const rangePresets = useMemo(
+    () => getDateRangePresets(supportsAllDates),
+    [supportsAllDates],
   );
 
   const publicStatusTitle = useMemo(() => {
@@ -1162,6 +1356,7 @@ const ReportsPage = () => {
             }),
             {
               credentials: "include",
+              headers: getReportDownloadHeaders(),
             },
           );
 
@@ -1169,7 +1364,9 @@ const ReportsPage = () => {
 
           if (!response.ok) {
             popup.close();
-            setActionError(html || "No se pudo preparar el PDF.");
+            setActionError(
+              resolveDownloadError(html, "No se pudo preparar el PDF."),
+            );
             return;
           }
 
@@ -1193,12 +1390,15 @@ const ReportsPage = () => {
           buildApiPath(`/reports/${reportKey}/xlsx`, dataRequestParams),
           {
             credentials: "include",
+            headers: getReportDownloadHeaders(),
           },
         );
 
         if (!response.ok) {
           const message = await response.text();
-          setActionError(message || "No se pudo descargar el Excel.");
+          setActionError(
+            resolveDownloadError(message, "No se pudo descargar el Excel."),
+          );
           setActionLoading(null);
           return;
         }
@@ -1319,7 +1519,7 @@ const ReportsPage = () => {
 
           <ToolbarPopover
             label="Rango"
-            value={buildTriggerLabel(startDate, endDate)}
+            value={buildTriggerLabel(allDates, startDate, endDate)}
             open={openPopover === "range"}
             onToggle={() =>
               setOpenPopover((current) =>
@@ -1336,7 +1536,7 @@ const ReportsPage = () => {
               </p>
             </div>
             <div className={styles.rangePresetList}>
-              {getDateRangePresets().map((preset) => (
+              {rangePresets.map((preset) => (
                 <button
                   key={preset.id}
                   type="button"
@@ -1346,8 +1546,11 @@ const ReportsPage = () => {
                       : ""
                   }`}
                   onClick={() => {
-                    setStartDate(preset.startDate);
-                    setEndDate(preset.endDate);
+                    setAllDates(Boolean(preset.allDates));
+                    if (!preset.allDates) {
+                      setStartDate(preset.startDate);
+                      setEndDate(preset.endDate);
+                    }
                     setOpenPopover(null);
                   }}
                 >
@@ -1362,7 +1565,11 @@ const ReportsPage = () => {
                   name="report-start-date"
                   type="date"
                   value={startDate}
-                  onChange={(event: any) => setStartDate(event.target.value)}
+                  disabled={allDates}
+                  onChange={(event: any) => {
+                    setAllDates(false);
+                    setStartDate(event.target.value);
+                  }}
                   error={false}
                 />
               </div>
@@ -1372,7 +1579,11 @@ const ReportsPage = () => {
                   name="report-end-date"
                   type="date"
                   value={endDate}
-                  onChange={(event: any) => setEndDate(event.target.value)}
+                  disabled={allDates}
+                  onChange={(event: any) => {
+                    setAllDates(false);
+                    setEndDate(event.target.value);
+                  }}
                   error={false}
                 />
               </div>
@@ -1550,7 +1761,12 @@ const ReportsPage = () => {
                   length: INITIAL_SKELETON_PAGES,
                 }).map((_, pageIndex) => ({
                   pageNumber: pageIndex + 1,
-                  rows: Array.from({ length: pageSpec.rowsPerPage }).map(
+                  rows: Array.from({
+                    length:
+                      pageIndex === 0
+                        ? pageSpec.firstPageRows || pageSpec.rowsPerPage
+                        : pageSpec.rowsPerPage,
+                  }).map(
                     (_row, rowIndex) => ({
                       id: `skeleton-${pageIndex}-${rowIndex}`,
                       values: Object.fromEntries(
@@ -1599,6 +1815,10 @@ const ReportsPage = () => {
                   </div>
 
                   <div className={styles.paperDivider} />
+
+                  {page.pageNumber === 1 && summary.overview ? (
+                    <ReportOverviewBlock overview={summary.overview} />
+                  ) : null}
 
                   <section className={styles.tableBlock}>
                     <div

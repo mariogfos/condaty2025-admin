@@ -57,6 +57,62 @@ const markNotifProcessed = (notifKey: string) => {
 let last = readStoredLastNotif();
 
 let db: any = null;
+let cleanupStarted = false;
+const NOTIFICATION_CLEANUP_BATCH_SIZE = 50;
+
+export type InstantDbTaskResult<T> =
+  | { ok: true; value: T }
+  | { ok: false; error: unknown };
+
+export async function runInstantDbTask<T>(
+  operation: string,
+  task: () => Promise<T>,
+): Promise<InstantDbTaskResult<T>> {
+  try {
+    return { ok: true, value: await task() };
+  } catch (error) {
+    // Keep optional realtime features from taking down the whole Admin. The
+    // original error object stays attached so the browser/Sentry can report it.
+    console.error(`[InstantDB] ${operation} failed`, error);
+    return { ok: false, error };
+  }
+}
+
+const cleanupExpiredNotifications = async (instance: any) => {
+  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+  const query = {
+    notif: {
+      $: {
+        where: {
+          created_at: { $lt: oneDayAgo },
+        },
+        limit: 1000,
+      },
+    },
+  };
+  const response = await instance.queryOnce(query);
+  const notifications = Array.isArray(response?.data?.notif)
+    ? response.data.notif
+    : [];
+
+  for (let index = 0; index < notifications.length; index += NOTIFICATION_CLEANUP_BATCH_SIZE) {
+    const transactions = notifications
+      .slice(index, index + NOTIFICATION_CLEANUP_BATCH_SIZE)
+      .map((notification: any) => instance.tx.notif[notification.id].delete());
+    if (transactions.length > 0) {
+      await instance.transact(transactions);
+    }
+  }
+};
+
+const scheduleNotificationCleanup = (instance: any) => {
+  if (cleanupStarted || typeof window === "undefined") return;
+  cleanupStarted = true;
+  void runInstantDbTask("notification cleanup", () =>
+    cleanupExpiredNotifications(instance),
+  );
+};
+
 export const initSocket = async () => {
   if (!db) {
     db = init({
@@ -65,30 +121,14 @@ export const initSocket = async () => {
     });
   }
 
-  if (typeof window !== "undefined") {
-    const unDiaAtras = Date.now() - 24 * 60 * 60 * 1000;
-    const del: any[] = [];
-    const query = {
-      notif: {
-        $: {
-          where: {
-            created_at: { $lt: unDiaAtras },
-          },
-          limit: 1000,
-        },
-      },
-    };
-    const { data: _notif } = await db.queryOnce(query);
-    _notif.notif.forEach((e: any) => {
-      del.push(db.tx.notif[e.id].delete());
-    });
-    if (del.length > 0) db.transact(del);
-  }
+  scheduleNotificationCleanup(db);
 
   return db;
 };
 
-initSocket();
+void initSocket().catch((error) => {
+  console.error("[InstantDB] initialization failed", error);
+});
 
 export type NotifType = {
   user: Record<string, any>;
@@ -317,15 +357,17 @@ const useNotifInstandDB = (
   }, [data?.notif, processNotif]);
 
   const sendNotif = async (channel: string, event: string, payload: any) => {
-    await db.transact(
-      db.tx.notif[id()].update({
-        from: user.id,
-        payload,
-        channel,
-        event,
-        created_at: Date.now(),
-        client_id: user?.client_id,
-      })
+    return runInstantDbTask("send notification", () =>
+      db.transact(
+        db.tx.notif[id()].update({
+          from: user.id,
+          payload,
+          channel,
+          event,
+          created_at: Date.now(),
+          client_id: user?.client_id,
+        }),
+      ),
     );
   };
 

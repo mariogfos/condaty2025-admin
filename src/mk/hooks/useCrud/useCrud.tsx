@@ -404,9 +404,16 @@ const useCrud = ({
   const data = useInfiniteList ? manualData : axiosData;
   const loaded = useInfiniteList ? manualLoaded : axiosLoaded;
   const error = useInfiniteList ? manualError : axiosError;
-  const [listRows, setListRows] = useState<any[]>([]);
-  const [listTotal, setListTotal] = useState(0);
-  const [listHasMore, setListHasMore] = useState(false);
+  const [listState, setListState] = useState<{
+    rows: any[];
+    total: number;
+    hasMore: boolean;
+  }>({ rows: [], total: 0, hasMore: false });
+  const {
+    rows: listRows,
+    total: listTotal,
+    hasMore: listHasMore,
+  } = listState;
   const [isAppendingList, setIsAppendingList] = useState(false);
   const [isResetListLoading, setIsResetListLoading] = useState(false);
   const loadedQueryRef = useRef("");
@@ -419,25 +426,30 @@ const useCrud = ({
     INFINITE_PREFETCH_ROWS,
     Math.round(Number(infiniteBatchSize || INFINITE_BATCH_SIZE) * 0.5),
   );
+  const getListRowsResolverRef = useRef(mod.getListRows);
+  getListRowsResolverRef.current = mod.getListRows;
   const getListRowsFromResponse = useCallback(
-    (response: any, sourceParams: Record<string, any> = params) => {
-      if (mod.getListRows) {
-        const customRows = mod.getListRows(response, sourceParams);
+    (response: any, sourceParams: Record<string, any> = {}) => {
+      const getListRows = getListRowsResolverRef.current;
+      if (getListRows) {
+        const customRows = getListRows(response, sourceParams);
         return Array.isArray(customRows) ? customRows : [];
       }
 
       return Array.isArray(response?.data) ? response.data : [];
     },
-    [mod, params],
+    [],
   );
 
   const beginListReset = useCallback(() => {
     if (!useInfiniteList) return;
 
     loadedQueryRef.current = "";
-    setListRows([]);
-    setListTotal(0);
-    setListHasMore(false);
+    setListState((current) =>
+      current.rows.length === 0 && current.total === 0 && !current.hasMore
+        ? current
+        : { rows: [], total: 0, hasMore: false },
+    );
     loadMoreLockRef.current = false;
     setIsAppendingList(false);
     setIsResetListLoading(true);
@@ -476,7 +488,7 @@ const useCrud = ({
     if (!data) return data;
 
     if (!useInfiniteList) {
-      const normalizedRows = getListRowsFromResponse(data);
+      const normalizedRows = getListRowsFromResponse(data, params);
 
       if (!Array.isArray(data?.data) && normalizedRows.length > 0) {
         const message =
@@ -510,7 +522,14 @@ const useCrud = ({
         total: listTotal || getResponseTotal(data, listRows.length),
       },
     };
-  }, [data, getListRowsFromResponse, listRows, listTotal, useInfiniteList]);
+  }, [
+    data,
+    getListRowsFromResponse,
+    listRows,
+    listTotal,
+    params,
+    useInfiniteList,
+  ]);
 
   const reloadCrudList = useCallback(
     (_payload: any = null, noWaiting = false, prevent = false) => {
@@ -602,19 +621,33 @@ const useCrud = ({
     const isDetailQuery =
       String(responseParams?.fullType || "").toUpperCase() === "DET";
 
-    setListTotal(hasKnownTotal ? total : 0);
-    setListRows((old) => {
+    setListState((current) => {
       const mergedRows = shouldReset
         ? incomingRows
-        : mergeRowsById(old, incomingRows);
+        : mergeRowsById(current.rows, incomingRows);
       const nextHasMore = isDetailQuery
         ? false
         : hasKnownTotal
           ? mergedRows.length < total
           : incomingRows.length >= Math.max(1, responsePerPage);
+      const nextTotal = hasKnownTotal ? total : 0;
+      const rowsAreUnchanged =
+        current.rows.length === mergedRows.length &&
+        current.rows.every((row, index) => row === mergedRows[index]);
 
-      setListHasMore(nextHasMore);
-      return mergedRows;
+      if (
+        rowsAreUnchanged &&
+        current.total === nextTotal &&
+        current.hasMore === nextHasMore
+      ) {
+        return current;
+      }
+
+      return {
+        rows: rowsAreUnchanged ? current.rows : mergedRows,
+        total: nextTotal,
+        hasMore: nextHasMore,
+      };
     });
     loadedQueryRef.current = querySignature;
     loadMoreLockRef.current = false;
