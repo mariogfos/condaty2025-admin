@@ -7,7 +7,7 @@ import Table from "@/mk/components/ui/Table/Table";
 import Button from "@/mk/components/forms/Button/Button";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
-import { financialIntegrityApi } from "@/modulos/FinancialIntegrity/api";
+import { financialHistoryApi } from "./api";
 import styles from "./FinancialHistory.module.css";
 
 type Client = { id: string; name: string };
@@ -67,14 +67,14 @@ export default function FinancialHistory() {
   const canView = userCan("superadmins", "R");
 
   const loadClients = async () => {
-    const { data, error } = await execute(financialIntegrityApi.clients, "GET");
+    const { data, error } = await execute(financialHistoryApi.clients, "GET");
     if (data?.success) setClients(data.data || []);
     else showToast(error?.data?.message || data?.message || "No se pudieron cargar los condominios.", "error");
   };
 
   const loadHistory = async (page = 1) => {
     setLoading(true);
-    const { data, error } = await execute(financialIntegrityApi.history, "GET", {
+    const { data, error } = await execute(financialHistoryApi.history, "GET", {
       ...(clientId ? { client_id: clientId } : {}),
       type,
       page,
@@ -104,8 +104,7 @@ export default function FinancialHistory() {
   const pagination = history?.pagination;
   const types = history?.available_types || [
     { id: "all", label: "Todos los tipos" },
-    { id: "payment_state_repair", label: "Correcciones de estados de pago" },
-    { id: "penalty_accrual", label: "Multas y saldos por mora" },
+    { id: "record_corrections", label: "Correcciones financieras" },
   ];
 
   return (
@@ -114,7 +113,7 @@ export default function FinancialHistory() {
         <div>
           <span className={styles.eyebrow}><HistoryIcon size={16} /> Backoffice</span>
           <h1>Historial</h1>
-          <p>Registro inmutable de acciones de mantenimiento. Cada tipo se incorpora cuando tiene contexto suficiente para poder auditarlo correctamente.</p>
+          <p>Registro inmutable de acciones administrativas sobre deudas, ingresos y egresos.</p>
         </div>
       </header>
 
@@ -144,7 +143,7 @@ export default function FinancialHistory() {
           <div><h2>Acciones registradas</h2><p>{pagination ? `${pagination.total} registro${pagination.total === 1 ? "" : "s"}` : "Cargando registros…"}</p></div>
         </div>
         {!loading && (history?.items?.length || 0) === 0 ? (
-          <div className={styles.emptyState}><HistoryIcon size={22} /><div><strong>Aún no hay acciones registradas.</strong><span>Aquí aparecerán las correcciones y reconciliaciones automáticas de multas.</span></div></div>
+          <div className={styles.emptyState}><HistoryIcon size={22} /><div><strong>Aún no hay acciones registradas.</strong><span>Aquí aparecerán las correcciones financieras auditadas.</span></div></div>
         ) : (
           <Table
             data={history?.items || []}
