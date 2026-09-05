@@ -59,19 +59,19 @@ describe("Historial financiero", () => {
           data: {
             items: [{
               id: "event-1",
-              type: "penalty_accrual",
-              label: "Multa reconciliada automáticamente",
+              type: "record_corrections",
+              label: "Multa editada",
               client: "Hacienda del Urubó",
               record: { title: "Unidad H-17", subtitle: "Expensa agosto" },
               before: { status: "P", penalty_amount: 0 },
               after: { status: "I", penalty_amount: 17.4 },
-              actor: { name: "Sistema de multas" },
+              actor: { name: "Ana Rojas" },
               occurred_at: "2026-09-03T02:15:00-04:00",
             }],
             pagination: { page: 1, per_page: 25, total: 1, last_page: 1 },
             available_types: [
               { id: "all", label: "Todos los tipos" },
-              { id: "penalty_accrual", label: "Multas y saldos por mora" },
+              { id: "record_corrections", label: "Correcciones financieras" },
             ],
             notice: "Historial inmutable.",
           },
@@ -80,11 +80,11 @@ describe("Historial financiero", () => {
     });
   });
 
-  it("muestra el cambio de multa, estado y responsable del sistema", async () => {
+  it("muestra el cambio de multa, estado y administrador responsable", async () => {
     render(<FinancialHistory />);
 
-    expect(await screen.findByText("Multa reconciliada automáticamente")).toBeInTheDocument();
-    expect(screen.getByText("Sistema de multas")).toBeInTheDocument();
+    expect(await screen.findByText("Multa editada")).toBeInTheDocument();
+    expect(screen.getByText("Ana Rojas")).toBeInTheDocument();
     expect(screen.getByText("Pagado")).toBeInTheDocument();
     expect(screen.getByText("Pago parcial")).toBeInTheDocument();
     expect(screen.getByText(/17,40/)).toBeInTheDocument();
