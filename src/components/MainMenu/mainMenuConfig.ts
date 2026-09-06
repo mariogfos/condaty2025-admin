@@ -187,3 +187,26 @@ export const menuConfig: MenuConfigItem[] = [
     ],
   },
 ];
+
+export const getFirstAccessibleMenuRoute = (
+  canAccess: (permission: string, action: string) => boolean,
+): string | null => {
+  for (const item of menuConfig) {
+    if (item.type === "item") {
+      if (item.href !== "/" && (!item.perm || canAccess(item.perm, "R"))) {
+        return item.href;
+      }
+      continue;
+    }
+
+    const firstAccessibleItem = item.items.find(
+      (subitem) => !subitem.perm || canAccess(subitem.perm, "R"),
+    );
+
+    if (firstAccessibleItem) {
+      return firstAccessibleItem.href;
+    }
+  }
+
+  return null;
+};
