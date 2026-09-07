@@ -10,6 +10,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import {
+  formatBusinessDateTime,
   formatToDayFdMYH,
   formatToDayDDMMYYYYHHMM,
   MONTHS_ES,
@@ -41,6 +42,8 @@ interface PaymentDetail {
   dpto_id?: string | number;
   amount?: number;
   paid_at?: string;
+  created_at?: string;
+  confirm_at?: string;
   concept?: string[];
   category?: { padre?: { name?: string } };
   obs?: string;
@@ -822,6 +825,28 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                       {getStatus(item.status)}
                     </span>
                   </div>
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>Fecha efectiva del pago</span>
+                    <span className={styles.infoValue}>
+                      {formatToDayFdMYH(item.paid_at, true, false, true) || "-/-"}
+                    </span>
+                  </div>
+                  {item.created_at && (
+                    <div className={styles.infoBlock}>
+                      <span className={styles.infoLabel}>Registrado</span>
+                      <span className={styles.infoValue}>
+                        {formatBusinessDateTime(item.created_at) || "-/-"}
+                      </span>
+                    </div>
+                  )}
+                  {item.confirm_at && (
+                    <div className={styles.infoBlock}>
+                      <span className={styles.infoLabel}>Confirmado</span>
+                      <span className={styles.infoValue}>
+                        {formatBusinessDateTime(item.confirm_at) || "-/-"}
+                      </span>
+                    </div>
+                  )}
 
                   {item.status === "R" && (
                     <>

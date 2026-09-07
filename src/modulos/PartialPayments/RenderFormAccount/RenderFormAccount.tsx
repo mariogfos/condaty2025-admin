@@ -7,6 +7,7 @@ import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import UploadFile2 from '@/mk/components/forms/UploadFile2';
 import Toast from '@/mk/components/ui/Toast/Toast';
 import { paymentsApi } from '@/modulos/Payments/api';
+import { getBusinessDate } from '@/mk/utils/date';
 import styles from './RenderFormAccount.module.css';
 
 interface RenderFormAccountProps {
@@ -56,7 +57,7 @@ const RenderFormAccount: React.FC<RenderFormAccountProps> = ({
   const [formState, setFormState] = useState({
     amount: item?.amount ?? '',
     method: item?.method ?? '',
-    paid_at: item?.paid_at ?? new Date().toISOString().split('T')[0],
+    paid_at: item?.paid_at ?? getBusinessDate(),
     voucher: item?.voucher ?? '',
     file: item?.file ?? '',
     obs: item?.obs ?? '',
