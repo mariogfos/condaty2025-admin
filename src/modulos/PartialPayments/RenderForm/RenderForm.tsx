@@ -9,7 +9,11 @@ import React, {
 } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName } from "@/mk/utils/string";
-import { MONTHS_S, formatToDayDDMMYYYY } from "@/mk/utils/date";
+import {
+  MONTHS_S,
+  formatToDayDDMMYYYY,
+  getBusinessDate,
+} from "@/mk/utils/date";
 import EmptyData from "@/components/NoData/EmptyData";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
@@ -237,7 +241,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const isAmountLocked = item?.isAmountLocked || false;
 
     return {
-      paid_at: item?.paid_at || new Date().toISOString().split("T")[0],
+      paid_at: item?.paid_at || getBusinessDate(),
       type: item?.type || "",
       file: item?.file || null,
       filename: item?.filename || null,

@@ -215,6 +215,70 @@ export const getLocalizedMonthShortLabels = (locale?: AppLocale) =>
 
 export const GMT = -4;
 
+export const BUSINESS_TIME_ZONE = "America/La_Paz";
+
+type BusinessDateTimeParts = {
+  year: string;
+  month: string;
+  day: string;
+  hour: string;
+  minute: string;
+};
+
+const getBusinessDateTimeParts = (
+  date: Date,
+): BusinessDateTimeParts | null => {
+  if (Number.isNaN(date.getTime())) return null;
+
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: BUSINESS_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+
+  const value = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value || "";
+
+  return {
+    year: value("year"),
+    month: value("month"),
+    day: value("day"),
+    hour: value("hour"),
+    minute: value("minute"),
+  };
+};
+
+export const getBusinessDate = (date: Date = new Date()): string => {
+  const parts = getBusinessDateTimeParts(date);
+  if (!parts) return "";
+
+  return `${parts.year}-${parts.month}-${parts.day}`;
+};
+
+const parseUtcInstant = (dateStr: string): Date => {
+  let normalized = dateStr.trim().replace(" ", "T");
+  if (!/(?:Z|[+-]\d{2}:?\d{2})$/i.test(normalized)) {
+    normalized += "Z";
+  }
+
+  return new Date(normalized);
+};
+
+export const formatBusinessDateTime = (
+  dateStr: string | null = "",
+): string => {
+  if (!dateStr) return "";
+
+  const parts = getBusinessDateTimeParts(parseUtcInstant(dateStr));
+  if (!parts) return "";
+
+  return `${parts.day}/${parts.month}/${parts.year}, ${parts.hour}:${parts.minute}`;
+};
+
 export function getFormattedDate(locale?: AppLocale) {
   const date = new Date();
   const activeLocale = getActiveLocale(locale);

@@ -10,6 +10,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import {
+  formatBusinessDateTime,
   formatToDayFdMYH,
   MONTHS_ES,
 } from "@/mk/utils/date";
@@ -47,6 +48,8 @@ interface PaymentDetail {
   dpto_id?: string | number;
   amount?: number;
   paid_at?: string;
+  created_at?: string;
+  confirm_at?: string;
   concept?: string[];
   category?: { padre?: { name?: string } };
   obs?: string;
@@ -684,6 +687,29 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       label: "Método de pago",
       value: getPaymentType(item.method || ""),
     },
+    {
+      id: "effective-date",
+      label: "Fecha efectiva del pago",
+      value: formatToDayFdMYH(item.paid_at, true, false, true) || "-/-",
+    },
+    ...(item.created_at
+      ? [
+          {
+            id: "registered-at",
+            label: "Registrado",
+            value: formatBusinessDateTime(item.created_at) || "-/-",
+          } satisfies FinancialDetailField,
+        ]
+      : []),
+    ...(item.confirm_at
+      ? [
+          {
+            id: "confirmed-at",
+            label: "Confirmado",
+            value: formatBusinessDateTime(item.confirm_at) || "-/-",
+          } satisfies FinancialDetailField,
+        ]
+      : []),
     ...(showBankAccount
       ? [
           {
