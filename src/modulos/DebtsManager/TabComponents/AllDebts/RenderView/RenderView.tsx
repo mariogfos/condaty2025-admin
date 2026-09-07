@@ -14,6 +14,7 @@ import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
 import PaymentRenderForm from "@/modulos/Payments/RenderForm/RenderForm";
 import {
   MONTHS_ES,
+  getBusinessDate,
   formatToDayDDMMYYYY,
   formatToDayFdMYH,
 } from "@/mk/utils/date";
@@ -340,7 +341,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     const owner_id = titular?.id;
 
     return {
-      paid_at: new Date().toISOString().split("T")[0],
+      paid_at: getBusinessDate(),
       dpto_id: debtDetail?.dpto?.nro,
       category_id: finalCategoryId,
       subcategory_id: subcategoryId,
