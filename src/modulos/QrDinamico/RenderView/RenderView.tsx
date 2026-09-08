@@ -1,13 +1,11 @@
 'use client';
 import React, { useRef } from 'react';
-import useAxios from '@/mk/hooks/useAxios';
-import { QrOrder, QrOrderState, QR_STATE_LABEL, QR_STATE_COLOR, PAYMENT_TYPE_LABEL } from '../types';
+import { QrOrder, QR_STATE_LABEL, QR_STATE_COLOR, PAYMENT_TYPE_LABEL } from '../types';
 import styles from './RenderView.module.css';
 
 interface Props {
   order: QrOrder;
   onClose: () => void;
-  onCancel: () => void;
 }
 
 const formatDate = (d: string | null) => {
@@ -15,16 +13,9 @@ const formatDate = (d: string | null) => {
   return new Date(d + 'T00:00:00').toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' });
 };
 
-const RenderView = ({ order, onClose, onCancel }: Props) => {
-  const { execute: doCancel, loaded } = useAxios();
+const RenderView = ({ order, onClose }: Props) => {
   const printRef = useRef<HTMLDivElement>(null);
   const cfg = QR_STATE_COLOR[order.order_state];
-
-  const handleCancel = async () => {
-    if (!confirm('¿Confirmas la anulación de este QR?')) return;
-    const res = await doCancel(`qr-dynamic/orders/${order.id}/cancel`, 'POST');
-    if (res?.success) onCancel();
-  };
 
   const handlePrint = () => {
     const content = printRef.current?.innerHTML;
@@ -102,11 +93,6 @@ const RenderView = ({ order, onClose, onCancel }: Props) => {
                 🖨 Imprimir
               </button>
             </>
-          )}
-          {order.order_state === QrOrderState.REGISTERED && (
-            <button id="btn-cancel-qr" className={styles.btnDanger} onClick={handleCancel} disabled={!loaded}>
-              Anular QR
-            </button>
           )}
           <button id="btn-close-order" className={styles.btnOutline} onClick={onClose}>
             Cerrar

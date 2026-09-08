@@ -1,14 +1,18 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FileText, Tags } from "lucide-react";
 import styles from "./DebtsManager.module.css";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import DebtSummaryCard from "./DebtSummaryCard/DebtSummaryCard";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
-import Button from "@/mk/components/forms/Button/Button";
 import RenderView from "./RenderView/RenderView";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { formatNumber } from "@/mk/utils/numbers";
+import { getFullName } from "@/mk/utils/string";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Select from "@/mk/components/forms/Select/Select";
+import { encodeReportViewerState } from "@/modulos/Reports/reportViewerState";
 
 import AllDebts from "./TabComponents/AllDebts/AllDebts";
 import IndividualDebts from "./TabComponents/IndividualDebts/IndividualDebts";
@@ -22,15 +26,21 @@ const DebtsManager = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [activeSummaryCard, setActiveSummaryCard] = useState("por_cobrar");
   const [currentExtraData, setCurrentExtraData] = useState<any>(null);
-  const { setStore, store, userCan } = useAuth();
+  const [openAccountStatement, setOpenAccountStatement] = useState(false);
+  const [selectedUnitId, setSelectedUnitId] = useState<string | number>("");
+  const [accountStatementError, setAccountStatementError] = useState("");
+  const { setStore, store, userCan, showToast } = useAuth();
 
   useEffect(() => {
     setStore({ ...store, title: "" });
   }, []);
 
-  const handleExtraDataChange = (extraData: any) => {
-    setCurrentExtraData(extraData);
-  };
+  const handleExtraDataChange = useCallback((extraData: any) => {
+    setCurrentExtraData((current: any) => ({
+      ...(current || {}),
+      ...(extraData || {}),
+    }));
+  }, []);
 
   const getSummaryData = () => {
     if (!currentExtraData) {
@@ -71,16 +81,62 @@ const DebtsManager = () => {
     router.push("/categories?type=D");
   };
 
-  const extraButtons = [
-    <Button
-      key="categories-button"
-      variant="secondary"
-      onClick={goToCategories}
-      className={styles.categoriesButton}
-    >
-      Categorías
-    </Button>,
-  ];
+  const unitOptions = useMemo(() => {
+    const units = Array.isArray(currentExtraData?.dptos)
+      ? currentExtraData.dptos
+      : [];
+
+    return units
+      .map((unit: any) => {
+        const holderName = getFullName(unit?.titular || {}).trim();
+        const description = String(unit?.description || "").trim();
+        const context = [description, holderName].filter(Boolean).join(" · ");
+
+        return {
+          id: unit?.id,
+          name: `Unidad ${unit?.nro || unit?.id}${context ? ` — ${context}` : ""}`,
+        };
+      })
+      .filter((unit: any) => unit.id !== null && unit.id !== undefined)
+      .sort((left: any, right: any) =>
+        String(left.name).localeCompare(String(right.name), "es", {
+          numeric: true,
+          sensitivity: "base",
+        }),
+      );
+  }, [currentExtraData?.dptos]);
+
+  const closeAccountStatement = useCallback(() => {
+    setOpenAccountStatement(false);
+    setSelectedUnitId("");
+    setAccountStatementError("");
+  }, []);
+
+  const generateAccountStatement = useCallback(() => {
+    if (!selectedUnitId) {
+      setAccountStatementError("Selecciona una unidad.");
+      return;
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const yearStart = `${today.slice(0, 4)}-01-01`;
+    const state = encodeReportViewerState({
+      params: {
+        dptoId: selectedUnitId,
+        filterBy: `due_at:${yearStart},${today}`,
+      },
+    });
+    const reportUrl = `/reports?preset=unit-account-statement&state=${state}`;
+    const reportWindow = window.open(reportUrl, "_blank");
+
+    if (!reportWindow) {
+      showToast("El navegador bloqueó la apertura del reporte.", "error");
+      return;
+    }
+
+    reportWindow.opener = null;
+    closeAccountStatement();
+  }, [closeAccountStatement, selectedUnitId, showToast]);
 
   const renderTabContent = () => {
     const commonProps = {
@@ -136,6 +192,42 @@ const DebtsManager = () => {
             isActive={activeSummaryCard === "en_mora"}
           />
         </div>
+
+        <section className={styles.actionsCard} aria-label="Acciones de deudas">
+          <h3 className={styles.actionsTitle}>Acciones</h3>
+          <div className={styles.actionsList}>
+            <button
+              type="button"
+              className={styles.actionItem}
+              onClick={() => {
+                setAccountStatementError("");
+                setOpenAccountStatement(true);
+              }}
+              disabled={unitOptions.length === 0}
+              title={
+                unitOptions.length === 0
+                  ? "Cargando unidades"
+                  : "Generar estado de cuenta"
+              }
+            >
+              <span className={styles.actionCircle}>
+                <FileText size={22} strokeWidth={1.8} />
+              </span>
+              <span className={styles.actionLabel}>Estado de cuenta</span>
+            </button>
+
+            <button
+              type="button"
+              className={styles.actionItem}
+              onClick={goToCategories}
+            >
+              <span className={styles.actionCircle}>
+                <Tags size={22} strokeWidth={1.8} />
+              </span>
+              <span className={styles.actionLabel}>Categorías</span>
+            </button>
+          </div>
+        </section>
       </div>
 
       <div className={styles.listSection}>
@@ -165,6 +257,40 @@ const DebtsManager = () => {
           setOpenView(false);
         }}
       />
+
+      <DataModal
+        title="Estado de cuenta"
+        open={openAccountStatement}
+        onClose={closeAccountStatement}
+        onSave={generateAccountStatement}
+        buttonText="Generar reporte"
+        buttonCancel="Cancelar"
+        variant="mini"
+        minWidth={520}
+      >
+        <div className={styles.accountStatementForm}>
+          <Select
+            name="account-statement-unit"
+            label="Unidad"
+            value={selectedUnitId}
+            options={unitOptions}
+            optionLabel="name"
+            optionValue="id"
+            filter
+            required
+            placeholder="Seleccionar unidad"
+            error={
+              accountStatementError
+                ? { "account-statement-unit": accountStatementError }
+                : false
+            }
+            onChange={(event: any) => {
+              setSelectedUnitId(event.target.value);
+              setAccountStatementError("");
+            }}
+          />
+        </div>
+      </DataModal>
     </div>
   );
 };

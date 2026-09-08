@@ -1,29 +1,32 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useMemo, useSyncExternalStore } from "react";
+
+const DESKTOP_FALLBACK_WIDTH = 1201;
+
+const subscribeToViewport = (onStoreChange: () => void) => {
+  window.addEventListener("resize", onStoreChange, { passive: true });
+  return () => window.removeEventListener("resize", onStoreChange);
+};
+
+const getViewportWidth = () => window.innerWidth;
+
+const getServerViewportWidth = () => DESKTOP_FALLBACK_WIDTH;
 
 export const useScreenSize = () => {
-  const [screenSize, setScreenSize] = useState({
-    width: typeof window !== "undefined" ? window.innerWidth : 1201,
-    isMobile: false,
-    isTablet: false,
-    isDesktop: true,
-  });
+  const width = useSyncExternalStore(
+    subscribeToViewport,
+    getViewportWidth,
+    getServerViewportWidth,
+  );
 
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      setScreenSize({
+  return useMemo(
+    () =>
+      ({
         width,
         isMobile: width <= 600,
         isTablet: false,
         isDesktop: width > 600,
-      });
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  return screenSize;
+      }) as const,
+    [width],
+  );
 };

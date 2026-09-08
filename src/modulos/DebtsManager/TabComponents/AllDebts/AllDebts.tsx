@@ -461,7 +461,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     modulo: "debt-dptos",
     singular: "Deuda",
     plural: "",
-    // export: true,
+    export: true,
     filter: true,
     permiso: "expense",
     extraData: true,

@@ -14,6 +14,7 @@ interface PropsType extends PropsTypeInputBase {
   placeholderRepeat?: string;
   nameRepeat?: string;
   onBlur?: any;
+  autoComplete?: string;
 }
 
 const InputPassword = ({
@@ -33,6 +34,7 @@ const InputPassword = ({
   nameRepeat = "repeatPassword",
   className = "",
   readOnly = false,
+  autoComplete,
 }: PropsType) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordRepeat, setShowPasswordRepeat] = useState(false);
@@ -63,6 +65,7 @@ const InputPassword = ({
         value={value}
         onChange={onChange}
         type={showPassword ? "text" : "password"}
+        autoComplete={autoComplete}
         name={name}
         label={label}
         onBlur={onBlur}

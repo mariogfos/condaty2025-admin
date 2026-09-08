@@ -32,26 +32,33 @@ export enum QrEnvironment {
 /**
  * Estado de la orden QR.
  * @see QrOrderStateEnum (backend: app/Modules/QrDinamico/Enums/QrOrderStateEnum.php)
- * - 1: registered → Orden registrada, pendiente de pago
- * - 2: paid       → Orden pagada
- * - 3: cancelled  → Orden anulada
+ * - 1: pending   → QR generado, pendiente de confirmación
+ * - 2: paid      → Pago confirmado por el proveedor
+ * - 3: replaced  → Sustituido por un nuevo intento de pago
+ * - 4: expired   → Vigencia terminada y última verificación sin pago
+ * - 5: cancelled → Anulado por proceso interno o por el proveedor
  */
 export enum QrOrderState {
-  REGISTERED = 1,
+  PENDING = 1,
   PAID = 2,
-  CANCELLED = 3,
+  REPLACED = 3,
+  EXPIRED = 4,
+  CANCELLED = 5,
 }
 
 /**
  * Tipo de pago asociado al QR.
- * - 'T': EXPENSE    → Expensas
+ * @see PaymentTypeEnum (backend: app/Modules/QrDinamico/Enums/PaymentTypeEnum.php)
+ * - 'T': EXPENSE     → Expensas
  * - 'R': RESERVATION → Reservas
- * - 'E': OUTLAY     → Egresos
+ * - 'E': OUTLAY      → Egresos (legacy)
+ * - 'O': OTHER       → Otras deudas
  */
 export enum PaymentType {
   EXPENSE = "T",
   RESERVATION = "R",
   OUTLAY = "E",
+  OTHER = "O",
 }
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
@@ -79,6 +86,14 @@ export interface QrOrder {
   consolidated_by: string | null;
   created_at: string;
   updated_at: string;
+  // ─── QR-primero por deudas (épica DES) ───────────────────────────────────
+  bank_account_id?: number | null;
+  category_id?: number | null;
+  expires_at?: string | null; // "YYYY-MM-DD HH:mm:ss" hora de Bolivia
+  paid_at?: string | null;
+  replaces_qr_id?: string | null;
+  replaced_by_qr_id?: string | null;
+  last_checked_at?: string | null;
 }
 
 export interface QrOrderPagination {
@@ -97,32 +112,9 @@ export interface QrOrdersResponse {
   };
 }
 
-export interface GenerateQrPayload {
-  amount: number;
-  currency?: "BOB" | "USD";
-  gloss?: string;
-  payment_type?: PaymentType;
-  payment_id?: string;
-  expiration_date?: string; // format: ddMMyyyy
-  single_use?: boolean;
-  owner_id?: string;
-}
-
-export interface GenerateQrResponse {
-  success: boolean;
-  message?: string;
-  data: {
-    id: string;
-    qr_id_banco: string;
-    reference: string;
-    qr_image_base64: string | null;
-    amount: string;
-    currency: string;
-    gloss: string | null;
-    expiration_date: string | null;
-    order_state: QrOrderState;
-  };
-}
+// RN-ADM-04: la Plataforma Admin NO genera ni anula QR dinámicos — el QR se
+// genera exclusivamente desde la App Residente. Por eso acá no existen tipos
+// de generación.
 
 export interface ConciliationTotal {
   client_id: string;
@@ -149,8 +141,10 @@ export interface QrOrderFilters {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 export const QR_STATE_LABEL: Record<QrOrderState, string> = {
-  [QrOrderState.REGISTERED]: "Registrado",
+  [QrOrderState.PENDING]: "Pendiente",
   [QrOrderState.PAID]: "Pagado",
+  [QrOrderState.REPLACED]: "Reemplazado",
+  [QrOrderState.EXPIRED]: "Expirado",
   [QrOrderState.CANCELLED]: "Anulado",
 };
 
@@ -158,8 +152,10 @@ export const QR_STATE_COLOR: Record<
   QrOrderState,
   { color: string; bg: string }
 > = {
-  [QrOrderState.REGISTERED]: { color: "#F59E0B", bg: "rgba(245,158,11,0.12)" },
+  [QrOrderState.PENDING]: { color: "#F59E0B", bg: "rgba(245,158,11,0.12)" },
   [QrOrderState.PAID]: { color: "#00E38C", bg: "rgba(0,227,140,0.12)" },
+  [QrOrderState.REPLACED]: { color: "#3B82F6", bg: "rgba(59,130,246,0.12)" },
+  [QrOrderState.EXPIRED]: { color: "#6B7280", bg: "rgba(107,114,128,0.12)" },
   [QrOrderState.CANCELLED]: { color: "#F23D2D", bg: "rgba(242,61,45,0.12)" },
 };
 
@@ -167,6 +163,7 @@ export const PAYMENT_TYPE_LABEL: Record<PaymentType, string> = {
   [PaymentType.EXPENSE]: "Expensas",
   [PaymentType.RESERVATION]: "Reservas",
   [PaymentType.OUTLAY]: "Egresos",
+  [PaymentType.OTHER]: "Otras deudas",
 };
 
 // ─── Helpers: QrDynamicMode ──────────────────────────────────────────────────
