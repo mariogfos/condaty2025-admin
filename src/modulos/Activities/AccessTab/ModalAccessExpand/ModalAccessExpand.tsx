@@ -41,18 +41,6 @@ const typeText: any = {
 
 type Tone = "success" | "danger" | "warning" | "info" | "accent";
 
-type EvidenceImages = {
-  entry: string[];
-  exit: string[];
-};
-
-type EvidenceImage = {
-  phase: keyof EvidenceImages;
-  url: string;
-};
-
-const EMPTY_EVIDENCE_IMAGES: EvidenceImages = { entry: [], exit: [] };
-
 const toneClassMap: Record<Tone, string> = {
   success: styles.toneSuccess,
   danger: styles.toneDanger,
@@ -116,9 +104,7 @@ const GalleryGroup = ({
     <div className={styles.galleryGroup}>
       <div className={styles.galleryHeader}>
         <p className={styles.galleryTitle}>{title}</p>
-        <span className={styles.galleryCount}>
-          {images.length} {images.length === 1 ? "foto" : "fotos"}
-        </span>
+        <span className={styles.galleryCount}>{images.length} foto(s)</span>
       </div>
       <div className={styles.imagesCarousel}>
         {showControls ? (
@@ -162,55 +148,13 @@ const GalleryGroup = ({
 const ModalAccessExpand = ({ id, open, onClose, type }: PropsType) => {
   const [accessDetail, setAccessDetail]: any = useState({});
   const [accessDevices, setAccessDevices]: any[] = useState([]);
-  const [evidenceImages, setEvidenceImages] =
-    useState<EvidenceImages>(EMPTY_EVIDENCE_IMAGES);
   const { execute } = useAxios();
   const [loading, setLoading] = useState(false);
-
-  const getAccessEvidence = async (accessId: string | number) => {
-    const { data } = await execute(
-      `/access/${accessId}/evidence-media`,
-      "GET",
-      {},
-      false,
-      true,
-    );
-    const media = Array.isArray(data?.data) ? data.data : [];
-    const resolved: Array<EvidenceImage | null> = await Promise.all(
-      media.map(async (item: any) => {
-        const { data: delivery } = await execute(
-          `/access/evidence-media/${item.id}/delivery-url`,
-          "GET",
-          {},
-          false,
-          true,
-        );
-
-        return delivery?.success && delivery?.data?.url
-          ? {
-              phase: item?.phase === "exit" ? "exit" : "entry",
-              url: delivery.data.url,
-            }
-          : null;
-      }),
-    );
-
-    setEvidenceImages(
-      resolved.reduce<EvidenceImages>(
-        (groups, item) => {
-          if (item) groups[item.phase].push(item.url);
-          return groups;
-        },
-        { entry: [], exit: [] },
-      ),
-    );
-  };
 
   const getAccess = async () => {
     if (!id) {
       setAccessDetail({});
       setAccessDevices([]);
-      setEvidenceImages(EMPTY_EVIDENCE_IMAGES);
       return;
     }
     setLoading(true);
@@ -233,9 +177,6 @@ const ModalAccessExpand = ({ id, open, onClose, type }: PropsType) => {
       setAccessDevices(
         data?.data?.accessDevices || data?.data?.access_devices || [],
       );
-      await getAccessEvidence(detail?.id || id);
-    } else {
-      setEvidenceImages(EMPTY_EVIDENCE_IMAGES);
     }
   };
 
@@ -294,23 +235,6 @@ const ModalAccessExpand = ({ id, open, onClose, type }: PropsType) => {
       }))
       .filter((group) => group.images.length > 0);
   }, [accessDetail, accessType, owner, subject, type]);
-
-  const allImageGroups = useMemo(
-    () => [
-      ...imageGroups,
-      {
-        key: "evidence-entry",
-        title: "Fotos de evidencia de ingreso",
-        images: evidenceImages.entry,
-      },
-      {
-        key: "evidence-exit",
-        title: "Fotos de evidencia de salida",
-        images: evidenceImages.exit,
-      },
-    ].filter((group) => group.images.length > 0),
-    [evidenceImages, imageGroups],
-  );
 
   const timelineItems = [
     accessDetail?.begin_at
@@ -449,9 +373,9 @@ const ModalAccessExpand = ({ id, open, onClose, type }: PropsType) => {
 
           <section className={styles.sectionCard}>
             <p className={styles.sectionTitle}>Fotos</p>
-            {allImageGroups.length > 0 ? (
+            {imageGroups.length > 0 ? (
               <div className={styles.galleryStack}>
-                {allImageGroups.map((group) => (
+                {imageGroups.map((group) => (
                   <GalleryGroup
                     key={group.key}
                     title={group.title}
