@@ -76,7 +76,8 @@ const mergeOrders = (currentOrders: QrOrder[], incomingOrders: QrOrder[]) => {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const QrDinamico = () => {
-  const { userCan, setStore, store } = useAuth();
+  const { userCan, setStore, store, user } = useAuth();
+  const isFos = user?.fosrole_id !== null && user?.fosrole_id !== undefined;
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('orders');
   const [filters, setFilters] = useState<QrOrderFilters>({ per_page: QR_BATCH_SIZE, page: 1 });
@@ -110,7 +111,11 @@ const QrDinamico = () => {
     if (append) {
       setLoadingMoreOrders(true);
     }
-    const response = await fetchOrders(`qr-dynamic/orders?${qs}`, 'GET');
+    const response = await fetchOrders(
+      'qr-dynamic/orders',
+      'GET',
+      Object.fromEntries(new URLSearchParams(qs)),
+    );
     const payload = response?.data;
 
     if (payload?.success) {
@@ -208,13 +213,15 @@ const QrDinamico = () => {
         >
           Órdenes QR
         </button>
-        <button
-          id="tab-conciliation"
-          className={`${styles.tab} ${activeTab === 'conciliation' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('conciliation')}
-        >
-          Conciliación
-        </button>
+        {isFos && (
+          <button
+            id="tab-conciliation"
+            className={`${styles.tab} ${activeTab === 'conciliation' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('conciliation')}
+          >
+            Conciliación
+          </button>
+        )}
         <button
           id="tab-metrics"
           className={`${styles.tab} ${activeTab === 'metrics' ? styles.tabActive : ''}`}
@@ -352,7 +359,7 @@ const QrDinamico = () => {
 	      )}
 
       {/* ── Tab: Conciliation ────────────────────────────────────────────────── */}
-      {activeTab === 'conciliation' && <Conciliation />}
+      {isFos && activeTab === 'conciliation' && <Conciliation />}
 
       {/* ── Tab: Metrics (DES-28) ────────────────────────────────────────────── */}
       {activeTab === 'metrics' && <QrMetrics />}

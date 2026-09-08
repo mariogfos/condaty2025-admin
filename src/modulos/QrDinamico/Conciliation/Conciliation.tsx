@@ -1,7 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import useAxios from '@/mk/hooks/useAxios';
-import { ConciliationData, QrOrder } from '../types';
+import { ConciliationData } from '../types';
+import { apiMessage } from '../shared';
 import styles from './Conciliation.module.css';
 
 const Conciliation = () => {
@@ -11,8 +12,8 @@ const Conciliation = () => {
 
   const loadData = async () => {
     const res = await execute('qr-dynamic/conciliation/summary', 'GET');
-    if (res?.success) {
-      setData(res.data);
+    if (res?.data?.success) {
+      setData(res.data.data);
     }
   };
 
@@ -34,30 +35,15 @@ const Conciliation = () => {
 
     if (!confirm('¿Marcar las órdenes de los clientes seleccionados como depositadas/conciliadas?')) return;
 
-    // Collect all order IDs for selected clients
-    const orderIdsToConciliate: string[] = [];
-    if (data?.items) {
-      data.items.forEach(order => {
-        if (order.client_id && selectedClients[order.client_id]) {
-          orderIdsToConciliate.push(order.id);
-        }
-      });
-    }
-
-    if (orderIdsToConciliate.length === 0) {
-      alert('No se encontraron órdenes para los clientes seleccionados.');
-      return;
-    }
-
     const res = await execute('qr-dynamic/conciliation/mark-deposited', 'POST', {
-      order_ids: orderIdsToConciliate
+      client_ids: clientsToConciliate,
     });
 
-    if (res?.success) {
+    if (res?.data?.success) {
       setSelectedClients({});
       loadData();
     } else {
-      alert(res?.message || 'Error al conciliar');
+      alert(apiMessage(res) || 'Error al conciliar');
     }
   };
 
