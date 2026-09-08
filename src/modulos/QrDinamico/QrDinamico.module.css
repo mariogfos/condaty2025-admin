@@ -26,11 +26,6 @@
   color: var(--cWhite);
 }
 
-.headerActions {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
 
 /* ─── Tabs ─────────────────────────────────────────────────────────────────── */
 .tabs {
@@ -232,24 +227,7 @@
 }
 
 /* ─── Generate Button ─────────────────────────────────────────────────────── */
-.generateBtn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  background: #00E38C;
-  color: #1a1a1a;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
 
-.generateBtn:hover {
-  background: #00c97d;
-}
 
 /* ─── Empty State ─────────────────────────────────────────────────────────── */
 .emptyState {

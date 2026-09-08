@@ -1,7 +1,8 @@
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Table from "@/mk/components/ui/Table/Table";
 import { formatBs } from "@/mk/utils/numbers";
-import React, { useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Button from "@/mk/components/forms/Button/Button";
 import { IconGallery } from "@/components/layout/icons/IconsBiblioteca";
@@ -9,209 +10,114 @@ import RenderViewPayment from "@/modulos/Payments/RenderView/RenderView";
 import { getPaymentStatusConfig } from "@/types/payment";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import RenderFormAccount from "../RenderFormAccount/RenderFormAccount";
-import { getDateStrMes } from "../../../mk/utils/date";
-import { getFullName, getUrlImages } from "../../../mk/utils/string";
+import { getDateStrMes, MONTHS } from "@/mk/utils/date";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
-import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
-import { MONTHS, MONTHS_S } from "@/mk/utils/date1";
 import RenderDel from "@/modulos/Payments/RenderDel/RenderDel";
 import { paymentsApi } from "@/modulos/Payments/api";
-import { shouldIgnoreValueTranslationContext } from "@/i18n/translationGuards";
+import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
+import {
+  FinancialDetailGrid,
+  FinancialDetailSection,
+  type FinancialDetailField,
+} from "@/features/financial-records/FinancialDetailPrimitives";
 import styles from "./RenderView.module.css";
 
-const LabelValue = ({
-  label,
-  value,
-  style,
-  styleValue,
-  styleLabel,
-}: {
-  label: string;
-  value: string | React.ReactNode;
-  styleValue?: React.CSSProperties;
-  style?: React.CSSProperties;
-  styleLabel?: React.CSSProperties;
-}) => {
-  const ignoreValueTranslation = shouldIgnoreValueTranslationContext({ label });
-
-  return (
-    <div className={styles.labelValue} style={style}>
-      <p className={styles.labelText} style={styleLabel}>
-        {label}
-      </p>
-      {typeof value == "string" ? (
-        <p
-          data-i18n-ignore={ignoreValueTranslation ? "true" : undefined}
-          className={styles.valueText}
-          style={styleValue}
-        >
-          {value}
-        </p>
-      ) : (
-        value
-      )}
-    </div>
-  );
-};
-
-const statusColor: any = {
-  P: "var(--cSuccess)",
-  I: "var(--cMediumAlert)",
-};
-const statusText: any = {
+const STATUS_TEXT: Record<string, string> = {
   I: "Pago parcial",
   P: "Cobrado",
 };
+
 const RenderView = ({
   open,
   onClose,
   item: propItem,
-  // onDel,
-  onEdit,
   reLoad,
   execute,
   extraData,
   showToast,
 }: any) => {
   const { user } = useAuth();
-  const [openDetail, setOpenDetail]: any = useState({
-    open: false,
-    item: null,
-  });
+  const [openDetail, setOpenDetail] = useState<{
+    open: boolean;
+    item?: any;
+  }>({ open: false });
   const [openFormAccount, setOpenFormAccount] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [item, setItem]: any = useState({});
-  const [openConfimDel, setOpenConfimDel] = useState(false);
+  const [item, setItem] = useState<any>({});
+  const [openConfirmDel, setOpenConfirmDel] = useState(false);
   const [loadingExport, setLoadingExport] = useState(false);
-  const header = [
-    {
-      key: "paid_by",
-      label: "Pagado por",
-      responsive: "onlyDesktop",
-      onRender: ({ item }: any) =>
-        getFullName(item?.user) || getFullName(item?.owner),
-    },
-    {
-      key: "paid_at",
-      label: "Fecha de pago",
-      responsive: "onlyDesktop",
-      onRender: ({ item }: any) => getDateStrMes(item?.paid_at),
-    },
-    {
-      key: "receipt",
-      label: "Comprobante",
-      responsive: "onlyDesktop",
-      onRender: ({ item }: any) =>
-        item?.files?.length > 0 ? (
-          <div className={styles.receiptCell}>
-            <div className={styles.receiptIcon}>
-              <IconGallery color="var(--cWhite)" />
-            </div>
-            <div>
-              <p className={styles.receiptCode}>{item?.code}</p>
-              <div
-                className={styles.receiptLink}
-                onClick={(e: any) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  downloadAllVouchers(item.files);
-                }}
-              >
-                Ver imagen
-              </div>
-            </div>
-          </div>
-        ) : (
-          <p className={styles.emptyValue}>-/-</p>
-        ),
-    },
-    {
-      key: "status",
-      label: "Estado",
-      width: "180px",
-      style: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      },
-      responsive: "onlyDesktop",
-      onRender: ({ item }: any) => {
-        const info = getPaymentStatusConfig(item?.status);
 
-        return (
-          <StatusBadge
-            color={info.color}
-            backgroundColor={info.backgroundColor}
-          >
-            {info.label}
-          </StatusBadge>
-        );
-      },
-    },
-    {
-      key: "amount",
-      width: "120px",
-      label: "Subtotal",
-      className: styles.amountColumn,
-      responsive: "onlyDesktop",
-      onRender: ({ item }: any) => formatBs(item?.amount),
-    },
-  ];
   const getDetail = async () => {
-    if (propItem?.id) {
-      setLoading(true);
-      const { data: res } = await execute(
-        paymentsApi.partialSummary(propItem?.id),
-        "GET",
-        {},
-        false,
-        true,
-      );
+    if (!propItem?.id) return;
 
-      if (res?.success) {
-        setItem({ ...res?.data?.debt, history: res?.data?.history });
-      } else {
-        onClose();
-        if (res.success !== false) {
-          showToast(res?.message || "Error al obtener los datos", "error");
-        }
-        reLoad();
+    setLoading(true);
+    const { data: response } = await execute(
+      paymentsApi.partialSummary(propItem.id),
+      "GET",
+      {},
+      false,
+      true,
+    );
+
+    if (response?.success) {
+      setItem({ ...response.data?.debt, history: response.data?.history || [] });
+    } else {
+      onClose();
+      if (response?.success !== false) {
+        showToast(response?.message || "Error al obtener los datos", "error");
       }
-      setLoading(false);
+      reLoad?.();
     }
+    setLoading(false);
   };
-  useEffect(() => {
-    getDetail();
-  }, [propItem?.id]);
-  const totalPagado = item?.history
-    ?.filter((d: any) => d.status == "P")
-    ?.reduce((acc: number, d: any) => acc + Number(d.amount), 0);
 
-  const totalAmount =
-    Number(item?.amount) +
-    Number(item?.penalty_amount) +
-    Number(hasMaintenanceValue(user) ? item?.maintenance_amount || "0" : "0");
-  const saldoRestante = Number(totalAmount) - Number(totalPagado);
-  const historyRows = Array.isArray(item?.history) ? item.history.length : 0;
-  const historyVisibleRows = Math.min(Math.max(historyRows || 1, 1), 4);
+  useEffect(() => {
+    if (open) void getDetail();
+    // getDetail intentionally follows the currently selected record.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, propItem?.id]);
+
+  const confirmedPayments = Array.isArray(item?.history)
+    ? item.history.filter((payment: any) => payment.status === "P")
+    : [];
+  const totalPaid = confirmedPayments.reduce(
+    (sum: number, payment: any) => sum + Number(payment.amount || 0),
+    0,
+  );
+  const debtAmount = Number(item?.amount || 0);
+  const penaltyAmount = Number(item?.penalty_amount || 0);
+  const maintenanceAmount = hasMaintenanceValue(user)
+    ? Number(item?.maintenance_amount || 0)
+    : 0;
+  const totalAmount = debtAmount + penaltyAmount + maintenanceAmount;
+  const apiRemaining = Number(
+    item?.available_partial_amount ?? item?.total_remaining_amount,
+  );
+  const remainingAmount = Number.isFinite(apiRemaining)
+    ? apiRemaining
+    : Math.max(totalAmount - totalPaid, 0);
+  const historyRows = Array.isArray(item?.history) ? item.history : [];
+  const historyVisibleRows = Math.min(Math.max(historyRows.length || 1, 1), 4);
   const historyTableHeight = `${historyVisibleRows * 56}`;
 
   const downloadAllVouchers = (files: any) => {
-    let urls = [];
+    let urls: string[] = [];
 
     if (Array.isArray(files) && typeof files[0] === "string") {
       urls = files;
     } else if (Array.isArray(files)) {
-      urls = files.flatMap((f) => f.files || []);
+      urls = files.flatMap((file) => file.files || []);
     }
+
     urls.forEach((url) => {
-      const a = document.createElement("a");
-      a.href = url;
-      a.target = "_blank";
-      a.download = url.split("/").pop();
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.target = "_blank";
+      anchor.download = url.split("/").pop() || "comprobante";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
     });
   };
 
@@ -237,179 +143,266 @@ const RenderView = ({
     setLoadingExport(false);
   };
 
-  const onDelPayment = () => {
-    setOpenConfimDel(true);
-  };
+  const header = [
+    {
+      key: "paid_by",
+      label: "Pagado por",
+      responsive: "onlyDesktop",
+      onRender: ({ item: payment }: any) =>
+        getFullName(payment?.user) || getFullName(payment?.owner),
+    },
+    {
+      key: "paid_at",
+      label: "Fecha de pago",
+      responsive: "onlyDesktop",
+      onRender: ({ item: payment }: any) => getDateStrMes(payment?.paid_at),
+    },
+    {
+      key: "receipt",
+      label: "Comprobante",
+      responsive: "onlyDesktop",
+      onRender: ({ item: payment }: any) =>
+        payment?.files?.length > 0 ? (
+          <div className={styles.receiptCell}>
+            <div className={styles.receiptIcon}>
+              <IconGallery color="var(--cWhite)" />
+            </div>
+            <div>
+              <p className={styles.receiptCode}>{payment?.code}</p>
+              <button
+                type="button"
+                className={styles.receiptLink}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  downloadAllVouchers(payment.files);
+                }}
+              >
+                Ver imagen
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className={styles.emptyValue}>-/-</p>
+        ),
+    },
+    {
+      key: "status",
+      label: "Estado",
+      width: "180px",
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      },
+      responsive: "onlyDesktop",
+      onRender: ({ item: payment }: any) => {
+        const info = getPaymentStatusConfig(payment?.status);
+        return (
+          <StatusBadge
+            color={info.color}
+            backgroundColor={info.backgroundColor}
+          >
+            {info.label}
+          </StatusBadge>
+        );
+      },
+    },
+    {
+      key: "amount",
+      width: "120px",
+      label: "Subtotal",
+      className: styles.amountColumn,
+      responsive: "onlyDesktop",
+      onRender: ({ item: payment }: any) => formatBs(payment?.amount),
+    },
+  ];
+
+  const concept =
+    Number(item?.type) === 1
+      ? `Pago de expensa - ${MONTHS[item?.debt?.month] || ""}, ${item?.debt?.year || ""}`
+      : Number(item?.type) === 2
+        ? item?.description
+        : item?.subcategory?.name;
+  const homeowner = getFullName(item?.dpto?.homeowner) || "-/-";
+  const holder =
+    getFullName(item?.dpto?.tenant) ||
+    getFullName(item?.dpto?.homeowner) ||
+    "-/-";
+  const unit =
+    [item?.dpto?.type?.name, item?.dpto?.nro].filter(Boolean).join(" ") ||
+    "-/-";
+  const fields: FinancialDetailField[] = [
+    { id: "concept", label: "Concepto", value: concept || "-/-", wide: true },
+    { id: "unit", label: "Unidad", value: unit },
+    { id: "homeowner", label: "Propietario", value: homeowner },
+    { id: "holder", label: "Titular", value: holder },
+    {
+      id: "status",
+      label: "Estado",
+      value: STATUS_TEXT[item?.status] || item?.status || "-/-",
+      tone: item?.status === "P" ? "success" : "warning",
+    },
+    { id: "debt", label: "Deuda", value: formatBs(debtAmount) },
+    { id: "penalty", label: "Multa", value: formatBs(penaltyAmount) },
+    ...(hasMaintenanceValue(user)
+      ? [
+          {
+            id: "maintenance",
+            label: "Mantenimiento de valor",
+            value: formatBs(maintenanceAmount),
+          } satisfies FinancialDetailField,
+        ]
+      : []),
+    { id: "total", label: "Monto total", value: formatBs(totalAmount) },
+    { id: "paid", label: "Total pagado", value: formatBs(totalPaid) },
+    {
+      id: "remaining",
+      label: "Saldo restante",
+      value: formatBs(remainingAmount),
+      tone: remainingAmount > 0 ? "warning" : "success",
+    },
+  ];
+  const partialContextFieldIds = new Set(["concept", "unit", "homeowner", "holder"]);
+  const partialContextFields = fields.filter((field) =>
+    partialContextFieldIds.has(field.id),
+  );
+  const partialAmountFields = fields.filter(
+    (field) => !partialContextFieldIds.has(field.id),
+  );
+
+  const footer = (
+    <div className={styles.actionsRow}>
+      <Button
+        disabled={loadingExport}
+        onClick={() => void getExport()}
+        variant="secondary"
+        className={styles.growButton}
+      >
+        {loadingExport ? "Generando…" : "Ver recibo"}
+      </Button>
+      {item?.status === "I" && (
+        <Button
+          onClick={() => setOpenFormAccount(true)}
+          className={styles.growButton}
+        >
+          Registrar pago a cuenta
+        </Button>
+      )}
+    </div>
+  );
+
+  const hasChildModal = openDetail.open || openFormAccount || openConfirmDel;
 
   return (
     <>
-      <DataModal
+      <FinancialDetailModal
+        open={open && !hasChildModal}
+        onClose={onClose}
         title="Detalle de pago parcial"
-        minWidth={"980px"}
-        open={open}
-        onClose={() => {
-          onClose();
+        description="Saldo, pagos aplicados, comprobantes e historial de correcciones de la deuda."
+        record={{
+          type: "debt",
+          id: item?.id ?? propItem?.id,
+          penaltyAmount,
         }}
-        buttonText=""
-        buttonCancel=""
-        buttonExtra={
-          <div className={styles.actionsRow}>
-            <Button
-              disabled={loadingExport}
-              onClick={() => getExport()}
-              variant="secondary"
-              className={styles.growButton}
-            >
-              Ver recibo
-            </Button>
-            {item?.status === "I" && (
-              <Button
-                onClick={() => setOpenFormAccount(true)}
-                className={styles.growButton}
-              >
-                Registrar pago a cuenta
-              </Button>
-            )}
-          </div>
-        }
-        variant={"mini"}
+        summary={{
+          amount: formatBs(remainingAmount),
+          eyebrow: item?.status === "P" ? "Deuda cobrada" : "Saldo pendiente",
+          date: concept || "-/-",
+          status: {
+            label: STATUS_TEXT[item?.status] || item?.status || "Cargando…",
+            tone: item?.status === "P" ? "success" : "warning",
+          },
+        }}
+        loading={loading || !item?.id}
+        onRecordChanged={getDetail}
+        footer={footer}
       >
-        {loading ? (
-          <Loading />
-        ) : (
-          <div className={styles.root}>
-            <div className={`${styles.card} ${styles.summaryCard}`}>
-              <p className={styles.summaryAmount}>
-                {formatBs(totalAmount)}
-              </p>
-              <p className={styles.summarySubtitle}>
-                {item.type === 1 &&
-                  "Pago de expensa - " +
-                    MONTHS[item.debt.month] +
-                    ", " +
-                    item.debt.year}
+        <FinancialDetailSection title="Resumen de la deuda">
+          <FinancialDetailGrid fields={partialContextFields} />
+        </FinancialDetailSection>
 
-                {item.type === 2 && item.description}
-                {item.type === 0 && item.subcategory?.name}
-              </p>
-            </div>
-            <div className={`${styles.card} ${styles.infoGrid}`}>
-              <LabelValue label="Deuda" value={formatBs(item?.amount)} />
-              <LabelValue
-                label="Multa"
-                value={formatBs(item?.penalty_amount)}
-              />
-              {hasMaintenanceValue(user) && (
-                <LabelValue
-                  label={"Mant. de Valor"}
-                  value={formatBs(item?.maintenance_amount)}
-                />
-              )}
-            </div>
+        <FinancialDetailSection title="Importes y estado" defaultOpen={false}>
+          <FinancialDetailGrid fields={partialAmountFields} />
+        </FinancialDetailSection>
 
-            <div className={styles.card}>
-              <div className={styles.metaGrid}>
-                <LabelValue
-                  label="Estado"
-                  value={statusText[item?.status]}
-                  styleValue={{
-                    color: statusColor[item?.status],
-                    fontWeight: 600,
-                  }}
-                />
-                <LabelValue
-                  label="Autorizado por:"
-                  value={getFullName(item?.history?.[0]?.user) || "-/-"}
-                />
-                {/* <LabelValue
-                label="Nota:"
-                value="Pagó la hermana del propietario"
-              /> */}
-                <LabelValue
-                  label="Propietario:"
-                  value={getFullName(item?.dpto?.homeowner) || "-/-"}
-                />
-                <LabelValue
-                  label="Unidad"
-                  value={item?.dpto?.type?.name + " " + item?.dpto?.nro}
-                />
-
-                <LabelValue
-                  label="Titular:"
-                  value={getFullName(item?.dpto?.tenant) || "-/-"}
-                />
+        <FinancialDetailSection
+          title="Pagos aplicados"
+          description="Selecciona una fila para abrir el comprobante individual."
+          defaultOpen={false}
+        >
+          <div className={styles.tableWrapper}>
+            <Table
+              style={{
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
+              }}
+              className="striped"
+              height={historyTableHeight}
+              onRowClick={(payment: any) => {
+                setOpenDetail({ open: true, item: payment });
+              }}
+              data={historyRows}
+              header={header}
+            />
+            <div className={styles.tableFooter}>
+              <div className={styles.tableFooterLabels}>
+                <p>Total pagado</p>
+                <p>Saldo restante</p>
               </div>
-            </div>
-            <div className={styles.tableWrapper}>
-              <Table
-                style={{
-                  borderBottomLeftRadius: 0,
-                  borderBottomRightRadius: 0,
-                }}
-                className="striped"
-                height={historyTableHeight}
-                onRowClick={(item: any) => {
-                  setOpenDetail({ open: true, item });
-                }}
-                data={item?.history}
-                header={header}
-              />
-              <div className={styles.tableFooter}>
-                <div className={styles.tableFooterLabels}>
-                  <p>Total pagado</p>
-                  <p>Saldo restante</p>
-                </div>
-                <div className={styles.tableFooterValues}>
-                  <p className={styles.footerValue}>{formatBs(totalPagado)}</p>
-                  <p className={styles.footerValue}>
-                    {formatBs(saldoRestante)}
-                  </p>
-                </div>
+              <div className={styles.tableFooterValues}>
+                <p className={styles.footerValue}>{formatBs(totalPaid)}</p>
+                <p className={styles.footerValue}>{formatBs(remainingAmount)}</p>
               </div>
             </div>
           </div>
-        )}
-      </DataModal>
+        </FinancialDetailSection>
+      </FinancialDetailModal>
+
       {openDetail.open && (
         <RenderViewPayment
           open={openDetail.open}
-          onClose={() => setOpenDetail({ open: false, item: undefined })}
+          onClose={() => setOpenDetail({ open: false })}
           payment_id={openDetail.item?.payment_id as string}
-          // item={openDetail?.item}
-          onDel={onDelPayment}
+          onDel={() => setOpenConfirmDel(true)}
         />
       )}
+
       {openFormAccount && (
         <RenderFormAccount
           open={openFormAccount}
           onClose={() => setOpenFormAccount(false)}
           item={{
             dpto_id: item?.dpto?.nro,
-            amount:
-              Number(item?.available_partial_amount ?? item?.total_remaining_amount ?? 0),
+            amount: Number(
+              item?.available_partial_amount ??
+                item?.total_remaining_amount ??
+                0,
+            ),
             debt_dpto_id: item?.id ?? propItem?.id,
             bank_account_id: item?.subcategory?.bank_account_id,
             type: "O",
-            max_amount:
-              Number(item?.available_partial_amount ?? item?.total_remaining_amount ?? 0),
+            max_amount: Number(
+              item?.available_partial_amount ??
+                item?.total_remaining_amount ??
+                0,
+            ),
           }}
-          reLoad={() => {
-            getDetail();
-          }}
+          reLoad={getDetail}
           execute={execute}
           showToast={showToast}
           extraData={extraData}
         />
       )}
-      {openConfimDel && (
+
+      {openConfirmDel && (
         <RenderDel
-          open={openConfimDel}
-          onClose={() => setOpenConfimDel(false)}
+          open={openConfirmDel}
+          onClose={() => setOpenConfirmDel(false)}
           execute={execute}
-          item={{ ...openDetail?.item, id: openDetail?.item?.payment_id }}
-          reLoad={() => {
-            getDetail();
-          }}
+          item={{ ...openDetail.item, id: openDetail.item?.payment_id }}
+          reLoad={getDetail}
         />
       )}
     </>

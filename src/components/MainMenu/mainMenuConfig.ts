@@ -55,6 +55,7 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/uploads", perm: "cargamasiva", labelKey: "bulkUpload" },
       { href: "/app-versions", perm: "superadmins", labelKey: "appVersions" },
       { href: "/support-data", perm: "superadmins", labelKey: "supportData" },
+      { href: "/history", perm: "superadmins", labelKey: "history" },
       {
         href: "/visit-reasons",
         perm: "visit_reasons",
@@ -94,11 +95,11 @@ export const menuConfig: MenuConfigItem[] = [
       //   labelKey: "bankTester",
       //   perm: "balance",
       // },
-      // {
-      //   href: "/qr-dinamico",
-      //   labelKey: "QR Dinámico",
-      //   perm: "payments",
-      // },
+      {
+        href: "/qr-dinamico",
+        labelKey: "qrDynamic",
+        perm: "payments",
+      },
     ],
   },
   {

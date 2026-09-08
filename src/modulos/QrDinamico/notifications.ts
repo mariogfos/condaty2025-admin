@@ -1,24 +1,28 @@
 import { ModuleNotifConfig } from "@/mk/notif/types";
 
 /**
- * Payments Module (QrDinamico) — Notification Config (condaty-admin)
+ * QrDinamico — Notification Config (DES-29/30)
+ *
+ * El backend notifica a los administradores por el canal "-admins" con
+ * event = "admins" y el acto real dentro del payload (payload.act).
+ * El pago QR confirmado llega como act = "confirmPayment" con el id del
+ * ingreso. El backend emite SOLO la primera acreditación (idempotencia
+ * DES-11) y la infraestructura de notifs deduplica por registro, así que
+ * un mismo pago no produce toasts repetidos.
  */
 export const paymentNotifications: ModuleNotifConfig = {
   moduleId: "payments",
   events: {
-    /** Evento disparado cuando se confirma un pago QR dinámico */
-    "confirmPayment": ({ payload, showToast, dispatch }) => {
-      const title = payload?.title || "Pago QR recibido";
-      const body = payload?.body || "Se ha recibido y confirmado un pago por QR con éxito.";
+    admins: ({ payload, showToast, dispatch }) => {
+      const act = payload?.act || payload?.info?.act;
+      if (act !== "confirmPayment") return; // otros avisos de admins siguen su curso
 
-      // Mostrar el toast en el panel de administración
-      showToast(`🎉 ${title}: ${body}`, "success");
+      showToast("Se confirmó un pago por QR dinámico.", "success");
 
-      // Despachar el evento interno para que las pantallas activas se actualicen en tiempo real
+      // Pantallas abiertas (detalle de deuda, listados) se actualizan solas
       dispatch("payment:confirmed", {
         paymentId: payload?.id,
-        qrOrderId: payload?.qr_order_id,
-        amount: payload?.amount,
+        ownerId: payload?.user_id,
       });
     },
   },

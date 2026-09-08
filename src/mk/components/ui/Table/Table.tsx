@@ -454,11 +454,25 @@ const Table = ({
         });
 
         if (maxWidth > 0) {
-          nextWidths[index] = `${Math.min(360, Math.max(96, maxWidth + 1))}px`;
+          nextWidths[index] = `${Math.min(360, Math.max(96, maxWidth))}px`;
         }
       });
 
       setMeasuredWidths((prev) => {
+        Object.keys(nextWidths).forEach((key) => {
+          const index = Number(key);
+          const previousWidth = parseMeasuredWidth(prev[index]);
+          const nextWidth = parseMeasuredWidth(nextWidths[index]);
+
+          if (
+            previousWidth !== undefined &&
+            nextWidth !== undefined &&
+            Math.abs(previousWidth - nextWidth) <= 1
+          ) {
+            nextWidths[index] = prev[index];
+          }
+        });
+
         const prevKeys = Object.keys(prev);
         const nextKeys = Object.keys(nextWidths);
         const same =

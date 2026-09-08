@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./chatroom.module.css";
+import { runInstantDbTask } from "../../notif/provider/useNotifInstandDB";
 import { getFullName } from "@/mk/utils/string";
 import { getDateStr, getTimePMAM } from "@/mk/utils/date1";
 import {
@@ -158,18 +159,22 @@ const ChatRoom = ({
     }
 
     if (roomId.indexOf("chatBot") > -1) {
-      db.transact(
-        db.tx.messages[msgId].update({
-          received_at: Date.now(),
-        }),
+      await runInstantDbTask("mark chatbot message received", () =>
+        db.transact(
+          db.tx.messages[msgId].update({
+            received_at: Date.now(),
+          }),
+        ),
       );
       const reply = await sendMessageBot(messageText);
       if (reply != "") {
         await sendMessage(reply, roomId, "chatBot");
-        db.transact(
-          db.tx.messages[msgId].update({
-            read_at: Date.now(),
-          }),
+        await runInstantDbTask("mark chatbot message read", () =>
+          db.transact(
+            db.tx.messages[msgId].update({
+              read_at: Date.now(),
+            }),
+          ),
         );
       }
     }

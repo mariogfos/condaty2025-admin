@@ -89,7 +89,14 @@ const useAxios = (
       // setData(response.data);
       data = response.data;
     } catch (err) {
-      logError("error useAxios", err);
+      // Solo campos seguros: el objeto de axios lleva config.data con el
+      // payload del request (p.ej. credenciales) y no debe ir a consola
+      logError("error useAxios", {
+        message: (err as any).message,
+        status: (err as any).response?.status,
+        url: (err as any).config?.url,
+        response: (err as any).response?.data,
+      });
       error = {
         message: (err as any).message,
         data: (err as any).response?.data || {},

@@ -12,9 +12,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import {
   formatBusinessDateTime,
   formatToDayFdMYH,
-  formatToDayDDMMYYYYHHMM,
   MONTHS_ES,
-  formatToDayDDMMYYYY,
 } from "@/mk/utils/date";
 import styles from "./RenderView.module.css";
 import useAxios from "@/mk/hooks/useAxios";
@@ -25,8 +23,16 @@ import Input from "@/mk/components/forms/Input/Input";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import Table from "@/mk/components/ui/Table/Table";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
-import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 import { paymentsApi } from "../api";
+import PaymentQrSection from "@/modulos/QrDinamico/PaymentQrSection/PaymentQrSection";
+import { Ban, PencilLine } from "lucide-react";
+import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
+import {
+  FinancialDetailGrid,
+  FinancialDetailMessage,
+  FinancialDetailSection,
+  type FinancialDetailField,
+} from "@/features/financial-records/FinancialDetailPrimitives";
 interface PaymentDetail {
   id: string | number;
   status: string;
@@ -401,18 +407,17 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
 
   if (!item) {
     return (
-      <DataModal
+      <FinancialDetailModal
         open={open}
         onClose={onClose}
-        title="Detalle de Ingreso"
-        buttonText=""
-        buttonCancel=""
-        minWidth={860}
-        maxWidth={980}
+        title="Detalle del ingreso"
       >
-        {/* Necesario por lo childres solicitados por le datamodal, manejo del null exeption en item */}
-        <></>
-      </DataModal>
+        <FinancialDetailSection>
+          <FinancialDetailMessage>
+            No se encontró información del ingreso.
+          </FinancialDetailMessage>
+        </FinancialDetailSection>
+      </FinancialDetailModal>
     );
   }
 
@@ -425,19 +430,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     aprobadoLabel = "Por confirmar por";
   } else {
     aprobadoLabel = "Aprobado por";
-  }
-
-  let statusClass = "";
-  if (item.status === "P") {
-    statusClass = styles.statusPaid;
-  } else if (item.status === "S") {
-    statusClass = styles.statusPending;
-  } else if (item.status === "R") {
-    statusClass = styles.statusRejected;
-  } else if (item.status === "X") {
-    statusClass = styles.statusCanceled;
-  } else if (item.status === "E") {
-    statusClass = styles.statusVoucher;
   }
 
   let tenantDisplay = "-/-";
@@ -468,8 +460,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   if (canceledBy && typeof canceledBy === "object") {
     anuladoPorDisplay = getFullName(canceledBy);
   }
-
-  let infoBlockContent = null;
 
   const voucherUrls = Array.isArray(item.url_file)
     ? item.url_file
@@ -619,7 +609,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   const showRejectPaymentAction = canReviewPayment;
   const showApprovePaymentAction = canReviewPayment;
   const hasPaymentActions =
-    showCancelIncomeAction ||
     showReceiptAction ||
     showShareReceiptAction ||
     showVoucherAction ||
@@ -627,16 +616,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     showApprovePaymentAction;
   const paymentActionButtons = !loading && hasPaymentActions ? (
     <div className={styles.voucherButtonContainer}>
-      {showCancelIncomeAction && (
-        <Button
-          onClick={handleAnularClick}
-          className={styles.textButtonDanger}
-          variant="danger"
-        >
-          Anular ingreso
-        </Button>
-      )}
-
       {showReceiptAction && (
         <Button
           variant="secondary"
@@ -687,284 +666,219 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     </div>
   ) : null;
 
+  const paymentFields: FinancialDetailField[] = [
+    { id: "unit", label: "Unidad", value: getDptoName() },
+    { id: "homeowner", label: "Propietario", value: propietarioDisplay },
+    {
+      id: "holder",
+      label: "Titular",
+      value:
+        item.details?.[0]?.debt_dpto?.dpto?.holder === "H"
+          ? propietarioDisplay
+          : tenantDisplay,
+    },
+    {
+      id: "paid-by",
+      label: "Pagado por",
+      value: getFullName(item.owner) || "-/-",
+    },
+    {
+      id: "method",
+      label: "Método de pago",
+      value: getPaymentType(item.method || ""),
+    },
+    {
+      id: "effective-date",
+      label: "Fecha efectiva del pago",
+      value: formatToDayFdMYH(item.paid_at, true, false, true) || "-/-",
+    },
+    ...(item.created_at
+      ? [
+          {
+            id: "registered-at",
+            label: "Registrado",
+            value: formatBusinessDateTime(item.created_at) || "-/-",
+          } satisfies FinancialDetailField,
+        ]
+      : []),
+    ...(item.confirm_at
+      ? [
+          {
+            id: "confirmed-at",
+            label: "Confirmado",
+            value: formatBusinessDateTime(item.confirm_at) || "-/-",
+          } satisfies FinancialDetailField,
+        ]
+      : []),
+    ...(showBankAccount
+      ? [
+          {
+            id: "bank-account",
+            label: "Cuenta bancaria",
+            value:
+              (bankAccount?.bank_entity?.name ||
+                bankAccount?.bankEntity?.name ||
+                "-/-") +
+              " - " +
+              (bankAccount?.account_number || "-/-"),
+          } satisfies FinancialDetailField,
+        ]
+      : []),
+    {
+      id: "status",
+      label: "Estado",
+      value: getStatus(item.status),
+      tone:
+        item.status === "P"
+          ? "success"
+          : item.status === "R" || item.status === "X"
+            ? "danger"
+            : "warning",
+    },
+    ...(confirmedBy
+      ? [
+          {
+            id: "confirmed-by",
+            label: aprobadoLabel,
+            value: aprobadoPorDisplay,
+          } satisfies FinancialDetailField,
+        ]
+      : []),
+    ...(item.status === "X"
+      ? [
+          {
+            id: "cancelled-by",
+            label: "Anulado por",
+            value: anuladoPorDisplay,
+          } satisfies FinancialDetailField,
+          {
+            id: "cancelled-reason",
+            label: "Motivo de anulación",
+            value: item.canceled_obs || "-/-",
+            tone: "danger",
+            wide: true,
+          } satisfies FinancialDetailField,
+        ]
+      : []),
+    ...(item.status === "R"
+      ? [
+          {
+            id: "rejected-reason",
+            label: "Motivo de rechazo",
+            value: item.confirm_obs || "-/-",
+            tone: "danger",
+            wide: true,
+          } satisfies FinancialDetailField,
+        ]
+      : []),
+    ...(item.user
+      ? [
+          {
+            id: "registered-by",
+            label: "Registrado por",
+            value: registradoPorDisplay,
+          } satisfies FinancialDetailField,
+        ]
+      : []),
+    {
+      id: "observation",
+      label: "Observación",
+      value: item.obs || "-/-",
+      wide: true,
+    },
+    ...(item.status !== "R"
+      ? [
+          {
+            id: "voucher-number",
+            label: "Nro. de respaldo de pago",
+            value: item.voucher || "Sin número de respaldo",
+          } satisfies FinancialDetailField,
+        ]
+      : []),
+  ];
+
+  const customActions = [
+    ...(item.status !== "R"
+      ? [
+          {
+            id: "edit-voucher-number",
+            label: item.voucher
+              ? "Editar número de respaldo"
+              : "Añadir número de respaldo",
+            icon: <PencilLine size={18} />,
+            onSelect: openVoucherEditor,
+          },
+        ]
+      : []),
+    ...(showCancelIncomeAction
+      ? [
+          {
+            id: "cancel-income",
+            label: "Anular ingreso",
+            icon: <Ban size={18} />,
+            destructive: true,
+            onSelect: handleAnularClick,
+          },
+        ]
+      : []),
+  ];
+
   return (
     <>
-      <DataModal
+      <FinancialDetailModal
         open={open}
         title="Detalle del ingreso"
-        buttonText=""
-        buttonCancel={""}
         onClose={onClose}
-        variant={"mini"}
-        style={style}
-        headerDivider={false}
-        minWidth={860}
-        maxWidth={980}
-        buttonExtra={paymentActionButtons}
+        description="Información del cobro, deudas aplicadas, comprobantes e historial de cambios."
+        record={{
+          type: "payment",
+          id: item.id,
+          paidAt: item.paid_at,
+        }}
+        summary={{
+          amount: formatBs(item.amount ?? 0),
+          date: formatToDayFdMYH(item.paid_at, true, false, true),
+          eyebrow: item.status === "P" ? "Monto cobrado" : "Monto registrado",
+          status: {
+            label: getStatus(item.status),
+            tone:
+              item.status === "P"
+                ? "success"
+                : item.status === "R" || item.status === "X"
+                  ? "danger"
+                  : "warning",
+          },
+        }}
+        loading={loading}
+        customActions={customActions}
+        onRecordChanged={async () => {
+          const updated = await refreshPayment();
+          if (updated) props.setItem?.(updated);
+          if (reLoad) await reLoad();
+        }}
+        footer={paymentActionButtons}
       >
-        {loading ? (
-          <Loading />
-        ) : (
-          <>
-            <div className={styles.container}>
-              <div className={styles.headerSection}>
-                <div className={styles.amountDisplay}>
-                  {formatBs(item.amount ?? 0)}
-                </div>
-                <div className={styles.dateDisplay}>
-                  {formatToDayFdMYH(item.paid_at, true, false, true)}
-                </div>
-              </div>
-            </div>
+        <FinancialDetailSection title="Datos del ingreso">
+          <FinancialDetailGrid fields={paymentFields} />
+        </FinancialDetailSection>
 
-            <div className={styles.container}>
-              <section className={styles.detailsSection}>
-                {/* Columna Izquierda */}
-                <div className={styles.detailsColumn}>
-                  <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Unidad</span>
-                    <span className={styles.infoValue}>{getDptoName()}</span>
-                  </div>
-                  <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Propietario </span>
-                    <span className={styles.infoValue}>
-                      {propietarioDisplay}
-                    </span>
-                  </div>
-                  <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Titular</span>
-                    <span className={styles.infoValue}>
-                      {item.details?.[0]?.debt_dpto?.dpto?.holder === "H"
-                        ? propietarioDisplay
-                        : tenantDisplay}
-                    </span>
-                  </div>
-                  {showBankAccount &&
-                    item.status !== "R" &&
-                    item.status !== "X" && (
-                      <div className={styles.infoBlock}>
-                        <span className={styles.infoLabel}>Observación</span>
-                        <span className={styles.infoValue}>
-                          {item.obs || "-/-"}
-                        </span>
-                      </div>
-                    )}
-                </div>
-                {/* Columna Central */}
-                <div className={styles.detailsColumn}>
-                  <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Pagado por</span>
-                    <span className={styles.infoValue}>
-                      {getFullName(item.owner) || "-/-"}
-                    </span>
-                  </div>
-                  <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Método de pago</span>
-                    <span className={styles.infoValue}>
-                      {getPaymentType(item.method || "")}
-                    </span>
-                  </div>
-
-                  {showBankAccount && (
-                    <div className={styles.infoBlock}>
-                      <span className={styles.infoLabel}>Cuenta bancaria</span>
-                      <span className={styles.infoValue}>
-                        {(bankAccount?.bank_entity?.name ||
-                          bankAccount?.bankEntity?.name ||
-                          "-/-") +
-                          " - " +
-                          (bankAccount?.account_number || "-/-")}
-                      </span>
-                    </div>
-                  )}
-
-                  {confirmedBy && item.status === "R" && (
-                    <div className={styles.infoBlock}>
-                      <span className={styles.infoLabel}>{aprobadoLabel}</span>
-                      <span className={styles.infoValue}>
-                        {aprobadoPorDisplay}
-                      </span>
-                    </div>
-                  )}
-                  {!showBankAccount &&
-                    item.status !== "R" &&
-                    item.status !== "X" && (
-                      <div className={styles.infoBlock}>
-                        <span className={styles.infoLabel}>Observación</span>
-                        <span className={styles.infoValue}>
-                          {item.obs || "-/-"}
-                        </span>
-                      </div>
-                    )}
-                  {item.status === "X" && (
-                    <>
-                      <div className={styles.infoBlock}>
-                        <span className={styles.infoLabel}>Anulado por</span>
-                        <span className={styles.infoValue}>
-                          {anuladoPorDisplay}
-                        </span>
-                      </div>
-                      {item.user && (
-                        <div className={styles.infoBlock}>
-                          <span className={styles.infoLabel}>
-                            Registrado por
-                          </span>
-                          <span className={styles.infoValue}>
-                            {registradoPorDisplay}
-                          </span>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-                {/* Columna Derecha */}
-                <div className={styles.detailsColumn}>
-                  <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Estado</span>
-                    <span className={`${styles.infoValue} ${statusClass}`}>
-                      {getStatus(item.status)}
-                    </span>
-                  </div>
-                  <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Fecha efectiva del pago</span>
-                    <span className={styles.infoValue}>
-                      {formatToDayFdMYH(item.paid_at, true, false, true) || "-/-"}
-                    </span>
-                  </div>
-                  {item.created_at && (
-                    <div className={styles.infoBlock}>
-                      <span className={styles.infoLabel}>Registrado</span>
-                      <span className={styles.infoValue}>
-                        {formatBusinessDateTime(item.created_at) || "-/-"}
-                      </span>
-                    </div>
-                  )}
-                  {item.confirm_at && (
-                    <div className={styles.infoBlock}>
-                      <span className={styles.infoLabel}>Confirmado</span>
-                      <span className={styles.infoValue}>
-                        {formatBusinessDateTime(item.confirm_at) || "-/-"}
-                      </span>
-                    </div>
-                  )}
-
-                  {item.status === "R" && (
-                    <>
-                      <div className={styles.infoBlock}>
-                        <span className={styles.infoLabel}>
-                          Motivo de rechazo
-                        </span>
-                        <span
-                          className={`${styles.infoValue} ${styles.rechazedReason}`}
-                        >
-                          {item.confirm_obs || "-/-"}
-                        </span>
-                      </div>
-                      <div className={styles.infoBlock}>
-                        <span className={styles.infoLabel}>Observación</span>
-                        <span className={styles.infoValue}>
-                          {item.obs || "-/-"}
-                        </span>
-                      </div>
-                    </>
-                  )}
-                  {item.status === "X" ? (
-                    <div className={styles.infoBlock}>
-                      <span className={styles.infoLabel}>
-                        Motivo de rechazo
-                      </span>
-                      <span
-                        className={`${styles.infoValue} ${styles.canceledReason}`}
-                      >
-                        {item.canceled_obs || "-/-"}
-                      </span>
-                    </div>
-                  ) : (
-                    <>
-                      {confirmedBy && item.status !== "R" && (
-                        <div className={styles.infoBlock}>
-                          <span className={styles.infoLabel}>
-                            {aprobadoLabel}
-                          </span>
-                          <span className={styles.infoValue}>
-                            {aprobadoPorDisplay}
-                          </span>
-                        </div>
-                      )}
-                      {item.user && (
-                        <div className={styles.infoBlock}>
-                          <span className={styles.infoLabel}>
-                            Registrado por
-                          </span>
-                          <span className={styles.infoValue}>
-                            {registradoPorDisplay}
-                          </span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* Ocultar completamente el bloque de respaldo si está rechazado */}
-                  {item.status !== "R" && (
-                    <div className={styles.infoBlock}>
-                      <span className={styles.infoLabel}>
-                        Nro. de respaldo de pago
-                      </span>
-                      <span className={styles.infoValue}>
-                        {item.voucher ? (
-                          <>
-                            {item.voucher + " "}
-                            <button
-                              type="button"
-                              className={styles.textButtonAccent}
-                              onClick={openVoucherEditor}
-                            >
-                              Editar
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            type="button"
-                            className={styles.textButtonAccent}
-                            onClick={openVoucherEditor}
-                          >
-                            Añadir número
-                          </button>
-                        )}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </section>
-            </div>
-
-            {paymentDetails.length > 0 && (
-                <div
-                  style={{ marginBottom: 12 }}
-                  // className={styles.container}
-                >
-                  <div className={styles.periodsDetailsSection}>
-                    <div className={styles.periodsDetailsHeader}>
-                      <h3 className={styles.periodsDetailsTitle}>
-                        Detalles del pago
-                      </h3>
-                    </div>
-
-                    <div className={styles.periodsTableWrapper}>
-                      <Table
-                        className="striped"
-                        height={paymentDetailsTableHeight}
-                        data={paymentDetails}
-                        header={paymentDetailsHeader as any}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-          </>
+        {item.method === "Q" && item.id != null && (
+          <PaymentQrSection paymentId={item.id} />
         )}
-      </DataModal>
+
+        {paymentDetails.length > 0 && (
+          <FinancialDetailSection title="Detalles del pago" defaultOpen={false}>
+            <div className={styles.periodsTableWrapper}>
+              <Table
+                className="striped"
+                height={paymentDetailsTableHeight}
+                data={paymentDetails}
+                header={paymentDetailsHeader as any}
+              />
+            </div>
+          </FinancialDetailSection>
+        )}
+      </FinancialDetailModal>
 
       {/* Modal para añadir/editar número de respaldo de pago */}
       <DataModal
@@ -984,6 +898,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         style={style}
         minWidth={720}
         maxWidth={860}
+        zIndex={1300}
       >
         <Input
           label={"Número de respaldo de pago"}
@@ -1010,6 +925,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         style={style}
         minWidth={720}
         maxWidth={860}
+        zIndex={1300}
       >
         <TextArea
           label="Observaciones"
