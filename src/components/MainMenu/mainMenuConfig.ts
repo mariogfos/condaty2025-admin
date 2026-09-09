@@ -60,6 +60,11 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "bankTester",
       },
       { href: "/support-data", perm: "superadmins", labelKey: "supportData" },
+      {
+        href: "/presence-monitoring",
+        perm: "superadmins",
+        labelKey: "presenceMonitoring",
+      },
       { href: "/history", perm: "superadmins", labelKey: "history" },
       {
         href: "/visit-reasons",
