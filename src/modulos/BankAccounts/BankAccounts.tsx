@@ -8,6 +8,12 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import {
+  QR_ACCOUNT_STATE_COLOR,
+  QR_ACCOUNT_STATE_LABEL,
+  qrAccountState,
+} from "@/modulos/QrDinamico/shared";
 
 const paramsInitial = {
   perPage: 20,
@@ -29,7 +35,20 @@ const centeredColumnStyle = {
   justifyContent: "center",
 } as const;
 
+const renderQrStateCell = ({ item }: Record<string, any>) => {
+  const state = qrAccountState(item);
+  const tone = QR_ACCOUNT_STATE_COLOR[state];
+  return (
+    <StatusBadge color={tone.color} backgroundColor={tone.bg}>
+      {QR_ACCOUNT_STATE_LABEL[state]}
+    </StatusBadge>
+  );
+};
+
 const BankAccounts = () => {
+  const { user } = useAuth();
+  // RN-ADM-01: dynamic QR is a FOS-only concern, a condo admin never sees it.
+  const isFos = Boolean(user?.fosrole_id);
   const mod: ModCrudType = {
     modulo: "bank-accounts",
     singular: "cuenta bancaria",
@@ -187,8 +206,26 @@ const BankAccounts = () => {
           width: "180px",
         },
       },
+      // QR-07: without this column there is no way to tell which account has
+      // dynamic QR on without opening every modal one by one.
+      ...(isFos
+        ? {
+            qr_dynamic_enabled: {
+              rules: [],
+              api: "",
+              label: "QR Dinámico",
+              form: false,
+              list: {
+                width: "180px",
+                className: styles.statusColumn,
+                style: centeredColumnStyle,
+                onRender: renderQrStateCell,
+              },
+            },
+          }
+        : {}),
     };
-  }, []);
+  }, [isFos]);
 
   const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
     {
