@@ -90,15 +90,18 @@ const QrDinamico = () => {
   // ─── API calls ──────────────────────────────────────────────────────────────
   const { execute: fetchOrders, loaded: ordersLoaded } = useAxios();
 
-  const buildQueryString = useCallback((f: QrOrderFilters) => {
-    const params = new URLSearchParams();
-    if (f.order_state !== undefined && f.order_state !== '') params.set('order_state', String(f.order_state));
-    if (f.payment_type) params.set('payment_type', f.payment_type);
-    if (f.date_from) params.set('date_from', f.date_from);
-    if (f.date_to) params.set('date_to', f.date_to);
-    params.set('per_page', String(f.per_page ?? QR_BATCH_SIZE));
-    params.set('page', String(f.page ?? 1));
-    return params.toString();
+  // QR-13: filters travel as the payload — useAxios already appends the query
+  // string on every GET. Building the URL by hand duplicates the "?" and
+  // corrupts the last parameter (…&page=1?_debug=1).
+  const buildParams = useCallback((f: QrOrderFilters) => {
+    const params: Record<string, string> = {};
+    if (f.order_state !== undefined && f.order_state !== '') params.order_state = String(f.order_state);
+    if (f.payment_type) params.payment_type = f.payment_type;
+    if (f.date_from) params.date_from = f.date_from;
+    if (f.date_to) params.date_to = f.date_to;
+    params.per_page = String(f.per_page ?? QR_BATCH_SIZE);
+    params.page = String(f.page ?? 1);
+    return params;
   }, []);
 
   const loadOrders = useCallback(async (
@@ -106,11 +109,10 @@ const QrDinamico = () => {
     options: { append?: boolean } = {},
   ) => {
     const append = Boolean(options.append && Number(f.page || 1) > 1);
-    const qs = buildQueryString(f);
     if (append) {
       setLoadingMoreOrders(true);
     }
-    const response = await fetchOrders(`qr-dynamic/orders?${qs}`, 'GET');
+    const response = await fetchOrders('qr-dynamic/orders', 'GET', buildParams(f));
     const payload = response?.data;
 
     if (payload?.success) {
@@ -124,7 +126,7 @@ const QrDinamico = () => {
       });
     }
     setLoadingMoreOrders(false);
-  }, [fetchOrders, buildQueryString, filters]);
+  }, [fetchOrders, buildParams, filters]);
 
   useEffect(() => {
     setStore({ ...store, title: 'QR Dinámico' });
