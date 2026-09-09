@@ -7,6 +7,15 @@ import React, { useState, useEffect } from "react";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import QrAccountConfig from "@/modulos/QrDinamico/QrAccountConfig/QrAccountConfig";
 
+const qrPendingStyle: React.CSSProperties = {
+  marginTop: 20,
+  paddingTop: 16,
+  borderTop: "1px solid var(--cWhiteV1, rgba(255, 255, 255, 0.12))",
+  display: "flex",
+  flexDirection: "column",
+  gap: 6,
+};
+
 const RenderForm = ({
   open,
   onClose,
@@ -245,12 +254,24 @@ const RenderForm = ({
         error={errors}
         required
       />
-      {/* QR Dinámico por cuenta (DES-20/21): SOLO usuarios FOS y solo al
-          editar — la config vive en su propio endpoint, no en este CRUD.
+      {/* QR Dinámico por cuenta (DES-20/21): SOLO usuarios FOS. La config vive
+          en su propio endpoint, no en este CRUD, así que necesita un id; en el
+          alta se anuncia la sección en vez de esconderla (QR-07).
           RN-ADM-01: un admin de condominio no ve esta sección. */}
-      {Boolean(user?.fosrole_id) && formState.id && (
-        <QrAccountConfig bankAccountId={formState.id} />
-      )}
+      {Boolean(user?.fosrole_id) &&
+        (formState.id ? (
+          <QrAccountConfig bankAccountId={formState.id} />
+        ) : (
+          <div id="qr-account-config-pending" style={qrPendingStyle}>
+            <p style={{ color: "var(--cWhite)", fontWeight: 600, margin: 0 }}>
+              QR Dinámico (solo FOS)
+            </p>
+            <p style={{ fontSize: 12, margin: 0 }}>
+              Guardá la cuenta primero. El QR dinámico se configura después,
+              editando la cuenta.
+            </p>
+          </div>
+        ))}
     </DataModal>
   );
 };
