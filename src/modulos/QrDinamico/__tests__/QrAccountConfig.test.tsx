@@ -90,5 +90,63 @@ describe("QrAccountConfig (DES-20/21)", () => {
       expect(container.querySelector("#qr-account-config")).toBeNull(),
     );
     expect(screen.queryByText(/Guardar configuración QR/)).toBeNull();
+    expect(container.querySelector("#qr-account-config-error")).toBeNull();
+  });
+
+  it("un 404 muestra un error visible, no una sección vacía (QR-07)", async () => {
+    // Forma REAL de useAxios ante un 404: axios TIRA, data null
+    executeMock.mockResolvedValue({
+      data: null,
+      error: {
+        status: 404,
+        data: { success: false, message: "Cuenta no encontrada" },
+      },
+    });
+    const { container } = render(<QrAccountConfig bankAccountId={7} />);
+
+    await waitFor(() =>
+      expect(container.querySelector("#qr-account-config-error")).not.toBeNull(),
+    );
+    expect(
+      screen.getByText(/No se pudo cargar la configuración del QR dinámico/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Cuenta no encontrada/)).toBeInTheDocument();
+    // La sección se anuncia igual: el usuario ve que existe y que falló
+    expect(screen.getByText(/QR Dinámico \(solo FOS\)/)).toBeInTheDocument();
+    expect(screen.getByText("Reintentar")).toBeInTheDocument();
+  });
+
+  it("una caída de red muestra un mensaje accionable", async () => {
+    // Sin respuesta HTTP: status 0 y sin message del backend
+    executeMock.mockResolvedValue({
+      data: null,
+      error: { status: 0, message: "Network Error", data: {} },
+    });
+    const { container } = render(<QrAccountConfig bankAccountId={7} />);
+
+    await waitFor(() =>
+      expect(container.querySelector("#qr-account-config-error")).not.toBeNull(),
+    );
+    expect(
+      screen.getByText(/Revisá tu conexión y volvé a intentar/),
+    ).toBeInTheDocument();
+  });
+
+  it("Reintentar vuelve a pedir la configuración", async () => {
+    executeMock.mockResolvedValue({
+      data: null,
+      error: { status: 500, data: { success: false, message: "Error interno" } },
+    });
+    const { container } = render(<QrAccountConfig bankAccountId={7} />);
+    await waitFor(() =>
+      expect(container.querySelector("#qr-account-config-error")).not.toBeNull(),
+    );
+
+    mockApi();
+    fireEvent.click(screen.getByText("Reintentar"));
+    await waitFor(() =>
+      expect(screen.getByText(/co•••••er/)).toBeInTheDocument(),
+    );
+    expect(container.querySelector("#qr-account-config-error")).toBeNull();
   });
 });

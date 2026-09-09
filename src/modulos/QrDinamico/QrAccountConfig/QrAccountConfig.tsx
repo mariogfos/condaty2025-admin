@@ -42,6 +42,14 @@ interface Props {
   bankAccountId: number | string;
 }
 
+/** Always-on heading so the section is discoverable while loading or failing. */
+const Section = ({ children }: { children: React.ReactNode }) => (
+  <div className={styles.container} id="qr-account-config">
+    <p className={styles.sectionTitle}>QR Dinámico (solo FOS)</p>
+    {children}
+  </div>
+);
+
 const QrAccountConfig = ({ bankAccountId }: Props) => {
   const { showToast } = useAuth();
   const { execute } = useAxios();
@@ -50,6 +58,9 @@ const QrAccountConfig = ({ bankAccountId }: Props) => {
   const [providers, setProviders] = useState<QrProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  // null = nothing to report. "forbidden" = 403, the section is legitimately
+  // hidden. Any other value is a message the user has to see (QR-07).
+  const [loadError, setLoadError] = useState<"forbidden" | string | null>(null);
 
   // Solo los campos que el usuario tocó viajan en el PUT (parcial)
   const [form, setForm] = useState<Record<string, string | boolean>>({});
@@ -60,7 +71,23 @@ const QrAccountConfig = ({ bankAccountId }: Props) => {
       execute(`/qr-dynamic/accounts/${bankAccountId}/config`, "GET", {}, false, true),
       execute("/qr-dynamic/providers", "GET", {}, false, true),
     ]);
-    if (cfgRes?.data?.success) setConfig(cfgRes.data.data);
+    if (cfgRes?.data?.success) {
+      setConfig(cfgRes.data.data);
+      setLoadError(null);
+    } else {
+      // On a non-2xx axios throws and useAxios returns data:null + error
+      // (DES-32). Never fall through to a silent null: only a 403 is a
+      // legitimate reason to render nothing.
+      setConfig(null);
+      const status = cfgRes?.error?.status;
+      const detail = apiMessage(cfgRes);
+      setLoadError(
+        status === 403
+          ? "forbidden"
+          : "No se pudo cargar la configuración del QR dinámico. " +
+              (detail || "Revisá tu conexión y volvé a intentar."),
+      );
+    }
     if (provRes?.data?.success) setProviders(provRes.data.data.providers ?? []);
     setForm({});
     setLoading(false);
@@ -133,17 +160,33 @@ const QrAccountConfig = ({ bankAccountId }: Props) => {
   };
 
   if (loading) {
-    return <p className={styles.muted}>Cargando configuración QR…</p>;
+    return (
+      <Section>
+        <p className={styles.muted}>Cargando configuración QR…</p>
+      </Section>
+    );
   }
 
-  if (!config) {
-    // 403/404: usuario sin permiso o cuenta sin config — no se muestra nada
+  if (loadError === "forbidden") {
+    // 403: no tiene permiso sobre la config — la sección no le corresponde
     return null;
   }
 
+  if (loadError) {
+    return (
+      <Section>
+        <p className={styles.error} id="qr-account-config-error">
+          {loadError}
+        </p>
+        <Button onClick={load}>Reintentar</Button>
+      </Section>
+    );
+  }
+
+  if (!config) return null;
+
   return (
-    <div className={styles.container} id="qr-account-config">
-      <p className={styles.sectionTitle}>QR Dinámico (solo FOS)</p>
+    <Section>
       <p className={styles.hint}>
         Configuración independiente por cuenta. Activar el QR dinámico no
         reemplaza ni elimina el QR manual de la cuenta.
@@ -209,7 +252,7 @@ const QrAccountConfig = ({ bankAccountId }: Props) => {
       <Button onClick={onSave} disabled={saving}>
         {saving ? "Guardando…" : "Guardar configuración QR"}
       </Button>
-    </div>
+    </Section>
   );
 };
 
