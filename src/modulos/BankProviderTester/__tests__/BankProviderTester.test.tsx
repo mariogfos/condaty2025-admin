@@ -183,6 +183,32 @@ describe("BankProviderTester", () => {
     );
   });
 
+  it("abre Transactions con el dia de hoy en las dos fechas", async () => {
+    // Reloj fijo: la aserción tiene que valer siempre, no sólo el día que se
+    // escribió el test.
+    // Sólo se congela Date: setTimeout tiene que seguir siendo el real o
+    // waitFor no avanza nunca.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 8, 7, 15, 30)); // 7 de septiembre de 2026
+    try {
+      routeApi();
+      render(<BankProviderTester />);
+      await waitFor(() => expect(executeMock).toHaveBeenCalled());
+
+      fireEvent.click(screen.getByRole("button", { name: /Transactions/i }));
+
+      const editor = screen.getByRole("textbox") as HTMLTextAreaElement;
+      await waitFor(() => {
+        const datos = JSON.parse(editor.value);
+        // Banco Ganadero lee ddmmyyyy sin separadores.
+        expect(datos.start_date).toBe("07092026");
+        expect(datos.end_date).toBe("07092026");
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("ninguna ruta del tester conserva el prefijo publico bank-qr", async () => {
     routeApi();
     render(<BankProviderTester />);

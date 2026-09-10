@@ -76,9 +76,40 @@ const DEFAULT_DATA: Record<OperationType, Record<string, unknown>> = {
     qr_id: "",
   },
   transactions: {
-    start_date: "01012026",
-    end_date: "31122026",
+    // Las llena hoyEnElFormatoDelBanco() al abrir la pestaña: una fecha
+    // escrita acá se vuelve vieja sola.
+    start_date: "",
+    end_date: "",
   },
+};
+
+/**
+ * Hoy, como lo lee el Banco Ganadero: ddmmyyyy sin separadores. Cualquier otro
+ * formato vuelve como COD002 «Parámetros fuera del formato establecido».
+ */
+const hoyEnElFormatoDelBanco = (): string => {
+  const hoy = new Date();
+  const dia = String(hoy.getDate()).padStart(2, "0");
+  const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+
+  return `${dia}${mes}${hoy.getFullYear()}`;
+};
+
+/**
+ * Datos con los que abre cada operación. Se calcula al cambiar de pestaña y no
+ * al cargar el módulo: en el servidor la fecha puede ser otra que en el
+ * navegador, y esto sólo corre del lado del navegador.
+ */
+const datosInicialesDe = (
+  operacion: OperationType,
+): Record<string, unknown> => {
+  if (operacion !== "transactions") {
+    return DEFAULT_DATA[operacion];
+  }
+
+  const hoy = hoyEnElFormatoDelBanco();
+
+  return { ...DEFAULT_DATA.transactions, start_date: hoy, end_date: hoy };
 };
 
 const OPERATION_CONFIG: Record<
@@ -315,7 +346,7 @@ const BankProviderTester: React.FC = () => {
 
   // Update request data when switching tabs
   useEffect(() => {
-    setRequestData(DEFAULT_DATA[activeOperation]);
+    setRequestData(datosInicialesDe(activeOperation));
     setResponseData(null);
     setError(null);
   }, [activeOperation]);
