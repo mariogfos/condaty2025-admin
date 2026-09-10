@@ -1,19 +1,28 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import useAxios from '@/mk/hooks/useAxios';
-import { ConciliationData, QrOrder } from '../types';
+import { ConciliationData } from '../types';
+import { apiMessage } from '../shared';
 import styles from './Conciliation.module.css';
 
 const Conciliation = () => {
   const { execute, loaded } = useAxios();
   const [data, setData] = useState<ConciliationData | null>(null);
   const [selectedClients, setSelectedClients] = useState<Record<string, boolean>>({});
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const loadData = async () => {
+    // useAxios resolves with { data, error }: the backend body lives in
+    // res.data, so `res.success` was always undefined and this screen never
+    // rendered anything, not even its own errors.
     const res = await execute('qr-dynamic/conciliation/summary', 'GET');
-    if (res?.success) {
-      setData(res.data);
+    if (res?.data?.success) {
+      setData(res.data.data);
+      setErrorMsg(null);
+      return;
     }
+    setData(null);
+    setErrorMsg(apiMessage(res) || 'No se pudo cargar la conciliación.');
   };
 
   useEffect(() => {
@@ -28,36 +37,34 @@ const Conciliation = () => {
   const handleMarkDeposited = async () => {
     const clientsToConciliate = Object.keys(selectedClients).filter(k => selectedClients[k]);
     if (clientsToConciliate.length === 0) {
-      alert('Selecciona al menos un cliente para conciliar sus órdenes.');
+      setErrorMsg('Selecciona al menos un condominio para conciliar sus órdenes.');
       return;
     }
 
-    if (!confirm('¿Marcar las órdenes de los clientes seleccionados como depositadas/conciliadas?')) return;
+    if (!confirm('¿Marcar como depositadas TODAS las órdenes pendientes de los condominios seleccionados?')) return;
 
-    // Collect all order IDs for selected clients
-    const orderIdsToConciliate: string[] = [];
-    if (data?.items) {
-      data.items.forEach(order => {
-        if (order.client_id && selectedClients[order.client_id]) {
-          orderIdsToConciliate.push(order.id);
-        }
+    // "all" marks the whole pending set of that condominium, not only the page
+    // the table is showing: the summary paginates and collecting ids from
+    // data.items left every order past the first page unconciliated.
+    let updated = 0;
+    const failed: string[] = [];
+
+    for (const clientId of clientsToConciliate) {
+      const res = await execute('qr-dynamic/conciliation/mark-deposited', 'POST', {
+        all: true,
+        client_id: clientId,
       });
+      if (res?.data?.success) {
+        updated += Number(res.data.data?.updated ?? 0);
+      } else {
+        failed.push(apiMessage(res) || `Condominio ${clientId}: error al conciliar.`);
+      }
     }
 
-    if (orderIdsToConciliate.length === 0) {
-      alert('No se encontraron órdenes para los clientes seleccionados.');
-      return;
-    }
-
-    const res = await execute('qr-dynamic/conciliation/mark-deposited', 'POST', {
-      order_ids: orderIdsToConciliate
-    });
-
-    if (res?.success) {
-      setSelectedClients({});
-      loadData();
-    } else {
-      alert(res?.message || 'Error al conciliar');
+    setSelectedClients({});
+    setErrorMsg(failed.length > 0 ? failed.join(' · ') : null);
+    if (updated > 0) {
+      await loadData();
     }
   };
 
@@ -65,6 +72,8 @@ const Conciliation = () => {
 
   return (
     <div className={styles.container}>
+      {errorMsg && <div className={styles.error}>{errorMsg}</div>}
+
       <div className={styles.summarySection}>
         <h3 className={styles.sectionTitle}>Resumen de Conciliación Pendiente</h3>
         <p className={styles.sectionDesc}>
@@ -86,7 +95,7 @@ const Conciliation = () => {
                     onChange={() => handleSelectClient(sum.client_id)}
                     onClick={(e) => e.stopPropagation()}
                   />
-                  <span className={styles.clientId}>Cliente ID: {sum.client_id}</span>
+                  <span className={styles.clientId}>Condominio: {sum.client_id}</span>
                 </div>
                 <div className={styles.cardBody}>
                   <div className={styles.stat}>
