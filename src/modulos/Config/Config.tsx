@@ -7,7 +7,6 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import DefaulterConfig from "./DefaulterConfig/DefaulterConfig";
 import PaymentsConfig from "./PaymentsConfig/PaymentsConfig";
 import DptoConfig from "./DptoConfig/DptoConfig";
-import QrDynamicConfig from "../QrDinamico/QrDynamicConfig/QrDynamicConfig";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
@@ -59,7 +58,6 @@ const Config = () => {
               { value: "R", text: "Reglas Operativas" },
               { value: "P", text: "Cuentas de pagos" },
               { value: "M", text: "Morosidad" },
-              { value: "Q", text: "QR Dinámico" },
               { value: "T", text: "Tipos de unidades" },
             ]}
             sel={typeSearch}
@@ -110,15 +108,16 @@ const Config = () => {
             <UnitsType />
           </div>
         )}
-        {typeSearch == "Q" && (
-          <LoadingScreen>
-            <QrDynamicConfig
-              client_config={client_config?.data?.[0]}
-              onSave={onSave}
-              availableBanks={client_config?.extraData?.available_banks || []}
-            />
-          </LoadingScreen>
-        )}
+        {/* ⚠️ Acá vivía la configuración del QR dinámico, y se retiró a
+            propósito.
+
+            Decisión del dueño, 2026-09-05: *«pueden tener varias y elegir cuál
+            cobra»*. La configuración dejó de ser del condominio y pasó a ser de
+            la CUENTA BANCARIA: vive en el formulario de cada cuenta.
+
+            Y 2026-09-06: *«sobre quien configura los QR solo los usuarios
+            FOS»*. Un administrador de condominio que la viera acá sólo podía
+            recibir un 403. */}
       </div>
     </div>
   );

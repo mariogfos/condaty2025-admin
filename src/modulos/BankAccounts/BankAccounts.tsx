@@ -13,6 +13,11 @@ import {
   BANK_ACCOUNT_STATUS_LABELS,
   getAssignmentLabels,
 } from "./Type/BankType";
+import {
+  QR_ACCOUNT_STATE_COLOR,
+  QR_ACCOUNT_STATE_LABEL,
+  qrAccountState,
+} from "@/modulos/QrDinamico/shared";
 import { bankAccountsApi } from "./api";
 import { getBankAccountsMod } from "./config/bankAccountsMod";
 

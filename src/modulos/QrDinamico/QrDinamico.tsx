@@ -15,12 +15,16 @@ import {
 } from './types';
 import GenerateQrModal from './GenerateQrModal/GenerateQrModal';
 import RenderView from './RenderView/RenderView';
-import Conciliation from './Conciliation/Conciliation';
 import BankTransactionsModal, { BankTxn } from './BankTransactionsModal/BankTransactionsModal';
 import Button from '@/mk/components/forms/Button/Button';
 
-// ─── Tabs ────────────────────────────────────────────────────────────────────
-type ActiveTab = 'orders' | 'conciliation';
+// ⚠️ Acá vivía una segunda pestaña, la de conciliación manual, y se retiró.
+//
+// Decisión del dueño, 2026-09-09: *«condaty ya no manejara la plata, cada
+// cuenta es propiedad de cada condominio, así que la plata estará directamente
+// en las cuentas de cada condominio»*. Esa pantalla servía para marcar cuándo
+// Condaty le había depositado al condominio lo cobrado; ya no hay tal depósito
+// que marcar. El backend también dejó de exponer sus dos endpoints.
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const formatAmount = (amount: string, currency: string) => (
@@ -97,7 +101,6 @@ const mergeOrders = (currentOrders: QrOrder[], incomingOrders: QrOrder[]) => {
 const QrDinamico = () => {
   const { userCan, setStore, store } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<ActiveTab>('orders');
   const [filters, setFilters] = useState<QrOrderFilters>({ per_page: QR_BATCH_SIZE, page: 1 });
   const [orders, setOrders] = useState<QrOrder[]>([]);
   const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0 });
@@ -214,7 +217,6 @@ const QrDinamico = () => {
   };
 
   useEffect(() => {
-    if (activeTab !== 'orders') return;
     if (!ordersLoadSentinelRef.current) return;
     if (!ordersLoaded || loadingMoreOrders || pagination.current_page >= pagination.last_page) {
       return;
@@ -237,7 +239,6 @@ const QrDinamico = () => {
 
     return () => observer.disconnect();
   }, [
-    activeTab,
     loadMoreOrders,
     loadingMoreOrders,
     ordersLoaded,
@@ -257,40 +258,17 @@ const QrDinamico = () => {
           <h1 className={styles.headerTitle}>QR Dinámico</h1>
         </div>
         <div className={styles.headerActions}>
-          {activeTab === 'orders' && (
-            <>
-              <Button variant="secondary" onClick={openBankModal}>
-                Últimos QR en el banco
-              </Button>
-              <Button variant="primary" onClick={() => setShowGenerate(true)}>
-                + Generar QR de Prueba
-              </Button>
-            </>
-          )}
+          <Button variant="secondary" onClick={openBankModal}>
+            Últimos QR en el banco
+          </Button>
+          <Button variant="primary" onClick={() => setShowGenerate(true)}>
+            + Generar QR de Prueba
+          </Button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className={styles.tabs}>
-        <button
-          id="tab-orders"
-          className={`${styles.tab} ${activeTab === 'orders' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('orders')}
-        >
-          Órdenes QR
-        </button>
-        <button
-          id="tab-conciliation"
-          className={`${styles.tab} ${activeTab === 'conciliation' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('conciliation')}
-        >
-          Conciliación
-        </button>
-      </div>
-
-      {/* ── Tab: Orders ──────────────────────────────────────────────────────── */}
-      {activeTab === 'orders' && (
-        <>
+      {/* Con una sola vista ya no hay pestañas que elegir. */}
+      <>
           {/* Filters */}
           <div className={styles.filters}>
             <select
@@ -418,11 +396,8 @@ const QrDinamico = () => {
 	            </table>
 	          </div>
               <div ref={ordersLoadSentinelRef} className={styles.loadMoreSentinel} />
-	        </>
-	      )}
+      </>
 
-      {/* ── Tab: Conciliation ────────────────────────────────────────────────── */}
-      {activeTab === 'conciliation' && <Conciliation />}
 
       {/* ── Modals ────────────────────────────────────────────────────────────── */}
       {showGenerate && (

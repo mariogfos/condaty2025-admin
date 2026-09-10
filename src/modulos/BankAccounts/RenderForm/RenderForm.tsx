@@ -3,10 +3,13 @@ import Select from "@/mk/components/forms/Select/Select";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import { BankAccountType } from "../Type/BankType";
 import { bankAccountsApi } from "../api";
+import QrAccountConfig, {
+  QrAccountConfigHandle,
+} from "@/modulos/QrDinamico/QrAccountConfig/QrAccountConfig";
 
 const RenderForm = ({
   open,
@@ -23,6 +26,10 @@ const RenderForm = ({
   });
   const [errors, setErrors] = useState({});
   const { showToast } = useAuth();
+
+  // La configuración del QR se guarda contra su PROPIO endpoint, pero el
+  // usuario ve un solo botón: este formulario es el dueño de ese botón.
+  const qrConfigRef = useRef<QrAccountConfigHandle>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -127,13 +134,25 @@ const RenderForm = ({
       },
     );
 
-    if (data?.success) {
-      onClose();
-      reLoad();
-      showToast(data.message, "success");
-    } else {
-      showToast(data.message, "error");
+    if (!data?.success) {
+      showToast(data?.message, "error");
+      return;
     }
+
+    // 🔴 El orden importa. La configuración del QR se guarda DESPUÉS de que la
+    // cuenta existe: en un alta no hay id contra el cual guardarla hasta acá.
+    //
+    // Y si ese guardado falla, el modal QUEDA ABIERTO con el error a la vista.
+    // Cerrarlo igual diría «guardado» sobre una configuración que no entró, y
+    // el operador se enteraría el día del primer cobro.
+    const qrGuardado = (await qrConfigRef.current?.save()) ?? true;
+
+    reLoad();
+
+    if (!qrGuardado) return;
+
+    onClose();
+    showToast(data.message, "success");
   };
 
   return (
@@ -250,6 +269,14 @@ const RenderForm = ({
         error={errors}
         required
       />
+
+      {/* Sólo sobre una cuenta YA GUARDADA: la configuración vive detrás de un
+          endpoint que necesita su id. En el alta aparece al reabrir la cuenta.
+          A quien no sea del equipo de Condaty, el API le contesta 403 y la
+          sección no se dibuja. */}
+      {formState.id ? (
+        <QrAccountConfig ref={qrConfigRef} bankAccountId={formState.id} />
+      ) : null}
     </DataModal>
   );
 };
