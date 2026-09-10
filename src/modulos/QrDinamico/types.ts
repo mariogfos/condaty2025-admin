@@ -116,19 +116,6 @@ export interface QrOrdersResponse {
 // genera exclusivamente desde la App Residente. Por eso acá no existen tipos
 // de generación.
 
-export interface ConciliationTotal {
-  client_id: string;
-  currency: string;
-  total: string;
-  count: number;
-}
-
-export interface ConciliationData {
-  summary: ConciliationTotal[];
-  items: QrOrder[];
-  pagination: Omit<QrOrderPagination, "has_more">;
-}
-
 export interface QrOrderFilters {
   order_state?: QrOrderState | "";
   payment_type?: PaymentType | "";

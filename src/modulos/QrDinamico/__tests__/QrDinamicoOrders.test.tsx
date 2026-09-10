@@ -9,7 +9,6 @@ vi.mock("@/mk/hooks/useAxios", () => ({
 }));
 
 // Las otras pestañas no participan de este corte
-vi.mock("../Conciliation/Conciliation", () => ({ default: () => null }));
 vi.mock("../QrMetrics/QrMetrics", () => ({ default: () => null }));
 
 const ORDERS_OK = {
