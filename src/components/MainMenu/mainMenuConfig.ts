@@ -63,6 +63,18 @@ export const menuConfig: MenuConfigItem[] = [
         perm: "superadmins",
         labelKey: "bankEntities",
       },
+      // 🔴 El probador va acá, no en Finanzas, y por el mismo motivo que la
+      // pantalla de arriba: opera contra el banco REAL con las credenciales de
+      // la cuenta de CUALQUIER condominio. Un administrador podría emitir y
+      // anular códigos de cobro de la cuenta de otro.
+      //
+      // El backend ya lo cierra —exige pertenecer al equipo de Condaty— y esto
+      // es la otra mitad: que no se ofrezca a quien sólo puede recibir un 403.
+      {
+        href: "/bank-provider-tester",
+        perm: "superadmins",
+        labelKey: "bankTester",
+      },
       // S103: VisitReasons removido del menú — feature dead (permiso "" en el
       // módulo + endpoint /api/v3/visit-reasons nunca existió en el back).
       // La página /visit-reasons queda huérfana (próximo sprint: borrarla junto
@@ -91,11 +103,9 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "bankAccounts",
         perm: "bank_accounts",
       },
-      // {
-      //   href: "/bank-provider-tester",
-      //   labelKey: "bankTester",
-      //   perm: "balance",
-      // },
+      // ⚠️ El probador del banco se mudó a Backoffice: opera la cuenta de
+      // cualquier condominio y el backend sólo se lo permite al equipo de
+      // Condaty. Ofrecerlo acá era ofrecer un 403.
       // {
       //   href: "/qr-dinamico",
       //   labelKey: "QR Dinámico",

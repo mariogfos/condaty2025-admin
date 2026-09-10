@@ -32,55 +32,41 @@ interface HistoryItem {
   responseData?: Record<string, unknown> | null;
 }
 
-interface TokenData {
-  token: string | null;
-  timestamp: Date | null;
-}
-
-interface QrConfig {
-  mode: number;
-  mode_label: string;
-  environment: number; // 0=sandbox, 1=production (QrEnvironmentEnum)
-  environment_label: string;
-  source: string;
+/**
+ * Una cuenta bancaria que se puede probar contra el banco.
+ *
+ * ⚠️ No trae credenciales, ni siquiera enmascaradas: `has_credentials` dice si
+ * están cargadas y `puede_cobrar` si además está todo lo demás. El probador no
+ * es una pantalla de configuración.
+ */
+interface CuentaProbable {
+  bank_account_id: number;
+  client_id: string;
+  client_name: string | null;
+  alias: string | null;
+  account_number: string | null;
+  qr_dynamic_bank_id: number | null;
   has_credentials: boolean;
-  credentials: {
-    api_key: string | null;
-    user_name: string | null;
-    user_password: string | null;
-    account_reference: string | null;
-  } | null;
-  bank_code: string;
-  bank_name: string;
-  base_url: string;
-  is_active: boolean;
+  puede_cobrar: boolean;
 }
 
 const DEFAULT_DATA: Record<OperationType, Record<string, unknown>> = {
-  auth: {
-    user_name: "test_user",
-    user_password: "test_pass",
-    account_reference: "12345678",
-    api_key: "your_api_key",
-  },
+  auth: {},
   generate: {
     amount: 100.0,
-    currency: "BOB",
-    gloss: "Pago de servicios",
-    expiration_date: "31/12/2026",
-    single_use: true,
-    payment_type: "T",
-    reference: "INV-001",
+    gloss: "Prueba Condaty",
+    expirationDate: "31122026",
+    singleUse: true,
   },
   status: {
-    qr_id: "",
+    qrId: "",
   },
   cancel: {
-    qr_id: "",
+    qrId: "",
   },
   transactions: {
-    start_date: "01/01/2026",
-    end_date: "31/12/2026",
+    startDate: "01012026",
+    endDate: "31122026",
   },
 };
 
@@ -282,14 +268,11 @@ const BankProviderTester: React.FC = () => {
     unknown
   > | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [tokenData, setTokenData] = useState<TokenData>({
-    token: null,
-    timestamp: null,
-  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
-  const [qrConfig, setQrConfig] = useState<QrConfig | null>(null);
+  const [cuentas, setCuentas] = useState<CuentaProbable[]>([]);
+  const [cuentaElegida, setCuentaElegida] = useState<number | null>(null);
   const [configLoading, setConfigLoading] = useState(false);
   const [configError, setConfigError] = useState<string | null>(null);
 
@@ -337,10 +320,22 @@ const BankProviderTester: React.FC = () => {
     try {
       const result = await execute("/v3/bank-qr/config", "GET");
       if (result.error) {
-        setConfigError(result.error.data?.message || "Failed to load config");
+        setConfigError(
+          result.error.data?.message ||
+            "No se pudieron cargar las cuentas que cobran por QR.",
+        );
       } else {
-        // El sobre trae la configuración en `data`, no en la raíz.
-        setQrConfig(result.data?.data ?? null);
+        // El sobre trae el contenido en `data`, no en la raíz.
+        const lista: CuentaProbable[] = result.data?.data?.accounts ?? [];
+        setCuentas(lista);
+
+        // Se preselecciona la primera que PUEDE cobrar: probar contra una que
+        // le falta configuración da un error del backend, no del banco, y
+        // manda a buscar el problema al lugar equivocado.
+        setCuentaElegida(
+          (prev) =>
+            prev ?? lista.find((c) => c.puede_cobrar)?.bank_account_id ?? null,
+        );
       }
     } catch (err: any) {
       setConfigError(err?.message || "Unknown error loading config");
@@ -352,12 +347,6 @@ const BankProviderTester: React.FC = () => {
   useEffect(() => {
     fetchConfig();
   }, []);
-
-  const maskValue = (value: string | null | undefined): string => {
-    if (!value) return "No configurado";
-    if (value.length <= 4) return "****";
-    return "****" + value.slice(-4);
-  };
 
   const addToHistory = (
     operation: string,
@@ -387,18 +376,21 @@ const BankProviderTester: React.FC = () => {
 
     const config = OPERATION_CONFIG[activeOperation];
 
+    // 🔴 Sin cuenta no hay contra qué probar: las credenciales son de ELLA.
+    if (cuentaElegida === null) {
+      setError("Elegí primero la cuenta bancaria contra la que querés probar.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      // Build headers
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-
-      // Add token if we have one and it's not an auth request
-      if (tokenData.token && activeOperation !== "auth") {
-        headers["Authorization"] = `Bearer ${tokenData.token}`;
-      }
-
-      const result = await execute(config.endpoint, "POST", requestData);
+      // ⚠️ Acá NO se arma ninguna cabecera con el token del banco. Ese token
+      // vive del lado del servidor: el navegador manda su sesión de Condaty y
+      // el backend resuelve el resto con las credenciales de la cuenta.
+      const result = await execute(config.endpoint, "POST", {
+        ...requestData,
+        bank_account_id: cuentaElegida,
+      });
 
       if (result.error) {
         const errorResult = result.error.data || {};
@@ -414,27 +406,23 @@ const BankProviderTester: React.FC = () => {
       } else {
         setResponseData(result.data);
 
-        // Store token if this was an auth request
-        if (activeOperation === "auth" && result.data?.token) {
-          setTokenData({
-            token: result.data.token,
-            timestamp: new Date(),
-          });
+        // ⚠️ Nada de guardar tokens: el sobre ya no trae ninguno.
+        if (activeOperation === "auth") {
           addToHistory(
             config.name,
             true,
-            "Token received",
+            "El proveedor aceptó las credenciales de la cuenta",
             requestData,
             result.data,
           );
-        } else if (activeOperation === "generate" && result.data?.qrId) {
-          // Auto-fill status and cancel with the generated QR ID
-          DEFAULT_DATA.status.qr_id = result.data.qrId;
-          DEFAULT_DATA.cancel.qr_id = result.data.qrId;
+        } else if (activeOperation === "generate" && result.data?.data?.qr_id) {
+          // El código recién emitido se precarga para consultarlo y anularlo.
+          DEFAULT_DATA.status.qrId = result.data.data.qr_id;
+          DEFAULT_DATA.cancel.qrId = result.data.data.qr_id;
           addToHistory(
             config.name,
             true,
-            `QR created: ${result.data.qrId}`,
+            `Código emitido: ${result.data.data.qr_id}`,
             requestData,
             result.data,
           );
@@ -502,7 +490,7 @@ const BankProviderTester: React.FC = () => {
         <div className={styles.configHeader}>
           <div className={styles.configTitle}>
             <span className={styles.configTitleIcon}>⚙️</span>
-            Configuración QR
+            Cuenta a probar
           </div>
           <button
             className={styles.reloadButton}
@@ -528,137 +516,75 @@ const BankProviderTester: React.FC = () => {
               <span className={styles.errorIcon}>⚠️</span>
               {configError}
             </div>
-          ) : qrConfig ? (
-            <>
-              {/* Status Section */}
-              <div className={styles.configSection}>
-                <div className={styles.configSectionTitle}>Estado</div>
-                <div className={styles.configRow}>
-                  <div className={styles.configField}>
-                    <span className={styles.configFieldLabel}>Modo:</span>
-                    <span className={styles.configFieldValue}>
-                      {qrConfig.mode_label}
-                    </span>
-                  </div>
-                  <div className={styles.configField}>
-                    <span className={styles.configFieldLabel}>Entorno:</span>
-                    <span className={styles.configFieldValue}>
-                      {qrConfig.environment_label}
-                    </span>
-                  </div>
-                  <div className={styles.configField}>
-                    <span className={styles.configFieldLabel}>Estado:</span>
-                    <span
-                      className={`${styles.configFieldValue} ${qrConfig.is_active ? styles.statusActive : styles.statusInactive}`}
-                    >
-                      <span
-                        className={`${styles.statusDot} ${qrConfig.is_active ? styles.statusDotActive : styles.statusDotInactive}`}
-                      />
-                      {qrConfig.is_active ? "ACTIVO" : "INACTIVO"}
-                    </span>
-                  </div>
-                </div>
-                <div className={styles.configSource}>
-                  Fuente:{" "}
-                  {qrConfig.source === "global"
-                    ? "Configuración Global"
-                    : `Cliente (${qrConfig.source})`}
+          ) : cuentas.length > 0 ? (
+            <div className={styles.configGrid}>
+              <div className={styles.configRow}>
+                <div className={styles.configField} style={{ flex: 1 }}>
+                  <span className={styles.configFieldLabel}>
+                    Cuenta a probar:
+                  </span>
+                  <select
+                    className={styles.configFieldValue}
+                    value={cuentaElegida ?? ""}
+                    onChange={(e) =>
+                      setCuentaElegida(
+                        e.target.value === "" ? null : Number(e.target.value),
+                      )
+                    }
+                  >
+                    <option value="">— elegí una cuenta —</option>
+                    {cuentas.map((cuenta) => (
+                      <option
+                        key={cuenta.bank_account_id}
+                        value={cuenta.bank_account_id}
+                      >
+                        {cuenta.client_name ?? cuenta.client_id} ·{" "}
+                        {cuenta.alias ?? cuenta.account_number} ·{" "}
+                        {cuenta.puede_cobrar
+                          ? "lista"
+                          : "le falta configuración"}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
-              {/* Credentials Section */}
-              <div className={styles.configSection}>
-                <div className={styles.configSectionTitle}>Credenciales</div>
+              {/* ⚠️ Se avisa ANTES de probar. Contra una cuenta a medio
+                  configurar el error lo devuelve el backend, no el banco, y
+                  manda a buscar el problema al lugar equivocado. */}
+              {cuentaElegida !== null &&
+              !cuentas.find((c) => c.bank_account_id === cuentaElegida)
+                ?.puede_cobrar ? (
                 <div className={styles.configRow}>
-                  <div className={styles.configField}>
-                    <span className={styles.configFieldLabel}>Banco:</span>
-                    <span className={styles.configFieldValue}>
-                      {qrConfig.bank_code} - {qrConfig.bank_name}
-                    </span>
-                  </div>
+                  <span className={styles.notConfigured}>
+                    A esta cuenta le falta el banco, la referencia o las
+                    credenciales: el proveedor no la va a aceptar.
+                  </span>
                 </div>
-                <div className={styles.configRow}>
-                  <div className={styles.configField}>
-                    <span className={styles.configFieldLabel}>Usuario:</span>
-                    <span
-                      className={`${styles.configFieldValue} ${!qrConfig.credentials?.user_name ? styles.notConfigured : ""}`}
-                    >
-                      {qrConfig.credentials?.user_name || "No configurado"}
-                    </span>
-                  </div>
-                  <div className={styles.configField}>
-                    <span className={styles.configFieldLabel}>Referencia:</span>
-                    <span
-                      className={`${styles.configFieldValue} ${!qrConfig.credentials?.account_reference ? styles.notConfigured : ""}`}
-                    >
-                      {qrConfig.credentials?.account_reference ||
-                        "No configurado"}
-                    </span>
-                  </div>
-                </div>
-                <div className={styles.configRow}>
-                  <div className={styles.configField}>
-                    <span className={styles.configFieldLabel}>API Key:</span>
-                    <span
-                      className={`${styles.configFieldValue} ${styles.maskedField} ${!qrConfig.credentials?.api_key ? styles.notConfigured : ""}`}
-                    >
-                      {maskValue(qrConfig.credentials?.api_key)}
-                    </span>
-                  </div>
-                  <div className={styles.configField}>
-                    <span className={styles.configFieldLabel}>Password:</span>
-                    <span
-                      className={`${styles.configFieldValue} ${styles.maskedField} ${!qrConfig.credentials?.user_password ? styles.notConfigured : ""}`}
-                    >
-                      {maskValue(qrConfig.credentials?.user_password)}
-                    </span>
-                  </div>
-                </div>
-                <div className={styles.configRow}>
-                  <div className={styles.configField} style={{ flex: 1 }}>
-                    <span className={styles.configFieldLabel}>URL Base:</span>
-                    <span
-                      className={`${styles.configFieldValue} ${styles.urlField}`}
-                    >
-                      {qrConfig.base_url}
-                    </span>
-                  </div>
-                </div>
+              ) : null}
+
+              {/* 🔴 Ninguna credencial se muestra, ni siquiera enmascarada.
+                  El probador dice si están cargadas; para verlas o cambiarlas
+                  está el formulario de la cuenta. */}
+              <div className={styles.configRow}>
+                <span className={styles.configFieldLabel}>
+                  Las credenciales las resuelve el servidor con la cuenta
+                  elegida. Ninguna viaja al navegador.
+                </span>
               </div>
-            </>
+            </div>
           ) : (
             <div className={styles.configEmpty}>
-              No se pudo cargar la configuración
+              Ninguna cuenta tiene un proveedor de QR configurado.
             </div>
           )}
         </div>
       </motion.div>
 
-      {/* Token Display (if we have one) */}
-      <AnimatePresence>
-        {tokenData.token && (
-          <motion.div
-            className={styles.tokenDisplay}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            <span className={styles.tokenIcon}>🔑</span>
-            <div className={styles.tokenInfo}>
-              <div className={styles.tokenLabel}>Active Token</div>
-              <div className={styles.tokenValue}>
-                {tokenData.token.substring(0, 50)}...
-              </div>
-            </div>
-            <div className={styles.tokenActions}>
-              <CopyButton
-                text={tokenData.token}
-                onCopied={handleCopyResponse}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ⚠️ Acá se mostraba el token del banco, con su botón de copiar.
+          Ese token autoriza a emitir y anular códigos de cobro: quien lo
+          tuviera podía operar la cuenta del condominio por fuera de Condaty.
+          Ya no sale del servidor, así que no hay nada que mostrar. */}
 
       {/* Tab Navigation */}
       <motion.div
