@@ -31,27 +31,45 @@ export enum QrEnvironment {
 
 /**
  * Estado de la orden QR.
+ *
  * @see QrOrderStateEnum (backend: app/Modules/QrDinamico/Enums/QrOrderStateEnum.php)
- * - 1: registered → Orden registrada, pendiente de pago
- * - 2: paid       → Orden pagada
- * - 3: cancelled  → Orden anulada
+ *
+ * ⚠️ Los tres primeros valores NO se mueven: la base ya tiene filas con ellos.
+ * En la rama `test` el 3 significa REEMPLAZADO y acá significa ANULADO, así que
+ * los dos casos del flujo de deudas entran por arriba, en 4 y 5.
  */
 export enum QrOrderState {
   REGISTERED = 1,
   PAID = 2,
   CANCELLED = 3,
+  /** Sustituido por un intento de pago nuevo sobre las mismas deudas. */
+  REPLACED = 4,
+  /** Venció la vigencia y la última consulta al proveedor lo dio sin pagar. */
+  EXPIRED = 5,
 }
 
 /**
- * Tipo de pago asociado al QR.
- * - 'T': EXPENSE    → Expensas
- * - 'R': RESERVATION → Reservas
- * - 'E': OUTLAY     → Egresos
+ * A qué se imputa el pago del QR.
+ *
+ * 🔴 **Son DOS alfabetos, y los dos viven en la misma columna.**
+ *
+ * El flujo viejo —el que crea el ingreso primero y pide el código después—
+ * guarda las letras `'T'`, `'R'` y `'E'`. El flujo de deudas guarda el valor
+ * numérico de `PaymentType` del backend, como texto: `'2'` expensas, `'3'`
+ * reservas, `'6'` otras deudas.
+ *
+ * ⚠️ Sin los dos, una orden del flujo nuevo cae en un `undefined` que React
+ * dibuja como celda VACÍA: no se ve un error, se ve una orden sin tipo.
  */
 export enum PaymentType {
   EXPENSE = "T",
   RESERVATION = "R",
   OUTLAY = "E",
+
+  // Los del flujo de deudas, con la numeración de `PaymentType` del backend.
+  DEBT_EXPENSES = "2",
+  DEBT_RESERVATIONS = "3",
+  DEBT_OTHER = "6",
 }
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
@@ -152,6 +170,8 @@ export const QR_STATE_LABEL: Record<QrOrderState, string> = {
   [QrOrderState.REGISTERED]: "Registrado",
   [QrOrderState.PAID]: "Pagado",
   [QrOrderState.CANCELLED]: "Anulado",
+  [QrOrderState.REPLACED]: "Reemplazado",
+  [QrOrderState.EXPIRED]: "Expirado",
 };
 
 export const QR_STATE_COLOR: Record<
@@ -161,12 +181,22 @@ export const QR_STATE_COLOR: Record<
   [QrOrderState.REGISTERED]: { color: "#F59E0B", bg: "rgba(245,158,11,0.12)" },
   [QrOrderState.PAID]: { color: "#00E38C", bg: "rgba(0,227,140,0.12)" },
   [QrOrderState.CANCELLED]: { color: "#F23D2D", bg: "rgba(242,61,45,0.12)" },
+  // Reemplazado y expirado no son errores: son finales tranquilos. Van en gris
+  // para que el rojo siga queriendo decir «algo pasó».
+  [QrOrderState.REPLACED]: { color: "#8B5CF6", bg: "rgba(139,92,246,0.12)" },
+  [QrOrderState.EXPIRED]: { color: "#6B7280", bg: "rgba(107,114,128,0.12)" },
 };
 
 export const PAYMENT_TYPE_LABEL: Record<PaymentType, string> = {
   [PaymentType.EXPENSE]: "Expensas",
   [PaymentType.RESERVATION]: "Reservas",
   [PaymentType.OUTLAY]: "Egresos",
+
+  // Los mismos conceptos, escritos por el flujo de deudas con la numeración
+  // del backend. Ver el docblock de `PaymentType`.
+  [PaymentType.DEBT_EXPENSES]: "Expensas",
+  [PaymentType.DEBT_RESERVATIONS]: "Reservas",
+  [PaymentType.DEBT_OTHER]: "Otras deudas",
 };
 
 // ─── Helpers: QrDynamicMode ──────────────────────────────────────────────────

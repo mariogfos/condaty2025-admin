@@ -1,0 +1,31 @@
+.container {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cBlackV2);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  color: var(--cWhite);
+  font-weight: 600;
+}
+
+.hint,
+.muted {
+  color: var(--cWhiteV2);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.credentialsState {
+  color: var(--cWhite);
+  font-size: 13px;
+}
+
+.error {
+  color: var(--cError);
+  font-size: 13px;
+  line-height: 1.5;
+}
