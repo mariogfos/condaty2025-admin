@@ -32,13 +32,13 @@ type PresenceEvent = {
   occurred_at: string;
   active_seconds: number;
   end_reason?: "idle_rollover" | "context_changed" | "client_ended";
-  device: DeviceSnapshot;
+  device?: DeviceSnapshot;
 };
 
 const INSTALLATION_KEY = "condaty_presence_installation_v1";
 const QUEUE_KEY = "condaty_presence_events_v1";
-const HEARTBEAT_MS = 60_000;
-const MAX_JITTER_MS = 15_000;
+const HEARTBEAT_MS = 2 * 60_000;
+const MAX_JITTER_MS = 30_000;
 const SESSION_IDLE_MS = 15 * 60_000;
 const MAX_QUEUE_SIZE = 50;
 
@@ -216,7 +216,7 @@ class WebPresenceReporter {
       type,
       occurred_at: new Date(occurredAt).toISOString(),
       active_seconds: this.activeSeconds(),
-      device: this.device,
+      ...(type === "started" ? { device: this.device } : {}),
       ...(endReason ? { end_reason: endReason } : {}),
     };
   }

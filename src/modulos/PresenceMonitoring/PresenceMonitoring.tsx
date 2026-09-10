@@ -26,6 +26,7 @@ import {
 } from "./types";
 
 const API_ROOT = "/backoffice/presence-monitoring";
+const REFRESH_MS = 2 * 60_000;
 const EMPTY_STATS = {
   known_connections: 0,
   active_connections: 0,
@@ -110,9 +111,14 @@ export default function PresenceMonitoring() {
   useEffect(() => {
     if (!canView) return;
     void loadOverview(range);
-    const interval = window.setInterval(() => void loadOverview(range, true), 60_000);
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") void loadOverview(range, true);
+    };
+    const interval = window.setInterval(refreshWhenVisible, REFRESH_MS);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
     return () => {
       window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
       requestSequenceRef.current += 1;
     };
   }, [canView, loadOverview, range]);
