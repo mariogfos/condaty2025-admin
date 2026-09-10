@@ -62,7 +62,9 @@ const DEFAULT_DATA: Record<OperationType, Record<string, unknown>> = {
     amount: 100.0,
     currency: "BOB",
     gloss: "Pago de servicios",
-    expiration_date: "31/12/2026",
+    // Banco Ganadero reads dates as ddmmyyyy with no separators; anything
+    // else comes back as COD002 "Parámetros fuera del formato establecido".
+    expiration_date: "31122026",
     single_use: true,
     payment_type: "T",
     reference: "INV-001",
@@ -74,8 +76,8 @@ const DEFAULT_DATA: Record<OperationType, Record<string, unknown>> = {
     qr_id: "",
   },
   transactions: {
-    start_date: "01/01/2026",
-    end_date: "31/12/2026",
+    start_date: "01012026",
+    end_date: "31122026",
   },
 };
 
