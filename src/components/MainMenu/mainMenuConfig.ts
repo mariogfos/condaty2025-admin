@@ -54,6 +54,11 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/invitations", perm: "campanas", labelKey: "qrInvitations" },
       { href: "/uploads", perm: "cargamasiva", labelKey: "bulkUpload" },
       { href: "/app-versions", perm: "superadmins", labelKey: "appVersions" },
+      {
+        href: "/bank-provider-tester",
+        perm: "superadmins",
+        labelKey: "bankTester",
+      },
       { href: "/support-data", perm: "superadmins", labelKey: "supportData" },
       { href: "/history", perm: "superadmins", labelKey: "history" },
       {
@@ -90,11 +95,6 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "partialPayments",
         perm: "bank_accounts",
       },
-      // {
-      //   href: "/bank-provider-tester",
-      //   labelKey: "bankTester",
-      //   perm: "balance",
-      // },
       {
         href: "/qr-dinamico",
         labelKey: "qrDynamic",
