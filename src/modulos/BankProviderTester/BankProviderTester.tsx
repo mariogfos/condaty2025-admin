@@ -268,6 +268,29 @@ const HistoryItemComponent: React.FC<{
   );
 };
 
+/**
+ * What to show when a call did not succeed.
+ *
+ * A console that cannot name the failure is useless: a body without `message`
+ * (a 500 whose response never reached the handler, a gateway timeout, an HTML
+ * error page) used to read as a bare "Request failed", which does not tell a
+ * bank rejection apart from a server that never answered. The HTTP status
+ * always says which of the two it was, so it is part of the message.
+ */
+const describeFailure = (
+  body: Record<string, any>,
+  err?: { message?: string; status?: number } | null,
+): string => {
+  const status = err?.status;
+  if (body?.message) {
+    return status ? `${body.message} (HTTP ${status})` : body.message;
+  }
+  if (status) {
+    return `El servidor respondió HTTP ${status} sin un mensaje. Revisá el log del API.`;
+  }
+  return err?.message || "No hubo respuesta del servidor.";
+};
+
 /* Main Component */
 const BankProviderTester: React.FC = () => {
   const [activeOperation, setActiveOperation] = useState<OperationType>("auth");
@@ -342,9 +365,10 @@ const BankProviderTester: React.FC = () => {
         setQrConfig(result.data.data);
       } else {
         setConfigError(
-          result?.error?.data?.message ||
-            result?.data?.message ||
-            "No se pudo cargar la configuración de la cuenta.",
+          describeFailure(
+            result?.error?.data || result?.data || {},
+            result?.error,
+          ),
         );
         setQrConfig(null);
       }
@@ -425,7 +449,7 @@ const BankProviderTester: React.FC = () => {
       const body = result?.data;
       if (!body?.success) {
         const errorResult = result?.error?.data || body || {};
-        const message = errorResult.message || "Request failed";
+        const message = describeFailure(errorResult, result?.error);
         setError(message);
         setResponseData(errorResult);
         addToHistory(config.name, false, message, requestData, errorResult);

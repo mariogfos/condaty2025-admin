@@ -129,6 +129,60 @@ describe("BankProviderTester", () => {
     });
   });
 
+  it("nombra el status cuando el servidor falla sin mensaje", async () => {
+    // Un 500 cuyo cuerpo nunca pasó por el handler: axios entrega la respuesta
+    // sin `message`. La consola escribía "Request failed", que no distingue un
+    // rechazo del banco de un servidor que reventó.
+    executeMock.mockImplementation(async (url?: string) => {
+      const u = String(url ?? "");
+      if (u.includes("bank-accounts")) return ok(ACCOUNTS);
+      if (u.includes("tester/config")) return ok(CONFIG);
+      return {
+        data: null,
+        error: { message: "Request failed with status code 500", status: 500, data: {} },
+      };
+    });
+
+    render(<BankProviderTester />);
+    await pickAccount();
+    await waitFor(() => expect(screen.getByText("co****23")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole("button", { name: /Execute|Ejecutar/i }));
+
+    await waitFor(() =>
+      expect(screen.getAllByText(/HTTP 500/).length).toBeGreaterThan(0),
+    );
+    expect(screen.queryByText(/^Request failed$/)).toBeNull();
+  });
+
+  it("muestra el mensaje del API junto con su status", async () => {
+    executeMock.mockImplementation(async (url?: string) => {
+      const u = String(url ?? "");
+      if (u.includes("bank-accounts")) return ok(ACCOUNTS);
+      if (u.includes("tester/config")) return ok(CONFIG);
+      return {
+        data: null,
+        error: {
+          message: "Request failed with status code 400",
+          status: 400,
+          data: { success: false, message: "La cuenta bancaria no tiene credenciales de QR dinámico cargadas." },
+        },
+      };
+    });
+
+    render(<BankProviderTester />);
+    await pickAccount();
+    await waitFor(() => expect(screen.getByText("co****23")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole("button", { name: /Execute|Ejecutar/i }));
+
+    await waitFor(() =>
+      expect(
+        screen.getAllByText(/no tiene credenciales de QR dinámico cargadas/).length,
+      ).toBeGreaterThan(0),
+    );
+  });
+
   it("ninguna ruta del tester conserva el prefijo publico bank-qr", async () => {
     routeApi();
     render(<BankProviderTester />);
