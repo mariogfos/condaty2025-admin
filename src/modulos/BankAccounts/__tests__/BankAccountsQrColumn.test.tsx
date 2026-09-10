@@ -71,6 +71,7 @@ describe("BankAccounts — columna de QR Dinámico (QR-07)", () => {
       qr_dynamic_enabled: true,
       qr_dynamic_bank_id: "uuid-bg",
       qr_dynamic_account_reference: "CTA-001",
+      qr_dynamic_has_credentials: true,
     });
     expect(screen.getByText("Activo")).toBeInTheDocument();
 
@@ -112,12 +113,26 @@ describe("qrAccountState", () => {
     ).toBe("incomplete");
   });
 
-  it("activo solo con proveedor y referencia", () => {
+  it("incompleto si tiene proveedor y referencia pero no credenciales", () => {
+    // Sin este caso una cuenta que no puede cobrar se anunciaba como Activo:
+    // las credenciales son $hidden y el listado no las trae.
     expect(
       qrAccountState({
         qr_dynamic_enabled: true,
         qr_dynamic_bank_id: "uuid-bg",
         qr_dynamic_account_reference: "CTA-001",
+        qr_dynamic_has_credentials: false,
+      }),
+    ).toBe("incomplete");
+  });
+
+  it("activo solo con proveedor, referencia y credenciales", () => {
+    expect(
+      qrAccountState({
+        qr_dynamic_enabled: true,
+        qr_dynamic_bank_id: "uuid-bg",
+        qr_dynamic_account_reference: "CTA-001",
+        qr_dynamic_has_credentials: true,
       }),
     ).toBe("active");
   });

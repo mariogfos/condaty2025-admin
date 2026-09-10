@@ -33,17 +33,15 @@ export type QrAccountState = "active" | "incomplete" | "disabled";
 
 /**
  * Dynamic-QR state of a bank account, derived from the bank-accounts list
- * response (the non-sensitive qr_dynamic_* columns ship with every row, so
- * no extra request per row is needed).
- *
- * ponytail: the list does not expose has_credentials (the credential columns
- * are $hidden on the model), so an enabled account with provider + reference
- * but no credentials still reads "Activo". Tighten this once the API adds a
- * qr_dynamic_has_credentials flag to the listing.
+ * response. The non-sensitive qr_dynamic_* columns ship with every row, and
+ * the API derives qr_dynamic_has_credentials so the front can tell a
+ * configured account from an empty one without ever seeing the secrets.
  */
 export const qrAccountState = (account: any): QrAccountState => {
   if (!account?.qr_dynamic_enabled) return "disabled";
-  return account.qr_dynamic_bank_id && account.qr_dynamic_account_reference
+  return account.qr_dynamic_bank_id &&
+    account.qr_dynamic_account_reference &&
+    account.qr_dynamic_has_credentials
     ? "active"
     : "incomplete";
 };
