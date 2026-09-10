@@ -74,7 +74,7 @@ const InputPassword = ({
         readOnly={readOnly}
         iconRight={iconRight}
         error={error}
-        // maxLength={10}
+        maxLength={255}
       />
       {repeatPassword && (
         <Input
@@ -88,7 +88,7 @@ const InputPassword = ({
           readOnly={readOnly}
           iconRight={iconRightRepeat}
           error={error}
-          // maxLength={10}
+          maxLength={255}
         />
       )}
     </div>
