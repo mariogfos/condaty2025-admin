@@ -13,6 +13,7 @@ import Login from "../components/auth/Login";
 import useToast, { ToastItem } from "../hooks/useToast";
 import Splash from "../../components/req/Splash";
 import ToastViewport from "../components/ui/Toast/ToastViewport";
+import { getPresenceSessionId } from "../monitoring/presenceSessionState";
 export interface AuthContextType {
   user: any;
   error: any;
@@ -196,6 +197,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     const { data, error }: any = await execute(
       adminAuthEndpoints.logout,
       "POST",
+      { presence_session_id: getPresenceSessionId() },
     );
     localStorage.removeItem(
       adminAuthTokenKey,

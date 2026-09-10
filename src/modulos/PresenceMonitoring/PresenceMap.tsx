@@ -48,6 +48,7 @@ type Props = {
   onCreatePlace: (clientId: string, boundary: Coordinate[]) => Promise<void>;
   onUpdatePlace: (id: number, boundary: Coordinate[]) => Promise<void>;
   onDeletePlace: (id: number) => Promise<void>;
+  onOpenHistory: (connection: PresenceConnection) => void;
 };
 
 const mapToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim();
@@ -61,6 +62,7 @@ export default function PresenceMap({
   onCreatePlace,
   onUpdatePlace,
   onDeletePlace,
+  onOpenHistory,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -82,7 +84,7 @@ export default function PresenceMap({
       .filter((connection) => connection.coordinates !== null)
       .map((connection) => ({
         type: "Feature",
-        properties: { id: connection.id, product: connection.product },
+        properties: { id: connection.id, product: connection.product, state: connection.state },
         geometry: { type: "Point", coordinates: connection.coordinates! },
       })),
   }), [connections]);
@@ -242,7 +244,13 @@ export default function PresenceMap({
         source: "presence-connections-heat-source",
         maxzoom: 12.5,
         paint: {
-          "heatmap-weight": 0.9,
+          "heatmap-weight": [
+            "match", ["get", "state"],
+            "active", 1,
+            "recent", 0.55,
+            "offline", 0.16,
+            0.16,
+          ],
           "heatmap-intensity": 0.85,
           "heatmap-radius": 34,
           "heatmap-opacity": 0.52,
@@ -261,7 +269,13 @@ export default function PresenceMap({
         source: "presence-connections",
         filter: ["!", ["has", "point_count"]],
         paint: {
-          "circle-radius": 7,
+          "circle-radius": [
+            "match", ["get", "state"],
+            "active", 7,
+            "recent", 6,
+            "offline", 4.5,
+            4.5,
+          ],
           "circle-color": [
             "match", ["get", "product"],
             "admin", "#ffbe5c",
@@ -271,6 +285,8 @@ export default function PresenceMap({
           ],
           "circle-stroke-color": "#07100d",
           "circle-stroke-width": 3,
+          "circle-opacity": ["match", ["get", "state"], "offline", 0.46, 1],
+          "circle-stroke-opacity": ["match", ["get", "state"], "offline", 0.6, 1],
           "circle-emissive-strength": 1,
         },
       });
@@ -571,16 +587,26 @@ export default function PresenceMap({
               <h2>{selected.name}</h2>
               <p>{selected.role}</p>
             </div>
-            <span className={selected.state === "active" ? styles.livePill : styles.recentPill}>
-              {selected.state === "active" ? "En línea" : "Reciente"}
+            <span className={selected.state === "active" ? styles.livePill : selected.state === "recent" ? styles.recentPill : styles.offlinePill}>
+              {selected.state === "active" ? "En línea" : selected.state === "recent" ? "Reciente" : "Desconectado"}
             </span>
           </header>
           <dl>
             <div><dt>Condominio</dt><dd>{selected.scope_name}</dd></div>
             <div><dt>Dispositivo</dt><dd>{selected.device}</dd></div>
             <div><dt>Sistema</dt><dd>{selected.os || "No identificado"}</dd></div>
+            <div><dt>Versión</dt><dd>{selected.app_version ? `${selected.app_version}${selected.app_build ? ` (${selected.app_build})` : ""}` : "No identificada"}</dd></div>
+            <div><dt>Última señal</dt><dd>{formatPresenceDate(selected.last_seen_at)}</dd></div>
+            <div><dt>Tiempo activo</dt><dd>{selected.active_seconds == null ? "Disponible desde la actualización" : formatDuration(selected.active_seconds)}</dd></div>
           </dl>
-          <footer><MapPinned size={14} /> Posición referencial del condominio</footer>
+          <footer>
+            <span><MapPinned size={14} /> Posición referencial del condominio</span>
+            {selected.installation_id ? (
+              <button type="button" onClick={() => onOpenHistory(selected)}>
+                Ver {selected.session_count || 1} {selected.session_count === 1 ? "sesión" : "sesiones"}
+              </button>
+            ) : null}
+          </footer>
         </article>
       ) : null}
 
@@ -680,4 +706,25 @@ function errorMessage(caught: unknown) {
 
 function capitalize(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function formatPresenceDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "No identificada";
+  return new Intl.DateTimeFormat("es-BO", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "America/La_Paz",
+  }).format(date).replaceAll(".", "");
+}
+
+function formatDuration(seconds: number) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remaining = Math.max(0, seconds % 60);
+  if (hours) return `${hours} h ${minutes} min`;
+  if (minutes) return `${minutes} min ${remaining} s`;
+  return `${remaining} s`;
 }
