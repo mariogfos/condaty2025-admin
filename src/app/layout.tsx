@@ -10,6 +10,7 @@ import { Metadata, Viewport } from "next";
 import ChatInstantDb from "@/mk/components/chat/ChatInstantDb";
 import { ImageModalProvider } from "@/contexts/ImageModalContext";
 import AppLanguageLayer from "@/i18n/AppLanguageLayer";
+import PresenceReporter from "@/mk/monitoring/PresenceReporter";
 // import { ReactScan } from "@/mk/utils/reactscan/ReactScan";
 
 const appSans = Inter({
@@ -46,6 +47,7 @@ export default function RootLayout({
         <AxiosInstanceProvider interceptors={axiosInterceptors}>
           <AppLanguageLayer>
             <AuthProvider>
+              <PresenceReporter />
               <ImageModalProvider>
                 <div
                   id="portal-root"
