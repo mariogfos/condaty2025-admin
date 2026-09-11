@@ -105,6 +105,11 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "qrDynamic",
         perm: "payments",
       },
+      {
+        href: "/orange-logs",
+        labelKey: "orangeLogs",
+        perm: "payments",
+      },
     ],
   },
   {

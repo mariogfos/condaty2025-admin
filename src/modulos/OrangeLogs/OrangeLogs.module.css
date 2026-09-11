@@ -1,0 +1,270 @@
+/* El log de Orange. Mismo lenguaje visual que QR Dinámico: tema oscuro,
+   superficies sobre #d7fff0 a muy baja opacidad y acento #00E38C. */
+
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cWhite);
+}
+
+.headerSubtitle {
+  font-size: 13px;
+  color: var(--cWhiteV1);
+  max-width: 720px;
+}
+
+/* ─── Filtros ────────────────────────────────────────────────────────────── */
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 12px;
+  color: var(--cWhiteV1);
+}
+
+.filterInput {
+  background: #d7fff008;
+  border: 1px solid #d7fff018;
+  border-radius: 8px;
+  color: var(--cWhite);
+  padding: 0.5rem 0.75rem;
+  font-size: 13px;
+  outline: none;
+  min-width: 150px;
+  transition: border-color 0.2s;
+}
+
+.filterInput:hover,
+.filterInput:focus {
+  border-color: #d7fff030;
+}
+
+.filterInput option {
+  background: #1a1a2e;
+}
+
+.clearBtn {
+  background: none;
+  border: 1px solid #d7fff018;
+  border-radius: 8px;
+  color: var(--cWhiteV1);
+  padding: 0.5rem 1rem;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clearBtn:hover {
+  color: var(--cWhite);
+  border-color: #d7fff030;
+}
+
+/* ─── Error del API ──────────────────────────────────────────────────────── */
+.error {
+  border: 1px solid #8A202040;
+  background: #8A202018;
+  color: #FBB;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 13px;
+}
+
+/* ─── Tabla ──────────────────────────────────────────────────────────────── */
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #d7fff014;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table thead tr {
+  background: #d7fff006;
+  border-bottom: 1px solid #d7fff014;
+}
+
+.table thead th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 500;
+  color: var(--cWhiteV1);
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #d7fff00c;
+}
+
+.table tbody td {
+  padding: 0.75rem 1rem;
+  color: var(--cWhite);
+  vertical-align: top;
+}
+
+/* Una línea revertida describe una escritura que la transacción deshizo: se
+   atenúa para que no se lea como algo que pasó. */
+.rowReverted td {
+  opacity: 0.6;
+}
+
+.mono {
+  font-family: monospace;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.eventTag,
+.revertedTag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #FBB;
+}
+
+.eventTag {
+  color: var(--cWhiteV1);
+}
+
+.remaining {
+  display: block;
+  font-size: 11px;
+  color: var(--cWhiteV1);
+}
+
+.detailCell {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  max-width: 420px;
+}
+
+.detailCell > span {
+  flex: 1;
+}
+
+.payloadBtn {
+  background: none;
+  border: 1px solid #d7fff018;
+  border-radius: 6px;
+  color: #00E38C;
+  padding: 0.2rem 0.5rem;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s;
+}
+
+.payloadBtn:hover {
+  border-color: #00E38C60;
+}
+
+/* ─── El JSON crudo ──────────────────────────────────────────────────────── */
+.payloadRow td {
+  background: #d7fff005;
+  padding: 0.75rem 1rem 1rem;
+}
+
+.payloadHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--cWhiteV1);
+  margin-bottom: 0.5rem;
+}
+
+.payloadJson {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: #00000030;
+  border: 1px solid #d7fff014;
+  color: var(--cWhite);
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  max-height: 360px;
+  overflow: auto;
+  white-space: pre;
+}
+
+/* ─── Vacío y paginación ─────────────────────────────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 3rem 1rem;
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  text-align: center;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.pageInfo {
+  font-size: 12px;
+  color: var(--cWhiteV1);
+}
+
+.pageBtn {
+  background: none;
+  border: 1px solid #d7fff018;
+  border-radius: 8px;
+  color: var(--cWhite);
+  padding: 0.4rem 0.9rem;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.pageBtn:hover:not(:disabled) {
+  border-color: #d7fff030;
+}
+
+.pageBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
