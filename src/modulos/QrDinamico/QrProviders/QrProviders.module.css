@@ -1,0 +1,83 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.title {
+  color: var(--cWhite);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--cWhiteV1, rgba(255, 255, 255, 0.12));
+  border-radius: 8px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.code {
+  color: var(--cWhite);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--cWhiteV1, rgba(255, 255, 255, 0.2));
+  color: var(--cWhiteV1, #a7a7a7);
+}
+
+.badge[data-active="true"] {
+  color: var(--cSuccess, #4caf50);
+  border-color: var(--cSuccess, #4caf50);
+}
+
+.hint {
+  color: var(--cWhiteV1, #a7a7a7);
+  font-size: 12px;
+  margin: 0;
+}
+
+.credentialsState {
+  color: var(--cWhite);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.muted {
+  color: var(--cWhiteV1, #a7a7a7);
+  font-size: 13px;
+  margin: 16px;
+}
+
+.error {
+  color: var(--cError, #e5484d);
+  font-size: 13px;
+  margin: 0;
+}
+
+.ok {
+  color: var(--cSuccess, #4caf50);
+  font-size: 13px;
+  margin: 0;
+}
+
+.warning {
+  color: var(--cWarning, #f5a623);
+  font-size: 13px;
+  margin: 0;
+}

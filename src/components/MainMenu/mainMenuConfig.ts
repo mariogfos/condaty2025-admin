@@ -59,6 +59,11 @@ export const menuConfig: MenuConfigItem[] = [
         perm: "superadmins",
         labelKey: "bankTester",
       },
+      {
+        href: "/qr-providers",
+        perm: "superadmins",
+        labelKey: "qrProviders",
+      },
       { href: "/support-data", perm: "superadmins", labelKey: "supportData" },
       {
         href: "/presence-monitoring",
