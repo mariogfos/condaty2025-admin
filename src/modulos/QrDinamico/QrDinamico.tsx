@@ -13,6 +13,7 @@ import {
   QR_STATE_COLOR,
   PAYMENT_TYPE_LABEL,
 } from './types';
+import { formatQrDate } from './shared';
 import RenderView from './RenderView/RenderView';
 import QrMetrics from './QrMetrics/QrMetrics';
 
@@ -26,12 +27,6 @@ const formatAmount = (amount: string, currency: string) => (
     <span className={styles.currency}>{currency}</span>
   </span>
 );
-
-const formatDate = (dateStr: string | null) => {
-  if (!dateStr) return '—';
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
-};
 
 const StateBadge = ({ state }: { state: QrOrderState }) => {
   const cfg = QR_STATE_COLOR[state];
@@ -303,9 +298,9 @@ const QrDinamico = () => {
 	                  <tr key={order.id} onClick={() => setSelectedOrder(order)}>
                     <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{order.reference}</td>
                     <td>{order.payment_type ? PAYMENT_TYPE_LABEL[order.payment_type] : '—'}</td>
-                    <td>{formatDate(order.order_date)}</td>
-                    <td>{formatDate(order.pay_date)}</td>
-                    <td>{formatDate(order.expiration_date)}</td>
+                    <td>{formatQrDate(order.order_date)}</td>
+                    <td>{formatQrDate(order.pay_date)}</td>
+                    <td>{formatQrDate(order.expiration_date)}</td>
                     <td>{formatAmount(order.amount, order.currency)}</td>
                     <td style={{ textAlign: 'center' }}>
                       <StateBadge state={order.order_state} />

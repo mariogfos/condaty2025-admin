@@ -26,6 +26,33 @@ export const StateBadge = ({ state }: { state: QrOrderState }) => {
  * En 2xx viene en data.message; en 403/404/422 axios tira y el cuerpo
  * del backend queda en error.data.message.
  */
+/**
+ * Fecha de una orden, tal como la escribió el servidor.
+ *
+ * El API manda las fechas en ISO con hora ("2026-09-10T00:00:00.000000Z"),
+ * porque el modelo las castea. Pegarle "T00:00:00" a eso da un string que
+ * `Date` no sabe leer, y la tabla mostraba "Invalid Date".
+ *
+ * Se toma sólo la parte de fecha y se arma una fecha LOCAL: `new Date("2026-09-10")`
+ * sería medianoche UTC, que en La Paz cae el día anterior y correría todas las
+ * fechas un día para atrás.
+ */
+export const formatQrDate = (
+  value: string | null | undefined,
+  month: "short" | "long" = "short",
+): string => {
+  if (!value) return "—";
+
+  const [anio, mes, dia] = value.slice(0, 10).split("-").map(Number);
+  if (!anio || !mes || !dia) return "—";
+
+  return new Date(anio, mes - 1, dia).toLocaleDateString("es-BO", {
+    day: "2-digit",
+    month,
+    year: "numeric",
+  });
+};
+
 export const apiMessage = (res: any): string | null =>
   res?.data?.message || res?.error?.data?.message || null;
 

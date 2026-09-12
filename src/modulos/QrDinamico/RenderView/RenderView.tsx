@@ -1,17 +1,13 @@
 'use client';
 import React, { useRef } from 'react';
 import { QrOrder, QR_STATE_LABEL, QR_STATE_COLOR, PAYMENT_TYPE_LABEL } from '../types';
+import { formatQrDate } from '../shared';
 import styles from './RenderView.module.css';
 
 interface Props {
   order: QrOrder;
   onClose: () => void;
 }
-
-const formatDate = (d: string | null) => {
-  if (!d) return '—';
-  return new Date(d + 'T00:00:00').toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' });
-};
 
 const RenderView = ({ order, onClose }: Props) => {
   const printRef = useRef<HTMLDivElement>(null);
@@ -71,11 +67,11 @@ const RenderView = ({ order, onClose }: Props) => {
           <InfoRow label="Referencia banco" value={order.qr_id_banco ?? '—'} />
           <InfoRow label="Monto" value={`${parseFloat(order.amount).toFixed(2)} ${order.currency}`} />
           <InfoRow label="Tipo de pago" value={order.payment_type ? PAYMENT_TYPE_LABEL[order.payment_type] : '—'} />
-          <InfoRow label="Fecha orden" value={formatDate(order.order_date)} />
-          <InfoRow label="Fecha pago" value={formatDate(order.pay_date)} />
+          <InfoRow label="Fecha orden" value={formatQrDate(order.order_date)} />
+          <InfoRow label="Fecha pago" value={formatQrDate(order.pay_date)} />
           <InfoRow label="Hora pago" value={order.pay_hour ?? '—'} />
           <InfoRow label="N° transacción" value={order.transaction_id ?? '—'} />
-          <InfoRow label="Vencimiento" value={formatDate(order.expiration_date)} />
+          <InfoRow label="Vencimiento" value={formatQrDate(order.expiration_date)} />
           <InfoRow label="Uso único" value={order.single_use ? 'Sí' : 'No'} />
           {order.consolidated_at && (
             <InfoRow label="Conciliado" value={new Date(order.consolidated_at).toLocaleDateString('es-BO')} />
