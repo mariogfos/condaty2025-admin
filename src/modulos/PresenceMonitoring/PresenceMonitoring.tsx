@@ -14,6 +14,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
+import PresenceFilterSelect, {
+  type PresenceFilterOption,
+} from "./PresenceFilterSelect";
 import PresenceMap from "./PresenceMap";
 import styles from "./PresenceMonitoring.module.css";
 import {
@@ -41,11 +44,66 @@ const EMPTY_STATS = {
 type FilterProduct = PresenceProduct | "all";
 type FilterState = "all" | "active" | "recent" | "offline";
 
+const PRODUCT_FILTER_OPTIONS: PresenceFilterOption<FilterProduct>[] = [
+  {
+    value: "all",
+    label: "Todos",
+    description: "Todos los productos",
+    tone: "neutral",
+  },
+  {
+    value: "admin",
+    label: "Administración",
+    description: "Panel de administración",
+    tone: "admin",
+  },
+  {
+    value: "resident",
+    label: "Residentes",
+    description: "Aplicación de residentes",
+    tone: "resident",
+  },
+  {
+    value: "guard",
+    label: "Guardias",
+    description: "Aplicación de guardias",
+    tone: "guard",
+  },
+];
+
+const STATE_FILTER_OPTIONS: PresenceFilterOption<FilterState>[] = [
+  {
+    value: "all",
+    label: "Todos",
+    description: "Cualquier estado",
+    tone: "neutral",
+  },
+  {
+    value: "active",
+    label: "En línea",
+    description: "Con actividad actual",
+    tone: "active",
+  },
+  {
+    value: "recent",
+    label: "Recientes",
+    description: "Actividad en los últimos 15 min",
+    tone: "recent",
+  },
+  {
+    value: "offline",
+    label: "Desconectados",
+    description: "Sin señal reciente",
+    tone: "offline",
+  },
+];
+
 export default function PresenceMonitoring() {
   const { user, setStore, showToast } = useAuth();
   const { execute } = useAxios();
   const executeRef = useRef(execute);
   const requestSequenceRef = useRef(0);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [overview, setOverview] = useState<PresenceOverview | null>(null);
   const [range, setRange] = useState<"hours" | "days">("hours");
   const [product, setProduct] = useState<FilterProduct>("all");
@@ -229,40 +287,50 @@ export default function PresenceMonitoring() {
           </button>
         </header>
 
-        <label className={styles.searchField}>
-          <Search size={16} aria-hidden="true" />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Usuario, equipo o condominio"
-            aria-label="Buscar conexiones"
-          />
-        </label>
-
-        <div className={styles.segments} role="group" aria-label="Filtrar por producto">
-          {(["all", "admin", "resident", "guard"] as FilterProduct[]).map((item) => (
+        <div className={styles.searchControl}>
+          <label className={styles.searchField} htmlFor="presence-connection-search">
+            <Search size={16} aria-hidden="true" />
+            <input
+              ref={searchInputRef}
+              id="presence-connection-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Usuario, equipo o condominio"
+              aria-label="Buscar conexiones"
+              autoComplete="off"
+              spellCheck={false}
+            />
+          </label>
+          {query ? (
             <button
-              key={item}
+              className={styles.searchClear}
               type="button"
-              className={product === item ? styles.segmentSelected : ""}
-              onClick={() => setProduct(item)}
+              aria-label="Limpiar búsqueda"
+              onClick={() => {
+                setQuery("");
+                searchInputRef.current?.focus();
+              }}
             >
-              {item === "all" ? "Todo" : productLabels[item]}
+              <X size={14} aria-hidden="true" />
             </button>
-          ))}
+          ) : null}
         </div>
 
-        <div className={`${styles.segments} ${styles.stateSegments}`} role="group" aria-label="Filtrar por estado">
-          {(["all", "active", "recent", "offline"] as FilterState[]).map((item) => (
-            <button
-              key={item}
-              type="button"
-              className={state === item ? styles.segmentSelected : ""}
-              onClick={() => setState(item)}
-            >
-              {stateLabels[item]}
-            </button>
-          ))}
+        <div className={styles.filterRow} role="group" aria-label="Filtros de conexiones">
+          <PresenceFilterSelect
+            label="Producto"
+            value={product}
+            options={PRODUCT_FILTER_OPTIONS}
+            onChange={setProduct}
+          />
+          <PresenceFilterSelect
+            label="Estado"
+            value={state}
+            options={STATE_FILTER_OPTIONS}
+            align="end"
+            onChange={setState}
+          />
         </div>
 
         <div className={styles.activitySummary}>
@@ -495,13 +563,6 @@ function relativeTime(value: string) {
   if (days < 30) return `Hace ${days} d`;
   return new Intl.DateTimeFormat("es-BO", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/La_Paz" }).format(new Date(value)).replaceAll(".", "");
 }
-
-const stateLabels: Record<FilterState, string> = {
-  all: "Todos",
-  active: "En línea",
-  recent: "Recientes",
-  offline: "Desconectados",
-};
 
 function stateClass(state: PresenceConnection["state"]) {
   if (state === "active") return styles.stateActive;
