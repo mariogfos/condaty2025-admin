@@ -383,6 +383,7 @@
 
 .connectionDetail h2 {
   margin: 4px 0 0;
+  color: var(--presence-text);
   font-size: 16px;
   letter-spacing: -0.02em;
 }
