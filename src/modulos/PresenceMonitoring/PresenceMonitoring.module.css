@@ -790,79 +790,337 @@
   animation: spin 900ms linear infinite;
 }
 
+.searchControl {
+  display: flex;
+  height: 46px;
+  padding: 0 8px 0 13px;
+  gap: 8px;
+  align-items: center;
+  background: rgba(2, 5, 6, 0.58);
+  border: 1px solid var(--presence-border);
+  border-radius: 13px;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.searchControl:hover {
+  border-color: var(--presence-border-strong);
+}
+
+.searchControl:focus-within {
+  background: rgba(2, 5, 6, 0.72);
+  border-color: rgba(0, 227, 140, 0.52);
+  box-shadow: 0 0 0 3px rgba(0, 227, 140, 0.08);
+}
+
 .searchField {
   display: flex;
-  height: 44px;
-  padding: 0 13px;
+  min-width: 0;
+  flex: 1;
   gap: 10px;
   align-items: center;
   color: var(--presence-subtle);
-  background: rgba(2, 5, 6, 0.58);
-  border: 1px solid var(--presence-border);
-  border-radius: 12px;
+  cursor: text;
 }
 
-.searchField:focus-within {
-  border-color: rgba(0, 227, 140, 0.48);
-  box-shadow: 0 0 0 3px rgba(0, 227, 140, 0.08);
+.searchField > svg {
+  flex: 0 0 auto;
+  transition: color 160ms ease;
+}
+
+.searchControl:focus-within .searchField > svg {
+  color: var(--presence-brand);
 }
 
 .searchField input {
   width: 100%;
   min-width: 0;
   padding: 0;
+  appearance: none;
   color: var(--presence-text);
   background: transparent;
   border: 0;
+  border-radius: 0;
   outline: 0;
-  font-size: 12px;
+  box-shadow: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.workspace .searchField input:focus,
+.workspace .searchField input:focus-visible {
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+}
+
+.searchField input::-webkit-search-cancel-button {
+  display: none;
 }
 
 .searchField input::placeholder {
   color: var(--presence-subtle);
 }
 
-.segments {
-  display: flex;
-  padding: 4px;
-  gap: 3px;
-  margin-top: 12px;
-  overflow-x: auto;
-  background: rgba(2, 5, 6, 0.52);
-  border: 1px solid var(--presence-border);
-  border-radius: 999px;
-  scrollbar-width: none;
-}
-
-.segments button {
-  padding: 7px 10px;
+.searchClear {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  flex: 0 0 auto;
+  place-items: center;
   color: var(--presence-subtle);
   background: transparent;
   border: 0;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 650;
-  white-space: nowrap;
+  border-radius: 9px;
   cursor: pointer;
+  transition:
+    color 140ms ease,
+    background 140ms ease;
 }
 
-.segments button:hover {
-  color: var(--presence-text);
-}
-
-.segments .segmentSelected {
+.searchClear:hover {
   color: var(--presence-text);
   background: var(--presence-hover);
-  box-shadow: inset 0 0 0 1px var(--presence-border);
 }
 
-.stateSegments {
-  margin-top: 7px;
+.filterRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
 }
 
-.stateSegments button {
-  flex: 1 0 auto;
-  padding-inline: 8px;
+.filterControl {
+  position: relative;
+  min-width: 0;
+}
+
+.filterTrigger {
+  display: grid;
+  width: 100%;
+  min-height: 50px;
+  padding: 8px 10px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  color: var(--presence-text);
+  background: rgba(2, 5, 6, 0.52);
+  border: 1px solid var(--presence-border);
+  border-radius: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.filterTrigger:hover {
+  background: rgba(25, 35, 37, 0.72);
+  border-color: var(--presence-border-strong);
+}
+
+.filterTrigger[aria-expanded="true"] {
+  background: rgba(2, 5, 6, 0.76);
+  border-color: rgba(0, 227, 140, 0.45);
+  box-shadow: 0 0 0 3px rgba(0, 227, 140, 0.07);
+}
+
+.filterIndicator {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  background: var(--filter-tone);
+  border-radius: 50%;
+  box-shadow: 0 0 9px color-mix(in srgb, var(--filter-tone) 72%, transparent);
+}
+
+.filterToneNeutral {
+  --filter-tone: var(--presence-muted);
+}
+
+.filterToneAdmin {
+  --filter-tone: var(--presence-admin);
+}
+
+.filterToneResident {
+  --filter-tone: var(--presence-resident);
+}
+
+.filterToneGuard {
+  --filter-tone: var(--presence-guard);
+}
+
+.filterToneActive {
+  --filter-tone: var(--presence-brand);
+}
+
+.filterToneRecent {
+  --filter-tone: #f5c95c;
+}
+
+.filterToneOffline {
+  --filter-tone: var(--presence-subtle);
+}
+
+.filterTriggerText,
+.filterOptionText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.filterTriggerText {
+  gap: 2px;
+}
+
+.filterTriggerText > span {
+  overflow: hidden;
+  color: var(--presence-subtle);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.filterTriggerText strong {
+  overflow: hidden;
+  color: var(--presence-text);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filterChevron,
+.filterChevronOpen {
+  color: var(--presence-subtle);
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.filterChevronOpen {
+  color: var(--presence-brand);
+  transform: rotate(180deg);
+}
+
+.filterPopover {
+  position: absolute;
+  z-index: 80;
+  top: calc(100% + 8px);
+  left: 0;
+  width: min(244px, calc(100vw - 48px));
+  padding: 8px;
+  color: var(--presence-text);
+  background: rgba(8, 13, 14, 0.98);
+  border: 1px solid var(--presence-border-strong);
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(22px);
+  animation: filterPopoverIn 150ms ease-out;
+}
+
+.filterPopoverEnd {
+  right: 0;
+  left: auto;
+}
+
+.filterPopoverHeader {
+  display: flex;
+  padding: 5px 7px 9px;
+  flex-direction: column;
+  gap: 1px;
+  border-bottom: 1px solid var(--presence-border);
+}
+
+.filterPopoverHeader span {
+  color: var(--presence-subtle);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.filterPopoverHeader strong {
+  color: var(--presence-text);
+  font-size: 13px;
+  font-weight: 680;
+}
+
+.filterOptions {
+  display: grid;
+  gap: 4px;
+  padding-top: 6px;
+}
+
+.filterOption {
+  display: grid;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  color: var(--presence-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease;
+}
+
+.filterOption:hover {
+  color: var(--presence-text);
+  background: var(--presence-hover);
+}
+
+.filterOptionSelected {
+  color: var(--presence-text);
+  background: var(--presence-brand-soft);
+  border-color: rgba(0, 227, 140, 0.2);
+}
+
+.workspace .filterOption:focus-visible {
+  outline: 0;
+  background: var(--presence-hover);
+  border-color: rgba(0, 227, 140, 0.45);
+  box-shadow: 0 0 0 2px rgba(0, 227, 140, 0.08);
+}
+
+.filterOption > svg {
+  color: var(--presence-brand);
+}
+
+.filterOptionText {
+  gap: 2px;
+}
+
+.filterOptionText strong {
+  color: var(--presence-text);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.filterOptionText small {
+  overflow: hidden;
+  color: var(--presence-subtle);
+  font-size: 10px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .activitySummary {
@@ -1340,6 +1598,7 @@ button.notice {
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes riseIn { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }
 @keyframes menuIn { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes filterPopoverIn { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
 @keyframes dialogIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: none; } }
 
 @media (max-width: 1280px) {
