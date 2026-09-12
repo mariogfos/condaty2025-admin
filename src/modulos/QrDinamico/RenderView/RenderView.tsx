@@ -67,6 +67,8 @@ const RenderView = ({ order, onClose }: Props) => {
           <InfoRow label="Referencia banco" value={order.qr_id_banco ?? '—'} />
           <InfoRow label="Monto" value={`${parseFloat(order.amount).toFixed(2)} ${order.currency}`} />
           <InfoRow label="Tipo de pago" value={order.payment_type ? PAYMENT_TYPE_LABEL[order.payment_type] : '—'} />
+          <InfoRow label="Unidad" value={order.unit || '—'} />
+          <InfoRow label="Concepto" value={order.concept || '—'} />
           <InfoRow label="Fecha orden" value={formatQrDate(order.order_date)} />
           <InfoRow label="Fecha pago" value={formatQrDate(order.pay_date)} />
           <InfoRow label="Hora pago" value={order.pay_hour ?? '—'} />
