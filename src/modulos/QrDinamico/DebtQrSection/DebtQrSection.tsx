@@ -5,6 +5,7 @@ import { useEvent } from "@/mk/hooks/useEvents";
 import { formatBs } from "@/mk/utils/numbers";
 import { QrOrderState } from "../types";
 import { StateBadge, apiMessage } from "../shared";
+import { FinancialDetailSection } from "@/features/financial-records/FinancialDetailPrimitives";
 import styles from "./DebtQrSection.module.css";
 
 /**
@@ -60,7 +61,6 @@ const DebtQrSection = ({ debtDptoId, onPaymentConfirmed }: Props) => {
   const [history, setHistory] = useState<QrHistoryItem[]>([]);
   const [verifyMessage, setVerifyMessage] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
   const verifiedOrderRef = useRef<string | null>(null);
   // Espejo del estado pendiente para el listener de tiempo real
@@ -147,78 +147,86 @@ const DebtQrSection = ({ debtDptoId, onPaymentConfirmed }: Props) => {
 
   if (!pendingQr && history.length === 0 && !loadFailed) return null;
 
+  const sectionTitle = pendingQr
+    ? history.length > 0
+      ? `QR dinámico pendiente · Historial (${history.length})`
+      : "QR dinámico pendiente"
+    : `Historial de QR dinámicos (${history.length})`;
+
   return (
-    <div className={styles.container} id="debt-qr-section">
-      {loadFailed && !pendingQr && (
-        <p className={styles.verifyMessage}>
-          No se pudo consultar el estado QR de esta deuda. Intente nuevamente.
-        </p>
-      )}
-      {pendingQr && (
-        <div className={styles.pendingBanner}>
-          <div className={styles.pendingTitle}>
-            En espera de confirmación de QR Dinámico
-            {verifying && (
-              <span className={styles.verifying}> — verificando con el banco…</span>
-            )}
-          </div>
-          <div className={styles.pendingInfo}>
-            <span>Monto: {formatBs(Number(pendingQr.amount) || 0)}</span>
-            <span>Generado: {pendingQr.created_at ?? "-/-"}</span>
-            <span>Vence: {pendingQr.expires_at ?? "-/-"} (hora de Bolivia)</span>
-            {pendingQr.debt_dpto_ids.length > 1 && (
-              <span>
-                Incluye {pendingQr.debt_dpto_ids.length} deudas en el mismo QR
-              </span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {verifyMessage && <p className={styles.verifyMessage}>{verifyMessage}</p>}
-
-      {history.length > 0 && (
-        <div className={styles.historyBlock}>
-          <button
-            type="button"
-            className={styles.historyToggle}
-            onClick={() => setShowHistory((v) => !v)}
-          >
-            Historial de QR dinámicos ({history.length}){" "}
-            {showHistory ? "▲" : "▼"}
-          </button>
-          {showHistory && (
-            <div className={styles.historyList}>
-              {history.map((h) => (
-                <div key={h.id} className={styles.historyItem}>
-                  <div className={styles.historyRow}>
-                    <StateBadge state={h.order_state} />
-                    <span className={styles.historyAmount}>
-                      {formatBs(Number(h.debt_amount ?? h.amount) || 0)}
-                    </span>
-                    <span className={styles.historyDate}>
-                      {h.created_at ?? "-/-"}
-                    </span>
-                  </div>
-                  <div className={styles.historyMeta}>
-                    {h.qr_id_banco && <span>QR banco: {h.qr_id_banco}</span>}
-                    {h.transaction_id && (
-                      <span>Transacción: {h.transaction_id}</span>
-                    )}
-                    {h.paid_at && <span>Pagado: {h.paid_at}</span>}
-                    {h.replaced_by && <span>Reemplazado por otro QR</span>}
-                    {h.replaces && <span>Reemplazó a un QR anterior</span>}
-                    {h.debt_dpto_ids.length > 1 && (
-                      <span>{h.debt_dpto_ids.length} deudas en el QR</span>
-                    )}
-                  </div>
-                </div>
-              ))}
+    <FinancialDetailSection
+      id="debt-qr-section"
+      title={sectionTitle}
+      description={
+        pendingQr
+          ? "Seguimiento de la confirmación bancaria y de los códigos relacionados."
+          : undefined
+      }
+      defaultOpen={Boolean(pendingQr || loadFailed || verifyMessage)}
+    >
+      <div className={styles.content}>
+        {loadFailed && !pendingQr && (
+          <p className={styles.verifyMessage}>
+            No se pudo consultar el estado QR de esta deuda. Intente nuevamente.
+          </p>
+        )}
+        {pendingQr && (
+          <div className={styles.pendingBanner}>
+            <div className={styles.pendingTitle}>
+              En espera de confirmación de QR Dinámico
+              {verifying && (
+                <span className={styles.verifying}>
+                  {" "}
+                  — verificando con el banco…
+                </span>
+              )}
             </div>
-          )}
-        </div>
-      )}
-    </div>
+            <div className={styles.pendingInfo}>
+              <span>Monto: {formatBs(Number(pendingQr.amount) || 0)}</span>
+              <span>Generado: {pendingQr.created_at ?? "-/-"}</span>
+              <span>Vence: {pendingQr.expires_at ?? "-/-"} (hora de Bolivia)</span>
+              {pendingQr.debt_dpto_ids.length > 1 && (
+                <span>
+                  Incluye {pendingQr.debt_dpto_ids.length} deudas en el mismo QR
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {verifyMessage && <p className={styles.verifyMessage}>{verifyMessage}</p>}
+
+        {history.length > 0 && (
+          <div className={styles.historyList} aria-label="Historial de QR dinámicos">
+            {history.map((h) => (
+              <article key={h.id} className={styles.historyItem}>
+                <div className={styles.historyRow}>
+                  <StateBadge state={h.order_state} />
+                  <span className={styles.historyAmount}>
+                    {formatBs(Number(h.debt_amount ?? h.amount) || 0)}
+                  </span>
+                  <span className={styles.historyDate}>
+                    {h.created_at ?? "-/-"}
+                  </span>
+                </div>
+                <div className={styles.historyMeta}>
+                  {h.qr_id_banco && <span>QR banco: {h.qr_id_banco}</span>}
+                  {h.transaction_id && (
+                    <span>Transacción: {h.transaction_id}</span>
+                  )}
+                  {h.paid_at && <span>Pagado: {h.paid_at}</span>}
+                  {h.replaced_by && <span>Reemplazado por otro QR</span>}
+                  {h.replaces && <span>Reemplazó a un QR anterior</span>}
+                  {h.debt_dpto_ids.length > 1 && (
+                    <span>{h.debt_dpto_ids.length} deudas en el QR</span>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </FinancialDetailSection>
   );
 };
 
