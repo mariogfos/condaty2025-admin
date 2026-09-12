@@ -86,6 +86,13 @@ export interface QrOrder {
   consolidated_by: string | null;
   created_at: string;
   updated_at: string;
+  /**
+   * A qué pertenece el QR. Los arma el servidor: el front no tiene con qué
+   * distinguir una expensa de una reserva.
+   */
+  unit?: string | null;
+  /** Período MM/YYYY de la expensa, o el área si es una reserva. */
+  concept?: string | null;
   // ─── QR-primero por deudas (épica DES) ───────────────────────────────────
   bank_account_id?: number | null;
   category_id?: number | null;

@@ -268,6 +268,8 @@ const QrDinamico = () => {
                 <tr>
                   <th>Referencia</th>
                   <th>Tipo</th>
+                  <th>Unidad</th>
+                  <th>Concepto</th>
                   <th>Fecha orden</th>
                   <th>Fecha pago</th>
                   <th>Vencimiento</th>
@@ -279,14 +281,14 @@ const QrDinamico = () => {
 	              <tbody>
 	                {!ordersLoaded && orders.length === 0 && (
 	                  <tr>
-                    <td colSpan={8}>
+                    <td colSpan={10}>
                       <div className={styles.emptyState}><p>Cargando...</p></div>
                     </td>
                   </tr>
                 )}
                 {ordersLoaded && orders.length === 0 && (
                   <tr>
-                    <td colSpan={8}>
+                    <td colSpan={10}>
                       <div className={styles.emptyState}>
                         <p>No hay órdenes QR registradas.</p>
                         <p>Los QR dinámicos se generan desde la App Residente.</p>
@@ -298,6 +300,10 @@ const QrDinamico = () => {
 	                  <tr key={order.id} onClick={() => setSelectedOrder(order)}>
                     <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{order.reference}</td>
                     <td>{order.payment_type ? PAYMENT_TYPE_LABEL[order.payment_type] : '—'}</td>
+                    <td>{order.unit || '—'}</td>
+                    <td className={styles.concept} title={order.concept ?? undefined}>
+                      {order.concept || '—'}
+                    </td>
                     <td>{formatQrDate(order.order_date)}</td>
                     <td>{formatQrDate(order.pay_date)}</td>
                     <td>{formatQrDate(order.expiration_date)}</td>
@@ -324,7 +330,7 @@ const QrDinamico = () => {
 	                        key={`qr-order-skeleton-${pagination.current_page}-${index}`}
 	                        className={styles.loadingRow}
 	                      >
-	                        <td colSpan={8}>
+	                        <td colSpan={10}>
 	                          <div className={styles.loadingRowInner}>
 	                            <div className={styles.loadingLineLong} />
 	                            <div className={styles.loadingLineShort} />

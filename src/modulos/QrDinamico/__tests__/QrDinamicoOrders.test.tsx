@@ -65,6 +65,91 @@ describe("QrDinamico — órdenes (QR-13)", () => {
     expect(container.textContent).toContain("2026");
   });
 
+  it("muestra a qué unidad y concepto pertenece cada QR", async () => {
+    // La referencia y el monto no dicen de quién es el cobro. El servidor
+    // resuelve las dos cosas: el front no tiene con qué distinguir una
+    // expensa de una reserva.
+    executeMock.mockResolvedValue({
+      data: {
+        success: true,
+        data: {
+          items: [
+            {
+              id: "o-1",
+              reference: "CONDATY-ABC",
+              amount: "600.00",
+              currency: "BOB",
+              order_state: 1,
+              payment_type: "2",
+              order_date: "2026-09-10T00:00:00.000000Z",
+              pay_date: null,
+              expiration_date: "2026-09-25T00:00:00.000000Z",
+              unit: "A-101",
+              concept: "09/2026",
+            },
+            {
+              id: "o-2",
+              reference: "CONDATY-XYZ",
+              amount: "300.00",
+              currency: "BOB",
+              order_state: 1,
+              payment_type: "3",
+              order_date: "2026-09-10T00:00:00.000000Z",
+              pay_date: null,
+              expiration_date: "2026-09-25T00:00:00.000000Z",
+              unit: "B-202",
+              concept: "Salón de eventos",
+            },
+          ],
+          pagination: { current_page: 1, last_page: 1, total: 2 },
+        },
+      },
+    });
+
+    const { container } = render(<QrDinamico />);
+
+    await waitFor(() =>
+      expect(container.textContent).toContain("CONDATY-ABC"),
+    );
+    expect(container.textContent).toContain("A-101");
+    expect(container.textContent).toContain("09/2026");
+    // La reserva muestra el área en lugar del período
+    expect(container.textContent).toContain("B-202");
+    expect(container.textContent).toContain("Salón de eventos");
+  });
+
+  it("una orden sin unidad ni concepto no rompe la fila", async () => {
+    executeMock.mockResolvedValue({
+      data: {
+        success: true,
+        data: {
+          items: [
+            {
+              id: "o-3",
+              reference: "CONDATY-SIN",
+              amount: "100.00",
+              currency: "BOB",
+              order_state: 1,
+              payment_type: null,
+              order_date: "2026-09-10T00:00:00.000000Z",
+              pay_date: null,
+              expiration_date: null,
+            },
+          ],
+          pagination: { current_page: 1, last_page: 1, total: 1 },
+        },
+      },
+    });
+
+    const { container } = render(<QrDinamico />);
+
+    await waitFor(() =>
+      expect(container.textContent).toContain("CONDATY-SIN"),
+    );
+    expect(container.textContent).not.toContain("undefined");
+    expect(container.textContent).not.toMatch(/Invalid/i);
+  });
+
   it("los filtros viajan como payload y la URL queda sin query string", async () => {
     render(<QrDinamico />);
 
