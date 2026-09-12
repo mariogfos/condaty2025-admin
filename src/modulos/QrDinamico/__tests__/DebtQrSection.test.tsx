@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import DebtQrSection from "../DebtQrSection/DebtQrSection";
 import { QrOrderState } from "../types";
@@ -188,6 +188,12 @@ describe("DebtQrSection (DES-22/23/24)", () => {
     await waitFor(() =>
       expect(screen.getByText(/Historial de QR dinámicos \(1\)/)).toBeInTheDocument(),
     );
+    const historyToggle = screen.getByRole("button", {
+      name: /Historial de QR dinámicos \(1\)/,
+    });
+    expect(historyToggle).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(historyToggle);
+    expect(screen.getByText("QR banco: QR-VIEJO")).toBeInTheDocument();
     expect(verifyCalls()).toHaveLength(0);
     expect(
       screen.queryByText(/En espera de confirmación de QR Dinámico/),
