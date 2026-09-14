@@ -1,566 +1,547 @@
 .reelContainer {
-  max-width: 700px;
-  margin: var(--spXl) auto;
-  padding: 0 var(--spM);
   display: flex;
+  width: min(100%, 760px);
+  padding: 0 18px 48px;
+  margin: 24px auto 0;
   flex-direction: column;
-  gap: var(--spXxl);
+  gap: 20px;
 }
 
-.contentCard {
-  box-sizing: border-box;
-  background: #d7fff005;
-  border-radius: var(--bRadiusL);
-  padding: var(--spM);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0,0,0,0.1);
-  border: 1px solid #d7fff014;
+.feedHeader {
   display: flex;
-  flex-direction: column;
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  padding: 4px 2px 8px;
+  gap: 24px;
+  align-items: flex-end;
+  justify-content: space-between;
 }
 
-
-
-.newsContentBody {
-  display: flex;
-  gap: var(--spM);
-  align-items: flex-start;
-  flex-grow: 1;
-}
-
-.newsTextContent {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spS);
+.feedHeader > div {
   min-width: 0;
 }
 
-/* Contenedor de imagen fijo al 40% */
-.newsMediaContent {
-  flex: 0 0 50%;
-  width: 50%;
-  max-width: 50%;
-}
-
-/* Contenedor de imagen con tamaño fijo */
-.newsImageContainer {
-  position: relative;
-  width: 100%;
-  height: 300px; /* Altura fija para todas las noticias */
-  background-color: #d7fff005;
-  border-radius: var(--bRadiusM);
-  overflow: hidden;
-  cursor: pointer;
-}
-
-/* Wrapper clickeable para la imagen */
-.newsImageWrapper {
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-  outline: none;
-  border-radius: var(--bRadiusM);
-  overflow: hidden;
-}
-
-.newsImageWrapper:focus {
-  outline: 2px solid var(--cAccent);
-  outline-offset: 2px;
-}
-
-.newsImageWrapper:focus-visible {
-  outline: 2px solid var(--cAccent);
-  outline-offset: 2px;
-}
-
-/* Imagen que se ajusta al contenedor */
-.newsImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.feedEyebrow {
   display: block;
-  transition: transform 0.3s ease;
+  margin-bottom: 5px;
+  color: var(--cAccent);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
 }
 
-
-
-/* Contador de imágenes */
-.newsImageCounter {
-  position: absolute;
-  top: var(--spS);
-  right: var(--spS);
-  background: var(--cWhite);
-  color: var(--cBlack);
-  padding: var(--spXs) var(--spS);
-  border-radius: var(--bRadiusS);
-  font-size: var(--sL);
-  font-weight: var(--bMedium);
-  z-index: 10;
-}
-
-/* Botones de navegación */
-.newsNavButton {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  z-index: 10;
-  transition: background-color 0.2s ease;
-}
-
-.newsNavButton:hover {
-  background: rgba(0, 0, 0, 0.8);
-}
-
-.newsPrevButton {
-  left: var(--spS);
-}
-
-.newsNextButton {
-  right: var(--spS);
-}
-
-/* Alternar posición de imagen */
-.newsImageRight .newsContentBody {
-  flex-direction: row;
-}
-
-.newsImageLeft .newsContentBody {
-  flex-direction: row-reverse;
-}
-
-.newsTitle {
-  font-size: var(--sL);
-  font-weight: var(--bBold);
-  color: var(--cWhite);
-  margin: 0 0 var(--spXs) 0;
-  line-height: 1.3;
-}
-
-.newsDescription {
-  font-size: var(--sM);
-  color: var(--cWhiteV1);
-  line-height: 1.65;
+.feedHeader h1 {
   margin: 0;
-  word-wrap: break-word;
-  white-space: pre-wrap;
+  color: var(--cWhite);
+  font-size: clamp(23px, 3vw, 30px);
+  font-weight: 730;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.feedHeader p {
+  margin: 7px 0 0;
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.feedCount {
+  min-width: max-content;
+  padding: 8px 11px;
+  color: var(--cWhiteV1);
+  background: var(--cModalSection);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 10px;
+  font-size: 11px;
+}
+
+.contentCard {
+  --publication-accent: var(--cAccent);
+  position: relative;
+  display: flex;
+  padding: 20px;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--cWhite);
+  background:
+    radial-gradient(circle at 100% 0, rgba(0, 227, 140, 0.035), transparent 34%),
+    var(--cModalSurface, #0d1218);
+  border: 1px solid var(--cModalBorder, #222c37);
+  border-radius: 20px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.contentCard:hover {
+  border-color: color-mix(in srgb, var(--publication-accent) 23%, var(--cModalBorder));
+  box-shadow: 0 22px 56px rgba(0, 0, 0, 0.28);
+}
+
+.newsCard::before {
+  position: absolute;
+  top: 0;
+  right: 24px;
+  left: 24px;
+  height: 2px;
+  content: "";
+  background: linear-gradient(90deg, transparent, var(--cAccent), transparent);
+  opacity: 0.72;
+}
+
+.postCard {
+  --publication-accent: #8ea3ff;
 }
 
 .contentHeader {
   display: flex;
-  justify-content: space-between;
+  gap: 16px;
   align-items: center;
-  flex-wrap: wrap;
-  padding-bottom: var(--spM);
-  margin-bottom: var(--spL);
-  border-bottom: 0.3px solid rgba(215, 255, 240, 0.12);
+  justify-content: space-between;
 }
 
 .userInfo {
   display: flex;
-  align-items: center;
-  gap: var(--spM);
   min-width: 0;
+  gap: 11px;
+  align-items: center;
+}
+
+.userInfo > :first-child {
+  flex: 0 0 auto;
+  border: 1px solid var(--cModalBorder);
 }
 
 .userDetails {
   display: flex;
+  min-width: 0;
   flex-direction: column;
-  line-height: 1.4;
+  gap: 3px;
 }
 
 .userName {
-  font-weight: var(--bSemibold);
+  overflow: hidden;
   color: var(--cWhite);
-  font-size: var(--sM);
+  font-size: 14px;
+  font-weight: 680;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.userMeta {
+  display: flex;
+  min-width: 0;
+  gap: 7px;
+  align-items: center;
+  color: var(--cWhiteV1);
+  font-size: 11px;
+  line-height: 1.3;
 }
 
 .userRole {
-  font-size: var(--sS);
-  color: var(--cWhiteV1);
-}
-
-.postDate {
-  font-size: var(--sS);
-  color: var(--cWhiteV1);
-  white-space: normal;
-  margin-left: var(--spM);
-}
-
-.contentBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spS);
-  flex-grow: 1;
-}
-
-.contentTitle {
-  font-size: var(--sL);
-  font-weight: var(--bBold);
-  color: var(--cWhite);
-  margin: 0 0 var(--spS) 0;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: calc(1.3em * 2);
+  white-space: nowrap;
+}
+
+.metaDot {
+  width: 3px;
+  height: 3px;
+  flex: 0 0 auto;
+  background: var(--cWhiteV2);
+  border-radius: 50%;
+}
+
+.userMeta time {
+  flex: 0 0 auto;
+}
+
+.publicationBadge {
+  min-width: max-content;
+  padding: 6px 9px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 720;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.newsBadge {
+  color: var(--cAccent);
+  background: rgba(0, 227, 140, 0.08);
+  border-color: rgba(0, 227, 140, 0.2);
+}
+
+.postBadge {
+  color: #aebcff;
+  background: rgba(142, 163, 255, 0.08);
+  border-color: rgba(142, 163, 255, 0.2);
+}
+
+.newsContentBody,
+.contentBody {
+  display: flex;
+  min-width: 0;
+  margin-top: 18px;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.newsContentBody {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(300px, 1.1fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.newsContentBody > * {
+  min-width: 0;
+}
+
+.newsTextContent {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.newsTitle {
+  max-width: 650px;
+  margin: 0;
+  color: var(--cWhite);
+  font-size: clamp(19px, 2.6vw, 24px);
+  font-weight: 730;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.newsDescription,
+.contentDescription {
+  margin: 0;
+  color: var(--cWhiteV4, #d8dfdd);
+  font-size: 14px;
+  line-height: 1.62;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .contentDescription {
-  font-size: var(--sM);
   color: var(--cWhite);
-  line-height: 1.65;
-  margin: 0;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 15px;
+}
+
+.seeMoreButton {
+  padding: 5px 0 0;
+  color: var(--cAccent);
+  background: transparent;
+  border: 0;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.seeMoreButton:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.seeMoreButton:focus-visible,
+.statButton:focus-visible,
+.actionButton:focus-visible {
+  outline: 2px solid var(--cAccent);
+  outline-offset: 2px;
 }
 
 .contentFooter {
-  margin-top: var(--spL);
-  padding-top: var(--spM);
-  border-top: 0.3px solid rgba(215, 255, 240, 0.12);
   display: flex;
+  padding-top: 14px;
+  margin-top: 16px;
   flex-direction: column;
-  gap: var(--spM);
+  gap: 11px;
+  border-top: 1px solid var(--cModalDivider);
 }
 
 .contentStats {
   display: flex;
-  gap: var(--spL);
+  min-height: 30px;
+  gap: 8px;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
 }
 
-.statDisplay {
-  display: flex;
+.statButton {
+  display: inline-flex;
+  min-width: 0;
+  padding: 5px 7px;
+  gap: 7px;
   align-items: center;
-  gap: var(--spS);
   color: var(--cWhiteV1);
-  font-size: var(--sM);
-  font-weight: var(--bMedium);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    background 150ms ease;
 }
 
-.statDisplay svg {
-  width: 20px;
-  height: 20px;
-  fill: var(--cWhiteV1);
+.statButton:hover {
+  color: var(--cWhite);
+  background: var(--cModalSection);
 }
 
-.statDisplay.liked svg {
-  fill: var(--cAccent);
+.statButton strong {
+  color: var(--cWhite);
+  font-weight: 680;
 }
 
-.contentDivider {
-  height: 1px;
-  background: var(--cWhiteV1);
-  width: 100%;
+.statButton svg,
+.actionButton svg {
+  flex: 0 0 auto;
+}
+
+.statButton.liked,
+.statButton.liked strong {
+  color: var(--cAccent);
 }
 
 .contentActions {
-  display: flex;
-  gap: var(--spS);
-  align-items: center;
-  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .actionButton {
   display: flex;
+  min-height: 42px;
+  padding: 0 14px;
+  gap: 8px;
   align-items: center;
   justify-content: center;
-  gap: var(--spS);
   color: var(--cWhiteV1);
-  background: transparent;
-  border: none;
-  padding: var(--spM);
-  border-radius: var(--bRadiusS);
+  background: var(--cModalSection);
+  border: 1px solid transparent;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 620;
   cursor: pointer;
-  font-size: var(--sM);
-  font-family: var(--fPrimary);
-  font-weight: var(--bMedium);
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
-  outline: none;
-  flex: 1;
-  min-height: 44px;
+  transition:
+    color 150ms ease,
+    background 150ms ease,
+    border-color 150ms ease,
+    transform 120ms ease;
 }
 
-.actionButton svg {
-  width: 20px;
-  height: 20px;
-  transition: fill 0.2s ease;
-  fill: var(--cWhiteV1);
-}
-
-.actionButton:hover {
-  background-color: var(--cHover);
+.actionButton:hover:not(:disabled) {
   color: var(--cWhite);
+  background: var(--cModalSurfaceRaised);
+  border-color: var(--cModalBorder);
 }
 
-.actionButton:hover svg {
-  fill: var(--cWhite);
+.actionButton:active:not(:disabled) {
+  transform: scale(0.985);
 }
 
 .actionButton.liked {
   color: var(--cAccent);
+  background: rgba(0, 227, 140, 0.08);
+  border-color: rgba(0, 227, 140, 0.14);
 }
 
-.actionButton.liked svg {
-  fill: var(--cAccent);
+.actionButton:disabled {
+  opacity: 0.58;
+  cursor: wait;
 }
 
-.actionButton:active {
-  transform: scale(0.98);
+.loadingList {
+  display: grid;
+  gap: 20px;
 }
 
-.loadingState,
-.noContentState,
+.loadingCard {
+  display: grid;
+  min-height: 390px;
+  padding: 20px;
+  grid-template-columns: 44px 1fr;
+  grid-template-rows: 18px 18px 1fr;
+  gap: 10px 12px;
+  overflow: hidden;
+  background: var(--cModalSurface);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 20px;
+}
+
+.loadingCard > span {
+  display: block;
+  background: linear-gradient(
+    100deg,
+    var(--cModalSection) 20%,
+    var(--cModalSurfaceRaised) 45%,
+    var(--cModalSection) 70%
+  );
+  background-size: 220% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+.loadingAvatar {
+  grid-row: 1 / 3;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+
+.loadingLineShort {
+  width: 38%;
+  border-radius: 6px;
+}
+
+.loadingLine {
+  width: 64%;
+  border-radius: 6px;
+}
+
+.loadingMedia {
+  grid-column: 1 / -1;
+  margin-top: 12px;
+  border-radius: 14px;
+}
+
 .loadingMoreState,
 .noMoreContentState {
   display: flex;
-  justify-content: center;
+  min-height: 64px;
+  padding: 18px;
   align-items: center;
-  padding: var(--spXxl);
+  justify-content: center;
   color: var(--cWhiteV1);
-  font-size: var(--sM);
+  font-size: 12px;
   text-align: center;
 }
 
-.loadingState,
-.noContentState {
-  min-height: 300px;
-  font-size: var(--sL);
+.noMoreContentState::before {
+  width: 28px;
+  height: 1px;
+  margin-right: 10px;
+  content: "";
+  background: var(--cModalBorder);
 }
 
-.loadingMoreState {
-  min-height: 100px;
+.noMoreContentState::after {
+  width: 28px;
+  height: 1px;
+  margin-left: 10px;
+  content: "";
+  background: var(--cModalBorder);
 }
 
-.noMoreContentState {
-  min-height: 80px;
-  color: var(--cWhiteV2);
-}
-
-/* Estilos para el modal de edición */
 .editModalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1060;
+  inset: 0;
   display: flex;
+  padding: 20px;
   align-items: center;
   justify-content: center;
-  z-index: 1060;
-  padding: 20px;
   overflow-y: auto;
+  background: var(--cHoverModal);
 }
 
 .editModalContent {
-  background-color: #121519;
-  border: 1px solid #d7fff014;
-  border-radius: 12px;
+  position: relative;
   width: 100%;
   max-width: 1200px;
-  max-height: 90vh;
+  max-height: calc(100vh - 40px);
   overflow-y: auto;
-  position: relative;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  background: var(--cModalSurface);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 20px;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.48);
 }
 
-.editModalContent .AddContent {
-  margin: 0;
-  padding: 0;
-  min-height: auto;
-  background: transparent;
+@keyframes shimmer {
+  to {
+    background-position: -220% 0;
+  }
 }
 
-/* Responsive para móviles */
-@media screen and (max-width: 768px) {
+@media (max-width: 640px) {
   .reelContainer {
-    margin: var(--spL) auto;
-    padding: 0 var(--spS);
-    gap: var(--spL);
+    padding: 0 10px 32px;
+    margin-top: 16px;
+    gap: 14px;
+  }
+
+  .feedHeader {
+    padding-inline: 4px;
+    align-items: flex-start;
+  }
+
+  .feedCount {
+    display: none;
   }
 
   .contentCard {
-    padding: var(--spM);
-    border-radius: var(--bRadiusM);
-  }
-
-  /* Responsive para noticias en móvil */
-  .newsContentBody {
-    flex-direction: column !important;
-    gap: var(--spM);
-  }
-
-  /* Contenedor de imagen fijo al 50% del ancho del card */
-  .newsMediaContent {
-    flex: 0 0 70%;
-    width: 70%;
-    max-width: 70%;
-    height: 400px;
-  }
-
-  /* Contenedor de imagen cuadrado de 300px x 300px */
-  .newsImageContainer {
-    position: relative;
-
-    background-color: #d7fff005;
-    border-radius: var(--bRadiusM);
-    overflow: hidden;
-    cursor: pointer;
-    margin: 0 auto; /* Centrar el contenedor */
-  }
-
-  /* Wrapper clickeable para la imagen */
-  .newsImageWrapper {
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    outline: none;
-    border-radius: var(--bRadiusM);
-    overflow: hidden;
-  }
-
-  .newsImageWrapper:focus {
-    outline: 2px solid var(--cAccent);
-    outline-offset: 2px;
-  }
-
-  .newsImageWrapper:focus-visible {
-    outline: 2px solid var(--cAccent);
-    outline-offset: 2px;
-  }
-
-  /* Imagen que se ajusta al contenedor cuadrado */
-  .newsImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.3s ease;
-  }
-
-
-
-  /* Contador de imágenes con fondo gris plomo y letras blancas */
-  .newsImageCounter {
-    position: absolute;
-    top: var(--spS);
-    right: var(--spS);
-    background: #d7fff014;
-    color: white; /* Letras blancas */
-    padding: var(--spXs) var(--spS);
-    border-radius: var(--bRadiusS);
-    font-size: var(--sS);
-    font-weight: var(--bMedium);
-    z-index: 10;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
-
-  /* Responsive para móviles */
-  @media screen and (max-width: 768px) {
-    .newsMediaContent {
-      flex: none;
-      width: 100%;
-      max-width: 100%;
-      order: -1; /* Imagen siempre arriba en móvil */
-    }
-
-    .newsImageContainer {
-      width: 250px; /* Tamaño menor en móvil */
-      height: 250px;
-    }
-
-    .newsTextContent {
-      flex: none;
-    }
-
-    .newsTitle {
-      font-size: var(--sL);
-    }
-
-    .newsDescription {
-      font-size: var(--sS);
-    }
-  }
-
-  .newsNavButton {
-    width: 28px;
-    height: 28px;
-    font-size: 16px;
+    padding: 15px;
+    border-radius: 17px;
   }
 
   .contentHeader {
-    padding-bottom: var(--spS);
-    margin-bottom: var(--spM);
+    gap: 10px;
   }
 
-  .userInfo {
-    gap: var(--spS);
+  .publicationBadge {
+    padding: 5px 7px;
+    font-size: 9px;
   }
 
-  .contentTitle {
-    font-size: calc(var(--sL) * 0.9);
+  .newsContentBody,
+  .contentBody {
+    margin-top: 15px;
+    gap: 13px;
   }
 
+  .newsContentBody {
+    grid-template-columns: 1fr;
+  }
+
+  .newsTitle {
+    font-size: 19px;
+  }
+
+  .newsDescription,
   .contentDescription {
-    font-size: var(--sS);
-  }
-
-  .contentFooter {
-    margin-top: var(--spM);
-    padding-top: var(--spS);
+    font-size: 13px;
   }
 
   .contentStats {
-    gap: var(--spM);
+    gap: 2px;
   }
 
-  .statDisplay {
-    font-size: var(--sS);
-  }
-
-  .statDisplay svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .actionButton {
-    font-size: var(--sS);
-    padding: var(--spXs) var(--spS);
-  }
-
-  .actionButton svg {
-    width: 18px;
-    height: 18px;
+  .statButton {
+    padding-inline: 4px;
   }
 
   .editModalOverlay {
-    padding: 10px;
+    padding: 8px;
   }
 
   .editModalContent {
-    max-height: 95vh;
-    border-radius: 8px;
+    max-height: calc(100vh - 16px);
+    border-radius: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contentCard,
+  .actionButton,
+  .loadingCard > span {
+    transition-duration: 0.01ms;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
   }
 }

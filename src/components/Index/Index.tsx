@@ -34,6 +34,8 @@ import { useScopedI18n } from "@/i18n/useScopedI18n";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
 import { AssemblyDashboardCard } from "@/modulos/Assemblies/components/AssemblyDashboardCard/AssemblyDashboardCard";
 import { firstCountOrZero } from "@/mk/utils/dashboardCounts";
+import CommentsModal from "@/components/CommentsModal/CommentsModal";
+import PublicationLikesModal from "@/components/PublicationLikesModal/PublicationLikesModal";
 
 const paramsInitial = {
   fullType: "L",
@@ -60,6 +62,13 @@ const HomePage = () => {
     null,
   );
   const [selectedContentData, setSelectedContentData] = useState<any>(null);
+  const [contentCommentsId, setContentCommentsId] = useState<number | null>(
+    null,
+  );
+  const [contentLikes, setContentLikes] = useState<{
+    contentId: number;
+    totalLikes: number;
+  } | null>(null);
 
   const handleOpenContentRenderView = (id: number, data?: any) => {
     setSelectedContentId(id);
@@ -71,6 +80,8 @@ const HomePage = () => {
     setOpenContentRender(false);
     setSelectedContentId(null);
     setSelectedContentData(null);
+    setContentCommentsId(null);
+    setContentLikes(null);
   };
 
   useEffect(() => {
@@ -408,7 +419,39 @@ const HomePage = () => {
       </DataModal>
       {openActive && <OwnersRender open={openActive} onClose={() => setOpenActive(false)} item={dataOwner} reLoad={reLoad} execute={execute} />}
       {openAlert && <AlertsRender open={openAlert} onClose={() => { setOpenAlert(false); setSelectedAlert(null); }} item={selectedAlert} reLoad={reLoad} />}
-      <ContentRenderView open={openContentRender} onClose={handleCloseContentRenderView} item={{ data: selectedContentData }} contentId={selectedContentId || undefined} selectedContentData={selectedContentData || undefined} showActions={false} />
+      <ContentRenderView
+        open={openContentRender}
+        onClose={handleCloseContentRenderView}
+        item={{ data: selectedContentData }}
+        contentId={selectedContentId || undefined}
+        selectedContentData={selectedContentData || undefined}
+        showActions={false}
+        onOpenComments={(contentId) => setContentCommentsId(contentId)}
+        onOpenLikes={(contentId, totalLikes) =>
+          setContentLikes({ contentId, totalLikes })
+        }
+      />
+      <CommentsModal
+        isOpen={contentCommentsId !== null}
+        onClose={() => setContentCommentsId(null)}
+        contentId={contentCommentsId}
+        onCommentAdded={() =>
+          setSelectedContentData((current: any) =>
+            current
+              ? {
+                  ...current,
+                  comments_count: (current.comments_count || 0) + 1,
+                }
+              : current,
+          )
+        }
+      />
+      <PublicationLikesModal
+        isOpen={contentLikes !== null}
+        onClose={() => setContentLikes(null)}
+        contentId={contentLikes?.contentId || null}
+        totalLikes={contentLikes?.totalLikes || 0}
+      />
     </>
   );
 };

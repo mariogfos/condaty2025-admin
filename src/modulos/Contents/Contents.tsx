@@ -24,6 +24,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import CommentsModal from "@/components/CommentsModal/CommentsModal";
+import PublicationLikesModal from "@/components/PublicationLikesModal/PublicationLikesModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -84,7 +85,10 @@ const Contents = () => {
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [selectedContentIdForComments, setSelectedContentIdForComments] =
     useState<number | null>(null);
-  const [selectedContentData, setSelectedContentData] = useState<any>(null);
+  const [likesModal, setLikesModal] = useState<{
+    contentId: number;
+    totalLikes: number;
+  } | null>(null);
 
   const { user, showToast } = useAuth();
 
@@ -106,27 +110,17 @@ const Contents = () => {
     return { filterBy: currentFilters };
   };
 
-  const handleOpenComments = (contentId: number, contentData: any) => {
+  const handleOpenComments = (contentId: number) => {
     setSelectedContentIdForComments(contentId);
-    setSelectedContentData(contentData);
     setIsCommentModalOpen(true);
   };
 
   const handleCloseComments = () => {
     setIsCommentModalOpen(false);
     setSelectedContentIdForComments(null);
-    setSelectedContentData(null);
-    handleCommentAdded();
   };
 
   const handleCommentAdded = () => {
-    if (selectedContentData) {
-      const updatedData = {
-        ...selectedContentData,
-        comments: [...(selectedContentData.comments || []), {}],
-      };
-      setSelectedContentData(updatedData);
-    }
     reLoad();
   };
 
@@ -162,7 +156,9 @@ const Contents = () => {
         onEdit={(item: any) => onEdit(item)}
         onDelete={props.onDel}
         onOpenComments={handleOpenComments}
-        selectedContentData={selectedContentData}
+        onOpenLikes={(contentId, totalLikes) =>
+          setLikesModal({ contentId, totalLikes })
+        }
       />
     ),
     loadView: { fullType: "DET" },
@@ -624,7 +620,13 @@ const Contents = () => {
         isOpen={isCommentModalOpen}
         onClose={handleCloseComments}
         contentId={selectedContentIdForComments}
-        onCommentAdded={() => reLoad()}
+        onCommentAdded={handleCommentAdded}
+      />
+      <PublicationLikesModal
+        isOpen={!!likesModal}
+        onClose={() => setLikesModal(null)}
+        contentId={likesModal?.contentId || null}
+        totalLikes={likesModal?.totalLikes || 0}
       />
     </div>
   );
