@@ -34,6 +34,8 @@ const GraphBase = ({
           ? translate("bar")
           : type == "radialBar"
             ? "Circular"
+          : type == "area"
+            ? translate("area")
           : type == "pie"
             ? translate("pie")
           : type == "donut"
