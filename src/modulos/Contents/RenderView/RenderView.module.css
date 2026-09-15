@@ -16,18 +16,6 @@
     var(--cModalSection);
 }
 
-.publication::before {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: var(--cAccent);
-  content: "";
-}
-
-.post::before {
-  background: #9b8cff;
-}
-
 .publicationHeader {
   display: flex;
   align-items: center;
@@ -106,9 +94,9 @@
 }
 
 .newsBadge {
-  border-color: rgba(0, 227, 140, 0.24);
-  background: rgba(0, 227, 140, 0.1);
-  color: var(--cAccent);
+  border-color: var(--cModalBorder);
+  background: var(--cModalSurfaceRaised);
+  color: var(--cWhite);
 }
 
 .postBadge {
@@ -134,9 +122,9 @@
 }
 
 .iconAction:hover {
-  border-color: rgba(0, 227, 140, 0.35);
-  background: rgba(0, 227, 140, 0.08);
-  color: var(--cAccent);
+  border-color: var(--cModalBorder);
+  background: #202936;
+  color: var(--cWhite);
   transform: translateY(-1px);
 }
 

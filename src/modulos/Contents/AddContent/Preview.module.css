@@ -17,22 +17,11 @@
   overflow: hidden;
   color: var(--cWhite);
   background:
-    radial-gradient(circle at 100% 0, rgba(0, 227, 140, 0.035), transparent 34%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.025), transparent 34%),
     var(--cModalSurface);
   border: 1px solid var(--cModalBorder);
   border-radius: 18px;
   box-shadow: 0 22px 54px rgba(0, 0, 0, 0.34);
-}
-
-.newsCard::before {
-  position: absolute;
-  top: 0;
-  right: 22px;
-  left: 22px;
-  height: 2px;
-  content: "";
-  background: linear-gradient(90deg, transparent, var(--cAccent), transparent);
-  opacity: 0.72;
 }
 
 .postCard {
@@ -106,9 +95,9 @@
 }
 
 .newsBadge {
-  color: var(--cAccent);
-  background: rgba(0, 227, 140, 0.08);
-  border-color: rgba(0, 227, 140, 0.2);
+  color: var(--cWhite);
+  background: var(--cModalSurfaceRaised);
+  border-color: var(--cModalBorder);
 }
 
 .postBadge {
