@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
+import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 
-import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
+import EmptyData from "@/components/NoData/EmptyData";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
+import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
+import { formatNumber } from "@/mk/utils/numbers";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 import WidgetBase from "../../WidgetBase/WidgetBase";
 import styles from "./WidgetGraphResume.module.css";
-import { formatNumber } from "@/mk/utils/numbers";
-import EmptyData from "@/components/NoData/EmptyData";
-import Select from "@/mk/components/forms/Select/Select";
-import { useScopedI18n } from "@/i18n/useScopedI18n";
-
 
 type PropsType = {
   saldoInicial?: number;
@@ -28,12 +27,39 @@ type PropsType = {
     icon?: React.ReactNode;
   };
 };
+
+type BalanceData = {
+  inicial: number[];
+  ingresos: number[];
+  egresos: number[];
+  saldos: number[];
+};
+
+const MONTH_COUNT = 12;
+const CHART_SERIES = [
+  { color: "#8b98a8", key: "openingBalance" },
+  { color: "#00e38c", key: "incomes" },
+  { color: "#f2a65a", key: "outlays" },
+  { color: "#8ea7ff", key: "cumulativeBalance" },
+] as const;
+const CHART_COLORS = CHART_SERIES.map(({ color }) => color);
+
+const createEmptyBalance = (): BalanceData => ({
+  inicial: Array(MONTH_COUNT).fill(0),
+  ingresos: Array(MONTH_COUNT).fill(0),
+  egresos: Array(MONTH_COUNT).fill(0),
+  saldos: Array(MONTH_COUNT).fill(0),
+});
+
+const capitalize = (value: string) =>
+  value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+
 const WidgetGraphResume = ({
   saldoInicial = 0,
   ingresos,
   egresos,
-  chartTypes = ["bar", "line"],
-  h = 350,
+  chartTypes = ["area"],
+  h = 310,
   title,
   subtitle,
   className,
@@ -42,230 +68,302 @@ const WidgetGraphResume = ({
   emptyDataProps,
 }: PropsType) => {
   const { localeTag, translate } = useScopedI18n("graph");
-  const [balance, setBalance] = useState({
-    inicial: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ingresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    egresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    saldos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  });
+  const currentYear = new Date().getFullYear();
 
-  const [meses, setMeses]: any = useState([]);
+  const { balance, meses, longMonths } = useMemo(() => {
+    const nextBalance = createEmptyBalance();
+    const shortMonthFormatter = new Intl.DateTimeFormat(localeTag, {
+      month: "short",
+    });
+    const longMonthFormatter = new Intl.DateTimeFormat(localeTag, {
+      month: "long",
+    });
+    const shortMonths = Array.from({ length: MONTH_COUNT }, (_, index) =>
+      capitalize(
+        shortMonthFormatter
+          .format(new Date(currentYear, index, 1))
+          .replace(/\.$/, ""),
+      ),
+    );
+    const fullMonths = Array.from({ length: MONTH_COUNT }, (_, index) =>
+      capitalize(longMonthFormatter.format(new Date(currentYear, index, 1))),
+    );
+    let firstActiveMonth = MONTH_COUNT;
+    let lastActiveMonth = 0;
 
-  // nuevo: estado para controlar el tipo de gráfico desde el header
-  const [selectedChartType, setSelectedChartType] = useState<ChartType>(
-    chartTypes && chartTypes.length > 0 ? chartTypes[0] : "bar"
-  );
-  useEffect(() => {
-    // Si cambian los tipos disponibles y el seleccionado no está, ajustarlo
-    if (chartTypes && chartTypes.length > 0) {
-      if (!chartTypes.includes(selectedChartType)) {
-        setSelectedChartType(chartTypes[0]);
+    ingresos?.forEach((item) => {
+      const monthIndex = Math.trunc(Number(item.mes)) - 1;
+      if (monthIndex < 0 || monthIndex >= MONTH_COUNT) return;
+
+      const amount = Number(item.amount) || 0;
+      nextBalance.ingresos[monthIndex] += amount;
+      firstActiveMonth = Math.min(firstActiveMonth, monthIndex);
+      lastActiveMonth = Math.max(lastActiveMonth, monthIndex + 1);
+    });
+
+    egresos?.forEach((item) => {
+      const monthIndex = Math.trunc(Number(item.mes)) - 1;
+      if (monthIndex < 0 || monthIndex >= MONTH_COUNT) return;
+
+      const amount = Number(item.amount) || 0;
+      nextBalance.egresos[monthIndex] += amount;
+      firstActiveMonth = Math.min(firstActiveMonth, monthIndex);
+      lastActiveMonth = Math.max(lastActiveMonth, monthIndex + 1);
+    });
+
+    let runningBalance = Number(saldoInicial) || 0;
+    for (let index = 0; index < MONTH_COUNT; index += 1) {
+      const hasMovement =
+        nextBalance.ingresos[index] !== 0 || nextBalance.egresos[index] !== 0;
+      const openingBalance = runningBalance;
+      runningBalance +=
+        nextBalance.ingresos[index] - nextBalance.egresos[index];
+
+      if (hasMovement) {
+        nextBalance.inicial[index] = openingBalance;
+        nextBalance.saldos[index] = runningBalance;
       }
     }
-  }, [chartTypes]);
 
-  const chartTypeOptions = (chartTypes || ["bar", "line"]).map((type) => ({
-    id: type,
-    name:
-      type === "bar"
-        ? translate("bar")
-        : type === "line"
-          ? translate("line")
-        : type === "donut"
-          ? translate("donut")
-        : type === "pie"
-          ? translate("pie")
-          : translate("line"),
-  }));
+    if (
+      periodo !== "y" &&
+      periodo !== "ly" &&
+      firstActiveMonth < MONTH_COUNT
+    ) {
+      const sliceBalance = (values: number[]) =>
+        values.slice(firstActiveMonth, lastActiveMonth);
 
-  useEffect(() => {
-    const lista = {
-      inicial: [saldoInicial || 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      ingresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      egresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      saldos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      return {
+        balance: {
+          inicial: sliceBalance(nextBalance.inicial),
+          ingresos: sliceBalance(nextBalance.ingresos),
+          egresos: sliceBalance(nextBalance.egresos),
+          saldos: sliceBalance(nextBalance.saldos),
+        },
+        meses: shortMonths.slice(firstActiveMonth, lastActiveMonth),
+        longMonths: fullMonths.slice(firstActiveMonth, lastActiveMonth),
+      };
+    }
+
+    return {
+      balance: nextBalance,
+      meses: shortMonths,
+      longMonths: fullMonths,
     };
-    let mesI = 0;
-    let mesF = 12;
-    const monthFormatter = new Intl.DateTimeFormat(localeTag, { month: "short" });
-    let lmeses = Array.from({ length: 12 }, (_, index) => {
-      const label = monthFormatter
-        .format(new Date(2026, index, 1))
-        .replace(/\.$/, "");
+  }, [currentYear, egresos, ingresos, localeTag, periodo, saldoInicial]);
 
-      return label.charAt(0).toUpperCase() + label.slice(1);
-    });
-    ingresos?.map((item) => {
-      if (item.mes > mesI) mesI = item.mes;
-      if (item.mes < mesF) mesF = item.mes;
-      lista.ingresos[item.mes - 1] =
-        lista.ingresos[item.mes - 1] + Number(item.amount);
+  const activeMonthIndexes = balance.ingresos
+    .map((income, index) =>
+      income !== 0 || balance.egresos[index] !== 0 ? index : -1,
+    )
+    .filter((index) => index >= 0);
+  const currentMonthIndex = activeMonthIndexes.at(-1) ?? 0;
+  const previousMonthIndex = activeMonthIndexes.at(-2);
+  const hasFinancialMovement = activeMonthIndexes.length > 0;
+  const currentIncome = balance.ingresos[currentMonthIndex] || 0;
+  const currentOutlay = balance.egresos[currentMonthIndex] || 0;
+  const currentNet = currentIncome - currentOutlay;
+  const currentBalance = hasFinancialMovement
+    ? balance.saldos[currentMonthIndex]
+    : Number(saldoInicial) || 0;
+  const previousBalance =
+    previousMonthIndex !== undefined
+      ? balance.saldos[previousMonthIndex]
+      : Number(saldoInicial) || 0;
+  const balanceDelta = currentBalance - previousBalance;
+  const balanceChange =
+    previousMonthIndex !== undefined && previousBalance !== 0
+      ? (balanceDelta / Math.abs(previousBalance)) * 100
+      : null;
+  const currentMonth = longMonths[currentMonthIndex] || meses[currentMonthIndex];
+  const previousMonth =
+    previousMonthIndex !== undefined
+      ? longMonths[previousMonthIndex] || meses[previousMonthIndex]
+      : "";
+  const hasPositiveFlow = currentNet > 0;
+  const hasNegativeFlow = currentNet < 0;
+  const trendDirection =
+    balanceDelta > 0 ? "positive" : balanceDelta < 0 ? "negative" : "neutral";
+  const TrendIcon =
+    trendDirection === "positive"
+      ? ArrowUpRight
+      : trendDirection === "negative"
+        ? ArrowDownRight
+        : Minus;
+  const comparisonLabel =
+    balanceChange === null
+      ? translate("firstRecordedMonth")
+      : translate("versusPreviousMonth", {
+          month: previousMonth,
+          value: `${balanceChange > 0 ? "+" : balanceChange < 0 ? "−" : ""}${formatNumber(
+            Math.abs(balanceChange),
+            1,
+          )}%`,
+        });
+  const insightCopy = hasPositiveFlow
+    ? translate("positiveInsight", {
+        amount: formatNumber(Math.abs(currentNet)),
+        month: currentMonth,
+      })
+    : hasNegativeFlow
+      ? translate("negativeInsight", {
+          amount: formatNumber(Math.abs(currentNet)),
+          month: currentMonth,
+        })
+      : translate("balancedInsight", { month: currentMonth });
+  const insightStatus = hasPositiveFlow
+    ? translate("positiveCashFlow")
+    : hasNegativeFlow
+      ? translate("attentionCashFlow")
+      : translate("balancedCashFlow");
+  const chartEndIndex = Math.max(currentMonthIndex + 1, 1);
+  const primaryChartType = chartTypes[0] || "area";
+  const chartHeader = (
+    <div className={styles.headerRow}>
+      <div className={styles.titleBlock}>
+        <p className={styles.title}>{title || translate("title")}</p>
+        <p className={styles.subtitle}>
+          {subtitle || translate("subtitle", { year: currentYear })}
+        </p>
+      </div>
+    </div>
+  );
 
-      lista.saldos[item.mes - 1] =
-        lista.saldos[item.mes - 1] + Number(item.amount);
-    });
-
-    egresos?.map((item) => {
-      lista.egresos[item.mes - 1] =
-        lista.egresos[item.mes - 1] + Number(item.amount);
-
-      lista.saldos[item.mes - 1] =
-        lista.saldos[item.mes - 1] - Number(item.amount);
-    });
-
-    let inicial = saldoInicial || 0;
-    lista.saldos.map((item, index) => {
-      if (index > 0) inicial = lista.saldos[index - 1];
-      lista.saldos[index] = lista.saldos[index] + inicial;
-      if (index > 0) lista.inicial[index] = lista.saldos[index - 1];
-    });
-
-    lista.saldos.map((item, index) => {
-      if (lista.ingresos[index] == 0 && lista.egresos[index] == 0) {
-        lista.saldos[index] = 0;
-        lista.inicial[index] = 0;
-      }
-    });
-
-    if (periodo != "y" && periodo != "ly") {
-      if (mesF < 12) {
-        lista.saldos.splice(mesF);
-        lista.inicial.splice(mesF);
-        lista.ingresos.splice(mesF);
-        lista.egresos.splice(mesF);
-        lmeses.splice(mesF);
-      }
-      if (mesI > 0) {
-        lista.saldos.splice(0, mesI - 1);
-        lista.inicial.splice(0, mesI - 1);
-        lista.ingresos.splice(0, mesI - 1);
-        lista.egresos.splice(0, mesI - 1);
-        lmeses.splice(0, mesI - 1);
-      }
-    }
-    setMeses(lmeses);
-
-    setBalance(lista);
-  }, [egresos, ingresos, localeTag, saldoInicial]);
-
-  // const formattedDate =`Al ${getFormattedDate(currentDate)}`
-  const today = new Date();
-  const formattedTodayDate = today.getFullYear();
   return (
     <div
-      className={styles.widgetGraphResume + " " + className}
+      className={[styles.widgetGraphResume, className]
+        .filter(Boolean)
+        .join(" ")}
       data-i18n-ignore="true"
     >
       <WidgetBase className={styles.widgetBase}>
-        <div className={styles.headerRow}>
-          <div className={styles.titleBlock}>
-            <p className={styles.title}>{title || translate("title")}</p>
-            <p className={styles.subtitle}>
-              {subtitle || translate("subtitle", { year: formattedTodayDate })}
-            </p>
-          </div>
-          {chartTypes && chartTypes.length > 1 && (
-            <div className={styles.chartTypeSelector}>
-              <Select
-                label=""
-                value={selectedChartType}
-                name="chartType"
-                className={styles.chartTypeSelect}
-                onChange={(e: any) => setSelectedChartType(e.target.value as ChartType)}
-                options={chartTypeOptions}
-                inputStyle={{
-                  height: 44,
-                  backgroundColor: "#d7fff005",
-                  border: "1px solid #d7fff014",
-                  borderRadius: 12,
-                  color: "#878f9a",
-                }}
-                style={{
-                  height: 44,
-                  border: "none",
-                  backgroundColor: "transparent",
-                }}
-              />
-            </div>
-          )}
-        </div>
         {showEmptyData ? (
-          <EmptyData
-            message={emptyDataProps?.message || translate("noDataAvailable")}
-            line2={emptyDataProps?.line2}
-            h={emptyDataProps?.h || 300}
-            icon={emptyDataProps?.icon}
-          />
-        ) : (
           <>
-            <GraphBase
-              data={{
-                labels: meses,
-                values: [
-                  { name: translate("openingBalance"), values: balance?.inicial },
-                  { name: translate("incomes"), values: balance?.ingresos },
-                  { name: translate("outlays"), values: balance?.egresos },
-                  { name: translate("cumulativeBalance"), values: balance?.saldos },
-                ],
-              }}
-              // pasar solo el tipo seleccionado para ocultar el select interno de GraphBase
-              chartTypes={[selectedChartType]}
-              options={{
-                height: h,
-                colors: [
-                  "var(--cCompl1)",
-                  "var(--cCompl7)",
-                  "var(--cCompl8)",
-                  "var(--cCompl9)",
-                ],
-              }}
+            {chartHeader}
+            <EmptyData
+              message={emptyDataProps?.message || translate("noDataAvailable")}
+              line2={emptyDataProps?.line2}
+              h={emptyDataProps?.h || 300}
+              icon={emptyDataProps?.icon}
             />
-            <div className={styles.legendContainer}>
-              <div className={styles.legendItem}>
-                <div
-                  className={styles.legendColor}
-                  style={{ backgroundColor: "var(--cCompl1)" }}
-                ></div>
-                <span className={styles.legendLabel}>{translate("openingBalance")}</span>
-                <span className={styles.legendValue}>
-                  Bs {formatNumber(saldoInicial || 0)}
-                </span>
+          </>
+        ) : (
+          <div className={styles.analyticsLayout}>
+            <div className={styles.chartColumn}>
+              {chartHeader}
+              <div className={styles.chartCanvas}>
+                <GraphBase
+                  data={{
+                    labels: meses.slice(0, chartEndIndex),
+                    values: [
+                      {
+                        name: translate("openingBalance"),
+                        values: balance.inicial.slice(0, chartEndIndex),
+                      },
+                      {
+                        name: translate("incomes"),
+                        values: balance.ingresos.slice(0, chartEndIndex),
+                      },
+                      {
+                        name: translate("outlays"),
+                        values: balance.egresos.slice(0, chartEndIndex),
+                      },
+                      {
+                        name: translate("cumulativeBalance"),
+                        values: balance.saldos.slice(0, chartEndIndex),
+                      },
+                    ],
+                  }}
+                  chartTypes={[primaryChartType]}
+                  options={{
+                    height: h,
+                    variant: "dashboard",
+                    colors: CHART_COLORS,
+                  }}
+                />
               </div>
-              <div className={styles.legendItem}>
-                <div
-                  className={styles.legendColor}
-                  style={{ backgroundColor: "var(--cCompl7)" }}
-                ></div>
-                <span className={styles.legendLabel}>{translate("incomes")}</span>
-                <span className={styles.legendValue}>
-                  Bs {formatNumber(balance.ingresos.reduce((a, b) => a + b, 0))}
-                </span>
-              </div>
-              <div className={styles.legendItem}>
-                <div
-                  className={styles.legendColor}
-                  style={{ backgroundColor: "var(--cCompl8)" }}
-                ></div>
-                <span className={styles.legendLabel}>{translate("outlays")}</span>
-                <span className={styles.legendValue}>
-                  Bs {formatNumber(balance.egresos.reduce((a, b) => a + b, 0))}
-                </span>
-              </div>
-              <div className={styles.legendItem}>
-                <div
-                  className={styles.legendColor}
-                  style={{ backgroundColor: "var(--cCompl9)" }}
-                ></div>
-                <span className={styles.legendLabel}>{translate("cumulativeBalance")}</span>
-                <span className={styles.legendValue}>
-                  Bs{" "}
-                  {formatNumber(
-                    balance.saldos.filter((val) => val !== 0).pop() || 0
-                  )}
-                </span>
+              <div className={styles.seriesLegend}>
+                {CHART_SERIES.map(({ color, key }) => (
+                  <div key={key} className={styles.seriesKey}>
+                    <span
+                      className={styles.seriesKeyDot}
+                      style={{ backgroundColor: color }}
+                      aria-hidden="true"
+                    />
+                    <span>{translate(key)}</span>
+                  </div>
+                ))}
               </div>
             </div>
-          </>
+
+            <aside
+              className={styles.insightPanel}
+              aria-label={translate("periodReading")}
+            >
+              <div className={styles.insightHeader}>
+                <span className={styles.insightEyebrow}>
+                  {translate("periodReading")}
+                </span>
+                <span
+                  className={`${styles.statusBadge} ${
+                    hasPositiveFlow
+                      ? styles.statusPositive
+                      : hasNegativeFlow
+                        ? styles.statusNegative
+                        : styles.statusNeutral
+                  }`}
+                >
+                  {insightStatus}
+                </span>
+              </div>
+
+              <span className={styles.insightMetricLabel}>
+                {translate("cumulativeBalance")}
+              </span>
+              <strong
+                className={`${styles.insightValue} ${
+                  currentBalance < 0 ? styles.negativeValue : ""
+                }`}
+              >
+                Bs. {formatNumber(currentBalance)}
+              </strong>
+
+              <div
+                className={`${styles.comparison} ${
+                  trendDirection === "positive"
+                    ? styles.comparisonPositive
+                    : trendDirection === "negative"
+                      ? styles.comparisonNegative
+                      : styles.comparisonNeutral
+                }`}
+              >
+                <TrendIcon size={15} strokeWidth={2} aria-hidden="true" />
+                <span>{comparisonLabel}</span>
+              </div>
+
+              <p className={styles.insightCopy}>{insightCopy}</p>
+
+              <div className={styles.breakdown}>
+                <p className={styles.breakdownTitle}>
+                  {translate("monthlyMovements")}
+                </p>
+                <div className={styles.breakdownRow}>
+                  <span>{translate("incomes")}</span>
+                  <strong>Bs. {formatNumber(currentIncome)}</strong>
+                </div>
+                <div className={styles.breakdownRow}>
+                  <span>{translate("outlays")}</span>
+                  <strong>Bs. {formatNumber(currentOutlay)}</strong>
+                </div>
+                <div className={`${styles.breakdownRow} ${styles.netRow}`}>
+                  <span>{translate("netResult")}</span>
+                  <strong className={currentNet < 0 ? styles.negativeValue : ""}>
+                    Bs. {formatNumber(currentNet)}
+                  </strong>
+                </div>
+              </div>
+            </aside>
+          </div>
         )}
       </WidgetBase>
     </div>

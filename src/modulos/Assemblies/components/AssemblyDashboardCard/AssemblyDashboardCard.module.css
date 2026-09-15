@@ -1,103 +1,299 @@
 .cardContainer {
-  margin-bottom: var(--spM);
-  transition: transform 0.2s ease;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 20px !important;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--cNeutral-900) !important;
+  border: 1px solid var(--home-border, rgba(174, 185, 198, 0.12)) !important;
+  border-radius: 16px !important;
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.018);
+  transition:
+    transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 320ms ease,
+    box-shadow 320ms ease;
+}
+
+.cardContainer::before {
+  position: absolute;
+  z-index: 0;
+  bottom: -66px;
+  left: 50%;
+  width: min(92%, 980px);
+  height: 260px;
+  content: "";
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 50% 18% at 50% 82%,
+      color-mix(in srgb, var(--cPrimary) 68%, transparent) 0%,
+      color-mix(in srgb, var(--cPrimary) 26%, transparent) 48%,
+      transparent 78%
+    ),
+    radial-gradient(
+      ellipse 10% 78% at 50% 90%,
+      color-mix(in srgb, var(--cPrimary) 52%, transparent) 0%,
+      color-mix(in srgb, var(--cPrimary) 20%, transparent) 46%,
+      transparent 80%
+    );
+  opacity: 0;
+  filter: blur(28px);
+  transform: translate3d(-50%, 28px, 0) scale(0.68);
+  transition:
+    opacity 360ms ease,
+    transform 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, filter, transform;
+}
+
+.cardContainer > * {
+  position: relative;
+  z-index: 1;
+}
+
+.cardContainer:hover {
+  border-color: var(
+    --home-border-hover,
+    rgba(174, 185, 198, 0.16)
+  ) !important;
+  box-shadow:
+    0 24px 58px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.028);
+  transform: translateY(-3px);
+}
+
+.cardContainer:hover::before {
+  opacity: 0.96;
+  transform: translate3d(-50%, 0, 0) scale(1);
+  animation: assemblyAura 2.9s ease-in-out infinite alternate;
+}
+
+.cardContainer > h1 {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.cardContainer > p {
+  margin: 5px 0 18px;
+  color: var(--cNeutral-400);
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .content {
   display: flex;
+  min-height: 300px;
+  flex: 1;
   flex-direction: column;
-  gap: 12px;
-  cursor: pointer;
+  gap: 16px;
 }
 
-.header {
+.topRow {
   display: flex;
-  justify-content: space-between;
+  gap: 12px;
   align-items: center;
+  justify-content: space-between;
+}
+
+.iconContainer {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--cPrimary);
+  background: var(--cNeutral-900);
+  border: 1px solid var(--home-border, rgba(174, 185, 198, 0.12));
+  border-radius: 11px;
 }
 
 .statusBadge {
-  display: flex;
-  align-items: center;
+  display: inline-flex;
+  min-height: 27px;
+  padding: 4px 9px;
   gap: 6px;
-  padding: 4px 10px;
-  border-radius: 99px;
-  font-size: 11px;
-  font-weight: 600;
+  align-items: center;
+  color: var(--cNeutral-300);
+  background: color-mix(
+    in srgb,
+    var(--cNeutral-900) 68%,
+    var(--cNeutral-800) 32%
+  );
+  border: 1px solid var(--home-border, rgba(174, 185, 198, 0.12));
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.045em;
   text-transform: uppercase;
 }
 
+.statusBadge i {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  background: currentColor;
+  border-radius: 50%;
+}
+
 .statusScheduled {
-  background: rgba(167, 139, 250, 0.15);
-  color: #A78BFA;
-  border: 1px solid rgba(167, 139, 250, 0.3);
+  color: color-mix(in srgb, var(--cPrimary) 62%, var(--cNeutral-300));
 }
 
 .statusActive {
-  background: rgba(0, 227, 140, 0.15);
-  color: var(--cSuccess);
-  border: 1px solid rgba(0, 227, 140, 0.3);
+  color: var(--cPrimary);
 }
 
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: currentColor;
-}
-
-.statusActive .dot {
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.5); }
-  100% { opacity: 1; transform: scale(1); }
+.statusActive i {
+  animation: statusPulse 1.6s ease-in-out infinite;
 }
 
 .subject {
-  font-size: 18px;
-  font-weight: 600;
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 2px 0 0;
   color: var(--cWhite);
-  margin: 0;
-  line-height: 1.4;
+  font-size: clamp(20px, 1.7vw, 25px);
+  font-weight: 680;
+  letter-spacing: -0.025em;
+  line-height: 1.28;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
-.infoRow {
+.dateBlock {
   display: flex;
+  padding: 12px 13px;
+  margin-top: auto;
+  flex-direction: column;
+  gap: 6px;
+  background: color-mix(
+    in srgb,
+    var(--cNeutral-900) 68%,
+    var(--cNeutral-800) 32%
+  );
+  border: 1px solid var(--home-border, rgba(174, 185, 198, 0.12));
+  border-radius: 11px;
+}
+
+.dateLabel {
+  display: flex;
+  gap: 7px;
   align-items: center;
-  gap: 8px;
-  color: var(--cWhiteV1);
-  font-size: 14px;
+  color: var(--cNeutral-400);
+  font-size: 12px;
 }
 
-.footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 8px;
+.dateBlock strong {
+  color: var(--cNeutral-100);
+  font-size: 13px;
+  font-weight: 620;
+  line-height: 1.35;
 }
 
 .actionButton {
   display: flex;
-  align-items: center;
+  width: 100%;
+  min-height: 42px;
+  padding: 0 14px;
   gap: 8px;
-  background: transparent;
-  border: none;
-  color: var(--cAccent);
-  font-size: 14px;
-  font-weight: 600;
+  align-items: center;
+  justify-content: center;
+  color: var(--cWhite);
+  background: var(--cNeutral-800);
+  border: 1px solid var(--home-border, rgba(174, 185, 198, 0.12));
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 620;
   cursor: pointer;
-  padding: 0;
-  transition: gap 0.2s ease;
+  transition:
+    color 260ms ease,
+    background-color 260ms ease,
+    border-color 260ms ease,
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.actionButton svg {
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .actionButton:hover {
-  gap: 12px;
+  color: var(--cNeutral-950);
+  background: var(--cPrimary);
+  border-color: var(--cPrimary);
+  transform: translateY(-1px);
+}
+
+.actionButton:hover svg {
+  transform: translateX(3px);
+}
+
+.actionButton:focus-visible {
+  outline: 2px solid var(--cPrimary);
+  outline-offset: 2px;
+}
+
+@keyframes statusPulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--cPrimary) 20%, transparent);
+  }
+  50% {
+    opacity: 0.72;
+    box-shadow: 0 0 0 5px transparent;
+  }
+}
+
+@keyframes assemblyAura {
+  from {
+    filter: blur(27px);
+    transform: translate3d(-50%, 3px, 0) scale(0.97);
+  }
+  to {
+    filter: blur(34px);
+    transform: translate3d(-50%, -8px, 0) scale(1.04);
+  }
 }
 
 @media (max-width: 768px) {
+  .cardContainer {
+    padding: 16px !important;
+    border-radius: 14px !important;
+  }
+
+  .content {
+    min-height: 250px;
+  }
+
   .subject {
-    font-size: 16px;
+    font-size: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardContainer,
+  .actionButton,
+  .actionButton svg {
+    transition: none;
+  }
+
+  .cardContainer:hover,
+  .actionButton:hover,
+  .actionButton:hover svg {
+    transform: none;
+  }
+
+  .cardContainer:hover::before,
+  .statusActive i {
+    animation: none;
   }
 }
