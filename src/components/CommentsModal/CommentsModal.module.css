@@ -4,17 +4,31 @@
 }
 
 .summary {
-  display: flex;
-  padding: 13px 14px;
-  gap: 11px;
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 32px;
+  padding: 4px 9px 4px 5px;
+  gap: 7px;
+  align-self: flex-end;
   align-items: center;
   color: var(--cWhite);
-  background: linear-gradient(135deg, rgba(0, 227, 140, 0.1), rgba(0, 227, 140, 0.025));
-  border: 1px solid rgba(0, 227, 140, 0.18);
-  border-radius: 14px;
+  background: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 9px;
 }
 
-.summaryIcon,
+.summaryIcon {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--cWhiteV1);
+  background: var(--cModalSection);
+  border-radius: 7px;
+}
+
 .stateIcon {
   display: grid;
   width: 36px;
@@ -26,22 +40,12 @@
   border-radius: 11px;
 }
 
-.summary div {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 2px;
-}
-
 .summary strong {
-  color: var(--cWhite);
-  font-size: 14px;
-  font-weight: 680;
-}
-
-.summary div > span {
-  color: var(--cWhiteV1);
+  overflow: hidden;
   font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .commentsViewport {
@@ -66,10 +70,6 @@
   grid-template-columns: 38px minmax(0, 1fr);
   gap: 10px;
   align-items: start;
-}
-
-.commentAvatar {
-  border: 1px solid var(--cModalBorder);
 }
 
 .commentBubble {
@@ -259,10 +259,6 @@
 }
 
 @media (max-width: 640px) {
-  .summary {
-    padding: 11px 12px;
-  }
-
   .commentItem {
     grid-template-columns: 34px minmax(0, 1fr);
     gap: 8px;
