@@ -1,6 +1,8 @@
 .reelContainer {
   display: flex;
-  width: min(100%, 760px);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 860px;
   padding: 0 18px 48px;
   margin: 24px auto 0;
   flex-direction: column;
@@ -59,7 +61,9 @@
   --publication-accent: var(--cAccent);
   position: relative;
   display: flex;
+  height: auto;
   padding: 20px;
+  flex: 0 0 auto;
   flex-direction: column;
   overflow: hidden;
   color: var(--cWhite);

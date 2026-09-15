@@ -1,4 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import CommentsModal from "@/components/CommentsModal/CommentsModal";
 import PublicationLikesModal from "@/components/PublicationLikesModal/PublicationLikesModal";
@@ -255,5 +257,19 @@ describe("experiencia de publicaciones", () => {
 
     expect(screen.getByText("Post")).toBeInTheDocument();
     expect(screen.queryByText("No debe mostrarse")).not.toBeInTheDocument();
+  });
+
+  it("mantiene el muro centrado y las tarjetas con altura natural", () => {
+    const reelStyles = readFileSync(
+      resolve(process.cwd(), "src/modulos/Reel/Reel.module.css"),
+      "utf8",
+    );
+
+    expect(reelStyles).toMatch(
+      /\.reelContainer\s*\{[^}]*max-width:\s*860px;/s,
+    );
+    expect(reelStyles).toMatch(
+      /\.contentCard\s*\{[^}]*height:\s*auto;[^}]*flex:\s*0 0 auto;/s,
+    );
   });
 });
