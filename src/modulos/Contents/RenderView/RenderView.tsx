@@ -1,126 +1,150 @@
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { Image } from "@/mk/components/ui/Image/Image";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { getDateTimeStrMesShort } from "@/mk/utils/date";
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ExternalLink, FileText, ImageOff, PlayCircle } from "lucide-react";
 import ReactPlayer from "react-player";
-import { useState, useCallback, useMemo, useEffect } from "react";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import styles from "./RenderView.module.css";
 import {
-  IconLike,
-  IconComment,
-  IconEdit,
-  IconTrash,
   IconArrowLeft,
   IconArrowRight,
-  IconPDF,
-  IconImage,
+  IconComment,
+  IconEdit,
+  IconLike,
+  IconTrash,
 } from "@/components/layout/icons/IconsBiblioteca";
-import Br from "@/components/Detail/Br";
-import useAxios from "@/mk/hooks/useAxios";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import { Image } from "@/mk/components/ui/Image/Image";
 import LinkifyDescription from "@/mk/components/ui/LinkifyDescription/LinkifyDescription";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import useAxios from "@/mk/hooks/useAxios";
+import { getDateTimeStrMesShort } from "@/mk/utils/date";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import styles from "./RenderView.module.css";
 
-const RenderView = (props: {
+type RenderViewProps = {
   open: boolean;
-  onClose: any;
+  onClose: (result?: unknown) => void;
   item: Record<string, any>;
   onEdit?: (item: any) => void;
   onDelete?: (item: any) => void;
   reLoad?: () => void;
-  onOpenComments?: (contentId: number, contentData: any) => void;
+  onOpenComments?: (contentId: number, contentData?: any) => void;
+  onOpenLikes?: (contentId: number, totalLikes: number) => void;
   selectedContentData?: any;
   contentId?: number;
   showActions?: boolean;
-}) => {
-  const { data } = props?.item || {};
+};
+
+const RenderView = (props: RenderViewProps) => {
+  const { data } = props.item || {};
   const { showToast } = useAuth();
+  const { execute } = useAxios();
   const [isExpanded, setIsExpanded] = useState(false);
   const [indexVisible, setIndexVisible] = useState(0);
   const [contentData, setContentData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const { execute } = useAxios();
 
   const currentData = props.selectedContentData || contentData || data;
+  const isNews = Boolean(currentData?.title?.trim());
+  const publicationKind = isNews ? "Noticia" : "Post";
+  const author = currentData?.user || currentData?.owner;
+  const authorName = getFullName(author) || "Usuario no disponible";
+  const authorRole =
+    currentData?.user?.role1?.[0]?.name ||
+    currentData?.owner?.role1?.[0]?.name ||
+    "Comunidad";
 
-  // ── Normalizamos las imágenes ──
   const normalizedImages = useMemo(() => {
-    // Prioridad: files > images
-    const raw = currentData?.files || currentData?.images || [];
+    const files = Array.isArray(currentData?.files)
+      ? currentData.files.filter(
+          (file: unknown) => typeof file === "string" && file.trim(),
+        )
+      : [];
+    const raw = files.length > 0 ? files : currentData?.images || [];
 
     return raw
-      .map((item: any, idx: number) => {
-        // Caso 1: files → array de URLs directas
+      .map((item: any, index: number) => {
         if (typeof item === "string" && item.trim()) {
-          return {
-            type: "url",
-            url: item,
-            index: idx,
-          };
+          return { url: item, index };
         }
 
-        // Caso 2: images → array de objetos {id, ext, ...}
         if (item && typeof item === "object" && "id" in item) {
-          const url = getUrlImages(
-            `/CONT-${currentData.id}-${item.id}.webp?${currentData?.updated_at || ""}`,
-          );
           return {
-            type: "object",
-            url,
-            id: item.id,
-            index: idx,
+            url: getUrlImages(
+              `/CONT-${currentData.id}-${item.id}.webp?${
+                currentData?.updated_at || ""
+              }`,
+            ),
+            index,
           };
         }
 
         return null;
       })
-      .filter(Boolean); // quitamos nulos
+      .filter((image: { url: string; index: number } | null): image is {
+        url: string;
+        index: number;
+      } => Boolean(image));
   }, [currentData]);
 
-  const hasImagesContent = normalizedImages.length > 0;
-
   useEffect(() => {
+    let active = true;
+
     const fetchContentDetails = async () => {
       if (
-        props.open &&
-        props.contentId &&
-        !props.selectedContentData &&
-        !data
+        !props.open ||
+        !props.contentId ||
+        props.selectedContentData ||
+        data
       ) {
-        setLoading(true);
-        try {
-          const response = await execute(
-            "/contents",
-            "GET",
-            {
-              fullType: "DET",
-              searchBy: props.contentId,
-              page: 1,
-              perPage: 1,
-            },
-            false,
-            true,
-          );
+        return;
+      }
 
-          if (response?.data?.data) {
-            setContentData(response.data.data);
-          }
-        } catch (error) {
-          console.error("Error fetching content details:", error);
-          showToast?.("Error al cargar los detalles del contenido", "error");
-        } finally {
-          setLoading(false);
+      setLoading(true);
+      try {
+        const response = await execute(
+          "/contents",
+          "GET",
+          {
+            fullType: "DET",
+            searchBy: props.contentId,
+            page: 1,
+            perPage: 1,
+          },
+          false,
+          true,
+        );
+
+        if (!active) return;
+
+        if (response?.error || !response?.data?.data) {
+          throw new Error("No se encontraron los detalles de la publicación");
         }
+
+        setContentData(response.data.data);
+      } catch (error) {
+        if (!active) return;
+        showToast?.(
+          error instanceof Error
+            ? error.message
+            : "Error al cargar los detalles de la publicación",
+          "error",
+        );
+      } finally {
+        if (active) setLoading(false);
       }
     };
 
-    fetchContentDetails();
+    void fetchContentDetails();
+    return () => {
+      active = false;
+    };
   }, [
-    props.open,
-    props.contentId,
-    props.selectedContentData,
     data,
     execute,
+    props.contentId,
+    props.open,
+    props.selectedContentData,
     showToast,
   ]);
 
@@ -132,322 +156,320 @@ const RenderView = (props: {
     }
   }, [props.open]);
 
-  const commentsCount = useMemo(() => {
-    return currentData?.comments?.length || currentData?.comments_count || 0;
-  }, [currentData]);
+  useEffect(() => {
+    if (indexVisible >= normalizedImages.length) setIndexVisible(0);
+  }, [indexVisible, normalizedImages.length]);
 
-  const toggleExpanded = useCallback(
-    () => setIsExpanded(!isExpanded),
-    [isExpanded],
+  const commentsCount = Number(
+    currentData?.comments_count ?? currentData?.comments?.length ?? 0,
   );
+  const likesCount = Number(currentData?.likes || 0);
+  const description = currentData?.description?.trim() || "Sin descripción.";
 
   const nextIndex = useCallback(() => {
-    setIndexVisible((prev) => (prev + 1) % normalizedImages.length);
+    setIndexVisible((current) => (current + 1) % normalizedImages.length);
   }, [normalizedImages.length]);
 
-  const prevIndex = useCallback(() => {
-    setIndexVisible((prev) =>
-      prev === 0 ? normalizedImages.length - 1 : prev - 1,
+  const previousIndex = useCallback(() => {
+    setIndexVisible((current) =>
+      current === 0 ? normalizedImages.length - 1 : current - 1,
     );
   }, [normalizedImages.length]);
 
   const handleEdit = useCallback(() => {
-    const itemForEdit = {
-      ...currentData,
-      id: currentData.id,
-      title: currentData.title || "",
-      description: currentData.description || "",
-      type: currentData.type,
-      url: currentData.url || "",
-      images: currentData.images || [],
-      files: currentData.files || [], // también lo pasamos
-      user_id: currentData.user_id,
-      destiny: currentData.destiny || 0,
-      client_id: currentData.client_id,
-      status: currentData.status,
-      created_at: currentData.created_at,
-      updated_at: currentData.updated_at,
-      cdestinies: currentData.cdestinies || [],
-      lDestiny: currentData.lDestiny || [],
-    };
+    if (!currentData) return;
 
     props.onClose();
-    props.onEdit?.(itemForEdit);
+    props.onEdit?.({
+      ...currentData,
+      title: currentData.title || "",
+      description: currentData.description || "",
+      url: currentData.url || "",
+      images: currentData.images || [],
+      files: currentData.files || [],
+      destiny: currentData.destiny || 0,
+      cdestinies: currentData.cdestinies || [],
+      lDestiny: currentData.lDestiny || [],
+    });
   }, [currentData, props]);
 
   const handleDelete = useCallback(() => {
-    props.onDelete?.(currentData);
+    if (currentData) props.onDelete?.(currentData);
   }, [currentData, props]);
 
-  const handleOpenComments = useCallback(() => {
-    props.onOpenComments?.(currentData?.id, currentData);
-  }, [props.onOpenComments, currentData]);
-
   const getDocumentUrl = () => {
-    if (currentData?.files?.length > 0) {
-      return currentData?.files?.[0];
-    }
+    const file = currentData?.files?.find(
+      (entry: unknown) => typeof entry === "string" && entry.trim(),
+    );
+    if (file) return file;
+
     if (currentData?.type === "D" && currentData?.id && currentData?.url) {
       return getUrlImages(
-        `/CONT-${currentData.id}.pdf?d=${currentData.updated_at}`,
+        `/CONT-${currentData.id}.pdf?d=${currentData.updated_at || ""}`,
       );
     }
+
     return null;
   };
 
-  const hasDocument = () =>
-    (currentData?.type === "D" &&
-      currentData?.url &&
-      currentData?.url !== "null") ||
-    currentData?.files?.length > 0;
+  const documentUrl = getDocumentUrl();
+  const videoUrl =
+    currentData?.files?.find(
+      (entry: unknown) => typeof entry === "string" && entry.trim(),
+    ) || currentData?.url;
 
-  const urlAvatar = currentData?.user
-    ? currentData?.user?.url_avatar
-    : currentData?.owner?.url_avatar;
+  const renderMedia = () => {
+    if (currentData?.type === "I") {
+      if (normalizedImages.length === 0) {
+        return (
+          <div className={styles.mediaEmpty}>
+            <ImageOff size={30} aria-hidden="true" />
+            <strong>Imagen no disponible</strong>
+            <span>No se encontró un archivo válido para esta publicación.</span>
+          </div>
+        );
+      }
+
+      return (
+        <div className={styles.gallery}>
+          <div className={styles.imageWrapper}>
+            <Image
+              alt={`Imagen ${indexVisible + 1} de la publicación`}
+              src={normalizedImages[indexVisible]?.url || ""}
+              expandable
+              expandableIcon={false}
+              objectFit="contain"
+              borderRadius="0"
+              style={{ width: "100%", height: "100%" }}
+            />
+          </div>
+          {normalizedImages.length > 1 ? (
+            <div className={styles.galleryControls}>
+              <button
+                type="button"
+                onClick={previousIndex}
+                aria-label="Ver imagen anterior"
+              >
+                <IconArrowLeft size={17} />
+              </button>
+              <span>
+                {indexVisible + 1} de {normalizedImages.length}
+              </span>
+              <button
+                type="button"
+                onClick={nextIndex}
+                aria-label="Ver imagen siguiente"
+              >
+                <IconArrowRight size={17} />
+              </button>
+            </div>
+          ) : null}
+        </div>
+      );
+    }
+
+    if (currentData?.type === "V") {
+      return videoUrl ? (
+        <div className={styles.videoWrapper}>
+          <ReactPlayer url={videoUrl} width="100%" height="100%" controls />
+        </div>
+      ) : (
+        <div className={styles.mediaEmpty}>
+          <PlayCircle size={30} aria-hidden="true" />
+          <strong>Video no disponible</strong>
+          <span>El enlace ya no está disponible.</span>
+        </div>
+      );
+    }
+
+    if (currentData?.type === "D") {
+      return (
+        <div className={styles.documentCard}>
+          <span className={styles.documentIcon} aria-hidden="true">
+            <FileText size={30} />
+          </span>
+          <div>
+            <span className={styles.mediaEyebrow}>Documento adjunto</span>
+            <strong>{currentData?.title || "Documento de la publicación"}</strong>
+            <p>
+              {documentUrl
+                ? "Abre el archivo en una pestaña nueva para revisarlo."
+                : "El archivo ya no se encuentra disponible."}
+            </p>
+          </div>
+          {documentUrl ? (
+            <a href={documentUrl} target="_blank" rel="noopener noreferrer">
+              Abrir documento
+              <ExternalLink size={15} aria-hidden="true" />
+            </a>
+          ) : null}
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.mediaEmpty}>
+        <ImageOff size={30} aria-hidden="true" />
+        <strong>Contenido no disponible</strong>
+        <span>No hay un archivo asociado a esta publicación.</span>
+      </div>
+    );
+  };
+
   return (
     <DataModal
       open={props.open}
       onClose={props.onClose}
-      title="Detalle de la publicación"
+      title={
+        currentData
+          ? `Detalle de ${publicationKind.toLowerCase()}`
+          : "Detalle de la publicación"
+      }
       buttonText=""
       buttonCancel=""
-      variant="mini"
+      className={styles.modalBody}
+      maxWidth={980}
+      style={{
+        width: "min(980px, calc(100vw - 24px))",
+        maxHeight: "min(860px, calc(100vh - 24px))",
+      }}
+      ignoreTranslation
     >
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <div className={styles.headerLeft}>
-            <p className={styles.text}>
-              Publicado: {getDateTimeStrMesShort(currentData?.created_at)}
-            </p>
-            <p className={styles.text}>Para: Todos</p>
-          </div>
-          <div className={styles.headerRight}>
-            {(props.showActions ?? true) && (
-              <>
-                <button className={styles.actionButton} onClick={handleEdit}>
-                  <IconEdit size={24} />
-                </button>
-                <button className={styles.actionButton} onClick={handleDelete}>
-                  <IconTrash size={24} />
-                </button>
-              </>
-            )}
-          </div>
+      {loading || !currentData ? (
+        <div className={styles.loadingState} aria-live="polite">
+          <span className={styles.loadingAvatar} />
+          <span className={styles.loadingLineShort} />
+          <span className={styles.loadingLine} />
+          <span className={styles.loadingMedia} />
         </div>
-
-        <Br />
-
-        <div className={styles.content}>
-          <div className={styles.imageContainer}>
-            {currentData?.type === "I" ? (
-              hasImagesContent ? (
-                <div>
-                  <div className={styles.imageWrapper}>
-                    <Image
-                      alt="Imagen de la publicación"
-                      src={normalizedImages[indexVisible]?.url || ""}
-                      square={true}
-                      expandable={true}
-                      expandableIcon={false}
-                      objectFit="contain"
-                      borderRadius="var(--bRadiusM)"
-                      style={{ width: "100%", height: "100%" }}
-                    />
-                  </div>
-
-                  {normalizedImages.length > 1 && (
-                    <div className={styles.containerButton}>
-                      <div className={styles.button} onClick={prevIndex}>
-                        <IconArrowLeft size={18} color="var(--cWhite)" />
-                      </div>
-                      <p style={{ color: "var(--cWhite)", fontSize: 10 }}>
-                        {indexVisible + 1} / {normalizedImages.length}
-                      </p>
-                      <div className={styles.button} onClick={nextIndex}>
-                        <IconArrowRight size={18} color="var(--cWhite)" />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div
-                  className={styles.imageWrapper}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "16px",
-                    padding: "40px",
-                  }}
-                >
-                  <IconImage size={120} color="var(--cWhiteV1)" />
-                  <div style={{ textAlign: "center" }}>
-                    <p
-                      style={{
-                        color: "var(--cWhite)",
-                        fontSize: "16px",
-                        margin: "0 0 8px 0",
-                      }}
-                    >
-                      Imagen no disponible
-                    </p>
-                    <p
-                      style={{
-                        color: "var(--cWhiteV1)",
-                        fontSize: "14px",
-                        margin: "0",
-                      }}
-                    >
-                      No se encontraron imágenes válidas.
-                    </p>
-                  </div>
-                </div>
-              )
-            ) : currentData?.type === "V" ? (
-              <ReactPlayer
-                url={currentData?.url}
-                width="100%"
-                height="100%"
-                controls
-              />
-            ) : currentData?.type === "D" ? (
-              <div
-                className={styles.imageWrapper}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "16px",
-                  padding: "40px",
-                }}
-              >
-                <IconPDF
-                  size={120}
-                  color={hasDocument() ? "var(--cWhite)" : "var(--cWhiteV1)"}
-                />
-                <div style={{ textAlign: "center" }}>
-                  <p
-                    style={{
-                      color: "var(--cWhite)",
-                      fontSize: "16px",
-                      margin: "0 0 8px 0",
-                    }}
-                  >
-                    {hasDocument()
-                      ? currentData?.title || "Documento"
-                      : "Documento no disponible"}
-                  </p>
-                  <p
-                    style={{
-                      color: "var(--cWhiteV1)",
-                      fontSize: "14px",
-                      margin: "0 0 16px 0",
-                    }}
-                  >
-                    {hasDocument()
-                      ? currentData?.description?.substring(0, 100) +
-                        (currentData?.description?.length > 100 ? "..." : "")
-                      : "El documento fue eliminado y no se pudo cargar."}
-                  </p>
-                  {(currentData?.files?.length > 0 ||
-                    (hasDocument() && getDocumentUrl())) && (
-                    <a
-                      href={getDocumentUrl() ?? undefined}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        color: "var(--cAccent)",
-                        textDecoration: "none",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                        padding: "8px 16px",
-                        border: "1px solid var(--cAccent)",
-                        borderRadius: "6px",
-                        display: "inline-block",
-                        transition: "all 0.2s ease",
-                      }}
-                      onMouseOver={(e) => {
-                        e.currentTarget.style.backgroundColor =
-                          "var(--cAccent)";
-                        e.currentTarget.style.color = "var(--cWhite)";
-                      }}
-                      onMouseOut={(e) => {
-                        e.currentTarget.style.backgroundColor = "transparent";
-                        e.currentTarget.style.color = "var(--cAccent)";
-                      }}
-                    >
-                      Abrir documento
-                    </a>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className={styles.noImageText}>Sin contenido disponible</div>
-            )}
-          </div>
-
-          <div className={styles.contentContainer}>
-            <div className={styles.userSection}>
+      ) : (
+        <article
+          className={`${styles.publication} ${
+            isNews ? styles.news : styles.post
+          }`}
+        >
+          <header className={styles.publicationHeader}>
+            <div className={styles.author}>
               <Avatar
-                name={getFullName(currentData?.user || currentData?.owner)}
-                src={urlAvatar}
+                name={authorName}
+                src={author?.url_avatar}
                 w={48}
                 h={48}
               />
-              <div className={styles.userInfo}>
-                <div className={styles.userName}>
-                  {getFullName(currentData?.user || currentData?.owner)}
-                </div>
-                <div className={styles.userRole}>
-                  {currentData?.user?.role1?.[0]?.name}
-                </div>
+              <div className={styles.authorInfo}>
+                <strong data-i18n-ignore="true">{authorName}</strong>
+                <span>
+                  {authorRole}
+                  <i aria-hidden="true" />
+                  <time dateTime={currentData.created_at}>
+                    {getDateTimeStrMesShort(currentData.created_at)}
+                  </time>
+                </span>
               </div>
             </div>
 
-            {currentData?.title && (
-              <h2 className={styles.title}>{currentData.title}</h2>
-            )}
-
-            <div className={styles.descriptionContainer}>
-              <p
-                className={`${styles.description} ${!isExpanded ? styles.descriptionTruncated : ""}`}
+            <div className={styles.headerActions}>
+              <span
+                className={`${styles.typeBadge} ${
+                  isNews ? styles.newsBadge : styles.postBadge
+                }`}
               >
-                <LinkifyDescription text={currentData?.description} />
-              </p>
+                {publicationKind}
+              </span>
+              {(props.showActions ?? true) && props.onEdit ? (
+                <button
+                  type="button"
+                  className={styles.iconAction}
+                  onClick={handleEdit}
+                  aria-label="Editar publicación"
+                  title="Editar publicación"
+                >
+                  <IconEdit size={18} />
+                </button>
+              ) : null}
+              {(props.showActions ?? true) && props.onDelete ? (
+                <button
+                  type="button"
+                  className={`${styles.iconAction} ${styles.deleteAction}`}
+                  onClick={handleDelete}
+                  aria-label="Eliminar publicación"
+                  title="Eliminar publicación"
+                >
+                  <IconTrash size={18} />
+                </button>
+              ) : null}
+            </div>
+          </header>
 
-              {currentData?.description &&
-                currentData.description.length > 200 && (
+          <div className={styles.audienceRow}>
+            <span>Publicado para</span>
+            <strong>
+              {currentData?.destiny === "T" || !currentData?.destiny
+                ? "Toda la comunidad"
+                : "Audiencia seleccionada"}
+            </strong>
+          </div>
+
+          <div className={styles.publicationContent}>
+            <section className={styles.copy}>
+              {isNews ? <h2>{currentData.title}</h2> : null}
+              <div className={styles.descriptionContainer}>
+                <p
+                  className={`${styles.description} ${
+                    !isExpanded ? styles.descriptionTruncated : ""
+                  }`}
+                >
+                  <LinkifyDescription text={description} />
+                </p>
+                {description.length > 320 ? (
                   <button
                     type="button"
-                    onClick={toggleExpanded}
+                    onClick={() => setIsExpanded((expanded) => !expanded)}
                     className={styles.expandButton}
                   >
                     {isExpanded ? "Ver menos" : "Ver más"}
                   </button>
-                )}
-            </div>
-
-            <Br />
-
-            <div className={styles.statsContainer}>
-              <div className={styles.statItem}>
-                <IconLike color="var(--cAccent)" size={24} />
-                <span>{currentData?.likes || 0} Apoyos</span>
+                ) : null}
               </div>
-              <div
-                className={styles.statItem}
-                onClick={handleOpenComments}
-                style={{ cursor: "pointer" }}
-              >
-                <IconComment color="var(--cAccent)" size={24} />
-                <span>{commentsCount} Comentarios</span>
-              </div>
-            </div>
+            </section>
+
+            <section className={styles.media}>{renderMedia()}</section>
           </div>
-        </div>
-      </div>
+
+          <footer className={styles.publicationFooter}>
+            <div className={styles.stats}>
+              <button
+                type="button"
+                onClick={() =>
+                  props.onOpenLikes?.(currentData.id, likesCount)
+                }
+                disabled={!props.onOpenLikes}
+                aria-label={`Ver las ${likesCount} personas que apoyaron esta publicación`}
+              >
+                <IconLike size={18} color="var(--cAccent)" />
+                <span>
+                  <strong>{likesCount}</strong>{" "}
+                  {likesCount === 1 ? "apoyo" : "apoyos"}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  props.onOpenComments?.(currentData.id, currentData)
+                }
+                disabled={!props.onOpenComments}
+                aria-label={`Ver los ${commentsCount} comentarios de esta publicación`}
+              >
+                <IconComment size={18} />
+                <span>
+                  <strong>{commentsCount}</strong>{" "}
+                  {commentsCount === 1 ? "comentario" : "comentarios"}
+                </span>
+              </button>
+            </div>
+          </footer>
+        </article>
+      )}
     </DataModal>
   );
 };

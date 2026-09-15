@@ -1,0 +1,191 @@
+.modalBody {
+  min-height: 0;
+  overflow: hidden !important;
+}
+
+.summary {
+  display: flex;
+  padding: 13px 14px;
+  gap: 11px;
+  align-items: center;
+  color: var(--cWhite);
+  background: linear-gradient(135deg, rgba(0, 227, 140, 0.11), rgba(0, 227, 140, 0.025));
+  border: 1px solid rgba(0, 227, 140, 0.2);
+  border-radius: 14px;
+}
+
+.summaryIcon,
+.stateIcon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--cAccent);
+  background: rgba(0, 227, 140, 0.12);
+  border-radius: 11px;
+}
+
+.summary div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summary strong {
+  font-size: 14px;
+  font-weight: 680;
+}
+
+.summary div > span {
+  color: var(--cWhiteV1);
+  font-size: 12px;
+}
+
+.listViewport {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-color: var(--cModalBorder) transparent;
+  scrollbar-width: thin;
+}
+
+.likesList {
+  display: grid;
+  padding: 2px 0;
+  margin: 0;
+  gap: 4px;
+  list-style: none;
+}
+
+.likeItem {
+  display: flex;
+  padding: 10px 11px;
+  gap: 11px;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
+}
+
+.likeItem:hover {
+  background: var(--cModalSection);
+  border-color: var(--cModalBorder);
+}
+
+.avatar {
+  flex: 0 0 auto;
+  border: 1px solid var(--cModalBorder);
+}
+
+.personInfo {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.personInfo strong {
+  overflow: hidden;
+  color: var(--cWhite);
+  font-size: 14px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.personInfo span {
+  color: var(--cWhiteV1);
+  font-size: 12px;
+}
+
+.state {
+  display: flex;
+  min-height: 260px;
+  padding: 32px 20px;
+  flex-direction: column;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+  color: var(--cWhiteV1);
+  text-align: center;
+}
+
+.state strong {
+  margin-top: 4px;
+  color: var(--cWhite);
+  font-size: 15px;
+}
+
+.state span:not(.stateIcon):not(.spinner) {
+  max-width: 300px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.state button,
+.loadMore {
+  min-height: 38px;
+  padding: 0 15px;
+  color: var(--cWhite);
+  background: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.state button {
+  margin-top: 8px;
+}
+
+.state button:hover,
+.loadMore:hover:not(:disabled) {
+  color: var(--cAccent);
+  border-color: rgba(0, 227, 140, 0.35);
+}
+
+.loadMore {
+  width: 100%;
+  flex: 0 0 auto;
+}
+
+.loadMore:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--cModalBorder);
+  border-top-color: var(--cAccent);
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .summary {
+    padding: 11px 12px;
+  }
+
+  .likeItem {
+    padding-inline: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.8s;
+  }
+}

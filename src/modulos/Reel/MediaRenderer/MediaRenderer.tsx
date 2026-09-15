@@ -51,18 +51,31 @@ const MediaRenderer: React.FC<MediaRendererProps> = ({
   if (item.type === "I" && hasImages) {
     if (normalizedImages.length === 1) {
       const imageSrc: any = normalizedImages[0];
+      const image = (
+        <Image
+          src={imageSrc}
+          alt={item.title || "Imagen de contenido"}
+          width={600}
+          height={400}
+          className={styles.imageCard}
+          unoptimized
+        />
+      );
 
       return (
         <div className={styles.contentMediaContainer}>
-          <Image
-            src={imageSrc}
-            alt={item.title || "Imagen de contenido"}
-            width={600}
-            height={400}
-            className={styles.imageCard}
-            onClick={onImageClick}
-            unoptimized
-          />
+          {onImageClick ? (
+            <button
+              type="button"
+              className={styles.imageButton}
+              onClick={onImageClick}
+              aria-label="Abrir detalle de la publicación"
+            >
+              {image}
+            </button>
+          ) : (
+            image
+          )}
         </div>
       );
     }
