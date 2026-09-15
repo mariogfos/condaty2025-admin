@@ -188,14 +188,11 @@ export default function CommentsModal({
     >
       <div className={styles.summary}>
         <span className={styles.summaryIcon} aria-hidden="true">
-          <MessageCircle size={18} />
+          <MessageCircle size={15} />
         </span>
-        <div>
-          <strong>
-            {comments.length} {comments.length === 1 ? "comentario" : "comentarios"}
-          </strong>
-          <span>Conversación de la comunidad</span>
-        </div>
+        <strong>
+          {comments.length} {comments.length === 1 ? "comentario" : "comentarios"}
+        </strong>
       </div>
 
       <div className={styles.commentsViewport} aria-live="polite">
@@ -231,7 +228,6 @@ export default function CommentsModal({
                     src={author?.url_avatar || undefined}
                     w={38}
                     h={38}
-                    className={styles.commentAvatar}
                   />
                   <div className={styles.commentBubble}>
                     <div className={styles.commentMeta}>

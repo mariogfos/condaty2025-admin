@@ -155,6 +155,7 @@ describe("experiencia de publicaciones", () => {
       false,
       true,
     );
+    expect(screen.queryByText("Personas de tu comunidad")).not.toBeInTheDocument();
     expect(screen.queryByText(/correo|teléfono|ci/i)).not.toBeInTheDocument();
   });
 
@@ -212,6 +213,9 @@ describe("experiencia de publicaciones", () => {
     expect(
       await screen.findByText("Gracias por la información."),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Conversación de la comunidad"),
+    ).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Nuevo comentario"), {
       target: { value: "Queda claro." },
@@ -320,5 +324,45 @@ describe("experiencia de publicaciones", () => {
     expect(modalStyles).toMatch(
       /\.header\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto;/s,
     );
+  });
+
+  it("presenta los resúmenes de interacción como indicadores compactos y neutrales", () => {
+    const styleSheets = [
+      readStyles(
+        "src/components/PublicationLikesModal/PublicationLikesModal.module.css",
+      ),
+      readStyles("src/components/CommentsModal/CommentsModal.module.css"),
+    ];
+
+    styleSheets.forEach((styleSheet) => {
+      const summaryRule = styleSheet.match(/\.summary\s*\{[^}]*\}/s)?.[0];
+      const summaryIconRule = styleSheet.match(
+        /\.summaryIcon\s*\{[^}]*\}/s,
+      )?.[0];
+
+      expect(summaryRule).toContain("width: fit-content;");
+      expect(summaryRule).toContain("align-self: flex-end;");
+      expect(summaryRule).toContain("background: var(--cModalSurfaceRaised);");
+      expect(summaryRule).toContain("border: 1px solid var(--cModalBorder);");
+      expect(summaryRule).not.toContain("rgba(0, 227, 140");
+      expect(summaryIconRule).toContain("color: var(--cWhiteV1);");
+      expect(summaryIconRule).toContain("background: var(--cModalSection);");
+    });
+  });
+
+  it("mantiene los avatares de publicaciones sin un marco cuadrado", () => {
+    const reelStyles = readStyles("src/modulos/Reel/Reel.module.css");
+    const likesStyles = readStyles(
+      "src/components/PublicationLikesModal/PublicationLikesModal.module.css",
+    );
+    const commentsStyles = readStyles(
+      "src/components/CommentsModal/CommentsModal.module.css",
+    );
+
+    expect(reelStyles).not.toMatch(
+      /\.userInfo > :first-child\s*\{[^}]*border:/s,
+    );
+    expect(likesStyles).not.toMatch(/\.avatar\s*\{[^}]*border:/s);
+    expect(commentsStyles).not.toContain(".commentAvatar");
   });
 });

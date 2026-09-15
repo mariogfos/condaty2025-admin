@@ -103,7 +103,6 @@
 
 .userInfo > :first-child {
   flex: 0 0 auto;
-  border: 1px solid var(--cModalBorder);
 }
 
 .userDetails {

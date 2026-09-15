@@ -148,14 +148,11 @@ export default function PublicationLikesModal({
     >
       <div className={styles.summary}>
         <span className={styles.summaryIcon} aria-hidden="true">
-          <UsersRound size={18} />
+          <UsersRound size={15} />
         </span>
-        <div>
-          <strong>
-            {displayedTotal} {displayedTotal === 1 ? "apoyo" : "apoyos"}
-          </strong>
-          <span>Personas de tu comunidad</span>
-        </div>
+        <strong>
+          {displayedTotal} {displayedTotal === 1 ? "apoyo" : "apoyos"}
+        </strong>
       </div>
 
       <div className={styles.listViewport} aria-live="polite">
