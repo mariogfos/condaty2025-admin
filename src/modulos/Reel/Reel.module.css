@@ -58,7 +58,6 @@
 }
 
 .contentCard {
-  --publication-accent: var(--cAccent);
   position: relative;
   display: flex;
   height: auto;
@@ -68,7 +67,7 @@
   overflow: hidden;
   color: var(--cWhite);
   background:
-    radial-gradient(circle at 100% 0, rgba(0, 227, 140, 0.035), transparent 34%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.025), transparent 34%),
     var(--cModalSurface, #0d1218);
   border: 1px solid var(--cModalBorder, #222c37);
   border-radius: 20px;
@@ -79,23 +78,13 @@
 }
 
 .contentCard:hover {
-  border-color: color-mix(in srgb, var(--publication-accent) 23%, var(--cModalBorder));
+  border-color: var(--cModalBorder, #222c37);
   box-shadow: 0 22px 56px rgba(0, 0, 0, 0.28);
 }
 
-.newsCard::before {
-  position: absolute;
-  top: 0;
-  right: 24px;
-  left: 24px;
-  height: 2px;
-  content: "";
-  background: linear-gradient(90deg, transparent, var(--cAccent), transparent);
-  opacity: 0.72;
-}
-
+.newsCard,
 .postCard {
-  --publication-accent: #8ea3ff;
+  border-color: var(--cModalBorder, #222c37);
 }
 
 .contentHeader {
@@ -174,9 +163,9 @@
 }
 
 .newsBadge {
-  color: var(--cAccent);
-  background: rgba(0, 227, 140, 0.08);
-  border-color: rgba(0, 227, 140, 0.2);
+  color: var(--cWhite);
+  background: var(--cModalSurfaceRaised);
+  border-color: var(--cModalBorder);
 }
 
 .postBadge {

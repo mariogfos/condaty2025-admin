@@ -58,8 +58,13 @@
 
 .header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 220px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
+  gap: 16px;
+}
+
+.headerWithCenter {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 220px) minmax(0, 1fr);
   gap: 28px;
 }
 
@@ -83,10 +88,14 @@
 }
 
 .title {
+  min-width: 0;
+  overflow: hidden;
   color: var(--cWhite);
   font-size: 24px;
   font-weight: 700;
   line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .subtitle {
@@ -95,7 +104,7 @@
 }
 
 .closeButton {
-  grid-column: 3;
+  grid-column: 2;
   justify-self: end;
   width: 40px;
   height: 40px;
@@ -107,6 +116,10 @@
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
+}
+
+.headerWithCenter .closeButton {
+  grid-column: 3;
 }
 
 .closeButton:hover {
@@ -210,7 +223,8 @@
 }
 
 @media (max-width: 640px) {
-  .header {
+  .header,
+  .headerWithCenter {
     grid-template-columns: minmax(0, 1fr) auto;
     column-gap: 12px;
     row-gap: 10px;
@@ -221,7 +235,8 @@
     width: 100%;
   }
 
-  .closeButton {
+  .closeButton,
+  .headerWithCenter .closeButton {
     grid-column: 2;
   }
 }

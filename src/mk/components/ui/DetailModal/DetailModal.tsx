@@ -100,11 +100,14 @@ const DetailModal = ({
         className={`${openModal ? styles.open : ""} ${fullScreen ? styles.fullScreenMain : ""}`}
         style={customStyle}
       >
-        <header className={styles.header}>
+        <header
+          className={`${styles.header} ${headerCenter ? styles.headerWithCenter : ""}`}
+        >
           <div className={styles.titleWrap}>
             {title ? (
               <div
                 className={[styles.title, titleClassName].filter(Boolean).join(" ")}
+                title={typeof title === "string" ? title : undefined}
               >
                 {title}
               </div>
@@ -120,6 +123,7 @@ const DetailModal = ({
             <button
               className={styles.closeButton}
               onClick={() => _close(false)}
+              aria-label="Cerrar"
             >
               <IconX size={20} color="var(--cWhite)" />
             </button>

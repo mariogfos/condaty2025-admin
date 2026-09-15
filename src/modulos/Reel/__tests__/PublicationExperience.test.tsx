@@ -4,10 +4,14 @@ import { resolve } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import CommentsModal from "@/components/CommentsModal/CommentsModal";
 import PublicationLikesModal from "@/components/PublicationLikesModal/PublicationLikesModal";
+import DetailModal from "@/mk/components/ui/DetailModal/DetailModal";
 import Preview from "@/modulos/Contents/AddContent/Preview";
 import RenderView from "@/modulos/Contents/RenderView/RenderView";
 
 const executeMock = vi.fn();
+
+const readStyles = (path: string) =>
+  readFileSync(resolve(process.cwd(), path), "utf8");
 
 vi.mock("@/mk/hooks/useAxios", () => ({
   default: () => ({ execute: executeMock }),
@@ -260,16 +264,61 @@ describe("experiencia de publicaciones", () => {
   });
 
   it("mantiene el muro centrado y las tarjetas con altura natural", () => {
-    const reelStyles = readFileSync(
-      resolve(process.cwd(), "src/modulos/Reel/Reel.module.css"),
-      "utf8",
-    );
+    const reelStyles = readStyles("src/modulos/Reel/Reel.module.css");
 
     expect(reelStyles).toMatch(
       /\.reelContainer\s*\{[^}]*max-width:\s*860px;/s,
     );
     expect(reelStyles).toMatch(
       /\.contentCard\s*\{[^}]*height:\s*auto;[^}]*flex:\s*0 0 auto;/s,
+    );
+  });
+
+  it("mantiene las noticias neutrales y sin líneas decorativas", () => {
+    const styleSheets = [
+      readStyles("src/modulos/Reel/Reel.module.css"),
+      readStyles("src/modulos/Contents/AddContent/Preview.module.css"),
+      readStyles("src/modulos/Contents/RenderView/RenderView.module.css"),
+    ];
+
+    styleSheets.forEach((styleSheet) => {
+      const newsBadgeRule = styleSheet.match(/\.newsBadge\s*\{[^}]*\}/s)?.[0];
+
+      expect(newsBadgeRule).toContain("color: var(--cWhite);");
+      expect(newsBadgeRule).toContain("background: var(--cModalSurfaceRaised);");
+      expect(newsBadgeRule).toContain("border-color: var(--cModalBorder);");
+    });
+
+    expect(styleSheets[0]).toMatch(
+      /\.contentCard:hover\s*\{[^}]*border-color:\s*var\(--cModalBorder/s,
+    );
+    expect(styleSheets[0]).not.toContain(".newsCard::before");
+    expect(styleSheets[1]).not.toContain(".newsCard::before");
+    expect(styleSheets[2]).not.toContain(".publication::before");
+  });
+
+  it("trunca a una línea los títulos del modal compartido", () => {
+    const longTitle =
+      "Personas que apoyaron una publicación con un título muy extenso";
+
+    render(
+      <DetailModal open={false} onClose={vi.fn()} title={longTitle}>
+        <span>Contenido</span>
+      </DetailModal>,
+    );
+
+    expect(screen.getByText(longTitle)).toHaveAttribute("title", longTitle);
+
+    const modalStyles = readStyles(
+      "src/mk/components/ui/DetailModal/detailModal.module.css",
+    );
+    const titleRule = modalStyles.match(/\.title\s*\{[^}]*\}/s)?.[0];
+
+    expect(titleRule).toContain("overflow: hidden;");
+    expect(titleRule).toContain("text-overflow: ellipsis;");
+    expect(titleRule).toContain("white-space: nowrap;");
+    expect(modalStyles).toMatch(
+      /\.header\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto;/s,
     );
   });
 });

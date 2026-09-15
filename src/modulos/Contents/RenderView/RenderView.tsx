@@ -343,11 +343,7 @@ const RenderView = (props: RenderViewProps) => {
           <span className={styles.loadingMedia} />
         </div>
       ) : (
-        <article
-          className={`${styles.publication} ${
-            isNews ? styles.news : styles.post
-          }`}
-        >
+        <article className={styles.publication}>
           <header className={styles.publicationHeader}>
             <div className={styles.author}>
               <Avatar
