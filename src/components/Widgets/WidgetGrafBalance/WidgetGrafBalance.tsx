@@ -167,9 +167,18 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
       const firstMonthIndex = fullYearData.ingresos.findIndex(
         (val, i) => val > 0 || fullYearData.egresos[i] > 0
       );
-      const lastMonthIndex = fullYearData.ingresos.findLastIndex(
-        (val, i) => val > 0 || fullYearData.egresos[i] > 0
-      );
+      // `findLastIndex` is not available in older browsers and WebViews that
+      // still access the admin. Iterate backwards to keep this view compatible.
+      let lastMonthIndex = -1;
+      for (let index = fullYearData.ingresos.length - 1; index >= 0; index--) {
+        if (
+          fullYearData.ingresos[index] > 0 ||
+          fullYearData.egresos[index] > 0
+        ) {
+          lastMonthIndex = index;
+          break;
+        }
+      }
 
       if (firstMonthIndex !== -1) {
         const startIndex = firstMonthIndex;
