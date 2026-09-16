@@ -1,65 +1,50 @@
 .EditProfile {
   display: flex;
   flex-direction: column;
+  gap: var(--spL);
 
   .subtitle {
     color: #878f9a;
     font-size: 14px;
-  }
-
-  & > section:first-of-type {
-    /* Remove centered margin/width for UploadFile wrapper if we use flex layout */
-  }
-
-  .hiddenInput {
-    display: none;
+    line-height: 1.4;
+    margin: 0;
   }
 
   .avatarSection {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 24px;
+    min-width: 0;
   }
 
-  .avatarWrapper {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  .avatarActions {
+  .fieldsSection {
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
   }
 
-  .avatarButtons {
-    display: flex;
-    gap: 12px;
+  .formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spM);
   }
 
-  .avatarInfo {
-    color: var(--cWhiteV1);
-    font-size: 12px;
+  .fullWidth,
+  .credentialsGroup {
+    grid-column: 1 / -1;
+    min-width: 0;
   }
 
-  & > section:nth-of-type(2) {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+  .credentialsGroup {
+    display: grid;
     gap: var(--spS);
-
-    & > div:first-of-type {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--spS);
-    }
   }
 }
 
-.fullWidth {
-  grid-column: span 2;
+@media (max-width: 640px) {
+  .EditProfile {
+    gap: var(--spM);
+
+    .formGrid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--spS);
+    }
+  }
 }
