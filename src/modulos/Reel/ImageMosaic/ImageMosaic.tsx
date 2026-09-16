@@ -40,29 +40,33 @@ const ImageMosaic: React.FC<ImageMosaicProps> = ({
   const renderImage = (imageUrl: string, index: number, isLast = false) => {
     const key = `mosaic-${index}-${imageUrl.substring(0, 20)}`;
 
-    const imageClass =
-      index === 0
-        ? `${styles.mosaicImage} ${styles.mosaicImageFirst}`
-        : styles.mosaicImage;
+    const cellClass = [
+      index === 0 ? styles.mosaicCellFirst : "",
+      isLast ? styles.mosaicImageLast : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
 
     return (
-      <div
+      <button
+        type="button"
         key={key}
-        className={isLast ? styles.mosaicImageLast : undefined}
+        className={cellClass}
         onClick={onImageClick}
+        aria-label={`Abrir imagen ${index + 1} de la publicación`}
       >
         <Image
           src={imageUrl}
           alt={`Imagen ${index + 1} de ${item.title || "contenido"}`}
           width={300}
           height={200}
-          className={imageClass}
+          className={styles.mosaicImage}
           unoptimized // ← mantengo porque usas Cloudinary y Next/Image con ?w o similar no siempre es necesario
         />
         {isLast && imageCount > 4 && (
           <div className={styles.mosaicOverlay}>+{imageCount - 3}</div>
         )}
-      </div>
+      </button>
     );
   };
 

@@ -40,15 +40,15 @@
   opacity: 0.9;
 }
 
-.mosaicImageFirst {
+.mosaicCellFirst {
   grid-row: span 2;
 }
 
-.imageMosaicContainer.fourOrMoreImages .mosaicImageFirst {
+.imageMosaicContainer.fourOrMoreImages .mosaicCellFirst {
   grid-row: span 3;
 }
 
-.imageMosaicContainer.twoImages .mosaicImageFirst {
+.imageMosaicContainer.twoImages .mosaicCellFirst {
   grid-row: span 1;
 }
 
@@ -77,8 +77,17 @@
   background: rgba(0, 0, 0, 0.8);
 }
 
-.imageMosaicContainer > div {
+.imageMosaicContainer > button {
+  display: block;
+  padding: 0;
   min-height: 0;
   min-width: 0;
   overflow: hidden;
+  border: 0;
+  background: transparent;
+}
+
+.imageMosaicContainer > button:focus-visible {
+  outline: 2px solid var(--cAccent);
+  outline-offset: -3px;
 }

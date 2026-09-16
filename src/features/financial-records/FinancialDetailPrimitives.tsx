@@ -13,12 +13,14 @@ export type FinancialDetailField = {
 };
 
 export const FinancialDetailSection = ({
+  id,
   title,
   description,
   children,
   className = "",
   defaultOpen = true,
 }: {
+  id?: string;
   title?: ReactNode;
   description?: ReactNode;
   children: ReactNode;
@@ -29,7 +31,7 @@ export const FinancialDetailSection = ({
   const isCollapsible = Boolean(title || description);
 
   return (
-    <section className={`${styles.detailSection} ${className}`.trim()}>
+    <section id={id} className={`${styles.detailSection} ${className}`.trim()}>
       {isCollapsible ? (
         <button
           type="button"

@@ -1,198 +1,284 @@
-.commentModalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--cHoverModal);
-  display: flex;
+.modalBody {
+  min-height: 0;
+  overflow: hidden !important;
+}
+
+.summary {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 32px;
+  padding: 4px 9px 4px 5px;
+  gap: 7px;
+  align-self: flex-end;
   align-items: center;
-  justify-content: center;
-  z-index: 1100; /* Mayor que el DataModal (1000) */
-  padding: 20px;
-}
-
-.commentModalContent {
-  background-color: var(--cBackground);
-  border-radius: 12px;
-  width: 100%;
-  max-width: 500px;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--cBorder);
-}
-
-.commentModalHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--cBorder);
-}
-
-.commentModalTitle {
   color: var(--cWhite);
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0;
+  background: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 9px;
 }
 
-.commentModalCloseButton {
-  background: none;
-  border: none;
+.summaryIcon {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  place-items: center;
   color: var(--cWhiteV1);
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  background: var(--cModalSection);
+  border-radius: 7px;
 }
 
-.commentModalCloseButton:hover {
-  background-color: var(--cBackground-foreground);
+.stateIcon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--cAccent);
+  background: rgba(0, 227, 140, 0.12);
+  border-radius: 11px;
 }
 
-.commentModalBody {
+.summary strong {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.commentsViewport {
+  min-height: 0;
   flex: 1;
   overflow-y: auto;
-  padding: 16px 20px;
-  min-height: 200px;
-  max-height: 400px;
-}
-
-.loadingComments {
-  text-align: center;
-  color: var(--cWhiteV1);
-  padding: 40px 20px;
-}
-
-.commentsError {
-  text-align: center;
-  color: var(--cError);
-  padding: 40px 20px;
-}
-
-.noCommentsYet {
-  text-align: center;
-  color: var(--cWhiteV1);
-  padding: 40px 20px;
-  font-style: italic;
+  scrollbar-color: var(--cModalBorder) transparent;
+  scrollbar-width: thin;
 }
 
 .commentList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
   display: flex;
+  padding: 5px 1px 12px;
+  margin: 0;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  list-style: none;
 }
 
 .commentItem {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
 }
 
-.commentAvatar {
-  flex-shrink: 0;
-}
-
-.commentContent {
-  flex: 1;
+.commentBubble {
   min-width: 0;
+  padding: 10px 12px 11px;
+  background: var(--cModalSection);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 4px 14px 14px;
 }
 
-.commentUserInfo {
+.commentMeta {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
 }
 
-.commentUserName {
+.commentMeta strong {
+  overflow: hidden;
   color: var(--cWhite);
-  font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 680;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.commentDate {
+.commentMeta time {
+  flex: 0 0 auto;
   color: var(--cWhiteV1);
-  font-size: 12px;
+  font-size: 10px;
 }
 
-.commentText {
-  color: var(--cWhiteV1);
-  font-size: 14px;
-  line-height: 1.4;
-  margin: 0;
-  word-wrap: break-word;
+.commentBubble p {
+  margin: 5px 0 0;
+  color: var(--cWhiteV4, #dbe2e0);
+  font-size: 13px;
+  line-height: 1.52;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
-.commentModalFooter {
-  padding: 16px 20px;
-  border-top: 1px solid var(--cBorder);
+.scrollAnchor {
+  height: 1px;
+  list-style: none;
+}
+
+.state {
   display: flex;
+  min-height: 250px;
+  padding: 30px 20px;
   flex-direction: column;
-  gap: 12px;
-}
-
-.commentInput {
-  width: 100%;
-  background-color: var(--cBackground-foreground);
-  border: 1px solid var(--cBorder);
-  border-radius: 8px;
-  padding: 12px;
-  color: var(--cWhite);
-  font-size: 14px;
-  resize: vertical;
-  min-height: 60px;
-  font-family: inherit;
-}
-
-.commentInput:focus {
-  outline: none;
-  border-color: var(--cAccent);
-}
-
-.commentInput::placeholder {
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
   color: var(--cWhiteV1);
-}
-
-.commentInput:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.commentPostButton {
-  align-self: flex-end;
-  background-color: var(--cAccent);
-  color: var(--cBlack);
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.commentPostButton:hover:not(:disabled) {
-  background-color: var(--accentv1);
-}
-
-.commentPostButton:disabled {
-  background-color: var(--cBackground-foreground);
-  color: var(--cWhiteV1);
-  cursor: not-allowed;
-}
-
-.commentPostError {
-  color: var(--cError);
-  font-size: 12px;
-  margin: 0;
   text-align: center;
+}
+
+.state strong {
+  margin-top: 4px;
+  color: var(--cWhite);
+  font-size: 15px;
+}
+
+.state > span:not(.stateIcon):not(.spinner) {
+  max-width: 320px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.state button {
+  min-height: 38px;
+  padding: 0 15px;
+  margin-top: 8px;
+  color: var(--cWhite);
+  background: var(--cModalSurfaceRaised);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.state button:hover {
+  color: var(--cAccent);
+  border-color: rgba(0, 227, 140, 0.35);
+}
+
+.composer {
+  padding-top: 12px;
+  flex: 0 0 auto;
+  border-top: 1px solid var(--cModalDivider);
+}
+
+.inputShell {
+  display: grid;
+  padding: 8px 8px 8px 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+  background: var(--cModalSection);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 14px;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.inputShell:focus-within {
+  border-color: rgba(0, 227, 140, 0.48);
+  box-shadow: 0 0 0 3px rgba(0, 227, 140, 0.08);
+}
+
+.inputShell textarea {
+  width: 100%;
+  min-height: 42px;
+  max-height: 120px;
+  padding: 4px 0;
+  resize: none;
+  color: var(--cWhite);
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.inputShell textarea::placeholder {
+  color: var(--cWhiteV1);
+}
+
+.inputShell button {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  place-items: center;
+  color: #032117;
+  background: var(--cAccent);
+  border: 0;
+  border-radius: 11px;
+  cursor: pointer;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.inputShell button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.inputShell button:disabled {
+  color: var(--cWhiteV1);
+  background: var(--cModalSurfaceRaised);
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.composerMeta {
+  display: flex;
+  min-height: 20px;
+  padding: 5px 2px 0;
+  gap: 10px;
+  justify-content: space-between;
+  color: var(--cWhiteV1);
+  font-size: 10px;
+}
+
+.postError {
+  color: var(--cError);
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--cModalBorder);
+  border-top-color: var(--cAccent);
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .commentItem {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .commentBubble {
+    padding: 9px 10px 10px;
+  }
+
+  .composerMeta > span:first-child:not(.postError) {
+    display: none;
+  }
+
+  .composerMeta {
+    justify-content: flex-end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.8s;
+  }
 }
