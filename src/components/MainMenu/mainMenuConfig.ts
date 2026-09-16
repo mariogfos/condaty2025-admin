@@ -161,8 +161,18 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "publicationsWall",
         badgeKey: "reelsBage",
       },
-      { href: "/surveys", perm: "surveys", labelKey: "Encuestas" },
-      { href: "/mis-encuestas", perm: "surveys", labelKey: "Mis Encuestas" },
+      {
+        href: "/surveys",
+        perm: "surveys",
+        labelKey: "Encuestas",
+        fosOnly: true,
+      },
+      {
+        href: "/mis-encuestas",
+        perm: "surveys",
+        labelKey: "Mis Encuestas",
+        fosOnly: true,
+      },
     ],
   },
   {

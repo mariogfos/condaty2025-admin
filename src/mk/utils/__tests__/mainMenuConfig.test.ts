@@ -48,4 +48,27 @@ describe("getFirstAccessibleMenuRoute", () => {
       ),
     ).toBe(true);
   });
+
+  it("shows Encuestas and Mis Encuestas only to FOS admins", () => {
+    const communication = menuConfig.find(
+      (item) => item.type === "dropdown" && item.key === "Comunicación",
+    );
+    const fosOnlyItems = communication?.items.filter((item) => item.fosOnly) ?? [];
+    const canReadSurveys = (permission: string) => permission === "surveys";
+
+    expect(fosOnlyItems.map((item) => item.href)).toEqual([
+      "/surveys",
+      "/mis-encuestas",
+    ]);
+    expect(
+      fosOnlyItems.every((item) =>
+        isMenuItemVisible(item, canReadSurveys, false),
+      ),
+    ).toBe(false);
+    expect(
+      fosOnlyItems.every((item) =>
+        isMenuItemVisible(item, canReadSurveys, true),
+      ),
+    ).toBe(true);
+  });
 });
