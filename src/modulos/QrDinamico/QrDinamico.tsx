@@ -13,12 +13,12 @@ import {
   QR_STATE_COLOR,
   PAYMENT_TYPE_LABEL,
 } from './types';
+import { formatQrDate } from './shared';
 import RenderView from './RenderView/RenderView';
-import Conciliation from './Conciliation/Conciliation';
 import QrMetrics from './QrMetrics/QrMetrics';
 
 // ─── Tabs ────────────────────────────────────────────────────────────────────
-type ActiveTab = 'orders' | 'conciliation' | 'metrics';
+type ActiveTab = 'orders' | 'metrics';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const formatAmount = (amount: string, currency: string) => (
@@ -27,12 +27,6 @@ const formatAmount = (amount: string, currency: string) => (
     <span className={styles.currency}>{currency}</span>
   </span>
 );
-
-const formatDate = (dateStr: string | null) => {
-  if (!dateStr) return '—';
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
-};
 
 const StateBadge = ({ state }: { state: QrOrderState }) => {
   const cfg = QR_STATE_COLOR[state];
@@ -90,15 +84,18 @@ const QrDinamico = () => {
   // ─── API calls ──────────────────────────────────────────────────────────────
   const { execute: fetchOrders, loaded: ordersLoaded } = useAxios();
 
-  const buildQueryString = useCallback((f: QrOrderFilters) => {
-    const params = new URLSearchParams();
-    if (f.order_state !== undefined && f.order_state !== '') params.set('order_state', String(f.order_state));
-    if (f.payment_type) params.set('payment_type', f.payment_type);
-    if (f.date_from) params.set('date_from', f.date_from);
-    if (f.date_to) params.set('date_to', f.date_to);
-    params.set('per_page', String(f.per_page ?? QR_BATCH_SIZE));
-    params.set('page', String(f.page ?? 1));
-    return params.toString();
+  // QR-13: filters travel as the payload — useAxios already appends the query
+  // string on every GET. Building the URL by hand duplicates the "?" and
+  // corrupts the last parameter (…&page=1?_debug=1).
+  const buildParams = useCallback((f: QrOrderFilters) => {
+    const params: Record<string, string> = {};
+    if (f.order_state !== undefined && f.order_state !== '') params.order_state = String(f.order_state);
+    if (f.payment_type) params.payment_type = f.payment_type;
+    if (f.date_from) params.date_from = f.date_from;
+    if (f.date_to) params.date_to = f.date_to;
+    params.per_page = String(f.per_page ?? QR_BATCH_SIZE);
+    params.page = String(f.page ?? 1);
+    return params;
   }, []);
 
   const loadOrders = useCallback(async (
@@ -106,11 +103,10 @@ const QrDinamico = () => {
     options: { append?: boolean } = {},
   ) => {
     const append = Boolean(options.append && Number(f.page || 1) > 1);
-    const qs = buildQueryString(f);
     if (append) {
       setLoadingMoreOrders(true);
     }
-    const response = await fetchOrders(`qr-dynamic/orders?${qs}`, 'GET');
+    const response = await fetchOrders('qr-dynamic/orders', 'GET', buildParams(f));
     const payload = response?.data;
 
     if (payload?.success) {
@@ -124,7 +120,7 @@ const QrDinamico = () => {
       });
     }
     setLoadingMoreOrders(false);
-  }, [fetchOrders, buildQueryString, filters]);
+  }, [fetchOrders, buildParams, filters]);
 
   useEffect(() => {
     setStore({ ...store, title: 'QR Dinámico' });
@@ -209,13 +205,6 @@ const QrDinamico = () => {
           Órdenes QR
         </button>
         <button
-          id="tab-conciliation"
-          className={`${styles.tab} ${activeTab === 'conciliation' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('conciliation')}
-        >
-          Conciliación
-        </button>
-        <button
           id="tab-metrics"
           className={`${styles.tab} ${activeTab === 'metrics' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('metrics')}
@@ -279,6 +268,8 @@ const QrDinamico = () => {
                 <tr>
                   <th>Referencia</th>
                   <th>Tipo</th>
+                  <th>Unidad</th>
+                  <th>Concepto</th>
                   <th>Fecha orden</th>
                   <th>Fecha pago</th>
                   <th>Vencimiento</th>
@@ -290,14 +281,14 @@ const QrDinamico = () => {
 	              <tbody>
 	                {!ordersLoaded && orders.length === 0 && (
 	                  <tr>
-                    <td colSpan={8}>
+                    <td colSpan={10}>
                       <div className={styles.emptyState}><p>Cargando...</p></div>
                     </td>
                   </tr>
                 )}
                 {ordersLoaded && orders.length === 0 && (
                   <tr>
-                    <td colSpan={8}>
+                    <td colSpan={10}>
                       <div className={styles.emptyState}>
                         <p>No hay órdenes QR registradas.</p>
                         <p>Los QR dinámicos se generan desde la App Residente.</p>
@@ -309,9 +300,13 @@ const QrDinamico = () => {
 	                  <tr key={order.id} onClick={() => setSelectedOrder(order)}>
                     <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{order.reference}</td>
                     <td>{order.payment_type ? PAYMENT_TYPE_LABEL[order.payment_type] : '—'}</td>
-                    <td>{formatDate(order.order_date)}</td>
-                    <td>{formatDate(order.pay_date)}</td>
-                    <td>{formatDate(order.expiration_date)}</td>
+                    <td>{order.unit || '—'}</td>
+                    <td className={styles.concept} title={order.concept ?? undefined}>
+                      {order.concept || '—'}
+                    </td>
+                    <td>{formatQrDate(order.order_date)}</td>
+                    <td>{formatQrDate(order.pay_date)}</td>
+                    <td>{formatQrDate(order.expiration_date)}</td>
                     <td>{formatAmount(order.amount, order.currency)}</td>
                     <td style={{ textAlign: 'center' }}>
                       <StateBadge state={order.order_state} />
@@ -335,7 +330,7 @@ const QrDinamico = () => {
 	                        key={`qr-order-skeleton-${pagination.current_page}-${index}`}
 	                        className={styles.loadingRow}
 	                      >
-	                        <td colSpan={8}>
+	                        <td colSpan={10}>
 	                          <div className={styles.loadingRowInner}>
 	                            <div className={styles.loadingLineLong} />
 	                            <div className={styles.loadingLineShort} />
@@ -350,9 +345,6 @@ const QrDinamico = () => {
               <div ref={ordersLoadSentinelRef} className={styles.loadMoreSentinel} />
 	        </>
 	      )}
-
-      {/* ── Tab: Conciliation ────────────────────────────────────────────────── */}
-      {activeTab === 'conciliation' && <Conciliation />}
 
       {/* ── Tab: Metrics (DES-28) ────────────────────────────────────────────── */}
       {activeTab === 'metrics' && <QrMetrics />}

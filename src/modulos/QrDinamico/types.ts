@@ -86,6 +86,13 @@ export interface QrOrder {
   consolidated_by: string | null;
   created_at: string;
   updated_at: string;
+  /**
+   * A qué pertenece el QR. Los arma el servidor: el front no tiene con qué
+   * distinguir una expensa de una reserva.
+   */
+  unit?: string | null;
+  /** Período MM/YYYY de la expensa, o el área si es una reserva. */
+  concept?: string | null;
   // ─── QR-primero por deudas (épica DES) ───────────────────────────────────
   bank_account_id?: number | null;
   category_id?: number | null;
@@ -115,19 +122,6 @@ export interface QrOrdersResponse {
 // RN-ADM-04: la Plataforma Admin NO genera ni anula QR dinámicos — el QR se
 // genera exclusivamente desde la App Residente. Por eso acá no existen tipos
 // de generación.
-
-export interface ConciliationTotal {
-  client_id: string;
-  currency: string;
-  total: string;
-  count: number;
-}
-
-export interface ConciliationData {
-  summary: ConciliationTotal[];
-  items: QrOrder[];
-  pagination: Omit<QrOrderPagination, "has_more">;
-}
 
 export interface QrOrderFilters {
   order_state?: QrOrderState | "";

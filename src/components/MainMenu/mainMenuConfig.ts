@@ -54,7 +54,22 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/invitations", perm: "campanas", labelKey: "qrInvitations" },
       { href: "/uploads", perm: "cargamasiva", labelKey: "bulkUpload" },
       { href: "/app-versions", perm: "superadmins", labelKey: "appVersions" },
+      {
+        href: "/bank-provider-tester",
+        perm: "superadmins",
+        labelKey: "bankTester",
+      },
+      {
+        href: "/qr-providers",
+        perm: "superadmins",
+        labelKey: "qrProviders",
+      },
       { href: "/support-data", perm: "superadmins", labelKey: "supportData" },
+      {
+        href: "/presence-monitoring",
+        perm: "superadmins",
+        labelKey: "presenceMonitoring",
+      },
       { href: "/history", perm: "superadmins", labelKey: "history" },
       {
         href: "/visit-reasons",
@@ -90,14 +105,14 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "partialPayments",
         perm: "bank_accounts",
       },
-      // {
-      //   href: "/bank-provider-tester",
-      //   labelKey: "bankTester",
-      //   perm: "balance",
-      // },
       {
         href: "/qr-dinamico",
         labelKey: "qrDynamic",
+        perm: "payments",
+      },
+      {
+        href: "/orange-logs",
+        labelKey: "orangeLogs",
         perm: "payments",
       },
     ],

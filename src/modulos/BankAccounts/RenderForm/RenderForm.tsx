@@ -3,9 +3,20 @@ import Select from "@/mk/components/forms/Select/Select";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
-import QrAccountConfig from "@/modulos/QrDinamico/QrAccountConfig/QrAccountConfig";
+import QrAccountConfig, {
+  QrAccountConfigHandle,
+} from "@/modulos/QrDinamico/QrAccountConfig/QrAccountConfig";
+
+const qrPendingStyle: React.CSSProperties = {
+  marginTop: 20,
+  paddingTop: 16,
+  borderTop: "1px solid var(--cWhiteV1, rgba(255, 255, 255, 0.12))",
+  display: "flex",
+  flexDirection: "column",
+  gap: 6,
+};
 
 const RenderForm = ({
   open,
@@ -17,6 +28,9 @@ const RenderForm = ({
 }: any) => {
   const [formState, setFormState] = useState({ ...item, initial_amount: item?.initial_amount ?? 0 });
   const [errors, setErrors] = useState({});
+  // The QR configuration is written through its own endpoint, so this form
+  // saves it right after the account: one button stores the whole modal.
+  const qrConfigRef = useRef<QrAccountConfigHandle>(null);
   const { showToast, user } = useAuth();
 
   const handleChange = (
@@ -122,13 +136,19 @@ const RenderForm = ({
       },
     );
 
-    if (data?.success) {
-      onClose();
-      reLoad();
-      showToast(data.message, "success");
-    } else {
-      showToast(data.message, "error");
+    if (!data?.success) {
+      showToast(data?.message, "error");
+      return;
     }
+
+    // The account is already stored; if its QR configuration is rejected the
+    // modal stays open with the reason instead of closing over the failure.
+    const qrSaved = (await qrConfigRef.current?.save()) ?? true;
+    reLoad();
+    if (!qrSaved) return;
+
+    onClose();
+    showToast(data.message, "success");
   };
 
   return (
@@ -245,12 +265,24 @@ const RenderForm = ({
         error={errors}
         required
       />
-      {/* QR Dinámico por cuenta (DES-20/21): SOLO usuarios FOS y solo al
-          editar — la config vive en su propio endpoint, no en este CRUD.
+      {/* QR Dinámico por cuenta (DES-20/21): SOLO usuarios FOS. La config vive
+          en su propio endpoint, no en este CRUD, así que necesita un id; en el
+          alta se anuncia la sección en vez de esconderla (QR-07).
           RN-ADM-01: un admin de condominio no ve esta sección. */}
-      {Boolean(user?.fosrole_id) && formState.id && (
-        <QrAccountConfig bankAccountId={formState.id} />
-      )}
+      {Boolean(user?.fosrole_id) &&
+        (formState.id ? (
+          <QrAccountConfig ref={qrConfigRef} bankAccountId={formState.id} />
+        ) : (
+          <div id="qr-account-config-pending" style={qrPendingStyle}>
+            <p style={{ color: "var(--cWhite)", fontWeight: 600, margin: 0 }}>
+              QR Dinámico (solo FOS)
+            </p>
+            <p style={{ fontSize: 12, margin: 0 }}>
+              Guardá la cuenta primero. El QR dinámico se configura después,
+              editando la cuenta.
+            </p>
+          </div>
+        ))}
     </DataModal>
   );
 };

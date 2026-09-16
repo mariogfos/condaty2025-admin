@@ -1,97 +1,61 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { ArrowRight, CalendarDays, UsersRound } from "lucide-react";
 import { useRouter } from "next/navigation";
-import useAxios from "@/mk/hooks/useAxios";
-import { useAuth } from "@/mk/contexts/AuthProvider";
 import WidgetBase from "@/components/Widgets/WidgetBase/WidgetBase";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 import { formatToDayFdMYH } from "@/mk/utils/date";
-import styles from "./AssemblyDashboardCard.module.css";
-import { IconCalendar, IconArrowRight, IconGroup } from "@/components/layout/icons/IconsBiblioteca";
 import { STATUS_LABELS } from "../../types/assemblies.types";
-import { useLanguage } from "@/i18n/LanguageProvider";
+import styles from "./AssemblyDashboardCard.module.css";
 
-export const AssemblyDashboardCard = ({ assembly: initialAssembly = null }: { assembly?: any }) => {
+export const AssemblyDashboardCard = ({ assembly }: { assembly?: any }) => {
   const router = useRouter();
-  const { userCan } = useAuth();
-  const { execute } = useAxios();
-  const [assembly, setAssembly] = useState<any>(initialAssembly);
-  const [loading, setLoading] = useState(!initialAssembly);
+  const { translate } = useScopedI18n("home");
 
-  useEffect(() => {
-    if (initialAssembly) {
-      setAssembly(initialAssembly);
-      setLoading(false);
-      return;
-    }
+  if (!assembly) return null;
 
-    const fetchNextAssembly = async () => {
-      try {
-        const { data } = await execute("/assemblies", "GET", {
-          fullType: "L",
-          perPage: 1,
-          page: 1,
-          filterBy: "status:S,P", // Scheduled or InProgress
-          sortBy: "start_time",
-          sortOrder: "asc", 
-        });
-
-        if (data?.data && data.data.length > 0) {
-          setAssembly(data.data[0]);
-        }
-      } catch (error) {
-        console.error("Error fetching next assembly:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (userCan("assemblies", "R")) {
-      fetchNextAssembly();
-    } else {
-      setLoading(false);
-    }
-  }, [initialAssembly]);
-
-  if (loading || !assembly) return null;
-
-  const handleGoToDetail = () => {
-    router.push(`/assemblies/${assembly.id}`);
-  };
-
-  const statusClass = assembly.status === "P" ? styles.statusActive : styles.statusScheduled;
+  const statusClass =
+    assembly.status === "P" ? styles.statusActive : styles.statusScheduled;
+  const statusLabel =
+    STATUS_LABELS[assembly.status as keyof typeof STATUS_LABELS] ||
+    assembly.status;
 
   return (
     <WidgetBase
-      title="Próxima Asamblea"
-      subtitle="Información y registro de asistencia"
+      title={translate("nextAssembly")}
+      subtitle={translate("nextAssemblySubtitle")}
       variant="V1"
       className={styles.cardContainer}
     >
-      <div className={styles.content} onClick={handleGoToDetail}>
-        <div className={styles.header}>
-          <div className={`${styles.statusBadge} ${statusClass}`}>
-            <span className={styles.dot}></span>
-            {STATUS_LABELS[assembly.status as keyof typeof STATUS_LABELS] || assembly.status}
-          </div>
-          <div className={styles.iconContainer}>
-            <IconGroup size={32} color="var(--cAccent)" />
-          </div>
-        </div>
-        
-        <h3 className={styles.subject}>{assembly.subject}</h3>
-        
-        <div className={styles.infoRow}>
-          <IconCalendar size={16} color="var(--cWhiteV1)" />
-          <span>{formatToDayFdMYH(assembly.start_time, false)}</span>
+      <div className={styles.content}>
+        <div className={styles.topRow}>
+          <span className={styles.iconContainer} aria-hidden="true">
+            <UsersRound size={22} strokeWidth={1.6} />
+          </span>
+          <span className={`${styles.statusBadge} ${statusClass}`}>
+            <i aria-hidden="true" />
+            {statusLabel}
+          </span>
         </div>
 
-        <div className={styles.footer}>
-          <button className={styles.actionButton}>
-            Ver Detalle
-            <IconArrowRight size={16} />
-          </button>
+        <h3 className={styles.subject}>{assembly.subject}</h3>
+
+        <div className={styles.dateBlock}>
+          <span className={styles.dateLabel}>
+            <CalendarDays size={15} strokeWidth={1.65} aria-hidden="true" />
+            {translate("assemblyDate")}
+          </span>
+          <strong>{formatToDayFdMYH(assembly.start_time, false)}</strong>
         </div>
+
+        <button
+          type="button"
+          className={styles.actionButton}
+          onClick={() => router.push(`/assemblies/${assembly.id}`)}
+        >
+          {translate("viewAssemblyDetail")}
+          <ArrowRight size={16} strokeWidth={1.75} aria-hidden="true" />
+        </button>
       </div>
     </WidgetBase>
   );

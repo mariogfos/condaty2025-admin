@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import PaymentQrSection from "../PaymentQrSection/PaymentQrSection";
 import { QrOrderState } from "../types";
@@ -40,17 +40,17 @@ describe("PaymentQrSection (DES-25/26/27)", () => {
     executeMock.mockResolvedValue({ data: { success: true, data: AUDIT } });
     render(<PaymentQrSection paymentId={4242} />);
 
-    await waitFor(() =>
-      expect(screen.getByText("Origen: QR Dinámico")).toBeInTheDocument(),
-    );
+    const qrSection = await screen.findByRole("button", {
+      name: /Datos del QR dinámico/,
+    });
+    expect(qrSection).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(qrSection);
+
+    expect(screen.getByText("QR dinámico")).toBeInTheDocument();
     expect(screen.getByText("777001")).toBeInTheDocument();
     expect(screen.getByText(/#11/)).toBeInTheDocument();
     expect(screen.getByText(/#12/)).toBeInTheDocument();
-    // Linaje visible al expandir (DES-27)
-    screen.getByText(/Ver auditoría completa/).click();
-    await waitFor(() =>
-      expect(screen.getByText(/QR-BG-0 \(Reemplazado\)/)).toBeInTheDocument(),
-    );
+    expect(screen.getByText(/QR-BG-0 \(Reemplazado\)/)).toBeInTheDocument();
   });
 
   it("ingreso manual (404): no renderiza nada", async () => {

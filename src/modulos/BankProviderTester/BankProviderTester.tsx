@@ -31,42 +31,40 @@ interface HistoryItem {
   responseData?: Record<string, unknown>;
 }
 
-interface TokenData {
-  token: string | null;
-  timestamp: Date | null;
+interface QrConfig {
+  bank_account_id: number;
+  client_id: string | null;
+  qr_dynamic_enabled: boolean;
+  has_credentials: boolean;
+  qr_dynamic_username_masked: string | null;
+  account_reference: string | null;
+  bank_code: string | null;
+  bank_name: string | null;
+  bank_is_active: boolean | null;
+  environment: string | null;
+  environment_label: string | null;
+  base_url: string | null;
 }
 
-interface QrConfig {
-  mode: number;
-  mode_label: string;
-  environment: string;
-  environment_label: string;
-  source: string;
-  has_credentials: boolean;
-  credentials: {
-    api_key: string | null;
-    user_name: string | null;
-    user_password: string | null;
-    account_reference: string | null;
-  } | null;
-  bank_code: string;
-  bank_name: string;
-  base_url: string;
-  is_active: boolean;
+interface BankAccountOption {
+  id: number;
+  description?: string;
+  alias?: string;
+  account_number?: string;
+  qr_dynamic_enabled?: boolean | number;
 }
 
 const DEFAULT_DATA: Record<OperationType, Record<string, unknown>> = {
-  auth: {
-    user_name: "test_user",
-    user_password: "test_pass",
-    account_reference: "12345678",
-    api_key: "your_api_key",
-  },
+  // Credentials are no longer sent from the browser: the API resolves them
+  // from the selected bank account, exactly as the real debt flow does.
+  auth: {},
   generate: {
     amount: 100.0,
     currency: "BOB",
     gloss: "Pago de servicios",
-    expiration_date: "31/12/2026",
+    // Banco Ganadero reads dates as ddmmyyyy with no separators; anything
+    // else comes back as COD002 "Parámetros fuera del formato establecido".
+    expiration_date: "31122026",
     single_use: true,
     payment_type: "T",
     reference: "INV-001",
@@ -78,9 +76,40 @@ const DEFAULT_DATA: Record<OperationType, Record<string, unknown>> = {
     qr_id: "",
   },
   transactions: {
-    start_date: "01/01/2026",
-    end_date: "31/12/2026",
+    // Las llena hoyEnElFormatoDelBanco() al abrir la pestaña: una fecha
+    // escrita acá se vuelve vieja sola.
+    start_date: "",
+    end_date: "",
   },
+};
+
+/**
+ * Hoy, como lo lee el Banco Ganadero: ddmmyyyy sin separadores. Cualquier otro
+ * formato vuelve como COD002 «Parámetros fuera del formato establecido».
+ */
+const hoyEnElFormatoDelBanco = (): string => {
+  const hoy = new Date();
+  const dia = String(hoy.getDate()).padStart(2, "0");
+  const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+
+  return `${dia}${mes}${hoy.getFullYear()}`;
+};
+
+/**
+ * Datos con los que abre cada operación. Se calcula al cambiar de pestaña y no
+ * al cargar el módulo: en el servidor la fecha puede ser otra que en el
+ * navegador, y esto sólo corre del lado del navegador.
+ */
+const datosInicialesDe = (
+  operacion: OperationType,
+): Record<string, unknown> => {
+  if (operacion !== "transactions") {
+    return DEFAULT_DATA[operacion];
+  }
+
+  const hoy = hoyEnElFormatoDelBanco();
+
+  return { ...DEFAULT_DATA.transactions, start_date: hoy, end_date: hoy };
 };
 
 const OPERATION_CONFIG: Record<
@@ -90,19 +119,19 @@ const OPERATION_CONFIG: Record<
   auth: {
     name: "Authentication",
     method: "POST",
-    endpoint: "/bank-qr/authenticate",
+    endpoint: "qr-dynamic/tester/authenticate",
   },
   generate: {
     name: "Generate QR",
     method: "POST",
-    endpoint: "/bank-qr/generate",
+    endpoint: "qr-dynamic/tester/generate",
   },
-  status: { name: "Check Status", method: "POST", endpoint: "/bank-qr/status" },
-  cancel: { name: "Cancel QR", method: "POST", endpoint: "/bank-qr/cancel" },
+  status: { name: "Check Status", method: "POST", endpoint: "qr-dynamic/tester/status" },
+  cancel: { name: "Cancel QR", method: "POST", endpoint: "qr-dynamic/tester/cancel" },
   transactions: {
     name: "Transactions",
     method: "POST",
-    endpoint: "/bank-qr/transactions",
+    endpoint: "qr-dynamic/tester/transactions",
   },
 };
 
@@ -270,6 +299,29 @@ const HistoryItemComponent: React.FC<{
   );
 };
 
+/**
+ * What to show when a call did not succeed.
+ *
+ * A console that cannot name the failure is useless: a body without `message`
+ * (a 500 whose response never reached the handler, a gateway timeout, an HTML
+ * error page) used to read as a bare "Request failed", which does not tell a
+ * bank rejection apart from a server that never answered. The HTTP status
+ * always says which of the two it was, so it is part of the message.
+ */
+const describeFailure = (
+  body: Record<string, any>,
+  err?: { message?: string; status?: number } | null,
+): string => {
+  const status = err?.status;
+  if (body?.message) {
+    return status ? `${body.message} (HTTP ${status})` : body.message;
+  }
+  if (status) {
+    return `El servidor respondió HTTP ${status} sin un mensaje. Revisá el log del API.`;
+  }
+  return err?.message || "No hubo respuesta del servidor.";
+};
+
 /* Main Component */
 const BankProviderTester: React.FC = () => {
   const [activeOperation, setActiveOperation] = useState<OperationType>("auth");
@@ -281,10 +333,8 @@ const BankProviderTester: React.FC = () => {
     unknown
   > | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [tokenData, setTokenData] = useState<TokenData>({
-    token: null,
-    timestamp: null,
-  });
+  const [accounts, setAccounts] = useState<BankAccountOption[]>([]);
+  const [bankAccountId, setBankAccountId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
@@ -296,7 +346,7 @@ const BankProviderTester: React.FC = () => {
 
   // Update request data when switching tabs
   useEffect(() => {
-    setRequestData(DEFAULT_DATA[activeOperation]);
+    setRequestData(datosInicialesDe(activeOperation));
     setResponseData(null);
     setError(null);
   }, [activeOperation]);
@@ -331,25 +381,56 @@ const BankProviderTester: React.FC = () => {
 
   // Fetch QR config on mount
   const fetchConfig = useCallback(async () => {
+    if (!bankAccountId) {
+      setQrConfig(null);
+      setConfigError(null);
+      return;
+    }
     setConfigLoading(true);
     setConfigError(null);
     try {
-      const result = await execute("/bank-qr/config", "GET", null);
-      if (result.error) {
-        setConfigError(result.error.data?.message || "Failed to load config");
+      const result = await execute("qr-dynamic/tester/config", "GET", {
+        bank_account_id: bankAccountId,
+      });
+      if (result?.data?.success) {
+        setQrConfig(result.data.data);
       } else {
-        setQrConfig(result.data);
+        setConfigError(
+          describeFailure(
+            result?.error?.data || result?.data || {},
+            result?.error,
+          ),
+        );
+        setQrConfig(null);
       }
     } catch (err: any) {
       setConfigError(err?.message || "Unknown error loading config");
     } finally {
       setConfigLoading(false);
     }
-  }, [execute]);
+    // execute is rebuilt on every render, so it stays out of the deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bankAccountId]);
+
+  // Collection accounts to pick from. Only a FOS user can list them and only
+  // a FOS user reaches this screen, so an empty list means "nothing to test".
+  useEffect(() => {
+    (async () => {
+      const res = await execute(
+        "/bank-accounts",
+        "GET",
+        { perPage: -1, page: 1 },
+        false,
+        true,
+      );
+      if (res?.data?.success) setAccounts(res.data.data ?? []);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     fetchConfig();
-  }, []);
+  }, [fetchConfig]);
 
   const maskValue = (value: string | null | undefined): string => {
     if (!value) return "No configurado";
@@ -377,66 +458,57 @@ const BankProviderTester: React.FC = () => {
   };
 
   const handleExecute = async () => {
+    const config = OPERATION_CONFIG[activeOperation];
+
+    if (!bankAccountId) {
+      setError("Elegí una cuenta bancaria antes de llamar al banco.");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setResponseData(null);
 
-    const config = OPERATION_CONFIG[activeOperation];
-
     try {
-      // Build headers
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
+      // Every tester call names its bank account: the API resolves the
+      // credentials from it and never accepts them from the browser.
+      const result = await execute(config.endpoint, "POST", {
+        ...requestData,
+        bank_account_id: bankAccountId,
+      });
 
-      // Add token if we have one and it's not an auth request
-      if (tokenData.token && activeOperation !== "auth") {
-        headers["Authorization"] = `Bearer ${tokenData.token}`;
+      const body = result?.data;
+      if (!body?.success) {
+        const errorResult = result?.error?.data || body || {};
+        const message = describeFailure(errorResult, result?.error);
+        setError(message);
+        setResponseData(errorResult);
+        addToHistory(config.name, false, message, requestData, errorResult);
+        return;
       }
 
-      const result = await execute(config.endpoint, "POST", requestData);
+      const payload = body.data ?? {};
+      setResponseData(payload);
 
-      if (result.error) {
-        const errorResult = result.error.data || {};
-        setError(errorResult.message || "Request failed");
-        setResponseData(errorResult);
+      if (activeOperation === "generate" && payload?.qrId) {
+        // Auto-fill status and cancel with the generated QR ID
+        DEFAULT_DATA.status.qr_id = payload.qrId;
+        DEFAULT_DATA.cancel.qr_id = payload.qrId;
         addToHistory(
           config.name,
-          false,
-          errorResult.message || "Request failed",
+          true,
+          `QR created: ${payload.qrId}`,
           requestData,
-          errorResult,
+          payload,
         );
       } else {
-        setResponseData(result.data);
-
-        // Store token if this was an auth request
-        if (activeOperation === "auth" && result.data?.token) {
-          setTokenData({
-            token: result.data.token,
-            timestamp: new Date(),
-          });
-          addToHistory(
-            config.name,
-            true,
-            "Token received",
-            requestData,
-            result.data,
-          );
-        } else if (activeOperation === "generate" && result.data?.qrId) {
-          // Auto-fill status and cancel with the generated QR ID
-          DEFAULT_DATA.status.qr_id = result.data.qrId;
-          DEFAULT_DATA.cancel.qr_id = result.data.qrId;
-          addToHistory(
-            config.name,
-            true,
-            `QR created: ${result.data.qrId}`,
-            requestData,
-            result.data,
-          );
-        } else {
-          addToHistory(config.name, true, "Success", requestData, result.data);
-        }
+        addToHistory(
+          config.name,
+          true,
+          body.message || "Success",
+          requestData,
+          payload,
+        );
       }
     } catch (err: any) {
       const errorMessage = err?.message || "Unknown error occurred";
@@ -500,6 +572,25 @@ const BankProviderTester: React.FC = () => {
             <span className={styles.configTitleIcon}>⚙️</span>
             Configuración QR
           </div>
+          <label className={styles.accountPicker}>
+            <span className={styles.configFieldLabel}>Cuenta bancaria:</span>
+            <select
+              id="tester-bank-account"
+              className={styles.accountSelect}
+              value={bankAccountId ?? ""}
+              onChange={(e) =>
+                setBankAccountId(e.target.value ? Number(e.target.value) : null)
+              }
+            >
+              <option value="">Elegí una cuenta…</option>
+              {accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.alias || acc.description || `Cuenta ${acc.id}`}
+                  {acc.account_number ? ` · ${acc.account_number}` : ""}
+                </option>
+              ))}
+            </select>
+          </label>
           <button
             className={styles.reloadButton}
             onClick={fetchConfig}
@@ -531,45 +622,64 @@ const BankProviderTester: React.FC = () => {
                 <div className={styles.configSectionTitle}>Estado</div>
                 <div className={styles.configRow}>
                   <div className={styles.configField}>
-                    <span className={styles.configFieldLabel}>Modo:</span>
-                    <span className={styles.configFieldValue}>
-                      {qrConfig.mode_label}
-                    </span>
-                  </div>
-                  <div className={styles.configField}>
                     <span className={styles.configFieldLabel}>Entorno:</span>
                     <span className={styles.configFieldValue}>
-                      {qrConfig.environment_label}
+                      {qrConfig.environment_label || "Sin proveedor"}
                     </span>
                   </div>
                   <div className={styles.configField}>
-                    <span className={styles.configFieldLabel}>Estado:</span>
+                    <span className={styles.configFieldLabel}>QR dinámico:</span>
                     <span
-                      className={`${styles.configFieldValue} ${qrConfig.is_active ? styles.statusActive : styles.statusInactive}`}
+                      className={`${styles.configFieldValue} ${qrConfig.qr_dynamic_enabled ? styles.statusActive : styles.statusInactive}`}
                     >
                       <span
-                        className={`${styles.statusDot} ${qrConfig.is_active ? styles.statusDotActive : styles.statusDotInactive}`}
+                        className={`${styles.statusDot} ${qrConfig.qr_dynamic_enabled ? styles.statusDotActive : styles.statusDotInactive}`}
                       />
-                      {qrConfig.is_active ? "ACTIVO" : "INACTIVO"}
+                      {qrConfig.qr_dynamic_enabled ? "HABILITADO" : "DESHABILITADO"}
+                    </span>
+                  </div>
+                  <div className={styles.configField}>
+                    <span className={styles.configFieldLabel}>Proveedor:</span>
+                    <span
+                      className={`${styles.configFieldValue} ${qrConfig.bank_is_active ? styles.statusActive : styles.statusInactive}`}
+                    >
+                      <span
+                        className={`${styles.statusDot} ${qrConfig.bank_is_active ? styles.statusDotActive : styles.statusDotInactive}`}
+                      />
+                      {qrConfig.bank_is_active === null
+                        ? "SIN ASIGNAR"
+                        : qrConfig.bank_is_active
+                          ? "ACTIVO"
+                          : "INACTIVO"}
                     </span>
                   </div>
                 </div>
                 <div className={styles.configSource}>
-                  Fuente:{" "}
-                  {qrConfig.source === "global"
-                    ? "Configuración Global"
-                    : `Cliente (${qrConfig.source})`}
+                  Condominio: {qrConfig.client_id || "—"}
                 </div>
               </div>
 
-              {/* Credentials Section */}
+              {/* Credentials Section — the API never ships the secrets, only
+                  whether the account has them and a masked username. */}
               <div className={styles.configSection}>
                 <div className={styles.configSectionTitle}>Credenciales</div>
                 <div className={styles.configRow}>
                   <div className={styles.configField}>
                     <span className={styles.configFieldLabel}>Banco:</span>
-                    <span className={styles.configFieldValue}>
-                      {qrConfig.bank_code} - {qrConfig.bank_name}
+                    <span
+                      className={`${styles.configFieldValue} ${!qrConfig.bank_code ? styles.notConfigured : ""}`}
+                    >
+                      {qrConfig.bank_code
+                        ? `${qrConfig.bank_code} - ${qrConfig.bank_name}`
+                        : "Sin proveedor asignado"}
+                    </span>
+                  </div>
+                  <div className={styles.configField}>
+                    <span className={styles.configFieldLabel}>Cargadas:</span>
+                    <span
+                      className={`${styles.configFieldValue} ${qrConfig.has_credentials ? styles.statusActive : styles.notConfigured}`}
+                    >
+                      {qrConfig.has_credentials ? "Sí" : "No"}
                     </span>
                   </div>
                 </div>
@@ -577,36 +687,17 @@ const BankProviderTester: React.FC = () => {
                   <div className={styles.configField}>
                     <span className={styles.configFieldLabel}>Usuario:</span>
                     <span
-                      className={`${styles.configFieldValue} ${!qrConfig.credentials?.user_name ? styles.notConfigured : ""}`}
+                      className={`${styles.configFieldValue} ${styles.maskedField} ${!qrConfig.qr_dynamic_username_masked ? styles.notConfigured : ""}`}
                     >
-                      {qrConfig.credentials?.user_name || "No configurado"}
+                      {qrConfig.qr_dynamic_username_masked || "No configurado"}
                     </span>
                   </div>
                   <div className={styles.configField}>
                     <span className={styles.configFieldLabel}>Referencia:</span>
                     <span
-                      className={`${styles.configFieldValue} ${!qrConfig.credentials?.account_reference ? styles.notConfigured : ""}`}
+                      className={`${styles.configFieldValue} ${!qrConfig.account_reference ? styles.notConfigured : ""}`}
                     >
-                      {qrConfig.credentials?.account_reference ||
-                        "No configurado"}
-                    </span>
-                  </div>
-                </div>
-                <div className={styles.configRow}>
-                  <div className={styles.configField}>
-                    <span className={styles.configFieldLabel}>API Key:</span>
-                    <span
-                      className={`${styles.configFieldValue} ${styles.maskedField} ${!qrConfig.credentials?.api_key ? styles.notConfigured : ""}`}
-                    >
-                      {maskValue(qrConfig.credentials?.api_key)}
-                    </span>
-                  </div>
-                  <div className={styles.configField}>
-                    <span className={styles.configFieldLabel}>Password:</span>
-                    <span
-                      className={`${styles.configFieldValue} ${styles.maskedField} ${!qrConfig.credentials?.user_password ? styles.notConfigured : ""}`}
-                    >
-                      {maskValue(qrConfig.credentials?.user_password)}
+                      {qrConfig.account_reference || "No configurado"}
                     </span>
                   </div>
                 </div>
@@ -616,7 +707,7 @@ const BankProviderTester: React.FC = () => {
                     <span
                       className={`${styles.configFieldValue} ${styles.urlField}`}
                     >
-                      {qrConfig.base_url}
+                      {qrConfig.base_url || "—"}
                     </span>
                   </div>
                 </div>
@@ -624,37 +715,11 @@ const BankProviderTester: React.FC = () => {
             </>
           ) : (
             <div className={styles.configEmpty}>
-              No se pudo cargar la configuración
+              Elegí una cuenta bancaria para ver su configuración.
             </div>
           )}
         </div>
       </motion.div>
-
-      {/* Token Display (if we have one) */}
-      <AnimatePresence>
-        {tokenData.token && (
-          <motion.div
-            className={styles.tokenDisplay}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            <span className={styles.tokenIcon}>🔑</span>
-            <div className={styles.tokenInfo}>
-              <div className={styles.tokenLabel}>Active Token</div>
-              <div className={styles.tokenValue}>
-                {tokenData.token.substring(0, 50)}...
-              </div>
-            </div>
-            <div className={styles.tokenActions}>
-              <CopyButton
-                text={tokenData.token}
-                onCopied={handleCopyResponse}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Tab Navigation */}
       <motion.div

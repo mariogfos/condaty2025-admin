@@ -89,6 +89,7 @@ const Layout = ({ children }: any) => {
   const path = usePathname();
   const router = useRouter();
   const isImmersiveRoute = (path || "").startsWith("/reports");
+  const isFullBleedRoute = (path || "").startsWith("/presence-monitoring");
 
   const typeAlerts: any = {
     E: {
@@ -346,7 +347,9 @@ const Layout = ({ children }: any) => {
           </Sidebar>
         )}
       </section>
-      <section>{children}</section>
+      <section className={isFullBleedRoute ? styles.fullBleedContent : undefined}>
+        {children}
+      </section>
       <section>{/* Footer Here!! */}</section>
       {store?.openProfileModal && (
         <ProfileModal

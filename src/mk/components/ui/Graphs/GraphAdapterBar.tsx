@@ -5,26 +5,53 @@ export default function GraphAdapterBar(
 ) {
   const xLabels = data.labels;
   const chartFontFamily = 'Inter, sans-serif';
+  const isDashboard = options?.variant === 'dashboard';
+  const axisColor = isDashboard ? '#8693a0' : '#A7A7A7';
+  const gridColor = '#20262d';
 
   const o = {
     chart: {
       ...oDef.chart,
       type: 'bar',
-      stacked: options.stacked || false,
+      stacked: options?.stacked || false,
     },
     plotOptions: {
       bar: {
-        borderRadius: 4,
+        borderRadius: isDashboard ? 5 : 4,
         borderRadiusApplication: 'end',
+        columnWidth: isDashboard ? '58%' : undefined,
       },
     },
+    grid: isDashboard
+      ? {
+          borderColor: gridColor,
+          strokeDashArray: 4,
+          padding: {
+            top: 2,
+            right: 8,
+            bottom: 0,
+            left: 8,
+          },
+        }
+      : undefined,
     xaxis: {
       categories: xLabels,
+      axisBorder: isDashboard
+        ? {
+            show: true,
+            color: gridColor,
+          }
+        : undefined,
+      axisTicks: isDashboard
+        ? {
+            show: false,
+          }
+        : undefined,
       labels: {
         style: {
-          colors: '#A7A7A7',
-          fontSize: '16px',
-          fontWeight: 500,
+          colors: axisColor,
+          fontSize: isDashboard ? '12px' : '16px',
+          fontWeight: isDashboard ? 400 : 500,
           fontFamily: chartFontFamily,
         },
       },

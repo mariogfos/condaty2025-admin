@@ -30,3 +30,9 @@
   font-size: 13px;
   margin: 12px 0 0;
 }
+
+.error {
+  color: var(--cError);
+  font-size: 13px;
+  margin: 0;
+}

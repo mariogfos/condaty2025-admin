@@ -79,6 +79,15 @@
   grid-template-rows: auto 1fr;
 }
 
+.layout > section.fullBleedContent {
+  padding: 0;
+  overflow: hidden;
+}
+
+.layout > section.fullBleedContent > :first-child {
+  min-height: 0;
+}
+
 .immersiveLayout {
   display: flex;
   width: 100vw;

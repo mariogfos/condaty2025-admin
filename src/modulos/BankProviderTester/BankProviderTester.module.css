@@ -821,3 +821,18 @@
     align-items: flex-start;
   }
 }
+.accountPicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.accountSelect {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--cWhiteV2, #d9d9d9);
+  background: var(--cWhite, #fff);
+  color: var(--cBlackV1, #1c1c1c);
+  font-size: 13px;
+  min-width: 220px;
+}
