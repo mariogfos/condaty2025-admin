@@ -30,6 +30,7 @@ export type MenuConfigItem =
         perm: string;
         labelKey: string;
         badgeKey?: string;
+        fosOnly?: boolean;
       }>;
     };
 
@@ -109,11 +110,13 @@ export const menuConfig: MenuConfigItem[] = [
         href: "/qr-dinamico",
         labelKey: "qrDynamic",
         perm: "payments",
+        fosOnly: true,
       },
       {
         href: "/orange-logs",
         labelKey: "orangeLogs",
         perm: "payments",
+        fosOnly: true,
       },
     ],
   },
@@ -203,8 +206,17 @@ export const menuConfig: MenuConfigItem[] = [
   },
 ];
 
+export const isMenuItemVisible = (
+  item: { perm: string; fosOnly?: boolean },
+  canAccess: (permission: string, action: string) => boolean,
+  isFos = false,
+): boolean =>
+  (!item.fosOnly || isFos) &&
+  (!item.perm || canAccess(item.perm, "R"));
+
 export const getFirstAccessibleMenuRoute = (
   canAccess: (permission: string, action: string) => boolean,
+  isFos = false,
 ): string | null => {
   for (const item of menuConfig) {
     if (item.type === "item") {
@@ -214,8 +226,8 @@ export const getFirstAccessibleMenuRoute = (
       continue;
     }
 
-    const firstAccessibleItem = item.items.find(
-      (subitem) => !subitem.perm || canAccess(subitem.perm, "R"),
+    const firstAccessibleItem = item.items.find((subitem) =>
+      isMenuItemVisible(subitem, canAccess, isFos),
     );
 
     if (firstAccessibleItem) {

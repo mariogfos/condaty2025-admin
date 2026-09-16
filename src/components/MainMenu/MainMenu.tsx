@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import MainMenuHeader from "./MainMenuHeader";
 import MainmenuItem from "./MainMenuItem";
 import MainmenuDropdown from "./MainmenuDropdown";
-import { menuConfig } from "./mainMenuConfig";
+import { isMenuItemVisible, menuConfig } from "./mainMenuConfig";
 import { IconDepartments, IconLogout } from "../layout/icons/LucideIcons";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 type PropsType = {
@@ -28,6 +28,7 @@ const MainMenu = ({
   const { translate } = useScopedI18n("sidebar");
   const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const isFos = Boolean(user?.fosrole_id);
 
   const handleToggle = useCallback((key: string) => {
     setOpenMenu((prev) => (prev === key ? null : key));
@@ -88,9 +89,13 @@ const MainMenu = ({
 
         if (item.type === "dropdown") {
           // Filter subitems by permission if they declare one
-          const visibleSubs = (item.items || []).filter((sub: any) => {
-            return !(sub.perm && !userCan?.(sub.perm, "R"));
-          });
+          const visibleSubs = (item.items || []).filter((sub: any) =>
+            isMenuItemVisible(
+              sub,
+              (permission, action) => Boolean(userCan?.(permission, action)),
+              isFos,
+            ),
+          );
           if (visibleSubs.length === 0) return null;
 
           return (
@@ -114,7 +119,16 @@ const MainMenu = ({
         return null;
       })
       .filter(Boolean);
-  }, [collapsed, handleToggle, openMenu, setSideBarOpen, store, translate, userCan]);
+  }, [
+    collapsed,
+    handleToggle,
+    isFos,
+    openMenu,
+    setSideBarOpen,
+    store,
+    translate,
+    userCan,
+  ]);
 
   return (
     <section className={styles.menu} data-i18n-ignore="true">

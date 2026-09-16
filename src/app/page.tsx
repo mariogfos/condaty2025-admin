@@ -10,14 +10,15 @@ import { useEffect } from "react";
 // import EventList from "@/components/EventList/EventList";
 
 export default function Home() {
-  const { userCan } = useAuth();
+  const { user, userCan } = useAuth();
   const router = useRouter();
   const canViewHome = userCan("home", "R");
   const fallbackRoute = canViewHome
     ? null
     : getFirstAccessibleMenuRoute((permission, action) =>
         userCan(permission, action),
-      );
+      Boolean(user?.fosrole_id),
+    );
 
   useEffect(() => {
     if (!canViewHome && fallbackRoute) {
