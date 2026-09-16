@@ -63,6 +63,9 @@ const EditProfile = ({
         key: "email",
         errors: errs,
       });
+      if (formState.password && formState.password.length < 8) {
+        errs.password = "La nueva contraseña debe tener al menos 8 caracteres.";
+      }
     }
     setErrors(errs);
     return errs;
@@ -82,6 +85,9 @@ const EditProfile = ({
         ? { address: formState.address }
         : {}),
       ...(user?.fosrole_id ? { email: formState.email } : {}),
+      ...(user?.fosrole_id && formState.password?.trim()
+        ? { password: formState.password.trim() }
+        : {}),
       url_avatar: formState.url_avatar,
     };
     const { data, error: err } = await execute(
@@ -185,6 +191,16 @@ const EditProfile = ({
                   value={formState.email}
                   onChange={onChange}
                   error={errors}
+                />
+                <Input
+                  label="Nueva contraseña"
+                  name="password"
+                  type="password"
+                  value={formState.password || ""}
+                  onChange={onChange}
+                  error={errors}
+                  required={false}
+                  placeholder="Dejar vacío para no cambiarla"
                 />
               </div>
             )}
