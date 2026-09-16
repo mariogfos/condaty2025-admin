@@ -10,15 +10,18 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
+import { getBusinessDate } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
+import PaymentRenderForm from "@/modulos/Payments/RenderForm/RenderForm";
 import {
   RESERVATION_STATUS_CONFIG,
   type ReservationStatus,
 } from "../constants/reservationConstants";
 import {
   formatReservationPaymentTimeLimitMessage,
+  canRegisterReservationPayment,
   resolveReservationDisplayStatus,
   shouldShowReservationPaymentTimeLimit,
 } from "../utils/reservationStatus";
@@ -85,6 +88,7 @@ type ReservationItem = {
   canceled_user?: ReservationActor | null;
   debt_dpto?: {
     id?: string | number | null;
+    amount?: string | number | null;
     payment_id?: string | number | null;
     resolved_payment_id?: string | number | null;
     resolved_payment_status?: string | null;
@@ -101,6 +105,7 @@ interface ReservationDetailModalProps {
   item?: ReservationItem | Record<string, any>;
   reservationId?: string | number | null;
   reLoad?: Function;
+  extraData?: any;
 }
 
 const TERMINAL_STATUSES = new Set(["R", "C", "T", "F", "X", "M"]);
@@ -237,7 +242,7 @@ const getStatusClassName = (statusKey?: string) => {
 };
 
 const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
-  ({ open, onClose, item, reservationId, reLoad }) => {
+  ({ open, onClose, item, reservationId, reLoad, extraData }) => {
     const { showToast } = useAuth();
     const detailId = reservationId || item?.id;
     const shouldFetchDetail = open && Boolean(detailId);
@@ -268,6 +273,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     const [formState, setFormState] = React.useState<any>({});
     const [errors, setErrors] = React.useState({});
     const [showPaymentModal, setShowPaymentModal] = React.useState(false);
+    const [showPaymentForm, setShowPaymentForm] = React.useState(false);
     const [resolvedPaymentId, setResolvedPaymentId] = React.useState<string | number | null>(
       null,
     );
@@ -278,6 +284,12 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       setShowPaymentModal(false);
       void reloadReservationDetail(null, true);
     }, [reloadReservationDetail]);
+
+    const handlePaymentFormClose = useCallback(() => {
+      setShowPaymentForm(false);
+      reLoad?.();
+      void reloadReservationDetail(null, true);
+    }, [reLoad, reloadReservationDetail]);
 
     const handleReservationDetailReload = useCallback(() => {
       void reloadReservationDetail(null, true);
@@ -318,7 +330,15 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       : reservationDetail?.dpto?.description || "Sin unidad";
     const resolvedDebtId =
       (reservationDetail?.debt_dpto as any)?.id || reservationDetail?.debt_id;
+    const reservationDebtDptoId =
+      reservationDetail?.debt_dpto?.id ||
+      (reservationDetail as any)?.debt_dpto_id ||
+      null;
     const canShowPayment = Boolean(resolvedPaymentId);
+    const canRegisterPayment = canRegisterReservationPayment(
+      statusKey,
+      reservationDebtDptoId,
+    );
     const canReviewRequest = reservationDetail?.status === "W";
     const canCancelReservation =
       Boolean(statusKey) &&
@@ -594,7 +614,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     return (
       <>
         <DataModal
-          open={open}
+          open={open && !showPaymentForm}
           onClose={onClose}
           title="Detalle de la reserva"
           buttonText=""
@@ -722,7 +742,8 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                   </div>
                 ) : null}
 
-                {!canReviewRequest && (canCancelReservation || canShowPayment) ? (
+                {!canReviewRequest &&
+                (canCancelReservation || canRegisterPayment || canShowPayment) ? (
                   <div className={styles.actionButtonsContainer}>
                     {canCancelReservation ? (
                       <Button
@@ -732,6 +753,16 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                         disabled={isActionLoading}
                       >
                         Cancelar reserva
+                      </Button>
+                    ) : null}
+
+                    {canRegisterPayment ? (
+                      <Button
+                        className={styles.primaryActionButton}
+                        onClick={() => setShowPaymentForm(true)}
+                        variant="primary"
+                      >
+                        Registrar pago
                       </Button>
                     ) : null}
 
@@ -758,6 +789,36 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
             reLoad={handleReservationDetailReload}
             payment_id={resolvedPaymentId as string | number}
             noWaiting={true}
+          />
+        ) : null}
+
+        {showPaymentForm ? (
+          <PaymentRenderForm
+            open={showPaymentForm}
+            onClose={handlePaymentFormClose}
+            item={{
+              paid_at: getBusinessDate(),
+              dpto_id: reservationDetail?.dpto?.nro || "",
+              isCategoryLocked: true,
+              isSubcategoryLocked: true,
+              isAmountLocked: true,
+              amount:
+                reservationDetail?.debt_dpto?.amount ??
+                reservationDetail?.amount ??
+                0,
+              type: "R",
+              owner_id: reservationDetail?.owner?.id,
+            }}
+            extraData={extraData || {}}
+            execute={executeAction as (...args: any[]) => Promise<any>}
+            showToast={
+              showToast as (
+                msg: string,
+                type: "info" | "success" | "error" | "warning",
+              ) => void
+            }
+            reLoad={handlePaymentFormClose}
+            debtId={reservationDebtDptoId as string | number}
           />
         ) : null}
 
