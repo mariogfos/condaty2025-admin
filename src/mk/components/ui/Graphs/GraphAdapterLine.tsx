@@ -8,6 +8,7 @@ export default function GraphAdapterLine(
   const isDashboard = options?.variant === 'dashboard';
   const isArea = options?.area === true;
   const lineColors = options?.colors || [];
+  const gridColor = '#20262d';
   const l = {
     chart: {
       ...oDef.chart,
@@ -24,20 +25,43 @@ export default function GraphAdapterLine(
     dataLabels: {
       enabled: false,
     },
-    ...(isDashboard
-      ? {
-          grid: {
-            borderColor: '#20262d',
-            strokeDashArray: 4,
-            padding: {
-              top: 8,
-              right: 12,
-              bottom: 0,
-              left: 8,
-            },
+    grid: {
+      show: true,
+      borderColor: gridColor,
+      strokeDashArray: isDashboard ? 4 : 0,
+      position: 'back',
+      xaxis: {
+        lines: {
+          show: false,
+        },
+      },
+      yaxis: {
+        lines: {
+          show: true,
+        },
+      },
+      row: {
+        colors: undefined,
+        opacity: 0.5,
+      },
+      column: {
+        colors: undefined,
+        opacity: 0.5,
+      },
+      padding: isDashboard
+        ? {
+            top: 8,
+            right: 12,
+            bottom: 0,
+            left: 8,
+          }
+        : {
+            top: 0,
+            right: 10,
+            bottom: 0,
+            left: 12,
           },
-        }
-      : {}),
+    },
     fill:
       isDashboard && isArea
         ? {
