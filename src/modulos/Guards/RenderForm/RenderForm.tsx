@@ -34,7 +34,8 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
   const [existingInCurrentCondo, setExistingInCurrentCondo] = useState(false);
   const [ciLookupFailed, setCiLookupFailed] = useState(false);
   const ciLookupRef = useRef("");
-  const { showToast } = useAuth();
+  const { showToast, user } = useAuth();
+  const canManageCredentials = Boolean(user?.fosrole_id);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -141,6 +142,13 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
       errors,
       data: formState,
     });
+    if (
+      canManageCredentials &&
+      formState?.password &&
+      formState.password.length < 8
+    ) {
+      errors.password = "La nueva contraseña debe tener al menos 8 caracteres.";
+    }
     if (!formState.id && existingInCurrentCondo) {
       errors.ci = "Ese CI ya esta en uso en este condominio.";
     }
@@ -168,6 +176,9 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
           last_name: formState.last_name,
           mother_last_name: optionalText(formState.mother_last_name),
           email: formState.email,
+          ...(canManageCredentials && formState.password?.trim()
+            ? { password: formState.password.trim() }
+            : {}),
           phone: optionalText(formState.phone),
           address: optionalText(formState.address),
         },
@@ -375,11 +386,26 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
       <Input
         name="email"
         value={formState.email || ""}
-        disabled={formState._disabled}
+        disabled={
+          formState._disabled ||
+          (Boolean(formState.id) && !canManageCredentials)
+        }
         onChange={handleChange}
         label="Correo electrónico"
         error={errors}
       />
+      {formState.id && canManageCredentials && (
+        <Input
+          name="password"
+          type="password"
+          value={formState.password || ""}
+          onChange={handleChange}
+          label="Nueva contraseña"
+          placeholder="Dejar vacío para no cambiarla"
+          error={errors}
+          required={false}
+        />
+      )}
     </DataModal>
   );
 };
