@@ -44,6 +44,12 @@ const Owners = () => {
     { id: "H", name: "Propietarios" },
   ];
 
+  const getStatusFilter = () => [
+    { id: "ALL", name: "Todos" },
+    { id: "A", name: "Activo" },
+    { id: "W", name: "Por activar" },
+  ];
+
   const closeUnitsModal = () => {
     setUnitsModalOpen(false);
     setSelectedHomeowner(null);
@@ -354,6 +360,11 @@ const Owners = () => {
               </span>
             );
           },
+        },
+        filter: {
+          label: "Estado",
+          width: "180px",
+          options: getStatusFilter,
         },
       },
 
