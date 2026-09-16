@@ -2,12 +2,14 @@ import React, { useMemo } from "react";
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 
 import EmptyData from "@/components/NoData/EmptyData";
-import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
 import { formatNumber } from "@/mk/utils/numbers";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 import WidgetBase from "../../WidgetBase/WidgetBase";
 import styles from "./WidgetGraphResume.module.css";
+import FinancialFlowChart, {
+  FINANCIAL_FLOW_COLORS,
+} from "./FinancialFlowChart";
 
 type PropsType = {
   saldoInicial?: number;
@@ -37,12 +39,11 @@ type BalanceData = {
 
 const MONTH_COUNT = 12;
 const CHART_SERIES = [
-  { color: "#8b98a8", key: "openingBalance" },
-  { color: "#00e38c", key: "incomes" },
-  { color: "#f2a65a", key: "outlays" },
-  { color: "#8ea7ff", key: "cumulativeBalance" },
+  { color: FINANCIAL_FLOW_COLORS[0], key: "openingBalance" },
+  { color: FINANCIAL_FLOW_COLORS[1], key: "incomes" },
+  { color: FINANCIAL_FLOW_COLORS[2], key: "outlays" },
+  { color: FINANCIAL_FLOW_COLORS[3], key: "cumulativeBalance" },
 ] as const;
-const CHART_COLORS = CHART_SERIES.map(({ color }) => color);
 
 const createEmptyBalance = (): BalanceData => ({
   inicial: Array(MONTH_COUNT).fill(0),
@@ -252,34 +253,22 @@ const WidgetGraphResume = ({
             <div className={styles.chartColumn}>
               {chartHeader}
               <div className={styles.chartCanvas}>
-                <GraphBase
-                  data={{
-                    labels: meses.slice(0, chartEndIndex),
-                    values: [
-                      {
-                        name: translate("openingBalance"),
-                        values: balance.inicial.slice(0, chartEndIndex),
-                      },
-                      {
-                        name: translate("incomes"),
-                        values: balance.ingresos.slice(0, chartEndIndex),
-                      },
-                      {
-                        name: translate("outlays"),
-                        values: balance.egresos.slice(0, chartEndIndex),
-                      },
-                      {
-                        name: translate("cumulativeBalance"),
-                        values: balance.saldos.slice(0, chartEndIndex),
-                      },
-                    ],
+                <FinancialFlowChart
+                  labels={meses.slice(0, chartEndIndex)}
+                  balance={{
+                    inicial: balance.inicial.slice(0, chartEndIndex),
+                    ingresos: balance.ingresos.slice(0, chartEndIndex),
+                    egresos: balance.egresos.slice(0, chartEndIndex),
+                    saldos: balance.saldos.slice(0, chartEndIndex),
                   }}
-                  chartTypes={[primaryChartType]}
-                  options={{
-                    height: h,
-                    variant: "dashboard",
-                    colors: CHART_COLORS,
-                  }}
+                  chartType={primaryChartType}
+                  height={h}
+                  seriesNames={[
+                    translate("openingBalance"),
+                    translate("incomes"),
+                    translate("outlays"),
+                    translate("cumulativeBalance"),
+                  ]}
                 />
               </div>
               <div className={styles.seriesLegend}>
