@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { getFirstAccessibleMenuRoute } from "@/components/MainMenu/mainMenuConfig";
+import {
+  getFirstAccessibleMenuRoute,
+  isMenuItemVisible,
+  menuConfig,
+} from "@/components/MainMenu/mainMenuConfig";
 
 describe("getFirstAccessibleMenuRoute", () => {
   it("returns the first visible module when Home is not available", () => {
@@ -20,5 +24,28 @@ describe("getFirstAccessibleMenuRoute", () => {
 
   it("returns null when the administrator has no visible module", () => {
     expect(getFirstAccessibleMenuRoute(() => false)).toBeNull();
+  });
+
+  it("shows QR Dinámico and Log de Orange only to FOS admins", () => {
+    const finance = menuConfig.find(
+      (item) => item.type === "dropdown" && item.key === "Finanzas",
+    );
+    const fosOnlyItems = finance?.items.filter((item) => item.fosOnly) ?? [];
+    const canReadPayments = (permission: string) => permission === "payments";
+
+    expect(fosOnlyItems.map((item) => item.href)).toEqual([
+      "/qr-dinamico",
+      "/orange-logs",
+    ]);
+    expect(
+      fosOnlyItems.every((item) =>
+        isMenuItemVisible(item, canReadPayments, false),
+      ),
+    ).toBe(false);
+    expect(
+      fosOnlyItems.every((item) =>
+        isMenuItemVisible(item, canReadPayments, true),
+      ),
+    ).toBe(true);
   });
 });
