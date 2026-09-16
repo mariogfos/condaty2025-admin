@@ -22,18 +22,20 @@ export default function GraphAdapterBar(
         columnWidth: isDashboard ? '58%' : undefined,
       },
     },
-    grid: isDashboard
+    ...(isDashboard
       ? {
-          borderColor: gridColor,
-          strokeDashArray: 4,
-          padding: {
-            top: 2,
-            right: 8,
-            bottom: 0,
-            left: 8,
+          grid: {
+            borderColor: gridColor,
+            strokeDashArray: 4,
+            padding: {
+              top: 2,
+              right: 8,
+              bottom: 0,
+              left: 8,
+            },
           },
         }
-      : undefined,
+      : {}),
     xaxis: {
       categories: xLabels,
       axisBorder: isDashboard

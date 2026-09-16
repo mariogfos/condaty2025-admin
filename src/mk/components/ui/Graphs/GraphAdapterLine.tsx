@@ -24,18 +24,20 @@ export default function GraphAdapterLine(
     dataLabels: {
       enabled: false,
     },
-    grid: isDashboard
+    ...(isDashboard
       ? {
-          borderColor: '#20262d',
-          strokeDashArray: 4,
-          padding: {
-            top: 8,
-            right: 12,
-            bottom: 0,
-            left: 8,
+          grid: {
+            borderColor: '#20262d',
+            strokeDashArray: 4,
+            padding: {
+              top: 8,
+              right: 12,
+              bottom: 0,
+              left: 8,
+            },
           },
         }
-      : undefined,
+      : {}),
     fill:
       isDashboard && isArea
         ? {
