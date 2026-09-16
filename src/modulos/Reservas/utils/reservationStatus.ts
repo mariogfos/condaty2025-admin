@@ -28,6 +28,11 @@ const hasPaymentEvidence = (paymentId?: string | number | null) => {
   return normalized !== "" && normalized !== "0" && normalized !== "null";
 };
 
+export const canRegisterReservationPayment = (
+  status?: string | null,
+  debtDptoId?: string | number | null,
+) => status === "A" && hasPaymentEvidence(debtDptoId);
+
 export const resolveReservationDisplayStatus = ({
   status,
   dateEnd,
