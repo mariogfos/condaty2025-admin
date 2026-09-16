@@ -1,13 +1,14 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import RenderForm from "../RenderForm";
 
 const mocks = vi.hoisted(() => ({
   showToast: vi.fn(),
+  user: {},
 }));
 
 vi.mock("@/mk/contexts/AuthProvider", () => ({
-  useAuth: () => ({ showToast: mocks.showToast }),
+  useAuth: () => ({ showToast: mocks.showToast, user: mocks.user }),
 }));
 
 vi.mock("@/mk/components/ui/DataModal/DataModal", () => ({
@@ -105,6 +106,11 @@ const renderForm = (execute: any, item: Record<string, any> = {}) =>
   );
 
 describe("RenderForm de Guardias", () => {
+  beforeEach(() => {
+    mocks.user = {};
+    vi.clearAllMocks();
+  });
+
   it("permite guardar con segundo nombre y apellido materno vacíos, incluso si el correo ya existe", async () => {
     const execute = vi.fn().mockResolvedValue({
       data: { success: true, message: "Registro creado con éxito" },
@@ -197,6 +203,28 @@ describe("RenderForm de Guardias", () => {
       expect(mocks.showToast).toHaveBeenCalledWith(
         "No se pudo contactar al servidor. Verifica tu conexión e intenta nuevamente.",
         "error",
+      );
+    });
+  });
+
+  it("un FOS puede establecer una nueva contraseña al editar un guardia", async () => {
+    mocks.user = { fosrole_id: 1 };
+    const execute = vi.fn().mockResolvedValue({ data: { success: true } });
+
+    renderForm(execute, { id: "guard-1" });
+
+    fireEvent.change(screen.getByLabelText("Nueva contraseña"), {
+      target: { name: "password", value: "NuevaClave8" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => {
+      expect(execute).toHaveBeenCalledWith(
+        "/guards/guard-1",
+        "PUT",
+        expect.objectContaining({ password: "NuevaClave8" }),
+        false,
+        true,
       );
     });
   });
