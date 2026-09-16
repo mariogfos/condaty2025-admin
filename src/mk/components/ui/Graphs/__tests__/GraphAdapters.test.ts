@@ -23,6 +23,8 @@ describe('graph adapters', () => {
       column: { opacity: 0.5 },
       padding: expect.any(Object),
     });
+    expect(options.xaxis.axisBorder.show).toBe(true);
+    expect(options.xaxis.axisTicks.show).toBe(true);
   });
 
   it.each([
