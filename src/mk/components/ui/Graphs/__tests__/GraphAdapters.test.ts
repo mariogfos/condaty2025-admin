@@ -12,10 +12,17 @@ describe('graph adapters', () => {
   it.each([
     ['bar', GraphAdapterBar],
     ['line', GraphAdapterLine],
-  ])('%s omits grid instead of passing it as undefined', (_type, adapter) => {
+  ])('%s supplies the complete grid configuration ApexCharts requires', (_type, adapter) => {
     const { options } = adapter(chartData, {}, {});
 
-    expect(options).not.toHaveProperty('grid');
+    expect(options.grid).toMatchObject({
+      show: true,
+      xaxis: { lines: { show: false } },
+      yaxis: { lines: { show: true } },
+      row: { opacity: 0.5 },
+      column: { opacity: 0.5 },
+      padding: expect.any(Object),
+    });
   });
 
   it.each([
