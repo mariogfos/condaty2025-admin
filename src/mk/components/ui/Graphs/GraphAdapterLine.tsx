@@ -96,12 +96,25 @@ export default function GraphAdapterLine(
             show: true,
             color: '#20262d',
           }
-        : undefined,
+        : {
+            show: true,
+            color: gridColor,
+            width: '100%',
+            height: 1,
+            offsetX: 0,
+            offsetY: 0,
+          },
       axisTicks: isDashboard
         ? {
             show: false,
           }
-        : undefined,
+        : {
+            show: true,
+            color: gridColor,
+            height: 6,
+            offsetX: 0,
+            offsetY: 0,
+          },
       labels: {
         style: {
           colors: isDashboard ? '#8693a0' : '#A7A7A7',

@@ -66,12 +66,25 @@ export default function GraphAdapterBar(
             show: true,
             color: gridColor,
           }
-        : undefined,
+        : {
+            show: true,
+            color: gridColor,
+            width: '100%',
+            height: 1,
+            offsetX: 0,
+            offsetY: 0,
+          },
       axisTicks: isDashboard
         ? {
             show: false,
           }
-        : undefined,
+        : {
+            show: true,
+            color: gridColor,
+            height: 6,
+            offsetX: 0,
+            offsetY: 0,
+          },
       labels: {
         style: {
           colors: axisColor,
