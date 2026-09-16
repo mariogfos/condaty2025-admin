@@ -71,3 +71,8 @@ WARP.md
 #package-lock.json
 package-lock.json
 pnpm-workspace.yaml
+
+# Los worktrees locales. Uno se commiteo por error como gitlink (modo
+# 160000) y viajo en `test`: sin entrada en `.gitmodules`, cualquier clon
+# se queda con una referencia a un submodulo que no existe.
+.worktrees/
