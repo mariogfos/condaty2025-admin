@@ -5,10 +5,9 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
 import { getFullName } from "@/mk/utils/string";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import styles from "./ActiveOwner.module.css";
-import page from "@/app/areas/page";
 
 const ActiveOwner = ({
   open,
@@ -18,12 +17,14 @@ const ActiveOwner = ({
   onCloseOwner,
   reLoad,
 }: any) => {
-  const { store, showToast, user } = useAuth();
+  const { showToast, user } = useAuth();
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors] = useState({});
   const client = data?.clients?.find(
     (item: any) => item?.id === user?.client_id
   );
+  const ownerType = client?.pivot?.type || data?.type_owner;
+  const isResident = ownerType === "T" || ownerType === "Residente";
   // R:Rechazar
   // X:"Rechazado"
   // A:Aceptado
@@ -35,7 +36,10 @@ const ActiveOwner = ({
     {
       page: 1,
       perPage: -1,
-      fullType: data?.type_owner == "T" ? "PR" : "PH",
+      // PR: unidades con propietario y sin residente. PH: sin propietario.
+      // El listado de solicitudes entrega type_owner como etiqueta, así que la
+      // fuente de verdad es el tipo guardado en el pivot de la solicitud.
+      fullType: isResident ? "PR" : "PH",
     },
     true
   );
@@ -44,7 +48,7 @@ const ActiveOwner = ({
     const lista =
       dptos?.data?.map((item: any) => ({
         id: item?.id,
-        nro: `${item?.type?.name} ${item?.nro} ${
+        nro: `${item?.type?.name || "Unidad"} ${item?.nro} ${
           item?.description ? "- " + item?.description : ""
         }`,
       })) || [];
@@ -105,7 +109,13 @@ const ActiveOwner = ({
       onCloseOwner();
       reLoad();
     } else {
-      showToast(error?.data?.message || error?.message, "error");
+      showToast(
+        dataResident?.message ||
+          error?.data?.message ||
+          error?.message ||
+          "No se pudo actualizar la solicitud.",
+        "error"
+      );
     }
   };
   return (
@@ -133,7 +143,7 @@ const ActiveOwner = ({
           <div>
             <Select
               label="Selecciona la unidad"
-              multiSelect={data?.type_owner == "H" ? true : false}
+              multiSelect={!isResident}
               name="dpto_id"
               required={true}
               value={formState.dpto_id}
