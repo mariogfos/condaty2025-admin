@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import { MONTHS_S_GRAPH, getDateStrMes, getNow } from "@/mk/utils/date";
 
 import styles from "./WidgetGrafBalance.module.css";
-import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
+import FinancialFlowChart from "@/components/Widgets/WidgetsDashboard/WidgetGraphResume/FinancialFlowChart";
 
 interface BalanceData {
   inicial: number[];
@@ -212,33 +212,11 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         {title || "Resumen general"}
       </p>
 
-      <GraphBase
-        data={{
-          labels: meses,
-          values: [
-            { name: "Saldo inicial", values: balance.inicial },
-            { name: "Ingresos", values: balance.ingresos },
-            { name: "Egresos", values: balance.egresos },
-            { name: "Saldo Acumulado", values: balance.saldos },
-          ],
-        }}
-        chartTypes={chartTypes}
-        //downloadPdf
-        options={{
-          height: h,
-          colors: [
-            "var(--cCompl1)",
-            "var(--cCompl7)",
-            "var(--cCompl8)",
-            "var(--cCompl9)",
-          ],
-          chart: {
-            legend: {
-              show: false,
-            },
-          },
-        }}
-        exportando={exportando}
+      <FinancialFlowChart
+        labels={meses}
+        balance={balance}
+        chartType={chartTypes?.[0] || "area"}
+        height={h}
       />
     </div>
   );
