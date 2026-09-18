@@ -23,6 +23,11 @@ const statusOptions = [
   { id: "cancelled", name: "Anulado" },
   { id: "sold", name: "Vendido" },
 ];
+const featuredOptions = [
+  { id: "", name: "Todas" },
+  { id: "1", name: "Destacadas" },
+  { id: "0", name: "No destacadas" },
+];
 const statusLabels: Record<string, string> = {
   pending: "Pendiente",
   approved: "Aprobado",
@@ -43,6 +48,7 @@ type Listing = {
   category?: { id: number; name: string } | null;
   owner?: { id: string; name: string; phone?: string | null };
   visibility: string;
+  is_featured: boolean;
   description?: string | null;
   images?: string[] | null;
 };
@@ -77,6 +83,7 @@ export default function MarketplaceBackoffice() {
     client_id: "",
     status: "",
     category_id: "",
+    featured: "",
     query: "",
   });
   const [selected, setSelected] = useState<Listing | null>(null);
@@ -231,6 +238,7 @@ export default function MarketplaceBackoffice() {
       { key: "category", responsive: "Categoría", label: "Categoría", width: "160px", onRender: ({ item }: { item: Listing }) => item.category?.name || "—" },
       { key: "price", responsive: "Precio", label: "Precio", width: "130px", onRender: ({ item }: { item: Listing }) => `${item.currency || ""} ${item.price ?? "—"}`.trim() },
       { key: "visibility", responsive: "Alcance", label: "Alcance", width: "160px", onRender: ({ item }: { item: Listing }) => item.visibility === "all_condominiums" ? "Todos los condominios" : "Su condominio" },
+      { key: "is_featured", responsive: "Destacada", label: "Destacada", width: "130px", onRender: ({ item }: { item: Listing }) => <StatusBadge>{item.is_featured ? "Sí" : "No"}</StatusBadge> },
       { key: "status", responsive: "Estado", label: "Estado", width: "140px", onRender: ({ item }: { item: Listing }) => <StatusBadge>{statusLabel(item.status)}</StatusBadge> },
     ],
     [clients],
@@ -269,6 +277,7 @@ export default function MarketplaceBackoffice() {
               <Select label="Condominio" name="client_id" value={filters.client_id} options={clientOptions} filter onChange={(event: any) => setFilters((current) => ({ ...current, client_id: event.target.value }))} />
               <Select label="Estado" name="status" value={filters.status} options={statusOptions} onChange={(event: any) => setFilters((current) => ({ ...current, status: event.target.value }))} />
               <Select label="Categoría" name="category_id" value={filters.category_id} options={categoryOptions} filter onChange={(event: any) => setFilters((current) => ({ ...current, category_id: event.target.value }))} />
+              <Select label="Destacada" name="featured" value={filters.featured} options={featuredOptions} onChange={(event: any) => setFilters((current) => ({ ...current, featured: event.target.value }))} />
             </div>
             <div className={crudStyles.toolbarActions}><Button variant="secondary" onClick={() => void load()}>Actualizar</Button></div>
           </div>
@@ -299,12 +308,19 @@ export default function MarketplaceBackoffice() {
             <div><dt>Residente</dt><dd>{selected.owner?.name || "—"}</dd></div>
             <div><dt>Teléfono</dt><dd>{selected.owner?.phone || "—"}</dd></div>
             <div><dt>Estado</dt><dd>{statusLabel(selected.status)}</dd></div>
+            <div><dt>Destacada</dt><dd>{selected.is_featured ? "Sí" : "No"}</dd></div>
             <div><dt>Alcance</dt><dd>{selected.visibility === "all_condominiums" ? "Todos los condominios" : "Su condominio"}</dd></div>
           </dl>
           <p className={styles.description}>{selected.description || ""}</p>
           {selected.images?.length ? <div className={styles.images}>{selected.images.map((image) => <img alt="Publicación" key={image} src={image} />)}</div> : null}
           <textarea className={styles.reason} value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Motivo para rechazar, anular o bloquear" />
-          <div className={styles.modalActions}><Button onClick={() => void action("approve")}>Aprobar</Button><Button variant="secondary" onClick={() => void action("reject", { reason })} disabled={!reason.trim()}>Rechazar</Button><Button variant="secondary" onClick={() => void action("cancel", { reason: reason || null })}>Anular</Button><Button variant="secondary" onClick={() => void blockSelectedOwner()}>Bloquear residente</Button></div>
+          <div className={styles.modalActions}>
+            {selected.status === "approved" ? <Button variant={selected.is_featured ? "secondary" : "primary"} onClick={() => void action("feature", { is_featured: !selected.is_featured })}>{selected.is_featured ? "Quitar destacado" : "Destacar"}</Button> : null}
+            <Button onClick={() => void action("approve")}>Aprobar</Button>
+            <Button variant="secondary" onClick={() => void action("reject", { reason })} disabled={!reason.trim()}>Rechazar</Button>
+            <Button variant="secondary" onClick={() => void action("cancel", { reason: reason || null })}>Anular</Button>
+            <Button variant="secondary" onClick={() => void blockSelectedOwner()}>Bloquear residente</Button>
+          </div>
         </div>}
       </DataModal>
     </div>
