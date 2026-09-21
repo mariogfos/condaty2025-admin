@@ -7,6 +7,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { isRecoverablePendingAccount } from "../ownerAccountState";
 
 const RenderView = (props: any) => {
   const { open, onClose, item: data, reLoad, execute, showToast } = props;
@@ -18,6 +19,7 @@ const RenderView = (props: any) => {
   const [openActive, setOpenActive] = useState(false);
   const [typeActive, setTypeActive] = useState("");
   const [loading, setLoading] = useState(false);
+  const [activatingAccount, setActivatingAccount] = useState(false);
 
   const openModal = (t: any) => {
     setOpenActive(true);
@@ -47,6 +49,35 @@ const RenderView = (props: any) => {
       getDataDetail();
     }
   }, []);
+
+  const activateAccount = async () => {
+    if (!item?.id || activatingAccount) return;
+
+    setActivatingAccount(true);
+    const { data: response, error } = await execute(
+      `/owners/${item.id}/activate-account`,
+      "POST",
+      {},
+      true,
+    );
+
+    if (response?.success) {
+      showToast(
+        response?.message || "La cuenta fue activada con éxito",
+        "success",
+      );
+      reLoad?.();
+      onClose();
+    } else {
+      showToast(
+        response?.message ||
+          error?.data?.message ||
+          "No se pudo activar la cuenta",
+        "error",
+      );
+    }
+    setActivatingAccount(false);
+  };
   if (!item) {
     return (
       <DataModal
@@ -151,6 +182,13 @@ const RenderView = (props: any) => {
                 Rechazar Solicitud
               </Button>
               <Button onClick={() => openModal("A")}>Aprobar Solicitud</Button>
+            </div>
+          )}
+          {isRecoverablePendingAccount(item) && (
+            <div className={styles.boxButtons}>
+              <Button onClick={activateAccount} disabled={activatingAccount}>
+                {activatingAccount ? "Activando..." : "Activar cuenta"}
+              </Button>
             </div>
           )}
         </DataModal>
