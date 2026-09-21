@@ -25,6 +25,10 @@ import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import RenderView from "./RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { firstCountOrZero } from "@/mk/utils/dashboardCounts";
+import {
+  getOwnerOperationalStatus,
+  isPendingOwner,
+} from "./ownerAccountState";
 
 const paramsInitial = {
   perPage: 20,
@@ -120,7 +124,8 @@ const Owners = () => {
       extraData?: Record<string, any>;
       reLoad?: any;
     }) =>
-      props?.item.status === "W" && props?.item.type_owner !== "Dependiente" ? (
+      isPendingOwner(props?.item) &&
+      props?.item.type_owner !== "Dependiente" ? (
         <RenderView {...props} />
       ) : (
         <ProfileModal
@@ -165,12 +170,6 @@ const Owners = () => {
 
     if (data?.success && data.data?.data?.id) {
       const filteredData = data.data.data;
-      if (filteredData.existCondo) {
-        showToast("El residente ya existe en este Condominio", "warning");
-        props.setItem({});
-        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
-        return;
-      }
       props.setError({ ci: "" });
       props.setItem({
         ...props.item,
@@ -185,7 +184,11 @@ const Owners = () => {
         _emailDisabled: true,
       });
       showToast(
-        "El residente ya existe en Condaty, se va a vincular al Condominio",
+        isPendingOwner(filteredData)
+          ? "Preregistro encontrado: se conservará su contraseña y se activará al guardar"
+          : filteredData.existCondo
+            ? "Residente encontrado: puedes asignarle esta unidad o rol"
+            : "El residente ya existe en Condaty y será vinculado al condominio",
         "warning",
       );
     } else {
@@ -346,12 +349,13 @@ const Owners = () => {
         label: "Estado",
         list: {
           onRender: ({ item }: any) => {
-            const statusInfo = lStatusActive[item?.status];
+            const operationalStatus = getOwnerOperationalStatus(item);
+            const statusInfo = lStatusActive[operationalStatus || ""];
             return (
               <span
                 style={{
                   color:
-                    item?.status === "W"
+                    operationalStatus === "W"
                       ? "var(--cWarning)"
                       : "var(--cWhiteV1)",
                 }}
