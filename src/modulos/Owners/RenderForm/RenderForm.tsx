@@ -8,6 +8,7 @@ import styles from "./Renderform.module.css";
 import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import { IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import { IconTrash } from "@/components/layout/icons/IconsBiblioteca";
+import { isPendingOwner } from "../ownerAccountState";
 
 interface OwnerFormState {
   id?: number | string;
@@ -179,7 +180,7 @@ const RenderForm = ({
 }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [isCheckingCi, setIsCheckingCi] = useState(false);
-  const [existingInCurrentCondo, setExistingInCurrentCondo] = useState(false);
+  const [existingOwner, setExistingOwner] = useState<any>(null);
   const [ciLookupFailed, setCiLookupFailed] = useState(false);
   const ciLookupRef = useRef("");
   const [formState, setFormState] = useState<OwnerFormState>(() => {
@@ -256,7 +257,7 @@ const RenderForm = ({
     const { name, value } = e.target;
     if (name === "ci" && !formState.id) {
       ciLookupRef.current = String(value || "").trim();
-      setExistingInCurrentCondo(false);
+      setExistingOwner(null);
       setCiLookupFailed(false);
       setIsCheckingCi(false);
       setErrors((prev) => ({ ...prev, ci: undefined }));
@@ -356,7 +357,7 @@ const RenderForm = ({
       if (ciLookupRef.current !== ci) return;
 
       if (error || !data?.success) {
-        setExistingInCurrentCondo(false);
+        setExistingOwner(null);
         setCiLookupFailed(true);
         setErrors((prev) => ({
           ...prev,
@@ -368,17 +369,7 @@ const RenderForm = ({
 
       if (data?.success && data.data?.data?.id) {
         const ownerData = data.data.data;
-        if (ownerData.existCondo) {
-          setExistingInCurrentCondo(true);
-          setCiLookupFailed(false);
-          showToast("El residente ya existe en este Condominio", "warning");
-          setErrors((prev) => ({
-            ...prev,
-            ci: "Ese CI ya está en uso en este Condominio",
-          }));
-          return;
-        }
-
+        setExistingOwner(ownerData);
         setFormState((prev: OwnerFormState) => ({
           ...prev,
           ci: ownerData.ci,
@@ -391,15 +382,24 @@ const RenderForm = ({
           _disabled: true,
           _emailDisabled: true,
         }));
-        setExistingInCurrentCondo(false);
         setCiLookupFailed(false);
+        setErrors((prev) => ({ ...prev, ci: undefined }));
 
-        showToast(
-          "El residente ya existe en Condaty, se va a vincular al Condominio",
-          "warning",
-        );
+        if (isPendingOwner(ownerData)) {
+          showToast(
+            "Preregistro encontrado: se conservará su contraseña y se activará al guardar",
+            "warning",
+          );
+        } else {
+          showToast(
+            ownerData.existCondo
+              ? "Residente encontrado: puedes asignarle esta unidad o rol"
+              : "El residente ya existe en Condaty y será vinculado al condominio",
+            "warning",
+          );
+        }
       } else {
-        setExistingInCurrentCondo(false);
+        setExistingOwner(null);
         setCiLookupFailed(false);
         setErrors((prev) => ({ ...prev, ci: undefined }));
         setFormState((prev: OwnerFormState) => ({
@@ -410,7 +410,7 @@ const RenderForm = ({
       }
     } catch (error) {
       if (ciLookupRef.current !== ci) return;
-      setExistingInCurrentCondo(false);
+      setExistingOwner(null);
       setCiLookupFailed(true);
       setErrors((prev) => ({
         ...prev,
@@ -462,9 +462,6 @@ const RenderForm = ({
   const onSave = async () => {
     if (isSaving || isCheckingCi) return;
     const validationErrors = validate();
-    if (!formState.id && existingInCurrentCondo) {
-      validationErrors.ci = "Ese CI ya está en uso en este Condominio";
-    }
     if (!formState.id && ciLookupFailed) {
       validationErrors.ci = "No se pudo verificar el CI. Intenta nuevamente.";
     }
@@ -560,13 +557,14 @@ const RenderForm = ({
         ? `Editar ${formState.type_owner || "Residente"}`
         : `Nuevo ${item?.type_owner || "Residente"}`}
       onSave={onSave}
-      buttonText={isSaving ? "Guardando..." : "Guardar"}
-      disabled={
-        isSaving ||
-        isCheckingCi ||
-        existingInCurrentCondo ||
-        ciLookupFailed
+      buttonText={
+        isSaving
+          ? "Guardando..."
+          : existingOwner && isPendingOwner(existingOwner)
+            ? "Activar y asignar"
+            : "Guardar"
       }
+      disabled={isSaving || isCheckingCi || ciLookupFailed}
       variant={"mini"}
     >
       <div className={styles.fieldSet}>
@@ -583,6 +581,15 @@ const RenderForm = ({
           required
           disabled={formState._disabled}
         />
+        {existingOwner && (
+          <div className={styles.sectionHeader}>
+            <p>
+              {isPendingOwner(existingOwner)
+                ? "Preregistro encontrado. Se conservarán sus datos y contraseña; la cuenta se activará al asignarla."
+                : "Cuenta existente. Se conservarán sus credenciales y se añadirá la asignación seleccionada."}
+            </p>
+          </div>
+        )}
         <InputFullName
           name="name"
           value={formState}
@@ -600,8 +607,9 @@ const RenderForm = ({
 
         <div className={styles.sectionHeader}>
           <p>
-            La contraseña inicial será el carnet de identidad y se enviará al
-            correo que indique en este campo.
+            {existingOwner
+              ? "La contraseña actual se conservará sin cambios."
+              : "La contraseña inicial será el carnet de identidad y se enviará al correo que indique en este campo."}
           </p>
         </div>
 
