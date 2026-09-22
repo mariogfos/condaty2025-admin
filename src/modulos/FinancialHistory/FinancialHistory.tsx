@@ -17,8 +17,18 @@ type HistoryItem = {
   label: string;
   client: string;
   record: { title: string; subtitle?: string | null };
-  before: { status?: string | null; penalty_amount?: number | string | null };
-  after: { status?: string | null; penalty_amount?: number | string | null };
+  before: {
+    status?: string | null;
+    amount?: number | string | null;
+    allocated_amount?: number | string | null;
+    penalty_amount?: number | string | null;
+  };
+  after: {
+    status?: string | null;
+    amount?: number | string | null;
+    allocated_amount?: number | string | null;
+    penalty_amount?: number | string | null;
+  };
   actor: { name: string };
   reason?: string | null;
   occurred_at: string;
@@ -44,8 +54,15 @@ const formatAmount = (value?: number | string | null) => new Intl.NumberFormat("
   minimumFractionDigits: 2,
 }).format(Number(value || 0));
 
-const amountChanged = (item: HistoryItem) =>
-  Number(item.before?.penalty_amount || 0) !== Number(item.after?.penalty_amount || 0);
+const amountChange = (item: HistoryItem) => {
+  const fields = ["amount", "allocated_amount", "penalty_amount"] as const;
+  for (const field of fields) {
+    const before = item.before?.[field];
+    const after = item.after?.[field];
+    if (Number(before || 0) !== Number(after || 0)) return { before, after };
+  }
+  return null;
+};
 
 const stateChanged = (item: HistoryItem) =>
   String(item.before?.status || "") !== String(item.after?.status || "");
@@ -159,25 +176,30 @@ export default function FinancialHistory() {
                 label: "Cambio",
                 responsive: "onlyDesktop",
                 width: "220",
-                onRender: ({ item }: { item: HistoryItem }) => (
-                  <span className={styles.changeCell}>
-                    {amountChanged(item) ? (
-                      <span className={styles.stateChange}>
-                        <b>{formatAmount(item.before?.penalty_amount)}</b>
-                        <ArrowRight size={14} />
-                        <strong>{formatAmount(item.after?.penalty_amount)}</strong>
-                      </span>
-                    ) : null}
-                    {stateChanged(item) ? (
-                      <span className={styles.stateChange}>
-                        <b>{stateLabel(item.before?.status)}</b>
-                        <ArrowRight size={14} />
-                        <strong>{stateLabel(item.after?.status)}</strong>
-                      </span>
-                    ) : null}
-                    {!amountChanged(item) && !stateChanged(item) ? "Datos derivados sincronizados" : null}
-                  </span>
-                ),
+                onRender: ({ item }: { item: HistoryItem }) => {
+                  const changedAmount = amountChange(item);
+                  return (
+                    <span className={styles.changeCell}>
+                      {changedAmount ? (
+                        <span className={styles.stateChange}>
+                          <b>{formatAmount(changedAmount.before)}</b>
+                          <ArrowRight size={14} />
+                          <strong>{formatAmount(changedAmount.after)}</strong>
+                        </span>
+                      ) : null}
+                      {stateChanged(item) ? (
+                        <span className={styles.stateChange}>
+                          <b>{stateLabel(item.before?.status)}</b>
+                          <ArrowRight size={14} />
+                          <strong>{stateLabel(item.after?.status)}</strong>
+                        </span>
+                      ) : null}
+                      {!changedAmount && !stateChanged(item)
+                        ? "Datos derivados sincronizados"
+                        : null}
+                    </span>
+                  );
+                },
               },
               { key: "actor", label: "Responsable", responsive: "onlyDesktop", width: "190", onRender: ({ value }: any) => value?.name || "Sistema" },
             ]}

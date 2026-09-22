@@ -45,6 +45,30 @@ describe("FinancialHistory", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("renders debt and income amount corrections with readable amounts", () => {
+    render(
+      <FinancialHistory
+        events={[
+          {
+            id: "amount-1",
+            source: "audit",
+            action: "payment_amount_updated",
+            actor: { name: "FOS Finanzas" },
+            reason: "Corrección del comprobante",
+            before: { amount: 300, allocated_amount: 300 },
+            after: { amount: 250, allocated_amount: 250 },
+            occurred_at: "2026-09-22T10:00:00-04:00",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Monto de ingreso editado")).toBeInTheDocument();
+    expect(screen.getByText("Monto")).toBeInTheDocument();
+    expect(screen.getByText("Monto aplicado")).toBeInTheDocument();
+    expect(screen.getAllByText(/BOB|Bs/).length).toBeGreaterThanOrEqual(4);
+  });
+
   it("expands related debt and reservation changes into readable rows", () => {
     render(
       <FinancialHistory
