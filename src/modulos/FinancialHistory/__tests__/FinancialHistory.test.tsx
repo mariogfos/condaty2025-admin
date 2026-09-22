@@ -57,18 +57,31 @@ describe("Historial financiero", () => {
         data: {
           success: true,
           data: {
-            items: [{
-              id: "event-1",
-              type: "record_corrections",
-              label: "Multa editada",
-              client: "Hacienda del Urubó",
-              record: { title: "Unidad H-17", subtitle: "Expensa agosto" },
-              before: { status: "P", penalty_amount: 0 },
-              after: { status: "I", penalty_amount: 17.4 },
-              actor: { name: "Ana Rojas" },
-              occurred_at: "2026-09-03T02:15:00-04:00",
-            }],
-            pagination: { page: 1, per_page: 25, total: 1, last_page: 1 },
+            items: [
+              {
+                id: "event-1",
+                type: "record_corrections",
+                label: "Multa editada",
+                client: "Hacienda del Urubó",
+                record: { title: "Unidad H-17", subtitle: "Expensa agosto" },
+                before: { status: "P", penalty_amount: 0 },
+                after: { status: "I", penalty_amount: 17.4 },
+                actor: { name: "Ana Rojas" },
+                occurred_at: "2026-09-03T02:15:00-04:00",
+              },
+              {
+                id: "event-2",
+                type: "record_corrections",
+                label: "Monto de ingreso editado",
+                client: "Hacienda del Urubó",
+                record: { title: "Ingreso ING-25" },
+                before: { amount: 300 },
+                after: { amount: 250 },
+                actor: { name: "FOS Finanzas" },
+                occurred_at: "2026-09-22T10:00:00-04:00",
+              },
+            ],
+            pagination: { page: 1, per_page: 25, total: 2, last_page: 1 },
             available_types: [
               { id: "all", label: "Todos los tipos" },
               { id: "record_corrections", label: "Correcciones financieras" },
@@ -88,5 +101,7 @@ describe("Historial financiero", () => {
     expect(screen.getByText("Pagado")).toBeInTheDocument();
     expect(screen.getByText("Pago parcial")).toBeInTheDocument();
     expect(screen.getByText(/17,40/)).toBeInTheDocument();
+    expect(screen.getByText("Monto de ingreso editado")).toBeInTheDocument();
+    expect(screen.getByText(/250,00/)).toBeInTheDocument();
   });
 });

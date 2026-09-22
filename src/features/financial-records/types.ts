@@ -5,11 +5,13 @@ export type FinancialRecordType = "debt" | "payment" | "expense";
 export type FinancialRecordReference = {
   type: FinancialRecordType;
   id: string | number;
+  amount?: number | string | null;
   penaltyAmount?: number | string | null;
   paidAt?: string | null;
 };
 
 export type FinancialCapabilities = {
+  can_edit_amount: boolean;
   can_edit_penalty: boolean;
   can_verify_payment: boolean;
   can_edit_paid_at: boolean;
@@ -38,6 +40,7 @@ export type FinancialWorkspace = {
   record: {
     type: FinancialRecordType;
     id: string;
+    amount?: number | string | null;
   };
   capabilities: FinancialCapabilities;
   history: FinancialAuditEvent[];
