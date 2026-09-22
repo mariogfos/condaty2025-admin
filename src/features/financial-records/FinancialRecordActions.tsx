@@ -12,6 +12,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import {
+  BadgeDollarSign,
   CalendarDays,
   CircleDollarSign,
   MoreVertical,
@@ -93,9 +94,11 @@ export const FinancialRecordActions = ({
   const { showToast } = useAuth();
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [amountOpen, setAmountOpen] = useState(false);
   const [penaltyOpen, setPenaltyOpen] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
   const [verificationOpen, setVerificationOpen] = useState(false);
+  const [recordAmount, setRecordAmount] = useState("");
   const [penaltyAmount, setPenaltyAmount] = useState("");
   const [paidAt, setPaidAt] = useState("");
   const [reason, setReason] = useState("");
@@ -129,6 +132,13 @@ export const FinancialRecordActions = ({
     setReason("");
     setFormError("");
     setPenaltyOpen(true);
+  };
+
+  const openAmountEditor = () => {
+    setRecordAmount(String(record.amount ?? ""));
+    setReason("");
+    setFormError("");
+    setAmountOpen(true);
   };
 
   const openDateEditor = () => {
@@ -213,6 +223,43 @@ export const FinancialRecordActions = ({
     setSubmitting(false);
   };
 
+  const saveAmount = async () => {
+    const amount = Number(recordAmount.replace(",", "."));
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setFormError("Ingresa un monto válido mayor a Bs 0,00.");
+      return;
+    }
+    if (reason.trim().length < 3) {
+      setFormError("Indica el motivo de esta corrección.");
+      return;
+    }
+
+    if (previewMode) {
+      showToast("Corrección simulada: la muestra no modifica datos", "info");
+      setAmountOpen(false);
+      return;
+    }
+
+    setSubmitting(true);
+    setFormError("");
+    const { data, error } = await execute(
+      financialRecordsApi.amount(record),
+      "PUT",
+      { amount: Math.round(amount * 100) / 100, reason: reason.trim() },
+      false,
+      true,
+    );
+
+    if (data?.success) {
+      showToast(data.message || "Monto actualizado", "success");
+      setAmountOpen(false);
+      await notifyChanged();
+    } else {
+      setFormError(extractError(data, error, "No se pudo editar el monto."));
+    }
+    setSubmitting(false);
+  };
+
   const savePaidAt = async () => {
     if (!paidAt) {
       setFormError("Selecciona la fecha de pago.");
@@ -287,6 +334,14 @@ export const FinancialRecordActions = ({
   };
 
   const actions: FinancialMenuAction[] = [];
+  if (capabilities?.can_edit_amount) {
+    actions.push({
+      id: "edit-amount",
+      label: "Editar monto",
+      icon: <BadgeDollarSign size={18} aria-hidden="true" />,
+      onSelect: openAmountEditor,
+    });
+  }
   if (capabilities?.can_edit_penalty) {
     actions.push({
       id: "edit-penalty",
@@ -328,6 +383,12 @@ export const FinancialRecordActions = ({
     setMenuOpen(false);
     action.onSelect();
   };
+  const amountTitle =
+    record.type === "debt" ? "Editar monto de la deuda" : "Editar monto pagado";
+  const amountDescription =
+    record.type === "debt"
+      ? "Cambia el monto principal y recalcula el saldo. Los ingresos relacionados se conservan."
+      : "Cambia el total del ingreso. Si tiene varias aplicaciones, se ajustarán proporcionalmente para conservar su consistencia.";
 
   return (
     <>
@@ -376,6 +437,33 @@ export const FinancialRecordActions = ({
           </div>
         ) : null}
       </div>
+
+      <ActionDialog
+        open={amountOpen}
+        title={amountTitle}
+        description={amountDescription}
+        onClose={() => setAmountOpen(false)}
+        onSubmit={() => void saveAmount()}
+        submitLabel={submitting ? "Guardando…" : "Guardar corrección"}
+        busy={submitting}
+      >
+        <div className={styles.formStack}>
+          <Input
+            name="financial-record-amount"
+            label={record.type === "debt" ? "Monto de la deuda" : "Monto pagado"}
+            type="number"
+            min={0.01}
+            value={recordAmount}
+            onChange={(event: any) => setRecordAmount(event.target.value)}
+          />
+          <ReasonField
+            id="financial-amount-reason"
+            value={reason}
+            onChange={setReason}
+          />
+          <FormError message={formError} />
+        </div>
+      </ActionDialog>
 
       <ActionDialog
         open={penaltyOpen}

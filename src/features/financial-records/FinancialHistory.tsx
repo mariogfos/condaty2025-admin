@@ -12,6 +12,8 @@ const ACTION_LABELS: Record<string, string> = {
   payment_rejected: "Pago rechazado",
   payment_cancelled: "Ingreso anulado",
   expense_cancelled: "Egreso anulado",
+  debt_amount_updated: "Monto de deuda editado",
+  payment_amount_updated: "Monto de ingreso editado",
   penalty_updated: "Multa editada",
   payment_state_checked: "Estado del pago verificado",
   payment_state_repaired: "Estado del pago reparado",
@@ -19,6 +21,8 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 const FIELD_LABELS: Record<string, string> = {
+  amount: "Monto",
+  allocated_amount: "Monto aplicado",
   penalty_amount: "Multa",
   paid_at: "Fecha de pago",
   status: "Estado",

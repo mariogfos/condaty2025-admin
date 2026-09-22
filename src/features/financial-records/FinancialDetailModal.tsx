@@ -87,6 +87,12 @@ export const FinancialDetailModal = ({
     (remoteWorkspaceMatchesRecord ? remoteWorkspace : null);
   const workspaceLoading = workspaceOverride ? false : remoteWorkspaceLoading;
   const error = workspaceOverride ? "" : remoteWorkspaceError;
+  const actionRecord = record
+    ? {
+        ...record,
+        amount: workspace?.record.amount ?? record.amount,
+      }
+    : undefined;
 
   useEffect(() => setMounted(true), []);
 
@@ -137,9 +143,9 @@ export const FinancialDetailModal = ({
             </div>
 
             <div className={styles.headerActions}>
-              {record ? (
+              {actionRecord ? (
                 <FinancialRecordActions
-                  record={record}
+                  record={actionRecord}
                   capabilities={workspace?.capabilities}
                   customActions={customActions}
                   onChanged={handleRecordChanged}

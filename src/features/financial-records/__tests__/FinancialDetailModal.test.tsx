@@ -5,6 +5,7 @@ import { FinancialDetailModal } from "../FinancialDetailModal";
 const workspace = {
   record: { type: "debt" as const, id: "42" },
   capabilities: {
+    can_edit_amount: false,
     can_edit_penalty: false,
     can_verify_payment: false,
     can_edit_paid_at: false,
@@ -48,6 +49,9 @@ describe("FinancialDetailModal", () => {
     const menuAction = screen.getByRole("menuitem", {
       name: "Copiar referencia",
     });
+    expect(
+      screen.queryByRole("menuitem", { name: "Editar monto" }),
+    ).not.toBeInTheDocument();
     expect(menuAction).toBeInTheDocument();
     expect(screen.getByText("Contenido financiero")).toBeInTheDocument();
 
@@ -104,5 +108,67 @@ describe("FinancialDetailModal", () => {
     expect(
       screen.getByLabelText("Motivo de la corrección"),
     ).toBeRequired();
+  });
+
+  it("opens the FOS debt amount correction with the authoritative amount", () => {
+    render(
+      <FinancialDetailModal
+        open
+        onClose={vi.fn()}
+        title="Detalle de deuda"
+        record={{ type: "debt", id: 42, amount: 999 }}
+        workspaceOverride={{
+          ...workspace,
+          record: { ...workspace.record, amount: 420 },
+          capabilities: {
+            ...workspace.capabilities,
+            can_edit_amount: true,
+          },
+        }}
+      >
+        <p>Contenido financiero</p>
+      </FinancialDetailModal>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Más acciones" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Editar monto" }));
+
+    expect(
+      screen.getByRole("heading", { name: "Editar monto de la deuda" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Monto de la deuda")).toHaveValue(420);
+    expect(
+      screen.getByText(/Los ingresos relacionados se conservan/),
+    ).toBeInTheDocument();
+  });
+
+  it("explains proportional synchronization when editing an income amount", () => {
+    render(
+      <FinancialDetailModal
+        open
+        onClose={vi.fn()}
+        title="Detalle del ingreso"
+        record={{ type: "payment", id: "payment-1" }}
+        workspaceOverride={{
+          ...workspace,
+          record: { type: "payment", id: "payment-1", amount: 250 },
+          capabilities: {
+            ...workspace.capabilities,
+            can_edit_amount: true,
+          },
+        }}
+      >
+        <p>Contenido financiero</p>
+      </FinancialDetailModal>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Más acciones" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Editar monto" }));
+
+    expect(
+      screen.getByRole("heading", { name: "Editar monto pagado" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Monto pagado")).toHaveValue(250);
+    expect(screen.getByText(/se ajustarán proporcionalmente/)).toBeInTheDocument();
   });
 });

@@ -37,7 +37,7 @@ const EXAMPLES: Record<ExampleKey, Example> = {
     date: "Septiembre 2026 · vence el 10/09/2026",
     status: "Por cobrar",
     tone: "warning",
-    record: { type: "debt", id: 150001, penaltyAmount: 50 },
+    record: { type: "debt", id: 150001, amount: 400, penaltyAmount: 50 },
     fields: [
       { id: "unit", label: "Unidad", value: "Casa 12" },
       { id: "owner", label: "Propietario", value: "María Pérez" },
@@ -57,6 +57,7 @@ const EXAMPLES: Record<ExampleKey, Example> = {
     record: {
       type: "payment",
       id: "00000000-0000-4000-8000-000000000151",
+      amount: 450,
       paidAt: "2026-09-02",
     },
     fields: [
@@ -92,7 +93,7 @@ const EXAMPLES: Record<ExampleKey, Example> = {
     date: "Expensa septiembre 2026",
     status: "Pago parcial",
     tone: "warning",
-    record: { type: "debt", id: 150153, penaltyAmount: 30 },
+    record: { type: "debt", id: 150153, amount: 600, penaltyAmount: 30 },
     fields: [
       { id: "unit", label: "Unidad", value: "Dpto. 4B" },
       { id: "principal", label: "Deuda", value: "Bs 600,00" },
@@ -108,8 +109,11 @@ const makeWorkspace = (example: Example): FinancialWorkspace => ({
   record: {
     type: example.record.type,
     id: String(example.record.id),
+    amount: example.record.amount,
   },
   capabilities: {
+    can_edit_amount:
+      example.record.type === "debt" || example.record.type === "payment",
     can_edit_penalty: example.record.type === "debt",
     can_verify_payment: example.record.type === "debt",
     can_edit_paid_at:
