@@ -103,6 +103,25 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "bankAccounts",
         perm: "bank_accounts",
       },
+      // El log del webhook de Orange. La integración es de UN condominio
+      // (Urubó Village), y el API deja entrar a su administración o al equipo
+      // de Condaty.
+      //
+      // ⚠️ El menú no puede expresar esa condición: `perm` es por habilidad, no
+      // por condominio. Así que la entrada se ofrece a quien puede ver ingresos
+      // y el servidor decide — y cuando dice que no, devuelve un mensaje que
+      // NOMBRA el motivo («este log es del condominio de Orange»). La pantalla
+      // lo muestra tal cual, en vez de una lista vacía: una lista vacía se lee
+      // como «Orange no mandó nada», que es la conclusión opuesta.
+      //
+      // 🔴 La rama de donde salió esta pantalla marcaba la entrada con
+      // `fosOnly: true`. Medido: en ese repo NINGÚN renderer lee esa bandera —
+      // sólo la lee un test. Traerla sería traer una guarda que no guarda.
+      {
+        href: "/orange-logs",
+        labelKey: "orangeLogs",
+        perm: "payments",
+      },
       // ⚠️ El probador del banco se mudó a Backoffice: opera la cuenta de
       // cualquier condominio y el backend sólo se lo permite al equipo de
       // Condaty. Ofrecerlo acá era ofrecer un 403.
