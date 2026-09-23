@@ -92,7 +92,12 @@ const Notifications = () => {
   const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
 
   const mod: ModCrudType = {
-    modulo: "notifications",
+    // 🔴 La campanita pasó al módulo v3 del API. La ruta vieja
+    // `GET /api/notifications` sigue viva como alias de BC, pero es lo único
+    // que quedó de aquel `apiResource`: las otras cuatro acciones se
+    // retiraron, porque estaban abiertas a cualquier autenticado y no las
+    // llamaba nadie — de ahí que `hideActions` las esconda a las cuatro.
+    modulo: "v3/notifications",
     singular: "Notificación",
     plural: "Notificaciones",
     filter: false,
