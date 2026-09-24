@@ -50,7 +50,6 @@ interface FormState {
   password?: string;
   pinned?: number;
   code?: string;
-  has_image?: number;
 }
 interface ErrorState {
   [key: string]: string;
@@ -187,7 +186,6 @@ const ProfileModal = ({
         phone: data?.data[0]?.phone,
         address: data?.data[0]?.address,
         email: data?.data[0]?.email,
-        has_image: parseInt(data?.data[0]?.has_image) || 0,
         url_avatar: data?.data[0]?.url_avatar,
       });
     }

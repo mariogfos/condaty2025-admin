@@ -32,7 +32,9 @@ interface FormState {
   avatar?: string;
   address?: string;
   email?: string;
-  has_image?: number; // Agregar has_image
+  // La foto que ya esta en Cloudinary. `avatar` es la que el usuario acaba de
+  // elegir en este formulario, y viaja al API para subirse.
+  url_avatar?: string;
   _disabled?: boolean;
   _emailDisabled?: boolean;
 }
@@ -252,13 +254,6 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
     onClose();
   }, [onClose]);
 
-  const getGuardImageUrl = () => {
-    if (formState.id) {
-      return formState.avatar;
-    }
-    return "";
-  };
-
   return (
     <DataModal
       open={open}
@@ -277,16 +272,24 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
             <UploadFile
               name="avatar"
               ext={["jpg", "png", "jpeg", "webp"]}
-              value={(() => {
-                if (formState.avatar && typeof formState.avatar === "object") {
-                  return formState.avatar;
-                }
-                if (formState.id && formState.has_image === 1) {
-                  const url = getGuardImageUrl();
-                  return url;
-                }
-                return "";
-              })()}
+              // La foto recien elegida gana: es la que el usuario esta viendo
+              // subir. Si no eligio ninguna, se muestra la que ya vive en
+              // Cloudinary.
+              //
+              // 🔴 Antes esto pedia `has_image === 1` y devolvia
+              // `formState.avatar`, que en la edicion NUNCA se llena: quien
+              // abre el formulario recibe `url_avatar`, no `avatar`. La foto
+              // del guardia no se mostraba nunca, ni con la bandera en 1.
+              //
+              // Y la bandera es del camino viejo —el archivo en el disco del
+              // servidor—, asi que sobre una foto de Cloudinary vale 0 y
+              // escondia una imagen que existe: medido, 4 de los 11 guardias
+              // con foto la tienen con la bandera en 0.
+              value={
+                formState.avatar && typeof formState.avatar === "object"
+                  ? formState.avatar
+                  : formState.url_avatar || ""
+              }
               onChange={handleChangeInput}
               img={true}
               sizePreview={{ width: "150px", height: "150px" }}

@@ -19,12 +19,20 @@ interface BinnacleDetailProps {
 const RenderView = memo((props: BinnacleDetailProps) => {
   const { open, onClose, item } = props;
 
+  // 🔴 `has_image` es la bandera del camino VIEJO: la foto que el servidor
+  // guardaba en su propio disco como `GNEW-{id}.webp`. Sirve para saber si
+  // existe ese archivo, y para nada mas.
   const normalizeHasImage = (v: any) => v === true || v === 1 || v === "1";
 
   const [imageExist, setImageExist] = useState<boolean>(
     normalizeHasImage(item?.has_image),
   );
-  const hasGuardImage = normalizeHasImage(item?.guardia?.has_image);
+
+  // 🔴 La foto del guardia se pedia con `guardia.has_image`, que es de ese
+  // camino viejo y vale 0 sobre una foto de Cloudinary: medido, 4 de los 11
+  // guardias con foto la tienen con la bandera en 0, y la compuerta escondia
+  // una imagen que existe. Lo que decide es si hay URL.
+  const urlAvatarDelGuardia: string = item?.guardia?.url_avatar || "";
 
   const images: string[] = useMemo(() => {
     const arr = Array.isArray(item?.url_file) ? item.url_file : [];
@@ -38,7 +46,13 @@ const RenderView = memo((props: BinnacleDetailProps) => {
   const [indexVisible, setIndexVisible] = useState(0);
   useEffect(() => {
     setIndexVisible(0);
-  }, [open, item?.id]);
+    // ⚠️ El modal esta memoizado y `item` cambia sin desmontarlo, asi que el
+    // valor inicial del `useState` es el de la PRIMERA novedad que se abrio.
+    // Sin esto, un reporte con foto dejaba `imageExist` en `true` para el
+    // siguiente, que no la tiene.
+    setImageExist(normalizeHasImage(item?.has_image));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, item?.id, item?.has_image]);
 
   const nextIndex = useCallback(() => {
     setIndexVisible((prev) => (images.length ? (prev + 1) % images.length : 0));
@@ -91,8 +105,7 @@ const RenderView = memo((props: BinnacleDetailProps) => {
             </div>
           </div>
         ) : (
-          imageExist &&
-          normalizeHasImage(item?.has_image) && (
+          imageExist && (
             <div className={styles.imageContainer}>
               <Avatar
                 src={getUrlImages(
@@ -114,9 +127,9 @@ const RenderView = memo((props: BinnacleDetailProps) => {
         <div className={styles.detailsContainer}>
           <div className={styles.detailRow}>
             <div className={styles.value} style={{ display: "flex", gap: 8 }}>
-              {hasGuardImage && (
+              {urlAvatarDelGuardia !== "" && (
                 <Avatar
-                  src={item?.guardia?.url_avatar}
+                  src={urlAvatarDelGuardia}
                   name={getFullName(item?.guardia)}
                 />
               )}
