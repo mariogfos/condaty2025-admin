@@ -28,6 +28,12 @@ import {
   TaskVisibility,
   UpsertTaskPayload,
 } from "./types";
+import {
+  TASK_CATEGORY_STATUS,
+  estaInactivaLaCategoria,
+  normalizarEstadoDeCategoria,
+  type TaskCategoryStatusValue,
+} from "./taskCategoryStatus";
 import styles from "./Tasks.module.css";
 
 const getPriorityMeta = (
@@ -148,7 +154,9 @@ type CategoryFormState = {
   description: string;
   color: string;
   icon: string;
-  status: "A" | "X";
+  // 🔴 Numero, no char: el API paso `task_categories.status` a enum numerico
+  // el 2026-09-24. Ver `taskCategoryStatus.ts`.
+  status: TaskCategoryStatusValue;
 };
 
 const EMPTY_FILTERS: TaskFilters = {
@@ -170,7 +178,7 @@ const EMPTY_CATEGORY_FORM: CategoryFormState = {
   description: "",
   color: "#3B82F6",
   icon: "",
-  status: "A",
+  status: TASK_CATEGORY_STATUS.ACTIVE,
 };
 
 const truncateText = (text: string = "") => {
@@ -727,7 +735,7 @@ const Tasks = () => {
     setCategoryOptions(
       rows
         .filter((item: TaskCategory & { is_disabled_for_client?: boolean }) => {
-          const isInactive = String(item.status || "").toUpperCase() === "X";
+          const isInactive = estaInactivaLaCategoria(item.status);
           const isDisabledForClient = Boolean(item.is_disabled_for_client);
           return !isInactive && !isDisabledForClient;
         })
@@ -777,7 +785,7 @@ const Tasks = () => {
       description: category.description || "",
       color: category.color || "#3B82F6",
       icon: category.icon || "",
-      status: String(category.status || "A").toUpperCase() === "X" ? "X" : "A",
+      status: normalizarEstadoDeCategoria(category.status),
     });
     setOpenCategoryFormModal(true);
   };
@@ -1933,7 +1941,7 @@ const Tasks = () => {
             </thead>
             <tbody>
               {taskCategories.map((category) => {
-                const isInactive = String(category.status || "").toUpperCase() === "X";
+                const isInactive = estaInactivaLaCategoria(category.status);
                 const isGeneric = isGenericCategory(category);
                 const isDisabledForClient = Boolean(
                   (category as TaskCategory & { is_disabled_for_client?: boolean })
@@ -2073,15 +2081,15 @@ const Tasks = () => {
               name="taskCategoryStatus"
               value={categoryFormState.status}
               options={[
-                { id: "A", name: translate("active") },
-                { id: "X", name: translate("inactive") },
+                { id: TASK_CATEGORY_STATUS.ACTIVE, name: translate("active") },
+                { id: TASK_CATEGORY_STATUS.INACTIVE, name: translate("inactive") },
               ]}
               optionLabel="name"
               optionValue="id"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setCategoryFormState((prev) => ({
                   ...prev,
-                  status: e.target.value === "X" ? "X" : "A",
+                  status: normalizarEstadoDeCategoria(e.target.value),
                 }))
               }
               error={categoryFormErrors}

@@ -25,7 +25,10 @@ export interface TaskCategory {
   description?: string;
   color?: string;
   icon?: string;
-  status?: string;
+  // 🔴 Numero desde el 2026-09-24. Se deja `string` tambien porque una fila sin
+  // migrar puede devolver el char viejo: lo normaliza
+  // `normalizarEstadoDeCategoria()`.
+  status?: number | string;
   is_disabled_for_client?: boolean;
 }
 
