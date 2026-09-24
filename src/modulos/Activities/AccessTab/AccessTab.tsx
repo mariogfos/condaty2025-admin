@@ -240,10 +240,17 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         label: "Visitante",
         list: {
           onRender: (props: any) => {
-            let user = props?.item?.visit
+            // 🔴 Acá se calculaba un `prefix` (`/VISIT-` o `/OWNER-`) que
+            // NADIE usaba: era el resto del camino viejo, cuando la foto se
+            // armaba con una ruta del storage del servidor. Hoy la pinta
+            // `url_avatar`, que es la URL de Cloudinary.
+            //
+            // ⚠️ Y para el VISITANTE esa columna no existía hasta api#599: la
+            // foto de la cara nunca se guardó. Con eso mergeado, esta celda
+            // empieza a mostrarla sin cambiar nada más.
+            const user = props?.item?.visit
               ? props?.item?.visit
               : props?.item?.owner;
-            let prefix = props?.item?.visit ? "/VISIT-" : "/OWNER-";
 
             return (
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
