@@ -2,6 +2,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useAxios from "@/mk/hooks/useAxios";
+// 🔴 Una negación del API es un 403 desde la migración a Mk2, y axios LANZA en
+// cualquier código fuera de 2xx: `data` queda en null y el mensaje viaja en
+// `error.data.message`. Sin esto el toast cae siempre al texto genérico.
+import { elMensajeDeLaRespuesta, salioBien } from "./elMensajeDeLaRespuesta";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import { IconMonitorLine } from "@/components/layout/icons/IconsBiblioteca";
@@ -827,15 +831,18 @@ const Tasks = () => {
       ? `/task-categories/${categoryFormState.id}`
       : "/task-categories";
 
-    const { data } = await execute(endpoint, method, payload, false, true);
+    const respuesta = await execute(endpoint, method, payload, false, true);
     setCategorySaving(false);
 
-    if (!data?.success) {
-      showToast(data?.message || "No se pudo guardar la categoría", "error");
+    if (!salioBien(respuesta)) {
+      showToast(
+        elMensajeDeLaRespuesta(respuesta, "No se pudo guardar la categoría"),
+        "error",
+      );
       return;
     }
 
-    showToast(data?.message || "Categoría guardada", "success");
+    showToast(elMensajeDeLaRespuesta(respuesta, "Categoría guardada"), "success");
     setOpenCategoryFormModal(false);
     setCategoryFormState(EMPTY_CATEGORY_FORM);
     await loadCategories();
@@ -849,7 +856,7 @@ const Tasks = () => {
     if (!confirmed) return;
 
     setCategoryDeletingId(category.id);
-    const { data } = await execute(
+    const respuesta = await execute(
       `/task-categories/${category.id}`,
       "DELETE",
       {},
@@ -858,12 +865,15 @@ const Tasks = () => {
     );
     setCategoryDeletingId(null);
 
-    if (!data?.success) {
-      showToast(data?.message || "No se pudo eliminar la categoría", "error");
+    if (!salioBien(respuesta)) {
+      showToast(
+        elMensajeDeLaRespuesta(respuesta, "No se pudo eliminar la categoría"),
+        "error",
+      );
       return;
     }
 
-    showToast(data?.message || "Categoría eliminada", "success");
+    showToast(elMensajeDeLaRespuesta(respuesta, "Categoría eliminada"), "success");
     await loadCategories();
   };
 
@@ -1093,7 +1103,7 @@ const Tasks = () => {
   const submitComment = async () => {
     if (!detailTask || !commentText.trim()) return;
     setSendingComment(true);
-    const { data } = await execute(
+    const respuesta = await execute(
       `/tasks/${detailTask.id}/comments`,
       "POST",
       {
@@ -1106,8 +1116,11 @@ const Tasks = () => {
     );
     setSendingComment(false);
 
-    if (!data?.success) {
-      showToast(data?.message || "No se pudo crear el comentario", "error");
+    if (!salioBien(respuesta)) {
+      showToast(
+        elMensajeDeLaRespuesta(respuesta, "No se pudo crear el comentario"),
+        "error",
+      );
       return;
     }
 
@@ -1227,12 +1240,12 @@ const Tasks = () => {
 
     const method = formState.id ? "PUT" : "POST";
     const url = formState.id ? `/tasks/${formState.id}` : "/tasks";
-    const { data } = await execute(url, method, payload, false, true);
+    const respuesta = await execute(url, method, payload, false, true);
     setSaving(false);
 
-    if (data?.success) {
+    if (salioBien(respuesta)) {
       setOpenModal(false);
-      showToast(data?.message || "Tarea guardada", "success");
+      showToast(elMensajeDeLaRespuesta(respuesta, "Tarea guardada"), "success");
       if (viewMode === "table") {
         loadTasks(1, filters);
       } else {
@@ -1241,7 +1254,10 @@ const Tasks = () => {
       return;
     }
 
-    showToast(data?.message || "No se pudo guardar la tarea", "error");
+    showToast(
+      elMensajeDeLaRespuesta(respuesta, "No se pudo guardar la tarea"),
+      "error",
+    );
   };
 
   const updateTaskStatus = async (task: TaskItem, nextStatus: string) => {
@@ -1310,10 +1326,10 @@ const Tasks = () => {
       assigned_to_guard_id: task.assigned_to_guard_id || null,
     };
 
-    const { data } = await execute(`/tasks/${task.id}`, "PUT", payload, false, true);
+    const respuesta = await execute(`/tasks/${task.id}`, "PUT", payload, false, true);
 
-    if (data?.success) {
-      showToast(data?.message || "Estado actualizado", "success");
+    if (salioBien(respuesta)) {
+      showToast(elMensajeDeLaRespuesta(respuesta, "Estado actualizado"), "success");
       return true;
     }
 
@@ -1328,7 +1344,10 @@ const Tasks = () => {
     setDetailTask((prev) =>
       prev && prev.id === task.id ? { ...prev, status: previousStatus } : prev,
     );
-    showToast(data?.message || "No se pudo cambiar el estado", "error");
+    showToast(
+      elMensajeDeLaRespuesta(respuesta, "No se pudo cambiar el estado"),
+      "error",
+    );
     return false;
   };
 
