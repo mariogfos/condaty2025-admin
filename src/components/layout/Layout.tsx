@@ -88,6 +88,11 @@ const Layout = ({ children }: any) => {
 
   const path = usePathname();
   const router = useRouter();
+  // El visor de reportes se abre en una pestaña propia y ocupa la pantalla
+  // entera: sin menú ni cabecera.
+  const isImmersiveRoute = (path || "").startsWith("/reports");
+  // El tablero de presencia dibuja su propio mapa de borde a borde.
+  const isFullBleedRoute = (path || "").startsWith("/presence-monitoring");
 
   const typeAlerts: any = {
     E: {
@@ -299,6 +304,17 @@ const Layout = ({ children }: any) => {
     soundBell?.pause();
     soundBell?.load();
   };
+
+  // ⚠️ Después de TODOS los hooks: un `return` antes de uno de ellos cambia
+  // cuántos corre React entre una ruta y otra.
+  if (isImmersiveRoute) {
+    return (
+      <main className={styles.immersiveLayout}>
+        <section className={styles.immersiveContent}>{children}</section>
+      </main>
+    );
+  }
+
   return (
     <main className={layoutClassName}>
       <section>
@@ -337,7 +353,9 @@ const Layout = ({ children }: any) => {
           </Sidebar>
         )}
       </section>
-      <section>{children}</section>
+      <section className={isFullBleedRoute ? styles.fullBleedContent : undefined}>
+        {children}
+      </section>
       <section>{/* Footer Here!! */}</section>
       {store?.openProfileModal && (
         <ProfileModal
