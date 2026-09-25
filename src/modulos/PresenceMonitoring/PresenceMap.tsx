@@ -42,6 +42,7 @@ type PendingSaveState = {
 type Props = {
   connections: PresenceConnection[];
   selected: PresenceConnection | null;
+  focusCoordinates: Coordinate | null;
   places: PresencePlace[];
   scopes: PresenceScope[];
   onSelect: (connection: PresenceConnection | null) => void;
@@ -56,6 +57,7 @@ const mapToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim();
 export default function PresenceMap({
   connections,
   selected,
+  focusCoordinates,
   places,
   scopes,
   onSelect,
@@ -423,10 +425,10 @@ export default function PresenceMap({
   }, [placesGeoJson]);
 
   useEffect(() => {
-    if (selected?.coordinates && mapRef.current) {
-      mapRef.current.easeTo({ center: selected.coordinates, duration: 500 });
+    if (focusCoordinates && mapRef.current) {
+      mapRef.current.easeTo({ center: focusCoordinates, duration: 500 });
     }
-  }, [selected]);
+  }, [focusCoordinates]);
 
   const beginDrawing = (place: PresencePlace | null) => {
     const next: DrawingState = { mode: place ? "edit" : "create", place, points: [] };
