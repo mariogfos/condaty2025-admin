@@ -19,6 +19,15 @@ import {
   TaskStatus,
   UpsertTaskPayload,
 } from "./types";
+import {
+  TASK_PRIORITY,
+  TASK_STATUS,
+  TASK_VISIBILITY,
+  loEscribioElSistema,
+  normalizarEstado,
+  normalizarPrioridad,
+  normalizarVisibilidad,
+} from "./taskEnums";
 import styles from "./TaskDetailModal.module.css";
 
 type MetaResult = {
@@ -154,38 +163,44 @@ const defaultResolveAssignee = (task: TaskItem): TaskPerson | null => {
   return task.assigned_user || task.assigned_guard || task.assigned_owner || null;
 };
 
+/**
+ * 🔴 El `switch` va sobre el NÚMERO normalizado: desde el corte 4 la prioridad es
+ * un entero, y un `case "urgent"` sobre un `4` caería al `default` y pintaría
+ * «media» sobre una tarea urgente, sin error y sin log.
+ */
 const defaultPriorityMeta = (
-  priority: TaskPriority,
+  priority: TaskPriority | string,
   translate: (key: string) => string,
 ): MetaResult => {
-  switch (priority) {
-    case "urgent":
+  switch (normalizarPrioridad(priority)) {
+    case TASK_PRIORITY.URGENT:
       return { label: translate("priorityUrgent"), color: "var(--cError)", bg: "var(--cHoverError)" };
-    case "high":
+    case TASK_PRIORITY.HIGH:
       return { label: translate("priorityHigh"), color: "var(--cWarning)", bg: "var(--cHoverCompl4)" };
-    case "low":
+    case TASK_PRIORITY.LOW:
       return { label: translate("priorityLow"), color: "var(--cInfo)", bg: "var(--cHoverCompl3)" };
     default:
       return { label: translate("priorityMedium"), color: "var(--cWhite)", bg: "var(--cBlackV2)" };
   }
 };
 
+/** Igual que la prioridad: sobre el número normalizado. */
 const defaultStatusMeta = (
-  status: TaskStatus,
+  status: TaskStatus | string,
   translate: (key: string) => string,
 ): MetaResult => {
-  switch (status) {
-    case "requested":
+  switch (normalizarEstado(status)) {
+    case TASK_STATUS.REQUESTED:
       return { label: translate("statusRequested"), color: "var(--cWarning)", bg: "var(--cHoverCompl4)" };
-    case "pending":
+    case TASK_STATUS.PENDING:
       return { label: translate("statusPending"), color: "var(--cInfo)", bg: "var(--cHoverCompl3)" };
-    case "in_progress":
+    case TASK_STATUS.IN_PROGRESS:
       return { label: translate("statusInProgress"), color: "var(--cPrimary)", bg: "var(--cHoverCompl1)" };
-    case "review":
+    case TASK_STATUS.REVIEW:
       return { label: translate("statusReview"), color: "var(--cAccent)", bg: "var(--cHoverCompl2)" };
-    case "completed":
+    case TASK_STATUS.COMPLETED:
       return { label: translate("statusCompleted"), color: "var(--cSuccess)", bg: "var(--cHoverSuccess)" };
-    case "cancelled":
+    case TASK_STATUS.CANCELLED:
       return { label: translate("statusCancelled"), color: "var(--cError)", bg: "var(--cHoverError)" };
     default:
       return { label: translate("statusUnknown"), color: "var(--cWhite)", bg: "var(--cBlackV2)" };
@@ -259,12 +274,12 @@ const TaskDetailModal = ({
 
   const autoStatusOptions = useMemo(
     () => [
-      { id: "requested" as TaskStatus, name: effectiveTranslate("statusRequested") },
-      { id: "pending" as TaskStatus, name: effectiveTranslate("statusPending") },
-      { id: "in_progress" as TaskStatus, name: effectiveTranslate("statusInProgress") },
-      { id: "review" as TaskStatus, name: effectiveTranslate("statusReview") },
-      { id: "completed" as TaskStatus, name: effectiveTranslate("statusCompleted") },
-      { id: "cancelled" as TaskStatus, name: effectiveTranslate("statusCancelled") },
+      { id: TASK_STATUS.REQUESTED, name: effectiveTranslate("statusRequested") },
+      { id: TASK_STATUS.PENDING, name: effectiveTranslate("statusPending") },
+      { id: TASK_STATUS.IN_PROGRESS, name: effectiveTranslate("statusInProgress") },
+      { id: TASK_STATUS.REVIEW, name: effectiveTranslate("statusReview") },
+      { id: TASK_STATUS.COMPLETED, name: effectiveTranslate("statusCompleted") },
+      { id: TASK_STATUS.CANCELLED, name: effectiveTranslate("statusCancelled") },
     ],
     [effectiveTranslate],
   );
@@ -373,9 +388,12 @@ const TaskDetailModal = ({
         description: autoTask.description,
         images: autoTask.images || [],
         category_id: autoTask.category_id || null,
-        priority: autoTask.priority,
+        // 🔴 Se normaliza lo que trajo el API antes de reenviarlo: si la fila
+        // llegó con el string viejo, mandarlo tal cual escribiría un 0 en una
+        // columna numérica.
+        priority: normalizarPrioridad(autoTask.priority) ?? TASK_PRIORITY.MEDIUM,
         status: nextStatus,
-        visibility: autoTask.visibility,
+        visibility: normalizarVisibilidad(autoTask.visibility) ?? TASK_VISIBILITY.INHERIT,
         due_date: autoTask.due_date || null,
         assigned_to_user_id: autoTask.assigned_to_user_id || null,
         assigned_to_guard_id: autoTask.assigned_to_guard_id || null,
@@ -441,15 +459,23 @@ const TaskDetailModal = ({
   const assignee = effectiveTask
     ? (resolveAssignee ? resolveAssignee(effectiveTask) : defaultResolveAssignee(effectiveTask))
     : null;
-  const priorityMeta = effectiveTask
-    ? (getPriorityMeta
-        ? getPriorityMeta(effectiveTask.priority, effectiveTranslate)
-        : defaultPriorityMeta(effectiveTask.priority, effectiveTranslate))
+  // ⚠️ Se normaliza ANTES de pasárselo a los `getMeta` de afuera: el que los
+  // inyecta puede seguir esperando el tipo estricto.
+  const prioridadDeLaTarea = effectiveTask
+    ? normalizarPrioridad(effectiveTask.priority) ?? TASK_PRIORITY.MEDIUM
     : null;
-  const statusMeta = effectiveTask
+  const estadoDeLaTarea = effectiveTask
+    ? normalizarEstado(effectiveTask.status) ?? TASK_STATUS.REQUESTED
+    : null;
+  const priorityMeta = prioridadDeLaTarea !== null
+    ? (getPriorityMeta
+        ? getPriorityMeta(prioridadDeLaTarea, effectiveTranslate)
+        : defaultPriorityMeta(prioridadDeLaTarea, effectiveTranslate))
+    : null;
+  const statusMeta = estadoDeLaTarea !== null
     ? (getStatusMeta
-        ? getStatusMeta(effectiveTask.status, effectiveTranslate)
-        : defaultStatusMeta(effectiveTask.status, effectiveTranslate))
+        ? getStatusMeta(estadoDeLaTarea, effectiveTranslate)
+        : defaultStatusMeta(estadoDeLaTarea, effectiveTranslate))
     : null;
 
   return (
@@ -514,7 +540,11 @@ const TaskDetailModal = ({
                     selectOptionsClassName={styles.quickStatusOptions}
                     inputStyle={{ height: "30px", minHeight: "30px" }}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                      effectiveOnStatusChange(event.target.value as TaskStatus)
+                      // 🔴 El DOM devuelve string: se normaliza en vez de mentirle
+                      // al compilador con un `as`.
+                      effectiveOnStatusChange(
+                        normalizarEstado(event.target.value) ?? TASK_STATUS.REQUESTED,
+                      )
                     }
                   />
                 </div>
@@ -608,8 +638,16 @@ const TaskDetailModal = ({
               <div className={styles.commentList}>
                 {effectiveComments.map((comment) => {
                   const author = getCommentAuthor(comment);
+                  // 🔴 Lo que anotó el SISTEMA se distingue de lo que escribió una
+                  // persona. Antes no se podía: las cuatro escrituras de la
+                  // bitácora se guardaban con el mismo `type` que un comentario.
+                  const delSistema = loEscribioElSistema(comment.type);
                   return (
-                    <article key={comment.id} className={styles.commentItem}>
+                    <article
+                      key={comment.id}
+                      className={styles.commentItem}
+                      data-system-entry={delSistema ? "true" : undefined}
+                    >
                       <div className={styles.commentHead}>
                         <div className={styles.commentHeadLeft}>
                           <Avatar
@@ -620,6 +658,11 @@ const TaskDetailModal = ({
                           />
                           <p className={styles.commentAuthor}>
                             {author ? getFullName(author) : effectiveTranslate("notAvailable")}
+                            {delSistema ? (
+                              <span className={styles.commentSystemTag}>
+                                {effectiveTranslate("systemEntry")}
+                              </span>
+                            ) : null}
                           </p>
                         </div>
                         <p className={styles.commentDate}>
