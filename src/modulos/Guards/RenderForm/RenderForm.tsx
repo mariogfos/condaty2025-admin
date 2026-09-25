@@ -20,7 +20,12 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
   // un guardia que SÍ se había creado. Un ref y no un estado: el ref se lee ya
   // actualizado en el mismo tick, un `useState` no.
   const guardadoEnVuelo = useRef(false);
-  const { showToast } = useAuth();
+  const { showToast, user } = useAuth();
+  // 🔴 El correo y la clave de un guardia los cambia SÓLO FOS: un guardia es
+  // una sola cuenta para todos los condominios donde trabaja, y el API ignora
+  // esos dos campos si no los manda FOS. Sin esto el ADM los editaba, veía
+  // «guardado» y no cambiaba nada. Producción: `6724c41a`.
+  const canManageCredentials = Boolean(user?.fosrole_id);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -106,6 +111,16 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
       errors,
       data: formState,
     });
+    if (
+      canManageCredentials &&
+      formState?.password &&
+      formState.password.length < 8
+    ) {
+      errors = {
+        ...errors,
+        password: "La nueva contraseña debe tener al menos 8 caracteres.",
+      };
+    }
     setErrors(errors);
     return errors;
   };
@@ -126,6 +141,9 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
           last_name: formState.last_name,
           mother_last_name: formState.mother_last_name,
           email: formState.email,
+          ...(canManageCredentials && formState.password?.trim()
+            ? { password: formState.password.trim() }
+            : {}),
           phone: formState.phone,
           address: formState.address,
         },
@@ -236,12 +254,27 @@ const RenderForm = ({ open, onClose, item, execute, reLoad }: any) => {
       <Input
         name="email"
         value={formState.email || ""}
-        disabled={formState._disabled}
+        disabled={
+          formState._disabled ||
+          (Boolean(formState.id) && !canManageCredentials)
+        }
         onBlur={onBlurEmail}
         onChange={handleChange}
         label="Correo electrónico"
         error={errors}
       />
+      {formState.id && canManageCredentials && (
+        <Input
+          name="password"
+          type="password"
+          value={formState.password || ""}
+          onChange={handleChange}
+          label="Nueva contraseña"
+          placeholder="Dejar vacío para no cambiarla"
+          error={errors}
+          required={false}
+        />
+      )}
     </DataModal>
   );
 };
