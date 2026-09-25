@@ -277,6 +277,30 @@
 .commentAuthor {
   margin: 0;
   font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/*
+ * Lo que anotó el SISTEMA, no una persona.
+ *
+ * Existe desde el corte 4: antes la bitácora se guardaba con el mismo `type` que
+ * un comentario escrito por alguien, así que no había nada que distinguir.
+ */
+.commentSystemTag {
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 6px;
+  color: var(--cWhiteV1);
+  background: var(--cBlackV2);
+  border: 1px solid rgba(215, 255, 240, 0.12);
+}
+
+.commentItem[data-system-entry="true"] {
+  border-style: dashed;
 }
 
 .commentDate {

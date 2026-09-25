@@ -38,26 +38,43 @@ import {
   normalizarEstadoDeCategoria,
   type TaskCategoryStatusValue,
 } from "./taskCategoryStatus";
+import {
+  STATUS_EN_ORDEN,
+  TASK_COMMENT_TYPE,
+  TASK_PRIORITY,
+  TASK_STATUS,
+  TASK_VISIBILITY,
+  normalizarEstado,
+  normalizarPrioridad,
+  normalizarVisibilidad,
+} from "./taskEnums";
 import styles from "./Tasks.module.css";
 
+/**
+ * 🔴 El `switch` va sobre el NÚMERO normalizado, no sobre lo que llegó.
+ *
+ * Desde el corte 4 la prioridad es un entero, y un `case "urgent"` sobre un `2`
+ * no matchea: caería al `default` y pintaría «media» sobre una tarea urgente —
+ * sin error y sin log, que es el modo de fallar del flip de un enum.
+ */
 const getPriorityMeta = (
-  priority: TaskPriority,
+  priority: TaskPriority | string,
   translate: (key: string) => string,
 ) => {
-  switch (priority) {
-    case "urgent":
+  switch (normalizarPrioridad(priority)) {
+    case TASK_PRIORITY.URGENT:
       return {
         label: translate("priorityUrgent"),
         color: "var(--cError)",
         bg: "var(--cHoverError)",
       };
-    case "high":
+    case TASK_PRIORITY.HIGH:
       return {
         label: translate("priorityHigh"),
         color: "var(--cWarning)",
         bg: "var(--cHoverCompl4)",
       };
-    case "low":
+    case TASK_PRIORITY.LOW:
       return {
         label: translate("priorityLow"),
         color: "var(--cInfo)",
@@ -72,42 +89,43 @@ const getPriorityMeta = (
   }
 };
 
+/** Igual que la prioridad: el `switch` va sobre el número normalizado. */
 const getStatusMeta = (
-  status: TaskStatus,
+  status: TaskStatus | string,
   translate: (key: string) => string,
 ) => {
-  switch (status) {
-    case "requested":
+  switch (normalizarEstado(status)) {
+    case TASK_STATUS.REQUESTED:
       return {
         label: translate("statusRequested"),
         color: "var(--cWarning)",
         bg: "var(--cHoverCompl4)",
       };
-    case "pending":
+    case TASK_STATUS.PENDING:
       return {
         label: translate("statusPending"),
         color: "var(--cInfo)",
         bg: "var(--cHoverCompl3)",
       };
-    case "in_progress":
+    case TASK_STATUS.IN_PROGRESS:
       return {
         label: translate("statusInProgress"),
         color: "var(--cPrimary)",
         bg: "var(--cHoverCompl1)",
       };
-    case "review":
+    case TASK_STATUS.REVIEW:
       return {
         label: translate("statusReview"),
         color: "var(--cAccent)",
         bg: "var(--cHoverCompl2)",
       };
-    case "completed":
+    case TASK_STATUS.COMPLETED:
       return {
         label: translate("statusCompleted"),
         color: "var(--cSuccess)",
         bg: "var(--cHoverSuccess)",
       };
-    case "cancelled":
+    case TASK_STATUS.CANCELLED:
       return {
         label: translate("statusCancelled"),
         color: "var(--cError)",
@@ -122,14 +140,8 @@ const getStatusMeta = (
   }
 };
 
-const STATUSES: TaskStatus[] = [
-  "requested",
-  "pending",
-  "in_progress",
-  "review",
-  "completed",
-  "cancelled",
-];
+/** ⚠️ El orden lo declara `taskEnums.ts`, que es el mismo que publica el API. */
+const STATUSES: TaskStatus[] = STATUS_EN_ORDEN;
 
 type TaskFilters = {
   title: string;
@@ -143,7 +155,9 @@ type TaskFilters = {
 };
 
 type KanbanGroupState = {
-  status: string;
+  // 🔴 El `code` del catálogo del API es un número desde el corte 4, y es el id
+  // de la columna: el drag-and-drop lo manda de vuelta en el PUT.
+  status: TaskStatus;
   label: string;
   items: TaskItem[];
   page: number;
@@ -450,13 +464,17 @@ const getKanbanGroupsFromResponse = (payload: unknown): KanbanGroupState[] => {
     (messageRecord?.status_catalog as unknown[] | undefined) ||
     [];
 
-  const orderMap = new Map<string, number>();
-  const labelMap = new Map<string, string>();
+  // 🔴 El `code` del catálogo es un NÚMERO desde el corte 4, y estos dos mapas se
+  // indexan por él. Antes se guardaba `String(rec.code)`: con el flip la clave
+  // sería `"4"` y la búsqueda con el estado normalizado (`4`) no encontraría nada
+  // — el tablero quedaría sin orden y sin etiquetas, sin error y sin log.
+  const orderMap = new Map<TaskStatus, number>();
+  const labelMap = new Map<TaskStatus, string>();
   catalogCandidate.forEach((entry) => {
     if (!entry || typeof entry !== "object") return;
     const rec = entry as Record<string, unknown>;
-    const code = String(rec.code || "");
-    if (!code) return;
+    const code = normalizarEstado(rec.code);
+    if (code === null) return;
     orderMap.set(code, Number(rec.order || 9999));
     labelMap.set(code, String(rec.label || code));
   });
@@ -466,19 +484,23 @@ const getKanbanGroupsFromResponse = (payload: unknown): KanbanGroupState[] => {
       .filter((entry) => entry && typeof entry === "object")
       .map((entry) => {
         const rec = entry as Record<string, unknown>;
-        const status = String(rec.status || "");
+        const status = normalizarEstado(rec.status);
         const rows = getRowsFromResponse(rec);
         const pg = getPaginationFromResponse(rec);
         return {
           status,
-          label: String(rec.label || labelMap.get(status) || status),
+          label: String(rec.label || (status !== null ? labelMap.get(status) : "") || ""),
           items: rows,
           page: pg.current_page || 1,
           lastPage: pg.last_page || 1,
           total: pg.total || rows.length,
           loading: false,
         };
-      });
+      })
+      // 🔴 Una columna con un estado que no se reconoce se DESCARTA, no se pinta
+      // con el valor crudo: pintarla dejaría una columna sin nombre a la que se
+      // pueden arrastrar tareas, y el drop mandaría un estado que el API rechaza.
+      .filter((grupo): grupo is KanbanGroupState => grupo.status !== null);
 
     parsed.sort((a, b) => {
       const orderA = orderMap.get(a.status) ?? 9999;
@@ -491,13 +513,17 @@ const getKanbanGroupsFromResponse = (payload: unknown): KanbanGroupState[] => {
   }
 
   const flatRows = getRowsFromResponse(payload);
-  const grouped = new Map<string, KanbanGroupState>();
+  const grouped = new Map<TaskStatus, KanbanGroupState>();
   flatRows.forEach((task) => {
-    const status = String(task.status || "unknown");
+    const status = normalizarEstado(task.status);
+
+    // Una fila con un estado que no se reconoce no inventa columna.
+    if (status === null) return;
+
     if (!grouped.has(status)) {
       grouped.set(status, {
         status,
-        label: labelMap.get(status) || status,
+        label: labelMap.get(status) || String(status),
         items: [],
         page: 1,
         lastPage: 1,
@@ -533,7 +559,7 @@ const Tasks = () => {
   const [openDetail, setOpenDetail] = useState(false);
   const [detailTask, setDetailTask] = useState<TaskItem | null>(null);
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
-  const [dragOverStatus, setDragOverStatus] = useState<string | null>(null);
+  const [dragOverStatus, setDragOverStatus] = useState<TaskStatus | null>(null);
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -566,9 +592,9 @@ const Tasks = () => {
     description: "",
     images: [],
     category_id: "",
-    priority: "medium",
-    status: "requested",
-    visibility: "inherit",
+    priority: TASK_PRIORITY.MEDIUM,
+    status: TASK_STATUS.REQUESTED,
+    visibility: TASK_VISIBILITY.INHERIT,
     due_date: "",
     assigned_to_user_id: null,
     assigned_to_guard_id: null,
@@ -671,7 +697,7 @@ const Tasks = () => {
   };
 
   const loadMoreKanbanGroup = async (
-    status: string,
+    status: TaskStatus,
     page: number,
     sourceFilters: TaskFilters = filters,
   ) => {
@@ -950,9 +976,9 @@ const Tasks = () => {
       description: "",
       images: [],
       category_id: "",
-      priority: "medium",
-      status: "requested",
-      visibility: "inherit",
+      priority: TASK_PRIORITY.MEDIUM,
+      status: TASK_STATUS.REQUESTED,
+      visibility: TASK_VISIBILITY.INHERIT,
       due_date: "",
       assigned_to_user_id: null,
       assigned_to_guard_id: null,
@@ -971,9 +997,12 @@ const Tasks = () => {
       description: task.description || "",
       images: task.images || [],
       category_id: task.category_id || "",
-      priority: task.priority || "medium",
-      status: task.status || "requested",
-      visibility: task.visibility || "inherit",
+      // 🔴 Se normaliza lo que trajo el API. Un `|| "medium"` sobre un número es
+      // peor que inútil: con `priority = 1` (baja) el `||` no dispara, pero con
+      // un 0 —que no existe en este enum— pondría «media» encima.
+      priority: normalizarPrioridad(task.priority) ?? TASK_PRIORITY.MEDIUM,
+      status: normalizarEstado(task.status) ?? TASK_STATUS.REQUESTED,
+      visibility: normalizarVisibilidad(task.visibility) ?? TASK_VISIBILITY.INHERIT,
       due_date: toDateInputValue(task.due_date),
       assigned_to_user_id: task.assigned_to_user_id || null,
       assigned_to_guard_id: task.assigned_to_guard_id || null,
@@ -1021,8 +1050,8 @@ const Tasks = () => {
     description: "",
     images: [],
     category_id: null,
-    priority: "medium",
-    status: "pending",
+    priority: TASK_PRIORITY.MEDIUM,
+    status: TASK_STATUS.PENDING,
     created_by_type: "",
     created_by_id: "",
     assigned_to_user_id: null,
@@ -1033,7 +1062,7 @@ const Tasks = () => {
     due_date: null,
     resolution_notes: null,
     resolution_images: null,
-    visibility: "inherit",
+    visibility: TASK_VISIBILITY.INHERIT,
     created_at: "",
     updated_at: "",
     deleted_at: null,
@@ -1109,7 +1138,7 @@ const Tasks = () => {
       {
         content: commentText.trim(),
         images: commentImages || [],
-        type: "comment",
+        type: TASK_COMMENT_TYPE.COMMENT,
       },
       false,
       true,
@@ -1138,22 +1167,22 @@ const Tasks = () => {
 
   const priorityOptions = useMemo(
     () => [
-      { id: "urgent" as TaskPriority, name: translate("priorityUrgent") },
-      { id: "high" as TaskPriority, name: translate("priorityHigh") },
-      { id: "medium" as TaskPriority, name: translate("priorityMedium") },
-      { id: "low" as TaskPriority, name: translate("priorityLow") },
+      { id: TASK_PRIORITY.URGENT, name: translate("priorityUrgent") },
+      { id: TASK_PRIORITY.HIGH, name: translate("priorityHigh") },
+      { id: TASK_PRIORITY.MEDIUM, name: translate("priorityMedium") },
+      { id: TASK_PRIORITY.LOW, name: translate("priorityLow") },
     ],
     [translate],
   );
 
   const statusOptions = useMemo(
     () => [
-      { id: "requested" as TaskStatus, name: translate("statusRequested") },
-      { id: "pending" as TaskStatus, name: translate("statusPending") },
-      { id: "in_progress" as TaskStatus, name: translate("statusInProgress") },
-      { id: "review" as TaskStatus, name: translate("statusReview") },
-      { id: "completed" as TaskStatus, name: translate("statusCompleted") },
-      { id: "cancelled" as TaskStatus, name: translate("statusCancelled") },
+      { id: TASK_STATUS.REQUESTED, name: translate("statusRequested") },
+      { id: TASK_STATUS.PENDING, name: translate("statusPending") },
+      { id: TASK_STATUS.IN_PROGRESS, name: translate("statusInProgress") },
+      { id: TASK_STATUS.REVIEW, name: translate("statusReview") },
+      { id: TASK_STATUS.COMPLETED, name: translate("statusCompleted") },
+      { id: TASK_STATUS.CANCELLED, name: translate("statusCancelled") },
     ],
     [translate],
   );
@@ -1199,9 +1228,9 @@ const Tasks = () => {
 
   const visibilityOptions = useMemo(
     () => [
-      { id: "inherit" as TaskVisibility, name: translate("visibilityInherit") },
-      { id: "public" as TaskVisibility, name: translate("visibilityPublic") },
-      { id: "private" as TaskVisibility, name: translate("visibilityPrivate") },
+      { id: TASK_VISIBILITY.INHERIT, name: translate("visibilityInherit") },
+      { id: TASK_VISIBILITY.PUBLIC, name: translate("visibilityPublic") },
+      { id: TASK_VISIBILITY.PRIVATE, name: translate("visibilityPrivate") },
     ],
     [translate],
   );
@@ -1260,14 +1289,22 @@ const Tasks = () => {
     );
   };
 
-  const updateTaskStatus = async (task: TaskItem, nextStatus: string) => {
-    if (task.status === nextStatus) return true;
+  /**
+   * 🔴 `nextStatus` es un NÚMERO, no un string.
+   *
+   * Era `string`, y con el flip eso dejaba pasar `"pending"` desde cualquier
+   * llamador: el `task.status === nextStatus` de la primera línea compararía `2`
+   * con `"pending"` y daría `false`, así que la pantalla mandaría un PUT que no
+   * cambia nada y pintaría el estado optimista igual. El tipo es la guarda.
+   */
+  const updateTaskStatus = async (task: TaskItem, nextStatus: TaskStatus) => {
+    if (normalizarEstado(task.status) === nextStatus) return true;
 
-    const previousStatus = task.status;
+    const previousStatus = normalizarEstado(task.status) ?? TASK_STATUS.REQUESTED;
 
     setTasks((prevTasks) =>
       prevTasks.map((item) =>
-        item.id === task.id ? { ...item, status: nextStatus as TaskStatus } : item,
+        item.id === task.id ? { ...item, status: nextStatus } : item,
       ),
     );
     setKanbanGroups((prev) => {
@@ -1288,18 +1325,23 @@ const Tasks = () => {
         total: Math.max(0, (next[sourceIndex].total || 0) - 1),
       };
 
-      const targetIndex = next.findIndex((group) => group.status === nextStatus);
+      const targetIndex = next.findIndex(
+        (group) => normalizarEstado(group.status) === nextStatus,
+      );
       if (targetIndex >= 0) {
         next[targetIndex] = {
           ...next[targetIndex],
-          items: [{ ...movedTask, status: nextStatus as TaskStatus }, ...next[targetIndex].items],
+          items: [{ ...movedTask, status: nextStatus }, ...next[targetIndex].items],
           total: (next[targetIndex].total || 0) + 1,
         };
       } else {
         next.push({
           status: nextStatus,
-          label: nextStatus,
-          items: [{ ...movedTask, status: nextStatus as TaskStatus }],
+          // ⚠️ La etiqueta sale del catálogo del API; si la columna no existía en
+          // el estado local, se pinta con el nombre que ya sabe resolver
+          // `getStatusMeta`, no con el número pelado.
+          label: getStatusMeta(nextStatus, translate).label,
+          items: [{ ...movedTask, status: nextStatus }],
           page: 1,
           lastPage: 1,
           total: 1,
@@ -1310,7 +1352,7 @@ const Tasks = () => {
       return next;
     });
     setDetailTask((prev) =>
-      prev && prev.id === task.id ? { ...prev, status: nextStatus as TaskStatus } : prev,
+      prev && prev.id === task.id ? { ...prev, status: nextStatus } : prev,
     );
 
     const payload: UpsertTaskPayload = {
@@ -1318,9 +1360,9 @@ const Tasks = () => {
       description: task.description,
       images: task.images || [],
       category_id: task.category_id || null,
-      priority: task.priority,
-      status: nextStatus as TaskStatus,
-      visibility: task.visibility,
+      priority: normalizarPrioridad(task.priority) ?? TASK_PRIORITY.MEDIUM,
+      status: nextStatus,
+      visibility: normalizarVisibilidad(task.visibility) ?? TASK_VISIBILITY.INHERIT,
       due_date: task.due_date || null,
       assigned_to_user_id: task.assigned_to_user_id || null,
       assigned_to_guard_id: task.assigned_to_guard_id || null,
@@ -1371,7 +1413,7 @@ const Tasks = () => {
 
   const handleDragOverColumn = (
     event: React.DragEvent<HTMLElement>,
-    status: string,
+    status: TaskStatus,
   ) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
@@ -1382,7 +1424,7 @@ const Tasks = () => {
 
   const handleDropOnColumn = async (
     event: React.DragEvent<HTMLElement>,
-    nextStatus: string,
+    nextStatus: TaskStatus,
   ) => {
     event.preventDefault();
 
@@ -1892,7 +1934,13 @@ const Tasks = () => {
             required={false}
             error={false}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setDraftFilters((old) => ({ ...old, priority: e.target.value as TaskPriority | "" }))
+              // 🔴 `""` es «sin filtro» y se conserva; el resto se normaliza. Un
+              // `as TaskPriority` dejaría `"3"` en el estado del filtro, y el
+              // `===` contra la constante daría false.
+              setDraftFilters((old) => ({
+                ...old,
+                priority: normalizarPrioridad(e.target.value) ?? "",
+              }))
             }
           />
           <Select
@@ -1906,7 +1954,10 @@ const Tasks = () => {
             required={false}
             error={false}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setDraftFilters((old) => ({ ...old, status: e.target.value as TaskStatus | "" }))
+              setDraftFilters((old) => ({
+                ...old,
+                status: normalizarEstado(e.target.value) ?? "",
+              }))
             }
           />
           <Input
@@ -2203,7 +2254,14 @@ const Tasks = () => {
                   optionValue="id"
                   inputStyle={{ textAlign: "left" }}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormState((p) => ({ ...p, priority: e.target.value as TaskPriority }))
+                    // 🔴 `e.target.value` del DOM es SIEMPRE un string. Un
+                    // `as TaskPriority` acá era una mentira al compilador: en el
+                    // estado quedaría `"3"` y `formState.priority === TASK_PRIORITY.HIGH`
+                    // daría false. Se normaliza.
+                    setFormState((p) => ({
+                      ...p,
+                      priority: normalizarPrioridad(e.target.value) ?? TASK_PRIORITY.MEDIUM,
+                    }))
                   }
                   error={errors}
                 />
@@ -2216,7 +2274,10 @@ const Tasks = () => {
                   optionValue="id"
                   inputStyle={{ textAlign: "left" }}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormState((p) => ({ ...p, status: e.target.value as TaskStatus }))
+                    setFormState((p) => ({
+                      ...p,
+                      status: normalizarEstado(e.target.value) ?? TASK_STATUS.REQUESTED,
+                    }))
                   }
                   error={errors}
                 />
@@ -2272,7 +2333,10 @@ const Tasks = () => {
                   optionLabel="name"
                   optionValue="id"
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormState((p) => ({ ...p, visibility: e.target.value as TaskVisibility }))
+                    setFormState((p) => ({
+                      ...p,
+                      visibility: normalizarVisibilidad(e.target.value) ?? TASK_VISIBILITY.INHERIT,
+                    }))
                   }
                   error={errors}
                 />

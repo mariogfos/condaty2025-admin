@@ -1,14 +1,24 @@
-export type TaskPriority = "low" | "medium" | "high" | "urgent";
+import type {
+  TaskCommentTypeValue,
+  TaskPriorityValue,
+  TaskStatusValue,
+  TaskVisibilityValue,
+} from "./taskEnums";
 
-export type TaskStatus =
-  | "requested"
-  | "pending"
-  | "in_progress"
-  | "review"
-  | "completed"
-  | "cancelled";
+/**
+ * 🔴 Los cuatro enums son NÚMEROS desde el corte 4 de la migración del módulo
+ * (2026-09-24). Eran uniones de literales de string, y el API los guardaba en un
+ * `enum(...)` de MySQL.
+ *
+ * ⚠️ Son alias de los tipos de `taskEnums.ts` y no uniones propias: dos listas de
+ * valores para el mismo enum se desincronizan el día que se agregue un caso — y
+ * el compilador no lo nota, porque las dos compilan.
+ */
+export type TaskPriority = TaskPriorityValue;
 
-export type TaskVisibility = "inherit" | "public" | "private";
+export type TaskStatus = TaskStatusValue;
+
+export type TaskVisibility = TaskVisibilityValue;
 
 export interface PaginationMeta {
   current_page: number;
@@ -49,8 +59,11 @@ export interface TaskItem {
   description: string;
   images: string[];
   category_id: string | null;
-  priority: TaskPriority;
-  status: TaskStatus;
+  // ⚠️ `number | string`: lo que el API devuelve es el número, pero el query
+  // string y un `JSON.parse` de caché vieja pueden traerlo como texto. Se pasa
+  // por `normalizarEstado()` / `normalizarPrioridad()` antes de comparar.
+  priority: TaskPriority | string;
+  status: TaskStatus | string;
   created_by_type: string;
   created_by_id: string;
   assigned_to_user_id: string | null;
@@ -61,7 +74,7 @@ export interface TaskItem {
   due_date: string | null;
   resolution_notes: string | null;
   resolution_images: string[] | null;
-  visibility: TaskVisibility;
+  visibility: TaskVisibility | string;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -86,11 +99,7 @@ export interface TaskCategoryListResponse {
   pagination?: PaginationMeta;
 }
 
-export type TaskCommentType =
-  | "comment"
-  | "status_change"
-  | "assignment"
-  | "resolution";
+export type TaskCommentType = TaskCommentTypeValue;
 
 export interface TaskComment {
   id: string;
@@ -99,7 +108,7 @@ export interface TaskComment {
   commentable_id: string;
   content: string;
   images: string[];
-  type: TaskCommentType;
+  type: TaskCommentType | string;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
