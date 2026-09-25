@@ -73,8 +73,14 @@ describe("la clave del token", () => {
           .filter(linea => !esComentario(linea))
           .join("\n");
 
+        // 🔴 Las DOS formas. La del `+` era la de los catorce; la del template
+        // —`${process.env.NEXT_PUBLIC_AUTH_IAM || "/adm-iam"}token`— llegó con
+        // el visor de reportes de `test` el 2026-09-25, y este barrido la dejaba
+        // pasar. Traía además OTRO respaldo que la clave de verdad, que es
+        // exactamente el defecto 1 de arriba.
         if (
-          /process\.env\.NEXT_PUBLIC_AUTH_IAM[^\n]*\+\s*["'`]token/.test(enCodigo)
+          /process\.env\.NEXT_PUBLIC_AUTH_IAM[^\n]*\+\s*["'`]token/.test(enCodigo) ||
+          /process\.env\.NEXT_PUBLIC_AUTH_IAM[^\n]*\}token/.test(enCodigo)
         ) {
           sueltos.push(ruta.replace(process.cwd() + "/", ""));
         }
