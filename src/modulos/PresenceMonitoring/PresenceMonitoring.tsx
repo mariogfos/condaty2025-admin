@@ -113,6 +113,7 @@ export default function PresenceMonitoring() {
   const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mapSelected, setMapSelected] = useState<PresenceConnection | null>(null);
+  const [focusCoordinates, setFocusCoordinates] = useState<Coordinate | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [historyConnection, setHistoryConnection] = useState<PresenceConnection | null>(null);
@@ -195,6 +196,16 @@ export default function PresenceMonitoring() {
     || filteredConnections[0]
     || null;
 
+  const selectConnection = (connection: PresenceConnection | null) => {
+    setSelectedId(connection?.id || null);
+    setMapSelected(connection);
+  };
+
+  const focusConnection = (connection: PresenceConnection) => {
+    selectConnection(connection);
+    setFocusCoordinates(connection.coordinates ? [...connection.coordinates] : null);
+  };
+
   const mutatePlace = useCallback(async (
     method: "POST" | "PUT" | "DELETE",
     path: string,
@@ -258,12 +269,10 @@ export default function PresenceMonitoring() {
       <PresenceMap
         connections={mapConnections}
         selected={selected}
+        focusCoordinates={focusCoordinates}
         places={overview?.places || []}
         scopes={overview?.scopes || []}
-        onSelect={(connection) => {
-          setSelectedId(connection?.id || null);
-          setMapSelected(connection);
-        }}
+        onSelect={selectConnection}
         onCreatePlace={createPlace}
         onUpdatePlace={updatePlace}
         onDeletePlace={deletePlace}
@@ -344,7 +353,7 @@ export default function PresenceMonitoring() {
               key={connection.id}
               connection={connection}
               selected={connection.id === selected?.id}
-              onSelect={setSelectedId}
+              onSelect={focusConnection}
             />
           ))}
           {!loading && filteredConnections.length === 0 ? (
@@ -434,13 +443,13 @@ function ConnectionRow({
 }: {
   connection: PresenceConnection;
   selected: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (connection: PresenceConnection) => void;
 }) {
   return (
     <button
       type="button"
       className={`${styles.connectionRow} ${selected ? styles.connectionSelected : ""}`}
-      onClick={() => onSelect(connection.id)}
+      onClick={() => onSelect(connection)}
     >
       <span className={`${styles.connectionState} ${stateClass(connection.state)}`} />
       <span className={styles.connectionContent}>
