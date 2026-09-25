@@ -75,6 +75,16 @@ export const menuConfig: MenuConfigItem[] = [
         perm: "superadmins",
         labelKey: "bankTester",
       },
+      // 🔴 El tablero de presencia va acá y no en una sección de condominio: ve
+      // los dispositivos conectados de TODOS los condominios a la vez, que es su
+      // razón de existir. El backend exige `fosrole_id` y contesta 403 a
+      // cualquier administrador de condominio; esto es la otra mitad, que no se
+      // le ofrezca una pantalla donde sólo puede recibir un 403.
+      {
+        href: "/presence-monitoring",
+        perm: "superadmins",
+        labelKey: "presenceMonitoring",
+      },
       // S103: VisitReasons removido del menú — feature dead (permiso "" en el
       // módulo + endpoint /api/v3/visit-reasons nunca existió en el back).
       // La página /visit-reasons queda huérfana (próximo sprint: borrarla junto
