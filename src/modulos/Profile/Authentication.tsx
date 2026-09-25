@@ -167,7 +167,9 @@ const Authentication = ({
       showToast("Código enviado a su correo", "success");
       setFormState({ ...formState, email: data.email, pinned: 1, code: "" });
     } else {
-      showToast(error?.message, "error");
+      // Un error de negocio llega con HTTP 200 y `success: false`: el mensaje
+      // está en `data`, no en `error` (que sólo existe cuando axios tira).
+      showToast(data?.message || error?.message || "No pudimos enviar el código", "error");
     }
   };
   const setCode = (code: string) => {
