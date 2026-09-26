@@ -85,6 +85,14 @@ export const menuConfig: MenuConfigItem[] = [
         perm: "superadmins",
         labelKey: "presenceMonitoring",
       },
+      // Las correcciones de plata de TODOS los condominios: el API exige
+      // superadmin de plataforma (`fosrole_id`) y contesta 403 a un
+      // administrador de condominio.
+      {
+        href: "/history",
+        perm: "superadmins",
+        labelKey: "financialHistory",
+      },
       // S103: VisitReasons removido del menú — feature dead (permiso "" en el
       // módulo + endpoint /api/v3/visit-reasons nunca existió en el back).
       // La página /visit-reasons queda huérfana (próximo sprint: borrarla junto
