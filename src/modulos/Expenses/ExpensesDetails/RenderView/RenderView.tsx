@@ -13,6 +13,7 @@ import { paymentsApi } from "../../../Payments/api";
 import { DebtStatus } from "@/types/PaymentType";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { isPastDue, maintenanceAmountFor } from "@/mk/utils/utils";
+import { FinancialRecordHistoryButton } from "@/modulos/FinancialRecords/FinancialRecordHistoryButton";
 
 const RenderView = (props: {
   open: boolean;
@@ -64,8 +65,12 @@ const RenderView = (props: {
       false,
       true,
     );
-    if (data.success) {
-      setItem({ ...data.data });
+    // `fullType=DET` devuelve una LISTA de una fila. Con `{ ...data.data }` el
+    // item quedaba `{ 0: {…} }`: la expensa se veía con monto en cero y sin
+    // unidad después de cerrar el detalle del pago.
+    const fila = Array.isArray(data?.data) ? data.data[0] : data?.data;
+    if (data?.success && fila) {
+      setItem({ ...fila });
     }
     await refreshResolvedPayment(item.id);
   };
@@ -181,6 +186,18 @@ const RenderView = (props: {
         buttonText={resolvedPaymentId ? "Ver pago" : ""}
         onSave={resolvedPaymentId ? () => setOpenPayment(true) : undefined}
         buttonCancel=""
+        buttonExtra={
+          <FinancialRecordHistoryButton
+            title="Detalle de expensa"
+            record={{
+              type: "debt",
+              id: item.id,
+              amount: item.amount,
+              penaltyAmount: item.penalty_amount,
+            }}
+            onRecordChanged={reloadItem}
+          />
+        }
         variant={"mini"}
       >
         <div className={styles.container}>

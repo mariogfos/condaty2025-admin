@@ -10,6 +10,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatBs } from "@/mk/utils/numbers";
 import { parseExpenseDescription } from "../utils/expenseDescription";
 import { METHOD_MAP, ExpenseStatus } from "@/modulos/Payments/Type/PaymentType";
+import { FinancialRecordHistoryButton } from "@/modulos/FinancialRecords/FinancialRecordHistoryButton";
 interface Category {
   id: number | string;
   name: string;
@@ -51,6 +52,8 @@ interface DetailOutlayProps {
   item?: OutlayItem;
   extraData?: ExtraData;
   onDel?: (item: OutlayItem) => void;
+  /** Lo pasa `useCrud` a todo `renderView`: recarga el listado. */
+  reLoad?: () => void;
 }
 
 interface DetailItem {
@@ -66,7 +69,7 @@ const typeAccountMap: Record<string, string> = {
   S: "Caja de ahorro",
 };
 const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
-  const { open, onClose, extraData, item, onDel } = props;
+  const { open, onClose, extraData, item, onDel, reLoad } = props;
   const { execute } = useAxios();
   const { showToast } = useAuth();
 
@@ -445,6 +448,13 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
       title="Detalle del Egreso"
       buttonText=""
       buttonCancel=""
+      buttonExtra={
+        <FinancialRecordHistoryButton
+          title="Detalle del egreso"
+          record={{ type: "expense", id: item.id, amount: item.amount, paidAt: item.date_at }}
+          onRecordChanged={reLoad}
+        />
+      }
       maxWidth={980}
       headerDivider={false}
     >

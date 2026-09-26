@@ -24,6 +24,7 @@ import { getTitular } from "@/mk/utils/adapters";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
 import { DebtStatus, DebtType } from "@/types/PaymentType";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { FinancialRecordHistoryButton } from "@/modulos/FinancialRecords/FinancialRecordHistoryButton";
 import {
   getStatusText,
   getStatusConfig,
@@ -102,7 +103,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     string | number | null
   >(getResolvedPaymentId(item));
 
-  const { data, execute, loaded } = useAxios(
+  const { data, execute, loaded, reLoad: reLoadDetail } = useAxios(
     "/v3/debt-dptos",
     "GET",
     {
@@ -539,6 +540,23 @@ const RenderView: React.FC<RenderViewProps> = ({
         title="Detalle de deuda"
         buttonText=""
         buttonCancel=""
+        buttonExtra={
+          item?.id ? (
+            <FinancialRecordHistoryButton
+              title="Detalle de deuda"
+              record={{
+                type: "debt",
+                id: item.id,
+                amount: debtDetail?.amount,
+                penaltyAmount: debtDetail?.penalty_amount,
+              }}
+              onRecordChanged={async () => {
+                await reLoadDetail();
+                onReload?.();
+              }}
+            />
+          ) : null
+        }
         variant="mini"
         headerDivider={false}
         minWidth={860}
