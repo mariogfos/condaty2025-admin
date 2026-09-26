@@ -44,6 +44,8 @@ interface PaymentDetail {
   dpto_id?: string | number;
   amount?: number;
   paid_at?: string;
+  created_at?: string;
+  confirm_at?: string;
   concept?: string[];
   category?: { padre?: { name?: string } };
   obs?: string;
@@ -780,6 +782,25 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                       {item.method ? getPaymentType(item.method) : "-/-"}
                     </span>
                   </div>
+
+                  {/* `paid_at` es la fecha efectiva; estos dos son los instantes
+                      de registro y de confirmación (UTC en el API). */}
+                  {item.created_at && (
+                    <div className={styles.infoBlock}>
+                      <span className={styles.infoLabel}>Registrado</span>
+                      <span className={styles.infoValue}>
+                        {formatToDayDDMMYYYYHHMM(item.created_at) || "-/-"}
+                      </span>
+                    </div>
+                  )}
+                  {item.confirm_at && (
+                    <div className={styles.infoBlock}>
+                      <span className={styles.infoLabel}>Confirmado</span>
+                      <span className={styles.infoValue}>
+                        {formatToDayDDMMYYYYHHMM(item.confirm_at) || "-/-"}
+                      </span>
+                    </div>
+                  )}
 
                   {showBankAccount && (
                     <div className={styles.infoBlock}>

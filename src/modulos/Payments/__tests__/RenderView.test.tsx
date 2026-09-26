@@ -169,4 +169,43 @@ describe("RenderView", () => {
       screen.queryByRole("button", { name: "Anular ingreso" })
     ).not.toBeInTheDocument();
   });
+
+  /** El registro y la confirmación son instantes distintos de la fecha efectiva. */
+  it("muestra cuándo se registró y cuándo se confirmó el pago", async () => {
+    const pago = {
+      id: "pay-2",
+      status: PaymentStatus.PAID,
+      amount: 250,
+      paid_at: "2026-09-26T12:00:00.000Z",
+      created_at: "2026-09-27T01:30:00.000Z",
+      confirm_at: "2026-09-27T01:31:00.000Z",
+      dptos: "101",
+      method: PaymentMethod.TRANSFER,
+      owner: { name: "Mario Guzman" },
+      url_file: [],
+      details: [],
+    };
+    mockExecute.mockResolvedValue({ data: { data: pago } });
+
+    render(<RenderView open onClose={vi.fn()} item={pago} extraData={{ dptos: [] }} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Registrado")).toBeInTheDocument();
+      expect(screen.getByText("Confirmado")).toBeInTheDocument();
+    });
+  });
+
+  it("sin esos instantes no dibuja los renglones", async () => {
+    render(
+      <RenderView
+        open
+        onClose={vi.fn()}
+        item={{ id: "pay-1", status: PaymentStatus.SUBMITTED, amount: 250, paid_at: "2026-06-14T10:00:00.000Z", dptos: "101", method: PaymentMethod.TRANSFER, owner: { name: "Mario Guzman" }, url_file: [], details: [] }}
+        extraData={{ dptos: [] }}
+      />
+    );
+
+    await waitFor(() => expect(screen.getByRole("button", { name: "Aprobar pago" })).toBeInTheDocument());
+    expect(screen.queryByText("Registrado")).not.toBeInTheDocument();
+  });
 });
