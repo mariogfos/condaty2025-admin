@@ -16,4 +16,7 @@ export const financialRecordsApi = {
   penalty: (recordId: string | number) => `${BASE}/debt/${recordId}/penalty`,
   paidAt: (record: FinancialRecordReference) =>
     `${BASE}/${record.type}/${record.id}/paid-at`,
+  /** El historial de toda la plataforma: sólo superadmin (el API contesta 403 al resto). */
+  platformHistory: "/v3/backoffice/financial-history",
+  platformHistoryClients: "/v3/backoffice/financial-history/clients",
 };

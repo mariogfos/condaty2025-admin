@@ -99,7 +99,7 @@ const formatValue = (field: string, value: unknown) => {
  */
 const fieldLabel = (field: string) => FIELD_LABELS[field] || field.replaceAll("_", " ");
 
-const flattenChanges = (event: FinancialAuditEvent) => {
+export const flattenChanges = (event: Pick<FinancialAuditEvent, "before" | "after">) => {
   const before: Record<string, unknown> = event.before || {};
   const after: Record<string, unknown> = event.after || {};
   return Array.from(new Set([...Object.keys(before), ...Object.keys(after)]))
