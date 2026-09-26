@@ -76,5 +76,5 @@ export const useFinancialWorkspace = (
     void refresh();
   }, [open, record?.id, record?.type, refresh]);
 
-  return { workspace, loading, error };
+  return { workspace, loading, error, refresh };
 };
