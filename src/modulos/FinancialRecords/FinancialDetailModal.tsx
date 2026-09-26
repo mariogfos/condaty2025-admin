@@ -12,9 +12,11 @@ import {
 import { createPortal } from "react-dom";
 import { AlertCircle, CheckCircle2, Clock3, ReceiptText, X } from "lucide-react";
 import { FinancialHistory } from "./FinancialHistory";
+import { FinancialRecordActions } from "./FinancialRecordActions";
 import { useFinancialWorkspace } from "./useFinancialWorkspace";
 import styles from "./FinancialDetail.module.css";
 import type {
+  FinancialMenuAction,
   FinancialRecordReference,
   FinancialStatusTone,
   FinancialSummary,
@@ -30,8 +32,10 @@ type Props = {
   children: ReactNode;
   footer?: ReactNode;
   loading?: boolean;
-  /** Se pinta en la cabecera, antes del botón de cerrar. */
-  actions?: ReactNode;
+  /** Acciones propias de la pantalla; se suman al menú «Más acciones». */
+  customActions?: FinancialMenuAction[];
+  /** Corre después de recargar el historial, tras una corrección guardada. */
+  onRecordChanged?: () => void | Promise<void>;
   className?: string;
 };
 
@@ -55,7 +59,8 @@ export const FinancialDetailModal = ({
   children,
   footer,
   loading = false,
-  actions,
+  customActions = [],
+  onRecordChanged,
   className = "",
 }: Props) => {
   const [tab, setTab] = useState<DetailTab>("detail");
@@ -66,6 +71,7 @@ export const FinancialDetailModal = ({
     workspace: remoteWorkspace,
     loading: workspaceLoading,
     error,
+    refresh,
   } = useFinancialWorkspace(record, open);
   // Mientras llega el registro nuevo no se muestra el historial del anterior.
   const workspace =
@@ -75,6 +81,11 @@ export const FinancialDetailModal = ({
     String(remoteWorkspace.record.id) === String(record.id)
       ? remoteWorkspace
       : null;
+  // El monto del API manda sobre el que trae la pantalla: puede haber cambiado
+  // con una corrección que la lista todavía no recargó.
+  const actionRecord = record
+    ? { ...record, amount: workspace?.record.amount ?? record.amount }
+    : undefined;
 
   useEffect(() => setMounted(true), []);
 
@@ -88,6 +99,11 @@ export const FinancialDetailModal = ({
       document.body.style.overflow = previousOverflow;
     };
   }, [open, record?.id, record?.type]);
+
+  const handleRecordChanged = async () => {
+    await refresh();
+    if (onRecordChanged) await onRecordChanged();
+  };
 
   const handleBackdrop = (event: MouseEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) onClose();
@@ -120,7 +136,14 @@ export const FinancialDetailModal = ({
             </div>
 
             <div className={styles.headerActions}>
-              {actions}
+              {actionRecord ? (
+                <FinancialRecordActions
+                  record={actionRecord}
+                  capabilities={workspace?.capabilities}
+                  customActions={customActions}
+                  onChanged={handleRecordChanged}
+                />
+              ) : null}
               <button
                 type="button"
                 className={styles.iconButton}

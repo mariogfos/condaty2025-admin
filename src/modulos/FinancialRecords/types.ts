@@ -5,6 +5,9 @@ export type FinancialRecordType = "debt" | "payment" | "expense";
 export type FinancialRecordReference = {
   type: FinancialRecordType;
   id: string | number;
+  amount?: number | string | null;
+  penaltyAmount?: number | string | null;
+  paidAt?: string | null;
 };
 
 export type FinancialCapabilities = {
@@ -65,4 +68,14 @@ export type FinancialSummary = {
     tone?: FinancialStatusTone;
   };
   eyebrow?: ReactNode;
+};
+
+export type FinancialMenuAction = {
+  id: string;
+  label: string;
+  icon?: ReactNode;
+  onSelect: () => void;
+  /** Va al final del menú, separado de las correcciones. */
+  destructive?: boolean;
+  disabled?: boolean;
 };
