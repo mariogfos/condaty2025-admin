@@ -30,6 +30,8 @@ const ACTION_LABELS: Record<string, string> = {
   PAYMENT_STATE_CHECKED: "Estado del pago verificado",
   PAYMENT_STATE_REPAIRED: "Estado del pago reparado",
   PAYMENT_DATE_UPDATED: "Fecha de pago editada",
+  // La multa que devenga el cron; el actor es el sistema (`type: "SYS"`).
+  PENALTY_ACCRUED: "Multa aplicada automáticamente",
 };
 
 const FIELD_LABELS: Record<string, string> = {
