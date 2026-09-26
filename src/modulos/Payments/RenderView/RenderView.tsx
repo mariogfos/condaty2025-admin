@@ -28,6 +28,7 @@ import Loading from "@/mk/components/ui/LoadingScreen/Loading/Loading";
 import { paymentsApi } from "../api";
 import { PaymentMethod, PaymentStatus } from "../Type/PaymentType";
 import { DebtType } from "@/types/PaymentType";
+import { FinancialRecordHistoryButton } from "@/modulos/FinancialRecords/FinancialRecordHistoryButton";
 interface PaymentDetail {
   id: string | number;
   status: number;
@@ -699,6 +700,18 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         buttonText=""
         buttonCancel={""}
         onClose={onClose}
+        buttonExtra={
+          <FinancialRecordHistoryButton
+            title="Detalle del ingreso"
+            record={{
+              type: "payment",
+              id: item.id,
+              amount: item.amount,
+              paidAt: item.paid_at,
+            }}
+            onRecordChanged={reLoad}
+          />
+        }
         variant={"mini"}
         style={style}
         headerDivider={false}

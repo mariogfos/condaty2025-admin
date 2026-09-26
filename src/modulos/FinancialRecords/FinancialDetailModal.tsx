@@ -37,6 +37,8 @@ type Props = {
   /** Corre después de recargar el historial, tras una corrección guardada. */
   onRecordChanged?: () => void | Promise<void>;
   className?: string;
+  /** La pestaña con la que abre. Desde el botón «Historial y correcciones», el historial. */
+  initialTab?: DetailTab;
 };
 
 type DetailTab = "detail" | "history";
@@ -62,8 +64,9 @@ export const FinancialDetailModal = ({
   customActions = [],
   onRecordChanged,
   className = "",
+  initialTab = "detail",
 }: Props) => {
-  const [tab, setTab] = useState<DetailTab>("detail");
+  const [tab, setTab] = useState<DetailTab>(initialTab);
   const [mounted, setMounted] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -91,14 +94,14 @@ export const FinancialDetailModal = ({
 
   useEffect(() => {
     if (!open) return;
-    setTab("detail");
+    setTab(initialTab);
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     window.setTimeout(() => dialogRef.current?.focus(), 0);
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [open, record?.id, record?.type]);
+  }, [open, record?.id, record?.type, initialTab]);
 
   const handleRecordChanged = async () => {
     await refresh();
