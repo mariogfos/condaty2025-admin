@@ -14,10 +14,10 @@ vi.mock("@/mk/components/ui/DataModal/DataModal", () => ({
     ) : null,
 }));
 vi.mock("@/mk/components/forms/Input/Input", () => ({
-  default: ({ label, name, value, onChange, onBlur, error }: any) => (
+  default: ({ label, name, value, onChange, onBlur, error, disabled }: any) => (
     <label>
       {label}
-      <input aria-label={label} name={name} value={value ?? ""} onChange={onChange} onBlur={onBlur} />
+      <input aria-label={label} name={name} value={value ?? ""} onChange={onChange} onBlur={onBlur} disabled={disabled} />
       {error?.[name] ? <span>{error[name]}</span> : null}
     </label>
   ),
@@ -37,8 +37,9 @@ const buscarCi = async (persona: Record<string, unknown>) => {
 };
 
 describe("el alta con un CI que ya existe en el condominio", () => {
-  it("un prerregistrado no se bloquea: se ofrece activarlo y asignarlo", async () => {
+  it("un prerregistro sin validar no precarga su correo: la clave nueva va al que cargue el admin", async () => {
     await buscarCi({
+      email: "impostor@example.test",
       account_status: OwnerStatus.WAITING,
       current_membership: { status: ClientOwnerStatus.WAITING },
       existCondo: true,
@@ -46,6 +47,32 @@ describe("el alta con un CI que ya existe en el condominio", () => {
 
     expect(await screen.findByText("Activar y asignar")).toBeInTheDocument();
     expect(screen.queryByText(/ya está en uso en este Condominio/)).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Correo electrónico")).toHaveValue("");
+    expect(screen.getByLabelText("Correo electrónico")).not.toBeDisabled();
+    expect(screen.getByText("La contraseña será enviada al correo que indique en este campo")).toBeInTheDocument();
+  });
+
+  it("el correo del propio prerregistro no se marca como «en uso»", async () => {
+    await buscarCi({ account_status: OwnerStatus.WAITING, existCondo: true });
+
+    const correo = screen.getByLabelText("Correo electrónico");
+    fireEvent.change(correo, { target: { name: "email", value: "ana@example.test" } });
+    fireEvent.blur(correo, { target: { value: "ana@example.test" } });
+
+    await waitFor(() => expect(correo).toHaveValue("ana@example.test"));
+    expect(screen.queryByText("El email ya está en uso")).not.toBeInTheDocument();
+  });
+
+  it("una cuenta ya validada que se prerregistró acá conserva su correo y su clave", async () => {
+    await buscarCi({
+      email: "ana@example.test",
+      account_status: OwnerStatus.ACTIVE,
+      current_membership: { status: ClientOwnerStatus.WAITING },
+      existCondo: true,
+    });
+
+    expect(await screen.findByText("Activar y asignar")).toBeInTheDocument();
+    expect(screen.getByLabelText("Correo electrónico")).toHaveValue("ana@example.test");
     expect(screen.getByText("La contraseña actual se conservará sin cambios.")).toBeInTheDocument();
   });
 

@@ -8,7 +8,7 @@ import styles from "./Renderform.module.css";
 import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import { IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import { IconTrash } from "@/components/layout/icons/IconsBiblioteca";
-import { isPendingOwner } from "../ownerAccountState";
+import { isPendingOwner, isUnvalidatedPreregister } from "../ownerAccountState";
 
 interface OwnerFormState {
   id?: number | string;
@@ -342,6 +342,10 @@ const RenderForm = ({
         setExistingOwner(ownerData);
         setErrors((prev) => ({ ...prev, ci: undefined }));
 
+        // 🔴 Un prerregistro sin validar lo pudo crear cualquiera con el CI de
+        // otra persona: sus datos son una sugerencia editable y el correo NO se
+        // precarga. El API manda la clave nueva al correo que se cargue acá.
+        const sinValidar = isUnvalidatedPreregister(ownerData);
         setFormState((prev: OwnerFormState) => ({
           ...prev,
           ci: ownerData.ci,
@@ -349,16 +353,18 @@ const RenderForm = ({
           middle_name: ownerData.middle_name || "",
           last_name: ownerData.last_name,
           mother_last_name: ownerData.mother_last_name || "",
-          email: ownerData.email || "",
+          email: sinValidar ? "" : ownerData.email || "",
           phone: ownerData.phone || "",
-          _disabled: true,
-          _emailDisabled: true,
+          _disabled: !sinValidar,
+          _emailDisabled: !sinValidar,
         }));
 
         showToast(
-          isPendingOwner(ownerData)
-            ? "Preregistro encontrado: se conservará su contraseña y se activará al guardar"
-            : ownerData.existCondo
+          sinValidar
+            ? "Preregistro sin validar: confirme sus datos y cargue su correo; le llegará una clave nueva"
+            : isPendingOwner(ownerData)
+              ? "Preregistro encontrado: se conservará su contraseña y se activará al guardar"
+              : ownerData.existCondo
               ? "Residente encontrado: puedes asignarle esta unidad o rol"
               : "El residente ya existe en Condaty y será vinculado al condominio",
           "warning",
@@ -394,7 +400,11 @@ const RenderForm = ({
         true,
       );
 
-      if (data?.success && data.data?.data?.id) {
+      // El correo del propio prerregistro no está «en uso por otro»: si la
+      // persona real lo confirma, es el suyo.
+      const esDeOtro =
+        String(data?.data?.data?.id ?? "") !== String(existingOwner?.id ?? "");
+      if (data?.success && data.data?.data?.id && esDeOtro) {
         showToast("El email ya está en uso", "warning");
         setErrors((prev: OwnerFormErrors) => ({
           ...prev,
@@ -508,9 +518,11 @@ const RenderForm = ({
         {existingOwner && (
           <div className={styles.sectionHeader}>
             <p>
-              {isPendingOwner(existingOwner)
-                ? "Preregistro encontrado. Se conservarán sus datos y contraseña; la cuenta se activará al asignarla."
-                : "Cuenta existente. Se conservarán sus credenciales y se añadirá la asignación seleccionada."}
+              {isUnvalidatedPreregister(existingOwner)
+                ? "Preregistro sin validar. Confirme los datos del residente: la cuenta tomará los que cargue acá, y la clave nueva llegará al correo que indique."
+                : isPendingOwner(existingOwner)
+                  ? "Preregistro encontrado. Se conservarán sus datos y contraseña; la cuenta se activará al asignarla."
+                  : "Cuenta existente. Se conservarán sus credenciales y se añadirá la asignación seleccionada."}
             </p>
           </div>
         )}
@@ -531,7 +543,7 @@ const RenderForm = ({
 
         <div className={styles.sectionHeader}>
           <p>
-            {existingOwner
+            {existingOwner && !isUnvalidatedPreregister(existingOwner)
               ? "La contraseña actual se conservará sin cambios."
               : "La contraseña será enviada al correo que indique en este campo"}
           </p>
