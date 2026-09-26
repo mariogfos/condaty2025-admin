@@ -432,7 +432,8 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
             </div>
             <p className={styles.sectionSubtitle}>
               Ingresa el número de meses de retraso permitidos antes de aplicar
-              la multa por mora
+              la multa por mora. Vale para la multa por porcentaje y por valor
+              fijo; la escalonada por cortes tiene sus fechas propias.
             </p>
           </div>
 
@@ -458,7 +459,7 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
               <h2 className={styles.sectionTitle}>Multa por morosidad</h2>
               <Tooltip
                 position="right"
-                title="Define cómo se aplicará la multa por pagos atrasados: puede ser un porcentaje, un monto fijo o un valor personalizado según el mes de mora."
+                title="Define cómo se aplicará la multa por pagos atrasados: un porcentaje de la expensa, un monto fijo o una escalonada por cortes. La multa deja de crecer cuando se paga la expensa, y un comprobante por confirmar también la congela."
               >
                 <IconQuestion size={16} />
               </Tooltip>
@@ -481,9 +482,10 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
               { id: 2, name: "Valor Fijo" },
               // 🔴 Se llamaba "Personalizado" y en el back esta opción ejecuta
               // `applyTieredPenalty`: la escalonada por cortes. El
-              // "personalizado" de verdad es otra estrategia —`penalty_type` 4,
-              // que hoy ni el front ofrece ni el back valida—, así que el
-              // nombre invitaba a confundir dos fórmulas distintas.
+              // "personalizado" de verdad es otra estrategia —`penalty_type` 4:
+              // desde el 2026-09-26 el back la calcula, pero el formulario y la
+              // validación siguen en 0-3, como producción—, así que el nombre
+              // invitaba a confundir dos fórmulas distintas.
               { id: 3, name: "Escalonado por cortes" },
             ]}
             disabled={!editMode}
@@ -497,8 +499,8 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
           {formState?.penalty_type == 1 && (
             <>
               <p className={styles.fieldHint}>
-                Define un porcentaje sobre el monto pendiente al momento del
-                retraso.
+                Define un porcentaje sobre el monto de la expensa. Se aplica el
+                día siguiente al vencimiento más los meses de gracia.
               </p>
               <Input
                 type="number"
@@ -519,7 +521,8 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
           {formState?.penalty_type == 2 && (
             <>
               <p className={styles.fieldHint}>
-                Define un monto fijo como multa única por mora.
+                Define un monto fijo como multa única por mora. Se aplica el día
+                siguiente al vencimiento más los meses de gracia.
               </p>
               <Input
                 type="number"
@@ -538,8 +541,8 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
           {formState?.penalty_type == 3 && (
             <>
               <p className={styles.fieldHint}>
-                Primer corte: monto que se aplica en cuanto la deuda pasa su
-                fecha de vencimiento.
+                Primer corte: monto que se aplica desde el día 11 del mes de la
+                expensa.
               </p>
               <Input
                 type="text"
@@ -553,9 +556,9 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
                 disabled={!editMode}
               />
               <p className={styles.fieldHint}>
-                Segundo corte: monto que se aplica al terminar el mes del
-                vencimiento. <strong>Reemplaza</strong> al del primer corte, no
-                se suma.
+                Segundo corte: monto que se aplica desde el día 1 del mes
+                siguiente. <strong>Reemplaza</strong> al del primer corte, no se
+                suma, y no puede ser menor que él.
               </p>
               <Input
                 type="text"
