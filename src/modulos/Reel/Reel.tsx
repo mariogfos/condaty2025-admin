@@ -27,6 +27,7 @@ import AddContent from "@/modulos/Contents/AddContent/AddContent";
 import MediaRenderer from "./MediaRenderer/MediaRenderer";
 import ReelCompactList from "./ReelCompactList/ReelCompactList";
 import CommentModal from "./CommentModal/CommentModal";
+import PublicationLikesModal from "@/components/PublicationLikesModal/PublicationLikesModal";
 import { ContentItem, Comment } from "./types";
 import LinkifyDescription from "@/mk/components/ui/LinkifyDescription/LinkifyDescription";
 
@@ -78,6 +79,10 @@ const Reel = () => {
 
   // Estados para comentarios
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [likesModal, setLikesModal] = useState<{
+    contentId: number;
+    totalLikes: number;
+  } | null>(null);
   const [selectedContentIdForComments, setSelectedContentIdForComments] =
     useState<number | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -813,6 +818,15 @@ const Reel = () => {
                   <div className={styles.contentStats}>
                     <div
                       className={`${styles.statDisplay} ${item?.liked ? styles.liked : ""}`}
+                      role="button"
+                      title="Ver quiénes apoyaron"
+                      onClick={() =>
+                        setLikesModal({
+                          contentId: item.id,
+                          totalLikes: item.likes || 0,
+                        })
+                      }
+                      style={{ cursor: "pointer" }}
                     >
                       <IconLike
                         color={
@@ -990,6 +1004,13 @@ const Reel = () => {
           </div>
         </div>
       )}
+
+      <PublicationLikesModal
+        isOpen={likesModal !== null}
+        onClose={() => setLikesModal(null)}
+        contentId={likesModal?.contentId ?? null}
+        totalLikes={likesModal?.totalLikes}
+      />
     </div>
   );
 };

@@ -21,6 +21,7 @@ import {
 import Br from "@/components/Detail/Br";
 import useAxios from "@/mk/hooks/useAxios";
 import LinkifyDescription from "@/mk/components/ui/LinkifyDescription/LinkifyDescription";
+import PublicationLikesModal from "@/components/PublicationLikesModal/PublicationLikesModal";
 
 const RenderView = (props: {
   open: boolean;
@@ -40,6 +41,7 @@ const RenderView = (props: {
   const [indexVisible, setIndexVisible] = useState(0);
   const [contentData, setContentData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [likesOpen, setLikesOpen] = useState(false);
   const { execute } = useAxios();
 
   const currentData = props.selectedContentData || contentData || data;
@@ -447,7 +449,13 @@ const RenderView = (props: {
             <Br />
 
             <div className={styles.statsContainer}>
-              <div className={styles.statItem}>
+              <div
+                className={styles.statItem}
+                role="button"
+                title="Ver quiénes apoyaron"
+                onClick={() => setLikesOpen(true)}
+                style={{ cursor: "pointer" }}
+              >
                 <IconLike color="var(--cAccent)" size={24} />
                 <span>{currentData?.likes || 0} Apoyos</span>
               </div>
@@ -463,6 +471,13 @@ const RenderView = (props: {
           </div>
         </div>
       </div>
+
+      <PublicationLikesModal
+        isOpen={likesOpen}
+        onClose={() => setLikesOpen(false)}
+        contentId={currentData?.id ?? null}
+        totalLikes={currentData?.likes || 0}
+      />
     </DataModal>
   );
 };
