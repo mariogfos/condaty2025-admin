@@ -41,3 +41,14 @@ export const isPendingOwner = (owner: any): boolean =>
 export const isRecoverablePendingAccount = (owner: any): boolean =>
   getOwnerAccountStatus(owner) === OwnerStatus.WAITING &&
   getOwnerMembershipStatus(owner) === ClientOwnerStatus.ACTIVE;
+
+/**
+ * 🔴 La CUENTA está en espera: la creó alguien desde la app pública y ninguna
+ * administración la validó. El alta no confía en ella —cualquiera puede
+ * prerregistrar el CI de otra persona—: el API toma los datos y el correo que
+ * cargue la administración y manda una clave nueva a ese correo (decisión de
+ * Mario, 2026-09-26). Por eso el formulario no precarga el correo del
+ * prerregistro.
+ */
+export const isUnvalidatedPreregister = (owner: any): boolean =>
+  getOwnerAccountStatus(owner) === OwnerStatus.WAITING;
