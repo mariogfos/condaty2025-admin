@@ -2,7 +2,7 @@
 "use client";
 import styles from "./Owners.module.css";
 import useCrudUtils from "../shared/useCrudUtils";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName } from "@/mk/utils/string";
@@ -23,6 +23,7 @@ import Select from "@/mk/components/forms/Select/Select";
 import RenderForm from "../Owners/RenderForm/RenderForm";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import RenderView from "./RenderView/RenderView";
+import { getOwnerOperationalStatus, isPendingOwner } from "./ownerAccountState";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { DptoStatus, OwnerStatus } from "@/modulos/Payments/Type/PaymentType";
 
@@ -149,7 +150,10 @@ const Owners = () => {
       extraData?: Record<string, any>;
       reLoad?: any;
     }) =>
-      props?.item.status === OwnerStatus.WAITING &&
+      // 🔴 El estado OPERATIVO, no `status`: `status` es el de la cuenta, y el
+      // prerregistrado en un segundo condominio tiene la cuenta activa y el
+      // vínculo en espera. Ver `ownerAccountState.ts`.
+      isPendingOwner(props?.item) &&
       props?.item.type_owner !== "Dependiente" ? (
         <RenderView {...props} />
       ) : (
@@ -179,55 +183,6 @@ const Owners = () => {
       );
     },
   };
-  const onBlurCi = useCallback(async (e: any, props: any) => {
-    if (e.target.value.trim() == "") return;
-    const { data, error } = await execute(
-      "/v3/owners",
-      "GET",
-      {
-        fullType: "EXIST",
-        type: "ci",
-        searchBy: e.target.value,
-      },
-      false,
-      true,
-    );
-
-    if (data?.success && data.data?.data?.id) {
-      const filteredData = data.data.data;
-      if (filteredData.existCondo) {
-        showToast("El residente ya existe en este Condominio", "warning");
-        props.setItem({});
-        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
-        return;
-      }
-      props.setError({ ci: "" });
-      props.setItem({
-        ...props.item,
-        ci: filteredData.ci,
-        name: filteredData.name,
-        middle_name: filteredData.middle_name,
-        last_name: filteredData.last_name,
-        mother_last_name: filteredData.mother_last_name,
-        email: filteredData.email ?? "",
-        phone: filteredData.phone,
-        _disabled: true,
-        _emailDisabled: true,
-      });
-      showToast(
-        "El residente ya existe en Condaty, se va a vincular al Condominio",
-        "warning",
-      );
-    } else {
-      props.setError({ ci: "" });
-      props.setItem({
-        ...props.item,
-        _disabled: false,
-        _emailDisabled: false,
-      });
-    }
-  }, []);
-
   const onDisbled = ({ item, field }: any) => {
     if (field?.name === "email") {
       return item._emailDisabled;
@@ -243,7 +198,6 @@ const Owners = () => {
         label: "Carnet de identidad",
         form: {
           type: "text",
-          onBlur: onBlurCi,
           disabled: onDisbled,
           required: true,
         },
@@ -374,12 +328,13 @@ const Owners = () => {
         label: "Estado",
         list: {
           onRender: ({ item }: any) => {
-            const statusInfo = lStatusActive[item?.status];
+            const operationalStatus = getOwnerOperationalStatus(item);
+            const statusInfo = lStatusActive[operationalStatus ?? ""];
             return (
               <span
                 style={{
                   color:
-                    item?.status === OwnerStatus.WAITING
+                    operationalStatus === OwnerStatus.WAITING
                       ? "var(--cWarning)"
                       : "var(--cWhiteV1)",
                 }}

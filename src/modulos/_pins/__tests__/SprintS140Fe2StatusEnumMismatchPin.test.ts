@@ -119,11 +119,14 @@ describe("S140-fe-2 — fix mismatch status enum numérico", () => {
   // ────────────────────────────────────────────────────────────────────
 
   describe("Regresión: lStatusActive pineá enum numérico en todos los consumers", () => {
-    it("Owners.tsx pinea `lStatusActive[item?.status]` con status numérico (sin cambios)", () => {
-      // Owners.tsx ya importaba OwnerStatus enum. El cambio está en lStatusActive.
-      // Acá pineamos que el consumer pineá el map directo.
+    it("Owners.tsx lee `lStatusActive` con el estado operativo numérico", () => {
+      // 2026-09-25: la columna Estado pasó de `item?.status` (la cuenta,
+      // global) al estado OPERATIVO de `ownerAccountState.ts`, que también es
+      // numérico: el de la cuenta si está en espera o deshabilitada, el del
+      // vínculo si no. El map sigue indexado por el número.
       const src = loadSourceWithoutComments("modulos/Owners/Owners.tsx");
-      expect(src).toMatch(/lStatusActive\[item\?\.status\]/);
+      expect(src).toMatch(/lStatusActive\[operationalStatus \?\? ""\]/);
+      expect(src).toMatch(/getOwnerOperationalStatus\(item\)/);
       // El OwnerStatus enum se importa (sanity).
       expect(src).toMatch(/import\s*\{[^}]*OwnerStatus[^}]*\}\s*from/);
     });

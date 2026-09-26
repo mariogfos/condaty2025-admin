@@ -11,6 +11,7 @@ import {
   ClientOwnerStatus,
   ClientOwnerType,
 } from "@/modulos/Payments/Type/PaymentType";
+import { isRecoverablePendingAccount } from "../ownerAccountState";
 
 const RenderView = (props: any) => {
   const { open, onClose, item: data, reLoad, execute, showToast } = props;
@@ -20,6 +21,7 @@ const RenderView = (props: any) => {
   const [typeActive, setTypeActive] = useState("");
   const [loading, setLoading] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [activatingAccount, setActivatingAccount] = useState(false);
 
   // B6: client calculado DENTRO del render — antes se calculaba antes del
   // setItem, por lo que en el primer frame `item = {}` → client undefined
@@ -27,6 +29,35 @@ const RenderView = (props: any) => {
   const client = item?.clients?.find(
     (c: any) => c?.id === user?.client_id,
   );
+
+  /**
+   * La cuenta quedó en espera con el vínculo ya activo: no es una solicitud,
+   * así que no hay nada que aprobar. `activate-account` la activa sin tocar la
+   * clave ni las unidades. Se decide con la fila del padrón (`data`), que trae
+   * los dos estados; el detalle sólo trae el de la cuenta.
+   */
+  const activateAccount = async () => {
+    if (!data?.id || activatingAccount) return;
+    setActivatingAccount(true);
+    const { data: response, error } = await execute(
+      `/v3/owners/${data.id}/activate-account`,
+      "POST",
+      {},
+      false,
+      true,
+    );
+    setActivatingAccount(false);
+    if (response?.success) {
+      showToast(response?.message || "La cuenta fue activada con éxito", "success");
+      reLoad?.();
+      onClose();
+      return;
+    }
+    showToast(
+      response?.message || error?.data?.message || "No se pudo activar la cuenta",
+      "error",
+    );
+  };
 
   const openModal = (t: any) => {
     setOpenActive(true);
@@ -186,6 +217,14 @@ const RenderView = (props: any) => {
                 Rechazar Solicitud
               </Button>
               <Button onClick={() => openModal("A")}>Aprobar Solicitud</Button>
+            </div>
+          )}
+
+          {isRecoverablePendingAccount(data) && (
+            <div className={styles.boxButtons}>
+              <Button onClick={activateAccount} disabled={activatingAccount}>
+                {activatingAccount ? "Activando..." : "Activar cuenta"}
+              </Button>
             </div>
           )}
         </DataModal>

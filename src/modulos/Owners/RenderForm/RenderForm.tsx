@@ -8,6 +8,7 @@ import styles from "./Renderform.module.css";
 import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import { IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import { IconTrash } from "@/components/layout/icons/IconsBiblioteca";
+import { isPendingOwner } from "../ownerAccountState";
 
 interface OwnerFormState {
   id?: number | string;
@@ -203,6 +204,9 @@ const RenderForm = ({
   });
   const [errors, setErrors] = useState<OwnerFormErrors>({});
   const [isUnitModalOpen, setIsUnitModalOpen] = useState(false);
+  // La persona que encontró la búsqueda por CI: el alta la reutiliza (datos y
+  // clave) en vez de crear otra. Si es un prerregistrado, además la activa.
+  const [existingOwner, setExistingOwner] = useState<any>(null);
   const { showToast } = useAuth();
 
   const selectedUnitDisplay = useMemo(() => {
@@ -250,6 +254,8 @@ const RenderForm = ({
       }
       return;
     }
+
+    if (name === "ci") setExistingOwner(null);
 
     setFormState((prev: OwnerFormState) => ({
       ...prev,
@@ -329,14 +335,12 @@ const RenderForm = ({
 
       if (data?.success && data.data?.data?.id) {
         const ownerData = data.data.data;
-        if (ownerData.existCondo) {
-          showToast("El residente ya existe en este Condominio", "warning");
-          setErrors((prev) => ({
-            ...prev,
-            ci: "Ese CI ya está en uso en este Condominio",
-          }));
-          return;
-        }
+        // 🔴 Antes, `existCondo` cortaba acá con «Ese CI ya está en uso en
+        // este Condominio», y el prerregistrado —que tiene vínculo, en
+        // espera— no se podía dar de alta nunca. El API ahora lo activa al
+        // guardar, y a un residente activo le suma la unidad o el rol.
+        setExistingOwner(ownerData);
+        setErrors((prev) => ({ ...prev, ci: undefined }));
 
         setFormState((prev: OwnerFormState) => ({
           ...prev,
@@ -352,10 +356,15 @@ const RenderForm = ({
         }));
 
         showToast(
-          "El residente ya existe en Condaty, se va a vincular al Condominio",
+          isPendingOwner(ownerData)
+            ? "Preregistro encontrado: se conservará su contraseña y se activará al guardar"
+            : ownerData.existCondo
+              ? "Residente encontrado: puedes asignarle esta unidad o rol"
+              : "El residente ya existe en Condaty y será vinculado al condominio",
           "warning",
         );
       } else {
+        setExistingOwner(null);
         setFormState((prev: OwnerFormState) => ({
           ...prev,
           _disabled: false,
@@ -479,6 +488,7 @@ const RenderForm = ({
         ? `Editar ${formState.type_owner || "Residente"}`
         : `Nuevo ${item?.type_owner || "Residente"}`}
       onSave={onSave}
+      buttonText={existingOwner && isPendingOwner(existingOwner) ? "Activar y asignar" : "Guardar"}
       variant={"mini"}
     >
       <div className={styles.fieldSet}>
@@ -495,6 +505,15 @@ const RenderForm = ({
           required
           disabled={formState._disabled}
         />
+        {existingOwner && (
+          <div className={styles.sectionHeader}>
+            <p>
+              {isPendingOwner(existingOwner)
+                ? "Preregistro encontrado. Se conservarán sus datos y contraseña; la cuenta se activará al asignarla."
+                : "Cuenta existente. Se conservarán sus credenciales y se añadirá la asignación seleccionada."}
+            </p>
+          </div>
+        )}
         <InputFullName
           name="name"
           value={formState}
@@ -511,7 +530,11 @@ const RenderForm = ({
         />
 
         <div className={styles.sectionHeader}>
-          <p>La contraseña será enviada al correo que indique en este campo </p>
+          <p>
+            {existingOwner
+              ? "La contraseña actual se conservará sin cambios."
+              : "La contraseña será enviada al correo que indique en este campo"}
+          </p>
         </div>
 
         <Input
