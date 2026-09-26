@@ -129,4 +129,27 @@ describe("FinancialHistory", () => {
 
     expect(screen.getByText("SOMETHING_NEW")).toBeInTheDocument();
   });
+
+  it("muestra la multa que aplica el sistema con su etiqueta", () => {
+    render(
+      <FinancialHistory
+        notice=""
+        events={[
+          {
+            id: "event-sys",
+            source: "audit",
+            action: "PENALTY_ACCRUED",
+            actor: { id: null, name: "Sistema de multas", type: "SYS" },
+            reason: null,
+            before: { penalty_amount: 0 },
+            after: { penalty_amount: 50 },
+            occurred_at: "2026-09-26T10:00:00-04:00",
+          } as any,
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Multa aplicada automáticamente")).toBeInTheDocument();
+    expect(screen.getByText("Sistema de multas")).toBeInTheDocument();
+  });
 });
