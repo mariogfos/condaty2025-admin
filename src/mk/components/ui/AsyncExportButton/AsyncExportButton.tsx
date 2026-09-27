@@ -77,6 +77,8 @@ type PropsType = {
    * label visible).
    */
   iconOnly?: boolean;
+  /** Si devuelve `false` el export no se pide (el que veta avisa el motivo). */
+  beforeExport?: (format: string) => boolean;
 };
 
 export default function AsyncExportButton({
@@ -90,6 +92,7 @@ export default function AsyncExportButton({
   onError,
   showHistoryShortcut = true,
   iconOnly = false,
+  beforeExport,
 }: PropsType) {
   const [modalOpen, setModalOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -107,6 +110,7 @@ export default function AsyncExportButton({
   });
 
   const handleClick = async () => {
+    if (beforeExport && !beforeExport(format)) return;
     setModalOpen(true);
     await start({ ...params, format });
   };

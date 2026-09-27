@@ -96,6 +96,14 @@ export type ModCrudType = {
   };
   getListRows?: (response: any, params?: Record<string, any>) => any[];
   /**
+   * Veta un export ANTES de pedirlo: devuelve el motivo (se muestra como
+   * toast) o nada si se puede. Lo respetan los tres botones de exportar.
+   */
+  validateExport?: (input: {
+    params: Record<string, any>;
+    type?: string;
+  }) => string | null | undefined | false;
+  /**
    * exportAsync (S36.5 — NEW-NEW-43 frontend migration)
    *
    * Si está pineado, el botón "Exportar reporte" usa el flow async
@@ -1302,6 +1310,14 @@ const useCrud = ({
     setOpenDel(false);
   };
 
+  /** `true` si el módulo deja exportar con los filtros de ahora. */
+  const canExport = (type?: string): boolean => {
+    const message = mod?.validateExport?.({ params, type });
+    if (!message) return true;
+    showToast(message, "error");
+    return false;
+  };
+
   type ExportType = "pdf" | "xls" | "csv";
   const onExport = async (
     type?: string, // Cambiar el tipo a string opcional
@@ -1309,6 +1325,8 @@ const useCrud = ({
   ) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
+
+    if (!canExport(type)) return;
 
     if (isExporting) return; // Evitar múltiples clics
     setIsExporting(true);
@@ -2071,6 +2089,7 @@ const useCrud = ({
                         mod.exportAsync.requiredRelations ?? []
                       }
                       title={mod.exportAsync.label || "Exportar"}
+                      beforeExport={canExport}
                       params={(() => {
                         // 🔴 2026-08-06: acá viajaban SÓLO `filterBy` y
                         // `searchBy`. Alcanzaba mientras cada pantalla migrada
@@ -2115,6 +2134,7 @@ const useCrud = ({
                       type={mod.exportAsync.type}
                       format={mod.exportAsync.format || "pdf"}
                       label={mod.exportAsync.label || "Exportar"}
+                      beforeExport={canExport}
                       params={(() => {
                         // S118b: merge extraParams con filterBy/searchBy.
                         const out: Record<string, any> = {

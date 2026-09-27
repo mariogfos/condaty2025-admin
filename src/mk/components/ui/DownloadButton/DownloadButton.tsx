@@ -112,6 +112,8 @@ type PropsType = {
   className?: string;
   /** title HTML para tooltip. Default: "Exportar". */
   title?: string;
+  /** Si devuelve `false` el export no se pide (el que veta avisa el motivo). */
+  beforeExport?: (format: DownloadFormat) => boolean;
 };
 
 /**
@@ -173,6 +175,7 @@ export default function DownloadButton({
   onError,
   className,
   title = "Exportar",
+  beforeExport,
 }: PropsType) {
   const [modalOpen, setModalOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -204,6 +207,7 @@ export default function DownloadButton({
    */
   const handleExport = async (format: DownloadFormat) => {
     setMenuOpen(false);
+    if (beforeExport && !beforeExport(format)) return;
     setModalOpen(true);
     const exportParams: Record<string, any> = {
       ...params,
@@ -221,6 +225,7 @@ export default function DownloadButton({
   /** Dispara un reporte custom: mismo flujo async, otro `type`. */
   const handleCustomExport = async (custom: CustomReport, format: DownloadFormat) => {
     setMenuOpen(false);
+    if (beforeExport && !beforeExport(format)) return;
     setModalOpen(true);
     await start({ ...params, format }, custom.key);
   };
