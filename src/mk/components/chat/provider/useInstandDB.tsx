@@ -6,7 +6,10 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { IconX } from "@/components/layout/icons/IconsBiblioteca";
 import { SendEmoticonType, SendMessageType } from "../chat-types";
 import { useEvent } from "@/mk/hooks/useEvents";
-import { initSocket } from "../../notif/provider/useNotifInstandDB";
+import {
+  initSocket,
+  runInstantDbTask,
+} from "../../notif/provider/useNotifInstandDB";
 
 let initToken = false;
 const roomGral: string = process.env
@@ -59,22 +62,27 @@ const useInstandDB = (): useInstantDbType => {
   const onChatCloseRoom = useCallback(
     async (payload: any) => {
       if (payload.indexOf("chatBot") > -1) {
-        const del: any[] = [];
-        const query = {
-          messages: {
-            $: {
-              where: {
-                and: [{ roomId: payload }, { client_id: user.client_id }],
+        await runInstantDbTask(
+          "[chat] no se pudo borrar la sala del bot",
+          async () => {
+            const del: any[] = [];
+            const query = {
+              messages: {
+                $: {
+                  where: {
+                    and: [{ roomId: payload }, { client_id: user.client_id }],
+                  },
+                },
               },
-            },
-          },
-        };
-        const { data: _chats } = await db.queryOnce(query);
-        _chats.messages.forEach((e: any) => {
-          del.push(db.tx.messages[e.id].delete());
-        });
+            };
+            const { data: _chats } = await db.queryOnce(query);
+            _chats.messages.forEach((e: any) => {
+              del.push(db.tx.messages[e.id].delete());
+            });
 
-        if (del.length > 0) db.transact(del);
+            if (del.length > 0) await db.transact(del);
+          },
+        );
       }
     },
     [user.client_id],
@@ -84,12 +92,14 @@ const useInstandDB = (): useInstantDbType => {
   const onChatSendMsg = useCallback(
     async (payload: any) => {
       if (payload?.roomId.indexOf("chatBot") > -1) {
-        await db.transact(
-          db.tx.chatbot[id()].update({
-            ...payload,
-            status: "N",
-            client_id: user.client_id,
-          }),
+        await runInstantDbTask("[chat] no se pudo enviar el pedido al bot", () =>
+          db.transact(
+            db.tx.chatbot[id()].update({
+              ...payload,
+              status: "N",
+              client_id: user.client_id,
+            }),
+          ),
         );
       }
     },
@@ -121,39 +131,54 @@ const useInstandDB = (): useInstantDbType => {
       credentials: "include", // Envía cookies
       body: JSON.stringify({ id: user?.id }),
     });
+    if (!response.ok) {
+      throw new Error(`el login del chat respondió ${response.status}`);
+    }
     const data = await response.json();
-    if (data?.success) {
-      token = data?.token;
-      await db.auth.signInWithToken(data.token);
-      publishPresence({ name: getFullName(user), userapp_id: user?.id });
-      if (user?.id) {
-        const now: any = new Date().toISOString();
-        db.transact(
-          db.tx.usersapp[user.id].update({
-            last_login_at: now,
-            name: getFullName(user),
-            ci: user.ci,
-            phone: user.phone,
-            address: user.address,
-            email: user.email,
-            type: user.type,
-            has_image: user.has_image,
-            created_at: user.created_at,
-            condominio_id: user.client_id,
-            condominio: user?.clients?.find((c: any) => c.id == user?.client_id)
-              ?.name,
-            rol: user.role.name,
-            permisos: user.role.abilities,
-          }),
-        );
-      }
+    // Antes un login sin token no hacía nada y no avisaba: el chat quedaba
+    // sin conectar hasta recargar la página. Ahora es un fallo, y se reintenta.
+    if (!data?.success || !data?.token) {
+      throw new Error("el login del chat no devolvió token");
+    }
+    await db.auth.signInWithToken(data.token);
+    // El token se guarda recién con la sesión abierta: si el sign-in falla,
+    // el próximo montaje tiene que poder reintentar.
+    token = data.token;
+    publishPresence({ name: getFullName(user), userapp_id: user?.id });
+    if (user?.id) {
+      const now: any = new Date().toISOString();
+      await db.transact(
+        db.tx.usersapp[user.id].update({
+          last_login_at: now,
+          name: getFullName(user),
+          ci: user.ci,
+          phone: user.phone,
+          address: user.address,
+          email: user.email,
+          type: user.type,
+          has_image: user.has_image,
+          created_at: user.created_at,
+          condominio_id: user.client_id,
+          condominio: user?.clients?.find((c: any) => c.id == user?.client_id)
+            ?.name,
+          rol: user.role.name,
+          permisos: user.role.abilities,
+        }),
+      );
     }
   };
 
   useEffect(() => {
     if (!token && !initToken) {
       initToken = true;
-      connectDB();
+      // Si el login del chat falla, se libera la guarda: el próximo montaje
+      // reintenta. Antes quedaba en `true` y el chat no conectaba nunca más
+      // sin recargar, con el rechazo flotando sin manejar.
+      void runInstantDbTask("[chat] no se pudo conectar", connectDB).then(
+        (result) => {
+          if (!result.ok) initToken = false;
+        },
+      );
     }
     return () => {
       publishPresence(undefined);
@@ -208,15 +233,15 @@ const useInstandDB = (): useInstantDbType => {
   useEffect(() => {
     if (chats?.messages?.length > 0) {
       const now = Date.now();
-      chats?.messages?.map((m: any) => {
-        if (m.sender !== user.id && !m.received_at) {
-          db.transact(
-            db.tx.messages[m.id].update({
-              received_at: now,
-            }),
-          );
-        }
-      });
+      const updates = chats.messages
+        .filter((m: any) => m.sender !== user.id && !m.received_at)
+        .map((m: any) => db.tx.messages[m.id].update({ received_at: now }));
+      if (updates.length > 0) {
+        void runInstantDbTask(
+          "[chat] no se pudieron marcar los mensajes como recibidos",
+          () => db.transact(updates),
+        );
+      }
     }
   }, [chats?.messages, user?.id]);
 
@@ -224,15 +249,17 @@ const useInstandDB = (): useInstantDbType => {
     async (msgsRead: any[]) => {
       if (msgsRead?.length > 0) {
         const now = Date.now();
-        msgsRead?.map((m: any) => {
-          if (m.sender !== user.id && m.received_at && !m.read_at) {
-            db.transact(
-              db.tx.messages[m.id].update({
-                read_at: now,
-              }),
-            );
-          }
-        });
+        const updates = msgsRead
+          .filter(
+            (m: any) => m.sender !== user.id && m.received_at && !m.read_at,
+          )
+          .map((m: any) => db.tx.messages[m.id].update({ read_at: now }));
+        if (updates.length > 0) {
+          await runInstantDbTask(
+            "[chat] no se pudieron marcar los mensajes como leídos",
+            () => db.transact(updates),
+          );
+        }
       }
     },
     [user?.id],
@@ -242,15 +269,17 @@ const useInstandDB = (): useInstantDbType => {
     async (msgsReceived: any[]) => {
       if (msgsReceived?.length > 0) {
         const now = Date.now();
-        msgsReceived?.map((m: any) => {
-          if (m.sender !== user.id && !m.received_at && !m.read_at) {
-            db.transact(
-              db.tx.messages[m.id].update({
-                received_at: now,
-              }),
-            );
-          }
-        });
+        const updates = msgsReceived
+          .filter(
+            (m: any) => m.sender !== user.id && !m.received_at && !m.read_at,
+          )
+          .map((m: any) => db.tx.messages[m.id].update({ received_at: now }));
+        if (updates.length > 0) {
+          await runInstantDbTask(
+            "[chat] no se pudieron marcar los mensajes como recibidos",
+            () => db.transact(updates),
+          );
+        }
       }
     },
     [user?.id],
@@ -284,38 +313,53 @@ const useInstandDB = (): useInstantDbType => {
     async (text, roomId, userId, file) => {
       if (text.trim() || file) {
         setSending(true);
-        const _id = id();
-        const now = Date.now();
-        const msg = {
-          text,
-          sender: userId || user.id,
-          roomId,
-          created_at: now,
-          client_id: user.client_id,
-        };
-        await db.transact(db.tx.messages[_id].update(msg));
-        if (file) {
-          await uploadImageInstantDB(file, roomId, _id);
+        try {
+          const _id = id();
+          const now = Date.now();
+          const msg = {
+            text,
+            sender: userId || user.id,
+            roomId,
+            created_at: now,
+            client_id: user.client_id,
+          };
+          const sent = await runInstantDbTask(
+            "[chat] no se pudo enviar el mensaje",
+            () => db.transact(db.tx.messages[_id].update(msg)),
+          );
+          if (!sent.ok) {
+            showToast("No se pudo enviar el mensaje. Intenta nuevamente.", "error");
+            return false;
+          }
+          if (file) {
+            await uploadImageInstantDB(file, roomId, _id);
+          }
+          sendMsgEvent({ ...msg, msgId: _id });
+          return _id;
+        } finally {
+          // Pase lo que pase, el chat no queda en «enviando» para siempre.
+          setSending(false);
         }
-        sendMsgEvent({ ...msg, msgId: _id });
-        setSending(false);
-        return _id;
       }
       setSending(false);
       return false;
     },
-    [sendMsgEvent, user.id],
+    [sendMsgEvent, showToast, user.id],
   );
 
   const sendEmoticon: SendEmoticonType = useCallback(
     async (emoticon: string, msgId: string) => {
       if (emoticon.trim()) {
-        const data = await db.transact(
-          db.tx.messages[msgId].update({
-            emoticon,
-          }),
+        const sent = await runInstantDbTask(
+          "[chat] no se pudo enviar la reacción",
+          () =>
+            db.transact(
+              db.tx.messages[msgId].update({
+                emoticon,
+              }),
+            ),
         );
-        return data;
+        return sent.ok ? sent.value : false;
       }
       return false;
     },

@@ -123,4 +123,59 @@ describe("initSocket (CDT-95)", () => {
       boom,
     );
   });
+  it("la purga NO bloquea: initSocket devuelve db aunque InstantDB no conteste", async () => {
+    const db = {
+      // InstantDB caído o lento: la consulta no vuelve nunca.
+      queryOnce: vi.fn(() => new Promise(() => {})),
+      transact: vi.fn(),
+      tx: { notif: {} },
+      useQuery: vi.fn(() => ({ data: null })),
+    };
+    initMock.mockReturnValue(db);
+
+    const { initSocket } = await importModule();
+    const colgado = new Promise((resolve) =>
+      setTimeout(() => resolve("colgado"), 50),
+    );
+
+    // El chat hace `await initSocket()` a nivel de módulo desde el layout raíz.
+    await expect(Promise.race([initSocket(), colgado])).resolves.toBe(db);
+  });
+
+  it("la purga corre una sola vez por carga, no en cada initSocket", async () => {
+    const db = {
+      queryOnce: vi.fn().mockResolvedValue({ data: { notif: [] } }),
+      transact: vi.fn(),
+      tx: { notif: {} },
+      useQuery: vi.fn(() => ({ data: null })),
+    };
+    initMock.mockReturnValue(db);
+
+    const { initSocket } = await importModule();
+    await initSocket();
+    await initSocket();
+    await flushRejections();
+
+    expect(db.queryOnce).toHaveBeenCalledTimes(1);
+  });
+
+  it("borra en tandas de 50 para que un transact grande no se venza", async () => {
+    const viejas = Array.from({ length: 120 }, (_, i) => ({ id: `n-${i}` }));
+    const db = {
+      queryOnce: vi.fn().mockResolvedValue({ data: { notif: viejas } }),
+      transact: vi.fn().mockResolvedValue(undefined),
+      tx: {
+        notif: new Proxy({}, { get: (_t, key) => ({ delete: () => key }) }),
+      },
+      useQuery: vi.fn(() => ({ data: null })),
+    };
+    initMock.mockReturnValue(db);
+
+    await importModule();
+
+    expect(db.transact.mock.calls.map(([ops]) => ops.length)).toEqual([
+      50, 50, 20,
+    ]);
+    expect(unhandled).toEqual([]);
+  });
 });
