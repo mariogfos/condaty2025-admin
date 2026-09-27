@@ -182,6 +182,24 @@
   flex: 1 1 auto;
 }
 
+/* `Button` trae `width: 100%`: dentro del pie cada botón ocupa lo suyo, o en
+   un contenedor que envuelve cada uno se come una fila entera. */
+.detailFooter > button,
+.detailFooterActions > button {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+/* En angosto sí se apilan, a todo el ancho. */
+@media (max-width: 640px) {
+  .detailFooter > button,
+  .detailFooterActions,
+  .detailFooterActions > button {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+}
+
 .voucherButton {
   background-color: var(--cModalSurfaceRaised);
   color: var(--cWhite);
