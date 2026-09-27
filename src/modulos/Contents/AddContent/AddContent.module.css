@@ -138,7 +138,8 @@
 }
 
 .containerPreview {
-  width: 420px;
+  width: min(440px, 38vw);
+  min-width: 360px;
   display: flex;
   flex-direction: column;
   gap: var(--spM);
@@ -152,14 +153,15 @@
 }
 
 .containerPreview > div {
-  background-color: #121519;
-  height: calc(100vh - 80px);
-  border-radius: var(--bRadiusL);
+  min-height: 0;
+  flex: 1;
+  background-color: var(--cModalSection);
+  border-radius: 20px;
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   overflow-y: auto;
-  border: 1px solid #d7fff014;
+  border: 1px solid var(--cModalBorder);
 }
 
 .title {
@@ -213,4 +215,54 @@
 .formContent [class*="Br"] {
   margin: 0;
   padding: 0;
+}
+
+@media (max-width: 1080px) {
+  .AddContent {
+    height: auto;
+    min-height: calc(100vh - 120px);
+  }
+
+  .mainContainer {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .containerForm {
+    min-height: 620px;
+    overflow: visible;
+  }
+
+  .containerPreview {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .containerPreview > div {
+    min-height: 560px;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 14px 16px;
+  }
+
+  .mainContainer {
+    padding-inline: 12px;
+    gap: 24px;
+  }
+
+  .containerForm {
+    min-height: 580px;
+    padding: 16px;
+  }
+
+  .radioContainer {
+    flex-direction: column;
+  }
+
+  .containerPreview > div {
+    min-height: 500px;
+  }
 }

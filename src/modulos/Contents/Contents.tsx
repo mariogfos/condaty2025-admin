@@ -8,7 +8,6 @@ import { getFullName } from "@/mk/utils/string";
 import {
   IconComment,
   IconDocs,
-  IconDownload,
   IconLike,
   IconPublicacion,
 } from "@/components/layout/icons/IconsBiblioteca";
@@ -24,7 +23,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import CommentsModal from "@/components/CommentsModal/CommentsModal";
-import { ContentType, esDocumento, esImagen, esVideo,
+import { esDocumento, esImagen, esVideo,
   OPCIONES_DE_TIPO,
   FILTRO_DE_TIPO,
 } from "./contentEnums";
@@ -87,7 +86,7 @@ const Contents = () => {
     useState<number | null>(null);
   const [selectedContentData, setSelectedContentData] = useState<any>(null);
 
-  const { user, showToast } = useAuth();
+  const { showToast } = useAuth();
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
@@ -113,21 +112,29 @@ const Contents = () => {
     setIsCommentModalOpen(true);
   };
 
+  /**
+   * 🔴 Cerrar el hilo NO suma un comentario. Antes el cierre llamaba a
+   * `handleCommentAdded`, que agregaba un `{}` a la copia: el contador del
+   * detalle subía uno cada vez que se abría y cerraba el hilo sin comentar.
+   * Producción lo resolvió borrando la copia; acá se conserva, porque es lo que
+   * deja el contador del detalle al día sin cerrarlo.
+   */
   const handleCloseComments = () => {
     setIsCommentModalOpen(false);
     setSelectedContentIdForComments(null);
-    setSelectedContentData(null);
-    handleCommentAdded();
   };
 
   const handleCommentAdded = () => {
-    if (selectedContentData) {
-      const updatedData = {
-        ...selectedContentData,
-        comments: [...(selectedContentData.comments || []), {}],
-      };
-      setSelectedContentData(updatedData);
-    }
+    setSelectedContentData((current: any) =>
+      current
+        ? {
+            ...current,
+            comments_count:
+              Number(current.comments_count ?? current.comments?.length ?? 0) +
+              1,
+          }
+        : current,
+    );
     reLoad();
   };
 
@@ -136,11 +143,10 @@ const Contents = () => {
     singular: "publicación",
     plural: "",
     permiso: "contents",
-    // S140 (bug #14 backlog Mario 2026-07-28): el botón "Agregar" del
-    // módulo Publicaciones se renderizaba con label "Nueva" (genérico).
-    // Fix: pinear label explícito "Nueva publicación" para que el
-    // user sepa qué tipo de contenido va a crear.
-    titleAdd: "Nueva publicación",
+    // `useCrud` arma el botón y el título del alta como
+    // `titleAdd + " " + singular`: con "Nueva" sale "Nueva publicación".
+    // Con "Nueva publicación" salía "Nueva publicación publicación".
+    titleAdd: "Nueva",
     export: false,
     extraData: true,
     filter: true,
@@ -167,7 +173,15 @@ const Contents = () => {
         onEdit={(item: any) => onEdit(item)}
         onDelete={props.onDel}
         onOpenComments={handleOpenComments}
-        selectedContentData={selectedContentData}
+        // 🔴 Sólo la copia de ESTA publicación. La copia sobrevive al cierre
+        // del detalle, y sin comparar el id el próximo detalle que se abría
+        // mostraba la publicación anterior.
+        selectedContentData={
+          selectedContentData &&
+          selectedContentData.id === props.item?.data?.id
+            ? selectedContentData
+            : undefined
+        }
       />
     ),
     loadView: { fullType: "DET" },
@@ -546,7 +560,7 @@ const Contents = () => {
     getFilter: handleGetFilter,
   });
 
-  const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
+  useCrudUtils({
     onSearch,
     searchs,
     setStore: crudSetStore,
@@ -629,7 +643,7 @@ const Contents = () => {
         isOpen={isCommentModalOpen}
         onClose={handleCloseComments}
         contentId={selectedContentIdForComments}
-        onCommentAdded={() => reLoad()}
+        onCommentAdded={handleCommentAdded}
       />
     </div>
   );

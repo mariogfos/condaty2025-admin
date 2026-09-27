@@ -1,241 +1,281 @@
 .previewContainer {
+  display: grid;
   width: 100%;
-  max-width: 550px;
-  height: 100%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  overflow: hidden;
+  min-height: 100%;
+  padding: 28px 18px;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(0, 227, 140, 0.06), transparent 42%),
+    transparent;
+}
+
+.previewCard {
+  --preview-accent: var(--cAccent);
   position: relative;
-  background-color: transparent;
+  width: min(100%, 440px);
+  padding: 17px;
+  overflow: hidden;
+  color: var(--cWhite);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.025), transparent 34%),
+    var(--cModalSurface);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 18px;
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.34);
 }
 
 .postCard {
-  width: 100%;
-  max-width: 550px;
-  background-color: #d7fff005;
-  border-radius: 5px;
-  padding: 10px;
-  border: 1px solid #d7fff014;
-  font-family: var(--fPrimary);
-  margin-bottom: 20px;
-  position: relative;
+  --preview-accent: #8ea3ff;
 }
 
-.postCardBackground {
-  filter: blur(3px);
-  transform: scale(0.98);
-  opacity: 0.8;
-}
-
-.userHeader {
+.cardHeader {
   display: flex;
+  gap: 10px;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  justify-content: space-between;
 }
 
-.userInfo {
-  flex: 1;
-}
-
-.userName {
-  color: var(--cWhite);
-  font-weight: 600;
-  font-size: 16px;
-  margin-bottom: 2px;
-}
-
-.userRole {
-  color: var(--cWhiteV1);
-  font-size: 14px;
-}
-
-.postTime {
-  color: var(--cWhiteV1);
-  font-size: 13px;
-}
-
-.mainContent {
+.author {
   display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
-  align-items: flex-start;
-}
-
-.textContent {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
   min-width: 0;
+  gap: 10px;
+  align-items: center;
+}
+
+.author > :first-child {
+  flex: 0 0 auto;
+  border: 1px solid var(--cModalBorder);
+}
+
+.author > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.author strong {
   overflow: hidden;
+  color: var(--cWhite);
+  font-size: 13px;
+  font-weight: 680;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.postTitle {
-  color: var(--cWhite);
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  line-height: 1.3;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+.author span {
+  display: flex;
+  min-width: 0;
+  gap: 6px;
+  align-items: center;
+  overflow: hidden;
+  color: var(--cWhiteV1);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.postDescription {
+.author i {
+  width: 3px;
+  height: 3px;
+  flex: 0 0 auto;
+  background: var(--cWhiteV2);
+  border-radius: 50%;
+}
+
+.typeBadge {
+  padding: 5px 8px;
+  flex: 0 0 auto;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 720;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.newsBadge {
   color: var(--cWhite);
-  font-size: 15px;
-  line-height: 1.4;
+  background: var(--cModalSurfaceRaised);
+  border-color: var(--cModalBorder);
+}
+
+.postBadge {
+  color: #aebcff;
+  background: rgba(142, 163, 255, 0.08);
+  border-color: rgba(142, 163, 255, 0.2);
+}
+
+.cardContent {
+  display: flex;
+  margin-top: 16px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.newsCard .cardContent {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(170px, 1.1fr);
+  align-items: start;
+}
+
+.cardCopy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.cardCopy h3 {
   margin: 0;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
+  color: var(--cWhite);
+  font-size: 19px;
+  font-weight: 720;
+  letter-spacing: -0.025em;
+  line-height: 1.28;
+  overflow-wrap: anywhere;
+}
+
+.cardCopy p {
+  margin: 0;
+  color: var(--cWhiteV4, #d8dfdd);
+  font-size: 12px;
+  line-height: 1.58;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.cardCopy .placeholderText {
+  color: var(--cWhiteV1);
+  font-style: italic;
 }
 
 .imageContainer {
-  width: 140px;
-  height: 140px;
-  background-color: rgba(18, 21, 25, 0.72);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  flex-shrink: 0;
   position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--cModalSection);
+  border: 1px solid var(--cModalBorder);
+  border-radius: 13px;
 }
 
-.postImage {
+.previewImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.imageCounter {
+.mediaCount {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background-color: rgba(0, 0, 0, 0.7);
+  top: 9px;
+  right: 9px;
+  padding: 5px 8px;
   color: var(--cWhite);
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
+  background: rgba(4, 7, 9, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
 }
 
-.imagePlaceholder {
+.mediaPlaceholder {
   display: flex;
-  width: 140px;
-  height: 140px;
-  justify-content: center;
-  flex-direction: column;
+  min-height: 112px;
+  padding: 18px;
+  gap: 12px;
   align-items: center;
-  gap: 6px;
-  color: var(--cWhiteV1);
+  color: var(--preview-accent);
+  background: var(--cModalSection);
+  border: 1px dashed color-mix(in srgb, var(--preview-accent) 32%, var(--cModalBorder));
+  border-radius: 13px;
 }
 
-.imagePlaceholderText {
-  margin: 0;
+.mediaPlaceholder > svg {
+  flex: 0 0 auto;
+}
+
+.mediaPlaceholder div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mediaPlaceholder strong {
+  color: var(--cWhite);
   font-size: 12px;
-  text-align: center;
+  font-weight: 650;
+}
+
+.mediaPlaceholder span {
+  overflow: hidden;
+  color: var(--cWhiteV1);
+  font-size: 10px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardFooter {
+  padding-top: 12px;
+  margin-top: 14px;
+  border-top: 1px solid var(--cModalDivider);
 }
 
 .stats {
   display: flex;
-  align-items: center;
-  gap: 20px;
-  font-size: 14px;
+  padding: 2px 3px 10px;
+  gap: 14px;
   color: var(--cWhiteV1);
-  margin-bottom: 12px;
+  font-size: 10px;
 }
 
-.statItem {
+.stats span {
   display: flex;
+  gap: 5px;
   align-items: center;
-  gap: 6px;
 }
 
-.statItemRight {
+.stats strong {
+  color: var(--cWhite);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.actions button {
   display: flex;
+  min-height: 38px;
+  gap: 7px;
   align-items: center;
-  gap: 6px;
-  margin-left: auto;
-}
-
-.separator {
-  height: 1px;
-  background-color: rgba(215, 255, 240, 0.12);
-  margin: 12px 0;
-}
-
-.actionButtons {
-  display: flex;
-  justify-content: space-between;
-}
-
-.actionButton {
-  background: none;
-  border: none;
+  justify-content: center;
   color: var(--cWhiteV1);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  background: var(--cModalSection);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 11px;
 }
 
-.actionButtonPrimary {
-  color: var(--cAccent);
-}
+@media (max-width: 640px) {
+  .previewContainer {
+    padding: 18px 8px;
+  }
 
-.postTop {
-  position: absolute;
-  top: -70px;
-  left: 10px;
-  right: 10px;
-  z-index: 1;
-}
+  .previewCard {
+    padding: 14px;
+    border-radius: 16px;
+  }
 
-.postMain {
-  position: absolute;
-  top: 50%;
-  left: 1px;
-  right: 1px;
-  transform: translateY(-50%);
-  z-index: 3;
-}
+  .typeBadge {
+    padding-inline: 6px;
+  }
 
-.postBottom {
-  position: absolute;
-  bottom: -70px;
-  left: 10px;
-  right: 10px;
-  z-index: 2;
-}
-
-.postContent {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.textContentFull {
-  width: 100%;
-}
-
-.imageContainerFull {
-  width: 100%;
-  position: relative;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.postImageFull {
-  width: 100%;
-  height: auto;
-  max-height: 300px;
-  object-fit: cover;
-  border-radius: 8px;
+  .newsCard .cardContent {
+    grid-template-columns: 1fr;
+  }
 }
