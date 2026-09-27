@@ -5,16 +5,119 @@ export default function GraphAdapterLine(
 ) {
   const xLabels = data.labels;
   const chartFontFamily = 'Inter, sans-serif';
+  const isDashboard = options?.variant === 'dashboard';
+  const isArea = options?.area === true;
+  const lineColors = options?.colors || [];
+  const gridColor = '#20262d';
   const l = {
+    chart: {
+      ...oDef.chart,
+      type: isArea ? 'area' : 'line',
+      zoom: {
+        enabled: false,
+      },
+    },
     stroke: {
       curve: 'smooth',
-      width: 2,
+      width: isDashboard ? [2, 2.5, 2.5, 3] : 2,
+      lineCap: 'round',
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    grid: {
+      show: true,
+      borderColor: gridColor,
+      strokeDashArray: isDashboard ? 4 : 0,
+      position: 'back',
+      xaxis: {
+        lines: {
+          show: false,
+        },
+      },
+      yaxis: {
+        lines: {
+          show: true,
+        },
+      },
+      row: {
+        colors: undefined,
+        opacity: 0.5,
+      },
+      column: {
+        colors: undefined,
+        opacity: 0.5,
+      },
+      padding: isDashboard
+        ? {
+            top: 8,
+            right: 12,
+            bottom: 0,
+            left: 8,
+          }
+        : {
+            top: 0,
+            right: 10,
+            bottom: 0,
+            left: 12,
+          },
+    },
+    fill:
+      isDashboard && isArea
+        ? {
+            type: 'gradient',
+            gradient: {
+              shade: 'dark',
+              type: 'vertical',
+              shadeIntensity: 0,
+              inverseColors: false,
+              opacityFrom: [0.22, 0.28, 0.25, 0.7],
+              opacityTo: [0.01, 0.015, 0.012, 0.04],
+              stops: [0, 68, 100],
+            },
+          }
+        : oDef.fill,
+    states: {
+      hover: {
+        filter: {
+          type: 'none',
+        },
+      },
+      active: {
+        filter: {
+          type: 'none',
+        },
+      },
     },
     xaxis: {
       categories: xLabels,
+      axisBorder: isDashboard
+        ? {
+            show: true,
+            color: '#20262d',
+          }
+        : {
+            show: true,
+            color: gridColor,
+            width: '100%',
+            height: 1,
+            offsetX: 0,
+            offsetY: 0,
+          },
+      axisTicks: isDashboard
+        ? {
+            show: false,
+          }
+        : {
+            show: true,
+            color: gridColor,
+            height: 6,
+            offsetX: 0,
+            offsetY: 0,
+          },
       labels: {
         style: {
-          colors: '#A7A7A7',
+          colors: isDashboard ? '#8693a0' : '#A7A7A7',
           fontSize: '12px',
           fontWeight: 400,
           fontFamily: chartFontFamily,
@@ -22,10 +125,14 @@ export default function GraphAdapterLine(
       },
     },
     markers: {
-      size: 6,
+      size: isDashboard ? 4 : 6,
       discrete: [],
-      strokeColors: '#333536',
-      strokeWidth: 0,
+      colors: lineColors,
+      strokeColors: isDashboard ? '#11161c' : '#333536',
+      strokeWidth: isDashboard ? 2 : 0,
+      hover: {
+        sizeOffset: 3,
+      },
     },
   };
   const d: any = [];

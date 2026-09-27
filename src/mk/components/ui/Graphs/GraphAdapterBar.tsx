@@ -5,26 +5,91 @@ export default function GraphAdapterBar(
 ) {
   const xLabels = data.labels;
   const chartFontFamily = 'Inter, sans-serif';
+  const isDashboard = options?.variant === 'dashboard';
+  const axisColor = isDashboard ? '#8693a0' : '#A7A7A7';
+  const gridColor = '#20262d';
 
   const o = {
     chart: {
       ...oDef.chart,
       type: 'bar',
-      stacked: options.stacked || false,
+      stacked: options?.stacked || false,
     },
     plotOptions: {
       bar: {
-        borderRadius: 4,
+        borderRadius: isDashboard ? 5 : 4,
         borderRadiusApplication: 'end',
+        columnWidth: isDashboard ? '58%' : undefined,
       },
+    },
+    grid: {
+      show: true,
+      borderColor: gridColor,
+      strokeDashArray: isDashboard ? 4 : 0,
+      position: 'back',
+      xaxis: {
+        lines: {
+          show: false,
+        },
+      },
+      yaxis: {
+        lines: {
+          show: true,
+        },
+      },
+      row: {
+        colors: undefined,
+        opacity: 0.5,
+      },
+      column: {
+        colors: undefined,
+        opacity: 0.5,
+      },
+      padding: isDashboard
+        ? {
+            top: 2,
+            right: 8,
+            bottom: 0,
+            left: 8,
+          }
+        : {
+            top: 0,
+            right: 10,
+            bottom: 0,
+            left: 12,
+          },
     },
     xaxis: {
       categories: xLabels,
+      axisBorder: isDashboard
+        ? {
+            show: true,
+            color: gridColor,
+          }
+        : {
+            show: true,
+            color: gridColor,
+            width: '100%',
+            height: 1,
+            offsetX: 0,
+            offsetY: 0,
+          },
+      axisTicks: isDashboard
+        ? {
+            show: false,
+          }
+        : {
+            show: true,
+            color: gridColor,
+            height: 6,
+            offsetX: 0,
+            offsetY: 0,
+          },
       labels: {
         style: {
-          colors: '#A7A7A7',
-          fontSize: '16px',
-          fontWeight: 500,
+          colors: axisColor,
+          fontSize: isDashboard ? '12px' : '16px',
+          fontWeight: isDashboard ? 400 : 500,
           fontFamily: chartFontFamily,
         },
       },
