@@ -20,7 +20,10 @@
   width: 75%;
   height: 100vh;
   background-color: var(--cBlackV2);
-  position: absolute;
+  /* `fixed` y no `absolute`: cerrado vive fuera de la pantalla, a la derecha,
+     y con `absolute` ensanchaba el documento (2160 px a 1440): un
+     desplazamiento horizontal lo dejaba a la vista, tapando los modales. */
+  position: fixed;
   top: 0;
   right: -50%;
   transition: right 0.3s ease-in-out;
