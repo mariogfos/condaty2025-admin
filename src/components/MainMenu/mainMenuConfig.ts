@@ -235,3 +235,24 @@ export const menuConfig: MenuConfigItem[] = [
     ],
   },
 ];
+
+/**
+ * La primera pantalla del menú que el usuario puede ver, en el orden del menú
+ * y con la MISMA regla que usa `MainMenu` para mostrarla (sin `perm`, o con
+ * `perm` y lectura). Sin Inicio (`home:R`) el admin entra acá, no a un «sin
+ * acceso» con el menú lleno de pantallas que sí puede abrir.
+ */
+export const getFirstAccessibleMenuRoute = (
+  canRead: (permission: string, action: string) => boolean,
+): string | null => {
+  const isVisible = (entry: { perm: string }) =>
+    !entry.perm || canRead(entry.perm, "R");
+
+  for (const item of menuConfig) {
+    const entries = item.type === "item" ? [item] : item.items;
+    const first = entries.find((entry) => entry.href !== "/" && isVisible(entry));
+    if (first) return first.href;
+  }
+
+  return null;
+};
