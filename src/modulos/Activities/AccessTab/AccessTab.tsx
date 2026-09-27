@@ -21,6 +21,7 @@ import {
   getAccessUnit,
 } from "./shared/accessDetailUtils";
 import { ACCESS_TYPE_FILTER_OPTIONS } from "./shared/accessEnums";
+import { validateAccessExport } from "./accessExportLimit";
 
 interface AccessesTabProps {
   paramsInitial: any;
@@ -194,6 +195,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         del: true,
       },
       search: true,
+      validateExport: validateAccessExport,
       getListRows: (response: any, requestParams?: Record<string, any>) => {
         if (requestParams?.fullType !== "DET") {
           return Array.isArray(response?.data) ? response.data : [];
