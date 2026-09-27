@@ -4,6 +4,8 @@ export const paymentsApi = {
   unitFinancialState: (dptoId: string | number) =>
     `${PAYMENTS_V3_BASE}/units/${dptoId}/financial-state`,
   adminDebts: `${PAYMENTS_V3_BASE}/admin/debts`,
+  // Unidades + cuentas bancarias del formulario de cobro, sin pedir la lista.
+  formMetadata: `${PAYMENTS_V3_BASE}/form-metadata`,
   create: PAYMENTS_V3_BASE,
   simulate: `${PAYMENTS_V3_BASE}/simulate`,
   partialSummary: (debtId: string | number) =>

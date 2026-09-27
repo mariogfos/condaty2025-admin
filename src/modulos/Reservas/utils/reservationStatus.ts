@@ -91,6 +91,16 @@ export const resolveReservationDisplayStatus = ({
   return currentStatus;
 };
 
+/**
+ * «Registrar pago» desde el detalle: sólo una reserva con el pago PENDIENTE
+ * (estado derivado) y con su deuda. Sin deuda no hay a qué imputar el cobro.
+ */
+export const canRegisterReservationPayment = (
+  status?: ReservationStatus | number | null,
+  debtDptoId?: string | number | null,
+) =>
+  status === ReservationStatus.PENDING_PAYMENT && hasPaymentEvidence(debtDptoId);
+
 export const shouldShowReservationPaymentTimeLimit = (
   status?: ReservationStatus | number | null,
 ) => status === ReservationStatus.PENDING_PAYMENT;

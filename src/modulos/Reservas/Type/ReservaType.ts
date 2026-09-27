@@ -143,6 +143,7 @@ export type ReservationPeriod = {
  */
 export type ReservationDebtDpto = {
   id?: number | string | null;
+  amount?: number | string | null;
   payment_id?: number | string | null;
   resolved_payment_id?: number | string | null;
   resolved_payment_status?: string | null;

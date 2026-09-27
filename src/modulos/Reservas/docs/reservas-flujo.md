@@ -148,6 +148,7 @@ Al hacer click en una fila, `useCrud` renderea `mod.renderView`, que es
 | Aprobar / Rechazar | `Number(status) === 1` (AWAITING_APPROVAL) | `canReviewRequest` |
 | Cancelar reserva | el estado derivado NO es terminal y NO es "esperando" | `canCancelReservation` |
 | Ver pago | hay un `payment_id` resuelto | `canShowPayment` |
+| Registrar pago | el estado derivado es "Pago pendiente" (2) Y la reserva tiene su deuda (`debt_dpto.id`) | `canRegisterPayment` |
 
 🔴 `canReviewRequest` mira la **columna**, no el estado derivado. Una reserva
 puede verse como "Pago pendiente" por el estado de su deuda y eso no habilita
@@ -200,6 +201,16 @@ listada como pendiente en `reservas-contrato.md`.
 
 Abre `PaymentRenderView` del módulo de Pagos con el `payment_id` resuelto. Al
 cerrarlo, recarga el detalle para que el estado se actualice.
+
+### Registrar pago
+
+Pide `GET /v3/payments/form-metadata` (unidades y cuentas bancarias: ninguno
+de los que abren el detalle los tiene) y abre `PaymentRenderForm` del módulo
+de Pagos con `debtId = debt_dpto.id`, la unidad, el tipo Reservas y categoría,
+subcategoría y monto **bloqueados**: el monto sale de la deuda, no se escribe.
+El cobro viaja como cualquier otro, `POST /v3/payments` con `debt_dpto_ids`.
+Mientras el formulario está abierto el detalle se oculta; al cerrarlo vuelve y
+se recarga, y un cobro exitoso recarga también la lista.
 
 ## 10. Exportar
 
