@@ -8,7 +8,6 @@ import { getFullName } from "@/mk/utils/string";
 import {
   IconComment,
   IconDocs,
-  IconDownload,
   IconLike,
   IconPublicacion,
 } from "@/components/layout/icons/IconsBiblioteca";
@@ -24,7 +23,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import CommentsModal from "@/components/CommentsModal/CommentsModal";
-import { ContentType, esDocumento, esImagen, esVideo,
+import { esDocumento, esImagen, esVideo,
   OPCIONES_DE_TIPO,
   FILTRO_DE_TIPO,
 } from "./contentEnums";
@@ -87,7 +86,7 @@ const Contents = () => {
     useState<number | null>(null);
   const [selectedContentData, setSelectedContentData] = useState<any>(null);
 
-  const { user, showToast } = useAuth();
+  const { showToast } = useAuth();
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
@@ -144,11 +143,10 @@ const Contents = () => {
     singular: "publicación",
     plural: "",
     permiso: "contents",
-    // S140 (bug #14 backlog Mario 2026-07-28): el botón "Agregar" del
-    // módulo Publicaciones se renderizaba con label "Nueva" (genérico).
-    // Fix: pinear label explícito "Nueva publicación" para que el
-    // user sepa qué tipo de contenido va a crear.
-    titleAdd: "Nueva publicación",
+    // `useCrud` arma el botón y el título del alta como
+    // `titleAdd + " " + singular`: con "Nueva" sale "Nueva publicación".
+    // Con "Nueva publicación" salía "Nueva publicación publicación".
+    titleAdd: "Nueva",
     export: false,
     extraData: true,
     filter: true,
@@ -562,7 +560,7 @@ const Contents = () => {
     getFilter: handleGetFilter,
   });
 
-  const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
+  useCrudUtils({
     onSearch,
     searchs,
     setStore: crudSetStore,
