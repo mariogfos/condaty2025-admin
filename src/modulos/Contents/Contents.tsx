@@ -113,21 +113,29 @@ const Contents = () => {
     setIsCommentModalOpen(true);
   };
 
+  /**
+   * 🔴 Cerrar el hilo NO suma un comentario. Antes el cierre llamaba a
+   * `handleCommentAdded`, que agregaba un `{}` a la copia: el contador del
+   * detalle subía uno cada vez que se abría y cerraba el hilo sin comentar.
+   * Producción lo resolvió borrando la copia; acá se conserva, porque es lo que
+   * deja el contador del detalle al día sin cerrarlo.
+   */
   const handleCloseComments = () => {
     setIsCommentModalOpen(false);
     setSelectedContentIdForComments(null);
-    setSelectedContentData(null);
-    handleCommentAdded();
   };
 
   const handleCommentAdded = () => {
-    if (selectedContentData) {
-      const updatedData = {
-        ...selectedContentData,
-        comments: [...(selectedContentData.comments || []), {}],
-      };
-      setSelectedContentData(updatedData);
-    }
+    setSelectedContentData((current: any) =>
+      current
+        ? {
+            ...current,
+            comments_count:
+              Number(current.comments_count ?? current.comments?.length ?? 0) +
+              1,
+          }
+        : current,
+    );
     reLoad();
   };
 
@@ -167,7 +175,15 @@ const Contents = () => {
         onEdit={(item: any) => onEdit(item)}
         onDelete={props.onDel}
         onOpenComments={handleOpenComments}
-        selectedContentData={selectedContentData}
+        // 🔴 Sólo la copia de ESTA publicación. La copia sobrevive al cierre
+        // del detalle, y sin comparar el id el próximo detalle que se abría
+        // mostraba la publicación anterior.
+        selectedContentData={
+          selectedContentData &&
+          selectedContentData.id === props.item?.data?.id
+            ? selectedContentData
+            : undefined
+        }
       />
     ),
     loadView: { fullType: "DET" },
@@ -629,7 +645,7 @@ const Contents = () => {
         isOpen={isCommentModalOpen}
         onClose={handleCloseComments}
         contentId={selectedContentIdForComments}
-        onCommentAdded={() => reLoad()}
+        onCommentAdded={handleCommentAdded}
       />
     </div>
   );
