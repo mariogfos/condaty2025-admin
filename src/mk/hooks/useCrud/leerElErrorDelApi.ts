@@ -122,10 +122,11 @@ const comoSobre = (valor: any): Record<string, any> | null =>
  * ⚠️ DÓNDE SE USA ESTO, Y POR QUÉ IMPORTA (ensanchado en CDT-47)
  * ────────────────────────────────────────────────────────────────────────
  *
- * Nació para el TOAST de guardado de `useCrud`. CDT-47 lo llevó a dos
+ * Nació para el TOAST de guardado de `useCrud`. CDT-47 lo llevó a las
  * pantallas de LECTURA que nunca habían mostrado texto escrito por el
- * servidor: el muro (`Reel.tsx`) y el widget «Comunidad» del dashboard
- * (`WidgetContentsResume.tsx`). Las dos renderizan ahora el `message` de
+ * servidor: el muro (`Reel.tsx`) y el inicio (`Index.tsx`, que reemplazó al
+ * widget «Comunidad» en admin#912). Después se sumaron el hilo de comentarios
+ * (`CommentsModal.tsx`) y `Balance.tsx`. Todas renderizan el `message` de
  * cualquier sobre que no sea 5xx.
  *
  * 🔴 Eso mueve el riesgo residual de lugar. Para 5xx y para la red caída la
