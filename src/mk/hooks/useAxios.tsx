@@ -12,6 +12,18 @@ import { AxiosContext } from "../contexts/AxiosInstanceProvider";
 import { logError } from "../utils/logs";
 
 /**
+ * 🔴 Lo que va a la consola cuando un pedido falla: nunca el error de axios
+ * entero. Ese objeto lleva `config.data`, el cuerpo del pedido, y en un login
+ * fallido eso es la contraseña (producción, `1b62a833`).
+ */
+export const errorForTheConsole = (err: any) => ({
+  message: err?.message,
+  status: err?.response?.status,
+  url: err?.config?.url,
+  response: err?.response?.data,
+});
+
+/**
  * ⚠️ `PATCH` faltaba, y no era un olvido inocuo: el API tiene rutas `patch`
  * —`assemblies/{assembly}/status`, `tasks/{task}/status`, `tasks/{task}/assign`—
  * y el front ya las llamaba. Como `execute` estaba tipada `Function`, nadie se
@@ -218,7 +230,7 @@ const useAxios = <T = any,>(
       // setData(response.data);
       data = response.data;
     } catch (err) {
-      logError("error useAxios", err);
+      logError("error useAxios", errorForTheConsole(err));
       error = {
         message: (err as any).message,
         data: (err as any).response?.data || {},
