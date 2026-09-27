@@ -425,8 +425,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     // Con ellos el pedido va por `GET /v3/debt-dptos?_export={formato}` y lo
     // atiende `DeudasExportConfig`, que declara sus PROPIAS columnas: el
     // reporte viejo imprimía seis y se comía Deuda, Multa y Mant. Valor.
-    // ⚠️ Todavía no trae «Concepto/Periodo», «Monto pagado» ni «Saldo
-    // restante»: la tabla y el export no coinciden hasta que el API los sume.
+    // Trae «Deuda total», «Monto pagado» y «Saldo restante» como la tabla; lo
+    // único que la tabla tiene y el export no es «Concepto/Periodo».
     export: false,
     exportAsync: {
       type: "debt_dptos",
