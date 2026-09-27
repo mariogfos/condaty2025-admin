@@ -57,6 +57,68 @@ const markNotifProcessed = (notifKey: string) => {
 let last = readStoredLastNotif();
 
 let db: any = null;
+
+export type InstantDbTaskResult<T> =
+  | { ok: true; value: T }
+  | { ok: false; error: unknown };
+
+/**
+ * Corre una operación ACCESORIA de InstantDB (chat, campanita, purga) sin que
+ * su fallo se lleve puesto al admin.
+ *
+ * InstantDB rechaza por timeout o por red caída, y en este código la mitad de
+ * los `transact` no se esperaban: el rechazo quedaba flotando como unhandled
+ * rejection, y los que sí se esperaban cortaban el flujo a la mitad — el chat
+ * quedaba en «enviando» para siempre porque `setSending(false)` nunca corría.
+ *
+ * Nunca rechaza: devuelve `{ ok: false, error }` y deja el error en consola
+ * con el mensaje de quien llama, para que el que llama decida qué mostrar.
+ */
+export const runInstantDbTask = async <T,>(
+  failureMessage: string,
+  task: () => Promise<T>,
+): Promise<InstantDbTaskResult<T>> => {
+  try {
+    return { ok: true, value: await task() };
+  } catch (error) {
+    console.warn(failureMessage, error);
+    return { ok: false, error };
+  }
+};
+
+/**
+ * La purga corre UNA vez por carga de página. `initSocket` lo llaman el
+ * chat, `useInstantMsg` y el arranque de este módulo: antes cada llamada
+ * volvía a consultar y borrar.
+ */
+let purgeStarted = false;
+/** Un `transact` con cientos de borrados es el que se vence por timeout. */
+const PURGE_BATCH_SIZE = 50;
+
+const purgeOldNotifications = async (instance: any) => {
+  const unDiaAtras = Date.now() - 24 * 60 * 60 * 1000;
+  const query = {
+    notif: {
+      $: {
+        where: {
+          created_at: { $lt: unDiaAtras },
+        },
+        limit: 1000,
+      },
+    },
+  };
+  const { data } = await instance.queryOnce(query);
+  const old: any[] = Array.isArray(data?.notif) ? data.notif : [];
+
+  for (let start = 0; start < old.length; start += PURGE_BATCH_SIZE) {
+    await instance.transact(
+      old
+        .slice(start, start + PURGE_BATCH_SIZE)
+        .map((notif: any) => instance.tx.notif[notif.id].delete()),
+    );
+  }
+};
+
 export const initSocket = async () => {
   if (!db) {
     db = init({
@@ -65,35 +127,16 @@ export const initSocket = async () => {
     });
   }
 
-  if (typeof window !== "undefined") {
-    // La purga de notificaciones viejas es best-effort: si InstantDB no
-    // responde, `queryOnce`/`transact` rechazan y antes se llevaban puesta la
-    // inicialización entera. El `transact` además NO se esperaba, así que su
-    // rechazo quedaba flotando como unhandled rejection (CDT-95).
-    try {
-      const unDiaAtras = Date.now() - 24 * 60 * 60 * 1000;
-      const del: any[] = [];
-      const query = {
-        notif: {
-          $: {
-            where: {
-              created_at: { $lt: unDiaAtras },
-            },
-            limit: 1000,
-          },
-        },
-      };
-      const { data: _notif } = await db.queryOnce(query);
-      _notif.notif.forEach((e: any) => {
-        del.push(db.tx.notif[e.id].delete());
-      });
-      if (del.length > 0) await db.transact(del);
-    } catch (error) {
-      console.warn(
-        "[notif] no se pudieron purgar las notificaciones viejas de InstantDB",
-        error,
-      );
-    }
+  if (!purgeStarted && typeof window !== "undefined") {
+    purgeStarted = true;
+    // 🔴 La purga NO se espera. El chat hace `await initSocket()` a nivel de
+    // módulo y cuelga del layout raíz: esperar acá una consulta a InstantDB
+    // dejaba la carga del admin atada a que InstantDB contestara. Es
+    // best-effort (CDT-95): si falla, se avisa y nada más.
+    void runInstantDbTask(
+      "[notif] no se pudieron purgar las notificaciones viejas de InstantDB",
+      () => purgeOldNotifications(db),
+    );
   }
 
   return db;
@@ -333,18 +376,19 @@ const useNotifInstandDB = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.notif, processNotif]);
 
-  const sendNotif = async (channel: string, event: string, payload: any) => {
-    await db.transact(
-      db.tx.notif[id()].update({
-        from: user.id,
-        payload,
-        channel,
-        event,
-        created_at: Date.now(),
-        client_id: user?.client_id,
-      })
+  const sendNotif = (channel: string, event: string, payload: any) =>
+    runInstantDbTask("[notif] no se pudo enviar la notificación", () =>
+      db.transact(
+        db.tx.notif[id()].update({
+          from: user.id,
+          payload,
+          channel,
+          event,
+          created_at: Date.now(),
+          client_id: user?.client_id,
+        })
+      )
     );
-  };
 
   const result = useMemo(
     () => ({
