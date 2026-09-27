@@ -14,6 +14,15 @@ interface PropsType extends PropsTypeInputBase {
   placeholderRepeat?: string;
   nameRepeat?: string;
   onBlur?: any;
+  /**
+   * 🔴 Por defecto `new-password`. `Input` pone `off`, y los gestores de
+   * contraseñas IGNORAN `off` en un campo de contraseña: pueden rellenar la
+   * clave guardada del admin en el alta de un usuario, en la contraseña nueva
+   * del perfil o en la API Key y la clave del banco del QR dinámico — y al
+   * guardar, esa clave viaja como si fuera la del otro. Sólo el login, que
+   * pide la clave propia, pasa `current-password`.
+   */
+  autoComplete?: "new-password" | "current-password";
 }
 
 const InputPassword = ({
@@ -33,6 +42,7 @@ const InputPassword = ({
   nameRepeat = "repeatPassword",
   className = "",
   readOnly = false,
+  autoComplete = "new-password",
 }: PropsType) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordRepeat, setShowPasswordRepeat] = useState(false);
@@ -63,6 +73,7 @@ const InputPassword = ({
         value={value}
         onChange={onChange}
         type={showPassword ? "text" : "password"}
+        autoComplete={autoComplete}
         name={name}
         label={label}
         onBlur={onBlur}
@@ -71,13 +82,13 @@ const InputPassword = ({
         readOnly={readOnly}
         iconRight={iconRight}
         error={error}
-        maxLength={10}
       />
       {repeatPassword && (
         <Input
           value={repeatPasswordValue}
           onChange={onChangeRepeat}
           type={showPasswordRepeat ? "text" : "password"}
+          autoComplete="new-password"
           name={nameRepeat}
           label={labelRepeat}
           placeholder={placeholderRepeat}
@@ -85,7 +96,6 @@ const InputPassword = ({
           readOnly={readOnly}
           iconRight={iconRightRepeat}
           error={error}
-          maxLength={10}
         />
       )}
     </div>

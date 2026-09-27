@@ -236,6 +236,7 @@ const LoginView = ({
                   label={translate("passwordLabel")}
                   required
                   name="password"
+                  autoComplete="current-password"
                   error={errors}
                   value={formState.password}
                   onChange={handleChange}
