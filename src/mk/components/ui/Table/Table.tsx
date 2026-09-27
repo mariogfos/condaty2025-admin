@@ -554,12 +554,30 @@ const Table = ({
           maxWidth = Math.max(maxWidth, Math.ceil(cell.scrollWidth));
         });
 
+        // 🔴 Sin `+ 1`: el `scrollWidth` de una celda nunca es menor que su
+        // ancho, así que sumarle un píxel agrandaba la columna en cada
+        // medición, y ese cambio disparaba la siguiente (el `ResizeObserver`).
         if (maxWidth > 0) {
-          nextWidths[index] = `${Math.min(360, Math.max(96, maxWidth + 1))}px`;
+          nextWidths[index] = `${Math.min(360, Math.max(96, maxWidth))}px`;
         }
       });
 
       setMeasuredWidths((prev) => {
+        // Un vaivén de 1 px es redondeo subpíxel, no contenido nuevo: se
+        // conserva el ancho anterior para que la columna no tiemble.
+        Object.keys(nextWidths).forEach((key) => {
+          const index = Number(key);
+          const before = parseMeasuredWidth(prev[index]);
+          const after = parseMeasuredWidth(nextWidths[index]);
+          if (
+            before !== undefined &&
+            after !== undefined &&
+            Math.abs(before - after) <= 1
+          ) {
+            nextWidths[index] = prev[index];
+          }
+        });
+
         const prevKeys = Object.keys(prev);
         const nextKeys = Object.keys(nextWidths);
         const same =
