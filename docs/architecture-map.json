@@ -170,7 +170,7 @@
         "Reel",
         "ReelCompactList",
         "MediaRenderer",
-        "CommentModal"
+        "ImageMosaic"
       ],
       "path": "src/modulos/Reel"
     },

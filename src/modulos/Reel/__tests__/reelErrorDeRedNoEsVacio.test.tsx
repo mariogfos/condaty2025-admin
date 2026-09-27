@@ -86,7 +86,10 @@ vi.mock("@/mk/hooks/useAxios", () => ({
 vi.mock("@/modulos/Reel/MediaRenderer/MediaRenderer", () => ({
   default: () => null,
 }));
-vi.mock("@/modulos/Reel/CommentModal/CommentModal", () => ({
+vi.mock("@/components/CommentsModal/CommentsModal", () => ({
+  default: () => null,
+}));
+vi.mock("@/components/PublicationLikesModal/PublicationLikesModal", () => ({
   default: () => null,
 }));
 vi.mock("@/modulos/Contents/RenderView/RenderView", () => ({
@@ -320,7 +323,9 @@ describe("CDT-47 — el muro no confunde un fallo de red con un muro vacío", ()
     // Y el vacío mentiroso no vuelve mientras el request está en vuelo:
     // `useAxios` limpia su `error` al arrancar la petición.
     expect(screen.queryByText(EL_VACIO_MENTIROSO)).not.toBeInTheDocument();
-    expect(screen.getByText("Cargando publicaciones...")).toBeInTheDocument();
+    expect(
+      screen.getByRole("status", { name: "Cargando publicaciones" }),
+    ).toBeInTheDocument();
   });
 });
 

@@ -14,7 +14,6 @@ interface MediaRendererProps {
   item: ContentItem;
   modoCompacto?: boolean;
   onImageClick?: () => void;
-  onNavigateImage?: (direction: "prev" | "next") => void;
 }
 
 const MediaRenderer: React.FC<MediaRendererProps> = ({
@@ -59,18 +58,33 @@ const MediaRenderer: React.FC<MediaRendererProps> = ({
   if (esImagen(item.type) && hasImages) {
     if (normalizedImages.length === 1) {
       const imageSrc: any = normalizedImages[0];
+      const image = (
+        <Image
+          src={imageSrc}
+          alt={item.title || "Imagen de contenido"}
+          width={600}
+          height={400}
+          className={styles.imageCard}
+          unoptimized
+        />
+      );
 
+      // Con `onImageClick` la imagen es un botón: se abre con teclado y se
+      // anuncia, cosa que un `onClick` sobre la `<img>` no daba.
       return (
         <div className={styles.contentMediaContainer}>
-          <Image
-            src={imageSrc}
-            alt={item.title || "Imagen de contenido"}
-            width={600}
-            height={400}
-            className={styles.imageCard}
-            onClick={onImageClick}
-            unoptimized
-          />
+          {onImageClick ? (
+            <button
+              type="button"
+              className={styles.imageButton}
+              onClick={onImageClick}
+              aria-label="Abrir detalle de la publicación"
+            >
+              {image}
+            </button>
+          ) : (
+            image
+          )}
         </div>
       );
     }

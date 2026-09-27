@@ -17,45 +17,17 @@ export type Role = {
   laravel_through_key: string;
 };
 
-export type Image = {
-  id: number;
-  content_id: number;
-  ext: string;
-};
-
-export type CommentUser = {
-  id: string;
-  name: string;
-  middle_name?: string;
-  last_name: string;
-  mother_last_name?: string;
-  updated_at?: string;
-  has_image?: any;
-  url_avatar?: string;
-};
-
-export type Comment = {
-  id: number;
-  comment: string;
-  user_id: string | null;
-  person_id: string | null;
-  type: string;
-  event_id: number | null;
-  content_id: number;
-  created_at: string;
-  user: CommentUser | null;
-  person: CommentUser | null;
-};
-
 export type ContentItem = {
   id: number;
-  destiny: string;
+  /** Enum numérico `ContentDestiny` (api#461). */
+  destiny: number;
   client_id: string;
   user_id: string;
   title: string | null;
   description: string;
   url: string | null;
-  type: "V" | "D" | "I";
+  /** Enum numérico `ContentType` (api#461): se compara con `esImagen`/`esVideo`/`esDocumento`. */
+  type: number;
   views: number;
   status: string;
   likes: number;

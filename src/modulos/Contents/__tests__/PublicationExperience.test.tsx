@@ -16,7 +16,8 @@ import { ContentDestiny, ContentType } from "@/modulos/Contents/contentEnums";
  * caen al último `else` —«Contenido no disponible»— o al documento.
  *
  * Adaptado de `src/modulos/Reel/__tests__/PublicationExperience.test.tsx` de
- * producción; los casos del muro (`Reel`) quedan para cuando se traiga el muro.
+ * producción; los casos del muro (`Reel`) viven en
+ * `src/modulos/Reel/__tests__/ReelRedesign.test.tsx`.
  */
 
 const executeMock = vi.fn();

@@ -22,6 +22,11 @@ const ARCHIVOS = [
   "src/modulos/Reel/Reel.tsx",
 ];
 
+// El muro ya no llama a nada: usa este mismo `CommentsModal` (lo pinea
+// `ReelRedesign.test.tsx`). Sigue en la lista de arriba para que una llamada
+// propia nueva no pueda volver por la ruta legacy.
+const LOS_QUE_LLAMAN = ["src/components/CommentsModal/CommentsModal.tsx"];
+
 // `"/comments` o `` `/comments `` — la ruta legacy. `/v3/comments` no matchea
 // porque el `/` de antes de `comments` tiene que ser el primero de la cadena.
 const RUTA_LEGACY = /["'`]\/comments/g;
@@ -35,7 +40,7 @@ describe("los comentarios del admin van por /v3", () => {
 
   // La otra mitad: sin esto el test pasaría también si alguien borrara las
   // llamadas en vez de arreglarlas.
-  it.each(ARCHIVOS)("%s sigue llamando a /v3/comments", (archivo) => {
+  it.each(LOS_QUE_LLAMAN)("%s sigue llamando a /v3/comments", (archivo) => {
     const texto = readFileSync(join(process.cwd(), archivo), "utf8");
 
     expect(texto).toContain("/v3/comments");

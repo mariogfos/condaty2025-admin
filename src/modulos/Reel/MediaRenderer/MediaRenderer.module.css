@@ -8,8 +8,20 @@
   max-height: 455px;
 }
 
-.contentMediaContainer:has(>.imageCard) {
+.imageButton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
   cursor: pointer;
+}
+
+.imageButton:focus-visible {
+  outline: 2px solid var(--cAccent);
+  outline-offset: -3px;
 }
 
 .imageCard {
@@ -20,6 +32,10 @@
   display: block;
   border-radius: var(--bRadiusM);
   transition: transform 0.3s ease;
+}
+
+.imageButton:hover .imageCard {
+  transform: scale(1.012);
 }
 
 .videoEmbedContainer {

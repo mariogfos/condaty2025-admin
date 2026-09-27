@@ -323,7 +323,11 @@ const Layout = ({ children }: any) => {
           path={path || ""}
           router={router}
           client={client}
-          title={store?.title + " / " + formattedToday}
+          // Una pantalla que no fija `store.title` (el Muro, por ejemplo)
+          // mostraba «undefined / domingo, …» en la cabecera del teléfono.
+          title={
+            store?.title ? store.title + " / " + formattedToday : formattedToday
+          }
           right={store?.right}
           customTitle={store?.customTitle}
           openSlider={sideBarOpen}
