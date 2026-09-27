@@ -517,6 +517,8 @@ const RenderView: React.FC<RenderViewProps> = ({
   const paidAtDisplay = formatToDayDDMMYYYY(
     debtDetail?.payment?.paid_at || debtDetail?.paid_at,
   );
+  const isDetailLoading =
+    shouldShowLoading || Object.keys(debtDetail).length === 0;
   const headerSubtitle =
     finalStatus === DebtStatus.PAID
       ? `Pagada el ${formatToDayFdMYH(
@@ -541,28 +543,99 @@ const RenderView: React.FC<RenderViewProps> = ({
         buttonText=""
         buttonCancel=""
         buttonExtra={
-          item?.id ? (
-            <FinancialRecordHistoryButton
-              title="Detalle de deuda"
-              record={{
-                type: "debt",
-                id: item.id,
-                amount: debtDetail?.amount,
-                penaltyAmount: debtDetail?.penalty_amount,
-              }}
-              onRecordChanged={async () => {
-                await reLoadDetail();
-                onReload?.();
-              }}
-            />
-          ) : null
+          /*
+            El pie del detalle: el historial a la izquierda y las acciones a
+            la derecha. Las acciones se movieron acá desde el cuerpo del
+            modal; las condiciones que deciden cada botón son las mismas.
+          */
+          <div className={paymentStyles.detailFooter}>
+            {item?.id ? (
+              <FinancialRecordHistoryButton
+                title="Detalle de deuda"
+                record={{
+                  type: "debt",
+                  id: item.id,
+                  amount: debtDetail?.amount,
+                  penaltyAmount: debtDetail?.penalty_amount,
+                }}
+                onRecordChanged={async () => {
+                  await reLoadDetail();
+                  onReload?.();
+                }}
+              />
+            ) : null}
+            {!isDetailLoading && (
+              <div className={paymentStyles.detailFooterActions}>
+                {/*
+                  CDT-89: acá había un `&& numericStatus !== DebtStatus.FORGIVEN`
+                  que ya no hacía nada — `getAvailableActions` niega el cobro de
+                  una condonada en sus DOS ramas (`DebtType.NORMAL` y el resto).
+                  Era una guarda de llamador sobre una regla que vive en la
+                  función compartida, y es exactamente el patrón que dejó vivo
+                  este bug: quien agregó "anulada" al enum tocó un solo lado.
+
+                  La regla de quién puede cobrarse vive en un único lugar
+                  —`getAvailableActions`—, pero al formulario de cobro se entra
+                  por DOS botones: éste y el de detalle de abajo, cuyo `case 3`
+                  abre el mismo formulario. Los dos consultan
+                  `actions.showRegistrarPago`. Si aparece una tercera puerta,
+                  pregunta lo mismo; no escribe la regla de nuevo.
+                */}
+                {actions.showRegistrarPago && (
+                  <Button
+                    onClick={() => setShowPaymentForm(true)}
+                    className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+                  >
+                    Registrar Pago
+                  </Button>
+                )}
+                {actions.showVerPago && resolvedPaymentId && (
+                  <Button
+                    onClick={() => setShowPaymentModal(true)}
+                    variant="secondary"
+                    className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+                  >
+                    Ver pago
+                  </Button>
+                )}
+                {showDetailButton && (
+                  <Button
+                    onClick={() => handleDetailButtonClick(debtType)}
+                    variant="secondary"
+                    className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+                    disabled={!hasApiData}
+                  >
+                    {detailButtonText}
+                  </Button>
+                )}
+                {actions.showEditar && onEdit && !hideEditAndDeleteButtons && (
+                  <Button
+                    onClick={() => onEdit(debtDetail)}
+                    variant="secondary"
+                    className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+                  >
+                    Editar
+                  </Button>
+                )}
+                {actions.showAnular && onDel && !hideEditAndDeleteButtons && (
+                  <Button
+                    onClick={() => onDel(debtDetail)}
+                    variant="secondary"
+                    className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+                  >
+                    Anular
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         }
         variant="mini"
         headerDivider={false}
         minWidth={860}
         maxWidth={980}
       >
-        {shouldShowLoading || Object.keys(debtDetail).length === 0 ? (
+        {isDetailLoading ? (
           <Loading />
         ) : (
           <>
@@ -798,71 +871,6 @@ const RenderView: React.FC<RenderViewProps> = ({
                 </div>
               </div>
             ) : null}
-
-            <div
-              className={`${paymentStyles.voucherButtonContainer} ${styles.actionsWrap}`}
-            >
-              {/*
-                CDT-89: acá había un `&& numericStatus !== DebtStatus.FORGIVEN`
-                que ya no hacía nada — `getAvailableActions` niega el cobro de
-                una condonada en sus DOS ramas (`DebtType.NORMAL` y el resto).
-                Era una guarda de llamador sobre una regla que vive en la
-                función compartida, y es exactamente el patrón que dejó vivo
-                este bug: quien agregó "anulada" al enum tocó un solo lado.
-
-                La regla de quién puede cobrarse vive en un único lugar
-                —`getAvailableActions`—, pero al formulario de cobro se entra
-                por DOS botones: éste y el de detalle de abajo, cuyo `case 3`
-                abre el mismo formulario. Los dos consultan
-                `actions.showRegistrarPago`. Si aparece una tercera puerta,
-                pregunta lo mismo; no escribe la regla de nuevo.
-              */}
-              {actions.showRegistrarPago && (
-                <Button
-                  onClick={() => setShowPaymentForm(true)}
-                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
-                >
-                  Registrar Pago
-                </Button>
-              )}
-              {actions.showVerPago && resolvedPaymentId && (
-                <Button
-                  onClick={() => setShowPaymentModal(true)}
-                  variant="secondary"
-                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
-                >
-                  Ver pago
-                </Button>
-              )}
-              {showDetailButton && (
-                <Button
-                  onClick={() => handleDetailButtonClick(debtType)}
-                  variant="secondary"
-                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
-                  disabled={!hasApiData}
-                >
-                  {detailButtonText}
-                </Button>
-              )}
-              {actions.showEditar && onEdit && !hideEditAndDeleteButtons && (
-                <Button
-                  onClick={() => onEdit(debtDetail)}
-                  variant="secondary"
-                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
-                >
-                  Editar
-                </Button>
-              )}
-              {actions.showAnular && onDel && !hideEditAndDeleteButtons && (
-                <Button
-                  onClick={() => onDel(debtDetail)}
-                  variant="secondary"
-                  className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
-                >
-                  Anular
-                </Button>
-              )}
-            </div>
           </>
         )}
       </DataModal>
