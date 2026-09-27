@@ -15,6 +15,7 @@ import useToast, { ToastItem } from "../hooks/useToast";
 import Splash from "../../components/req/Splash";
 import ToastViewport from "../components/ui/Toast/ToastViewport";
 import { CLAVE_DEL_TOKEN } from "@/mk/utils/claveDelToken";
+import { getPresenceSessionId } from "../monitoring/presenceSessionState";
 export interface AuthContextType {
   user: any;
   error: any;
@@ -218,11 +219,16 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     }
   };
   const logout = async () => {
+    // Se lee ANTES de tocar el usuario: al cambiarlo, el reporte de presencia
+    // se detiene y limpia su sesión. Con ella el API cierra la presencia como
+    // `logout` en vez de esperar la inactividad.
+    const presenceSessionId = getPresenceSessionId();
     setUser({ id: "0" });
     setWaiting(1, "logout");
     const { data, error }: any = await execute(
       process.env.NEXT_PUBLIC_AUTH_LOGOUT,
       "POST",
+      { presence_session_id: presenceSessionId },
     );
     localStorage.removeItem(
       CLAVE_DEL_TOKEN,
