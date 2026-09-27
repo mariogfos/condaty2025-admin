@@ -68,7 +68,8 @@ const FinancialMetric = ({
  * ⚠️ Las cuatro listas de antes —revisiones de pago, alertas, reservas y
  * pre-registros— y el widget «Comunidad» salieron del inicio a propósito: cada
  * una tiene su módulo (los pre-registros, su tarjeta en Residentes con
- * `pendingOwnersCount`). El `/dashboard` del API todavía las calcula.
+ * `pendingOwnersCount`, que viene de `v3/owners?fullType=EXTRA`). El
+ * `/dashboard` del API ya no las arma (api#669).
  */
 const HomePage = () => {
   const { store, setStore, userCan } = useAuth();
