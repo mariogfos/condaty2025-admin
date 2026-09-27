@@ -6,6 +6,8 @@ import Input from "@/mk/components/forms/Input/Input";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import PaymentRenderForm from "@/modulos/Payments/RenderForm/RenderForm";
 import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
 import {
   RESERVATION_DETAIL_COPY,
@@ -59,11 +61,14 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       reservationId,
       reLoad,
     });
+    const { showToast } = useAuth();
 
     return (
       <>
         <DataModal
-          open={open}
+          // Mientras se cobra, el detalle se esconde: dos modales apilados
+          // no se leen. Al cerrar el cobro vuelve, ya recargado.
+          open={open && !detail.showPaymentForm}
           onClose={onClose}
           title={RESERVATION_DETAIL_COPY.title}
           buttonText=""
@@ -226,7 +231,9 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                 ) : null}
 
                 {!detail.canReviewRequest &&
-                (detail.canCancelReservation || detail.canShowPayment) ? (
+                (detail.canCancelReservation ||
+                  detail.canRegisterPayment ||
+                  detail.canShowPayment) ? (
                   <div className={styles.actionButtonsContainer}>
                     {detail.canCancelReservation ? (
                       <Button
@@ -236,6 +243,16 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
                         disabled={detail.isActionLoading}
                       >
                         {RESERVATION_DETAIL_COPY.cancel}
+                      </Button>
+                    ) : null}
+
+                    {detail.canRegisterPayment ? (
+                      <Button
+                        className={styles.primaryActionButton}
+                        onClick={detail.openPaymentForm}
+                        variant="primary"
+                      >
+                        {RESERVATION_DETAIL_COPY.registerPayment}
                       </Button>
                     ) : null}
 
@@ -262,6 +279,24 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
             reLoad={detail.handleReservationDetailReload}
             payment_id={detail.resolvedPaymentId as string | number}
             noWaiting={true}
+          />
+        ) : null}
+
+        {detail.showPaymentForm && detail.paymentFormExtraData ? (
+          <PaymentRenderForm
+            open
+            onClose={detail.handlePaymentFormClose}
+            item={detail.paymentFormItem}
+            extraData={detail.paymentFormExtraData}
+            execute={detail.executeAction as (...args: any[]) => Promise<any>}
+            showToast={
+              showToast as (
+                msg: string,
+                type: "info" | "success" | "error" | "warning",
+              ) => void
+            }
+            reLoad={() => reLoad?.()}
+            debtId={detail.paymentFormDebtId ?? undefined}
           />
         ) : null}
 

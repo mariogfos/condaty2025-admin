@@ -5,6 +5,8 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { paymentsApi } from "@/modulos/Payments/api";
+import type { ExtraData } from "@/modulos/Payments/hooks/usePaymentsForm";
+import { FormPaymentType } from "@/modulos/Payments/Type/PaymentType";
 import { reservationsApi } from "../api";
 import {
   REASON_LABELS,
@@ -31,6 +33,7 @@ import {
   getPriceDetails,
 } from "../utils/reservationFormat";
 import {
+  canRegisterReservationPayment,
   formatReservationPaymentTimeLimitMessage,
   resolveReservationDisplayStatus,
   shouldShowReservationPaymentTimeLimit,
@@ -142,6 +145,9 @@ export const useReservationDetail = ({
   const [cancelReason, setCancelReason] = useState("");
   const [cancelErrors, setCancelErrors] = useState<Record<string, string>>({});
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  /** Unidades y cuentas del formulario de cobro; `null` = formulario cerrado. */
+  const [paymentFormExtraData, setPaymentFormExtraData] =
+    useState<ExtraData | null>(null);
   const [resolvedPaymentId, setResolvedPaymentId] = useState<
     string | number | null
   >(null);
@@ -232,6 +238,10 @@ export const useReservationDetail = ({
     : reservationDetail?.dpto?.description || RESERVATION_DETAIL_COPY.noUnit;
 
   const canShowPayment = Boolean(resolvedPaymentId);
+  const canRegisterPayment = canRegisterReservationPayment(
+    statusKey,
+    resolvedDebtId,
+  );
 
   /**
    * 🔴 El permiso para aprobar/rechazar mira la COLUMNA (`status`), no el
@@ -370,6 +380,56 @@ export const useReservationDetail = ({
   const handleReservationDetailReload = useCallback(() => {
     void reloadReservationDetail(null, true);
   }, [reloadReservationDetail]);
+
+  /**
+   * Abre el formulario de cobro con la deuda de la reserva ya elegida.
+   *
+   * El formulario necesita el padrón de unidades y las cuentas bancarias
+   * (`extraData`), y ninguno de los que abren este detalle —la lista, el
+   * calendario, las notificaciones, el detalle de la deuda— los tiene: se
+   * piden a `form-metadata` al abrir.
+   */
+  const openPaymentForm = useCallback(async () => {
+    const { data: metadata } = await executeActionRef.current(
+      paymentsApi.formMetadata,
+      "GET",
+      {},
+      false,
+      true,
+    );
+
+    if (!metadata?.success) {
+      showToast?.(
+        metadata?.message || RESERVATION_DETAIL_COPY.genericError,
+        "error",
+      );
+      return;
+    }
+
+    setPaymentFormExtraData((metadata?.data || {}) as ExtraData);
+  }, [showToast]);
+
+  // El formulario, al cobrar, llama `reLoad` (la lista) y después `onClose`
+  // (esto): cerrar sólo recarga el detalle, para no pedir la lista dos veces.
+  const handlePaymentFormClose = useCallback(() => {
+    setPaymentFormExtraData(null);
+    void reloadReservationDetail(null, true);
+  }, [reloadReservationDetail]);
+
+  /**
+   * Lo que el formulario de cobro recibe precargado: la unidad, el tipo
+   * Reservas y categoría y monto BLOQUEADOS. El monto lo recalcula el
+   * formulario desde la deuda (`debtId`), no se escribe a mano.
+   */
+  const paymentFormItem = {
+    dpto_id: reservationDetail?.dpto?.nro || "",
+    type: FormPaymentType.RESERVATION,
+    isCategoryLocked: true,
+    isSubcategoryLocked: true,
+    isAmountLocked: true,
+    amount: debtDpto?.amount ?? reservationDetail?.amount ?? 0,
+    owner_id: reservationDetail?.owner?.id ?? "",
+  };
 
   /** Aprueba la solicitud: `is_approved = 2`, numérico. */
   const approveReservation = useCallback(async () => {
@@ -566,6 +626,7 @@ export const useReservationDetail = ({
     canReviewRequest,
     canCancelReservation,
     canShowPayment,
+    canRegisterPayment,
     showTimeLimit,
     isActionLoading,
     actionError,
@@ -575,6 +636,15 @@ export const useReservationDetail = ({
     openPaymentModal: () => setShowPaymentModal(true),
     handlePaymentModalClose,
     handleReservationDetailReload,
+
+    // Formulario de cobro
+    showPaymentForm: paymentFormExtraData !== null,
+    paymentFormExtraData,
+    paymentFormItem,
+    paymentFormDebtId: resolvedDebtId,
+    openPaymentForm,
+    handlePaymentFormClose,
+    executeAction,
 
     // Aprobar / rechazar
     approveReservation,

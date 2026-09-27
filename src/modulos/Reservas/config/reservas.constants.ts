@@ -228,6 +228,7 @@ export const RESERVATION_DETAIL_COPY = {
   reject: "Rechazar solicitud",
   cancel: "Cancelar reserva",
   viewPayment: "Ver pago",
+  registerPayment: "Registrar pago",
   approveError: "Ocurrió un error al aprobar.",
   rejectError: "Ocurrió un error al rechazar.",
   cancelSuccess: "Reserva cancelada",
