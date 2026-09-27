@@ -15,14 +15,21 @@ import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
+import { hasMaintenanceValue } from "@/mk/utils/utils";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
-import { formatBs, formatNumber } from "@/mk/utils/numbers";
-import { DebtStatus, DebtType } from "@/types/PaymentType";
+import { DebtStatus } from "@/types/PaymentType";
 import {
   getStatusText as getStatusTextConst,
   getStatusConfig as getStatusConfigConst,
 } from "../constants";
+import {
+  DEBT_TABLE_COLUMNS,
+  getDebtAmounts,
+  getDebtCategoryLabel,
+  getDebtConceptPeriodLabel,
+  getDebtSubcategoryLabel,
+  getDebtTypeLabel,
+} from "./debtListPresentation";
 
 interface AllDebtsProps {
   openView: boolean;
@@ -44,50 +51,21 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     <div>{item?.dpto?.nro || item?.dpto_id}</div>
   );
 
-  // 11 Noviembre 2025
-  // const renderCategoryCell = ({ item }: { item: any }) => (
-  //   <div>{item?.debt?.subcategory?.padre?.name || item?.subcategory?.padre?.name || '-/-'}</div>
-  // );
-
-  const renderSubcategoryCell = ({ item }: { item: any }) => (
-    <div>
-      {item?.debt?.subcategory?.name || item?.subcategory?.name || "-/-"}
-    </div>
+  const renderCategoryCell = ({ item }: { item: any }) => (
+    <div>{getDebtCategoryLabel(item)}</div>
   );
 
-  /**
-   * ⚠️ La QUINTA tabla de nombres del tipo de deuda del admin, y con las
-   * palabras del API ("Individual", "Compartida"). Las claves se unifican; las
-   * palabras se dejan porque son de producto. Le faltaba el plan de pago.
-   */
-  const renderDebtTypeCell = ({ item }: { item: any }) => {
-    switch (Number(item?.type)) {
-      case DebtType.NORMAL: {
-        return <div>Individual</div>;
-      }
-      case DebtType.EXPENSE: {
-        return <div>Expensas</div>;
-      }
-      case DebtType.RESERVATION: {
-        return <div>Reservas</div>;
-      }
-      case DebtType.PENALTY_RESERVATION: {
-        return <div>Multa por Cancelación</div>;
-      }
-      case DebtType.SHARED: {
-        return <div>Compartida</div>;
-      }
-      case DebtType.FORGIVENESS: {
-        return <div>Condonación</div>;
-      }
-      case DebtType.PAYMENT_PLAN: {
-        return <div>Plan de pago</div>;
-      }
-      default: {
-        return <div>-/-</div>;
-      }
-    }
-  };
+  const renderSubcategoryCell = ({ item }: { item: any }) => (
+    <div>{getDebtSubcategoryLabel(item)}</div>
+  );
+
+  const renderDebtTypeCell = ({ item }: { item: any }) => (
+    <div>{getDebtTypeLabel(item)}</div>
+  );
+
+  const renderConceptPeriodCell = ({ item }: { item: any }) => (
+    <div>{getDebtConceptPeriodLabel(item)}</div>
+  );
 
   const renderStatusCell = ({ item }: { item: any }) => {
     const rawStatus = Number(item?.status);
@@ -108,53 +86,17 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     return <div>{getDateStrMesShort(item.due_at)}</div>;
   };
 
-  const renderDebtAmountCell = ({ item }: { item: any }) => (
-    <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
-  );
-
-  const renderPenaltyAmountCell = ({ item }: { item: any }) => (
-    <FormatBsAlign value={parseFloat(item?.penalty_amount) || 0} alignRight />
-  );
-
-  const renderMaintenanceAmountCell = ({ item }: { item: any }) => {
-    const raw = item?.maintenance_amount;
-
-    const hasValue =
-      raw !== null &&
-      raw !== undefined &&
-      String(raw).trim() !== "" &&
-      !isNaN(Number(raw));
-
-    if (!hasValue)
-      return (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          -/-
-        </div>
-      );
-
-    return <FormatBsAlign value={parseFloat(raw)} alignRight />;
-  };
-
-  // 🔴 La celda y el pie tienen que hacer la MISMA cuenta. Acá la celda sumaba
-  // mantenimiento de valor y el pie no, así que la suma de la columna no daba
-  // el total de abajo. Y el mantenimiento entra sólo si el condominio lo
-  // habilita: si no, ni se muestra ni se suma.
-  const renderBalanceDueCell = ({ item }: { item: any }) => {
-    const debtAmount = parseFloat(item?.amount) || 0;
-    const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
-    const totalBalance =
-      debtAmount + penaltyAmount + maintenanceAmountFor(user, item);
-
-    return <FormatBsAlign value={totalBalance} alignRight />;
-  };
+  // 🔴 Todas las celdas de plata salen de UNA cuenta (`getDebtAmounts`), y el
+  // mantenimiento entra sólo si el condominio lo habilita: si no, ni se
+  // muestra ni se suma. Lo pagado y el saldo los calcula el API.
+  const renderMoneyCell =
+    (key: "debt" | "penalty" | "maintenance" | "total" | "paid" | "balance") =>
+    ({ item }: { item: any }) => {
+      const value = getDebtAmounts(item, hasMaintenanceValue(user))[key];
+      if (value === null)
+        return <div style={{ width: "100%", textAlign: "center" }}>-/-</div>;
+      return <FormatBsAlign value={value} alignRight />;
+    };
 
   const getStatusOptions = () => [
     { id: "ALL", name: "Todos los estados" },
@@ -244,53 +186,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     return { filterBy: currentFilters };
   };
 
-  const calculateTotals = (data: any[]) => {
-    if (!data || data.length === 0)
-      return { totalDebt: 0, totalPenalty: 0, totalBalance: 0 };
-
-    return data.reduce(
-      (acc, item) => {
-        const debtAmount = parseFloat(item?.amount) || 0;
-        const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
-        const maintenanceAmount = parseFloat(item?.maintenance_amount) || 0;
-        const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
-
-        return {
-          totalDebt: acc.totalDebt + debtAmount,
-          totalPenalty: acc.totalPenalty + penaltyAmount,
-          totalBalance: acc.totalBalance + totalBalance,
-        };
-      },
-      { totalDebt: 0, totalPenalty: 0, totalBalance: 0 },
-    );
-  };
-
   const paramsInitial = {
     fullType: "L",
     page: 1,
     perPage: 20,
   };
-
-  const renderTotalWithGreenBorder = (value: number, isHighlighted = false) => (
-    <div
-      style={{
-        fontWeight: "bold",
-        fontSize: "14px",
-        color: isHighlighted ? "#10b981" : "var(--cWhite)",
-        textAlign: "right",
-        backgroundColor: isHighlighted
-          ? "rgba(16, 185, 129, 0.1)"
-          : "var(--cBlackV2)",
-        padding: "8px 12px",
-        borderRadius: "6px",
-        border: "2px solid #10b981",
-        minWidth: "80px",
-        margin: "4px 0",
-      }}
-    >
-      Bs {formatNumber(value || 0, 2)}
-    </div>
-  );
 
   const fields = useMemo(() => {
     const showMaintenance = hasMaintenanceValue(user);
@@ -314,25 +214,25 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
       unit: {
         rules: [""],
         api: "",
-        label: "Unidad",
+        label: DEBT_TABLE_COLUMNS.unit.label,
         list: {
           onRender: renderUnitCell,
-          order: 1,
+          order: DEBT_TABLE_COLUMNS.unit.order,
         },
       },
-      due_at: {
-        rules: ["required"],
+      type: {
+        rules: [],
         api: "e",
-        label: "Vencimiento",
+        label: DEBT_TABLE_COLUMNS.type.label,
         list: {
-          onRender: renderDueDateCell,
-          order: 6,
+          onRender: renderDebtTypeCell,
+          order: DEBT_TABLE_COLUMNS.type.order,
         },
         filter: {
-          key: "due_at",
-          label: "Periodo",
+          key: "type",
+          label: "Tipo",
           width: "100%",
-          options: getPeriodOptions,
+          options: getDebtTypeOptions,
           optionLabel: "name",
           optionValue: "id",
         },
@@ -340,8 +240,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
       category_id: {
         rules: [""],
         api: "",
-        label: "Categoría",
-        list: false,
+        label: DEBT_TABLE_COLUMNS.category.label,
+        list: {
+          onRender: renderCategoryCell,
+          order: DEBT_TABLE_COLUMNS.category.order,
+        },
         filter: {
           label: "Categoría",
           width: "100%",
@@ -353,10 +256,10 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
       subcategory_id: {
         rules: ["required"],
         api: "e",
-        label: "Subcategoría",
+        label: DEBT_TABLE_COLUMNS.subcategory.label,
         list: {
           onRender: renderSubcategoryCell,
-          order: 3,
+          order: DEBT_TABLE_COLUMNS.subcategory.order,
         },
         filter: {
           label: "Subcategoría",
@@ -366,21 +269,13 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
           optionValue: "id",
         },
       },
-      type: {
-        rules: [],
-        api: "e",
-        label: "Tipo",
+      concept_period: {
+        rules: [""],
+        api: "",
+        label: DEBT_TABLE_COLUMNS.conceptPeriod.label,
         list: {
-          onRender: renderDebtTypeCell,
-          order: 4,
-        },
-        filter: {
-          key: "type",
-          label: "Tipo",
-          width: "100%",
-          options: getDebtTypeOptions,
-          optionLabel: "name",
-          optionValue: "id",
+          onRender: renderConceptPeriodCell,
+          order: DEBT_TABLE_COLUMNS.conceptPeriod.order,
         },
       },
       status: {
@@ -390,18 +285,35 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
           <span
             style={{ display: "block", textAlign: "center", width: "100%" }}
           >
-            Estado
+            {DEBT_TABLE_COLUMNS.status.label}
           </span>
         ),
         list: {
           onRender: renderStatusCell,
-          order: 5,
+          order: DEBT_TABLE_COLUMNS.status.order,
         },
         filter: {
           key: "status",
           label: "Estado",
           width: "100%",
           options: getStatusOptions,
+          optionLabel: "name",
+          optionValue: "id",
+        },
+      },
+      due_at: {
+        rules: ["required"],
+        api: "e",
+        label: DEBT_TABLE_COLUMNS.dueAt.label,
+        list: {
+          onRender: renderDueDateCell,
+          order: DEBT_TABLE_COLUMNS.dueAt.order,
+        },
+        filter: {
+          key: "due_at",
+          label: "Periodo",
+          width: "100%",
+          options: getPeriodOptions,
           optionLabel: "name",
           optionValue: "id",
         },
@@ -413,15 +325,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
           <label
             style={{ display: "block", textAlign: "right", width: "100%" }}
           >
-            Deuda
+            {DEBT_TABLE_COLUMNS.debt.label}
           </label>
         ),
         list: {
-          onRender: renderDebtAmountCell,
-          order: 7,
-          sumarize: true,
-          onRenderFoot: (item: any, index: number, sumas: any) =>
-            renderTotalWithGreenBorder(sumas[item.key]),
+          onRender: renderMoneyCell("debt"),
+          order: DEBT_TABLE_COLUMNS.debt.order,
         },
       },
       penalty_amount: {
@@ -431,19 +340,14 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
           <label
             style={{ display: "block", textAlign: "right", width: "100%" }}
           >
-            Multa
+            {DEBT_TABLE_COLUMNS.penalty.label}
           </label>
         ),
         list: {
-          onRender: renderPenaltyAmountCell,
-          order: 8,
-          sumarize: true,
-          onRenderFoot: (item: any, index: number, sumas: any) =>
-            renderTotalWithGreenBorder(sumas[item.key]),
+          onRender: renderMoneyCell("penalty"),
+          order: DEBT_TABLE_COLUMNS.penalty.order,
         },
       },
-      // incluir maintenance_amount solo si corresponde
-
       maintenance_amount: {
         rules: [""],
         api: "",
@@ -451,38 +355,59 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
           <label
             style={{ display: "block", textAlign: "right", width: "100%" }}
           >
-            Mant. Valor
+            {DEBT_TABLE_COLUMNS.maintenance.label}
           </label>
         ),
         list: showMaintenance
           ? {
-              order: 9,
-              onRender: renderMaintenanceAmountCell,
+              onRender: renderMoneyCell("maintenance"),
+              order: DEBT_TABLE_COLUMNS.maintenance.order,
             }
           : false,
       },
-
-      balance_due: {
+      total_amount: {
         rules: [""],
         api: "",
         label: (
           <label
             style={{ display: "block", textAlign: "right", width: "100%" }}
           >
-            Monto total
+            {DEBT_TABLE_COLUMNS.total.label}
           </label>
         ),
         list: {
-          onRender: renderBalanceDueCell,
-          order: 9,
-          sumarize: false,
-          onRenderFoot: (item: any, index: number, sumas: any) => {
-            const totalBalance =
-              (sumas.amount || 0) +
-              (sumas.penalty_amount || 0) +
-              (hasMaintenanceValue(user) ? sumas.maintenance_amount || 0 : 0);
-            return renderTotalWithGreenBorder(totalBalance, true);
-          },
+          onRender: renderMoneyCell("total"),
+          order: DEBT_TABLE_COLUMNS.total.order,
+        },
+      },
+      confirmed_paid_amount: {
+        rules: [""],
+        api: "",
+        label: (
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            {DEBT_TABLE_COLUMNS.paid.label}
+          </label>
+        ),
+        list: {
+          onRender: renderMoneyCell("paid"),
+          order: DEBT_TABLE_COLUMNS.paid.order,
+        },
+      },
+      total_remaining_amount: {
+        rules: [""],
+        api: "",
+        label: (
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
+            {DEBT_TABLE_COLUMNS.balance.label}
+          </label>
+        ),
+        list: {
+          onRender: renderMoneyCell("balance"),
+          order: DEBT_TABLE_COLUMNS.balance.order,
         },
       },
     };
@@ -498,8 +423,10 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
     // Mario ya rechazó en Expensas.
     //
     // Con ellos el pedido va por `GET /v3/debt-dptos?_export={formato}` y lo
-    // atiende `DeudasExportConfig`, con las nueve columnas de esta pantalla:
-    // el reporte viejo imprimía seis y se comía Deuda, Multa y Mant. Valor.
+    // atiende `DeudasExportConfig`, que declara sus PROPIAS columnas: el
+    // reporte viejo imprimía seis y se comía Deuda, Multa y Mant. Valor.
+    // ⚠️ Todavía no trae «Concepto/Periodo», «Monto pagado» ni «Saldo
+    // restante»: la tabla y el export no coinciden hasta que el API los sume.
     export: false,
     exportAsync: {
       type: "debt_dptos",
