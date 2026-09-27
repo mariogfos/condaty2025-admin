@@ -128,7 +128,7 @@ const EditProfile = ({
         <p className={styles.subtitle}>
           Ingresa los datos personales del usuario.
         </p>
-        <section>
+        <section className={styles.avatarSection}>
           <UploadFileProfile
             name={"url_avatar"}
             formState={formState}
@@ -136,8 +136,8 @@ const EditProfile = ({
             user={user}
           />
         </section>
-        <section>
-          <div>
+        <section className={styles.fieldsSection}>
+          <div className={styles.formGrid}>
             <Input
               label="Carnet de identidad"
               name="ci"
@@ -191,7 +191,7 @@ const EditProfile = ({
               error={errors}
             />
             {user?.fosrole_id && (
-              <div className={styles.fullWidth}>
+              <div className={styles.credentialsGroup}>
                 <Input
                   label="Correo electrónico"
                   name="email"
@@ -212,18 +212,20 @@ const EditProfile = ({
                 />
               </div>
             )}
+            {type !== "owner" && (
+              <div className={styles.fullWidth}>
+                <Input
+                  label="Dirección"
+                  name="address"
+                  required={false}
+                  type="text"
+                  value={formState.address}
+                  onChange={onChange}
+                  error={errors}
+                />
+              </div>
+            )}
           </div>
-          {type !== "owner" && (
-            <Input
-              label="Dirección"
-              name="address"
-              required={false}
-              type="text"
-              value={formState.address}
-              onChange={onChange}
-              error={errors}
-            />
-          )}
         </section>
       </div>
     </DetailModal>
