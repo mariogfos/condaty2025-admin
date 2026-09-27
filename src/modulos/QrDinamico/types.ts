@@ -8,25 +8,28 @@
 /**
  * Modo de operación del QR dinámico.
  * @see QrDynamicModeEnum (backend: app/Modules/QrDinamico/Enums/QrDynamicModeEnum.php)
- * - 0: disabled  → QR deshabilitado globalmente
- * - 1: global    → QR compartido por todos los propietarios
- * - 2: own       → QR propio de cada propietario
+ * - 1: disabled  → QR deshabilitado globalmente
+ * - 2: global    → QR compartido por todos los propietarios
+ * - 3: own       → QR propio de cada propietario
+ *
+ * 🔴 Desde 1 desde el 2026-09-26, como todos los enums: el GLOBAL de antes (1)
+ * es el DISABLED de ahora.
  */
 export enum QrDynamicMode {
-  DISABLED = 0,
-  GLOBAL = 1,
-  OWN = 2,
+  DISABLED = 1,
+  GLOBAL = 2,
+  OWN = 3,
 }
 
 /**
  * Entorno del QR dinámico.
  * @see QrEnvironmentEnum (backend: app/Modules/QrDinamico/Enums/QrEnvironmentEnum.php)
- * - 0: sandbox    → entorno de pruebas
- * - 1: production → entorno de producción
+ * - 1: sandbox    → entorno de pruebas
+ * - 2: production → entorno de producción
  */
 export enum QrEnvironment {
-  SANDBOX = 0,
-  PRODUCTION = 1,
+  SANDBOX = 1,
+  PRODUCTION = 2,
 }
 
 /**
