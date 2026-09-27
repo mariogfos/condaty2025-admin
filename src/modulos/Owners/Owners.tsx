@@ -45,6 +45,15 @@ const Owners = () => {
     { id: "H", name: "Propietarios" },
   ];
 
+  // `filterBy=status:1|2` (producción, `4753cda2`). 🔴 Números: el API filtra
+  // por el estado OPERATIVO, el mismo que pinta la columna, y una letra contra
+  // la columna numérica da la lista vacía sin ningún error.
+  const getStatusFilter = () => [
+    { id: "ALL", name: "Todos" },
+    { id: String(OwnerStatus.ACTIVE), name: "Activo" },
+    { id: String(OwnerStatus.WAITING), name: "Por activar" },
+  ];
+
   const closeUnitsModal = () => {
     setUnitsModalOpen(false);
     setSelectedHomeowner(null);
@@ -326,6 +335,11 @@ const Owners = () => {
         rules: [""],
         api: "",
         label: "Estado",
+        filter: {
+          label: "Estado",
+          width: "180px",
+          options: getStatusFilter,
+        },
         list: {
           onRender: ({ item }: any) => {
             const operationalStatus = getOwnerOperationalStatus(item);
