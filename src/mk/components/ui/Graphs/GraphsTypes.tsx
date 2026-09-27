@@ -1,5 +1,6 @@
 export type ChartType =
   | 'line'
+  | 'area'
   | 'bar'
   | 'radialBar'
   | 'pie'
@@ -35,6 +36,7 @@ type optionsType = {
   download?: number;
   height?: number | string;
   width?: number | string;
+  variant?: 'default' | 'dashboard';
   offsetY?: number;
   money?: boolean;
   centerText?: string;

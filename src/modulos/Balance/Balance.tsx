@@ -22,6 +22,9 @@ import styles from "./Balance.module.css";
 import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
 import WidgetGrafIngresos from "@/components/Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
 import WidgetGrafBalance from "@/components/Widgets/WidgetGrafBalance/WidgetGrafBalance";
+// La leyenda usa los MISMOS colores que el gráfico: si no, el punto amarillo
+// de «Saldo inicial» describe una serie que en pantalla es gris.
+import { FINANCIAL_FLOW_COLORS } from "@/components/Widgets/WidgetsDashboard/WidgetGraphResume/FinancialFlowChart";
 import { ChartType, COLORS20 } from "@/mk/components/ui/Graphs/GraphsTypes";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatNumber, roundMoney } from "@/mk/utils/numbers";
@@ -1012,7 +1015,7 @@ const BalanceGeneral: React.FC = () => {
                             <div className={styles.legendItem}>
                               <div
                                 className={styles.legendColor}
-                                style={{ backgroundColor: "var(--cCompl1)" }}
+                                style={{ backgroundColor: FINANCIAL_FLOW_COLORS[0] }}
                               ></div>
 
                               <span>
@@ -1029,7 +1032,7 @@ const BalanceGeneral: React.FC = () => {
                             <div className={styles.legendItem}>
                               <div
                                 className={styles.legendColor}
-                                style={{ backgroundColor: "var(--cCompl7)" }}
+                                style={{ backgroundColor: FINANCIAL_FLOW_COLORS[1] }}
                               ></div>
 
                               <span>
@@ -1048,7 +1051,7 @@ const BalanceGeneral: React.FC = () => {
                             <div className={styles.legendItem}>
                               <div
                                 className={styles.legendColor}
-                                style={{ backgroundColor: "var(--cCompl8)" }}
+                                style={{ backgroundColor: FINANCIAL_FLOW_COLORS[2] }}
                               ></div>
 
                               <span>
@@ -1065,7 +1068,7 @@ const BalanceGeneral: React.FC = () => {
                             <div className={styles.legendItem}>
                               <div
                                 className={styles.legendColor}
-                                style={{ backgroundColor: "var(--cCompl9)" }}
+                                style={{ backgroundColor: FINANCIAL_FLOW_COLORS[3] }}
                               ></div>
 
                               <span>

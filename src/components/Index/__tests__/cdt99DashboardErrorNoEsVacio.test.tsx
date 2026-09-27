@@ -8,16 +8,17 @@
  *
  * ⚠️ LO QUE APARECIÓ AL MEDIR, Y QUE EL TICKET NO NOMBRABA: el panel entero
  * cuelga de UN SOLO pedido. Ese `/dashboard` alimenta el gráfico financiero,
- * las cuatro `WidgetList`, las cuatro tarjetas del resumen y las tres de
- * usuarios. Un fallo no dejaba «un pedazo vacío»: dejaba NUEVE afirmaciones
- * falsas a la vez —«Bs. 0» de ingresos, «Bs. 0» de cartera vencida, «No hay
- * pagos por revisar», «No existe ningún tipo de alerta»…—. Por eso el arreglo
- * es UN aviso, no nueve carteles, y por eso este test mide los cinco textos
- * mentirosos y no sólo el del gráfico que nombraba el ticket.
+ * el resumen del mes y los usuarios. Un fallo no dejaba «un pedazo vacío»:
+ * dejaba varias afirmaciones falsas a la vez —«Bs. 0» de ingresos, «Bs. 0» de
+ * cartera vencida, «Gráfica financiera sin datos»—. Por eso el arreglo es UN
+ * aviso, no un cartel por panel.
  *
- * Y por eso mismo el caso de control mira lo contrario: el widget «Comunidad»
- * tiene su PROPIO pedido (y su propio estado de error desde CDT-47), así que
- * un `/dashboard` caído no lo puede borrar de la pantalla.
+ * ⚠️ Desde el rediseño del inicio (2026-09-27) las cuatro listas —pagos,
+ * alertas, reservas, pre-registros— y el widget «Comunidad» ya no están en
+ * esta pantalla; sus vacíos salieron de este test con ellas.
+ *
+ * Y por eso mismo el caso de control mira lo contrario: `ConfigHealth` tiene
+ * su PROPIO pedido, así que un `/dashboard` caído no lo puede borrar.
  */
 import React from "react";
 import {
@@ -39,7 +40,7 @@ const pedidos: any[] = [];
 /**
  * El `reLoad` vivo del componente. Sirve para simular un refresco disparado
  * DESDE AFUERA —el que hace `store.reLoadDashboard` cuando se cierra un modal
- * (`Index.tsx:461`)—, que es el camino donde ya hay un panel bueno en pantalla.
+ * (el `useEffect` de `Index.tsx`)—, que es el camino donde ya hay un panel bueno en pantalla.
  */
 let dispararRefrescoExterno: (p?: any) => void = () => {};
 
@@ -159,23 +160,12 @@ vi.mock("@/mk/hooks/useScreenSize", () => ({
   useScreenSize: () => ({ isMobile: false }),
 }));
 
-// Tiene su PROPIO pedido y su propio estado de error (CDT-47): se dobla para
+// Pide su propia salud de configuración, no sale de `/dashboard`: se dobla para
 // que no consuma el `useAxios` falso, y para poder afirmar que sobrevive.
-vi.mock(
-  "@/components/Widgets/WidgetsDashboard/WidgetContentsResume/WidgetContentsResume",
-  () => ({ default: () => <div data-testid="widget-comunidad" /> }),
-);
-// Ídem: pide su propia salud de configuración, no sale de `/dashboard`.
 vi.mock("@/components/ConfigHealth/ConfigHealth", () => ({
   default: () => <div data-testid="config-health" />,
 }));
 
-vi.mock("@/modulos/Owners/RenderView/RenderView", () => ({ default: () => null }));
-vi.mock("@/modulos/Payments/RenderView/RenderView", () => ({ default: () => null }));
-vi.mock("@/modulos/Reservas/RenderView/RenderView", () => ({ default: () => null }));
-vi.mock("@/modulos/Alerts/RenderView/RenderView", () => ({ default: () => null }));
-vi.mock("@/modulos/Contents/RenderView/RenderView", () => ({ default: () => null }));
-vi.mock("@/mk/components/ui/DataModal/DataModal", () => ({ default: () => null }));
 vi.mock(
   "@/modulos/Assemblies/components/AssemblyDashboardCard/AssemblyDashboardCard",
   () => ({ AssemblyDashboardCard: () => <div data-testid="asamblea" /> }),
@@ -185,9 +175,9 @@ vi.mock(
   () => ({
     default: ({ showEmptyData, emptyDataProps }: any) => {
       // 🔴 El gráfico NO pasa por `EmptyData`: pinta su vacío por su cuenta
-      // (review 4R). Sin empujar acá el mensaje, la primera de las cinco
-      // vueltas del bucle de `LOS_VACIOS_MENTIROSOS` —justo la que nombraba el
-      // ticket— comparaba contra una lista donde ese texto NUNCA podía estar:
+      // (review 4R). Sin empujar acá el mensaje, el bucle de
+      // `LOS_VACIOS_MENTIROSOS` —con el texto que nombraba el ticket—
+      // comparaba contra una lista donde ese texto NUNCA podía estar:
       // una aserción que no puede fallar.
       if (showEmptyData) {
         mensajesPintados.push(String(emptyDataProps?.message ?? ""));
@@ -207,16 +197,12 @@ const GENERICO = "Revisa tu conexión e intenta de nuevo.";
 const CARGANDO = "Cargando la información del panel...";
 
 /**
- * 🔴 LOS CINCO textos que afirmaban algo falso sobre el condominio. El del
- * gráfico es el que nombraba el ticket; los otros cuatro salen del MISMO
- * pedido y mentían igual.
+ * 🔴 El texto que afirmaba algo falso sobre el condominio: el del gráfico, el
+ * que nombraba el ticket. Las otras cuatro mentiras eran las listas que el
+ * rediseño sacó del inicio.
  */
 const LOS_VACIOS_MENTIROSOS = [
   "Gráfica financiera sin datos. Verás la evolución del control financiero a medida que tengas movimiento financiero.",
-  "No hay pagos por revisar. Una vez los residentes comiencen a pagar sus deudas se mostrarán aquí.",
-  "No existe ningún tipo de alerta. Cuando un guardia o residente registre una se mostrará aquí.",
-  "Sin solicitudes de reserva. Una vez los residentes comiencen a reservar las áreas se mostrarán aquí.",
-  "No se encontró ninguna cuenta de pre-registro. Cuando un usuario se auto-registre se mostrará aquí.",
 ];
 
 /** Red caída: no hubo respuesta HTTP, así que `status` es 0 y no hay sobre. */
@@ -271,7 +257,7 @@ afterEach(() => {
 });
 
 describe("CDT-99 — el panel no confunde «falló el pedido» con «no hay nada»", () => {
-  it("con el pedido fallado NO afirma ninguno de los cinco vacíos: avisa el fallo y ofrece reintentar", async () => {
+  it("con el pedido fallado NO afirma el vacío del gráfico: avisa el fallo y ofrece reintentar", async () => {
     respuesta = LA_RED_SE_CAYO;
     await montar();
 
@@ -311,17 +297,15 @@ describe("CDT-99 — el panel no confunde «falló el pedido» con «no hay nada
 
   /**
    * 🔴 Punto 1 de la medición: no convertir la pantalla entera en un cartel de
-   * error. Estos dos tienen su PROPIO pedido —`ConfigHealth` y el widget
-   * «Comunidad», que además ya trae su estado de error de CDT-47—, así que un
-   * `/dashboard` caído no los puede borrar.
+   * error. `ConfigHealth` tiene su PROPIO pedido, así que un `/dashboard` caído
+   * no lo puede borrar.
    */
-  it("lo que NO falló sigue en pantalla: configuración y el widget Comunidad", async () => {
+  it("lo que NO falló sigue en pantalla: el aviso de configuración", async () => {
     respuesta = LA_RED_SE_CAYO;
     await montar();
     await screen.findByRole("alert");
 
     expect(screen.getByTestId("config-health")).toBeInTheDocument();
-    expect(screen.getByTestId("widget-comunidad")).toBeInTheDocument();
   });
 
   /**
@@ -437,7 +421,7 @@ describe("CDT-99 — el panel no confunde «falló el pedido» con «no hay nada
    *
    * `useAxios` limpia su `error` al ARRANCAR la petición: el render de en
    * medio ya no sabe que hubo un fallo y `data` sigue en `null`, así que sin
-   * un estado de carga propio el panel repinta los cinco «no hay» justo ahí.
+   * un estado de carga propio el panel repinta el «no hay» del gráfico justo ahí.
    * Un test que mire el DOM final no lo vería nunca: el render siguiente lo
    * borra.
    */
