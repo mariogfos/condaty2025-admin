@@ -161,20 +161,25 @@
   border-left: 3px solid var(--cRandom16);
 }
 
-.voucherButtonContainer {
+/* El pie de los detalles de Ingresos y de Deudas (también lo usa
+   `DebtsManager/.../AllDebts/RenderView`): el historial a la izquierda y las
+   acciones a la derecha. En pantallas angostas las acciones bajan a otra línea. */
+.detailFooter {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  align-items: stretch;
-  width: 100%;
-  position: relative;
-  /* row-gap: 1rem; */
+  justify-content: space-between;
+  align-items: center;
   gap: var(--spM);
+  width: 100%;
 }
 
-.voucherButtonContainer > button {
-  flex: 1 1 220px;
-  width: auto;
+.detailFooterActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: stretch;
+  gap: var(--spM);
+  flex: 1 1 auto;
 }
 
 .voucherButton {
@@ -469,10 +474,6 @@
     max-width: 90%;
     align-items: center;
     text-align: center;
-  }
-
-  .voucherButtonContainer {
-    padding: var(--spM) 0;
   }
 
   .voucherButton {

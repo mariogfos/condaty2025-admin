@@ -42,7 +42,20 @@ vi.mock("@/mk/hooks/useAxios", () => ({
 }));
 
 vi.mock("@/mk/components/ui/DataModal/DataModal", () => ({
-  default: ({ children }: any) => <div>{children}</div>,
+  default: ({ children, buttonExtra }: any) => (
+    <div>
+      {children}
+      <footer>{buttonExtra}</footer>
+    </div>
+  ),
+}));
+
+// Las acciones del detalle viven en el pie del modal (`buttonExtra`): el mock
+// tiene que pintarlo, o un `queryByText(...) → null` pasaría sin medir nada.
+vi.mock("@/modulos/FinancialRecords/FinancialRecordHistoryButton", () => ({
+  FinancialRecordHistoryButton: () => (
+    <button type="button">Historial y correcciones</button>
+  ),
 }));
 
 vi.mock("@/modulos/Payments/RenderForm/RenderForm", () => ({

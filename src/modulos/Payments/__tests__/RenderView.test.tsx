@@ -21,7 +21,21 @@ vi.mock("@/mk/contexts/AuthProvider", () => ({
 }));
 
 vi.mock("@/mk/components/ui/DataModal/DataModal", () => ({
-  default: ({ open, children }: any) => (open ? <div>{children}</div> : null),
+  default: ({ open, children, buttonExtra }: any) =>
+    open ? (
+      <div>
+        {children}
+        <footer>{buttonExtra}</footer>
+      </div>
+    ) : null,
+}));
+
+// Las acciones del detalle viven en el pie del modal (`buttonExtra`): el mock
+// tiene que pintarlo, o un `queryByText(...) → null` pasaría sin medir nada.
+vi.mock("@/modulos/FinancialRecords/FinancialRecordHistoryButton", () => ({
+  FinancialRecordHistoryButton: () => (
+    <button type="button">Historial y correcciones</button>
+  ),
 }));
 
 vi.mock("@/mk/components/forms/Button/Button", () => ({

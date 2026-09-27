@@ -703,16 +703,127 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         buttonCancel={""}
         onClose={onClose}
         buttonExtra={
-          <FinancialRecordHistoryButton
-            title="Detalle del ingreso"
-            record={{
-              type: "payment",
-              id: item.id,
-              amount: item.amount,
-              paidAt: item.paid_at,
-            }}
-            onRecordChanged={reLoad}
-          />
+          /*
+            El pie del detalle: el historial a la izquierda y las acciones a
+            la derecha. Las acciones se movieron acá desde el cuerpo del
+            modal; las condiciones que deciden cada botón son las mismas.
+          */
+          <div className={styles.detailFooter}>
+            <FinancialRecordHistoryButton
+              title="Detalle del ingreso"
+              record={{
+                type: "payment",
+                id: item.id,
+                amount: item.amount,
+                paidAt: item.paid_at,
+              }}
+              onRecordChanged={reLoad}
+            />
+            {!loading && (
+              <div className={styles.detailFooterActions}>
+                {/*
+                  Acá había un `&& item.user`, y escondía el botón de anular en
+                  todo pago que hubiera cargado el RESIDENTE.
+
+                  `item.user` es quien REGISTRÓ el pago, y el API sólo lo llena
+                  cuando el actor es un administrador (`PaymentsService:388`:
+                  `'user_id' => $this->isAdmin($actor) ? $actor->id : null`). O
+                  sea que la condición no preguntaba "¿se puede anular?":
+                  preguntaba "¿lo cargó un admin?".
+
+                  Medido en PRODUCCIÓN el 2026-08-24: 1.462 pagos cobrados sin
+                  `user_id` —Bs 1.095.499,88 en 8 condominios, el mayor con
+                  1.022— que ningún administrador podía anular desde la pantalla.
+
+                  Y el API nunca estuvo de acuerdo: `canCancelPayment()` es
+                  `isAdmin($actor)` a secas. La pantalla era más restrictiva que
+                  la regla, que es la forma que no da la cara — no hay error, el
+                  botón simplemente no está.
+
+                  Decisión de Alexander del 2026-08-14, con Douglas: el
+                  administrador puede anular CUALQUIER ingreso.
+                */}
+                {item && onDel && item.status === PaymentStatus.PAID && (
+                  <Button
+                    onClick={handleAnularClick}
+                    className={styles.textButtonDanger}
+                    // style={{ marginRight: 8 }}
+                    variant="danger"
+                  >
+                    Anular ingreso
+                  </Button>
+                )}
+
+                {item.status === PaymentStatus.PAID && (
+                  <Button
+                    variant="secondary"
+                    className={styles.voucherButton}
+                    // style={hasVoucherUrls ? { marginRight: 8 } : {}}
+                    onClick={() => handleGenerateReceipt(item)}
+                  >
+                    Ver Recibo
+                  </Button>
+                )}
+                {item.status === PaymentStatus.PAID && (
+                  <Button
+                    variant="secondary"
+                    className={styles.voucherButton}
+                    // style={{ marginRight: 8 }}
+                    onClick={handleShareReceiptWhatsApp}
+                  >
+                    Compartir por WhatsApp
+                  </Button>
+                )}
+                {hasVoucherUrls && (
+                  <Button
+                    variant="secondary"
+                    className={styles.voucherButton}
+                    onClick={handleViewOrDownloadVouchers}
+                  >
+                    Ver comprobante
+                  </Button>
+                )}
+                {canReviewPayment && (
+                  <Button
+                    variant="secondary"
+                    className={styles.voucherButton}
+                    onClick={() => {
+                      setOnRechazar(true);
+                    }}
+                  >
+                    Rechazar pago
+                  </Button>
+                )}
+                {canReviewPayment && (
+                  <Button
+                    variant="primary"
+                    className={styles.voucherButton}
+                    onClick={() => onConfirm(true)}
+                  >
+                    Aprobar pago
+                  </Button>
+                )}
+                {isQrWaiting && (
+                  <Button
+                    variant="primary"
+                    className={styles.voucherButton}
+                    onClick={handleVerifyPayment}
+                  >
+                    Verificar pago
+                  </Button>
+                )}
+                {isQrWaiting && (
+                  <Button
+                    variant="danger"
+                    className={styles.textButtonDanger}
+                    onClick={() => setOnCancelQr(true)}
+                  >
+                    Anular QR
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         }
         variant={"mini"}
         style={style}
@@ -979,109 +1090,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   </div>
                 </div>
               )}
-
-            <div className={styles.voucherButtonContainer}>
-              {/*
-                Acá había un `&& item.user`, y escondía el botón de anular en
-                todo pago que hubiera cargado el RESIDENTE.
-
-                `item.user` es quien REGISTRÓ el pago, y el API sólo lo llena
-                cuando el actor es un administrador (`PaymentsService:388`:
-                `'user_id' => $this->isAdmin($actor) ? $actor->id : null`). O
-                sea que la condición no preguntaba "¿se puede anular?":
-                preguntaba "¿lo cargó un admin?".
-
-                Medido en PRODUCCIÓN el 2026-08-24: 1.462 pagos cobrados sin
-                `user_id` —Bs 1.095.499,88 en 8 condominios, el mayor con
-                1.022— que ningún administrador podía anular desde la pantalla.
-
-                Y el API nunca estuvo de acuerdo: `canCancelPayment()` es
-                `isAdmin($actor)` a secas. La pantalla era más restrictiva que
-                la regla, que es la forma que no da la cara — no hay error, el
-                botón simplemente no está.
-
-                Decisión de Alexander del 2026-08-14, con Douglas: el
-                administrador puede anular CUALQUIER ingreso.
-              */}
-              {item && onDel && item.status === PaymentStatus.PAID && (
-                <Button
-                  onClick={handleAnularClick}
-                  className={styles.textButtonDanger}
-                  // style={{ marginRight: 8 }}
-                  variant="danger"
-                >
-                  Anular ingreso
-                </Button>
-              )}
-
-              {item.status === PaymentStatus.PAID && (
-                <Button
-                  variant="secondary"
-                  className={styles.voucherButton}
-                  // style={hasVoucherUrls ? { marginRight: 8 } : {}}
-                  onClick={() => handleGenerateReceipt(item)}
-                >
-                  Ver Recibo
-                </Button>
-              )}
-              {item.status === PaymentStatus.PAID && (
-                <Button
-                  variant="secondary"
-                  className={styles.voucherButton}
-                  // style={{ marginRight: 8 }}
-                  onClick={handleShareReceiptWhatsApp}
-                >
-                  Compartir por WhatsApp
-                </Button>
-              )}
-              {hasVoucherUrls && (
-                <Button
-                  variant="secondary"
-                  className={styles.voucherButton}
-                  onClick={handleViewOrDownloadVouchers}
-                >
-                  Ver comprobante
-                </Button>
-              )}
-              {canReviewPayment && (
-                <Button
-                  variant="secondary"
-                  className={styles.voucherButton}
-                  onClick={() => {
-                    setOnRechazar(true);
-                  }}
-                >
-                  Rechazar pago
-                </Button>
-              )}
-              {canReviewPayment && (
-                <Button
-                  variant="primary"
-                  className={styles.voucherButton}
-                  onClick={() => onConfirm(true)}
-                >
-                  Aprobar pago
-                </Button>
-              )}
-              {isQrWaiting && (
-                <Button
-                  variant="primary"
-                  className={styles.voucherButton}
-                  onClick={handleVerifyPayment}
-                >
-                  Verificar pago
-                </Button>
-              )}
-              {isQrWaiting && (
-                <Button
-                  variant="danger"
-                  className={styles.textButtonDanger}
-                  onClick={() => setOnCancelQr(true)}
-                >
-                  Anular QR
-                </Button>
-              )}
-            </div>
           </>
         )}
       </DataModal>
