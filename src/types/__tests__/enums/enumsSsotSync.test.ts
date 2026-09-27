@@ -62,6 +62,7 @@ import {
 import { RoleFixed } from '@/modulos/Roles/roleEnums';
 import { TypeFixed } from '@/modulos/UnitTypes/typeEnums';
 import { ContentType } from '@/modulos/Contents/contentEnums';
+import { QrDynamicMode, QrEnvironment } from '@/modulos/QrDinamico/types';
 
 const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
   OtherStatus: ORDER_STATUS,
@@ -93,6 +94,8 @@ const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
   RoleFixed,
   TypeFixed,
   ContentType,
+  QrDynamicMode,
+  QrEnvironment,
 };
 
 const APP = 'admin';
