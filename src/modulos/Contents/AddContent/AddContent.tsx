@@ -19,7 +19,13 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TagContents from "./TagContents";
 import Br from "@/components/Detail/Br";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
-import { ContentType, esDocumento, esImagen, esVideo } from "../contentEnums";
+import {
+  ContentDestiny,
+  ContentType,
+  esDocumento,
+  esImagen,
+  esVideo,
+} from "../contentEnums";
 
 const AddContent = ({
   onClose,
@@ -226,7 +232,11 @@ const AddContent = ({
       "/contents" + (formState.id ? "/" + formState.id : ""),
       method,
       {
-        destiny: "T",
+        // El admin publica siempre para toda la comunidad, pero al EDITAR se
+        // conserva el destino que la publicación ya tenía: antes se mandaba
+        // la letra `"T"` fija y una publicación para guardias pasaba a ser
+        // para todos.
+        destiny: formState?.destiny || ContentDestiny.TODOS,
         url: formState?.url,
         title: formState?.title,
         description: formState?.description,
@@ -251,7 +261,7 @@ const AddContent = ({
       "/contents",
       "GET",
       {
-        destiny: "T",
+        destiny: ContentDestiny.TODOS,
         fullType: "DES",
         lDestiny: sel,
       },
