@@ -96,6 +96,10 @@ export const getReservationUnitOwnerId = (
   return String(titularOwner?.id ?? titular?.owner_id ?? titular?.id ?? "");
 };
 
+export const getReservationUnitChoiceOwnerId = (
+  choice?: ReservationUnitChoice | null,
+): string => String(choice?.resident?.id ?? "");
+
 export const getReservationUnitPrimaryChoice = (
   unit?: ReservationUnit | null,
 ): ReservationUnitChoice => {
@@ -218,19 +222,7 @@ const buildReservationUnitChoicesForUnit = (
     });
   }
 
-  if (choices.length > 0) {
-    return choices;
-  }
-
-  return [
-    {
-      id: `${unit.id}:unit`,
-      name: `${getReservationUnitDisplayLabel(unit)} - Sin residente`,
-      unit,
-      resident: null,
-      roleLabel: "Sin residente",
-    },
-  ];
+  return choices;
 };
 
 export const buildReservationUnitChoices = (units: ReservationUnit[] = []) =>
