@@ -80,6 +80,100 @@
   color: var(--cSuccess); /* Texto azul */
 }
 
+.mobileReservationCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  border-bottom: 1px solid var(--cTableBorder);
+  background: var(--cTableRow);
+  color: var(--cWhite);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mobileReservationCard:last-child {
+  border-bottom: 0;
+}
+
+.mobileReservationCard:focus-visible {
+  outline: 2px solid var(--cAccent);
+  outline-offset: -2px;
+}
+
+.mobileCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mobileCardTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mobileCardTitle {
+  overflow: hidden;
+  color: var(--cWhite);
+  font-size: 15px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobileCardSubtitle {
+  color: var(--cWhiteV1);
+  font-size: 12px;
+}
+
+.mobileCardDetails {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.mobileCardDetails > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mobileCardDetails > div:last-child {
+  grid-column: 1 / -1;
+}
+
+.mobileCardDetails span {
+  color: var(--cWhiteV1);
+  font-size: 11px;
+}
+
+.mobileCardDetails strong {
+  overflow: hidden;
+  color: var(--cWhite);
+  font-size: 13px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobileCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--cTableBorder);
+  color: var(--cWhiteV1);
+  font-size: 12px;
+}
+
 /* --- Eliminados (si ya no se usan en Reservas) --- */
 /* .statusM { ... } */
 
