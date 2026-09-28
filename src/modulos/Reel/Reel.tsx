@@ -98,7 +98,7 @@ const Reel = () => {
     error: initialError,
     reLoad: reLoadInitial,
   } = useAxios(
-    "/contents",
+    "/v3/contents",
     "GET",
     {
       perPage: itemsPerPage,
@@ -165,7 +165,7 @@ const Reel = () => {
   const loadExtraData = async () => {
     if (!extraData) {
       try {
-        const response = await executeGetExtraData("/contents", "GET", {
+        const response = await executeGetExtraData("/v3/contents", "GET", {
           fullType: "EXTRA",
         });
         if (response?.data) {
@@ -183,7 +183,7 @@ const Reel = () => {
         setLoadingMoreState(true);
         setLoadMoreFailed(false);
 
-        const result = await fetchMoreContents("/contents", "GET", {
+        const result = await fetchMoreContents("/v3/contents", "GET", {
           perPage: itemsPerPage,
           page: page,
           fullType: "L",
@@ -506,7 +506,7 @@ const Reel = () => {
    * - **0** — no hubo respuesta (red caída, timeout, CORS). Tampoco hay sobre,
    *   así que cae al mismo genérico. Es el caso que nombra el ticket.
    * - **4xx** — rechazo de negocio, y acá el muro SÍ necesita el texto del API:
-   *   un 403 de `/contents` es «no tiene permisos», no «revisa tu conexión».
+   *   un 403 de `/v3/contents` es «no tiene permisos», no «revisa tu conexión».
    *   Con el genérico el usuario reintentaría para siempre contra un permiso.
    *
    * El botón de reintentar se ofrece igual en los tres: un 4xx puede ser un

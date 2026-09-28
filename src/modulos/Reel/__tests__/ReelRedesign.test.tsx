@@ -46,7 +46,7 @@ vi.mock("@/mk/hooks/useAxios", () => ({
       waiting: 0,
       setWaiting: vi.fn(),
     };
-    if (url === "/contents") {
+    if (url === "/v3/contents") {
       return { ...base, ...initialState, reLoad: vi.fn(), execute: vi.fn() };
     }
     return {

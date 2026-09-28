@@ -185,7 +185,7 @@ const AddContent = ({
 
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
-      "/contents" + (formState.id ? "/" + formState.id : ""),
+      "/v3/contents" + (formState.id ? "/" + formState.id : ""),
       method,
       {
         // El admin publica siempre para toda la comunidad, pero al EDITAR se

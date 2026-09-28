@@ -63,7 +63,7 @@ vi.mock("@/mk/hooks/useAxios", () => ({
     };
     // El hook con URL es el de la carga inicial; los `useAxios()` sueltos del
     // módulo son los `execute` (paginación, likes, comentarios, edición).
-    if (url === "/contents") {
+    if (url === "/v3/contents") {
       return {
         ...base,
         ...estadoInicial,
