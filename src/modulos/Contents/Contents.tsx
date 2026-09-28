@@ -246,36 +246,23 @@ const Contents = () => {
             const user = item?.item.user;
             const owner = item?.item.owner;
             const nombreCompleto = getFullName(user || owner);
-            const cedulaIdentidad = user?.ci || owner?.ci;
-
+            // Sin CI a propósito: el API carga al autor (`user` u `owner`)
+            // sólo con nombre y avatar, nunca su CI (`ContentController`,
+            // `elListado`). La línea «CI:» que había acá no salía nunca.
             const urlAvatar = user ? user?.url_avatar : owner?.url_avatar;
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar src={urlAvatar} name={nombreCompleto} />
-                <div>
-                  <p
-                    style={{
-                      marginBottom: "2px",
-                      fontWeight: 500,
-                      color: "var(--cWhite)",
-                    }}
-                  >
-                    {nombreCompleto}
-                  </p>
-                  {cedulaIdentidad && (
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        color: "var(--cWhiteV1)",
-                        display: "block",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      CI: {cedulaIdentidad}
-                    </span>
-                  )}
-                </div>
+                <p
+                  style={{
+                    marginBottom: "2px",
+                    fontWeight: 500,
+                    color: "var(--cWhite)",
+                  }}
+                >
+                  {nombreCompleto}
+                </p>
               </div>
             );
           },
