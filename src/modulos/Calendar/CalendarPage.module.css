@@ -814,6 +814,16 @@
   line-height: 1.55;
 }
 
+.maintenanceWarning {
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--cWarning) 36%, var(--cTableBorder));
+  border-radius: 14px;
+  background: var(--cHoverWarning);
+  color: var(--cWhite);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .modeChoiceCard strong {
   font-size: 15px;
   font-weight: 600;
@@ -873,6 +883,10 @@
   gap: 10px;
   min-width: 0;
   flex: 1;
+}
+
+.mobileDayActions {
+  display: none;
 }
 
 .dayPanelTitle {
@@ -1063,14 +1077,18 @@
 
   .contentGrid {
     grid-template-columns: 1fr;
+    height: auto;
+    flex: 0 0 auto;
     min-height: 0;
   }
 
   .calendarShell {
+    height: auto;
     min-height: 560px;
   }
 
   .dayPanel {
+    height: auto;
     min-width: 0;
     min-height: 280px;
   }
@@ -1100,6 +1118,11 @@
 }
 
 @media (max-width: 640px) {
+  .page {
+    width: 100%;
+    min-width: 0;
+  }
+
   .header,
   .toolbar {
     align-items: stretch;
@@ -1113,9 +1136,14 @@
   }
 
   .toolbarControls {
+    flex: 0 0 auto;
     flex-direction: column;
     align-items: stretch;
     flex-wrap: wrap;
+  }
+
+  .filtersRow {
+    flex: 0 0 auto;
   }
 
   .actionsRow {
@@ -1143,6 +1171,10 @@
     min-height: 480px;
   }
 
+  .grid {
+    min-height: 360px;
+  }
+
   .weekday {
     padding: 10px 4px;
     font-size: 10px;
@@ -1153,7 +1185,19 @@
   }
 
   .dayCell {
-    padding: 6px;
+    padding: 4px;
+  }
+
+  .dayHeader {
+    gap: 2px;
+    margin-bottom: 4px;
+  }
+
+  .dayNumber {
+    min-width: 22px;
+    height: 22px;
+    padding: 0 4px;
+    font-size: 11px;
   }
 
   .dayEntries {
@@ -1161,9 +1205,14 @@
   }
 
   .entryChip {
-    font-size: 11px;
-    min-height: 22px;
-    padding: 4px 6px;
+    justify-content: center;
+    min-height: 16px;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .moreEntries {
+    display: none;
   }
 
   .dayListReason {
@@ -1184,6 +1233,36 @@
 
   .dayPanelBody {
     padding: 12px;
+  }
+
+  .mobileDayActions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 12px 12px 0;
+  }
+
+  .mobileDayActions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    min-height: 44px;
+    padding: 8px;
+    border: 1px solid var(--cTableBorder);
+    border-radius: 12px;
+    background: var(--cTableRowAlt);
+    color: var(--cWhite);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+  }
+
+  .mobileDayActions button:focus-visible {
+    outline: 2px solid var(--cAccent);
+    outline-offset: 2px;
   }
 
   .flowModalBody {
@@ -1210,10 +1289,12 @@
   .flowFooterActions {
     width: 100%;
     margin-left: 0;
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
   .flowFooterActions > button {
-    flex: 1 1 160px;
+    width: 100% !important;
     min-width: 0;
   }
 
@@ -1234,6 +1315,10 @@
     border-right: 0;
     border-bottom: 1px solid var(--cTableBorder);
   }
+
+  .modalFieldGrid > * {
+    min-width: 0;
+  }
 }
 
 @media (max-width: 560px) {
@@ -1246,7 +1331,7 @@
   }
 
   .dayCount {
-    display: none;
+    font-size: 10px;
   }
 
   .dayPanelHeaderInfo {
