@@ -25,7 +25,6 @@ export interface PropsLogin {
   onBack?: () => void;
   showTrustDevice?: boolean;
   onTrustDevice?: (trust: boolean) => void;
-  attempts?: number;
   isBlocked?: boolean;
   onResendCode?: () => void;
 }
@@ -44,7 +43,6 @@ const LoginView = ({
   onBack = () => {},
   showTrustDevice = false,
   onTrustDevice = () => {},
-  attempts = 0,
   isBlocked = false,
   onResendCode = () => {},
 }: PropsLogin) => {
@@ -128,6 +126,10 @@ const LoginView = ({
                 {translate("trustDeviceBody")}
               </p>
 
+              {errors["code"] && (
+                <p className={styles.errorText}>{errors["code"]}</p>
+              )}
+
               <div className={styles.verificationButtons}>
                 <Button
                   variant="secondary"
@@ -164,12 +166,10 @@ const LoginView = ({
                 />
               </div>
 
+              {/* El texto lo arma `Login`: el PIN incorrecto con los intentos
+                  que quedan, o lo que dijo el API (un 429, por ejemplo). */}
               {errors["code"] && !isBlocked && (
-                <p className={styles.errorText}>
-                  {translate("verificationInvalid", {
-                    remaining: Math.max(3 - attempts, 0),
-                  })}
-                </p>
+                <p className={styles.errorText}>{errors["code"]}</p>
               )}
 
               {isBlocked ? (

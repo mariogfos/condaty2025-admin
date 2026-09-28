@@ -10,6 +10,10 @@ import useAxios from "../../hooks/useAxios";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 import { tomarElAvisoDeSesion } from "@/mk/utils/sesionVencida";
 import { CLAVE_DEL_TOKEN } from "@/mk/utils/claveDelToken";
+import {
+  leerElErrorDelApi,
+  rejectionMessage,
+} from "@/mk/hooks/useCrud/leerElErrorDelApi";
 
 const Login = () => {
   const { user, getUser } = useAuth();
@@ -153,6 +157,10 @@ const Login = () => {
       );
       // Actualizar estado global del usuario para redirigir
       getUser();
+    } else if (error) {
+      setErrors({
+        email: rejectionMessage(error, translate("serverConnectionIssue")),
+      });
     } else {
       if (data?.errors?.device === "untrusted") {
         setVerificationMessage(translate("verificationMessage"));
@@ -204,6 +212,7 @@ const Login = () => {
       // PIN Correcto
       setIsNewDevice(false);
       setShowTrustDevice(true);
+      setErrors({});
       const userKey = getUserKey();
       if (userKey) {
         localStorage.removeItem(getAttemptsKey(userKey));
@@ -223,7 +232,9 @@ const Login = () => {
     // El PIN se da por incorrecto cuando el back RESPONDE que lo es; si no hubo
     // respuesta, se dice que falló la conexión y no se cuenta.
     if (error || !data) {
-      setErrors({ code: translate("serverConnectionIssue") });
+      setErrors({
+        code: rejectionMessage(error, translate("serverConnectionIssue")),
+      });
       return;
     }
 
@@ -257,7 +268,9 @@ const Login = () => {
       }
 
       setErrors({
-        code: translate("invalidPin"),
+        code: translate("verificationInvalid", {
+          remaining: Math.max(3 - newAttempts, 0),
+        }),
       });
     }
   };
@@ -287,7 +300,16 @@ const Login = () => {
       );
       // Redirigir al sistema
       getUser();
+      return;
     }
+
+    // Antes un fallo acá era mudo: el botón no hacía nada. Acá sí se lee el
+    // sobre de un 200 con `success:false`: sus textos son para el usuario
+    // («Primero validá el código que te enviamos por correo.»).
+    setErrors({
+      code: leerElErrorDelApi(data, error, translate("serverConnectionIssue"))
+        .mensaje,
+    });
   };
 
   /**
@@ -323,7 +345,7 @@ const Login = () => {
     } else {
       setErrors({
         code: error || !data
-          ? translate("serverConnectionIssue")
+          ? rejectionMessage(error, translate("serverConnectionIssue"))
           : translate("unableToSendCode"),
       });
     }
@@ -349,7 +371,6 @@ const Login = () => {
         setAttempts(0);
         setIsBlocked(false);
       }}
-      attempts={attempts}
       isBlocked={isBlocked}
     />
   );

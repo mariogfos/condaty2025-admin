@@ -3,6 +3,7 @@ import InputCode from "@/mk/components/forms/InputCode/InputCode";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
+import { leerElErrorDelApi } from "@/mk/hooks/useCrud/leerElErrorDelApi";
 import { useEffect, useState } from "react";
 interface PropsType {
   open: boolean;
@@ -106,6 +107,22 @@ const Authentication = ({
     return errors;
   };
 
+  /**
+   * 🔴 Un rechazo del PIN con sesión: el texto del API o el de la pantalla.
+   *
+   * Llega de dos formas y hay que mirar las dos. Un rechazo de negocio («Pin no
+   * válido») viene con HTTP 200 y `success: false`, en `data`. El 429 del
+   * `throttle` (10 pedidos cada 15 minutos por cuenta) viene como error de
+   * axios: `data` es `null` y el sobre está en `error.data`. Antes se leía
+   * `data.message` a secas y el 429 TIRABA una excepción —no se veía nada—, y
+   * pedir el código mostraba el texto de axios, en inglés.
+   */
+  const showRejection = (data: any, error: any, fallback: string) => {
+    const { mensaje, errores } = leerElErrorDelApi(data, error, fallback);
+    showToast(mensaje, "error");
+    setErrors(errores || {});
+  };
+
   const onChangeData = async () => {
     let err = {};
     let url = "/v3/adm-setemail";
@@ -135,9 +152,7 @@ const Authentication = ({
       setErrors({});
       getUser();
     } else {
-      // showToast(error?.data?.message || error?.message, "error");
-      showToast(data.message, "error");
-      setErrors(data?.errors);
+      showRejection(data, error, "No se pudo guardar el cambio. Intenta nuevamente.");
     }
   };
   const onValidCode = async () => {
@@ -147,15 +162,14 @@ const Authentication = ({
       url = "/v3/adm-setpass";
     }
 
-    const { data } = await execute(url, "POST", param);
+    const { data, error } = await execute(url, "POST", param);
 
     if (data?.success == true) {
       showToast(data.message + " - Operación exitosa", "success");
       setFormState({ ...formState, pinned: 2 });
       setErrors({});
     } else {
-      showToast(data.message, "error");
-      setErrors(data?.errors);
+      showRejection(data, error, "No se pudo validar el código. Intenta nuevamente.");
     }
   };
 
@@ -167,9 +181,7 @@ const Authentication = ({
       showToast("Código enviado a su correo", "success");
       setFormState({ ...formState, email: data.email, pinned: 1, code: "" });
     } else {
-      // Un error de negocio llega con HTTP 200 y `success: false`: el mensaje
-      // está en `data`, no en `error` (que sólo existe cuando axios tira).
-      showToast(data?.message || error?.message || "No pudimos enviar el código", "error");
+      showRejection(data, error, "No pudimos enviar el código. Intenta nuevamente.");
     }
   };
   const setCode = (code: string) => {
