@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
@@ -10,6 +10,7 @@ import ForgotPass from "./ForgotPass";
 import Logo from "@/components/req/Logo";
 import styles from "./loginView.module.css";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
+import { useResendCountdown } from "@/mk/hooks/useResendCountdown";
 
 export interface PropsLogin {
   errors: any;
@@ -47,33 +48,16 @@ const LoginView = ({
   onResendCode = () => {},
 }: PropsLogin) => {
   const [openModal, setOpenModal] = useState(false);
-  const [timer, setTimer] = useState(59);
-  const [canResend, setCanResend] = useState(false);
+  const {
+    secondsLeft: timer,
+    canResend,
+    restart,
+  } = useResendCountdown(showVerification);
   const { translate } = useScopedI18n("auth");
   // Removed internal mock states (attempts, isBlocked, mockErrors) as they are now managed by parent
 
-  useEffect(() => {
-    if (showVerification) {
-      setTimer(59);
-      setCanResend(false);
-    }
-  }, [showVerification]);
-
-  useEffect(() => {
-    let interval: any;
-    if (showVerification && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-    } else if (timer === 0) {
-      setCanResend(true);
-    }
-    return () => clearInterval(interval);
-  }, [showVerification, timer]);
-
   const handleResend = () => {
-    setTimer(59);
-    setCanResend(false);
+    restart();
     if (onResendCode) onResendCode();
   };
 
