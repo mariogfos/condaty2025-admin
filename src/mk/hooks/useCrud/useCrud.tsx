@@ -2284,7 +2284,14 @@ const useCrud = ({
       }
 
       return (
-        <div className={styles.useCrud}>
+        <div
+          className={[
+            styles.useCrud,
+            props.enableMobileCards ? styles.mobileContentFlow : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
           {(props.title || runtime.store?.title) &&
             runtime.openList &&
             !props.hideTitle && (
@@ -2318,6 +2325,7 @@ const useCrud = ({
                     }
                     header={header}
                     onTabletRow={props.onTabletRow}
+                    enableMobileCards={props.enableMobileCards}
                     onRenderBody={props.onRenderBody}
                     onRenderFoot={props.onRenderFoot}
                     onRenderHead={props.onRenderHead}

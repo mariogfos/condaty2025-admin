@@ -75,6 +75,7 @@ type PropsType = {
     i: number,
     onClick: Function,
   ) => any;
+  enableMobileCards?: boolean;
   onButtonActions?: Function;
   actionsWidth?: string;
   style?: CSSProperties;
@@ -355,6 +356,7 @@ const Table = ({
   onRenderFoot = null,
   onRowClick,
   onTabletRow,
+  enableMobileCards = false,
   onButtonActions,
   onRenderCard,
   actionsWidth,
@@ -375,14 +377,24 @@ const Table = ({
   skeletonRowCount = 20,
   rowContextMenu,
 }: PropsType) => {
-  const isMobile = false;
+  const [isNarrowViewport, setIsNarrowViewport] = useState(false);
+  const isMobile = enableMobileCards && isNarrowViewport;
+
+  useEffect(() => {
+    if (!enableMobileCards) return;
+    const media = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsNarrowViewport(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, [enableMobileCards]);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
   const [manualWidths, setManualWidths] = useState<Record<number, number>>({});
   const [measuredWidths, setMeasuredWidths] = useState<Record<number, string>>(
     {},
   );
   const [resizeState, setResizeState] = useState<ResizeState | null>(null);
-  const resolvedHeight = getCssSize(height);
+  const resolvedHeight = isMobile ? undefined : getCssSize(height);
   const useFillHeight = resolvedHeight === "100%";
   const bodyViewportHeight = resolvedHeight && !useFillHeight ? resolvedHeight : undefined;
   const bodyScrollMode = resolvedHeight ? (useFillHeight ? "__fill__" : resolvedHeight) : undefined;
@@ -552,6 +564,7 @@ const Table = ({
           >
             <Body
               onTabletRow={onTabletRow}
+              isMobile={isMobile}
               onRenderCard={onRenderCard}
               onRowClick={onRowClick}
               data={data}
@@ -828,6 +841,7 @@ const Sumarize = memo(function Sumarize({
 
 const Body = ({
   onTabletRow,
+  isMobile,
   onRowClick,
   data,
   header,
@@ -854,6 +868,7 @@ const Body = ({
   rowContextMenu,
 }: {
   onTabletRow: any;
+  isMobile: boolean;
   onRowClick: any;
   data: any;
   header: any;
@@ -880,7 +895,6 @@ const Body = ({
   rowContextMenu?: TableRowContextMenuConfig;
 }) => {
   const { store, setStore } = useAuth();
-  const isMobile = false;
   const divRef: any = useRef(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const canTriggerNextLoadRef = useRef(true);
@@ -1076,7 +1090,7 @@ const Body = ({
   const renderSkeletonRows = (rowsCount: number) => {
     const totalRows = Math.max(1, rowsCount || 1);
 
-    if (onRenderBody || onRenderCard) {
+    if (onRenderBody || onRenderCard || (isMobile && onTabletRow)) {
       return Array.from({ length: totalRows }, (_, index) => (
         <div
           key={`row-skeleton-${index}`}

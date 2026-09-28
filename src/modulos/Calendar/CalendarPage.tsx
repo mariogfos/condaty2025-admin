@@ -86,6 +86,10 @@ import {
   normalizeSearchText,
   splitRangeByYear,
 } from "./helpers";
+import {
+  buildCalendarMaintenancePayload,
+  type CalendarMaintenanceDraft,
+} from "./maintenance";
 import styles from "./CalendarPage.module.css";
 
 const DEFAULT_DAY_ENTRY_SLOTS = 3;
@@ -153,13 +157,6 @@ type ReservationDraft = {
   unitOptionId: string;
   slot: string;
   note: string;
-};
-
-type MaintenanceDraft = {
-  areaId: string;
-  scope: "day" | "range";
-  endDate: string;
-  reason: string;
 };
 
 type CalendarAreaChoice = {
@@ -245,12 +242,13 @@ const CalendarPage = () => {
     Record<string, string>
   >({});
   const [maintenanceStep, setMaintenanceStep] = useState(0);
-  const [maintenanceDraft, setMaintenanceDraft] = useState<MaintenanceDraft>({
+  const [maintenanceDraft, setMaintenanceDraft] = useState<CalendarMaintenanceDraft>({
     areaId: "",
     scope: "day",
     endDate: "",
     reason: "",
   });
+  const [maintenanceSubmitting, setMaintenanceSubmitting] = useState(false);
 
   const deferredSearch = useDeferredValue(searchText);
   const requestKeyRef = useRef("");
@@ -260,6 +258,7 @@ const CalendarPage = () => {
   const selectedDayTimeLimitRequestRef = useRef(0);
   const openedReservationQueryRef = useRef("");
   const gridRef = useRef<HTMLDivElement>(null);
+  const dayPanelRef = useRef<HTMLElement>(null);
 
   const canView = userCan("reservations", "R");
   const canCreate = userCan("reservations", "C");
@@ -452,6 +451,16 @@ const CalendarPage = () => {
     [entriesByDay, selectedDayKey],
   );
   const isDayPanelOpen = Boolean(selectedDate);
+
+  useEffect(() => {
+    if (!selectedDate || !window.matchMedia("(max-width: 640px)").matches) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      dayPanelRef.current?.scrollIntoView({ block: "start" });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [selectedDate]);
 
   const resetSelectedDayTimeLimits = useCallback(() => {
     setSelectedDayTimeLimits((current) =>
@@ -976,16 +985,20 @@ const CalendarPage = () => {
 
     return calendarAreas.map((area) => {
       const scheduledChoice = resolveAreaChoice(area, calendarActionModal.row.day);
-      const localAvailability = getModalAreaLocalAvailability(scheduledChoice);
+      const areaChoice =
+        calendarActionModal.action === "maintenance"
+          ? { ...scheduledChoice, isSelectable: true, helperText: "" }
+          : scheduledChoice;
+      const localAvailability = getModalAreaLocalAvailability(areaChoice);
       const liveAvailability = modalAreaLiveAvailabilityMap[String(area.id)] || null;
       const mergedAvailability = buildMergedModalAvailability(
-        scheduledChoice,
+        areaChoice,
         liveAvailability,
         localAvailability,
       );
 
       if (!mergedAvailability) {
-        return scheduledChoice;
+        return areaChoice;
       }
 
       const liveSnapshot = buildAreaAvailabilitySnapshot(
@@ -994,10 +1007,10 @@ const CalendarPage = () => {
         mergedAvailability,
       );
 
-      if (!scheduledChoice.isSelectable) {
+      if (!areaChoice.isSelectable) {
         return {
-          ...scheduledChoice,
-          helperText: scheduledChoice.helperText || liveSnapshot.note,
+          ...areaChoice,
+          helperText: areaChoice.helperText || liveSnapshot.note,
         };
       }
 
@@ -1010,7 +1023,7 @@ const CalendarPage = () => {
 
       if (hasLocalMaintenance || mergedAvailability.maintenance.length > 0) {
         return {
-          ...scheduledChoice,
+          ...areaChoice,
           slots: [],
           helperText: "En mantenimiento",
           isSelectable: false,
@@ -1023,25 +1036,24 @@ const CalendarPage = () => {
           mergedAvailability.reserved ||
           mergedAvailability.unavailable.length > 0;
 
-        if (hasReservations) {
-          return {
-            ...scheduledChoice,
-            slots: [],
-            helperText: "Ya tiene reservas para esta fecha",
-            isSelectable: false,
-          };
-        }
+        return {
+          ...areaChoice,
+          helperText: hasReservations
+            ? "Tiene reservas; se cancelarán al confirmar"
+            : "",
+          isSelectable: true,
+        };
       }
 
       if (
         calendarActionModal.action === "create_reservation" &&
-        scheduledChoice.bookingMode === "day" &&
+        areaChoice.bookingMode === "day" &&
         (hasLocalReservation ||
           mergedAvailability.reserved ||
           mergedAvailability.unavailable.length > 0)
       ) {
         return {
-          ...scheduledChoice,
+          ...areaChoice,
           slots: [],
           helperText: "Ya tiene una reserva para esta fecha",
           isSelectable: false,
@@ -1049,7 +1061,7 @@ const CalendarPage = () => {
       }
 
       return {
-        ...scheduledChoice,
+        ...areaChoice,
         slots: liveSnapshot.slots,
         helperText: liveSnapshot.isAvailable ? "" : liveSnapshot.note,
         isSelectable: liveSnapshot.isAvailable,
@@ -1232,7 +1244,16 @@ const CalendarPage = () => {
     Boolean(reservationEffectiveSlot) &&
     !reservationAvailabilityLoading;
 
-  const canContinueMaintenance = Boolean(maintenanceDraft.areaId);
+  const canContinueMaintenance = Boolean(
+    selectedMaintenanceAreaChoice?.isSelectable &&
+      calendarActionModalDayKey >= minimumActionDate,
+  );
+  const canSaveMaintenance = Boolean(
+    canContinueMaintenance &&
+      maintenanceDraft.reason.trim() &&
+      (maintenanceDraft.scope === "day" ||
+        maintenanceDraft.endDate >= calendarActionModalDayKey),
+  );
 
   useEffect(() => {
     if (!calendarActionModal || !contextInstance) {
@@ -1795,13 +1816,56 @@ const CalendarPage = () => {
     [],
   );
 
-  const handleMaintenancePreviewSave = useCallback(() => {
-    showToast(
-      "La creación de mantenimientos desde este calendario aún no está habilitada.",
-      "info",
-    );
-    setCalendarActionModal(null);
-  }, [showToast]);
+  const handleMaintenancePreviewSave = useCallback(async () => {
+    if (maintenanceSubmitting || !calendarActionModal || !contextInstance || !canCreate) {
+      return;
+    }
+
+    let payload;
+    try {
+      payload = buildCalendarMaintenancePayload(
+        maintenanceDraft,
+        calendarActionModal.row.dayKey,
+      );
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Datos de mantenimiento inválidos", "warning");
+      return;
+    }
+
+    setMaintenanceSubmitting(true);
+    try {
+      const response = await contextInstance.request({
+        method: "POST",
+        url: "/reservations-areablocked",
+        data: payload,
+      });
+      if (!response?.data?.success) {
+        showToast(response?.data?.msg || "No se pudo registrar el mantenimiento", "error");
+        return;
+      }
+
+      showToast(response.data.msg || "Mantenimiento creado con éxito", "success");
+      setCalendarActionModal(null);
+      await loadReservations({ silent: true });
+    } catch (error: any) {
+      showToast(
+        error?.response?.data?.msg ||
+          error?.response?.data?.message ||
+          "No se pudo registrar el mantenimiento",
+        "error",
+      );
+    } finally {
+      setMaintenanceSubmitting(false);
+    }
+  }, [
+    calendarActionModal,
+    canCreate,
+    contextInstance,
+    loadReservations,
+    maintenanceDraft,
+    maintenanceSubmitting,
+    showToast,
+  ]);
 
   const dayActionMenuItems = useMemo<ContextMenuItem<CalendarDayActionRow>[]>(
     () => [
@@ -1817,6 +1881,7 @@ const CalendarPage = () => {
       {
         label: "Poner en mantenimiento",
         icon: Wrench,
+        disabled: !canCreate,
         onClick: ({ row, closeMenu }) => {
           closeMenu();
           setCalendarActionModal({
@@ -2257,7 +2322,7 @@ const CalendarPage = () => {
           </div>
 
           {isDayPanelOpen ? (
-            <aside className={styles.dayPanel}>
+            <aside ref={dayPanelRef} className={styles.dayPanel}>
               <div className={styles.dayPanelHeader}>
                 <div className={styles.dayPanelHeaderInfo}>
                   <h3 className={styles.dayPanelTitle}>{selectedDayLabel}</h3>
@@ -2276,6 +2341,29 @@ const CalendarPage = () => {
                   <X size={18} strokeWidth={2.2} />
                 </button>
               </div>
+
+              {selectedDate && canCreate && canOpenDayActionMenu(selectedDate) ? (
+                <div className={styles.mobileDayActions}>
+                  <button type="button" onClick={() => openCreateReservationModal(selectedDate)}>
+                    <CalendarPlus size={16} /> Nueva reserva
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCalendarActionModal({
+                        action: "maintenance",
+                        row: {
+                          day: selectedDate,
+                          dayKey: formatDateKey(selectedDate),
+                          reservationCount: selectedDayEntries.length,
+                        },
+                      })
+                    }
+                  >
+                    <Wrench size={16} /> Mantenimiento
+                  </button>
+                </div>
+              ) : null}
 
               <div className={styles.dayPanelBody}>
                 {selectedDayEntries.length > 0 ? (
@@ -2818,9 +2906,10 @@ const CalendarPage = () => {
                     lines={5}
                   />
 
-                  <div className={styles.inlineNotice}>
-                    El registro de mantenimiento desde este calendario estará
-                    disponible próximamente.
+                  <div className={styles.maintenanceWarning}>
+                    Al confirmar, las reservas existentes que coincidan con este
+                    período se cancelarán automáticamente y se notificará a sus
+                    residentes.
                   </div>
                 </div>
               )}
@@ -2851,12 +2940,21 @@ const CalendarPage = () => {
                         return;
                       }
 
-                      handleMaintenancePreviewSave();
+                      void handleMaintenancePreviewSave();
                     }}
-                    disabled={maintenanceStep === 0 ? !canContinueMaintenance : false}
+                    disabled={
+                      maintenanceSubmitting ||
+                      (maintenanceStep === 0
+                        ? !canContinueMaintenance
+                        : !canSaveMaintenance)
+                    }
                     style={{ height: 46, width: "auto" }}
                   >
-                    {maintenanceStep === 0 ? "Continuar" : "Guardar mantenimiento"}
+                    {maintenanceStep === 0
+                      ? "Continuar"
+                      : maintenanceSubmitting
+                        ? "Guardando..."
+                        : "Guardar mantenimiento"}
                   </Button>
                 </div>
               </div>

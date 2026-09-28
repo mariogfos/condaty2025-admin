@@ -351,6 +351,52 @@
   }
 }
 
+@media (max-width: 768px) {
+  .useCrud.mobileContentFlow {
+    height: auto;
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  .mobileContentFlow .toolbarRow {
+    flex-wrap: wrap;
+  }
+
+  .mobileContentFlow .toolbarSearch,
+  .mobileContentFlow .toolbarControls {
+    flex: 0 0 100%;
+  }
+
+  .mobileContentFlow .contentRow,
+  .mobileContentFlow .contentMain {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  .mobileContentFlow .toolbarControls {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .mobileContentFlow .toolbarFilters {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .mobileContentFlow .toolbarActions {
+    width: auto;
+    margin-left: auto;
+  }
+
+  .mobileContentFlow .addButtonWrap {
+    flex: 0 0 auto;
+  }
+
+  .mobileContentFlow .addButton {
+    width: auto;
+  }
+}
+
 @media (max-width: 640px) {
   .titleText {
     font-size: var(--title-xs-size);

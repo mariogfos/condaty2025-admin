@@ -187,6 +187,58 @@ const Reserva = () => {
     );
   };
 
+  const renderMobileCard = (item: any, _index: number, onClick: Function) => {
+    const areaName = item?.area?.title || "Área no disponible";
+    const isMaintenance = item?.status === "M";
+    const residentName = item?.owner
+      ? getFullName(item.owner)
+      : isMaintenance
+        ? "Administración"
+        : "Residente no disponible";
+    const unitLabel = item?.dpto
+      ? getReservationUnitDisplayLabel(item.dpto)
+      : "Sin unidad";
+    const eventDate = item?.date_at ? getDateStrMes(item.date_at) : "Sin fecha";
+    const eventTime = item?.start_time ? ` · ${String(item.start_time).slice(0, 5)}` : "";
+
+    return (
+      <button
+        type="button"
+        className={styles.mobileReservationCard}
+        onClick={() => onClick(item)}
+        aria-label={`Ver reserva de ${areaName}, ${residentName}`}
+      >
+        <div className={styles.mobileCardHeader}>
+          <Avatar src={item?.area?.images?.[0]} name={areaName} w={42} h={42} />
+          <div className={styles.mobileCardTitleGroup}>
+            <strong className={styles.mobileCardTitle}>{areaName}</strong>
+            <span className={styles.mobileCardSubtitle}>
+              {eventDate}{eventTime}
+            </span>
+          </div>
+        </div>
+        <div className={styles.mobileCardDetails}>
+          <div>
+            <span>{isMaintenance ? "Responsable" : "Residente"}</span>
+            <strong>{residentName}</strong>
+          </div>
+          <div>
+            <span>Unidad</span>
+            <strong>{unitLabel}</strong>
+          </div>
+          <div>
+            <span>Solicitada</span>
+            <strong>{item?.created_at ? getDateTimeStrMes(item.created_at) : "Sin fecha"}</strong>
+          </div>
+        </div>
+        <div className={styles.mobileCardFooter}>
+          <ReservationStatusBadge item={item} />
+          <span>Ver detalle</span>
+        </div>
+      </button>
+    );
+  };
+
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
@@ -347,6 +399,8 @@ const Reserva = () => {
     <>
       <List
         height={"100%"}
+        enableMobileCards
+        onTabletRow={renderMobileCard}
         onAddClick={() => {
           if (!userCan(mod.permiso, "C")) {
             showToast("No tiene permisos para crear reservas", "error");
