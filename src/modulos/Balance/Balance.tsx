@@ -30,7 +30,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatNumber, roundMoney } from "@/mk/utils/numbers";
 import EmptyData from "@/components/NoData/EmptyData";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
-import { MONTHS_GRAPH } from "@/mk/utils/date";
+import { balancePeriodLabel } from "./balancePeriodLabel";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { IconAlertCircle } from "@/components/layout/icons/IconsBiblioteca";
 // ⚠️ Esta pantalla RENDERIZA texto escrito por el servidor (CDT-99, como el muro
@@ -230,74 +230,6 @@ const BalanceGeneral: React.FC = () => {
     finanzas?.data?.saldoInicial,
   ]);
 
-  const getPeriodoText = (filterDateValue: string) => {
-    const now = new Date();
-    const meses = MONTHS_GRAPH;
-    let ayer = new Date(now);
-    switch (filterDateValue) {
-      case "d":
-        return `Balance del ${now.getDate()} de ${
-          meses[now.getMonth()]
-        } de ${now.getFullYear()}`;
-      case "ld":
-        ayer = new Date(now.getDate() - 1);
-        return `Balance del ${ayer.getDate()} de ${
-          meses[ayer.getMonth()]
-        } de ${ayer.getFullYear()}`;
-      case "w":
-        const inicioSemana = new Date(now);
-        inicioSemana.setDate(now.getDate() - now.getDay() + 1);
-        const finSemana = new Date(inicioSemana);
-        finSemana.setDate(inicioSemana.getDate() + 6);
-        return `Balance desde ${inicioSemana.getDate()} de ${
-          meses[inicioSemana.getMonth()]
-        } hasta ${finSemana.getDate()} de ${
-          meses[finSemana.getMonth()]
-        } de ${finSemana.getFullYear()}`;
-
-      case "lw":
-        const inicioSemanaAnterior = new Date(now);
-        inicioSemanaAnterior.setDate(now.getDate() - now.getDay() - 6);
-        const finSemanaAnterior = new Date(inicioSemanaAnterior);
-        finSemanaAnterior.setDate(inicioSemanaAnterior.getDate() + 6);
-        return `Balance desde ${inicioSemanaAnterior.getDate()} de ${
-          meses[inicioSemanaAnterior.getMonth()]
-        } hasta ${finSemanaAnterior.getDate()} de ${
-          meses[finSemanaAnterior.getMonth()]
-        } de ${finSemanaAnterior.getFullYear()}`;
-      case "m":
-        return `Balance de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
-      case "lm":
-        const mesAnterior = new Date(now.getFullYear(), now.getMonth() - 1);
-        return `Balance de ${
-          meses[mesAnterior.getMonth()]
-        } de ${mesAnterior.getFullYear()}`;
-      case "y":
-        return `Balance desde Enero hasta ${
-          meses[now.getMonth()]
-        } de ${now.getFullYear()}`;
-      case "ly":
-        return `Balance desde Enero hasta Diciembre de ${
-          now.getFullYear() - 1
-        }`;
-      default:
-        if (filterDateValue.startsWith("c:")) {
-          const dates = filterDateValue.substring(2).split(",");
-          if (dates[0] && dates[1]) {
-            // Crear las fechas y ajustarlas a UTC-4
-            const fechaInicio = new Date(dates[0] + "T00:00:00-04:00");
-            const fechaFin = new Date(dates[1] + "T00:00:00-04:00");
-            fechaInicio.setHours(fechaInicio.getHours() + 4);
-            return `Balance desde ${fechaInicio.getDate()} de ${
-              meses[fechaInicio.getMonth()]
-            } de ${fechaInicio.getFullYear()} hasta ${fechaFin.getDate()} de ${
-              meses[fechaFin.getMonth()]
-            } de ${fechaFin.getFullYear()}`;
-          }
-        }
-        return "Balance general";
-    }
-  };
   const legendCategoriasIngresos = React.useMemo(() => {
     const map = new Map();
     (finanzas?.data?.ingresosHist ?? []).forEach((item: any) => {
@@ -350,7 +282,7 @@ const BalanceGeneral: React.FC = () => {
     tituloBalance =
       "Balance de " + (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer");
   } else {
-    tituloBalance = getPeriodoText(formStateFilter.filter_date);
+    tituloBalance = balancePeriodLabel(formStateFilter.filter_date);
   }
 
   const getSelectCategorias = () => {
