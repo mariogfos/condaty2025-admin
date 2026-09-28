@@ -19,8 +19,8 @@ import type {
 } from "@/modulos/Reservas/types";
 import {
   buildReservationUnitChoices,
+  getReservationUnitChoiceOwnerId,
   getReservationUnitDisplayLabel,
-  getReservationUnitOwnerId,
   type ReservationUnitChoice,
 } from "@/modulos/Reservas/utils/reservationUnits";
 import {
@@ -147,7 +147,7 @@ const ReservationQuickCreateModal = ({
   );
 
   const selectedUnit = selectedUnitChoice?.unit || null;
-  const selectedOwnerId = String(getReservationUnitOwnerId(selectedUnit) || "");
+  const selectedOwnerId = getReservationUnitChoiceOwnerId(selectedUnitChoice);
 
   const selectedAvailability = useMemo(() => {
     if (!selectedArea) return null;
@@ -258,7 +258,7 @@ const ReservationQuickCreateModal = ({
       setLiveAvailability(null);
       setLiveCanBook(false);
       setAvailabilityMessage(
-        "La unidad elegida no tiene un titular configurado para crear la reserva.",
+        "Selecciona una persona asociada a la unidad para crear la reserva.",
       );
       return;
     }
@@ -453,7 +453,7 @@ const ReservationQuickCreateModal = ({
   const statusNotice = !draft.unitOptionId
     ? "Selecciona una unidad para validar disponibilidad."
     : !selectedOwnerId
-      ? "La unidad elegida no tiene un titular configurado para crear la reserva."
+      ? "Selecciona una persona asociada a la unidad para crear la reserva."
       : availabilityLoading
         ? "Validando disponibilidad..."
         : liveCanBook === false || selectedAvailability?.isAvailable === false
