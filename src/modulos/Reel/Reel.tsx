@@ -397,7 +397,6 @@ const Reel = () => {
 
   // Función mejorada para manejar la edición
   const handleEditContent = async (item: any) => {
-    console.log("Editando contenido:", item);
 
     // Cargar extraData si no está disponible
     await loadExtraData();
@@ -419,7 +418,6 @@ const Reel = () => {
       updated_at: item.updated_at,
     };
 
-    console.log("Item preparado para edición:", editItem);
 
     setEditingContent(editItem);
     setEditErrors({});
@@ -428,20 +426,17 @@ const Reel = () => {
   };
 
   const handleCloseEditModal = () => {
-    console.log("Cerrando modal de edición");
     setIsEditModalOpen(false);
     setEditingContent(null);
     setEditErrors({});
   };
 
   const handleSaveEdit = () => {
-    console.log("Guardando edición");
     handleReloadReel();
     handleCloseEditModal();
   };
 
   const handleDeleteContent = (item: any) => {
-    console.log("Contenido eliminado:", item);
     setContents((prevContents) =>
       prevContents.filter((content) => content.id !== item.id),
     );
