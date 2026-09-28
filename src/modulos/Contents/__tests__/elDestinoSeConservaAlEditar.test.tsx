@@ -17,9 +17,6 @@ vi.mock("@/mk/components/forms/UploadFileV3/UploadFileV3", () => ({
 vi.mock("@/modulos/Contents/AddContent/Preview", () => ({
   default: () => null,
 }));
-vi.mock("@/modulos/Contents/AddContent/ModalDestiny", () => ({
-  default: () => null,
-}));
 
 const renderForm = (item: Record<string, unknown>, action: "add" | "edit") => {
   const execute = vi.fn().mockResolvedValue({ data: { success: true } });

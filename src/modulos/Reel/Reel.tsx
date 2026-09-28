@@ -417,8 +417,6 @@ const Reel = () => {
       status: item.status,
       created_at: item.created_at,
       updated_at: item.updated_at,
-      cdestinies: item.cdestinies || [],
-      lDestiny: item.lDestiny || [],
     };
 
     console.log("Item preparado para edición:", editItem);
