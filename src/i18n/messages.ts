@@ -342,7 +342,6 @@ export const messages = {
       serverConnectionIssue:
         "Problemas de conexión con el servidor. Intenta más tarde.",
       invalidCredentials: "Datos incorrectos.",
-      invalidPin: "PIN incorrecto.",
       noModuleAccess: "No tiene permisos para este módulo.",
     },
     splash: {
@@ -683,7 +682,6 @@ export const messages = {
       serverConnectionIssue:
         "Problemas de conexão com o servidor. Tente novamente mais tarde.",
       invalidCredentials: "Dados incorretos.",
-      invalidPin: "PIN incorreto.",
       noModuleAccess: "Você não tem permissão para este módulo.",
     },
     splash: {
@@ -1023,7 +1021,6 @@ export const messages = {
       serverConnectionIssue:
         "There are server connection issues. Please try again later.",
       invalidCredentials: "Incorrect credentials.",
-      invalidPin: "Incorrect PIN.",
       noModuleAccess: "You do not have permission to access this module.",
     },
     splash: {

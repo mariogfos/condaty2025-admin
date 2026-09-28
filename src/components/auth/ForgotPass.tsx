@@ -6,6 +6,7 @@ import Input from "../../mk/components/forms/Input/Input";
 import InputPassword from "../../mk/components/forms/InputPassword/InputPassword";
 import DataModal from "../../mk/components/ui/DataModal/DataModal";
 import { logError } from "@/mk/utils/logs";
+import { rejectionMessage } from "@/mk/hooks/useCrud/leerElErrorDelApi";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 
 type PropsType = {
@@ -104,7 +105,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       setformState({ ...formState, newPassword: "", pinned: 2 });
       cuentaRegresiva(2 * 60 * 1000);
     } else {
-      showToast(translate("unableToSendCode"), "error");
+      showToast(rejectionMessage(error, translate("unableToSendCode")), "error");
     }
   };
   const setCode = (code: string) => {
@@ -142,8 +143,12 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       if (data?.success === true) {
         setformState({ ...formState, pinned: 3 });
       } else {
-        showToast(translate("invalidVerificationCode"), "error");
-        seterrors({ code: translate("invalidVerificationCode") });
+        const message = rejectionMessage(
+          error,
+          translate("invalidVerificationCode"),
+        );
+        showToast(message, "error");
+        seterrors({ code: message });
       }
     }
   };
@@ -188,7 +193,10 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       seterrors({});
       setOpen(false);
     } else {
-      showToast(translate("unableToChangePassword"), "error");
+      showToast(
+        rejectionMessage(error, translate("unableToChangePassword")),
+        "error",
+      );
       logError("Error ChangePass", error);
       seterrors(error?.data?.errors);
     }

@@ -194,3 +194,21 @@ export const leerElErrorDelApi = (
 
   return { mensaje: generico, errores };
 };
+
+/**
+ * 🔴 Lo que dice el API cuando RECHAZÓ el pedido con un código de error.
+ *
+ * El caso que lo trajo es el 429 del `throttle` (api#676): el API responde
+ * `{success:false, message:"Demasiados intentos. Intente de nuevo en N
+ * minutos."}` y el login y el «olvidé mi contraseña» del admin mostraban
+ * «Datos incorrectos.» o «Código incorrecto», o sea mandaban a reintentar
+ * justo cuando reintentar prolonga el bloqueo. Cualquier no-2xx con sobre dice su propio `message`; sin sobre (red
+ * caída) o con un 5xx, el texto de la pantalla.
+ *
+ * ⚠️ `response` va en `null` a propósito: los rechazos de negocio de las
+ * puertas sin sesión llegan con HTTP 200 y su texto del API («Acceso
+ * incorrecto», «Error de validación») no reemplaza el de la pantalla. Esto
+ * sólo mira el error de transporte.
+ */
+export const rejectionMessage = (error: any, fallback: string): string =>
+  leerElErrorDelApi(null, error, fallback).mensaje;
