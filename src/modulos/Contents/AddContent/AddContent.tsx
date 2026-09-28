@@ -14,7 +14,6 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import CardContent from "./CardContent";
 import Button from "@/mk/components/forms/Button/Button";
 import Preview from "./Preview";
-import ModalDestiny from "./ModalDestiny";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TagContents from "./TagContents";
 import Br from "@/components/Detail/Br";
@@ -42,8 +41,6 @@ const AddContent = ({
 }: any) => {
   const { showToast } = useAuth();
   const [errors, setErrors] = useState({});
-  const [ldestinys, setLdestinys]: any = useState([]);
-  const [openDestiny, setOpenDestiny] = useState(false);
 
   const [formState, setFormState]: any = useState(() => {
     const initialState = { ...item };
@@ -105,19 +102,6 @@ const AddContent = ({
   }, [item, action]);
 
   useEffect(() => {
-    let lDestinies: any = formState.lDestiny || [];
-    if (action == "edit" && !formState.lDestiny) {
-      formState?.cdestinies?.map((d: any) => {
-        if (formState?.destiny == 2) lDestinies.push(d.lista_id);
-        if (formState?.destiny == 3) lDestinies.push(d.dpto_id);
-        if (formState?.destiny == 4) lDestinies.push(d.mun_id);
-        if (formState?.destiny == 5) lDestinies.push(d.barrio_id);
-      });
-    }
-    setLdestinys(lDestinies);
-  }, [action, formState.lDestiny]);
-
-  useEffect(() => {
     // Solo cambiar el tipo si NO estamos en modo edición
     if (action !== "edit") {
       if (formState?.isType == "P") {
@@ -144,12 +128,6 @@ const AddContent = ({
     }
   }, [formState?.isType, action]);
 
-  useEffect(() => {
-    if (formState?.destiny == 0 && action == "add") {
-      getMeta([]);
-    }
-  }, [formState.destiny]);
-
   const handleChangeInput = (e: any) => {
     let value = e.target.value;
     if (e.target?.type == "checkbox") {
@@ -162,28 +140,6 @@ const AddContent = ({
       setFormState((prev: any) => ({ ...prev, [e.target.name]: value }));
     }
   };
-
-  const selDestinies = (value: any) => {
-    let selDestinies = [];
-    if (value == 2) selDestinies = extraData?.listas;
-    if (value == 3) selDestinies = extraData?.dptos;
-    if (value == 4) selDestinies = extraData?.muns;
-    return selDestinies;
-  };
-
-  // const getDestinysNames = () => {
-  //   let des: any = [];
-  //   if (formState?.destiny == 0) {
-  //     return (des = ["Todos"]);
-  //   }
-  //   if (formState?.destiny > 0) {
-  //     selDestinies(formState?.destiny)
-  //       .filter((d: any) => ldestinys?.includes(d.id))
-  //       .map((d: any) => des.push(d.name));
-  //     return des;
-  //   }
-  //   return des;
-  // };
 
   const validate = (field: any = "") => {
     let errors: any = {};
@@ -229,7 +185,7 @@ const AddContent = ({
 
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
-      "/contents" + (formState.id ? "/" + formState.id : ""),
+      "/v3/contents" + (formState.id ? "/" + formState.id : ""),
       method,
       {
         // El admin publica siempre para toda la comunidad, pero al EDITAR se
@@ -254,26 +210,6 @@ const AddContent = ({
     } else {
       showToast(data.message, "error");
     }
-  };
-
-  const getMeta = async (sel: any) => {
-    const { data } = await execute(
-      "/contents",
-      "GET",
-      {
-        destiny: ContentDestiny.TODOS,
-        fullType: "DES",
-        lDestiny: sel,
-      },
-      false,
-      true,
-    );
-
-    setFormState({
-      ...formState,
-      lDestiny: sel,
-      affCount: data?.data?.affCount,
-    });
   };
   return (
     open && (
@@ -471,25 +407,6 @@ const AddContent = ({
             </div>
           </div>
         </div>
-
-        {openDestiny && (
-          <ModalDestiny
-            open={openDestiny}
-            onClose={() => {
-              setOpenDestiny(false);
-              setFormState({
-                ...formState,
-                destiny: item.destiny || formState.destiny,
-              });
-            }}
-            selDestinies={selDestinies(formState?.destiny)}
-            formState={{ ...formState, lDestiny: ldestinys }}
-            setFormState={setFormState}
-            showToast={showToast}
-            execute={execute}
-            onSave={getMeta}
-          />
-        )}
       </div>
     )
   );

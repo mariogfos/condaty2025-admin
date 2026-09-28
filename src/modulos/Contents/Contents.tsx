@@ -11,12 +11,9 @@ import {
   IconLike,
   IconPublicacion,
 } from "@/components/layout/icons/IconsBiblioteca";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import Check from "@/mk/components/forms/Check/Check";
 import RenderView from "./RenderView/RenderView";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { formatNumber } from "@/mk/utils/numbers";
-import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import AddContent from "./AddContent/AddContent";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
@@ -85,8 +82,6 @@ const Contents = () => {
   const [selectedContentIdForComments, setSelectedContentIdForComments] =
     useState<number | null>(null);
   const [selectedContentData, setSelectedContentData] = useState<any>(null);
-
-  const { showToast } = useAuth();
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
@@ -251,36 +246,23 @@ const Contents = () => {
             const user = item?.item.user;
             const owner = item?.item.owner;
             const nombreCompleto = getFullName(user || owner);
-            const cedulaIdentidad = user?.ci || owner?.ci;
-
+            // Sin CI a propósito: el API carga al autor (`user` u `owner`)
+            // sólo con nombre y avatar, nunca su CI (`ContentController`,
+            // `elListado`). La línea «CI:» que había acá no salía nunca.
             const urlAvatar = user ? user?.url_avatar : owner?.url_avatar;
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar src={urlAvatar} name={nombreCompleto} />
-                <div>
-                  <p
-                    style={{
-                      marginBottom: "2px",
-                      fontWeight: 500,
-                      color: "var(--cWhite)",
-                    }}
-                  >
-                    {nombreCompleto}
-                  </p>
-                  {cedulaIdentidad && (
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        color: "var(--cWhiteV1)",
-                        display: "block",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      CI: {cedulaIdentidad}
-                    </span>
-                  )}
-                </div>
+                <p
+                  style={{
+                    marginBottom: "2px",
+                    fontWeight: 500,
+                    color: "var(--cWhite)",
+                  }}
+                >
+                  {nombreCompleto}
+                </p>
               </div>
             );
           },
@@ -393,152 +375,6 @@ const Contents = () => {
     [],
   );
 
-  const _onChange = (
-    e: any,
-    item: any,
-    setItem: Function,
-    setShowExtraModal: Function,
-    action: any,
-  ) => {
-    const { name, value } = e.target;
-    let selDestinies: any = [];
-    if (name.indexOf("destiny_") == 0) {
-      const id = parseInt(name.replace("destiny_", ""));
-      if (value) {
-        setItem({ ...item, lDestiny: [...item.lDestiny, id] });
-      } else {
-        setItem({
-          ...item,
-          lDestiny: item.lDestiny.filter((d: number) => d != id),
-        });
-      }
-      return true;
-    }
-    let lDestiny = item.lDestiny || [];
-    if (action == "edit") {
-      item?.cdestinies?.map((d: any) => {
-        if (item?.destiny == 2) lDestiny.push(d.lista_id);
-        if (item?.destiny == 3) lDestiny.push(d.dpto_id);
-        if (item?.destiny == 4) lDestiny.push(d.mun_id);
-        if (item?.destiny == 5) lDestiny.push(d.barrio_id);
-      });
-    }
-    if (name == "destiny") {
-      selDestinies = null;
-      if (value == 2) selDestinies = extraData.listas;
-      if (value == 3) selDestinies = extraData.dptos;
-      if (value == 4) selDestinies = extraData.muns;
-
-      if (value != item.destiny) {
-        setItem({ ...item, lDestiny: [] });
-        lDestiny = [];
-      }
-
-      if (selDestinies)
-        setShowExtraModal(
-          <ModalDestiny
-            item={{ ...item, destiny: value, lDestiny: lDestiny }}
-            setItem={setItem}
-            selDestinies={selDestinies}
-            setShowExtraModal={setShowExtraModal}
-          />,
-        );
-      else setShowExtraModal(null);
-    }
-    return false;
-  };
-
-  const ModalDestiny = ({
-    item,
-    setItem,
-    selDestinies,
-    setShowExtraModal,
-  }: {
-    item: any;
-    setItem: Function;
-    selDestinies: any;
-    setShowExtraModal: Function;
-  }) => {
-    const [openDestiny, setOpenDestiny] = useState(true);
-    const [sel, setSel]: any = useState([]);
-    const [destiniesFiltered, setDestiniesFiltered]: any = useState([]);
-    const [search, setSearch] = useState("");
-
-    useEffect(() => {
-      setSel(item?.lDestiny || []);
-    }, [item]);
-
-    const setOnSearch = (e: any) => setSearch(e);
-
-    const normalizeText = (text: string) =>
-      text
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toUpperCase();
-
-    useEffect(() => {
-      if (search == "") {
-        setDestiniesFiltered(selDestinies);
-        return;
-      }
-      const filtered = selDestinies.filter((d: any) =>
-        normalizeText(d.name).includes(normalizeText(search)),
-      );
-      setDestiniesFiltered(filtered);
-    }, [search, selDestinies]);
-
-    const _onSave = () => {
-      if (sel <= 0) {
-        showToast("Debe seleccionar al menos un destino", "error");
-        return;
-      }
-      setItem((old: any) => ({ ...old, lDestiny: sel }));
-      setShowExtraModal(null);
-      setOpenDestiny(false);
-    };
-
-    const _onClose = () => {
-      if (item?.destiny && item?.lDestiny?.length <= 0) {
-        setItem((old: any) => ({ ...old, destiny: null }));
-      }
-      setOpenDestiny(false);
-      setShowExtraModal(null);
-    };
-
-    return (
-      <DataModal
-        title="Destino"
-        open={openDestiny}
-        onClose={_onClose}
-        onSave={_onSave}
-      >
-        <DataSearch
-          name="searchDestiny"
-          setSearch={setOnSearch}
-          value={search}
-        />
-        {destiniesFiltered.map((d: any, i: number) => (
-          <Check
-            key={"check" + i}
-            name={"destiny_" + d.id}
-            label={d.name}
-            checked={sel.includes(d.id)}
-            reverse
-            onChange={(e: any) => {
-              const { name, checked } = e.target;
-              const id: any = parseInt(name.replace("destiny_", ""));
-              const il: any = sel?.filter((d: number) => d != id) || [];
-              if (checked) il.push(d.id);
-              setSel(il);
-            }}
-            value={d.id}
-            optionValue={[d.id, "N"]}
-          />
-        ))}
-      </DataModal>
-    );
-  };
-
   const {
     userCan,
     List,
@@ -547,7 +383,6 @@ const Contents = () => {
     searchs,
     onEdit,
     onDel,
-    extraData,
     reLoad,
     data,
     onFilter,
@@ -556,7 +391,6 @@ const Contents = () => {
     paramsInitial,
     mod,
     fields,
-    _onChange,
     getFilter: handleGetFilter,
   });
 

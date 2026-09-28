@@ -15,8 +15,6 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Image } from "@/mk/components/ui/Image/Image";
 import LinkifyDescription from "@/mk/components/ui/LinkifyDescription/LinkifyDescription";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import useAxios from "@/mk/hooks/useAxios";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import PublicationLikesModal from "@/components/PublicationLikesModal/PublicationLikesModal";
@@ -39,21 +37,23 @@ type RenderViewProps = {
   reLoad?: () => void;
   onOpenComments?: (contentId: number, contentData?: any) => void;
   selectedContentData?: any;
-  contentId?: number;
   showActions?: boolean;
 };
 
+/**
+ * El detalle NO pide nada: recibe la publicación ya cargada. En Publicaciones
+ * la trae `useCrud` (`loadView: { fullType: "DET" }` contra `/v3/contents`,
+ * con comentarios, imágenes y autor) y en el muro la pasa `Reel` desde su
+ * lista. Había un `GET fullType=DET` propio que sólo corría con un
+ * `contentId` que ninguna pantalla pasaba.
+ */
 const RenderView = (props: RenderViewProps) => {
   const { data } = props.item || {};
-  const { showToast } = useAuth();
-  const { execute } = useAxios();
   const [isExpanded, setIsExpanded] = useState(false);
   const [indexVisible, setIndexVisible] = useState(0);
-  const [contentData, setContentData] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
   const [likesOpen, setLikesOpen] = useState(false);
 
-  const currentData = props.selectedContentData || contentData || data;
+  const currentData = props.selectedContentData || data;
   const isNews = Boolean(currentData?.title?.trim());
   const publicationKind = isNews ? "Noticia" : "Post";
   const author = currentData?.user || currentData?.owner;
@@ -97,69 +97,7 @@ const RenderView = (props: RenderViewProps) => {
   }, [currentData]);
 
   useEffect(() => {
-    let active = true;
-
-    const fetchContentDetails = async () => {
-      if (
-        !props.open ||
-        !props.contentId ||
-        props.selectedContentData ||
-        data
-      ) {
-        return;
-      }
-
-      setLoading(true);
-      try {
-        const response = await execute(
-          "/contents",
-          "GET",
-          {
-            fullType: "DET",
-            searchBy: props.contentId,
-            page: 1,
-            perPage: 1,
-          },
-          false,
-          true,
-        );
-
-        if (!active) return;
-
-        if (response?.error || !response?.data?.data) {
-          throw new Error("No se encontraron los detalles de la publicación");
-        }
-
-        setContentData(response.data.data);
-      } catch (error) {
-        if (!active) return;
-        showToast?.(
-          error instanceof Error
-            ? error.message
-            : "Error al cargar los detalles de la publicación",
-          "error",
-        );
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-
-    void fetchContentDetails();
-    return () => {
-      active = false;
-    };
-  }, [
-    data,
-    execute,
-    props.contentId,
-    props.open,
-    props.selectedContentData,
-    showToast,
-  ]);
-
-  useEffect(() => {
     if (!props.open) {
-      setContentData(null);
       setIndexVisible(0);
       setIsExpanded(false);
       setLikesOpen(false);
@@ -210,8 +148,6 @@ const RenderView = (props: RenderViewProps) => {
       images: currentData.images || [],
       files: currentData.files || [],
       destiny: currentData.destiny || 0,
-      cdestinies: currentData.cdestinies || [],
-      lDestiny: currentData.lDestiny || [],
     });
   }, [currentData, props]);
 
@@ -364,7 +300,7 @@ const RenderView = (props: RenderViewProps) => {
       }}
       ignoreTranslation
     >
-      {loading || !currentData ? (
+      {!currentData ? (
         <div className={styles.loadingState} aria-live="polite">
           <span className={styles.loadingAvatar} />
           <span className={styles.loadingLineShort} />
