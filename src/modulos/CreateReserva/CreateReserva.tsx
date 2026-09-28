@@ -27,11 +27,10 @@ import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import RenderView from "../DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
 import {
-  buildReservationUnitSelectOptions,
+  buildReservationUnitChoices,
+  getReservationUnitChoiceOwnerId,
   getReservationUnitDisplayLabel,
   getReservationResidentFullName,
-  getReservationUnitOwnerId,
-  getReservationUnitPrimaryChoice,
 } from "@/modulos/Reservas/utils/reservationUnits";
 
 const initialState: FormState = {
@@ -78,7 +77,15 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [dataReserv, setDataReserv]: any = useState([]);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
   const [monthChangeTimer, setMonthChangeTimer] = useState(null);
-  const [selectedUnit, setSelectedUnit]: any = useState(null);
+  const unitChoices = useMemo(
+    () => buildReservationUnitChoices(extraData?.dptos || []),
+    [extraData?.dptos],
+  );
+  const selectedUnitChoice = useMemo(
+    () => unitChoices.find((choice) => choice.id === formState.unidad) || null,
+    [formState.unidad, unitChoices],
+  );
+  const selectedUnit = selectedUnitChoice?.unit || null;
   const [showMessage, setShowMessage] = useState(false);
   const { execute } = useAxios();
   const [loadingCalendar, setLoadingCalendar] = useState(false);
@@ -104,38 +111,24 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       }
       return { ...prev, unidad: "" };
     });
-    setSelectedUnit(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState?.area_social]);
-  useEffect(() => {
-    if (formState?.unidad) {
-      const selectedUnit = extraData?.dptos?.find(
-        (u: any) => String(u.id) === formState.unidad,
-      );
-      setSelectedUnit(selectedUnit);
-    } else {
-      setSelectedUnit(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formState?.unidad]);
 
   const getCalendar = useCallback(
     async (date?: any) => {
       setLoadingCalendar(true);
-      const ownerId = getReservationUnitOwnerId(selectedUnit);
+      const ownerId = getReservationUnitChoiceOwnerId(selectedUnitChoice);
+      if (!ownerId) {
+        setLoadingCalendar(false);
+        return;
+      }
       const { data } = await execute(
         "/reservations-calendar",
         "GET",
         {
           area_id: formState?.area_social || "none",
           date_at: date || new Date().toISOString()?.split("T")[0],
-          owner_id:
-            ownerId ||
-            getReservationUnitOwnerId(
-              extraData?.dptos?.find(
-                (u: any) => String(u.id) === formState.unidad,
-              ),
-            ),
+          owner_id: ownerId,
         },
         false,
         true,
@@ -153,11 +146,9 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       execute,
       setDataReserv,
       setBusyDays,
-      selectedUnit,
+      selectedUnitChoice,
       setLoadingCalendar,
       showToast,
-      formState?.unidad,
-      extraData?.dptos,
     ],
   );
 
@@ -169,8 +160,8 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       return [];
     }
 
-    return buildReservationUnitSelectOptions(extraData?.dptos || []);
-  }, [extraData?.dptos, extraData?.areas, formState.area_social]);
+    return unitChoices;
+  }, [unitChoices, extraData?.areas, formState.area_social]);
 
   const selectedAreaDetails: ApiArea | undefined = useMemo(() => {
     if (!formState.area_social) {
@@ -331,14 +322,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
 
     setIsSubmitting(true);
 
-    const selectedUnit = extraData?.dptos.find(
-      (u: any) => String(u.id) === formState.unidad,
-    );
-    const ownerId = getReservationUnitOwnerId(selectedUnit);
+    const ownerId = getReservationUnitChoiceOwnerId(selectedUnitChoice);
     if (!ownerId) {
       setIsSubmitting(false);
       showToast(
-        "La unidad seleccionada no tiene un titular configurado para crear la reserva.",
+        "Selecciona una persona asociada a la unidad para crear la reserva.",
         "error",
       );
       return;
@@ -468,9 +456,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     onClose();
   };
   const currentImage = selectedAreaDetails?.images?.[currentImageIndex];
-  const selectedUnitResponsible = selectedUnit
-    ? getReservationUnitPrimaryChoice(selectedUnit).resident
-    : null;
+  const selectedUnitResponsible = selectedUnitChoice?.resident || null;
   const selectedUnitResponsibleName =
     getReservationResidentFullName(selectedUnitResponsible);
   const selectedUnitLabel = selectedUnit
@@ -516,7 +502,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   <h3 className={styles.sectionTitle}>Datos generales</h3>
                   <div className={styles.formField}>
                     <Select
-                      label="Unidad"
+                      label="Unidad y persona"
                       name="unidad"
                       value={formState.unidad}
                       options={unidadesOptions}
@@ -529,7 +515,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                           ? "Selecciona primero un área social"
                           : unidadesOptions.length === 0
                             ? "No hay unidades disponibles"
-                            : "Selecciona una unidad"
+                            : "Selecciona una unidad y persona"
                       }
                     />
                   </div>

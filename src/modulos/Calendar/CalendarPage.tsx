@@ -66,7 +66,7 @@ import type {
 } from "@/modulos/Reservas/types";
 import {
   buildReservationUnitChoices,
-  getReservationUnitOwnerId,
+  getReservationUnitChoiceOwnerId,
   type ReservationUnitChoice,
 } from "@/modulos/Reservas/utils/reservationUnits";
 import {
@@ -1181,8 +1181,8 @@ const CalendarPage = () => {
   const reservationBlockedSlots = reservationLiveAvailability?.unavailable || [];
   const reservationMaintenanceSlots = reservationLiveAvailability?.maintenance || [];
 
-  const selectedReservationOwnerId = String(
-    getReservationUnitOwnerId(selectedReservationUnit),
+  const selectedReservationOwnerId = getReservationUnitChoiceOwnerId(
+    selectedReservationUnitChoice,
   );
 
   const selectedReservationResidentLabel = useMemo(() => {
@@ -1226,7 +1226,7 @@ const CalendarPage = () => {
   const reservationStatusNotice = !reservationDraft.unitOptionId
     ? ""
     : !selectedReservationOwnerId
-      ? "La unidad seleccionada no tiene un titular asociado."
+      ? "Selecciona una persona asociada a la unidad."
       : reservationAvailabilityLoading
         ? ""
         : reservationLiveCanBook === false ||
@@ -1469,7 +1469,7 @@ const CalendarPage = () => {
       setReservationLiveAvailability(null);
       setReservationLiveCanBook(false);
       setReservationAvailabilityMessage(
-        "La unidad elegida no tiene un titular configurado para crear la reserva.",
+        "Selecciona una persona asociada a la unidad para crear la reserva.",
       );
       return;
     }
