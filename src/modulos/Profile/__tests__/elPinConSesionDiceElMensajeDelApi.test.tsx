@@ -11,6 +11,15 @@
 import React from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { messages } from "@/i18n/messages";
+
+vi.mock("@/i18n/useScopedI18n", () => ({
+  useScopedI18n: () => ({
+    translate: (key: string) =>
+      (messages.es.auth as Record<string, string>)[key] ?? key,
+  }),
+}));
+
 import Authentication from "../Authentication";
 
 const THROTTLED = "Demasiados intentos. Intente de nuevo en 15 minutos.";

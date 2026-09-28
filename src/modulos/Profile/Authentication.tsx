@@ -4,6 +4,8 @@ import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { leerElErrorDelApi } from "@/mk/hooks/useCrud/leerElErrorDelApi";
+import { useResendCountdown } from "@/mk/hooks/useResendCountdown";
+import { useScopedI18n } from "@/i18n/useScopedI18n";
 import { useEffect, useState } from "react";
 interface PropsType {
   open: boolean;
@@ -34,6 +36,11 @@ const Authentication = ({
 }: PropsType) => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [oldEmail, setOldEmail] = useState("");
+  const { translate } = useScopedI18n("auth");
+  // La espera corre desde que se entra al paso del código: recién se mandó uno.
+  const { secondsLeft, canResend, restart } = useResendCountdown(
+    formState?.pinned === 1,
+  );
 
   const modalTitle =
     formState.pinned === 0
@@ -173,16 +180,32 @@ const Authentication = ({
     }
   };
 
-  const onGetCode = async () => {
+  const onGetCode = async (sentMessage = "Código enviado a su correo") => {
     const { data, error } = await execute("/v3/adm-getpin", "POST", {
       type: "email",
     });
     if (data?.success == true) {
-      showToast("Código enviado a su correo", "success");
+      showToast(sentMessage, "success");
       setFormState({ ...formState, email: data.email, pinned: 1, code: "" });
+      setErrors({});
     } else {
       showRejection(data, error, "No pudimos enviar el código. Intenta nuevamente.");
     }
+  };
+  /**
+   * «Pedir otro código» desde el paso del código.
+   *
+   * 🔴 Hace falta porque el código se puede MORIR: a los 5 PIN incorrectos el
+   * API lo borra y contesta «Pin no válido», igual que a un error suelto.
+   * Antes la única salida era cerrar el modal y volver a abrirlo.
+   *
+   * La espera se reinicia al apretar, salga bien o no: un 429 también es
+   * motivo para no insistir.
+   */
+  const onResendCode = async () => {
+    if (!canResend) return;
+    restart();
+    await onGetCode(translate("newCodeSent"));
   };
   const setCode = (code: string) => {
     setFormState({ ...formState, code });
@@ -393,6 +416,27 @@ const Authentication = ({
               >
                 ¿No recibiste el código? Revisa tu bandeja de spam
               </div>
+
+              <button
+                type="button"
+                onClick={onResendCode}
+                disabled={!canResend}
+                style={{
+                  marginTop: "12px",
+                  background: "none",
+                  border: "none",
+                  fontSize: "14px",
+                  color: canResend ? "var(--cAccent)" : "var(--cWhiteV1)",
+                  textDecoration: canResend ? "underline" : "none",
+                  cursor: canResend ? "pointer" : "default",
+                }}
+              >
+                {canResend
+                  ? translate("requestNewCode")
+                  : translate("requestNewCodeIn", {
+                      seconds: String(secondsLeft).padStart(2, "0"),
+                    })}
+              </button>
             </div>
           </div>
         </div>

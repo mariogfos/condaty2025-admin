@@ -343,6 +343,9 @@ export const messages = {
         "Problemas de conexión con el servidor. Intenta más tarde.",
       invalidCredentials: "Datos incorrectos.",
       noModuleAccess: "No tiene permisos para este módulo.",
+      requestNewCode: "Pedir otro código",
+      requestNewCodeIn: "Pedir otro código en 0:{seconds}",
+      newCodeSent: "Te enviamos un código nuevo a tu correo.",
     },
     splash: {
       lead: "Tecnología,",
@@ -683,6 +686,9 @@ export const messages = {
         "Problemas de conexão com o servidor. Tente novamente mais tarde.",
       invalidCredentials: "Dados incorretos.",
       noModuleAccess: "Você não tem permissão para este módulo.",
+      requestNewCode: "Pedir outro código",
+      requestNewCodeIn: "Pedir outro código em 0:{seconds}",
+      newCodeSent: "Enviamos um novo código para o seu e-mail.",
     },
     splash: {
       lead: "Tecnologia,",
@@ -1022,6 +1028,9 @@ export const messages = {
         "There are server connection issues. Please try again later.",
       invalidCredentials: "Incorrect credentials.",
       noModuleAccess: "You do not have permission to access this module.",
+      requestNewCode: "Request another code",
+      requestNewCodeIn: "Request another code in 0:{seconds}",
+      newCodeSent: "We sent a new code to your email.",
     },
     splash: {
       lead: "Technology,",
