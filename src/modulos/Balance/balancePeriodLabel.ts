@@ -1,15 +1,12 @@
 import { MONTHS_GRAPH } from "@/mk/utils/date";
 
 /**
- * El título del Balance para cada período de `filter_date`.
+ * El título del Balance para cada período de `filter_date`: los que ofrece el
+ * selector de `Balance.tsx` —`m`, `lm`, `y`, `ly` y el personalizado—.
  *
- * 🔴 «Ayer» salía como un día de 1970: se armaba con
- * `new Date(now.getDate() - 1)`, que toma el NÚMERO del día como
- * milisegundos desde 1970. Las fechas relativas se calculan copiando `now` y
- * moviendo el día con `setDate()`, que cruza de mes y de año solo.
- *
- * Las semanas empiezan el LUNES, igual que `startOfWeek()` del API: un
- * domingo, `getDay()` es 0 y la cuenta vieja daba el lunes SIGUIENTE.
+ * ⚠️ `d`, `ld`, `w` y `lw` ya no tienen título: el API los rechaza con un 422
+ * (`BalanceService::PERIODS`), porque respondía con las cifras del AÑO. Nadie
+ * los ofrecía.
  *
  * El personalizado (`c:AAAA-MM-DD,AAAA-MM-DD`) se lee de las partes del texto,
  * sin pasar por `Date`: son días del calendario del condominio, y un `Date`
@@ -23,27 +20,8 @@ export const balancePeriodLabel = (
   now: Date = new Date(),
 ): string => {
   const months = MONTHS_GRAPH;
-  const shift = (days: number) => {
-    const date = new Date(now);
-    date.setDate(date.getDate() + days);
-    return date;
-  };
-  const day = (date: Date) =>
-    `${date.getDate()} de ${months[date.getMonth()]} de ${date.getFullYear()}`;
-  const range = (from: Date, to: Date) =>
-    `Balance desde ${from.getDate()} de ${months[from.getMonth()]} hasta ${day(to)}`;
-  // Días desde el lunes: domingo (0) es el SÉPTIMO día de la semana, no el primero.
-  const sinceMonday = (now.getDay() + 6) % 7;
 
   switch (filterDate) {
-    case "d":
-      return `Balance del ${day(now)}`;
-    case "ld":
-      return `Balance del ${day(shift(-1))}`;
-    case "w":
-      return range(shift(-sinceMonday), shift(6 - sinceMonday));
-    case "lw":
-      return range(shift(-sinceMonday - 7), shift(-sinceMonday - 1));
     case "m":
       return `Balance de ${months[now.getMonth()]} de ${now.getFullYear()}`;
     case "lm": {
