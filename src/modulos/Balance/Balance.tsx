@@ -274,16 +274,7 @@ const BalanceGeneral: React.FC = () => {
     }
     return data;
   };
-  let tituloBalance;
-  if (
-    formStateFilter.filter_date == "d" ||
-    formStateFilter.filter_date == "ld"
-  ) {
-    tituloBalance =
-      "Balance de " + (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer");
-  } else {
-    tituloBalance = balancePeriodLabel(formStateFilter.filter_date);
-  }
+  const tituloBalance = balancePeriodLabel(formStateFilter.filter_date);
 
   const getSelectCategorias = () => {
     if (typeof formStateFilter.filter_categ === "string") {
