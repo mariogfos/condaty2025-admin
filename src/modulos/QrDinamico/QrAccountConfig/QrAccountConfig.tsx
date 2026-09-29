@@ -103,7 +103,7 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
       setLoading(true);
 
       const res = await execute(
-        `/qr-dynamic/accounts/${bankAccountId}/config`,
+        `/v3/qr-dynamic/accounts/${bankAccountId}/config`,
         "GET",
         {},
         false,
@@ -194,7 +194,7 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
 
       setSaving(true);
       const res = await execute(
-        `/qr-dynamic/accounts/${bankAccountId}/config`,
+        `/v3/qr-dynamic/accounts/${bankAccountId}/config`,
         "PUT",
         payload,
       );

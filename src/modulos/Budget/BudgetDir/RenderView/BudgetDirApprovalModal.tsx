@@ -129,7 +129,7 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
         id: budgetId,
         comment: comment || "",
       };
-      const url = "/change-budget";
+      const url = "/v3/budgets/change-budget";
 
       const { data: response } = await execute(
         url,

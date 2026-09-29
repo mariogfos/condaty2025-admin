@@ -62,7 +62,7 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
     if (!survey_info?.id) return;
     try {
       const res = await execute(
-        `/surveys/ai-reports`,
+        `/v3/surveys/ai-reports`,
         "GET",
         { survey_id: survey_info.id },
         showLoading,
@@ -93,7 +93,7 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
     setPollingActive(true);
     try {
       const res = await execute(
-        `/surveys/analyze-ai`,
+        `/v3/surveys/analyze-ai`,
         "POST",
         {
           survey_id: survey_info.id,

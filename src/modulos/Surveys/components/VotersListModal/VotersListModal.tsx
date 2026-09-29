@@ -40,7 +40,7 @@ const VotersListModal: React.FC<VotersListModalProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       // Build URL with optional survey_id param for abstention case
-      let url = `/surveys/soptions/${soptionId}/voters`;
+      let url = `/v3/surveys/soptions/${soptionId}/voters`;
       if (soptionId === "abstention" && surveyId) {
         url += `?survey_id=${surveyId}`;
       }
