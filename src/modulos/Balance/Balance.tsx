@@ -132,23 +132,16 @@ const BalanceGeneral: React.FC = () => {
     { id: "sc", name: "Personalizado" },
   ];
 
-  // 🔴 2026-08-07: el botón "Descargar reporte" NO descargaba nada.
+  // 🔴 El PDF se pide por `POST /v3/reports/balance/export` y lo arma el
+  // worker (`BalanceCustomReport`): el hook encola, hace polling del estado y
+  // descarga cuando termina. `POST /v3/balances` sólo devuelve los datos de la
+  // pantalla — su rama `exportar: true` se eliminó del API el 2026-08-07, y
+  // esta pantalla esperaba `finanzas.data.export.path`, una clave que nunca
+  // llegaba: el botón no descargaba nada.
   //
-  // `POST /v3/balances` con `exportar: true` encola el reporte y responde 202
-  // con `{job_id, status, status_url, download_url}` — el flujo async, desde
-  // S35. Pero acá se seguía esperando `finanzas.data.export.path`, que es el
-  // shape del camino LEGACY síncrono: esa clave nunca llega, así que el
-  // `window.open` no se ejecutaba nunca. El usuario apretaba, el PDF se
-  // generaba en el worker y no se abría solo.
-  //
-  // Ahora usa el mismo hook que el resto de los módulos migrados: encola,
-  // hace polling del estado y descarga cuando termina.
-  //
-  // ⚠️ La captura del gráfico se sacó de acá: el front hacía `html2canvas`,
-  // subía un PNG en base64 en cada export y el backend NO lo recibe —medido:
-  // cero referencias a `grafica` en todo `app/`—. Queda pendiente meterlo
-  // dentro del PDF (decisión de Mario, 2026-08-07); mientras tanto no se sube
-  // una imagen al vacío.
+  // ⚠️ El gráfico no se captura acá: lo dibuja el API dentro del PDF
+  // (`SvgChartService`, con las mismas cifras que las tablas). Antes se subía
+  // un PNG de `html2canvas` en cada export que el backend no leía.
   // 🔴 El modal de progreso es el MISMO que usa el resto de los módulos
   // (`AsyncExportButton` lo arma junto al hook). Acá el botón es propio —tiene
   // su ícono y su estilo—, así que el hook se usa directo; pero sin el modal el
@@ -296,10 +289,9 @@ const BalanceGeneral: React.FC = () => {
   // del título daba 0.
   //
   // No se arreglaron las tres comparaciones: se BORRARON. `POST /v3/balances`
-  // ya filtra por categoría en SQL (`UtilsGraph::getEgresosHist`, y el
-  // `getIncomeReport` del lado de ingresos, con
-  // `whereIn('e.category_id', $categ)->orWhereIn('cat.category_id', $categ)`),
-  // así que `ingresosHist`/`egresosHist` llegan filtrados. Volver a filtrarlos
+  // ya filtra por categoría en SQL (`UtilsGraph::getEgresosHist` y
+  // `getIncomeReport`, por la categoría padre y acotado al condominio), así
+  // que `ingresosHist`/`egresosHist` llegan filtrados. Volver a filtrarlos
   // acá era una segunda fuente de verdad que sólo podía equivocarse.
   //
   // ⚠️ Las tablas (`TableIngresos`/`TableEgresos`) SÍ siguen recibiendo
