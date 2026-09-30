@@ -7,6 +7,7 @@ import { getFullName } from "@/mk/utils/string";
 import styles from "./BudgetDirApprovalModal.module.css";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar"; // <- Agregar import
+import { leerElErrorDelApi } from "@/mk/hooks/useCrud/leerElErrorDelApi";
 
 const formatPeriod = (periodCode: string): string => {
   const map: Record<string, string> = {
@@ -131,13 +132,27 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
       };
       const url = "/v3/budgets/change-budget";
 
-      const { data: response } = await execute(
+      const { data: response, error } = await execute(
         url,
         "POST",
         payload,
         false,
         true,
       );
+
+      // 🔴 `execute` NO lanza: un no-2xx vuelve en `error` con `data` en
+      // `null`, y el rechazo de negocio de `change-budget` llega con HTTP 200 y
+      // `success: false`. Antes se mostraba «aprobado correctamente» en los dos
+      // casos, y eso tapó durante meses un 404 de la ruta. Sin `success: true`
+      // no hay éxito: el modal queda abierto con el motivo del API.
+      if (error || response?.success !== true) {
+        const fallback = `No se pudo dejar el presupuesto ${actionText}.`;
+        showToast(
+          leerElErrorDelApi(response, error, fallback).mensaje,
+          "error",
+        );
+        return;
+      }
 
       const toastType: "success" | "info" =
         newStatus === "A" ? "success" : "info";
