@@ -21,6 +21,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getOutlaysMod } from "../config/outlaysMod";
 import { ExpenseStatus, PaymentMethod } from "@/modulos/Payments/Type/PaymentType";
+import { BankAccountType } from "@/modulos/BankAccounts/Type/BankType";
 
 const mockExecute = vi.fn();
 const mockShowToast = vi.fn();
@@ -101,7 +102,7 @@ describe("CDT-39 — detalle del egreso", () => {
    */
   it.each([
     [ExpenseStatus.ACTIVE, "Pagado", "1"],
-    [ExpenseStatus.CANCELLED, "Anulado", "0"],
+    [ExpenseStatus.CANCELLED, "Anulado", "2"],
   ])(
     "traduce el estado numérico %i a '%s' y no lo muestra crudo",
     (status, etiqueta, crudo) => {
@@ -111,6 +112,36 @@ describe("CDT-39 — detalle del egreso", () => {
       expect(screen.queryByText(crudo)).toBeNull();
     },
   );
+
+  /**
+   * El contrato con el API (`ExpenseStatus.php`): el anulado es 2 desde el
+   * 2026-09-30. Con el 0 viejo, un egreso anulado se dibujaba «Desconocido» y
+   * el filtro «Anulado» no traía ninguno.
+   */
+  it("usa los valores del API: pagado 1, anulado 2", () => {
+    expect([ExpenseStatus.ACTIVE, ExpenseStatus.CANCELLED]).toEqual([1, 2]);
+  });
+
+  /**
+   * 🔴 El tipo de cuenta llega NUMÉRICO (`BankAccountType`) y el mapa estaba
+   * keyeado por `C`/`S`: el detalle mostraba el número sin el tipo.
+   */
+  it("muestra el tipo de la cuenta de la que salió el egreso", () => {
+    renderDetalle(
+      buildEgreso({
+        bank_account_id: 3,
+        bank_account: {
+          id: 3,
+          account_type: BankAccountType.SAVINGS,
+          account_number: "100200",
+          alias_holder: "Cuenta principal",
+          bank_entity: { id: 1, name: "Banco Unión" },
+        },
+      }),
+    );
+
+    expect(screen.getByText("Caja de ahorro - 100200")).toBeInTheDocument();
+  });
 
   it("ofrece anular un egreso activo", () => {
     renderDetalle(buildEgreso({ status: ExpenseStatus.ACTIVE }));
@@ -169,6 +200,16 @@ describe("CDT-39 — modal de anular", () => {
         reLoad={reLoad}
       />,
     );
+
+    // El tope es la columna (`expenses.canceled_obs`, varchar 255): con 500 un
+    // motivo largo reventaba en el API. El `TextArea` no acepta lo que pasa el
+    // tope, así que un motivo de 256 no llega a mandarse.
+    fireEvent.change(
+      document.getElementById("canceled_obs") as HTMLTextAreaElement,
+      { target: { name: "canceled_obs", value: "x".repeat(256) } },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Anular egreso" }));
+    expect(mockExecute).not.toHaveBeenCalled();
 
     fireEvent.change(
       document.getElementById("canceled_obs") as HTMLTextAreaElement,

@@ -53,7 +53,7 @@ const RenderDel = memo(({ open, onClose, item, onSave, execute, reLoad }: Render
     addError(
       checkRules({
         value: canceledObs,
-        rules: ['required', 'max:500'],
+        rules: ['required', 'max:255'],
         key: 'canceled_obs',
         errors: errs,
       }),
@@ -137,12 +137,14 @@ const RenderDel = memo(({ open, onClose, item, onSave, execute, reLoad }: Render
           label="Motivo de anulación"
           error={_errors}
           required
-          maxLength={500}
+          // 255: es la columna (`expenses.canceled_obs`, varchar). Con 500 un
+          // motivo largo reventaba en el API con 500; hoy vuelve 422.
+          maxLength={255}
           className={_errors.canceled_obs ? styles.error : ''}
         />
 
         {canceledObs && canceledObs.length > 0 && (
-          <p className={styles.charCount}>{canceledObs.length}/500 caracteres</p>
+          <p className={styles.charCount}>{canceledObs.length}/255 caracteres</p>
         )}
       </div>
     </DataModal>

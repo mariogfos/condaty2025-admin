@@ -82,8 +82,8 @@ const Outlays = () => {
   // el 2026-08-05 barriendo los módulos ya migrados, a partir del mismo bug en
   // Áreas).
   //
-  // `expenses.status` es `tinyint unsigned` desde S2-T2 (0=CANCELLED,
-  // 1=ACTIVE) y `ExpenseController::getModelfilterBy` hace
+  // `expenses.status` es `tinyint unsigned` desde S2-T2 (1=ACTIVE; el
+  // CANCELLED era 0 y es 2 desde el 2026-09-30) y `ExpenseController::getModelfilterBy` hacía
   // `where('expenses.status', $value[1])` con el valor crudo. MariaDB convierte
   // los DOS chars a 0, así que —medido contra la base local—:
   //
@@ -300,15 +300,15 @@ const Outlays = () => {
               //   A: Pagado
               //   X: Anulado
               //
-              // Post-S140 (numeric, post-ExpenseStatus enum):
-              //   0 (ExpenseStatus.CANCELLED): Anulado
-              //   1 (ExpenseStatus.ACTIVE): Pagado
-              0: {
+              // Post-S140 (numeric, post-ExpenseStatus enum). Las claves salen
+              // del enum: el anulado era 0 y pasó a 2 el 2026-09-30, y con el
+              // número escrito acá quedaba «Desconocido» sin un error.
+              [ExpenseStatus.CANCELLED]: {
                 label: "Anulado",
                 color: "var(--cWhite)",
                 bgColor: "var(--cHoverCompl1)",
               },
-              1: {
+              [ExpenseStatus.ACTIVE]: {
                 label: "Pagado",
                 color: "var(--cSuccess)",
                 bgColor: "var(--cHoverCompl2)",

@@ -330,8 +330,8 @@ const {
 
 > 🔴 **"Sin filtro" son sólo `undefined`, `null` y `""`.** El hook serializa
 > `filterBy` a la cadena `campo:valor|campo:valor` descartando únicamente esos
-> tres valores, y el **cero es un valor legítimo**: hay estados que valen 0
-> (`ExpenseStatus.CANCELLED`, `PaymentStatus.CANCELLED`,
+> tres valores, y el **cero es un valor legítimo**: hubo estados que valían 0
+> (`ExpenseStatus.CANCELLED`, 2 desde el 2026-09-30; `PaymentStatus.CANCELLED`,
 > `BankAccountStatus.INACTIVE`, `BankEntityStatus.INACTIVE`). Un `getFilter`
 > propio que borre la clave con un chequeo de verdad (`if (!value) delete ...`)
 > hace que el back reciba la lista SIN filtrar, sin ningún error: la pantalla

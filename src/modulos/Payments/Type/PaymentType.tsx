@@ -34,18 +34,19 @@ export enum PaymentType {
 }
 
 /**
- * S18.5a — ExpenseStatus numeric enum.
+ * El estado de un egreso — espejo de `App\Modules\Expenses\Enums\ExpenseStatus`.
  *
- * Sincronizado con backend `App\Modules\Expenses\Enums\ExpenseStatus` (PHP):
  * - ACTIVE = 1 (legacy 'A')
- * - CANCELLED = 0 (legacy 'X')
+ * - CANCELLED = 2 (legacy 'X')
  *
- * El backend serializa como TINYINT (no string), pineado desde S2-T2 + S6.5.
- * El admin debe pinear estos int values, no chars.
+ * 🔴 `CANCELLED` valía 0 hasta el 2026-09-30. Los enums del proyecto empiezan
+ * en 1 por lo que pasó acá mismo: el filtro «Anulado» de Egresos mandaba 0, y
+ * `useCrud` lo descartaba como «vacío» (CDT-38). El API lo corre con la
+ * migración `2026_09_30_000001`; este archivo y esa migración van juntos.
  */
 export enum ExpenseStatus {
   ACTIVE = 1,
-  CANCELLED = 0,
+  CANCELLED = 2,
 }
 
 /**

@@ -6,7 +6,7 @@
  *
  * La causa no estaba en Egresos sino acá, en el hook que usan los ~40 módulos:
  * `onFilter` armaba la cadena `campo:valor` con un chequeo de VERDAD
- * (`if (filterBy.filterBy[key])`). "Anulado" es `ExpenseStatus.CANCELLED = 0`,
+ * (`if (filterBy.filterBy[key])`). "Anulado" era `ExpenseStatus.CANCELLED = 0` (2 desde el 2026-09-30),
  * así que la clave `status` nunca entraba al `filterBy` y el back —sano—
  * devolvía la lista SIN filtrar. Ningún error, ninguna lista vacía: filas que
  * el usuario cree.
