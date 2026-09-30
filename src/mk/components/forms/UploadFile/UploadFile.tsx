@@ -53,8 +53,8 @@ export const UploadFile = ({
   // falsa, así que al editar una publicación de tipo Documento el componente
   // no reconocía el archivo que ya estaba.
   //
-  // Los otros cinco consumidores —Invitations, Guards, BankAccounts, Outlays y
-  // PerformBudget— no pasan `item`, así que `item?.type` es `undefined` y para
+  // Los otros consumidores —Invitations, Guards, BankAccounts y Outlays— no
+  // pasan `item`, así que `item?.type` es `undefined` y para
   // ellos no cambia nada.
   // Función para verificar si hay un documento existente
   const hasExistingDocument = () => {

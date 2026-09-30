@@ -2,8 +2,8 @@
  * Las tres del blur del CI de un guardia, medidas contra la funcion real.
  *
  * Es la misma familia que cerro `buscarAdministradorExistente` para el alta de
- * administradores (admin#790). Los DOS formularios de guardia la tenian:
- * `Guards/RenderForm` (el alta) y `GuardEditForm` (la edicion desde el perfil).
+ * administradores (admin#790). La tenia el formulario de guardia,
+ * `Guards/RenderForm`.
  */
 import { describe, it, expect, vi } from "vitest";
 import { alCambiarElCi, buscarGuardiaPorCi } from "../buscarGuardiaExistente";

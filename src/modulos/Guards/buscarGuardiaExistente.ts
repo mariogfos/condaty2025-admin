@@ -23,9 +23,9 @@
  * que no es necesariamente el último que se pidió.
  *
  * Es exactamente la misma familia que cerró `buscarAdministradorExistente.ts`
- * para el alta de administradores. Los dos formularios de guardia —el alta
- * (`Guards/RenderForm`) y la edición desde el perfil (`GuardEditForm`)— tenían
- * las tres, así que la regla vive una sola vez y los dos la consultan.
+ * para el alta de administradores. El formulario de guardia
+ * (`Guards/RenderForm`, que se usa para el alta y desde la ficha del perfil)
+ * las tenía las tres; la regla vive acá, afuera del componente.
  *
  * Están afuera del componente para poder medirlas: adentro cierran sobre
  * `execute` y `showToast` y no hay forma de llamarlas sin renderizar la

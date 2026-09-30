@@ -18,7 +18,6 @@ import { getFullName } from "@/mk/utils/string";
 import Authentication from "@/modulos/Profile/Authentication";
 import useAxios from "@/mk/hooks/useAxios";
 import EditProfile from "./EditProfile/EditProfile";
-import GuardEditForm from "./GuardEditForm/GuardEditForm";
 import Image from "next/image";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
 import RenderForm from "@/modulos/Guards/RenderForm/RenderForm";
