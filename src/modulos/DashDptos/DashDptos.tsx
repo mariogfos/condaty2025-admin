@@ -26,12 +26,45 @@ import {
 import OwnersRenderForm from "../Owners/RenderForm/RenderForm";
 import UnitFinanceHistory from "./UnitFinanceHistory/UnitFinanceHistory";
 import { getBackTarget } from "./backTarget";
+import NotAccess from "@/components/auth/NotAccess/NotAccess";
 
 interface DashDptosProps {
   id: string | number;
 }
 
-const DashDptos = ({ id }: DashDptosProps) => {
+/**
+ * Las habilidades que abren la ficha de la unidad: la R de CUALQUIERA de las
+ * pantallas desde las que se llega.
+ *
+ * Se entra desde Unidades (`units`), desde Residentes por la ficha de la
+ * persona (`owners`, `?returnTo=owners`) y desde Morosos (`defaulters`,
+ * `?returnTo=defaulters`). La ficha lee datos personales (`v3/dptos` DET,
+ * `v3/owners`) y de plata (`payments/units/{id}/financial-state`), y el API
+ * deja esas lecturas abiertas justamente porque la leen pantallas con
+ * habilidades distintas (`HABILIDADES_EN_EL_API.md` → «Las que quedan
+ * abiertas»).
+ *
+ * ⚠️ Con sólo `units:R` quedaban afuera 2 vínculos activos reales: los dos
+ * «Director de Seguridad», que tienen `owners:R` y `defaulters:R` sin `units`
+ * (copia de producción, 2026-09-30). Las tres cadenas existen en la tabla
+ * `abilities` y ninguna otra del catálogo empieza con ellas.
+ */
+const UNIT_SHEET_ABILITIES = ["units", "owners", "defaulters"];
+
+/**
+ * 🔴 La guarda va en un envoltorio, no dentro de la ficha: `UnitSheet` pide
+ * `v3/dptos` DET al montarse, y un `return <NotAccess/>` al final de sus
+ * hooks llegaría DESPUÉS del pedido.
+ */
+const DashDptos = (props: DashDptosProps) => {
+  const { userCan } = useAuth();
+  if (!UNIT_SHEET_ABILITIES.some((ability) => userCan(ability, "R"))) {
+    return <NotAccess />;
+  }
+  return <UnitSheet {...props} />;
+};
+
+const UnitSheet = ({ id }: DashDptosProps) => {
   const { showToast } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();

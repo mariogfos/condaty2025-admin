@@ -220,7 +220,7 @@ Están en `api.ts` porque son del recurso y alguien los va a necesitar:
 | `GET /v3/reservations/calendar` | el módulo Calendar |
 | `POST /v3/reservations/area-blocked` | el módulo Áreas (bloqueo por mantenimiento) |
 | `POST /v3/reservations` | el módulo CreateReserva (el alta) |
-| `GET /v3/reservations?fullType=EXTRA` | `src/app/create-reservas/page.tsx` |
+| `GET /v3/reservations?fullType=EXTRA` | `src/app/create-reservas/page.tsx` (sólo con `reservations:C`: sin la letra la página muestra `<NotAccess/>` y no lo pide) |
 
 ⚠️ Esos tres módulos tienen sus propias URLs escritas a mano. Unificarlos contra
 `reservationsApi` es una tarea aparte, listada en `reservas-contrato.md`.

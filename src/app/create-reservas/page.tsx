@@ -6,16 +6,22 @@ import CreateReserva from "@/modulos/CreateReserva/CreateReserva";
 import { AxiosContext } from "@/mk/contexts/AxiosInstanceProvider";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import type { ReservationExtraData } from "@/modulos/Reservas/Type/ReservaType";
+import NotAccess from "@/components/auth/NotAccess/NotAccess";
 
 const CreateReservaPage = () => {
   const router = useRouter();
   const { contextInstance } = useContext(AxiosContext);
-  const { showToast } = useAuth();
+  const { showToast, userCan } = useAuth();
+  // 🔴 El alta de reserva pide `reservations:C`, la letra del `POST
+  // v3/reservations` en el API. El botón del Calendario ya la pedía; la URL
+  // escrita a mano no, y cargaba el `EXTRA` de reservas —áreas y unidades—
+  // para cualquiera.
+  const canCreate = userCan("reservations", "C");
   const [extraData, setExtraData] = useState<ReservationExtraData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadExtraData = useCallback(async () => {
-    if (!contextInstance) return;
+    if (!contextInstance || !canCreate) return;
 
     setLoading(true);
     try {
@@ -36,11 +42,13 @@ const CreateReservaPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [contextInstance, showToast]);
+  }, [contextInstance, showToast, canCreate]);
 
   useEffect(() => {
     void loadExtraData();
   }, [loadExtraData]);
+
+  if (!canCreate) return <NotAccess />;
 
   if (loading) {
     return <div style={{ color: "var(--cWhiteV1)" }}>Cargando flujo de reserva...</div>;
