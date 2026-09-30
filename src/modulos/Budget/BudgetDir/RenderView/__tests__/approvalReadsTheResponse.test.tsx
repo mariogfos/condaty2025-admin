@@ -12,7 +12,6 @@
  * Se miden los tres: el `success: false` con 200, el no-2xx (un 403 si la ruta
  * pasa a pedir la letra) y el éxito de verdad.
  */
-import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 
