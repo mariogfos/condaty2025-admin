@@ -10,6 +10,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatBs } from "@/mk/utils/numbers";
 import { parseExpenseDescription } from "../utils/expenseDescription";
 import { METHOD_MAP, ExpenseStatus } from "@/modulos/Payments/Type/PaymentType";
+import { BankAccountType } from "@/modulos/BankAccounts/Type/BankType";
 import { FinancialRecordHistoryButton } from "@/modulos/FinancialRecords/FinancialRecordHistoryButton";
 interface Category {
   id: number | string;
@@ -64,9 +65,13 @@ interface DetailItem {
   valueClassName?: string;
 }
 
-const typeAccountMap: Record<string, string> = {
-  C: "Cuenta corriente",
-  S: "Caja de ahorro",
+// 🔴 Estaba keyeado por los chars `C`/`S`, y `bank_accounts.account_type` es
+// numérico (`BankAccountType`, 1..2): ninguna clave matcheaba y el detalle
+// mostraba sólo el número de cuenta. El API tampoco mandaba la columna hasta el
+// 2026-09-30 (revisión de Egresos).
+const typeAccountMap: Record<number, string> = {
+  [BankAccountType.CURRENT]: "Cuenta corriente",
+  [BankAccountType.SAVINGS]: "Caja de ahorro",
 };
 const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   const { open, onClose, extraData, item, onDel, reLoad } = props;
@@ -187,7 +192,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   };
 
   const getAccountNumberSummary = () => {
-    const accountType = typeAccountMap[item?.bank_account?.account_type || ""];
+    const accountType = typeAccountMap[Number(item?.bank_account?.account_type)];
     const accountNumber = item?.bank_account?.account_number;
 
     if (accountType && accountNumber) return `${accountType} - ${accountNumber}`;

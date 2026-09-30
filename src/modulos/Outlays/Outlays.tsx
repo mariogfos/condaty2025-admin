@@ -300,15 +300,15 @@ const Outlays = () => {
               //   A: Pagado
               //   X: Anulado
               //
-              // Post-S140 (numeric, post-ExpenseStatus enum):
-              //   0 (ExpenseStatus.CANCELLED): Anulado
-              //   1 (ExpenseStatus.ACTIVE): Pagado
-              0: {
+              // Post-S140 (numeric, post-ExpenseStatus enum). Las claves salen
+              // del enum: el anulado era 0 y pasó a 2 el 2026-09-30, y con el
+              // número escrito acá quedaba «Desconocido» sin un error.
+              [ExpenseStatus.CANCELLED]: {
                 label: "Anulado",
                 color: "var(--cWhite)",
                 bgColor: "var(--cHoverCompl1)",
               },
-              1: {
+              [ExpenseStatus.ACTIVE]: {
                 label: "Pagado",
                 color: "var(--cSuccess)",
                 bgColor: "var(--cHoverCompl2)",

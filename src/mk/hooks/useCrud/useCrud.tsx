@@ -418,9 +418,9 @@ CrudRendererHost.displayName = "CrudRendererHost";
  * mismo que "falsy".
  *
  * El chequeo de verdad (`if (valor)`) descarta también el **cero legítimo**, y
- * hay estados que valen 0: `ExpenseStatus.CANCELLED`, `PaymentStatus.CANCELLED`,
- * `BankAccountStatus.INACTIVE`, `BankEntityStatus.INACTIVE`. Medido en Egresos
- * (CDT-38): al elegir "Anulado" la clave `status` NUNCA entraba al `filterBy`,
+ * hay estados que valían 0: `ExpenseStatus.CANCELLED` (2 desde el 2026-09-30),
+ * `PaymentStatus.CANCELLED`, `BankAccountStatus.INACTIVE`,
+ * `BankEntityStatus.INACTIVE`. Medido en Egresos (CDT-38): al elegir "Anulado" la clave `status` NUNCA entraba al `filterBy`,
  * el back recibía la lista sin filtrar y la tabla seguía mostrando los pagados
  * — sin ningún error, así que el usuario le cree.
  *

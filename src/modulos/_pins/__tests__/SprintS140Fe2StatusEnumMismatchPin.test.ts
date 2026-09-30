@@ -5,8 +5,8 @@
  *
  * **Bug #3 — Egresos "Estado Desconocido" en lista** (Outlays.tsx):
  * el front pineá `statusConfig` con keys CHAR legacy ('A', 'X') pero
- * el back pinea `ExpenseStatus` enum numérico (0=CANCELLED, 1=ACTIVE)
- * post-S2-T2. Mismatch → todo caía en "Desconocido".
+ * el back pinea `ExpenseStatus` enum numérico (1=ACTIVE; CANCELLED era 0 y
+ * desde el 2026-09-30 es 2) post-S2-T2. Mismatch → todo caía en "Desconocido".
  *
  * **Bug #13 — Residentes "Tipo/estado Desconocido"** (Owners.tsx +
  * utils.tsx lStatusActive): el front pineá `lStatusActive` con keys
@@ -47,13 +47,14 @@ describe("S140-fe-2 — fix mismatch status enum numérico", () => {
   // ────────────────────────────────────────────────────────────────────
 
   describe("Outlays.tsx statusConfig con keys numéricas (ExpenseStatus enum)", () => {
-    it("statusConfig tiene keys numéricas 0 y 1 (no CHAR 'A'/'X')", () => {
+    it("statusConfig tiene las keys del enum (no CHAR 'A'/'X' ni el número a mano)", () => {
       const src = loadSourceWithoutComments(
         "modulos/Outlays/Outlays.tsx"
       );
-      // Post-S140: pineá keys numéricas que matchean el enum del back.
-      expect(src).toMatch(/0:\s*\{\s*label:\s*["']Anulado["']/);
-      expect(src).toMatch(/1:\s*\{\s*label:\s*["']Pagado["']/);
+      // Las keys salen del enum: el anulado pasó de 0 a 2 el 2026-09-30, y un
+      // número escrito a mano quedaba en «Desconocido» sin error.
+      expect(src).toMatch(/\[ExpenseStatus\.CANCELLED\]:\s*\{\s*label:\s*["']Anulado["']/);
+      expect(src).toMatch(/\[ExpenseStatus\.ACTIVE\]:\s*\{\s*label:\s*["']Pagado["']/);
       // Regression pin: NO debe tener keys CHAR 'A' ni 'X' en este statusConfig.
       // (Los comments pueden mencionarlas, pero el código no debe pinearlas).
       const statusConfigMatch = src.match(
