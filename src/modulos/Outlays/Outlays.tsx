@@ -82,8 +82,8 @@ const Outlays = () => {
   // el 2026-08-05 barriendo los módulos ya migrados, a partir del mismo bug en
   // Áreas).
   //
-  // `expenses.status` es `tinyint unsigned` desde S2-T2 (0=CANCELLED,
-  // 1=ACTIVE) y `ExpenseController::getModelfilterBy` hace
+  // `expenses.status` es `tinyint unsigned` desde S2-T2 (1=ACTIVE; el
+  // CANCELLED era 0 y es 2 desde el 2026-09-30) y `ExpenseController::getModelfilterBy` hacía
   // `where('expenses.status', $value[1])` con el valor crudo. MariaDB convierte
   // los DOS chars a 0, así que —medido contra la base local—:
   //
