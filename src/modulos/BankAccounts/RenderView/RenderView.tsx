@@ -9,6 +9,7 @@ import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonA
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { BankAccountStatus, getAssignmentLabels } from "../Type/BankType";
 import { bankAccountsApi } from "../api";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const RenderView = (props: any) => {
   const {
@@ -20,6 +21,11 @@ const RenderView = (props: any) => {
     showToast,
     extraData,
   } = props;
+  // 🔴 Editar y habilitar/deshabilitar son `bank_accounts:U` en el API
+  // (`PUT v3/bank-accounts/{id}` y `v3/bank-account-availability/{id}`). A
+  // quien sólo puede LEER no se le ofrecen dos botones que terminan en 403.
+  const { userCan } = useAuth();
+  const canUpdate = Boolean(userCan("bank_accounts", "U"));
   const [openForm, setOpenForm] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
   const [item, setItem]: any = useState({});
@@ -89,29 +95,31 @@ const RenderView = (props: any) => {
         buttonText=""
         buttonCancel=""
         buttonExtra={
-          <div className={styles.detailActionsRow}>
-            <Button variant="secondary" onClick={() => setOpenForm(true)}>
-              Editar datos
-            </Button>
-            <Button
-              variant={isActive ? "cancel" : "primary"}
-              onClick={() => setOpenConfirm(true)}
-              style={{
-                backgroundColor:
-                  isActive
-                    ? "color-mix(in srgb, var(--cError) 92%, white 8%)"
-                    : undefined,
-                borderColor:
-                  isActive
-                    ? "color-mix(in srgb, var(--cError) 72%, black 28%)"
-                    : undefined,
-              }}
-            >
-              {isActive
-                ? "Deshabilitar cuenta"
-                : "Habilitar cuenta"}
-            </Button>
-          </div>
+          canUpdate ? (
+            <div className={styles.detailActionsRow}>
+              <Button variant="secondary" onClick={() => setOpenForm(true)}>
+                Editar datos
+              </Button>
+              <Button
+                variant={isActive ? "cancel" : "primary"}
+                onClick={() => setOpenConfirm(true)}
+                style={{
+                  backgroundColor:
+                    isActive
+                      ? "color-mix(in srgb, var(--cError) 92%, white 8%)"
+                      : undefined,
+                  borderColor:
+                    isActive
+                      ? "color-mix(in srgb, var(--cError) 72%, black 28%)"
+                      : undefined,
+                }}
+              >
+                {isActive
+                  ? "Deshabilitar cuenta"
+                  : "Habilitar cuenta"}
+              </Button>
+            </div>
+          ) : null
         }
         style={{ width: "860px" }}
         className={styles.renderView}

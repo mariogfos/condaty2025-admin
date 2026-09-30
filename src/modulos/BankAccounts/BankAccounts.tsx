@@ -5,8 +5,6 @@ import useCrudUtils from "../shared/useCrudUtils";
 import React, { useCallback, useMemo } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
-import RenderForm from "./RenderForm/RenderForm";
-import RenderView from "./RenderView/RenderView";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import {
   BankAccountStatus,

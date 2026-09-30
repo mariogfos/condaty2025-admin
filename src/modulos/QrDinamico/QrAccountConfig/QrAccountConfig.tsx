@@ -24,8 +24,14 @@ import styles from "./QrAccountConfig.module.css";
  * cobra»*. La configuración es de la cuenta, no del condominio.
  *
  * **Decisión del dueño, 2026-09-06**: *«sobre quien configura los QR solo los
- * usuarios FOS»*. A un administrador de condominio el API le contesta 403 y
- * esta sección no se dibuja.
+ * usuarios FOS»*. El formulario de la cuenta (`BankAccounts/RenderForm`) ni la
+ * monta si el usuario no tiene `fosrole_id`, el mismo criterio que
+ * `BankAccountPolicy::configureQrDinamico`. Si igual llega un 403, esta
+ * sección no se dibuja.
+ *
+ * ⚠️ Se llega SÓLO por ahí: Cuentas bancarias → detalle → «Editar datos». Del
+ * 2026-07-21 al 2026-09-30 ese formulario estuvo desenganchado del módulo
+ * (c474af8b) y esta sección no tenía pantalla que la montara.
  *
  * ─────────────────────────────────────────────────────────────────────────
  * 🔴 POR QUÉ NO VIAJA CON EL RESTO DEL FORMULARIO

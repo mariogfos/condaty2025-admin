@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { getBankAccountsMod } from "../bankAccountsMod";
+import RenderForm from "../../RenderForm/RenderForm";
+import RenderView from "../../RenderView/RenderView";
 
 /**
  * bankAccountsMod test (S41)
@@ -73,5 +75,28 @@ describe("BankAccounts mod config (S41)", () => {
    */
   it("la pantalla pide bank_accounts, no owners", () => {
     expect(getBankAccountsMod().permiso).toBe("bank_accounts");
+  });
+
+  /**
+   * 🔴🔴 El formulario y el detalle PROPIOS del módulo, no los genéricos.
+   *
+   * La mudanza del `mod` a esta factory (c474af8b, 2026-07-21) se llevó
+   * `renderForm` y `renderView` y nada avisó: la lista siguió andando y
+   * `useCrud` cayó a su formulario genérico, armado con `fields`, que no pide
+   * titular, CI/NIT, número de cuenta, tipo ni imagen — el alta no podía pasar
+   * la validación del API. Y la configuración del QR dinámico por cuenta
+   * (`QrAccountConfig`) vive SÓLO dentro de este `RenderForm`, que se abre
+   * desde este `RenderView`: sin estas dos claves ningún administrador podía
+   * configurar el QR de una cuenta desde el admin. Es la misma pérdida que
+   * Egresos pagó en CDT-37/CDT-39.
+   *
+   * Se compara por identidad, no con "es renderizable": cualquier otro
+   * componente también lo es, y el QR está en ESTOS dos.
+   */
+  it("declara su formulario y su detalle propios", () => {
+    const mod = getBankAccountsMod();
+
+    expect(mod.renderForm).toBe(RenderForm);
+    expect(mod.renderView).toBe(RenderView);
   });
 });

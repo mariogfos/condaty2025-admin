@@ -1,12 +1,20 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import RenderForm from "../RenderForm/RenderForm";
+import { BankAccountType } from "../Type/BankType";
 
 const showToast = vi.fn();
 const guardarLaConfigDelQr = vi.fn();
 
+/** El equipo de Condaty: el único al que el API le deja configurar el QR. */
+const EQUIPO_CONDATY = { id: 1, type: "ADM", fosrole_id: 3 };
+/** Un administrador de condominio: `fosrole_id` vacío. */
+const ADM_DEL_CONDOMINIO = { id: 2, type: "ADM", fosrole_id: null };
+
+let usuario: Record<string, unknown> = EQUIPO_CONDATY;
+
 vi.mock("@/mk/contexts/AuthProvider", () => ({
-  useAuth: () => ({ showToast }),
+  useAuth: () => ({ showToast, user: usuario }),
 }));
 
 /**
@@ -52,7 +60,7 @@ const LA_CUENTA = {
   holder: "Titular",
   ci_holder: "1234567",
   alias_holder: "Cuenta",
-  images: "una-imagen.png",
+  images: ["https://res.cloudinary.com/condaty/qr-de-la-cuenta.png"],
   initial_amount: 0,
 };
 
@@ -72,6 +80,7 @@ const montar = (execute: any, reLoad = vi.fn(), onClose = vi.fn()) => {
 
 describe("El formulario de la cuenta bancaria", () => {
   beforeEach(() => {
+    usuario = EQUIPO_CONDATY;
     showToast.mockReset();
     guardarLaConfigDelQr.mockReset();
     guardarLaConfigDelQr.mockResolvedValue(true);
@@ -159,5 +168,95 @@ describe("El formulario de la cuenta bancaria", () => {
     );
     expect(guardarLaConfigDelQr).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
+  });
+
+  /**
+   * 🔴 Lo que viaja es lo que valida `BankAccountStoreRequest` del API, y nada
+   * más: los `qr_dynamic_*` tienen su propia puerta (el CRUD de cuentas los
+   * descarta), y `is_main`/`is_reserve`/`is_expense` los escribe Configuración.
+   * `images` va como array de URLs (`images.*` es `url`).
+   */
+  it("la edicion manda al API las claves que valida, contra la cuenta", async () => {
+    const execute = vi.fn().mockResolvedValue({
+      data: { success: true, message: "ok" },
+    });
+    montar(execute);
+
+    screen.getByTestId("guardar").click();
+
+    await waitFor(() => expect(execute).toHaveBeenCalledTimes(1));
+    expect(execute).toHaveBeenCalledWith("/v3/bank-accounts/7", "PUT", {
+      images: ["https://res.cloudinary.com/condaty/qr-de-la-cuenta.png"],
+      bank_entity_id: 1,
+      account_type: BankAccountType.SAVINGS,
+      account_number: "123",
+      currency_type_id: 1,
+      holder: "Titular",
+      ci_holder: "1234567",
+      alias_holder: "Cuenta",
+      initial_amount: 0,
+    });
+  });
+});
+
+/**
+ * 🔴🔴 La sección del QR es SÓLO del equipo de Condaty.
+ *
+ * El API decide con `BankAccountPolicy::configureQrDinamico` —usuario `ADM` con
+ * `fosrole_id`— y le contesta 403 a cualquier otro, en la lectura y en la
+ * escritura. Dibujarla para un administrador de condominio es ofrecerle un 403:
+ * el encabezado «QR Dinámico» aparecía mientras cargaba y desaparecía después.
+ */
+describe("La seccion del QR dinamico en la edicion de la cuenta", () => {
+  beforeEach(() => {
+    showToast.mockReset();
+    guardarLaConfigDelQr.mockReset();
+    guardarLaConfigDelQr.mockResolvedValue(true);
+  });
+
+  it("se muestra al equipo de Condaty", () => {
+    usuario = EQUIPO_CONDATY;
+    montar(vi.fn());
+
+    expect(screen.getByTestId("qr-config")).toBeInTheDocument();
+  });
+
+  it("no se dibuja para un administrador de condominio", () => {
+    usuario = ADM_DEL_CONDOMINIO;
+    montar(vi.fn());
+
+    expect(screen.queryByTestId("qr-config")).toBeNull();
+  });
+
+  /** Sin la sección, guardar la cuenta no depende de ella: cierra y avisa. */
+  it("un administrador de condominio guarda la cuenta igual", async () => {
+    usuario = ADM_DEL_CONDOMINIO;
+    const execute = vi.fn().mockResolvedValue({
+      data: { success: true, message: "Cuenta guardada" },
+    });
+    const { onClose } = montar(execute);
+
+    screen.getByTestId("guardar").click();
+
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
+    expect(guardarLaConfigDelQr).not.toHaveBeenCalled();
+    expect(showToast).toHaveBeenCalledWith("Cuenta guardada", "success");
+  });
+
+  /** En el alta no hay id contra el cual guardarla: aparece al reabrir. */
+  it("no aparece en el alta, ni para el equipo de Condaty", () => {
+    usuario = EQUIPO_CONDATY;
+    render(
+      <RenderForm
+        open
+        onClose={vi.fn()}
+        item={{}}
+        execute={vi.fn()}
+        extraData={{ bankEntities: [], currencyTypes: [] }}
+        reLoad={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByTestId("qr-config")).toBeNull();
   });
 });
