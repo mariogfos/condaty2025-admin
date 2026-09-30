@@ -511,24 +511,50 @@ const useCrud = ({
     // mod.title = mod.title ?? store?.title ?? mod.plural;
   }
 
+  /**
+   * 🔴 Sin la R de `mod.permiso` el listado NO se pide.
+   *
+   * La pantalla ya pinta `<NotAccess/>` en ese caso, pero el hook se monta
+   * antes que ese `return`: el `GET` salía igual y, desde que el API pide la R
+   * del rol en las lecturas (api#697), dejaba un 403 en los logs por cada
+   * visita sin la letra.
+   *
+   * `permiso: ""` es «sin guarda» —Notificaciones, Permisos y Categorías de
+   * roles—: `userCan("")` da `true` antes de mirar al usuario, y pide como
+   * siempre.
+   *
+   * ⚠️ Si la letra llega después del montaje (cambio de condominio), el efecto
+   * de `params` de más abajo tiene `canList` en sus dependencias y pide ahí.
+   */
+  const canList = !!userCan(mod.permiso, "R");
+
   // const [data, setData]: any = useState(null);
   // const [loaded, setLoaded] = useState(false);
   // const { reLoad, execute } = useAxios();
   const {
     data: axiosData,
-    reLoad: axiosReload,
+    reLoad: axiosReloadUnguarded,
     execute,
     loaded: axiosLoaded,
     error: axiosError,
     isStale: axiosIsStale,
   } = useAxios(
-    useInfiniteList ? null : "/" + mod.modulo,
+    useInfiniteList || !canList ? null : "/" + mod.modulo,
     "GET",
     useInfiniteList ? {} : params,
     mod?.noWaiting,
   );
+  // Sin la letra, `useAxios` no tiene URL: su `reLoad` pediría `null?…`.
+  const axiosReload: typeof axiosReloadUnguarded = useCallback(
+    async (...args) => {
+      if (canList) await axiosReloadUnguarded(...args);
+    },
+    [canList, axiosReloadUnguarded],
+  );
   const [manualData, setManualData] = useState<any>(null);
-  const [manualLoaded, setManualLoaded] = useState(!useInfiniteList);
+  const [manualLoaded, setManualLoaded] = useState(
+    !useInfiniteList || !canList,
+  );
   const [manualError, setManualError]: any = useState("");
   /**
    * El gemelo de `isStale` de `useAxios` para el scroll infinito, que no usa
@@ -1430,7 +1456,11 @@ const useCrud = ({
   };
 
   const didInitFetchRef = useRef(false);
+  // `useAxios` pide por su cuenta al montarse, pero sólo si tenía URL: con la letra.
+  const fetchedOnMountRef = useRef(!useInfiniteList && canList);
   useEffect(() => {
+    if (!canList) return;
+
     if (useInfiniteList) {
       fetchInfiniteCrudData(params, mod?.noWaiting);
       return;
@@ -1438,11 +1468,11 @@ const useCrud = ({
 
     if (!didInitFetchRef.current) {
       didInitFetchRef.current = true;
-      return;
+      if (fetchedOnMountRef.current) return;
     }
     axiosReload(params, mod?.noWaiting);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, useInfiniteList, mod?.noWaiting]);
+  }, [params, useInfiniteList, mod?.noWaiting, canList]);
 
   const [extraData, setExtraData]: any = useState({});
   const getExtraData = async () => {

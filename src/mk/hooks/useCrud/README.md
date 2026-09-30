@@ -395,6 +395,11 @@ const {
 
 The hook integrates with the authentication system to check permissions:
 
+> 🔴 Sin la `R` de `permiso` el hook **no pide el listado** (ni al montarse
+> ni al recargar): la pantalla igual tiene que pintar `<NotAccess/>`, porque el
+> hook no lo hace. `permiso: ""` es «sin guarda»: `userCan("")` da `true` y el
+> listado se pide siempre. Test: `__tests__/useCrudNoPideSinLaR.test.tsx`.
+
 ```typescript
 // The hook automatically checks permissions for actions
 const { onAdd, onEdit, onDel, userCan } = useCrud({
