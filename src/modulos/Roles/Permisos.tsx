@@ -5,6 +5,8 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useEffect, useState } from "react";
 import Check from "@/mk/components/forms/Check/Check";
 import styles from "./Permisos.module.css";
+import stylesInput from "@/mk/components/forms/Input/input.module.css";
+import { getFieldErrorMessage } from "@/mk/components/forms/ControlLabel";
 
 const Permisos = ({
   field = "",
@@ -15,6 +17,8 @@ const Permisos = ({
   extraData = { ability_categories: [{ id: 1, name: "General" }] },
 }: any) => {
   const [permisos, setPermisos]: any = useState([]);
+  // El 422 del API (`RoleWriteRequest`) llega en `errors.abilities`.
+  const abilitiesError = getFieldErrorMessage(error, "abilities");
   const { user } = useAuth();
 
   const onSelAll = (e: any) => {
@@ -69,18 +73,26 @@ const Permisos = ({
     if (setItem) setItem({ ...data, abilities: permiso });
   }, [permisos]);
 
+  /**
+   * La casilla de una letra se llama `<modulo>_<letra>`, y el módulo puede
+   * tener `_` (`bank_accounts`, `debts_manager`): la letra es lo que va
+   * después del ÚLTIMO `_`. Partir por el primero guardaba `bank:accounts`
+   * —sin la letra— y el API lo rechaza (`RoleWriteRequest`).
+   */
   const onSelItem = (e: any) => {
     const { name, checked } = e.target;
-    const perm: string[] = (name + "_C_").split("_");
-    let value = permisos[perm[0]] || "";
-    const has = value.indexOf(perm[1]);
+    const cut = name.lastIndexOf("_");
+    const ability = name.slice(0, cut);
+    const letter = name.slice(cut + 1);
+    let value = permisos[ability] || "";
+    const has = value.indexOf(letter);
     if (checked && has == -1) {
-      value += perm[1];
+      value += letter;
     }
     if (!checked && has > -1) {
-      value = value.replace(perm[1], "");
+      value = value.replace(letter, "");
     }
-    setPermisos({ ...permisos, [perm[0]]: value });
+    setPermisos({ ...permisos, [ability]: value });
   };
 
   const isCRUD = (item: any) => {
@@ -95,6 +107,10 @@ const Permisos = ({
   return (
     <div className={styles.permissions}>
       {/* <legend>Permisos</legend> */}
+      {/* Arriba y no al pie: la lista es larga y el pie queda fuera de vista. */}
+      {abilitiesError && (
+        <p className={stylesInput.error}>{abilitiesError}</p>
+      )}
 
       {extraData?.ability_categories?.map((cat: any) => (
         <section key={cat.id} className={styles.category}>
@@ -189,9 +205,6 @@ const Permisos = ({
           </div>
         </section>
       ))}
-      {/* {options?.map((item: any) => (
-
-      ))} */}
     </div>
   );
 };
