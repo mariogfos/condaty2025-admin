@@ -202,7 +202,7 @@ export default function SurveyStatusActions({
       if (expiresAt) payload.expires_at = expiresAt;
 
       const { data } = await execute(
-        `/surveys/${surveyId}/status`,
+        `/v3/surveys/${surveyId}/status`,
         "PUT",
         payload,
         false,
@@ -258,7 +258,7 @@ export default function SurveyStatusActions({
     setLoading("duplicate");
     try {
       const { data } = await execute(
-        `/surveys/${surveyId}/duplicate`,
+        `/v3/surveys/${surveyId}/duplicate`,
         "POST",
         {},
         false,

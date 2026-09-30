@@ -380,7 +380,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     if (isFinished) return;
     try {
       const { data, error } = await execute(
-        `/surveys/${surveyId}/status`,
+        `/v3/surveys/${surveyId}/status`,
         "PUT",
         {
           status,
@@ -439,7 +439,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
     if (isFinished) return;
     if (!confirm("¿Estás seguro de eliminar esta votación?")) return;
     try {
-      const { data } = await execute(`/surveys/${surveyId}`, "DELETE");
+      const { data } = await execute(`/v3/surveys/${surveyId}`, "DELETE");
       if (data?.success || (data && !data.error)) {
         showToast("Votación eliminada correctamente", "success");
         loadAssembly();
@@ -485,7 +485,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
             s.status === SurveyStatus.Paused,
         );
         for (const survey of activeSurveys) {
-          await execute(`/surveys/${survey.id}/status`, "PUT", {
+          await execute(`/v3/surveys/${survey.id}/status`, "PUT", {
             status: SurveyStatus.Closed,
           });
         }

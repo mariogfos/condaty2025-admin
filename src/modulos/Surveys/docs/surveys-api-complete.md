@@ -27,6 +27,9 @@ Base URL: /api
 Authentication: Bearer Token (Laravel Sanctum)
 ```
 
+> 🔴 Las rutas de encuestas viven **sólo** bajo `/api/v3/surveys`: no hay alias sin
+> `v3` (medido con `php artisan route:list`, 2026-09-29). `/api/surveys/...` es 404.
+
 Todos los endpoints del módulo surveys requieren autenticación excepto los de lectura pública (si la encuesta está activa).
 
 **Headers requeridos:**
@@ -97,7 +100,7 @@ Accept: application/json
 ### 1. Listar Encuestas (Admin)
 
 ```http
-GET /api/surveys?fullType=CRUD
+GET /api/v3/surveys?fullType=CRUD
 ```
 
 **Parámetros Query:**
@@ -154,7 +157,7 @@ GET /api/surveys?fullType=CRUD
 ### 2. Listar Encuestas (Usuario/Residente)
 
 ```http
-GET /api/surveys?fullType=L&filterBy=P
+GET /api/v3/surveys?fullType=L&filterBy=P
 ```
 
 **Parámetros Query:**
@@ -204,7 +207,7 @@ GET /api/surveys?fullType=L&filterBy=P
 ### 3. Ver Detalle de Encuesta
 
 ```http
-GET /api/surveys?fullType=DET&searchBy={id}
+GET /api/v3/surveys?fullType=DET&searchBy={id}
 ```
 
 **Parámetros Query:**
@@ -278,7 +281,7 @@ GET /api/surveys?fullType=DET&searchBy={id}
 ### 4. Crear Encuesta (Admin)
 
 ```http
-POST /api/surveys
+POST /api/v3/surveys
 ```
 
 **Headers:**
@@ -359,7 +362,7 @@ Content-Type: application/json
 ### 5. Actualizar Encuesta (Admin)
 
 ```http
-PUT /api/surveys/{id}
+PUT /api/v3/surveys/{id}
 ```
 
 **Body:** Mismo formato que crear, todos los campos opcionales.
@@ -383,7 +386,7 @@ PUT /api/surveys/{id}
 ### 6. Eliminar Encuesta (Admin)
 
 ```http
-DELETE /api/surveys/{id}
+DELETE /api/v3/surveys/{id}
 ```
 
 **Restricciones:** No se puede eliminar una encuesta que ya tiene respuestas.
@@ -412,7 +415,7 @@ DELETE /api/surveys/{id}
 ### 7. Cambiar Estado de Encuesta
 
 ```http
-PUT /api/surveys/{id}/status
+PUT /api/v3/surveys/{id}/status
 ```
 
 **Body:**
@@ -446,7 +449,7 @@ PUT /api/surveys/{id}/status
 ### 8. Duplicar Encuesta
 
 ```http
-POST /api/surveys/{id}/duplicate
+POST /api/v3/surveys/{id}/duplicate
 ```
 
 **Respuesta Exitosa (200):**
@@ -471,7 +474,7 @@ POST /api/surveys/{id}/duplicate
 ### 9. Enviar Respuestas
 
 ```http
-POST /api/surveys/answers
+POST /api/v3/surveys/answers
 ```
 
 **Body:**
@@ -531,7 +534,7 @@ POST /api/surveys/answers
 ### 10. Obtener Resultados de Encuesta
 
 ```http
-GET /api/surveys/results?survey_id={id}
+GET /api/v3/surveys/results?survey_id={id}
 ```
 
 **Parámetros Query:**
@@ -589,7 +592,7 @@ GET /api/surveys/results?survey_id={id}
 ### 11. Obtener Contadores del Usuario
 
 ```http
-GET /api/surveys/my-counts?dpto_id={id}
+GET /api/v3/surveys/my-counts?dpto_id={id}
 ```
 
 **Parámetros Query:**
@@ -618,8 +621,10 @@ GET /api/surveys/my-counts?dpto_id={id}
 ### 12. Obtener Respuestas de Texto (Admin)
 
 ```http
-GET /api/surveys/text-responses/{questionId}
+GET /api/v3/surveys/text-responses/{questionId}
 ```
+
+> ⚠️ Esta ruta **no existe** en el API (`route:list`, 2026-09-29) y el admin no la llama.
 
 **Parámetros Query:**
 
@@ -659,7 +664,7 @@ GET /api/surveys/text-responses/{questionId}
 ### 13. Calcular Audiencia
 
 ```http
-POST /api/surveys/calculate-audience
+POST /api/v3/surveys/calculate-audience
 ```
 
 **Body:**
@@ -696,7 +701,7 @@ POST /api/surveys/calculate-audience
 ### 14. Iniciar Análisis de IA
 
 ```http
-POST /api/surveys/analyze-ai
+POST /api/v3/surveys/analyze-ai
 ```
 
 **Body:**
@@ -725,7 +730,7 @@ POST /api/surveys/analyze-ai
 ### 15. Obtener Reportes de IA
 
 ```http
-GET /api/surveys/ai-reports?survey_id={id}
+GET /api/v3/surveys/ai-reports?survey_id={id}
 ```
 
 **Respuesta Exitosa (200):**

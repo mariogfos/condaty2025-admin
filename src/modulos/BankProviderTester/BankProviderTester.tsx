@@ -77,19 +77,19 @@ const OPERATION_CONFIG: Record<
   auth: {
     name: "Authentication",
     method: "POST",
-    endpoint: "/bank-qr/authenticate",
+    endpoint: "/v3/bank-qr/authenticate",
   },
   generate: {
     name: "Generate QR",
     method: "POST",
-    endpoint: "/bank-qr/generate",
+    endpoint: "/v3/bank-qr/generate",
   },
-  status: { name: "Check Status", method: "POST", endpoint: "/bank-qr/status" },
-  cancel: { name: "Cancel QR", method: "POST", endpoint: "/bank-qr/cancel" },
+  status: { name: "Check Status", method: "POST", endpoint: "/v3/bank-qr/status" },
+  cancel: { name: "Cancel QR", method: "POST", endpoint: "/v3/bank-qr/cancel" },
   transactions: {
     name: "Transactions",
     method: "POST",
-    endpoint: "/bank-qr/transactions",
+    endpoint: "/v3/bank-qr/transactions",
   },
 };
 

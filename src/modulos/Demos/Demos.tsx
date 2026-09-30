@@ -146,7 +146,7 @@ const DemosModule = () => {
     data: demosResponse,
     reLoad: reLoadDemos,
     loaded,
-  } = useAxios("/demos", "GET", {});
+  } = useAxios("/v3/demos", "GET", {});
   const { execute: generateDemoApi } = useAxios();
   const { execute: pollProgressApi } = useAxios();
   const { execute: deleteDemoApi } = useAxios();
@@ -325,7 +325,7 @@ const DemosModule = () => {
     setValidationErrors({});
 
     try {
-      const { data, error } = await generateDemoApi("/demos", "POST", formData);
+      const { data, error } = await generateDemoApi("/v3/demos", "POST", formData);
 
       if (data && data.success && data.data?.id) {
         const demoId = data.data.id;
@@ -339,7 +339,7 @@ const DemosModule = () => {
         pollingRef.current = setInterval(async () => {
           try {
             const { data: pollData } = await pollProgressApi(
-              `/demos/${demoId}/progress`,
+              `/v3/demos/${demoId}/progress`,
               "GET",
             );
 
@@ -394,7 +394,7 @@ const DemosModule = () => {
     setDeleting(true);
     try {
       const { data, error } = await deleteDemoApi(
-        `/demos/${deleteTarget.id}`,
+        `/v3/demos/${deleteTarget.id}`,
         "DELETE",
       );
       if (data && data.success) {
