@@ -201,6 +201,16 @@ describe("CDT-39 — modal de anular", () => {
       />,
     );
 
+    // El tope es la columna (`expenses.canceled_obs`, varchar 255): con 500 un
+    // motivo largo reventaba en el API. El `TextArea` no acepta lo que pasa el
+    // tope, así que un motivo de 256 no llega a mandarse.
+    fireEvent.change(
+      document.getElementById("canceled_obs") as HTMLTextAreaElement,
+      { target: { name: "canceled_obs", value: "x".repeat(256) } },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Anular egreso" }));
+    expect(mockExecute).not.toHaveBeenCalled();
+
     fireEvent.change(
       document.getElementById("canceled_obs") as HTMLTextAreaElement,
       { target: { name: "canceled_obs", value: "Cargado dos veces" } },
