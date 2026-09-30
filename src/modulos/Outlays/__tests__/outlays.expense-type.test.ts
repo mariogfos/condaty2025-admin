@@ -3,7 +3,6 @@
  *
  * Consumers:
  *  - RenderForm (Outlays/RenderForm): paymentMethods select for create/edit expense
- *  - PerformBudget/RenderForm: paymentMethods select for budget execution
  *  - RenderView: getPaymentMethodText — display label for a numeric type value
  *
  * RED: fails while those files use hardcoded string ids ("T"/"O"/"Q"/"E"/"C").

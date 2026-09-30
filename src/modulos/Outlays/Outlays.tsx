@@ -12,7 +12,6 @@ import { getDateStrMes } from "@/mk/utils/date";
 import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import PerformBudget from "./PerformBudget/PerformBudget";
 import { getExpenseDescriptionSummary } from "./utils/expenseDescription";
 import { getOutlaysMod } from "./config/outlaysMod";
 import { ExpenseStatus } from "@/modulos/Payments/Type/PaymentType";
@@ -429,18 +428,9 @@ const Outlays = () => {
     >
       Categorías
     </Button>,
-
-    // <Button
-    //   key="budget-button"
-    //   onClick={() => setOpenModal(true)}
-    //   className={styles.categoriesButton}>
-    // >
-    //   Ejecutar
-    // </Button>,
   ];
   const {
     userCan,
-    reLoad,
     List,
     setStore,
     onEdit,
@@ -465,8 +455,6 @@ const Outlays = () => {
     onDel,
   });
 
-  const [openModal, setOpenModal] = useState(false);
-
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
@@ -478,17 +466,6 @@ const Outlays = () => {
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
         filterBreakPoint={1700}
       />
-
-      {/* Modal para ejecutar presupuesto omentado para cuando se implmente la funcionalidad*/}
-      {openModal && (
-        <PerformBudget
-          reLoad={reLoad}
-          open={openModal}
-          onClose={() => {
-            setOpenModal(false);
-          }}
-        />
-      )}
 
       <DateRangeFilterModal
         open={openCustomFilter}

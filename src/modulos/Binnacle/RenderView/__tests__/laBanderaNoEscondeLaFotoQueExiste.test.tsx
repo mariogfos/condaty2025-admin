@@ -48,11 +48,11 @@ const sinComentarios = (ruta: string): string =>
 const RENDER_VIEW_SRC = sinComentarios(
   path.resolve(__dirname, "../RenderView.tsx"),
 );
-const GUARD_EDIT_FORM_SRC = sinComentarios(
-  path.resolve(
-    __dirname,
-    "../../../../components/ProfileModal/GuardEditForm/GuardEditForm.tsx",
-  ),
+// El formulario del guardia que está vivo: el alta y la edición desde la ficha
+// del perfil (`ProfileModal`). El pin estaba sobre `ProfileModal/GuardEditForm`,
+// que nadie montaba y se borró.
+const GUARD_FORM_SRC = sinComentarios(
+  path.resolve(__dirname, "../../../Guards/RenderForm/RenderForm.tsx"),
 );
 
 vi.mock("@/mk/components/ui/DataModal/DataModal", () => ({
@@ -125,10 +125,10 @@ describe("la bandera `has_image` no esconde la foto que existe", () => {
   });
 
   it("el formulario del guardia muestra `url_avatar` y no pide la bandera", () => {
-    // 🔴 Pedía `formState.has_image === 1` y devolvía `formState.avatar`, que
-    // en la edición NUNCA se llena: `ProfileModal` pone `url_avatar`. La foto
-    // del guardia no aparecía ni con la bandera en 1.
-    expect(GUARD_EDIT_FORM_SRC).not.toMatch(/has_image\s*===?\s*1/);
-    expect(GUARD_EDIT_FORM_SRC).toMatch(/formState\.url_avatar/);
+    // 🔴 La copia muerta (`GuardEditForm`) pedía `formState.has_image === 1` y
+    // devolvía `formState.avatar`, que en la edición NUNCA se llena:
+    // `ProfileModal` pone `url_avatar`. El formulario vivo no puede volver a eso.
+    expect(GUARD_FORM_SRC).not.toMatch(/has_image/);
+    expect(GUARD_FORM_SRC).toMatch(/formState\??\.url_avatar/);
   });
 });
