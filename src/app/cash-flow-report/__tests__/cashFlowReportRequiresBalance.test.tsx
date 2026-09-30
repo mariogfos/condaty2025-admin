@@ -2,7 +2,6 @@
  * `/cash-flow-report` pide `balance:R`, la letra que el API exige en
  * `GET v3/payments/export-cash-flow`. Antes sólo la pedía el menú.
  */
-import React from "react";
 import { render, screen } from "@testing-library/react";
 import { vi, describe, it, expect } from "vitest";
 

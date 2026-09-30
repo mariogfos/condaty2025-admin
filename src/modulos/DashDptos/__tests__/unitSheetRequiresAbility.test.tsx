@@ -6,7 +6,6 @@
  * debe pedir `v3/dptos` DET. Por eso la guarda vive en un envoltorio y el test
  * afirma que `useAxios` ni siquiera se montó.
  */
-import React from "react";
 import { render, screen } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 

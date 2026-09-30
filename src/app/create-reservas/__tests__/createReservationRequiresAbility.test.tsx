@@ -3,7 +3,6 @@
  * en el API. Sin ella no se muestra el flujo NI se pide el `EXTRA` de reservas
  * (áreas y unidades del condominio).
  */
-import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { AxiosContext } from "@/mk/contexts/AxiosInstanceProvider";
