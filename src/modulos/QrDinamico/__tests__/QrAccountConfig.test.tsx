@@ -144,6 +144,9 @@ describe("La configuración del QR de una cuenta bancaria", () => {
 
     const put = executeMock.mock.calls.find((c) => c[1] === "PUT");
     expect(put, "no se llamó al guardado").toBeTruthy();
+    // La puerta propia de la configuración, no el CRUD de cuentas: ése
+    // descarta los `qr_dynamic_*`.
+    expect(put?.[0]).toBe("/v3/qr-dynamic/accounts/7/config");
     expect(put?.[2]).toEqual({ qr_dynamic_account_reference: "CTA-002" });
   });
 
