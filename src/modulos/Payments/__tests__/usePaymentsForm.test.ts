@@ -116,6 +116,9 @@ describe("usePaymentsForm", () => {
         amount: 125.5,
         bank_account_id: 66,
         debt_dpto_ids: [],
+        // La subcategoría elegida viaja: sin ella el ingreso directo nacía
+        // sin categoría y fuera de los reportes de ingresos.
+        subcategory_id: 11,
       })
     );
     expect(mockShowToast).toHaveBeenCalledWith(
