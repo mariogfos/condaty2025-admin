@@ -12,6 +12,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { useEvent } from "@/mk/hooks/useEvents";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
+import { sendToApproval, SEND_TO_APPROVAL_FALLBACK } from "./sendToApproval";
 
 const paramsInitial = {
   perPage: 20, // <- Cambiado de 20 a -1 para cargar todos los registros
@@ -252,30 +253,13 @@ const Budget = () => {
   const handleConfirmSendToApproval = async () => {
     setIsSending(true);
     try {
-      const { data: response, error } = await execute(
-        "/v3/budgets/send-budget-approval",
-        "POST",
-        {},
-        false,
-        false
-      );
-      if (response?.success) {
-        showToast(
-          response?.message ||
-            "Presupuestos enviados a aprobación exitosamente.",
-          "success"
-        );
+      // La lectura de la respuesta está en `sendToApproval`, con su porqué.
+      if (await sendToApproval(execute, showToast)) {
         if (reLoad) reLoad();
         setIsConfirmModalOpen(false);
-      } else {
-        throw new Error(
-          response?.message ||
-            error?.message ||
-            "Error desconocido al enviar los presupuestos."
-        );
       }
     } catch (err: any) {
-      showToast(err.message, "error");
+      showToast(SEND_TO_APPROVAL_FALLBACK, "error");
       console.error("Error enviando presupuestos a aprobación:", err);
     } finally {
       setIsSending(false);

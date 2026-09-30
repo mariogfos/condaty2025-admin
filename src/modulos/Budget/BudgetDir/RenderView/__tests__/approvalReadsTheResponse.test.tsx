@@ -6,11 +6,12 @@
  * `execute` de `useAxios` NO lanza: un no-2xx vuelve en `{ data: null, error }`.
  * El modal ignoraba los dos y mostraba «Presupuesto aprobado correctamente»
  * pasara lo que pasara, así que un 404 de `change-budget` estuvo oculto meses.
- * Y el API rechaza hoy con HTTP 200 y `success: false` («No tienes el rol
- * necesario…», «No se encontró el presupuesto»): también se pintaba verde.
+ * El API rechazaba además con HTTP 200 y `success: false`; desde el
+ * 2026-09-30 rechaza con 403, 404 o 422, pero el caso del 200 se queda por si
+ * vuelve esa forma: también se pintaba verde.
  *
- * Se miden los tres: el `success: false` con 200, el no-2xx (un 403 si la ruta
- * pasa a pedir la letra) y el éxito de verdad.
+ * Se miden los tres: el `success: false` con 200, el no-2xx y el éxito de
+ * verdad.
  */
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
