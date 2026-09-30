@@ -141,10 +141,13 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
       );
 
       // 🔴 `execute` NO lanza: un no-2xx vuelve en `error` con `data` en
-      // `null`, y el rechazo de negocio de `change-budget` llega con HTTP 200 y
-      // `success: false`. Antes se mostraba «aprobado correctamente» en los dos
-      // casos, y eso tapó durante meses un 404 de la ruta. Sin `success: true`
-      // no hay éxito: el modal queda abierto con el motivo del API.
+      // `null`. Desde el 2026-09-30 `change-budget` rechaza con su código
+      // —403 si no es de la Directiva, 404 si el presupuesto no está, 422 si
+      // el estado o el comentario no sirven—, y ya no con HTTP 200 y
+      // `success: false`. Antes se mostraba «aprobado correctamente» pasara lo
+      // que pasara, y eso tapó durante meses un 404 de la ruta. Sin
+      // `success: true` no hay éxito: el modal queda abierto con el motivo del
+      // API, que `leerElErrorDelApi` saca del sobre del error.
       if (error || response?.success !== true) {
         const fallback = `No se pudo dejar el presupuesto ${actionText}.`;
         showToast(
