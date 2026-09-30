@@ -58,7 +58,15 @@ export const getBankAccountsMod = (): ModCrudType => ({
     endpoint: "/v3/bank-accounts", // sin `/api/`: el baseURL ya lo trae.
   },
   import: false,
-  permiso: "owners",
+  // 🔴 `bank_accounts`, la habilidad del catálogo y la del menú
+  // (`mainMenuConfig.ts`). Acá decía `owners`, así que los botones de alta,
+  // edición y borrado los abría la habilidad de RESIDENTES. El API pide
+  // `bank_accounts:C/U/D` desde el 2026-09-29 (`habilidad:` en la ruta).
+  // Medido ese día en la copia de producción: nadie con `bank_accounts:C/U/D`
+  // carece de `owners:C/U/D`, y los 3 vínculos al revés (dos condominios de
+  // prueba) no tienen `bank_accounts:R`, así que el menú no les muestra la
+  // pantalla.
+  permiso: "bank_accounts",
   extraData: true,
   hideActions: {
     edit: true,

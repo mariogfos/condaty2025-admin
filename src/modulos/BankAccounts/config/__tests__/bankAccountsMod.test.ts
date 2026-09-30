@@ -65,4 +65,13 @@ describe("BankAccounts mod config (S41)", () => {
   it("el endpoint no repite el prefijo /api", () => {
     expect(getBankAccountsMod().exportAsync?.endpoint).not.toMatch(/^\/api\//);
   });
+
+  /**
+   * 🔴 La habilidad es la que pide el API (`habilidad:bank_accounts,<letra>`)
+   * y la del menú. Con `owners`, un rol con `owners:CRUD` y sin
+   * `bank_accounts` veía los botones y el API le contestaba 403.
+   */
+  it("la pantalla pide bank_accounts, no owners", () => {
+    expect(getBankAccountsMod().permiso).toBe("bank_accounts");
+  });
 });
