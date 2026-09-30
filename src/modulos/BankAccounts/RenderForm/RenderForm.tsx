@@ -25,7 +25,11 @@ const RenderForm = ({
     account_type: item?.account_type ?? BankAccountType.SAVINGS 
   });
   const [errors, setErrors] = useState({});
-  const { showToast } = useAuth();
+  const { showToast, user } = useAuth();
+  // 🔴 El mismo criterio que el API: `BankAccountPolicy::configureQrDinamico`
+  // deja configurar el QR sólo al equipo de Condaty (`fosrole_id`), y a
+  // cualquier otro le contesta 403 en la lectura y en la escritura.
+  const canConfigureQr = Boolean(user?.fosrole_id);
 
   // La configuración del QR se guarda contra su PROPIO endpoint, pero el
   // usuario ve un solo botón: este formulario es el dueño de ese botón.
@@ -272,9 +276,10 @@ const RenderForm = ({
 
       {/* Sólo sobre una cuenta YA GUARDADA: la configuración vive detrás de un
           endpoint que necesita su id. En el alta aparece al reabrir la cuenta.
-          A quien no sea del equipo de Condaty, el API le contesta 403 y la
-          sección no se dibuja. */}
-      {formState.id ? (
+          Y sólo para el equipo de Condaty: a un administrador de condominio no
+          se le ofrece una sección que el API le contesta con 403. El 403 que
+          `QrAccountConfig` ya maneja queda como segunda red, no como filtro. */}
+      {formState.id && canConfigureQr ? (
         <QrAccountConfig ref={qrConfigRef} bankAccountId={formState.id} />
       ) : null}
     </DataModal>
