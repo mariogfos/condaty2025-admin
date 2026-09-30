@@ -117,7 +117,18 @@ const mod: ModCrudType = {
   modulo: "v3/budgets",
   singular: "Presupuesto",
   plural: "Presupuestos",
-  permiso: "budgets",
+  /**
+   * 🔴 `aprovebudgets`, no `budgets`: es la pestaña de la Directiva, y la
+   * habilidad que los directores TIENEN. Los 2 vínculos de Directiva de la
+   * copia de producción (2026-09-30) tienen `aprovebudgets:CRUD` y ningún
+   * `budgets`. Con `budgets`, `useCrud` no les pedía la lista (no piden sin la
+   * R) y `onView` —la única puerta a `BudgetApprovalView`, el único lugar que
+   * llama a `change-budget`— les decía «No tiene permisos para visualizar».
+   *
+   * El API deja abiertas las lecturas de `v3/budgets` por esta pestaña
+   * (`HABILIDADES_EN_EL_API.md` → «Las que quedan abiertas»).
+   */
+  permiso: "aprovebudgets",
   extraData: true,
   hideActions: {
     add: true,

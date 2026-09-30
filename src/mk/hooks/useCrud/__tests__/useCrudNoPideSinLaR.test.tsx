@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, cleanup, waitFor } from "@testing-library/react";
-import React from "react";
 
 /**
  * Sin la R de `mod.permiso`, `useCrud` NO pide el listado.
