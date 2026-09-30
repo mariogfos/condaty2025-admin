@@ -1330,6 +1330,15 @@ export const usePaymentsForm = (
       url_file: formState.url_file || [],
     };
 
+    // 🔴 El ingreso directo manda SU subcategoría. El formulario la exige
+    // (validar(), «Este campo es requerido») y hasta ahora no la mandaba: el
+    // pago nacía sin categoría y sin renglón, y no aparecía en los reportes de
+    // ingresos. Producción la manda (`params.subcategory_id` en `origin/prod`)
+    // y sus 906 ingresos directos la tienen. El API la guarda en el renglón.
+    if (formState.type === FormPaymentType.DIRECT && formState.subcategory_id) {
+      params.subcategory_id = Number(formState.subcategory_id);
+    }
+
     if (hasNewExpense) {
       // S87: array de expensas. due_at = último día del mes pineado.
       params.create_expenses = newExpensesList.map((ne) => {
