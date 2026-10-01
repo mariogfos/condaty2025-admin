@@ -9,7 +9,11 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
-import { esCondonable, montoACobrarDeLaDeuda } from "../../constants";
+import {
+  esCondonable,
+  montoACobrarDeLaDeuda,
+  withRemainingAmounts,
+} from "../../constants";
 import { MONTHS } from "@/mk/utils/date1";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useEffect, useState } from "react";
@@ -124,7 +128,7 @@ const RenderForm = ({
       true
     );
     if (data?.success) {
-      setDebts(data?.data);
+      setDebts((data?.data ?? []).map(withRemainingAmounts));
     } else {
       showToast(data?.message || "Ocurrió un error", "error");
     }
@@ -204,8 +208,6 @@ const RenderForm = ({
   const onSave = async () => {
     let method = formState.id ? "PUT" : "POST";
     if (hasErrors(validate())) return;
-    let total = getTotal();
-    const amount = (total - Number(formState.amount_value)).toFixed(2);
     const idsForgiveness = formState.forgiveness.map((f: any) => f.id);
 
     const dataToSend: any = {
@@ -214,7 +216,9 @@ const RenderForm = ({
       due_at: formState.due_at,
       // category_id: formState.category_id,
       dpto_id: formState.dpto_id,
-      amount: amount,
+      // ⚠️ Sin `amount`: lo que queda por pagar lo calcula el API desde los
+      // pagos confirmados (y el porcentaje, sobre lo condonable). Lo que el
+      // formulario muestra sale de las mismas cuentas (`withRemainingAmounts`).
       percent_value: formState.percent_value,
       amount_value: formState.amount_value,
       obs: `${formState.obsNew ? "- " + formState.obsNew : ""} ${

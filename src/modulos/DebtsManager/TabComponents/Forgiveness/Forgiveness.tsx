@@ -32,7 +32,7 @@ const Forgiveness = ({
     modulo: 'v3/debt-dptos',
     singular: 'condonación',
     plural: '',
-    permiso: 'defaulters',
+    permiso: 'debts_manager',
     sumarize: true,
     extraData: true,
     loadView: { fullType: 'DET', type: DebtType.FORGIVENESS },

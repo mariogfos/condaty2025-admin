@@ -285,7 +285,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       extraParams: { type: DebtType.SHARED, debt_id: debtId },
     },
     filter: false,
-    permiso: "expense",
+    permiso: "debts_manager",
     extraData: true,
     sumarize: false,
     // 🔴 CDT-50: esta pantalla tenía los botones "Editar" y "Eliminar" del

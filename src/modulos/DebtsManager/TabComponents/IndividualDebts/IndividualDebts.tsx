@@ -242,7 +242,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       extraParams: { type: DebtType.NORMAL },
     },
     filter: true,
-    permiso: 'expense',
+    permiso: 'debts_manager',
     extraData: true,
     // 🔴 CDT-52: toda esta pestaña es `DebtType.NORMAL`, la única que la API deja
     // editar y borrar por unidad (`PUT`/`DELETE /v3/debt-dptos/{id}`). Con
