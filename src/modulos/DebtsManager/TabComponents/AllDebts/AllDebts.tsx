@@ -436,7 +436,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({ onExtraDataChange }) => {
       endpoint: "/v3/debt-dptos",
     },
     filter: true,
-    permiso: "expense",
+    permiso: "debts_manager",
     extraData: true,
     sumarize: false,
     // 🔴 CDT-52, decisión de producto: en "Todas" el lápiz y el tacho de la

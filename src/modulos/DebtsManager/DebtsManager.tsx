@@ -167,7 +167,7 @@ const DebtsManager = () => {
         return <AllDebts {...commonProps} />;
     }
   };
-  if (!userCan("debts", "R")) {
+  if (!userCan("debts_manager", "R")) {
     return <NotAccess />;
   }
 
