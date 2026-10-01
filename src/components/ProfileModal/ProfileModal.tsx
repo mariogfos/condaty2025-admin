@@ -22,6 +22,7 @@ import GuardEditForm from "./GuardEditForm/GuardEditForm";
 import Image from "next/image";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
 import RenderForm from "@/modulos/Guards/RenderForm/RenderForm";
+import { assignableAdminRoles, canChangeAdminRole } from "./adminRolePolicy";
 
 interface ProfileModalProps {
   open: boolean;
@@ -83,6 +84,7 @@ interface FormState {
   pinned?: number;
   code?: string;
   url_avatar?: string;
+  role_id?: number;
 }
 const ProfileModal = ({
   open,
@@ -139,6 +141,12 @@ const ProfileModal = ({
     },
     true,
   );
+  const { data: rolesData } = useAxios(
+    type === "admin" && open ? "/users" : null,
+    "GET",
+    { fullType: "EXTRA" },
+    true,
+  );
 
   // useEffect(() => {
   //   if (dataID) {
@@ -146,7 +154,10 @@ const ProfileModal = ({
   //   }
   // }, [dataID]);
   const getProfileRole = () => {
-    if (type === "admin") return data?.data[0]?.role?.[0]?.name;
+    if (type === "admin") {
+      return data?.data[0]?.client_users?.[0]?.role?.name ||
+        data?.data[0]?.fosrole?.name || data?.data[0]?.role?.[0]?.name;
+    }
     if (type === "owner") return data?.data[0]?.type_owner;
     if (type === "homeOwner") return data?.data[0]?.type_owner;
     return "Guardia";
@@ -188,6 +199,7 @@ const ProfileModal = ({
         email: data?.data[0]?.email,
         has_image: parseInt(data?.data[0]?.has_image) || 0,
         url_avatar: data?.data[0]?.url_avatar,
+        role_id: data?.data[0]?.client_users?.[0]?.role_id,
       });
     }
   }, [openEdit, data]);
@@ -235,11 +247,15 @@ const ProfileModal = ({
   );
   const deletePerm = userCan("users", "D");
   const editPerm = userCan("users", "U");
+  const targetRole = data?.data[0]?.client_users?.[0]?.role;
+  const canChangeRole = type === "admin" &&
+    canChangeAdminRole(user, data?.data[0], editPerm);
+  const roleOptions = assignableAdminRoles(rolesData?.data?.roles || [], user);
 
   const canEditThisProfile = () => {
     if (user?.fosrole_id) return true;
     if (type === "admin") {
-      return editPerm && user?.id === data?.data[0]?.id;
+      return editPerm && (user?.id === data?.data[0]?.id || canChangeRole);
     }
 
     return editPerm;
@@ -576,6 +592,9 @@ const ProfileModal = ({
                 reLoad={() => reLoadDet()}
                 reLoadList={reLoad}
                 type={type}
+                canChangeRole={canChangeRole}
+                roleOptions={roleOptions}
+                currentRoleId={targetRole?.id}
               />
             )}
           </>
