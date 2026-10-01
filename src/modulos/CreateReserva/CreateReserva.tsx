@@ -15,8 +15,9 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
-import { getFullName } from "@/mk/utils/string";
 import { opcionesDeUnidades } from "./opcionesDeUnidad";
+import { getChoiceOwnerId } from "@/modulos/Reservas/utils/reservationUnitChoices";
+import { getResidentName } from "@/modulos/Calendar/helpers";
 import { ApiArea, FormState } from "./Type";
 import {
   AreaStatus,
@@ -97,7 +98,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [dataReserv, setDataReserv]: any = useState([]);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
   const [monthChangeTimer, setMonthChangeTimer] = useState(null);
-  const [selectedUnit, setSelectedUnit]: any = useState(null);
   const [showMessage, setShowMessage] = useState(false);
   const { execute } = useAxios();
   const [loadingCalendar, setLoadingCalendar] = useState(false);
@@ -123,36 +123,42 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       }
       return { ...prev, unidad: "" };
     });
-    setSelectedUnit(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState?.area_social]);
-  useEffect(() => {
-    if (formState?.unidad) {
-      const selectedUnit = extraData?.dptos?.find(
-        (u: any) => String(u.id) === formState.unidad,
-      );
-      setSelectedUnit(selectedUnit);
-    } else {
-      setSelectedUnit(null);
+
+  const unidadesOptions = useMemo(() => {
+    const selectedArea = extraData?.areas?.find(
+      (area: ApiArea) => area.id === formState.area_social,
+    );
+    if (!selectedArea) {
+      return [];
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formState?.unidad]);
+    return opcionesDeUnidades(
+      extraData?.dptos ?? [],
+      bloqueaConDeuda(selectedArea?.penalty_or_debt_restriction),
+    );
+  }, [extraData?.dptos, extraData?.areas, formState.area_social]);
+
+  // La opción elegida es (unidad, persona): la persona es la responsable de
+  // la reserva y la que viaja como `owner_id`.
+  const selectedChoice = useMemo(
+    () => unidadesOptions.find((choice) => choice.id === formState.unidad) || null,
+    [unidadesOptions, formState.unidad],
+  );
+  const selectedUnit = selectedChoice?.unit || null;
 
   const getCalendar = useCallback(
     async (date?: any) => {
+      const ownerId = getChoiceOwnerId(selectedChoice);
+      if (!ownerId) return;
       setLoadingCalendar(true);
-      const ownerId = selectedUnit?.titular?.id;
       const { data } = await execute(
         "/v3/reservations/calendar",
         "GET",
         {
           area_id: formState?.area_social || "none",
           date_at: date || getNow(),
-          owner_id:
-            ownerId ||
-            extraData?.dptos?.find(
-              (u: any) => String(u.id) === formState.unidad,
-            )?.titular?.id,
+          owner_id: ownerId,
         },
         false,
         true,
@@ -170,32 +176,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       execute,
       setDataReserv,
       setBusyDays,
-      selectedUnit,
+      selectedChoice,
       setLoadingCalendar,
       showToast,
-      formState?.unidad,
-      extraData?.dptos,
     ],
   );
-
-  const unidadesOptions = useMemo(() => {
-    const selectedArea = extraData?.areas?.find(
-      (area: ApiArea) => area.id === formState.area_social,
-    );
-    if (!selectedArea) {
-      return [];
-    }
-    // 🔴 Acá la etiqueta se armaba con `getFullName(unidad.tenant)` —el
-    // INQUILINO— y la reserva se crea para el TITULAR, que el back resuelve
-    // como `holder === 'H' ? homeowner : tenant` y pisa el `owner_id` que
-    // manda este formulario. En producción, 2026-09-02: en 168 unidades el
-    // administrador leía un nombre y reservaba para otra persona, y en 112 la
-    // opción salía sin ningún nombre porque no había inquilino cargado.
-    return opcionesDeUnidades(
-      extraData?.dptos ?? [],
-      bloqueaConDeuda(selectedArea?.penalty_or_debt_restriction),
-    );
-  }, [extraData?.dptos, extraData?.areas, formState.area_social]);
 
   const selectedAreaDetails: ApiArea | undefined = useMemo(() => {
     if (!formState.area_social) {
@@ -348,16 +333,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
 
     setIsSubmitting(true);
 
-    const selectedUnit = extraData?.dptos.find(
-      (u: any) => String(u.id) === formState.unidad,
-    );
-    // ⚠️ El `owner_id` que viaja acá abajo lo IGNORA el back: `beforeCreate` lo
-    // pisa con el titular de la unidad y ni siquiera está en las reglas del
-    // Request. La guarda se queda igual —sin titular el back responde 404— pero
-    // antes cortaba el submit en silencio: el botón no hacía nada y no decía nada.
-    const ownerId = selectedUnit?.titular?.id;
+    // El API verifica que la persona pertenezca a la unidad y al condominio
+    // activo, y la guarda como responsable.
+    const ownerId = getChoiceOwnerId(selectedChoice);
     if (!ownerId) {
-      showToast("Esa unidad no tiene titular definido: no se le puede reservar.", "error");
+      showToast("Selecciona una persona asociada a la unidad.", "error");
       setIsSubmitting(false);
       return;
     }
@@ -526,7 +506,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   <h3 className={styles.sectionTitle}>Datos generales</h3>
                   <div className={styles.formField}>
                     <Select
-                      label="Unidad"
+                      label="Unidad y persona"
                       name="unidad"
                       value={formState.unidad}
                       options={unidadesOptions}
@@ -539,7 +519,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                           ? "Selecciona primero un área social"
                           : unidadesOptions.length === 0
                             ? "No hay unidades disponibles"
-                            : "Selecciona una unidad"
+                            : "Selecciona una unidad y persona"
                       }
                     />
                   </div>
@@ -891,17 +871,17 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   <div className={styles.summaryOwnerInfo}>
                     <div className={styles.ownerIdentifier}>
                       <Avatar
-                        src={selectedUnit?.titular?.url_avatar}
-                        name={getFullName(selectedUnit?.titular)}
+                        src={selectedChoice?.resident?.url_avatar ?? undefined}
+                        name={getResidentName(selectedChoice?.resident, "")}
                         w={40}
                         h={40}
                       />
                       <div className={styles.ownerText}>
                         <span className={styles.ownerName}>
-                          {getFullName(selectedUnit?.titular)}
+                          {getResidentName(selectedChoice?.resident, "")}
                         </span>
                         <span className={styles.ownerUnit}>
-                          Unidad {selectedUnit?.nro}
+                          Unidad {selectedUnit?.nro} · {selectedChoice?.roleLabel}
                         </span>
                       </div>
                     </div>

@@ -63,7 +63,6 @@ import type {
   ReservationArea,
   ReservationExtraData,
   ReservationListItem,
-  ReservationResident,
   ReservationUnit,
 } from "@/modulos/Reservas/Type/ReservaType";
 import {
@@ -83,6 +82,12 @@ import {
   normalizeSearchText,
   splitRangeByYear,
 } from "./helpers";
+import {
+  buildReservationUnitChoicesForUnits,
+  getChoiceOwnerId,
+  type ReservationUnitChoice,
+} from "@/modulos/Reservas/utils/reservationUnitChoices";
+import { buildMaintenancePayload, type MaintenanceDraft } from "./maintenance";
 import styles from "./CalendarPage.module.css";
 import {
   esGratis,
@@ -176,13 +181,6 @@ type ReservationDraft = {
   note: string;
 };
 
-type MaintenanceDraft = {
-  areaId: string;
-  scope: "day" | "range";
-  endDate: string;
-  reason: string;
-};
-
 type CalendarAreaChoice = {
   area: ReservationArea;
   areaId: string;
@@ -205,84 +203,6 @@ type CalendarAreaLocalAvailability = {
 type CalendarAreaLocalAvailabilityLookup = {
   byId: Record<string, CalendarAreaLocalAvailability>;
   byName: Record<string, CalendarAreaLocalAvailability>;
-};
-
-type CalendarUnitChoice = {
-  id: string;
-  name: string;
-  unit: ReservationUnit;
-  resident: ReservationResident | null;
-  roleLabel: string;
-};
-
-const buildCalendarUnitChoices = (unit: ReservationUnit): CalendarUnitChoice[] => {
-  const unitLabel = getUnitLabel(unit);
-  const seenResidents = new Set<string>();
-  const choices: CalendarUnitChoice[] = [];
-
-  const pushChoice = (
-    resident: ReservationResident | null | undefined,
-    roleLabel: string,
-    fallbackKey: string,
-  ) => {
-    if (!resident) return;
-
-    const residentName = getResidentName(resident, roleLabel);
-    const dedupeKey = String(resident.id || residentName || fallbackKey);
-
-    if (seenResidents.has(dedupeKey)) {
-      return;
-    }
-
-    seenResidents.add(dedupeKey);
-    choices.push({
-      id: `${unit.id}:${fallbackKey}:${resident.id || residentName}`,
-      name: `${unitLabel}: ${residentName} · ${roleLabel}`,
-      unit,
-      resident,
-      roleLabel,
-    });
-  };
-
-  pushChoice(unit.tenant, "Inquilino", "tenant");
-  pushChoice(unit.homeowner, "Propietario", "homeowner");
-  pushChoice(unit.titular?.owner, "Titular", "titular");
-
-  const homeownerDependents = Array.isArray(unit.homeowner?.dependientes)
-    ? unit.homeowner.dependientes
-    : [];
-  homeownerDependents.forEach((dependent, index) => {
-    pushChoice(
-      dependent?.owner,
-      "Dependiente de propietario",
-      `homeowner-dependent-${dependent?.owner_id || index}`,
-    );
-  });
-
-  const tenantDependents = Array.isArray(unit.tenant?.dependientes)
-    ? unit.tenant.dependientes
-    : [];
-  tenantDependents.forEach((dependent, index) => {
-    pushChoice(
-      dependent?.owner,
-      "Dependiente de inquilino",
-      `tenant-dependent-${dependent?.owner_id || index}`,
-    );
-  });
-
-  if (choices.length > 0) {
-    return choices;
-  }
-
-  return [
-    {
-      id: `${unit.id}:unit`,
-      name: `${unitLabel}: Sin residente`,
-      unit,
-      resident: null,
-      roleLabel: "Sin residente",
-    },
-  ];
 };
 
 const CalendarPage = () => {
@@ -350,6 +270,7 @@ const CalendarPage = () => {
     endDate: "",
     reason: "",
   });
+  const [maintenanceSubmitting, setMaintenanceSubmitting] = useState(false);
 
   const deferredSearch = useDeferredValue(searchText);
   const requestKeyRef = useRef("");
@@ -361,6 +282,10 @@ const CalendarPage = () => {
 
   const canView = userCan("reservations", "R");
   const canCreate = userCan("reservations", "C");
+  // El mantenimiento lo decide el API: `POST v3/reservations/area-blocked`
+  // pide `areas:U` (middleware `habilidad:areas,U`), no `reservations:C`.
+  // Se pide la misma letra acá para no ofrecer un botón que responde 403.
+  const canBlockAreas = userCan("areas", "U");
 
   const monthDays = useMemo(() => buildMonthGrid(currentMonth), [currentMonth]);
   const visibleRange = useMemo(
@@ -768,8 +693,8 @@ const CalendarPage = () => {
     [visibleAreaOptions],
   );
 
-  const unitOptions = useMemo<CalendarUnitChoice[]>(
-    () => units.flatMap((unit) => buildCalendarUnitChoices(unit)),
+  const unitOptions = useMemo<ReservationUnitChoice[]>(
+    () => buildReservationUnitChoicesForUnits(units),
     [units],
   );
 
@@ -1121,14 +1046,17 @@ const CalendarPage = () => {
           mergedAvailability.reserved ||
           mergedAvailability.unavailable.length > 0;
 
-        if (hasReservations) {
-          return {
-            ...scheduledChoice,
-            slots: [],
-            helperText: "Ya tiene reservas para esta fecha",
-            isSelectable: false,
-          };
-        }
+        // Un área con reservas SÍ se puede bloquear: el API cancela las que se
+        // cruzan y avisa a los residentes. Lo que no se ofrece es un área que
+        // ya está en mantenimiento (rama de arriba).
+        return {
+          ...scheduledChoice,
+          slots: [],
+          helperText: hasReservations
+            ? "Tiene reservas; se cancelarán al confirmar"
+            : "",
+          isSelectable: true,
+        };
       }
 
       if (
@@ -1267,17 +1195,13 @@ const CalendarPage = () => {
   const reservationBlockedSlots = reservationLiveAvailability?.unavailable || [];
   const reservationMaintenanceSlots = reservationLiveAvailability?.maintenance || [];
 
-  const selectedReservationOwnerId = String(
-    selectedReservationUnit?.titular?.id || "",
-  );
+  // La persona ELEGIDA en el select, no el titular de la unidad: el API la
+  // guarda como responsable después de verificar que pertenece a la unidad.
+  const selectedReservationOwnerId = getChoiceOwnerId(selectedReservationUnitChoice);
 
   const selectedReservationResidentLabel = useMemo(() => {
     if (!selectedReservationUnitChoice) {
       return "Sin responsable";
-    }
-
-    if (!selectedReservationUnitChoice.resident) {
-      return selectedReservationUnitChoice.roleLabel;
     }
 
     return `${getResidentName(selectedReservationUnitChoice.resident)} · ${selectedReservationUnitChoice.roleLabel}`;
@@ -1312,7 +1236,7 @@ const CalendarPage = () => {
   const reservationStatusNotice = !reservationDraft.unitOptionId
     ? ""
     : !selectedReservationOwnerId
-      ? "La unidad seleccionada no tiene un titular asociado."
+      ? "Selecciona una persona asociada a la unidad."
       : reservationAvailabilityLoading
         ? ""
         : reservationLiveCanBook === false ||
@@ -1501,7 +1425,7 @@ const CalendarPage = () => {
       setReservationLiveAvailability(null);
       setReservationLiveCanBook(false);
       setReservationAvailabilityMessage(
-        "La unidad elegida no tiene un titular configurado para crear la reserva.",
+        "Selecciona una persona asociada a la unidad.",
       );
       return;
     }
@@ -1759,15 +1683,10 @@ const CalendarPage = () => {
       return;
     }
 
-    const selectedResidentName = selectedReservationUnitChoice.resident
-      ? `${getResidentName(selectedReservationUnitChoice.resident)} · ${selectedReservationUnitChoice.roleLabel}`
-      : selectedReservationUnitChoice.roleLabel || "Responsable";
     const baseNote =
       reservationDraft.note.trim() ||
       `Reserva de ${selectedReservationAreaChoice.areaName}`;
-    const obs = selectedResidentName
-      ? `${baseNote} · Responsable: ${selectedResidentName}`
-      : baseNote;
+    const obs = `${baseNote} · Responsable: ${selectedReservationResidentLabel}`;
     const payload: Record<string, any> = {
       area_id: reservationDraft.areaId,
       owner_id: selectedReservationOwnerId,
@@ -1832,6 +1751,7 @@ const CalendarPage = () => {
     reservationEffectiveSlot,
     selectedReservationAreaChoice,
     selectedReservationOwnerId,
+    selectedReservationResidentLabel,
     selectedReservationUnitChoice,
     selectedReservationUnit,
     showToast,
@@ -1848,13 +1768,58 @@ const CalendarPage = () => {
     [],
   );
 
-  const handleMaintenancePreviewSave = useCallback(() => {
-    showToast(
-      "La creación de mantenimientos desde este calendario aún no está habilitada.",
-      "info",
-    );
-    setCalendarActionModal(null);
-  }, [showToast]);
+  const handleMaintenancePreviewSave = useCallback(async () => {
+    if (maintenanceSubmitting || !calendarActionModal || !contextInstance || !canBlockAreas) {
+      return;
+    }
+
+    let payload;
+    try {
+      payload = buildMaintenancePayload(maintenanceDraft, calendarActionModal.row.dayKey);
+    } catch (error) {
+      showToast(
+        error instanceof Error ? error.message : "Revisa los datos del mantenimiento.",
+        "warning",
+      );
+      return;
+    }
+
+    setMaintenanceSubmitting(true);
+    try {
+      const response = await contextInstance.request({
+        method: "POST",
+        url: "/v3/reservations/area-blocked",
+        data: payload,
+      });
+
+      // El endpoint responde `msg`, no `message`.
+      if (!response?.data?.success) {
+        showToast(response?.data?.msg || "No se pudo registrar el mantenimiento.", "error");
+        return;
+      }
+
+      showToast(response.data.msg || "Mantenimiento registrado.", "success");
+      setCalendarActionModal(null);
+      await loadReservations({ silent: true });
+    } catch (error: any) {
+      showToast(
+        error?.response?.data?.msg ||
+          error?.response?.data?.message ||
+          "No se pudo registrar el mantenimiento.",
+        "error",
+      );
+    } finally {
+      setMaintenanceSubmitting(false);
+    }
+  }, [
+    calendarActionModal,
+    canBlockAreas,
+    contextInstance,
+    loadReservations,
+    maintenanceDraft,
+    maintenanceSubmitting,
+    showToast,
+  ]);
 
   const dayActionMenuItems = useMemo<ContextMenuItem<CalendarDayActionRow>[]>(
     () => [
@@ -1873,6 +1838,7 @@ const CalendarPage = () => {
       {
         label: "Poner en mantenimiento",
         icon: Wrench,
+        disabled: !canBlockAreas,
         onClick: ({ row, closeMenu }) => {
           closeMenu();
           setCalendarActionModal({
@@ -1882,7 +1848,7 @@ const CalendarPage = () => {
         },
       },
     ],
-    [canCreate],
+    [canBlockAreas, canCreate],
   );
 
   const handlePeriodSelect = useCallback(
@@ -2514,12 +2480,12 @@ const CalendarPage = () => {
                       />
                       <Select
                         name="unitOptionId"
-                        label="Unidad"
+                        label="Unidad y persona"
                         value={reservationDraft.unitOptionId}
                         options={unitOptions}
                         onChange={handleReservationDraftChange}
                         filter
-                        placeholder="Selecciona una unidad"
+                        placeholder="Selecciona una unidad y persona"
                       />
                     </div>
 
@@ -2875,8 +2841,8 @@ const CalendarPage = () => {
                   />
 
                   <div className={styles.inlineNotice}>
-                    El registro de mantenimiento desde este calendario estará
-                    disponible próximamente.
+                    Al confirmar, las reservas de esta área que se crucen con el
+                    período se cancelarán y se avisará a sus residentes.
                   </div>
                 </div>
               )}
@@ -2907,12 +2873,19 @@ const CalendarPage = () => {
                         return;
                       }
 
-                      handleMaintenancePreviewSave();
+                      void handleMaintenancePreviewSave();
                     }}
-                    disabled={maintenanceStep === 0 ? !canContinueMaintenance : false}
+                    disabled={
+                      maintenanceSubmitting ||
+                      (maintenanceStep === 0 ? !canContinueMaintenance : false)
+                    }
                     style={{ height: 46, width: "auto" }}
                   >
-                    {maintenanceStep === 0 ? "Continuar" : "Guardar mantenimiento"}
+                    {maintenanceStep === 0
+                      ? "Continuar"
+                      : maintenanceSubmitting
+                        ? "Guardando..."
+                        : "Guardar mantenimiento"}
                   </Button>
                 </div>
               </div>
