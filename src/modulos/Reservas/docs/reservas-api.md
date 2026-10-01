@@ -217,10 +217,31 @@ Están en `api.ts` porque son del recurso y alguien los va a necesitar:
 
 | endpoint | quién lo usa hoy |
 |---|---|
-| `GET /v3/reservations/calendar` | el módulo Calendar |
-| `POST /v3/reservations/area-blocked` | el módulo Áreas (bloqueo por mantenimiento) |
-| `POST /v3/reservations` | el módulo CreateReserva (el alta) |
-| `GET /v3/reservations?fullType=EXTRA` | `src/app/create-reservas/page.tsx` (sólo con `reservations:C`: sin la letra la página muestra `<NotAccess/>` y no lo pide) |
+| `GET /v3/reservations/calendar` | el módulo Calendar y CreateReserva |
+| `POST /v3/reservations/area-blocked` | el módulo Áreas y el Calendario (bloqueo por mantenimiento) |
+| `POST /v3/reservations` | el módulo CreateReserva y el Calendario (el alta) |
+| `GET /v3/reservations?fullType=EXTRA` | `src/app/create-reservas/page.tsx` (sólo con `reservations:C`: sin la letra la página muestra `<NotAccess/>` y no lo pide) y el Calendario |
 
-⚠️ Esos tres módulos tienen sus propias URLs escritas a mano. Unificarlos contra
+### Lo que esos endpoints esperan del alta y del mantenimiento
+
+- **`fullType=EXTRA`** (sólo ADM; 403 a otro rol) devuelve `data.dptos[]`:
+  `{ id, nro, description, holder, homeowner_id, tenant_id, count_defaulter,
+  defaulter, homeowner, tenant, titular }`. `homeowner` y `tenant` traen
+  `dependientes[]` con su `owner`. `titular` es la persona DIRECTA (no
+  `{owner}`) y siempre es el propietario o el inquilino. Sólo vienen unidades
+  activas con propietario o inquilino. Ya no viajan `ci`, `phone` ni `email`.
+- **`POST /v3/reservations`**: `owner_id` es la persona que eligió el
+  administrador (ver `utils/reservationUnitChoices.ts`). Si no pertenece a la
+  unidad: `success: false`, `"La persona seleccionada no pertenece a la
+  unidad."`.
+- **`GET /v3/reservations/calendar?area_id&date_at&owner_id`**: `owner_id` es
+  la misma persona elegida.
+- **`POST /v3/reservations/area-blocked`** (pide `areas:U`): cuerpo
+  `{ area_id, date_at: "YYYY-MM-DD 00:00:00", date_end: "YYYY-MM-DD 23:59:59",
+  reason }`; responde `{ success, msg }`. El API recorta el inicio al "ahora"
+  del condominio y cancela las reservas que se cruzan.
+
+⚠️ Esos cuatro archivos (`CreateReserva`, `Calendar/CalendarPage`,
+`Areas/MaintenanceModal` y `app/create-reservas/page.tsx`, 14 llamadas)
+tienen sus propias URLs escritas a mano. Unificarlos contra
 `reservationsApi` es una tarea aparte, listada en `reservas-contrato.md`.

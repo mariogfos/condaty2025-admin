@@ -137,7 +137,7 @@ export const dedupeReservationsById = (reservations: ReservationListItem[]) =>
   );
 
 export const getResidentFromUnit = (unit?: ReservationUnit | null) =>
-  unit?.tenant || unit?.homeowner || unit?.titular?.owner || null;
+  unit?.tenant || unit?.homeowner || unit?.titular || null;
 
 export const getResidentName = (
   resident?: ReservationResident | null,

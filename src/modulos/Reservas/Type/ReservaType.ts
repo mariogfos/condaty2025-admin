@@ -60,6 +60,7 @@ export enum ReservationApproval {
 export type ReservationResidentDependent = {
   id?: number | string;
   owner_id?: number | string;
+  titular_id?: number | string;
   owner?: ReservationResident | null;
 };
 
@@ -87,11 +88,13 @@ export type ReservationUnit = {
   defaulter?: string | null;
   homeowner?: ReservationResident | null;
   tenant?: ReservationResident | null;
-  titular?: {
-    id?: number | string;
-    owner_id?: number | string;
-    owner?: ReservationResident | null;
-  } | null;
+  /**
+   * La persona titular, DIRECTA (no `{owner}`): el API la resuelve como
+   * `holder === 'H' ? homeowner : tenant`, así que siempre es una de esas dos.
+   * No decide a nombre de quién se reserva: eso lo elige el administrador
+   * (ver `utils/reservationUnitChoices.ts`).
+   */
+  titular?: ReservationResident | null;
 };
 
 export type ReservationArea = {

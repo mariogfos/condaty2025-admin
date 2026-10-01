@@ -18,7 +18,8 @@ src/modulos/Reservas/
 ├── utils/
 │   ├── reservationStatus.ts        el estado que se VE (derivación)
 │   ├── reservationPayment.ts       resolver el pago de una reserva
-│   └── reservationFormat.ts        formateadores puros
+│   ├── reservationFormat.ts        formateadores puros
+│   └── reservationUnitChoices.ts   las opciones (unidad, persona) del alta
 ├── Reserva.tsx                     presentacional (lista)
 ├── ReservationStatusBadge/         el badge de estado de la lista
 ├── RenderView/RenderView.tsx       presentacional (detalle)
@@ -229,6 +230,48 @@ botón mirando sólo `supportedFormats`: con el array renderea el `DownloadButto
 y le pasa el `endpoint`; sin el array cae al `AsyncExportButton` legacy, que no
 recibe `endpoint` como prop, así que el endpoint no llega nunca. Van juntos o no
 va ninguno.
+
+## 11. Crear una reserva desde el admin: a nombre de quién
+
+Hay dos pantallas que crean reservas: el modal "Nueva reserva" del Calendario
+(`Calendar/CalendarPage.tsx`) y `/create-reservas`
+(`CreateReserva/CreateReserva.tsx`). Las dos piden `fullType=EXTRA` y arman el
+selector **"Unidad y persona"** con `utils/reservationUnitChoices.ts`:
+
+1. Una opción por (unidad, persona): propietario, inquilino, dependientes del
+   propietario y dependientes del inquilino, en ese orden.
+2. Una persona aparece una sola vez por unidad aunque tenga dos papeles. Al
+   titular se lo marca con `(titular)`.
+3. Una unidad sin personas no da opciones (ya no existe "Sin residente").
+4. En `/create-reservas`, si el área bloquea por deuda, sólo quedan las
+   unidades con `defaulter == 'X'`, y las opciones van por número de unidad
+   (`CreateReserva/opcionesDeUnidad.ts`).
+
+La persona elegida es la que viaja como `owner_id` al pedir la disponibilidad
+(`GET /v3/reservations/calendar`) y al crear (`POST /v3/reservations`). El API
+verifica que pertenezca a la unidad y la guarda como responsable — decisión del
+dueño del 2026-10-01. Antes las dos pantallas mandaban siempre el titular.
+
+## 12. Poner un área en mantenimiento desde el Calendario
+
+El menú del día siempre muestra "Poner en mantenimiento", pero la opción queda
+**deshabilitada** sin `areas:U`, la letra que pide
+`POST /v3/reservations/area-blocked`.
+
+1. Se elige el área. Las que tienen reservas ese día **se pueden elegir**, con
+   el aviso "Tiene reservas; se cancelarán al confirmar". Las que ya están en
+   mantenimiento, no.
+2. Se elige el alcance (sólo ese día o hasta una fecha final) y el motivo.
+3. `Calendar/maintenance.ts` arma el cuerpo: de las `00:00:00` del primer día
+   a las `23:59:59` del último. Rechaza área vacía, motivo vacío, fechas que no
+   existen y un final anterior al inicio. **No lee el reloj**: el API recorta
+   un inicio pasado al "ahora" del condominio y rechaza un período terminado.
+4. Se manda una sola vez (el botón dice "Guardando..." y queda deshabilitado).
+   El mensaje que se muestra es el `msg` del API. Si sale bien, cierra el modal
+   y recarga el calendario.
+5. El API cancela las reservas que se cruzan y avisa a sus residentes.
+
+`Areas/MaintenanceModal` sigue siendo la otra puerta al mismo endpoint.
 
 ## La pestaña de pendientes — BORRADA (2026-08-12)
 
