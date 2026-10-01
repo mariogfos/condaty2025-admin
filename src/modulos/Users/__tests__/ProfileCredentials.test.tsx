@@ -39,6 +39,19 @@ vi.mock("@/mk/components/forms/UploadFileProfile/UploadFileProfile", () => ({
   default: () => null,
 }));
 
+vi.mock("@/mk/components/forms/Select/Select", () => ({
+  default: ({ label, name, onChange, value, options }: any) => (
+    <label>
+      {label}
+      <select aria-label={label} name={name} onChange={onChange} value={value ?? ""}>
+        {options.map((option: any) => (
+          <option key={option.id} value={option.id}>{option.name}</option>
+        ))}
+      </select>
+    </label>
+  ),
+}));
+
 const initialState = {
   id: "owner-1",
   ci: "1234567",
@@ -49,9 +62,13 @@ const initialState = {
   phone: "70000000",
   email: "ana@condaty.test",
   url_avatar: [],
+  role_id: 2,
 };
 
-const ProfileEditor = () => {
+const ProfileEditor = ({
+  type = "owner",
+  canChangeRole = false,
+}: { type?: string; canChangeRole?: boolean }) => {
   const [formState, setFormState] = useState(initialState);
   const [errors, setErrors] = useState({});
   return (
@@ -65,8 +82,11 @@ const ProfileEditor = () => {
       }
       errors={errors}
       setErrors={setErrors}
-      url="/owners"
-      type="owner"
+      url={type === "admin" ? "/users" : "/owners"}
+      type={type}
+      canChangeRole={canChangeRole}
+      currentRoleId={2}
+      roleOptions={[{ id: 2, name: "Operador" }, { id: 3, name: "Tesorero" }]}
     />
   );
 };
@@ -105,6 +125,27 @@ describe("EditProfile — credenciales FOS", () => {
           email: "ana@condaty.test",
           password: "NuevaClave8",
         }),
+      );
+    });
+  });
+
+  it("solo un perfil autorizado muestra y envía un rol cambiado", async () => {
+    mocks.execute.mockResolvedValue({ data: { success: true } });
+    const { rerender } = render(<ProfileEditor type="admin" />);
+    expect(screen.queryByLabelText("Rol del condominio")).not.toBeInTheDocument();
+
+    rerender(<ProfileEditor type="admin" canChangeRole />);
+    expect(screen.queryByLabelText("Nombre")).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Rol del condominio"), {
+      target: { name: "role_id", value: "3" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+    await waitFor(() => {
+      expect(mocks.execute).toHaveBeenCalledWith(
+        "/users/owner-1",
+        "PUT",
+        { role_id: "3" },
       );
     });
   });
