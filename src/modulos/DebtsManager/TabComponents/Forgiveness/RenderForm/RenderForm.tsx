@@ -9,7 +9,11 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { hasMaintenanceValue, maintenanceAmountFor } from "@/mk/utils/utils";
-import { esCondonable, montoACobrarDeLaDeuda } from "../../constants";
+import {
+  esCondonable,
+  montoACobrarDeLaDeuda,
+  withRemainingAmounts,
+} from "../../constants";
 import { MONTHS } from "@/mk/utils/date1";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useEffect, useState } from "react";
@@ -124,7 +128,7 @@ const RenderForm = ({
       true
     );
     if (data?.success) {
-      setDebts(data?.data);
+      setDebts((data?.data ?? []).map(withRemainingAmounts));
     } else {
       showToast(data?.message || "Ocurrió un error", "error");
     }

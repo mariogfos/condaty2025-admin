@@ -351,14 +351,36 @@ export const COMMON_MESSAGES = {
  * todo el resto de la app. Regla de Mario, 2026-08-07: *"si no está habilitado,
  * ni muestra ni suma"*, y eso incluye el total de una condonación.
  *
- * ⚠️ Este número se PERSISTE al condonar, así que la pregunta no es decorativa:
- * es la que define cuánto se condona. Por eso vive acá, con nombre propio y con
- * test, y no como tres `Number()` sueltos adentro de un componente.
+ * ⚠️ Al condonar, el residuo que queda por pagar lo calcula el API (desde la
+ * revisión entera de DebtDptos, 2026-10-01): este número es el que el
+ * formulario MUESTRA. Para que muestre lo mismo que guarda el API, las deudas
+ * del selector pasan antes por {@link withRemainingAmounts}.
  */
 export const montoACobrarDeLaDeuda = (iamData: any, debt: any): number =>
   (Number(debt?.amount) || 0) +
   (Number(debt?.penalty_amount) || 0) +
   maintenanceAmountFor(iamData, debt);
+
+/**
+ * La deuda del selector de condonaciones con lo que TODAVÍA se debe de cada
+ * parte, en lugar de lo que se cargó.
+ *
+ * 🔴 El formulario sumaba capital + mora + mantenimiento sin restar lo ya
+ * cobrado. En producción, la condonación 28769 (2026-09-02) condonó la mora de
+ * una expensa con el capital pagado y dejó una deuda nueva por ese mismo
+ * capital. `GET v3/debt-dptos/dptos-debts` manda lo que queda
+ * (`principal_remaining_amount`, `penalty_remaining_amount`,
+ * `maintenance_remaining_amount`; lo cobrado se aplica primero al capital) y
+ * esto lo pone en las claves que leen el listado, el techo y los totales.
+ * Sin esas claves —un API viejo— la deuda queda como vino.
+ */
+export const withRemainingAmounts = (debt: any): any => ({
+  ...debt,
+  amount: debt?.principal_remaining_amount ?? debt?.amount,
+  penalty_amount: debt?.penalty_remaining_amount ?? debt?.penalty_amount,
+  maintenance_amount:
+    debt?.maintenance_remaining_amount ?? debt?.maintenance_amount,
+});
 
 /**
  * ¿Está ENCENDIDA esta bandera de la deuda?
