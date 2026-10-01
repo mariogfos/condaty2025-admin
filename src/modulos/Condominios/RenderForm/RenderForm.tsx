@@ -2,11 +2,13 @@ import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import DataModalV2 from "@/mk/components/ui/DataModalV2/DataModalV2";
 import { IconDepartment2 } from "@/components/layout/icons/IconsBiblioteca";
 import Br from "@/components/Detail/Br";
 import styles from "./RenderForm.module.css";
+import { clearCreationIntent, loadCreationIntent, saveCreationIntent } from "./creationIntent";
+import type { CreationIntent } from "./creationIntent";
 
 const RenderForm = ({
   open,
@@ -16,14 +18,22 @@ const RenderForm = ({
   extraData,
   reLoad,
 }: any) => {
-  const [formState, setFormState] = useState({ ...item });
+  const { showToast, user } = useAuth();
+  const actor = String(user?.id || "anonymous");
+  const [restored] = useState(() => item?.id ? null : loadCreationIntent(actor));
+  const [formState, setFormState] = useState({ ...item, ...restored?.payload });
   const [errors, setErrors] = useState({});
-  const { showToast } = useAuth();
+  const [isSaving, setIsSaving] = useState(false);
+  const [uncertain, setUncertain] = useState(Boolean(restored));
+  const inFlight = useRef(false);
+  const intent = useRef<CreationIntent | null>(restored);
+  const fieldsLocked = isSaving || uncertain;
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
+    if (inFlight.current || uncertain) return;
 
     setFormState((prev: any) => ({
       ...prev,
@@ -56,38 +66,72 @@ const RenderForm = ({
     return errors;
   };
   const _onSave = async () => {
+    if (inFlight.current) return;
     if (hasErrors(validate())) return;
-    let method = formState.id ? "PUT" : "POST";
-    const { data } = await execute(
-      "/clients" + (formState.id ? "/" + formState.id : ""),
-      method,
-      {
+    if (navigator.onLine === false) {
+      showToast("No hay conexión. Conéctate y vuelve a intentar.", "error");
+      return;
+    }
+    // Synchronous latch: React state alone cannot block two clicks in the same render.
+    inFlight.current = true;
+    setIsSaving(true);
+    const creating = !formState.id;
+    try {
+      const payload = {
         name: formState?.name || "",
         type: formState?.type || "",
         privacy: formState?.privacy || "",
-      },
-    );
-
-    if (data?.success) {
-      onClose();
-      reLoad();
-      showToast(data.message, "success");
-    } else {
-      showToast(data.message, "error");
+      };
+      if (creating && !intent.current) {
+        intent.current = { request_id: crypto.randomUUID(), payload };
+        saveCreationIntent(actor, intent.current);
+      }
+      const { data, error } = await execute(
+        "/clients" + (creating ? "" : "/" + formState.id),
+        creating ? "POST" : "PUT",
+        creating ? { ...intent.current!.payload, request_id: intent.current!.request_id } : payload,
+      );
+      if (data?.success) {
+        if (creating) clearCreationIntent(actor, intent.current!.request_id);
+        onClose();
+        reLoad();
+        showToast(data.message || "Condominio guardado.", "success");
+        return;
+      }
+      // A timeout/5xx may occur AFTER commit. Keep the same token and immutable payload.
+      const response = data ?? error?.data;
+      const outcomeUnknown = response?.success !== false || error?.status >= 500 || error?.status === 409;
+      if (creating && outcomeUnknown) setUncertain(true);
+      if (creating && !outcomeUnknown) {
+        clearCreationIntent(actor, intent.current!.request_id);
+        intent.current = null;
+        setUncertain(false);
+      }
+      showToast(response?.message || "No pudimos confirmar el guardado. Reintenta para verificarlo sin duplicar.", "error");
+    } catch {
+      if (creating && intent.current) setUncertain(true);
+      showToast("No pudimos confirmar el guardado. Reintenta con los mismos datos.", "error");
+    } finally {
+      inFlight.current = false;
+      setIsSaving(false);
     }
   };
 
   return (
     <DataModalV2
       open={open}
-      onClose={onClose}
+      onClose={() => { if (!inFlight.current) onClose(); }}
       icon={<IconDepartment2 />}
       title={formState.id ? "Editar condominio" : "Crear condominio"}
       subtitle="Completa el formulario para crear un nuevo condominio"
       onSave={_onSave}
+      disabled={isSaving}
+      buttonText={isSaving ? "Guardando…" : uncertain ? "Reintentar y verificar" : "Guardar"}
+      buttonCancel={isSaving ? "" : "Cancelar"}
       variant={"mini"}
       maxWidth={560}
     >
+      {uncertain && <p role="status" className={styles.subtitle}>Hay un intento pendiente de confirmar. Reintenta para recuperar el resultado; no se creará otro condominio.</p>}
       <p className={styles.title}>Información básica</p>
       <p className={styles.subtitle}>
         Datos visibles para todos los propietarios y residentes.
@@ -99,14 +143,14 @@ const RenderForm = ({
         label="Nombre del condominio"
         error={errors}
         type="text"
-        disabled={item?.isInUse}
+        disabled={fieldsLocked || item?.isInUse}
         required
       />
       <Select
         label="Tipo de condominio"
         name="type"
         value={formState.type || ""}
-        disabled={item?.isInUse}
+        disabled={fieldsLocked || item?.isInUse}
         optionLabel="name"
         options={extraData?.types || []}
         optionValue="id"
@@ -130,7 +174,7 @@ const RenderForm = ({
         name="privacy"
         value={formState.privacy || ""}
         optionLabel="name"
-        disabled={item?.id}
+        disabled={fieldsLocked || Boolean(item?.id)}
         options={extraData?.privacy || []}
         optionValue="id"
         onChange={handleChange}
