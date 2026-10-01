@@ -254,8 +254,9 @@ dueño del 2026-10-01. Antes las dos pantallas mandaban siempre el titular.
 
 ## 12. Poner un área en mantenimiento desde el Calendario
 
-El menú del día ofrece "Poner en mantenimiento" sólo con `areas:U`, la letra
-que pide `POST /v3/reservations/area-blocked`.
+El menú del día siempre muestra "Poner en mantenimiento", pero la opción queda
+**deshabilitada** sin `areas:U`, la letra que pide
+`POST /v3/reservations/area-blocked`.
 
 1. Se elige el área. Las que tienen reservas ese día **se pueden elegir**, con
    el aviso "Tiene reservas; se cancelarán al confirmar". Las que ya están en

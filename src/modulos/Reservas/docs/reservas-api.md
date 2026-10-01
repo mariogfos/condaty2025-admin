@@ -241,5 +241,7 @@ Están en `api.ts` porque son del recurso y alguien los va a necesitar:
   reason }`; responde `{ success, msg }`. El API recorta el inicio al "ahora"
   del condominio y cancela las reservas que se cruzan.
 
-⚠️ Esos tres módulos tienen sus propias URLs escritas a mano. Unificarlos contra
+⚠️ Esos cuatro archivos (`CreateReserva`, `Calendar/CalendarPage`,
+`Areas/MaintenanceModal` y `app/create-reservas/page.tsx`, 14 llamadas)
+tienen sus propias URLs escritas a mano. Unificarlos contra
 `reservationsApi` es una tarea aparte, listada en `reservas-contrato.md`.

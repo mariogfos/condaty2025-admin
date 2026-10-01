@@ -137,6 +137,12 @@ derivado se queda en el de la columna.
 
 Sólo cancelar lo mira.
 
+> 🔴 **§11 y §12 dependen de la rama `review/reservations` del API, y el API
+> se despliega PRIMERO.** Con el API anterior: el back pisa la persona elegida
+> con el titular, los dependientes no llegan en el `EXTRA`, y un mantenimiento
+> que empieza a las 00:00 cancela también las reservas de hoy que ya pasaron
+> (el API viejo no recorta el inicio al "ahora" del condominio).
+
 ### 11. El alta del admin guarda la persona ELEGIDA como responsable
 
 Decisión del dueño (2026-10-01). El Calendario y `/create-reservas` ofrecen una
@@ -167,8 +173,8 @@ primer día y `date_end` a las `23:59:59` del último
 condominio, rechaza un período que ya terminó y cancela —avisando— las
 reservas que se cruzan. El front no calcula la hora actual.
 
-La ruta pide `areas:U`; el Calendario ofrece "Poner en mantenimiento" con esa
-misma letra. Responde `{ success, msg }` (con `msg`, no `message`).
+La ruta pide `areas:U`; sin esa letra el Calendario muestra "Poner en
+mantenimiento" deshabilitado. Responde `{ success, msg }` (con `msg`, no `message`).
 
 ---
 
