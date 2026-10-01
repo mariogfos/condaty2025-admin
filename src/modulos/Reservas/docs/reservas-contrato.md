@@ -137,6 +137,39 @@ derivado se queda en el de la columna.
 
 Sólo cancelar lo mira.
 
+### 11. El alta del admin guarda la persona ELEGIDA como responsable
+
+Decisión del dueño (2026-10-01). El Calendario y `/create-reservas` ofrecen una
+opción por (unidad, persona) —propietario, inquilino y dependientes de los
+dos— armada por `utils/reservationUnitChoices.ts`, y mandan esa persona como
+`owner_id` en `POST /v3/reservations` y en `GET /v3/reservations/calendar`.
+
+El front le exige al API:
+
+- que `fullType=EXTRA` traiga en cada `dptos[]` a `homeowner` y `tenant` con
+  sus `dependientes[].owner`, y a `titular` como la persona DIRECTA (no
+  `{owner}`);
+- que el alta verifique que `owner_id` pertenece a la unidad y al condominio
+  activo y la guarde tal cual — si no pertenece responde `success: false` con
+  `"La persona seleccionada no pertenece a la unidad."`;
+- que el calendario no le aplique al ADM los topes por residente.
+
+🔴 Antes de esta decisión el back pisaba `owner_id` con el titular y las dos
+pantallas mandaban el titular: mostraban una persona y la reserva quedaba a
+nombre de otra. `Calendar/__tests__/reservationOwnerAndMaintenancePin.test.ts`
+pinea que ninguna de las dos vuelva a leer `titular`.
+
+### 12. El mantenimiento del Calendario lo arma el API, no el reloj del navegador
+
+`POST /v3/reservations/area-blocked` recibe `date_at` a las `00:00:00` del
+primer día y `date_end` a las `23:59:59` del último
+(`Calendar/maintenance.ts`). El API recorta un inicio pasado al "ahora" del
+condominio, rechaza un período que ya terminó y cancela —avisando— las
+reservas que se cruzan. El front no calcula la hora actual.
+
+La ruta pide `areas:U`; el Calendario ofrece "Poner en mantenimiento" con esa
+misma letra. Responde `{ success, msg }` (con `msg`, no `message`).
+
 ---
 
 ## Lo que el módulo NO le exige (y conviene que siga así)
@@ -158,7 +191,8 @@ Lo que quedó fuera de esta migración, con su motivo.
 `/v3/reservations`, `/v3/reservations/calendar` y `/v3/reservations/area-blocked`
 por su cuenta. `api.ts` ya las declara; falta que esos módulos las importen.
 
-Son 4 archivos y ~10 call sites. No se tocaron porque son otros módulos.
+Son 4 archivos y 14 call sites (contados con `rg` el 2026-10-01, sin tests ni
+este módulo). No se tocaron porque son otros módulos.
 
 ### 2. ~~Aprobar y rechazar no miran `data.success`~~ — resuelto
 
