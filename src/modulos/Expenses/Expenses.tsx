@@ -95,7 +95,7 @@ const mod: ModCrudType = {
     endpoint: '/v3/debt-groups',
   },
   filter: true,
-  permiso: 'expense',
+  permiso: 'expenses',
   extraData: true,
   search: { hide: true },
   // 🔴 CDT-50 (decisión del CTO): un periodo de expensas SÓLO se crea. Editarlo

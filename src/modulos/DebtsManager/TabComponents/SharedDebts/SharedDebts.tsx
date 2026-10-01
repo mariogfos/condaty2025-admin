@@ -484,7 +484,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
       extraParams: { type: DebtType.SHARED },
     },
     filter: true,
-    permiso: "expense",
+    permiso: "debts_manager",
     extraData: true,
     sumarize: false,
     // 🔴 CDT-50 (decisión del CTO): una deuda compartida es una agrupación que
