@@ -152,23 +152,27 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       const ownerId = getChoiceOwnerId(selectedChoice);
       if (!ownerId) return;
       setLoadingCalendar(true);
-      const { data } = await execute(
-        "/v3/reservations/calendar",
-        "GET",
-        {
-          area_id: formState?.area_social || "none",
-          date_at: date || getNow(),
-          owner_id: ownerId,
-        },
-        false,
-        true,
-      );
-      if (data?.success) {
-        setDataReserv(data?.data);
-        setBusyDays(data?.data?.reserved.concat(data?.data?.maintenance) || []);
+      try {
+        const { data } = await execute(
+          "/v3/reservations/calendar",
+          "GET",
+          {
+            area_id: formState?.area_social || "none",
+            date_at: date || getNow(),
+            owner_id: ownerId,
+          },
+          false,
+          true,
+        );
+        if (data?.success) {
+          setDataReserv(data?.data);
+          setBusyDays(data?.data?.reserved.concat(data?.data?.maintenance) || []);
+        } else {
+          showToast("Ocurrió un error", "error");
+        }
+      } finally {
+        // Si el pedido falla, el botón "Continuar" no puede quedar trabado.
         setLoadingCalendar(false);
-      } else {
-        showToast("Ocurrió un error", "errror");
       }
     },
     [

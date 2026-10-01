@@ -36,12 +36,12 @@ describe("el mantenimiento que manda el Calendario", () => {
     // El "ahora" lo pone el API con la zona del condominio, no el navegador.
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 9, 5, 0, 1, 0));
-    const tempranito = buildMaintenancePayload(draft(), "2026-10-05");
+    const earlyMorning = buildMaintenancePayload(draft(), "2026-10-05");
     vi.setSystemTime(new Date(2026, 9, 5, 15, 42, 17));
-    const tarde = buildMaintenancePayload(draft(), "2026-10-05");
+    const afternoon = buildMaintenancePayload(draft(), "2026-10-05");
 
-    expect(tarde).toEqual(tempranito);
-    expect(tarde.date_at).toBe("2026-10-05 00:00:00");
+    expect(afternoon).toEqual(earlyMorning);
+    expect(afternoon.date_at).toBe("2026-10-05 00:00:00");
   });
 
   it("rechaza un rango invertido", () => {

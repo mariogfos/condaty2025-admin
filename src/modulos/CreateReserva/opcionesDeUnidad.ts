@@ -25,9 +25,9 @@ import {
 // después de "9" y no antes, que es lo que hace una comparación de texto.
 const comparador = new Intl.Collator("es", { numeric: true, sensitivity: "base" });
 
-type UnidadOrdenable = { id: string | number; nro?: string | number | null };
+type SortableUnit = { id: string | number; nro?: string | number | null };
 
-export const ordenarUnidades = <T extends UnidadOrdenable>(unidades: T[] = []): T[] =>
+export const ordenarUnidades = <T extends SortableUnit>(unidades: T[] = []): T[] =>
   [...unidades].sort(
     (una, otra) =>
       comparador.compare(String(una?.nro ?? ""), String(otra?.nro ?? "")) ||
