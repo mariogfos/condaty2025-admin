@@ -8,6 +8,7 @@ import {
   MapPinned,
   MousePointer2,
   Navigation,
+  Palette,
   PencilLine,
   Plus,
   Trash2,
@@ -38,6 +39,7 @@ type PendingSaveState = {
   clientId: string;
   boundary: Coordinate[];
 };
+type PendingColorState = { place: PresencePlace; color: string };
 
 type Props = {
   connections: PresenceConnection[];
@@ -48,12 +50,22 @@ type Props = {
   onSelect: (connection: PresenceConnection | null) => void;
   onCreatePlace: (clientId: string, boundary: Coordinate[]) => Promise<void>;
   onUpdatePlace: (id: number, boundary: Coordinate[]) => Promise<void>;
+  onUpdatePlaceColor: (id: number, color: string) => Promise<void>;
   onDeletePlace: (id: number) => Promise<void>;
   onOpenHistory: (connection: PresenceConnection) => void;
   showConnectionDetail?: boolean;
 };
 
 const mapToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim();
+const PLACE_COLORS = [
+  { value: "#20e3ad", label: "Menta" },
+  { value: "#ffbe5c", label: "Ámbar" },
+  { value: "#52a8ff", label: "Azul" },
+  { value: "#a985ff", label: "Violeta" },
+  { value: "#ff6b75", label: "Coral" },
+  { value: "#41d7c7", label: "Turquesa" },
+  { value: "#c7e36a", label: "Lima" },
+] as const;
 
 export default function PresenceMap({
   connections,
@@ -64,6 +76,7 @@ export default function PresenceMap({
   onSelect,
   onCreatePlace,
   onUpdatePlace,
+  onUpdatePlaceColor,
   onDeletePlace,
   onOpenHistory,
   showConnectionDetail = true,
@@ -78,9 +91,12 @@ export default function PresenceMap({
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const [drawing, setDrawing] = useState<DrawingState | null>(null);
   const [pendingSave, setPendingSave] = useState<PendingSaveState | null>(null);
+  const [pendingColor, setPendingColor] = useState<PendingColorState | null>(null);
   const [pendingDelete, setPendingDelete] = useState<PresencePlace | null>(null);
   const [saving, setSaving] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const previewPlaceId = pendingColor?.place.id;
+  const previewColor = pendingColor?.color;
 
   const connectionsGeoJson = useMemo<FeatureCollection<Point>>(() => ({
     type: "FeatureCollection",
@@ -97,10 +113,14 @@ export default function PresenceMap({
     features: places.map((place) => ({
       type: "Feature",
       id: place.id,
-      properties: { id: place.id, name: place.name, color: place.color },
+      properties: {
+        id: place.id,
+        name: place.name,
+        color: place.id === previewPlaceId ? (previewColor ?? place.color) : place.color,
+      },
       geometry: { type: "Polygon", coordinates: [place.boundary] },
     })),
-  }), [places]);
+  }), [places, previewColor, previewPlaceId]);
   const connectionsGeoJsonRef = useRef(connectionsGeoJson);
   const placesGeoJsonRef = useRef(placesGeoJson);
   const availableScopes = scopes.filter((scope) => !scope.has_place);
@@ -401,7 +421,7 @@ export default function PresenceMap({
           ? placesRef.current.find((item) => item.id === placeId) || null
           : null;
         const width = 238;
-        const height = place ? 168 : 116;
+        const height = place ? 222 : 116;
         setContextMenu({
           x: Math.max(12, Math.min(event.point.x, map.getContainer().clientWidth - width - 12)),
           y: Math.max(12, Math.min(event.point.y, map.getContainer().clientHeight - height - 12)),
@@ -438,6 +458,7 @@ export default function PresenceMap({
     setDrawing(next);
     setContextMenu(null);
     setPendingSave(null);
+    setPendingColor(null);
     setPendingDelete(null);
     setActionError(null);
     updateDraftSource(mapRef.current, next, null);
@@ -465,12 +486,13 @@ export default function PresenceMap({
       if (event.key !== "Escape") return;
       if (pendingSave && !saving) setPendingSave(null);
       else if (pendingDelete && !saving) setPendingDelete(null);
+      else if (pendingColor && !saving) setPendingColor(null);
       else if (drawingRef.current) cancelDrawing();
       else setContextMenu(null);
     };
     window.addEventListener("keydown", onEscape);
     return () => window.removeEventListener("keydown", onEscape);
-  }, [cancelDrawing, pendingDelete, pendingSave, saving]);
+  }, [cancelDrawing, pendingColor, pendingDelete, pendingSave, saving]);
 
   const savePending = async () => {
     if (!pendingSave) return;
@@ -487,6 +509,20 @@ export default function PresenceMap({
         await onUpdatePlace(pendingSave.place.id, pendingSave.boundary);
       }
       setPendingSave(null);
+    } catch (caught) {
+      setActionError(errorMessage(caught));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const savePendingColor = async () => {
+    if (!pendingColor || pendingColor.color === pendingColor.place.color) return;
+    setSaving(true);
+    setActionError(null);
+    try {
+      await onUpdatePlaceColor(pendingColor.place.id, pendingColor.color);
+      setPendingColor(null);
     } catch (caught) {
       setActionError(errorMessage(caught));
     } finally {
@@ -552,6 +588,19 @@ export default function PresenceMap({
             <>
               <button type="button" role="menuitem" onClick={() => beginDrawing(contextMenu.place)}>
                 <PencilLine size={16} /><span><strong>Editar área</strong><small>Redibujar el perímetro</small></span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  const place = contextMenu.place;
+                  if (!place) return;
+                  setPendingColor({ place, color: place.color });
+                  setContextMenu(null);
+                  setActionError(null);
+                }}
+              >
+                <Palette size={16} /><span><strong>Cambiar color</strong><small>Identificar el área en el mapa</small></span>
               </button>
               <button
                 type="button"
@@ -635,6 +684,45 @@ export default function PresenceMap({
             <footer>
               <button className={styles.secondaryButton} type="button" disabled={saving} onClick={() => setPendingSave(null)}>Cancelar</button>
               <button className={styles.primaryButton} type="button" disabled={saving} onClick={() => void savePending()}>{saving ? "Guardando…" : pendingSave.mode === "create" ? "Guardar condominio" : "Guardar cambios"}</button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
+
+      {pendingColor ? (
+        <div className={`${styles.dialogBackdrop} ${styles.colorDialogBackdrop} ${!showConnectionDetail ? styles.dialogBackdropMapOnly : ""}`} role="presentation">
+          <section className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="place-color-title">
+            <span className={styles.dialogIcon}><Palette size={20} /></span>
+            <p className={styles.dialogEyebrow}>Condominio</p>
+            <h2 id="place-color-title">Color de {pendingColor.place.name}</h2>
+            <p>Elige el color del perímetro y del nombre. Puedes ver el resultado en el mapa antes de guardar.</p>
+            <div className={styles.colorChoices} role="group" aria-label="Colores del área">
+              {PLACE_COLORS.map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={styles.colorOption}
+                  aria-label={`${label} (${value})`}
+                  aria-pressed={pendingColor.color.toLowerCase() === value}
+                  title={label}
+                  style={{ backgroundColor: value }}
+                  disabled={saving}
+                  autoFocus={pendingColor.place.color.toLowerCase() === value}
+                  onClick={() => setPendingColor({ ...pendingColor, color: value })}
+                >
+                  {pendingColor.color.toLowerCase() === value ? <Check size={18} aria-hidden="true" /> : null}
+                </button>
+              ))}
+            </div>
+            <div className={styles.colorPreview}>
+              <span className={styles.colorPreviewSwatch} style={{ backgroundColor: pendingColor.color }} aria-hidden="true" />
+              <span>Vista previa <strong>{PLACE_COLORS.find(({ value }) => value === pendingColor.color.toLowerCase())?.label || "Color actual"}</strong></span>
+              <code>{pendingColor.color.toUpperCase()}</code>
+            </div>
+            {actionError ? <div className={styles.dialogError}>{actionError}</div> : null}
+            <footer>
+              <button className={styles.secondaryButton} type="button" disabled={saving} onClick={() => setPendingColor(null)}>Cancelar</button>
+              <button className={styles.primaryButton} type="button" disabled={saving || pendingColor.color === pendingColor.place.color} onClick={() => void savePendingColor()}>{saving ? "Guardando…" : "Guardar color"}</button>
             </footer>
           </section>
         </div>
