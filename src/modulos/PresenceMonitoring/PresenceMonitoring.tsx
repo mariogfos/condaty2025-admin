@@ -3,6 +3,8 @@
 import {
   Building2,
   Clock3,
+  Eye,
+  EyeOff,
   MonitorSmartphone,
   RefreshCw,
   Search,
@@ -119,6 +121,7 @@ export default function PresenceMonitoring() {
   const [historyConnection, setHistoryConnection] = useState<PresenceConnection | null>(null);
   const [sessionHistory, setSessionHistory] = useState<PresenceSessionRecord[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [panelsHidden, setPanelsHidden] = useState(false);
   const canView = Boolean(user?.fosrole_id);
 
   useEffect(() => {
@@ -277,23 +280,45 @@ export default function PresenceMonitoring() {
         onUpdatePlace={updatePlace}
         onDeletePlace={deletePlace}
         onOpenHistory={openHistory}
+        showConnectionDetail={!panelsHidden}
       />
 
-      <aside className={styles.activityPanel}>
+      {panelsHidden ? (
+        <button
+          className={styles.showPanelsButton}
+          type="button"
+          onClick={() => setPanelsHidden(false)}
+        >
+          <Eye size={17} aria-hidden="true" />
+          Mostrar paneles
+        </button>
+      ) : null}
+      <aside className={styles.activityPanel} hidden={panelsHidden}>
         <header className={styles.activityHeader}>
           <div>
             <span className={styles.eyebrow}>Backoffice</span>
             <h1>Dispositivos y sesiones</h1>
           </div>
-          <button
-            className={`${styles.iconButton} ${loading ? styles.spinning : ""}`}
-            type="button"
-            aria-label="Actualizar conexiones"
-            disabled={loading}
-            onClick={() => void loadOverview(range)}
-          >
-            <RefreshCw size={17} />
-          </button>
+          <div className={styles.activityHeaderActions}>
+            <button
+              className={styles.iconButton}
+              type="button"
+              aria-label="Ocultar paneles del monitoreo"
+              title="Ocultar paneles"
+              onClick={() => setPanelsHidden(true)}
+            >
+              <EyeOff size={17} aria-hidden="true" />
+            </button>
+            <button
+              className={`${styles.iconButton} ${loading ? styles.spinning : ""}`}
+              type="button"
+              aria-label="Actualizar conexiones"
+              disabled={loading}
+              onClick={() => void loadOverview(range)}
+            >
+              <RefreshCw size={17} />
+            </button>
+          </div>
         </header>
 
         <div className={styles.searchControl}>
@@ -374,25 +399,27 @@ export default function PresenceMonitoring() {
         ) : null}
       </aside>
 
-      <section className={styles.metrics} aria-label="Resumen de actividad">
+      <section className={styles.metrics} aria-label="Resumen de actividad" hidden={panelsHidden}>
         <MetricCard label="Registrados" value={stats.known_connections} detail="dispositivos" icon={<Smartphone size={17} />} />
         <MetricCard label="En línea" value={stats.active_connections} detail="ahora" icon={<UsersRound size={17} />} accent="resident" />
         <MetricCard label="Recientes" value={stats.recent_connections} detail="últimos 15 min" icon={<Clock3 size={17} />} accent="guard" />
         <MetricCard label="Desconectados" value={stats.offline_connections} detail="sin conexión" icon={<Building2 size={17} />} accent="admin" />
       </section>
 
-      <Timeline
-        points={overview?.timeline || []}
-        range={range}
-        onRangeChange={setRange}
-      />
+      {panelsHidden ? null : (
+        <Timeline
+          points={overview?.timeline || []}
+          range={range}
+          onRangeChange={setRange}
+        />
+      )}
 
-      {error ? (
+      {!panelsHidden && error ? (
         <button className={`${styles.notice} ${styles.noticeError}`} type="button" onClick={() => void loadOverview(range)}>
           {error} <strong>Reintentar</strong>
         </button>
       ) : null}
-      {overview?.truncated ? (
+      {!panelsHidden && overview?.truncated ? (
         <div className={styles.notice}>El inventario heredado supera 15.000 tokens; usa los filtros para acotar la consulta.</div>
       ) : null}
 
