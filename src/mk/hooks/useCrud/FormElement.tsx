@@ -150,13 +150,18 @@ const FormElement = memo(
     // console.log("_field:::", _field);
     if (_field.onHide?.({ item, user: data?.user, key: _field.key }))
       return null;
-    const options =
+    const allOptions =
       data?.mod.extraData && _field.optionsExtra
         ? [
             ...(_field.addOptions || []),
             ...(data?.extraData[_field.optionsExtra] || []),
           ]
         : [...(_field.addOptions || []), ...(_field.options || [])];
+    // `optionsFilter` narrows what the select OFFERS (e.g. roles a user may
+    // not give). It decides nothing: the API enforces the same rule.
+    const options = _field.optionsFilter
+      ? _field.optionsFilter(allOptions, { user: data?.user, item })
+      : allOptions;
 
     const props = {
       _key: _field.key,

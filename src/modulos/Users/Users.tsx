@@ -16,6 +16,7 @@ import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import Br from "@/components/Detail/Br";
 import { buscarPorCi, buscarPorCorreo } from "./buscarAdministradorExistente";
 import { contadoresPorId } from "@/mk/utils/tarjetasDeContadores";
+import { assignableAdminRoles } from "@/components/ProfileModal/adminRolePolicy";
 
 const paramsInitial = {
   perPage: 20,
@@ -172,6 +173,10 @@ const Users = () => {
         form: {
           type: "select",
           optionsExtra: "roles",
+          // 🔴 `136ded88`: the `adm` role is given only by FOS. The API
+          // rejects it too (`UserController::roleChangeVeto()`).
+          optionsFilter: (roles: any[], { user }: any) =>
+            assignableAdminRoles(roles, user),
           optionLabel: "name",
           optionValue: "id",
           required: true,

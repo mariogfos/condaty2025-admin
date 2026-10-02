@@ -21,6 +21,7 @@ import EditProfile from "./EditProfile/EditProfile";
 import Image from "next/image";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
 import RenderForm from "@/modulos/Guards/RenderForm/RenderForm";
+import { assignableAdminRoles, canChangeAdminRole } from "./adminRolePolicy";
 
 interface ProfileModalProps {
   open: boolean;
@@ -81,6 +82,7 @@ interface FormState {
   pinned?: number;
   code?: string;
   url_avatar?: string;
+  role_id?: number | string;
 }
 const ProfileModal = ({
   open,
@@ -136,6 +138,14 @@ const ProfileModal = ({
     },
     true,
   );
+  // The condominium's roles, for «Cambiar rol». Same source as the
+  // «Personal administrativo» form: `extraData` of `v3/users`.
+  const { data: rolesData } = useAxios(
+    type === "admin" && open ? "/v3/users" : null,
+    "GET",
+    { fullType: "EXTRA" },
+    true,
+  );
 
   // B1: el useEffect de useAxios solo corre en mount. Sin este reLoad
   // cuando cambia dataID, el modal mostraba los datos del primer user
@@ -186,6 +196,7 @@ const ProfileModal = ({
         address: data?.data[0]?.address,
         email: data?.data[0]?.email,
         url_avatar: data?.data[0]?.url_avatar,
+        role_id: data?.data[0]?.role?.[0]?.id,
       });
     }
   }, [openEdit, data?.data?.[0]?.id, data]);
@@ -233,11 +244,16 @@ const ProfileModal = ({
   );
   const deletePerm = userCan("users", "D");
   const editPerm = userCan("users", "U");
+  // 🔴 `136ded88`: only the condominium's `adm` changes another admin's role,
+  // never to or from `adm`; FOS changes any. The API enforces the same rule.
+  const canChangeRole =
+    type === "admin" && canChangeAdminRole(user, data?.data[0], editPerm);
+  const roleOptions = assignableAdminRoles(rolesData?.data?.roles || [], user);
 
   const canEditThisProfile = () => {
     if (user?.fosrole_id) return true;
     if (type === "admin") {
-      return editPerm && user?.id === data?.data[0]?.id;
+      return editPerm && (user?.id === data?.data[0]?.id || canChangeRole);
     }
 
     return editPerm;
@@ -595,6 +611,9 @@ const ProfileModal = ({
                 reLoad={() => reLoadDet()}
                 reLoadList={reLoad}
                 type={type}
+                canChangeRole={canChangeRole}
+                roleOptions={roleOptions}
+                currentRoleId={data?.data[0]?.role?.[0]?.id}
               />
             )}
           </>
