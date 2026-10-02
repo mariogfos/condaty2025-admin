@@ -58,6 +58,7 @@ const paramsInitial = {
 
 const Roles = () => {
   const { user } = useAuth();
+  const isPlatform = Number(user?.fosrole_id) > 0;
 
   const renderPermisos = ({
     field,
@@ -92,14 +93,23 @@ const Roles = () => {
         form: { type: "text", label: "Nombre del rol", order: 10 },
         hide: true,
       },
-      code: {
-        rules: ["required"],
-        api: "ae",
-        label: "Código",
-        list: { width: "250" },
-        form: { type: "text", label: "Código del rol", order: 20 },
-        hide: true,
-      },
+      // 🔴 `code` is authority, not a label: `adm` is the main administrator
+      // and `dir` approves budgets. Only FOS sets or changes it (Mario,
+      // 2026-10-02); the API rejects it from anyone else
+      // (`RoleWriteRequest::withValidator()`). Without the field, the form
+      // does not send it and a condominium's own roles are born without one.
+      ...(isPlatform
+        ? {
+            code: {
+              rules: ["required"],
+              api: "ae",
+              label: "Código",
+              list: { width: "250" },
+              form: { type: "text", label: "Código del rol", order: 20 },
+              hide: true,
+            },
+          }
+        : {}),
       description: {
         rules: [""],
         api: "ae",
@@ -141,7 +151,7 @@ const Roles = () => {
         onRenderView: renderPermisos,
       },
     };
-  }, []);
+  }, [isPlatform]);
 
   const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
     {

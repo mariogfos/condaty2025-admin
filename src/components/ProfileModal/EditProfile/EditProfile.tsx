@@ -6,6 +6,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import useAxios from "@/mk/hooks/useAxios";
 import UploadFileProfile from "@/mk/components/forms/UploadFileProfile/UploadFileProfile";
+import Select from "@/mk/components/forms/Select/Select";
 
 const EditProfile = ({
   open,
@@ -20,12 +21,27 @@ const EditProfile = ({
   reLoad,
   reLoadList,
   type,
+  canChangeRole = false,
+  roleOptions = [],
+  currentRoleId,
 }: any) => {
   const { showToast, user } = useAuth();
   const { execute } = useAxios();
+  // The condominium's `adm` changing ANOTHER admin edits only the role: their
+  // personal data is theirs (or FOS's). FOS edits both.
+  const roleOnly =
+    type === "admin" &&
+    canChangeRole &&
+    !user?.fosrole_id &&
+    String(user?.id) !== String(formState.id);
 
   const validate = () => {
     let errs: any = {};
+    if (roleOnly) {
+      if (!formState.role_id) errs.role_id = "Selecciona un rol.";
+      setErrors(errs);
+      return errs;
+    }
     errs = checkRules({
       value: formState.name,
       rules: ["required", "alpha"],
@@ -73,7 +89,7 @@ const EditProfile = ({
 
   const onSave = async () => {
     if (hasErrors(validate())) return;
-    const newUser = {
+    const profileChanges = {
       ci: formState.ci,
       name: formState.name,
       middle_name: formState.middle_name,
@@ -90,7 +106,13 @@ const EditProfile = ({
         ? { password: formState.password.trim() }
         : {}),
       url_avatar: formState.url_avatar,
+      ...(canChangeRole && String(formState.role_id) !== String(currentRoleId)
+        ? { role_id: formState.role_id }
+        : {}),
     };
+    // 🔴 Only `role_id`: the API writes `url_avatar` only if it comes, and the
+    // personal data of another admin is not this screen's to resend.
+    const newUser = roleOnly ? { role_id: formState.role_id } : profileChanges;
     const { data, error: err } = await execute(
       url + "/" + formState.id,
       "PUT",
@@ -114,7 +136,7 @@ const EditProfile = ({
   };
   return (
     <DetailModal
-      title="Información personal"
+      title={roleOnly ? "Cambiar rol" : "Información personal"}
       open={open}
       onClose={onClose}
       buttonText="Guardar cambios"
@@ -126,18 +148,24 @@ const EditProfile = ({
     >
       <div className={styles.EditProfile}>
         <p className={styles.subtitle}>
-          Ingresa los datos personales del usuario.
+          {roleOnly
+            ? "Selecciona el nuevo rol de este administrador."
+            : "Ingresa los datos personales del usuario."}
         </p>
-        <section className={styles.avatarSection}>
-          <UploadFileProfile
-            name={"url_avatar"}
-            formState={formState}
-            setFormState={setFormState}
-            user={user}
-          />
-        </section>
+        {!roleOnly && (
+          <section className={styles.avatarSection}>
+            <UploadFileProfile
+              name={"url_avatar"}
+              formState={formState}
+              setFormState={setFormState}
+              user={user}
+            />
+          </section>
+        )}
         <section className={styles.fieldsSection}>
           <div className={styles.formGrid}>
+            {!roleOnly && (
+              <>
             <Input
               label="Carnet de identidad"
               name="ci"
@@ -220,6 +248,22 @@ const EditProfile = ({
                   required={false}
                   type="text"
                   value={formState.address}
+                  onChange={onChange}
+                  error={errors}
+                />
+              </div>
+            )}
+              </>
+            )}
+            {type === "admin" && canChangeRole && (
+              <div className={styles.fullWidth}>
+                <Select
+                  label="Rol del condominio"
+                  name="role_id"
+                  value={formState.role_id}
+                  options={roleOptions}
+                  optionLabel="name"
+                  optionValue="id"
                   onChange={onChange}
                   error={errors}
                 />
