@@ -4,7 +4,7 @@ import { useState, useContext, useMemo, useRef, useEffect } from "react";
 import { AxiosContext } from "../contexts/AxiosInstanceProvider";
 import { logError } from "../utils/logs";
 
-export type MethodType = "GET" | "POST" | "PUT" | "DELETE";
+export type MethodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export type UseAxiosType = {
   countAxios: number;
