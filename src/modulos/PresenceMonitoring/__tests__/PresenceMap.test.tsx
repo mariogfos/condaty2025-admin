@@ -48,6 +48,28 @@ const connection = {
 } as PresenceConnection;
 
 describe("PresenceMap", () => {
+  it("muestra la última señal en la zona del condominio de la conexión", () => {
+    render(
+      <PresenceMap
+        connections={[connection]}
+        selected={{ ...connection, scope_time_zone: "Asia/Tokyo" }}
+        focusCoordinates={null}
+        places={[]}
+        scopes={[]}
+        onSelect={vi.fn()}
+        onCreatePlace={vi.fn()}
+        onUpdatePlace={vi.fn()}
+        onDeletePlace={vi.fn()}
+        onOpenHistory={vi.fn()}
+      />,
+    );
+
+    const lastSignal = screen.getByText("Última señal").nextElementSibling;
+    // 12:00 UTC: las 9 de la noche en Tokio, las 8 de la mañana en La Paz.
+    expect(lastSignal?.textContent).toMatch(/09:00\s*p/);
+    expect(lastSignal?.textContent).not.toContain("08:00");
+  });
+
   it("oculta solo el detalle de la conexión y conserva el mapa y sus controles", () => {
     const props = {
       connections: [connection],

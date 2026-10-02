@@ -369,7 +369,7 @@ export default function PresenceMonitoring() {
 
         <div className={styles.activitySummary}>
           <span>{overview?.pagination.total || 0} dispositivos</span>
-          <span><i aria-hidden="true" /> {overview ? relativeTime(overview.generated_at) : "Actualizando"}</span>
+          <span><i aria-hidden="true" /> {overview ? relativeTime(overview.generated_at, overview.time_zone) : "Actualizando"}</span>
         </div>
 
         <div className={styles.connectionList}>
@@ -409,6 +409,7 @@ export default function PresenceMonitoring() {
       {panelsHidden ? null : (
         <Timeline
           points={overview?.timeline || []}
+          timeZone={overview?.time_zone}
           range={range}
           onRangeChange={setRange}
         />
@@ -440,8 +441,8 @@ export default function PresenceMonitoring() {
               {sessionHistory.map((session) => (
                 <article key={session.id}>
                   <div>
-                    <strong>{formatDateTime(session.started_at)}</strong>
-                    <span>{session.ended_at ? formatDateTime(session.ended_at) : "Sesión abierta"}</span>
+                    <strong>{formatDateTime(session.started_at, session.scope_time_zone)}</strong>
+                    <span>{session.ended_at ? formatDateTime(session.ended_at, session.scope_time_zone) : "Sesión abierta"}</span>
                   </div>
                   <dl>
                     <div><dt>Tiempo activo</dt><dd>{formatDuration(session.active_seconds)}</dd></div>
@@ -482,7 +483,7 @@ function ConnectionRow({
       <span className={styles.connectionContent}>
         <span className={styles.connectionHeadline}>
           <strong>{connection.name}</strong>
-          <small>{relativeTime(connection.last_seen_at)}</small>
+          <small>{relativeTime(connection.last_seen_at, connection.scope_time_zone)}</small>
         </span>
         <span className={styles.connectionMeta}>
           <ProductBadge product={connection.product} compact />
@@ -535,10 +536,12 @@ function MetricCard({
 
 function Timeline({
   points,
+  timeZone,
   range,
   onRangeChange,
 }: {
   points: PresenceOverview["timeline"];
+  timeZone?: string;
   range: "hours" | "days";
   onRangeChange: (range: "hours" | "days") => void;
 }) {
@@ -564,13 +567,13 @@ function Timeline({
         {points.map((point) => {
           const total = point.admin + point.resident + point.guard;
           return (
-            <div className={styles.timelineColumn} key={point.at} title={`${timelineLabel(point.at, range)} · ${total} conexiones`}>
+            <div className={styles.timelineColumn} key={point.at} title={`${timelineLabel(point.at, range, timeZone)} · ${total} conexiones`}>
               <div className={styles.timelineBar} style={{ height: `${Math.max(8, (total / max) * 100)}%` }}>
                 <span className={styles.barAdmin} style={{ flex: point.admin }} />
                 <span className={styles.barResident} style={{ flex: point.resident }} />
                 <span className={styles.barGuard} style={{ flex: point.guard }} />
               </div>
-              <small>{timelineLabel(point.at, range)}</small>
+              <small>{timelineLabel(point.at, range, timeZone)}</small>
             </div>
           );
         })}
@@ -587,7 +590,10 @@ function ConnectionSkeleton() {
   );
 }
 
-function relativeTime(value: string) {
+// 🔴 La zona la dice el API (la del condominio, o la de la plataforma para la
+// línea de tiempo), nunca un literal: es la regla del proyecto, y el admin la
+// tenía escrita a mano en cinco lugares de este módulo.
+function relativeTime(value: string, timeZone?: string) {
   const seconds = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 1000));
   if (seconds < 15) return "Ahora";
   if (seconds < 60) return `Hace ${seconds} s`;
@@ -597,7 +603,7 @@ function relativeTime(value: string) {
   if (hours < 24) return `Hace ${hours} h`;
   const days = Math.floor(hours / 24);
   if (days < 30) return `Hace ${days} d`;
-  return new Intl.DateTimeFormat("es-BO", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/La_Paz" }).format(new Date(value)).replaceAll(".", "");
+  return new Intl.DateTimeFormat("es-BO", { day: "2-digit", month: "short", year: "numeric", timeZone }).format(new Date(value)).replaceAll(".", "");
 }
 
 function stateClass(state: PresenceConnection["state"]) {
@@ -606,24 +612,24 @@ function stateClass(state: PresenceConnection["state"]) {
   return styles.stateOffline;
 }
 
-function timelineLabel(value: string, range: "hours" | "days") {
+function timelineLabel(value: string, range: "hours" | "days", timeZone?: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
   return new Intl.DateTimeFormat("es-BO", range === "hours"
-    ? { hour: "2-digit", hour12: false, timeZone: "America/La_Paz" }
-    : { day: "2-digit", month: "short", timeZone: "America/La_Paz" })
+    ? { hour: "2-digit", hour12: false, timeZone }
+    : { day: "2-digit", month: "short", timeZone })
     .format(date)
     .replace(".", "");
 }
 
-function formatDateTime(value: string) {
+function formatDateTime(value: string, timeZone?: string) {
   return new Intl.DateTimeFormat("es-BO", {
     day: "2-digit",
     month: "short",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "America/La_Paz",
+    timeZone,
   }).format(new Date(value)).replaceAll(".", "");
 }
 

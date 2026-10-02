@@ -46,6 +46,7 @@ const connection = {
 
 const overview: PresenceOverview = {
   generated_at: "2026-09-25T12:00:00Z",
+  time_zone: "America/La_Paz",
   active_window_minutes: 5,
   recent_window_minutes: 15,
   connections: [connection],
@@ -77,6 +78,27 @@ beforeEach(() => {
 });
 
 describe("PresenceMonitoring", () => {
+  // 🔴 Una zona que no es la de Bolivia: con La Paz en el sobre, un rótulo
+  // escrito a mano con "America/La_Paz" coincidiría por azar.
+  it("rotula la línea de tiempo en la zona que dice el API, no en una escrita a mano", async () => {
+    executeMock.mockImplementation(async () => ({
+      data: {
+        success: true,
+        data: {
+          ...overview,
+          time_zone: "Asia/Tokyo",
+          timeline: [{ at: "2026-09-25T12:00:00Z", admin: 1, resident: 0, guard: 0 }],
+        },
+      },
+      error: null,
+    }));
+    render(<PresenceMonitoring />);
+
+    const timeline = await screen.findByRole("region", { name: "Historial agregado de conexiones" });
+    await waitFor(() => expect(timeline.textContent).toContain("21"));
+    expect(timeline.textContent).not.toContain("08");
+  });
+
   it("despeja los paneles sin desmontar ni recentrar el mapa y permite restaurarlos", async () => {
     render(<PresenceMonitoring />);
     await waitFor(() => expect(mapPropsRef.current?.selected?.id).toBe(connection.id));
