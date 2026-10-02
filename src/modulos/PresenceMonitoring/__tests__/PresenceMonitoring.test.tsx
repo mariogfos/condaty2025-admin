@@ -6,6 +6,7 @@ import PresenceMonitoring from "../PresenceMonitoring";
 type MockMapProps = {
   selected: PresenceConnection | null;
   focusCoordinates: Coordinate | null;
+  showConnectionDetail: boolean;
   onSelect: (connection: PresenceConnection | null) => void;
 };
 
@@ -76,6 +77,36 @@ beforeEach(() => {
 });
 
 describe("PresenceMonitoring", () => {
+  it("despeja los paneles sin desmontar ni recentrar el mapa y permite restaurarlos", async () => {
+    render(<PresenceMonitoring />);
+    await waitFor(() => expect(mapPropsRef.current?.selected?.id).toBe(connection.id));
+
+    const map = screen.getByTestId("presence-map");
+    expect(screen.getByRole("heading", { name: "Dispositivos y sesiones" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Resumen de actividad" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Historial agregado de conexiones" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Ocultar paneles del monitoreo" }));
+
+    expect(screen.getByTestId("presence-map")).toBe(map);
+    expect(screen.queryByRole("heading", { name: "Dispositivos y sesiones" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Resumen de actividad" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Historial agregado de conexiones" })).not.toBeInTheDocument();
+    expect(mapPropsRef.current?.showConnectionDetail).toBe(false);
+    expect(mapPropsRef.current?.focusCoordinates).toBeNull();
+    expect(executeMock).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "Mostrar paneles" }));
+
+    expect(screen.getByTestId("presence-map")).toBe(map);
+    expect(screen.getByRole("heading", { name: "Dispositivos y sesiones" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Resumen de actividad" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Historial agregado de conexiones" })).toBeInTheDocument();
+    expect(mapPropsRef.current?.showConnectionDetail).toBe(true);
+    expect(mapPropsRef.current?.focusCoordinates).toBeNull();
+    expect(executeMock).toHaveBeenCalledTimes(1);
+  });
+
   it("solo solicita centrar el mapa al pulsar la card de un usuario", async () => {
     render(<PresenceMonitoring />);
     await waitFor(() => expect(mapPropsRef.current?.selected?.id).toBe(connection.id));
