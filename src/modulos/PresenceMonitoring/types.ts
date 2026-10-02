@@ -11,6 +11,8 @@ export type PresenceConnection = {
   role: string;
   scope_id: string;
   scope_name: string;
+  /** La zona del condominio de esta conexión: las horas se presentan en ésta. */
+  scope_time_zone: string;
   device: string;
   platform: string | null;
   os: string | null;
@@ -75,6 +77,8 @@ export type PresenceStats = {
 
 export type PresenceOverview = {
   generated_at: string;
+  /** La zona en la que el API armó los tramos de `timeline`. */
+  time_zone: string;
   active_window_minutes: number;
   recent_window_minutes: number;
   connections: PresenceConnection[];
@@ -97,6 +101,7 @@ export type PresenceSessionRecord = {
   actor_name: string;
   role: string;
   scope_name: string;
+  scope_time_zone: string;
   started_at: string;
   last_seen_at: string;
   ended_at: string | null;
