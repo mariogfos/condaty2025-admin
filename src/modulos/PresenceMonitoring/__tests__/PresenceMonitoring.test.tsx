@@ -8,6 +8,7 @@ type MockMapProps = {
   focusCoordinates: Coordinate | null;
   showConnectionDetail: boolean;
   onSelect: (connection: PresenceConnection | null) => void;
+  onUpdatePlaceColor: (id: number, color: string) => Promise<void>;
 };
 
 const { executeMock, mapPropsRef, setStoreMock } = vi.hoisted(() => ({
@@ -77,6 +78,24 @@ beforeEach(() => {
 });
 
 describe("PresenceMonitoring", () => {
+  it("guarda el color sin reenviar el perímetro ni recentrar el mapa", async () => {
+    render(<PresenceMonitoring />);
+    await waitFor(() => expect(mapPropsRef.current).not.toBeNull());
+
+    await act(async () => {
+      await mapPropsRef.current?.onUpdatePlaceColor(7, "#a985ff");
+    });
+
+    expect(executeMock).toHaveBeenCalledWith(
+      "/backoffice/presence-monitoring/places/7/color",
+      "PATCH",
+      { color: "#a985ff" },
+      false,
+      true,
+    );
+    expect(mapPropsRef.current?.focusCoordinates).toBeNull();
+  });
+
   it("despeja los paneles sin desmontar ni recentrar el mapa y permite restaurarlos", async () => {
     render(<PresenceMonitoring />);
     await waitFor(() => expect(mapPropsRef.current?.selected?.id).toBe(connection.id));
