@@ -763,11 +763,27 @@
   backdrop-filter: blur(22px);
 }
 
+.activityPanel[hidden],
+.metrics[hidden] {
+  display: none;
+}
+
 .activityHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 17px;
+  gap: 8px;
+}
+
+.activityHeader > div:first-child {
+  min-width: 0;
+}
+
+.activityHeaderActions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
 }
 
 .activityHeader h1 {
@@ -775,6 +791,30 @@
   font-size: 20px;
   line-height: 1.2;
   letter-spacing: -0.035em;
+}
+
+.showPanelsButton {
+  position: absolute;
+  z-index: 45;
+  top: 16px;
+  left: 16px;
+  display: inline-flex;
+  min-height: 44px;
+  padding: 0 14px;
+  gap: 9px;
+  align-items: center;
+  color: var(--presence-text);
+  background: var(--presence-surface);
+  border: 1px solid var(--presence-border-strong);
+  border-radius: 13px;
+  box-shadow: var(--presence-shadow);
+  backdrop-filter: blur(22px);
+  cursor: pointer;
+}
+
+.showPanelsButton:hover {
+  color: var(--presence-brand);
+  background: var(--presence-surface-raised);
 }
 
 .iconButton {
@@ -1644,6 +1684,11 @@ button.notice {
 @media (max-width: 760px) {
   .workspace {
     min-height: 32rem;
+  }
+
+  .showPanelsButton {
+    top: 12px;
+    left: 12px;
   }
 
   .activityPanel {

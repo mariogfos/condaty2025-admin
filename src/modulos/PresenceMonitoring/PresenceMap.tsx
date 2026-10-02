@@ -50,6 +50,7 @@ type Props = {
   onUpdatePlace: (id: number, boundary: Coordinate[]) => Promise<void>;
   onDeletePlace: (id: number) => Promise<void>;
   onOpenHistory: (connection: PresenceConnection) => void;
+  showConnectionDetail?: boolean;
 };
 
 const mapToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim();
@@ -65,6 +66,7 @@ export default function PresenceMap({
   onUpdatePlace,
   onDeletePlace,
   onOpenHistory,
+  showConnectionDetail = true,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -581,7 +583,7 @@ export default function PresenceMap({
         </div>
       ) : null}
 
-      {selected ? (
+      {showConnectionDetail && selected ? (
         <article className={styles.connectionDetail}>
           <header>
             <div>
