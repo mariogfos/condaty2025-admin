@@ -18,6 +18,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import type { Feature, FeatureCollection, LineString, Point, Polygon } from "geojson";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./PresenceMonitoring.module.css";
+import { presenceDateFormat } from "./dateFormat";
 import {
   Coordinate,
   PresenceConnection,
@@ -712,16 +713,15 @@ function capitalize(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-function formatPresenceDate(value: string, timeZone?: string) {
+function formatPresenceDate(value: string, timeZone: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "No identificada";
-  return new Intl.DateTimeFormat("es-BO", {
+  return presenceDateFormat({
     day: "2-digit",
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone,
-  }).format(date).replaceAll(".", "");
+  }, timeZone).format(date).replaceAll(".", "");
 }
 
 function formatDuration(seconds: number) {

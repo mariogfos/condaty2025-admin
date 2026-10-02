@@ -41,6 +41,7 @@ const connection = {
   product: "resident",
   role: "Propietario",
   scope_name: "Condominio A",
+  scope_time_zone: "America/La_Paz",
   device: "iPhone",
   state: "active",
   last_seen_at: "2026-09-25T12:00:00Z",
@@ -92,6 +93,25 @@ describe("PresenceMap", () => {
     expect(screen.getByRole("region", { name: "Mapa de conexiones" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Alternar mapa de calor" })).toBeInTheDocument();
     expect(mapInstance.remove).not.toHaveBeenCalled();
+  });
+
+  it("una zona que el navegador no conoce no tumba el tablero", () => {
+    render(
+      <PresenceMap
+        connections={[connection]}
+        selected={{ ...connection, scope_time_zone: "Marte/Olimpo" }}
+        focusCoordinates={null}
+        places={[]}
+        scopes={[]}
+        onSelect={vi.fn()}
+        onCreatePlace={vi.fn()}
+        onUpdatePlace={vi.fn()}
+        onDeletePlace={vi.fn()}
+        onOpenHistory={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Última señal").nextElementSibling?.textContent).toMatch(/\d{2}:\d{2}/);
   });
 
   it("conserva la cámara al refrescar datos y solo enfoca por una selección explícita", () => {

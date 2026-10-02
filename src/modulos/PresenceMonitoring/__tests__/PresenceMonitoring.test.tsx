@@ -37,6 +37,7 @@ const connection = {
   product: "resident",
   role: "Propietario",
   scope_name: "Condominio A",
+  scope_time_zone: "America/La_Paz",
   device: "iPhone",
   state: "active",
   last_seen_at: "2026-09-25T12:00:00Z",

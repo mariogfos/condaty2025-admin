@@ -21,6 +21,7 @@ import PresenceFilterSelect, {
 } from "./PresenceFilterSelect";
 import PresenceMap from "./PresenceMap";
 import styles from "./PresenceMonitoring.module.css";
+import { presenceDateFormat } from "./dateFormat";
 import {
   Coordinate,
   PresenceConnection,
@@ -593,7 +594,7 @@ function ConnectionSkeleton() {
 // 🔴 La zona la dice el API (la del condominio, o la de la plataforma para la
 // línea de tiempo), nunca un literal: es la regla del proyecto, y el admin la
 // tenía escrita a mano en cinco lugares de este módulo.
-function relativeTime(value: string, timeZone?: string) {
+function relativeTime(value: string, timeZone: string) {
   const seconds = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 1000));
   if (seconds < 15) return "Ahora";
   if (seconds < 60) return `Hace ${seconds} s`;
@@ -603,7 +604,7 @@ function relativeTime(value: string, timeZone?: string) {
   if (hours < 24) return `Hace ${hours} h`;
   const days = Math.floor(hours / 24);
   if (days < 30) return `Hace ${days} d`;
-  return new Intl.DateTimeFormat("es-BO", { day: "2-digit", month: "short", year: "numeric", timeZone }).format(new Date(value)).replaceAll(".", "");
+  return presenceDateFormat({ day: "2-digit", month: "short", year: "numeric" }, timeZone).format(new Date(value)).replaceAll(".", "");
 }
 
 function stateClass(state: PresenceConnection["state"]) {
@@ -615,22 +616,21 @@ function stateClass(state: PresenceConnection["state"]) {
 function timelineLabel(value: string, range: "hours" | "days", timeZone?: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("es-BO", range === "hours"
-    ? { hour: "2-digit", hour12: false, timeZone }
-    : { day: "2-digit", month: "short", timeZone })
+  return presenceDateFormat(range === "hours"
+    ? { hour: "2-digit", hour12: false }
+    : { day: "2-digit", month: "short" }, timeZone)
     .format(date)
     .replace(".", "");
 }
 
-function formatDateTime(value: string, timeZone?: string) {
-  return new Intl.DateTimeFormat("es-BO", {
+function formatDateTime(value: string, timeZone: string) {
+  return presenceDateFormat({
     day: "2-digit",
     month: "short",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone,
-  }).format(new Date(value)).replaceAll(".", "");
+  }, timeZone).format(new Date(value)).replaceAll(".", "");
 }
 
 function formatDuration(seconds: number) {
