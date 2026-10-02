@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import EditProfile from "@/components/ProfileModal/EditProfile/EditProfile";
 import {
   assignableAdminRoles,
+  canAddAdministrators,
   canChangeAdminRole,
 } from "@/components/ProfileModal/adminRolePolicy";
 
@@ -33,6 +34,15 @@ describe("who changes an administrator's role", () => {
     expect(canChangeAdminRole(secondary, { id: "x", role: [operator] }, true)).toBe(false);
     expect(canChangeAdminRole({ id: "g", role: { code: "Adm Gral." } }, { id: "x", role: [operator] }, true)).toBe(false);
     expect(canChangeAdminRole(fos, { id: "peer", role: [administrator] }, false)).toBe(true);
+  });
+
+  it("only FOS or the adm with users:C is offered «Nuevo»", () => {
+    expect(canAddAdministrators(main, true)).toBe(true);
+    expect(canAddAdministrators(main, false)).toBe(false);
+    expect(canAddAdministrators(secondary, true)).toBe(false);
+    expect(canAddAdministrators({ id: "g", role: { code: "Adm Gral." } }, true)).toBe(false);
+    expect(canAddAdministrators(fos, false)).toBe(true);
+    expect(canAddAdministrators(null, true)).toBe(false);
   });
 
   it("only FOS is offered the adm role; `adm` is exact and case-insensitive", () => {

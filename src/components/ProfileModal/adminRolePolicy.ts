@@ -46,6 +46,13 @@ export const canChangeAdminRole = (
   return canUpdateUsers && isMainAdministratorRole(actor.role) && !isMainAdministratorRole(currentRole);
 };
 
+/**
+ * Creating or linking an administrator (Mario, 2026-10-02): FOS, or the
+ * condominium's `adm` with `users:C`. Anyone else with `users:C` no longer can.
+ */
+export const canAddAdministrators = (actor: AdminActor | null | undefined, canCreateUsers: boolean) =>
+  isPlatform(actor) || (canCreateUsers && isMainAdministratorRole(actor?.role));
+
 /** The roles an actor may give: everything for FOS, everything but `adm` for anyone else. */
 export const assignableAdminRoles = <T extends AdminRole>(roles: T[], actor: AdminActor | null | undefined): T[] =>
   roles.filter((role) => isPlatform(actor) || !isMainAdministratorRole(role));

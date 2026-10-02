@@ -16,7 +16,10 @@ import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import Br from "@/components/Detail/Br";
 import { buscarPorCi, buscarPorCorreo } from "./buscarAdministradorExistente";
 import { contadoresPorId } from "@/mk/utils/tarjetasDeContadores";
-import { assignableAdminRoles } from "@/components/ProfileModal/adminRolePolicy";
+import {
+  assignableAdminRoles,
+  canAddAdministrators,
+} from "@/components/ProfileModal/adminRolePolicy";
 
 const paramsInitial = {
   perPage: 20,
@@ -54,7 +57,9 @@ const Users = () => {
     hideActions: {
       edit: true,
       del: true,
-      add: !userCan("users", "C"),
+      // 🔴 Only FOS or the condominium's `adm` creates administrators; the
+      // API rejects anyone else (`UserController::roleChangeVeto()`).
+      add: !canAddAdministrators(user, userCan("users", "C")),
     },
     renderView: (props: {
       open: boolean;
