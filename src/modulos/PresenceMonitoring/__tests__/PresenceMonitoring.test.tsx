@@ -6,6 +6,7 @@ import PresenceMonitoring from "../PresenceMonitoring";
 type MockMapProps = {
   selected: PresenceConnection | null;
   focusCoordinates: Coordinate | null;
+  showConnectionDetail: boolean;
   onSelect: (connection: PresenceConnection | null) => void;
 };
 
@@ -36,6 +37,7 @@ const connection = {
   product: "resident",
   role: "Propietario",
   scope_name: "Condominio A",
+  scope_time_zone: "America/La_Paz",
   device: "iPhone",
   state: "active",
   last_seen_at: "2026-09-25T12:00:00Z",
@@ -45,6 +47,7 @@ const connection = {
 
 const overview: PresenceOverview = {
   generated_at: "2026-09-25T12:00:00Z",
+  time_zone: "America/La_Paz",
   active_window_minutes: 5,
   recent_window_minutes: 15,
   connections: [connection],
@@ -76,6 +79,57 @@ beforeEach(() => {
 });
 
 describe("PresenceMonitoring", () => {
+  // 🔴 Una zona que no es la de Bolivia: con La Paz en el sobre, un rótulo
+  // escrito a mano con "America/La_Paz" coincidiría por azar.
+  it("rotula la línea de tiempo en la zona que dice el API, no en una escrita a mano", async () => {
+    executeMock.mockImplementation(async () => ({
+      data: {
+        success: true,
+        data: {
+          ...overview,
+          time_zone: "Asia/Tokyo",
+          timeline: [{ at: "2026-09-25T12:00:00Z", admin: 1, resident: 0, guard: 0 }],
+        },
+      },
+      error: null,
+    }));
+    render(<PresenceMonitoring />);
+
+    const timeline = await screen.findByRole("region", { name: "Historial agregado de conexiones" });
+    await waitFor(() => expect(timeline.textContent).toContain("21"));
+    expect(timeline.textContent).not.toContain("08");
+  });
+
+  it("despeja los paneles sin desmontar ni recentrar el mapa y permite restaurarlos", async () => {
+    render(<PresenceMonitoring />);
+    await waitFor(() => expect(mapPropsRef.current?.selected?.id).toBe(connection.id));
+
+    const map = screen.getByTestId("presence-map");
+    expect(screen.getByRole("heading", { name: "Dispositivos y sesiones" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Resumen de actividad" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Historial agregado de conexiones" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Ocultar paneles del monitoreo" }));
+
+    expect(screen.getByTestId("presence-map")).toBe(map);
+    expect(screen.queryByRole("heading", { name: "Dispositivos y sesiones" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Resumen de actividad" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Historial agregado de conexiones" })).not.toBeInTheDocument();
+    expect(mapPropsRef.current?.showConnectionDetail).toBe(false);
+    expect(mapPropsRef.current?.focusCoordinates).toBeNull();
+    expect(executeMock).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "Mostrar paneles" }));
+
+    expect(screen.getByTestId("presence-map")).toBe(map);
+    expect(screen.getByRole("heading", { name: "Dispositivos y sesiones" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Resumen de actividad" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Historial agregado de conexiones" })).toBeInTheDocument();
+    expect(mapPropsRef.current?.showConnectionDetail).toBe(true);
+    expect(mapPropsRef.current?.focusCoordinates).toBeNull();
+    expect(executeMock).toHaveBeenCalledTimes(1);
+  });
+
   it("solo solicita centrar el mapa al pulsar la card de un usuario", async () => {
     render(<PresenceMonitoring />);
     await waitFor(() => expect(mapPropsRef.current?.selected?.id).toBe(connection.id));

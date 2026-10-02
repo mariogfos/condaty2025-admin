@@ -3,6 +3,8 @@
 import {
   Building2,
   Clock3,
+  Eye,
+  EyeOff,
   MonitorSmartphone,
   RefreshCw,
   Search,
@@ -19,6 +21,7 @@ import PresenceFilterSelect, {
 } from "./PresenceFilterSelect";
 import PresenceMap from "./PresenceMap";
 import styles from "./PresenceMonitoring.module.css";
+import { presenceDateFormat } from "./dateFormat";
 import {
   Coordinate,
   PresenceConnection,
@@ -119,6 +122,7 @@ export default function PresenceMonitoring() {
   const [historyConnection, setHistoryConnection] = useState<PresenceConnection | null>(null);
   const [sessionHistory, setSessionHistory] = useState<PresenceSessionRecord[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [panelsHidden, setPanelsHidden] = useState(false);
   const canView = Boolean(user?.fosrole_id);
 
   useEffect(() => {
@@ -277,23 +281,45 @@ export default function PresenceMonitoring() {
         onUpdatePlace={updatePlace}
         onDeletePlace={deletePlace}
         onOpenHistory={openHistory}
+        showConnectionDetail={!panelsHidden}
       />
 
-      <aside className={styles.activityPanel}>
+      {panelsHidden ? (
+        <button
+          className={styles.showPanelsButton}
+          type="button"
+          onClick={() => setPanelsHidden(false)}
+        >
+          <Eye size={17} aria-hidden="true" />
+          Mostrar paneles
+        </button>
+      ) : null}
+      <aside className={styles.activityPanel} hidden={panelsHidden}>
         <header className={styles.activityHeader}>
           <div>
             <span className={styles.eyebrow}>Backoffice</span>
             <h1>Dispositivos y sesiones</h1>
           </div>
-          <button
-            className={`${styles.iconButton} ${loading ? styles.spinning : ""}`}
-            type="button"
-            aria-label="Actualizar conexiones"
-            disabled={loading}
-            onClick={() => void loadOverview(range)}
-          >
-            <RefreshCw size={17} />
-          </button>
+          <div className={styles.activityHeaderActions}>
+            <button
+              className={styles.iconButton}
+              type="button"
+              aria-label="Ocultar paneles del monitoreo"
+              title="Ocultar paneles"
+              onClick={() => setPanelsHidden(true)}
+            >
+              <EyeOff size={17} aria-hidden="true" />
+            </button>
+            <button
+              className={`${styles.iconButton} ${loading ? styles.spinning : ""}`}
+              type="button"
+              aria-label="Actualizar conexiones"
+              disabled={loading}
+              onClick={() => void loadOverview(range)}
+            >
+              <RefreshCw size={17} />
+            </button>
+          </div>
         </header>
 
         <div className={styles.searchControl}>
@@ -344,7 +370,7 @@ export default function PresenceMonitoring() {
 
         <div className={styles.activitySummary}>
           <span>{overview?.pagination.total || 0} dispositivos</span>
-          <span><i aria-hidden="true" /> {overview ? relativeTime(overview.generated_at) : "Actualizando"}</span>
+          <span><i aria-hidden="true" /> {overview ? relativeTime(overview.generated_at, overview.time_zone) : "Actualizando"}</span>
         </div>
 
         <div className={styles.connectionList}>
@@ -374,25 +400,28 @@ export default function PresenceMonitoring() {
         ) : null}
       </aside>
 
-      <section className={styles.metrics} aria-label="Resumen de actividad">
+      <section className={styles.metrics} aria-label="Resumen de actividad" hidden={panelsHidden}>
         <MetricCard label="Registrados" value={stats.known_connections} detail="dispositivos" icon={<Smartphone size={17} />} />
         <MetricCard label="En línea" value={stats.active_connections} detail="ahora" icon={<UsersRound size={17} />} accent="resident" />
         <MetricCard label="Recientes" value={stats.recent_connections} detail="últimos 15 min" icon={<Clock3 size={17} />} accent="guard" />
         <MetricCard label="Desconectados" value={stats.offline_connections} detail="sin conexión" icon={<Building2 size={17} />} accent="admin" />
       </section>
 
-      <Timeline
-        points={overview?.timeline || []}
-        range={range}
-        onRangeChange={setRange}
-      />
+      {panelsHidden ? null : (
+        <Timeline
+          points={overview?.timeline || []}
+          timeZone={overview?.time_zone}
+          range={range}
+          onRangeChange={setRange}
+        />
+      )}
 
-      {error ? (
+      {!panelsHidden && error ? (
         <button className={`${styles.notice} ${styles.noticeError}`} type="button" onClick={() => void loadOverview(range)}>
           {error} <strong>Reintentar</strong>
         </button>
       ) : null}
-      {overview?.truncated ? (
+      {!panelsHidden && overview?.truncated ? (
         <div className={styles.notice}>El inventario heredado supera 15.000 tokens; usa los filtros para acotar la consulta.</div>
       ) : null}
 
@@ -413,8 +442,8 @@ export default function PresenceMonitoring() {
               {sessionHistory.map((session) => (
                 <article key={session.id}>
                   <div>
-                    <strong>{formatDateTime(session.started_at)}</strong>
-                    <span>{session.ended_at ? formatDateTime(session.ended_at) : "Sesión abierta"}</span>
+                    <strong>{formatDateTime(session.started_at, session.scope_time_zone)}</strong>
+                    <span>{session.ended_at ? formatDateTime(session.ended_at, session.scope_time_zone) : "Sesión abierta"}</span>
                   </div>
                   <dl>
                     <div><dt>Tiempo activo</dt><dd>{formatDuration(session.active_seconds)}</dd></div>
@@ -455,7 +484,7 @@ function ConnectionRow({
       <span className={styles.connectionContent}>
         <span className={styles.connectionHeadline}>
           <strong>{connection.name}</strong>
-          <small>{relativeTime(connection.last_seen_at)}</small>
+          <small>{relativeTime(connection.last_seen_at, connection.scope_time_zone)}</small>
         </span>
         <span className={styles.connectionMeta}>
           <ProductBadge product={connection.product} compact />
@@ -508,10 +537,12 @@ function MetricCard({
 
 function Timeline({
   points,
+  timeZone,
   range,
   onRangeChange,
 }: {
   points: PresenceOverview["timeline"];
+  timeZone?: string;
   range: "hours" | "days";
   onRangeChange: (range: "hours" | "days") => void;
 }) {
@@ -537,13 +568,13 @@ function Timeline({
         {points.map((point) => {
           const total = point.admin + point.resident + point.guard;
           return (
-            <div className={styles.timelineColumn} key={point.at} title={`${timelineLabel(point.at, range)} · ${total} conexiones`}>
+            <div className={styles.timelineColumn} key={point.at} title={`${timelineLabel(point.at, range, timeZone)} · ${total} conexiones`}>
               <div className={styles.timelineBar} style={{ height: `${Math.max(8, (total / max) * 100)}%` }}>
                 <span className={styles.barAdmin} style={{ flex: point.admin }} />
                 <span className={styles.barResident} style={{ flex: point.resident }} />
                 <span className={styles.barGuard} style={{ flex: point.guard }} />
               </div>
-              <small>{timelineLabel(point.at, range)}</small>
+              <small>{timelineLabel(point.at, range, timeZone)}</small>
             </div>
           );
         })}
@@ -560,7 +591,10 @@ function ConnectionSkeleton() {
   );
 }
 
-function relativeTime(value: string) {
+// 🔴 La zona la dice el API (la del condominio, o la de la plataforma para la
+// línea de tiempo), nunca un literal: es la regla del proyecto, y el admin la
+// tenía escrita a mano en cinco lugares de este módulo.
+function relativeTime(value: string, timeZone: string) {
   const seconds = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 1000));
   if (seconds < 15) return "Ahora";
   if (seconds < 60) return `Hace ${seconds} s`;
@@ -570,7 +604,7 @@ function relativeTime(value: string) {
   if (hours < 24) return `Hace ${hours} h`;
   const days = Math.floor(hours / 24);
   if (days < 30) return `Hace ${days} d`;
-  return new Intl.DateTimeFormat("es-BO", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/La_Paz" }).format(new Date(value)).replaceAll(".", "");
+  return presenceDateFormat({ day: "2-digit", month: "short", year: "numeric" }, timeZone).format(new Date(value)).replaceAll(".", "");
 }
 
 function stateClass(state: PresenceConnection["state"]) {
@@ -579,25 +613,24 @@ function stateClass(state: PresenceConnection["state"]) {
   return styles.stateOffline;
 }
 
-function timelineLabel(value: string, range: "hours" | "days") {
+function timelineLabel(value: string, range: "hours" | "days", timeZone?: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("es-BO", range === "hours"
-    ? { hour: "2-digit", hour12: false, timeZone: "America/La_Paz" }
-    : { day: "2-digit", month: "short", timeZone: "America/La_Paz" })
+  return presenceDateFormat(range === "hours"
+    ? { hour: "2-digit", hour12: false }
+    : { day: "2-digit", month: "short" }, timeZone)
     .format(date)
     .replace(".", "");
 }
 
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat("es-BO", {
+function formatDateTime(value: string, timeZone: string) {
+  return presenceDateFormat({
     day: "2-digit",
     month: "short",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "America/La_Paz",
-  }).format(new Date(value)).replaceAll(".", "");
+  }, timeZone).format(new Date(value)).replaceAll(".", "");
 }
 
 function formatDuration(seconds: number) {

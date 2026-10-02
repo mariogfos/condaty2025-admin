@@ -18,6 +18,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import type { Feature, FeatureCollection, LineString, Point, Polygon } from "geojson";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./PresenceMonitoring.module.css";
+import { presenceDateFormat } from "./dateFormat";
 import {
   Coordinate,
   PresenceConnection,
@@ -50,6 +51,7 @@ type Props = {
   onUpdatePlace: (id: number, boundary: Coordinate[]) => Promise<void>;
   onDeletePlace: (id: number) => Promise<void>;
   onOpenHistory: (connection: PresenceConnection) => void;
+  showConnectionDetail?: boolean;
 };
 
 const mapToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim();
@@ -65,6 +67,7 @@ export default function PresenceMap({
   onUpdatePlace,
   onDeletePlace,
   onOpenHistory,
+  showConnectionDetail = true,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -581,7 +584,7 @@ export default function PresenceMap({
         </div>
       ) : null}
 
-      {selected ? (
+      {showConnectionDetail && selected ? (
         <article className={styles.connectionDetail}>
           <header>
             <div>
@@ -598,7 +601,7 @@ export default function PresenceMap({
             <div><dt>Dispositivo</dt><dd>{selected.device}</dd></div>
             <div><dt>Sistema</dt><dd>{selected.os || "No identificado"}</dd></div>
             <div><dt>Versión</dt><dd>{selected.app_version ? `${selected.app_version}${selected.app_build ? ` (${selected.app_build})` : ""}` : "No identificada"}</dd></div>
-            <div><dt>Última señal</dt><dd>{formatPresenceDate(selected.last_seen_at)}</dd></div>
+            <div><dt>Última señal</dt><dd>{formatPresenceDate(selected.last_seen_at, selected.scope_time_zone)}</dd></div>
             <div><dt>Tiempo activo</dt><dd>{selected.active_seconds == null ? "Disponible desde la actualización" : formatDuration(selected.active_seconds)}</dd></div>
           </dl>
           <footer>
@@ -710,16 +713,15 @@ function capitalize(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-function formatPresenceDate(value: string) {
+function formatPresenceDate(value: string, timeZone: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "No identificada";
-  return new Intl.DateTimeFormat("es-BO", {
+  return presenceDateFormat({
     day: "2-digit",
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "America/La_Paz",
-  }).format(date).replaceAll(".", "");
+  }, timeZone).format(date).replaceAll(".", "");
 }
 
 function formatDuration(seconds: number) {
