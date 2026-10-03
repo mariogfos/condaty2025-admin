@@ -236,12 +236,11 @@ const createFormState = (client_config: Record<string, any>) => ({
     Number(client_config?.has_tasks_visible) === 1 ||
     client_config?.has_tasks_visible === true ||
     client_config?.has_tasks_visible === "Y",
-  bookingRequiresPayment:
-    client_config?.payment_time_limit !== null &&
-    client_config?.payment_time_limit !== undefined &&
-    client_config?.payment_time_limit !== "" &&
-    Number(client_config?.payment_time_limit) !== 0,
-  payment_time_limit: client_config?.payment_time_limit || null,
+  bookingRequiresPayment: Number(client_config?.payment_time_limit) > 0,
+  payment_time_limit:
+    Number(client_config?.payment_time_limit) > 0
+      ? client_config.payment_time_limit
+      : null,
   savedPaymentTimeLimit:
     client_config?.payment_time_limit &&
     client_config?.payment_time_limit !== "" &&
@@ -472,11 +471,15 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
     const value = e.target.value;
 
     if (value) {
-      if (Number(value) > 400) {
+      if (!/^[1-9]\d*$/.test(value) || Number(value) > 400) {
         setErrors({
           ...errors,
-          payment_time_limit: "El tiempo máximo es 400 horas",
+          payment_time_limit: "Indica un número entero de 1 a 400 horas",
         });
+        setFormState((prev: any) => ({
+          ...prev,
+          payment_time_limit: value,
+        }));
       } else {
         const nextErrors = { ...errors };
         delete nextErrors.payment_time_limit;
@@ -589,6 +592,11 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
         errors: nextErrors,
         data: formState,
       });
+      if (!Number.isInteger(Number(formState.payment_time_limit)) ||
+          Number(formState.payment_time_limit) < 1 ||
+          Number(formState.payment_time_limit) > 400) {
+        nextErrors.payment_time_limit = "Indica un número entero de 1 a 400 horas";
+      }
     }
 
     if (formState?.has_financial_debt && formState?.has_financial_data) {
