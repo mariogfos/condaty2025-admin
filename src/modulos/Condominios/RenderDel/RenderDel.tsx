@@ -19,9 +19,11 @@ const RenderDel = memo(
 
     const handleSave = useCallback(async () => {
       try {
-        const { data: response } = await execute(`/v3/delete-client`, "POST", {
+        const { data, error } = await execute(`/v3/delete-client`, "POST", {
           client_id: item?.id,
         });
+        // A refusal comes with a 4xx (403/422), so its envelope is in `error.data`.
+        const response = data ?? error?.data;
 
         if (response?.success) {
           onClose();
