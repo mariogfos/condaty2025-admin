@@ -1,5 +1,6 @@
-// `type` and `privacy` are numeric enums in the API; the Select hands them over
-// as strings, an item loaded from the list as numbers. Both are the same intent.
+// `type` and `privacy` are numeric enums in the API. The Select hands them over
+// as strings; any other source (an intent stored before this shape, a Select
+// that keeps numbers) can carry numbers. Both are the same intent.
 export type CreationPayload = { name: string; type: string | number; privacy: string | number };
 export type CreationIntent = { request_id: string; payload: CreationPayload };
 

@@ -4,8 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import RenderForm from "../RenderForm/RenderForm";
 import { clearCreationIntent, loadCreationIntent, saveCreationIntent } from "../RenderForm/creationIntent";
 
-const { toast, modal } = vi.hoisted(() => ({ toast: vi.fn(), modal: { props: null as any } }));
-vi.mock("@/mk/contexts/AuthProvider", () => ({ useAuth: () => ({ user: { id: "qa-actor" }, showToast: toast }) }));
+const { toast, modal, auth } = vi.hoisted(() => ({ toast: vi.fn(), modal: { props: null as any }, auth: { user: { id: "qa-actor" } as any } }));
+vi.mock("@/mk/contexts/AuthProvider", () => ({ useAuth: () => ({ user: auth.user, showToast: toast }) }));
 vi.mock("@/mk/components/ui/DataModalV2/DataModalV2", () => ({ default: (props: any) => {
   modal.props = props;
   return <div>{props.children}<button disabled={props.disabled} onClick={props.onSave}>{props.buttonText}</button>
@@ -26,7 +26,7 @@ function form(execute: any, item: any = payload) {
   return { ...render(<RenderForm {...props} />), props };
 }
 
-beforeEach(() => { sessionStorage.clear(); vi.clearAllMocks(); vi.spyOn(navigator, "onLine", "get").mockReturnValue(true); });
+beforeEach(() => { sessionStorage.clear(); vi.clearAllMocks(); auth.user = { id: "qa-actor" }; vi.spyOn(navigator, "onLine", "get").mockReturnValue(true); });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe("Condominium creation protection", () => {
@@ -113,14 +113,45 @@ describe("Condominium creation protection", () => {
     expect(execute.mock.calls[0][2].request_id).not.toEqual(execute.mock.calls[1][2].request_id);
   });
 
-  it("drops the intent on a 409: the API already said it cannot be replayed", async () => {
-    const execute = vi.fn().mockResolvedValue({ data: null, error: { status: 409, data: { success: false, message: "Este intento corresponde a un condominio eliminado." } } });
-    form(execute);
+  // A 409 means the intent's condominium already exists (or was deleted): the
+  // form closes and the list reloads. Re-enabling it would let the next click
+  // create a duplicate with a new request_id. Also with a malformed body.
+  it.each([
+    [{ success: false, message: "No se puede reutilizar el intento con otros datos." }, "No se puede reutilizar el intento con otros datos."],
+    [{}, "Este condominio ya se había creado."],
+  ])("closes, reloads and drops the intent on a 409 (%j)", async (body, message) => {
+    const execute = vi.fn().mockResolvedValue({ data: null, error: { status: 409, data: body } });
+    const { props } = form(execute);
     fireEvent.click(screen.getByText("Guardar"));
-    await waitFor(() => expect(toast).toHaveBeenCalledWith("Este intento corresponde a un condominio eliminado.", "error"));
+    await waitFor(() => expect(toast).toHaveBeenCalledWith(message, "error"));
     expect(loadCreationIntent("qa-actor")).toBeNull();
-    expect(screen.queryByText("Reintentar y verificar")).toBeNull();
+    expect(props.onClose).toHaveBeenCalledTimes(1);
+    expect(props.reLoad).toHaveBeenCalledTimes(1);
+    expect(execute).toHaveBeenCalledTimes(1);
+  });
+
+  // Without this a deterministic 5xx keeps the tab on "Reintentar y verificar".
+  it("cancelling a pending intent discards it and reloads the list", async () => {
+    const execute = vi.fn().mockResolvedValue({ data: null, error: { status: 500, data: {} } });
+    const first = form(execute);
+    fireEvent.click(screen.getByText("Guardar"));
+    await screen.findByText("Reintentar y verificar");
+    fireEvent.click(screen.getByText("Cerrar"));
+    expect(loadCreationIntent("qa-actor")).toBeNull();
+    expect(first.props.reLoad).toHaveBeenCalledTimes(1);
+    expect(first.props.onClose).toHaveBeenCalledTimes(1);
+    first.unmount();
+    form(execute, {});
+    expect(screen.getByText("Guardar")).toBeInTheDocument();
     expect(screen.getByLabelText("Nombre del condominio")).not.toBeDisabled();
+  });
+
+  it("stores no intent when there is no user id", async () => {
+    auth.user = null;
+    form(vi.fn().mockResolvedValue({ data: null, error: { status: 500, data: {} } }));
+    fireEvent.click(screen.getByText("Guardar"));
+    await screen.findByText("Reintentar y verificar");
+    expect(sessionStorage.length).toBe(0);
   });
 
   it("restores an intent whose enums were stored as numbers", () => {

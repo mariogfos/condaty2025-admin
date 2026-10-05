@@ -19,8 +19,11 @@ const RenderForm = ({
   reLoad,
 }: any) => {
   const { showToast, user } = useAuth();
-  const actor = String(user?.id || "anonymous");
-  const [restored] = useState(() => item?.id ? null : loadCreationIntent(actor));
+  // Without a user id there is no actor to key the intent by: no intent is
+  // stored or restored (a shared "anonymous" key could hand one admin's
+  // pending intent to another).
+  const actor = user?.id ? String(user.id) : null;
+  const [restored] = useState(() => (item?.id || !actor ? null : loadCreationIntent(actor)));
   const [formState, setFormState] = useState({ ...item, ...restored?.payload });
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
@@ -65,6 +68,25 @@ const RenderForm = ({
     setErrors(errors);
     return errors;
   };
+  const dropIntent = () => {
+    if (actor && intent.current) clearCreationIntent(actor, intent.current.request_id);
+    intent.current = null;
+    setUncertain(false);
+  };
+
+  // With a pending intent, cancelling DISCARDS it: otherwise a deterministic 5xx
+  // keeps the form on "Reintentar y verificar" for the whole tab session. The
+  // list reloads, because the condominium may have been created after all.
+  const cancel = () => {
+    if (inFlight.current) return;
+    if (uncertain) {
+      dropIntent();
+      reLoad();
+      showToast("Se descartó el intento pendiente. Si el condominio se llegó a crear, aparece en la lista.", "info");
+    }
+    onClose();
+  };
+
   const _onSave = async () => {
     if (inFlight.current) return;
     if (hasErrors(validate())) return;
@@ -84,7 +106,7 @@ const RenderForm = ({
       };
       if (creating && !intent.current) {
         intent.current = { request_id: crypto.randomUUID(), payload };
-        saveCreationIntent(actor, intent.current);
+        if (actor) saveCreationIntent(actor, intent.current);
       }
       const { data, error } = await execute(
         "/v3/clients" + (creating ? "" : "/" + formState.id),
@@ -92,24 +114,28 @@ const RenderForm = ({
         creating ? { ...intent.current!.payload, request_id: intent.current!.request_id } : payload,
       );
       if (data?.success) {
-        if (creating) clearCreationIntent(actor, intent.current!.request_id);
+        if (creating) dropIntent();
         onClose();
         reLoad();
         showToast(data.message || "Condominio guardado.", "success");
         return;
       }
-      // A timeout/5xx may occur AFTER commit. Keep the same token and immutable payload.
-      // A 409 is NOT unknown: the API already answered that this intent cannot be
-      // replayed (its condominium was deleted, or the stored payload differs).
-      // Keeping it would leave the form stuck on a retry that always fails.
       const response = data ?? error?.data;
-      const outcomeUnknown = error?.status !== 409 && (response?.success !== false || error?.status >= 500);
-      if (creating && outcomeUnknown) setUncertain(true);
-      if (creating && !outcomeUnknown) {
-        clearCreationIntent(actor, intent.current!.request_id);
-        intent.current = null;
-        setUncertain(false);
+      // A 409 is NOT an unknown outcome: the API answered that this intent's
+      // condominium already exists (saved with other data) or was deleted. To
+      // this form both mean "done": re-enabling it would let the next click
+      // create a DUPLICATE with a fresh request_id. Close and reload the list.
+      if (creating && error?.status === 409) {
+        dropIntent();
+        onClose();
+        reLoad();
+        showToast(response?.message || "Este condominio ya se había creado.", "error");
+        return;
       }
+      // A timeout/5xx may occur AFTER commit. Keep the same token and immutable payload.
+      const outcomeUnknown = response?.success !== false || error?.status >= 500;
+      if (creating && outcomeUnknown) setUncertain(true);
+      if (creating && !outcomeUnknown) dropIntent();
       showToast(response?.message || "No pudimos confirmar el guardado. Reintenta para verificarlo sin duplicar.", "error");
     } catch {
       if (creating && intent.current) setUncertain(true);
@@ -123,14 +149,14 @@ const RenderForm = ({
   return (
     <DataModalV2
       open={open}
-      onClose={() => { if (!inFlight.current) onClose(); }}
+      onClose={cancel}
       icon={<IconDepartment2 />}
       title={formState.id ? "Editar condominio" : "Crear condominio"}
       subtitle="Completa el formulario para crear un nuevo condominio"
       onSave={_onSave}
       disabled={isSaving}
       buttonText={isSaving ? "Guardando…" : uncertain ? "Reintentar y verificar" : "Guardar"}
-      buttonCancel={isSaving ? "" : "Cancelar"}
+      buttonCancel={isSaving ? "" : uncertain ? "Descartar" : "Cancelar"}
       variant={"mini"}
       maxWidth={560}
     >
