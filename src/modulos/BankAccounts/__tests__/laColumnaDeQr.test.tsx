@@ -1,28 +1,25 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import {
-  QR_ACCOUNT_STATE_COLOR,
-  QR_ACCOUNT_STATE_LABEL,
-  qrAccountState,
-} from "@/modulos/QrDinamico/shared";
-import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import fs from "node:fs";
+import path from "node:path";
+import { qrStateColumn } from "../QrStateColumn";
 import { BankAccountStatus } from "../Type/BankType";
 
 /**
- * La columna del listado, dibujada con las mismas piezas que la pantalla.
+ * The list column, taken from the SAME function the screen spreads into its
+ * `fields` — not a copy built here.
  *
- * ⚠️ Se arma acá en vez de montar `BankAccounts` entero: esa pantalla necesita
- * el CRUD, la sesión y media docena de contextos, y este test mide UNA
- * decisión — qué badge le toca a cada cuenta.
+ * 🔴 The previous version of this file drew its own column with the helpers,
+ * and passed while the screen had no QR column at all (admin#822 never added
+ * it to `fields`; admin#934 left it out). A test that builds the thing it
+ * measures measures nothing.
  */
+const EQUIPO_CONDATY = { fosrole_id: 3 };
+const ADM_DEL_CONDOMINIO = { fosrole_id: null };
+
 const LaColumna = ({ cuenta }: { cuenta: any }) => {
-  const estado = qrAccountState(cuenta);
-  const color = QR_ACCOUNT_STATE_COLOR[estado];
-  return (
-    <StatusBadge color={color.color} backgroundColor={color.bg}>
-      {QR_ACCOUNT_STATE_LABEL[estado]}
-    </StatusBadge>
-  );
+  const column = (qrStateColumn(EQUIPO_CONDATY) as any).qr_dynamic_status;
+  return column.list.onRender({ item: cuenta });
 };
 
 const unaCuenta = (extra: Record<string, unknown> = {}) => ({
@@ -66,5 +63,30 @@ describe("La columna de QR dinámico del listado de cuentas", () => {
   it("una cuenta sin nada de QR se ve deshabilitada", () => {
     render(<LaColumna cuenta={{ alias_holder: "Cuenta vieja" }} />);
     expect(screen.getByText("Deshabilitado")).toBeInTheDocument();
+  });
+});
+
+describe("Quién ve la columna de QR", () => {
+  it("el equipo de Condaty la ve", () => {
+    expect(qrStateColumn(EQUIPO_CONDATY)).toHaveProperty("qr_dynamic_status");
+  });
+
+  /** 🔴 Un ADM de condominio nunca ve la configuración del QR: la API se la niega igual. */
+  it("un ADM de condominio no la ve, ni con fosrole_id en 0", () => {
+    expect(qrStateColumn(ADM_DEL_CONDOMINIO)).toEqual({});
+    expect(qrStateColumn({ fosrole_id: 0 })).toEqual({});
+    expect(qrStateColumn(null)).toEqual({});
+  });
+
+  /**
+   * And the screen actually spreads it into its fields. A source pin, read
+   * without comments (skill rule 173): the docblock above talks about it.
+   */
+  it("la pantalla la agrega a sus fields", () => {
+    const source = fs
+      .readFileSync(path.join(__dirname, "../BankAccounts.tsx"), "utf-8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^\s*\/\/.*$/gm, "");
+    expect(source).toMatch(/\.\.\.qrStateColumn\(user\)/);
   });
 });
