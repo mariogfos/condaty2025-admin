@@ -90,7 +90,7 @@ const HomePage = () => {
     loaded,
     error,
     isStale,
-  } = useAxios("/dashboard", "GET", {
+  } = useAxios("/v3/dashboard", "GET", {
     ...paramsInitial,
   });
 

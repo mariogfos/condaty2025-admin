@@ -659,7 +659,7 @@ const Tasks = () => {
       setLoading(true);
     }
     const { data } = await execute(
-      "/tasks",
+      "/v3/tasks",
       "GET",
       buildTaskQueryParams(sourceFilters, page, TASKS_TABLE_BATCH_SIZE),
       false,
@@ -686,7 +686,7 @@ const Tasks = () => {
   const loadKanban = async (sourceFilters: TaskFilters = filters) => {
     setLoading(true);
     const { data } = await execute(
-      "/tasks",
+      "/v3/tasks",
       "GET",
       buildTaskQueryParams(sourceFilters, 1, 10, { mode: "kanban" }),
       false,
@@ -711,7 +711,7 @@ const Tasks = () => {
     );
 
     const { data } = await execute(
-      "/tasks/kanban",
+      "/v3/tasks/kanban",
       "GET",
       buildTaskQueryParams(sourceFilters, page, 10, { status }),
       false,
@@ -753,7 +753,7 @@ const Tasks = () => {
   const loadCategories = async () => {
     setCategoriesLoading(true);
     const { data } = await execute(
-      "/task-categories",
+      "/v3/task-categories",
       "GET",
       { page: 1, perPage: -1 },
       false,
@@ -854,8 +854,8 @@ const Tasks = () => {
 
     const method = categoryFormState.id ? "PUT" : "POST";
     const endpoint = categoryFormState.id
-      ? `/task-categories/${categoryFormState.id}`
-      : "/task-categories";
+      ? `/v3/task-categories/${categoryFormState.id}`
+      : "/v3/task-categories";
 
     const respuesta = await execute(endpoint, method, payload, false, true);
     setCategorySaving(false);
@@ -883,7 +883,7 @@ const Tasks = () => {
 
     setCategoryDeletingId(category.id);
     const respuesta = await execute(
-      `/task-categories/${category.id}`,
+      `/v3/task-categories/${category.id}`,
       "DELETE",
       {},
       false,
@@ -1024,7 +1024,7 @@ const Tasks = () => {
     setOpenDetail(true);
     setLoadingComments(true);
     const { data } = await execute(
-      `/tasks/${task.id}/comments`,
+      `/v3/tasks/${task.id}/comments`,
       "GET",
       {},
       false,
@@ -1081,7 +1081,7 @@ const Tasks = () => {
       let targetTask = findTaskInState(taskId);
 
       if (!targetTask) {
-        const { data } = await execute(`/tasks/${taskId}`, "GET", {}, false, true);
+        const { data } = await execute(`/v3/tasks/${taskId}`, "GET", {}, false, true);
         const candidates = [data, data?.data, data?.message, data?.data?.message];
 
         for (const candidate of candidates) {
@@ -1110,7 +1110,7 @@ const Tasks = () => {
         ];
 
         for (const params of lookupParams) {
-          const { data } = await execute("/tasks", "GET", params, false, true);
+          const { data } = await execute("/v3/tasks", "GET", params, false, true);
           const rows = getRowsFromResponse(data);
           const found = rows.find((item) => item.id === taskId) || rows[0];
           if (found) {
@@ -1133,7 +1133,7 @@ const Tasks = () => {
     if (!detailTask || !commentText.trim()) return;
     setSendingComment(true);
     const respuesta = await execute(
-      `/tasks/${detailTask.id}/comments`,
+      `/v3/tasks/${detailTask.id}/comments`,
       "POST",
       {
         content: commentText.trim(),
@@ -1156,7 +1156,7 @@ const Tasks = () => {
     setCommentText("");
     setCommentImages([]);
     const { data: commentsData } = await execute(
-      `/tasks/${detailTask.id}/comments`,
+      `/v3/tasks/${detailTask.id}/comments`,
       "GET",
       {},
       false,
@@ -1268,7 +1268,7 @@ const Tasks = () => {
     };
 
     const method = formState.id ? "PUT" : "POST";
-    const url = formState.id ? `/tasks/${formState.id}` : "/tasks";
+    const url = formState.id ? `/v3/tasks/${formState.id}` : "/v3/tasks";
     const respuesta = await execute(url, method, payload, false, true);
     setSaving(false);
 
@@ -1368,7 +1368,7 @@ const Tasks = () => {
       assigned_to_guard_id: task.assigned_to_guard_id || null,
     };
 
-    const respuesta = await execute(`/tasks/${task.id}`, "PUT", payload, false, true);
+    const respuesta = await execute(`/v3/tasks/${task.id}`, "PUT", payload, false, true);
 
     if (salioBien(respuesta)) {
       showToast(elMensajeDeLaRespuesta(respuesta, "Estado actualizado"), "success");

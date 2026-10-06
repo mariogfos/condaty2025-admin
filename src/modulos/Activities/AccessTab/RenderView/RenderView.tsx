@@ -4,6 +4,7 @@ import styles from "./RenderView.module.css";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { Image } from "@/mk/components/ui/Image/Image";
 import useAxios from "@/mk/hooks/useAxios";
+import { accessApi } from "../api";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import {
   IconArrowLeft,
@@ -259,7 +260,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   });
 
   const { data } = useAxios(
-    "/accesses",
+    accessApi.base,
     "GET",
     {
       searchBy: item?.access_id || item?.id,

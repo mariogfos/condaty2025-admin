@@ -26,7 +26,7 @@ const Config = () => {
     data: client_config,
     reLoad,
     execute,
-  } = useAxios("/client-config", "GET", {
+  } = useAxios("/v3/client-configs", "GET", {
     ...paramsInitial,
   });
   const onSave = async (formState: any) => {

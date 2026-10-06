@@ -22,6 +22,7 @@ import {
 } from "./shared/accessDetailUtils";
 import { ACCESS_TYPE_FILTER_OPTIONS } from "./shared/accessEnums";
 import { validateAccessExport } from "./accessExportLimit";
+import { accessApi } from "./api";
 
 interface AccessesTabProps {
   paramsInitial: any;
@@ -99,7 +100,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
     setCerrandoId(item.id);
     try {
       const { data } = await execute(
-        "/accesses/close-without-exit",
+        accessApi.closeWithoutExit,
         "POST",
         { id: item.id },
         false,
@@ -167,7 +168,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
   // Definición del módulo Accesos
   const modAccess: ModCrudType = useMemo(() => {
     return {
-      modulo: "accesses",
+      modulo: accessApi.modulo,
       singular: "Acceso",
       plural: "Accesos",
       filter: true,
@@ -186,7 +187,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         // el reporte no pasaba por acá: armaba su propia query en el back, con
         // diez joins, y por eso perdía 5.792 accesos y duplicaba otros 8.205.
         supportedFormats: ["pdf", "xlsx", "csv"],
-        endpoint: "/accesses",
+        endpoint: accessApi.base,
       },
       extraData: false,
       hideActions: {

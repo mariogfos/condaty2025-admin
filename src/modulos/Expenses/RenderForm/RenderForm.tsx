@@ -59,7 +59,7 @@ const RenderForm = ({
     // de periodos— se sacó. Editar un periodo entero no es una operación: se
     // edita la deuda de UNA unidad, desde el detalle del periodo.
     const { data: response } = await execute(
-      "/debt-groups",
+      "/v3/debt-groups",
       "POST",
       {
         year: formState.year,
