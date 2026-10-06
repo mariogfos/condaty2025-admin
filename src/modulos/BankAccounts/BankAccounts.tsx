@@ -11,11 +11,8 @@ import {
   BANK_ACCOUNT_STATUS_LABELS,
   getAssignmentLabels,
 } from "./Type/BankType";
-import {
-  QR_ACCOUNT_STATE_COLOR,
-  QR_ACCOUNT_STATE_LABEL,
-  qrAccountState,
-} from "@/modulos/QrDinamico/shared";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import { qrStateColumn } from "./QrStateColumn";
 import { bankAccountsApi } from "./api";
 import { getBankAccountsMod } from "./config/bankAccountsMod";
 
@@ -45,6 +42,7 @@ const BankAccounts = () => {
   // `mod.export: false` + `mod.exportAsync: { type: "bank-accounts", ... }`
   // para migrar al flow async PDF (S32 + S41 backend BankAccountsReportType).
   const mod = useMemo(() => getBankAccountsMod(), []);
+  const { user } = useAuth();
   const getOptionsBankEntity = useCallback(
     (extraData: any) => [
       { id: "ALL", name: "Todos" },
@@ -167,8 +165,9 @@ const BankAccounts = () => {
           width: "180px",
         },
       },
+      ...qrStateColumn(user),
     };
-  }, []);
+  }, [user]);
 
   const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
     {
