@@ -57,6 +57,9 @@ vi.mock("@/mk/hooks/useAxios", () => ({
 vi.mock("@/mk/contexts/AuthProvider", () => ({
   useAuth: () => ({
     showToast: vi.fn(),
+    // The toggle is shown only with `areas:U` (2026-10-05); these cases
+    // measure the label, so the role has the letter.
+    userCan: () => true,
   }),
 }));
 

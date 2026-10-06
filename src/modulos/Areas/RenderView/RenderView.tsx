@@ -53,7 +53,7 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
   const { execute } = useAxios();
-  const { showToast } = useAuth();
+  const { showToast, userCan } = useAuth();
   const descriptionRef = useRef(null);
   const [isTruncated, setIsTruncated] = useState(false);
 
@@ -197,7 +197,11 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
               />
               <KeyValue
                 title={"Tipo de reserva"}
-                value={AREA_BOOKING_MODE_LABEL[item?.booking_mode as AreaBookingMode] ?? "—"}
+                value={
+                  AREA_BOOKING_MODE_LABEL[
+                    item?.booking_mode as AreaBookingMode
+                  ] ?? "—"
+                }
               />
 
               <KeyValue
@@ -218,15 +222,23 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
               />
               <KeyValue
                 title={"Restricción por mora"}
-                value={bloqueaConDeuda(item?.penalty_or_debt_restriction) ? "Sí" : "No"}
+                value={
+                  bloqueaConDeuda(item?.penalty_or_debt_restriction)
+                    ? "Sí"
+                    : "No"
+                }
               />
               <KeyValue
                 title={"Aprobación de administración"}
-                value={requiereAprobacion(item?.requires_approval) ? "Sí" : "No"}
+                value={
+                  requiereAprobacion(item?.requires_approval) ? "Sí" : "No"
+                }
               />
               <KeyValue
                 title={"Requiere membresía"}
-                value={requiereMembresia(item?.requires_membership) ? "Sí" : "No"}
+                value={
+                  requiereMembresia(item?.requires_membership) ? "Sí" : "No"
+                }
               />
               {esPorHora(item?.booking_mode) && (
                 <KeyValue
@@ -341,25 +353,29 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
             </div>
           )}
         </Card>
-        <Button
-          variant="secondary"
-          onClick={() =>
-            item?.status === AreaStatus.ACTIVE
-              ? setOpenConfirm(true)
-              : onSaveStatus(AreaStatus.ACTIVE)
-          }
-          style={{
-            width: 150,
-            margin: "0 0 0 auto",
-            marginTop: 12,
-            gap: 10,
-            color: "var(--cWhite)",
-          }}
-        >
-          {item?.status === AreaStatus.ACTIVE
-            ? "Desactivar área"
-            : "Activar área"}
-        </Button>
+        {/* 🔴 `v3/areas/status` is `habilidad:areas,U`; with the page's `R` a
+            role without the letter saw the button and got a 403. */}
+        {userCan("areas", "U") && (
+          <Button
+            variant="secondary"
+            onClick={() =>
+              item?.status === AreaStatus.ACTIVE
+                ? setOpenConfirm(true)
+                : onSaveStatus(AreaStatus.ACTIVE)
+            }
+            style={{
+              width: 150,
+              margin: "0 0 0 auto",
+              marginTop: 12,
+              gap: 10,
+              color: "var(--cWhite)",
+            }}
+          >
+            {item?.status === AreaStatus.ACTIVE
+              ? "Desactivar área"
+              : "Activar área"}
+          </Button>
+        )}
 
         {openConfirm && (
           <DataModal
