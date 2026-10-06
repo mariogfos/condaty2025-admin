@@ -1,0 +1,62 @@
+.dateFields {
+  display: flex;
+  gap: 12px;
+}
+
+.dateFields > * {
+  min-width: 0;
+}
+
+.affectedReservations {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  overflow-x: auto;
+}
+
+.affectedReservationCard,
+.maintenanceCard {
+  min-width: 300px;
+}
+
+.maintenanceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  padding: 4px;
+}
+
+@media (max-width: 640px) {
+  .tabsWrapper > div {
+    min-width: 0;
+  }
+
+  .tabsWrapper > div > button {
+    min-width: 0;
+    padding: 10px 6px;
+    white-space: normal;
+  }
+
+  .dateFields {
+    flex-direction: column;
+  }
+
+  .dateFields > * {
+    width: 100%;
+  }
+
+  .affectedReservationCard {
+    min-width: min(300px, 100%);
+  }
+
+  .maintenanceGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .maintenanceCard {
+    min-width: 0;
+  }
+}

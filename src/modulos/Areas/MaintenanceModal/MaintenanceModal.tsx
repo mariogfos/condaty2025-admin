@@ -15,6 +15,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
 import { ReservationStatus } from "@/modulos/Reservas/Type/ReservaType";
 import { getNow } from "@/mk/utils/date";
+import styles from "./MaintenanceModal.module.css";
 
 interface Props {
   open: boolean;
@@ -178,20 +179,22 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       onClose={_onClose}
       onSave={onSave}
     >
-      <TabsButtons
-        tabs={[
-          {
-            value: "P",
-            text: "Poner en mantenimiento",
-          },
-          {
-            value: "A",
-            text: "Áreas en mantenimiento",
-          },
-        ]}
-        sel={tab}
-        setSel={setTab}
-      />
+      <div className={styles.tabsWrapper}>
+        <TabsButtons
+          tabs={[
+            {
+              value: "P",
+              text: "Poner en mantenimiento",
+            },
+            {
+              value: "A",
+              text: "Áreas en mantenimiento",
+            },
+          ]}
+          sel={tab}
+          setSel={setTab}
+        />
+      </div>
       {tab == "P" && (
         <>
           <TitleSubtitle title="Seleccione el área social que requiere mantenimiento." />
@@ -211,7 +214,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                 title="Defina el período de mantenimiento"
                 subtitle="Importante: Todas las reservas existentes dentro del rango de fechas seleccionado serán canceladas automáticamente."
               />
-              <div style={{ display: "flex", gap: 12 }}>
+              <div className={styles.dateFields}>
                 <Input
                   label="Fecha de inicio"
                   type="datetime-local"
@@ -241,14 +244,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                 title={`Se cancelarán ${reservas.length} reserva(s)`}
                 subtitle="Las siguientes reservas serán canceladas:"
               />
-              <div
-                style={{
-                  overflowX: "auto",
-                  gap: "8px",
-                  marginTop: "8px",
-                  display: "flex",
-                }}
-              >
+              <div className={styles.affectedReservations}>
                 {reservas.map((reserva: any) => (
                   <div
                     key={reserva.id}
@@ -256,9 +252,9 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                       padding: "12px",
                       fontSize: "14px",
                       borderRadius: "8px",
-                      minWidth: "300px",
                       backgroundColor: "var(--cBlackV1)",
                     }}
+                    className={styles.affectedReservationCard}
                   >
                     <div style={{ fontWeight: "bold", color: "var(--cWhite)" }}>
                       {getFullName(reserva?.owner)}
@@ -294,17 +290,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
           {loading ? (
             <SkeletonAdapterComponent type="MaintenanceSkeleton" />
           ) : (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-                gap: "16px",
-                marginTop: "16px",
-                maxHeight: "calc(100vh - 300px)",
-                overflowY: "auto",
-                padding: "4px",
-              }}
-            >
+            <div className={styles.maintenanceGrid}>
               {dataM.map((reserva: any) => (
                 <div
                   key={reserva.id}
@@ -315,10 +301,10 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                     display: "flex",
                     flexDirection: "column",
                     gap: "12px",
-                    minWidth: "300px",
                     position: "relative",
                     overflowWrap: "break-word",
                   }}
+                  className={styles.maintenanceCard}
                 >
                   <IconX
                     onClick={() =>
