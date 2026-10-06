@@ -3,16 +3,36 @@ export enum CategoryType {
   EXPENSE = 2,
 }
 
+/**
+ * Mirrors `App\Modules\Categories\Enums\CategoryStatus`. From 1 since
+ * 2026-10-06: INACTIVE was 0.
+ */
 export enum CategoryStatus {
-  INACTIVE = 0,
   ACTIVE = 1,
   VOID = 2,
+  INACTIVE = 3,
 }
 
+/**
+ * Mirrors `App\Modules\Categories\Enums\CategoryFixed`.
+ *
+ * 🔴 From 1 since 2026-10-06: it was the boolean 0/1, and the `1` that meant
+ * YES now means NO. Ask with {@link isSystemCategory}, never with the truth of
+ * the value. Ships together with the API migration
+ * `2026_10_06_110000_category_status_and_fixed_start_at_one`.
+ */
 export enum CategoryFixed {
-  NO = 0,
-  YES = 1,
+  NO = 1,
+  YES = 2,
 }
+
+/**
+ * A system category (created by provisioning, resolved by the condominium
+ * configuration): not picked, not edited, not deleted. The API rejects the
+ * edit and the delete; this only keeps the screen from offering them.
+ */
+export const isSystemCategory = (item?: { fixed?: unknown } | null): boolean =>
+  Number(item?.fixed) === CategoryFixed.YES;
 
 export const CATEGORY_TYPE_LABELS = {
   [CategoryType.INCOME]: "Ingreso",

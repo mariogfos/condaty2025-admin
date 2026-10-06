@@ -68,7 +68,7 @@ export const getCategoryConfig = (
       label: "Cuenta bancaria",
       form: {
         type: "select",
-        optionsExtra: "bank_accounts",
+        optionsExtra: "bankAccounts",
         placeholder: "Seleccione una cuenta bancaria",
       },
       list: {
