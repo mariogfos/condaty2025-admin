@@ -111,10 +111,13 @@ const RenderView: React.FC<RenderViewProps> = ({
             </div>
           </div>
 
-          {item?.note && (
+          {/* `obs` is what the resident writes when creating the QR. This read
+              `note`, a key the API never sends: 2.862 of the 6.082 invitations
+              of the production copy (2026-09-10) have an `obs` nobody saw. */}
+          {item?.obs && (
             <div className={styles.detailRow}>
               <div className={styles.label}>Nota:</div>
-              <div className={styles.value}>{item.note}</div>
+              <div className={styles.value}>{item.obs}</div>
             </div>
           )}
 
