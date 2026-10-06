@@ -7,7 +7,11 @@ import {
   IconTrash,
   IconSimpleAdd,
 } from "@/components/layout/icons/IconsBiblioteca";
-import { CategoryCardProps, CategoryItem } from "../Type/CategoryType";
+import {
+  CategoryCardProps,
+  CategoryItem,
+  isSystemCategory,
+} from "../Type/CategoryType";
 import { CATEGORIES_NAVIGATION } from "../config/categories.constants";
 
 const CategoryCard = memo(
@@ -99,14 +103,18 @@ const CategoryCard = memo(
               "-/-"}
           </div>
           <div className={styles.categoryActions}>
-            <button
-              className={`${styles.actionButton} ${styles.editButton}`}
-              onClick={handleEditClick}
-              aria-label={`Editar ${item.name}`}
-            >
-              <IconEdit size={24} />
-            </button>
-            {!hasSubcategories && (
+            {/* System categories are not edited nor deleted: the API answers
+                422 to both, so the buttons only led to an error. */}
+            {!isSystemCategory(item) && (
+              <button
+                className={`${styles.actionButton} ${styles.editButton}`}
+                onClick={handleEditClick}
+                aria-label={`Editar ${item.name}`}
+              >
+                <IconEdit size={24} />
+              </button>
+            )}
+            {!hasSubcategories && !isSystemCategory(item) && (
               <button
                 className={`${styles.actionButton} ${styles.deleteButton}`}
                 onClick={handleDeleteClick}
@@ -159,20 +167,24 @@ const CategoryCard = memo(
                           </span>
                         </div>
                         <div className={styles.subcategoryActions}>
-                          <button
-                            className={`${styles.actionButtonSub} ${styles.editButtonSub}`}
-                            onClick={handleSubcatEdit}
-                            aria-label={`Editar subcategoría ${subcat.name}`}
-                          >
-                            <IconEdit size={20} />
-                          </button>
-                          <button
-                            className={`${styles.actionButtonSub} ${styles.deleteButtonSub}`}
-                            onClick={handleSubcatDelete}
-                            aria-label={`Eliminar subcategoría ${subcat.name}`}
-                          >
-                            <IconTrash size={20} />
-                          </button>
+                          {!isSystemCategory(subcat) && (
+                            <>
+                              <button
+                                className={`${styles.actionButtonSub} ${styles.editButtonSub}`}
+                                onClick={handleSubcatEdit}
+                                aria-label={`Editar subcategoría ${subcat.name}`}
+                              >
+                                <IconEdit size={20} />
+                              </button>
+                              <button
+                                className={`${styles.actionButtonSub} ${styles.deleteButtonSub}`}
+                                onClick={handleSubcatDelete}
+                                aria-label={`Eliminar subcategoría ${subcat.name}`}
+                              >
+                                <IconTrash size={20} />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
