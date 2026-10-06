@@ -84,11 +84,56 @@ const extractCoordinatesPair = (value: unknown) => {
   };
 };
 
+/**
+ * What the form SENDS. Pulled out of `onSave` so it can be measured: the
+ * «Garantía (Bs)» input lived in step 2 and its value was never in this
+ * object (rule 211 — a field the screen shows and the payload drops is lost
+ * with a 200).
+ */
+export const buildAreaPayload = (formState: any) => ({
+  images: formState?.images,
+  title: formState?.title,
+  description: formState?.description,
+  latitude: parseCoordinateValue(formState?.latitude),
+  longitude: parseCoordinateValue(formState?.longitude),
+  max_capacity: formState?.max_capacity,
+  status: formState?.status,
+  requires_approval: formState?.requires_approval,
+  requires_membership: formState?.requires_membership,
+  price: formState?.price,
+  // 🔴 The «Garantía (Bs)» input lived in step 2 and its value was never
+  // SENT: the guarantee could not be set from this screen in `dev`
+  // (production sends it — `87439942`, the admin half of the API's
+  // `6c071f84`). A free area carries no guarantee.
+  guarantee_amount:
+    formState?.has_price === "S" ? Number(formState?.guarantee_amount || 0) : 0,
+  max_reservations_per_week: formState?.max_reservations_per_week,
+  min_cancel_hours: formState?.min_cancel_hours,
+  penalty_fee: formState?.penalty_fee,
+  available_days: formState?.available_days,
+  available_hours: formState?.available_hours,
+  usage_rules: formState?.usage_rules,
+  cancellation_policy: formState?.cancellation_policy,
+  approval_response_hours: formState?.approval_response_hours,
+  min_reservation_advance_hours:
+    formState?.min_reservation_advance_hours === ""
+      ? 0
+      : Number(formState?.min_reservation_advance_hours || 0),
+  penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
+  booking_mode: formState?.booking_mode,
+  max_reservations_per_day: formState?.max_reservations_per_day,
+  reservation_duration: parseFloat(formState?.reservation_duration),
+  // `has_price` es un control del formulario, no una columna: "S" =
+  // el area tiene precio = NO es gratis.
+  is_free: formState?.has_price === "S" ? AreaPricing.PAID : AreaPricing.FREE,
+});
+
 const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   const [formState, setFormState]: any = useState({
     ...item,
     coordinates:
-      item?.coordinates || buildCoordinatesValue(item?.latitude, item?.longitude),
+      item?.coordinates ||
+      buildCoordinatesValue(item?.latitude, item?.longitude),
     // 🔴 El formulario ya NO traduce a chars. Acá había
     // `requires_approval === false ? "X" : "A"` y su inverso al guardar: el
     // form tenía su propia representación interna en chars, distinta de la del
@@ -102,10 +147,10 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     has_price: item?.price ? "S" : "N",
     requires_approval: item?.requires_approval ?? AreaApproval.REQUIRED,
     requires_membership: item?.requires_membership ?? AreaMembership.OPEN,
+    guarantee_amount: item?.guarantee_amount ?? 0,
     penalty_or_debt_restriction:
       item?.penalty_or_debt_restriction ?? AreaDebtRestriction.NONE,
-    min_reservation_advance_hours:
-      item?.min_reservation_advance_hours ?? 0,
+    min_reservation_advance_hours: item?.min_reservation_advance_hours ?? 0,
   });
   const { showToast } = useAuth();
   const [level, setLevel] = useState(1);
@@ -254,6 +299,12 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         key: "penalty_fee",
         errors,
       });
+      errors = checkRules({
+        value: formState?.guarantee_amount ?? 0,
+        rules: ["number", "positive", "less:10000"],
+        key: "guarantee_amount",
+        errors,
+      });
     }
     setErrors(errors);
     return errors;
@@ -315,39 +366,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
       // andando "via main routes/api.php (alias)" — no es cierto para ésta.
       "/v3/areas" + (formState.id ? "/" + formState.id : ""),
       method,
-      {
-        // avatar: formState?.avatar,
-        images: formState?.images,
-        title: formState?.title,
-        description: formState?.description,
-        latitude: parseCoordinateValue(formState?.latitude),
-        longitude: parseCoordinateValue(formState?.longitude),
-        max_capacity: formState?.max_capacity,
-        status: formState?.status,
-        requires_approval: formState?.requires_approval,
-        requires_membership: formState?.requires_membership,
-        price: formState?.price,
-        max_reservations_per_week: formState?.max_reservations_per_week,
-        min_cancel_hours: formState?.min_cancel_hours,
-        penalty_fee: formState?.penalty_fee,
-        available_days: formState?.available_days,
-        available_hours: formState?.available_hours,
-        usage_rules: formState?.usage_rules,
-        cancellation_policy: formState?.cancellation_policy,
-        approval_response_hours: formState?.approval_response_hours,
-        min_reservation_advance_hours:
-          formState?.min_reservation_advance_hours === ""
-            ? 0
-            : Number(formState?.min_reservation_advance_hours || 0),
-        penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
-        booking_mode: formState?.booking_mode,
-        max_reservations_per_day: formState?.max_reservations_per_day,
-        reservation_duration: parseFloat(formState?.reservation_duration),
-        // `has_price` es un control del formulario, no una columna: "S" =
-        // el area tiene precio = NO es gratis.
-        is_free:
-          formState?.has_price === "S" ? AreaPricing.PAID : AreaPricing.FREE,
-      },
+      buildAreaPayload(formState),
     );
 
     if (data?.success) {

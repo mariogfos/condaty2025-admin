@@ -18,6 +18,7 @@ import {
   bloqueaConDeuda,
   esPorHora,
   requiereAprobacion,
+  requiereMembresia,
 } from "../../Type/AreaEnums";
 
 /**
@@ -185,12 +186,18 @@ const FourPart = ({ item }: { item: any }) => {
               title={"Estado"}
               value={AREA_STATUS_LABEL[item?.status as AreaStatus] ?? "—"}
               colorValue={
-                item?.status === AreaStatus.ACTIVE ? "var(--cSuccess)" : "var(--cError)"
+                item?.status === AreaStatus.ACTIVE
+                  ? "var(--cSuccess)"
+                  : "var(--cError)"
               }
             />
             <KeyValue
               title={"Tipo de reserva"}
-              value={AREA_BOOKING_MODE_LABEL[item?.booking_mode as AreaBookingMode] ?? "—"}
+              value={
+                AREA_BOOKING_MODE_LABEL[
+                  item?.booking_mode as AreaBookingMode
+                ] ?? "—"
+              }
             />
 
             <KeyValue
@@ -215,7 +222,13 @@ const FourPart = ({ item }: { item: any }) => {
             />
             <KeyValue
               title={"Restricción por mora"}
-              value={bloqueaConDeuda(item?.penalty_or_debt_restriction) ? "Sí" : "No"}
+              value={
+                bloqueaConDeuda(item?.penalty_or_debt_restriction) ? "Sí" : "No"
+              }
+            />
+            <KeyValue
+              title={"Requiere membresía"}
+              value={requiereMembresia(item?.requires_membership) ? "Sí" : "No"}
             />
             <KeyValue
               title={"Aprobación de administración"}

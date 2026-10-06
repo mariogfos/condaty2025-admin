@@ -9,7 +9,11 @@ import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import { AREA_STATUS_LABEL, AreaStatus } from "./Type/AreaEnums";
+import {
+  AREA_STATUS_LABEL,
+  AreaStatus,
+  requiereMembresia,
+} from "./Type/AreaEnums";
 
 const paramsInitial = {
   perPage: 20,
@@ -47,7 +51,7 @@ const statusColor: Record<AreaStatus, { color: string; background: string }> = {
 
 const Areas = () => {
   const [openMaintenance, setOpenMaintenance] = useState(false);
-  const { store, setStore } = useAuth();
+  const { store, setStore, userCan: canUser } = useAuth();
   // S45 (D-38-5 round 2): mod literal migrado a async flow.
   // - export: false → kill legacy IconExport (D-38-5).
   // - exportAsync: { type: "areas", ... } → slot async pineado (S36.5
@@ -248,6 +252,30 @@ const Areas = () => {
         list: false,
         form: { type: "text" },
       },
+      // Production shows which areas are members-only right in the list
+      // (`d4c68ca9`); `dev` had the switch in the form and nothing here.
+      requires_membership: {
+        rules: [],
+        api: "",
+        label: "Membresía",
+        list: {
+          width: "150px",
+          onRender: ({ item }: any) => {
+            const soloSocios = requiereMembresia(item?.requires_membership);
+            return (
+              <StatusBadge
+                backgroundColor={
+                  soloSocios ? "var(--cHoverCompl4)" : "var(--cHoverSuccess)"
+                }
+                color={soloSocios ? "var(--cWarning)" : "var(--cSuccess)"}
+              >
+                {soloSocios ? "Solo miembros" : "Libre"}
+              </StatusBadge>
+            );
+          },
+        },
+        form: false,
+      },
       approval_response_hours: {
         rules: ["required"],
         api: "ae",
@@ -338,7 +366,9 @@ const Areas = () => {
 
           return (
             <StatusBadge
-              backgroundColor={estado ? statusColor[estado]?.background : undefined}
+              backgroundColor={
+                estado ? statusColor[estado]?.background : undefined
+              }
               color={estado ? statusColor[estado]?.color : undefined}
             >
               {status}
@@ -360,7 +390,10 @@ const Areas = () => {
           // quedado en chars. Y `"X"` ni siquiera existe como estado.
           options: () => [
             { id: "ALL", name: "Todos" },
-            { id: AreaStatus.ACTIVE, name: AREA_STATUS_LABEL[AreaStatus.ACTIVE] },
+            {
+              id: AreaStatus.ACTIVE,
+              name: AREA_STATUS_LABEL[AreaStatus.ACTIVE],
+            },
             {
               id: AreaStatus.MAINTENANCE,
               name: AREA_STATUS_LABEL[AreaStatus.MAINTENANCE],
@@ -376,26 +409,32 @@ const Areas = () => {
     [],
   );
 
-  const extraButtons = [
-    <Button
-      variant="secondary"
-      key={"Button"}
-      onClick={() => setOpenMaintenance(true)}
-      style={{
-        height: 44,
-        padding: "12px 16px",
-        fontSize: 15,
-        fontWeight: 600,
-        color: "#878f9a",
-        borderRadius: 12,
-        border: "1px solid #d7fff014",
-        backgroundColor: "#d7fff005",
-        width: "auto",
-      }}
-    >
-      Poner en mantenimiento
-    </Button>,
-  ];
+  // 🔴 Blocking an area is `habilidad:areas,U` in the API
+  // (`reservations/area-blocked`); the button used to open with the page's
+  // `R`, so a role without the letter filled the form and got a 403 on save.
+  // The Calendar screen already asks for `U` (`canBlockAreas`).
+  const extraButtons = !canUser("areas", "U")
+    ? []
+    : [
+        <Button
+          variant="secondary"
+          key={"Button"}
+          onClick={() => setOpenMaintenance(true)}
+          style={{
+            height: 44,
+            padding: "12px 16px",
+            fontSize: 15,
+            fontWeight: 600,
+            color: "#878f9a",
+            borderRadius: 12,
+            border: "1px solid #d7fff014",
+            backgroundColor: "#d7fff005",
+            width: "auto",
+          }}
+        >
+          Poner en mantenimiento
+        </Button>,
+      ];
   const { userCan, List, reLoad, data, extraData } = useCrud({
     paramsInitial,
     mod,
