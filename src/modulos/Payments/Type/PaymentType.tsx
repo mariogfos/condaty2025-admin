@@ -74,15 +74,16 @@ export enum DptoStatus {
 }
 
 /**
- * S_front — ClientStatus numeric enum.
+ * ClientStatus — enum numérico desde 1.
  *
- * Sincronizado con backend `App\Modules\Clients\Enums\ClientStatus` (PHP):
- * - INACTIVE = 0 (legacy 'I') — S135 pineado
+ * Sincronizado con el backend `App\Modules\Clients\Enums\ClientStatus` (PHP):
  * - ACTIVE = 1 (legacy 'A')
+ * - INACTIVE = 2 (legacy 'I') — valía 0 hasta el 2026-10-07, la trampa del
+ *   `0 == ""` del `Select` compartido
  */
 export enum ClientStatus {
-  INACTIVE = 0,
   ACTIVE = 1,
+  INACTIVE = 2,
 }
 
 /**

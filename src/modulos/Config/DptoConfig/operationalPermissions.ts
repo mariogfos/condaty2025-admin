@@ -66,10 +66,13 @@ const legacyOperationalActionFieldNames: Record<OperationalAction, string> = {
  * Se aceptan `true` y `"Y"` porque una respuesta vieja del API todavía puede
  * traerlos, pero el 1 pelado ya no significa "sí".
  */
-const OWNER_PERMISSION_GRANTED = 2;
+export enum OwnerPermissionWithoutResidence {
+  DENIED = 1,
+  GRANTED = 2,
+}
 
 export const isPermisoOtorgado = (value: unknown) =>
-  Number(value) === OWNER_PERMISSION_GRANTED || value === true || value === "Y";
+  Number(value) === OwnerPermissionWithoutResidence.GRANTED || value === true || value === "Y";
 
 /**
  * Los defaults: quien reside puede todo; quien no reside, lo que digan sus

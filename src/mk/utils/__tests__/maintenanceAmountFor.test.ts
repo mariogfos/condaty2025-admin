@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { ClientConfigSwitch } from "@/types/clientConfigEnums";
 import { hasMaintenanceValue, maintenanceAmountFor } from "../utils";
 
 /**
@@ -14,7 +15,8 @@ import { hasMaintenanceValue, maintenanceAmountFor } from "../utils";
  */
 const condominio = (habilitado: boolean) => ({
   client_id: "c-1",
-  clients: [{ id: "c-1", config: { has_maintenance_value: habilitado } }],
+  // Desde el 2026-10-07 el API manda el enum, no un booleano.
+  clients: [{ id: "c-1", config: { has_maintenance_value: habilitado ? ClientConfigSwitch.ENABLED : ClientConfigSwitch.DISABLED } }],
 });
 
 describe("maintenanceAmountFor", () => {
@@ -33,6 +35,22 @@ describe("maintenanceAmountFor", () => {
   it("pregunta lo mismo que decide si la columna se ve", () => {
     expect(hasMaintenanceValue(condominio(false))).toBe(false);
     expect(hasMaintenanceValue(condominio(true))).toBe(true);
+  });
+
+  /**
+   * 🔴🔴 El `1` es APAGADO desde el 2026-10-07. La función devolvía el valor
+   * crudo y las quince pantallas lo usaban como verdad: un condominio con el
+   * mantenimiento apagado lo habría visto en todas. Y un `true` viejo tampoco
+   * es prendido: el API ya no lo manda.
+   */
+  it("el 1 y el booleano viejo son apagado; sólo el 2 es prendido", () => {
+    const con = (valor: unknown) => ({ client_id: "c-1", clients: [{ id: "c-1", config: { has_maintenance_value: valor } }] });
+
+    expect(hasMaintenanceValue(con(1))).toBe(false);
+    expect(hasMaintenanceValue(con(true))).toBe(false);
+    expect(hasMaintenanceValue(con(undefined))).toBe(false);
+    expect(hasMaintenanceValue(con(2))).toBe(true);
+    expect(hasMaintenanceValue(con("2"))).toBe(true);
   });
 
   it("sin dato aporta cero, no NaN", () => {

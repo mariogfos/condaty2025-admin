@@ -105,13 +105,13 @@ const Condominios = () => {
           width: "180px",
           options: () => [
             { id: "ALL", name: "Todos" },
-            // Los ids van como STRING a propósito, y en orden explícito.
+            // Los ids van como STRING, y en orden explícito.
             //
-            // 🔴 `ClientStatus.INACTIVE` vale 0, y `Select` decide qué opción
-            // está seleccionada con `option[optionValue] == value` (`==`, flojo)
-            // contra un "sin selección" que es `""`. En JavaScript `0 == ""` es
-            // `true`, así que con un id numérico la opción "Inactivo" aparecía
-            // seleccionada sola, con el filtro sin aplicar. `"0"` no colisiona.
+            // ⚠️ Hasta el 2026-10-07 `ClientStatus.INACTIVE` valía 0, y `Select`
+            // compara con `==` contra un "sin selección" que es `""`: con un id
+            // numérico, "Inactivo" aparecía seleccionada sola. Hoy vale 2 y no
+            // colisiona; el `String()` se queda porque el API resuelve el filtro
+            // con `ctype_digit()`.
             //
             // El orden es explícito porque `Object.entries` sobre claves
             // numéricas las devuelve en orden ascendente, y eso ponía "Inactivo"

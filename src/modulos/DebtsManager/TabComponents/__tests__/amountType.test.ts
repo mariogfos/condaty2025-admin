@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { ClientConfigSwitch } from "@/types/clientConfigEnums";
 import {
   AMOUNT_TYPE_MAP,
   getAmountTypeText,
@@ -51,7 +52,8 @@ describe("AMOUNT_TYPE_MAP", () => {
 
 const condominio = (habilitado: boolean) => ({
   client_id: "c-1",
-  clients: [{ id: "c-1", config: { has_maintenance_value: habilitado } }],
+  // Desde el 2026-10-07 el API manda el enum, no un booleano.
+  clients: [{ id: "c-1", config: { has_maintenance_value: habilitado ? ClientConfigSwitch.ENABLED : ClientConfigSwitch.DISABLED } }],
 });
 
 /**
