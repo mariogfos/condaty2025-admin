@@ -211,7 +211,7 @@ export default function PresenceMonitoring() {
   };
 
   const mutatePlace = useCallback(async (
-    method: "POST" | "PUT" | "DELETE",
+    method: "POST" | "PUT" | "PATCH" | "DELETE",
     path: string,
     payload: Record<string, unknown> = {},
   ) => {
@@ -237,6 +237,11 @@ export default function PresenceMonitoring() {
   const updatePlace = useCallback(async (id: number, boundary: Coordinate[]) => {
     await mutatePlace("PUT", `/places/${id}`, { boundary });
     showToast("El perímetro se actualizó correctamente.", "success");
+  }, [mutatePlace, showToast]);
+
+  const updatePlaceColor = useCallback(async (id: number, color: string) => {
+    await mutatePlace("PATCH", `/places/${id}/color`, { color });
+    showToast("El color del condominio se actualizó correctamente.", "success");
   }, [mutatePlace, showToast]);
 
   const deletePlace = useCallback(async (id: number) => {
@@ -279,6 +284,7 @@ export default function PresenceMonitoring() {
         onSelect={selectConnection}
         onCreatePlace={createPlace}
         onUpdatePlace={updatePlace}
+        onUpdatePlaceColor={updatePlaceColor}
         onDeletePlace={deletePlace}
         onOpenHistory={openHistory}
         showConnectionDetail={!panelsHidden}
