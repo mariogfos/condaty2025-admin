@@ -14,12 +14,7 @@ import { useEvent } from "@/mk/hooks/useEvents";
 import useNotifInstandDB from "@/mk/components/notif/provider/useNotifInstandDB";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import {
-  IconAlert,
-  IconAmbulance,
-  IconFlame,
-  IconTheft,
-} from "./icons/IconsBiblioteca";
+import { panicTypeStyle } from "@/modulos/Alerts/panicTypeStyle";
 import ChooseClient from "../ChooseClient/ChooseClient";
 import ProfileModal from "../ProfileModal/ProfileModal";
 import SurveyAnswerForm from "@/modulos/Surveys/components/SurveyAnswerForm";
@@ -27,28 +22,6 @@ import { logError } from "@/mk/utils/logs";
 import { useScopedI18n } from "@/i18n/useScopedI18n";
 import { useScreenSize } from "@/mk/hooks/useScreenSize";
 
-const typeAlerts: any = {
-  E: {
-    name: "Emergencia Medica",
-    icon: <IconAmbulance size={36} color="var(--cWhite)" />,
-    color: { background: "var(--cHoverError)", border: "var(--cError)" },
-  },
-  F: {
-    name: "Incendio",
-    icon: <IconFlame size={36} color="var(--cWhite)" />,
-    color: { background: "var(--cHoverWarning)", border: "var(--cWarning)" },
-  },
-  T: {
-    name: "Robo",
-    icon: <IconTheft size={36} color="var(--cWhite)" />,
-    color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
-  },
-  O: {
-    name: "Otro",
-    icon: <IconAlert size={36} color="var(--cWhite)" />,
-    color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
-  },
-};
 
 const getStringValue = (value: unknown) =>
   typeof value === "string" ? value.trim() : "";
@@ -94,28 +67,7 @@ const Layout = ({ children }: any) => {
   // El tablero de presencia dibuja su propio mapa de borde a borde.
   const isFullBleedRoute = (path || "").startsWith("/presence-monitoring");
 
-  const typeAlerts: any = {
-    E: {
-      name: translate("medicalEmergency"),
-      icon: <IconAmbulance size={36} color="var(--cWhite)" />,
-      color: { background: "var(--cHoverError)", border: "var(--cError)" },
-    },
-    F: {
-      name: translate("fire"),
-      icon: <IconFlame size={36} color="var(--cWhite)" />,
-      color: { background: "var(--cHoverWarning)", border: "var(--cWarning)" },
-    },
-    T: {
-      name: translate("theft"),
-      icon: <IconTheft size={36} color="var(--cWhite)" />,
-      color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
-    },
-    O: {
-      name: translate("other"),
-      icon: <IconAlert size={36} color="var(--cWhite)" />,
-      color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
-    },
-  };
+  const panicType = panicTypeStyle(openAlert?.item?.type);
   const formattedToday = new Intl.DateTimeFormat(localeTag, {
     weekday: "long",
     day: "numeric",
@@ -436,10 +388,10 @@ const Layout = ({ children }: any) => {
           <div
             style={{
               backgroundColor:
-                typeAlerts[openAlert?.item?.type]?.color?.background,
+                panicType?.color?.background,
               borderRadius: 8,
               border: `1px solid ${
-                typeAlerts[openAlert?.item?.type]?.color?.border
+                panicType?.color?.border
               }`,
               width: "184px",
               padding: 8,
@@ -447,7 +399,7 @@ const Layout = ({ children }: any) => {
               color: "var(--cWhite)",
             }}
           >
-            {typeAlerts[openAlert?.item?.type]?.icon}
+            {panicType?.icon}
             <p className={styles.alertDesc}>{visibleName}</p>
             {nameTooLong && (
               <button
