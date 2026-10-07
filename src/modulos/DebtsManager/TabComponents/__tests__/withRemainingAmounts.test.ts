@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ClientConfigSwitch } from "@/types/clientConfigEnums";
 import { montoACobrarDeLaDeuda, withRemainingAmounts } from "../constants";
 
 /**
@@ -8,7 +9,7 @@ import { montoACobrarDeLaDeuda, withRemainingAmounts } from "../constants";
  * 737,26 con el capital pagado y 17,40 de mora. Sumando lo cargado, el total
  * daba 754,66 y la deuda nueva volvía a cobrar el capital.
  */
-const sinMantenimiento = { client_id: "c", clients: [{ id: "c", config: { has_maintenance_value: false } }] };
+const sinMantenimiento = { client_id: "c", clients: [{ id: "c", config: { has_maintenance_value: ClientConfigSwitch.DISABLED } }] };
 
 describe("withRemainingAmounts", () => {
   it("usa lo que queda de cada parte cuando el API lo manda", () => {

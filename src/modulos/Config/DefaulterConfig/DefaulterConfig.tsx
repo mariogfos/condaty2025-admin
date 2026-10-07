@@ -6,6 +6,7 @@ import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import { IconQuestion } from "@/components/layout/icons/IconsBiblioteca";
 import Select from "@/mk/components/forms/Select/Select";
 import Switch from "@/mk/components/forms/Switch/Switch";
+import { ClientConfigSwitch, isSwitchOn } from "@/types/clientConfigEnums";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 
 interface DefaulterConfigProps {
@@ -83,7 +84,9 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
       penalty_limit: client_config?.penalty_limit || "",
       penalty_type: client_config?.penalty_type || "",
       penalty_data: client_config?.penalty_data || "",
-      button_mora: client_config?.button_mora || "0",
+      // `ClientConfigSwitch` desde el 2026-10-07: el "1" que mandaba este
+      // switch para PRENDIDO hoy es APAGADO.
+      button_mora: String(client_config?.button_mora ?? ClientConfigSwitch.DISABLED),
       check_mora: client_config?.check_mora || "0",
     }),
     [client_config],
@@ -408,10 +411,10 @@ const DefaulterConfig = ({ client_config, onSave }: DefaulterConfigProps) => {
             <Switch
               name="button_mora"
               label=""
-              value={formState?.button_mora || "0"}
+              value={formState?.button_mora}
               onChange={handleInputChange}
-              optionValue={["1", "0"]}
-              checked={formState?.button_mora == 1}
+              optionValue={[String(ClientConfigSwitch.ENABLED), String(ClientConfigSwitch.DISABLED)]}
+              checked={isSwitchOn(formState?.button_mora)}
               disabled={!editMode}
             />
           </div>

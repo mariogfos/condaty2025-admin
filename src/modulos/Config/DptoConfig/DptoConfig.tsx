@@ -4,6 +4,7 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./DptoConfig.module.css";
+import { FinancialMode, isSwitchOn, toSwitch } from "@/types/clientConfigEnums";
 import Button from "@/mk/components/forms/Button/Button";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
@@ -89,6 +90,35 @@ const getSingleUrl = (value: unknown) => {
   return typeof value === "string" ? value : "";
 };
 
+/**
+ * Los seis interruptores del formulario, que viajan como `ClientConfigSwitch`.
+ */
+const SWITCH_FIELDS = [
+  "has_maintenance_value",
+  "has_financial_data",
+  "has_financial_debt",
+  "has_soft_reservation",
+  "has_reservation_advance_limit",
+  "has_tasks_visible",
+] as const;
+
+/**
+ * Lo que se guarda: el formulario con los interruptores como enum.
+ *
+ * ⚠️ En el formulario son booleanos (los `Switch` y las condiciones de la
+ * pantalla preguntan por verdad). El API también traduce un booleano, pero ésa
+ * es la red de las pantallas viejas: lo que esta manda es el enum.
+ */
+export const toConfigPayload = (formState: Record<string, any>) => {
+  const payload: Record<string, any> = { ...formState };
+  SWITCH_FIELDS.forEach((field) => {
+    if (field in payload) {
+      payload[field] = toSwitch(Boolean(payload[field]));
+    }
+  });
+  return payload;
+};
+
 export const createFormState = (client_config: Record<string, any>) => ({
   url_logo: client_config?.client?.url_logo || [],
   url_logo_print: client_config?.client?.url_logo_print || [],
@@ -109,25 +139,19 @@ export const createFormState = (client_config: Record<string, any>) => ({
   // sin poder guardar NINGÚN cambio de la pantalla de Configuración, y sin
   // forma de destrabarlo.
   initial_amount: client_config?.initial_amount ?? 0,
-  has_maintenance_value:
-    Number(client_config?.has_maintenance_value) === 1 ||
-    client_config?.has_maintenance_value === true ||
-    client_config?.has_maintenance_value === "Y",
-  has_financial_data: Number(client_config?.has_financial_data) === 1,
-  has_financial_debt: Number(client_config?.has_financial_debt) === 1,
-  financial_mode: client_config?.financial_mode || 0,
-  has_soft_reservation:
-    Number(client_config?.has_soft_reservation) === 1 ||
-    client_config?.has_soft_reservation === true ||
-    client_config?.has_soft_reservation === "Y",
-  has_reservation_advance_limit:
-    Number(client_config?.has_reservation_advance_limit) === 1 ||
-    client_config?.has_reservation_advance_limit === true ||
-    client_config?.has_reservation_advance_limit === "Y",
-  has_tasks_visible:
-    Number(client_config?.has_tasks_visible) === 1 ||
-    client_config?.has_tasks_visible === true ||
-    client_config?.has_tasks_visible === "Y",
+  // 🔴🔴 Los seis interruptores son `ClientConfigSwitch` desde el 2026-10-07
+  // (1 = apagado, 2 = prendido). Acá se leían con `Number(x) === 1`, que con la
+  // escala nueva es exactamente APAGADO: la pantalla habría mostrado prendido
+  // lo que el condominio tiene apagado, y al guardar lo habría escrito.
+  // En el formulario viven como booleanos; `toConfigPayload()` los vuelve enum.
+  has_maintenance_value: isSwitchOn(client_config?.has_maintenance_value),
+  has_financial_data: isSwitchOn(client_config?.has_financial_data),
+  has_financial_debt: isSwitchOn(client_config?.has_financial_debt),
+  // Ya no hay un 0 que significara el tercer modo: lo juntó la migración.
+  financial_mode: client_config?.financial_mode || "",
+  has_soft_reservation: isSwitchOn(client_config?.has_soft_reservation),
+  has_reservation_advance_limit: isSwitchOn(client_config?.has_reservation_advance_limit),
+  has_tasks_visible: isSwitchOn(client_config?.has_tasks_visible),
   bookingRequiresPayment:
     client_config?.payment_time_limit !== null &&
     client_config?.payment_time_limit !== undefined &&
@@ -592,7 +616,7 @@ const DptoConfig = ({
 
   const _onSave = async () => {
     if (hasErrors(validate())) return;
-    await onSave(formState);
+    await onSave(toConfigPayload(formState));
     setEditMode(false);
   };
 
@@ -1369,9 +1393,9 @@ const DptoConfig = ({
                       value={formState.financial_mode}
                       onChange={handleChange}
                       options={[
-                        { id: 1, name: "Solo expensas" },
-                        { id: 2, name: "Expensas y multas separados" },
-                        { id: 3, name: "Expensas y multas juntos" },
+                        { id: FinancialMode.DEBT_ONLY, name: "Solo expensas" },
+                        { id: FinancialMode.DEBT_AND_PENALTY, name: "Expensas y multas separados" },
+                        { id: FinancialMode.DEBT_PENALTY_AND_MAINTENANCE, name: "Expensas y multas juntos" },
                       ]}
                       error={errors}
                       disabled={!editMode}

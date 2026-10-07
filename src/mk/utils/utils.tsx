@@ -1,4 +1,5 @@
 import { DebtStatus } from "@/types/PaymentType";
+import { isSwitchOn } from "@/types/clientConfigEnums";
 import { getLocalDate, getNowDate } from "@/mk/utils/date";
 
 export const setParamsCrud = (
@@ -312,6 +313,9 @@ export const sumPenalty = (unidades: AssignedList) => {
  * @returns boolean - true si el condominio tiene valor de mantenimiento, false en caso contrario
  */
 export const hasMaintenanceValue = (iamData: any): boolean => {
+  // 🔴 Desde el 2026-10-07 el interruptor es un enum (1 = apagado, 2 =
+  // prendido). Devolvía el valor crudo y cada llamador lo usaba como verdad:
+  // `1` —apagado— se leía prendido en las quince pantallas que lo preguntan.
 
   const currentClientId = iamData?.client_id;
   const clients = iamData?.clients;
@@ -324,8 +328,7 @@ export const hasMaintenanceValue = (iamData: any): boolean => {
   const currentClient = clients.find(
     (client: any) => client.id === currentClientId
   );
-  // Retornar el valor de has_maintenance_value, por defecto false
-  return currentClient?.config?.has_maintenance_value;
+  return isSwitchOn(currentClient?.config?.has_maintenance_value);
 };
 
 /**

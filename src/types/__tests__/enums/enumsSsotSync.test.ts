@@ -63,6 +63,9 @@ import { RoleFixed } from '@/modulos/Roles/roleEnums';
 import { TypeFixed } from '@/modulos/UnitTypes/typeEnums';
 import { ContentType } from '@/modulos/Contents/contentEnums';
 import { QrDynamicMode, QrEnvironment } from '@/modulos/QrDinamico/types';
+import { ClientPrivacy, ClientStatus, ClientType } from '@/modulos/Payments/Type/PaymentType';
+import { ClientConfigSwitch, FinancialMode } from '@/types/clientConfigEnums';
+import { OwnerPermissionWithoutResidence } from '@/modulos/Config/DptoConfig/operationalPermissions';
 
 const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
   OtherStatus: ORDER_STATUS,
@@ -96,7 +99,20 @@ const LOCAL_ENUMS: Record<string, Record<string, number | string>> = {
   ContentType,
   QrDynamicMode,
   QrEnvironment,
+  ClientStatus,
+  ClientType,
+  ClientPrivacy,
+  ClientConfigSwitch,
+  FinancialMode,
+  OwnerPermissionWithoutResidence,
 };
+
+/**
+ * 🔴 La versión del fixture que este repo espera. Sin esto, una copia vieja del
+ * SSoT pasa todos los casos de abajo EN VERDE: mide contra lo que ella misma
+ * dice. Sube en el mismo commit que el canónico (el API ya la pinea).
+ */
+const EXPECTED_VERSION = '1.18.0';
 
 const APP = 'admin';
 
@@ -121,7 +137,7 @@ const nombreLocal = (enumSsot: any, ssotName: string): string =>
 
 describe('Enums SSoT sync (admin vs cross-app SSoT)', () => {
   it('JSON SSoT es válido y tiene la estructura esperada', () => {
-    expect(ssot.version).toBeDefined();
+    expect(ssot.version).toBe(EXPECTED_VERSION);
     expect(ssot.enums).toBeDefined();
     expect(Object.keys(ssot.enums).length).toBeGreaterThan(0);
   });
