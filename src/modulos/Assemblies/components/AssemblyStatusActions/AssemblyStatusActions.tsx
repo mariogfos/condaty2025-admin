@@ -59,7 +59,7 @@ const AssemblyStatusActions: React.FC<AssemblyStatusActionsProps> = ({
       }
 
       const response = await changeStatus(
-        `/assemblies/${assembly.id}/status`,
+        `/v3/assemblies/${assembly.id}/status`,
         "PATCH",
         payload,
         false,

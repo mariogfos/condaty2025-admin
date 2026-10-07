@@ -65,7 +65,7 @@ describe('AssemblyStatusActions', () => {
 
       await waitFor(() => {
         expect(mockExecute).toHaveBeenCalledWith(
-          '/assemblies/1/status',
+          '/v3/assemblies/1/status',
           'PATCH',
           { status: AssemblyStatus.InProgress },
           false,
@@ -106,7 +106,7 @@ describe('AssemblyStatusActions', () => {
 
       await waitFor(() => {
         expect(mockExecute).toHaveBeenCalledWith(
-          '/assemblies/1/status',
+          '/v3/assemblies/1/status',
           'PATCH',
           // ⚠️ El motivo va recortado: el componente hace `trim()`, y un motivo
           // que es sólo espacios NO se manda (ver el test de acá abajo).
@@ -128,7 +128,7 @@ describe('AssemblyStatusActions', () => {
 
       await waitFor(() => {
         expect(mockExecute).toHaveBeenCalledWith(
-          '/assemblies/1/status',
+          '/v3/assemblies/1/status',
           'PATCH',
           { status: AssemblyStatus.Cancelled },
           false,
@@ -175,7 +175,7 @@ describe('AssemblyStatusActions', () => {
 
       await waitFor(() => {
         expect(mockExecute).toHaveBeenCalledWith(
-          '/assemblies/2/status',
+          '/v3/assemblies/2/status',
           'PATCH',
           { status: AssemblyStatus.Completed },
           false,
@@ -217,7 +217,7 @@ describe('AssemblyStatusActions', () => {
 
       await waitFor(() => {
         expect(mockExecute).toHaveBeenCalledWith(
-          '/assemblies/3/status',
+          '/v3/assemblies/3/status',
           'PATCH',
           { status: AssemblyStatus.Scheduled },
           false,

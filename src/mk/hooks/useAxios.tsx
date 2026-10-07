@@ -25,7 +25,8 @@ export const errorForTheConsole = (err: any) => ({
 
 /**
  * ⚠️ `PATCH` faltaba, y no era un olvido inocuo: el API tiene rutas `patch`
- * —`assemblies/{assembly}/status`, `tasks/{task}/status`, `tasks/{task}/assign`—
+ * —`v3/assemblies/{assembly}/status`, `v3/tasks/{id}/status`,
+ * `v3/tasks/{id}/assign`—
  * y el front ya las llamaba. Como `execute` estaba tipada `Function`, nadie se
  * enteraba de que el tipo no contemplaba el verbo que el código usa.
  */

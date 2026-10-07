@@ -46,7 +46,7 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
     setIsLoading(true);
     try {
       const { data: response } = await fetchAttendees(
-        `/assemblies/${assemblyId}/attendances`,
+        `/v3/assemblies/${assemblyId}/attendances`,
         "GET",
         {},
         false,
@@ -109,7 +109,7 @@ const AssemblyManualVoteForm: React.FC<AssemblyManualVoteFormProps> = ({
     setIsSaving(true);
     try {
       const { data: response, error } = await saveVote(
-        `/assemblies/${assemblyId}/surveys/${survey.id}/manual-vote`,
+        `/v3/assemblies/${assemblyId}/surveys/${survey.id}/manual-vote`,
         "POST",
         {
           owner_id: selectedAttendee.owner_id,

@@ -47,6 +47,8 @@ describe('useAssemblies Hook', () => {
         await result.current.fetchAssemblies();
       });
 
+      // El alias sin `v3` (`/assemblies`) ya no existe en el API.
+      expect(mockExecute.mock.calls[0][0]).toBe('/v3/assemblies');
       expect(result.current.assemblies).toEqual(mockAssemblies);
       expect(result.current.stats).toEqual({ total: 2, S: 1, P: 1 });
       expect(result.current.error).toBeNull();

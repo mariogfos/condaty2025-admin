@@ -22,7 +22,7 @@ export const getAssemblyConfig = (
   onCloseView?: () => void,
 ): { mod: ModCrudType; fields: any } => {
   const mod: ModCrudType = {
-    modulo: "assemblies",
+    modulo: "v3/assemblies",
     singular: "Asamblea",
     plural: "Asambleas",
     permiso: "units",
@@ -51,13 +51,12 @@ export const getAssemblyConfig = (
       // 🔴 `supportedFormats` y `endpoint` van JUNTOS: `useCrud` elige el botón
       // mirando sólo `supportedFormats`, y el botón viejo no recibe `endpoint`.
       supportedFormats: ["pdf", "xlsx", "csv"],
-      // ⚠️ `/assemblies`, sin `/v3`: tiene que ser EXACTAMENTE la misma URL
-      // que lista la pantalla (`modulo: "assemblies"`). Las dos existen y las
-      // dos van al mismo controller, pero el pin
-      // `ExportAsyncEndpointNecesitaSupportedFormats` compara las cadenas —y
-      // hace bien: el día que una de las dos rutas cambie de destino, un
-      // endpoint escrito distinto exporta otra lista sin dar error.
-      endpoint: "/assemblies",
+      // ⚠️ Tiene que ser EXACTAMENTE la misma URL que lista la pantalla
+      // (`modulo: "v3/assemblies"`): el pin
+      // `ExportAsyncEndpointNecesitaSupportedFormats` compara las cadenas,
+      // porque un endpoint escrito distinto exporta otra lista sin dar error.
+      // El alias sin `v3` (`/assemblies`) se retiró del API (decisión A4).
+      endpoint: "/v3/assemblies",
     },
     hideActions: {
       view: false,

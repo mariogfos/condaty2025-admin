@@ -209,7 +209,7 @@ const AssemblySurveyForm: React.FC<AssemblySurveyFormProps> = ({
         // 2. Attach to Assembly (only if adding)
         if (action === "add") {
           const attachRes = await execute(
-            `/assemblies/${assemblyId}/surveys`,
+            `/v3/assemblies/${assemblyId}/surveys`,
             "POST",
             {
               survey_id: surveyId,
