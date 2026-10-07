@@ -94,3 +94,79 @@ describe("los campos de soporte", () => {
     });
   });
 });
+
+/**
+ * The forced update obeys an INTEGER build (2026-10-07). The screen edits
+ * `min_version_code_*` and sends them as numbers: the old text `min_version`
+ * held `1.0.0`, which the apps turn into NaN and which blocks nobody.
+ */
+describe("el build minimo de cada app", () => {
+  const conEnteros = {
+    data: {
+      ...elApiDevuelve.data,
+      owner: { ...elApiDevuelve.data.owner, min_version_code: { android: 50, ios: 50 } },
+      guard: { ...elApiDevuelve.data.guard, min_version_code: { android: 50, ios: null } },
+    },
+    error: null,
+  };
+
+  it("se carga del min_version_code anidado, no del texto", async () => {
+    execute.mockResolvedValue(conEnteros);
+    render(<AppVersionModal />);
+
+    await waitFor(() => {
+      expect(inputPorNombre("min_version_code_android")!.value).toBe("50");
+    });
+    expect(inputPorNombre("min_version_code_ios_guard")!.value).toBe("");
+    expect(inputPorNombre("min_version_android")).toBeNull();
+  });
+
+  it("se manda como numero, y vacio como null", async () => {
+    execute.mockResolvedValue(conEnteros);
+    render(<AppVersionModal />);
+
+    await waitFor(() => {
+      expect(inputPorNombre("min_version_code_android")!.value).toBe("50");
+    });
+    fireEvent.change(inputPorNombre("min_version_code_ios")!, {
+      target: { name: "min_version_code_ios", value: "51" },
+    });
+
+    execute.mockClear();
+    execute.mockResolvedValue({ data: { success: true }, error: null });
+    fireEvent.click(screen.getByText(/guardar/i));
+
+    await waitFor(() => {
+      const put = execute.mock.calls.find((c: any[]) => c[1] === "PUT");
+      expect(put).toBeTruthy();
+      expect(put![2]).toMatchObject({
+        min_version_code_android: 50,
+        min_version_code_ios: 51,
+        min_version_code_android_guard: 50,
+        min_version_code_ios_guard: null,
+      });
+      expect(put![2]).not.toHaveProperty("min_version_android");
+    });
+  });
+
+  it("lo que no es un entero viaja tal cual, para que el API lo rechace", async () => {
+    execute.mockResolvedValue(conEnteros);
+    render(<AppVersionModal />);
+
+    await waitFor(() => {
+      expect(inputPorNombre("min_version_code_android")).not.toBeNull();
+    });
+    fireEvent.change(inputPorNombre("min_version_code_android")!, {
+      target: { name: "min_version_code_android", value: "1.0.0" },
+    });
+
+    execute.mockClear();
+    execute.mockResolvedValue({ data: { success: true }, error: null });
+    fireEvent.click(screen.getByText(/guardar/i));
+
+    await waitFor(() => {
+      const put = execute.mock.calls.find((c: any[]) => c[1] === "PUT");
+      expect(put![2]).toMatchObject({ min_version_code_android: "1.0.0" });
+    });
+  });
+});
