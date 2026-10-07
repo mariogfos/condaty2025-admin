@@ -619,6 +619,15 @@
   animation: fadeIn 150ms ease-out both;
 }
 
+.dialogBackdropMapOnly {
+  padding: 20px;
+}
+
+.colorDialogBackdrop {
+  background: rgba(2, 5, 6, 0.24);
+  backdrop-filter: none;
+}
+
 .dialog {
   display: grid;
   width: min(448px, 100%);
@@ -713,6 +722,79 @@
 .dialogSummary strong {
   color: var(--presence-text);
   font: 12px "SFMono-Regular", Consolas, monospace;
+}
+
+.colorChoices {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.colorOption {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 1;
+  padding: 0;
+  place-items: center;
+  color: #07100d;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.colorOption:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.colorOption[aria-pressed="true"] {
+  border-color: var(--presence-text);
+  box-shadow: 0 0 0 2px rgba(241, 247, 244, 0.22);
+}
+
+.colorOption:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.colorPreview {
+  display: flex;
+  min-height: 52px;
+  padding: 8px 11px;
+  gap: 10px;
+  align-items: center;
+  color: var(--presence-subtle);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--presence-border);
+  border-radius: 12px;
+  font-size: 10px;
+}
+
+.colorPreviewSwatch {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 9px;
+}
+
+.colorPreview > span:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 2px;
+}
+
+.colorPreview strong {
+  color: var(--presence-text);
+  font-size: 12px;
+}
+
+.colorPreview code {
+  color: var(--presence-muted);
+  font-size: 10px;
 }
 
 .dialogError {
@@ -1669,6 +1751,10 @@ button.notice {
 
   .dialogBackdrop {
     padding-left: 332px;
+  }
+
+  .dialogBackdropMapOnly {
+    padding: 20px;
   }
 
   .sessionDialog {

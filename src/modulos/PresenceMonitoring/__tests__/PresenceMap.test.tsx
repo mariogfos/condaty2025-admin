@@ -1,13 +1,17 @@
-import { render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { PresenceConnection } from "../types";
+import type { PresenceConnection, PresencePlace } from "../types";
 
 const { mapInstance } = vi.hoisted(() => ({
   mapInstance: {
     addControl: vi.fn(),
+    addLayer: vi.fn(),
+    addSource: vi.fn(),
     easeTo: vi.fn(),
+    getContainer: vi.fn(() => ({ clientWidth: 1000, clientHeight: 700 })),
     getSource: vi.fn(),
     on: vi.fn(),
+    queryRenderedFeatures: vi.fn(),
     remove: vi.fn(),
   },
 }));
@@ -33,6 +37,7 @@ afterAll(() => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mapInstance.getSource.mockReturnValue(undefined);
 });
 
 const connection = {
@@ -48,6 +53,17 @@ const connection = {
   coordinates: [-63.18, -17.78],
 } as PresenceConnection;
 
+const place: PresencePlace = {
+  id: 7,
+  client_id: "client-7",
+  name: "Condominio A",
+  color: "#20e3ad",
+  boundary: [[-63.19, -17.76], [-63.18, -17.76], [-63.18, -17.75], [-63.19, -17.76]],
+  center: [-63.185, -17.755],
+  created_at: "2026-09-25T12:00:00Z",
+  updated_at: "2026-09-25T12:00:00Z",
+};
+
 describe("PresenceMap", () => {
   it("muestra la última señal en la zona del condominio de la conexión", () => {
     render(
@@ -60,6 +76,7 @@ describe("PresenceMap", () => {
         onSelect={vi.fn()}
         onCreatePlace={vi.fn()}
         onUpdatePlace={vi.fn()}
+        onUpdatePlaceColor={vi.fn()}
         onDeletePlace={vi.fn()}
         onOpenHistory={vi.fn()}
       />,
@@ -69,6 +86,55 @@ describe("PresenceMap", () => {
     // 12:00 UTC: las 9 de la noche en Tokio, las 8 de la mañana en La Paz.
     expect(lastSignal?.textContent).toMatch(/09:00\s*p/);
     expect(lastSignal?.textContent).not.toContain("08:00");
+  });
+
+  it("previsualiza, cancela y guarda el color del área desde el menú contextual", async () => {
+    const placeSource = { setData: vi.fn() };
+    mapInstance.getSource.mockReturnValue(placeSource);
+    mapInstance.queryRenderedFeatures.mockImplementation((_point, options) => (
+      options.layers.includes("presence-places-fill") ? [{ properties: { id: place.id } }] : []
+    ));
+    const onUpdatePlaceColor = vi.fn().mockResolvedValue(undefined);
+    render(<PresenceMap
+      connections={[]}
+      selected={null}
+      focusCoordinates={null}
+      places={[place]}
+      scopes={[]}
+      onSelect={vi.fn()}
+      onCreatePlace={vi.fn()}
+      onUpdatePlace={vi.fn()}
+      onUpdatePlaceColor={onUpdatePlaceColor}
+      onDeletePlace={vi.fn()}
+      onOpenHistory={vi.fn()}
+    />);
+
+    const onLoad = mapInstance.on.mock.calls.find(([event]) => event === "load")?.[1];
+    expect(onLoad).toBeTypeOf("function");
+    act(() => onLoad?.());
+    const onContextMenu = mapInstance.on.mock.calls.find(([event]) => event === "contextmenu")?.[1];
+    expect(onContextMenu).toBeTypeOf("function");
+    const openColorPicker = () => {
+      act(() => onContextMenu?.({
+        originalEvent: { preventDefault: vi.fn() },
+        point: { x: 450, y: 300 },
+      }));
+      fireEvent.click(screen.getByRole("menuitem", { name: /Cambiar color/ }));
+    };
+
+    openColorPicker();
+    fireEvent.click(screen.getByRole("button", { name: /Violeta/ }));
+    expect(screen.getByRole("button", { name: /Violeta/ })).toHaveAttribute("aria-pressed", "true");
+    expect(placeSource.setData.mock.lastCall?.[0].features[0].properties.color).toBe("#a985ff");
+    fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+    expect(placeSource.setData.mock.lastCall?.[0].features[0].properties.color).toBe(place.color);
+    expect(onUpdatePlaceColor).not.toHaveBeenCalled();
+
+    openColorPicker();
+    fireEvent.click(screen.getByRole("button", { name: /Violeta/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar color" }));
+    await waitFor(() => expect(onUpdatePlaceColor).toHaveBeenCalledExactlyOnceWith(place.id, "#a985ff"));
+    expect(mapInstance.easeTo).not.toHaveBeenCalled();
   });
 
   it("oculta solo el detalle de la conexión y conserva el mapa y sus controles", () => {
@@ -81,6 +147,7 @@ describe("PresenceMap", () => {
       onSelect: vi.fn(),
       onCreatePlace: vi.fn(),
       onUpdatePlace: vi.fn(),
+      onUpdatePlaceColor: vi.fn(),
       onDeletePlace: vi.fn(),
       onOpenHistory: vi.fn(),
     };
@@ -106,6 +173,7 @@ describe("PresenceMap", () => {
         onSelect={vi.fn()}
         onCreatePlace={vi.fn()}
         onUpdatePlace={vi.fn()}
+        onUpdatePlaceColor={vi.fn()}
         onDeletePlace={vi.fn()}
         onOpenHistory={vi.fn()}
       />,
@@ -124,6 +192,7 @@ describe("PresenceMap", () => {
       onSelect: vi.fn(),
       onCreatePlace: vi.fn(),
       onUpdatePlace: vi.fn(),
+      onUpdatePlaceColor: vi.fn(),
       onDeletePlace: vi.fn(),
       onOpenHistory: vi.fn(),
     };
