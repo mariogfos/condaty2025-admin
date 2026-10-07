@@ -13,6 +13,18 @@ type AppVersionResponse = {
   guard?: any;
 };
 
+/**
+ * The minimum NATIVE build each app accepts (`versionCode` / iOS build number).
+ * Both apps block below it with the "update the app" screen. Integers since
+ * 2026-10-07; the old text fields `min_version_*` are no longer edited here.
+ */
+export const MIN_BUILD_KEYS = [
+  'min_version_code_android',
+  'min_version_code_ios',
+  'min_version_code_android_guard',
+  'min_version_code_ios_guard',
+] as const;
+
 export const AppVersionModal: React.FC = () => {
   const router = useRouter();
   const [open, setOpen] = useState(true);
@@ -38,12 +50,14 @@ export const AppVersionModal: React.FC = () => {
           const json = res.data;
           setData(json);
           setForm({
-            min_version_android: json?.owner?.min_version?.android || '',
-            min_version_ios: json?.owner?.min_version?.ios || '',
+            // 🔴 The integer build, not the text `min_version`: the apps do
+            // `Number()` on it, and a text like `1.0.0` is NaN and blocks nobody.
+            min_version_code_android: json?.owner?.min_version_code?.android ?? '',
+            min_version_code_ios: json?.owner?.min_version_code?.ios ?? '',
             update_url_android: json?.owner?.update_url?.android || '',
             update_url_ios: json?.owner?.update_url?.ios || '',
-            min_version_android_guard: json?.guard?.min_version?.android || '',
-            min_version_ios_guard: json?.guard?.min_version?.ios || '',
+            min_version_code_android_guard: json?.guard?.min_version_code?.android ?? '',
+            min_version_code_ios_guard: json?.guard?.min_version_code?.ios ?? '',
             update_url_android_guard: json?.guard?.update_url?.android || '',
             update_url_ios_guard: json?.guard?.update_url?.ios || '',
             // ⚠️ La forma de ida y la de vuelta NO son la misma: el GET los
@@ -76,6 +90,13 @@ export const AppVersionModal: React.FC = () => {
     setSaving(true);
     try {
       const payload = { ...form };
+      // A build number goes as an integer; an empty field means "no minimum".
+      // Anything else travels as typed so the API rejects it (422): `Number()`
+      // would turn it into NaN, which JSON sends as `null` — a silent "no minimum".
+      for (const key of MIN_BUILD_KEYS) {
+        const raw = `${payload[key] ?? ''}`.trim();
+        payload[key] = raw === '' ? null : /^\d+$/.test(raw) ? Number(raw) : raw;
+      }
 
       // 🔴 Acá había un bloque que armaba `axiosConfig` con el header
       // `Authorization` y lo pasaba como SEXTO argumento de `execute` — que
@@ -126,9 +147,9 @@ export const AppVersionModal: React.FC = () => {
               <div className={formStyles['input-row']}>
                 <div className={`${formStyles['input-half']} ${modalStyles.inputWrapper}`}>
                   <Input
-                    name="min_version_android"
-                    label="Min Android"
-                    value={form.min_version_android || ''}
+                    name="min_version_code_android"
+                    label="Build mínimo Android"
+                    value={`${form.min_version_code_android ?? ''}`}
                     onChange={handleChange}
                     required={false}
                     styleInput={{ margin: '4px 0' }}
@@ -136,9 +157,9 @@ export const AppVersionModal: React.FC = () => {
                 </div>
                 <div className={`${formStyles['input-half']} ${modalStyles.inputWrapper}`}>
                   <Input
-                    name="min_version_ios"
-                    label="Min iOS"
-                    value={form.min_version_ios || ''}
+                    name="min_version_code_ios"
+                    label="Build mínimo iOS"
+                    value={`${form.min_version_code_ios ?? ''}`}
                     onChange={handleChange}
                     required={false}
                     styleInput={{ margin: '4px 0' }}
@@ -176,9 +197,9 @@ export const AppVersionModal: React.FC = () => {
               <div className={formStyles['input-row']}>
                 <div className={`${formStyles['input-half']} ${modalStyles.inputWrapper}`}>
                   <Input
-                    name="min_version_android_guard"
-                    label="Min Android"
-                    value={form.min_version_android_guard || ''}
+                    name="min_version_code_android_guard"
+                    label="Build mínimo Android"
+                    value={`${form.min_version_code_android_guard ?? ''}`}
                     onChange={handleChange}
                     required={false}
                     styleInput={{ margin: '4px 0' }}
@@ -186,9 +207,9 @@ export const AppVersionModal: React.FC = () => {
                 </div>
                 <div className={`${formStyles['input-half']} ${modalStyles.inputWrapper}`}>
                   <Input
-                    name="min_version_ios_guard"
-                    label="Min iOS"
-                    value={form.min_version_ios_guard || ''}
+                    name="min_version_code_ios_guard"
+                    label="Build mínimo iOS"
+                    value={`${form.min_version_code_ios_guard ?? ''}`}
                     onChange={handleChange}
                     required={false}
                     styleInput={{ margin: '4px 0' }}
