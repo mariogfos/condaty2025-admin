@@ -427,7 +427,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, reLoad }: any) => {
     };
 
     const method = formState.id ? "PUT" : "POST";
-    const endpoint = `/assemblies${formState.id ? `/${formState.id}` : ""}`;
+    const endpoint = `/v3/assemblies${formState.id ? `/${formState.id}` : ""}`;
 
     const { data } = await execute(endpoint, method, payload);
 

@@ -56,7 +56,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
     setIsLoading(true);
     try {
       const { data: response } = await fetchAttendances(
-        `/assemblies/${assemblyId}/attendances`,
+        `/v3/assemblies/${assemblyId}/attendances`,
         "GET",
         {},
         false,
@@ -112,7 +112,7 @@ const AssemblyAttendanceList: React.FC<AssemblyAttendanceListProps> = ({
 
     try {
       const { data: response, error } = await deleteAttendance(
-        `/assemblies/${assemblyId}/attendances`,
+        `/v3/assemblies/${assemblyId}/attendances`,
         "DELETE",
         { owner_id: ownerId },
         false,

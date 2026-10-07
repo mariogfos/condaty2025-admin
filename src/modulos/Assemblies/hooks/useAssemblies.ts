@@ -32,7 +32,7 @@ interface UseAssembliesReturn {
   reLoad: any;
 }
 
-const modulePath = "/assemblies";
+const modulePath = "/v3/assemblies";
 
 export const useAssemblies = (): UseAssembliesReturn => {
   const [assemblies, setAssemblies] = useState<Assembly[]>([]);

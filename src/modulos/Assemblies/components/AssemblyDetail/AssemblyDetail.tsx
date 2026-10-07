@@ -492,7 +492,7 @@ const AssemblyDetail: React.FC<AssemblyDetailProps> = ({ id }) => {
       }
 
       const { data } = await execute(
-        `/assemblies/${assembly.id}/status`,
+        `/v3/assemblies/${assembly.id}/status`,
         "PATCH",
         payload,
       );

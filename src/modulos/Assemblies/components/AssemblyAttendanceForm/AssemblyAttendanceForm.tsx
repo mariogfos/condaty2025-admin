@@ -183,7 +183,7 @@ const AssemblyAttendanceForm: React.FC<AssemblyAttendanceFormProps> = ({
     setIsSaving(true);
     try {
       const { data: response, error } = await saveAttendance(
-        `/assemblies/${assemblyId}/manual-attendance`,
+        `/v3/assemblies/${assemblyId}/manual-attendance`,
         "POST",
         {
           owner_id: selectedResident.id,

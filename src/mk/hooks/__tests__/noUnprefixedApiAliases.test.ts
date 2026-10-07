@@ -10,10 +10,6 @@
  * ⚠️ `accesses` maps to `v3/access` (singular), and `activeRegister` to
  * `v3/active-register`: the twin is not always the same word.
  *
- * ⚠️ `assemblies` is a retired alias too, but it is NOT listed: the Assemblies
- * and Surveys folders are being moved to `v3` in a parallel change. Add it here
- * once that lands.
- *
  * Paths that exist ONLY without `v3` (`app-version`, `masivexls`, `chatbot`,
  * `content-like`, `presence/*`, `backoffice/presence-monitoring/*`,
  * `reports/{reportKey}/*`) are canonical, not aliases, and are not checked.
@@ -45,6 +41,7 @@ const RETIRED_ALIASES = [
   "balances",
   "financial-summary",
   "notifications",
+  "assemblies",
 ];
 
 const NAVIGATION = /href|router\.(push|replace)|pathname/;
@@ -95,10 +92,14 @@ describe("API calls go through v3, never through a retired alias", () => {
       "execute(`/task-categories/${id}`, \"DELETE\")",
       `modulo: "accesses",`,
       `useAxios("/dashboard", "GET", {})`,
+      "execute(`/assemblies/${id}/status`, \"PATCH\")",
+      `modulo: "assemblies",`,
+      `const modulePath = "/assemblies";`,
     ];
     for (const shape of shapes) expect(aliasCall.test(shape), shape).toBe(true);
     expect(aliasCall.test(`execute("/v3/tasks", "GET")`)).toBe(false);
     expect(aliasCall.test(`execute("/v3/access", "GET")`)).toBe(false);
+    expect(aliasCall.test(`const modulePath = "/v3/assemblies";`)).toBe(false);
     expect(aliasCall.test(`useAxios("/contents-x")`)).toBe(false);
   });
 

@@ -48,7 +48,7 @@ const AssemblyConfigForm: React.FC<AssemblyConfigFormProps> = ({
     setIsSaving(true);
     try {
       const response = await saveConfig(
-        `/assemblies/${assembly.id}/config`,
+        `/v3/assemblies/${assembly.id}/config`,
         "PUT",
         {
           quorum_required: quorumRequired,
