@@ -67,7 +67,7 @@ const Layout = ({ children }: any) => {
   // El tablero de presencia dibuja su propio mapa de borde a borde.
   const isFullBleedRoute = (path || "").startsWith("/presence-monitoring");
 
-  const panicType = panicTypeStyle(openAlert?.item?.type, translate);
+  const panicType = panicTypeStyle(openAlert?.item?.type);
   const formattedToday = new Intl.DateTimeFormat(localeTag, {
     weekday: "long",
     day: "numeric",
