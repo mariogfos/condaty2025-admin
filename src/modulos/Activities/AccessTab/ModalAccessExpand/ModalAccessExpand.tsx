@@ -3,6 +3,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DetailModal from "@/mk/components/ui/DetailModal/DetailModal";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import useAxios from "@/mk/hooks/useAxios";
+import { accessApi } from "../api";
 import { Image } from "@/mk/components/ui/Image/Image";
 import styles from "./ModalAccessExpand.module.css";
 import {
@@ -158,7 +159,7 @@ const ModalAccessExpand = ({ id, open, onClose, type }: PropsType) => {
     }
     setLoading(true);
     const { data } = await execute(
-      "/accesses",
+      accessApi.base,
       "GET",
       {
         perPage: -1,

@@ -108,7 +108,7 @@ export const uploadLargeFiles = async (
             }
 
             const { data: uploadResp, error: uploadErr } = await execute(
-                "/upload-file",
+                "/v3/upload-file",
                 "POST",
                 formData,
                 false,

@@ -16,6 +16,7 @@ import {
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderView from "./RenderView/RenderView";
+import { accessApi } from "../AccessTab/api";
 import { formatAccessDateTime } from "../AccessTab/shared/accessDetailUtils";
 import { AccessType } from "../AccessTab/shared/accessEnums";
 
@@ -39,11 +40,11 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
   
   // Función para manejar las acciones del renderView
   const handlePedidoAction = async (pedido: any, action: string) => {
-    const url = "/accesses";
+    const url = accessApi.base;
     
     if (action === "salida" && pedido.access?.in_at && !pedido.access?.out_at) {
       try {
-        const { data } = await execute(url + "/exit", "POST", {
+        const { data } = await execute(accessApi.exit, "POST", {
           id: pedido.access_id,
           obs_out: "", // Puedes implementar un campo para esto si es necesario
         });

@@ -299,7 +299,7 @@ const TaskDetailModal = ({
 
       try {
         let targetTask: TaskItem | null = null;
-        const { data: byId } = await execute(`/tasks/${taskId}`, "GET", {}, false, true);
+        const { data: byId } = await execute(`/v3/tasks/${taskId}`, "GET", {}, false, true);
         const byIdCandidates = [byId, byId?.data, byId?.message, byId?.data?.message];
 
         for (const candidate of byIdCandidates) {
@@ -319,7 +319,7 @@ const TaskDetailModal = ({
 
         if (!targetTask) {
           const { data: listData } = await execute(
-            "/tasks",
+            "/v3/tasks",
             "GET",
             { page: 1, perPage: 20, fullType: "L", searchBy: taskId },
             false,
@@ -336,7 +336,7 @@ const TaskDetailModal = ({
         }
 
         const { data: commentsData } = await execute(
-          `/tasks/${taskId}/comments`,
+          `/v3/tasks/${taskId}/comments`,
           "GET",
           {},
           false,
@@ -399,7 +399,7 @@ const TaskDetailModal = ({
         assigned_to_guard_id: autoTask.assigned_to_guard_id || null,
       };
 
-      const { data } = await execute(`/tasks/${autoTask.id}`, "PUT", payload, false, true);
+      const { data } = await execute(`/v3/tasks/${autoTask.id}`, "PUT", payload, false, true);
       if (!data?.success) {
         setAutoTask((old) => (old ? { ...old, status: previousStatus } : old));
         showToast(data?.message || "No se pudo cambiar el estado", "error");
@@ -414,7 +414,7 @@ const TaskDetailModal = ({
 
     setAutoSendingComment(true);
     const { data } = await execute(
-      `/tasks/${autoTask.id}/comments`,
+      `/v3/tasks/${autoTask.id}/comments`,
       "POST",
       {
         content: autoCommentText.trim(),
@@ -434,7 +434,7 @@ const TaskDetailModal = ({
     setAutoCommentText("");
     setAutoCommentImages([]);
     const { data: commentsData } = await execute(
-      `/tasks/${autoTask.id}/comments`,
+      `/v3/tasks/${autoTask.id}/comments`,
       "GET",
       {},
       false,

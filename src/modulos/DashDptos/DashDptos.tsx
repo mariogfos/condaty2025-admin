@@ -26,6 +26,8 @@ import {
 import OwnersRenderForm from "../Owners/RenderForm/RenderForm";
 import UnitFinanceHistory from "./UnitFinanceHistory/UnitFinanceHistory";
 import { getBackTarget } from "./backTarget";
+import { accessApi } from "@/modulos/Activities/AccessTab/api";
+import { reservationsApi } from "@/modulos/Reservas/api";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 
 interface DashDptosProps {
@@ -346,7 +348,7 @@ const UnitSheet = ({ id }: DashDptosProps) => {
               <TitleRender
                 title="Historial de accesos"
                 onClick={() => {
-                  setParamsCrud("accesses", "searchBy", datas?.data?.nro);
+                  setParamsCrud(accessApi.modulo, "searchBy", datas?.data?.nro);
                   router.push("/activities");
                 }}
               />
@@ -369,7 +371,7 @@ const UnitSheet = ({ id }: DashDptosProps) => {
               <TitleRender
                 title="Historial de reservas"
                 onClick={() => {
-                  setParamsCrud("reservations", "searchBy", datas?.data?.nro);
+                  setParamsCrud(reservationsApi.modulo, "searchBy", datas?.data?.nro);
                   router.push("/reservas");
                 }}
               />

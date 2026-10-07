@@ -6,6 +6,7 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { IconExitHome } from "@/components/layout/icons/IconsBiblioteca";
+import { accessApi } from "@/modulos/Activities/AccessTab/api";
 
 const paramsInitial = {
   fullType: "VS",
@@ -27,7 +28,7 @@ const Visitors = () => {
 
   const modVisitors: ModCrudType = useMemo(() => {
     return {
-      modulo: "accesses",
+      modulo: accessApi.modulo,
       singular: "Visitante",
       plural: "Visitantes",
       permiso: "accesses",

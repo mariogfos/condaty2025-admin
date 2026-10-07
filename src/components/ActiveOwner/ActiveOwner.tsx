@@ -99,7 +99,7 @@ const ActiveOwner = ({
     // console.log(params);
     // return;
     const { data: dataResident, error } = await execute(
-      "/activeRegister",
+      "/v3/active-register",
       "POST",
       params
     );
