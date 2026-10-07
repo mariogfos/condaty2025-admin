@@ -24,9 +24,7 @@ const RenderView = (props: {
 
     const url = props?.item?.files[0] || "";
 
-    const fileName = `documento-${props?.item?.id}.${
-      props?.item?.doc?.ext || props?.item?.ext
-    }`;
+    const fileName = `documento-${props?.item?.id}.${props?.item?.ext}`;
 
     try {
       const response = await fetch(url);
