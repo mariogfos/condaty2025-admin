@@ -1,0 +1,55 @@
+.form {
+  display: grid;
+  gap: 18px;
+  padding: 8px 0;
+}
+
+.helper {
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding: 8px 0;
+}
+
+.detailField {
+  min-width: 0;
+}
+
+.detailLabel {
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  margin: 0 0 6px;
+}
+
+.detailValue {
+  color: var(--cWhite);
+  font-size: 15px;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 620px) {
+  .formGrid,
+  .detailGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
