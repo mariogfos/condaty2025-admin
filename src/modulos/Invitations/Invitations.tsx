@@ -6,6 +6,7 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import styles from "./Invitations.module.css";
 import { getDateTimeStrMes } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
+import { isCampaignDeletable } from "./campaignRules";
 
 const paramsInitial = {
   perPage: 20,
@@ -23,7 +24,7 @@ const mod: ModCrudType = {
   extraData: true,
   onHideActions: (item: any) => {
     return {
-      hideDel: item.clients_count > 0,
+      hideDel: !isCampaignDeletable(item),
     };
   },
   hideActions: {
@@ -54,7 +55,7 @@ const Invitations = () => {
             );
           },
         },
-        form: { type: "text", label: "Nombre del rol" },
+        form: { type: "text", label: "Nombre" },
       },
       clients_count: {
         rules: ["required"],
@@ -70,7 +71,7 @@ const Invitations = () => {
             item?.clients_count +
             (item?.clients_count > 1 ? " Condominios" : " Condominio"),
         },
-        form: { type: "text", label: "Código del rol" },
+        form: { type: "text", label: "Uso actual" },
       },
       images_count: {
         rules: [""],
@@ -102,7 +103,7 @@ const Invitations = () => {
       fields,
     },
   );
-  const { onLongPress, selItem } = useCrudUtils({
+  useCrudUtils({
     onSearch,
     searchs,
     setStore,

@@ -74,7 +74,7 @@ const RenderForm = ({
         ? allClientIds
         : formState.clientIds;
 
-    const { data } = await execute(
+    const { data, error } = await execute(
       "/v3/campaigns" + (formState.id ? "/" + formState.id : ""),
       method,
       {
@@ -89,7 +89,19 @@ const RenderForm = ({
       reLoad();
       showToast(data.message, "success");
     } else {
-      showToast(data.message, "error");
+      // 🔴 On a 4xx `execute` returns `{data: null, error}`: this read
+      // `data.message` and threw, so a 422 («cada imagen tiene que ser una
+      // dirección https») left the modal open with no message at all. The
+      // first field error goes before `message`: with two errors Laravel
+      // appends «(and 1 more error)» in English to the latter.
+      const firstFieldError: any = Object.values(error?.data?.errors ?? {})[0];
+      showToast(
+        data?.message ||
+          firstFieldError?.[0] ||
+          error?.data?.message ||
+          "No se pudo guardar la campaña",
+        "error",
+      );
     }
   };
   useEffect(() => {
@@ -108,7 +120,7 @@ const RenderForm = ({
       onClose={onClose}
       icon={<IconDepartment2 />}
       title={formState.id ? "Editar campaña" : "Crear campaña"}
-      subtitle="Crea una nueva campaña o evento para tu condominio"
+      subtitle="El banner del QR de invitación de los condominios que elijas"
       onSave={_onSave}
       variant={"mini"}
       buttonText={formState.id ? "Actualizar campaña" : "Crear campaña"}
