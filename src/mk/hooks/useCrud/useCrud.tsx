@@ -67,6 +67,12 @@ const normalizeApiErrors = (apiErrors: unknown): Record<string, string> => {
   );
 };
 
+const selectedFilters = (value: unknown): Record<string, string> =>
+  Object.fromEntries(String(value || "").split("|").map((entry) => {
+    const [field, selection] = entry.split(":", 2);
+    return [field, selection];
+  }).filter(([field, selection]) => field && selection));
+
 export type ModCrudType = {
   modulo: string;
   singular: string;
@@ -961,7 +967,7 @@ const useCrud = ({
     }
     setOldSearch(searchBy);
   };
-  const [oldFilter, setOldFilter]: any = useState({});
+  const [oldFilter, setOldFilter]: any = useState(() => ({ filterBy: selectedFilters(params.filterBy) }));
   const onFilter = (_opt: string, value: string) => {
     let opt = _opt.replace("_filter", "");
     // console.log("onFilter", opt, value);
@@ -1592,7 +1598,7 @@ const useCrud = ({
     );
   });
   Form.displayName = "Form";
-  const [filterSel, setFilterSel]: any = useState({});
+  const [filterSel, setFilterSel]: any = useState(() => selectedFilters(params.filterBy));
 
   const FilterResponsive = ({ filters, onChange, breakPoint }: any) => {
     const isBreak = useMediaQuery("(max-width: " + breakPoint + "px)");
@@ -2331,12 +2337,10 @@ const useCrud = ({
                     onRenderFoot={props.onRenderFoot}
                     onRenderHead={props.onRenderHead}
                     onRenderCard={props.onRenderCard}
-                    onButtonActions={
-                      runtime.mod.hideActions?.edit &&
-                      runtime.mod.hideActions?.del
-                        ? undefined
-                        : runtime.onButtonActions
-                    }
+                    onButtonActions={props.onButtonActions ?? (
+                      runtime.mod.hideActions?.edit && runtime.mod.hideActions?.del
+                        ? undefined : runtime.onButtonActions
+                    )}
                     height={resolvedListHeight}
                     className="striped"
                     actionsWidth={props.actionsWidth ?? "120px"}

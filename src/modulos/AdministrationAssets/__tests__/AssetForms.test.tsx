@@ -2,10 +2,19 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import PetForm from "../PetForm";
 import VehicleForm from "../VehicleForm";
+import VehicleView from "../VehicleView";
+
+vi.mock("@/mk/contexts/AuthProvider", () => ({
+  useAuth: () => ({ userCan: () => true }),
+}));
 
 vi.mock("@/mk/components/ui/DataModal/DataModal", () => ({
-  default: ({ children, open, onSave, buttonText }: any) => open ? (
-    <div>{children}<button onClick={onSave}>{buttonText}</button></div>
+  default: ({ children, open, onSave, buttonText, buttonCancel, buttonExtra, title }: any) => open ? (
+    <div><h2>{title}</h2>{children}
+      {buttonText ? <button onClick={onSave}>{buttonText}</button> : null}
+      {buttonCancel ? <button>{buttonCancel}</button> : null}
+      {buttonExtra}
+    </div>
   ) : null,
 }));
 vi.mock("@/mk/components/forms/Input/Input", () => ({
@@ -66,6 +75,7 @@ describe("Formularios de mascotas y vehículos", () => {
     fireEvent.change(screen.getByLabelText("dpto_id"), { target: { value: "7" } });
     fireEvent.change(screen.getByLabelText("owner_id"), { target: { value: "owner-1" } });
     fireEvent.change(screen.getByLabelText("plate"), { target: { value: "abc123" } });
+    expect(screen.getByLabelText("plate")).toHaveValue("ABC123");
     fireEvent.click(screen.getByRole("button", { name: "Registrar vehículo" }));
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
       kind: "resident", plate: "ABC123", dpto_id: "7", owner_id: "owner-1",
@@ -77,5 +87,35 @@ describe("Formularios de mascotas y vehículos", () => {
     expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({
       kind: "visitor", dpto_id: null, owner_id: null, visitor_name: "Invitado",
     }), setErrors);
+  });
+
+  it("carga un vehículo para editarlo y conserva la placa en mayúsculas desde el input", () => {
+    const onSave = vi.fn();
+    const setErrors = vi.fn();
+    render(<VehicleForm open item={{ id: 12, kind: "visitor", vehicle_type: "car", plate: "abc123", visitor_name: "Luz" }}
+      onClose={vi.fn()} onSave={onSave} errors={{}} setErrors={setErrors} extraData={{ units: [] }} />);
+    expect(screen.getByRole("heading", { name: "Editar vehículo" })).toBeInTheDocument();
+    expect(screen.getByLabelText("plate")).toHaveValue("ABC123");
+    fireEvent.change(screen.getByLabelText("plate"), { target: { value: "xyz789" } });
+    expect(screen.getByLabelText("plate")).toHaveValue("XYZ789");
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
+      id: 12, kind: "visitor", plate: "XYZ789", visitor_name: "Luz",
+    }), setErrors);
+    expect(onSave.mock.calls[0][0]).not.toHaveProperty("client_id");
+  });
+
+  it("sustituye Cerrar por Editar y Eliminar en el detalle", () => {
+    const onClose = vi.fn();
+    const onEdit = vi.fn();
+    const onDel = vi.fn();
+    render(<VehicleView open item={{ id: 12, plate: "ABC123", kind: "resident", vehicle_type: "car" }}
+      onClose={onClose} onEdit={onEdit} onDel={onDel} />);
+    expect(screen.queryByRole("button", { name: "Cerrar" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(onEdit).toHaveBeenCalledWith(expect.objectContaining({ id: 12 }));
+    fireEvent.click(screen.getByRole("button", { name: "Eliminar" }));
+    expect(onDel).toHaveBeenCalledWith(expect.objectContaining({ id: 12 }));
   });
 });
