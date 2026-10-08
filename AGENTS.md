@@ -13,6 +13,24 @@
 3. Crea la rama de trabajo desde el `origin/<rama-base>` verificado y mantén
    separados los cambios de `test` y producción.
 
+## Integración `ryno` y promoción a Test
+
+- Para nuevos fixes y features, `ryno` es la rama base de desarrollo. Refresca
+  `origin/ryno`, crea una rama `feature/*` o `fix/*` y entrega mediante PR hacia
+  `ryno`. Después promueve `ryno` a `test` mediante otro PR autorizado; no
+  desarrolles directamente sobre `test` salvo una conciliación o emergencia
+  expresamente acordada, que también debe volver a `ryno`.
+- `test` debe tener el mismo árbol de archivos que `ryno` tras la promoción.
+  Antes de ella, revisa commits y diferencias de ambos lados. Si existen
+  cambios exclusivos de `test`, concílialos explícitamente antes de promover;
+  no hagas merges masivos ni sobrescribas una rama a ciegas. Después de los
+  merges, refresca ambas referencias y comprueba que
+  `git diff --exit-code origin/ryno origin/test` no tenga diferencias. Un squash
+  puede producir SHA distintos aunque el
+  contenido sea idéntico; informa ambos SHA y cualquier diferencia pendiente.
+- El merge a `test` no equivale a un despliegue ni autoriza cambios en
+  Producción.
+
 ## Git y validación
 
 - Usa la identidad `Alexander Hurtado <product.designer.fos@gmail.com>` y la
