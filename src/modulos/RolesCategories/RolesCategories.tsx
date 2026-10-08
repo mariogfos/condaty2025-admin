@@ -3,23 +3,31 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
-const mod: ModCrudType = {
+const baseMod: ModCrudType = {
   modulo: "v3/ability-categories",
   singular: "Categoría",
   plural: "Categorías",
   // import: true,
   // importRequiredCols:"NAME",
   permiso: "",
-  onHideActions: (item: any) => {
-    return {
-      hideEdit: item.is_assigned == "1",
-      hideDel: item.is_assigned == "1",
-    };
-  },
 };
 
 const RolesCategories = () => {
+  // 🔴 El catálogo es de la plataforma: lo escribe sólo FOS (`fosrole_id > 0`)
+  // y el API le contesta 403 a cualquier otro ADM. La pantalla no ofrece lo que
+  // el API rechaza. (El `onHideActions` con `is_assigned` que había acá leía una
+  // clave que el API no manda.)
+  const { user } = useAuth();
+  const isPlatform = Number(user?.fosrole_id ?? 0) > 0;
+  const mod: ModCrudType = useMemo(
+    () => ({
+      ...baseMod,
+      hideActions: { add: !isPlatform, edit: !isPlatform, del: !isPlatform },
+    }),
+    [isPlatform],
+  );
   const paramsInitial = {
     perPage: 20,
     page: 1,

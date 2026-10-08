@@ -3,8 +3,9 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
-const mod: ModCrudType = {
+const baseMod: ModCrudType = {
   // 🔴 `v3/abilities`, no `abilities`. El catálogo de permisos vivía en
   // `/api/abilities` —`routes/api.php`, sin prefijo— y se mudó a
   // `/api/v3/abilities` con el módulo el 2026-08-30. La ruta vieja ya no
@@ -16,15 +17,22 @@ const mod: ModCrudType = {
   // importRequiredCols: "NAME",
   permiso: "",
   extraData: true,
-  onHideActions: (item: any) => {
-    return {
-      hideEdit: item.is_assigned == "1",
-      hideDel: item.is_assigned == "1",
-    };
-  },
 };
 
 const RolesAbilities = () => {
+  // 🔴 El catálogo es de la plataforma: lo escribe sólo FOS (`fosrole_id > 0`)
+  // y el API le contesta 403 a cualquier otro ADM. La pantalla no ofrece lo que
+  // el API rechaza. (El `onHideActions` con `is_assigned` que había acá leía una
+  // clave que el API no manda.)
+  const { user } = useAuth();
+  const isPlatform = Number(user?.fosrole_id ?? 0) > 0;
+  const mod: ModCrudType = useMemo(
+    () => ({
+      ...baseMod,
+      hideActions: { add: !isPlatform, edit: !isPlatform, del: !isPlatform },
+    }),
+    [isPlatform],
+  );
   const paramsInitial = {
     perPage: 20,
     page: 1,
