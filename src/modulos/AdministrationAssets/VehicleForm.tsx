@@ -12,21 +12,25 @@ const emptyForm = {
   visitor_name: "", brand: "", model: "", color: "", notes: "",
 };
 
-export default function VehicleForm({ open, onClose, onSave, errors, setErrors, extraData }: any) {
+export default function VehicleForm({ open, onClose, onSave, errors, setErrors, extraData, item }: any) {
   const [form, setForm] = useState<any>(emptyForm);
   useEffect(() => {
     if (open) {
-      setForm(emptyForm);
+      setForm({
+        ...emptyForm,
+        ...Object.fromEntries(Object.keys(emptyForm).map((key) => [key, item?.[key] ?? emptyForm[key as keyof typeof emptyForm]])),
+        plate: String(item?.plate ?? "").toUpperCase(),
+      });
       setErrors?.({});
     }
-  }, [open, setErrors]);
+  }, [open, item?.id, setErrors]);
 
   const people = (extraData?.units || []).find(
     (unit: any) => String(unit.id) === String(form.dpto_id),
   )?.people || [];
 
   const handleChange = ({ target: { name, value } }: any) => {
-    const nextValue = value === "NONE" ? "" : value;
+    const nextValue = name === "plate" ? String(value).toUpperCase() : value === "NONE" ? "" : value;
     setForm((current: any) => ({
       ...current, [name]: nextValue,
       ...(name === "kind" ? { owner_id: "", visitor_name: "", dpto_id: "" } : {}),
@@ -46,17 +50,25 @@ export default function VehicleForm({ open, onClose, onSave, errors, setErrors, 
       return;
     }
     onSave?.({
-      ...form,
+      ...(item?.id ? { id: item.id } : {}),
+      kind: form.kind,
+      vehicle_type: form.vehicle_type,
       plate: form.plate.trim().toUpperCase(),
       dpto_id: form.dpto_id || null,
       owner_id: form.kind === "resident" ? form.owner_id || null : null,
       visitor_name: form.kind === "visitor" ? form.visitor_name.trim() || null : null,
+      brand: form.brand,
+      model: form.model,
+      color: form.color,
+      notes: form.notes,
     }, setErrors);
   };
 
   return (
-    <DataModal open={open} onClose={onClose} onSave={handleSave} title="Nuevo vehículo"
-      buttonText="Registrar vehículo" buttonCancel="Cancelar" maxWidth={760}>
+    <DataModal open={open} onClose={onClose} onSave={handleSave}
+      title={item?.id ? "Editar vehículo" : "Nuevo vehículo"}
+      buttonText={item?.id ? "Guardar cambios" : "Registrar vehículo"}
+      buttonCancel="Cancelar" maxWidth={760}>
       <div className={styles.form}>
         <p className={styles.helper}>Este registro no crea un ingreso en portería. Los vehículos de visita pueden indicar una unidad de destino.</p>
         <div className={styles.grid}>
@@ -67,7 +79,7 @@ export default function VehicleForm({ open, onClose, onSave, errors, setErrors, 
               { id: "truck", name: "Camioneta / camión" }, { id: "other", name: "Otro" }]}
             error={errors} required />
           <Input name="plate" label="Placa" value={form.plate} onChange={handleChange}
-            error={errors} required maxLength={16} />
+            error={errors} required maxLength={16} styleInput={{ textTransform: "uppercase" }} />
           <Select name="dpto_id" label={form.kind === "visitor" ? "Unidad de destino (opcional)" : "Unidad"}
             value={form.dpto_id} onChange={handleChange} options={form.kind === "visitor"
               ? [{ id: "NONE", name: "Sin unidad" }, ...(extraData?.units || [])]
