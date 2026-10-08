@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
+import { notifStorageKey } from "./notifStorageKey";
 import styles from "./Notifications.module.css";
 import { useEffect, useMemo, useState } from "react";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
@@ -92,11 +93,11 @@ const Notifications = () => {
   const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
 
   const mod: ModCrudType = {
-    // 🔴 La campanita pasó al módulo v3 del API. La ruta vieja
-    // `GET /api/notifications` sigue viva como alias de BC, pero es lo único
-    // que quedó de aquel `apiResource`: las otras cuatro acciones se
-    // retiraron, porque estaban abiertas a cualquier autenticado y no las
-    // llamaba nadie — de ahí que `hideActions` las esconda a las cuatro.
+    // 🔴 La campanita es sólo el listado `GET /api/v3/notifications`: el
+    // alias sin `v3` se retiró (decisión A4) y las otras cuatro acciones del
+    // viejo `apiResource` también, porque estaban abiertas a cualquier
+    // autenticado y no las llamaba nadie — de ahí que `hideActions` las
+    // esconda a las cuatro.
     modulo: "v3/notifications",
     singular: "Notificación",
     plural: "Notificaciones",
@@ -346,7 +347,7 @@ const Notifications = () => {
               const parsedMessage = parseNotificationMessage(props.item.message);
 
               const notificationsView = JSON.parse(
-                localStorage.getItem("notificationsView") || "[]",
+                localStorage.getItem(notifStorageKey("notificationsView", user)) || "[]",
               );
               const isRead = notificationsView.includes(props.item.id);
 
@@ -393,7 +394,7 @@ const Notifications = () => {
         },
       },
     };
-  }, [user?.id]);
+  }, [user]);
 
   // Usar useCrud normalmente SIN filtrar datos aquí
   const { List, setStore, onSearch, searchs, data } = useCrud({
@@ -419,20 +420,20 @@ const Notifications = () => {
 
   useEffect(() => {
     if (data?.data?.length > 0) {
-      localStorage.setItem("notifId", data.data[0].id);
+      localStorage.setItem(notifStorageKey("notifId", user), data.data[0].id);
     }
-  }, [data]);
+  }, [data, user]);
 
   const handleRowClick = (item: any) => {
     try {
       // Agregar a localStorage para marcar como leída
       const notificationsView = JSON.parse(
-        localStorage.getItem("notificationsView") || "[]",
+        localStorage.getItem(notifStorageKey("notificationsView", user)) || "[]",
       );
       if (!notificationsView.includes(item.id)) {
         notificationsView.push(item.id);
         localStorage.setItem(
-          "notificationsView",
+          notifStorageKey("notificationsView", user),
           JSON.stringify(notificationsView),
         );
       }
