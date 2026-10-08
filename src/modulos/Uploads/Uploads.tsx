@@ -299,8 +299,8 @@ export default function Uploads() {
     // API la cierra al equipo de la plataforma.
     const { data, error } = await execute("/v3/masivexls", "POST", formData);
 
-    // 🔴 El sobre del 200 ENVUELVE el resultado del importador: `sendResponse()`
-    // mete lo que devolvió el service en `data`, así que los errores de una
+    // 🔴 El sobre del 200 ENVUELVE el resumen de la carga: `sendResponse()`
+    // lo mete en `data` (`BulkOperationsController::resumen`), así que los errores de una
     // importación parcial viajan en `data.data.errors` — nunca hubo nada en
     // `data.errors`. El sobre de fallo (`sendError()`) sí los deja en la raíz.
     // Se leen los dos niveles porque el mismo endpoint contesta de las dos
@@ -318,7 +318,7 @@ export default function Uploads() {
     if (data?.success) {
       // 🔴 `success: true` NO quiere decir "sin errores". El importador de
       // expensas commitea las filas buenas y devuelve las malas adentro del
-      // mismo sobre (`ExpenseImportService:283-289`): 499 filas entran, una
+      // mismo sobre (`ExpenseImportService::import`): 499 filas entran, una
       // falla, y la pantalla decía "Archivo procesado correctamente" con las
       // filas rechazadas invisibles. Es el defecto original servido bajo cartel
       // de éxito, que es peor que no mostrarlas en la rama de fallo.
