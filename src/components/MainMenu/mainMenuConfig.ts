@@ -31,6 +31,7 @@ export type MenuConfigItem =
         labelKey: string;
         badgeKey?: string;
         fosOnly?: boolean;
+        skipAsLanding?: boolean;
       }>;
     };
 
@@ -133,6 +134,8 @@ export const menuConfig: MenuConfigItem[] = [
     key: "Administración",
     items: [
       { href: "/units", perm: "units", labelKey: "units" },
+      { href: "/pets", perm: "owners", labelKey: "pets", skipAsLanding: true },
+      { href: "/vehicles", perm: "units", labelKey: "vehicles", skipAsLanding: true },
       { href: "/suppliers", perm: "outlays", labelKey: "suppliers" },
       { href: "/assemblies", perm: "units", labelKey: "assemblies" },
       { href: "/documents", perm: "documents", labelKey: "documents" },
@@ -244,7 +247,7 @@ export const getFirstAccessibleMenuRoute = (
     }
 
     const firstAccessibleItem = item.items.find((subitem) =>
-      isMenuItemVisible(subitem, canAccess, isFos),
+      !subitem.skipAsLanding && isMenuItemVisible(subitem, canAccess, isFos),
     );
 
     if (firstAccessibleItem) {
