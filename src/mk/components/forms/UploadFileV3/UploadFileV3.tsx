@@ -34,6 +34,7 @@ interface UploadFileV3Props {
   error?: Record<string, string | undefined>;
   title?: string;
   subtitle?: string;
+  preserveExistingOnRemove?: boolean;
 }
 
 const extDocuments = ["pdf", "docx", "doc", "xlsx", "xls", "txt", "csv"];
@@ -50,6 +51,7 @@ const UploadFileV3 = ({
   error,
   title,
   subtitle,
+  preserveExistingOnRemove = false,
 }: UploadFileV3Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -74,6 +76,7 @@ const UploadFileV3 = ({
     mode,
     showToast,
     resetInput,
+    preserveExistingOnRemove,
   });
 
   const isSingle = cant === 1;
