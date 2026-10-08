@@ -17,6 +17,60 @@
   gap: 16px;
 }
 
+.categoryPicker {
+  position: relative;
+  min-width: 0;
+  z-index: 2;
+}
+
+.categoryMenu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 5px;
+  border: 1px solid var(--cModalBorder);
+  border-radius: 12px;
+  background: var(--cModalSurfaceRaised);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.36);
+}
+
+.categoryOption {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--cWhite);
+  text-align: left;
+  cursor: pointer;
+}
+
+.categoryOption:hover,
+.categoryOption[aria-selected="true"] {
+  background: var(--cHoverCompl1);
+}
+
+.createCategory {
+  margin-top: 4px;
+  border-top: 1px solid var(--cModalBorder);
+  color: var(--cPrimary);
+  font-weight: 600;
+}
+
+.categoryEmpty {
+  margin: 0;
+  padding: 10px 12px;
+  color: var(--cWhiteV1);
+  font-size: 13px;
+}
+
 .detailGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
