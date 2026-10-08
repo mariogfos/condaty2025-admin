@@ -5,6 +5,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import SupplierCategoryPicker, { categoryKey } from "./SupplierCategoryPicker";
 import styles from "./Suppliers.module.css";
 
 const emptyForm = {
@@ -20,8 +21,10 @@ const emptyForm = {
   status: "A",
 };
 
-export default function SupplierForm({ open, onClose, item, onSave, errors, setErrors }: any) {
+export default function SupplierForm({ open, onClose, item, onSave, errors, setErrors, extraData, getExtraData, execute, showToast }: any) {
   const [form, setForm] = useState<any>(emptyForm);
+  const [createdCategories, setCreatedCategories] = useState<{ id: string; name: string }[]>([]);
+  const [creatingCategory, setCreatingCategory] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -29,6 +32,8 @@ export default function SupplierForm({ open, onClose, item, onSave, errors, setE
       setErrors?.({});
     }
   }, [open, item?.id, setErrors]);
+
+  useEffect(() => setCreatedCategories([]), [extraData]);
 
   const handleChange = ({ target: { name, value } }: any) => {
     setForm((current: any) => ({ ...current, [name]: value }));
@@ -40,7 +45,41 @@ export default function SupplierForm({ open, onClose, item, onSave, errors, setE
       setErrors?.((current: any) => ({ ...current, name: "Ingresa el nombre del proveedor" }));
       return;
     }
-    onSave?.({ ...form, name: form.name.trim() }, setErrors);
+    const category = form.service_category?.trim();
+    const selected = categories.find(({ name }) => categoryKey(name) === categoryKey(category || ""));
+    if (category && !selected) {
+      setErrors?.((current: any) => ({ ...current, service_category: "Selecciona un rubro o créalo desde la lista." }));
+      return;
+    }
+    onSave?.({ ...form, name: form.name.trim(), service_category: selected?.name || "" }, setErrors);
+  };
+
+  const categories = [...(extraData?.serviceCategories || []), ...createdCategories];
+  if (item?.service_category && !categories.some(({ name }) => categoryKey(name) === categoryKey(item.service_category))) {
+    categories.push({ id: item.service_category, name: item.service_category });
+  }
+
+  const createCategory = async (name: string): Promise<boolean> => {
+    if (creatingCategory) return false;
+    setCreatingCategory(true);
+    try {
+      const { data, error } = await execute("/suppliers/service-categories", "POST", { name }, false, true);
+      if (!data?.success || !data?.data?.name) {
+        showToast?.(data?.message || error?.data?.message || "No se pudo crear el rubro", "error");
+        return false;
+      }
+      const created = data.data;
+      setCreatedCategories((current) => current.some(({ name }) => categoryKey(name) === categoryKey(created.name))
+        ? current : [...current, created]);
+      handleChange({ target: { name: "service_category", value: created.name } });
+      void getExtraData?.();
+      return true;
+    } catch {
+      showToast?.("No se pudo crear el rubro", "error");
+      return false;
+    } finally {
+      setCreatingCategory(false);
+    }
   };
 
   return (
@@ -51,6 +90,7 @@ export default function SupplierForm({ open, onClose, item, onSave, errors, setE
       title={item?.id ? "Editar proveedor" : "Nuevo proveedor"}
       buttonText={item?.id ? "Guardar cambios" : "Crear proveedor"}
       buttonCancel="Cancelar"
+      disabled={creatingCategory}
       maxWidth={720}
     >
       <div className={styles.form}>
@@ -73,14 +113,13 @@ export default function SupplierForm({ open, onClose, item, onSave, errors, setE
             required
             maxLength={160}
           />
-          <Input
-            name="service_category"
-            label="Rubro o servicio"
-            placeholder="Ej. Seguridad, jardinería, administración"
+          <SupplierCategoryPicker
             value={form.service_category || ""}
-            onChange={handleChange}
+            options={categories}
+            onChange={(value) => handleChange({ target: { name: "service_category", value } })}
+            onCreate={createCategory}
+            creating={creatingCategory}
             error={errors}
-            maxLength={100}
           />
           <Input
             name="document_number"
