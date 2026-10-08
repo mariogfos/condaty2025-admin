@@ -945,5 +945,5 @@
 
   /* Sin `.printViewport` / `.printPageShell` / `.printPage`: venían de `test`
      sin un solo elemento que las usara, y pedían tres tokens que nadie define.
-     El PDF lo arma `GET /reports/{key}/document` en el servidor. */
+     El PDF lo arma `GET /v3/reports/{key}/document` en el servidor. */
 }
