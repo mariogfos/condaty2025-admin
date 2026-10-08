@@ -44,12 +44,14 @@ interface OutlayFormState {
   filename?: string | null;
   ext?: string | null;
   bank_account_id?: number | null;
+  supplier_id?: number | string | null;
 }
 
 interface ExtraData {
   categories?: Category[];
   subcategories?: Subcategory[];
   bankAccounts?: object[];
+  suppliers?: { id: number; name: string; type: string }[];
 }
 
 interface Errors {
@@ -299,6 +301,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       amount,
       type,
       url_file,
+      supplier_id,
     } = _formState;
 
     const searchSubcategory: any = extraData?.subcategories?.find(
@@ -330,6 +333,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       type,
       url_file: Array.isArray(url_file) ? url_file : [],
       bank_account_id: bank_account_id || null,
+      supplier_id: supplier_id && supplier_id !== "NONE" ? Number(supplier_id) : null,
     };
 
     onSave?.(params);
@@ -447,6 +451,22 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               </div>
             </div>
+          </div>
+          <div className={styles.section}>
+            <Select
+              name="supplier_id"
+              value={_formState.supplier_id ?? "NONE"}
+              label="Proveedor (opcional)"
+              onChange={handleChangeInput}
+              options={[
+                { id: "NONE", name: "Sin proveedor" },
+                ...(extraData?.suppliers || []),
+              ]}
+              filter
+              required={false}
+              optionLabel="name"
+              optionValue="id"
+            />
           </div>
           <div className={styles['input-container']}>
             <Select

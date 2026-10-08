@@ -250,6 +250,22 @@ const Outlays = () => {
           },
         },
       },
+      supplier_id: {
+        rules: [],
+        api: "ae",
+        label: "Proveedor",
+        list: {
+          order: 5,
+          onRender: ({ item }: any) => item.supplier_name || "—",
+        },
+        filter: {
+          label: "Proveedor",
+          options: (extraData: any) => [
+            { id: "ALL", name: "Todos" },
+            ...(extraData?.suppliers || []),
+          ],
+        },
+      },
       type: {
         rules: ["required"],
         api: "ae",
@@ -258,7 +274,7 @@ const Outlays = () => {
       status: {
         rules: [""],
         api: "ae",
-        order: 5,
+        order: 6,
         label: (
           <span
             style={{ display: "block", textAlign: "center", width: "100%" }}
@@ -329,7 +345,7 @@ const Outlays = () => {
       amount: {
         rules: ["required"],
         api: "ae",
-        order: 6,
+        order: 7,
         label: (
           <span
             style={{ display: "block", textAlign: "right", width: "100%" }}

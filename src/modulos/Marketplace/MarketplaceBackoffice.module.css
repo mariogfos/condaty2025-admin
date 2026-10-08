@@ -1,0 +1,138 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 0;
+  padding: 16px;
+}
+
+.listCrud {
+  height: min(560px, calc(100vh - 200px));
+  min-height: 420px;
+  overflow: visible;
+}
+
+.subtitle,
+.muted {
+  color: var(--cWhiteV1, #a7a7a7);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.error,
+.success,
+.emptyState {
+  margin: 0;
+}
+
+.error { color: var(--cError, #e5484d); }
+.success { color: var(--cSuccess, #4caf50); }
+
+.emptyState {
+  align-items: center;
+  border: 1px solid var(--cBorder);
+  border-radius: 8px;
+  color: var(--cWhiteV1, #a7a7a7);
+  display: flex;
+  justify-content: center;
+  min-height: 180px;
+  padding: 24px;
+  text-align: center;
+}
+
+.secondarySection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.sectionHeader {
+  align-items: end;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.sectionTitle {
+  color: var(--cWhite);
+  font-size: var(--title-sm-size);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.categoryForm,
+.tableActions,
+.modalActions {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tableActions { align-items: center; }
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px;
+}
+
+.detailGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.detailGrid dt {
+  color: var(--cWhiteV1, #a7a7a7);
+  font-size: 12px;
+}
+
+.detailGrid dd {
+  color: var(--cWhite);
+  margin: 2px 0 0;
+}
+
+.description {
+  color: var(--cWhite);
+  line-height: 1.5;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.images img {
+  border-radius: 8px;
+  height: 96px;
+  object-fit: cover;
+  width: 96px;
+}
+
+.reason {
+  background: var(--cBackground, #212121);
+  border: 1px solid var(--cBorder);
+  border-radius: var(--controlRadius, 8px);
+  color: var(--cWhite, #fff);
+  min-height: 76px;
+  padding: 10px;
+  resize: vertical;
+  width: 100%;
+}
+
+@media (max-width: 1260px) {
+  .listCrud { height: auto; }
+  .listCrud > div { overflow: visible; }
+}
+
+@media (max-width: 768px) {
+  .container { padding: 12px; }
+  .sectionHeader { align-items: stretch; flex-direction: column; }
+  .detailGrid { grid-template-columns: 1fr; }
+}
