@@ -2,11 +2,12 @@
 import Button from "@/mk/components/forms/Button/Button";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Check from "@/mk/components/forms/Check/Check";
 import styles from "./Permisos.module.css";
 import stylesInput from "@/mk/components/forms/Input/input.module.css";
 import { getFieldErrorMessage } from "@/mk/components/forms/ControlLabel";
+import { canGrantLetter, lettersOf } from "./grantPolicy";
 
 const Permisos = ({
   field = "",
@@ -21,9 +22,41 @@ const Permisos = ({
   const abilitiesError = getFieldErrorMessage(error, "abilities");
   const { user } = useAuth();
 
+  /**
+   * What the role had on the first render — the same moment the effect below
+   * parses `data.abilities` (the form mounts this editor with the row already
+   * loaded). The API rejects only ADDED letters the actor lacks
+   * (`RoleWriteRequest`), so a stored letter stays tickable and untickable
+   * even when the actor does not have it.
+   */
+  const stored = useRef<string>(data?.abilities || "");
+  const mayTick = (module: string, letter: string) =>
+    canGrantLetter(user, module, letter) ||
+    lettersOf(stored.current, module).includes(letter);
+  /** An unticked letter the actor may not grant. */
+  const isLocked = (module: string, letter: string) =>
+    (permisos[module] + "").indexOf(letter) == -1 && !mayTick(module, letter);
+  const grantable = (module: string, current: string = "") =>
+    "CRUD"
+      .split("")
+      .filter((letter) => current.includes(letter) || mayTick(module, letter))
+      .join("");
+  const sameLetters = (a: string, b: string) =>
+    a.split("").sort().join("") === b.split("").sort().join("");
+
+  /**
+   * The row's switch. It decides on what the row HAS, not on `checked`: with
+   * a partial grant the switch never shows «all» (`isCRUD()`), so each click
+   * would fill again instead of clearing (4R). Full for this actor → clear.
+   */
   const onSelAll = (e: any) => {
-    const { name, checked } = e.target;
-    setPermisos({ ...permisos, [name]: checked ? "CRUD" : "" });
+    const { name } = e.target;
+    const current = permisos[name] || "";
+    const full = grantable(name, current);
+    setPermisos({
+      ...permisos,
+      [name]: current !== "" && sameLetters(current, full) ? "" : full,
+    });
   };
 
   const onSelAllCat = (catId: number) => {
@@ -36,7 +69,7 @@ const Permisos = ({
     });
     options.map((item: any) => {
       if (item.ability_category_id == catId) {
-        per[item.name] = llenar;
+        per[item.name] = llenar ? grantable(item.name, per[item.name] || "") : "";
       }
     });
     setPermisos({ ...permisos, ...per });
@@ -144,7 +177,7 @@ const Permisos = ({
                           : "N"
                       }
                       onChange={onSelItem}
-                      disabled={!setItem}
+                      disabled={!setItem || isLocked(item.name, "R")}
                       label="Ver"
                       reverse={true}
                     />
@@ -157,7 +190,7 @@ const Permisos = ({
                           : "N"
                       }
                       onChange={onSelItem}
-                      disabled={!setItem}
+                      disabled={!setItem || isLocked(item.name, "C")}
                       label="Crear"
                       reverse={true}
                     />
@@ -170,7 +203,7 @@ const Permisos = ({
                           : "N"
                       }
                       onChange={onSelItem}
-                      disabled={!setItem}
+                      disabled={!setItem || isLocked(item.name, "U")}
                       label="Editar"
                       reverse={true}
                     />
@@ -183,7 +216,7 @@ const Permisos = ({
                           : "N"
                       }
                       onChange={onSelItem}
-                      disabled={!setItem}
+                      disabled={!setItem || isLocked(item.name, "D")}
                       label="Eliminar"
                       reverse={true}
                     />

@@ -13,8 +13,11 @@ import { render, fireEvent, cleanup, screen } from "@testing-library/react";
 import { vi, describe, it, expect, afterEach } from "vitest";
 import Permisos from "../Permisos";
 
+// FOS by default: these cases measure how the string is built, not who may
+// grant (that is «Permisos: nadie da lo que no tiene», below).
+let mockUser: any = { id: 1, client_id: 7, fosrole_id: 1 };
 vi.mock("@/mk/contexts/AuthProvider", () => ({
-  useAuth: () => ({ user: { id: 1, client_id: 7 } }),
+  useAuth: () => ({ user: mockUser }),
 }));
 
 const options = [
@@ -34,7 +37,10 @@ const renderEditor = (abilities: string, error: any = {}) => {
   return { box, saved };
 };
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  mockUser = { id: 1, client_id: 7, fosrole_id: 1 };
+});
 
 describe("Permisos: el nombre de la habilidad", () => {
   it("tildar una letra de un módulo con `_` guarda `modulo:LETRA`", () => {
@@ -90,5 +96,73 @@ describe("Permisos: el 422 del API", () => {
 
     expect(box("roles_R")).toBeTruthy();
     expect(screen.queryByText("otro campo")).toBeNull();
+  });
+});
+
+/**
+ * 🔴 Nadie reparte una letra que no tiene — salvo FOS y el `adm`
+ * (`RoleWriteRequest`, 2026-10-08). La pantalla no ofrece lo que el API
+ * rechaza; lo que el rol ya tenía se sigue pudiendo sacar.
+ */
+describe("Permisos: nadie da lo que no tiene", () => {
+  const asSupervisor = () => {
+    mockUser = { id: 2, client_id: 7, role: { code: "sup", abilities: "roles:CRU|bank_accounts:R|" } };
+  };
+
+  it("una letra que el actor no tiene no se puede tildar", () => {
+    asSupervisor();
+    const { box } = renderEditor("");
+
+    expect(box("roles_C").disabled).toBe(false);
+    expect(box("roles_D").disabled).toBe(true);
+    expect(box("debts_manager_R").disabled).toBe(true);
+    expect(box("bank_accounts_R").disabled).toBe(false);
+  });
+
+  it("lo que el rol ya tenía se puede sacar aunque el actor no lo tenga", () => {
+    asSupervisor();
+    const { box, saved } = renderEditor("debts_manager:CRUD|");
+
+    expect(box("debts_manager_D").disabled).toBe(false);
+    fireEvent.click(box("debts_manager_D"));
+
+    expect(saved()).toBe("debts_manager:CRU|");
+  });
+
+  it("«todos» de un módulo tilda sólo lo que el actor puede dar", () => {
+    asSupervisor();
+    const { saved } = renderEditor("");
+
+    fireEvent.click(document.querySelector('input[name="roles"]') as HTMLInputElement);
+
+    expect(saved()).toBe("roles:CRU|");
+  });
+
+  it("con lo parcial puesto, el «todos» de la fila la vacía en vez de volver a llenarla", () => {
+    asSupervisor();
+    const { saved } = renderEditor("");
+    const toggle = () => document.querySelector('input[name="roles"]') as HTMLInputElement;
+
+    fireEvent.click(toggle());
+    expect(saved()).toBe("roles:CRU|");
+    fireEvent.click(toggle());
+    expect(saved()).toBe("");
+  });
+
+  it("el «Todos» de una categoría tilda sólo lo que el actor puede dar", () => {
+    asSupervisor();
+    const { saved } = renderEditor("");
+
+    fireEvent.click(screen.getByText("Todos"));
+
+    expect(saved()).toBe("bank_accounts:R|roles:CRU|");
+  });
+
+  it("el adm del condominio da cualquier letra", () => {
+    mockUser = { id: 3, client_id: 7, role: { code: "adm", abilities: "roles:R|" } };
+    const { box } = renderEditor("");
+
+    expect(box("debts_manager_D").disabled).toBe(false);
+    expect(box("roles_D").disabled).toBe(false);
   });
 });
