@@ -6,6 +6,7 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import styles from "./Invitations.module.css";
 import { getDateTimeStrMes } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
+import { isCampaignDeletable } from "./campaignRules";
 
 const paramsInitial = {
   perPage: 20,
@@ -23,7 +24,7 @@ const mod: ModCrudType = {
   extraData: true,
   onHideActions: (item: any) => {
     return {
-      hideDel: item.clients_count > 0,
+      hideDel: !isCampaignDeletable(item),
     };
   },
   hideActions: {
