@@ -13,6 +13,7 @@ import {
 import HeadTitle from "../HeadTitle/HeadTitle";
 import Link from "next/link";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { notifStorageKey } from "@/modulos/Notifications/notifStorageKey";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 import { useEvent } from "@/mk/hooks/useEvents";
 import { useCallback, useEffect, useState } from "react";
@@ -81,7 +82,9 @@ const Header = ({
     const checkNotif = async () => {
       let notifId = 0;
       try {
-        notifId = parseInt(localStorage.getItem("notifId") || "0");
+        notifId = parseInt(
+          localStorage.getItem(notifStorageKey("notifId", user)) || "0",
+        );
       } catch (error) {
         notifId = 0;
       }
@@ -90,7 +93,7 @@ const Header = ({
       }
     };
     if (count === 0) checkNotif();
-  }, [user?.notifId, count]);
+  }, [user, count]);
 
   const Title = () => (
     <div className={styles["header-mobile-title"]}>
