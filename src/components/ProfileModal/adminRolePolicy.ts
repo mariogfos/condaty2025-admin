@@ -28,7 +28,9 @@ type AdminTarget = {
   role?: AdminRole[];
 };
 
-const isPlatform = (actor?: AdminActor | null) => Number(actor?.fosrole_id) > 0;
+/** FOS: the platform superadmin (`fosrole_id > 0`, like the API). */
+export const isPlatform = (actor?: { fosrole_id?: number | string | null } | null) =>
+  Number(actor?.fosrole_id ?? 0) > 0;
 
 export const isMainAdministratorRole = (role?: { code?: string | null } | null) =>
   String(role?.code ?? "").trim().toLowerCase() === MAIN_ADMINISTRATOR_CODE;

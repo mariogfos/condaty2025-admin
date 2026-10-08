@@ -3,23 +3,29 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import { isPlatform as isPlatformAdmin } from "@/components/ProfileModal/adminRolePolicy";
 
-const mod: ModCrudType = {
+const baseMod: ModCrudType = {
   modulo: "v3/ability-categories",
   singular: "Categoría",
   plural: "Categorías",
   // import: true,
   // importRequiredCols:"NAME",
   permiso: "",
-  onHideActions: (item: any) => {
-    return {
-      hideEdit: item.is_assigned == "1",
-      hideDel: item.is_assigned == "1",
-    };
-  },
 };
 
 const RolesCategories = () => {
+  // Lo escribe sólo FOS: ver el comentario de `RolesAbilities.tsx`.
+  const { user } = useAuth();
+  const isPlatform = isPlatformAdmin(user);
+  const mod: ModCrudType = useMemo(
+    () => ({
+      ...baseMod,
+      hideActions: { add: !isPlatform, edit: !isPlatform, del: !isPlatform },
+    }),
+    [isPlatform],
+  );
   const paramsInitial = {
     perPage: 20,
     page: 1,
