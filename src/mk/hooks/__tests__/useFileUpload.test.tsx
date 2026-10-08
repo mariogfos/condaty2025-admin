@@ -15,6 +15,7 @@ const fileList = (file: File) =>
     0: file,
     item: (index: number) => (index === 0 ? file : null),
     length: 1,
+    *[Symbol.iterator]() { yield file; },
   }) as FileList;
 
 describe("useFileUpload", () => {
@@ -54,5 +55,18 @@ describe("useFileUpload", () => {
       "error",
     );
     expect(result.current.filePreviews).toEqual([]);
+  });
+
+  it("conserva en Cloudinary una foto ya guardada al retirarla de un formulario aún no confirmado", async () => {
+    const url = "https://res.cloudinary.com/demo/image/upload/v1/vehicle.jpg";
+    const { result } = renderHook(() => useFileUpload({
+      formState: { images: [url] }, name: "images", setFormState: vi.fn(),
+      showToast: vi.fn(), preserveExistingOnRemove: true,
+    }));
+
+    expect(result.current.filePreviews).toHaveLength(1);
+    await act(async () => result.current.handleDelete(0));
+    expect(storage.delete).not.toHaveBeenCalled();
+    expect(result.current.filePreviews).toHaveLength(0);
   });
 });
