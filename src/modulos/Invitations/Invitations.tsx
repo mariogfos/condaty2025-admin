@@ -55,7 +55,7 @@ const Invitations = () => {
             );
           },
         },
-        form: { type: "text", label: "Nombre del rol" },
+        form: { type: "text", label: "Nombre" },
       },
       clients_count: {
         rules: ["required"],
@@ -71,7 +71,7 @@ const Invitations = () => {
             item?.clients_count +
             (item?.clients_count > 1 ? " Condominios" : " Condominio"),
         },
-        form: { type: "text", label: "Código del rol" },
+        form: { type: "text", label: "Uso actual" },
       },
       images_count: {
         rules: [""],
@@ -103,7 +103,7 @@ const Invitations = () => {
       fields,
     },
   );
-  const { onLongPress, selItem } = useCrudUtils({
+  useCrudUtils({
     onSearch,
     searchs,
     setStore,

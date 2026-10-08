@@ -91,9 +91,13 @@ const RenderForm = ({
     } else {
       // 🔴 On a 4xx `execute` returns `{data: null, error}`: this read
       // `data.message` and threw, so a 422 («cada imagen tiene que ser una
-      // dirección https») left the modal open with no message at all.
+      // dirección https») left the modal open with no message at all. The
+      // first field error goes before `message`: with two errors Laravel
+      // appends «(and 1 more error)» in English to the latter.
+      const firstFieldError: any = Object.values(error?.data?.errors ?? {})[0];
       showToast(
         data?.message ||
+          firstFieldError?.[0] ||
           error?.data?.message ||
           "No se pudo guardar la campaña",
         "error",
@@ -116,7 +120,7 @@ const RenderForm = ({
       onClose={onClose}
       icon={<IconDepartment2 />}
       title={formState.id ? "Editar campaña" : "Crear campaña"}
-      subtitle="El banner y el texto del QR de invitación de los condominios que elijas"
+      subtitle="El banner del QR de invitación de los condominios que elijas"
       onSave={_onSave}
       variant={"mini"}
       buttonText={formState.id ? "Actualizar campaña" : "Crear campaña"}
