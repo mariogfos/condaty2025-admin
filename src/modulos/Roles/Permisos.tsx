@@ -2,11 +2,12 @@
 import Button from "@/mk/components/forms/Button/Button";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Check from "@/mk/components/forms/Check/Check";
 import styles from "./Permisos.module.css";
 import stylesInput from "@/mk/components/forms/Input/input.module.css";
 import { getFieldErrorMessage } from "@/mk/components/forms/ControlLabel";
+import { canGrantLetter, lettersOf } from "./grantPolicy";
 
 const Permisos = ({
   field = "",
@@ -21,9 +22,27 @@ const Permisos = ({
   const abilitiesError = getFieldErrorMessage(error, "abilities");
   const { user } = useAuth();
 
+  /**
+   * What the role had when the editor opened. The API rejects only ADDED
+   * letters the actor lacks (`RoleWriteRequest`), so a stored letter stays
+   * tickable and untickable even when the actor does not have it.
+   */
+  const stored = useRef<string>(data?.abilities || "");
+  const allowed = (module: string, letter: string) =>
+    canGrantLetter(user, module, letter) ||
+    lettersOf(stored.current, module).includes(letter);
+  const grantable = (module: string, current: string = "") =>
+    "CRUD"
+      .split("")
+      .filter((letter) => current.includes(letter) || allowed(module, letter))
+      .join("");
+
   const onSelAll = (e: any) => {
     const { name, checked } = e.target;
-    setPermisos({ ...permisos, [name]: checked ? "CRUD" : "" });
+    setPermisos({
+      ...permisos,
+      [name]: checked ? grantable(name, permisos[name] || "") : "",
+    });
   };
 
   const onSelAllCat = (catId: number) => {
@@ -36,7 +55,7 @@ const Permisos = ({
     });
     options.map((item: any) => {
       if (item.ability_category_id == catId) {
-        per[item.name] = llenar;
+        per[item.name] = llenar ? grantable(item.name, per[item.name] || "") : "";
       }
     });
     setPermisos({ ...permisos, ...per });
@@ -144,7 +163,11 @@ const Permisos = ({
                           : "N"
                       }
                       onChange={onSelItem}
-                      disabled={!setItem}
+                      disabled={
+                        !setItem ||
+                        ((permisos[item.name] + "").indexOf("R") == -1 &&
+                          !allowed(item.name, "R"))
+                      }
                       label="Ver"
                       reverse={true}
                     />
@@ -157,7 +180,11 @@ const Permisos = ({
                           : "N"
                       }
                       onChange={onSelItem}
-                      disabled={!setItem}
+                      disabled={
+                        !setItem ||
+                        ((permisos[item.name] + "").indexOf("C") == -1 &&
+                          !allowed(item.name, "C"))
+                      }
                       label="Crear"
                       reverse={true}
                     />
@@ -170,7 +197,11 @@ const Permisos = ({
                           : "N"
                       }
                       onChange={onSelItem}
-                      disabled={!setItem}
+                      disabled={
+                        !setItem ||
+                        ((permisos[item.name] + "").indexOf("U") == -1 &&
+                          !allowed(item.name, "U"))
+                      }
                       label="Editar"
                       reverse={true}
                     />
@@ -183,7 +214,11 @@ const Permisos = ({
                           : "N"
                       }
                       onChange={onSelItem}
-                      disabled={!setItem}
+                      disabled={
+                        !setItem ||
+                        ((permisos[item.name] + "").indexOf("D") == -1 &&
+                          !allowed(item.name, "D"))
+                      }
                       label="Eliminar"
                       reverse={true}
                     />
