@@ -154,6 +154,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
     return {
       searchBy: isAccessIdSearch ? normalizedIdCandidate : resolvedTerm,
       searchById: isAccessIdSearch ? normalizedIdCandidate : "",
+      plateExact: "",
       fullType: isAccessIdSearch ? "DET" : "L",
     };
   };
