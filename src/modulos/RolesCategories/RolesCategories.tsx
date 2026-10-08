@@ -4,6 +4,7 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { isPlatform as isPlatformAdmin } from "@/components/ProfileModal/adminRolePolicy";
 
 const baseMod: ModCrudType = {
   modulo: "v3/ability-categories",
@@ -15,12 +16,9 @@ const baseMod: ModCrudType = {
 };
 
 const RolesCategories = () => {
-  // 🔴 El catálogo es de la plataforma: lo escribe sólo FOS (`fosrole_id > 0`)
-  // y el API le contesta 403 a cualquier otro ADM. La pantalla no ofrece lo que
-  // el API rechaza. (El `onHideActions` con `is_assigned` que había acá leía una
-  // clave que el API no manda.)
+  // Lo escribe sólo FOS: ver el comentario de `RolesAbilities.tsx`.
   const { user } = useAuth();
-  const isPlatform = Number(user?.fosrole_id ?? 0) > 0;
+  const isPlatform = isPlatformAdmin(user);
   const mod: ModCrudType = useMemo(
     () => ({
       ...baseMod,

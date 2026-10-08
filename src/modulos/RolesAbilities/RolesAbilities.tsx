@@ -4,6 +4,7 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { isPlatform as isPlatformAdmin } from "@/components/ProfileModal/adminRolePolicy";
 
 const baseMod: ModCrudType = {
   // 🔴 `v3/abilities`, no `abilities`. El catálogo de permisos vivía en
@@ -25,7 +26,7 @@ const RolesAbilities = () => {
   // el API rechaza. (El `onHideActions` con `is_assigned` que había acá leía una
   // clave que el API no manda.)
   const { user } = useAuth();
-  const isPlatform = Number(user?.fosrole_id ?? 0) > 0;
+  const isPlatform = isPlatformAdmin(user);
   const mod: ModCrudType = useMemo(
     () => ({
       ...baseMod,
