@@ -1,6 +1,8 @@
 "use client";
 
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Button from "@/mk/components/forms/Button/Button";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./AdministrationAssets.module.css";
 
 const fullName = (person: any) =>
@@ -11,8 +13,11 @@ const vehicleTypes: Record<string, string> = {
   car: "Automóvil", motorcycle: "Motocicleta", truck: "Camioneta / camión", other: "Otro",
 };
 
-export default function VehicleView({ open, onClose, item }: any) {
+export default function VehicleView({ open, onClose, item, onEdit, onDel }: any) {
+  const { userCan } = useAuth();
   if (!item) return null;
+  const canEdit = userCan("units", "U");
+  const canDelete = userCan("units", "D");
   const fields = [
     ["Placa", item.plate],
     ["Vínculo", item.kind === "visitor" ? "Visita" : "Residente"],
@@ -27,7 +32,9 @@ export default function VehicleView({ open, onClose, item }: any) {
 
   return (
     <DataModal open={open} onClose={onClose} title="Detalle del vehículo"
-      buttonText="" buttonCancel="Cerrar" maxWidth={720}>
+      buttonText={canEdit ? "Editar" : ""} buttonCancel="" maxWidth={720}
+      onSave={() => { onClose(); onEdit(item); }}
+      buttonExtra={canDelete ? <Button variant="danger" onClick={() => onDel(item)}>Eliminar</Button> : null}>
       <div className={styles.detailGrid}>
         {fields.map(([label, value]) => (
           <div className={styles.field} key={label}>

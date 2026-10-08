@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
-import { CarFront } from "lucide-react";
+import { Car, Pencil, Trash2 } from "lucide-react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
+import EmptyData from "@/components/NoData/EmptyData";
 import useCrud, { type ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import useCrudUtils from "@/modulos/shared/useCrudUtils";
 import VehicleForm from "./VehicleForm";
 import VehicleView from "./VehicleView";
+import styles from "./AdministrationAssets.module.css";
 
 const vehicleTypes = [
   { id: "car", name: "Automóvil" },
@@ -31,7 +33,7 @@ const mod: ModCrudType = {
   renderForm: VehicleForm,
   renderView: VehicleView,
   loadView: { fullType: "DET" },
-  saveMsg: { add: "Vehículo registrado" },
+  saveMsg: { add: "Vehículo registrado", edit: "Vehículo actualizado", del: "Vehículo eliminado" },
 };
 
 export default function Vehicles() {
@@ -69,13 +71,37 @@ export default function Vehicles() {
     notes: { rules: [], api: "ae", label: "Notas" },
   }), []);
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud({
-    paramsInitial: { fullType: "L", page: 1, perPage: 20, searchBy: "" }, mod, fields,
+  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, params } = useCrud({
+    paramsInitial: { fullType: "L", page: 1, perPage: 20, searchBy: "", filterBy: "kind:resident" }, mod, fields,
   });
   useCrudUtils({ onSearch, searchs, setStore, mod, onEdit, onDel, title: "Vehículos" });
 
   if (!userCan("units", "R")) return <NotAccess />;
-  return <List height="100%" emptyMsg="Aún no hay vehículos registrados en este condominio."
-    emptyLine2="Registra vehículos de residentes o visitas." emptyIcon={<CarFront size={80} color="var(--cWhiteV1)" />}
-    filterBreakPoint={1700} />;
+  const canEdit = userCan("units", "U");
+  const canDelete = userCan("units", "D");
+  const renderActions = (item: any) => (
+    <div className={styles.vehicleActions}>
+      {canEdit ? <button type="button" className={styles.vehicleAction} title="Editar vehículo"
+        aria-label={`Editar vehículo ${item.plate}`} onClick={(event) => { event.stopPropagation(); onEdit(item); }}>
+        <Pencil size={18} />
+      </button> : null}
+      {canDelete ? <button type="button" className={`${styles.vehicleAction} ${styles.deleteAction}`}
+        title="Eliminar vehículo" aria-label={`Eliminar vehículo ${item.plate}`}
+        onClick={(event) => { event.stopPropagation(); onDel(item); }}>
+        <Trash2 size={18} />
+      </button> : null}
+    </div>
+  );
+  const kind = /(?:^|\|)kind:(resident|visitor)(?:\||$)/.exec(String(params.filterBy || ""))?.[1];
+  const emptyMessage = searchs.searchBy ? "No se encontraron vehículos con esa búsqueda."
+    : kind === "resident" ? "Aún no hay vehículos de residentes registrados."
+      : kind === "visitor" ? "Aún no hay vehículos de visita registrados."
+        : "Aún no hay vehículos registrados en este condominio.";
+
+  return <List height="100%" filterBreakPoint={1700}
+    actionsWidth={canEdit && canDelete ? "116px" : "64px"}
+    onButtonActions={canEdit || canDelete ? renderActions : undefined}
+    onRenderEmpty={() => <EmptyData h="100%" message={emptyMessage}
+      line2="Puedes cambiar los filtros o registrar un vehículo."
+      icon={<span className={styles.vehicleEmptyIcon}><Car size={58} strokeWidth={1.7} /></span>} />} />;
 }
