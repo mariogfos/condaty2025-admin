@@ -133,6 +133,7 @@ export const menuConfig: MenuConfigItem[] = [
     key: "Administración",
     items: [
       { href: "/units", perm: "units", labelKey: "units" },
+      { href: "/suppliers", perm: "outlays", labelKey: "suppliers" },
       { href: "/assemblies", perm: "units", labelKey: "assemblies" },
       { href: "/documents", perm: "documents", labelKey: "documents" },
       { href: "/configs", perm: "settings", labelKey: "settings" },

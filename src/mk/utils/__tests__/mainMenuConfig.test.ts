@@ -3,6 +3,7 @@ import {
   getFirstAccessibleMenuRoute,
   isMenuItemVisible,
   menuConfig,
+  type MenuConfigItem,
 } from "@/components/MainMenu/mainMenuConfig";
 
 describe("getFirstAccessibleMenuRoute", () => {
@@ -70,5 +71,16 @@ describe("getFirstAccessibleMenuRoute", () => {
         isMenuItemVisible(item, canReadSurveys, true),
       ),
     ).toBe(true);
+  });
+
+  it("places providers under Administración using the existing egresos permission", () => {
+    const administration = menuConfig.find(
+      (item): item is Extract<MenuConfigItem, { type: "dropdown" }> =>
+        item.type === "dropdown" && item.key === "Administración",
+    );
+    const supplier = administration?.items.find((item) => item.href === "/suppliers");
+
+    expect(supplier).toMatchObject({ perm: "outlays", labelKey: "suppliers" });
+    expect(isMenuItemVisible(supplier!, (permission) => permission === "outlays")).toBe(true);
   });
 });

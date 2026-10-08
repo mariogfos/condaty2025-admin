@@ -18,6 +18,7 @@ const ACTION_LABELS: Record<string, string> = {
   payment_state_checked: "Estado del pago verificado",
   payment_state_repaired: "Estado del pago reparado",
   payment_date_updated: "Fecha de pago editada",
+  expense_supplier_updated: "Proveedor del egreso editado",
 };
 
 const FIELD_LABELS: Record<string, string> = {
@@ -27,6 +28,8 @@ const FIELD_LABELS: Record<string, string> = {
   paid_at: "Fecha de pago",
   status: "Estado",
   payment_id: "Pago vinculado",
+  supplier_id: "Proveedor (ID)",
+  supplier_name: "Proveedor",
   remaining_amount: "Saldo principal",
   total_remaining_amount: "Saldo total",
   is_partial: "Pago parcial",
