@@ -880,7 +880,7 @@ const ReportsPage = () => {
       setActionError("");
 
       const response = await executeRef.current(
-        `/reports/${reportKey}/summary`,
+        `/v3/reports/${reportKey}/summary`,
         "GET",
         summaryRequestParams,
         false,
@@ -998,7 +998,7 @@ const ReportsPage = () => {
       }
 
       const response = await executeRef.current(
-        `/reports/${reportKey}/pages`,
+        `/v3/reports/${reportKey}/pages`,
         "GET",
         {
           ...dataRequestParams,
@@ -1349,7 +1349,7 @@ const ReportsPage = () => {
 
         try {
           const response = await fetch(
-            buildApiPath(`/reports/${reportKey}/document`, {
+            buildApiPath(`/v3/reports/${reportKey}/document`, {
               ...dataRequestParams,
               autoprint: true,
             }),
@@ -1386,7 +1386,7 @@ const ReportsPage = () => {
 
       try {
         const response = await fetch(
-          buildApiPath(`/reports/${reportKey}/xlsx`, dataRequestParams),
+          buildApiPath(`/v3/reports/${reportKey}/xlsx`, dataRequestParams),
           {
             credentials: "include",
             headers: getReportDownloadHeaders(),
