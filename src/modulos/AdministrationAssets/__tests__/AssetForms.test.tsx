@@ -4,6 +4,9 @@ import PetForm from "../PetForm";
 import VehicleForm from "../VehicleForm";
 import VehicleView from "../VehicleView";
 
+const navigation = vi.hoisted(() => ({ push: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => navigation }));
+
 vi.mock("@/mk/contexts/AuthProvider", () => ({
   useAuth: () => ({ userCan: () => true }),
 }));
@@ -67,40 +70,44 @@ describe("Formularios de mascotas y vehículos", () => {
     expect(onSave.mock.calls[0][0]).not.toHaveProperty("client_id");
   });
 
-  it("permite un vehículo de residente con persona de la unidad y uno de visita sin unidad", () => {
+  it("registra únicamente vehículos de una unidad", () => {
     const onSave = vi.fn();
     const setErrors = vi.fn();
     render(<VehicleForm open onClose={vi.fn()} onSave={onSave} errors={{}} setErrors={setErrors}
-      extraData={{ units: [{ id: 7, name: "M5-010", people: [{ id: "owner-1", name: "Ana" }] }] }} />);
+      extraData={{
+        units: [{ id: 7, name: "M5-010", people: [{ id: "owner-1", name: "Ana" }] }],
+        vehicleColors: [{ id: "Azul marino", name: "Azul marino" }],
+      }} />);
     fireEvent.change(screen.getByLabelText("dpto_id"), { target: { value: "7" } });
     fireEvent.change(screen.getByLabelText("owner_id"), { target: { value: "owner-1" } });
     fireEvent.change(screen.getByLabelText("plate"), { target: { value: "abc123" } });
+    fireEvent.change(screen.getByLabelText("color"), { target: { value: "Azul marino" } });
+    fireEvent.click(screen.getByRole("button", { name: "Subir foto" }));
     expect(screen.getByLabelText("plate")).toHaveValue("ABC123");
     fireEvent.click(screen.getByRole("button", { name: "Registrar vehículo" }));
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
       kind: "resident", plate: "ABC123", dpto_id: "7", owner_id: "owner-1",
+      color: "Azul marino", images: ["https://example.org/pet.jpg"],
     }), setErrors);
-
-    fireEvent.change(screen.getByLabelText("kind"), { target: { value: "visitor" } });
-    fireEvent.change(screen.getByLabelText("visitor_name"), { target: { value: "Invitado" } });
-    fireEvent.click(screen.getByRole("button", { name: "Registrar vehículo" }));
-    expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({
-      kind: "visitor", dpto_id: null, owner_id: null, visitor_name: "Invitado",
-    }), setErrors);
+    expect(screen.queryByLabelText("kind")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("visitor_name")).not.toBeInTheDocument();
   });
 
   it("carga un vehículo para editarlo y conserva la placa en mayúsculas desde el input", () => {
     const onSave = vi.fn();
     const setErrors = vi.fn();
-    render(<VehicleForm open item={{ id: 12, kind: "visitor", vehicle_type: "car", plate: "abc123", visitor_name: "Luz" }}
-      onClose={vi.fn()} onSave={onSave} errors={{}} setErrors={setErrors} extraData={{ units: [] }} />);
+    render(<VehicleForm open item={{ id: 12, kind: "resident", vehicle_type: "car", plate: "abc123", dpto_id: "7",
+      images: ["https://example.org/vehicle.jpg"], color: "Plateado" }}
+      onClose={vi.fn()} onSave={onSave} errors={{}} setErrors={setErrors}
+      extraData={{ units: [{ id: 7, name: "M5-010", people: [] }] }} />);
     expect(screen.getByRole("heading", { name: "Editar vehículo" })).toBeInTheDocument();
     expect(screen.getByLabelText("plate")).toHaveValue("ABC123");
     fireEvent.change(screen.getByLabelText("plate"), { target: { value: "xyz789" } });
     expect(screen.getByLabelText("plate")).toHaveValue("XYZ789");
     fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
-      id: 12, kind: "visitor", plate: "XYZ789", visitor_name: "Luz",
+      id: 12, kind: "resident", plate: "XYZ789", dpto_id: "7",
+      color: "Plateado", images: ["https://example.org/vehicle.jpg"],
     }), setErrors);
     expect(onSave.mock.calls[0][0]).not.toHaveProperty("client_id");
   });
@@ -117,5 +124,33 @@ describe("Formularios de mascotas y vehículos", () => {
     expect(onEdit).toHaveBeenCalledWith(expect.objectContaining({ id: 12 }));
     fireEvent.click(screen.getByRole("button", { name: "Eliminar" }));
     expect(onDel).toHaveBeenCalledWith(expect.objectContaining({ id: 12 }));
+  });
+
+  it("muestra fotografías en el detalle solo cuando existen", () => {
+    const { rerender } = render(<VehicleView open item={{ id: 12, plate: "ABC123", images: [] }}
+      onClose={vi.fn()} onEdit={vi.fn()} onDel={vi.fn()} />);
+    expect(screen.queryByText("Fotografías")).not.toBeInTheDocument();
+    rerender(<VehicleView open item={{ id: 12, plate: "ABC123", images: ["https://example.org/vehicle.jpg"] }}
+      onClose={vi.fn()} onEdit={vi.fn()} onDel={vi.fn()} />);
+    expect(screen.getByText("Fotografías")).toBeInTheDocument();
+    expect(screen.getByAltText("Vehículo ABC123, fotografía 1")).toBeInTheDocument();
+  });
+
+  it("muestra las visitas como solo lectura y abre Accesos con su placa", () => {
+    const onClose = vi.fn();
+    const onEdit = vi.fn();
+    const onDel = vi.fn();
+    render(<VehicleView open item={{ id: "visitor:VIS123", kind: "visitor", plate: "VIS123", access_count: 4 }}
+      onClose={onClose} onEdit={onEdit} onDel={onDel} />);
+    expect(screen.queryByRole("button", { name: "Editar" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Eliminar" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Ver historial" }));
+    expect(JSON.parse(localStorage.getItem("accessesParams") || "{}")).toMatchObject({
+      fullType: "L", searchBy: "VIS123", plateExact: "VIS123", filterBy: "", page: 1,
+    });
+    expect(navigation.push).toHaveBeenCalledWith("/activities");
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(onEdit).not.toHaveBeenCalled();
+    expect(onDel).not.toHaveBeenCalled();
   });
 });

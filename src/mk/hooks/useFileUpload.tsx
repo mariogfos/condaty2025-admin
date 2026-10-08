@@ -13,6 +13,7 @@ interface PreviewItem {
   isUploading: boolean;
   file?: File;
   type: "image" | "document";
+  persisted?: boolean;
 }
 
 interface UseFileUploadProps {
@@ -26,6 +27,7 @@ interface UseFileUploadProps {
   showToast: any;
   resetInput?: () => void;
   deleteOldOnReplace?: boolean; // ← NUEVA PROP
+  preserveExistingOnRemove?: boolean;
 }
 
 const extDocuments = ["pdf", "docx", "doc", "xlsx", "xls", "txt", "csv"];
@@ -66,6 +68,7 @@ export const useFileUpload = ({
   showToast,
   resetInput,
   deleteOldOnReplace = true, // ← por defecto elimina la anterior
+  preserveExistingOnRemove = false,
 }: UseFileUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [filePreviews, setFilePreviews] = useState<PreviewItem[]>([]);
@@ -111,6 +114,7 @@ export const useFileUpload = ({
           resourceType: type === "image" ? "image" : "raw",
           isUploading: false,
           type,
+          persisted: true,
         };
       });
 
@@ -323,7 +327,7 @@ export const useFileUpload = ({
       const item = filePreviews[index];
       if (!item) return;
 
-      if (!item.isUploading && item.publicId) {
+      if (!item.isUploading && item.publicId && !(preserveExistingOnRemove && item.persisted)) {
         try {
           await storage.delete({
             path: item.publicId,
@@ -345,7 +349,7 @@ export const useFileUpload = ({
       }
       setFilePreviews((prev) => prev.filter((_, i) => i !== index));
     },
-    [filePreviews, showToast],
+    [filePreviews, preserveExistingOnRemove, showToast],
   );
 
   return {
