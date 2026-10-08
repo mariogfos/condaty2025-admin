@@ -138,6 +138,26 @@ describe("Permisos: nadie da lo que no tiene", () => {
     expect(saved()).toBe("roles:CRU|");
   });
 
+  it("con lo parcial puesto, el «todos» de la fila la vacía en vez de volver a llenarla", () => {
+    asSupervisor();
+    const { saved } = renderEditor("");
+    const toggle = () => document.querySelector('input[name="roles"]') as HTMLInputElement;
+
+    fireEvent.click(toggle());
+    expect(saved()).toBe("roles:CRU|");
+    fireEvent.click(toggle());
+    expect(saved()).toBe("");
+  });
+
+  it("el «Todos» de una categoría tilda sólo lo que el actor puede dar", () => {
+    asSupervisor();
+    const { saved } = renderEditor("");
+
+    fireEvent.click(screen.getByText("Todos"));
+
+    expect(saved()).toBe("bank_accounts:R|roles:CRU|");
+  });
+
   it("el adm del condominio da cualquier letra", () => {
     mockUser = { id: 3, client_id: 7, role: { code: "adm", abilities: "roles:R|" } };
     const { box } = renderEditor("");

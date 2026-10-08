@@ -1,4 +1,4 @@
-import { isMainAdministratorRole } from "@/components/ProfileModal/adminRolePolicy";
+import { isMainAdministratorRole, isPlatform } from "@/components/ProfileModal/adminRolePolicy";
 
 /**
  * Who may tick a permission letter in the role editor — mirrored from the API
@@ -35,6 +35,6 @@ export const canGrantLetter = (
   module: string,
   letter: string,
 ): boolean =>
-  Number(actor?.fosrole_id ?? 0) > 0 ||
+  isPlatform(actor) ||
   isMainAdministratorRole(actor?.role) ||
   lettersOf(actor?.role?.abilities, module).includes(letter);
