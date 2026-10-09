@@ -31,6 +31,18 @@
 - El merge a `test` no equivale a un despliegue ni autoriza cambios en
   Producción.
 
+## Promoción exacta a Producción
+
+- Solo con autorización explícita, audita primero los cambios exclusivos de
+  `prod` y conserva en `ryno`/`test` cualquier corrección productiva que deba
+  sobrevivir. No sobrescribas esas diferencias sin revisarlas.
+- Crea una rama de liberación desde `origin/prod` actualizado y sustituye su
+  árbol de archivos versionados por el árbol exacto de `origin/test`. Entrega
+  mediante PR y squash merge, sin force push; después confirma con
+  `git diff --exit-code origin/test origin/prod` que ambos árboles coincidan.
+- Esta promoción no borra configuración ni archivos persistentes del servidor,
+  y no equivale a un despliegue.
+
 ## Git y validación
 
 - Usa la identidad `Alexander Hurtado <product.designer.fos@gmail.com>` y la

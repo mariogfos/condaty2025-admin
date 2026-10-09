@@ -42,7 +42,8 @@ describe("Padrón de vehículos", () => {
     const { container } = render(<Vehicles />);
     expect(localStorage.getItem("administration/vehiclesParams")).toBeNull();
     expect(crud.config.paramsInitial.filterBy).toBe("kind:resident");
-    expect(crud.config.fields.kind.filter).toBeUndefined();
+    expect(crud.config.fields.kind).toBeUndefined();
+    expect(crud.config.fields.access_count).toBeUndefined();
     expect(crud.config.getFilter("vehicle_type", "car", { filterBy: { kind: "visitor" } })).toEqual({
       filterBy: { kind: "resident", vehicle_type: "car" },
     });
@@ -62,8 +63,5 @@ describe("Padrón de vehículos", () => {
       { id: "truck", name: "Camioneta / camión" },
       { id: "other", name: "Otro" },
     ]);
-    const visitorActions = crud.listProps.onButtonActions({ id: "visitor:VIS123", kind: "visitor", plate: "VIS123" });
-    const { container: visitorContainer } = render(visitorActions);
-    expect(visitorContainer.querySelector("button")).toBeNull();
   });
 });
