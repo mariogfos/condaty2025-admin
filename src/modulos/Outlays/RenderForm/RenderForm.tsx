@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
@@ -45,6 +45,15 @@ interface OutlayFormState {
   ext?: string | null;
   bank_account_id?: number | null;
   supplier_id?: number | string | null;
+  cheque_id?: number | string | null;
+  cheque_payee?: string;
+}
+
+interface FreeCheque {
+  id: number;
+  number: string;
+  bank_account_id: number;
+  book?: { name?: string | null };
 }
 
 interface ExtraData {
@@ -64,7 +73,7 @@ interface RenderFormProps {
   item?: Partial<OutlayFormState>;
   onSave?: (params: any) => void;
   extraData?: ExtraData;
-  execute: (url: string, method: string, params: any) => Promise<any>;
+  execute: (url: string, method: string, params: any, ...rest: any[]) => Promise<any>;
   showToast: (
     msg: string,
     type?: "info" | "success" | "error" | "warning"
@@ -80,6 +89,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   extraData,
   showToast,
   onSave,
+  execute,
 }) => {
   const [_formState, _setFormState] = useState<OutlayFormState>(() => {
     const today = new Date();
@@ -105,6 +115,26 @@ const RenderForm: React.FC<RenderFormProps> = ({
     type: "info" | "success" | "error" | "warning";
   }>({ msg: "", type: "info" });
   const [_errors, set_Errors] = useState<Errors>({});
+  const [freeCheques, setFreeCheques] = useState<FreeCheque[]>([]);
+  const [chequesLoading, setChequesLoading] = useState(false);
+  const [chequesError, setChequesError] = useState(false);
+  const executeRef = useRef(execute);
+  useEffect(() => { executeRef.current = execute; }, [execute]);
+
+  useEffect(() => {
+    if (!open || _formState.type !== "C") return;
+    let active = true;
+    setChequesLoading(true);
+    setChequesError(false);
+    executeRef.current("/cheques/available", "GET", {}, false, true).then(({ data }: any) => {
+      if (!active) return;
+      setFreeCheques(data?.success && Array.isArray(data.data) ? data.data : []);
+      setChequesError(!data?.success);
+    }).catch(() => {
+      if (active) { setFreeCheques([]); setChequesError(true); }
+    }).finally(() => { if (active) setChequesLoading(false); });
+    return () => { active = false; };
+  }, [open, _formState.type]);
 
   useEffect(() => {
     if (!open) {
@@ -162,11 +192,23 @@ const RenderForm: React.FC<RenderFormProps> = ({
         } else {
           setFilteredSubcategories([]);
         }
+      } else if (name === "type") {
+        _setFormState((prev) => ({ ...prev, type: newValue, cheque_id: null, cheque_payee: newValue === "C" ? prev.cheque_payee : "" }));
+      } else if (name === "cheque_id") {
+        const selected = freeCheques.find((cheque) => String(cheque.id) === String(newValue));
+        _setFormState((prev) => ({ ...prev, cheque_id: newValue, bank_account_id: selected?.bank_account_id ?? prev.bank_account_id }));
+      } else if (name === "supplier_id") {
+        const supplier = extraData?.suppliers?.find((entry) => String(entry.id) === String(newValue));
+        _setFormState((prev) => {
+          const previousSupplier = extraData?.suppliers?.find((entry) => String(entry.id) === String(prev.supplier_id));
+          const payeeWasAutomatic = !prev.cheque_payee?.trim() || prev.cheque_payee === previousSupplier?.name;
+          return { ...prev, supplier_id: newValue, cheque_payee: payeeWasAutomatic ? supplier?.name || "" : prev.cheque_payee };
+        });
       } else {
         _setFormState((prev) => ({ ...prev, [name]: newValue }));
       }
     },
-    [extraData?.subcategories]
+    [extraData?.subcategories, extraData?.suppliers, freeCheques]
   );
   const validar = useCallback(() => {
     let errs: Errors = {};
@@ -238,6 +280,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }),
       "type"
     );
+    if (_formState.type === "C") {
+      if (!_formState.cheque_id) errs.cheque_id = "Selecciona un cheque libre";
+      if (!_formState.cheque_payee?.trim()) errs.cheque_payee = "Ingresa el beneficiario del cheque";
+    }
 
 
     const filteredErrs = Object.fromEntries(
@@ -276,6 +322,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description: "",
       amount: "",
       url_file: [],
+      cheque_id: null,
+      cheque_payee: "",
     }));
     setFilteredSubcategories([]);
     set_Errors({});
@@ -302,6 +350,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
       type,
       url_file,
       supplier_id,
+      cheque_id,
+      cheque_payee,
     } = _formState;
 
     const searchSubcategory: any = extraData?.subcategories?.find(
@@ -332,12 +382,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
       amount: parseFloat(String(amount || "0")),
       type,
       url_file: Array.isArray(url_file) ? url_file : [],
-      bank_account_id: bank_account_id || null,
+      bank_account_id: type === "C" && cheque_id
+        ? freeCheques.find((cheque) => String(cheque.id) === String(cheque_id))?.bank_account_id || null
+        : bank_account_id || null,
       supplier_id: supplier_id && supplier_id !== "NONE" ? Number(supplier_id) : null,
+      ...(type === "C" ? { cheque_id: Number(cheque_id), cheque_payee: cheque_payee?.trim() } : {}),
     };
 
     onSave?.(params);
-  }, [_formState, validar, onSave]);
+  }, [_formState, validar, onSave, freeCheques]);
 
   useEffect(() => {
     const searchSubcategory: any = extraData?.subcategories?.find(
@@ -484,7 +537,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               error={_errors}
               optionLabel="name"
               optionValue="id"
-              disabled={!bankEnabled}
+              disabled={!bankEnabled || (_formState.type === "C" && Boolean(_formState.cheque_id))}
               className={_errors.bank_account_id ? styles.error : ""}
             />
           </div>
@@ -526,6 +579,24 @@ const RenderForm: React.FC<RenderFormProps> = ({
               </div>
             </div>
           </div>
+          {_formState.type === "C" ? <div className={styles.section}>
+            <Select
+              name="cheque_id"
+              value={_formState.cheque_id || ""}
+              label="Cheque libre"
+              onChange={handleChangeInput}
+              options={freeCheques.map((cheque) => {
+                const account: any = extraData?.bankAccounts?.find((bank: any) => Number(bank.id) === Number(cheque.bank_account_id));
+                return { id: cheque.id, name: `N.º ${cheque.number} · ${account?.alias_holder || "Cuenta"}${cheque.book?.name ? ` · ${cheque.book.name}` : ""}` };
+              })}
+              filter required error={_errors} disabled={chequesLoading || chequesError}
+            />
+            {chequesLoading ? <p>Buscando cheques libres…</p> : null}
+            {chequesError ? <p>No se pudieron cargar los cheques. Cierra y vuelve a abrir el formulario.</p> : null}
+            {!chequesLoading && !chequesError && !freeCheques.length ? <p>No hay cheques libres. Crea un talonario en Finanzas → Cheques.</p> : null}
+            <Input name="cheque_payee" label="Beneficiario del cheque" value={_formState.cheque_payee || ""}
+              onChange={handleChangeInput} error={_errors} maxLength={160} required />
+          </div> : null}
           {/* Comprobante */}
           <div className={styles.section}>
             <div className={styles["input-container"]}>
