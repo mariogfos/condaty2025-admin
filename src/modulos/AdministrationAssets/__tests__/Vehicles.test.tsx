@@ -37,9 +37,15 @@ vi.mock("@/mk/hooks/useCrud/useCrud", () => ({
 vi.mock("@/modulos/shared/useCrudUtils", () => ({ default: () => ({}) }));
 
 describe("Padrón de vehículos", () => {
-  it("entra filtrado por residentes y ofrece acciones cuadradas por fila", () => {
+  it("muestra solo residentes, incluso si había un filtro de visitas guardado", () => {
+    localStorage.setItem("administration/vehiclesParams", JSON.stringify({ filterBy: "kind:visitor" }));
     const { container } = render(<Vehicles />);
+    expect(localStorage.getItem("administration/vehiclesParams")).toBeNull();
     expect(crud.config.paramsInitial.filterBy).toBe("kind:resident");
+    expect(crud.config.fields.kind.filter).toBeUndefined();
+    expect(crud.config.getFilter("vehicle_type", "car", { filterBy: { kind: "visitor" } })).toEqual({
+      filterBy: { kind: "resident", vehicle_type: "car" },
+    });
     expect(screen.getByText("Aún no hay vehículos de residentes registrados.")).toBeInTheDocument();
     expect(container.querySelector(".lucide-car")).not.toBeNull();
     expect(crud.config.fields.images.list.onRender({ item: { images: [] } })).toBe("Sin fotos");
@@ -49,8 +55,12 @@ describe("Padrón de vehículos", () => {
     fireEvent.click(screen.getByRole("button", { name: "Eliminar vehículo ABC123" }));
     expect(crud.edit).toHaveBeenCalledWith(expect.objectContaining({ id: 7 }));
     expect(crud.remove).toHaveBeenCalledWith(expect.objectContaining({ id: 7 }));
-    expect(crud.config.fields.kind.filter.options()).toEqual([
-      { id: "resident", name: "Residente" }, { id: "visitor", name: "Visita" },
+    expect(crud.config.fields.vehicle_type.filter.options()).toEqual([
+      { id: "ALL", name: "Todos" },
+      { id: "car", name: "Automóvil" },
+      { id: "motorcycle", name: "Motocicleta" },
+      { id: "truck", name: "Camioneta / camión" },
+      { id: "other", name: "Otro" },
     ]);
     const visitorActions = crud.listProps.onButtonActions({ id: "visitor:VIS123", kind: "visitor", plate: "VIS123" });
     const { container: visitorContainer } = render(visitorActions);
