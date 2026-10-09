@@ -4,9 +4,6 @@ import PetForm from "../PetForm";
 import VehicleForm from "../VehicleForm";
 import VehicleView from "../VehicleView";
 
-const navigation = vi.hoisted(() => ({ push: vi.fn() }));
-vi.mock("next/navigation", () => ({ useRouter: () => navigation }));
-
 vi.mock("@/mk/contexts/AuthProvider", () => ({
   useAuth: () => ({ userCan: () => true }),
 }));
@@ -136,21 +133,4 @@ describe("Formularios de mascotas y vehículos", () => {
     expect(screen.getByAltText("Vehículo ABC123, fotografía 1")).toBeInTheDocument();
   });
 
-  it("muestra las visitas como solo lectura y abre Accesos con su placa", () => {
-    const onClose = vi.fn();
-    const onEdit = vi.fn();
-    const onDel = vi.fn();
-    render(<VehicleView open item={{ id: "visitor:VIS123", kind: "visitor", plate: "VIS123", access_count: 4 }}
-      onClose={onClose} onEdit={onEdit} onDel={onDel} />);
-    expect(screen.queryByRole("button", { name: "Editar" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Eliminar" })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Ver historial" }));
-    expect(JSON.parse(localStorage.getItem("accessesParams") || "{}")).toMatchObject({
-      fullType: "L", searchBy: "VIS123", plateExact: "VIS123", filterBy: "", page: 1,
-    });
-    expect(navigation.push).toHaveBeenCalledWith("/activities");
-    expect(onClose).toHaveBeenCalledOnce();
-    expect(onEdit).not.toHaveBeenCalled();
-    expect(onDel).not.toHaveBeenCalled();
-  });
 });

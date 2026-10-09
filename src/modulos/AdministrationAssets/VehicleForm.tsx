@@ -76,7 +76,7 @@ export default function VehicleForm({ open, onClose, onSave, errors, setErrors, 
       buttonText={uploading ? "Subiendo fotografías…" : item?.id ? "Guardar cambios" : "Registrar vehículo"}
       buttonCancel="Cancelar" disabled={uploading} maxWidth={760}>
       <div className={styles.form}>
-        <p className={styles.helper}>Registra un vehículo de una unidad. Los vehículos de visita se muestran automáticamente a partir de los ingresos de portería.</p>
+        <p className={styles.helper}>Registra un vehículo de una unidad. Las placas de visitas se buscan en Accesos.</p>
         <div className={styles.grid}>
           <Select name="vehicle_type" label="Tipo de vehículo" value={form.vehicle_type} onChange={handleChange}
             options={[{ id: "car", name: "Automóvil" }, { id: "motorcycle", name: "Motocicleta" },
