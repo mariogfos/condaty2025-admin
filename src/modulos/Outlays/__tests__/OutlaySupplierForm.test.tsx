@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import RenderForm from "../RenderForm/RenderForm";
 
@@ -63,5 +63,27 @@ describe("Proveedor opcional en nuevo egreso", () => {
     fireEvent.change(screen.getByLabelText("supplier_id"), { target: { value: "NONE" } });
     fireEvent.click(screen.getByRole("button", { name: "Guardar egreso" }));
     expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ supplier_id: null }));
+  });
+});
+
+describe("Cheque en nuevo egreso", () => {
+  it("exige uno libre, asigna su cuenta y envía el beneficiario", async () => {
+    const onSave = vi.fn();
+    const execute = vi.fn().mockResolvedValue({ data: { success: true, data: [
+      { id: 5, number: "0012", bank_account_id: 7, book: { name: "Talonario A" } },
+    ] } });
+    render(<RenderForm open onClose={vi.fn()} onSave={onSave} showToast={vi.fn()} execute={execute} reLoad={vi.fn()}
+      item={{ date_at: "2026-10-08", category_id: 1, subcategory_id: 2, description: "Mantenimiento", amount: 100, type: "C" }}
+      extraData={{ categories: [{ id: 1, name: "Mantenimiento" }], subcategories: [{ id: 2, name: "Servicios", category_id: 1 }],
+        bankAccounts: [{ id: 7, alias_holder: "Corriente" }], suppliers: [] }} />);
+
+    await waitFor(() => expect(execute).toHaveBeenCalledWith("/cheques/available", "GET", {}, false, true));
+    await waitFor(() => expect(screen.getByRole("option", { name: /0012/ })).toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: "Guardar egreso" }));
+    expect(onSave).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText("cheque_id"), { target: { value: "5" } });
+    fireEvent.change(screen.getByLabelText("cheque_payee"), { target: { value: "Jardines del Norte" } });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar egreso" }));
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ type: "C", cheque_id: 5, cheque_payee: "Jardines del Norte", bank_account_id: 7 }));
   });
 });
