@@ -284,7 +284,8 @@ export default function Uploads() {
     const formData = new FormData();
     formData.append("file", selectedFile, selectedFile.name);
     formData.append("type", apiTypeBySelection[selectedType]);
-    formData.append("_debug", "2");
+    // ⚠️ Sin `_debug`: acá iba `"2"` fijo, que con `APP_DEBUG` prendido le
+    // pide al API un EXPLAIN por cada consulta de la importación (miles).
     if (simular) {
       formData.append("simular", "1");
     }
@@ -293,10 +294,13 @@ export default function Uploads() {
     setAccionEnCurso(simular ? "simular" : "subir");
     limpiarResultado();
 
-    const { data, error } = await execute("/masivexls", "POST", formData);
+    // 🔴 `v3` (decisión A4 del cutover): el API ya no atiende `/masivexls`
+    // sin prefijo. La pantalla es del menú «Backoffice» (`cargamasiva`) y el
+    // API la cierra al equipo de la plataforma.
+    const { data, error } = await execute("/v3/masivexls", "POST", formData);
 
-    // 🔴 El sobre del 200 ENVUELVE el resultado del importador: `sendResponse()`
-    // mete lo que devolvió el service en `data`, así que los errores de una
+    // 🔴 El sobre del 200 ENVUELVE el resumen de la carga: `sendResponse()`
+    // lo mete en `data` (`BulkOperationsController::resumen`), así que los errores de una
     // importación parcial viajan en `data.data.errors` — nunca hubo nada en
     // `data.errors`. El sobre de fallo (`sendError()`) sí los deja en la raíz.
     // Se leen los dos niveles porque el mismo endpoint contesta de las dos
@@ -314,7 +318,7 @@ export default function Uploads() {
     if (data?.success) {
       // 🔴 `success: true` NO quiere decir "sin errores". El importador de
       // expensas commitea las filas buenas y devuelve las malas adentro del
-      // mismo sobre (`ExpenseImportService:283-289`): 499 filas entran, una
+      // mismo sobre (`ExpenseImportService::import`): 499 filas entran, una
       // falla, y la pantalla decía "Archivo procesado correctamente" con las
       // filas rechazadas invisibles. Es el defecto original servido bajo cartel
       // de éxito, que es peor que no mostrarlas en la rama de fallo.
@@ -339,7 +343,7 @@ export default function Uploads() {
       }
     } else {
       // ⚠️ El 400 de "archivo vacío" manda la clave `error`, en SINGULAR, y sin
-      // `message` (`BulkOperationsController:158`): leyendo sólo `message` el
+      // `message` (`BulkOperationsController::processXls`): leyendo sólo `message` el
       // motivo se perdía y la pantalla mostraba un genérico.
       // Se toma el primer candidato que sea texto: si viniera un objeto, React
       // reventaría al pintarlo.

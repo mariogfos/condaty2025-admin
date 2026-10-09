@@ -10,9 +10,13 @@
  * ⚠️ `accesses` maps to `v3/access` (singular), and `activeRegister` to
  * `v3/active-register`: the twin is not always the same word.
  *
- * Paths that exist ONLY without `v3` (`app-version`, `masivexls`, `chatbot`,
+ * Paths that exist ONLY without `v3` (`app-version`, `chatbot`,
  * `content-like`, `presence/*`, `backoffice/presence-monitoring/*`,
  * `reports/{reportKey}/*`) are canonical, not aliases, and are not checked.
+ *
+ * ⚠️ `masivexls` moved to `v3` on 2026-10-08 (BulkOperations review) and the
+ * API dropped the unprefixed path: it is in the list below so nothing calls
+ * the old one again.
  *
  * It reads the source, not a rendered screen: the calls live in a dozen big
  * screens, and what has to hold is that NO literal anywhere goes to an alias.
@@ -42,6 +46,7 @@ const RETIRED_ALIASES = [
   "financial-summary",
   "notifications",
   "assemblies",
+  "masivexls",
 ];
 
 const NAVIGATION = /href|router\.(push|replace)|pathname/;
@@ -101,6 +106,8 @@ describe("API calls go through v3, never through a retired alias", () => {
     expect(aliasCall.test(`execute("/v3/access", "GET")`)).toBe(false);
     expect(aliasCall.test(`const modulePath = "/v3/assemblies";`)).toBe(false);
     expect(aliasCall.test(`useAxios("/contents-x")`)).toBe(false);
+    expect(aliasCall.test(`execute("/masivexls", "POST", formData)`)).toBe(true);
+    expect(aliasCall.test(`execute("/v3/masivexls", "POST", formData)`)).toBe(false);
   });
 
   it("no source file calls a retired alias", () => {

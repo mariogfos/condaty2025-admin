@@ -25,12 +25,12 @@
  * 🔴 Y EL PEOR CASO ENTRA POR LA RAMA DE ÉXITO
  * ────────────────────────────────────────────────────────────────────────
  *
- * `ExpenseImportService:283-289` commitea las filas buenas y devuelve las malas
+ * `ExpenseImportService::import` commitea las filas buenas y devuelve las malas
  * con `success: true`: 499 filas entran, una falla, el API contesta **200** y la
  * pantalla mostraba *"procesado correctamente"* con las filas rechazadas
  * invisibles — el defecto original servido bajo cartel de éxito.
  *
- * ⚠️ Y el sobre del 200 **envuelve** el resultado del importador: `sendResponse()`
+ * ⚠️ Y el sobre del 200 **envuelve** el resumen de la carga: `sendResponse()`
  * lo mete en `data`, así que los errores viajan en `data.data.errors`. En la rama
  * de fallo (`sendError()`) están en la raíz. Los dos niveles se pinean acá.
  *
@@ -60,7 +60,7 @@ const elApiResponde = (envelope: any) => {
 };
 
 /**
- * El sobre REAL de un 200: `sendResponse()` envuelve el resultado del importador
+ * El sobre REAL de un 200: `sendResponse()` envuelve el resumen de la carga
  * en `data`. Pinearlo importa — leer `data.errors` (un nivel arriba) no encuentra
  * nada nunca.
  */
@@ -403,7 +403,7 @@ describe("La pantalla de carga masiva y los errores por fila", () => {
   // ──────────────────────────────────────────────────────────────────────
 
   it("🔴 el 400 de archivo vacío manda `error` en singular y el motivo se ve", async () => {
-    // `BulkOperationsController:158` → {'error': '...'}, sin `message` ni `errors`.
+    // `BulkOperationsController::processXls` (archivo vacío) → {'error': '...'}, sin `message` ni `errors`.
     execute.mockResolvedValue({
       data: null,
       error: {

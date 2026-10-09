@@ -5,7 +5,7 @@
  * 🔴 LA RED DE SEGURIDAD EXISTÍA EN EL API Y NINGUNA PANTALLA LA OFRECÍA
  * ────────────────────────────────────────────────────────────────────────
  *
- * `POST /api/masivexls` acepta `simular=1` desde CDT-73: corre el importador
+ * `POST /api/v3/masivexls` acepta `simular=1` desde CDT-73: corre el importador
  * de verdad —para que los errores sean los reales— y revierte siempre, salga
  * bien o mal. Sirve para ver qué filas están mal sin arriesgar el padrón.
  *
@@ -122,5 +122,21 @@ describe("La simulación de la carga masiva", () => {
       "🔴 La simulación limpió el archivo: hay que volver a elegirlo para importarlo.",
     ).toBeTruthy();
     expect(screen.getByText("Fila 4: la unidad Z-9 no existe")).toBeTruthy();
+  });
+
+  /**
+   * 🔴 La ruta es `v3` (decisión A4: el API retiró `/masivexls` sin prefijo el
+   * 2026-10-08) y no se manda `_debug`: con `APP_DEBUG` prendido, `2` le pide
+   * al API un EXPLAIN por cada consulta de la importación.
+   */
+  it("llama a /v3/masivexls y no pide el informe de debug", async () => {
+    elApiRespondeUnaSimulacion();
+    elegirArchivo();
+
+    await apretar(/subir archivo/i);
+
+    expect(execute.mock.calls[0][0]).toBe("/v3/masivexls");
+    expect(execute.mock.calls[0][1]).toBe("POST");
+    expect(loQueSeMando().get("_debug")).toBeNull();
   });
 });
