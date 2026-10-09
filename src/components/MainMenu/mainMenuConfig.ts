@@ -100,6 +100,7 @@ export const menuConfig: MenuConfigItem[] = [
         badgeKey: "paymentsBage",
       },
       { href: "/outlays", labelKey: "outlays", perm: "outlays" },
+      { href: "/cheques", labelKey: "cheques", perm: "outlays" },
       { href: "/expenses", labelKey: "condominiumFees", perm: "expenses" },
       { href: "/defaulters", labelKey: "defaulters", perm: "defaulters" },
       { href: "/debts_manager", labelKey: "debts", perm: "debts_manager" },
