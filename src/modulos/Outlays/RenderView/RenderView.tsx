@@ -41,6 +41,7 @@ interface OutlayItem {
   bank_account_id?: number | string | null;
   supplier_id?: number | null;
   supplier_name?: string | null;
+  cheque?: { number: string; status: string; payee?: string; amount?: number } | null;
   description?: string;
   category?: Category;
   category_id?: number | string;
@@ -417,6 +418,15 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
           label: "Método de Pago",
           value: getPaymentMethodText(currentItem.type),
         }
+      : null,
+    currentItem.cheque
+      ? { key: "chequeNumber", label: "Cheque", value: `N.º ${currentItem.cheque.number}` }
+      : null,
+    currentItem.cheque
+      ? { key: "chequeStatus", label: "Estado del cheque", value: ({ free: "Libre", filled: "Rellenado", in_transit: "En tránsito", cashed: "Cobrado", void: "Anulado" } as Record<string, string>)[currentItem.cheque.status] || currentItem.cheque.status }
+      : null,
+    currentItem.cheque?.payee
+      ? { key: "chequePayee", label: "Beneficiario del cheque", value: currentItem.cheque.payee }
       : null,
     currentItem.bank_account_id
       ? {
