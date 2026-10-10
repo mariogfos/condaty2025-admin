@@ -29,6 +29,7 @@ import UploadFile2 from "@/mk/components/forms/UploadFile2";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
 import { paymentsApi } from "@/modulos/Payments/api";
+import useRequestIntent from "@/mk/hooks/useRequestIntent";
 
 interface Dpto {
   id: string | number;
@@ -262,6 +263,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     };
   });
   const [errors, setErrors] = useState<Errors>({});
+  const { begin: beginCreate, finish: finishCreate, submitting } = useRequestIntent();
 
   const [deudas, setDeudas] = useState<Deuda[]>([]);
   const [selectedPeriodo, setSelectedPeriodo] = useState<SelectedPeriodo[]>([]);
@@ -902,10 +904,16 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
     }
 
+    const attempt = beginCreate(params);
+    if (!attempt) return;
+    let saved = false;
+    let responseStatus: number | undefined;
     try {
-      const { data, error } = await execute(endpoint, "POST", params);
+      const { data, error } = await execute(endpoint, "POST", attempt);
+      saved = data?.success === true;
+      responseStatus = error?.status ?? (data ? 200 : undefined);
 
-      if (data?.success) {
+      if (saved) {
         showToast("Pago agregado con éxito", "success");
         reLoad();
         onClose();
@@ -921,7 +929,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
           setErrors(data.errors);
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      showToast("No se pudo confirmar el ingreso. Reintenta sin cambiar los datos.", "error");
+    } finally {
+      finishCreate(saved, responseStatus);
+    }
   }, [
     formState,
     extraData?.dptos,
@@ -936,6 +948,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
     isExpensasWithoutDebt,
     isReservationsWithoutDebt,
     isDebtBasedPayment,
+    beginCreate,
+    finishCreate,
     deudas,
     showCategoryFields,
   ]);
@@ -1084,10 +1098,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
       <Toast toast={toast as any} showToast={showToast} />
       <DataModal
         open={open}
-        onClose={onCloseModal}
+        onClose={submitting ? () => {} : onCloseModal}
         onSave={_onSavePago}
         buttonCancel={"Cancelar"}
-        buttonText={"Registrar ingreso"}
+        buttonText={submitting ? "Guardando..." : "Registrar ingreso"}
+        disabled={submitting}
         title={"Nuevo pago parcial"}
         minWidth={680}
         maxWidth={860}

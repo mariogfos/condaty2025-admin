@@ -265,6 +265,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     const { execute: executeAction } = useAxios();
 
     const [isActionLoading, setIsActionLoading] = React.useState(false);
+    const actionInFlight = React.useRef(false);
     const [actionError, setActionError] = React.useState<string | null>(null);
     const [isRejectModalOpen, setIsRejectModalOpen] = React.useState(false);
     const [rejectionReason, setRejectionReason] = React.useState("");
@@ -494,8 +495,9 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     ];
 
     const handleAcceptClick = async () => {
-      if (!reservationDetail?.id || isActionLoading) return;
+      if (!reservationDetail?.id || actionInFlight.current) return;
 
+      actionInFlight.current = true;
       setIsActionLoading(true);
       setActionError(null);
 
@@ -503,7 +505,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       const formattedDate = formatDateFns(now, "yyyy-MM-dd HH:mm:ss");
 
       try {
-        await executeAction(
+        const { data: result, error } = await executeAction(
           `/reservations/${reservationDetail.id}`,
           "PUT",
           {
@@ -514,6 +516,10 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
           false,
           true,
         );
+        if (result?.success !== true) {
+          setActionError(result?.message || error?.data?.message || "No se pudo aprobar la reserva.");
+          return;
+        }
         reLoad?.();
         onClose();
       } catch (error: any) {
@@ -523,6 +529,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
             "Ocurrió un error al aprobar.",
         );
       } finally {
+        actionInFlight.current = false;
         setIsActionLoading(false);
       }
     };
@@ -535,7 +542,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     };
 
     const confirmRejection = async () => {
-      if (!reservationDetail?.id || isActionLoading) return;
+      if (!reservationDetail?.id || actionInFlight.current) return;
 
       if (!rejectionReason || rejectionReason.trim() === "") {
         setRejectErrors({ reason: "Debe ingresar un motivo para el rechazo." });
@@ -543,17 +550,22 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
       }
 
       setRejectErrors({});
+      actionInFlight.current = true;
       setIsActionLoading(true);
       setActionError(null);
 
       try {
-        await executeAction(
+        const { data: result, error } = await executeAction(
           `/reservations/${reservationDetail.id}`,
           "PUT",
           { is_approved: "N", reason: rejectionReason.trim() },
           false,
           true,
         );
+        if (result?.success !== true) {
+          setActionError(result?.message || error?.data?.message || "No se pudo rechazar la reserva.");
+          return;
+        }
 
         setIsRejectModalOpen(false);
         onClose();
@@ -566,6 +578,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         );
         setIsRejectModalOpen(false);
       } finally {
+        actionInFlight.current = false;
         setIsActionLoading(false);
       }
     };
@@ -588,26 +601,35 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
     };
 
     const onSaveCancel = async () => {
+      if (actionInFlight.current) return;
       if (hasErrors(validateReason())) return;
+      actionInFlight.current = true;
+      setIsActionLoading(true);
+      try {
+        const response = await executeAction(
+          `/reservations/${reservationDetail?.id}`,
+          "PUT",
+          {
+            status: "C",
+            reason: formState?.reason,
+          },
+          false,
+          true,
+        );
 
-      const response = await executeAction(
-        `/reservations/${reservationDetail?.id}`,
-        "PUT",
-        {
-          status: "C",
-          reason: formState?.reason,
-        },
-        false,
-        true,
-      );
-
-      if (response?.data?.success) {
-        setOpenModalCancel(false);
-        showToast(response?.data?.message || "Reserva cancelada", "success");
-        onClose();
-        reLoad?.();
-      } else {
-        showToast(response?.data?.message || "Ocurrió un error", "error");
+        if (response?.data?.success) {
+          setOpenModalCancel(false);
+          showToast(response?.data?.message || "Reserva cancelada", "success");
+          onClose();
+          reLoad?.();
+        } else {
+          showToast(response?.data?.message || response?.error?.data?.message || "Ocurrió un error", "error");
+        }
+      } catch {
+        showToast("No se pudo cancelar la reserva. Actualiza el detalle e inténtalo de nuevo.", "error");
+      } finally {
+        actionInFlight.current = false;
+        setIsActionLoading(false);
       }
     };
 
@@ -832,6 +854,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
             minWidth={686}
             maxWidth={760}
             onSave={onSaveCancel}
+            disabled={isActionLoading}
           >
             <div className={styles.modalBody}>
               <p className={styles.modalParagraph}>

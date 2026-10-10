@@ -10,6 +10,7 @@ import {
   useMemo,
 } from "react";
 import useAxios from "../useAxios";
+import useRequestIntent from "../useRequestIntent";
 import { capitalize, getUrlImages } from "../../utils/string";
 import { useAuth } from "../../contexts/AuthProvider";
 import {
@@ -99,6 +100,7 @@ export type ModCrudType = {
   saveMsg?: { add?: string; edit?: string; del?: string };
   listAndCard?: boolean;
   noWaiting?: boolean;
+  idempotentCreate?: boolean;
   search?: boolean | object;
   titleAdd?: string;
   titleEdit?: string;
@@ -347,6 +349,7 @@ const useCrud = ({
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors]: any = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  const createIntent = useRequestIntent();
 
   const [openImport, setOpenImport] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -881,17 +884,26 @@ const useCrud = ({
       }
     }
 
+    const createAttempt = method === "POST" && mod.idempotentCreate
+      ? createIntent.begin(paramWithoutFiles)
+      : null;
+    if (method === "POST" && mod.idempotentCreate && !createAttempt) return;
+
+    let saved = false;
+    let responseStatus: number | undefined;
     setIsSaving(true);
     try {
       const { data: response, error: err } = await execute(
         url,
         method,
-        action == "del" ? { id: data.id } : paramWithoutFiles,
+        action == "del" ? { id: data.id } : (createAttempt || paramWithoutFiles),
         false,
         mod?.noWaiting,
       );
+      saved = response?.success === true;
+      responseStatus = err?.status ?? (response ? 200 : undefined);
 
-      if (response?.success) {
+      if (saved) {
         try {
           const uploadId =
             response?.data?.id ??
@@ -940,6 +952,7 @@ const useCrud = ({
       }
     } finally {
       setIsSaving(false);
+      if (createAttempt) createIntent.finish(saved, responseStatus);
     }
   };
 

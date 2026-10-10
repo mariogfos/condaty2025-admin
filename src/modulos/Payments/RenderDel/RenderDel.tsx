@@ -1,5 +1,5 @@
 "use client";
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, useRef } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import styles from "./RenderDel.module.css";
@@ -22,6 +22,8 @@ const RenderDel = memo(
     const { showToast } = useAuth();
     const [canceledObs, setCanceledObs] = useState("");
     const [_errors, set_Errors] = useState<{ [key: string]: string }>({});
+    const cancelInFlight = useRef(false);
+    const [canceling, setCanceling] = useState(false);
 
     const handleChange = useCallback(
       (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -89,7 +91,10 @@ const RenderDel = memo(
     }, [canceledObs]);
 
     const handleSave = useCallback(async () => {
+      if (cancelInFlight.current) return;
       if (!validar()) return;
+      cancelInFlight.current = true;
+      setCanceling(true);
 
       const params = {
         id: item?.id,
@@ -113,6 +118,9 @@ const RenderDel = memo(
       } catch (error) {
         console.error("Error deleting payment:", error);
         showToast("Error al anular el ingreso", "error");
+      } finally {
+        cancelInFlight.current = false;
+        setCanceling(false);
       }
     }, [validar, item?.id, canceledObs, execute, onClose, reLoad, showToast]);
 
@@ -130,9 +138,10 @@ const RenderDel = memo(
         title="Anular ingreso"
         open={open}
         onClose={onCloseModal}
-        buttonText="Anular ingreso"
         buttonCancel="Cancelar"
         onSave={handleSave}
+        disabled={canceling}
+        buttonText={canceling ? "Anulando..." : "Anular ingreso"}
         className={styles.delModalContent}
         variant="mini"
       >
