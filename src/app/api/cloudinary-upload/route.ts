@@ -17,9 +17,10 @@ export async function DELETE(request: Request) {
         { status: 400 }
       );
     }
-    if (!["image", "raw", "video"].includes(resource_type)) {
+    // Esta ruta se usa para fotos. No ampliar un DELETE público a otros recursos.
+    if (resource_type !== "image") {
       return NextResponse.json(
-        { error: "Invalid resource type" },
+        { error: "Only image resources are supported" },
         { status: 400 }
       );
     }
@@ -34,9 +35,7 @@ export async function DELETE(request: Request) {
       }
       extractedPublicId = decodeURIComponent(url.pathname.slice(uploadIndex + uploadPath.length))
         .replace(/^v\d+\//, "");
-      if (resource_type !== "raw") {
-        extractedPublicId = extractedPublicId.replace(/\.[^./]+$/, "");
-      }
+      extractedPublicId = extractedPublicId.replace(/\.[^./]+$/, "");
     }
 
     if (!extractedPublicId) {
