@@ -105,7 +105,14 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   const [openComfirm, setOpenComfirm] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [uncertain, setUncertain] = useState(false);
   const savingRef = useRef(false);
+  const savedRef = useRef(false);
+  const createAttemptRef = useRef<{
+    requestId: string;
+    payload: Record<string, unknown>;
+  } | null>(null);
 
   useEffect(() => {
     setOpenList(false);
@@ -285,7 +292,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
       showToast("Espera a que terminen de subir las fotos.", "info");
       return;
     }
-    if (savingRef.current) return;
+    if (savingRef.current || savedRef.current) return;
     if (level === 1) {
       if (hasErrors(validateLevel1())) return;
     }
@@ -310,52 +317,61 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     setLevel(level + 1);
   };
   const onSave = async () => {
-    if (savingRef.current) return;
+    if (savingRef.current || savedRef.current) return;
     savingRef.current = true;
     setSaving(true);
 
     try {
-      const method = formState.id ? "PUT" : "POST";
+      const creating = !formState.id;
+      const method = creating ? "POST" : "PUT";
+      const payload = {
+        images: formState?.images,
+        title: formState?.title,
+        description: formState?.description,
+        latitude: parseCoordinateValue(formState?.latitude),
+        longitude: parseCoordinateValue(formState?.longitude),
+        max_capacity: formState?.max_capacity,
+        status: formState?.status,
+        requires_approval: formState?.requires_approval,
+        requires_membership: Boolean(formState?.requires_membership),
+        price: formState?.price,
+        guarantee_amount:
+          formState?.has_price == "S"
+            ? Number(formState?.guarantee_amount || 0)
+            : 0,
+        max_reservations_per_week: formState?.max_reservations_per_week,
+        min_cancel_hours: formState?.min_cancel_hours,
+        penalty_fee: formState?.penalty_fee,
+        available_days: formState?.available_days,
+        available_hours: formState?.available_hours,
+        usage_rules: formState?.usage_rules,
+        cancellation_policy: formState?.cancellation_policy,
+        approval_response_hours: formState?.approval_response_hours,
+        min_reservation_advance_hours:
+          formState?.min_reservation_advance_hours === ""
+            ? 0
+            : Number(formState?.min_reservation_advance_hours || 0),
+        penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
+        booking_mode: formState?.booking_mode,
+        max_reservations_per_day: formState?.max_reservations_per_day,
+        reservation_duration: parseFloat(formState?.reservation_duration),
+        is_free: formState?.has_price == "S" ? "X" : "A",
+      };
+      if (creating && !createAttemptRef.current) {
+        createAttemptRef.current = { requestId: crypto.randomUUID(), payload };
+      }
       const { data, error } = await execute(
         "/areas" + (formState.id ? "/" + formState.id : ""),
         method,
-        {
-          // avatar: formState?.avatar,
-          images: formState?.images,
-          title: formState?.title,
-          description: formState?.description,
-          latitude: parseCoordinateValue(formState?.latitude),
-          longitude: parseCoordinateValue(formState?.longitude),
-          max_capacity: formState?.max_capacity,
-          status: formState?.status,
-          requires_approval: formState?.requires_approval,
-          requires_membership: Boolean(formState?.requires_membership),
-          price: formState?.price,
-          guarantee_amount:
-            formState?.has_price == "S"
-              ? Number(formState?.guarantee_amount || 0)
-              : 0,
-          max_reservations_per_week: formState?.max_reservations_per_week,
-          min_cancel_hours: formState?.min_cancel_hours,
-          penalty_fee: formState?.penalty_fee,
-          available_days: formState?.available_days,
-          available_hours: formState?.available_hours,
-          usage_rules: formState?.usage_rules,
-          cancellation_policy: formState?.cancellation_policy,
-          approval_response_hours: formState?.approval_response_hours,
-          min_reservation_advance_hours:
-            formState?.min_reservation_advance_hours === ""
-              ? 0
-              : Number(formState?.min_reservation_advance_hours || 0),
-          penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
-          booking_mode: formState?.booking_mode,
-          max_reservations_per_day: formState?.max_reservations_per_day,
-          reservation_duration: parseFloat(formState?.reservation_duration),
-          is_free: formState?.has_price == "S" ? "X" : "A",
-        },
+        creating
+          ? { ...createAttemptRef.current!.payload, request_id: createAttemptRef.current!.requestId }
+          : payload,
       );
 
       if (data?.success) {
+        savedRef.current = true;
+        setSaved(true);
+        setUncertain(false);
         const failedDeletions = formState.id
           ? await removeUnlinkedAreaImages(item?.images, formState?.images)
           : 0;
@@ -370,6 +386,17 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         return;
       }
 
+      if (creating) {
+        const definitiveFailure = data?.success === false ||
+          (error?.status > 0 && error.status < 500 && error.status !== 409);
+        if (definitiveFailure) {
+          createAttemptRef.current = null;
+          setUncertain(false);
+        } else {
+          setUncertain(true);
+        }
+      }
+
       showToast(
         error?.data?.message ||
           error?.message ||
@@ -379,7 +406,12 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
       );
     } catch (error) {
       console.error("Error guardando área social:", error);
-      showToast("No se pudo guardar el área social. Intenta nuevamente.", "error");
+      if (!formState.id) {
+        setUncertain(true);
+        showToast("No se pudo confirmar el guardado. Reintenta para verificarlo sin duplicar.", "error");
+      } else {
+        showToast("No se pudo guardar el área social. Intenta nuevamente.", "error");
+      }
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -387,6 +419,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   };
 
   const _onClose = () => {
+    if (savingRef.current) return;
     if (level == 4) {
       setOpenComfirm(true);
       return;
@@ -428,6 +461,11 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
             />
           )}
           {level === 4 && <FourPart item={formState} />}
+          {uncertain && !formState.id && (
+            <p role="status">
+              No pudimos confirmar el primer envío. Al reintentar se usarán los mismos datos para evitar duplicados.
+            </p>
+          )}
           <div className={styles.footerActions}>
             {level > 1 && (
               <div
@@ -442,9 +480,15 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
             <Button
               className={styles.continueButton}
               onClick={onNext}
-              disabled={uploadingImages || saving}
+              disabled={uploadingImages || saving || saved}
             >
-              {saving ? "Guardando..." : level === 4 ? "Guardar" : "Continuar"}
+              {saving
+                ? "Guardando..."
+                : saved
+                  ? "Guardada"
+                  : uncertain
+                    ? "Verificar guardado"
+                    : level === 4 ? "Guardar" : "Continuar"}
             </Button>
           </div>
         </Card>
