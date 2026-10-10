@@ -11,6 +11,7 @@ interface PropsType {
   setErrors: any;
   setFormState: any;
   formState: any;
+  onUploadStateChange: (uploading: boolean) => void;
 }
 
 const FirstPart = ({
@@ -19,6 +20,7 @@ const FirstPart = ({
   setErrors,
   setFormState,
   formState,
+  onUploadStateChange,
 }: PropsType) => {
   return (
     <div className={styles.partStack}>
@@ -46,6 +48,8 @@ const FirstPart = ({
         name="images"
         error={errors}
         cant={5}
+        preserveExistingOnRemove
+        onUploadStateChange={onUploadStateChange}
       />
       <Br />
       <div className={styles.sectionBlock}>
