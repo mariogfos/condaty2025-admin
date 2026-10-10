@@ -10,7 +10,7 @@ import {
   useMemo,
 } from "react";
 import useAxios from "../useAxios";
-import useRequestIntent from "../useRequestIntent";
+import useSubmissionGuard from "../useSubmissionGuard";
 import { capitalize, getUrlImages } from "../../utils/string";
 import { useAuth } from "../../contexts/AuthProvider";
 import {
@@ -100,7 +100,7 @@ export type ModCrudType = {
   saveMsg?: { add?: string; edit?: string; del?: string };
   listAndCard?: boolean;
   noWaiting?: boolean;
-  idempotentCreate?: boolean;
+  guardCreateSubmit?: boolean;
   search?: boolean | object;
   titleAdd?: string;
   titleEdit?: string;
@@ -349,7 +349,7 @@ const useCrud = ({
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors]: any = useState({});
   const [isSaving, setIsSaving] = useState(false);
-  const createIntent = useRequestIntent();
+  const createGuard = useSubmissionGuard();
 
   const [openImport, setOpenImport] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -884,24 +884,20 @@ const useCrud = ({
       }
     }
 
-    const createAttempt = method === "POST" && mod.idempotentCreate
-      ? createIntent.begin(paramWithoutFiles)
-      : null;
-    if (method === "POST" && mod.idempotentCreate && !createAttempt) return;
+    const guardCreate = method === "POST" && mod.guardCreateSubmit;
+    if (guardCreate && !createGuard.begin()) return;
 
     let saved = false;
-    let responseStatus: number | undefined;
     setIsSaving(true);
     try {
       const { data: response, error: err } = await execute(
         url,
         method,
-        action == "del" ? { id: data.id } : (createAttempt || paramWithoutFiles),
+        action == "del" ? { id: data.id } : paramWithoutFiles,
         false,
         mod?.noWaiting,
       );
       saved = response?.success === true;
-      responseStatus = err?.status ?? (response ? 200 : undefined);
 
       if (saved) {
         try {
@@ -945,14 +941,14 @@ const useCrud = ({
         showToast(
           response?.message ||
             err?.data?.message ||
-            "No se pudo guardar el registro. Intenta nuevamente.",
+            "No se pudo confirmar el registro. Revisa la lista antes de reintentar.",
           "error",
         );
         logError("Error onSave:", err);
       }
     } finally {
       setIsSaving(false);
-      if (createAttempt) createIntent.finish(saved, responseStatus);
+      if (guardCreate) createGuard.finish();
     }
   };
 

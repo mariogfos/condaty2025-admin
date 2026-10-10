@@ -12,7 +12,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { AxiosContext } from "@/mk/contexts/AxiosInstanceProvider";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getUrlImages } from "@/mk/utils/string";
-import useRequestIntent from "@/mk/hooks/useRequestIntent";
+import useSubmissionGuard from "@/mk/hooks/useSubmissionGuard";
 import type {
   ReservationArea,
   ReservationExtraData,
@@ -110,7 +110,7 @@ const ReservationQuickCreateModal = ({
     useState<ReservationCalendarDayAvailability | null>(null);
   const [liveCanBook, setLiveCanBook] = useState<boolean | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const { begin: beginCreate, finish: finishCreate, submitting: intentSubmitting } = useRequestIntent();
+  const { begin: beginCreate, finish: finishCreate, submitting: intentSubmitting } = useSubmissionGuard();
   const availabilityRequestRef = useRef(0);
 
   const selectedDate = useMemo(() => {
@@ -405,22 +405,19 @@ const ReservationQuickCreateModal = ({
       payload.periods = [period];
     }
 
-    const attempt = beginCreate(payload);
-    if (!attempt) return;
+    if (!beginCreate()) return;
 
     setSubmitting(true);
     let created = false;
-    let responseStatus: number | undefined;
 
     try {
       const response = await contextInstance.request({
         method: "POST",
         url: "/reservations",
-        data: attempt,
+        data: payload,
       });
 
       created = response?.data?.success === true;
-      responseStatus = response?.status ?? 200;
       if (created) {
         showToast(response?.data?.message || "Reserva creada exitosamente", "success");
         onCreated?.();
@@ -430,16 +427,15 @@ const ReservationQuickCreateModal = ({
 
       showToast(response?.data?.message || "No se pudo crear la reserva", "error");
     } catch (error: any) {
-      responseStatus = error?.response?.status;
       showToast(
         error?.response?.data?.message ||
           error?.message ||
-          "Ocurrió un error inesperado al crear la reserva.",
+          "No se pudo confirmar la reserva. Revisa el calendario antes de reintentar.",
         "error",
       );
     } finally {
       setSubmitting(false);
-      finishCreate(created, responseStatus);
+      finishCreate();
     }
   }, [
     beginCreate,
