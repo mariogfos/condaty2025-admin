@@ -1,7 +1,7 @@
 import StepProgressBar from "@/components/StepProgressBar/StepProgressBar";
 import { Card } from "@/mk/components/ui/Card/Card";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./RenderForm.module.css";
 import Button from "@/mk/components/forms/Button/Button";
 import FirstPart from "./Partes/FirstPart";
@@ -102,6 +102,15 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   const [level, setLevel] = useState(1);
   const [errors, setErrors]: any = useState({});
   const [openComfirm, setOpenComfirm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [uncertain, setUncertain] = useState(false);
+  const savingRef = useRef(false);
+  const savedRef = useRef(false);
+  const createAttemptRef = useRef<{
+    requestId: string;
+    payload: Record<string, unknown>;
+  } | null>(null);
 
   useEffect(() => {
     setOpenList(false);
@@ -277,6 +286,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   };
 
   const onNext = () => {
+    if (savingRef.current || savedRef.current) return;
     if (level === 1) {
       if (hasErrors(validateLevel1())) return;
     }
@@ -301,12 +311,14 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     setLevel(level + 1);
   };
   const onSave = async () => {
-    let method = formState.id ? "PUT" : "POST";
-    const { data, error } = await execute(
-      "/areas" + (formState.id ? "/" + formState.id : ""),
-      method,
-      {
-        // avatar: formState?.avatar,
+    if (savingRef.current || savedRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
+
+    try {
+      const creating = !formState.id;
+      const method = creating ? "POST" : "PUT";
+      const payload = {
         images: formState?.images,
         title: formState?.title,
         description: formState?.description,
@@ -338,14 +350,39 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         max_reservations_per_day: formState?.max_reservations_per_day,
         reservation_duration: parseFloat(formState?.reservation_duration),
         is_free: formState?.has_price == "S" ? "X" : "A",
-      },
-    );
+      };
+      if (creating && !createAttemptRef.current) {
+        createAttemptRef.current = { requestId: crypto.randomUUID(), payload };
+      }
+      const { data, error } = await execute(
+        "/areas" + (formState.id ? "/" + formState.id : ""),
+        method,
+        creating
+          ? { ...createAttemptRef.current!.payload, request_id: createAttemptRef.current!.requestId }
+          : payload,
+      );
 
-    if (data?.success) {
-      onClose();
-      reLoad();
-      showToast(data.message, "success");
-    } else {
+      if (data?.success) {
+        savedRef.current = true;
+        setSaved(true);
+        setUncertain(false);
+        onClose();
+        reLoad();
+        showToast(data.message, "success");
+        return;
+      }
+
+      if (creating) {
+        const definitiveFailure = data?.success === false ||
+          (error?.status > 0 && error.status < 500 && error.status !== 409);
+        if (definitiveFailure) {
+          createAttemptRef.current = null;
+          setUncertain(false);
+        } else {
+          setUncertain(true);
+        }
+      }
+
       showToast(
         error?.data?.message ||
           error?.message ||
@@ -353,10 +390,22 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
           "No se pudo guardar el área social",
         "error",
       );
+    } catch (error) {
+      console.error("Error guardando área social:", error);
+      if (!formState.id) {
+        setUncertain(true);
+        showToast("No se pudo confirmar el guardado. Reintenta para verificarlo sin duplicar.", "error");
+      } else {
+        showToast("No se pudo guardar el área social. Intenta nuevamente.", "error");
+      }
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
     }
   };
 
   const _onClose = () => {
+    if (savingRef.current) return;
     if (level == 4) {
       setOpenComfirm(true);
       return;
@@ -397,6 +446,11 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
             />
           )}
           {level === 4 && <FourPart item={formState} />}
+          {uncertain && !formState.id && (
+            <p role="status">
+              No pudimos confirmar el primer envío. Al reintentar se usarán los mismos datos para evitar duplicados.
+            </p>
+          )}
           <div className={styles.footerActions}>
             {level > 1 && (
               <div
@@ -408,8 +462,18 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
                 <IconArrowLeft color="var(--cWhiteV1)" />
               </div>
             )}
-            <Button className={styles.continueButton} onClick={onNext}>
-              Continuar
+            <Button
+              className={styles.continueButton}
+              onClick={onNext}
+              disabled={saving || saved}
+            >
+              {saving
+                ? "Guardando..."
+                : saved
+                  ? "Guardada"
+                  : uncertain
+                    ? "Verificar guardado"
+                    : level === 4 ? "Guardar" : "Continuar"}
             </Button>
           </div>
         </Card>
