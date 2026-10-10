@@ -29,7 +29,7 @@ import UploadFile2 from "@/mk/components/forms/UploadFile2";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
 import { paymentsApi } from "@/modulos/Payments/api";
-import useRequestIntent from "@/mk/hooks/useRequestIntent";
+import useSubmissionGuard from "@/mk/hooks/useSubmissionGuard";
 
 interface Dpto {
   id: string | number;
@@ -263,7 +263,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     };
   });
   const [errors, setErrors] = useState<Errors>({});
-  const { begin: beginCreate, finish: finishCreate, submitting } = useRequestIntent();
+  const { begin: beginCreate, finish: finishCreate, submitting } = useSubmissionGuard();
 
   const [deudas, setDeudas] = useState<Deuda[]>([]);
   const [selectedPeriodo, setSelectedPeriodo] = useState<SelectedPeriodo[]>([]);
@@ -904,14 +904,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
     }
 
-    const attempt = beginCreate(params);
-    if (!attempt) return;
+    if (!beginCreate()) return;
     let saved = false;
-    let responseStatus: number | undefined;
     try {
-      const { data, error } = await execute(endpoint, "POST", attempt);
+      const { data, error } = await execute(endpoint, "POST", params);
       saved = data?.success === true;
-      responseStatus = error?.status ?? (data ? 200 : undefined);
 
       if (saved) {
         showToast("Pago agregado con éxito", "success");
@@ -930,9 +927,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
         }
       }
     } catch (error) {
-      showToast("No se pudo confirmar el ingreso. Reintenta sin cambiar los datos.", "error");
+      showToast("No se pudo confirmar el ingreso. Revisa la lista antes de reintentar.", "error");
     } finally {
-      finishCreate(saved, responseStatus);
+      finishCreate();
     }
   }, [
     formState,

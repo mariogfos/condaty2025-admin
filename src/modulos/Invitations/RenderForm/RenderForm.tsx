@@ -8,7 +8,7 @@ import { IconDepartment2 } from "@/components/layout/icons/IconsBiblioteca";
 import Br from "@/components/Detail/Br";
 import styles from "./RenderForm.module.css";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
-import useRequestIntent from "@/mk/hooks/useRequestIntent";
+import useSubmissionGuard from "@/mk/hooks/useSubmissionGuard";
 
 const RenderForm = ({
   open,
@@ -20,7 +20,7 @@ const RenderForm = ({
 }: any) => {
   const [formState, setFormState] = useState({ ...item });
   const [errors, setErrors] = useState({});
-  const { begin: beginSave, finish: finishSave, submitting } = useRequestIntent();
+  const { begin: beginSave, finish: finishSave, submitting } = useSubmissionGuard();
   const { showToast } = useAuth();
 
   const handleChange = (
@@ -81,18 +81,15 @@ const RenderForm = ({
         clientIds: clientIdsToSend || [],
         images: formState?.images || [],
     };
-    const attempt = beginSave(payload);
-    if (!attempt) return;
+    if (!beginSave()) return;
     let saved = false;
-    let responseStatus: number | undefined;
     try {
       const { data, error } = await execute(
         "/campaigns" + (formState.id ? "/" + formState.id : ""),
         method,
-        method === "POST" ? attempt : payload,
+        payload,
       );
       saved = data?.success === true;
-      responseStatus = error?.status ?? (data ? 200 : undefined);
       if (saved) {
         onClose();
         reLoad();
@@ -101,9 +98,9 @@ const RenderForm = ({
         showToast(data?.message || error?.data?.message || "No se pudo guardar la campaña", "error");
       }
     } catch {
-      showToast("No se pudo confirmar la campaña. Reintenta sin cambiar los datos.", "error");
+      showToast("No se pudo confirmar la campaña. Revisa la lista antes de reintentar.", "error");
     } finally {
-      finishSave(saved, responseStatus);
+      finishSave();
     }
   };
   useEffect(() => {

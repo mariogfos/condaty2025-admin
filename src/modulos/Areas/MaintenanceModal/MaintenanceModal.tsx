@@ -2,7 +2,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import useAxios from "@/mk/hooks/useAxios";
-import useRequestIntent from "@/mk/hooks/useRequestIntent";
+import useSubmissionGuard from "@/mk/hooks/useSubmissionGuard";
 import React, { useEffect, useState } from "react";
 import TitleSubtitle from "./TitleSubtitle";
 import { getFullName } from "@/mk/utils/string";
@@ -32,7 +32,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   const [reservas, setReservas] = useState([]);
   const [openConfirm, setOpenConfirm] = useState({ open: false, id: null });
   const { showToast } = useAuth();
-  const { begin: beginCreate, finish: finishCreate, submitting } = useRequestIntent();
+  const { begin: beginCreate, finish: finishCreate, submitting } = useSubmissionGuard();
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -115,18 +115,15 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
 
   const onSave = async () => {
     if (hasErrors(validate())) return;
-    const attempt = beginCreate(formState);
-    if (!attempt) return;
+    if (!beginCreate()) return;
     let created = false;
-    let responseStatus: number | undefined;
     try {
       const { data, error } = await execute(
         "/reservations-areablocked",
         "POST",
-        attempt,
+        formState,
       );
       created = data?.success === true;
-      responseStatus = error?.status ?? (data ? 200 : undefined);
       if (created) {
         _onClose();
         showToast("Mantenimiento creado con éxito", "success");
@@ -134,9 +131,9 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
         showToast(data?.msg || error?.data?.message || "Ocurrió un error", "error");
       }
     } catch {
-      showToast("No se pudo confirmar el mantenimiento. Reintenta sin cambiar los datos.", "error");
+      showToast("No se pudo confirmar el mantenimiento. Revisa el calendario antes de reintentar.", "error");
     } finally {
-      finishCreate(created, responseStatus);
+      finishCreate();
     }
   };
 
