@@ -38,4 +38,13 @@ describe("DELETE /api/cloudinary-upload", () => {
     expect(response.status).toBe(400);
     expect(cloudinary.uploader.destroy).not.toHaveBeenCalled();
   });
+
+  it("no amplía el borrado público a documentos ni videos", async () => {
+    const response = await DELETE(request({
+      public_id: "condaty-admin/report.pdf", resource_type: "raw",
+    }));
+
+    expect(response.status).toBe(400);
+    expect(cloudinary.uploader.destroy).not.toHaveBeenCalled();
+  });
 });
