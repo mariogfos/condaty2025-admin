@@ -24,7 +24,7 @@ import { getDateStrMes } from "../../mk/utils/date1";
 import StepProgressBar from "@/components/StepProgressBar/StepProgressBar";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
-import useRequestIntent from "@/mk/hooks/useRequestIntent";
+import useSubmissionGuard from "@/mk/hooks/useSubmissionGuard";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import RenderView from "../DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
 import {
@@ -75,7 +75,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [openComfirm, setOpenComfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState(false);
-  const { begin: beginCreate, finish: finishCreate, submitting: intentSubmitting } = useRequestIntent();
+  const { begin: beginCreate, finish: finishCreate, submitting: intentSubmitting } = useSubmissionGuard();
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
   const [dataReserv, setDataReserv]: any = useState([]);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
@@ -346,21 +346,18 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       periods: sortedSelectedPeriods,
       dpto_id: selectedUnit?.id,
     };
-    const attempt = beginCreate(payload);
-    if (!attempt) return;
+    if (!beginCreate()) return;
     setIsSubmitting(true);
     let created = false;
-    let responseStatus: number | undefined;
     try {
       const response = await execute(
         "/reservations",
         "POST",
-        attempt,
+        payload,
         false,
         true,
       );
       created = response?.data?.success === true;
-      responseStatus = response?.error?.status ?? (response?.data ? 200 : undefined);
       if (created) {
         setSubmitted(true);
         showToast(
@@ -381,10 +378,10 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       }
     } catch (error) {
       console.error(error);
-      showToast("Ocurrió un error inesperado al crear la reserva.", "error");
+      showToast("No se pudo confirmar la reserva. Revisa el calendario antes de reintentar.", "error");
     } finally {
       setIsSubmitting(false);
-      finishCreate(created, responseStatus);
+      finishCreate();
     }
   };
 

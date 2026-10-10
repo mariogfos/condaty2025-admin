@@ -8,7 +8,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { getFullName } from "@/mk/utils/string";
-import useRequestIntent from "@/mk/hooks/useRequestIntent";
+import useSubmissionGuard from "@/mk/hooks/useSubmissionGuard";
 
 type yearProps = { id: string | number; name: string }[];
 
@@ -28,7 +28,7 @@ const RenderForm = ({
     dpto_id: item.dpto_id || [],
   });
   const [errors, setErrors]: any = useState({});
-  const { begin: beginSave, finish: finishSave, submitting } = useRequestIntent();
+  const { begin: beginSave, finish: finishSave, submitting } = useSubmissionGuard();
   const [ldpto, setLdpto] = useState([]);
   const client = user.clients.filter(
     (item: any) => item.id === user.client_id
@@ -107,19 +107,16 @@ const RenderForm = ({
         asignar: formState.asignar,
         dpto_id: formState.dpto_id,
     };
-    const attempt = beginSave(payload);
-    if (!attempt) return;
+    if (!beginSave()) return;
     let saved = false;
-    let responseStatus: number | undefined;
     try {
       const { data: response, error } = await execute(
         "/debts" + (formState.id ? "/" + formState.id : ""),
         method,
-        method === "POST" ? attempt : payload,
+        payload,
         false,
       );
       saved = response?.success === true;
-      responseStatus = error?.status ?? (response ? 200 : undefined);
       if (saved) {
         reLoad();
         setItem(formState);
@@ -129,9 +126,9 @@ const RenderForm = ({
         showToast(response?.message || error?.data?.message || "No se pudo guardar la expensa", "error");
       }
     } catch {
-      showToast("No se pudo confirmar la expensa. Reintenta sin cambiar los datos.", "error");
+      showToast("No se pudo confirmar la expensa. Revisa la lista antes de reintentar.", "error");
     } finally {
-      finishSave(saved, responseStatus);
+      finishSave();
     }
   };
 

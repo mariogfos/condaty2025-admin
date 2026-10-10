@@ -457,7 +457,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ onExtraDataChange }) => {
 
   const mod: ModCrudType = {
     modulo: "debts",
-    idempotentCreate: true,
+    guardCreateSubmit: true,
     singular: "Deuda Compartida",
     plural: "",
     export: true,

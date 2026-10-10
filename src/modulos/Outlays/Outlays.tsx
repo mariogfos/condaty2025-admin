@@ -48,7 +48,7 @@ const Outlays = () => {
 
   const mod: ModCrudType = {
     modulo: "expenses",
-    idempotentCreate: true,
+    guardCreateSubmit: true,
     singular: "Egreso",
     plural: "Egresos",
     filter: true,
