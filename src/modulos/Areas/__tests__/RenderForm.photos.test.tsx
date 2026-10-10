@@ -49,6 +49,17 @@ const setup = (execute: ReturnType<typeof vi.fn>) => {
   return { onClose };
 };
 
+const setupCreate = (execute: ReturnType<typeof vi.fn>) => {
+  const onClose = vi.fn();
+  render(
+    <RenderForm
+      item={{ ...area, id: undefined }} execute={execute} onClose={onClose}
+      setOpenList={vi.fn()} reLoad={vi.fn()}
+    />,
+  );
+  return { onClose };
+};
+
 const advanceToSave = () => {
   fireEvent.click(screen.getByRole("button", { name: "Quitar foto" }));
   fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
@@ -57,7 +68,7 @@ const advanceToSave = () => {
   fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
 };
 
-describe("edición de fotos de un área", () => {
+describe("formulario de área social", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("no borra fotos anteriores si falla el guardado", async () => {
@@ -92,5 +103,46 @@ describe("edición de fotos de un área", () => {
     expect(screen.getByRole("button", { name: "Continuar" })).toBeDisabled();
     expect(screen.queryByText("Paso dos")).not.toBeInTheDocument();
     expect(execute).not.toHaveBeenCalled();
+  });
+
+  it("envía una sola creación aunque se pulse Guardar dos veces", async () => {
+    let finishRequest!: (value: unknown) => void;
+    const execute = vi.fn().mockReturnValue(new Promise((resolve) => { finishRequest = resolve; }));
+    const { onClose } = setupCreate(execute);
+
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Guardando..." }));
+
+    expect(execute).toHaveBeenCalledTimes(1);
+    expect(execute.mock.calls[0][0]).toBe("/areas");
+    expect(execute.mock.calls[0][1]).toBe("POST");
+    expect(execute.mock.calls[0][2].request_id).toMatch(/^[0-9a-f-]{36}$/);
+    expect(screen.getByRole("button", { name: "Guardando..." })).toBeDisabled();
+
+    finishRequest({ data: { success: true, message: "Guardada" } });
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getByRole("button", { name: "Guardada" }));
+    expect(execute).toHaveBeenCalledTimes(1);
+  });
+
+  it("reintenta el mismo intento si no pudo confirmar la respuesta", async () => {
+    const execute = vi.fn()
+      .mockResolvedValueOnce({ error: { message: "Sin respuesta", status: 0 } })
+      .mockResolvedValueOnce({ data: { success: true, message: "Guardada" } });
+    const { onClose } = setupCreate(execute);
+
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+    await screen.findByRole("button", { name: "Verificar guardado" });
+    fireEvent.click(screen.getByRole("button", { name: "Verificar guardado" }));
+
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
+    expect(execute).toHaveBeenCalledTimes(2);
+    expect(execute.mock.calls[1][2]).toEqual(execute.mock.calls[0][2]);
   });
 });
