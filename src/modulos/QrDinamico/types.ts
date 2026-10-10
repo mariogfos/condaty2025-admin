@@ -9,8 +9,8 @@
  * Modo de operación del QR dinámico.
  * @see QrDynamicModeEnum (backend: app/Modules/QrDinamico/Enums/QrDynamicModeEnum.php)
  * - 1: disabled  → QR deshabilitado globalmente
- * - 2: global    → QR compartido por todos los propietarios
- * - 3: own       → QR propio de cada propietario
+ * - 2: global    → el condominio cobra con las credenciales de la plataforma
+ * - 3: own       → el condominio cobra con sus propias credenciales
  *
  * 🔴 Desde 1 desde el 2026-09-26, como todos los enums: el GLOBAL de antes (1)
  * es el DISABLED de ahora.
@@ -96,8 +96,6 @@ export interface QrOrder {
   transaction_id: string | null;
   payment_type: PaymentType | null;
   payment_id: string | null;
-  consolidated_at: string | null;
-  consolidated_by: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -110,23 +108,13 @@ export interface QrOrderPagination {
   has_more: boolean;
 }
 
-export interface QrOrdersResponse {
-  success: boolean;
-  data: {
-    items: QrOrder[];
-    pagination: QrOrderPagination;
-  };
-}
-
 export interface GenerateQrPayload {
   amount: number;
   currency?: "BOB" | "USD";
   gloss?: string;
   payment_type?: PaymentType;
-  payment_id?: string;
   expiration_date?: string; // format: ddMMyyyy
   single_use?: boolean;
-  owner_id?: string;
 }
 
 export interface GenerateQrResponse {
@@ -143,19 +131,6 @@ export interface GenerateQrResponse {
     expiration_date: string | null;
     order_state: QrOrderState;
   };
-}
-
-export interface ConciliationTotal {
-  client_id: string;
-  currency: string;
-  total: string;
-  count: number;
-}
-
-export interface ConciliationData {
-  summary: ConciliationTotal[];
-  items: QrOrder[];
-  pagination: Omit<QrOrderPagination, "has_more">;
 }
 
 export interface QrOrderFilters {
@@ -184,8 +159,8 @@ export const QR_STATE_COLOR: Record<
   [QrOrderState.REGISTERED]: { color: "#F59E0B", bg: "rgba(245,158,11,0.12)" },
   [QrOrderState.PAID]: { color: "#00E38C", bg: "rgba(0,227,140,0.12)" },
   [QrOrderState.CANCELLED]: { color: "#F23D2D", bg: "rgba(242,61,45,0.12)" },
-  // Reemplazado y expirado no son errores: son finales tranquilos. Van en gris
-  // para que el rojo siga queriendo decir «algo pasó».
+  // Reemplazado y expirado no son errores: son finales tranquilos. Van en
+  // violeta y gris, para que el rojo siga queriendo decir «algo pasó».
   [QrOrderState.REPLACED]: { color: "#8B5CF6", bg: "rgba(139,92,246,0.12)" },
   [QrOrderState.EXPIRED]: { color: "#6B7280", bg: "rgba(107,114,128,0.12)" },
 };
@@ -200,28 +175,4 @@ export const PAYMENT_TYPE_LABEL: Record<PaymentType, string> = {
   [PaymentType.DEBT_EXPENSES]: "Expensas",
   [PaymentType.DEBT_RESERVATIONS]: "Reservas",
   [PaymentType.DEBT_OTHER]: "Otras deudas",
-};
-
-// ─── Helpers: QrDynamicMode ──────────────────────────────────────────────────
-
-export const QR_MODE_LABEL: Record<QrDynamicMode, string> = {
-  [QrDynamicMode.DISABLED]: "Deshabilitado",
-  [QrDynamicMode.GLOBAL]: "Global",
-  [QrDynamicMode.OWN]: "Propio",
-};
-
-export const QR_MODE_COLOR: Record<
-  QrDynamicMode,
-  { color: string; bg: string }
-> = {
-  [QrDynamicMode.DISABLED]: { color: "#6B7280", bg: "rgba(107,114,128,0.12)" },
-  [QrDynamicMode.GLOBAL]: { color: "#3B82F6", bg: "rgba(59,130,246,0.12)" },
-  [QrDynamicMode.OWN]: { color: "#8B5CF6", bg: "rgba(139,92,246,0.12)" },
-};
-
-// ─── Helpers: QrEnvironment ─────────────────────────────────────────────────
-
-export const QR_ENVIRONMENT_LABEL: Record<QrEnvironment, string> = {
-  [QrEnvironment.SANDBOX]: "Sandbox",
-  [QrEnvironment.PRODUCTION]: "Producción",
 };

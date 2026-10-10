@@ -140,14 +140,16 @@ export const menuConfig: MenuConfigItem[] = [
         labelKey: "orangeLogs",
         perm: "payments",
       },
-      // ⚠️ El probador del banco se mudó a Backoffice: opera la cuenta de
-      // cualquier condominio y el backend sólo se lo permite al equipo de
-      // Condaty. Ofrecerlo acá era ofrecer un 403.
-      // {
-      //   href: "/qr-dinamico",
-      //   labelKey: "QR Dinámico",
-      //   perm: "payments",
-      // },
+      // Las órdenes QR del condominio. Estuvo comentada con un motivo que era
+      // de OTRA pantalla —«el probador del banco se mudó a Backoffice»—, y con
+      // eso `dev` perdió una entrada que producción ofrece (`origin/prod`,
+      // `perm: "payments"`). La pantalla no opera el banco: lista, genera el
+      // QR de prueba y anula, y el API pide `payments` R/C/D en cada ruta.
+      {
+        href: "/qr-dinamico",
+        labelKey: "qrDynamic",
+        perm: "payments",
+      },
     ],
   },
   {

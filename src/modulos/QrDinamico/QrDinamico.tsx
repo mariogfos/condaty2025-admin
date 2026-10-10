@@ -9,14 +9,12 @@ import {
   QrOrderState,
   PaymentType,
   QrOrderFilters,
-  QR_STATE_LABEL,
-  QR_STATE_COLOR,
   PAYMENT_TYPE_LABEL,
 } from './types';
 import GenerateQrModal from './GenerateQrModal/GenerateQrModal';
 import RenderView from './RenderView/RenderView';
-import BankTransactionsModal, { BankTxn } from './BankTransactionsModal/BankTransactionsModal';
 import Button from '@/mk/components/forms/Button/Button';
+import { StateBadge } from './shared';
 
 // ⚠️ Acá vivía una segunda pestaña, la de conciliación manual, y se retiró.
 //
@@ -55,18 +53,6 @@ const formatDateWithHour = (dateStr: string | null, hour: string | null) => {
   const day = formatDate(dateStr);
   if (!hour) return day;
   return `${day} ${hour.slice(0, 5)}`;
-};
-
-const StateBadge = ({ state }: { state: QrOrderState }) => {
-  const cfg = QR_STATE_COLOR[state];
-  return (
-    <span
-      className={styles.badge}
-      style={{ color: cfg.color, backgroundColor: cfg.bg }}
-    >
-      {QR_STATE_LABEL[state] ?? state}
-    </span>
-  );
 };
 
 const QR_BATCH_SIZE = 40;
@@ -109,32 +95,18 @@ const QrDinamico = () => {
   const [showGenerate, setShowGenerate] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<QrOrder | null>(null);
 
-  // Modal "Últimos QR en el banco" (verificación contra el banco)
-  const [showBankModal, setShowBankModal] = useState(false);
-  const [bankTxns, setBankTxns] = useState<BankTxn[] | null>(null);
-  const [bankLoading, setBankLoading] = useState(false);
-  const [bankError, setBankError] = useState('');
   const ordersLoadSentinelRef = React.useRef<HTMLDivElement | null>(null);
 
   // ─── API calls ──────────────────────────────────────────────────────────────
   const { execute: fetchOrders, loaded: ordersLoaded } = useAxios();
   const { execute: cancelOrder } = useAxios();
-  const { execute: fetchBankTxns } = useAxios();
 
-  const openBankModal = useCallback(async () => {
-    setShowBankModal(true);
-    setBankLoading(true);
-    setBankError('');
-    setBankTxns(null);
-    const response = await fetchBankTxns('v3/bank-qr/recent-transactions', 'GET');
-    const payload = response?.data;
-    if (payload?.success) {
-      setBankTxns(payload.data.orders ?? []);
-    } else {
-      setBankError(payload?.message || response?.error?.message || 'No se pudo consultar el banco.');
-    }
-    setBankLoading(false);
-  }, [fetchBankTxns]);
+  // ⚠️ Acá vivía «Últimos QR en el banco», y se retiró: pedía
+  // `v3/bank-qr/recent-transactions` sin cuenta. Ese endpoint es del probador
+  // del equipo de Condaty y exige `bank_account_id` —el QR se cobra por CUENTA
+  // desde el 2026-09-05—, así que contestaba 403 a la administración y 422 al
+  // equipo de Condaty, siempre. Lo que el banco cobró se consulta en el
+  // probador (Backoffice), eligiendo la cuenta.
 
   const buildQueryString = useCallback((f: QrOrderFilters) => {
     const params = new URLSearchParams();
@@ -258,9 +230,6 @@ const QrDinamico = () => {
           <h1 className={styles.headerTitle}>QR Dinámico</h1>
         </div>
         <div className={styles.headerActions}>
-          <Button variant="secondary" onClick={openBankModal}>
-            Últimos QR en el banco
-          </Button>
           <Button variant="primary" onClick={() => setShowGenerate(true)}>
             + Generar QR de Prueba
           </Button>
@@ -281,6 +250,8 @@ const QrDinamico = () => {
               <option value={QrOrderState.REGISTERED}>Registrado</option>
               <option value={QrOrderState.PAID}>Pagado</option>
               <option value={QrOrderState.CANCELLED}>Anulado</option>
+              <option value={QrOrderState.REPLACED}>Reemplazado</option>
+              <option value={QrOrderState.EXPIRED}>Expirado</option>
             </select>
 
             <select
@@ -293,6 +264,9 @@ const QrDinamico = () => {
               <option value={PaymentType.EXPENSE}>Expensas</option>
               <option value={PaymentType.RESERVATION}>Reservas</option>
               <option value={PaymentType.OUTLAY}>Egresos</option>
+              <option value={PaymentType.DEBT_EXPENSES}>Expensas (QR de deudas)</option>
+              <option value={PaymentType.DEBT_RESERVATIONS}>Reservas (QR de deudas)</option>
+              <option value={PaymentType.DEBT_OTHER}>Otras deudas (QR de deudas)</option>
             </select>
 
             <input
@@ -339,7 +313,7 @@ const QrDinamico = () => {
                     <td colSpan={8}>
                       <div className={styles.emptyState}>
                         <p>No hay órdenes QR registradas.</p>
-                        <p>Usa el botón <strong>Generar QR</strong> para crear una nueva.</p>
+                        <p>Usa el botón <strong>Generar QR de Prueba</strong> para crear una.</p>
                       </div>
                     </td>
                   </tr>
@@ -419,15 +393,6 @@ const QrDinamico = () => {
         />
       )}
 
-      {showBankModal && (
-        <BankTransactionsModal
-          loading={bankLoading}
-          error={bankError}
-          txns={bankTxns}
-          onReload={openBankModal}
-          onClose={() => setShowBankModal(false)}
-        />
-      )}
     </div>
   );
 };
