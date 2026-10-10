@@ -13,6 +13,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useFileUpload } from "@/mk/hooks/useFileUpload";
 
 interface PreviewItem {
+  id: number;
   url: string | null;
   size: number;
   originalName: string;
@@ -123,20 +124,39 @@ const UploadFileV3 = ({
           type="file"
           accept={acceptStr}
           multiple={!isSingle}
+          disabled={uploading}
           onChange={handleInputChange}
           style={{ display: "none" }}
         />
         <div
           className={styles.box}
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => {
+            if (!uploading) fileInputRef.current?.click();
+          }}
+          role="button"
+          tabIndex={uploading ? -1 : 0}
+          aria-disabled={uploading}
+          onKeyDown={(event) => {
+            if (!uploading && (event.key === "Enter" || event.key === " ")) {
+              event.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
           onDragOver={(e) => {
             e.preventDefault();
             setIsDragging(true);
           }}
           onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
+          onDrop={(event) => {
+            if (uploading) {
+              event.preventDefault();
+              setIsDragging(false);
+              return;
+            }
+            handleDrop(event);
+          }}
           style={{
-            cursor: "pointer",
+            cursor: uploading ? "wait" : "pointer",
             opacity: uploading ? 0.6 : 1,
             borderColor: isDragging ? "var(--cAccent)" : undefined,
           }}
@@ -168,7 +188,7 @@ const UploadFileV3 = ({
           <div className={styles.previews}>
             {filePreviews.map((item, index) => (
               <div
-                key={`${item.originalName}-${index}`}
+                key={item.id}
                 className={styles.preview}
                 onClick={() => setOpenPreview({ open: true, item })}
               >
@@ -196,13 +216,18 @@ const UploadFileV3 = ({
                   </div>
                 </div>
 
-                <IconX
-                  onClick={(e: any) => {
+                <button
+                  type="button"
+                  className={styles.removeButton}
+                  aria-label={`Quitar ${item.originalName}`}
+                  disabled={uploading}
+                  onClick={(e) => {
                     e.stopPropagation();
                     handleDelete(index);
                   }}
-                  style={{ cursor: "pointer" }}
-                />
+                >
+                  <IconX />
+                </button>
               </div>
             ))}
           </div>
