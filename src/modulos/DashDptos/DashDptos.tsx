@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { getFullName } from "@/mk/utils/string";
 import styles from "./DashDptos.module.css";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -44,6 +44,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
   const [openDel, setOpenDel] = useState(false);
   const [openDelTitular, setOpenDelTitular] = useState(false);
+  const [removingTitular, setRemovingTitular] = useState(false);
+  const removingTitularRef = useRef(false);
   const [currentRemovalType, setCurrentRemovalType] = useState<
     "H" | "T" | null
   >(null);
@@ -223,9 +225,10 @@ const DashDptos = ({ id }: DashDptosProps) => {
   };
 
   const removeTitular = async () => {
+    if (!currentRemovalType || removingTitularRef.current) return;
+    removingTitularRef.current = true;
+    setRemovingTitular(true);
     try {
-      if (!currentRemovalType) return;
-
       const isHomeowner = currentRemovalType === "H";
       const payload = {
         owner_id: isHomeowner ? datas?.data?.homeowner?.id : datas?.tenant?.id,
@@ -237,7 +240,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
       if (data?.success) {
         showToast(
-          isHomeowner ? "Propietario liberado" : "Residente desvinculado",
+          data?.data?.changed === false
+            ? "El vínculo ya estaba actualizado"
+            : isHomeowner ? "Propietario liberado" : "Residente desvinculado",
           "success",
         );
         reLoad({ extraData: true });
@@ -255,6 +260,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
     } catch (error) {
       console.error("Error:", error);
       showToast("Error al procesar la solicitud", "error");
+    } finally {
+      removingTitularRef.current = false;
+      setRemovingTitular(false);
     }
   };
 
@@ -520,11 +528,15 @@ const DashDptos = ({ id }: DashDptosProps) => {
             open={openDelTitular}
             onSave={removeTitular}
             variant={"mini"}
+            disabled={removingTitular}
             onClose={() => {
+              if (removingTitularRef.current) return;
               setOpenDelTitular(false);
               setCurrentRemovalType(null);
             }}
-            buttonText={currentRemovalType === "H" ? "Liberar" : "Desvincular"}
+            buttonText={removingTitular
+              ? "Procesando..."
+              : currentRemovalType === "H" ? "Liberar" : "Desvincular"}
           >
             <p
               style={{

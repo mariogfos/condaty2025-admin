@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getFullName } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import EmptyData from "@/components/NoData/EmptyData";
@@ -45,6 +45,8 @@ const UnitInfo = ({
   const [openOwnerMenu, setOpenOwnerMenu] = useState(false);
   const [openTenantMenu, setOpenTenantMenu] = useState(false);
   const [openTitularSelector, setOpenTitularSelector] = useState(false);
+  const [releasingOwner, setReleasingOwner] = useState(false);
+  const releasingOwnerRef = useRef(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -127,6 +129,7 @@ const UnitInfo = ({
   };
 
   const releaseOwner = async () => {
+    if (releasingOwnerRef.current) return;
     setOpenOwnerMenu(false);
     const dptoId = datas?.data?.id || datas?.data?.dpto_id || null;
     const ownerId = datas?.homeowner?.id || null;
@@ -140,6 +143,8 @@ const UnitInfo = ({
       return;
     }
 
+    releasingOwnerRef.current = true;
+    setReleasingOwner(true);
     try {
       const { data } = await execute("/dptos-release-owner", "POST", {
         dpto_id: dptoId,
@@ -147,7 +152,12 @@ const UnitInfo = ({
         type: "H",
       });
       if (data?.success) {
-        showToast("Propietario desvinculado exitosamente", "success");
+        showToast(
+          data?.data?.changed === false
+            ? "El vínculo ya estaba actualizado"
+            : "Propietario desvinculado exitosamente",
+          "success",
+        );
         window.location.reload();
       } else {
         showToast(data?.message || "Error al desvincular propietario", "error");
@@ -158,6 +168,9 @@ const UnitInfo = ({
           "Error al desvincular propietario, comunícate con tu administrador",
         "error",
       );
+    } finally {
+      releasingOwnerRef.current = false;
+      setReleasingOwner(false);
     }
   };
   return (
@@ -319,12 +332,13 @@ const UnitInfo = ({
                     <button
                       type="button"
                       className={styles.menuItem}
+                      disabled={releasingOwner}
                       onClick={(e) => {
                         e.stopPropagation();
                         releaseOwner();
                       }}
                     >
-                      Desvincular
+                      {releasingOwner ? "Procesando..." : "Desvincular"}
                     </button>
                   )}
                 </div>
