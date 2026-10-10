@@ -11,6 +11,7 @@ import PetView from "./PetView";
 
 const mod: ModCrudType = {
   modulo: "administration/pets",
+  idempotentCreate: true,
   singular: "mascota",
   plural: "mascotas",
   permiso: "owners",
