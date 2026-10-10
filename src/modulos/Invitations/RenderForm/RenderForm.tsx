@@ -8,6 +8,7 @@ import { IconDepartment2 } from "@/components/layout/icons/IconsBiblioteca";
 import Br from "@/components/Detail/Br";
 import styles from "./RenderForm.module.css";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
+import useRequestIntent from "@/mk/hooks/useRequestIntent";
 
 const RenderForm = ({
   open,
@@ -19,6 +20,7 @@ const RenderForm = ({
 }: any) => {
   const [formState, setFormState] = useState({ ...item });
   const [errors, setErrors] = useState({});
+  const { begin: beginSave, finish: finishSave, submitting } = useRequestIntent();
   const { showToast } = useAuth();
 
   const handleChange = (
@@ -74,22 +76,34 @@ const RenderForm = ({
         ? allClientIds
         : formState.clientIds;
 
-    const { data } = await execute(
-      "/campaigns" + (formState.id ? "/" + formState.id : ""),
-      method,
-      {
+    const payload = {
         name: formState?.name || "",
         clientIds: clientIdsToSend || [],
         images: formState?.images || [],
-      },
-    );
-
-    if (data?.success) {
-      onClose();
-      reLoad();
-      showToast(data.message, "success");
-    } else {
-      showToast(data.message, "error");
+    };
+    const attempt = beginSave(payload);
+    if (!attempt) return;
+    let saved = false;
+    let responseStatus: number | undefined;
+    try {
+      const { data, error } = await execute(
+        "/campaigns" + (formState.id ? "/" + formState.id : ""),
+        method,
+        method === "POST" ? attempt : payload,
+      );
+      saved = data?.success === true;
+      responseStatus = error?.status ?? (data ? 200 : undefined);
+      if (saved) {
+        onClose();
+        reLoad();
+        showToast(data.message, "success");
+      } else {
+        showToast(data?.message || error?.data?.message || "No se pudo guardar la campaña", "error");
+      }
+    } catch {
+      showToast("No se pudo confirmar la campaña. Reintenta sin cambiar los datos.", "error");
+    } finally {
+      finishSave(saved, responseStatus);
     }
   };
   useEffect(() => {
@@ -105,13 +119,14 @@ const RenderForm = ({
   return (
     <DataModalV2
       open={open}
-      onClose={onClose}
+      onClose={submitting ? () => {} : onClose}
       icon={<IconDepartment2 />}
       title={formState.id ? "Editar campaña" : "Crear campaña"}
       subtitle="Crea una nueva campaña o evento para tu condominio"
       onSave={_onSave}
       variant={"mini"}
-      buttonText={formState.id ? "Actualizar campaña" : "Crear campaña"}
+      buttonText={submitting ? "Guardando..." : formState.id ? "Actualizar campaña" : "Crear campaña"}
+      disabled={submitting}
       maxWidth={600}
     >
       <p className={styles.title}>Información de la campaña</p>

@@ -12,6 +12,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { AxiosContext } from "@/mk/contexts/AxiosInstanceProvider";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getUrlImages } from "@/mk/utils/string";
+import useRequestIntent from "@/mk/hooks/useRequestIntent";
 import type {
   ReservationArea,
   ReservationExtraData,
@@ -109,6 +110,7 @@ const ReservationQuickCreateModal = ({
     useState<ReservationCalendarDayAvailability | null>(null);
   const [liveCanBook, setLiveCanBook] = useState<boolean | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const { begin: beginCreate, finish: finishCreate, submitting: intentSubmitting } = useRequestIntent();
   const availabilityRequestRef = useRef(0);
 
   const selectedDate = useMemo(() => {
@@ -370,6 +372,7 @@ const ReservationQuickCreateModal = ({
   );
 
   const handleSubmit = useCallback(async () => {
+    if (submitting || intentSubmitting) return;
     if (!contextInstance || !selectedArea || !selectedUnitChoice || !selectedUnit) {
       return;
     }
@@ -402,16 +405,23 @@ const ReservationQuickCreateModal = ({
       payload.periods = [period];
     }
 
+    const attempt = beginCreate(payload);
+    if (!attempt) return;
+
     setSubmitting(true);
+    let created = false;
+    let responseStatus: number | undefined;
 
     try {
       const response = await contextInstance.request({
         method: "POST",
         url: "/reservations",
-        data: payload,
+        data: attempt,
       });
 
-      if (response?.data?.success) {
+      created = response?.data?.success === true;
+      responseStatus = response?.status ?? 200;
+      if (created) {
         showToast(response?.data?.message || "Reserva creada exitosamente", "success");
         onCreated?.();
         onClose();
@@ -420,6 +430,7 @@ const ReservationQuickCreateModal = ({
 
       showToast(response?.data?.message || "No se pudo crear la reserva", "error");
     } catch (error: any) {
+      responseStatus = error?.response?.status;
       showToast(
         error?.response?.data?.message ||
           error?.message ||
@@ -428,16 +439,21 @@ const ReservationQuickCreateModal = ({
       );
     } finally {
       setSubmitting(false);
+      finishCreate(created, responseStatus);
     }
   }, [
+    beginCreate,
     canContinue,
     contextInstance,
     draft.areaId,
     draft.date,
     draft.note,
     effectiveSlot,
+    finishCreate,
+    intentSubmitting,
     onClose,
     onCreated,
+    submitting,
     selectedArea,
     selectedOwnerId,
     selectedUnit,

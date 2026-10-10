@@ -8,6 +8,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { getFullName } from "@/mk/utils/string";
+import useRequestIntent from "@/mk/hooks/useRequestIntent";
 
 type yearProps = { id: string | number; name: string }[];
 
@@ -27,6 +28,7 @@ const RenderForm = ({
     dpto_id: item.dpto_id || [],
   });
   const [errors, setErrors]: any = useState({});
+  const { begin: beginSave, finish: finishSave, submitting } = useRequestIntent();
   const [ldpto, setLdpto] = useState([]);
   const client = user.clients.filter(
     (item: any) => item.id === user.client_id
@@ -94,12 +96,9 @@ const RenderForm = ({
     return errs;
   };
   const onSave = async () => {
-    let method = formState.id ? "PUT" : "POST";
     if (hasErrors(validate())) return;
-    const { data: response } = await execute(
-      "/debts" + (formState.id ? "/" + formState.id : ""),
-      method,
-      {
+    const method = formState.id ? "PUT" : "POST";
+    const payload = {
         year: formState.year,
         month: formState.month,
         due_at: formState.due_at,
@@ -107,16 +106,32 @@ const RenderForm = ({
         description: formState.description,
         asignar: formState.asignar,
         dpto_id: formState.dpto_id,
-      },
-      false
-    );
-    if (response?.success === true) {
-      reLoad();
-      setItem(formState);
-      showToast(response?.message, "success");
-      onClose();
-    } else {
-      showToast(response?.message, "error");
+    };
+    const attempt = beginSave(payload);
+    if (!attempt) return;
+    let saved = false;
+    let responseStatus: number | undefined;
+    try {
+      const { data: response, error } = await execute(
+        "/debts" + (formState.id ? "/" + formState.id : ""),
+        method,
+        method === "POST" ? attempt : payload,
+        false,
+      );
+      saved = response?.success === true;
+      responseStatus = error?.status ?? (response ? 200 : undefined);
+      if (saved) {
+        reLoad();
+        setItem(formState);
+        showToast(response?.message, "success");
+        onClose();
+      } else {
+        showToast(response?.message || error?.data?.message || "No se pudo guardar la expensa", "error");
+      }
+    } catch {
+      showToast("No se pudo confirmar la expensa. Reintenta sin cambiar los datos.", "error");
+    } finally {
+      finishSave(saved, responseStatus);
     }
   };
 
@@ -153,9 +168,11 @@ const RenderForm = ({
   return (
     <DataModal
       open={open}
-      onClose={onClose}
+      onClose={submitting ? () => {} : onClose}
       title="Crear Expensa"
       onSave={onSave}
+      disabled={submitting}
+      buttonText={submitting ? "Guardando..." : "Guardar"}
       variant={"mini"}
     >
       <Select

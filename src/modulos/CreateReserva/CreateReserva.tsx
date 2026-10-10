@@ -24,6 +24,7 @@ import { getDateStrMes } from "../../mk/utils/date1";
 import StepProgressBar from "@/components/StepProgressBar/StepProgressBar";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
+import useRequestIntent from "@/mk/hooks/useRequestIntent";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import RenderView from "../DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
 import {
@@ -73,6 +74,8 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [unavailableTimeSlots, setUnavailableTimeSlots] = useState([]);
   const [openComfirm, setOpenComfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { begin: beginCreate, finish: finishCreate, submitting: intentSubmitting } = useRequestIntent();
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
   const [dataReserv, setDataReserv]: any = useState([]);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
@@ -313,18 +316,10 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (isSubmitting) {
-      if (!isSubmitting) {
-        showToast("Por favor, revisa los campos requeridos.", "warning");
-      }
-      return;
-    }
-
-    setIsSubmitting(true);
+    if (isSubmitting || intentSubmitting || submitted) return;
 
     const ownerId = getReservationUnitChoiceOwnerId(selectedUnitChoice);
     if (!ownerId) {
-      setIsSubmitting(false);
       showToast(
         "Selecciona una persona asociada a la unidad para crear la reserva.",
         "error",
@@ -351,15 +346,23 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       periods: sortedSelectedPeriods,
       dpto_id: selectedUnit?.id,
     };
+    const attempt = beginCreate(payload);
+    if (!attempt) return;
+    setIsSubmitting(true);
+    let created = false;
+    let responseStatus: number | undefined;
     try {
       const response = await execute(
         "/reservations",
         "POST",
-        payload,
+        attempt,
         false,
         true,
       );
-      if (response?.data?.success) {
+      created = response?.data?.success === true;
+      responseStatus = response?.error?.status ?? (response?.data ? 200 : undefined);
+      if (created) {
+        setSubmitted(true);
         showToast(
           response?.data?.message || "Reserva creada exitosamente",
           "success",
@@ -381,6 +384,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       showToast("Ocurrió un error inesperado al crear la reserva.", "error");
     } finally {
       setIsSubmitting(false);
+      finishCreate(created, responseStatus);
     }
   };
 
@@ -976,7 +980,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     type="button"
                     className={`${styles.button} ${styles.backBtn}`}
                     onClick={prevStep}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || submitted}
                   >
                     Atrás
                   </button>
@@ -999,7 +1003,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     type="button"
                     className={`${styles.button} ${styles.nextBtn}`}
                     onClick={nextStep}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || submitted}
                   >
                     Continuar
                   </button>
@@ -1009,7 +1013,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     type="button"
                     className={`${styles.button} ${styles.submitBtn}`}
                     onClick={handleSubmit}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || submitted}
                   >
                     {isSubmitting ? "Reservando..." : "Reservar"}
                   </button>
