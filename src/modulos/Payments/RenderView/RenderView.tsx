@@ -90,6 +90,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
   const [onRechazar, setOnRechazar] = useState(false);
   const [errors, setErrors] = useState<{ confirm_obs?: string }>({});
+  const confirmInFlight = useRef(false);
+  const [confirming, setConfirming] = useState(false);
   const [item, setItem] = useState<PaymentDetail | null>(propItem || null);
   const { execute } = useAxios();
   const executeRef = useRef(execute);
@@ -229,6 +231,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   };
 
   const onConfirm = async (rechazado = true) => {
+    if (confirmInFlight.current) return;
     setErrors({});
     if (!rechazado) {
       if (!formState.confirm_obs || formState.confirm_obs.trim() === "") {
@@ -245,25 +248,35 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       return;
     }
 
-    const { data: payment, error } = await execute(
-      paymentsApi.confirm(paymentId),
-      "POST",
-      {
-        confirm: rechazado ? "P" : "R",
-        confirm_obs: formState.confirm_obs,
-      },
-      false,
-      noWaiting,
-    );
+    confirmInFlight.current = true;
+    setConfirming(true);
 
-    if (payment?.success === true) {
-      showToast(payment?.message, "success");
-      if (reLoad) reLoad();
-      setFormState({ confirm_obs: "" });
-      onClose();
-      setOnRechazar(false);
-    } else {
-      showToast(error?.data?.message || error?.message, "error");
+    try {
+      const { data: payment, error } = await execute(
+        paymentsApi.confirm(paymentId),
+        "POST",
+        {
+          confirm: rechazado ? "P" : "R",
+          confirm_obs: formState.confirm_obs,
+        },
+        false,
+        noWaiting,
+      );
+
+      if (payment?.success === true) {
+        showToast(payment?.message, "success");
+        if (reLoad) reLoad();
+        setFormState({ confirm_obs: "" });
+        onClose();
+        setOnRechazar(false);
+      } else {
+        showToast(error?.data?.message || payment?.message || error?.message || "No se pudo cambiar el estado del ingreso", "error");
+      }
+    } catch (error) {
+      showToast("No se pudo cambiar el estado del ingreso", "error");
+    } finally {
+      confirmInFlight.current = false;
+      setConfirming(false);
     }
   };
 
@@ -647,6 +660,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         <Button
           variant="secondary"
           className={styles.voucherButton}
+          disabled={confirming}
           onClick={() => {
             setOnRechazar(true);
           }}
@@ -658,6 +672,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         <Button
           variant="primary"
           className={styles.voucherButton}
+          disabled={confirming}
           onClick={() => onConfirm(true)}
         >
           Aprobar pago
@@ -917,9 +932,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
 
       <DataModal
         title="Rechazar pago"
-        buttonText="Rechazar"
+        buttonText={confirming ? "Procesando..." : "Rechazar"}
         buttonCancel="Cancelar"
         onSave={() => onConfirm(false)}
+        disabled={confirming}
         open={onRechazar}
         onClose={() => setOnRechazar(false)}
         style={style}
