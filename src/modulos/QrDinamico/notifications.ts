@@ -14,7 +14,8 @@ export const paymentNotifications: ModuleNotifConfig = {
       // Mostrar el toast en el panel de administración
       showToast(`🎉 ${title}: ${body}`, "success");
 
-      // Despachar el evento interno para que las pantallas activas se actualicen en tiempo real
+      // ⚠️ Hoy ninguna pantalla escucha «payment:confirmed»: el aviso que se ve es
+      // el toast de arriba. Se despacha para la que lo necesite.
       dispatch("payment:confirmed", {
         paymentId: payload?.id,
         qrOrderId: payload?.qr_order_id,

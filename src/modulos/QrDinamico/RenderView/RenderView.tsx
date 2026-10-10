@@ -94,13 +94,9 @@ const RenderView = ({ order, onClose, onCancel }: Props) => {
           <InfoRow label="Tipo de pago" value={order.payment_type ? PAYMENT_TYPE_LABEL[order.payment_type] : '—'} />
           <InfoRow label="Generado" value={formatDateTime(order.created_at)} />
           <InfoRow label="Fecha pago" value={order.pay_date ? `${formatDate(order.pay_date)}${order.pay_hour ? ' ' + order.pay_hour.slice(0, 5) : ''}` : '—'} />
-          <InfoRow label="Hora pago" value={order.pay_hour ?? '—'} />
           <InfoRow label="N° transacción" value={order.transaction_id ?? '—'} />
           <InfoRow label="Vencimiento" value={formatDate(order.expiration_date)} />
           <InfoRow label="Uso único" value={order.single_use ? 'Sí' : 'No'} />
-          {order.consolidated_at && (
-            <InfoRow label="Conciliado" value={new Date(order.consolidated_at).toLocaleDateString('es-BO')} />
-          )}
         </div>
 
         {/* Actions */}

@@ -2,7 +2,7 @@ import React from "react";
 import { BankAccountStatus } from "../BankAccounts/Type/BankType";
 import { QR_STATE_COLOR, QR_STATE_LABEL, QrOrderState } from "./types";
 
-/** Badge de estado de un QR — compartido por deuda, ingreso e historial. */
+/** Badge de estado de una orden QR. Lo usa la pantalla de órdenes (`QrDinamico.tsx`). */
 export const StateBadge = ({ state }: { state: QrOrderState }) => {
   const cfg = QR_STATE_COLOR[state];
 

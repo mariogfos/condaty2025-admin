@@ -9,13 +9,12 @@ import {
   QrOrderState,
   PaymentType,
   QrOrderFilters,
-  QR_STATE_LABEL,
-  QR_STATE_COLOR,
   PAYMENT_TYPE_LABEL,
 } from './types';
 import GenerateQrModal from './GenerateQrModal/GenerateQrModal';
 import RenderView from './RenderView/RenderView';
 import Button from '@/mk/components/forms/Button/Button';
+import { StateBadge } from './shared';
 
 // ⚠️ Acá vivía una segunda pestaña, la de conciliación manual, y se retiró.
 //
@@ -54,18 +53,6 @@ const formatDateWithHour = (dateStr: string | null, hour: string | null) => {
   const day = formatDate(dateStr);
   if (!hour) return day;
   return `${day} ${hour.slice(0, 5)}`;
-};
-
-const StateBadge = ({ state }: { state: QrOrderState }) => {
-  const cfg = QR_STATE_COLOR[state];
-  return (
-    <span
-      className={styles.badge}
-      style={{ color: cfg.color, backgroundColor: cfg.bg }}
-    >
-      {QR_STATE_LABEL[state] ?? state}
-    </span>
-  );
 };
 
 const QR_BATCH_SIZE = 40;
@@ -277,6 +264,9 @@ const QrDinamico = () => {
               <option value={PaymentType.EXPENSE}>Expensas</option>
               <option value={PaymentType.RESERVATION}>Reservas</option>
               <option value={PaymentType.OUTLAY}>Egresos</option>
+              <option value={PaymentType.DEBT_EXPENSES}>Expensas (QR de deudas)</option>
+              <option value={PaymentType.DEBT_RESERVATIONS}>Reservas (QR de deudas)</option>
+              <option value={PaymentType.DEBT_OTHER}>Otras deudas (QR de deudas)</option>
             </select>
 
             <input
@@ -323,7 +313,7 @@ const QrDinamico = () => {
                     <td colSpan={8}>
                       <div className={styles.emptyState}>
                         <p>No hay órdenes QR registradas.</p>
-                        <p>Usa el botón <strong>Generar QR</strong> para crear una nueva.</p>
+                        <p>Usa el botón <strong>Generar QR de Prueba</strong> para crear una.</p>
                       </div>
                     </td>
                   </tr>

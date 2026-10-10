@@ -46,7 +46,6 @@ const GenerateQrModal = ({ open, onClose, onSuccess }: Props) => {
       single_use: form.single_use,
     };
     if (form.payment_type) payload.payment_type = form.payment_type;
-    if (form.owner_id)     payload.owner_id = form.owner_id;
 
     // 🔴 Esto declaraba `res: GenerateQrResponse` sobre lo que devuelve
     // `execute`, que es `{ data, error }` — el sobre está un nivel más adentro.
