@@ -1,7 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Eye, EyeOff, Pencil, Plus, RefreshCw, Tags, Trash2, Users } from "lucide-react";
+import {
+  Check, Ellipsis, Eye, EyeOff, ImageIcon, Pencil, Plus,
+  RefreshCw, ShieldBan, Star, Tags, Trash2, Users, X,
+} from "lucide-react";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import EmptyData from "@/components/NoData/EmptyData";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
@@ -9,6 +12,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import Table from "@/mk/components/ui/Table/Table";
@@ -17,6 +21,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
 import useSubmissionGuard from "@/mk/hooks/useSubmissionGuard";
 import crudStyles from "@/mk/hooks/useCrud/useCrudStyle.module.css";
+import { formatBs } from "@/mk/utils/numbers";
 import styles from "./MarketplaceBackoffice.module.css";
 
 const API_ROOT = "/backoffice/marketplace";
@@ -54,6 +59,7 @@ const statusLabels: Record<string, string> = {
 };
 
 type MarketplaceTab = "listings" | "categories" | "residents";
+type ModerationAction = "reject" | "cancel" | "block";
 type Category = { id: number; name: string; slug: string; is_active: boolean };
 type Client = { id: string; name: string };
 type Listing = {
@@ -69,6 +75,7 @@ type Listing = {
   is_featured: boolean;
   description?: string | null;
   images?: string[] | null;
+  moderation_reason?: string | null;
 };
 type BlockedOwner = {
   owner_id: string;
@@ -117,8 +124,16 @@ export default function MarketplaceBackoffice() {
     finish: finishCategoryMutation,
     submitting: categorySubmitting,
   } = useSubmissionGuard();
+  const {
+    begin: beginModeration,
+    finish: finishModeration,
+    submitting: moderationSubmitting,
+  } = useSubmissionGuard();
   const isFos = Boolean(user?.fosrole_id);
   const latestListingRequest = useRef(0);
+  const latestDetailRequest = useRef(0);
+  const moreActionsRef = useRef<HTMLDivElement>(null);
+  const moreActionsTriggerRef = useRef<HTMLButtonElement>(null);
 
   const [activeTab, setActiveTab] = useState<MarketplaceTab>("listings");
   const [listings, setListings] = useState<Listing[]>([]);
@@ -143,6 +158,11 @@ export default function MarketplaceBackoffice() {
   const [residentQuery, setResidentQuery] = useState("");
   const [selected, setSelected] = useState<Listing | null>(null);
   const [reason, setReason] = useState("");
+  const [moderationAction, setModerationAction] = useState<ModerationAction | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailReady, setDetailReady] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
+  const [moreActionsOpen, setMoreActionsOpen] = useState(false);
   const [categoryEditor, setCategoryEditor] = useState<Category | "new" | null>(null);
   const [categoryName, setCategoryName] = useState("");
   const [categoryError, setCategoryError] = useState<string | null>(null);
@@ -252,6 +272,26 @@ export default function MarketplaceBackoffice() {
   useEffect(() => {
     void loadReferences();
   }, [loadReferences]);
+  useEffect(() => {
+    if (!moreActionsOpen) return;
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!moreActionsRef.current?.contains(event.target as Node)) {
+        setMoreActionsOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMoreActionsOpen(false);
+        moreActionsTriggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [moreActionsOpen]);
 
   const changeListingFilter = (key: keyof ListingFilters, value: string) => {
     setPage(1);
@@ -269,46 +309,83 @@ export default function MarketplaceBackoffice() {
   };
 
   const openDetail = async (listing: Listing) => {
+    const requestId = ++latestDetailRequest.current;
     setError(null);
     setReason("");
+    setDetailError(null);
+    setDetailReady(false);
+    setDetailLoading(true);
+    setModerationAction(null);
+    setMoreActionsOpen(false);
     setSelected(listing);
-    const result = await execute(
-      API_ROOT + "/listings/" + listing.id, "GET", {}, false, true,
-    );
-    if (result?.data?.success) setSelected(result.data.data);
-    else setError(messageOf(result, "No se pudo cargar el detalle."));
-  };
-  const action = async (path: string, payload: Record<string, unknown> = {}) => {
-    if (!selected) return;
-    const result = await execute(
-      API_ROOT + "/listings/" + selected.id + "/" + path,
-      "POST",
-      payload,
-    );
-    if (!result?.data?.success) {
-      setError(messageOf(result, "No se pudo actualizar la publicación."));
-      return;
+    try {
+      const result = await execute(
+        API_ROOT + "/listings/" + listing.id, "GET", {}, false, true,
+      );
+      if (requestId !== latestDetailRequest.current) return;
+      if (result?.data?.success) {
+        setSelected(result.data.data);
+        setDetailReady(true);
+      } else {
+        setDetailError(messageOf(result, "No se pudo cargar el detalle."));
+      }
+    } catch {
+      if (requestId === latestDetailRequest.current) {
+        setDetailError("No se pudo cargar el detalle.");
+      }
+    } finally {
+      if (requestId === latestDetailRequest.current) setDetailLoading(false);
     }
-    setNotice(result.data.message || "Actualización guardada.");
-    setSelected(result.data.data);
-    setReason("");
-    void loadListings();
   };
-  const blockSelectedOwner = async () => {
-    if (!selected?.owner?.id) return;
-    const result = await execute(
-      API_ROOT + "/owners/" + selected.owner.id + "/block",
-      "POST",
-      { reason: reason || null },
-    );
-    if (!result?.data?.success) {
-      setError(messageOf(result, "No se pudo bloquear al residente."));
-      return;
-    }
-    setNotice(result.data.message || "Residente bloqueado.");
+  const closeDetail = () => {
+    if (moderationSubmitting) return;
+    latestDetailRequest.current += 1;
     setSelected(null);
-    setActiveTab("residents");
-    void loadReferences();
+    setModerationAction(null);
+    setMoreActionsOpen(false);
+    setDetailError(null);
+  };
+  const openModeration = (next: ModerationAction) => {
+    setReason("");
+    setDetailError(null);
+    setMoreActionsOpen(false);
+    setModerationAction(next);
+  };
+  const performAction = async (kind: "approve" | "feature" | ModerationAction) => {
+    if (!selected || !detailReady || !beginModeration()) return;
+    setDetailError(null);
+    const trimmedReason = reason.trim();
+    try {
+      const isBlock = kind === "block";
+      if (isBlock && !selected.owner?.id) return;
+      const path = isBlock
+        ? API_ROOT + "/owners/" + selected.owner?.id + "/block"
+        : API_ROOT + "/listings/" + selected.id + "/" + kind;
+      const payload = kind === "feature"
+        ? { is_featured: !selected.is_featured }
+        : kind === "reject" ? { reason: trimmedReason }
+          : kind === "cancel" || kind === "block" ? { reason: trimmedReason || null } : {};
+      const result = await execute(path, "POST", payload);
+      if (!result?.data?.success) {
+        setDetailError(messageOf(result, "No se pudo completar la acción."));
+        return;
+      }
+      setNotice(result.data.message || "Actualización guardada.");
+      setModerationAction(null);
+      setReason("");
+      if (isBlock) {
+        setSelected(null);
+        setActiveTab("residents");
+        void loadReferences();
+      } else {
+        setSelected(result.data.data);
+        void loadListings();
+      }
+    } catch {
+      setDetailError("No se pudo completar la acción. Inténtalo nuevamente.");
+    } finally {
+      finishModeration();
+    }
   };
 
   const openCategoryEditor = (category: Category | "new") => {
@@ -452,6 +529,16 @@ export default function MarketplaceBackoffice() {
     else if (activeTab === "categories") setCategoryQuery(value);
     else setResidentQuery(value);
   };
+  const canApprove = selected && !["approved", "cancelled", "sold"].includes(selected.status);
+  const canReject = selected && !["rejected", "cancelled", "sold"].includes(selected.status);
+  const canCancel = selected && !["cancelled", "sold"].includes(selected.status);
+  const moderationTitle = moderationAction === "reject" ? "Rechazar publicación"
+    : moderationAction === "cancel" ? "Anular publicación" : "Bloquear residente";
+  const moderationDescription = moderationAction === "reject"
+    ? "La publicación dejará de estar visible. Explica al residente el motivo del rechazo."
+    : moderationAction === "cancel"
+      ? "Esta publicación dejará de estar disponible en Marketplace."
+      : "El residente no podrá ver ni publicar anuncios en Marketplace hasta que lo desbloquees.";
 
   return (
     <div className={styles.container}>
@@ -582,42 +669,140 @@ export default function MarketplaceBackoffice() {
           {deleteError ? <p className={styles.error} role="alert">{deleteError}</p> : null}
         </div>
       </DataModal>
-      <DataModal open={Boolean(selected)} onClose={() => setSelected(null)}
-        title="Detalle de publicación" buttonText="" buttonCancel="Cerrar"
-        minWidth={560} ignoreTranslation>
-        {selected && (
-          <div className={styles.modalBody}>
-            <dl className={styles.detailGrid}>
-              <div><dt>Residente</dt><dd>{selected.owner?.name || "—"}</dd></div>
-              <div><dt>Teléfono</dt><dd>{selected.owner?.phone || "—"}</dd></div>
-              <div><dt>Estado</dt><dd>{statusLabel(selected.status)}</dd></div>
-              <div><dt>Destacada</dt><dd>{selected.is_featured ? "Sí" : "No"}</dd></div>
-              <div><dt>Alcance</dt><dd>{selected.visibility === "all_condominiums" ? "Todos los condominios" : "Su condominio"}</dd></div>
-            </dl>
-            <p className={styles.description}>{selected.description || ""}</p>
-            {selected.images?.length ? (
-              <div className={styles.images}>
-                {selected.images.map((image) => <img alt="Publicación" key={image} src={image} />)}
-              </div>
-            ) : null}
-            <textarea className={styles.reason} value={reason}
-              onChange={(event) => setReason(event.target.value)}
-              placeholder="Motivo para rechazar, anular o bloquear" />
-            <div className={styles.modalActions}>
+      <DataModal open={Boolean(selected)} onClose={closeDetail}
+        title="Detalle de publicación" buttonText="" buttonCancel=""
+        maxWidth={760} minWidth={680} ignoreTranslation
+        buttonExtra={selected && detailReady ? (
+          <div className={styles.moderationFooter}>
+            <div className={styles.footerSecondary}>
               {selected.status === "approved" ? (
-                <Button variant={selected.is_featured ? "secondary" : "primary"}
-                  onClick={() => void action("feature", { is_featured: !selected.is_featured })}>
-                  {selected.is_featured ? "Quitar destacado" : "Destacar"}
+                <Button variant="secondary" disabled={moderationSubmitting}
+                  onClick={() => void performAction("feature")}>
+                  <Star size={17} /> {selected.is_featured ? "Quitar destacado" : "Destacar"}
                 </Button>
               ) : null}
-              <Button onClick={() => void action("approve")}>Aprobar</Button>
-              <Button variant="secondary" onClick={() => void action("reject", { reason })}
-                disabled={!reason.trim()}>Rechazar</Button>
-              <Button variant="secondary" onClick={() => void action("cancel", { reason: reason || null })}>Anular</Button>
-              <Button variant="secondary" onClick={() => void blockSelectedOwner()}>Bloquear residente</Button>
+              {canReject ? (
+                <Button variant="secondary" disabled={moderationSubmitting}
+                  onClick={() => openModeration("reject")}>
+                  <X size={17} /> Rechazar
+                </Button>
+              ) : null}
+            </div>
+            <div className={styles.footerPrimary}>
+              {(canCancel || selected.owner?.id) ? (
+                <div className={styles.moreActions} ref={moreActionsRef}>
+                  <button type="button" className={styles.moreButton} ref={moreActionsTriggerRef}
+                    aria-expanded={moreActionsOpen} aria-controls="marketplace-more-actions"
+                    disabled={moderationSubmitting}
+                    onClick={() => setMoreActionsOpen((open) => !open)}>
+                    <Ellipsis size={18} /> Más acciones
+                  </button>
+                  {moreActionsOpen ? (
+                    <div className={styles.moreMenu} id="marketplace-more-actions"
+                      role="group" aria-label="Más acciones de publicación">
+                      {canCancel ? (
+                        <button type="button" onClick={() => openModeration("cancel")}>
+                          <X size={17} /> Anular publicación
+                        </button>
+                      ) : null}
+                      {selected.owner?.id ? (
+                        <button type="button" className={styles.menuDanger}
+                          onClick={() => openModeration("block")}>
+                          <ShieldBan size={17} /> Bloquear residente
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+              {canApprove ? (
+                <Button disabled={moderationSubmitting} onClick={() => void performAction("approve")}>
+                  <Check size={18} /> Aprobar
+                </Button>
+              ) : null}
             </div>
           </div>
+        ) : null}>
+        {selected && (
+          <div className={styles.modalBody}>
+            {detailError && !moderationAction ? <p className={styles.error} role="alert">{detailError}</p> : null}
+            {detailLoading ? <p className={styles.muted}>Cargando detalle…</p> : (
+              <>
+                <div className={styles.listingOverview}>
+                  {selected.images?.[0] ? (
+                    <img className={styles.coverImage} src={selected.images[0]}
+                      alt={"Foto principal de " + selected.title} />
+                  ) : (
+                    <div className={styles.coverPlaceholder}><ImageIcon size={30} /> Sin foto</div>
+                  )}
+                  <div className={styles.listingSummary}>
+                    <div className={styles.summaryBadges}>
+                      <StatusBadge>{statusLabel(selected.status)}</StatusBadge>
+                      {selected.is_featured ? <span className={styles.featuredBadge}><Star size={13} /> Destacada</span> : null}
+                    </div>
+                    <span className={styles.eyebrow}>{selected.category?.name || "Sin categoría"}</span>
+                    <h2 className={styles.listingTitle}>{selected.title}</h2>
+                    <p className={styles.listingPrice}>
+                      {selected.currency === "BOB" ? formatBs(selected.price) : `${selected.currency || ""} ${selected.price ?? "—"}`.trim()}
+                    </p>
+                  </div>
+                </div>
+                <dl className={styles.detailGrid}>
+                  <div><dt>Residente</dt><dd>{selected.owner?.name || "—"}</dd></div>
+                  <div><dt>Condominio</dt><dd>{clients.find((client) => client.id === selected.client_id)?.name || "—"}</dd></div>
+                  <div><dt>Teléfono</dt><dd>{selected.owner?.phone || "—"}</dd></div>
+                  <div><dt>Visibilidad</dt><dd>{selected.visibility === "all_condominiums" ? "Todos los condominios" : "Su condominio"}</dd></div>
+                </dl>
+                {selected.description ? (
+                  <div className={styles.descriptionBlock}>
+                    <h3>Descripción</h3>
+                    <p className={styles.description}>{selected.description}</p>
+                  </div>
+                ) : null}
+                {selected.moderation_reason ? (
+                  <div className={styles.previousReason}>
+                    <strong>Motivo de moderación</strong>
+                    <p>{selected.moderation_reason}</p>
+                  </div>
+                ) : null}
+                {selected.images && selected.images.length > 1 ? (
+                  <div className={styles.gallery} aria-label="Fotos adicionales">
+                    {selected.images.slice(1).map((image, index) => (
+                      <img alt={"Foto adicional " + (index + 2) + " de " + selected.title}
+                        key={image} src={image} />
+                    ))}
+                  </div>
+                ) : null}
+              </>
+            )}
+          </div>
         )}
+      </DataModal>
+      <DataModal open={Boolean(moderationAction)}
+        onClose={() => { if (!moderationSubmitting) { setModerationAction(null); setDetailError(null); } }}
+        title={moderationTitle} buttonText="" buttonCancel="Volver"
+        buttonExtra={moderationAction ? (
+          <Button variant="danger" disabled={moderationSubmitting || (moderationAction === "reject" && reason.trim().length < 3)}
+            onClick={() => void performAction(moderationAction)}>
+            {moderationSubmitting ? "Procesando…" : moderationTitle}
+          </Button>
+        ) : null}
+        maxWidth={520} minWidth={440} zIndex={240} ignoreTranslation>
+        {moderationAction ? (
+          <div className={styles.confirmationBody}>
+            <p>{moderationDescription}</p>
+            <TextArea key={moderationAction} name="marketplace-moderation-reason"
+              label={moderationAction === "reject" ? "Motivo del rechazo" : "Motivo (opcional)"}
+              value={reason} lines={3} maxLength={1000}
+              required={moderationAction === "reject"}
+              placeholder={moderationAction === "reject" ? "Ej. El anuncio no cumple las normas del Marketplace" : "Añade un motivo si corresponde"}
+              onChange={(event) => setReason(event.target.value)} />
+            <span className={styles.reasonHelp}>
+              {moderationAction === "reject" ? "Mínimo 3 caracteres · " : ""}{reason.length}/1000
+            </span>
+            {detailError ? <p className={styles.error} role="alert">{detailError}</p> : null}
+          </div>
+        ) : null}
       </DataModal>
     </div>
   );
