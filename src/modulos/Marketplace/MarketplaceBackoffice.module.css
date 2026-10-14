@@ -85,19 +85,11 @@
   background: var(--cStatusSuccessSoft);
 }
 
-.tableActions,
-.modalActions {
+.tableActions {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.tableActions {
   flex-wrap: nowrap;
-}
-
-.modalActions {
-  flex-wrap: wrap;
 }
 
 .iconAction,
@@ -156,14 +148,114 @@
 .modalBody {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 4px;
+  gap: 18px;
+  padding: 2px 2px 4px;
+}
+
+.listingOverview {
+  display: grid;
+  grid-template-columns: 188px minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+  padding: 12px;
+  border: 1px solid var(--cModalBorder);
+  border-radius: 18px;
+  background: var(--cModalSurfaceRaised);
+}
+
+.coverImage,
+.coverPlaceholder {
+  width: 100%;
+  height: 164px;
+  border-radius: 12px;
+}
+
+.coverImage {
+  display: block;
+  object-fit: cover;
+}
+
+.coverPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--cBackground);
+  color: var(--cWhiteV1);
+  font-size: 13px;
+}
+
+.listingSummary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 4px 2px;
+}
+
+.summaryBadges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 13px;
+}
+
+.featuredBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: var(--cStatusWarningSoft);
+  color: var(--cStatusWarning);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.eyebrow {
+  color: var(--cWhiteV1);
+  font-size: 12px;
+}
+
+.listingTitle {
+  margin: 3px 0 0;
+  color: var(--cWhite);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.listingPrice {
+  margin: auto 0 0;
+  padding-top: 10px;
+  color: var(--cPrimary);
+  font-size: 21px;
+  font-weight: 700;
 }
 
 .detailGrid {
   display: grid;
-  gap: 10px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--cModalBorder);
+  border-radius: 14px;
+}
+
+.detailGrid > div {
+  min-width: 0;
+  padding: 11px 15px;
+}
+
+.detailGrid > div:nth-child(odd) {
+  border-right: 1px solid var(--cModalBorder);
+}
+
+.detailGrid > div:nth-child(-n + 2) {
+  border-bottom: 1px solid var(--cModalBorder);
 }
 
 .detailGrid dt {
@@ -172,39 +264,182 @@
 }
 
 .detailGrid dd {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   color: var(--cWhite);
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.descriptionBlock h3 {
+  margin: 0 0 7px;
+  color: var(--cWhiteV1);
+  font-size: 12px;
+  font-weight: 650;
 }
 
 .description {
   margin: 0;
   color: var(--cWhite);
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.previousReason {
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--cStatusWarning) 25%, transparent);
+  border-radius: 12px;
+  background: var(--cStatusWarningSoft);
+}
+
+.previousReason strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--cStatusWarning);
+  font-size: 12px;
+}
+
+.previousReason p {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: 13px;
   line-height: 1.5;
   white-space: pre-wrap;
 }
 
-.images {
+.gallery {
   display: flex;
-  flex-wrap: wrap;
+  overflow-x: auto;
   gap: 8px;
+  padding-bottom: 3px;
 }
 
-.images img {
-  width: 96px;
-  height: 96px;
-  border-radius: 8px;
+.gallery img {
+  flex: 0 0 94px;
+  width: 94px;
+  height: 74px;
+  border-radius: 9px;
   object-fit: cover;
 }
 
-.reason {
+.moderationFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   width: 100%;
-  min-height: 76px;
-  padding: 10px;
-  border: 1px solid var(--cBorder);
+}
+
+.footerSecondary,
+.footerPrimary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.footerPrimary {
+  margin-left: auto;
+}
+
+.footerSecondary > button,
+.footerPrimary > button {
+  width: auto;
+  min-width: 116px;
+  white-space: nowrap;
+}
+
+.moreActions {
+  position: relative;
+}
+
+.moreButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: var(--controlHeight);
+  padding: 0 13px;
+  border: 1px solid var(--controlSecondaryBorder);
   border-radius: var(--controlRadius);
-  background: var(--cBackground);
+  background: var(--controlSecondaryBg);
+  color: var(--controlSecondaryText);
+  font: inherit;
+  font-size: var(--controlFontSize);
+  font-weight: var(--controlFontWeight);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.moreButton:hover,
+.moreButton[aria-expanded="true"] {
+  border-color: var(--controlSecondaryHoverBorder);
+  background: var(--controlSecondaryHoverBg);
+  color: var(--controlSecondaryHoverText);
+}
+
+.moreButton:focus-visible,
+.moreMenu button:focus-visible {
+  outline: 2px solid var(--cAccent);
+  outline-offset: 2px;
+}
+
+.moreMenu {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  bottom: calc(100% + 8px);
+  width: 228px;
+  padding: 5px;
+  border: 1px solid var(--cModalBorder);
+  border-radius: 12px;
+  background: var(--cModalSurfaceRaised);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.3);
+}
+
+.moreMenu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
   color: var(--cWhite);
-  resize: vertical;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.moreMenu button:hover {
+  background: var(--controlSecondaryHoverBg);
+}
+
+.moreMenu .menuDanger {
+  color: var(--cStatusDanger);
+}
+
+.confirmationBody {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 3px 2px 2px;
+}
+
+.confirmationBody > p:first-child {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.reasonHelp {
+  align-self: flex-end;
+  color: var(--cWhiteV1);
+  font-size: 12px;
 }
 
 @media (max-width: 1200px) {
@@ -254,5 +489,54 @@
 
   .detailGrid {
     grid-template-columns: 1fr;
+  }
+
+  .detailGrid > div:nth-child(odd) {
+    border-right: 0;
+  }
+
+  .detailGrid > div:not(:last-child) {
+    border-bottom: 1px solid var(--cModalBorder);
+  }
+
+  .listingOverview {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .coverImage,
+  .coverPlaceholder {
+    height: 180px;
+  }
+
+  .listingPrice {
+    margin-top: 4px;
+  }
+
+  .moderationFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .footerSecondary,
+  .footerPrimary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .footerPrimary {
+    margin-left: 0;
+  }
+
+  .footerSecondary > button,
+  .footerPrimary > button,
+  .moreButton {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .footerPrimary > :only-child {
+    grid-column: 1 / -1;
   }
 }
