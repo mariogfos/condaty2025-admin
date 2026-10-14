@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, Tags } from "lucide-react";
+import { FileSpreadsheet, FileText, Tags } from "lucide-react";
 import styles from "./DebtsManager.module.css";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import DebtSummaryCard from "./DebtSummaryCard/DebtSummaryCard";
@@ -18,6 +18,7 @@ import AllDebts from "./TabComponents/AllDebts/AllDebts";
 import IndividualDebts from "./TabComponents/IndividualDebts/IndividualDebts";
 import SharedDebts from "./TabComponents/SharedDebts/SharedDebts";
 import Forgiveness from "./TabComponents/Forgiveness/Forgiveness";
+import DebtBulkUploadModal from "./DebtBulkUploadModal/DebtBulkUploadModal";
 
 const DebtsManager = () => {
   const router = useRouter();
@@ -29,6 +30,8 @@ const DebtsManager = () => {
   const [openAccountStatement, setOpenAccountStatement] = useState(false);
   const [selectedUnitId, setSelectedUnitId] = useState<string | number>("");
   const [accountStatementError, setAccountStatementError] = useState("");
+  const [openBulkUpload, setOpenBulkUpload] = useState(false);
+  const [listRevision, setListRevision] = useState(0);
   const { setStore, store, userCan, showToast } = useAuth();
 
   useEffect(() => {
@@ -149,9 +152,9 @@ const DebtsManager = () => {
 
     switch (activeTab) {
       case "all":
-        return <AllDebts {...commonProps} />;
+        return <AllDebts key={listRevision} {...commonProps} />;
       case "individual":
-        return <IndividualDebts {...commonProps} />;
+        return <IndividualDebts key={listRevision} {...commonProps} />;
       case "shared":
         return <SharedDebts {...commonProps} />;
       case "payment_plans":
@@ -162,7 +165,7 @@ const DebtsManager = () => {
         return <AllDebts {...commonProps} />;
     }
   };
-  if (!userCan("debts", "R")) {
+  if (!userCan("debts_manager", "R") && !userCan("debts", "R")) {
     return <NotAccess />;
   }
 
@@ -226,6 +229,19 @@ const DebtsManager = () => {
               </span>
               <span className={styles.actionLabel}>Categorías</span>
             </button>
+
+            {(userCan("debts_manager", "C") || userCan("debts", "C")) && (
+              <button
+                type="button"
+                className={styles.actionItem}
+                onClick={() => setOpenBulkUpload(true)}
+              >
+                <span className={styles.actionCircle}>
+                  <FileSpreadsheet size={22} strokeWidth={1.8} />
+                </span>
+                <span className={styles.actionLabel}>Carga masiva</span>
+              </button>
+            )}
           </div>
         </section>
       </div>
@@ -291,6 +307,16 @@ const DebtsManager = () => {
           />
         </div>
       </DataModal>
+
+      <DebtBulkUploadModal
+        open={openBulkUpload}
+        categories={Array.isArray(currentExtraData?.categories) ? currentExtraData.categories : []}
+        onClose={() => setOpenBulkUpload(false)}
+        onSuccess={() => {
+          setActiveTab("individual");
+          setListRevision((revision) => revision + 1);
+        }}
+      />
     </div>
   );
 };
