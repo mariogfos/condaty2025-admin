@@ -22,6 +22,10 @@
   gap: 16px;
 }
 
+.fields > :last-child {
+  grid-column: 1 / -1;
+}
+
 .fileSection {
   display: flex;
   flex-direction: column;

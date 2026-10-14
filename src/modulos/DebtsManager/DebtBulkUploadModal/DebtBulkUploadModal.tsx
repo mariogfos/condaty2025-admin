@@ -21,7 +21,7 @@ type Preview = {
   row_count: number;
   total_amount: string;
   fingerprint: string | null;
-  rows: { row: number; unit: string; description: string; amount: string }[];
+  rows: { row: number; unit: string; description: string; amount: string; due_at: string }[];
   errors: { row: number | null; message: string }[];
   error_count: number;
 };
@@ -44,7 +44,6 @@ export default function DebtBulkUploadModal({ open, categories, onClose, onSucce
   const [categoryId, setCategoryId] = useState("");
   const [subcategoryId, setSubcategoryId] = useState("");
   const [beginAt, setBeginAt] = useState("");
-  const [dueAt, setDueAt] = useState("");
   const [preview, setPreview] = useState<Preview | null>(null);
   const [formError, setFormError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -72,7 +71,6 @@ export default function DebtBulkUploadModal({ open, categories, onClose, onSucce
     setCategoryId("");
     setSubcategoryId("");
     setBeginAt("");
-    setDueAt("");
     resetPreview();
     if (inputRef.current) inputRef.current.value = "";
   };
@@ -98,12 +96,8 @@ export default function DebtBulkUploadModal({ open, categories, onClose, onSucce
 
   const submit = async () => {
     if (busyRef.current) return;
-    if (!file || !categoryId || !subcategoryId || !beginAt || !dueAt) {
-      setFormError("Selecciona el archivo, la categoría, la subcategoría y ambas fechas.");
-      return;
-    }
-    if (dueAt < beginAt) {
-      setFormError("El vencimiento no puede ser anterior a la fecha de inicio.");
+    if (!file || !categoryId || !subcategoryId || !beginAt) {
+      setFormError("Selecciona el archivo, la categoría, la subcategoría y la fecha de inicio.");
       return;
     }
 
@@ -118,7 +112,6 @@ export default function DebtBulkUploadModal({ open, categories, onClose, onSucce
     body.append("category_id", categoryId);
     body.append("subcategory_id", subcategoryId);
     body.append("begin_at", beginAt);
-    body.append("due_at", dueAt);
     if (mode === "commit" && preview?.fingerprint) {
       body.append("fingerprint", preview.fingerprint);
     }
@@ -164,7 +157,8 @@ export default function DebtBulkUploadModal({ open, categories, onClose, onSucce
     >
       <div className={styles.content}>
         <p className={styles.intro}>
-          Una deuda individual por fila. La categoría y las fechas se aplicarán a todo el archivo.
+          Una deuda individual por fila. La categoría y la fecha de inicio se aplicarán a todo el archivo.
+          Un concepto ya registrado para la misma unidad y subcategoría invalida la carga completa.
         </p>
         {categoryOptions.length === 0 && (
           <p className={styles.helper}>Primero crea una categoría de deudas con una subcategoría activa.</p>
@@ -216,18 +210,6 @@ export default function DebtBulkUploadModal({ open, categories, onClose, onSucce
               resetPreview();
             }}
           />
-          <Input
-            name="bulk-due-at"
-            label="Fecha de vencimiento"
-            type="date"
-            value={dueAt}
-            required
-            disabled={busy}
-            onChange={(event: any) => {
-              setDueAt(event.target.value);
-              resetPreview();
-            }}
-          />
         </div>
 
         <div className={styles.fileSection}>
@@ -249,7 +231,7 @@ export default function DebtBulkUploadModal({ open, categories, onClose, onSucce
             </span>
           </label>
           <p className={styles.helper}>
-            Columnas: Unidad, Concepto, Monto deuda (Bs), Monto pagado (Bs). El monto pagado debe ser 0.00.
+            Columnas: Unidad, Concepto, Monto deuda (Bs), Fecha de vencimiento. Usa dd/mm/aaaa en cada fila.
           </p>
         </div>
 
@@ -268,7 +250,7 @@ export default function DebtBulkUploadModal({ open, categories, onClose, onSucce
               <div className={styles.previewTableWrap}>
                 <table className={styles.previewTable}>
                   <thead>
-                    <tr><th>Fila</th><th>Unidad</th><th>Concepto</th><th>Monto</th></tr>
+                    <tr><th>Fila</th><th>Unidad</th><th>Concepto</th><th>Vence</th><th>Monto</th></tr>
                   </thead>
                   <tbody>
                     {preview.rows.map((row) => (
@@ -276,6 +258,7 @@ export default function DebtBulkUploadModal({ open, categories, onClose, onSucce
                         <td>{row.row}</td>
                         <td>{row.unit}</td>
                         <td>{row.description}</td>
+                        <td>{row.due_at.split("-").reverse().join("/")}</td>
                         <td>Bs {row.amount}</td>
                       </tr>
                     ))}

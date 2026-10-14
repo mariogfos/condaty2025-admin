@@ -59,7 +59,7 @@ describe("DebtBulkUploadModal", () => {
             row_count: 2,
             total_amount: "492.00",
             fingerprint: "a".repeat(64),
-            rows: [{ row: 2, unit: "001", description: "Agua Septiembre", amount: "246.00" }],
+            rows: [{ row: 2, unit: "001", description: "Agua Septiembre", amount: "246.00", due_at: "2026-10-14" }],
             errors: [],
             error_count: 0,
           },
@@ -75,13 +75,13 @@ describe("DebtBulkUploadModal", () => {
     fireEvent.change(screen.getByLabelText("Categoría"), { target: { value: "10" } });
     fireEvent.change(screen.getByLabelText("Subcategoría"), { target: { value: "11" } });
     fireEvent.change(screen.getByLabelText("Fecha de inicio"), { target: { value: "2026-09-01" } });
-    fireEvent.change(screen.getByLabelText("Fecha de vencimiento"), { target: { value: "2026-10-15" } });
     const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
     fireEvent.change(fileInput, { target: { files: [new File(["xlsx"], "deudas.xlsx")] } });
 
     fireEvent.click(screen.getByRole("button", { name: "Validar archivo" }));
     await waitFor(() => expect(screen.getByText("Lista para confirmar")).toBeInTheDocument());
     expect(screen.getByText("Agua Septiembre")).toBeInTheDocument();
+    expect(screen.getByText("14/10/2026")).toBeInTheDocument();
     expect((executeMock.mock.calls[0][2] as FormData).get("mode")).toBe("preview");
 
     fireEvent.click(screen.getByRole("button", { name: "Crear 2 deudas" }));
@@ -91,6 +91,8 @@ describe("DebtBulkUploadModal", () => {
     expect(body.get("fingerprint")).toBe("a".repeat(64));
     expect(body.get("category_id")).toBe("10");
     expect(body.get("subcategory_id")).toBe("11");
+    expect(body.get("begin_at")).toBe("2026-09-01");
+    expect(body.get("due_at")).toBeNull();
     expect(onClose).toHaveBeenCalledOnce();
   });
 
@@ -104,7 +106,7 @@ describe("DebtBulkUploadModal", () => {
           total_amount: "0.00",
           fingerprint: null,
           rows: [],
-          errors: [{ row: 2, message: "El monto pagado debe ser 0.00." }],
+          errors: [{ row: 2, message: "La fecha de vencimiento debe ser una fecha válida con formato dd/mm/aaaa." }],
           error_count: 1,
         },
       },
@@ -115,13 +117,12 @@ describe("DebtBulkUploadModal", () => {
     fireEvent.change(screen.getByLabelText("Categoría"), { target: { value: "10" } });
     fireEvent.change(screen.getByLabelText("Subcategoría"), { target: { value: "11" } });
     fireEvent.change(screen.getByLabelText("Fecha de inicio"), { target: { value: "2026-09-01" } });
-    fireEvent.change(screen.getByLabelText("Fecha de vencimiento"), { target: { value: "2026-10-15" } });
     fireEvent.change(container.querySelector('input[type="file"]') as HTMLInputElement, {
       target: { files: [new File(["xlsx"], "deudas.xlsx")] },
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Validar archivo" }));
-    await waitFor(() => expect(screen.getByText(/Fila 2: El monto pagado/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Fila 2: La fecha de vencimiento/)).toBeInTheDocument());
     expect(screen.queryByRole("button", { name: /Crear.*deudas/ })).not.toBeInTheDocument();
     expect(executeMock).toHaveBeenCalledOnce();
   });
