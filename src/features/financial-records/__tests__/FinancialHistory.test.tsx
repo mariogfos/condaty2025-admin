@@ -3,6 +3,25 @@ import { describe, expect, it } from "vitest";
 import { FinancialHistory } from "../FinancialHistory";
 
 describe("FinancialHistory", () => {
+  it("shows provider corrections with previous and new names", () => {
+    render(
+      <FinancialHistory
+        events={[{
+          id: "supplier-1",
+          source: "audit",
+          action: "expense_supplier_updated",
+          actor: { name: "Administración" },
+          before: { supplier_name: "Proveedor anterior" },
+          after: { supplier_name: "Proveedor nuevo" },
+          occurred_at: "2026-10-08T10:00:00-04:00",
+        }]}
+      />,
+    );
+
+    expect(screen.getByText("Proveedor del egreso editado")).toBeInTheDocument();
+    expect(screen.getByText("Proveedor anterior")).toBeInTheDocument();
+    expect(screen.getByText("Proveedor nuevo")).toBeInTheDocument();
+  });
   it("renders the audited actor, reason and before/after values", () => {
     render(
       <FinancialHistory

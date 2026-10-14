@@ -10,6 +10,7 @@ import {
   useMemo,
 } from "react";
 import useAxios from "../useAxios";
+import useSubmissionGuard from "../useSubmissionGuard";
 import { capitalize, getUrlImages } from "../../utils/string";
 import { useAuth } from "../../contexts/AuthProvider";
 import {
@@ -67,6 +68,12 @@ const normalizeApiErrors = (apiErrors: unknown): Record<string, string> => {
   );
 };
 
+const selectedFilters = (value: unknown): Record<string, string> =>
+  Object.fromEntries(String(value || "").split("|").map((entry) => {
+    const [field, selection] = entry.split(":", 2);
+    return [field, selection];
+  }).filter(([field, selection]) => field && selection));
+
 export type ModCrudType = {
   modulo: string;
   singular: string;
@@ -93,6 +100,7 @@ export type ModCrudType = {
   saveMsg?: { add?: string; edit?: string; del?: string };
   listAndCard?: boolean;
   noWaiting?: boolean;
+  guardCreateSubmit?: boolean;
   search?: boolean | object;
   titleAdd?: string;
   titleEdit?: string;
@@ -341,6 +349,7 @@ const useCrud = ({
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors]: any = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  const createGuard = useSubmissionGuard();
 
   const [openImport, setOpenImport] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -875,6 +884,10 @@ const useCrud = ({
       }
     }
 
+    const guardCreate = method === "POST" && mod.guardCreateSubmit;
+    if (guardCreate && !createGuard.begin()) return;
+
+    let saved = false;
     setIsSaving(true);
     try {
       const { data: response, error: err } = await execute(
@@ -884,8 +897,9 @@ const useCrud = ({
         false,
         mod?.noWaiting,
       );
+      saved = response?.success === true;
 
-      if (response?.success) {
+      if (saved) {
         try {
           const uploadId =
             response?.data?.id ??
@@ -927,13 +941,14 @@ const useCrud = ({
         showToast(
           response?.message ||
             err?.data?.message ||
-            "No se pudo guardar el registro. Intenta nuevamente.",
+            "No se pudo confirmar el registro. Revisa la lista antes de reintentar.",
           "error",
         );
         logError("Error onSave:", err);
       }
     } finally {
       setIsSaving(false);
+      if (guardCreate) createGuard.finish();
     }
   };
 
@@ -961,7 +976,7 @@ const useCrud = ({
     }
     setOldSearch(searchBy);
   };
-  const [oldFilter, setOldFilter]: any = useState({});
+  const [oldFilter, setOldFilter]: any = useState(() => ({ filterBy: selectedFilters(params.filterBy) }));
   const onFilter = (_opt: string, value: string) => {
     let opt = _opt.replace("_filter", "");
     // console.log("onFilter", opt, value);
@@ -1592,7 +1607,7 @@ const useCrud = ({
     );
   });
   Form.displayName = "Form";
-  const [filterSel, setFilterSel]: any = useState({});
+  const [filterSel, setFilterSel]: any = useState(() => selectedFilters(params.filterBy));
 
   const FilterResponsive = ({ filters, onChange, breakPoint }: any) => {
     const isBreak = useMediaQuery("(max-width: " + breakPoint + "px)");
@@ -2022,6 +2037,7 @@ const useCrud = ({
     mod,
     fields,
     extraData,
+    getExtraData,
     store,
     openList,
     openView,
@@ -2330,12 +2346,10 @@ const useCrud = ({
                     onRenderFoot={props.onRenderFoot}
                     onRenderHead={props.onRenderHead}
                     onRenderCard={props.onRenderCard}
-                    onButtonActions={
-                      runtime.mod.hideActions?.edit &&
-                      runtime.mod.hideActions?.del
-                        ? undefined
-                        : runtime.onButtonActions
-                    }
+                    onButtonActions={props.onButtonActions ?? (
+                      runtime.mod.hideActions?.edit && runtime.mod.hideActions?.del
+                        ? undefined : runtime.onButtonActions
+                    )}
                     height={resolvedListHeight}
                     className="striped"
                     actionsWidth={props.actionsWidth ?? "120px"}
@@ -2446,6 +2460,7 @@ const useCrud = ({
                     setItem: runtime.setFormState,
                     onSave: runtime.onSave,
                     extraData: runtime.extraData,
+                    getExtraData: runtime.getExtraData,
                     execute: runtime.execute,
                     errors: runtime.errors,
                     setErrors: runtime.setErrors,

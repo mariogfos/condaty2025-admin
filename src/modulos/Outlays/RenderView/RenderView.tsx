@@ -1,5 +1,5 @@
 "use client";
-import React, { memo } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import { formatToDayFdMYH } from "@/mk/utils/date";
@@ -9,6 +9,9 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatBs } from "@/mk/utils/numbers";
 import { parseExpenseDescription } from "../utils/expenseDescription";
 import { Ban } from "lucide-react";
+import { Building2 } from "lucide-react";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Select from "@/mk/components/forms/Select/Select";
 import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
 import {
   FinancialDetailGrid,
@@ -36,6 +39,9 @@ interface OutlayItem {
   date_at: string;
   bank_account?: object | any;
   bank_account_id?: number | string | null;
+  supplier_id?: number | null;
+  supplier_name?: string | null;
+  cheque?: { number: string; status: string; payee?: string; amount?: number } | null;
   description?: string;
   category?: Category;
   category_id?: number | string;
@@ -50,6 +56,7 @@ interface OutlayItem {
 }
 interface ExtraData {
   categories?: Category[];
+  suppliers?: { id: number; name: string; type: string }[];
 }
 interface DetailOutlayProps {
   open: boolean;
@@ -75,7 +82,47 @@ const typeAccountMap: Record<string, string> = {
 const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   const { open, onClose, extraData, item, onDel, reLoad } = props;
   const { execute } = useAxios();
-  const { showToast } = useAuth();
+  const { showToast, userCan } = useAuth();
+  const [supplierEditorOpen, setSupplierEditorOpen] = useState(false);
+  const [supplierSelection, setSupplierSelection] = useState<number | string>("NONE");
+  const [supplierOverride, setSupplierOverride] = useState<{
+    id: number | null;
+    name: string | null;
+  } | null>(null);
+  const [supplierRevision, setSupplierRevision] = useState(0);
+  const [supplierSaving, setSupplierSaving] = useState(false);
+
+  useEffect(() => {
+    setSupplierOverride(null);
+    setSupplierRevision(0);
+  }, [item?.id]);
+
+  const handleAssignSupplier = async () => {
+    if (!item?.id || supplierSaving) return;
+    setSupplierSaving(true);
+    const supplierId = supplierSelection === "NONE" ? null : Number(supplierSelection);
+    const { data, error } = await execute(
+      `/financial-records/expense/${item.id}/supplier`,
+      "PUT",
+      { supplier_id: supplierId },
+      false,
+      true,
+    );
+    setSupplierSaving(false);
+    if (!data?.success) {
+      showToast(data?.message || error?.data?.message || "No se pudo actualizar el proveedor", "error");
+      return;
+    }
+
+    setSupplierOverride({
+      id: data.data?.record?.supplier_id ?? null,
+      name: data.data?.record?.supplier_name ?? null,
+    });
+    setSupplierEditorOpen(false);
+    setSupplierRevision((current) => current + 1);
+    await reLoad?.();
+    showToast("Proveedor del egreso actualizado", "success");
+  };
 
   const paymentMethodMap: Record<string, string> = {
     T: "Transferencia bancaria",
@@ -310,6 +357,13 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
 
   const detailItems = [
     {
+      key: "supplier",
+      label: "Proveedor",
+      value: supplierOverride !== null
+        ? supplierOverride.name || "Sin proveedor"
+        : currentItem.supplier_name || "Sin proveedor",
+    },
+    {
       key: "category",
       label: "Categoría",
       value: categoryName,
@@ -364,6 +418,15 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
           label: "Método de Pago",
           value: getPaymentMethodText(currentItem.type),
         }
+      : null,
+    currentItem.cheque
+      ? { key: "chequeNumber", label: "Cheque", value: `N.º ${currentItem.cheque.number}` }
+      : null,
+    currentItem.cheque
+      ? { key: "chequeStatus", label: "Estado del cheque", value: ({ free: "Libre", filled: "Rellenado", in_transit: "En tránsito", cashed: "Cobrado", void: "Anulado" } as Record<string, string>)[currentItem.cheque.status] || currentItem.cheque.status }
+      : null,
+    currentItem.cheque?.payee
+      ? { key: "chequePayee", label: "Beneficiario del cheque", value: currentItem.cheque.payee }
       : null,
     currentItem.bank_account_id
       ? {
@@ -466,8 +529,20 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
     </>
   );
 
+  const assignedSupplierId = supplierOverride !== null
+    ? supplierOverride.id
+    : currentItem.supplier_id ?? null;
+  const supplierOptions = [
+    { id: "NONE", name: "Sin proveedor" },
+    ...(extraData?.suppliers || []),
+  ];
+  const assignedSupplierIsActive = assignedSupplierId === null ||
+    supplierOptions.some((supplier) => String(supplier.id) === String(assignedSupplierId));
+
   return (
+    <>
     <FinancialDetailModal
+      key={supplierRevision}
       open={open}
       onClose={onClose}
       title="Detalle del egreso"
@@ -486,19 +561,28 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
           tone: currentItem.status === "A" ? "success" : "danger",
         },
       }}
-      customActions={
-        onDel && currentItem.status !== "X"
-          ? [
-              {
-                id: "cancel-expense",
-                label: "Anular egreso",
-                icon: <Ban size={18} />,
-                destructive: true,
-                onSelect: handleAnularClick,
+      customActions={[
+        ...(userCan("outlays", "U")
+          ? [{
+              id: "assign-supplier",
+              label: assignedSupplierId ? "Cambiar proveedor" : "Asignar proveedor",
+              icon: <Building2 size={18} />,
+              onSelect: () => {
+                setSupplierSelection(assignedSupplierIsActive ? assignedSupplierId ?? "NONE" : "NONE");
+                setSupplierEditorOpen(true);
               },
-            ]
-          : []
-      }
+            }]
+          : []),
+        ...(onDel && currentItem.status !== "X"
+          ? [{
+              id: "cancel-expense",
+              label: "Anular egreso",
+              icon: <Ban size={18} />,
+              destructive: true,
+              onSelect: handleAnularClick,
+            }]
+          : []),
+      ]}
       onRecordChanged={async () => {
         await reLoad?.();
       }}
@@ -508,6 +592,30 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
         <FinancialDetailGrid fields={detailFields} />
       </FinancialDetailSection>
     </FinancialDetailModal>
+    <DataModal
+      open={supplierEditorOpen}
+      onClose={() => setSupplierEditorOpen(false)}
+      onSave={handleAssignSupplier}
+      title="Proveedor del egreso"
+      buttonText={supplierSaving ? "Guardando…" : "Guardar proveedor"}
+      buttonCancel="Cancelar"
+      disabled={supplierSaving}
+      variant="mini"
+    >
+      {!assignedSupplierIsActive ? (
+        <p>El proveedor asociado ya no está activo. Elige otro o deja el egreso sin proveedor.</p>
+      ) : null}
+      <Select
+        name="supplier_id"
+        label="Proveedor (opcional)"
+        value={supplierSelection}
+        onChange={({ target: { value } }: any) => setSupplierSelection(value)}
+        options={supplierOptions}
+        filter
+        required={false}
+      />
+    </DataModal>
+    </>
   );
 });
 

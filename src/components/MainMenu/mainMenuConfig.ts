@@ -31,6 +31,7 @@ export type MenuConfigItem =
         labelKey: string;
         badgeKey?: string;
         fosOnly?: boolean;
+        skipAsLanding?: boolean;
       }>;
     };
 
@@ -71,6 +72,12 @@ export const menuConfig: MenuConfigItem[] = [
         perm: "superadmins",
         labelKey: "presenceMonitoring",
       },
+      {
+        href: "/marketplace",
+        perm: "superadmins",
+        labelKey: "marketplace",
+        fosOnly: true,
+      },
       { href: "/history", perm: "superadmins", labelKey: "history" },
       {
         href: "/visit-reasons",
@@ -93,6 +100,7 @@ export const menuConfig: MenuConfigItem[] = [
         badgeKey: "paymentsBage",
       },
       { href: "/outlays", labelKey: "outlays", perm: "outlays" },
+      { href: "/cheques", labelKey: "cheques", perm: "outlays" },
       { href: "/expenses", labelKey: "condominiumFees", perm: "expenses" },
       { href: "/defaulters", labelKey: "defaulters", perm: "defaulters" },
       { href: "/debts_manager", labelKey: "debts", perm: "debts_manager" },
@@ -127,6 +135,9 @@ export const menuConfig: MenuConfigItem[] = [
     key: "Administración",
     items: [
       { href: "/units", perm: "units", labelKey: "units" },
+      { href: "/pets", perm: "owners", labelKey: "pets", skipAsLanding: true },
+      { href: "/vehicles", perm: "units", labelKey: "vehicles", skipAsLanding: true },
+      { href: "/suppliers", perm: "outlays", labelKey: "suppliers" },
       { href: "/assemblies", perm: "units", labelKey: "assemblies" },
       { href: "/documents", perm: "documents", labelKey: "documents" },
       { href: "/configs", perm: "settings", labelKey: "settings" },
@@ -237,7 +248,7 @@ export const getFirstAccessibleMenuRoute = (
     }
 
     const firstAccessibleItem = item.items.find((subitem) =>
-      isMenuItemVisible(subitem, canAccess, isFos),
+      !subitem.skipAsLanding && isMenuItemVisible(subitem, canAccess, isFos),
     );
 
     if (firstAccessibleItem) {
