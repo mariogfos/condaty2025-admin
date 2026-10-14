@@ -24,6 +24,7 @@ import { getDateStrMes } from "../../mk/utils/date1";
 import StepProgressBar from "@/components/StepProgressBar/StepProgressBar";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
+import useSubmissionGuard from "@/mk/hooks/useSubmissionGuard";
 import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import RenderView from "../DebtsManager/TabComponents/AllDebts/RenderView/RenderView";
 import {
@@ -73,6 +74,8 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [unavailableTimeSlots, setUnavailableTimeSlots] = useState([]);
   const [openComfirm, setOpenComfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { begin: beginCreate, finish: finishCreate, submitting: intentSubmitting } = useSubmissionGuard();
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
   const [dataReserv, setDataReserv]: any = useState([]);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
@@ -313,18 +316,10 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (isSubmitting) {
-      if (!isSubmitting) {
-        showToast("Por favor, revisa los campos requeridos.", "warning");
-      }
-      return;
-    }
-
-    setIsSubmitting(true);
+    if (isSubmitting || intentSubmitting || submitted) return;
 
     const ownerId = getReservationUnitChoiceOwnerId(selectedUnitChoice);
     if (!ownerId) {
-      setIsSubmitting(false);
       showToast(
         "Selecciona una persona asociada a la unidad para crear la reserva.",
         "error",
@@ -351,6 +346,9 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       periods: sortedSelectedPeriods,
       dpto_id: selectedUnit?.id,
     };
+    if (!beginCreate()) return;
+    setIsSubmitting(true);
+    let created = false;
     try {
       const response = await execute(
         "/reservations",
@@ -359,7 +357,9 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         false,
         true,
       );
-      if (response?.data?.success) {
+      created = response?.data?.success === true;
+      if (created) {
+        setSubmitted(true);
         showToast(
           response?.data?.message || "Reserva creada exitosamente",
           "success",
@@ -378,9 +378,10 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       }
     } catch (error) {
       console.error(error);
-      showToast("Ocurrió un error inesperado al crear la reserva.", "error");
+      showToast("No se pudo confirmar la reserva. Revisa el calendario antes de reintentar.", "error");
     } finally {
       setIsSubmitting(false);
+      finishCreate();
     }
   };
 
@@ -976,7 +977,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     type="button"
                     className={`${styles.button} ${styles.backBtn}`}
                     onClick={prevStep}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || submitted}
                   >
                     Atrás
                   </button>
@@ -999,7 +1000,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     type="button"
                     className={`${styles.button} ${styles.nextBtn}`}
                     onClick={nextStep}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || submitted}
                   >
                     Continuar
                   </button>
@@ -1009,7 +1010,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     type="button"
                     className={`${styles.button} ${styles.submitBtn}`}
                     onClick={handleSubmit}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || submitted}
                   >
                     {isSubmitting ? "Reservando..." : "Reservar"}
                   </button>

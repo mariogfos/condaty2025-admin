@@ -12,6 +12,7 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import FourPart from "./Partes/FourPart";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import { removeUnlinkedAreaImages } from "./areaImageCleanup";
 
 const hasCoordinateValue = (value: unknown) => {
   if (value === 0 || value === "0") {
@@ -102,6 +103,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   const [level, setLevel] = useState(1);
   const [errors, setErrors]: any = useState({});
   const [openComfirm, setOpenComfirm] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [uncertain, setUncertain] = useState(false);
@@ -286,6 +288,10 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   };
 
   const onNext = () => {
+    if (uploadingImages) {
+      showToast("Espera a que terminen de subir las fotos.", "info");
+      return;
+    }
     if (savingRef.current || savedRef.current) return;
     if (level === 1) {
       if (hasErrors(validateLevel1())) return;
@@ -366,9 +372,17 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         savedRef.current = true;
         setSaved(true);
         setUncertain(false);
+        const failedDeletions = formState.id
+          ? await removeUnlinkedAreaImages(item?.images, formState?.images)
+          : 0;
         onClose();
         reLoad();
-        showToast(data.message, "success");
+        showToast(
+          failedDeletions
+            ? "Área guardada, pero no se pudo limpiar una foto anterior del almacenamiento."
+            : data.message,
+          failedDeletions ? "info" : "success",
+        );
         return;
       }
 
@@ -428,6 +442,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
               formState={formState}
               setFormState={setFormState}
               handleChange={handleChange}
+              onUploadStateChange={setUploadingImages}
             />
           )}
           {level === 2 && (
@@ -465,7 +480,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
             <Button
               className={styles.continueButton}
               onClick={onNext}
-              disabled={saving || saved}
+              disabled={uploadingImages || saving || saved}
             >
               {saving
                 ? "Guardando..."
