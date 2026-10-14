@@ -43,6 +43,11 @@ vi.mock("@/mk/components/forms/Input/Input", () => ({
     <label>{label}<input aria-label={name} value={value} onChange={onChange} /></label>
   ),
 }));
+vi.mock("@/mk/components/forms/TextArea/TextArea", () => ({
+  default: ({ name, label, value, onChange }: any) => (
+    <label>{label}<textarea aria-label={name} value={value} onChange={onChange} /></label>
+  ),
+}));
 vi.mock("@/mk/components/forms/Select/Select", () => ({
   default: ({ name, label, value, options, onChange }: any) => (
     <label>{label}
@@ -148,7 +153,16 @@ describe("Marketplace de Backoffice", () => {
         return { data: { success: true, data: listing } };
       }
       if (url.endsWith("/approve")) {
-        return { data: { success: true, data: listing, message: "Aprobada" } };
+        return { data: { success: true, data: { ...listing, status: "approved" }, message: "Aprobada" } };
+      }
+      if (url.endsWith("/reject")) {
+        return { data: { success: true, data: { ...listing, status: "rejected" }, message: "Rechazada" } };
+      }
+      if (url.endsWith("/cancel")) {
+        return { data: { success: true, data: { ...listing, status: "cancelled" }, message: "Anulada" } };
+      }
+      if (url.endsWith("/feature")) {
+        return { data: { success: true, data: { ...listing, status: "approved", is_featured: payload.is_featured }, message: "Destacada" } };
       }
       return { data: { success: true, data: {}, message: "Guardado" } };
     });
@@ -219,22 +233,92 @@ describe("Marketplace de Backoffice", () => {
     ));
   });
 
-  it("conserva las acciones de moderación y bloqueo desde el detalle", async () => {
+  it("ordena las acciones del detalle y confirma el bloqueo por separado", async () => {
     render(<MarketplaceBackoffice />);
     expect(await screen.findByTestId("marketplace-listings")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Ver publicación Bicicleta de paseo" }));
     expect(await screen.findByRole("dialog", { name: "Detalle de publicación" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("marketplace-moderation-reason")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Aprobar" }));
     await waitFor(() => expect(mocks.execute).toHaveBeenCalledWith(
       "/backoffice/marketplace/listings/listing-1/approve", "POST", {},
     ));
+    expect(await screen.findByRole("button", { name: "Destacar" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Destacar" }));
+    await waitFor(() => expect(mocks.execute).toHaveBeenCalledWith(
+      "/backoffice/marketplace/listings/listing-1/feature", "POST", { is_featured: true },
+    ));
+    fireEvent.click(screen.getByRole("button", { name: "Más acciones" }));
+    fireEvent.click(screen.getByRole("button", { name: "Bloquear residente" }));
+    expect(await screen.findByRole("dialog", { name: "Bloquear residente" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Bloquear residente" }));
     await waitFor(() => expect(mocks.execute).toHaveBeenCalledWith(
       "/backoffice/marketplace/owners/owner-1/block", "POST", { reason: null },
     ));
     await waitFor(() => expect(screen.queryByRole("dialog", { name: "Detalle de publicación" })).not.toBeInTheDocument());
     expect(screen.getByRole("button", { name: "Residentes" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("solicita motivo válido solo al rechazar y conserva el payload existente", async () => {
+    render(<MarketplaceBackoffice />);
+    fireEvent.click(await screen.findByRole("button", { name: "Ver publicación Bicicleta de paseo" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Rechazar" }));
+    const dialog = await screen.findByRole("dialog", { name: "Rechazar publicación" });
+    expect(dialog).toBeInTheDocument();
+    const confirm = screen.getByRole("button", { name: "Rechazar publicación" });
+    expect(confirm).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("marketplace-moderation-reason"), {
+      target: { value: "  Artículo prohibido  " },
+    });
+    expect(confirm).toBeEnabled();
+    fireEvent.click(confirm);
+    await waitFor(() => expect(mocks.execute).toHaveBeenCalledWith(
+      "/backoffice/marketplace/listings/listing-1/reject", "POST",
+      { reason: "Artículo prohibido" },
+    ));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Rechazar publicación" })).not.toBeInTheDocument());
+    expect(screen.queryByRole("button", { name: "Rechazar" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Aprobar" })).toBeInTheDocument();
+  });
+
+  it("mantiene la confirmación abierta si falla y permite reintentar sin duplicar clics", async () => {
+    const originalExecute = mocks.execute.getMockImplementation();
+    let attempts = 0;
+    mocks.execute.mockImplementation(async (...args: any[]) => {
+      if (String(args[0]).endsWith("/reject") && attempts++ === 0) {
+        return { data: { success: false, message: "No se pudo rechazar" } };
+      }
+      return originalExecute?.(...args);
+    });
+    render(<MarketplaceBackoffice />);
+    fireEvent.click(await screen.findByRole("button", { name: "Ver publicación Bicicleta de paseo" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Rechazar" }));
+    fireEvent.change(screen.getByLabelText("marketplace-moderation-reason"), {
+      target: { value: "Artículo prohibido" },
+    });
+    const confirm = screen.getByRole("button", { name: "Rechazar publicación" });
+    fireEvent.click(confirm);
+    fireEvent.click(confirm);
+    expect(await screen.findByRole("alert")).toHaveTextContent("No se pudo rechazar");
+    expect(attempts).toBe(1);
+    expect(screen.getByRole("dialog", { name: "Rechazar publicación" })).toBeInTheDocument();
+    fireEvent.click(confirm);
+    await waitFor(() => expect(attempts).toBe(2));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Rechazar publicación" })).not.toBeInTheDocument());
+  });
+
+  it("permite anular sin motivo mediante confirmación, sin enviarlo vacío", async () => {
+    render(<MarketplaceBackoffice />);
+    fireEvent.click(await screen.findByRole("button", { name: "Ver publicación Bicicleta de paseo" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Más acciones" }));
+    fireEvent.click(screen.getByRole("button", { name: "Anular publicación" }));
+    expect(await screen.findByRole("dialog", { name: "Anular publicación" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Anular publicación" }));
+    await waitFor(() => expect(mocks.execute).toHaveBeenCalledWith(
+      "/backoffice/marketplace/listings/listing-1/cancel", "POST", { reason: null },
+    ));
+    expect(screen.queryByRole("button", { name: "Aprobar" })).not.toBeInTheDocument();
   });
 
   it("no muestra el backoffice a un administrador sin rol FOS", () => {
