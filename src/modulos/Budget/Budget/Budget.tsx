@@ -303,7 +303,6 @@ const Budget = () => {
       getFilter: handleGetFilter,
       extraButtons: [sendToApprovalButton],
     });
-  if (!userCan(mod.permiso, "R")) return <NotAccess />;
   useEffect(() => {
     if (loaded && data) {
       if (
@@ -330,6 +329,8 @@ const Budget = () => {
     setStore({ ...store, title: "Presupuestos" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <>

@@ -418,7 +418,7 @@ const Dptos = () => {
     fields,
     getFilter,
     _onImport: onImport,
-    extraButtons: [<ButtonReportDeudas />],
+    extraButtons: [<ButtonReportDeudas key="report-deudas" />],
   });
 
   const { onLongPress, selItem } = useCrudUtils({
