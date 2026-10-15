@@ -145,4 +145,6 @@ const RenderView = memo((props: BinnacleDetailProps) => {
   );
 });
 
+RenderView.displayName = "BinnacleRenderView";
+
 export default RenderView;

@@ -29,25 +29,26 @@ type LucidePreset = {
   strokeWidth?: number;
 };
 
-const createLucideIcon =
-  (
-    icon: any,
-    {
-      absoluteStrokeWidth = true,
-      size = 20,
-      strokeWidth = 1.25,
-    }: LucidePreset = {},
-  ) =>
-  ({ size: customSize, ...props }: IconType) =>
-    (
-      <LucideWrap
-        icon={icon}
-        absoluteStrokeWidth={absoluteStrokeWidth}
-        size={customSize ?? size}
-        strokeWidth={strokeWidth}
-        {...props}
-      />
-    );
+const createLucideIcon = (
+  icon: any,
+  {
+    absoluteStrokeWidth = true,
+    size = 20,
+    strokeWidth = 1.25,
+  }: LucidePreset = {},
+) => {
+  const PresetIcon = ({ size: customSize, ...props }: IconType) => (
+    <LucideWrap
+      icon={icon}
+      absoluteStrokeWidth={absoluteStrokeWidth}
+      size={customSize ?? size}
+      strokeWidth={strokeWidth}
+      {...props}
+    />
+  );
+  PresetIcon.displayName = `PresetIcon(${icon.displayName || icon.name || "Lucide"})`;
+  return PresetIcon;
+};
 
 export const IconArrowLeft = createLucideIcon(ChevronLeft, {
   size: 18,

@@ -141,8 +141,8 @@ const QrProviders: React.FC = () => {
     <div className={styles.container}>
       <h2 className={styles.title}>Proveedores de QR dinámico</h2>
       <p className={styles.hint}>
-        Credenciales con las que el banco nos avisa de un pago. Las que usamos
-        para llamarlo a él se configuran al editar cada cuenta bancaria.
+        Ganadero utiliza credenciales de webhook. BNB se conciliará mediante
+        consulta al banco; sus credenciales de salida se configuran por cuenta.
       </p>
 
       {providers.map((p) => {
@@ -180,39 +180,51 @@ const QrProviders: React.FC = () => {
                   p.pending_orders === 1
                     ? "QR esperando pago"
                     : "QR esperando pago"
-                }. Al desactivarlo el banco deja de poder avisarnos, y esos pagos no se acreditan solos.`}
+                }. Primero deben resolverse: la API no permite desactivar el proveedor con cobros pendientes.`}
               </p>
             )}
 
-            <Input
-              label="Usuario del webhook"
-              name={`webhook_username_${p.id}`}
-              value={valor(p, "webhook_username")}
-              onChange={(e: any) =>
-                cambiar(p.id, "webhook_username", e.target.value)
-              }
-            />
+            {p.bank_code === "BNB" && !p.is_active && (
+              <p className={styles.warning}>
+                BNB permanece inactivo hasta confirmar sus hosts HTTPS y el
+                contrato de autenticación con el banco. No se acreditarán pagos
+                desde notificaciones sin autenticar.
+              </p>
+            )}
 
-            <p className={styles.credentialsState}>
-              {p.has_webhook_password
-                ? "Contraseña configurada"
-                : "Sin contraseña configurada"}
-            </p>
-            <p className={styles.hint}>
-              La contraseña guardada no se vuelve a mostrar. Para cambiarla,
-              escribí una nueva; vacía no se toca.
-            </p>
+            {p.bank_code !== "BNB" && (
+              <>
+                <Input
+                  label="Usuario del webhook"
+                  name={`webhook_username_${p.id}`}
+                  value={valor(p, "webhook_username")}
+                  onChange={(e: any) =>
+                    cambiar(p.id, "webhook_username", e.target.value)
+                  }
+                />
 
-            <InputPassword
-              label="Contraseña nueva"
-              name={`webhook_password_${p.id}`}
-              value={borradores[p.id]?.webhook_password ?? ""}
-              onChange={(e: any) =>
-                cambiar(p.id, "webhook_password", e.target.value)
-              }
-              autoComplete="new-password"
-              error={{}}
-            />
+                <p className={styles.credentialsState}>
+                  {p.has_webhook_password
+                    ? "Contraseña configurada"
+                    : "Sin contraseña configurada"}
+                </p>
+                <p className={styles.hint}>
+                  La contraseña guardada no se vuelve a mostrar. Para cambiarla,
+                  escribí una nueva; vacía no se toca.
+                </p>
+
+                <InputPassword
+                  label="Contraseña nueva"
+                  name={`webhook_password_${p.id}`}
+                  value={borradores[p.id]?.webhook_password ?? ""}
+                  onChange={(e: any) =>
+                    cambiar(p.id, "webhook_password", e.target.value)
+                  }
+                  autoComplete="new-password"
+                  error={{}}
+                />
+              </>
+            )}
 
             <Input
               label="URL de producción"
