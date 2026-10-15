@@ -42,6 +42,8 @@ interface QrAccountConfigData {
   qr_dynamic_account_reference: string | null;
   has_credentials: boolean;
   qr_dynamic_username_masked: string | null;
+  environment: "S" | "P";
+  active_environment: "S" | "P";
 }
 
 interface Props {
@@ -81,15 +83,17 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
 
   // Solo los campos que el usuario tocó viajan en el PUT (parcial)
   const [form, setForm] = useState<Record<string, string | boolean>>({});
+  const [credentialEnvironment, setCredentialEnvironment] = useState<"S" | "P">("S");
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (environment?: "S" | "P") => {
     setLoading(true);
     const [cfgRes, provRes] = await Promise.all([
-      execute(`/qr-dynamic/accounts/${bankAccountId}/config`, "GET", {}, false, true),
+      execute(`/qr-dynamic/accounts/${bankAccountId}/config${environment ? `?environment=${environment}` : ""}`, "GET", {}, false, true),
       execute("/qr-dynamic/providers", "GET", {}, false, true),
     ]);
     if (cfgRes?.data?.success) {
       setConfig(cfgRes.data.data);
+      setCredentialEnvironment(cfgRes.data.data.environment ?? "S");
       setLoadError(null);
     } else {
       // On a non-2xx axios throws and useAxios returns data:null + error
@@ -135,6 +139,8 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
       : (config?.qr_dynamic_bank_id ?? "");
 
   const isEnabled = enabledValue === "Y";
+  const selectedProvider = providers.find((provider) => provider.id === bankIdValue);
+  const isBnb = selectedProvider?.bank_code === "BNB";
 
   const referenceValue =
     "qr_dynamic_account_reference" in form
@@ -162,6 +168,7 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
     if (Object.keys(payload).length === 0) {
       return true;
     }
+    payload.environment = credentialEnvironment;
     setSaving(true);
     const res = await execute(
       `/qr-dynamic/accounts/${bankAccountId}/config`,
@@ -170,7 +177,7 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
     );
     setSaving(false);
     if (res?.data?.success) {
-      load();
+      load(credentialEnvironment);
       return true;
     }
 
@@ -239,8 +246,28 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
           onChange={handleChange}
         />
 
+        <Select
+          label="Credenciales del ambiente"
+          name="credential_environment"
+          value={credentialEnvironment}
+          options={[{ id: "S", name: "Pruebas" }, { id: "P", name: "Producción" }]}
+          optionLabel="name"
+          optionValue="id"
+          onChange={(event: any) => {
+            const next = event.target.value as "S" | "P";
+            if (Object.keys(form).length > 0) {
+              showToast("Guarda los cambios antes de cambiar de ambiente.", "error");
+              return;
+            }
+            load(next);
+          }}
+        />
+        <p className={styles.hint}>
+          {`El condominio cobra actualmente en ${config.active_environment === "P" ? "Producción" : "Pruebas"}. Las credenciales del otro ambiente se guardan por separado.`}
+        </p>
+
         <Input
-          label="Referencia de cuenta"
+          label={isBnb ? "Posición de cuenta BNB (1 o 2)" : "Referencia de cuenta"}
           name="qr_dynamic_account_reference"
           value={referenceValue}
           onChange={handleChange}
@@ -256,22 +283,24 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
           escribí el valor nuevo; los campos vacíos no se tocan.
         </p>
 
-        <InputPassword
-          label="API Key"
-          name="qr_dynamic_api_key"
-          value={(form.qr_dynamic_api_key as string) ?? ""}
-          onChange={handleChange}
-          autoComplete="new-password"
-          error={{}}
-        />
+        {!isBnb && (
+          <InputPassword
+            label="API Key"
+            name="qr_dynamic_api_key"
+            value={(form.qr_dynamic_api_key as string) ?? ""}
+            onChange={handleChange}
+            autoComplete="new-password"
+            error={{}}
+          />
+        )}
         <Input
-          label="Usuario"
+          label={isBnb ? "accountId (BNB)" : "Usuario"}
           name="qr_dynamic_username"
           value={(form.qr_dynamic_username as string) ?? ""}
           onChange={handleChange}
         />
         <InputPassword
-          label="Contraseña"
+          label={isBnb ? "authorizationId (BNB)" : "Contraseña"}
           name="qr_dynamic_password"
           value={(form.qr_dynamic_password as string) ?? ""}
           onChange={handleChange}

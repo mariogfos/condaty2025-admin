@@ -132,7 +132,7 @@ const appendObservation = (
       <span className={styles.historyMuted}>
         Tambien registró una observación{" "}
       </span>
-      <strong>"{note}"</strong>.
+      <strong>&quot;{note}&quot;</strong>.
     </>
   );
 };
