@@ -15,12 +15,13 @@ const OwnerManager = () => {
   const { showToast, user } = useAuth();
   const { execute } = useAxios();
 
-  if (user?.client_id != "98d1f463-c2bb-4174-99f3-dd82171c7aaa") {
-    return <div></div>;
-  }
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors]: any = useState({});
   const [valid, setValid]: any = useState({ ci: true, email: true });
+
+  if (user?.client_id != "98d1f463-c2bb-4174-99f3-dd82171c7aaa") {
+    return <div></div>;
+  }
 
   const onFocus = (e: any) => {
     let name = e.target.name.trim();
