@@ -101,6 +101,14 @@ export interface QrOrder {
   replaces_qr_id?: string | null;
   replaced_by_qr_id?: string | null;
   last_checked_at?: string | null;
+  reconciliation_incident?: {
+    reason_code: string;
+    bank_transaction_id: string | null;
+    attempts: number;
+    first_detected_at: string;
+    last_detected_at: string;
+    resolved_at: string | null;
+  } | null;
 }
 
 export interface QrOrderPagination {
@@ -116,6 +124,7 @@ export interface QrOrdersResponse {
   data: {
     items: QrOrder[];
     pagination: QrOrderPagination;
+    open_incidents_count: number;
   };
 }
 
@@ -124,6 +133,7 @@ export interface QrOrdersResponse {
 // de generación.
 
 export interface QrOrderFilters {
+  reconciliation?: 'open';
   order_state?: QrOrderState | "";
   payment_type?: PaymentType | "";
   date_from?: string;

@@ -70,6 +70,34 @@
 
 .closeBtn:hover { color: var(--cWhite); }
 
+.incidentAlert {
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.09);
+  border-radius: 10px;
+  padding: 0.9rem;
+  color: var(--cWhite);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.incidentAlert strong { color: #fbbf24; }
+.incidentAlert p { margin: 0.4rem 0 0; }
+
+.incidentMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin-top: 0.6rem;
+  color: var(--cWhiteV1);
+  font-size: 12px;
+}
+
+.verifyMessage {
+  color: var(--cWhiteV1);
+  font-size: 12px;
+  margin: 0;
+}
+
 /* ─── QR Image Section ───────────────────────────────────────────────────── */
 .qrSection {
   display: flex;
