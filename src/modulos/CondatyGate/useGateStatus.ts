@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import useAxios from "@/mk/hooks/useAxios";
+import useGateApi from "./useGateApi";
 export type GateConnection = { id: string; entity_id: string; entity_name: string; entity_handle: string; status: string; desired_version: number; sent_version: number; last_error: string | null; last_sync_at: string | null; history_status?: string; history_sequence?: number; history_revision?: number; history_error?: string | null; history_synced_at?: string | null; access_error?: string | null; access_synced_at?: string | null };
-export type GateStatus = { enabled: boolean; configured: boolean; connection: GateConnection | null; error?: string };
+export type GateStatus = { enabled: boolean; configured: boolean; connection: GateConnection | null; source_condominium?: { id: string; name: string }; error?: string };
 export const GATE_STATUS_EVENT = "condaty-gate-status";
 export function useGateStatus(clientId?: string) {
-  const api = useAxios(); const execute = useRef(api.execute); execute.current = api.execute;
+  const api = useGateApi(); const execute = useRef(api.execute); execute.current = api.execute;
   const [value, setValue] = useState<{ client: string; status: GateStatus } | null>(null);
   useEffect(() => {
     if (!clientId) return;
