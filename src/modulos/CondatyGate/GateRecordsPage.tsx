@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Activity, Bell, BookOpen, ChevronLeft, ChevronRight, DoorOpen, RefreshCw, Search, ShieldCheck, Smartphone, UserRound } from "lucide-react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import useAxios from "@/mk/hooks/useAxios";
+import useGateApi, { gateRequestScope } from "./useGateApi";
 import Button from "@/mk/components/forms/Button/Button";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
@@ -17,7 +17,7 @@ const sections = { accesses: { title: "Accesos", permission: "accesses", icon: D
 const name = (person?: Person) => person ? `${person.given_names ?? ""} ${person.family_names ?? ""}`.trim() || `${person.document_type ?? "Documento"} ${person.document_number ?? ""}` : "Sin persona registrada";
 const label = (value?: string) => ({ open: "Dentro", closed: "Finalizado", rejected: "Rechazado", entry_only: "Ingreso registrado", exit_only: "Salida registrada", awaiting_entry: "Aprobado sin ingreso", recorded: "Registro histórico", active: "Activo", pending: "Pendiente", revoked: "Revocado", blocked: "Bloqueado", resolved: "Resuelta", info: "Información", warning: "Advertencia", critical: "Crítica" }[value ?? ""] ?? value ?? "Sin estado");
 export default function GateRecordsPage({ section, active }: { section: keyof typeof sections; active?: boolean }) {
-  const { user, userCan } = useAuth(); const status = useGateStatus(active === undefined ? user?.client_id : undefined); const enabled = active ?? status?.enabled; const api = useAxios(); const execute = useRef(api.execute); execute.current = api.execute;
+  const { user, userCan } = useAuth(); const status = useGateStatus(active === undefined ? user?.client_id : undefined); const enabled = active ?? status?.enabled; const api = useGateApi(); const execute = useRef(api.execute); execute.current = api.execute;
   const [rows, setRows] = useState<RecordRow[]>([]); const [page, setPage] = useState(1); const [last, setLast] = useState(1); const [search, setSearch] = useState(""); const [query, setQuery] = useState(""); const [busy, setBusy] = useState(false); const [error, setError] = useState(""); const [detail, setDetail] = useState<RecordRow | null>(null); const generation = useRef(0);
   const meta = sections[section]; const permitted = Boolean(user?.fosrole_id || userCan(meta.permission, "R"));
   useEffect(() => { const timer = window.setTimeout(() => { setQuery(search.trim()); setPage(1); }, 300); return () => window.clearTimeout(timer); }, [search]);
@@ -32,13 +32,14 @@ export default function GateRecordsPage({ section, active }: { section: keyof ty
 }
 
 function GatePhoto({ record, attachment }: { record: string; attachment: string }) {
+  const { user } = useAuth();
   const { contextInstance }: any = useContext(AxiosContext);
   const [source, setSource] = useState(""); const [failed, setFailed] = useState(false);
   useEffect(() => {
     if (!contextInstance) return;
     const controller = new AbortController(); let url = "";
-    contextInstance.request({ method: "GET", url: `/gate-plugin/records/logbooks/${record}/media/${attachment}`, responseType: "blob", signal: controller.signal }).then((response: { data: Blob }) => { if (!controller.signal.aborted) { url = URL.createObjectURL(response.data); setSource(url); } }).catch(() => { if (!controller.signal.aborted) setFailed(true); });
+    contextInstance.request({ method: "GET", url: `/gate-plugin/records/logbooks/${record}/media/${attachment}`, params: gateRequestScope(user), responseType: "blob", signal: controller.signal }).then((response: { data: Blob }) => { if (!controller.signal.aborted) { url = URL.createObjectURL(response.data); setSource(url); } }).catch(() => { if (!controller.signal.aborted) setFailed(true); });
     return () => { controller.abort(); if (url) URL.revokeObjectURL(url); };
-  }, [record, attachment, contextInstance]);
+  }, [record, attachment, contextInstance, user]);
   return source ? <a href={source} target="_blank" rel="noreferrer"><Image src={source} alt="Fotografía de la novedad en portería" width={640} height={360} unoptimized /></a> : <p>{failed ? "No pudimos cargar la fotografía." : "Cargando fotografía…"}</p>;
 }
