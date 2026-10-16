@@ -13,12 +13,12 @@ import {
   QR_STATE_COLOR,
   PAYMENT_TYPE_LABEL,
 } from './types';
-import { formatQrDate } from './shared';
+import { apiMessage, formatQrDate } from './shared';
 import RenderView from './RenderView/RenderView';
 import QrMetrics from './QrMetrics/QrMetrics';
 
 // ─── Tabs ────────────────────────────────────────────────────────────────────
-type ActiveTab = 'orders' | 'metrics';
+type ActiveTab = 'orders' | 'incidents' | 'metrics';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const formatAmount = (amount: string, currency: string) => (
@@ -77,12 +77,15 @@ const QrDinamico = () => {
   const [orders, setOrders] = useState<QrOrder[]>([]);
   const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0 });
   const [loadingMoreOrders, setLoadingMoreOrders] = useState(false);
+  const [openIncidentsCount, setOpenIncidentsCount] = useState(0);
 
   const [selectedOrder, setSelectedOrder] = useState<QrOrder | null>(null);
   const ordersLoadSentinelRef = React.useRef<HTMLDivElement | null>(null);
+  const latestOrdersRequestRef = React.useRef(0);
 
   // ─── API calls ──────────────────────────────────────────────────────────────
   const { execute: fetchOrders, loaded: ordersLoaded } = useAxios();
+  const { execute: verifyOrder } = useAxios();
 
   // QR-13: filters travel as the payload — useAxios already appends the query
   // string on every GET. Building the URL by hand duplicates the "?" and
@@ -93,6 +96,7 @@ const QrDinamico = () => {
     if (f.payment_type) params.payment_type = f.payment_type;
     if (f.date_from) params.date_from = f.date_from;
     if (f.date_to) params.date_to = f.date_to;
+    if (f.reconciliation) params.reconciliation = f.reconciliation;
     params.per_page = String(f.per_page ?? QR_BATCH_SIZE);
     params.page = String(f.page ?? 1);
     return params;
@@ -102,6 +106,7 @@ const QrDinamico = () => {
     f: QrOrderFilters = filters,
     options: { append?: boolean } = {},
   ) => {
+    const requestId = ++latestOrdersRequestRef.current;
     const append = Boolean(options.append && Number(f.page || 1) > 1);
     if (append) {
       setLoadingMoreOrders(true);
@@ -109,7 +114,12 @@ const QrDinamico = () => {
     const response = await fetchOrders('qr-dynamic/orders', 'GET', buildParams(f));
     const payload = response?.data;
 
+    if (requestId !== latestOrdersRequestRef.current) return;
+
     if (payload?.success) {
+      setSelectedOrder((current) => current
+        ? (payload.data.items ?? []).find((order: QrOrder) => order.id === current.id) ?? current
+        : null);
       setOrders((old) =>
         append ? mergeOrders(old, payload.data.items ?? []) : (payload.data.items ?? []),
       );
@@ -118,6 +128,9 @@ const QrDinamico = () => {
         last_page: payload.data.pagination.last_page,
         total: payload.data.pagination.total,
       });
+      if (typeof payload.data.open_incidents_count === 'number') {
+        setOpenIncidentsCount(payload.data.open_incidents_count);
+      }
     }
     setLoadingMoreOrders(false);
   }, [fetchOrders, buildParams, filters]);
@@ -135,6 +148,40 @@ const QrDinamico = () => {
     loadOrders(newFilters);
   };
 
+  const handleTabChange = (tab: ActiveTab) => {
+    setActiveTab(tab);
+    if (tab === 'metrics') return;
+
+    const nextFilters: QrOrderFilters = {
+      ...filters,
+      reconciliation: tab === 'incidents' ? 'open' : undefined,
+      page: 1,
+    };
+    setFilters(nextFilters);
+    setOrders([]);
+    setPagination({ current_page: 1, last_page: 1, total: 0 });
+    void loadOrders(nextFilters);
+  };
+
+  const handleVerify = async (order: QrOrder): Promise<{ success: boolean; message: string }> => {
+    const response = await verifyOrder(
+      `/qr-dynamic/debts/orders/${order.id}/verify`, 'POST', {}, false, true,
+    );
+    const nextFilters = { ...filters, page: 1 };
+    setFilters(nextFilters);
+    await loadOrders(nextFilters);
+
+    if (response?.data?.success && Number(response.data.data?.order_state) === QrOrderState.PAID) {
+      setSelectedOrder(null);
+      return { success: true, message: 'El pago quedó acreditado por completo.' };
+    }
+
+    return {
+      success: Boolean(response?.data?.success),
+      message: apiMessage(response) ?? 'No se pudo reverificar el QR. La incidencia sigue abierta.',
+    };
+  };
+
   const loadMoreOrders = useCallback(() => {
     if (loadingMoreOrders || !ordersLoaded) return;
     if (pagination.current_page >= pagination.last_page) return;
@@ -150,7 +197,7 @@ const QrDinamico = () => {
   }, [filters, loadOrders, loadingMoreOrders, ordersLoaded, pagination.current_page, pagination.last_page]);
 
   useEffect(() => {
-    if (activeTab !== 'orders') return;
+    if (activeTab === 'metrics') return;
     if (!ordersLoadSentinelRef.current) return;
     if (!ordersLoaded || loadingMoreOrders || pagination.current_page >= pagination.last_page) {
       return;
@@ -200,22 +247,34 @@ const QrDinamico = () => {
         <button
           id="tab-orders"
           className={`${styles.tab} ${activeTab === 'orders' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('orders')}
+          onClick={() => handleTabChange('orders')}
         >
           Órdenes QR
         </button>
         <button
+          id="tab-incidents"
+          className={`${styles.tab} ${activeTab === 'incidents' ? styles.tabActive : ''}`}
+          onClick={() => handleTabChange('incidents')}
+        >
+          Por conciliar {openIncidentsCount > 0 ? `(${openIncidentsCount})` : ''}
+        </button>
+        <button
           id="tab-metrics"
           className={`${styles.tab} ${activeTab === 'metrics' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('metrics')}
+          onClick={() => handleTabChange('metrics')}
         >
           Métricas
         </button>
       </div>
 
       {/* ── Tab: Orders ──────────────────────────────────────────────────────── */}
-      {activeTab === 'orders' && (
+      {activeTab !== 'metrics' && (
         <>
+          {activeTab === 'incidents' && (
+            <div className={styles.incidentNotice} role="status">
+              El banco reportó un cobro, pero no se pudo aplicar íntegramente. Estas órdenes requieren conciliación; no anule el QR ni registre otro cobro.
+            </div>
+          )}
           {/* Filters */}
           <div className={styles.filters}>
             <select
@@ -290,8 +349,8 @@ const QrDinamico = () => {
                   <tr>
                     <td colSpan={10}>
                       <div className={styles.emptyState}>
-                        <p>No hay órdenes QR registradas.</p>
-                        <p>Los QR dinámicos se generan desde la App Residente.</p>
+                        <p>{activeTab === 'incidents' ? 'No hay cobros pendientes de conciliación.' : 'No hay órdenes QR registradas.'}</p>
+                        {activeTab === 'orders' && <p>Los QR dinámicos se generan desde la App Residente.</p>}
                       </div>
                     </td>
                   </tr>
@@ -310,6 +369,9 @@ const QrDinamico = () => {
                     <td>{formatAmount(order.amount, order.currency)}</td>
                     <td style={{ textAlign: 'center' }}>
                       <StateBadge state={order.order_state} />
+                      {order.reconciliation_incident && !order.reconciliation_incident.resolved_at && (
+                        <span className={styles.incidentBadge}>Requiere conciliación</span>
+                      )}
                     </td>
                     <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
                       <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
@@ -353,6 +415,9 @@ const QrDinamico = () => {
       {selectedOrder && (
         <RenderView
           order={selectedOrder}
+          onVerify={selectedOrder.reconciliation_incident && !selectedOrder.reconciliation_incident.resolved_at
+            && ![QrOrderState.CANCELLED, QrOrderState.REPLACED].includes(selectedOrder.order_state)
+            ? () => handleVerify(selectedOrder) : undefined}
           onClose={() => setSelectedOrder(null)}
         />
       )}

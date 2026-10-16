@@ -1,5 +1,5 @@
 'use client';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { QrOrder, QR_STATE_LABEL, QR_STATE_COLOR, PAYMENT_TYPE_LABEL } from '../types';
 import { formatQrDate } from '../shared';
 import styles from './RenderView.module.css';
@@ -7,11 +7,38 @@ import styles from './RenderView.module.css';
 interface Props {
   order: QrOrder;
   onClose: () => void;
+  onVerify?: () => Promise<{ success: boolean; message: string }>;
 }
 
-const RenderView = ({ order, onClose }: Props) => {
+const INCIDENT_REASON: Record<string, string> = {
+  debt_changed: 'La deuda o su saldo cambió después de generar el QR.',
+  debt_claimed: 'Otro pago reclamó una de las deudas del QR.',
+  order_cancelled: 'El banco reportó pagado un QR que figuraba anulado.',
+  credit_failed: 'La acreditación completa no se pudo terminar.',
+  legacy_credit_failed: 'El ingreso heredado no pudo confirmarse íntegramente.',
+};
+
+const RenderView = ({ order, onClose, onVerify }: Props) => {
   const printRef = useRef<HTMLDivElement>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [verifyMessage, setVerifyMessage] = useState<string | null>(null);
   const cfg = QR_STATE_COLOR[order.order_state];
+  const incident = order.reconciliation_incident;
+  const incidentOpen = Boolean(incident && !incident.resolved_at);
+
+  const handleVerify = async () => {
+    if (!onVerify || verifying) return;
+    setVerifying(true);
+    setVerifyMessage(null);
+    try {
+      const result = await onVerify();
+      setVerifyMessage(result.message);
+    } catch {
+      setVerifyMessage('No se pudo reverificar el QR. La incidencia sigue abierta.');
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   const handlePrint = () => {
     const content = printRef.current?.innerHTML;
@@ -43,7 +70,7 @@ const RenderView = ({ order, onClose }: Props) => {
             <span className={styles.badge} style={{ color: cfg.color, background: cfg.bg }}>
               {QR_STATE_LABEL[order.order_state]}
             </span>
-            <button id="btn-close-render-view" className={styles.closeBtn} onClick={onClose}>✕</button>
+            <button id="btn-close-render-view" aria-label="Cerrar detalle" className={styles.closeBtn} onClick={onClose}>✕</button>
           </div>
         </div>
 
@@ -59,6 +86,19 @@ const RenderView = ({ order, onClose }: Props) => {
               {parseFloat(order.amount).toFixed(2)} {order.currency}
             </p>
             {order.gloss && <p className={styles.qrGloss}>{order.gloss}</p>}
+          </div>
+        )}
+
+        {incidentOpen && incident && (
+          <div className={styles.incidentAlert} role="alert">
+            <strong>Cobro bancario por conciliar</strong>
+            <p>{INCIDENT_REASON[incident.reason_code] ?? 'La acreditación completa no se pudo terminar.'}</p>
+            <p>No se creó un ingreso parcial. El QR permanece bajo revisión: verifique el movimiento en el banco antes de cualquier ajuste financiero.</p>
+            <div className={styles.incidentMeta}>
+              <span>Transacción: {incident.bank_transaction_id ?? 'No informada'}</span>
+              <span>Intentos: {incident.attempts}</span>
+              <span>Detectado: {formatQrDate(incident.first_detected_at)}</span>
+            </div>
           </div>
         )}
 
@@ -82,6 +122,16 @@ const RenderView = ({ order, onClose }: Props) => {
 
         {/* Actions */}
         <div className={styles.actions}>
+          {incidentOpen && onVerify && (
+            <button
+              id="btn-verify-incident"
+              className={styles.btnSecondary}
+              disabled={verifying}
+              onClick={handleVerify}
+            >
+              {verifying ? 'Consultando banco…' : 'Reverificar con banco'}
+            </button>
+          )}
           {order.qr_image_base64 && (
             <>
               <button id="btn-download-qr" className={styles.btnSecondary} onClick={handleDownload}>
@@ -96,6 +146,7 @@ const RenderView = ({ order, onClose }: Props) => {
             Cerrar
           </button>
         </div>
+        {verifyMessage && <p className={styles.verifyMessage} role="status">{verifyMessage}</p>}
       </div>
     </div>
   );
