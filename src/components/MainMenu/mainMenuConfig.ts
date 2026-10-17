@@ -224,12 +224,6 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/binnacle", perm: "guardlogs", labelKey: "logbook" },
     ],
   },
-  { type: "dropdown", labelKey: "Integraciones", icon: IconMonitorLine, key: "Integraciones", items: [
-    { href: "/integraciones/plugins", perm: "", labelKey: "Plugins", fosOnly: true },
-    { href: "/integraciones/historial", perm: "", labelKey: "Historial", fosOnly: true },
-  ] },
-
-
 ];
 
 export const isMenuItemVisible = (
