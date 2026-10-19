@@ -86,3 +86,6 @@ package-lock.json
 # records those same overrides inside pnpm-lock.yaml. If the file is missing, the
 # two no longer agree and any clean install stops with
 # ERR_PNPM_LOCKFILE_CONFIG_MISMATCH. Measured on 2026-08-13.
+
+# Local skill registry written by the agent tooling
+.atl/
