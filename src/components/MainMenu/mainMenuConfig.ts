@@ -78,6 +78,7 @@ export const menuConfig: MenuConfigItem[] = [
         fosOnly: true,
       },
       { href: "/history", perm: "superadmins", labelKey: "history" },
+      { href: "/api-integrations", perm: "superadmins", labelKey: "apiIntegrations", fosOnly: true },
       {
         href: "/visit-reasons",
         perm: "visit_reasons",
