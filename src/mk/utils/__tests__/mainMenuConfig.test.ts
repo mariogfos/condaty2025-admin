@@ -29,7 +29,7 @@ describe("getFirstAccessibleMenuRoute", () => {
 
   it("shows QR Dinámico and Log de Orange only to FOS admins", () => {
     const finance = menuConfig.find(
-      (item) => item.type === "dropdown" && item.key === "Finanzas",
+      (item): item is Extract<MenuConfigItem, { type: "dropdown" }> => item.type === "dropdown" && item.key === "Finanzas",
     );
     const fosOnlyItems = finance?.items.filter((item) => item.fosOnly) ?? [];
     const canReadPayments = (permission: string) => permission === "payments";
@@ -52,7 +52,7 @@ describe("getFirstAccessibleMenuRoute", () => {
 
   it("shows Encuestas and Mis Encuestas only to FOS admins", () => {
     const communication = menuConfig.find(
-      (item) => item.type === "dropdown" && item.key === "Comunicación",
+      (item): item is Extract<MenuConfigItem, { type: "dropdown" }> => item.type === "dropdown" && item.key === "Comunicación",
     );
     const fosOnlyItems = communication?.items.filter((item) => item.fosOnly) ?? [];
     const canReadSurveys = (permission: string) => permission === "surveys";
