@@ -271,10 +271,10 @@ describe("experiencia de publicaciones", () => {
     const reelStyles = readStyles("src/modulos/Reel/Reel.module.css");
 
     expect(reelStyles).toMatch(
-      /\.reelContainer\s*\{[^}]*max-width:\s*860px;/s,
+      /\.reelContainer\s*\{[^}]*max-width:\s*860px;/,
     );
     expect(reelStyles).toMatch(
-      /\.contentCard\s*\{[^}]*height:\s*auto;[^}]*flex:\s*0 0 auto;/s,
+      /\.contentCard\s*\{[^}]*height:\s*auto;[^}]*flex:\s*0 0 auto;/,
     );
   });
 
@@ -286,7 +286,7 @@ describe("experiencia de publicaciones", () => {
     ];
 
     styleSheets.forEach((styleSheet) => {
-      const newsBadgeRule = styleSheet.match(/\.newsBadge\s*\{[^}]*\}/s)?.[0];
+      const newsBadgeRule = styleSheet.match(/\.newsBadge\s*\{[^}]*\}/)?.[0];
 
       expect(newsBadgeRule).toContain("color: var(--cWhite);");
       expect(newsBadgeRule).toContain("background: var(--cModalSurfaceRaised);");
@@ -294,7 +294,7 @@ describe("experiencia de publicaciones", () => {
     });
 
     expect(styleSheets[0]).toMatch(
-      /\.contentCard:hover\s*\{[^}]*border-color:\s*var\(--cModalBorder/s,
+      /\.contentCard:hover\s*\{[^}]*border-color:\s*var\(--cModalBorder/,
     );
     expect(styleSheets[0]).not.toContain(".newsCard::before");
     expect(styleSheets[1]).not.toContain(".newsCard::before");
@@ -316,13 +316,13 @@ describe("experiencia de publicaciones", () => {
     const modalStyles = readStyles(
       "src/mk/components/ui/DetailModal/detailModal.module.css",
     );
-    const titleRule = modalStyles.match(/\.title\s*\{[^}]*\}/s)?.[0];
+    const titleRule = modalStyles.match(/\.title\s*\{[^}]*\}/)?.[0];
 
     expect(titleRule).toContain("overflow: hidden;");
     expect(titleRule).toContain("text-overflow: ellipsis;");
     expect(titleRule).toContain("white-space: nowrap;");
     expect(modalStyles).toMatch(
-      /\.header\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto;/s,
+      /\.header\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto;/,
     );
   });
 
@@ -335,9 +335,9 @@ describe("experiencia de publicaciones", () => {
     ];
 
     styleSheets.forEach((styleSheet) => {
-      const summaryRule = styleSheet.match(/\.summary\s*\{[^}]*\}/s)?.[0];
+      const summaryRule = styleSheet.match(/\.summary\s*\{[^}]*\}/)?.[0];
       const summaryIconRule = styleSheet.match(
-        /\.summaryIcon\s*\{[^}]*\}/s,
+        /\.summaryIcon\s*\{[^}]*\}/,
       )?.[0];
 
       expect(summaryRule).toContain("width: fit-content;");
@@ -360,9 +360,9 @@ describe("experiencia de publicaciones", () => {
     );
 
     expect(reelStyles).not.toMatch(
-      /\.userInfo > :first-child\s*\{[^}]*border:/s,
+      /\.userInfo > :first-child\s*\{[^}]*border:/,
     );
-    expect(likesStyles).not.toMatch(/\.avatar\s*\{[^}]*border:/s);
+    expect(likesStyles).not.toMatch(/\.avatar\s*\{[^}]*border:/);
     expect(commentsStyles).not.toContain(".commentAvatar");
   });
 });

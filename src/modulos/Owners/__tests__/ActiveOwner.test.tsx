@@ -160,7 +160,7 @@ describe("ActiveOwner", () => {
     renderModal("A", {
       ...pendingResident,
       type_owner: "Propietario",
-      clients: [{ id: 10, pivot: { type: "H", status: "W" } }],
+      clients: [{ id: 10, pivot: { type: "H", status: "W", preunidad: "" } }],
     });
 
     expect(mocks.useAxios).toHaveBeenLastCalledWith(
