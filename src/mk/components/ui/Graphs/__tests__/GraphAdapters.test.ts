@@ -53,7 +53,7 @@ describe('graph adapters', () => {
       variant: 'dashboard',
       area: true,
     }).options;
-    const { options, data } = adapter(series, { variant: 'dashboard' }, previousArea);
+    const { options, data } = adapter(series, { variant: 'dashboard', barGap: 3 }, previousArea);
 
     expect(previousArea.fill?.type).toBe('gradient');
     expect(options.fill).toEqual({ type: 'solid', opacity: 1 });
@@ -67,6 +67,15 @@ describe('graph adapters', () => {
     ]);
     if ('plotOptions' in options) {
       expect(options.chart.stacked).toBe(false);
+      expect(options.stroke).toEqual({ show: true, width: 3, colors: ['transparent'] });
     }
+  });
+
+  it('restores line colors after the transparent separators of a bar chart', () => {
+    const colors = ['#3b82f6', '#10b981', '#f97316', '#d946ef'];
+    const previousBars = GraphAdapterBar(chartData, { variant: 'dashboard', barGap: 3 }).options;
+    const { options } = GraphAdapterLine(chartData, { variant: 'dashboard', colors }, previousBars);
+
+    expect(options.stroke).toMatchObject({ show: true, width: 2.5, colors });
   });
 });

@@ -94,8 +94,9 @@ describe("gráfica financiera del inicio", () => {
           ]),
         }),
         options: expect.objectContaining({
-          colors: ["#60a5fa", "#34d399", "#fb923c", "#c084fc"],
+          colors: ["#3b82f6", "#10b981", "#f97316", "#d946ef"],
           variant: "dashboard",
+          barGap: 3,
         }),
       }),
     );
@@ -172,7 +173,7 @@ describe("gráfica financiera del inicio", () => {
         ],
       },
       {
-        colors: ["#60a5fa", "#34d399", "#fb923c", "#c084fc"],
+        colors: ["#3b82f6", "#10b981", "#f97316", "#d946ef"],
         variant: "dashboard",
       },
       { chart: { animations: { enabled: true } } },

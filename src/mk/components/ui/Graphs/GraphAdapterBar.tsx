@@ -26,6 +26,7 @@ export default function GraphAdapterBar(
     // explicitly so returning to bars cannot retain transparent gradients.
     ...(isDashboard && {
       fill: { type: 'solid', opacity: 1 },
+      stroke: { show: true, width: options?.barGap ?? 0, colors: ['transparent'] },
       states: {
         hover: { filter: { type: 'none' } },
         active: { filter: { type: 'none' } },
