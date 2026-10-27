@@ -1,5 +1,11 @@
-import React, { useMemo } from "react";
-import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  ChartColumn,
+  ChartLine,
+  Minus,
+} from "lucide-react";
 
 import EmptyData from "@/components/NoData/EmptyData";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
@@ -59,7 +65,7 @@ const WidgetGraphResume = ({
   saldoInicial = 0,
   ingresos,
   egresos,
-  chartTypes = ["area"],
+  chartTypes,
   h = 310,
   title,
   subtitle,
@@ -69,6 +75,7 @@ const WidgetGraphResume = ({
   emptyDataProps,
 }: PropsType) => {
   const { localeTag, translate } = useScopedI18n("graph");
+  const [chartType, setChartType] = useState<ChartType>(chartTypes?.[0] || "bar");
   const currentYear = new Date().getFullYear();
 
   const { balance, meses, longMonths } = useMemo(() => {
@@ -218,7 +225,6 @@ const WidgetGraphResume = ({
       ? translate("attentionCashFlow")
       : translate("balancedCashFlow");
   const chartEndIndex = Math.max(currentMonthIndex + 1, 1);
-  const primaryChartType = chartTypes[0] || "area";
   const chartHeader = (
     <div className={styles.headerRow}>
       <div className={styles.titleBlock}>
@@ -227,6 +233,32 @@ const WidgetGraphResume = ({
           {subtitle || translate("subtitle", { year: currentYear })}
         </p>
       </div>
+      {!showEmptyData && (
+        <div
+          className={styles.chartTypeSelector}
+          role="group"
+          aria-label={translate("chartTypeLabel")}
+        >
+          <button
+            type="button"
+            className={styles.chartTypeButton}
+            aria-pressed={chartType === "bar"}
+            onClick={() => setChartType("bar")}
+          >
+            <ChartColumn size={16} aria-hidden="true" />
+            {translate("barsView")}
+          </button>
+          <button
+            type="button"
+            className={styles.chartTypeButton}
+            aria-pressed={chartType === "area" || chartType === "line"}
+            onClick={() => setChartType("area")}
+          >
+            <ChartLine size={16} aria-hidden="true" />
+            {translate("linesView")}
+          </button>
+        </div>
+      )}
     </div>
   );
 
@@ -261,7 +293,7 @@ const WidgetGraphResume = ({
                     egresos: balance.egresos.slice(0, chartEndIndex),
                     saldos: balance.saldos.slice(0, chartEndIndex),
                   }}
-                  chartType={primaryChartType}
+                  chartType={chartType}
                   height={h}
                   seriesNames={[
                     translate("openingBalance"),
