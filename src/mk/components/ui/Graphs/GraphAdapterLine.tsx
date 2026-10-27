@@ -21,6 +21,7 @@ export default function GraphAdapterLine(
       curve: 'smooth',
       width: isDashboard ? 2.5 : 2,
       lineCap: 'round',
+      ...(isDashboard && { show: true, colors: lineColors }),
     },
     dataLabels: {
       enabled: false,
