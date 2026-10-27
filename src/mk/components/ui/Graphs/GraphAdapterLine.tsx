@@ -19,8 +19,9 @@ export default function GraphAdapterLine(
     },
     stroke: {
       curve: 'smooth',
-      width: isDashboard ? [2, 2.5, 2.5, 3] : 2,
+      width: isDashboard ? 2.5 : 2,
       lineCap: 'round',
+      ...(isDashboard && { show: true, colors: lineColors }),
     },
     dataLabels: {
       enabled: false,
@@ -76,7 +77,9 @@ export default function GraphAdapterLine(
               stops: [0, 68, 100],
             },
           }
-        : oDef.fill,
+        : isDashboard
+          ? { type: 'solid', opacity: 1 }
+          : oDef.fill,
     states: {
       hover: {
         filter: {

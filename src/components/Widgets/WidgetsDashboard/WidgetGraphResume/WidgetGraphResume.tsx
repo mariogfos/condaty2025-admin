@@ -44,6 +44,8 @@ type BalanceData = {
 };
 
 const MONTH_COUNT = 12;
+const CHART_AXIS_WIDTH = 140;
+const BAR_MONTH_MIN_WIDTH = 56;
 const CHART_SERIES = [
   { color: FINANCIAL_FLOW_COLORS[0], key: "openingBalance" },
   { color: FINANCIAL_FLOW_COLORS[1], key: "incomes" },
@@ -252,7 +254,7 @@ const WidgetGraphResume = ({
             type="button"
             className={styles.chartTypeButton}
             aria-pressed={chartType === "area" || chartType === "line"}
-            onClick={() => setChartType("area")}
+            onClick={() => setChartType("line")}
           >
             <ChartLine size={16} aria-hidden="true" />
             {translate("linesView")}
@@ -285,23 +287,32 @@ const WidgetGraphResume = ({
             <div className={styles.chartColumn}>
               {chartHeader}
               <div className={styles.chartCanvas}>
-                <FinancialFlowChart
-                  labels={meses.slice(0, chartEndIndex)}
-                  balance={{
-                    inicial: balance.inicial.slice(0, chartEndIndex),
-                    ingresos: balance.ingresos.slice(0, chartEndIndex),
-                    egresos: balance.egresos.slice(0, chartEndIndex),
-                    saldos: balance.saldos.slice(0, chartEndIndex),
+                <div
+                  style={{
+                    minWidth: chartType === "bar"
+                      ? CHART_AXIS_WIDTH + chartEndIndex * BAR_MONTH_MIN_WIDTH
+                      : undefined,
                   }}
-                  chartType={chartType}
-                  height={h}
-                  seriesNames={[
-                    translate("openingBalance"),
-                    translate("incomes"),
-                    translate("outlays"),
-                    translate("cumulativeBalance"),
-                  ]}
-                />
+                >
+                  <FinancialFlowChart
+                    labels={meses.slice(0, chartEndIndex)}
+                    balance={{
+                      inicial: balance.inicial.slice(0, chartEndIndex),
+                      ingresos: balance.ingresos.slice(0, chartEndIndex),
+                      egresos: balance.egresos.slice(0, chartEndIndex),
+                      saldos: balance.saldos.slice(0, chartEndIndex),
+                    }}
+                    chartType={chartType}
+                    height={h}
+                    barGap={3}
+                    seriesNames={[
+                      translate("openingBalance"),
+                      translate("incomes"),
+                      translate("outlays"),
+                      translate("cumulativeBalance"),
+                    ]}
+                  />
+                </div>
               </div>
               <div className={styles.seriesLegend}>
                 {CHART_SERIES.map(({ color, key }) => (

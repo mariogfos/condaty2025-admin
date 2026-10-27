@@ -32,6 +32,7 @@ type optionsType = {
   label?: string;
   chart?: any;
   stacked?: boolean;
+  barGap?: number;
   colors?: string[];
   download?: number;
   height?: number | string;
