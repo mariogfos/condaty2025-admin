@@ -252,7 +252,7 @@ const WidgetGraphResume = ({
             type="button"
             className={styles.chartTypeButton}
             aria-pressed={chartType === "area" || chartType === "line"}
-            onClick={() => setChartType("area")}
+            onClick={() => setChartType("line")}
           >
             <ChartLine size={16} aria-hidden="true" />
             {translate("linesView")}

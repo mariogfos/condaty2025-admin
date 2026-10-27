@@ -94,7 +94,7 @@ describe("gráfica financiera del inicio", () => {
           ]),
         }),
         options: expect.objectContaining({
-          colors: ["#8b98a8", "#00e38c", "#f2a65a", "#8ea7ff"],
+          colors: ["#60a5fa", "#34d399", "#fb923c", "#c084fc"],
           variant: "dashboard",
         }),
       }),
@@ -131,7 +131,7 @@ describe("gráfica financiera del inicio", () => {
       "false",
     );
     expect(mocks.graphProps.mock.lastCall?.[0]).toEqual(
-      expect.objectContaining({ chartTypes: ["area"], data: initialData }),
+      expect.objectContaining({ chartTypes: ["line"], data: initialData }),
     );
 
     rerender(
@@ -142,7 +142,7 @@ describe("gráfica financiera del inicio", () => {
     );
     expect(mocks.graphProps.mock.lastCall?.[0]).toEqual(
       expect.objectContaining({
-        chartTypes: ["area"],
+        chartTypes: ["line"],
         data: expect.objectContaining({
           values: expect.arrayContaining([
             { name: "Ingresos", values: [300] },
@@ -160,7 +160,7 @@ describe("gráfica financiera del inicio", () => {
     expect(mocks.graphProps.mock.lastCall?.[0].chartTypes).toEqual(["bar"]);
   });
 
-  it("configura curvas suaves, puntos y rellenos degradados por serie", () => {
+  it("muestra líneas sólidas con el mismo grosor y puntos en las cuatro series", () => {
     const chart = GraphAdapterLine(
       {
         labels: ["Ene", "Feb"],
@@ -172,8 +172,7 @@ describe("gráfica financiera del inicio", () => {
         ],
       },
       {
-        area: true,
-        colors: ["#8b98a8", "#00e38c", "#f2a65a", "#8ea7ff"],
+        colors: ["#60a5fa", "#34d399", "#fb923c", "#c084fc"],
         variant: "dashboard",
       },
       { chart: { animations: { enabled: true } } },
@@ -181,16 +180,10 @@ describe("gráfica financiera del inicio", () => {
 
     expect(chart.options).toEqual(
       expect.objectContaining({
-        chart: expect.objectContaining({ type: "area" }),
-        fill: expect.objectContaining({
-          gradient: expect.objectContaining({
-            opacityFrom: [0.22, 0.28, 0.25, 0.7],
-            opacityTo: [0.01, 0.015, 0.012, 0.04],
-          }),
-          type: "gradient",
-        }),
+        chart: expect.objectContaining({ type: "line" }),
+        fill: { type: "solid", opacity: 1 },
         markers: expect.objectContaining({ size: 4 }),
-        stroke: expect.objectContaining({ curve: "smooth" }),
+        stroke: expect.objectContaining({ curve: "smooth", width: 2.5 }),
       }),
     );
     expect(chart.data).toHaveLength(4);

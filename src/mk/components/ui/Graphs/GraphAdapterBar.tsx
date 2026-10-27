@@ -19,9 +19,18 @@ export default function GraphAdapterBar(
       bar: {
         borderRadius: isDashboard ? 5 : 4,
         borderRadiusApplication: 'end',
-        columnWidth: isDashboard ? '58%' : undefined,
+        columnWidth: isDashboard ? '68%' : undefined,
       },
     },
+    // Apex merges options when changing chart types. Reset the area fill
+    // explicitly so returning to bars cannot retain transparent gradients.
+    ...(isDashboard && {
+      fill: { type: 'solid', opacity: 1 },
+      states: {
+        hover: { filter: { type: 'none' } },
+        active: { filter: { type: 'none' } },
+      },
+    }),
     grid: {
       show: true,
       borderColor: gridColor,
