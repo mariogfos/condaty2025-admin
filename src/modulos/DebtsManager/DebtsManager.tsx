@@ -129,7 +129,7 @@ const DebtsManager = () => {
         filterBy: `due_at:${yearStart},${today}`,
       },
     });
-    const reportUrl = `/reports?preset=unit-account-statement&state=${state}`;
+    const reportUrl = `/reports/view?preset=unit-account-statement&state=${state}`;
     const reportWindow = window.open(reportUrl, "_blank");
 
     if (!reportWindow) {

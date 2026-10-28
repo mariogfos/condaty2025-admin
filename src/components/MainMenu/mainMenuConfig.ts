@@ -1,3 +1,5 @@
+import { FileChartColumn } from "lucide-react";
+import { reportPermissions } from "@/modulos/Reports/reportCatalog";
 import {
   IconHome,
   IconPayments,
@@ -17,6 +19,8 @@ export type MenuConfigItem =
       href: string;
       labelKey: string;
       perm: string;
+      anyPermissions?: readonly string[];
+      skipAsLanding?: boolean;
       icon: any;
       badgeKey?: string;
     }
@@ -37,6 +41,7 @@ export type MenuConfigItem =
 
 export const menuConfig: MenuConfigItem[] = [
   { type: "item", href: "/", labelKey: "home", perm: "home", icon: IconHome },
+  { type: "item", href: "/reports", labelKey: "Reportes", perm: "", anyPermissions: reportPermissions, skipAsLanding: true, icon: FileChartColumn },
   /* {
     type: "item",
     href: "/tasks",
@@ -228,12 +233,13 @@ export const menuConfig: MenuConfigItem[] = [
 ];
 
 export const isMenuItemVisible = (
-  item: { perm: string; fosOnly?: boolean },
+  item: { perm: string; fosOnly?: boolean; anyPermissions?: readonly string[] },
   canAccess: (permission: string, action: string) => boolean,
   isFos = false,
 ): boolean =>
   (!item.fosOnly || isFos) &&
-  (!item.perm || canAccess(item.perm, "R"));
+  (!item.perm || canAccess(item.perm, "R")) &&
+  (!item.anyPermissions || item.anyPermissions.some((permission) => canAccess(permission, "R")));
 
 export const getFirstAccessibleMenuRoute = (
   canAccess: (permission: string, action: string) => boolean,
@@ -241,7 +247,7 @@ export const getFirstAccessibleMenuRoute = (
 ): string | null => {
   for (const item of menuConfig) {
     if (item.type === "item") {
-      if (item.href !== "/" && (!item.perm || canAccess(item.perm, "R"))) {
+      if (item.href !== "/" && !item.skipAsLanding && isMenuItemVisible(item, canAccess, isFos)) {
         return item.href;
       }
       continue;
