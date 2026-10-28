@@ -30,6 +30,7 @@ import {
   type ReportViewerState,
 } from "./reportViewerState";
 import styles from "./ReportsPage.module.css";
+import { getDefaultReportRange } from "./reportCatalog";
 
 type ReportFormat = "pdf" | "excel";
 
@@ -178,7 +179,7 @@ const getDateRangePresets = (allowsAllDates = false) => {
       id: "this-month" as const,
       name: "Este mes",
       startDate: getMonthStartIsoDate(),
-      endDate: today,
+      endDate: getDefaultReportRange("accesses").endDate,
       allDates: false,
     },
     {
@@ -271,7 +272,7 @@ const resolveDownloadError = (body: string, fallback: string) => {
   return normalized.length > 240 ? `${normalized.slice(0, 237)}...` : normalized;
 };
 
-const parseInitialDateRange = (state: ReportViewerState) => {
+const parseInitialDateRange = (state: ReportViewerState, reportKey: string) => {
   const filterBy = String(state?.params?.filterBy || "");
   const tokens = filterBy
     .split("|")
@@ -292,11 +293,7 @@ const parseInitialDateRange = (state: ReportViewerState) => {
   );
 
   if (!rangeToken) {
-    return {
-      startDate: getYearStartIsoDate(),
-      endDate: getTodayIsoDate(),
-      allDates: false,
-    };
+    return getDefaultReportRange(reportKey);
   }
 
   const rawValue = rangeToken.slice(rangeToken.indexOf(":") + 1);
@@ -670,8 +667,8 @@ const ReportsPage = () => {
     [viewerState.params],
   );
   const initialRange = useMemo(
-    () => parseInitialDateRange(viewerState),
-    [viewerState],
+    () => parseInitialDateRange(viewerState, reportKey),
+    [viewerState, reportKey],
   );
 
   const [pageMode, setPageMode] = useState("legal-landscape");
@@ -1429,7 +1426,7 @@ const ReportsPage = () => {
 
   if (!reportKey) {
     return (
-      <section className={styles.reportRoot}>
+      <section className={`${styles.reportRoot} ${reportKey === "accesses" ? styles.accessReport : ""}`}>
         <div className={styles.emptyState}>
           <h1 className={styles.emptyTitle}>No hay reporte configurado</h1>
           <p className={styles.emptyDescription}>
@@ -1442,7 +1439,7 @@ const ReportsPage = () => {
   }
 
   return (
-    <section className={styles.reportRoot}>
+    <section className={`${styles.reportRoot} ${reportKey === "accesses" ? styles.accessReport : ""}`}>
       <div className={styles.topLeftActions}>
         <div
           className={`${styles.statusPill} ${
@@ -1755,7 +1752,7 @@ const ReportsPage = () => {
             </p>
           </div>
         ) : (
-          <div className={styles.previewScroller}>
+          <div className={styles.previewScroller} style={reportKey === "accesses" ? pageStyle : undefined}>
             {(loadingPages && renderedPages.length === 0
               ? Array.from({
                   length: INITIAL_SKELETON_PAGES,
