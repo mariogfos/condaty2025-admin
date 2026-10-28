@@ -1,0 +1,137 @@
+.catalog {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 0 32px;
+}
+
+.heading h1 {
+  margin: 0 0 8px;
+  color: var(--cWhite);
+  font-size: 28px;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+.heading p {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.tabs {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 0 0 20px;
+  border-bottom: 1px solid var(--cWhiteV2);
+  scrollbar-width: thin;
+}
+
+.grid {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 240px;
+  gap: 20px;
+  padding: 24px;
+  border: 1px solid var(--cWhiteV2);
+  border-radius: 20px;
+  color: var(--cWhite);
+  background: var(--cBlackV1);
+  text-decoration: none;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.card:hover {
+  border-color: var(--cWhiteV3);
+  background: var(--cHover);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--cAccent);
+  outline-offset: 4px;
+}
+
+.cardTop, .cardFooter, .cardFooter > span {
+  display: flex;
+  align-items: center;
+}
+
+.cardTop, .cardFooter {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+}
+
+.securityIcon {
+  color: #a5b4fc;
+  background: #818cf81a;
+}
+
+.financeIcon {
+  color: #6ee7b7;
+  background: #34d3991a;
+}
+
+.arrow {
+  color: var(--cWhiteV3);
+}
+
+.cardBody {
+  flex: 1;
+}
+
+.cardBody h2 {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.cardBody p {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.cardFooter {
+  flex-wrap: wrap;
+  color: var(--cWhiteV3);
+  font-size: 12px;
+}
+
+.cardFooter > span {
+  gap: 6px;
+}
+
+@media (width <= 1200px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (width <= 640px) {
+  .grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .catalog { gap: 20px; }
+  .heading h1 { font-size: 24px; }
+  .card { min-height: 220px; padding: 20px; }
+}

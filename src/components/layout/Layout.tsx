@@ -88,7 +88,7 @@ const Layout = ({ children }: any) => {
 
   const path = usePathname();
   const router = useRouter();
-  const isImmersiveRoute = (path || "").startsWith("/reports");
+  const isImmersiveRoute = (path || "").startsWith("/reports/view");
   const isFullBleedRoute = (path || "").startsWith("/presence-monitoring");
 
   const typeAlerts: any = {

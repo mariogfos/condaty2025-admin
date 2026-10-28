@@ -1063,7 +1063,7 @@ const useCrud = ({
         fullType: params?.fullType || "L",
       },
     });
-    const nextUrl = `/reports?preset=${encodeURIComponent(
+    const nextUrl = `/reports/view?preset=${encodeURIComponent(
       mod.reportPreset,
     )}&state=${nextState}`;
 
