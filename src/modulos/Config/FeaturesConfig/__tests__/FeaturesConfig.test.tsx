@@ -67,9 +67,9 @@ describe("Configuración de funcionalidades", () => {
     );
   });
 
-  it("mantiene Marketplace encendido si la API antigua no devuelve el campo", () => {
+  it("mantiene Marketplace apagado si la API antigua no devuelve el campo", () => {
     render(<FeaturesConfig client_config={{}} onSave={vi.fn()} />);
 
-    expect(screen.getByLabelText("has_marketplace_visible")).toBeChecked();
+    expect(screen.getByLabelText("has_marketplace_visible")).not.toBeChecked();
   });
 });
