@@ -45,7 +45,7 @@ export default function ReportsCatalog() {
           return (
             <Link key={report.key} className={styles.card} target="_blank" rel="noopener noreferrer" href={`/reports/view?preset=${report.key}&state=${state}`}>
               <div className={styles.cardTop}>
-                <span className={`${styles.icon} ${report.icon === "income" ? styles.financeIcon : styles.securityIcon}`}><Icon size={27} strokeWidth={1.6} aria-hidden="true" /></span>
+                <span className={`${styles.icon} ${report.icon === "income" ? styles.financeIcon : styles.securityIcon}`}><Icon size={22} strokeWidth={1.6} aria-hidden="true" /></span>
                 <ArrowUpRight className={styles.arrow} size={21} aria-hidden="true" />
               </div>
               <div className={styles.cardBody}>

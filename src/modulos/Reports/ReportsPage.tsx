@@ -31,6 +31,7 @@ import {
 } from "./reportViewerState";
 import styles from "./ReportsPage.module.css";
 import { getDefaultReportRange } from "./reportCatalog";
+import ReportPdfPartsDialog, { type ReportPdfPart, type ReportPdfParts } from "./ReportPdfPartsDialog";
 
 type ReportFormat = "pdf" | "excel";
 
@@ -111,6 +112,7 @@ type ReportSummary = {
     enforceLimit: boolean;
     pageLimit: number;
     reason: string;
+    parts?: ReportPdfParts;
   };
   previewMarginMm: number;
   fileBaseName: string;
@@ -687,6 +689,7 @@ const ReportsPage = () => {
   const [loadingMorePages, setLoadingMorePages] = useState(false);
   const [pagesError, setPagesError] = useState("");
   const [actionError, setActionError] = useState("");
+  const [pdfPartsOpen, setPdfPartsOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState<null | "pdf" | "excel">(
     null,
   );
@@ -973,16 +976,17 @@ const ReportsPage = () => {
 
     const enforceLimit = summary.pdf.enforceLimit !== false;
     const available =
-      !enforceLimit || effectiveTotalPages <= summary.pdf.pageLimit;
+      (!enforceLimit || effectiveTotalPages <= summary.pdf.pageLimit) &&
+      (reportKey !== "accesses" || summary.pdf.available);
 
     return {
       available,
       pageLimit: summary.pdf.pageLimit,
       reason: available
         ? ""
-        : `PDF deshabilitado a partir de ${summary.pdf.pageLimit} paginas. Usa Excel para volumenes grandes.`,
+        : summary.pdf.reason || `El PDF completo supera ${summary.pdf.pageLimit} páginas. Reduce el rango de fechas o descarga Excel.`,
     };
-  }, [effectiveTotalPages, summary]);
+  }, [effectiveTotalPages, reportKey, summary]);
 
   const loadPageBatch = useCallback(
     async (startPage: number, replace = false) => {
@@ -1217,9 +1221,10 @@ const ReportsPage = () => {
   );
 
   const publicStatusTitle = useMemo(() => {
-    if (summaryError || pagesError || actionError) {
+    if (summaryError || pagesError) {
       return "No se pudo cargar el reporte";
     }
+    if (actionError) return "No se pudo descargar el archivo";
 
     if (
       loadingSummary ||
@@ -1248,7 +1253,7 @@ const ReportsPage = () => {
   const publicStatusHint = useMemo(() => {
     if (summaryError) return "Intenta recargar el reporte.";
     if (pagesError) return "La vista previa no termino de cargar.";
-    if (actionError) return "Hubo un problema al descargar el archivo.";
+    if (actionError) return actionError;
     if (!summary) return "Estamos preparando la informacion.";
     if (summary.totalRows === 0)
       return "No encontramos registros para este rango.";
@@ -1321,14 +1326,18 @@ const ReportsPage = () => {
   }, []);
 
   const handleDownload = useCallback(
-    async (format: ReportFormat) => {
+    async (format: ReportFormat, part?: ReportPdfPart) => {
       if (!summary || !reportKey) return;
 
       setActionError("");
       setOpenPopover(null);
 
       if (format === "pdf") {
-        if (!effectivePdf.available) {
+        if (!effectivePdf.available && !part) {
+          if (summary.pdf.parts?.snapshotId && summary.pdf.parts.items?.length) {
+            setPdfPartsOpen(true);
+            return;
+          }
           setActionError(effectivePdf.reason || "PDF no disponible.");
           return;
         }
@@ -1350,6 +1359,13 @@ const ReportsPage = () => {
             buildApiPath(`/reports/${reportKey}/document`, {
               ...dataRequestParams,
               autoprint: true,
+              ...(part ? {
+                startDate: part.startDate,
+                endDate: part.endDate,
+                startPage: part.startPage,
+                pageCount: part.pageCount,
+                snapshotId: summary.pdf.parts?.snapshotId,
+              } : {}),
             }),
             {
               credentials: "include",
@@ -1703,18 +1719,18 @@ const ReportsPage = () => {
               <button
                 type="button"
                 className={`${styles.downloadMenuOption} ${
-                  effectivePdf.available === false
+                  effectivePdf.available === false && !summary?.pdf.parts?.items?.length
                     ? styles.downloadMenuOptionDisabled
                     : ""
                 }`}
                 title={
-                  effectivePdf.available === false
+                  effectivePdf.available === false && !summary?.pdf.parts?.items?.length
                     ? effectivePdf.reason
-                    : "Descargar PDF"
+                    : effectivePdf.available ? "Descargar PDF" : "Descargar PDF por partes"
                 }
                 onClick={() => handleDownload("pdf")}
               >
-                PDF
+                {effectivePdf.available || !summary?.pdf.parts?.items?.length ? "PDF" : "PDF por períodos"}
               </button>
               <button
                 type="button"
@@ -1727,6 +1743,17 @@ const ReportsPage = () => {
           </ToolbarPopover>
         </div>
       </div>
+
+      {pdfPartsOpen && summary?.pdf.parts?.items?.length ? (
+        <ReportPdfPartsDialog
+          plan={summary.pdf.parts}
+          onClose={() => setPdfPartsOpen(false)}
+          onDownload={(part) => {
+            setPdfPartsOpen(false);
+            void handleDownload("pdf", part);
+          }}
+        />
+      ) : null}
 
       <main ref={previewViewportRef} className={styles.previewViewport}>
         {summaryError ? (

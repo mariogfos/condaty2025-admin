@@ -159,6 +159,19 @@
   gap: 8px;
 }
 
+.pdfPartsForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pdfPartsForm p {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .panelHeader {
   display: flex;
   flex-direction: column;
