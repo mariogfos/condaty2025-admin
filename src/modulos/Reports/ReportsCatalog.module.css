@@ -35,19 +35,19 @@
 .grid {
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 320px));
+  gap: 16px;
+  align-items: stretch;
 }
 
 .card {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  min-height: 240px;
-  gap: 20px;
-  padding: 24px;
+  gap: 12px;
+  padding: 16px;
   border: 1px solid var(--cWhiteV2);
-  border-radius: 20px;
+  border-radius: 16px;
   color: var(--cWhite);
   background: var(--cBlackV1);
   text-decoration: none;
@@ -78,9 +78,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
 }
 
 .securityIcon {
@@ -102,17 +102,22 @@
 }
 
 .cardBody h2 {
-  margin: 0 0 8px;
-  font-size: 17px;
+  margin: 0 0 6px;
+  color: var(--cWhite);
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.4;
 }
 
 .cardBody p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
   margin: 0;
   color: var(--cWhiteV1);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .cardFooter {
@@ -125,13 +130,8 @@
   gap: 6px;
 }
 
-@media (width <= 1200px) {
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
 @media (width <= 640px) {
-  .grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .grid { grid-template-columns: minmax(0, 1fr); }
   .catalog { gap: 20px; }
   .heading h1 { font-size: 24px; }
-  .card { min-height: 220px; padding: 20px; }
 }
