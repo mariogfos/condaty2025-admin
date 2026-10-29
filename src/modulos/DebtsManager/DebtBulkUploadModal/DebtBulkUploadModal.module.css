@@ -1,0 +1,196 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 4px 0 8px;
+}
+
+.intro,
+.helper {
+  margin: 0;
+  color: var(--cWhiteV1);
+  line-height: 1.45;
+}
+
+.intro {
+  font-size: var(--body-sm-size);
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.fields > :last-child {
+  grid-column: 1 / -1;
+}
+
+.fileSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  color: var(--cWhite);
+  font-size: var(--body-sm-size);
+  font-weight: var(--font-weight-semibold);
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.filePicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 74px;
+  padding: 12px 14px;
+  border: 1px dashed var(--cModalBorder);
+  border-radius: 12px;
+  background: var(--cModalSection);
+  color: var(--cWhite);
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.filePicker:hover,
+.fileInput:focus-visible + .filePicker {
+  border-color: var(--cAccent);
+  background: color-mix(in srgb, var(--cAccent) 7%, var(--cModalSection));
+}
+
+.fileIcon {
+  display: grid;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--cAccent) 14%, var(--cModalSection));
+  color: var(--cAccent);
+}
+
+.fileText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.fileText strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--body-sm-size);
+}
+
+.fileText small,
+.helper,
+.validPreview small {
+  color: var(--cWhiteV1);
+  font-size: var(--body-xs-size);
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--cError);
+  font-size: var(--body-sm-size);
+}
+
+.validPreview,
+.invalidPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 14px;
+  border: 1px solid var(--cModalBorder);
+  border-radius: 12px;
+  background: var(--cModalSection);
+  font-size: var(--body-sm-size);
+}
+
+.validPreview {
+  border-color: color-mix(in srgb, var(--cSuccess) 45%, var(--cModalBorder));
+}
+
+.invalidPreview {
+  border-color: color-mix(in srgb, var(--cError) 45%, var(--cModalBorder));
+}
+
+.validPreview p,
+.invalidPreview p {
+  margin: 0;
+}
+
+.previewHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.validPreview .previewHeading {
+  color: var(--cSuccess);
+}
+
+.invalidPreview .previewHeading {
+  color: var(--cError);
+}
+
+.errorList {
+  max-height: 160px;
+  overflow-y: auto;
+  margin: 4px 0 0;
+  padding-left: 18px;
+  color: var(--cWhiteV1);
+}
+
+.previewTableWrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.previewTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--body-xs-size);
+}
+
+.previewTable th,
+.previewTable td {
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--cModalBorder);
+  white-space: nowrap;
+}
+
+.previewTable th:first-child,
+.previewTable td:first-child {
+  padding-left: 0;
+}
+
+.previewTable td:nth-child(3) {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.previewTable td:last-child,
+.previewTable th:last-child {
+  padding-right: 0;
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  .fields {
+    grid-template-columns: 1fr;
+  }
+}

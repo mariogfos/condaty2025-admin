@@ -987,3 +987,34 @@
     overflow: hidden;
   }
 }
+
+/* Keep the new access report readable on phones without changing other reports. */
+@media (width <= 1080px) {
+  .accessReport .topCenterControls {
+    width: 100%;
+    max-width: none;
+  }
+
+  .accessReport .previewViewport {
+    width: 100%;
+    max-height: 80vh;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .accessReport .previewScroller {
+    width: var(--page-preview-width);
+    max-width: none;
+    align-items: flex-start;
+  }
+
+  .accessReport .paperPage {
+    aspect-ratio: var(--page-aspect-ratio);
+  }
+
+  .accessReport .paperHeader,
+  .accessReport .paperMeta {
+    flex-direction: row;
+    align-items: center;
+  }
+}

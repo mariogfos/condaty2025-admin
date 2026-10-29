@@ -9,19 +9,34 @@ cloudinary.config({
 
 export async function DELETE(request: Request) {
   try {
-    const { public_id } = await request.json();
+    const { public_id, resource_type = "image" } = await request.json();
 
-    if (!public_id) {
+    if (typeof public_id !== "string" || !public_id.trim()) {
       return NextResponse.json(
         { error: "Public ID is required" },
         { status: 400 }
       );
     }
+    // Esta ruta se usa para fotos. No ampliar un DELETE público a otros recursos.
+    if (resource_type !== "image") {
+      return NextResponse.json(
+        { error: "Only image resources are supported" },
+        { status: 400 }
+      );
+    }
 
-    // Extract public_id if a full URL is provided
-    const extractedPublicId = public_id.includes("res.cloudinary.com")
-      ? public_id.split("/").pop()?.split(".")[0]
-      : public_id;
+    let extractedPublicId = public_id.trim();
+    if (/^https?:\/\//i.test(extractedPublicId)) {
+      const url = new URL(extractedPublicId);
+      const uploadPath = `/${resource_type}/upload/`;
+      const uploadIndex = url.pathname.indexOf(uploadPath);
+      if (url.hostname !== "res.cloudinary.com" || uploadIndex < 0) {
+        return NextResponse.json({ error: "Invalid Cloudinary URL" }, { status: 400 });
+      }
+      extractedPublicId = decodeURIComponent(url.pathname.slice(uploadIndex + uploadPath.length))
+        .replace(/^v\d+\//, "");
+      extractedPublicId = extractedPublicId.replace(/\.[^./]+$/, "");
+    }
 
     if (!extractedPublicId) {
       return NextResponse.json(
@@ -30,9 +45,12 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const result = await cloudinary.uploader.destroy(extractedPublicId);
+    const result = await cloudinary.uploader.destroy(extractedPublicId, {
+      resource_type,
+      invalidate: true,
+    });
 
-    if (result.result === "ok") {
+    if (result.result === "ok" || result.result === "not found") {
       return NextResponse.json(
         { message: "Asset deleted successfully", result },
         { status: 200 }
@@ -40,7 +58,7 @@ export async function DELETE(request: Request) {
     } else {
       return NextResponse.json(
         { error: "Failed to delete asset", result },
-        { status: 500 }
+        { status: 502 }
       );
     }
   } catch (error: any) {

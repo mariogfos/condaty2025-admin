@@ -50,7 +50,6 @@
     "/mis-encuestas": "Mis encuestas",
     "/units": "Unidades",
     "/unittypes": "Tipos de unidades",
-    "/uploads": "Cargas",
     "/users": "Usuarios",
     "/visitors": "Visitantes",
     "/visit-reasons": "Razones de visita",
@@ -181,10 +180,6 @@
     "UnitTypes": {
       "components": ["UnitsTypes", "RenderForm", "RenderView"],
       "path": "src/modulos/UnitTypes"
-    },
-    "Uploads": {
-      "components": ["Uploads"],
-      "path": "src/modulos/Uploads"
     },
     "Visitors": {
       "components": ["Visitors"],

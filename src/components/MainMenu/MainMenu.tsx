@@ -71,7 +71,9 @@ const MainMenu = ({
     return menuConfig
       .map((item: any) => {
         // If the item has a required permission and the user doesn't have it, skip it
-        if (item.perm && !userCan?.(item.perm, "R")) return null;
+        if (item.type === "item" && !isMenuItemVisible(
+          item, (permission, action) => Boolean(userCan?.(permission, action)), isFos,
+        )) return null;
 
         if (item.type === "item") {
           return (

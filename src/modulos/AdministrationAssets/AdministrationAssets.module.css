@@ -1,0 +1,118 @@
+.form {
+  display: grid;
+  gap: 18px;
+  padding: 8px 0;
+}
+
+.grid,
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.field {
+  min-width: 0;
+}
+
+.label {
+  color: var(--cWhiteV1);
+  font-size: 13px;
+  margin: 0 0 6px;
+}
+
+.value {
+  color: var(--cWhite);
+  font-size: 15px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.helper {
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.vehicleEmptyIcon {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+  background: var(--cHoverCompl2);
+  color: var(--cPrimary);
+}
+
+.vehicleActions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.vehicleAction {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--cModalBorder);
+  border-radius: 10px;
+  background: var(--cModalSurfaceRaised);
+  color: var(--cWhite);
+  cursor: pointer;
+}
+
+.vehicleAction:hover,
+.vehicleAction:focus-visible {
+  border-color: var(--cPrimary);
+  color: var(--cPrimary);
+  outline: none;
+}
+
+.deleteAction:hover,
+.deleteAction:focus-visible {
+  border-color: var(--cError);
+  color: var(--cError);
+}
+
+.photo {
+  display: block;
+  width: min(100%, 280px);
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.vehiclePhotos {
+  margin-top: 20px;
+}
+
+.vehiclePhotoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.vehiclePhotoGrid a {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--cModalBorder);
+}
+
+.vehiclePhotoGrid img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 620px) {
+  .grid,
+  .detailGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

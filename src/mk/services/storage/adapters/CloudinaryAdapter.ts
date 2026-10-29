@@ -55,21 +55,17 @@ export class CloudinaryAdapter implements IStorageAdapter {
   }
 
   async delete(file: StorageFile): Promise<void> {
-    try {
-      const response = await fetch("/api/cloudinary-upload", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          public_id: file.path,
-          resource_type: file.resource_type || "raw",
-        }),
-      });
+    const response = await fetch("/api/cloudinary-upload", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        public_id: file.path,
+        resource_type: file.resource_type || "raw",
+      }),
+    });
 
-      if (!response.ok) {
-        console.warn("No se pudo eliminar:", file.path);
-      }
-    } catch (error) {
-      console.error("Cloudinary delete error:", error);
+    if (!response.ok) {
+      throw new Error("No se pudo eliminar el archivo de Cloudinary.");
     }
   }
 

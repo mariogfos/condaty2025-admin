@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { storage } from "@/mk/services/storage/storage.service";
 import { StorageFile } from "@/mk/services/storage/types";
 
 interface PreviewItem {
+  id: number;
   url: string | null;
   size: number;
   originalName: string;
@@ -13,6 +14,7 @@ interface PreviewItem {
   isUploading: boolean;
   file?: File;
   type: "image" | "document";
+  persisted?: boolean;
 }
 
 interface UseFileUploadProps {
@@ -26,18 +28,24 @@ interface UseFileUploadProps {
   showToast: any;
   resetInput?: () => void;
   deleteOldOnReplace?: boolean; // ← NUEVA PROP
+  preserveExistingOnRemove?: boolean;
 }
 
 const extDocuments = ["pdf", "docx", "doc", "xlsx", "xls", "txt", "csv"];
 const extImages = ["jpg", "jpeg", "png", "webp", "heic", "avif"];
 
-const extractPublicId = (url: string): string | null => {
+const extractPublicId = (
+  url: string,
+  resourceType: "image" | "raw",
+): string | null => {
   try {
     const match = url.match(/\/upload\/(?:v\d+\/)?([^?#]+)/);
     if (!match) return null;
 
     let publicId = match[1];
-    publicId = publicId.replace(/\.[^./]+$/, "");
+    if (resourceType === "image") {
+      publicId = publicId.replace(/\.[^./]+$/, "");
+    }
     return publicId;
   } catch {
     return null;
@@ -66,10 +74,44 @@ export const useFileUpload = ({
   showToast,
   resetInput,
   deleteOldOnReplace = true, // ← por defecto elimina la anterior
+  preserveExistingOnRemove = false,
 }: UseFileUploadProps) => {
   const [uploading, setUploading] = useState(false);
-  const [filePreviews, setFilePreviews] = useState<PreviewItem[]>([]);
+  const nextPreviewId = useRef(0);
+  const uploadingRef = useRef(false);
+  const deletingIds = useRef(new Set<number>());
   const isSingle = cant === 1;
+  const [filePreviews, setFilePreviews] = useState<PreviewItem[]>(() => {
+    const rawValue = formState?.[name];
+    const initialUrls: string[] = Array.isArray(rawValue)
+      ? rawValue.filter((url): url is string => typeof url === "string" && Boolean(url))
+      : typeof rawValue === "string" && rawValue
+        ? [rawValue]
+        : [];
+
+    return initialUrls.map((url) => {
+      const encodedName = url.split("/").pop()?.split("?")[0] || "archivo";
+      let originalName = encodedName;
+      try {
+        originalName = decodeURIComponent(encodedName);
+      } catch {
+        // Una URL antigua mal codificada no debe dejar inoperable el formulario.
+      }
+      const type = getFileType(originalName);
+
+      return {
+        id: ++nextPreviewId.current,
+        url,
+        size: 0,
+        originalName,
+        publicId: extractPublicId(url, type === "image" ? "image" : "raw"),
+        resourceType: type === "image" ? "image" : "raw",
+        isUploading: false,
+        type,
+        persisted: true,
+      };
+    });
+  });
 
   const allowedExtensions = new Set(
     mode === "images"
@@ -86,40 +128,6 @@ export const useFileUpload = ({
         ? "documentos"
         : "imágenes o documentos";
 
-  // Cargar archivos existentes al montar
-  useEffect(() => {
-    const rawValue = formState?.[name];
-
-    const initialUrls: string[] = Array.isArray(rawValue)
-      ? rawValue
-      : typeof rawValue === "string" && rawValue
-        ? [rawValue]
-        : [];
-
-    if (initialUrls.length > 0) {
-      const existingPreviews: PreviewItem[] = initialUrls.map((url) => {
-        const originalName = decodeURIComponent(
-          url?.split("/")?.pop()?.split("?")[0] || "archivo",
-        );
-        const type = getFileType(originalName);
-
-        return {
-          url,
-          size: 0,
-          originalName,
-          publicId: extractPublicId(url),
-          resourceType: type === "image" ? "image" : "raw",
-          isUploading: false,
-          type,
-        };
-      });
-
-      setFilePreviews(existingPreviews);
-    } else {
-      setFilePreviews([]);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   // Sincronizar URLs completadas con el formState
   useEffect(() => {
     const completedUrls = filePreviews
@@ -127,7 +135,12 @@ export const useFileUpload = ({
       .map((item) => item.url as string);
 
     setFormState((prev: any) => {
-      const prevUrls = prev?.[name] || [];
+      const prevValue = prev?.[name];
+      const prevUrls = Array.isArray(prevValue)
+        ? prevValue
+        : typeof prevValue === "string" && prevValue
+          ? [prevValue]
+          : [];
       if (
         prevUrls.length === completedUrls.length &&
         prevUrls.every((url: string, i: number) => url === completedUrls[i])
@@ -141,9 +154,15 @@ export const useFileUpload = ({
   const handleFiles = useCallback(
     async (files: FileList | null) => {
       if (!files || files.length === 0) return;
+      if (uploadingRef.current) {
+        showToast(
+          "Espera a que termine la subida actual antes de añadir más archivos.",
+          "info",
+        );
+        return;
+      }
 
-      let fileArray = Array.from(files);
-      let validFiles = fileArray.filter((file) => {
+      let validFiles = Array.from(files).filter((file) => {
         const ext = file.name.toLowerCase().split(".").pop() || "";
         return allowedExtensions.has(ext) && file.size <= maxMB * 1024 * 1024;
       });
@@ -186,8 +205,7 @@ export const useFileUpload = ({
         }
       } else {
         // Modo múltiple: validar cantidad
-        const currentValues: string[] = formState?.[name] || [];
-        if (currentValues.length + validFiles.length > cant) {
+        if (filePreviews.length + validFiles.length > cant) {
           showToast(`Máximo ${cant} archivos permitidos`, "error");
           return;
         }
@@ -199,6 +217,7 @@ export const useFileUpload = ({
         const previewUrl =
           fileType === "image" ? URL.createObjectURL(file) : null;
         return {
+          id: ++nextPreviewId.current,
           url: previewUrl,
           size: file.size,
           originalName: file.name,
@@ -215,6 +234,7 @@ export const useFileUpload = ({
         isSingle ? newPreviews : [...newPreviews, ...prev],
       );
 
+      uploadingRef.current = true;
       setUploading(true);
       onUploadStateChange?.(true);
 
@@ -226,15 +246,16 @@ export const useFileUpload = ({
       try {
         const results = await Promise.allSettled(uploadPromises);
         const hasError = results.some((result) => result.status === "rejected");
+        const resultsById = new Map(
+          newPreviews.map((preview, index) => [preview.id, results[index]] as const),
+        );
 
         setFilePreviews((prev) => {
           const kept: PreviewItem[] = [];
-          let newIdx = 0;
 
           prev.forEach((p) => {
-            if (p.isUploading && p.file) {
-              const result = results[newIdx];
-              newIdx++;
+            const result = resultsById.get(p.id);
+            if (p.isUploading && p.file && result) {
               if (result.status === "fulfilled") {
                 const uploaded: any = result.value;
                 if (p.type === "image" && p.url?.startsWith("blob:")) {
@@ -289,6 +310,15 @@ export const useFileUpload = ({
         }
       } catch (error) {
         console.error("Error en upload batch", error);
+        newPreviews.forEach((preview) => {
+          if (preview.type === "image" && preview.url?.startsWith("blob:")) {
+            URL.revokeObjectURL(preview.url);
+          }
+        });
+        const newIds = new Set(newPreviews.map((preview) => preview.id));
+        setFilePreviews((prev) =>
+          prev.filter((preview) => !newIds.has(preview.id)),
+        );
         if (isSingle && oldPreview) {
           setFilePreviews([oldPreview]);
           showToast(
@@ -297,6 +327,7 @@ export const useFileUpload = ({
           );
         }
       } finally {
+        uploadingRef.current = false;
         setUploading(false);
         onUploadStateChange?.(false);
         resetInput?.();
@@ -315,6 +346,7 @@ export const useFileUpload = ({
       resetInput,
       showToast,
       deleteOldOnReplace,
+      filePreviews,
     ],
   );
 
@@ -322,30 +354,47 @@ export const useFileUpload = ({
     async (index: number) => {
       const item = filePreviews[index];
       if (!item) return;
+      if (uploadingRef.current) {
+        showToast(
+          "Espera a que termine la subida antes de quitar una foto.",
+          "info",
+        );
+        return;
+      }
+      if (deletingIds.current.has(item.id)) return;
+      deletingIds.current.add(item.id);
 
-      if (!item.isUploading && item.publicId) {
-        try {
+      try {
+        if (
+          !item.isUploading &&
+          item.publicId &&
+          !(preserveExistingOnRemove && item.persisted)
+        ) {
           await storage.delete({
             path: item.publicId,
             url: item.url || "",
             name: item.originalName,
             resource_type: item.resourceType,
           });
-        } catch (error) {
-          console.error("Error eliminando de Cloudinary:", error);
-          showToast(
-            "No se pudo eliminar el archivo del servidor. Intenta de nuevo.",
-            "error",
-          );
         }
-      }
 
-      if (item.type === "image" && item.url?.startsWith("blob:")) {
-        URL.revokeObjectURL(item.url);
+        if (item.type === "image" && item.url?.startsWith("blob:")) {
+          URL.revokeObjectURL(item.url);
+        }
+        setFilePreviews((prev) =>
+          prev.filter((preview) => preview.id !== item.id),
+        );
+      } catch (error) {
+        console.error("Error eliminando de Cloudinary:", error);
+        showToast(
+          "No se pudo eliminar el archivo del servidor. Intenta de nuevo.",
+          "error",
+        );
+      } finally {
+        deletingIds.current.delete(item.id);
       }
-      setFilePreviews((prev) => prev.filter((_, i) => i !== index));
     },
-    [filePreviews, showToast],
+    [filePreviews, preserveExistingOnRemove, showToast],
   );
 
   return {
