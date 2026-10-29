@@ -71,11 +71,12 @@ describe('graph adapters', () => {
     }
   });
 
-  it('restores line colors after the transparent separators of a bar chart', () => {
-    const colors = ['#3b82f6', '#10b981', '#f97316', '#d946ef'];
+  it.each([false, true])('restores line colors after bar separators (area: %s)', (area) => {
+    const colors = ['#8b98a8', '#00e38c', '#f2a65a', '#8ea7ff'];
     const previousBars = GraphAdapterBar(chartData, { variant: 'dashboard', barGap: 3 }).options;
-    const { options } = GraphAdapterLine(chartData, { variant: 'dashboard', colors }, previousBars);
+    const { options } = GraphAdapterLine(chartData, { variant: 'dashboard', colors, area }, previousBars);
 
-    expect(options.stroke).toMatchObject({ show: true, width: 2.5, colors });
+    expect(options.stroke).toMatchObject({ show: true, width: area ? [2, 2.5, 2.5, 3] : 2.5, colors });
+    expect(options.fill?.type).toBe(area ? 'gradient' : 'solid');
   });
 });
