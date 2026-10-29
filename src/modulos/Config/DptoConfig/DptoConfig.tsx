@@ -217,9 +217,6 @@ const createFormState = (client_config: Record<string, any>) => ({
     Number(client_config?.has_maintenance_value) === 1 ||
     client_config?.has_maintenance_value === true ||
     client_config?.has_maintenance_value === "Y",
-  has_financial_data: Number(client_config?.has_financial_data) === 1,
-  has_financial_debt: Number(client_config?.has_financial_debt) === 1,
-  financial_mode: client_config?.financial_mode || 0,
   has_soft_reservation:
     Number(client_config?.has_soft_reservation) === 1 ||
     client_config?.has_soft_reservation === true ||
@@ -232,10 +229,6 @@ const createFormState = (client_config: Record<string, any>) => ({
     client_config?.operational_permissions_config,
     client_config,
   ),
-  has_tasks_visible:
-    Number(client_config?.has_tasks_visible) === 1 ||
-    client_config?.has_tasks_visible === true ||
-    client_config?.has_tasks_visible === "Y",
   bookingRequiresPayment: Number(client_config?.payment_time_limit) > 0,
   payment_time_limit:
     Number(client_config?.payment_time_limit) > 0
@@ -281,7 +274,6 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
   const [openAccordions, setOpenAccordions] = useState({
     reservas: true,
     finanzas: true,
-    tareas: true,
   });
 
   const [errors, setErrors]: any = useState({});
@@ -320,7 +312,7 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
   const bannerUrl = getSingleUrl(formState.url_banner);
   const printLogoUrl = getSingleUrl(formState.url_logo_print);
   const firstFieldQuery = isRulesMode
-    ? 'input[name="payment_time_limit"], [name="financial_mode"]'
+    ? 'input[name="payment_time_limit"]'
     : 'input[name="name"]';
   const isDirty =
     JSON.stringify(getComparableState(formState)) !==
@@ -337,7 +329,6 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
       setOpenAccordions({
         reservas: true,
         finanzas: true,
-        tareas: true,
       });
     }
   }, [isRulesMode]);
@@ -373,20 +364,6 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
         ...prev,
         has_maintenance_value: isEnabled,
       }));
-    } else if (name === "has_financial_data") {
-      const isEnabled = value === "1" || value === 1 || value === true;
-
-      setFormState((prev: any) => ({
-        ...prev,
-        has_financial_data: isEnabled,
-      }));
-    } else if (name === "has_financial_debt") {
-      const isEnabled = value === "1" || value === 1 || value === true;
-
-      setFormState((prev: any) => ({
-        ...prev,
-        has_financial_debt: isEnabled,
-      }));
     } else if (name === "has_soft_reservation") {
       const isEnabled = value === "Y";
 
@@ -400,13 +377,6 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
       setFormState((prev: any) => ({
         ...prev,
         has_reservation_advance_limit: isEnabled,
-      }));
-    } else if (name === "has_tasks_visible") {
-      const isEnabled = value === "Y";
-
-      setFormState((prev: any) => ({
-        ...prev,
-        has_tasks_visible: isEnabled,
       }));
     }
   };
@@ -599,16 +569,6 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
       }
     }
 
-    if (formState?.has_financial_debt && formState?.has_financial_data) {
-      nextErrors = checkRules({
-        value: formState.financial_mode,
-        rules: ["required"],
-        key: "financial_mode",
-        errors: nextErrors,
-        data: formState,
-      });
-    }
-
     const paymentMethodsConfig = normalizePaymentMethodsConfig(
       formState.payment_methods_config,
     );
@@ -678,7 +638,7 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
     setEditMode(false);
   };
 
-  const toggleAccordion = (key: "reservas" | "finanzas" | "tareas") => {
+  const toggleAccordion = (key: "reservas" | "finanzas") => {
     setOpenAccordions((prev) => ({
       ...prev,
       [key]: !prev[key],
@@ -715,7 +675,7 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
           </h1>
           <p className={styles.mainSubtitle}>
             {isRulesMode
-              ? "Ordena las reglas del condominio por modulo para reservas, finanzas y tareas sin mezclar la identidad visual con la operacion."
+              ? "Configura reservas, pagos y mantenimiento del condominio."
               : "Organiza la identidad, contacto y base operativa del condominio."}
           </p>
         </div>
@@ -1284,10 +1244,9 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
               onClick={() => toggleAccordion("finanzas")}
             >
               <div className={styles.accordionHeaderContent}>
-                <p className={styles.textTitle}>Finanzas</p>
+                <p className={styles.textTitle}>Pagos y mantenimiento</p>
                 <p className={styles.textSubtitle}>
-                  Visibilidad del resumen financiero y reglas de deuda del
-                  condominio.
+                  Métodos de pago y mantenimiento de valor del condominio.
                 </p>
               </div>
               <ChevronDown
@@ -1399,117 +1358,6 @@ const DptoConfig = ({ client_config, onSave, mode = "condo" }: PropsType) => {
                   />
                 )}
 
-                <div className={styles.sectionDivider} />
-
-                <div className={styles.switchContainer}>
-                  <div className={styles.switchContent}>
-                    <p className={styles.textTitle}>
-                      Mostrar resumen financiero
-                    </p>
-                    <p className={styles.textSubtitle}>
-                      Habilita el resumen financiero en la vista principal del
-                      condominio.
-                    </p>
-                  </div>
-                  <Switch
-                    name="has_financial_data"
-                    label=""
-                    value={formState.has_financial_data ? "1" : "0"}
-                    onChange={handleSwitchChange}
-                    optionValue={["1", "0"]}
-                    checked={formState.has_financial_data}
-                    disabled={!editMode}
-                  />
-                </div>
-
-                {formState.has_financial_data && (
-                  <>
-                    <div className={styles.switchContainer}>
-                      <div className={styles.switchContent}>
-                        <p className={styles.textTitle}>Mostrar deudas</p>
-                        <p className={styles.textSubtitle}>
-                          Incluye deudas dentro del resumen financiero del
-                          condominio.
-                        </p>
-                      </div>
-                      <Switch
-                        name="has_financial_debt"
-                        label=""
-                        value={formState.has_financial_debt ? "1" : "0"}
-                        onChange={handleSwitchChange}
-                        optionValue={["1", "0"]}
-                        checked={formState.has_financial_debt}
-                        disabled={!editMode}
-                      />
-                    </div>
-
-                    {formState.has_financial_debt && (
-                      <Select
-                        name="financial_mode"
-                        label="Modo de finanzas"
-                        value={formState.financial_mode}
-                        onChange={handleChange}
-                        options={[
-                          { id: 1, name: "Solo expensas" },
-                          { id: 2, name: "Expensas y multas separados" },
-                          { id: 3, name: "Expensas y multas juntos" },
-                        ]}
-                        error={errors}
-                        disabled={!editMode}
-                      />
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          </section>
-
-          <section className={styles.formCard}>
-            <button
-              type="button"
-              className={styles.accordionHeader}
-              onClick={() => toggleAccordion("tareas")}
-            >
-              <div className={styles.accordionHeaderContent}>
-                <p className={styles.textTitle}>Tareas y visibilidad</p>
-                <p className={styles.textSubtitle}>
-                  Define cómo nacen los flujos de tareas para los residentes.
-                </p>
-              </div>
-              <ChevronDown
-                size={18}
-                strokeWidth={1.8}
-                className={`${styles.accordionChevron} ${openAccordions.tareas ? styles.accordionChevronOpen : ""}`}
-              />
-            </button>
-            {openAccordions.tareas && (
-              <div className={styles.accordionDivider} />
-            )}
-
-            <div
-              className={`${styles.accordionBody} ${openAccordions.tareas ? styles.accordionBodyOpen : ""}`}
-            >
-              <div className={styles.settingsStack}>
-                <div className={styles.switchContainer}>
-                  <div className={styles.switchContent}>
-                    <p className={styles.textTitle}>
-                      Tareas visibles para residentes por defecto
-                    </p>
-                    <p className={styles.textSubtitle}>
-                      Define si las tareas nuevas nacen públicas o privadas para
-                      los residentes.
-                    </p>
-                  </div>
-                  <Switch
-                    name="has_tasks_visible"
-                    label=""
-                    value={formState.has_tasks_visible ? "Y" : "N"}
-                    onChange={handleSwitchChange}
-                    optionValue={["Y", "N"]}
-                    checked={formState.has_tasks_visible}
-                    disabled={!editMode}
-                  />
-                </div>
               </div>
             </div>
           </section>

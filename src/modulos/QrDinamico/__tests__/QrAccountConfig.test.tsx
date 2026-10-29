@@ -1,6 +1,6 @@
 import { createRef } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import QrAccountConfig, {
   QrAccountConfigHandle,
 } from "../QrAccountConfig/QrAccountConfig";
@@ -22,6 +22,8 @@ const CONFIG = {
   qr_dynamic_account_reference: "CTA-001",
   has_credentials: true,
   qr_dynamic_username_masked: "co•••••er",
+  environment: "S",
+  active_environment: "S",
 };
 
 const PROVIDERS = [{ id: "uuid-bg", bank_code: "BG", bank_name: "Banco Ganadero" }];
@@ -39,7 +41,11 @@ const mockApi = () => {
 describe("QrAccountConfig (DES-20/21)", () => {
   beforeEach(() => {
     executeMock.mockReset();
+    const portal = document.createElement("div");
+    portal.id = "portal-root";
+    document.body.appendChild(portal);
   });
+  afterEach(() => document.getElementById("portal-root")?.remove());
 
   it("muestra el usuario enmascarado y nunca una credencial en claro", async () => {
     mockApi();
@@ -81,8 +87,51 @@ describe("QrAccountConfig (DES-20/21)", () => {
       expect(putCall).toBeTruthy();
       // Solo la referencia: ni credenciales vacías ni el toggle sin tocar
       expect(putCall?.[2]).toEqual({
+        environment: "S",
         qr_dynamic_account_reference: "CTA-002",
       });
+    });
+  });
+
+  it("consulta y guarda las credenciales del ambiente seleccionado", async () => {
+    executeMock.mockImplementation(async (url: string, method: string) => {
+      if (url.includes("/providers"))
+        return { data: { success: true, data: { providers: PROVIDERS } } };
+      if (method === "GET") {
+        const production = url.includes("environment=P");
+        return {
+          data: {
+            success: true,
+            data: {
+              ...CONFIG,
+              environment: production ? "P" : "S",
+              qr_dynamic_account_reference: production ? "PROD-REF" : "CTA-001",
+            },
+          },
+        };
+      }
+      return { data: { success: true, data: CONFIG } };
+    });
+    const ref = createRef<QrAccountConfigHandle>();
+    const { container } = render(<QrAccountConfig ref={ref} bankAccountId={7} />);
+    await waitFor(() => expect(screen.getByRole("button", { name: /Pruebas/ })).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole("button", { name: /Pruebas/ }));
+    fireEvent.click(screen.getByText("Producción"));
+    await waitFor(() =>
+      expect(
+        (container.querySelector('input[name="qr_dynamic_account_reference"]') as HTMLInputElement).value,
+      ).toBe("PROD-REF"),
+    );
+
+    fireEvent.change(
+      container.querySelector('input[name="qr_dynamic_account_reference"]') as HTMLInputElement,
+      { target: { name: "qr_dynamic_account_reference", value: "PROD-NUEVA" } },
+    );
+    await ref.current!.save();
+    expect(executeMock.mock.calls.find((call) => call[1] === "PUT")?.[2]).toEqual({
+      environment: "P",
+      qr_dynamic_account_reference: "PROD-NUEVA",
     });
   });
 

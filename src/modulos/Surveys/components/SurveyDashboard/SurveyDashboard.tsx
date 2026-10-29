@@ -186,7 +186,7 @@ export const SurveyDashboard: React.FC<SurveyDashboardProps> = ({
               {q.text_responses_sample?.length > 0 ? (
                 q.text_responses_sample.map((text: string, i: number) => (
                   <div key={i} className={styles.commentItem}>
-                    "{text}"
+                    &quot;{text}&quot;
                   </div>
                 ))
               ) : (

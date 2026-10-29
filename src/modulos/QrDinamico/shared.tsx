@@ -67,7 +67,6 @@ export type QrAccountState = "active" | "incomplete" | "disabled";
 export const qrAccountState = (account: any): QrAccountState => {
   if (!account?.qr_dynamic_enabled) return "disabled";
   return account.qr_dynamic_bank_id &&
-    account.qr_dynamic_account_reference &&
     account.qr_dynamic_has_credentials
     ? "active"
     : "incomplete";

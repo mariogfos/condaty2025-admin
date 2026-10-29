@@ -5,6 +5,10 @@ import styles from "./FinancialDetail.module.css";
 import type { FinancialAuditEvent } from "./types";
 
 const ACTION_LABELS: Record<string, string> = {
+  debt_components_updated: "Capital y multa corregidos por integración",
+  integration_payment_created: "Ingreso registrado por integración",
+  integration_payment_applied: "Ingreso aplicado por integración",
+  integration_payment_changed: "Ingreso actualizado por integración",
   debt_created: "Deuda creada",
   payment_created: "Ingreso registrado",
   expense_created: "Egreso registrado",
@@ -18,15 +22,23 @@ const ACTION_LABELS: Record<string, string> = {
   payment_state_checked: "Estado del pago verificado",
   payment_state_repaired: "Estado del pago reparado",
   payment_date_updated: "Fecha de pago editada",
+  expense_supplier_updated: "Proveedor del egreso editado",
 };
 
 const FIELD_LABELS: Record<string, string> = {
+  principal_amount: "Capital",
+  total_amount: "Total de la deuda",
+  outstanding_amount: "Saldo pendiente",
+  confirmed_paid_amount: "Pagos confirmados",
+  pending_paid_amount: "Pagos por confirmar",
   amount: "Monto",
   allocated_amount: "Monto aplicado",
   penalty_amount: "Multa",
   paid_at: "Fecha de pago",
   status: "Estado",
   payment_id: "Pago vinculado",
+  supplier_id: "Proveedor (ID)",
+  supplier_name: "Proveedor",
   remaining_amount: "Saldo principal",
   total_remaining_amount: "Saldo total",
   is_partial: "Pago parcial",

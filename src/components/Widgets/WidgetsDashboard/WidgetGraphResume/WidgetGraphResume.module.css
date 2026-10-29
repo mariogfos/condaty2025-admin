@@ -87,14 +87,59 @@
   display: flex;
   min-width: 0;
   margin-bottom: 8px;
+  gap: 12px;
   align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .titleBlock {
   display: flex;
   min-width: 0;
   flex-direction: column;
+}
+
+.chartTypeSelector {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 3px;
+  gap: 2px;
+  background: var(--cNeutral-950, #0c1014);
+  border: 1px solid var(--home-border, rgba(174, 185, 198, 0.12));
+  border-radius: 10px;
+}
+
+.chartTypeButton {
+  display: inline-flex;
+  min-height: 32px;
+  padding: 6px 10px;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  color: var(--cNeutral-400);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.chartTypeButton:hover {
+  color: var(--cWhite);
+  background: rgba(174, 185, 198, 0.08);
+}
+
+.chartTypeButton[aria-pressed="true"] {
+  color: var(--cPrimary);
+  background: color-mix(in srgb, var(--cPrimary) 12%, transparent);
+}
+
+.chartTypeButton:focus-visible {
+  outline: 2px solid var(--cPrimary);
+  outline-offset: 2px;
 }
 
 .title {
@@ -136,6 +181,8 @@
   z-index: 1;
   min-width: 0;
   margin: 0 -4px;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 
 .seriesLegend {

@@ -13,14 +13,15 @@ type Props = {
   balance: FinancialFlowData;
   chartType?: ChartType;
   height?: number | string;
+  barGap?: number;
   seriesNames?: [string, string, string, string];
 };
 
 export const FINANCIAL_FLOW_COLORS = [
-  "#8b98a8",
-  "#00e38c",
-  "#f2a65a",
-  "#8ea7ff",
+  "#3b82f6",
+  "#10b981",
+  "#f97316",
+  "#d946ef",
 ];
 
 const DEFAULT_SERIES_NAMES = [
@@ -35,6 +36,7 @@ export default function FinancialFlowChart({
   balance,
   chartType = "area",
   height = 310,
+  barGap,
   seriesNames = DEFAULT_SERIES_NAMES,
 }: Props) {
   return (
@@ -53,6 +55,7 @@ export default function FinancialFlowChart({
         height,
         variant: "dashboard",
         colors: FINANCIAL_FLOW_COLORS,
+        ...(barGap !== undefined && { barGap }),
       }}
     />
   );

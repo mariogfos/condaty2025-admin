@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { fireEvent, render, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import QrDinamico from "../QrDinamico";
 
@@ -184,5 +184,47 @@ describe("QrDinamico — órdenes (QR-13)", () => {
         page: "1",
       });
     });
+  });
+
+  it("muestra incidencias abiertas y permite reverificar sin ofrecer una confirmación manual", async () => {
+    executeMock.mockImplementation(async (url: string) => {
+      if (url.includes('/verify')) {
+        return { data: { success: true, data: { order_state: 1 }, message: 'El banco aún no confirmó la acreditación.' } };
+      }
+      return {
+        data: {
+          success: true,
+          data: {
+            open_incidents_count: 1,
+            items: [{
+              id: 'qr-incidente', reference: 'CONDATY-INC', amount: '300.00', currency: 'BOB',
+              order_state: 1, payment_type: 'T', order_date: '2026-10-15',
+              pay_date: null, expiration_date: '2026-10-20', single_use: true,
+              reconciliation_incident: {
+                reason_code: 'debt_changed', bank_transaction_id: 'TX-1', attempts: 2,
+                first_detected_at: '2026-10-15T12:00:00Z', last_detected_at: '2026-10-15T12:05:00Z',
+                resolved_at: null,
+              },
+            }],
+            pagination: { current_page: 1, last_page: 1, total: 1 },
+          },
+        },
+      };
+    });
+
+    const { container, getByText } = render(<QrDinamico />);
+    await waitFor(() => expect(getByText('Por conciliar (1)')).toBeTruthy());
+    fireEvent.click(container.querySelector('#tab-incidents') as HTMLButtonElement);
+    await waitFor(() => {
+      const call = ordersCalls().find((c) => c[2]?.reconciliation === 'open');
+      expect(call?.[2]).toEqual({ reconciliation: 'open', per_page: '40', page: '1' });
+    });
+
+    fireEvent.click(container.querySelector('#btn-view-qr-incidente') as HTMLButtonElement);
+    expect(getByText('Cobro bancario por conciliar')).toBeTruthy();
+    expect(container.textContent).toContain('TX-1');
+    fireEvent.click(container.querySelector('#btn-verify-incident') as HTMLButtonElement);
+    await waitFor(() => expect(executeMock.mock.calls.some((c) => String(c[0]).includes('/verify'))).toBe(true));
+    expect(container.textContent).not.toContain('Marcar como conciliado');
   });
 });

@@ -7,6 +7,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import DefaulterConfig from "./DefaulterConfig/DefaulterConfig";
 import PaymentsConfig from "./PaymentsConfig/PaymentsConfig";
 import DptoConfig from "./DptoConfig/DptoConfig";
+import FeaturesConfig from "./FeaturesConfig/FeaturesConfig";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
@@ -55,6 +56,7 @@ const Config = () => {
           <TabsButtons
             tabs={[
               { value: "C", text: "Condominio" },
+              { value: "F", text: "Funcionalidades" },
               { value: "R", text: "Reglas Operativas" },
               { value: "P", text: "Cuentas de pagos" },
               { value: "M", text: "Morosidad" },
@@ -89,6 +91,14 @@ const Config = () => {
         {typeSearch == "C" && (
           <LoadingScreen>
             <DptoConfig
+              client_config={client_config?.data?.[0]}
+              onSave={onSave}
+            />
+          </LoadingScreen>
+        )}
+        {typeSearch == "F" && (
+          <LoadingScreen>
+            <FeaturesConfig
               client_config={client_config?.data?.[0]}
               onSave={onSave}
             />

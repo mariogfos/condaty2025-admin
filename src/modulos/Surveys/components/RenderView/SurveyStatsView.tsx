@@ -82,7 +82,7 @@ function QuestionChart({
               const matchesUser = userResponse && r === userResponse;
               return (
                 <li key={i} className={matchesUser ? styles.myResponse : ""}>
-                  "{r}"{" "}
+                  &quot;{r}&quot;{" "}
                   {matchesUser && (
                     <span className={styles.userTag}>(Tu respuesta)</span>
                   )}

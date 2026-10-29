@@ -101,7 +101,7 @@ describe("qrAccountState", () => {
     expect(qrAccountState({})).toBe("disabled");
   });
 
-  it("incompleto si falta el proveedor o la referencia", () => {
+  it("incompleto si falta el proveedor o las credenciales del ambiente activo", () => {
     expect(
       qrAccountState({
         qr_dynamic_enabled: true,
@@ -113,25 +113,23 @@ describe("qrAccountState", () => {
     ).toBe("incomplete");
   });
 
-  it("incompleto si tiene proveedor y referencia pero no credenciales", () => {
+  it("incompleto si tiene proveedor pero no credenciales del ambiente activo", () => {
     // Sin este caso una cuenta que no puede cobrar se anunciaba como Activo:
     // las credenciales son $hidden y el listado no las trae.
     expect(
       qrAccountState({
         qr_dynamic_enabled: true,
         qr_dynamic_bank_id: "uuid-bg",
-        qr_dynamic_account_reference: "CTA-001",
         qr_dynamic_has_credentials: false,
       }),
     ).toBe("incomplete");
   });
 
-  it("activo solo con proveedor, referencia y credenciales", () => {
+  it("activo solo con proveedor y credenciales del ambiente activo", () => {
     expect(
       qrAccountState({
         qr_dynamic_enabled: true,
         qr_dynamic_bank_id: "uuid-bg",
-        qr_dynamic_account_reference: "CTA-001",
         qr_dynamic_has_credentials: true,
       }),
     ).toBe("active");

@@ -1,3 +1,5 @@
+import { FileChartColumn } from "lucide-react";
+import { reportPermissions } from "@/modulos/Reports/reportCatalog";
 import {
   IconHome,
   IconPayments,
@@ -17,6 +19,8 @@ export type MenuConfigItem =
       href: string;
       labelKey: string;
       perm: string;
+      anyPermissions?: readonly string[];
+      skipAsLanding?: boolean;
       icon: any;
       badgeKey?: string;
     }
@@ -31,11 +35,13 @@ export type MenuConfigItem =
         labelKey: string;
         badgeKey?: string;
         fosOnly?: boolean;
+        skipAsLanding?: boolean;
       }>;
     };
 
 export const menuConfig: MenuConfigItem[] = [
   { type: "item", href: "/", labelKey: "home", perm: "home", icon: IconHome },
+  { type: "item", href: "/reports", labelKey: "Reportes", perm: "", anyPermissions: reportPermissions, skipAsLanding: true, icon: FileChartColumn },
   /* {
     type: "item",
     href: "/tasks",
@@ -53,7 +59,6 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/superadmins", perm: "superadmins", labelKey: "superadmins" },
       { href: "/condominios", perm: "condominios", labelKey: "condominiums" },
       { href: "/invitations", perm: "campanas", labelKey: "qrInvitations" },
-      { href: "/uploads", perm: "cargamasiva", labelKey: "bulkUpload" },
       { href: "/app-versions", perm: "superadmins", labelKey: "appVersions" },
       {
         href: "/bank-provider-tester",
@@ -71,7 +76,14 @@ export const menuConfig: MenuConfigItem[] = [
         perm: "superadmins",
         labelKey: "presenceMonitoring",
       },
+      {
+        href: "/marketplace",
+        perm: "superadmins",
+        labelKey: "marketplace",
+        fosOnly: true,
+      },
       { href: "/history", perm: "superadmins", labelKey: "history" },
+      { href: "/api-integrations", perm: "superadmins", labelKey: "apiIntegrations", fosOnly: true },
       {
         href: "/visit-reasons",
         perm: "visit_reasons",
@@ -93,6 +105,7 @@ export const menuConfig: MenuConfigItem[] = [
         badgeKey: "paymentsBage",
       },
       { href: "/outlays", labelKey: "outlays", perm: "outlays" },
+      { href: "/cheques", labelKey: "cheques", perm: "outlays" },
       { href: "/expenses", labelKey: "condominiumFees", perm: "expenses" },
       { href: "/defaulters", labelKey: "defaulters", perm: "defaulters" },
       { href: "/debts_manager", labelKey: "debts", perm: "debts_manager" },
@@ -127,6 +140,9 @@ export const menuConfig: MenuConfigItem[] = [
     key: "Administración",
     items: [
       { href: "/units", perm: "units", labelKey: "units" },
+      { href: "/pets", perm: "owners", labelKey: "pets", skipAsLanding: true },
+      { href: "/vehicles", perm: "units", labelKey: "vehicles", skipAsLanding: true },
+      { href: "/suppliers", perm: "outlays", labelKey: "suppliers" },
       { href: "/assemblies", perm: "units", labelKey: "assemblies" },
       { href: "/documents", perm: "documents", labelKey: "documents" },
       { href: "/configs", perm: "settings", labelKey: "settings" },
@@ -217,12 +233,13 @@ export const menuConfig: MenuConfigItem[] = [
 ];
 
 export const isMenuItemVisible = (
-  item: { perm: string; fosOnly?: boolean },
+  item: { perm: string; fosOnly?: boolean; anyPermissions?: readonly string[] },
   canAccess: (permission: string, action: string) => boolean,
   isFos = false,
 ): boolean =>
   (!item.fosOnly || isFos) &&
-  (!item.perm || canAccess(item.perm, "R"));
+  (!item.perm || canAccess(item.perm, "R")) &&
+  (!item.anyPermissions || item.anyPermissions.some((permission) => canAccess(permission, "R")));
 
 export const getFirstAccessibleMenuRoute = (
   canAccess: (permission: string, action: string) => boolean,
@@ -230,14 +247,14 @@ export const getFirstAccessibleMenuRoute = (
 ): string | null => {
   for (const item of menuConfig) {
     if (item.type === "item") {
-      if (item.href !== "/" && (!item.perm || canAccess(item.perm, "R"))) {
+      if (item.href !== "/" && !item.skipAsLanding && isMenuItemVisible(item, canAccess, isFos)) {
         return item.href;
       }
       continue;
     }
 
     const firstAccessibleItem = item.items.find((subitem) =>
-      isMenuItemVisible(subitem, canAccess, isFos),
+      !subitem.skipAsLanding && isMenuItemVisible(subitem, canAccess, isFos),
     );
 
     if (firstAccessibleItem) {

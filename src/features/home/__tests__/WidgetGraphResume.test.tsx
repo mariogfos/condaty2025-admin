@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import WidgetGraphResume from "@/components/Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume";
 import GraphAdapterLine from "@/mk/components/ui/Graphs/GraphAdapterLine";
 
@@ -18,6 +18,9 @@ vi.mock("@/i18n/useScopedI18n", () => ({
           balancedCashFlow: "Flujo equilibrado",
           balancedInsight: "En {month}, el flujo quedó equilibrado.",
           bar: "Barra",
+          barsView: "Barras",
+          linesView: "Líneas",
+          chartTypeLabel: "Tipo de gráfica",
           cumulativeBalance: "Saldo acumulado",
           firstRecordedMonth: "Primer mes con movimientos",
           incomes: "Ingresos",
@@ -59,7 +62,11 @@ vi.mock("@/mk/components/ui/Graphs/GraphBase", () => ({
 }));
 
 describe("gráfica financiera del inicio", () => {
-  it("muestra cuatro series de área y una lectura operativa del último mes", () => {
+  beforeEach(() => {
+    mocks.graphProps.mockClear();
+  });
+
+  it("muestra barras por defecto y una lectura operativa del último mes", () => {
     render(
       <WidgetGraphResume
         saldoInicial={100}
@@ -77,7 +84,7 @@ describe("gráfica financiera del inicio", () => {
 
     expect(mocks.graphProps).toHaveBeenCalledWith(
       expect.objectContaining({
-        chartTypes: ["area"],
+        chartTypes: ["bar"],
         data: expect.objectContaining({
           values: expect.arrayContaining([
             expect.objectContaining({
@@ -87,10 +94,15 @@ describe("gráfica financiera del inicio", () => {
           ]),
         }),
         options: expect.objectContaining({
-          colors: ["#8b98a8", "#00e38c", "#f2a65a", "#8ea7ff"],
+          colors: ["#3b82f6", "#10b981", "#f97316", "#d946ef"],
           variant: "dashboard",
+          barGap: 3,
         }),
       }),
+    );
+    expect(screen.getByRole("button", { name: "Barras" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
     );
     expect(screen.getByLabelText("Lectura del periodo")).toBeInTheDocument();
     expect(screen.getByText("Requiere atención")).toBeInTheDocument();
@@ -99,7 +111,57 @@ describe("gráfica financiera del inicio", () => {
     ).toBeInTheDocument();
   });
 
-  it("configura curvas suaves, puntos y rellenos degradados por serie", () => {
+  it("alterna entre barras y líneas conservando los datos y la selección al actualizar importes", () => {
+    const props = {
+      saldoInicial: 100,
+      ingresos: [{ amount: 200, mes: 1 }],
+      egresos: [{ amount: 50, mes: 1 }],
+      periodo: "y",
+    };
+    const { rerender } = render(<WidgetGraphResume {...props} />);
+    const initialData = mocks.graphProps.mock.lastCall?.[0].data;
+
+    fireEvent.click(screen.getByRole("button", { name: "Líneas" }));
+
+    expect(screen.getByRole("button", { name: "Líneas" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: "Barras" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    expect(mocks.graphProps.mock.lastCall?.[0]).toEqual(
+      expect.objectContaining({ chartTypes: ["line"], data: initialData }),
+    );
+
+    rerender(
+      <WidgetGraphResume
+        {...props}
+        ingresos={[{ amount: 300, mes: 1 }]}
+      />,
+    );
+    expect(mocks.graphProps.mock.lastCall?.[0]).toEqual(
+      expect.objectContaining({
+        chartTypes: ["line"],
+        data: expect.objectContaining({
+          values: expect.arrayContaining([
+            { name: "Ingresos", values: [300] },
+            { name: "Saldo acumulado", values: [350] },
+          ]),
+        }),
+      }),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Barras" }));
+    expect(screen.getByRole("button", { name: "Barras" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(mocks.graphProps.mock.lastCall?.[0].chartTypes).toEqual(["bar"]);
+  });
+
+  it("muestra líneas sólidas con el mismo grosor y puntos en las cuatro series", () => {
     const chart = GraphAdapterLine(
       {
         labels: ["Ene", "Feb"],
@@ -111,8 +173,7 @@ describe("gráfica financiera del inicio", () => {
         ],
       },
       {
-        area: true,
-        colors: ["#8b98a8", "#00e38c", "#f2a65a", "#8ea7ff"],
+        colors: ["#3b82f6", "#10b981", "#f97316", "#d946ef"],
         variant: "dashboard",
       },
       { chart: { animations: { enabled: true } } },
@@ -120,16 +181,10 @@ describe("gráfica financiera del inicio", () => {
 
     expect(chart.options).toEqual(
       expect.objectContaining({
-        chart: expect.objectContaining({ type: "area" }),
-        fill: expect.objectContaining({
-          gradient: expect.objectContaining({
-            opacityFrom: [0.22, 0.28, 0.25, 0.7],
-            opacityTo: [0.01, 0.015, 0.012, 0.04],
-          }),
-          type: "gradient",
-        }),
+        chart: expect.objectContaining({ type: "line" }),
+        fill: { type: "solid", opacity: 1 },
         markers: expect.objectContaining({ size: 4 }),
-        stroke: expect.objectContaining({ curve: "smooth" }),
+        stroke: expect.objectContaining({ curve: "smooth", width: 2.5 }),
       }),
     );
     expect(chart.data).toHaveLength(4);
