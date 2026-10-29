@@ -18,10 +18,10 @@ type Props = {
 };
 
 export const FINANCIAL_FLOW_COLORS = [
-  "#3b82f6",
-  "#10b981",
-  "#f97316",
-  "#d946ef",
+  "#8b98a8",
+  "#00e38c",
+  "#f2a65a",
+  "#8ea7ff",
 ];
 
 const DEFAULT_SERIES_NAMES = [
