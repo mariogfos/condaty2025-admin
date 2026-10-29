@@ -94,7 +94,7 @@ describe("gráfica financiera del inicio", () => {
           ]),
         }),
         options: expect.objectContaining({
-          colors: ["#3b82f6", "#10b981", "#f97316", "#d946ef"],
+          colors: ["#8b98a8", "#00e38c", "#f2a65a", "#8ea7ff"],
           variant: "dashboard",
           barGap: 3,
         }),
@@ -132,7 +132,7 @@ describe("gráfica financiera del inicio", () => {
       "false",
     );
     expect(mocks.graphProps.mock.lastCall?.[0]).toEqual(
-      expect.objectContaining({ chartTypes: ["line"], data: initialData }),
+      expect.objectContaining({ chartTypes: ["area"], data: initialData }),
     );
 
     rerender(
@@ -143,7 +143,7 @@ describe("gráfica financiera del inicio", () => {
     );
     expect(mocks.graphProps.mock.lastCall?.[0]).toEqual(
       expect.objectContaining({
-        chartTypes: ["line"],
+        chartTypes: ["area"],
         data: expect.objectContaining({
           values: expect.arrayContaining([
             { name: "Ingresos", values: [300] },
@@ -161,7 +161,7 @@ describe("gráfica financiera del inicio", () => {
     expect(mocks.graphProps.mock.lastCall?.[0].chartTypes).toEqual(["bar"]);
   });
 
-  it("muestra líneas sólidas con el mismo grosor y puntos en las cuatro series", () => {
+  it("restaura el degradado y los grosores originales en la vista de líneas", () => {
     const chart = GraphAdapterLine(
       {
         labels: ["Ene", "Feb"],
@@ -173,18 +173,30 @@ describe("gráfica financiera del inicio", () => {
         ],
       },
       {
-        colors: ["#3b82f6", "#10b981", "#f97316", "#d946ef"],
+        colors: ["#8b98a8", "#00e38c", "#f2a65a", "#8ea7ff"],
         variant: "dashboard",
+        area: true,
       },
       { chart: { animations: { enabled: true } } },
     );
 
     expect(chart.options).toEqual(
       expect.objectContaining({
-        chart: expect.objectContaining({ type: "line" }),
-        fill: { type: "solid", opacity: 1 },
+        chart: expect.objectContaining({ type: "area" }),
+        fill: {
+          type: "gradient",
+          gradient: {
+            shade: "dark",
+            type: "vertical",
+            shadeIntensity: 0,
+            inverseColors: false,
+            opacityFrom: [0.22, 0.28, 0.25, 0.7],
+            opacityTo: [0.01, 0.015, 0.012, 0.04],
+            stops: [0, 68, 100],
+          },
+        },
         markers: expect.objectContaining({ size: 4 }),
-        stroke: expect.objectContaining({ curve: "smooth", width: 2.5 }),
+        stroke: expect.objectContaining({ curve: "smooth", width: [2, 2.5, 2.5, 3] }),
       }),
     );
     expect(chart.data).toHaveLength(4);
