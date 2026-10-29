@@ -25,9 +25,7 @@ const toFeatureState = (config?: Record<string, any>): FeatureState => ({
   has_financial_data: enabled(config?.has_financial_data),
   has_financial_debt: enabled(config?.has_financial_debt),
   financial_mode: Number(config?.financial_mode) || 0,
-  has_marketplace_visible:
-    config?.has_marketplace_visible == null ||
-    enabled(config.has_marketplace_visible),
+  has_marketplace_visible: enabled(config?.has_marketplace_visible),
 });
 
 const FeaturesConfig = ({ client_config, onSave }: Props) => {
