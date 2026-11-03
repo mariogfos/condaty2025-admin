@@ -12,6 +12,7 @@ import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
+import ConfigurationHistory from "./ConfigurationHistory";
 
 const paramsInitial = {
   perPage: -1,
@@ -61,6 +62,7 @@ const Config = () => {
               { value: "P", text: "Cuentas de pagos" },
               { value: "M", text: "Morosidad" },
               { value: "T", text: "Tipos de unidades" },
+              { value: "H", text: "Historial" },
             ]}
             sel={typeSearch}
             setSel={setTypeSearch}
@@ -118,6 +120,7 @@ const Config = () => {
             <UnitsType />
           </div>
         )}
+        {typeSearch == "H" && <ConfigurationHistory />}
         {/* La config de QR dinámico ya no es por condominio: es POR CUENTA
             BANCARIA y solo FOS, desde la edición de la cuenta (DES-20).
             Las rutas de la config vieja fueron retiradas del backend. */}
