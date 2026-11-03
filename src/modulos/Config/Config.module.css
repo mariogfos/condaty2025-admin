@@ -49,6 +49,52 @@
   overflow: hidden;
 }
 
+.historyPanel {
+  width: 100%;
+  max-width: 1000px;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px 24px 24px;
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0 20px;
+  border-bottom: 1px solid var(--cModalBorder);
+}
+
+.historyHeader h2 { margin: 0; color: var(--cWhite); font-size: var(--title-md-size); }
+.historyHeader p { margin: 6px 0 0; color: var(--cWhiteV1); font-size: var(--body-sm-size); }
+.historyHeader > span { color: var(--cWhiteV1); white-space: nowrap; }
+.historyEmpty { padding: 40px 12px; color: var(--cWhiteV1); text-align: center; }
+.historyTimeline { padding-top: 18px; }
+.historyDay { position: relative; }
+.historyDayLabel { display: flex; align-items: center; gap: 16px; margin: 8px 0 18px; color: var(--cWhiteV1); font-size: var(--body-sm-size); }
+.historyDayLabel::after { content: ""; width: 72px; height: 1px; background: var(--cModalBorder); }
+.historyEntry { position: relative; margin: 0 0 20px 14px; padding: 0 0 0 26px; border-left: 1px solid var(--cModalBorder); }
+.historyMarker { position: absolute; top: 1px; left: -8px; width: 15px; height: 15px; border: 2px solid var(--cPrimary); border-radius: 50%; background: var(--cModalSection); }
+.historyEntryHeader { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; color: var(--cWhiteV1); }
+.historyEntryHeader strong { color: var(--cWhite); }
+.historyEntryHeader time { margin-left: auto; white-space: nowrap; font-size: var(--body-sm-size); }
+.historyChanges { display: grid; gap: 7px; margin: 10px 0 0; padding: 12px 16px; list-style: none; border: 1px solid var(--cModalBorder); border-radius: 12px; background: var(--cModalSection); }
+.historyChanges li { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; color: var(--cWhiteV1); }
+.historyValues { color: var(--cWhite); text-align: right; overflow-wrap: anywhere; }
+.historyValues b { padding: 0 6px; color: var(--cWhiteV1); }
+.historyPagination { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 18px 0; color: var(--cWhiteV1); }
+.historyPagination button { padding: 8px 14px; border: 1px solid var(--cModalBorder); border-radius: 8px; color: var(--cWhite); background: transparent; cursor: pointer; }
+.historyPagination button:disabled { opacity: .45; cursor: not-allowed; }
+
+@media (max-width: 640px) {
+  .historyPanel { padding-inline: 12px; }
+  .historyHeader { align-items: flex-start; }
+  .historyEntryHeader time { width: 100%; margin-left: 0; }
+  .historyChanges li { align-items: flex-start; flex-direction: column; gap: 3px; }
+  .historyValues { text-align: left; }
+}
+
 .textTitle {
   color: var(--cWhite);
   font-size: var(--body-lg-size);
