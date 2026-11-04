@@ -40,6 +40,7 @@ const labels: Record<string, string> = {
   owner_can_alert_without_residence: "Alertas de propietarios no residentes",
 };
 const booleans = new Set([
+  "invitation", "visit_approval", "reservation", "alert",
   "has_reservation_advance_limit", "has_soft_reservation", "has_financial_data", "has_financial_debt",
   "has_maintenance_value", "has_tasks_visible", "has_marketplace_visible", "check_mora", "button_mora",
   "has_image_l", "has_image_lp", "has_image_c", "has_image_q", "is_fixed", "is_visible", "is_editable", "is_required",

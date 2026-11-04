@@ -37,7 +37,7 @@ describe("Historial de configuración", () => {
   });
   it("desglosa permisos y muestra únicamente la opción anidada que cambió", () => {
     const changes = changesFor(entry(1, { operational_permissions_config: {
-      from: { tenant: { invitation: true, reservation: false } },
+      from: { tenant: { invitation: 1, reservation: 0 } },
       to: { tenant: { reservation: true, invitation: true } },
     } }));
     expect(changes).toEqual([{ field: "operational_permissions_config.tenant.reservation", label: "Permisos operativos · Inquilino · Reservar áreas", before: "No", after: "Sí", protected: false }]);
