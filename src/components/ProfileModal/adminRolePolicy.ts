@@ -29,3 +29,17 @@ export const canChangeAdminRole = (
 export const assignableAdminRoles = (roles: AdminRole[], actor: AdminActor | null | undefined) =>
   roles.filter((role) => (role.status === undefined || role.status === "A") &&
     (actor?.fosrole_id || role.code?.toLowerCase() !== "adm"));
+
+export const canDeleteStaffProfile = (
+  actor: AdminActor | null | undefined,
+  target: AdminTarget | undefined,
+  type: string | undefined,
+  canDeleteModule: boolean,
+) => {
+  if (!actor || !target?.id || !canDeleteModule) return false;
+  if (type === "guard") return true;
+  if (type !== "admin" || target.fosrole_id || String(actor.id) === String(target.id)) return false;
+  const role = target.client_users?.[0]?.role;
+  if (!role) return false;
+  return Boolean(actor.fosrole_id) || role.code?.trim().toLowerCase() !== "adm";
+};
