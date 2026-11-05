@@ -19,7 +19,7 @@ export default function GraphAdapterLine(
     },
     stroke: {
       curve: 'smooth',
-      width: isDashboard ? 2.5 : 2,
+      width: isDashboard && isArea ? [2, 2.5, 2.5, 3] : isDashboard ? 2.5 : 2,
       lineCap: 'round',
       ...(isDashboard && { show: true, colors: lineColors }),
     },

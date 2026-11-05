@@ -1,6 +1,6 @@
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   IconAdmin,
@@ -22,7 +22,7 @@ import GuardEditForm from "./GuardEditForm/GuardEditForm";
 import Image from "next/image";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
 import RenderForm from "@/modulos/Guards/RenderForm/RenderForm";
-import { assignableAdminRoles, canChangeAdminRole } from "./adminRolePolicy";
+import { assignableAdminRoles, canChangeAdminRole, canDeleteStaffProfile } from "./adminRolePolicy";
 
 interface ProfileModalProps {
   open: boolean;
@@ -108,6 +108,8 @@ const ProfileModal = ({
   const [authType, setAuthType] = useState("");
   const [openEdit, setOpenEdit] = useState(false);
   const [openDel, setOpenDel] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const deleteInFlight = useRef(false);
   const client = user?.clients?.filter(
     (item: ClientItem) => item?.id === user?.client_id,
   )?.[0];
@@ -221,16 +223,24 @@ const ProfileModal = ({
     setOpenAuthModal(true);
   };
   const onDel = async () => {
-    const { data } = await execute(url + "/" + formState.id, "DELETE", {
-      is_canceled: "Y",
-    });
-    if (data?.success == true) {
-      showToast(profileRole + " eliminado con éxito", "success");
-      onClose();
-      if (reLoad) reLoad();
-      reLoadDet();
-    } else if (data?.success == false) {
-      showToast(data?.message || "Error al eliminar " + profileRole, "error");
+    if (deleteInFlight.current || !canDeleteThisProfile()) return;
+    deleteInFlight.current = true;
+    setDeleting(true);
+    try {
+      const response = await execute(url + "/" + data.data[0].id, "DELETE", {});
+      if (response?.data?.success === true) {
+        showToast("Acceso al condominio eliminado", "success");
+        setOpenDel(false);
+        onClose();
+        if (reLoad) reLoad();
+      } else {
+        showToast(response?.error?.data?.message || response?.data?.message || "No se pudo eliminar el acceso.", "error");
+      }
+    } catch {
+      showToast("No se pudo eliminar el acceso.", "error");
+    } finally {
+      deleteInFlight.current = false;
+      setDeleting(false);
     }
   };
 
@@ -245,8 +255,9 @@ const ProfileModal = ({
   const clientUsers = data?.data[0]?.clients?.filter(
     (item: ClientItem) => item?.id === user?.client_id,
   );
-  const deletePerm = userCan("users", "D");
-  const editPerm = userCan("users", "U");
+  const permissionModule = type === "guard" ? "guards" : "users";
+  const deletePerm = userCan(permissionModule, "D");
+  const editPerm = userCan(permissionModule, "U");
   const targetRole = data?.data[0]?.client_users?.[0]?.role;
   const canChangeRole = type === "admin" &&
     canChangeAdminRole(user, data?.data[0], editPerm);
@@ -262,11 +273,7 @@ const ProfileModal = ({
   };
 
   const canDeleteThisProfile = () => {
-    if (type === "admin") {
-      return deletePerm && user?.id === data?.data[0]?.id;
-    }
-
-    return deletePerm;
+    return del && canDeleteStaffProfile(user, data?.data?.[0], type, deletePerm);
   };
 
   const navigateToUnitDetail = (unitId: string | number) => {
@@ -308,9 +315,10 @@ const ProfileModal = ({
                   <IconEdit className="" size={24} color={"var(--cWhite)"} />
                 </button>
               )}
-              {del && canDeleteThisProfile() && type === "guard" && (
+              {canDeleteThisProfile() && (
                 <button
                   type="button"
+                  aria-label={type === "guard" ? "Eliminar guardia" : "Eliminar personal administrativo"}
                   className={styles.iconActionButton}
                   onClick={() => setOpenDel(true)}
                 >
@@ -599,22 +607,23 @@ const ProfileModal = ({
             )}
           </>
         )}
-        {openDel && type === "guard" && (
+        {openDel && canDeleteThisProfile() && (
           <DataModal
-            title={`Eliminar ${profileRole.toLocaleLowerCase()}`}
+            title={type === "guard" ? "Eliminar guardia" : "Eliminar personal administrativo"}
             open={openDel}
             onClose={() => setOpenDel(false)}
-            buttonText="Eliminar"
+            buttonText={deleting ? "Eliminando…" : "Eliminar"}
             buttonCancel="Cancelar"
+            disabled={deleting}
             onSave={onDel}
             variant={"mini"}
           >
             <div>
               <p style={{ fontSize: "var(--sL)" }}>
-                ¿Estás seguro de que quieres eliminar este registro?
+                ¿Estás seguro de que quieres quitar su acceso a este condominio?
               </p>
               <p style={{ fontSize: "var(--sL)" }}>
-                Esta acción no se puede deshacer.
+                Su cuenta y su historial se conservarán, al igual que sus vínculos con otros condominios.
               </p>
             </div>
           </DataModal>
