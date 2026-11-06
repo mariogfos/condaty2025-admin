@@ -266,6 +266,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         <RenderView
           open={props.open}
           onClose={props.onClose}
+          onReload={props.reLoad}
           item={props.item}
           extraData={props.extraData}
           user={user}
