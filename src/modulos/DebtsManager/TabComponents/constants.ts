@@ -158,6 +158,13 @@ export const getAvailableActions = (status: string, type: number) => {
   }
 
   switch (status) {
+    case 'S':
+      return {
+        showAnular: false,
+        showEditar: false,
+        showRegistrarPago: false,
+        showVerPago: true
+      };
     case 'P':
       return {
         showAnular: false,
