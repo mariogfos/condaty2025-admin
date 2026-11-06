@@ -5,6 +5,7 @@ import styles from "./FinancialDetail.module.css";
 import type { FinancialAuditEvent } from "./types";
 
 const ACTION_LABELS: Record<string, string> = {
+  usd_revalued: "Saldo actualizado por cotización USD",
   debt_components_updated: "Capital y multa corregidos por integración",
   integration_payment_created: "Ingreso registrado por integración",
   integration_payment_applied: "Ingreso aplicado por integración",
@@ -34,6 +35,8 @@ const FIELD_LABELS: Record<string, string> = {
   amount: "Monto",
   allocated_amount: "Monto aplicado",
   penalty_amount: "Multa",
+  principal_usd: "Capital (USD)",
+  penalty_usd: "Multa (USD)",
   paid_at: "Fecha de pago",
   status: "Estado",
   payment_id: "Pago vinculado",

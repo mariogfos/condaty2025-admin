@@ -114,6 +114,7 @@ const ConfigurationHistory = () => {
                             <time dateTime={historyDate(entry.created_at)?.toISOString()} title={`${day}, ${historyTime(entry.created_at)}`}>{historyTime(entry.created_at)}</time>
                           </p>
                         </div>
+                        {entry.reason && <p>{entry.reason}</p>}
                         <dl className={styles.historyChanges}>
                           {changes.map(change => (
                             <div className={styles.historyChange} key={change.field}>
