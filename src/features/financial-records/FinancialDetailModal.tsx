@@ -12,6 +12,7 @@ import {
 import { createPortal } from "react-dom";
 import { AlertCircle, CheckCircle2, Clock3, ReceiptText, X } from "lucide-react";
 import { FinancialHistory } from "./FinancialHistory";
+import { UsdDebtInfo } from "./UsdDebtInfo";
 import { FinancialRecordActions } from "./FinancialRecordActions";
 import { useFinancialWorkspace } from "./useFinancialWorkspace";
 import styles from "./FinancialDetail.module.css";
@@ -195,6 +196,7 @@ export const FinancialDetailModal = ({
 
           {tab === "detail" ? (
             <div className={styles.detailContent}>
+              <UsdDebtInfo terms={workspace?.record.usd_terms} />
               {loading ? <DetailSkeleton /> : children}
             </div>
           ) : (
