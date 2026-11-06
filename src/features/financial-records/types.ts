@@ -41,10 +41,18 @@ export type FinancialWorkspace = {
     type: FinancialRecordType;
     id: string;
     amount?: number | string | null;
+    usd_terms?: { principal: UsdComponent; penalty: UsdComponent; quote_error?: string } | null;
   };
   capabilities: FinancialCapabilities;
   history: FinancialAuditEvent[];
   history_notice?: string;
+};
+
+export type UsdComponent = {
+  currency: "USD" | "BOB";
+  amount: string;
+  remaining?: string;
+  rate: { value: string; date: string; effective_date?: string; source: string };
 };
 
 export type FinancialStatusTone =
