@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./RenderView.module.css";
 import paymentStyles from "@/modulos/Payments/RenderView/RenderView.module.css";
 import { formatBs } from "@/mk/utils/numbers";
@@ -71,6 +71,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   onReload, // Nueva prop
 }) => {
   const { showToast: authShowToast } = useAuth();
+  const itemPaymentId = getResolvedPaymentId(item);
 
   const [showExpenseDetail, setShowExpenseDetail] = useState(false);
   const [showReservationDetail, setShowReservationDetail] = useState(false);
@@ -80,6 +81,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   const [resolvedPaymentId, setResolvedPaymentId] = useState<
     string | number | null
   >(getResolvedPaymentId(item));
+  const [resolvingPayment, setResolvingPayment] = useState(true);
 
   const { data, execute, loaded } = useAxios(
     "/debt-dptos",
@@ -234,18 +236,25 @@ const RenderView: React.FC<RenderViewProps> = ({
     if (!open || !item?.id) return;
 
     let cancelled = false;
+    setResolvingPayment(true);
 
     const fetchResolvedPayment = async () => {
-      const response = await executeRef.current(
-        paymentsApi.resolvedPayment(item.id),
-        "GET",
-        {},
-        false,
-        true,
-      );
+      try {
+        const response = await executeRef.current(
+          paymentsApi.resolvedPayment(item.id),
+          "GET",
+          {},
+          false,
+          true,
+        );
 
-      if (!cancelled && response?.data?.success) {
-        setResolvedPaymentId(response.data.data?.payment_id || null);
+        if (!cancelled && response?.data?.success) {
+          setResolvedPaymentId(response.data.data?.payment_id || null);
+        }
+      } catch {
+        if (!cancelled) setResolvedPaymentId(itemPaymentId);
+      } finally {
+        if (!cancelled) setResolvingPayment(false);
       }
     };
 
@@ -254,7 +263,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [open, item?.id]);
+  }, [open, item?.id, itemPaymentId]);
 
   if (!open || !item) return null;
 
@@ -417,7 +426,8 @@ const RenderView: React.FC<RenderViewProps> = ({
           .join(" · ");
   const showRegistrarPagoAction =
     actions.showRegistrarPago && debtDetail?.status !== "F";
-  const showVerPagoAction = actions.showVerPago && resolvedPaymentId;
+  const reviewPendingPayment = debtDetail?.status === "S";
+  const showVerPagoAction = !reviewPendingPayment && actions.showVerPago && resolvedPaymentId;
   const showRelatedDetailAction = Boolean(detailButtonText);
   const showEditAction =
     actions.showEditar && onEdit && !hideEditAndDeleteButtons;
@@ -427,6 +437,16 @@ const RenderView: React.FC<RenderViewProps> = ({
     showRegistrarPagoAction ||
     showVerPagoAction ||
     showRelatedDetailAction;
+  const relatedDetailButton = showRelatedDetailAction ? (
+    <Button
+      onClick={() => handleDetailButtonClick(debtType)}
+      variant="secondary"
+      className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
+      disabled={!hasApiData}
+    >
+      {detailButtonText}
+    </Button>
+  ) : null;
   const debtActionButtons =
     !shouldShowLoading &&
     Object.keys(debtDetail).length > 0 &&
@@ -451,16 +471,7 @@ const RenderView: React.FC<RenderViewProps> = ({
             Ver pago
           </Button>
         )}
-        {showRelatedDetailAction && (
-          <Button
-            onClick={() => handleDetailButtonClick(debtType)}
-            variant="secondary"
-            className={`${paymentStyles.voucherButton} ${styles.actionButtonStretch}`}
-            disabled={!hasApiData}
-          >
-            {detailButtonText}
-          </Button>
-        )}
+        {relatedDetailButton}
       </div>
     ) : null;
 
@@ -574,8 +585,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     showPaymentModal ||
     showPaymentForm;
 
-  return (
-    <>
+  const renderDebtModal = (paymentActions?: ReactNode) => (
       <FinancialDetailModal
         open={open && !isChildModalOpen}
         onClose={handleClose}
@@ -604,7 +614,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         loading={shouldShowLoading || Object.keys(debtDetail).length === 0}
         customActions={customActions}
         onRecordChanged={reloadItem}
-        footer={debtActionButtons}
+        footer={reviewPendingPayment ? <>{paymentActions}{relatedDetailButton}</> : debtActionButtons}
       >
         <FinancialDetailSection title="Datos de la deuda">
           <FinancialDetailGrid fields={debtContextFields} />
@@ -623,6 +633,27 @@ const RenderView: React.FC<RenderViewProps> = ({
           onPaymentConfirmed={reloadItem}
         />
       </FinancialDetailModal>
+  );
+
+  return (
+    <>
+      {reviewPendingPayment && resolvedPaymentId && !resolvingPayment ? (
+        <PaymentRenderView
+          key={String(resolvedPaymentId)}
+          open={open && !isChildModalOpen}
+          onClose={handleClose}
+          reLoad={onReload}
+          payment_id={resolvedPaymentId}
+          noWaiting
+          renderActions={renderDebtModal}
+        />
+      ) : renderDebtModal(reviewPendingPayment ? (
+        <p role={resolvingPayment ? "status" : "alert"}>
+          {resolvingPayment
+            ? "Consultando el pago asociado…"
+            : "No se encontró el ingreso asociado. Vuelve a abrir el detalle."}
+        </p>
+      ) : undefined)}
 
       {/* Modales de detalle - solo para los que son modales */}
       {showExpenseDetail && (
