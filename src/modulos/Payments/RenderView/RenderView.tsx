@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useCallback,
   CSSProperties,
+  type ReactNode,
   useRef,
 } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
@@ -73,6 +74,8 @@ interface DetailPaymentProps {
   style?: CSSProperties;
   noWaiting?: boolean;
   setItem?: (next: PaymentDetail) => void;
+  /** Reuse the income's actions inside a related record's detail. */
+  renderActions?: (actions: ReactNode) => ReactNode;
 }
 
 const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
@@ -86,6 +89,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     payment_id,
     style,
     noWaiting = false,
+    renderActions,
   } = props;
   const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
   const [onRechazar, setOnRechazar] = useState(false);
@@ -100,6 +104,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   const [voucherValue, setVoucherValue] = useState("");
   const [voucherErrors, setVoucherErrors] = useState<{ voucher?: string }>({});
   const [loading, setLoading] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
     executeRef.current = execute;
@@ -125,6 +130,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
 
     const fetchPaymentData = async () => {
       setLoading(true);
+      setLoadFailed(false);
 
       try {
         const { data } = await executeRef.current(
@@ -137,9 +143,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
 
         if (cancelled) return;
 
-        if (data?.data) {
+        if (data?.success && data?.data) {
           setItem(data.data);
+        } else {
+          setLoadFailed(true);
         }
+      } catch {
+        if (!cancelled) setLoadFailed(true);
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -419,6 +429,15 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   };
 
   if (!item) {
+    if (renderActions) {
+      return renderActions(
+        <p role={loadFailed ? "alert" : "status"}>
+          {loadFailed
+            ? "No se pudo cargar el ingreso asociado. Vuelve a abrir el detalle."
+            : "Cargando acciones del pago…"}
+        </p>,
+      );
+    }
     return (
       <FinancialDetailModal
         open={open}
@@ -840,7 +859,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
 
   return (
     <>
-      <FinancialDetailModal
+      {renderActions ? renderActions(paymentActionButtons) : <FinancialDetailModal
         open={open}
         title="Detalle del ingreso"
         onClose={onClose}
@@ -893,7 +912,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
             </div>
           </FinancialDetailSection>
         )}
-      </FinancialDetailModal>
+      </FinancialDetailModal>}
 
       {/* Modal para añadir/editar número de respaldo de pago */}
       <DataModal
