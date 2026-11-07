@@ -7,8 +7,6 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import Button from "@/mk/components/forms/Button/Button";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
-import Table from "@/mk/components/ui/Table/Table";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import shared from "../DptoConfig/DptoConfig.module.css";
 import styles from "./UsdBilling.module.css";
 
@@ -18,6 +16,7 @@ export type UsdSettings = {
   rate_mode: "fixed" | "daily";
   fixed_rate: string;
   expense_valuation: "issue" | "daily";
+  expense_base_rate?: string | null;
   daily_indicator: number;
   effective_from: string | null;
   penalty_type: number;
@@ -25,7 +24,6 @@ export type UsdSettings = {
   first_amount: string;
   second_amount: string;
 };
-type Unit = { id: number; nro: string; expense_amount: string; expense_amount_usd: string | null; version: string };
 type SettingsData = { settings: UsdSettings; version: string; can_edit: boolean; rate: { value: string; date: string; source: string } | null; rate_notice: string | null };
 const currencies = [{ id: "BOB", name: "Bolivianos (Bs)" }, { id: "USD", name: "Dólares (USD)" }];
 const message = (data: any, error: any) => {
@@ -43,14 +41,6 @@ export default function UsdBilling() {
   const [reason, setReason] = useState("");
   const [failure, setFailure] = useState("");
   const inFlight = useRef(false);
-  const [unitPage, setUnitPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const [query, setQuery] = useState("");
-  const [unit, setUnit] = useState<Unit | null>(null);
-  const [unitAmount, setUnitAmount] = useState("");
-  const [unitReason, setUnitReason] = useState("");
-  const [unitFailure, setUnitFailure] = useState("");
-  const { data: unitData, reLoad: reloadUnits } = useAxios("/finance/usd/units", "GET", { page: unitPage, search: query });
   const canEdit = Boolean(result?.can_edit && userCan("settings", "U"));
 
   useEffect(() => {
@@ -58,10 +48,21 @@ export default function UsdBilling() {
   }, [result]);
 
   const change = ({ target: { name, value } }: any) => {
-    setForm(current => current ? { ...current, [name]: ["daily_indicator", "penalty_type", "penalty_delay_months"].includes(name) ? Number(value) : value } : current);
+    setForm(current => {
+      if (!current) return current;
+      if (name === "expense_currency" && value === "USD") {
+        return { ...current, expense_currency: "USD", expense_base_rate: current.expense_base_rate ?? current.fixed_rate };
+      }
+      return { ...current, [name]: ["daily_indicator", "penalty_type", "penalty_delay_months"].includes(name) ? Number(value) : value };
+    });
   };
   const save = async () => {
     if (!form || !result || !canEdit || inFlight.current) return;
+    if (form.expense_currency === "USD" &&
+      (!/^\d{1,6}(\.\d{1,6})?$/.test(form.expense_base_rate ?? "") || Number(form.expense_base_rate) <= 0 || Number(form.expense_base_rate) > 999999)) {
+      setFailure("Indica una tasa base positiva para las expensas.");
+      return;
+    }
     if (reason.trim().length < 3) { setFailure("Indica el motivo del cambio."); return; }
     inFlight.current = true; setBusy(true); setFailure("");
     try {
@@ -71,22 +72,6 @@ export default function UsdBilling() {
     } catch { setFailure("No se pudo confirmar el guardado. Actualiza la configuración antes de reintentar."); }
     finally { inFlight.current = false; setBusy(false); }
   };
-  const saveUnit = async () => {
-    if (!unit || !canEdit || inFlight.current) return;
-    if (!/^\d{1,7}(\.\d{1,2})?$/.test(unitAmount) || unitReason.trim().length < 3) {
-      setUnitFailure("Indica un importe válido y el motivo del cambio."); return;
-    }
-    inFlight.current = true; setBusy(true); setUnitFailure("");
-    try {
-      const response = await execute(`/finance/usd/units/${unit.id}`, "PUT", {
-        amount: unitAmount, version: unit.version, reason: unitReason.trim(),
-      }, false, true);
-      if (response.data?.success) { setUnit(null); reloadUnits(); showToast("Importe USD guardado", "success"); }
-      else setUnitFailure(message(response.data, response.error));
-    } catch { setUnitFailure("No se pudo confirmar el guardado del importe."); }
-    finally { inFlight.current = false; setBusy(false); }
-  };
-
   if (error && !result) return <p role="alert" className={styles.notice}>No se pudo cargar la configuración de moneda.</p>;
   if (!form || !result) return <p aria-live="polite">Cargando configuración de moneda…</p>;
   const disabled = !edit || busy || !canEdit;
@@ -97,11 +82,25 @@ export default function UsdBilling() {
         <h1 className={shared.mainTitle}>Moneda y tipo de cambio</h1>
         <p className={shared.mainSubtitle}>Configura la moneda de las obligaciones. Los pagos y la contabilidad conservan sus importes en bolivianos.</p>
       </div>
-      {canEdit && <div className={shared.headerButtons}>
-        {!edit ? <Button variant="secondary" onClick={() => setEdit(true)}>Editar</Button> : <>
-          <Button variant="secondary" disabled={busy} onClick={() => { setForm(result.settings); setEdit(false); setFailure(""); setReason(""); }}>Descartar cambios</Button>
-          <Button disabled={busy || JSON.stringify(form) === JSON.stringify(result.settings)} onClick={save}>{busy ? "Guardando…" : "Guardar cambios"}</Button>
-        </>}
+      {canEdit && <div className={shared.headerAction}>
+        <div className={shared.headerButtons}>
+          {!edit ? <Button variant="secondary" className={shared.editButton} onClick={() => {
+            if (form.expense_currency === "USD" && form.expense_base_rate == null) {
+              setForm({ ...form, expense_base_rate: form.fixed_rate });
+            }
+            setEdit(true);
+          }}>Editar</Button> : <>
+            <Button variant="secondary" className={shared.editButton} disabled={busy} onClick={() => {
+              setForm(result.settings);
+              setEdit(false);
+              setFailure("");
+              setReason("");
+            }}>Descartar cambios</Button>
+            <Button className={shared.saveButton} disabled={busy || JSON.stringify(form) === JSON.stringify(result.settings)} onClick={save}>
+              {busy ? "Guardando…" : "Guardar cambios"}
+            </Button>
+          </>}
+        </div>
       </div>}
     </div>
     {!canEdit && <p className={styles.readOnly}><LockKeyhole size={16} /> Configuración de solo lectura. La edición está reservada a FOS.</p>}
@@ -114,7 +113,10 @@ export default function UsdBilling() {
           <Select label="Conversión de las expensas" name="expense_valuation" value={form.expense_valuation} disabled={disabled} onChange={change} options={[
             { id: "issue", name: "Fijar en Bs al emitir la expensa" }, { id: "daily", name: "Actualizar diariamente el saldo pendiente" },
           ]} />
-          <p className={styles.hint}>Configura primero el importe USD de cada unidad. Los montos actuales en bolivianos permanecen separados.</p>
+          <Input name="expense_base_rate" label="Tasa base de las expensas (Bs por USD)" type="text"
+            value={form.expense_base_rate ?? ""} onChange={change} disabled={disabled} required />
+          <p className={styles.hint}>La tasa base convierte la cuota vigente de cada unidad a USD. El tipo de cambio de abajo calcula su equivalente en bolivianos.</p>
+          {!edit && form.expense_base_rate == null && <p className={styles.hint}>La configuración anterior sigue vigente. Guarda una tasa base para usarla en las próximas expensas.</p>}
         </>}
       </section>
       <section className={shared.formCard}>
@@ -150,31 +152,5 @@ export default function UsdBilling() {
         {edit && <Input label="Motivo del cambio" name="reason" value={reason} onChange={(e: any) => setReason(e.target.value)} disabled={busy} maxLength={500} />}
       </section>
     </div>
-    <section className={`${shared.formCard} ${styles.units}`}>
-      <div className={styles.unitsHeader}><div><h2 className={styles.sectionTitle}>Importes de expensa por unidad</h2><p className={styles.hint}>Estos importes se usan solo al emitir nuevas expensas en USD.</p></div>
-        <form className={styles.search} onSubmit={event => { event.preventDefault(); setQuery(search); setUnitPage(1); }}>
-          <Input label="Buscar unidad" name="search" value={search} onChange={(e: any) => setSearch(e.target.value)} required={false} />
-          <Button variant="secondary" onClick={() => { setQuery(search); setUnitPage(1); }}>Buscar</Button>
-        </form>
-      </div>
-      <Table data={unitData?.data?.data || []} header={[
-        { key: "nro", label: "Unidad", responsive: "all" },
-        { key: "expense_amount", label: "Importe actual (Bs)", responsive: "all" },
-        { key: "expense_amount_usd", label: "Importe configurado (USD)", responsive: "all", onRender: ({ value }: any) => value ?? "Sin configurar" },
-      ]} onButtonActions={canEdit ? (item: Unit) => <Button variant="secondary" onClick={() => { setUnit(item); setUnitAmount(item.expense_amount_usd ?? ""); setUnitReason(""); setUnitFailure(""); }}>Editar USD</Button> : undefined} />
-      {Number(unitData?.data?.last_page) > 1 && <div className={styles.pagination}>
-        <Button variant="secondary" disabled={unitPage <= 1} onClick={() => setUnitPage(p => p - 1)}>Anterior</Button>
-        <span>Página {unitPage} de {unitData?.data?.last_page}</span>
-        <Button variant="secondary" disabled={unitPage >= unitData?.data?.last_page} onClick={() => setUnitPage(p => p + 1)}>Siguiente</Button>
-      </div>}
-    </section>
-    {unit && <DataModal open title={`Expensa USD · ${unit.nro}`} onClose={() => !busy && setUnit(null)} onSave={saveUnit} disabled={busy} buttonText={busy ? "Guardando…" : "Guardar importe"}>
-      <div className={styles.modalFields}>
-        <Input label="Importe de expensa (USD)" name="unit_amount" value={unitAmount} onChange={(e: any) => setUnitAmount(e.target.value)} type="currency" disabled={busy} />
-        <Input label="Motivo" name="unit_reason" value={unitReason} onChange={(e: any) => setUnitReason(e.target.value)} disabled={busy} maxLength={500} />
-        <p className={styles.hint}>El cambio no modifica expensas ya emitidas.</p>
-        {unitFailure && <p role="alert" className={styles.error}>{unitFailure}</p>}
-      </div>
-    </DataModal>}
   </div>;
 }
