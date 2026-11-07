@@ -10,12 +10,11 @@ type FeatureState = {
   has_financial_debt: boolean;
   financial_mode: number;
   has_marketplace_visible: boolean;
-  has_social_area_sectors: boolean;
 };
 
 type Props = {
   client_config?: Record<string, any>;
-  onSave: (values: Omit<FeatureState, "has_social_area_sectors"> & Pick<Partial<FeatureState>, "has_social_area_sectors">) => Promise<void> | void;
+  onSave: (values: FeatureState) => Promise<void> | void;
 };
 
 const enabled = (value: unknown) =>
@@ -27,7 +26,6 @@ const toFeatureState = (config?: Record<string, any>): FeatureState => ({
   has_financial_debt: enabled(config?.has_financial_debt),
   financial_mode: Number(config?.financial_mode) || 0,
   has_marketplace_visible: enabled(config?.has_marketplace_visible),
-  has_social_area_sectors: enabled(config?.has_social_area_sectors),
 });
 
 const FeaturesConfig = ({ client_config, onSave }: Props) => {
@@ -61,11 +59,7 @@ const FeaturesConfig = ({ client_config, onSave }: Props) => {
       return;
     }
 
-    const { has_social_area_sectors, ...values } = formState;
-    await onSave({
-      ...values,
-      ...(has_social_area_sectors !== initialState.has_social_area_sectors ? { has_social_area_sectors } : {}),
-    });
+    await onSave(formState);
   };
 
   return (
@@ -209,27 +203,6 @@ const FeaturesConfig = ({ client_config, onSave }: Props) => {
             ) : null}
           </div>
         </section>
-
-        {client_config?.has_social_area_sectors !== undefined && (
-          <section className={styles.formCard}>
-            <div className={styles.switchContainer}>
-              <div className={styles.switchContent}>
-                <p className={styles.textTitle}>Sectores para áreas sociales</p>
-                <p className={styles.textSubtitle}>
-                  Asigna sectores a las unidades y elige qué áreas se reservan por sector.
-                </p>
-              </div>
-              <Switch
-                name="has_social_area_sectors"
-                label=""
-                value={formState.has_social_area_sectors ? "Y" : "N"}
-                onChange={handleSwitchChange}
-                checked={formState.has_social_area_sectors}
-                disabled={!editMode}
-              />
-            </div>
-          </section>
-        )}
 
         <section className={styles.formCard}>
           <div className={styles.cardHeader}>

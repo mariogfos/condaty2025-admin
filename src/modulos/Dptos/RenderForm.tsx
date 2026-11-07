@@ -192,7 +192,9 @@ const RenderForm = ({
         description: formState.description,
         type_id: parseInt(formState.type_id),
         expense_amount: formState.expense_amount,
-        ...(sectorCatalog.enabled ? { sector_id: formState.sector_id ?? null } : {}),
+        ...(sectorCatalog.available && (formState.sector_id ?? null) !== (item?.sector_id ?? null)
+          ? { sector_id: formState.sector_id ?? null }
+          : {}),
         dimension: formState.dimension,
         has_payment_plan: Boolean(formState.has_payment_plan),
         has_membership: Boolean(formState.has_membership),
@@ -275,7 +277,7 @@ const RenderForm = ({
           required={true}
         />
       </div>
-      {sectorCatalog.enabled && (
+      {sectorCatalog.available && (
         <SectorPicker catalog={sectorCatalog}
           selected={formState.sector_id == null ? [] : [Number(formState.sector_id)]}
           onChange={(ids) => setFormState((current: any) => ({ ...current, sector_id: ids[0] ?? null }))} />
