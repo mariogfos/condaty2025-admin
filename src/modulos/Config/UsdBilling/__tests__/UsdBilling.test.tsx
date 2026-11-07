@@ -3,16 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import UsdBilling from "../UsdBilling";
 import { UsdDebtInfo } from "@/features/financial-records/UsdDebtInfo";
 
-const mocks = vi.hoisted(() => ({ execute: vi.fn(), reload: vi.fn(), reloadUnits: vi.fn(), toast: vi.fn(), result: null as any }));
+const mocks = vi.hoisted(() => ({ execute: vi.fn(), reload: vi.fn(), toast: vi.fn(), result: null as any }));
 vi.mock("@/mk/contexts/AuthProvider", () => ({ useAuth: () => ({ userCan: () => true, showToast: mocks.toast }) }));
-vi.mock("@/mk/hooks/useAxios", () => ({ default: (url: string) => url?.endsWith("/units")
-  ? { data: { data: { data: [{ id: 7, nro: "A-07", expense_amount: "100", expense_amount_usd: "10.00", version: "unit-version" }], last_page: 1 } }, reLoad: mocks.reloadUnits }
-  : { data: { data: mocks.result }, error: null, execute: mocks.execute, reLoad: mocks.reload } }));
+vi.mock("@/mk/hooks/useAxios", () => ({ default: () => ({ data: { data: mocks.result }, error: null, execute: mocks.execute, reLoad: mocks.reload }) }));
 vi.mock("@/mk/components/forms/Button/Button", () => ({ default: ({ children, onClick, disabled }: any) => <button disabled={disabled} onClick={onClick}>{children}</button> }));
 vi.mock("@/mk/components/forms/Input/Input", () => ({ default: ({ label, name, value, onChange, disabled, type }: any) => <label>{label}<input aria-label={label} name={name} value={value} onChange={onChange} disabled={disabled} type={type === "currency" ? "text" : type} /></label> }));
 vi.mock("@/mk/components/forms/Select/Select", () => ({ default: ({ label, name, options, value, onChange, disabled }: any) => <label>{label}<select aria-label={label} name={name} value={value} onChange={onChange} disabled={disabled}>{options.map((option: any) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></label> }));
-vi.mock("@/mk/components/ui/Table/Table", () => ({ default: ({ data, onButtonActions }: any) => <div>{data.map((row: any) => <div key={row.id}>{row.nro}{onButtonActions?.(row)}</div>)}</div> }));
-vi.mock("@/mk/components/ui/DataModal/DataModal", () => ({ default: ({ children, title, onSave, disabled, buttonText }: any) => <div role="dialog" aria-label={title}>{children}<button disabled={disabled} onClick={onSave}>{buttonText}</button></div> }));
 
 const settings = {
   expense_currency: "BOB", penalty_currency: "USD", rate_mode: "fixed", fixed_rate: "6.960000",
@@ -65,16 +61,31 @@ describe("Moneda y cambio", () => {
     expect(mocks.reload).not.toHaveBeenCalled();
   });
 
-  it("guarda el precio USD separado por unidad sin reenviar el precio en bolivianos", async () => {
+  it("descarta la edición y guarda la tasa base para todo el condominio", async () => {
     mocks.execute.mockResolvedValue({ data: { success: true } });
     render(<UsdBilling />);
-    fireEvent.click(screen.getByRole("button", { name: "Editar USD" }));
-    fireEvent.change(screen.getByLabelText("Importe de expensa (USD)"), { target: { value: "15.00" } });
-    fireEvent.change(screen.getByLabelText("Motivo"), { target: { value: "Cuota actualizada" } });
-    fireEvent.click(screen.getByRole("button", { name: "Guardar importe" }));
-    await waitFor(() => expect(mocks.execute).toHaveBeenCalledWith("/finance/usd/units/7", "PUT", {
-      amount: "15.00", version: "unit-version", reason: "Cuota actualizada",
+    const baseRate = "Tasa base de las expensas (Bs por USD)";
+    const selectUsd = () => {
+      fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+      fireEvent.change(screen.getByLabelText("Moneda de las expensas"), { target: { value: "USD" } });
+    };
+    selectUsd();
+    expect(screen.getByLabelText(baseRate)).toHaveValue("6.960000");
+    fireEvent.change(screen.getByLabelText(baseRate), { target: { value: "7.00" } });
+    fireEvent.click(screen.getByRole("button", { name: "Descartar cambios" }));
+    expect(screen.queryByLabelText(baseRate)).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Moneda de las expensas")).toHaveValue("BOB");
+    expect(mocks.execute).not.toHaveBeenCalled();
+
+    selectUsd();
+    fireEvent.change(screen.getByLabelText(baseRate), { target: { value: "7.00" } });
+    fireEvent.change(screen.getByLabelText("Motivo del cambio"), { target: { value: "Conversión acordada" } });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+    await waitFor(() => expect(mocks.execute).toHaveBeenCalledWith("/finance/usd/settings", "PUT", {
+      settings: { ...settings, expense_currency: "USD", expense_base_rate: "7.00" },
+      version: "policy-version", reason: "Conversión acordada",
     }, false, true));
+    expect(screen.queryByText("Importes de expensa por unidad")).not.toBeInTheDocument();
   });
 });
 
