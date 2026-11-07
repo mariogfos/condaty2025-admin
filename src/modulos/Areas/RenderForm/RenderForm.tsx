@@ -105,6 +105,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   });
   const { showToast } = useAuth();
   const sectorCatalog = useSectorCatalog("areas");
+  const [sectorFieldsEdited, setSectorFieldsEdited] = useState(false);
   const [level, setLevel] = useState(1);
   const [errors, setErrors]: any = useState({});
   const [openComfirm, setOpenComfirm] = useState(false);
@@ -339,7 +340,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         status: formState?.status,
         requires_approval: formState?.requires_approval,
         requires_membership: Boolean(formState?.requires_membership),
-        ...(sectorCatalog.enabled ? {
+        ...(sectorCatalog.available && sectorFieldsEdited ? {
           sector_ids: formState.sector_ids,
           restrict_to_sectors: formState.sector_ids.length > 0 && formState.restrict_to_sectors,
         } : {}),
@@ -465,12 +466,17 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
           {level === 3 && (
             <>
               <ThirdPart handleChange={handleChange} errors={errors} formState={formState} />
-              {sectorCatalog.enabled && (
+              {sectorCatalog.available && (
                 <div className={styles.partStack}>
                   <SectorPicker catalog={sectorCatalog} multiple selected={formState.sector_ids}
-                    onChange={(ids) => setFormState((current: any) => ({
-                      ...current, sector_ids: ids, restrict_to_sectors: ids.length > 0 && current.restrict_to_sectors,
-                    }))} />
+                    onChange={(ids) => {
+                      setSectorFieldsEdited(true);
+                      setFormState((current: any) => ({
+                        ...current,
+                        sector_ids: ids,
+                        restrict_to_sectors: ids.length > 0 && current.restrict_to_sectors,
+                      }));
+                    }} />
                   <Switch
                     name="restrict_to_sectors"
                     label="Solo visible y reservable por residentes de estos sectores"
@@ -478,9 +484,13 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
                     value={formState.restrict_to_sectors ? "1" : "0"}
                     checked={formState.restrict_to_sectors}
                     disabled={formState.sector_ids.length === 0}
-                    onChange={(event: any) => setFormState((current: any) => ({
-                      ...current, restrict_to_sectors: Boolean(event.target.checked),
-                    }))}
+                    onChange={(event: any) => {
+                      setSectorFieldsEdited(true);
+                      setFormState((current: any) => ({
+                        ...current,
+                        restrict_to_sectors: Boolean(event.target.checked),
+                      }));
+                    }}
                   />
                 </div>
               )}
