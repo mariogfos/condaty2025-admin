@@ -40,7 +40,7 @@ export function useSectorCatalog(scope: Scope) {
   const fetched = (data?.data?.sectors ?? []) as Sector[];
   const sectors = [...fetched, ...created.filter(({ id }) => !fetched.some((sector) => sector.id === id))];
 
-  return { enabled: data?.data?.enabled === true, sectors, create, creating };
+  return { available: data?.data?.enabled === true, sectors, create, creating };
 }
 
 export default function SectorPicker({ catalog, selected, onChange, multiple = false }: {
