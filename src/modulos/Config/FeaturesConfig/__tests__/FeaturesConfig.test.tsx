@@ -44,6 +44,7 @@ describe("Configuración de funcionalidades", () => {
           has_financial_debt: true,
           financial_mode: 2,
           has_marketplace_visible: true,
+          has_social_area_sectors: false,
           payment_time_limit: 24,
         }}
         onSave={onSave}
@@ -54,6 +55,7 @@ describe("Configuración de funcionalidades", () => {
     expect(screen.getByLabelText("financial_mode")).toHaveValue("2");
     fireEvent.click(screen.getByRole("button", { name: "Editar" }));
     fireEvent.click(screen.getByLabelText("has_marketplace_visible"));
+    fireEvent.click(screen.getByLabelText("has_social_area_sectors"));
     fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
 
     await waitFor(() =>
@@ -63,13 +65,15 @@ describe("Configuración de funcionalidades", () => {
         has_financial_debt: true,
         financial_mode: 2,
         has_marketplace_visible: false,
+        has_social_area_sectors: true,
       })
     );
   });
 
-  it("mantiene Marketplace apagado si la API antigua no devuelve el campo", () => {
+  it("oculta la configuración de sectores hasta que Backend la soporte", () => {
     render(<FeaturesConfig client_config={{}} onSave={vi.fn()} />);
 
     expect(screen.getByLabelText("has_marketplace_visible")).not.toBeChecked();
+    expect(screen.queryByLabelText("has_social_area_sectors")).not.toBeInTheDocument();
   });
 });
