@@ -3,9 +3,3 @@
 .hint { color: var(--cWhiteV2, #a6afb7); font-size: 13px; line-height: 1.6; margin: 4px 0 12px; }
 .readOnly { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--cWhiteV2, #a6afb7); margin: 0 0 20px; }
 .notice, .error { border-radius: 12px; padding: 12px 16px; font-size: 14px; line-height: 1.5; background: var(--cHoverError, #40252a); color: var(--cError, #ff8d8d); }
-.units { margin-top: 24px; min-width: 0; }
-.unitsHeader { display: flex; justify-content: space-between; gap: 20px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
-.search { display: flex; gap: 10px; align-items: center; }
-.pagination { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 16px; margin-top: 16px; font-size: 13px; }
-.modalFields { display: grid; gap: 16px; padding: 8px 0; }
-@media (max-width: 640px) { .search { width: 100%; } .search > :first-child { flex: 1; min-width: 0; } .pagination { justify-content: space-between; gap: 8px; } }
