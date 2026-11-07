@@ -1,0 +1,25 @@
+.picker {
+  display: grid;
+  gap: 8px;
+}
+
+.selection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--cWhiteV2);
+  border-radius: 16px;
+  color: var(--cWhite);
+  background: transparent;
+  cursor: pointer;
+}

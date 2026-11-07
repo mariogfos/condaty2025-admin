@@ -12,6 +12,8 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import FourPart from "./Partes/FourPart";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import SectorPicker, { useSectorCatalog } from "@/features/condominium-sectors/SectorPicker";
+import Switch from "@/mk/components/forms/Switch/Switch";
 import { removeUnlinkedAreaImages } from "./areaImageCleanup";
 
 const hasCoordinateValue = (value: unknown) => {
@@ -95,11 +97,14 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     guarantee_amount: item?.guarantee_amount ?? 0,
     requires_approval: item?.requires_approval || "X",
     requires_membership: parseBoolean(item?.requires_membership),
+    sector_ids: (item?.sectors ?? []).map(({ id }: { id: number }) => Number(id)),
+    restrict_to_sectors: parseBoolean(item?.restrict_to_sectors),
     penalty_or_debt_restriction: item?.penalty_or_debt_restriction || "X",
     min_reservation_advance_hours:
       item?.min_reservation_advance_hours ?? 0,
   });
   const { showToast } = useAuth();
+  const sectorCatalog = useSectorCatalog("areas");
   const [level, setLevel] = useState(1);
   const [errors, setErrors]: any = useState({});
   const [openComfirm, setOpenComfirm] = useState(false);
@@ -292,7 +297,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
       showToast("Espera a que terminen de subir las fotos.", "info");
       return;
     }
-    if (savingRef.current || savedRef.current) return;
+    if (savingRef.current || savedRef.current || sectorCatalog.creating) return;
     if (level === 1) {
       if (hasErrors(validateLevel1())) return;
     }
@@ -317,7 +322,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
     setLevel(level + 1);
   };
   const onSave = async () => {
-    if (savingRef.current || savedRef.current) return;
+    if (savingRef.current || savedRef.current || sectorCatalog.creating) return;
     savingRef.current = true;
     setSaving(true);
 
@@ -334,6 +339,10 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         status: formState?.status,
         requires_approval: formState?.requires_approval,
         requires_membership: Boolean(formState?.requires_membership),
+        ...(sectorCatalog.enabled ? {
+          sector_ids: formState.sector_ids,
+          restrict_to_sectors: formState.sector_ids.length > 0 && formState.restrict_to_sectors,
+        } : {}),
         price: formState?.price,
         guarantee_amount:
           formState?.has_price == "S"
@@ -454,11 +463,28 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
             />
           )}
           {level === 3 && (
-            <ThirdPart
-              handleChange={handleChange}
-              errors={errors}
-              formState={formState}
-            />
+            <>
+              <ThirdPart handleChange={handleChange} errors={errors} formState={formState} />
+              {sectorCatalog.enabled && (
+                <div className={styles.partStack}>
+                  <SectorPicker catalog={sectorCatalog} multiple selected={formState.sector_ids}
+                    onChange={(ids) => setFormState((current: any) => ({
+                      ...current, sector_ids: ids, restrict_to_sectors: ids.length > 0 && current.restrict_to_sectors,
+                    }))} />
+                  <Switch
+                    name="restrict_to_sectors"
+                    label="Solo visible y reservable por residentes de estos sectores"
+                    optionValue={["1", "0"]}
+                    value={formState.restrict_to_sectors ? "1" : "0"}
+                    checked={formState.restrict_to_sectors}
+                    disabled={formState.sector_ids.length === 0}
+                    onChange={(event: any) => setFormState((current: any) => ({
+                      ...current, restrict_to_sectors: Boolean(event.target.checked),
+                    }))}
+                  />
+                </div>
+              )}
+            </>
           )}
           {level === 4 && <FourPart item={formState} />}
           {uncertain && !formState.id && (

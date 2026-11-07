@@ -205,6 +205,12 @@ const UnitInfo = ({
             </span>
           </div>
           <UnitExpense key={datas?.data?.id} unitId={datas?.data?.id} amountBob={datas?.data?.expense_amount ?? 0} />
+          {datas?.data?.sectors_enabled && (
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>Sector</span>
+              <span className={styles.infoValue}>{datas?.data?.sector?.name ?? "Sin sector"}</span>
+            </div>
+          )}
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Plan de pagos</span>
             <span className={styles.infoValue}>
