@@ -27,6 +27,8 @@ const labels: Record<string, string> = {
   integration_automations: "Automatizaciones", type_id: "Tipo de unidad", placeholder: "Texto de ayuda",
   usd_billing: "Moneda y cambio", expense_currency: "Moneda de expensas", penalty_currency: "Moneda de multas",
   rate_mode: "Modalidad de cambio", fixed_rate: "Cambio fijo (Bs/USD)", expense_valuation: "Conversión de expensas",
+  expense_base_rate: "Tasa base de las expensas",
+  expense_amount_usd_override: "Cuota USD de la unidad",
   daily_indicator: "Indicador BCB", effective_from: "Vigencia desde", expense_amount_usd: "Expensa por unidad (USD)",
   penalty_delay_months: "Meses de gracia de multa USD",
   options: "Opciones", default_value: "Valor predeterminado", validation: "Validación",
