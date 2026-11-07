@@ -21,7 +21,6 @@ const labels: Record<string, string> = {
   soft_limit: "Límite preventivo", hard_limit: "Límite máximo", penalty_type: "Tipo de multa",
   penalty_data: "Datos de multa", financial_mode: "Visualización de finanzas",
   has_financial_data: "Resumen financiero", has_financial_debt: "Deudas en el resumen financiero",
-  has_social_area_sectors: "Sectores para áreas sociales",
   has_tasks_visible: "Tareas para residentes", has_marketplace_visible: "Marketplace para residentes",
   has_maintenance_value: "Mantenimiento de valor", check_mora: "Control de mora", button_mora: "Aviso de mora",
   operational_permissions_config: "Permisos operativos", payment_methods_config: "Métodos de pago",
@@ -50,7 +49,7 @@ const labels: Record<string, string> = {
 const booleans = new Set([
   "invitation", "visit_approval", "reservation", "alert",
   "has_reservation_advance_limit", "has_soft_reservation", "has_financial_data", "has_financial_debt",
-  "has_maintenance_value", "has_social_area_sectors", "has_tasks_visible", "has_marketplace_visible", "check_mora", "button_mora",
+  "has_maintenance_value", "has_tasks_visible", "has_marketplace_visible", "check_mora", "button_mora",
   "has_image_l", "has_image_lp", "has_image_c", "has_image_q", "is_fixed", "is_visible", "is_editable", "is_required",
   "owner_can_invite_without_residence", "owner_can_approve_visits_without_residence",
   "owner_can_reserve_without_residence", "owner_can_alert_without_residence",
