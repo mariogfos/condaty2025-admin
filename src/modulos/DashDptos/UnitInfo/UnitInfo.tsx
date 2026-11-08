@@ -14,7 +14,7 @@ import {
 import styles from "../DashDptos.module.css";
 import Br from "@/components/Detail/Br";
 import useAxios from "@/mk/hooks/useAxios";
-import { formatBs } from "@/mk/utils/numbers";
+import UnitExpense from "./UnitExpense";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
@@ -204,12 +204,13 @@ const UnitInfo = ({
               {datas?.tenant ? "Habitada" : "Disponible"}
             </span>
           </div>
-          <div className={styles.infoItem}>
-            <span className={styles.infoLabel}>Monto expensa</span>
-            <span className={styles.infoValue}>
-              {formatBs(datas?.data?.expense_amount || "0")}
-            </span>
-          </div>
+          <UnitExpense key={datas?.data?.id} unitId={datas?.data?.id} amountBob={datas?.data?.expense_amount ?? 0} />
+          {datas?.data?.sectors_enabled && (
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>Sector</span>
+              <span className={styles.infoValue}>{datas?.data?.sector?.name ?? "Sin sector"}</span>
+            </div>
+          )}
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Plan de pagos</span>
             <span className={styles.infoValue}>
