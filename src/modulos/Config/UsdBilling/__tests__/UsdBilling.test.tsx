@@ -9,6 +9,8 @@ vi.mock("@/mk/hooks/useAxios", () => ({ default: () => ({ data: { data: mocks.re
 vi.mock("@/mk/components/forms/Button/Button", () => ({ default: ({ children, onClick, disabled }: any) => <button disabled={disabled} onClick={onClick}>{children}</button> }));
 vi.mock("@/mk/components/forms/Input/Input", () => ({ default: ({ label, name, value, onChange, disabled, type }: any) => <label>{label}<input aria-label={label} name={name} value={value} onChange={onChange} disabled={disabled} type={type === "currency" ? "text" : type} /></label> }));
 vi.mock("@/mk/components/forms/Select/Select", () => ({ default: ({ label, name, options, value, onChange, disabled }: any) => <label>{label}<select aria-label={label} name={name} value={value} onChange={onChange} disabled={disabled}>{options.map((option: any) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></label> }));
+vi.mock("@/mk/components/forms/Switch/Switch", () => ({ default: ({ label, value, onChange, disabled }: any) =>
+  <label>{label}<input type="checkbox" checked={value === "Y"} onChange={onChange} disabled={disabled} /></label> }));
 
 const settings = {
   expense_currency: "BOB", penalty_currency: "USD", rate_mode: "fixed", fixed_rate: "6.960000",
@@ -86,6 +88,26 @@ describe("Moneda y cambio", () => {
       version: "policy-version", reason: "Conversión acordada",
     }, false, true));
     expect(screen.queryByText("Importes de expensa por unidad")).not.toBeInTheDocument();
+  });
+
+  it("aplica la política existente a expensas anteriores solo al marcar el interruptor", async () => {
+    mocks.execute.mockResolvedValue({ data: { success: true, data: { updated_open_expenses: 3 } } });
+    render(<UsdBilling />);
+    const apply = screen.getByLabelText("Aplicar también a expensas anteriores");
+    expect(apply).toBeDisabled();
+    expect(apply).not.toBeChecked();
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+    const save = screen.getByRole("button", { name: "Guardar cambios" });
+    expect(save).toBeDisabled();
+    fireEvent.click(apply);
+    expect(save).toBeEnabled();
+    fireEvent.change(screen.getByLabelText("Motivo del cambio"), { target: { value: "Aplicar a deudas abiertas" } });
+    fireEvent.click(save);
+    await waitFor(() => expect(mocks.toast).toHaveBeenCalledWith("Configuración guardada. 3 expensas anteriores actualizadas.", "success"));
+    expect(mocks.execute).toHaveBeenCalledWith("/finance/usd/settings", "PUT", {
+      settings, version: "policy-version", reason: "Aplicar a deudas abiertas", apply_to_open_expenses: true,
+    }, false, true);
+    expect(apply).not.toBeChecked();
   });
 });
 
