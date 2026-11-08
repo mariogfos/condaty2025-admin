@@ -24,6 +24,23 @@ beforeEach(() => {
 });
 
 describe("Moneda y cambio", () => {
+  it("muestra solo el TCO oficial cuando el cambio diario está guardado", () => {
+    mocks.result.settings.rate_mode = "daily";
+    mocks.result.rate = { value: "11.810000", date: "2026-11-08", source: "bcb" };
+    render(<UsdBilling />);
+    expect(screen.queryByLabelText("Cotización del BCB")).not.toBeInTheDocument();
+    expect(screen.getByText("Cotización vigente: Bs 11,81 por USD · 2026-11-08")).toBeInTheDocument();
+  });
+
+  it("evita mostrar el cambio fijo guardado como cotización diaria al editar", () => {
+    render(<UsdBilling />);
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+    fireEvent.change(screen.getByLabelText("Modalidad de cambio"), { target: { value: "daily" } });
+    expect(screen.getByText("Tipo de cambio oficial (TCO) publicado por el BCB.")).toBeInTheDocument();
+    expect(screen.getByText("La cotización vigente se mostrará al guardar.")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Cotización del BCB")).not.toBeInTheDocument();
+  });
+
   it("muestra la configuración a un administrador de lectura sin exponer acciones de edición", () => {
     mocks.result.can_edit = false;
     render(<UsdBilling />);
