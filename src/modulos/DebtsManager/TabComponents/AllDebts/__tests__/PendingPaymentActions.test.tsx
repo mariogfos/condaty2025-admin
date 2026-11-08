@@ -3,11 +3,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import RenderView from "../RenderView/RenderView";
 import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
 import { getAvailableActions } from "../../constants";
+import type { FinancialWorkspace } from "@/features/financial-records/types";
 
 const state = vi.hoisted(() => ({
   debt: {} as any,
   response: {} as any,
   payment: {} as any,
+  terms: null as FinancialWorkspace["record"]["usd_terms"],
   execute: vi.fn(),
   showToast: vi.fn(),
 }));
@@ -24,7 +26,10 @@ vi.mock("@/mk/contexts/AuthProvider", () => ({
 }));
 vi.mock("@/features/financial-records/FinancialDetailModal", () => ({
   FinancialDetailModal: ({ open, title, children, footer }: any) => open ? (
-    <section role="dialog" aria-label={title}>{children}<footer>{footer}</footer></section>
+    <section role="dialog" aria-label={title}>
+      {typeof children === "function" ? children({ record: { usd_terms: state.terms } }) : children}
+      <footer>{footer}</footer>
+    </section>
   ) : null,
 }));
 vi.mock("@/mk/components/ui/DataModal/DataModal", () => ({
@@ -56,6 +61,7 @@ const setDebt = (status = "S", type = 0, paymentId: string | null = "payment-1")
 beforeEach(() => {
   vi.clearAllMocks();
   setDebt();
+  state.terms = null;
   state.payment = { id: "payment-1", status: "S", amount: 250, details: [], url_file: ["https://example.invalid/comprobante.jpg"] };
   state.execute.mockImplementation(async (url: string, method: string) => {
     if (url.endsWith("/resolved-payment")) return { data: { success: true, data: { payment_id: "payment-1", payment_status: "S" } } };
@@ -70,6 +76,37 @@ const openDebt = () => {
   render(<RenderView open onClose={onClose} onReload={onReload} item={state.debt} />);
   return { onClose, onReload };
 };
+
+describe("importes en el detalle de deuda", () => {
+  it("muestra la multa USD, su saldo y cotización dentro de Importes y estado", () => {
+    setDebt("M", 1, null);
+    state.terms = {
+      principal: { currency: "BOB", amount: "250", rate: { value: "6.96", source: "fixed", date: "2026-11-01" } },
+      penalty: { currency: "USD", amount: "5.00", remaining: "0.004",
+        rate: { value: "11.810000", source: "bcb", date: "2026-11-07", effective_date: "2026-11-08" } },
+    };
+    openDebt();
+    const toggle = screen.getByRole("button", { name: "Importes y estado" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("Multa (USD)")).not.toBeInTheDocument();
+    fireEvent.click(toggle);
+
+    const section = within(toggle.closest("section")!);
+    expect(section.getByText("Multa")).toBeInTheDocument();
+    expect(section.getByText("Multa (USD)")).toBeInTheDocument();
+    expect(section.getByText(/USD\s+0,004/)).toBeInTheDocument();
+    expect(section.getByText("Bs 11.810000 por USD · BCB · 2026-11-08")).toBeInTheDocument();
+    expect(section.queryByText("Capital (USD)")).not.toBeInTheDocument();
+  });
+
+  it("muestra solo los importes en Bs cuando la deuda no tiene términos USD", () => {
+    setDebt("M", 1, null);
+    openDebt();
+    fireEvent.click(screen.getByRole("button", { name: "Importes y estado" }));
+    expect(screen.getByText("Multa")).toBeInTheDocument();
+    expect(screen.queryByText("Multa (USD)")).not.toBeInTheDocument();
+  });
+});
 
 describe("acciones del pago por confirmar desde una deuda", () => {
   it.each([0, 1, 2, 3, 4])("reutiliza las acciones de ingresos para una deuda de tipo %s", async (type) => {
