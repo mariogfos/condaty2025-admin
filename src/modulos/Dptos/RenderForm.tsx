@@ -9,6 +9,7 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getFullName } from "@/mk/utils/string";
 import useAxios from "@/mk/hooks/useAxios";
+import SectorPicker, { useSectorCatalog } from "@/features/condominium-sectors/SectorPicker";
 
 const parseBoolean = (value: any) =>
   value === true ||
@@ -42,6 +43,7 @@ const RenderForm = ({
   const [enabledFields, setEnabledFields]: any = useState({});
   const { showToast } = useAuth();
   const { execute } = useAxios();
+  const sectorCatalog = useSectorCatalog("units");
 
   useEffect(() => {
     if (item?.type_id) {
@@ -170,6 +172,7 @@ const RenderForm = ({
   };
 
   const onSave = async () => {
+    if (sectorCatalog.creating) return;
     let method = formState.id ? "PUT" : "POST";
     if (hasErrors(validate())) return;
 
@@ -189,6 +192,9 @@ const RenderForm = ({
         description: formState.description,
         type_id: parseInt(formState.type_id),
         expense_amount: formState.expense_amount,
+        ...(sectorCatalog.available && (formState.sector_id ?? null) !== (item?.sector_id ?? null)
+          ? { sector_id: formState.sector_id ?? null }
+          : {}),
         dimension: formState.dimension,
         has_payment_plan: Boolean(formState.has_payment_plan),
         has_membership: Boolean(formState.has_membership),
@@ -221,6 +227,7 @@ const RenderForm = ({
       onClose={onClose}
       title={formState.id ? "Editar unidad" : "Nueva unidad"}
       onSave={onSave}
+      disabled={sectorCatalog.creating}
       variant={"mini"}
     >
       <Input
@@ -270,6 +277,11 @@ const RenderForm = ({
           required={true}
         />
       </div>
+      {sectorCatalog.available && (
+        <SectorPicker catalog={sectorCatalog}
+          selected={formState.sector_id == null ? [] : [Number(formState.sector_id)]}
+          onChange={(ids) => setFormState((current: any) => ({ ...current, sector_id: ids[0] ?? null }))} />
+      )}
       <TextArea
         label="Dirección"
         name="description"

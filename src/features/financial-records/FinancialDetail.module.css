@@ -1174,3 +1174,6 @@
     animation: none;
   }
 }
+.usdInfo { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--cPrimary, #00d994); border-radius: 14px; background: color-mix(in srgb, var(--cPrimary, #00d994) 5%, transparent); font-size: 14px; line-height: 1.5; }
+.usdInfo strong { color: var(--cWhite, #f4f6f7); }
+.usdInfo p { color: var(--cWhiteV2, #a6afb7); margin: 4px 0 0; font-size: 13px; }

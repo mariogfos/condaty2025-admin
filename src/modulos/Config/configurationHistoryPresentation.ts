@@ -8,6 +8,7 @@ export type AuditEntry = {
   actor_name: string | null;
   actor_type: string | null;
   changes: Record<string, Change>;
+  reason?: string | null;
   created_at: string;
 };
 export type PresentedChange = { field: string; label: string; before: string; after: string; protected: boolean };
@@ -24,6 +25,12 @@ const labels: Record<string, string> = {
   has_maintenance_value: "Mantenimiento de valor", check_mora: "Control de mora", button_mora: "Aviso de mora",
   operational_permissions_config: "Permisos operativos", payment_methods_config: "Métodos de pago",
   integration_automations: "Automatizaciones", type_id: "Tipo de unidad", placeholder: "Texto de ayuda",
+  usd_billing: "Moneda y cambio", expense_currency: "Moneda de expensas", penalty_currency: "Moneda de multas",
+  rate_mode: "Modalidad de cambio", fixed_rate: "Cambio fijo (Bs/USD)", expense_valuation: "Conversión de expensas",
+  expense_base_rate: "Tasa base de las expensas",
+  expense_amount_usd_override: "Cuota USD de la unidad",
+  daily_indicator: "Indicador BCB", effective_from: "Vigencia desde", expense_amount_usd: "Expensa por unidad (USD)",
+  penalty_delay_months: "Meses de gracia de multa USD",
   options: "Opciones", default_value: "Valor predeterminado", validation: "Validación",
   is_visible: "Visible", is_editable: "Editable", is_required: "Obligatorio", is_fixed: "Tipo protegido",
   fields: "Campos adicionales", month: "Mes", year: "Año", ndependents: "Dependientes",
@@ -68,6 +75,10 @@ function formatValue(value: unknown, field: string): string {
   if (booleans.has(field) || typeof value === "boolean") return enabled(value) ? "Sí" : "No";
   if (field === "financial_mode") return ({ 0: "Sin resumen de deudas", 1: "Solo expensas", 2: "Expensas y multas separados", 3: "Expensas y multas juntos" } as Record<string, string>)[String(value)] || String(value);
   if (field === "penalty_type") return ({ 0: "Sin multas", 1: "Porcentaje", 2: "Monto fijo", 3: "Personalizada" } as Record<string, string>)[String(value)] || String(value);
+  if (field === "expense_currency" || field === "penalty_currency") return value === "USD" ? "Dólares (USD)" : "Bolivianos (Bs)";
+  if (field === "rate_mode") return value === "fixed" ? "Cambio fijo" : "Cambio diario BCB";
+  if (field === "expense_valuation") return value === "issue" ? "Fijar al emitir" : "Actualizar saldo diariamente";
+  if (field === "daily_indicator") return ({ 1000: "TCO diario BCB", 34: "Compra BCB", 35: "Venta BCB", 340: "Referencial compra BCB", 350: "Referencial venta BCB" } as Record<string, string>)[String(value)] || String(value);
   if (field === "limit_type") return ({ C: "Por cantidad", D: "Por días", M: "Por fin de mes" } as Record<string, string>)[String(value)] || String(value);
   if (Array.isArray(value)) return value.map(item => typeof item === "string" ? (["expenses", "reservations", "fines", "others"].includes(field) ? paymentMethods[item] : undefined) || item : JSON.stringify(item)).join(", ") || "Ninguno";
   if (objectValue(value)) return Object.entries(value).map(([key, item]) => `${humanize(key)}: ${formatValue(item, key)}`).join(" · ");

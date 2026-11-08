@@ -3,7 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import RenderForm from "../RenderForm/RenderForm";
 import { removeUnlinkedAreaImages } from "../RenderForm/areaImageCleanup";
 
-const mocks = vi.hoisted(() => ({ showToast: vi.fn() }));
+const mocks = vi.hoisted(() => ({ showToast: vi.fn(), catalogAvailable: false }));
+
+vi.mock("@/mk/hooks/useAxios", () => ({
+  default: () => ({
+    data: { data: { enabled: mocks.catalogAvailable, sectors: [{ id: 1, name: "Norte" }, { id: 2, name: "Sur" }] } },
+    execute: vi.fn(),
+  }),
+}));
 
 vi.mock("@/mk/contexts/AuthProvider", () => ({
   useAuth: () => ({ showToast: mocks.showToast }),
@@ -69,7 +76,34 @@ const advanceToSave = () => {
 };
 
 describe("formulario de área social", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.catalogAvailable = false;
+  });
+
+  it("guarda varios sectores y la restricción desde el formulario del área", async () => {
+    mocks.catalogAvailable = true;
+    const execute = vi.fn().mockResolvedValue({ data: { success: true, message: "Guardada" } });
+    setup(execute);
+
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    const sectorSearch = screen.getByRole("combobox", { name: /^Sectores/ });
+    const restriction = screen.getByRole("checkbox", { name: "Solo visible y reservable por residentes de estos sectores" });
+    expect(restriction).toBeDisabled();
+    fireEvent.focus(sectorSearch);
+    fireEvent.click(screen.getByRole("option", { name: "Norte" }));
+    fireEvent.click(sectorSearch);
+    fireEvent.click(screen.getByRole("option", { name: "Sur" }));
+    fireEvent.click(restriction);
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => expect(execute).toHaveBeenCalledWith("/areas/7", "PUT", expect.objectContaining({
+      sector_ids: [1, 2],
+      restrict_to_sectors: true,
+    })));
+  });
 
   it("no borra fotos anteriores si falla el guardado", async () => {
     const execute = vi.fn().mockResolvedValue({ error: { message: "Falló el guardado" } });

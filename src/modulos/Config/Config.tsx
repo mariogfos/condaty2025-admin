@@ -13,6 +13,7 @@ import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import ConfigurationHistory from "./ConfigurationHistory";
+import UsdBilling from "./UsdBilling/UsdBilling";
 
 const paramsInitial = {
   perPage: -1,
@@ -60,6 +61,7 @@ const Config = () => {
               { value: "F", text: "Funcionalidades" },
               { value: "R", text: "Reglas Operativas" },
               { value: "P", text: "Cuentas de pagos" },
+              { value: "U", text: "Moneda y cambio" },
               { value: "M", text: "Morosidad" },
               { value: "T", text: "Tipos de unidades" },
               { value: "H", text: "Historial" },
@@ -72,6 +74,7 @@ const Config = () => {
       </div>
 
       <div className={styles.contentPanel}>
+        {typeSearch === "U" && <UsdBilling />}
         {typeSearch == "M" && (
           <LoadingScreen>
             <DefaulterConfig
