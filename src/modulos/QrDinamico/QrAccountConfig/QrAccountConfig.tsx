@@ -1,7 +1,6 @@
 "use client";
 import React, {
   forwardRef,
-  useCallback,
   useEffect,
   useImperativeHandle,
   useState,
@@ -35,6 +34,13 @@ interface QrProvider {
   bank_name: string;
 }
 
+type Environment = "S" | "P";
+type Field = "qr_dynamic_enabled" | "qr_dynamic_bank_id" | "qr_dynamic_account_reference"
+  | "qr_dynamic_api_key" | "qr_dynamic_username" | "qr_dynamic_password";
+
+const environmentNames: Record<Environment, string> = { S: "Pruebas", P: "Producción" };
+const credentialFields = ["qr_dynamic_api_key", "qr_dynamic_username", "qr_dynamic_password"] as const;
+
 interface QrAccountConfigData {
   bank_account_id: number;
   qr_dynamic_enabled: boolean;
@@ -42,8 +48,8 @@ interface QrAccountConfigData {
   qr_dynamic_account_reference: string | null;
   has_credentials: boolean;
   qr_dynamic_username_masked: string | null;
-  environment: "S" | "P";
-  active_environment: "S" | "P";
+  environment: Environment;
+  active_environment: Environment;
 }
 
 interface Props {
@@ -81,38 +87,42 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
   // hidden. Any other value is a message the user has to see (QR-07).
   const [loadError, setLoadError] = useState<"forbidden" | string | null>(null);
 
-  // Solo los campos que el usuario tocó viajan en el PUT (parcial)
-  const [form, setForm] = useState<Record<string, string | boolean>>({});
-  const [credentialEnvironment, setCredentialEnvironment] = useState<"S" | "P">("S");
+  const [form, setForm] = useState<Partial<Record<Field, string>>>({});
+  const [editingCredentials, setEditingCredentials] = useState(false);
+  const configUrl = `/qr-dynamic/accounts/${bankAccountId}/config`;
 
-  const load = useCallback(async (environment?: "S" | "P") => {
+  const load = async (environment?: Environment) => {
     setLoading(true);
     const [cfgRes, provRes] = await Promise.all([
-      execute(`/qr-dynamic/accounts/${bankAccountId}/config${environment ? `?environment=${environment}` : ""}`, "GET", {}, false, true),
-      execute("/qr-dynamic/providers", "GET", {}, false, true),
+      execute(configUrl, "GET", environment ? { environment } : {}, false, true),
+      environment ? null : execute("/qr-dynamic/providers", "GET", {}, false, true),
     ]);
-    if (cfgRes?.data?.success) {
+    if (cfgRes?.data?.success && (environment || provRes?.data?.success)) {
       setConfig(cfgRes.data.data);
-      setCredentialEnvironment(cfgRes.data.data.environment ?? "S");
       setLoadError(null);
+      if (environment) {
+        setForm(({ qr_dynamic_enabled, qr_dynamic_bank_id }) => ({
+          qr_dynamic_enabled,
+          qr_dynamic_bank_id,
+        }));
+      } else {
+        setProviders(provRes.data.data.providers ?? []);
+        setForm({});
+      }
     } else {
-      // On a non-2xx axios throws and useAxios returns data:null + error
-      // (DES-32). Never fall through to a silent null: only a 403 is a
-      // legitimate reason to render nothing.
-      setConfig(null);
-      const status = cfgRes?.error?.status;
-      const detail = apiMessage(cfgRes);
-      setLoadError(
-        status === 403
+      const failedResponse = cfgRes?.data?.success ? provRes : cfgRes;
+      const detail = apiMessage(failedResponse) || "Revisá tu conexión y volvé a intentar.";
+      if (environment) {
+        showToast(`No se pudieron cargar las credenciales de ${environmentNames[environment]}. ${detail}`, "error");
+      } else {
+        setConfig(null);
+        setLoadError(cfgRes?.error?.status === 403
           ? "forbidden"
-          : "No se pudo cargar la configuración del QR dinámico. " +
-              (detail || "Revisá tu conexión y volvé a intentar."),
-      );
+          : `No se pudo cargar la configuración del QR dinámico. ${detail}`);
+      }
     }
-    if (provRes?.data?.success) setProviders(provRes.data.data.providers ?? []);
-    setForm({});
     setLoading(false);
-  }, [bankAccountId, execute]);
+  };
 
   useEffect(() => {
     load();
@@ -121,71 +131,72 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bankAccountId]);
 
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const enabledValue =
-    "qr_dynamic_enabled" in form
-      ? (form.qr_dynamic_enabled as string)
-      : config?.qr_dynamic_enabled
-        ? "Y"
-        : "N";
-
-  const bankIdValue =
-    "qr_dynamic_bank_id" in form
-      ? (form.qr_dynamic_bank_id as string)
-      : (config?.qr_dynamic_bank_id ?? "");
-
+  const enabledValue = form.qr_dynamic_enabled ?? (config?.qr_dynamic_enabled ? "Y" : "N");
+  const savedBankId = config?.qr_dynamic_bank_id ?? "";
+  const bankIdValue = form.qr_dynamic_bank_id ?? savedBankId;
+  const switchingBank = bankIdValue !== savedBankId;
   const isEnabled = enabledValue === "Y";
+  const credentialEnvironment = config?.environment ?? "S";
   const selectedProvider = providers.find((provider) => provider.id === bankIdValue);
   const isBnb = selectedProvider?.bank_code === "BNB";
+  const savedReference = switchingBank ? "" : (config?.qr_dynamic_account_reference ?? "");
+  const referenceValue = form.qr_dynamic_account_reference ?? savedReference;
+  const pendingCredentials: Record<string, string> = {};
+  for (const field of credentialFields) {
+    const value = field === "qr_dynamic_password" ? form[field] : form[field]?.replace(/\s+/g, "");
+    if (value && (field !== "qr_dynamic_api_key" || !isBnb)) pendingCredentials[field] = value;
+  }
+  const normalizedReference = referenceValue.replace(/\s+/g, "");
+  if (normalizedReference !== savedReference.replace(/\s+/g, "")) {
+    pendingCredentials.qr_dynamic_account_reference = normalizedReference;
+  }
 
-  const referenceValue =
-    "qr_dynamic_account_reference" in form
-      ? (form.qr_dynamic_account_reference as string)
-      : (config?.qr_dynamic_account_reference ?? "");
+  const handleChange = ({ target }: { target: { name: string; value: string } }) => {
+    const field = target.name as Field;
+    if (field === "qr_dynamic_enabled" && target.value === "Y") setEditingCredentials(true);
+    if (field === "qr_dynamic_bank_id" && target.value !== bankIdValue) {
+      if (Object.keys(pendingCredentials).length > 0) {
+        showToast("Guarda o limpia los datos de este proveedor antes de elegir otro.", "error");
+        return;
+      }
+      // A draft for one provider must never be sent to another provider.
+      setForm((prev) => ({ qr_dynamic_enabled: prev.qr_dynamic_enabled, [field]: target.value }));
+      return;
+    }
+    setForm((prev) => ({ ...prev, [field]: target.value }));
+  };
 
   const save = async (): Promise<boolean> => {
-    // PUT parcial: solo lo tocado. El toggle viaja como booleano.
-    const payload: Record<string, unknown> = {};
-    if ("qr_dynamic_enabled" in form)
-      payload.qr_dynamic_enabled = form.qr_dynamic_enabled === "Y";
-    // La referencia y el proveedor viajan aunque estén vacíos (limpiar es
-    // válido); una credencial vacía NO viaja (vacío = "no la toques")
-    for (const key of ["qr_dynamic_bank_id", "qr_dynamic_account_reference"]) {
-      if (key in form) payload[key] = form[key];
+    if (loading || saving) {
+      showToast("Espera a que termine la carga o el guardado del QR dinámico.", "error");
+      return false;
     }
-    for (const key of [
-      "qr_dynamic_api_key",
-      "qr_dynamic_username",
-      "qr_dynamic_password",
-    ]) {
-      if (key in form && form[key] !== "") payload[key] = form[key];
+    if (!config) return true;
+    if (!bankIdValue && Object.keys(pendingCredentials).length > 0) {
+      showToast("Selecciona un proveedor antes de guardar sus credenciales.", "error");
+      return false;
     }
-    // Nada que tocar acá no es un fallo: el formulario padre sigue su curso.
-    if (Object.keys(payload).length === 0) {
-      return true;
-    }
-    payload.environment = credentialEnvironment;
+    const payload: Record<string, unknown> = { ...pendingCredentials };
+    if (switchingBank) payload.qr_dynamic_bank_id = bankIdValue || null;
+    if (isEnabled !== config.qr_dynamic_enabled) payload.qr_dynamic_enabled = isEnabled;
+    if (Object.keys(payload).length === 0) return true;
+
     setSaving(true);
-    const res = await execute(
-      `/qr-dynamic/accounts/${bankAccountId}/config`,
-      "PUT",
-      payload,
-    );
+    const res = await execute(configUrl, "PUT", { ...payload, environment: credentialEnvironment });
     setSaving(false);
     if (res?.data?.success) {
-      load(credentialEnvironment);
+      setConfig(res.data.data);
+      setForm({});
       return true;
     }
 
-    // 422: axios tira y el mensaje del backend llega en error.data (DES-32)
-    showToast(
-      apiMessage(res) || "No se pudo guardar la configuración del QR dinámico",
-      "error",
-    );
+    const errors = res?.error?.data?.errors as Record<string, string[]> | undefined;
+    const detail = errors && Object.values(errors).flat().join(" ");
+    const activeHint = res?.error?.status === 422 && isEnabled
+      && credentialEnvironment !== config.active_environment
+      ? ` Para habilitar el QR, completa las credenciales del ambiente de cobro (${environmentNames[config.active_environment]}).`
+      : "";
+    showToast((detail || apiMessage(res) || "No se pudo guardar la configuración del QR dinámico.") + activeHint, "error");
     return false;
   };
 
@@ -211,7 +222,7 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
         <p className={styles.error} id="qr-account-config-error">
           {loadError}
         </p>
-        <Button onClick={load}>Reintentar</Button>
+        <Button onClick={() => load()}>Reintentar</Button>
       </Section>
     );
   }
@@ -230,11 +241,17 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
         label="QR Dinámico habilitado"
         value={enabledValue}
         onChange={handleChange}
+        disabled={saving}
       />
 
-      {/* Con el QR deshabilitado el resto no aplica: se oculta en vez de
-          ofrecer campos que nadie va a usar. */}
-      {isEnabled && (
+      {!isEnabled && !editingCredentials && (
+        <div>
+          <Button variant="secondary" small onClick={() => setEditingCredentials(true)}>
+            Configurar credenciales
+          </Button>
+        </div>
+      )}
+      {(isEnabled || editingCredentials) && (
         <>
         <Select
           label="Banco / proveedor"
@@ -244,7 +261,11 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
           optionLabel="bank_name"
           optionValue="id"
           onChange={handleChange}
+          disabled={saving}
         />
+        {switchingBank && savedBankId && (
+          <p className={styles.hint}>Al guardar otro proveedor se reemplazan las credenciales guardadas en ambos ambientes.</p>
+        )}
 
         <Select
           label="Credenciales del ambiente"
@@ -253,28 +274,34 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
           options={[{ id: "S", name: "Pruebas" }, { id: "P", name: "Producción" }]}
           optionLabel="name"
           optionValue="id"
-          onChange={(event: any) => {
-            const next = event.target.value as "S" | "P";
-            if (Object.keys(form).length > 0) {
-              showToast("Guarda los cambios antes de cambiar de ambiente.", "error");
+          disabled={saving}
+          onChange={(event: { target: { value: string } }) => {
+            const next = event.target.value;
+            if ((next !== "S" && next !== "P") || next === credentialEnvironment) return;
+            if (Object.keys(pendingCredentials).length > 0) {
+              showToast(`Guarda o limpia los campos modificados de ${environmentNames[credentialEnvironment]} antes de cambiar de ambiente.`, "error");
               return;
             }
             load(next);
           }}
         />
         <p className={styles.hint}>
-          {`El condominio cobra actualmente en ${config.active_environment === "P" ? "Producción" : "Pruebas"}. Las credenciales del otro ambiente se guardan por separado.`}
+          {`Ambiente de cobro del condominio: ${environmentNames[config.active_environment]}. Este selector solo elige qué credenciales editas.`}
         </p>
+        {credentialEnvironment !== config.active_environment && (
+          <p className={styles.hint}>Puedes preparar las credenciales de este ambiente con el QR deshabilitado.</p>
+        )}
 
         <Input
           label={isBnb ? "Posición de cuenta BNB (1 o 2)" : "Referencia de cuenta"}
           name="qr_dynamic_account_reference"
           value={referenceValue}
           onChange={handleChange}
+          disabled={saving}
         />
 
         <p className={styles.credentialsState}>
-          {config.has_credentials
+          {!switchingBank && config.has_credentials
             ? `Credenciales configuradas — usuario: ${config.qr_dynamic_username_masked ?? "•••"}`
             : "Sin credenciales configuradas"}
         </p>
@@ -287,24 +314,28 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
           <InputPassword
             label="API Key"
             name="qr_dynamic_api_key"
-            value={(form.qr_dynamic_api_key as string) ?? ""}
+            value={form.qr_dynamic_api_key ?? ""}
             onChange={handleChange}
             autoComplete="new-password"
+            readOnly={saving}
             error={{}}
           />
         )}
         <Input
           label={isBnb ? "accountId (BNB)" : "Usuario"}
           name="qr_dynamic_username"
-          value={(form.qr_dynamic_username as string) ?? ""}
+          value={form.qr_dynamic_username ?? ""}
           onChange={handleChange}
+          autoComplete="off"
+          disabled={saving}
         />
         <InputPassword
           label={isBnb ? "authorizationId (BNB)" : "Contraseña"}
           name="qr_dynamic_password"
-          value={(form.qr_dynamic_password as string) ?? ""}
+          value={form.qr_dynamic_password ?? ""}
           onChange={handleChange}
           autoComplete="new-password"
+          readOnly={saving}
           error={{}}
         />
         </>
