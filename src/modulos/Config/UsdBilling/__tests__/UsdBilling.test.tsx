@@ -1,7 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import UsdBilling from "../UsdBilling";
-import { UsdDebtInfo } from "@/features/financial-records/UsdDebtInfo";
 
 const mocks = vi.hoisted(() => ({ execute: vi.fn(), reload: vi.fn(), toast: vi.fn(), result: null as any }));
 vi.mock("@/mk/contexts/AuthProvider", () => ({ useAuth: () => ({ userCan: () => true, showToast: mocks.toast }) }));
@@ -148,19 +147,5 @@ describe("Moneda y cambio", () => {
     } finally {
       vi.useRealTimers();
     }
-  });
-});
-
-describe("Información USD en el detalle", () => {
-  it("no muestra información de cambio en registros BOB históricos", () => {
-    render(<UsdDebtInfo terms={null} />);
-    expect(screen.queryByRole("region", { name: "Importes en dólares" })).not.toBeInTheDocument();
-  });
-  it("muestra fuente y vigencia y conserva precisión en saldos pequeños", () => {
-    render(<UsdDebtInfo terms={{ principal: { currency: "BOB", amount: "100", rate: { value: "6.96", source: "fixed", date: "2026-11-01" } },
-      penalty: { currency: "USD", amount: "2.50", remaining: "0.004", rate: { value: "12.000000", source: "bcb", date: "2026-11-06" } } }} />);
-    expect(screen.getByRole("region", { name: "Importes en dólares" })).toHaveTextContent("12.000000");
-    expect(screen.getByText(/Saldo:/)).toHaveTextContent("0,004");
-    expect(screen.queryByText(/Capital:/)).not.toBeInTheDocument();
   });
 });

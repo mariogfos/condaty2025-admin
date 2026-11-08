@@ -16,6 +16,7 @@ import { hasMaintenanceValue } from "@/mk/utils/utils";
 import RenderDel from "@/modulos/Payments/RenderDel/RenderDel";
 import { paymentsApi } from "@/modulos/Payments/api";
 import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
+import { getUsdDebtFields } from "@/features/financial-records/usdDebtFields";
 import {
   FinancialDetailGrid,
   FinancialDetailSection,
@@ -319,45 +320,49 @@ const RenderView = ({
         onRecordChanged={getDetail}
         footer={footer}
       >
-        <FinancialDetailSection title="Resumen de la deuda">
-          <FinancialDetailGrid fields={partialContextFields} />
-        </FinancialDetailSection>
+        {(workspace) => (
+          <>
+            <FinancialDetailSection title="Resumen de la deuda">
+              <FinancialDetailGrid fields={partialContextFields} />
+            </FinancialDetailSection>
 
-        <FinancialDetailSection title="Importes y estado" defaultOpen={false}>
-          <FinancialDetailGrid fields={partialAmountFields} />
-        </FinancialDetailSection>
+            <FinancialDetailSection title="Importes y estado" defaultOpen={false}>
+              <FinancialDetailGrid fields={[...partialAmountFields, ...getUsdDebtFields(workspace?.record.usd_terms)]} />
+            </FinancialDetailSection>
 
-        <FinancialDetailSection
-          title="Pagos aplicados"
-          description="Selecciona una fila para abrir el comprobante individual."
-          defaultOpen={false}
-        >
-          <div className={styles.tableWrapper}>
-            <Table
-              style={{
-                borderBottomLeftRadius: 0,
-                borderBottomRightRadius: 0,
-              }}
-              className="striped"
-              height={historyTableHeight}
-              onRowClick={(payment: any) => {
-                setOpenDetail({ open: true, item: payment });
-              }}
-              data={historyRows}
-              header={header}
-            />
-            <div className={styles.tableFooter}>
-              <div className={styles.tableFooterLabels}>
-                <p>Total pagado</p>
-                <p>Saldo restante</p>
+            <FinancialDetailSection
+              title="Pagos aplicados"
+              description="Selecciona una fila para abrir el comprobante individual."
+              defaultOpen={false}
+            >
+              <div className={styles.tableWrapper}>
+                <Table
+                  style={{
+                    borderBottomLeftRadius: 0,
+                    borderBottomRightRadius: 0,
+                  }}
+                  className="striped"
+                  height={historyTableHeight}
+                  onRowClick={(payment: any) => {
+                    setOpenDetail({ open: true, item: payment });
+                  }}
+                  data={historyRows}
+                  header={header}
+                />
+                <div className={styles.tableFooter}>
+                  <div className={styles.tableFooterLabels}>
+                    <p>Total pagado</p>
+                    <p>Saldo restante</p>
+                  </div>
+                  <div className={styles.tableFooterValues}>
+                    <p className={styles.footerValue}>{formatBs(totalPaid)}</p>
+                    <p className={styles.footerValue}>{formatBs(remainingAmount)}</p>
+                  </div>
+                </div>
               </div>
-              <div className={styles.tableFooterValues}>
-                <p className={styles.footerValue}>{formatBs(totalPaid)}</p>
-                <p className={styles.footerValue}>{formatBs(remainingAmount)}</p>
-              </div>
-            </div>
-          </div>
-        </FinancialDetailSection>
+            </FinancialDetailSection>
+          </>
+        )}
       </FinancialDetailModal>
 
       {openDetail.open && (
