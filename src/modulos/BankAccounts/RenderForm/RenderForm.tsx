@@ -8,6 +8,7 @@ import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import QrAccountConfig, {
   QrAccountConfigHandle,
 } from "@/modulos/QrDinamico/QrAccountConfig/QrAccountConfig";
+import { apiMessage } from "@/modulos/QrDinamico/shared";
 
 const qrPendingStyle: React.CSSProperties = {
   marginTop: 20,
@@ -17,6 +18,18 @@ const qrPendingStyle: React.CSSProperties = {
   flexDirection: "column",
   gap: 6,
 };
+
+const accountPayload = (account: any) => ({
+  images: account?.images || "",
+  bank_entity_id: account?.bank_entity_id || "",
+  account_type: account?.account_type || "",
+  account_number: account?.account_number || "",
+  currency_type_id: account?.currency_type_id || "",
+  holder: account?.holder || "",
+  ci_holder: account?.ci_holder || "",
+  alias_holder: account?.alias_holder || "",
+  initial_amount: Number(account?.initial_amount || 0),
+});
 
 const RenderForm = ({
   open,
@@ -28,6 +41,9 @@ const RenderForm = ({
 }: any) => {
   const [formState, setFormState] = useState({ ...item, initial_amount: item?.initial_amount ?? 0 });
   const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+  const saveInProgress = useRef(false);
+  const savedAccountPayload = useRef(JSON.stringify(accountPayload(item)));
   // The QR configuration is written through its own endpoint, so this form
   // saves it right after the account: one button stores the whole modal.
   const qrConfigRef = useRef<QrAccountConfigHandle>(null);
@@ -44,12 +60,9 @@ const RenderForm = ({
     }));
   };
   useEffect(() => {
-    setFormState((prev: any) => ({
-      ...prev,
-      ...item,
-      initial_amount: item?.initial_amount ?? 0,
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setFormState({ ...item, initial_amount: item?.initial_amount ?? 0 });
+    savedAccountPayload.current = JSON.stringify(accountPayload(item));
+    setErrors({});
   }, [item, open]);
   const validate = () => {
     let errors: any = {};
@@ -117,49 +130,55 @@ const RenderForm = ({
     return errors;
   };
   const _onSave = async () => {
-    if (hasErrors(validate())) return;
-    let method = formState.id ? "PUT" : "POST";
-    const { data } = await execute(
-      "/bank-accounts" + (formState.id ? "/" + formState.id : ""),
-      method,
-      {
-        // avatar: formState.avatar || "",
-        images: formState.images || "",
-        bank_entity_id: formState.bank_entity_id || "",
-        account_type: formState.account_type || "",
-        account_number: formState.account_number || "",
-        currency_type_id: formState.currency_type_id || "",
-        holder: formState.holder || "",
-        ci_holder: formState.ci_holder || "",
-        alias_holder: formState.alias_holder || "",
-        initial_amount: Number(formState.initial_amount || 0),
-      },
-    );
+    if (saveInProgress.current) return;
+    const payload = accountPayload(formState);
+    const serializedPayload = JSON.stringify(payload);
+    const accountChanged = !formState.id || serializedPayload !== savedAccountPayload.current;
+    if (accountChanged && hasErrors(validate())) return;
 
-    if (!data?.success) {
-      showToast(data?.message, "error");
-      return;
+    saveInProgress.current = true;
+    setSaving(true);
+    try {
+      let message = "Cambios guardados";
+      if (accountChanged) {
+        const result = await execute(
+          formState.id ? `/bank-accounts/${formState.id}` : "/bank-accounts",
+          formState.id ? "PUT" : "POST",
+          payload,
+        );
+        if (!result?.data?.success) {
+          showToast(apiMessage(result) || "No se pudo guardar la cuenta bancaria.", "error");
+          return;
+        }
+        savedAccountPayload.current = serializedPayload;
+        message = result.data.message || message;
+      }
+
+      const qrSaved = (await qrConfigRef.current?.save()) ?? true;
+      if (accountChanged || qrSaved) reLoad();
+      if (!qrSaved) return;
+
+      onClose();
+      showToast(message, "success");
+    } finally {
+      saveInProgress.current = false;
+      setSaving(false);
     }
-
-    // The account is already stored; if its QR configuration is rejected the
-    // modal stays open with the reason instead of closing over the failure.
-    const qrSaved = (await qrConfigRef.current?.save()) ?? true;
-    reLoad();
-    if (!qrSaved) return;
-
-    onClose();
-    showToast(data.message, "success");
   };
 
   return (
     <DataModal
       open={open}
-      onClose={onClose}
+      onClose={(reason) => { if (!saveInProgress.current) onClose(reason); }}
       maxWidth={760}
       title={
         formState.id ? "Editar cuenta bancaria" : "Agregar cuenta bancaria"
       }
       onSave={_onSave}
+      disabled={saving}
+      buttonText={saving ? "Guardando…" : "Guardar"}
+      buttonCancel={saving ? "" : "Cancelar"}
+      iconClose={!saving}
       variant={"mini"}
     >
       <p style={{ marginBottom: 12, color: "var(--cWhite)", fontWeight: 600 }}>
@@ -271,7 +290,7 @@ const RenderForm = ({
           RN-ADM-01: un admin de condominio no ve esta sección. */}
       {Boolean(user?.fosrole_id) &&
         (formState.id ? (
-          <QrAccountConfig ref={qrConfigRef} bankAccountId={formState.id} />
+          <QrAccountConfig key={formState.id} ref={qrConfigRef} bankAccountId={formState.id} />
         ) : (
           <div id="qr-account-config-pending" style={qrPendingStyle}>
             <p style={{ color: "var(--cWhite)", fontWeight: 600, margin: 0 }}>
