@@ -18,7 +18,7 @@ export type UsdSettings = {
   fixed_rate: string;
   expense_valuation: "issue" | "daily";
   expense_base_rate?: string | null;
-  daily_indicator: number;
+  readonly daily_indicator: number;
   effective_from: string | null;
   penalty_type: number;
   penalty_delay_months: number;
@@ -27,6 +27,7 @@ export type UsdSettings = {
 };
 type SettingsData = { settings: UsdSettings; version: string; can_edit: boolean; rate: { value: string; date: string; source: string } | null; rate_notice: string | null };
 const currencies = [{ id: "BOB", name: "Bolivianos (Bs)" }, { id: "USD", name: "Dólares (USD)" }];
+const rateFormat = new Intl.NumberFormat("es-BO", { minimumFractionDigits: 2, maximumFractionDigits: 6 });
 const message = (data: any, error: any) => {
   const errors = error?.data?.errors || data?.errors;
   return errors ? Object.values(errors).flat().join(" ") : error?.data?.message || data?.message || "No se pudo guardar. Intenta nuevamente.";
@@ -55,7 +56,7 @@ export default function UsdBilling() {
       if (name === "expense_currency" && value === "USD") {
         return { ...current, expense_currency: "USD", expense_base_rate: current.expense_base_rate ?? current.fixed_rate };
       }
-      return { ...current, [name]: ["daily_indicator", "penalty_type", "penalty_delay_months"].includes(name) ? Number(value) : value };
+      return { ...current, [name]: ["penalty_type", "penalty_delay_months"].includes(name) ? Number(value) : value };
     });
   };
   const enabled = form?.expense_currency === "USD" || form?.penalty_currency === "USD";
@@ -87,6 +88,8 @@ export default function UsdBilling() {
   if (error && !result) return <p role="alert" className={styles.notice}>No se pudo cargar la configuración de moneda.</p>;
   if (!form || !result) return <p aria-live="polite">Cargando configuración de moneda…</p>;
   const disabled = !edit || busy || !canEdit;
+  const hasSavedTco = result.settings.rate_mode === "daily" && result.settings.daily_indicator === 1000;
+  const dailyRate = hasSavedTco ? result.rate : null;
   return <div className={`${shared.Config} ${shared.compactMode}`}>
     <div className={shared.headerRow}>
       <div className={shared.headerContent}>
@@ -149,13 +152,14 @@ export default function UsdBilling() {
         <Select label="Modalidad de cambio" name="rate_mode" value={form.rate_mode} onChange={change} disabled={disabled} options={[
           { id: "fixed", name: "Cambio fijo" }, { id: "daily", name: "Cambio diario del BCB" },
         ]} />
-        {form.rate_mode === "fixed" ? <Input name="fixed_rate" label="Bolivianos por USD" value={form.fixed_rate} onChange={change} disabled={disabled} type="text" /> : <Select
-          name="daily_indicator" label="Cotización del BCB" value={form.daily_indicator} onChange={change} disabled={disabled} options={[
-            { id: 1000, name: "Tipo de cambio oficial diario (TCO)" },
-            { id: 350, name: "Referencial de venta" }, { id: 340, name: "Referencial de compra" },
-            { id: 35, name: "Cotización de venta" }, { id: 34, name: "Cotización de compra" },
-          ]} />}
-        <p className={styles.hint}>{result.rate ? `Cotización guardada: Bs ${result.rate.value} por USD · ${result.rate.date}` : result.rate_notice || "Sin cotización disponible"}</p>
+        {form.rate_mode === "fixed" ? (
+          <Input name="fixed_rate" label="Bolivianos por USD" value={form.fixed_rate} onChange={change} disabled={disabled} type="text" />
+        ) : <>
+          <p className={styles.hint}>Tipo de cambio oficial (TCO) publicado por el BCB.</p>
+          <p className={styles.hint}>{dailyRate
+            ? `Cotización vigente: Bs ${rateFormat.format(Number(dailyRate.value))} por USD · ${dailyRate.date}`
+            : (hasSavedTco ? result.rate_notice || "Sin cotización disponible" : "La cotización vigente se mostrará al guardar.")}</p>
+        </>}
       </section>
       <section className={shared.formCard}>
         <h2 className={styles.sectionTitle}>Vigencia</h2>
