@@ -7,13 +7,8 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
-import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import {
-  QR_ACCOUNT_STATE_COLOR,
-  QR_ACCOUNT_STATE_LABEL,
-  qrAccountState,
-} from "@/modulos/QrDinamico/shared";
+import { BankAccountQrBadge, BankAccountStatusBadge } from "./BankAccountBadges";
 
 const paramsInitial = {
   perPage: 20,
@@ -34,16 +29,6 @@ const centeredColumnStyle = {
   alignItems: "center",
   justifyContent: "center",
 } as const;
-
-const renderQrStateCell = ({ item }: Record<string, any>) => {
-  const state = qrAccountState(item);
-  const tone = QR_ACCOUNT_STATE_COLOR[state];
-  return (
-    <StatusBadge color={tone.color} backgroundColor={tone.bg}>
-      {QR_ACCOUNT_STATE_LABEL[state]}
-    </StatusBadge>
-  );
-};
 
 const BankAccounts = () => {
   const { user } = useAuth();
@@ -131,29 +116,16 @@ const BankAccounts = () => {
       status: {
         rules: [],
         api: "ae",
-        label: "Estado",
+        label: "Estado de la cuenta",
         form: false,
         list: {
           width: "180px",
           className: styles.statusColumn,
           style: centeredColumnStyle,
-          onRender: ({ item }: Record<string, any>) => {
-            return (
-              <StatusBadge
-                color={item.status === "A" ? "var(--cSuccess)" : "var(--cError)"}
-                backgroundColor={
-                  item.status === "A"
-                    ? "var(--cHoverSuccess)"
-                    : "var(--cHoverError)"
-                }
-              >
-                {item.status === "A" ? "Habilitada" : "Deshabilitada"}
-              </StatusBadge>
-            );
-          },
+          onRender: ({ item }: Record<string, any>) => <BankAccountStatusBadge status={item.status} />,
         },
         filter: {
-          label: "Estados",
+          label: "Estado de la cuenta",
           width: "180px",
           options: getOptionsStatus,
         },
@@ -219,7 +191,7 @@ const BankAccounts = () => {
                 width: "180px",
                 className: styles.statusColumn,
                 style: centeredColumnStyle,
-                onRender: renderQrStateCell,
+                onRender: ({ item }: Record<string, any>) => <BankAccountQrBadge account={item} />,
               },
             },
           }
