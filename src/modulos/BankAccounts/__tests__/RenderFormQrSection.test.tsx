@@ -1,32 +1,36 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import RenderForm from "../RenderForm/RenderForm";
 
 let mockUser: any = { id: "u1", fosrole_id: null };
+const mockQrSave = vi.fn(async () => true);
 
 vi.mock("@/mk/contexts/AuthProvider", () => ({
   useAuth: () => ({ user: mockUser, showToast: vi.fn() }),
 }));
 
 vi.mock("@/mk/components/ui/DataModal/DataModal", () => ({
-  default: ({ children }: any) => <div>{children}</div>,
+  default: ({ children, onSave }: any) => <div>{children}<button onClick={onSave}>Guardar</button></div>,
 }));
 vi.mock("@/mk/components/forms/UploadFileV3/UploadFileV3", () => ({
   default: () => null,
 }));
-vi.mock("@/modulos/QrDinamico/QrAccountConfig/QrAccountConfig", () => ({
-  default: ({ bankAccountId }: any) => (
-    <div id="qr-account-config">config de {String(bankAccountId)}</div>
-  ),
-}));
+vi.mock("@/modulos/QrDinamico/QrAccountConfig/QrAccountConfig", async () => {
+  const { useImperativeHandle } = await import("react");
+  const MockQrAccountConfig = ({ bankAccountId, ref }: any) => {
+    useImperativeHandle(ref, () => ({ save: mockQrSave }));
+    return <div id="qr-account-config">config de {String(bankAccountId)}</div>;
+  };
+  return { default: MockQrAccountConfig };
+});
 
-const setup = (item: any) =>
+const setup = (item: any, execute = vi.fn(), onClose = vi.fn()) =>
   render(
     <RenderForm
       open
-      onClose={vi.fn()}
+      onClose={onClose}
       item={item}
-      execute={vi.fn()}
+      execute={execute}
       extraData={{ bankEntities: [], currencyTypes: [] }}
       reLoad={vi.fn()}
     />,
@@ -35,6 +39,7 @@ const setup = (item: any) =>
 describe("RenderForm — descubribilidad del QR Dinámico (QR-07)", () => {
   beforeEach(() => {
     mockUser = { id: "u1", fosrole_id: null };
+    mockQrSave.mockClear();
   });
 
   it("al crear, FOS ve el aviso de que hay que guardar primero", () => {
@@ -61,5 +66,16 @@ describe("RenderForm — descubribilidad del QR Dinámico (QR-07)", () => {
 
     expect(container.querySelector("#qr-account-config")).toBeNull();
     expect(container.querySelector("#qr-account-config-pending")).toBeNull();
+  });
+
+  it("al guardar solo QR no revalida ni reescribe los datos de la cuenta", async () => {
+    mockUser = { id: "u1", fosrole_id: 1 };
+    const execute = vi.fn();
+    const onClose = vi.fn();
+    setup({ id: 7 }, execute, onClose);
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+    await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
+    expect(mockQrSave).toHaveBeenCalledOnce();
+    expect(execute).not.toHaveBeenCalled();
   });
 });

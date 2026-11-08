@@ -73,7 +73,7 @@ export const qrAccountState = (account: any): QrAccountState => {
 };
 
 export const QR_ACCOUNT_STATE_LABEL: Record<QrAccountState, string> = {
-  active: "Activo",
+  active: "Configurado",
   incomplete: "Incompleto",
   disabled: "Deshabilitado",
 };
