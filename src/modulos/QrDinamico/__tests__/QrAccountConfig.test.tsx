@@ -93,17 +93,18 @@ describe("QrAccountConfig (DES-20/21)", () => {
     });
   });
 
-  it("consulta y guarda las credenciales del ambiente seleccionado", async () => {
-    executeMock.mockImplementation(async (url: string, method: string) => {
+  it("permite cambiar a Producción después de activar el QR y guarda en ese ambiente", async () => {
+    executeMock.mockImplementation(async (url: string, method: string, params: { environment?: string }) => {
       if (url.includes("/providers"))
         return { data: { success: true, data: { providers: PROVIDERS } } };
       if (method === "GET") {
-        const production = url.includes("environment=P");
+        const production = params.environment === "P";
         return {
           data: {
             success: true,
             data: {
               ...CONFIG,
+              qr_dynamic_enabled: false,
               environment: production ? "P" : "S",
               qr_dynamic_account_reference: production ? "PROD-REF" : "CTA-001",
             },
@@ -114,6 +115,7 @@ describe("QrAccountConfig (DES-20/21)", () => {
     });
     const ref = createRef<QrAccountConfigHandle>();
     const { container } = render(<QrAccountConfig ref={ref} bankAccountId={7} />);
+    fireEvent.click(await screen.findByRole("checkbox"));
     await waitFor(() => expect(screen.getByRole("button", { name: /Pruebas/ })).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole("button", { name: /Pruebas/ }));
@@ -123,6 +125,8 @@ describe("QrAccountConfig (DES-20/21)", () => {
         (container.querySelector('input[name="qr_dynamic_account_reference"]') as HTMLInputElement).value,
       ).toBe("PROD-REF"),
     );
+    expect(executeMock).toHaveBeenCalledWith("/qr-dynamic/accounts/7/config", "GET", { environment: "P" }, false, true);
+    expect(screen.getByRole("checkbox")).toBeChecked();
 
     fireEvent.change(
       container.querySelector('input[name="qr_dynamic_account_reference"]') as HTMLInputElement,
@@ -131,7 +135,33 @@ describe("QrAccountConfig (DES-20/21)", () => {
     await ref.current!.save();
     expect(executeMock.mock.calls.find((call) => call[1] === "PUT")?.[2]).toEqual({
       environment: "P",
+      qr_dynamic_enabled: true,
       qr_dynamic_account_reference: "PROD-NUEVA",
+    });
+  });
+
+  it("permite preparar credenciales con el QR deshabilitado y protege un cambio de ambiente con datos sin guardar", async () => {
+    executeMock.mockImplementation(async (url: string, method: string, params: { environment?: string }) => {
+      if (url.includes("/providers")) return { data: { success: true, data: { providers: PROVIDERS } } };
+      const environment = params.environment ?? "S";
+      return { data: { success: true, data: { ...CONFIG, environment, qr_dynamic_enabled: false } } };
+    });
+    const ref = createRef<QrAccountConfigHandle>();
+    const { container } = render(<QrAccountConfig ref={ref} bankAccountId={7} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Configurar credenciales" }));
+    fireEvent.click(screen.getByRole("button", { name: /Credenciales del ambiente.*Pruebas/ }));
+    fireEvent.click(screen.getByText("Producción"));
+    await screen.findByRole("button", { name: /Credenciales del ambiente.*Producción/ });
+    const username = container.querySelector('input[name="qr_dynamic_username"]')!;
+    fireEvent.change(username, { target: { value: "usuario-prueba" } });
+    fireEvent.click(screen.getByRole("button", { name: /Credenciales del ambiente.*Producción/ }));
+    fireEvent.click(screen.getByText("Pruebas"));
+    expect(screen.getByRole("button", { name: /Credenciales del ambiente.*Producción/ })).toBeInTheDocument();
+    expect(username).toHaveValue("usuario-prueba");
+    await expect(ref.current!.save()).resolves.toBe(true);
+    expect(executeMock.mock.calls.find((call) => call[1] === "PUT")?.[2]).toEqual({
+      environment: "P",
+      qr_dynamic_username: "usuario-prueba",
     });
   });
 

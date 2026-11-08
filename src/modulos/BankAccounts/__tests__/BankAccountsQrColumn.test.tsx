@@ -63,7 +63,7 @@ describe("BankAccounts — columna de QR Dinámico (QR-07)", () => {
     expect(capturedFields.qr_dynamic_enabled.label).toBe("QR Dinámico");
   });
 
-  it("distingue Activo, Incompleto y Deshabilitado sin abrir cada modal", () => {
+  it("distingue Configurado, Incompleto y Deshabilitado sin abrir cada modal", () => {
     mockUser = { id: "u1", fosrole_id: 1 };
     render(<BankAccounts />);
 
@@ -73,7 +73,7 @@ describe("BankAccounts — columna de QR Dinámico (QR-07)", () => {
       qr_dynamic_account_reference: "CTA-001",
       qr_dynamic_has_credentials: true,
     });
-    expect(screen.getByText("Activo")).toBeInTheDocument();
+    expect(screen.getByText("Configurado")).toBeInTheDocument();
 
     renderCell({
       qr_dynamic_enabled: true,
@@ -84,6 +84,22 @@ describe("BankAccounts — columna de QR Dinámico (QR-07)", () => {
 
     renderCell({ qr_dynamic_enabled: false });
     expect(screen.getByText("Deshabilitado")).toBeInTheDocument();
+  });
+
+  it("distingue la cuenta deshabilitada de un QR configurado", () => {
+    mockUser = { id: "u1", fosrole_id: 1 };
+    render(<BankAccounts />);
+    const item = {
+      status: "X",
+      qr_dynamic_enabled: true,
+      qr_dynamic_bank_id: "uuid-bg",
+      qr_dynamic_has_credentials: true,
+    };
+    expect(capturedFields.status.label).toBe("Estado de la cuenta");
+    render(<>{capturedFields.status.list.onRender({ item })}</>);
+    renderCell(item);
+    expect(screen.getByText("Deshabilitada")).toBeInTheDocument();
+    expect(screen.getByText("Configurado")).toBeInTheDocument();
   });
 });
 
