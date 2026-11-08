@@ -238,7 +238,7 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
 
       <Switch
         name="qr_dynamic_enabled"
-        label="QR Dinámico habilitado"
+        label="Habilitar QR dinámico"
         value={enabledValue}
         onChange={handleChange}
         disabled={saving}

@@ -9,6 +9,7 @@ import QrAccountConfig, {
   QrAccountConfigHandle,
 } from "@/modulos/QrDinamico/QrAccountConfig/QrAccountConfig";
 import { apiMessage } from "@/modulos/QrDinamico/shared";
+import { BankAccountStatusBadge } from "../BankAccountBadges";
 
 const qrPendingStyle: React.CSSProperties = {
   marginTop: 20,
@@ -181,6 +182,11 @@ const RenderForm = ({
       iconClose={!saving}
       variant={"mini"}
     >
+      {formState.id && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          Estado de la cuenta <BankAccountStatusBadge status={formState.status} />
+        </div>
+      )}
       <p style={{ marginBottom: 12, color: "var(--cWhite)", fontWeight: 600 }}>
         Subir QR
       </p>

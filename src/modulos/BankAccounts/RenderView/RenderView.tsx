@@ -6,9 +6,11 @@ import { useEffect, useState } from "react";
 import { formatNumber } from "@/mk/utils/numbers";
 import RenderForm from "../RenderForm/RenderForm";
 import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
-import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import { BankAccountQrBadge, BankAccountStatusBadge } from "../BankAccountBadges";
 
 const RenderView = (props: any) => {
+  const { user } = useAuth();
   const {
     open,
     onClose,
@@ -143,20 +145,19 @@ const RenderView = (props: any) => {
                   <div className={styles.bankDetailValue}>{item?.account_number || "-/-"}</div>
                 </div>
                 <div className={styles.bankDetailField}>
-                  <p className={styles.bankDetailLabel}>Estado</p>
+                  <p className={styles.bankDetailLabel}>Estado de la cuenta</p>
                   <div className={styles.bankDetailBadgeWrap}>
-                    <StatusBadge
-                      color={item?.status === "A" ? "var(--cSuccess)" : "var(--cError)"}
-                      backgroundColor={
-                        item?.status === "A"
-                          ? "var(--cHoverSuccess)"
-                          : "var(--cHoverError)"
-                      }
-                    >
-                      {item?.status === "A" ? "Habilitada" : "Deshabilitada"}
-                    </StatusBadge>
+                    <BankAccountStatusBadge status={item?.status} />
                   </div>
                 </div>
+                {Boolean(user?.fosrole_id) && (
+                  <div className={styles.bankDetailField}>
+                    <p className={styles.bankDetailLabel}>QR dinámico</p>
+                    <div className={styles.bankDetailBadgeWrap}>
+                      <BankAccountQrBadge account={item} />
+                    </div>
+                  </div>
+                )}
 
                 <div className={styles.bankDetailField}>
                   <p className={styles.bankDetailLabel}>Tipo de moneda</p>
