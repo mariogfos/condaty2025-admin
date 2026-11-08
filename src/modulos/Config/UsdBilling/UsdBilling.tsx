@@ -7,6 +7,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import Button from "@/mk/components/forms/Button/Button";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
+import Switch from "@/mk/components/forms/Switch/Switch";
 import shared from "../DptoConfig/DptoConfig.module.css";
 import styles from "./UsdBilling.module.css";
 
@@ -39,12 +40,13 @@ export default function UsdBilling() {
   const [edit, setEdit] = useState(false);
   const [busy, setBusy] = useState(false);
   const [reason, setReason] = useState("");
+  const [applyToOpen, setApplyToOpen] = useState(false);
   const [failure, setFailure] = useState("");
   const inFlight = useRef(false);
   const canEdit = Boolean(result?.can_edit && userCan("settings", "U"));
 
   useEffect(() => {
-    if (result?.settings) { setForm(result.settings); setEdit(false); setReason(""); }
+    if (result?.settings) { setForm(result.settings); setEdit(false); setReason(""); setApplyToOpen(false); }
   }, [result]);
 
   const change = ({ target: { name, value } }: any) => {
@@ -56,6 +58,7 @@ export default function UsdBilling() {
       return { ...current, [name]: ["daily_indicator", "penalty_type", "penalty_delay_months"].includes(name) ? Number(value) : value };
     });
   };
+  const enabled = form?.expense_currency === "USD" || form?.penalty_currency === "USD";
   const save = async () => {
     if (!form || !result || !canEdit || inFlight.current) return;
     if (form.expense_currency === "USD" &&
@@ -66,8 +69,17 @@ export default function UsdBilling() {
     if (reason.trim().length < 3) { setFailure("Indica el motivo del cambio."); return; }
     inFlight.current = true; setBusy(true); setFailure("");
     try {
-      const response = await execute("/finance/usd/settings", "PUT", { settings: form, version: result.version, reason: reason.trim() }, false, true);
-      if (response.data?.success) { showToast("Configuración guardada", "success"); await reLoad(); }
+      const apply = enabled && applyToOpen;
+      const response = await execute("/finance/usd/settings", "PUT", {
+        settings: form, version: result.version, reason: reason.trim(), ...(apply && { apply_to_open_expenses: true }),
+      }, false, true);
+      if (response.data?.success) {
+        const count = response.data.data?.updated_open_expenses ?? 0;
+        const detail = count === 1 ? "1 expensa anterior actualizada." : `${count} expensas anteriores actualizadas.`;
+        showToast(apply ? `Configuración guardada. ${detail}` : "Configuración guardada", "success");
+        setApplyToOpen(false);
+        await reLoad();
+      }
       else setFailure(message(response.data, response.error));
     } catch { setFailure("No se pudo confirmar el guardado. Actualiza la configuración antes de reintentar."); }
     finally { inFlight.current = false; setBusy(false); }
@@ -75,7 +87,6 @@ export default function UsdBilling() {
   if (error && !result) return <p role="alert" className={styles.notice}>No se pudo cargar la configuración de moneda.</p>;
   if (!form || !result) return <p aria-live="polite">Cargando configuración de moneda…</p>;
   const disabled = !edit || busy || !canEdit;
-  const enabled = form.expense_currency === "USD" || form.penalty_currency === "USD";
   return <div className={`${shared.Config} ${shared.compactMode}`}>
     <div className={shared.headerRow}>
       <div className={shared.headerContent}>
@@ -95,8 +106,9 @@ export default function UsdBilling() {
               setEdit(false);
               setFailure("");
               setReason("");
+              setApplyToOpen(false);
             }}>Descartar cambios</Button>
-            <Button className={shared.saveButton} disabled={busy || JSON.stringify(form) === JSON.stringify(result.settings)} onClick={save}>
+            <Button className={shared.saveButton} disabled={busy || (!(enabled && applyToOpen) && JSON.stringify(form) === JSON.stringify(result.settings))} onClick={save}>
               {busy ? "Guardando…" : "Guardar cambios"}
             </Button>
           </>}
@@ -148,7 +160,11 @@ export default function UsdBilling() {
       <section className={shared.formCard}>
         <h2 className={styles.sectionTitle}>Vigencia</h2>
         <Input name="effective_from" label="Aplicar a nuevas expensas desde" type="date" value={form.effective_from || ""} onChange={change} disabled={disabled} required={enabled} />
-        <p className={styles.hint}>Cada deuda conserva su política. Este cambio no convierte deudas anteriores ni modifica ingresos y recibos existentes.</p>
+        {enabled && <>
+          <Switch name="apply_to_open_expenses" label="Aplicar también a expensas anteriores"
+            value={applyToOpen ? "Y" : "N"} onChange={e => setApplyToOpen(e.target.checked)} disabled={disabled} />
+          <p className={styles.hint}>Se aplica al guardar a expensas en Bs por cobrar o en mora, sin pagos activos ni QR protegido. Si activas multas en USD, su regla reemplaza la multa anterior con la cotización vigente.</p>
+        </>}
         {edit && <Input label="Motivo del cambio" name="reason" value={reason} onChange={(e: any) => setReason(e.target.value)} disabled={busy} maxLength={500} />}
       </section>
     </div>
