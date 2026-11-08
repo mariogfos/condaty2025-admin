@@ -7,6 +7,8 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import Button from "@/mk/components/forms/Button/Button";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
+import Switch from "@/mk/components/forms/Switch/Switch";
+import DetailModal from "@/mk/components/ui/DetailModal/DetailModal";
 import shared from "../DptoConfig/DptoConfig.module.css";
 import styles from "./UsdBilling.module.css";
 
@@ -17,15 +19,27 @@ export type UsdSettings = {
   fixed_rate: string;
   expense_valuation: "issue" | "daily";
   expense_base_rate?: string | null;
-  daily_indicator: number;
+  readonly daily_indicator: number;
   effective_from: string | null;
   penalty_type: number;
   penalty_delay_months: number;
   first_amount: string;
   second_amount: string;
 };
-type SettingsData = { settings: UsdSettings; version: string; can_edit: boolean; rate: { value: string; date: string; source: string } | null; rate_notice: string | null };
+type Adoption = {
+  id: number;
+  status: "queued" | "running" | "completed" | "paused";
+  total: number;
+  processed: number;
+  updated: number;
+  skipped: number;
+  failed: number;
+  attempts: number;
+};
+type SettingsData = { settings: UsdSettings; version: string; can_edit: boolean; rate: { value: string; date: string; source: string } | null; rate_notice: string | null; adoption?: Adoption | null };
 const currencies = [{ id: "BOB", name: "Bolivianos (Bs)" }, { id: "USD", name: "Dólares (USD)" }];
+const rateFormat = new Intl.NumberFormat("es-BO", { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+const isRunning = (adoption?: Adoption | null) => adoption?.status === "queued" || adoption?.status === "running";
 const message = (data: any, error: any) => {
   const errors = error?.data?.errors || data?.errors;
   return errors ? Object.values(errors).flat().join(" ") : error?.data?.message || data?.message || "No se pudo guardar. Intenta nuevamente.";
@@ -39,13 +53,56 @@ export default function UsdBilling() {
   const [edit, setEdit] = useState(false);
   const [busy, setBusy] = useState(false);
   const [reason, setReason] = useState("");
+  const [applyToOpen, setApplyToOpen] = useState(false);
   const [failure, setFailure] = useState("");
+  const [adoption, setAdoption] = useState<Adoption | null>(null);
+  const [progressOpen, setProgressOpen] = useState(false);
+  const [trackingError, setTrackingError] = useState("");
+  const [resuming, setResuming] = useState(false);
   const inFlight = useRef(false);
+  const requestKey = useRef<{ signature: string; id: string } | null>(null);
+  const executeRef = useRef(execute);
   const canEdit = Boolean(result?.can_edit && userCan("settings", "U"));
 
   useEffect(() => {
-    if (result?.settings) { setForm(result.settings); setEdit(false); setReason(""); }
+    if (!result?.settings) return;
+    setForm(result.settings);
+    setEdit(false);
+    setReason("");
+    setApplyToOpen(false);
+    if (result.adoption) {
+      setAdoption(result.adoption);
+      if (isRunning(result.adoption) || result.adoption.status === "paused") setProgressOpen(true);
+    }
   }, [result]);
+
+  useEffect(() => { executeRef.current = execute; }, [execute]);
+  const processing = isRunning(adoption);
+  const adoptionId = adoption?.id;
+  useEffect(() => {
+    if (!processing || !adoptionId) return;
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      try {
+        const response = await executeRef.current(`/finance/usd/adoptions/${adoptionId}`, "GET", {}, false, true);
+        if (stopped) return;
+        if (response.data?.success) {
+          setAdoption(response.data.data);
+          setTrackingError("");
+          if (!isRunning(response.data.data)) return;
+        } else {
+          setTrackingError("No se pudo consultar el avance. Se volverá a intentar.");
+        }
+      } catch {
+        if (stopped) return;
+        setTrackingError("No se pudo consultar el avance. Se volverá a intentar.");
+      }
+      timer = setTimeout(poll, 3000);
+    };
+    timer = setTimeout(poll, 3000);
+    return () => { stopped = true; clearTimeout(timer); };
+  }, [adoptionId, processing]);
 
   const change = ({ target: { name, value } }: any) => {
     setForm(current => {
@@ -53,29 +110,85 @@ export default function UsdBilling() {
       if (name === "expense_currency" && value === "USD") {
         return { ...current, expense_currency: "USD", expense_base_rate: current.expense_base_rate ?? current.fixed_rate };
       }
-      return { ...current, [name]: ["daily_indicator", "penalty_type", "penalty_delay_months"].includes(name) ? Number(value) : value };
+      return { ...current, [name]: ["penalty_type", "penalty_delay_months"].includes(name) ? Number(value) : value };
     });
   };
+  const enabled = form?.expense_currency === "USD" || form?.penalty_currency === "USD";
+  const submittingAdoption = busy && enabled && applyToOpen;
+  useEffect(() => {
+    if (!submittingAdoption) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [submittingAdoption]);
+
   const save = async () => {
-    if (!form || !result || !canEdit || inFlight.current) return;
+    if (!form || !result || !canEdit || inFlight.current || processing || adoption?.status === "paused") return;
     if (form.expense_currency === "USD" &&
       (!/^\d{1,6}(\.\d{1,6})?$/.test(form.expense_base_rate ?? "") || Number(form.expense_base_rate) <= 0 || Number(form.expense_base_rate) > 999999)) {
       setFailure("Indica una tasa base positiva para las expensas.");
       return;
     }
     if (reason.trim().length < 3) { setFailure("Indica el motivo del cambio."); return; }
+    const apply = enabled && applyToOpen;
     inFlight.current = true; setBusy(true); setFailure("");
     try {
-      const response = await execute("/finance/usd/settings", "PUT", { settings: form, version: result.version, reason: reason.trim() }, false, true);
-      if (response.data?.success) { showToast("Configuración guardada", "success"); await reLoad(); }
-      else setFailure(message(response.data, response.error));
+      const payload = { settings: form, version: result.version, reason: reason.trim() };
+      if (apply) {
+        const signature = JSON.stringify(payload);
+        if (requestKey.current?.signature !== signature) requestKey.current = { signature, id: crypto.randomUUID() };
+        setTrackingError("");
+      }
+      const response = await execute("/finance/usd/settings", "PUT", {
+        ...payload, ...(apply && { apply_to_open_expenses: true, adoption_key: requestKey.current?.id }),
+      }, false, true);
+      if (response.data?.success) {
+        const operation: Adoption | undefined = response.data.data?.adoption;
+        if (operation) {
+          setAdoption(operation);
+          setProgressOpen(true);
+        } else {
+          const count = response.data.data?.updated_open_expenses ?? 0;
+          showToast(apply ? `Configuración guardada. Expensas anteriores actualizadas: ${count}.` : "Configuración guardada", "success");
+        }
+        requestKey.current = null;
+        setApplyToOpen(false);
+        setEdit(false);
+        await reLoad(null, true);
+      } else if (apply && (!response.error?.status || response.error.status >= 500)) {
+        setFailure("No se pudo confirmar el inicio. Comprueba el último recálculo o reintenta este mismo guardado.");
+        const current = await execute("/finance/usd/settings", "GET", {}, false, true);
+        if (current.data?.data?.adoption && isRunning(current.data.data.adoption)) {
+          setAdoption(current.data.data.adoption);
+          setProgressOpen(true);
+        }
+      } else {
+        setFailure(message(response.data, response.error));
+      }
     } catch { setFailure("No se pudo confirmar el guardado. Actualiza la configuración antes de reintentar."); }
     finally { inFlight.current = false; setBusy(false); }
   };
+  const resume = async () => {
+    if (!adoption || resuming) return;
+    setResuming(true);
+    try {
+      const response = await execute(`/finance/usd/adoptions/${adoption.id}/resume`, "POST", {}, false, true);
+      if (response.data?.success) {
+        setAdoption(response.data.data);
+        setTrackingError("");
+      } else setTrackingError(message(response.data, response.error));
+    } catch { setTrackingError("No se pudo reanudar el recálculo. Intenta nuevamente."); }
+    finally { setResuming(false); }
+  };
   if (error && !result) return <p role="alert" className={styles.notice}>No se pudo cargar la configuración de moneda.</p>;
   if (!form || !result) return <p aria-live="polite">Cargando configuración de moneda…</p>;
-  const disabled = !edit || busy || !canEdit;
-  const enabled = form.expense_currency === "USD" || form.penalty_currency === "USD";
+  const adoptionOpen = processing || adoption?.status === "paused";
+  const disabled = !edit || busy || !canEdit || adoptionOpen;
+  const hasSavedTco = result.settings.rate_mode === "daily" && result.settings.daily_indicator === 1000;
+  const dailyRate = hasSavedTco ? result.rate : null;
   return <div className={`${shared.Config} ${shared.compactMode}`}>
     <div className={shared.headerRow}>
       <div className={shared.headerContent}>
@@ -84,7 +197,7 @@ export default function UsdBilling() {
       </div>
       {canEdit && <div className={shared.headerAction}>
         <div className={shared.headerButtons}>
-          {!edit ? <Button variant="secondary" className={shared.editButton} onClick={() => {
+          {!edit ? <Button variant="secondary" className={shared.editButton} disabled={adoptionOpen} onClick={() => {
             if (form.expense_currency === "USD" && form.expense_base_rate == null) {
               setForm({ ...form, expense_base_rate: form.fixed_rate });
             }
@@ -95,8 +208,9 @@ export default function UsdBilling() {
               setEdit(false);
               setFailure("");
               setReason("");
+              setApplyToOpen(false);
             }}>Descartar cambios</Button>
-            <Button className={shared.saveButton} disabled={busy || JSON.stringify(form) === JSON.stringify(result.settings)} onClick={save}>
+            <Button className={shared.saveButton} disabled={disabled || (!(enabled && applyToOpen) && JSON.stringify(form) === JSON.stringify(result.settings))} onClick={save}>
               {busy ? "Guardando…" : "Guardar cambios"}
             </Button>
           </>}
@@ -137,20 +251,52 @@ export default function UsdBilling() {
         <Select label="Modalidad de cambio" name="rate_mode" value={form.rate_mode} onChange={change} disabled={disabled} options={[
           { id: "fixed", name: "Cambio fijo" }, { id: "daily", name: "Cambio diario del BCB" },
         ]} />
-        {form.rate_mode === "fixed" ? <Input name="fixed_rate" label="Bolivianos por USD" value={form.fixed_rate} onChange={change} disabled={disabled} type="text" /> : <Select
-          name="daily_indicator" label="Cotización del BCB" value={form.daily_indicator} onChange={change} disabled={disabled} options={[
-            { id: 1000, name: "Tipo de cambio oficial diario (TCO)" },
-            { id: 350, name: "Referencial de venta" }, { id: 340, name: "Referencial de compra" },
-            { id: 35, name: "Cotización de venta" }, { id: 34, name: "Cotización de compra" },
-          ]} />}
-        <p className={styles.hint}>{result.rate ? `Cotización guardada: Bs ${result.rate.value} por USD · ${result.rate.date}` : result.rate_notice || "Sin cotización disponible"}</p>
+        {form.rate_mode === "fixed" ? (
+          <Input name="fixed_rate" label="Bolivianos por USD" value={form.fixed_rate} onChange={change} disabled={disabled} type="text" />
+        ) : <>
+          <p className={styles.hint}>Tipo de cambio oficial (TCO) publicado por el BCB.</p>
+          <p className={styles.hint}>{dailyRate
+            ? `Cotización vigente: Bs ${rateFormat.format(Number(dailyRate.value))} por USD · ${dailyRate.date}`
+            : (hasSavedTco ? result.rate_notice || "Sin cotización disponible" : "La cotización vigente se mostrará al guardar.")}</p>
+        </>}
       </section>
       <section className={shared.formCard}>
         <h2 className={styles.sectionTitle}>Vigencia</h2>
         <Input name="effective_from" label="Aplicar a nuevas expensas desde" type="date" value={form.effective_from || ""} onChange={change} disabled={disabled} required={enabled} />
-        <p className={styles.hint}>Cada deuda conserva su política. Este cambio no convierte deudas anteriores ni modifica ingresos y recibos existentes.</p>
+        {enabled && <>
+          <Switch name="apply_to_open_expenses" label="Aplicar también a expensas anteriores"
+            value={applyToOpen ? "Y" : "N"} onChange={e => setApplyToOpen(e.target.checked)} disabled={disabled} />
+          <p className={styles.hint}>Al guardar se programa el recálculo de expensas en Bs por cobrar o en mora, sin pagos activos ni QR protegido. Si activas multas en USD, se usa la cotización vigente al iniciar.</p>
+        </>}
+        {adoption && <Button variant="secondary" onClick={() => setProgressOpen(true)}>Ver último recálculo</Button>}
         {edit && <Input label="Motivo del cambio" name="reason" value={reason} onChange={(e: any) => setReason(e.target.value)} disabled={busy} maxLength={500} />}
       </section>
     </div>
+    <DetailModal
+      open={submittingAdoption || progressOpen}
+      title="Recálculo de expensas anteriores"
+      maxWidth={520}
+      iconClose={!submittingAdoption}
+      onClose={() => setProgressOpen(false)}
+      buttonText={adoption?.status === "paused" && canEdit && !submittingAdoption ? "Reanudar" : ""}
+      onSave={resume}
+      disabled={resuming}
+    >
+      {submittingAdoption ? <div className={styles.progressContent} role="status">
+        <p>Preparando el recálculo. Mantén abierta esta pestaña hasta confirmar el inicio.</p>
+        <progress className={styles.progress} aria-label="Preparando recálculo" />
+      </div> : adoption && <div className={styles.progressContent}>
+        <p role="status">
+          {adoption.status === "queued" && "En cola. El servidor comenzará el recálculo en breve."}
+          {adoption.status === "running" && (adoption.attempts ? "El servidor reintentará desde el último avance." : "El servidor está recalculando las expensas.")}
+          {adoption.status === "paused" && "Recálculo pausado tras varios intentos. Puedes reanudar desde el último avance."}
+          {adoption.status === "completed" && (adoption.failed ? "Recálculo terminado con incidencias." : "Recálculo terminado.")}
+        </p>
+        <progress className={styles.progress} max={adoption.total || 1} value={adoption.total ? adoption.processed : 1} aria-label="Avance del recálculo" />
+        <p>{adoption.processed} de {adoption.total} revisadas · {adoption.updated} actualizadas · {adoption.skipped} omitidas{adoption.failed > 0 && ` · ${adoption.failed} con incidencias`}</p>
+        {processing && <p className={styles.hint}>Deja esta pestaña abierta para seguir el avance. Si la cierras, el servidor continúa y puedes consultar el resultado al volver.</p>}
+        {trackingError && <p role="alert" className={styles.error}>{trackingError}</p>}
+      </div>}
+    </DetailModal>
   </div>;
 }

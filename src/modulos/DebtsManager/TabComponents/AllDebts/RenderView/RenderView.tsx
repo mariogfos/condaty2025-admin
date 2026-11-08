@@ -28,6 +28,7 @@ import { paymentsApi } from "@/modulos/Payments/api";
 import DebtQrSection from "@/modulos/QrDinamico/DebtQrSection/DebtQrSection";
 import { Ban, PencilLine } from "lucide-react";
 import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
+import { getUsdDebtFields } from "@/features/financial-records/usdDebtFields";
 import {
   FinancialDetailGrid,
   FinancialDetailMessage,
@@ -616,22 +617,26 @@ const RenderView: React.FC<RenderViewProps> = ({
         onRecordChanged={reloadItem}
         footer={reviewPendingPayment ? <>{paymentActions}{relatedDetailButton}</> : debtActionButtons}
       >
-        <FinancialDetailSection title="Datos de la deuda">
-          <FinancialDetailGrid fields={debtContextFields} />
-        </FinancialDetailSection>
+        {(workspace) => (
+          <>
+            <FinancialDetailSection title="Datos de la deuda">
+              <FinancialDetailGrid fields={debtContextFields} />
+            </FinancialDetailSection>
 
-        <FinancialDetailSection title="Importes y estado" defaultOpen={false}>
-          <FinancialDetailGrid fields={debtAmountFields} />
-        </FinancialDetailSection>
+            <FinancialDetailSection title="Importes y estado" defaultOpen={false}>
+              <FinancialDetailGrid fields={[...debtAmountFields, ...getUsdDebtFields(workspace?.record.usd_terms)]} />
+            </FinancialDetailSection>
 
-        <FinancialDetailSection title="Descripción" defaultOpen={false}>
-          <FinancialDetailMessage>{debtDescription}</FinancialDetailMessage>
-        </FinancialDetailSection>
+            <FinancialDetailSection title="Descripción" defaultOpen={false}>
+              <FinancialDetailMessage>{debtDescription}</FinancialDetailMessage>
+            </FinancialDetailSection>
 
-        <DebtQrSection
-          debtDptoId={debtDetail?.id ?? item?.id}
-          onPaymentConfirmed={reloadItem}
-        />
+            <DebtQrSection
+              debtDptoId={debtDetail?.id ?? item?.id}
+              onPaymentConfirmed={reloadItem}
+            />
+          </>
+        )}
       </FinancialDetailModal>
   );
 
