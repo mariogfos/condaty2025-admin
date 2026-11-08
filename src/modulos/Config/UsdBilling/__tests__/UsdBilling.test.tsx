@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import UsdBilling from "../UsdBilling";
 import { UsdDebtInfo } from "@/features/financial-records/UsdDebtInfo";
@@ -11,12 +11,15 @@ vi.mock("@/mk/components/forms/Input/Input", () => ({ default: ({ label, name, v
 vi.mock("@/mk/components/forms/Select/Select", () => ({ default: ({ label, name, options, value, onChange, disabled }: any) => <label>{label}<select aria-label={label} name={name} value={value} onChange={onChange} disabled={disabled}>{options.map((option: any) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></label> }));
 vi.mock("@/mk/components/forms/Switch/Switch", () => ({ default: ({ label, value, onChange, disabled }: any) =>
   <label>{label}<input type="checkbox" checked={value === "Y"} onChange={onChange} disabled={disabled} /></label> }));
+vi.mock("@/mk/components/ui/DetailModal/DetailModal", () => ({ default: ({ open, title, children, buttonText, onSave }: any) =>
+  open ? <div role="dialog" aria-label={title}>{children}{buttonText && <button onClick={onSave}>{buttonText}</button>}</div> : null }));
 
 const settings = {
   expense_currency: "BOB", penalty_currency: "USD", rate_mode: "fixed", fixed_rate: "6.960000",
   expense_valuation: "issue", daily_indicator: 1000, effective_from: "2026-11-01", penalty_type: 3,
   penalty_delay_months: 0, first_amount: "2.50", second_amount: "5.00",
 };
+const queued = { id: 8, status: "queued", total: 3, processed: 0, updated: 0, skipped: 0, failed: 0, attempts: 0 };
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.result = { settings: { ...settings }, version: "policy-version", can_edit: true, rate: { value: "6.960000", date: "2026-11-06", source: "fixed" } };
@@ -108,7 +111,7 @@ describe("Moneda y cambio", () => {
   });
 
   it("aplica la política existente a expensas anteriores solo al marcar el interruptor", async () => {
-    mocks.execute.mockResolvedValue({ data: { success: true, data: { updated_open_expenses: 3 } } });
+    mocks.execute.mockResolvedValue({ data: { success: true, data: { adoption: queued } } });
     render(<UsdBilling />);
     const apply = screen.getByLabelText("Aplicar también a expensas anteriores");
     expect(apply).toBeDisabled();
@@ -120,11 +123,31 @@ describe("Moneda y cambio", () => {
     expect(save).toBeEnabled();
     fireEvent.change(screen.getByLabelText("Motivo del cambio"), { target: { value: "Aplicar a deudas abiertas" } });
     fireEvent.click(save);
-    await waitFor(() => expect(mocks.toast).toHaveBeenCalledWith("Configuración guardada. 3 expensas anteriores actualizadas.", "success"));
+    expect(await screen.findByRole("dialog", { name: "Recálculo de expensas anteriores" })).toBeInTheDocument();
+    expect(await screen.findByText(/0 de 3 revisadas/)).toBeInTheDocument();
     expect(mocks.execute).toHaveBeenCalledWith("/finance/usd/settings", "PUT", {
       settings, version: "policy-version", reason: "Aplicar a deudas abiertas", apply_to_open_expenses: true,
+      adoption_key: expect.any(String),
     }, false, true);
     expect(apply).not.toBeChecked();
+  });
+
+  it("recupera una operación activa al volver y muestra sus contadores finales", async () => {
+    vi.useFakeTimers();
+    try {
+      mocks.result.adoption = queued;
+      mocks.execute.mockResolvedValue({ data: { success: true, data: {
+        ...queued, status: "completed", processed: 3, updated: 2, skipped: 1,
+      } } });
+      render(<UsdBilling />);
+      expect(screen.getByText(/0 de 3 revisadas/)).toBeInTheDocument();
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000); });
+      expect(mocks.execute).toHaveBeenCalledWith("/finance/usd/adoptions/8", "GET", {}, false, true);
+      expect(screen.getByText("Recálculo terminado.")).toBeInTheDocument();
+      expect(screen.getByText("3 de 3 revisadas · 2 actualizadas · 1 omitidas")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 
