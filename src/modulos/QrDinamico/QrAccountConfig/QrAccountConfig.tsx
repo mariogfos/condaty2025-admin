@@ -146,8 +146,8 @@ const QrAccountConfig = forwardRef<QrAccountConfigHandle, Props>(
     const value = field === "qr_dynamic_password" ? form[field] : form[field]?.replace(/\s+/g, "");
     if (value && (field !== "qr_dynamic_api_key" || !isBnb)) pendingCredentials[field] = value;
   }
-  const normalizedReference = referenceValue.replace(/\s+/g, "");
-  if (normalizedReference !== savedReference.replace(/\s+/g, "")) {
+  const normalizedReference = referenceValue.trim();
+  if (normalizedReference !== savedReference.trim()) {
     pendingCredentials.qr_dynamic_account_reference = normalizedReference;
   }
 
