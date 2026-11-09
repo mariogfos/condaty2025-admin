@@ -77,7 +77,7 @@ describe("QrAccountConfig (DES-20/21)", () => {
       'input[name="qr_dynamic_account_reference"]',
     ) as HTMLInputElement;
     fireEvent.change(refInput, {
-      target: { name: "qr_dynamic_account_reference", value: "CTA-002" },
+      target: { name: "qr_dynamic_account_reference", value: " CTA 002 " },
     });
     // La sección ya no tiene botón propio: guarda el formulario que la contiene
     await ref.current!.save();
@@ -88,7 +88,7 @@ describe("QrAccountConfig (DES-20/21)", () => {
       // Solo la referencia: ni credenciales vacías ni el toggle sin tocar
       expect(putCall?.[2]).toEqual({
         environment: "S",
-        qr_dynamic_account_reference: "CTA-002",
+        qr_dynamic_account_reference: "CTA 002",
       });
     });
   });
