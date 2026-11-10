@@ -9,6 +9,7 @@ import Select from "@/mk/components/forms/Select/Select";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import shared from "../DptoConfig/DptoConfig.module.css";
 import styles from "../UsdBilling/UsdBilling.module.css";
+import historyStyles from "./ReservationGuarantees.module.css";
 
 type Settings = { enabled: boolean; effective_from: string | null; bank_account_id: number | null };
 type Option = { id: number | string; name: string };
@@ -22,6 +23,21 @@ type Account = {
 };
 type Unit = { holders: Option[]; accounts: Account[]; deposit_bank_account_id: number | null };
 
+type Movement = {
+  id: number;
+  account_id: number;
+  kind: "deposit" | "refund" | "payment";
+  amount_cents: number;
+  reference: string;
+  created_at: string | null;
+  registered_by: string | null;
+};
+type History = { items: Movement[]; next_before_id: number | null };
+
+const movementLabels = { deposit: "Depósito registrado", refund: "Devolución", payment: "Abono por pago" };
+const movementDate = new Intl.DateTimeFormat("es-BO", {
+  dateStyle: "short", timeStyle: "short", timeZone: "America/La_Paz",
+});
 const path = "/reservation-guarantees";
 const bs = (cents: number) => new Intl.NumberFormat("es-BO", {
   style: "currency", currency: "BOB",
@@ -37,6 +53,8 @@ export default function ReservationGuarantees() {
   const [units, setUnits] = useState<Option[]>([]);
   const [unitId, setUnitId] = useState("");
   const [unit, setUnit] = useState<Unit | null>(null);
+  const [history, setHistory] = useState<History | null>(null);
+  const [historyError, setHistoryError] = useState(false);
   const [kind, setKind] = useState<"deposit" | "refund">("deposit");
   const [owner, setOwner] = useState("");
   const [account, setAccount] = useState("");
@@ -81,16 +99,36 @@ export default function ReservationGuarantees() {
     if (!response.data?.success) throw new Error("unit search");
     const matches = response.data.data.map((item: { id: number; nro: string }) => ({ id: String(item.id), name: item.nro }));
     setUnit(null);
+    setHistory(null);
+    setHistoryError(false);
     setUnitId("");
     setUnits(matches);
     if (!matches.length) showToast("No se encontraron unidades.", "error");
   });
+
+  const loadHistory = async (id: string, beforeId?: number) => {
+    setHistoryError(false);
+    const response = await execute(path + "/units/" + id + "/movements", "GET",
+      beforeId ? { before_id: beforeId } : {}, false, true);
+    if (!response.data?.success) {
+      setHistoryError(true);
+      return;
+    }
+
+    const page: History = response.data.data;
+    setHistory(current => ({
+      items: beforeId ? [...(current?.items ?? []), ...page.items] : page.items,
+      next_before_id: page.next_before_id,
+    }));
+  };
 
   const loadUnit = async (id: string) => {
     const response = await execute(path + "/units/" + id, "GET", {}, false, true);
     if (!response.data?.success) throw new Error("unit");
     setUnit(response.data.data);
     setUnitId(id);
+    setHistory(null);
+    await loadHistory(id);
   };
 
   const move = () => run(async () => {
@@ -146,6 +184,8 @@ export default function ReservationGuarantees() {
         {units.length > 0 && <Select name="guarantee_unit" label="Unidad" options={units} value={unitId} disabled={busy}
           onChange={event => run(async () => {
             setUnit(null);
+            setHistory(null);
+            setHistoryError(false);
             setOwner("");
             setAccount("");
             setAmount("");
@@ -177,6 +217,41 @@ export default function ReservationGuarantees() {
               Registrar movimiento
             </Button>
           </div>}
+          <div className={historyStyles.history}>
+            <h3 className={styles.sectionTitle}>Historial de garantía</h3>
+            {!history && !historyError && <p role="status" className={styles.hint}>Cargando movimientos…</p>}
+            {historyError && <p role="alert" className={styles.hint}>No se pudo cargar el historial de garantía.</p>}
+            {history?.items.length === 0 && <p className={styles.hint}>Aún no hay movimientos para esta unidad.</p>}
+            {history && history.items.length > 0 && (
+              <ul className={historyStyles.movements}>
+                {history.items.map(movement => {
+                  const guarantee = unit.accounts.find(item => item.id === movement.account_id);
+                  return (
+                    <li key={movement.id} className={historyStyles.movement}>
+                      <div>
+                        <strong>{movementLabels[movement.kind]}</strong>
+                        {guarantee && <p>{guarantee.owner} · {bankName(guarantee.bank_account_id)}</p>}
+                        <p>Referencia {movement.reference}</p>
+                        <p>{movement.registered_by || (movement.kind === "payment" ? "Sistema" : "Registrado en Admin")}</p>
+                      </div>
+                      <div className={historyStyles.amount}>
+                        <strong>{bs(movement.kind === "refund" ? -movement.amount_cents : movement.amount_cents)}</strong>
+                        {movement.created_at && <time dateTime={movement.created_at}>
+                          {movementDate.format(new Date(movement.created_at))}
+                        </time>}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {(historyError || history?.next_before_id) && (
+              <Button variant="secondary" className={shared.editButton} disabled={busy}
+                onClick={() => run(() => loadHistory(unitId, history?.next_before_id ?? undefined))}>
+                {historyError ? "Reintentar" : "Cargar más movimientos"}
+              </Button>
+            )}
+          </div>
         </>}
       </section>
     </div>

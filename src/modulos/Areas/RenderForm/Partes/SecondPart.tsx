@@ -428,7 +428,7 @@ const SecondPart = ({
             ¿El área social tiene un costo por uso?
           </p>
           <p className={styles.subtitle}>
-            Si tiene un costo, ingresa el total del periodo incluyendo la garantía, si corresponde.
+            Si tiene un costo, ingresa el precio del periodo incluyendo la garantía, si corresponde.
           </p>
         </div>
         <Switch
@@ -449,7 +449,7 @@ const SecondPart = ({
         <>
           <Input
             type="number"
-            label="Total con garantía (Bs)"
+            label="Precio del periodo (Bs)"
             name="price"
             value={formState?.price}
             onChange={handleChange}
@@ -500,6 +500,11 @@ const SecondPart = ({
         onChange={handleChange}
         error={errors}
       />
+      {formState?.has_price === "S" && Number(formState?.guarantee_amount) > Number(formState?.price) && (
+        <p className={styles.subtitle}>
+          Con la garantía reutilizable activa, se cobrará únicamente el saldo faltante de la garantía.
+        </p>
+      )}
 
       {openModal.open && (
         <DataModal

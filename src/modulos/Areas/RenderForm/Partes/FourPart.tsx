@@ -177,7 +177,7 @@ const FourPart = ({ item }: { item: any }) => {
             />
 
             <KeyValue
-              title={item?.is_free === "A" ? "Tarifa de uso" : "Total con garantía"}
+              title={item?.is_free === "A" ? "Tarifa de uso" : "Precio del periodo"}
               value={item?.is_free === "A" ? "Sin costo" : "Bs. " + formatNumber(item?.price)}
             />
             <KeyValue
