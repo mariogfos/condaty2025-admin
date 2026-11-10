@@ -2,15 +2,19 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Building2, CalendarDays, CalendarRange, Clock3, FileChartColumn, LogIn, Receipt, Wallet } from "lucide-react";
+import { ArrowUpRight, Building2, CalendarDays, CalendarRange, Clock3, FileChartColumn, Landmark, LogIn, MapPin, Receipt, Wallet } from "lucide-react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import { encodeReportViewerState } from "./reportViewerState";
-import { getCurrentMonthRange, isReceivablesReport, reportCatalog, reportCategories } from "./reportCatalog";
+import { getCurrentMonthRange, isReceivablesReport, isReservationReport, reportCatalog, reportCategories } from "./reportCatalog";
 import styles from "./ReportsCatalog.module.css";
 
-const reportIcons = { accesses: LogIn, income: Wallet, receivables: Receipt, period: CalendarRange, unit: Building2, overdue: Clock3 };
+const reportIcons = {
+  accesses: LogIn, income: Wallet, receivables: Receipt, period: CalendarRange, unit: Building2, overdue: Clock3,
+  bookings: CalendarDays, movements: Landmark, areas: MapPin,
+};
+const categoryIcons = { finance: styles.financeIcon, security: styles.securityIcon, bookings: styles.bookingsIcon };
 
 export default function ReportsCatalog() {
   const { userCan, setStore } = useAuth();
@@ -43,12 +47,12 @@ export default function ReportsCatalog() {
           const range = getCurrentMonthRange();
           const dateField = report.key === "accesses" ? "in_at" : "paid_at";
           const dateFilter = isReceivablesReport(report.key) ? "due_at:all" : `${dateField}:${range.startDate},${range.endDate}`;
-          const state = encodeReportViewerState({ params: { filterBy: dateFilter } });
+          const state = encodeReportViewerState({ params: isReservationReport(report.key) ? {} : { filterBy: dateFilter } });
 
           return (
             <Link key={report.key} className={styles.card} target="_blank" rel="noopener noreferrer" href={`/reports/view?preset=${report.key}&state=${state}`}>
               <div className={styles.cardTop}>
-                <span className={`${styles.icon} ${report.category === "finance" ? styles.financeIcon : styles.securityIcon}`}><Icon size={22} strokeWidth={1.6} aria-hidden="true" /></span>
+                <span className={`${styles.icon} ${categoryIcons[report.category]}`}><Icon size={22} strokeWidth={1.6} aria-hidden="true" /></span>
                 <ArrowUpRight className={styles.arrow} size={21} aria-hidden="true" />
               </div>
               <div className={styles.cardBody}>
