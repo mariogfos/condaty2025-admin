@@ -30,7 +30,7 @@ import {
   type ReportViewerState,
 } from "./reportViewerState";
 import styles from "./ReportsPage.module.css";
-import { getDefaultReportRange } from "./reportCatalog";
+import { getDefaultReportRange, isReceivablesReport } from "./reportCatalog";
 import ReportPdfPartsDialog, { type ReportPdfPart, type ReportPdfParts } from "./ReportPdfPartsDialog";
 
 type ReportFormat = "pdf" | "excel";
@@ -1214,7 +1214,7 @@ const ReportsPage = () => {
     () => resolveRangePresetId(allDates, startDate, endDate),
     [allDates, endDate, startDate],
   );
-  const supportsAllDates = reportKey === "unit-account-statement" || reportKey === "accounts-receivable";
+  const supportsAllDates = reportKey === "unit-account-statement" || isReceivablesReport(reportKey);
   const rangePresets = useMemo(
     () => getDateRangePresets(supportsAllDates),
     [supportsAllDates],
@@ -1544,8 +1544,9 @@ const ReportsPage = () => {
             <div className={styles.panelHeader}>
               <h3 className={styles.panelTitle}>Rango de fechas</h3>
               <p className={styles.panelText}>
-                El backend convierte las fechas al horario de Bolivia antes de
-                armar el reporte.
+                {reportKey === "accounts-receivable-by-period"
+                  ? "Se incluyen los meses completos del rango seleccionado."
+                  : "Las fechas se interpretan en el horario de Bolivia."}
               </p>
             </div>
             <div className={styles.rangePresetList}>
