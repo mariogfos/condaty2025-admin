@@ -30,7 +30,7 @@ import {
   type ReportViewerState,
 } from "./reportViewerState";
 import styles from "./ReportsPage.module.css";
-import { getDefaultReportRange, isReceivablesReport } from "./reportCatalog";
+import { getCurrentMonthRange, getDefaultReportRange, isGuaranteeBalancesReport, isReceivablesReport, isReservationReport } from "./reportCatalog";
 import ReportPdfPartsDialog, { type ReportPdfPart, type ReportPdfParts } from "./ReportPdfPartsDialog";
 
 type ReportFormat = "pdf" | "excel";
@@ -40,6 +40,7 @@ type RangePresetId =
   | "year-to-date"
   | "this-month"
   | "last-30-days"
+  | "last-12-months"
   | "custom";
 
 type ReportColumn = {
@@ -98,6 +99,10 @@ type ReportSummary = {
     searchBy: string;
     filterBy: string;
   };
+  reportFilters?: {
+    select?: { key: "areaId" | "bankAccountId"; label: string; value: string | number | null; options: { value: string | number; label: string }[] };
+    breakdown?: { value: boolean; label: string };
+  };
   pageMode: ReportPageMode;
   pageModes: ReportPageMode[];
   availableColumns: ReportColumn[];
@@ -155,7 +160,13 @@ const getPastIsoDate = (daysBack: number) => {
   return date.toISOString().slice(0, 10);
 };
 
-const getDateRangePresets = (allowsAllDates = false) => {
+const getDateRangePresets = (allowsAllDates = false, reportKey = "") => {
+  if (isReservationReport(reportKey)) {
+    return [
+      { id: "last-12-months" as const, name: "Últimos 12 meses", ...getDefaultReportRange(reportKey) },
+      { id: "this-month" as const, name: "Este mes", ...getCurrentMonthRange() },
+    ];
+  }
   const today = getTodayIsoDate();
 
   return [
@@ -198,10 +209,11 @@ const resolveRangePresetId = (
   allDates: boolean,
   startDate: string,
   endDate: string,
+  reportKey: string,
 ): RangePresetId => {
   if (allDates) return "all";
 
-  const match = getDateRangePresets().find(
+  const match = getDateRangePresets(false, reportKey).find(
     (preset) => preset.startDate === startDate && preset.endDate === endDate,
   );
 
@@ -664,9 +676,13 @@ const ReportsPage = () => {
     [searchParams],
   );
   const reportKey = searchParams?.get("preset") || "";
+  const [scope, setScope] = useState<{ key: string; params: Record<string, string> } | null>(null);
   const baseParams = useMemo(
-    () => sanitizeBaseParams(viewerState.params),
-    [viewerState.params],
+    () => ({
+      ...sanitizeBaseParams(viewerState.params),
+      ...(scope?.key === reportKey ? scope.params : {}),
+    }),
+    [reportKey, scope, viewerState.params],
   );
   const initialRange = useMemo(
     () => parseInitialDateRange(viewerState, reportKey),
@@ -678,7 +694,7 @@ const ReportsPage = () => {
   const [endDate, setEndDate] = useState(initialRange.endDate);
   const [allDates, setAllDates] = useState(initialRange.allDates);
   const [openPopover, setOpenPopover] = useState<
-    null | "page" | "range" | "columns" | "download"
+    null | "page" | "range" | "columns" | "download" | "filters"
   >(null);
   const [summary, setSummary] = useState<ReportSummary | null>(null);
   const [summaryError, setSummaryError] = useState("");
@@ -698,6 +714,16 @@ const ReportsPage = () => {
   const [loadedColumnIds, setLoadedColumnIds] = useState<string[]>([]);
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
   const [draggingColumnId, setDraggingColumnId] = useState<string | null>(null);
+  const reportFilters = summary?.reportKey === reportKey ? summary.reportFilters : undefined;
+  const selectFilter = reportFilters?.select;
+  const breakdownFilter = reportFilters?.breakdown;
+  const updateScope = (param: string, value: string) => {
+    setScope((current) => ({ key: reportKey, params: { ...(current?.key === reportKey ? current.params : {}), [param]: value } }));
+    if (param === "breakdown") {
+      setSelectedColumnIds([]);
+      setColumnOrder([]);
+    }
+  };
 
   useEffect(() => {
     executeRef.current = execute;
@@ -1211,13 +1237,13 @@ const ReportsPage = () => {
   );
 
   const rangePresetId = useMemo(
-    () => resolveRangePresetId(allDates, startDate, endDate),
-    [allDates, endDate, startDate],
+    () => resolveRangePresetId(allDates, startDate, endDate, reportKey),
+    [allDates, endDate, reportKey, startDate],
   );
   const supportsAllDates = reportKey === "unit-account-statement" || isReceivablesReport(reportKey);
   const rangePresets = useMemo(
-    () => getDateRangePresets(supportsAllDates),
-    [supportsAllDates],
+    () => getDateRangePresets(supportsAllDates, reportKey),
+    [reportKey, supportsAllDates],
   );
 
   const publicStatusTitle = useMemo(() => {
@@ -1530,7 +1556,7 @@ const ReportsPage = () => {
             </div>
           </ToolbarPopover>
 
-          <ToolbarPopover
+          {!isGuaranteeBalancesReport(reportKey) && <ToolbarPopover
             label="Rango"
             value={buildTriggerLabel(allDates, startDate, endDate)}
             open={openPopover === "range"}
@@ -1544,7 +1570,7 @@ const ReportsPage = () => {
             <div className={styles.panelHeader}>
               <h3 className={styles.panelTitle}>Rango de fechas</h3>
               <p className={styles.panelText}>
-                {reportKey === "accounts-receivable-by-period"
+                {reportKey === "accounts-receivable-by-period" || isReservationReport(reportKey)
                   ? "Se incluyen los meses completos del rango seleccionado."
                   : "Las fechas se interpretan en el horario de Bolivia."}
               </p>
@@ -1602,7 +1628,44 @@ const ReportsPage = () => {
                 />
               </div>
             </div>
-          </ToolbarPopover>
+          </ToolbarPopover>}
+
+          {(selectFilter || breakdownFilter) && (
+            <ToolbarPopover
+              label="Filtros"
+              value={selectFilter?.options.find((option) => String(option.value) === String(selectFilter.value))?.label ?? "Todos"}
+              open={openPopover === "filters"}
+              onToggle={() => setOpenPopover((current) => current === "filters" ? null : "filters")}
+              onClose={() => setOpenPopover(null)}
+            >
+              <div className={styles.scopeFilters}>
+                {selectFilter && (
+                  <label>
+                    <span>{selectFilter.label}</span>
+                    <select
+                      value={String(baseParams[selectFilter.key] ?? selectFilter.value ?? "")}
+                      onChange={(event) => updateScope(selectFilter.key, event.target.value)}
+                    >
+                      <option value="">Todas</option>
+                      {selectFilter.options.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+                {breakdownFilter && (
+                  <label className={styles.breakdownFilter}>
+                    <input
+                      type="checkbox"
+                      checked={baseParams.breakdown === undefined ? breakdownFilter.value : baseParams.breakdown === "1"}
+                      onChange={(event) => updateScope("breakdown", event.target.checked ? "1" : "0")}
+                    />
+                    {breakdownFilter.label}
+                  </label>
+                )}
+              </div>
+            </ToolbarPopover>
+          )}
 
           <ToolbarPopover
             label="Columnas"

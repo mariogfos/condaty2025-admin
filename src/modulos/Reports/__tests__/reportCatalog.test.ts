@@ -32,6 +32,23 @@ describe("report catalog", () => {
     },
   );
 
+  it.each(["reservations-by-month", "guarantee-movements-by-month", "guarantee-usage-by-area"])(
+    "opens %s with twelve complete months in Bolivia",
+    (key) => {
+      expect(reportCatalog.find((report) => report.key === key)).toMatchObject({ category: "bookings" });
+      expect(getDefaultReportRange(key, new Date("2026-11-01T02:00:00Z"))).toEqual({
+        startDate: "2025-11-01", endDate: "2026-10-31", allDates: false,
+      });
+    },
+  );
+
+  it("uses current balances and the settings permission for guarantees by unit", () => {
+    expect(getDefaultReportRange("guarantee-balances-by-unit", new Date("2026-11-01T02:00:00Z"))).toEqual({
+      startDate: "2026-10-31", endDate: "2026-10-31", allDates: true,
+    });
+    expect(reportCatalog.find((report) => report.key === "guarantee-balances-by-unit")?.permissions).toEqual(["settings"]);
+  });
+
   it("exposes a single sidebar entry only when at least one report can be read", () => {
     const entry = menuConfig.find((item) => item.type === "item" && item.href === "/reports");
     expect(entry?.type).toBe("item");
