@@ -1,7 +1,47 @@
 export const reportCategories = [
   { value: "all", text: "Todos" },
   { value: "finance", text: "Finanzas" },
+  { value: "bookings", text: "Reservas" },
   { value: "security", text: "Vigilancia y seguridad" },
+] as const;
+
+const reservationReports = [
+  {
+    key: "reservations-by-month",
+    title: "Reservas por mes",
+    description: "Compara la cantidad de reservas por estado según el mes del turno. Puedes filtrar y desglosar por área.",
+    category: "bookings",
+    permissions: ["reservations"],
+    icon: "bookings",
+    period: "Últimos 12 meses",
+  },
+  {
+    key: "guarantee-movements-by-month",
+    title: "Movimientos de garantías por mes",
+    description: "Consulta depósitos, abonos, devoluciones y saldos en custodia por mes y cuenta bancaria.",
+    category: "bookings",
+    permissions: ["settings"],
+    icon: "movements",
+    period: "Últimos 12 meses",
+  },
+  {
+    key: "guarantee-usage-by-area",
+    title: "Uso de garantías por área social",
+    description: "Revisa cuántas reservas usaron garantía, necesitaron un abono y cuánto se acreditó.",
+    category: "bookings",
+    permissions: ["settings"],
+    icon: "areas",
+    period: "Últimos 12 meses",
+  },
+  {
+    key: "guarantee-balances-by-unit",
+    title: "Saldo de garantías por unidad",
+    description: "Consulta cuánto hay en custodia, cuánto requieren las reservas activas y el saldo disponible por unidad.",
+    category: "bookings",
+    permissions: ["settings"],
+    icon: "unit",
+    period: "Saldo actual",
+  },
 ] as const;
 
 const receivableDefaults = {
@@ -64,9 +104,12 @@ export const reportCatalog = [
     period: "Mes actual",
   },
   ...receivableReports,
+  ...reservationReports,
 ] as const;
 
 export const isReceivablesReport = (key: string) => receivableReports.some((report) => report.key === key);
+export const isReservationReport = (key: string) => reservationReports.some((report) => report.key === key);
+export const isGuaranteeBalancesReport = (key: string) => key === "guarantee-balances-by-unit";
 
 // Shared by the sidebar and catalog so both expose the same readable reports.
 export const reportPermissions = [...new Set(reportCatalog.flatMap((report) => [...report.permissions]))];
@@ -93,5 +136,14 @@ export function getDefaultReportRange(reportKey: string, date = new Date()) {
   const today = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/La_Paz", year: "numeric", month: "2-digit", day: "2-digit",
   }).format(date);
+  if (isGuaranteeBalancesReport(reportKey)) {
+    return { startDate: today, endDate: today, allDates: true };
+  }
+  if (isReservationReport(reportKey)) {
+    const month = getCurrentMonthRange(date);
+    const [year, monthNumber] = month.startDate.split("-").map(Number);
+    const startDate = new Date(Date.UTC(year, monthNumber - 12, 1)).toISOString().slice(0, 10);
+    return { startDate, endDate: month.endDate, allDates: false };
+  }
   return { startDate: `${today.slice(0, 4)}-01-01`, endDate: today, allDates: isReceivablesReport(reportKey) };
 }

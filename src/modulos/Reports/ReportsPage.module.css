@@ -240,6 +240,33 @@
   gap: 12px;
 }
 
+.scopeFilters {
+  display: grid;
+  gap: 12px;
+  color: var(--cWhite);
+}
+
+.scopeFilters label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.scopeFilters select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--cWhiteV3);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: inherit;
+  background: var(--cBlack);
+}
+
+.scopeFilters .breakdownFilter {
+  display: flex;
+  align-items: center;
+}
+
 .caption {
   margin: 0;
   font-size: var(--body-xs-size);
@@ -740,13 +767,13 @@
   white-space: nowrap;
 }
 
-:is([data-report-key^="accounts-receivable"], [data-report-key="overdue-expenses-by-unit"]) .headerCell,
-:is([data-report-key^="accounts-receivable"], [data-report-key="overdue-expenses-by-unit"]) .bodyCell {
+:is([data-report-key^="accounts-receivable"], [data-report-key="overdue-expenses-by-unit"], [data-report-key^="guarantee-"], [data-report-key="reservations-by-month"]) .headerCell,
+:is([data-report-key^="accounts-receivable"], [data-report-key="overdue-expenses-by-unit"], [data-report-key^="guarantee-"], [data-report-key="reservations-by-month"]) .bodyCell {
   padding-inline: 6px;
   font-size: 11.5px;
 }
 
-:is([data-report-key^="accounts-receivable"], [data-report-key="overdue-expenses-by-unit"]) .headerCellTitle {
+:is([data-report-key^="accounts-receivable"], [data-report-key="overdue-expenses-by-unit"], [data-report-key^="guarantee-"], [data-report-key="reservations-by-month"]) .headerCellTitle {
   white-space: normal;
 }
 
