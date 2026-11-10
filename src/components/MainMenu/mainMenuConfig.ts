@@ -106,6 +106,7 @@ export const menuConfig: MenuConfigItem[] = [
       },
       { href: "/outlays", labelKey: "outlays", perm: "outlays" },
       { href: "/cheques", labelKey: "cheques", perm: "outlays" },
+      { href: "/guarantees", labelKey: "guarantees", perm: "settings", skipAsLanding: true },
       { href: "/expenses", labelKey: "condominiumFees", perm: "expenses" },
       { href: "/defaulters", labelKey: "defaulters", perm: "defaulters" },
       { href: "/debts_manager", labelKey: "debts", perm: "debts_manager" },
