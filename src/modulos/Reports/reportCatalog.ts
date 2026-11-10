@@ -10,7 +10,7 @@ export const reportCatalog = [
     title: "Accesos",
     description: "Consulta los ingresos y salidas de visitantes, invitaciones QR y pedidos de tu condominio.",
     category: "security",
-    permission: "accesses",
+    permissions: ["accesses"],
     icon: "accesses",
     period: "Mes actual",
   },
@@ -19,14 +19,23 @@ export const reportCatalog = [
     title: "Ingresos",
     description: "Revisa los pagos registrados, sus conceptos, unidades, estados y montos en un solo reporte.",
     category: "finance",
-    permission: "payments",
+    permissions: ["payments"],
     icon: "income",
     period: "Mes actual",
+  },
+  {
+    key: "accounts-receivable",
+    title: "Cuentas por cobrar",
+    description: "Consulta las deudas con saldo pendiente por unidad y su detalle de capital y multas.",
+    category: "finance",
+    permissions: ["debts_manager", "debts"],
+    icon: "receivables",
+    period: "Todos los vencimientos",
   },
 ] as const;
 
 // Shared by the sidebar and catalog so both expose the same readable reports.
-export const reportPermissions = [...new Set(reportCatalog.map((report) => report.permission))];
+export const reportPermissions = [...new Set(reportCatalog.flatMap((report) => [...report.permissions]))];
 
 export function getCurrentMonthRange(date = new Date()) {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -50,5 +59,5 @@ export function getDefaultReportRange(reportKey: string, date = new Date()) {
   const today = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/La_Paz", year: "numeric", month: "2-digit", day: "2-digit",
   }).format(date);
-  return { startDate: `${today.slice(0, 4)}-01-01`, endDate: today, allDates: false };
+  return { startDate: `${today.slice(0, 4)}-01-01`, endDate: today, allDates: reportKey === "accounts-receivable" };
 }

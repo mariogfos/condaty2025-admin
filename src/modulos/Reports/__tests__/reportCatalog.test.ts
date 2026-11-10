@@ -16,6 +16,12 @@ describe("report catalog", () => {
     });
   });
 
+  it("opens accounts receivable with all due dates", () => {
+    expect(getDefaultReportRange("accounts-receivable", new Date("2026-11-01T02:00:00Z"))).toEqual({
+      startDate: "2026-01-01", endDate: "2026-10-31", allDates: true,
+    });
+  });
+
   it("exposes a single sidebar entry only when at least one report can be read", () => {
     const entry = menuConfig.find((item) => item.type === "item" && item.href === "/reports");
     expect(entry?.type).toBe("item");
@@ -23,6 +29,8 @@ describe("report catalog", () => {
     expect(isMenuItemVisible(entry, () => false)).toBe(false);
     expect(isMenuItemVisible(entry, (permission, action) => permission === "accesses" && action === "R")).toBe(true);
     expect(isMenuItemVisible(entry, (permission) => permission === "payments")).toBe(true);
+    expect(isMenuItemVisible(entry, (permission, action) => permission === "debts_manager" && action === "R")).toBe(true);
+    expect(isMenuItemVisible(entry, (permission, action) => permission === "debts" && action === "R")).toBe(true);
     expect(isMenuItemVisible(entry, (permission) => permission === "owners")).toBe(false);
   });
 });
