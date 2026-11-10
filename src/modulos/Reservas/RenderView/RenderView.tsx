@@ -65,6 +65,10 @@ type ReservationItem = {
   date_end?: string;
   people_count?: number;
   amount?: string | number;
+  guarantee_terms?: {
+    required_cents: number;
+    top_up_cents: number;
+  } | null;
   paid_at?: string | null;
   approved_at?: string | null;
   is_approved?: string;
@@ -400,6 +404,10 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(
         label: "Precio",
         value: getPriceDetails(reservationDetail?.area, reservationDetail?.amount),
       },
+      ...(reservationDetail?.guarantee_terms ? [
+        { label: "Garantía requerida", value: `Bs ${(reservationDetail.guarantee_terms.required_cents / 100).toFixed(2)}` },
+        { label: "Garantía por completar al reservar", value: `Bs ${(reservationDetail.guarantee_terms.top_up_cents / 100).toFixed(2)}` },
+      ] : []),
       {
         label: "Solicitada",
         value: formatRequestMoment(reservationDetail?.created_at),

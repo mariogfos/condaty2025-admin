@@ -243,17 +243,17 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
       key: "max_reservations_per_week",
       errors,
     });
+    errors = checkRules({
+      value: formState?.guarantee_amount ?? 0,
+      rules: ["number", "positive", "less:10000"],
+      key: "guarantee_amount",
+      errors,
+    });
     if (formState?.has_price == "S") {
       errors = checkRules({
         value: formState?.price,
         rules: ["required", "number", "positive", "less:10000", "greater:0"],
         key: "price",
-        errors,
-      });
-      errors = checkRules({
-        value: formState?.guarantee_amount ?? 0,
-        rules: ["number", "positive", "less:10000"],
-        key: "guarantee_amount",
         errors,
       });
       errors = checkRules({
@@ -345,10 +345,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
           restrict_to_sectors: formState.sector_ids.length > 0 && formState.restrict_to_sectors,
         } : {}),
         price: formState?.price,
-        guarantee_amount:
-          formState?.has_price == "S"
-            ? Number(formState?.guarantee_amount || 0)
-            : 0,
+        guarantee_amount: Number(formState?.guarantee_amount || 0),
         max_reservations_per_week: formState?.max_reservations_per_week,
         min_cancel_hours: formState?.min_cancel_hours,
         penalty_fee: formState?.penalty_fee,

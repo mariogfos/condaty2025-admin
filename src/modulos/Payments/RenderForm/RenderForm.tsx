@@ -78,6 +78,7 @@ interface ExtraData {
   subcategories: any[];
 }
 interface Deuda {
+  reservation_charge?: { bank_account_id: number } | null;
   id: string | number;
   amount?: number;
   penalty_amount?: number;
@@ -838,7 +839,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
         break;
       }
       case "R": {
+        const frozenAccount = deudas.find(debt =>
+          String(debt.id) === String(selectedPeriodo[0]?.id),
+        )?.reservation_charge?.bank_account_id;
         const id =
+          frozenAccount ||
           extraData?.bankAccounts?.find((i: any) => i.is_reserve == 1)?.id ||
           existBankAccount;
         bank_account_id = id;
