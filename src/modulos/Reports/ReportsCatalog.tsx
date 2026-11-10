@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, CalendarDays, FileChartColumn, LogIn, Wallet } from "lucide-react";
+import { ArrowUpRight, CalendarDays, FileChartColumn, LogIn, Receipt, Wallet } from "lucide-react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
@@ -10,10 +10,12 @@ import { encodeReportViewerState } from "./reportViewerState";
 import { getCurrentMonthRange, reportCatalog, reportCategories } from "./reportCatalog";
 import styles from "./ReportsCatalog.module.css";
 
+const reportIcons = { accesses: LogIn, income: Wallet, receivables: Receipt };
+
 export default function ReportsCatalog() {
   const { userCan, setStore } = useAuth();
   const [category, setCategory] = useState("all");
-  const available = reportCatalog.filter((report) => userCan(report.permission, "R"));
+  const available = reportCatalog.filter((report) => report.permissions.some((permission) => userCan(permission, "R")));
   const tabs = reportCategories.filter((tab) => tab.value === "all" || available.some((report) => report.category === tab.value));
   const activeCategory = tabs.some((tab) => tab.value === category) ? category : "all";
   const visible = available.filter((report) => activeCategory === "all" || report.category === activeCategory);
@@ -37,15 +39,16 @@ export default function ReportsCatalog() {
       </div>
       <div className={styles.grid}>
         {visible.map((report) => {
-          const Icon = report.icon === "accesses" ? LogIn : Wallet;
+          const Icon = reportIcons[report.icon];
           const range = getCurrentMonthRange();
           const dateField = report.key === "accesses" ? "in_at" : "paid_at";
-          const state = encodeReportViewerState({ params: { filterBy: `${dateField}:${range.startDate},${range.endDate}` } });
+          const dateFilter = report.key === "accounts-receivable" ? "due_at:all" : `${dateField}:${range.startDate},${range.endDate}`;
+          const state = encodeReportViewerState({ params: { filterBy: dateFilter } });
 
           return (
             <Link key={report.key} className={styles.card} target="_blank" rel="noopener noreferrer" href={`/reports/view?preset=${report.key}&state=${state}`}>
               <div className={styles.cardTop}>
-                <span className={`${styles.icon} ${report.icon === "income" ? styles.financeIcon : styles.securityIcon}`}><Icon size={22} strokeWidth={1.6} aria-hidden="true" /></span>
+                <span className={`${styles.icon} ${report.category === "finance" ? styles.financeIcon : styles.securityIcon}`}><Icon size={22} strokeWidth={1.6} aria-hidden="true" /></span>
                 <ArrowUpRight className={styles.arrow} size={21} aria-hidden="true" />
               </div>
               <div className={styles.cardBody}>
