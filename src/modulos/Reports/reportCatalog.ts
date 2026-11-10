@@ -4,6 +4,46 @@ export const reportCategories = [
   { value: "security", text: "Vigilancia y seguridad" },
 ] as const;
 
+const receivableDefaults = {
+  category: "finance",
+  permissions: ["debts_manager", "debts"],
+} as const;
+
+const receivableReports = [
+  {
+    ...receivableDefaults,
+    key: "accounts-receivable",
+    title: "Cuentas por cobrar",
+    description: "Consulta las deudas con saldo pendiente por unidad y su detalle de capital y multas.",
+    icon: "receivables",
+    period: "Todos los vencimientos",
+  },
+  {
+    ...receivableDefaults,
+    key: "accounts-receivable-by-period",
+    title: "Cuentas por cobrar por período",
+    description: "Compara cuántas unidades tienen saldo en cada mes y cuánto queda por cobrar en expensas y otras deudas.",
+    icon: "period",
+    period: "Todos los períodos",
+  },
+  {
+    ...receivableDefaults,
+    key: "accounts-receivable-by-unit",
+    title: "Cuentas por cobrar por unidad",
+    description: "Ve en una fila por unidad la cantidad de deudas y los saldos pendientes, separados por expensas y otras deudas.",
+    icon: "unit",
+    period: "Todos los vencimientos",
+  },
+  {
+    ...receivableDefaults,
+    key: "overdue-expenses-by-unit",
+    title: "Expensas en mora por unidad",
+    description: "Identifica las unidades con expensas vencidas, los días de atraso y los importes por confirmar.",
+    icon: "overdue",
+    period: "Todos los vencimientos",
+  },
+] as const;
+
 export const reportCatalog = [
   {
     key: "accesses",
@@ -23,16 +63,10 @@ export const reportCatalog = [
     icon: "income",
     period: "Mes actual",
   },
-  {
-    key: "accounts-receivable",
-    title: "Cuentas por cobrar",
-    description: "Consulta las deudas con saldo pendiente por unidad y su detalle de capital y multas.",
-    category: "finance",
-    permissions: ["debts_manager", "debts"],
-    icon: "receivables",
-    period: "Todos los vencimientos",
-  },
+  ...receivableReports,
 ] as const;
+
+export const isReceivablesReport = (key: string) => receivableReports.some((report) => report.key === key);
 
 // Shared by the sidebar and catalog so both expose the same readable reports.
 export const reportPermissions = [...new Set(reportCatalog.flatMap((report) => [...report.permissions]))];
@@ -59,5 +93,5 @@ export function getDefaultReportRange(reportKey: string, date = new Date()) {
   const today = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/La_Paz", year: "numeric", month: "2-digit", day: "2-digit",
   }).format(date);
-  return { startDate: `${today.slice(0, 4)}-01-01`, endDate: today, allDates: reportKey === "accounts-receivable" };
+  return { startDate: `${today.slice(0, 4)}-01-01`, endDate: today, allDates: isReceivablesReport(reportKey) };
 }

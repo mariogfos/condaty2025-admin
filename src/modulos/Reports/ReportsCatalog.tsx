@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, CalendarDays, FileChartColumn, LogIn, Receipt, Wallet } from "lucide-react";
+import { ArrowUpRight, Building2, CalendarDays, CalendarRange, Clock3, FileChartColumn, LogIn, Receipt, Wallet } from "lucide-react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import { encodeReportViewerState } from "./reportViewerState";
-import { getCurrentMonthRange, reportCatalog, reportCategories } from "./reportCatalog";
+import { getCurrentMonthRange, isReceivablesReport, reportCatalog, reportCategories } from "./reportCatalog";
 import styles from "./ReportsCatalog.module.css";
 
-const reportIcons = { accesses: LogIn, income: Wallet, receivables: Receipt };
+const reportIcons = { accesses: LogIn, income: Wallet, receivables: Receipt, period: CalendarRange, unit: Building2, overdue: Clock3 };
 
 export default function ReportsCatalog() {
   const { userCan, setStore } = useAuth();
@@ -42,7 +42,7 @@ export default function ReportsCatalog() {
           const Icon = reportIcons[report.icon];
           const range = getCurrentMonthRange();
           const dateField = report.key === "accesses" ? "in_at" : "paid_at";
-          const dateFilter = report.key === "accounts-receivable" ? "due_at:all" : `${dateField}:${range.startDate},${range.endDate}`;
+          const dateFilter = isReceivablesReport(report.key) ? "due_at:all" : `${dateField}:${range.startDate},${range.endDate}`;
           const state = encodeReportViewerState({ params: { filterBy: dateFilter } });
 
           return (
