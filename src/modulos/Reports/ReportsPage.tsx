@@ -1214,7 +1214,7 @@ const ReportsPage = () => {
     () => resolveRangePresetId(allDates, startDate, endDate),
     [allDates, endDate, startDate],
   );
-  const supportsAllDates = reportKey === "unit-account-statement";
+  const supportsAllDates = reportKey === "unit-account-statement" || reportKey === "accounts-receivable";
   const rangePresets = useMemo(
     () => getDateRangePresets(supportsAllDates),
     [supportsAllDates],
@@ -1455,7 +1455,7 @@ const ReportsPage = () => {
   }
 
   return (
-    <section className={`${styles.reportRoot} ${reportKey === "accesses" ? styles.accessReport : ""}`}>
+    <section data-report-key={reportKey} className={`${styles.reportRoot} ${reportKey === "accesses" ? styles.accessReport : ""}`}>
       <div className={styles.topLeftActions}>
         <div
           className={`${styles.statusPill} ${
