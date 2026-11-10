@@ -14,6 +14,7 @@ import UnitsType from "../UnitTypes/UnitsTypes";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import ConfigurationHistory from "./ConfigurationHistory";
 import UsdBilling from "./UsdBilling/UsdBilling";
+import ReservationGuarantees from "./ReservationGuarantees/ReservationGuarantees";
 
 const paramsInitial = {
   perPage: -1,
@@ -62,6 +63,7 @@ const Config = () => {
               { value: "R", text: "Reglas Operativas" },
               { value: "P", text: "Cuentas de pagos" },
               { value: "U", text: "Moneda y cambio" },
+              { value: "G", text: "Garantías" },
               { value: "M", text: "Morosidad" },
               { value: "T", text: "Tipos de unidades" },
               { value: "H", text: "Historial" },
@@ -75,6 +77,7 @@ const Config = () => {
 
       <div className={styles.contentPanel}>
         {typeSearch === "U" && <UsdBilling />}
+        {typeSearch === "G" && <ReservationGuarantees />}
         {typeSearch == "M" && (
           <LoadingScreen>
             <DefaulterConfig

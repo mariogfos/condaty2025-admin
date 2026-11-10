@@ -172,7 +172,6 @@ const SecondPart = ({
       setFormState({
         ...formState,
         price: "",
-        guarantee_amount: 0,
         min_cancel_hours: "",
         penalty_fee: "",
       });
@@ -429,8 +428,7 @@ const SecondPart = ({
             ¿El área social tiene un costo por uso?
           </p>
           <p className={styles.subtitle}>
-            Si tiene un costo, activa el botón e ingresa el costo total del
-            periodo.
+            Si tiene un costo, ingresa el precio del periodo incluyendo la garantía, si corresponde.
           </p>
         </div>
         <Switch
@@ -451,18 +449,9 @@ const SecondPart = ({
         <>
           <Input
             type="number"
-            label="Monto (Bs)"
+            label="Precio del periodo (Bs)"
             name="price"
             value={formState?.price}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Br />
-          <Input
-            type="number"
-            label="Garantía (Bs)"
-            name="guarantee_amount"
-            value={formState?.guarantee_amount}
             onChange={handleChange}
             error={errors}
           />
@@ -500,6 +489,21 @@ const SecondPart = ({
             error={errors}
           />
         </>
+      )}
+
+      <Br />
+      <Input
+        type="number"
+        label="Garantía (Bs)"
+        name="guarantee_amount"
+        value={formState?.guarantee_amount}
+        onChange={handleChange}
+        error={errors}
+      />
+      {formState?.has_price === "S" && Number(formState?.guarantee_amount) > Number(formState?.price) && (
+        <p className={styles.subtitle}>
+          Con la garantía reutilizable activa, se cobrará únicamente el saldo faltante de la garantía.
+        </p>
       )}
 
       {openModal.open && (
