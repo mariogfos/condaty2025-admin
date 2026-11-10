@@ -127,6 +127,7 @@ export default function ReservationGuarantees() {
     if (!response.data?.success) throw new Error("unit");
     setUnit(response.data.data);
     setUnitId(id);
+    setHistory(null);
     await loadHistory(id);
   };
 
