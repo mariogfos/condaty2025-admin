@@ -428,8 +428,7 @@ const SecondPart = ({
             ¿El área social tiene un costo por uso?
           </p>
           <p className={styles.subtitle}>
-            Si tiene un costo, activa el botón e ingresa el costo total del
-            periodo.
+            Si tiene un costo, ingresa el total del periodo incluyendo la garantía, si corresponde.
           </p>
         </div>
         <Switch
@@ -450,7 +449,7 @@ const SecondPart = ({
         <>
           <Input
             type="number"
-            label="Monto (Bs)"
+            label="Total con garantía (Bs)"
             name="price"
             value={formState?.price}
             onChange={handleChange}

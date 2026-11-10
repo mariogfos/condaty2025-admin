@@ -256,6 +256,9 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         key: "price",
         errors,
       });
+      if (Number(formState?.guarantee_amount) > Number(formState?.price)) {
+        errors.guarantee_amount = "La garantía no puede superar el total configurado.";
+      }
       errors = checkRules({
         value: formState?.min_cancel_hours,
         rules: ["required", "less:200", "integer"],
