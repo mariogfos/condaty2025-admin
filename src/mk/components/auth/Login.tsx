@@ -14,10 +14,10 @@ const authEndpoints = {
   iam: process.env.NEXT_PUBLIC_AUTH_IAM || "/adm-iam",
   validatePin: process.env.NEXT_PUBLIC_AUTH_VALIDATE_PIN || "/adm-validatepin",
   trustDevice: process.env.NEXT_PUBLIC_AUTH_TRUST_DEVICE || "/trust-device",
-  getPin: process.env.NEXT_PUBLIC_AUTH_GET_PIN || "/adm-getpin",
 };
 
 const authTokenKey = `${authEndpoints.iam}token`;
+const trustedDeviceKey = (ci: string) => `trusted_device_token_${ci}`;
 
 const Login = () => {
   const { user, getUser } = useAuth();
@@ -131,7 +131,13 @@ const Login = () => {
     const { data, error }: any = await execute(
       authEndpoints.login,
       "POST",
-      { ...formState, deviceInfo },
+      {
+        ...formState,
+        deviceInfo: {
+          ...deviceInfo,
+          trusted_device_token: localStorage.getItem(trustedDeviceKey(formState.email)) ?? undefined,
+        },
+      },
     );
 
     if (data?.success && !error && data?.data?.token) {
@@ -190,6 +196,8 @@ const Login = () => {
         pin: verificationCode,
         ci: formState.email,
         type: "ADM",
+        purpose: "device",
+        password: formState.password,
       },
     );
 
@@ -245,14 +253,20 @@ const Login = () => {
         trustDevice: trust ? "Y" : "N",
         email: formState.email,
         password: formState.password,
+        pin: verificationCode,
         deviceInfo: deviceInfo,
       },
     );
 
-    if (data?.success && !error) {
-      if (trust) {
+    if (data?.success && !error && data?.data?.token) {
+      const key = trustedDeviceKey(formState.email);
+      if (trust && data.data.trusted_device_token) {
+        localStorage.setItem(key, data.data.trusted_device_token);
+        localStorage.removeItem("device_fingerprint");
+      } else if (trust && deviceInfo.fingerprint) {
         localStorage.setItem("device_fingerprint", deviceInfo.fingerprint);
       } else {
+        localStorage.removeItem(key);
         localStorage.removeItem("device_fingerprint");
       }
 
@@ -262,24 +276,27 @@ const Login = () => {
       );
       // Redirigir al sistema
       getUser();
+    } else {
+      setShowTrustDevice(false);
+      setIsNewDevice(true);
+      setErrors({ code: translate("invalidPin") });
     }
   };
 
   const handleResendCode = async () => {
-    const { data, error }: any = await execute(
-      authEndpoints.getPin,
+    const { data }: any = await execute(
+      authEndpoints.login,
       "POST",
       {
-        email: formState.email,
-        deviceInfo: {
-          fingerprint: deviceInfo.fingerprint,
-        },
+        ...formState,
+        deviceInfo,
       },
     );
 
-    if (data?.success) {
-      // Opcional: Mostrar toast de éxito o actualizar mensaje
-      // setVerificationMessage(data.message);
+    if (data?.errors?.device === "untrusted") {
+      setVerificationCode("");
+      setErrors({});
+      setVerificationMessage(translate("verificationMessage"));
     }
   };
 
