@@ -30,6 +30,8 @@ import { formatBs, formatNumber } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
 import { paymentsApi } from "../api";
 import useSubmissionGuard from "@/mk/hooks/useSubmissionGuard";
+import AdvancePaymentFields from "@/features/advance-payments/AdvancePaymentFields";
+import { advanceApi, type AdvanceDraft } from "@/features/advance-payments/types";
 
 interface Dpto {
   id: string | number;
@@ -269,6 +271,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [deudas, setDeudas] = useState<Deuda[]>([]);
   const [selectedPeriodo, setSelectedPeriodo] = useState<SelectedPeriodo[]>([]);
   const [periodoTotal, setPeriodoTotal] = useState(0);
+  const [advance, setAdvance] = useState<AdvanceDraft | null>(null);
+  const [advanceRevision, setAdvanceRevision] = useState(0);
+  const advanceEnabled = formState.type === "E" || formState.type === "O";
+  const advanceUnit = extraData?.dptos?.find(dpto => String(dpto.nro) === String(formState.dpto_id))
+    ?? extraData?.dptos?.find(dpto => String(dpto.id) === String(formState.dpto_id));
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoadingDeudas, setIsLoadingDeudas] = useState(false);
   const [toast] = useState<{
@@ -324,16 +331,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const findSelectedDpto = useCallback(
     (dptoKey: string | number) =>
       extraData?.dptos?.find(
-        (dpto) =>
-          String(dpto.nro) === String(dptoKey) ||
-          String(dpto.id) === String(dptoKey)
-      ),
+        (dpto) => String(dpto.nro) === String(dptoKey)
+      ) ?? extraData?.dptos?.find((dpto) => String(dpto.id) === String(dptoKey)),
     [extraData?.dptos]
   );
 
   const getDeudas = useCallback(
     async (nroDpto: string | number, paymentmethod: string) => {
       if (!nroDpto || !paymentmethod || paymentmethod === "I") return;
+      if (paymentmethod === "E" || paymentmethod === "O") return;
 
       const selectedDpto = findSelectedDpto(nroDpto);
       const realDptoId = selectedDpto?.id;
@@ -809,6 +815,41 @@ const RenderForm: React.FC<RenderFormProps> = ({
   ]);
 
   const _onSavePago = useCallback(async () => {
+    if (advanceEnabled) {
+      if (!advance?.ready || !advance.preview || !advanceUnit || Number(advanceUnit.id) !== advance.payload.unit_id || formState.type !== advance.payload.type) {
+        showToast("Selecciona las deudas y revisa el resumen y el motivo antes de guardar.", "warning");
+        return;
+      }
+      if (!formState.paid_at || (advance.preview.net > 0 && !formState.method)) {
+        showToast("Indica la fecha y el método de pago.", "warning"); return;
+      }
+      if (!beginCreate()) return;
+      try {
+        const bank = advance.preview.items.find(row => row.net && row.net > 0)?.bank_account_id
+          || extraData?.bankAccounts?.find((account: any) => formState.type === "E" && account.is_expense == 1)?.id
+          || extraData?.bankAccounts?.find((account: any) => account.is_main == 1)?.id;
+        const payment = {
+          paid_at: formState.paid_at, method: formState.method || null, bank_account_id: bank || null,
+          owner_id: formState.owner_id || getTitular(advanceUnit)?.id || null,
+          voucher: formState.voucher || null, url_file: formState.url_file, obs: formState.obs,
+        };
+        const payload = advance.operation ? {
+          ...advance.payload, ...payment, version: advance.preview.version, request_key: advance.requestKey, reason: advance.reason.trim(),
+        } : { ...payment, amount: advance.preview.net / 100, expected_total: advance.preview.net / 100,
+          asignados: advance.preview.items.map(row => ({ id: row.debt_id })) };
+        const response = await execute(advance.operation ? advanceApi : paymentsApi.full, "POST", payload);
+        if (response.data?.success) {
+          showToast(advance.preview.net === 0 ? "Descuentos aplicados sin generar ingreso." : "Ingreso registrado correctamente.", "success");
+          reLoad(); onClose();
+        } else {
+          showToast(response.data?.message || response.error?.data?.message || "No se pudo confirmar el ingreso. Revisa Pagos anticipados antes de reintentar.", "error");
+          if (response.data || [409, 422].includes(response.error?.status)) setAdvanceRevision(value => value + 1);
+        }
+      } catch {
+        showToast("No se pudo confirmar el ingreso. Revisa Pagos anticipados antes de reintentar.", "error");
+      } finally { finishCreate(); }
+      return;
+    }
     const isValid = validar();
     if (!isValid) {
       if (errors.general) {
@@ -944,6 +985,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       finishCreate();
     }
   }, [
+    advanceEnabled, advance, advanceUnit,
     formState,
     extraData?.dptos,
     selectedPeriodo,
@@ -1139,8 +1181,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
         onClose={submitting ? () => {} : onCloseModal}
         onSave={_onSavePago}
         buttonCancel={"Cancelar"}
-        buttonText={submitting ? "Guardando..." : "Crear ingreso"}
-        disabled={submitting}
+        buttonText={submitting ? "Guardando..." : advanceEnabled && advance?.preview?.net === 0 ? "Aplicar descuentos" : "Crear ingreso"}
+        disabled={submitting || (advanceEnabled && !advance?.ready)}
         title={"Crear ingreso"}
         minWidth={680}
         maxWidth={860}
@@ -1152,6 +1194,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 type="date"
                 name="paid_at"
                 label="Seleccionar fecha"
+                disabled={submitting}
                 required={true}
                 value={formState.paid_at || ""}
                 onChange={handleChangeInput}
@@ -1165,6 +1208,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               <Select
                 name="dpto_id"
                 label="Seleccionar Unidad"
+                disabled={submitting}
                 required={true}
                 value={formState.dpto_id}
                 onChange={handleChangeInput}
@@ -1181,6 +1225,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               <Select
                 name="type"
                 label="Tipo"
+                disabled={submitting}
                 required={true}
                 value={formState.type}
                 onChange={handleChangeInput}
@@ -1240,7 +1285,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
                         handleChangeInput(e);
                       }}
                       value={
-                        isDebtBasedPayment && deudas?.length > 0
+                        advanceEnabled ? advance?.preview ? (advance.preview.net / 100).toFixed(2) : ""
+                        : isDebtBasedPayment && deudas?.length > 0
                           ? periodoTotal.toFixed(2)
                           : formState.amount
                       }
@@ -1254,6 +1300,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     <Select
                       name="method"
                       label="Método de pago"
+                      disabled={submitting}
                       value={formState.method}
                       onChange={handleChangeInput}
                       options={[
@@ -1274,7 +1321,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
               {isDebtBasedPayment && (
                 <div>
-                  {deudasContent}
+                  {advanceEnabled ? advanceUnit && <AdvancePaymentFields key={`${advanceUnit.id}:${formState.type}`}
+                    unitId={Number(advanceUnit.id)} type={formState.type as "E" | "O"} execute={execute}
+                    onChange={setAdvance} initialDebtId={debtId} disabled={submitting} revision={advanceRevision} paidAt={formState.paid_at} /> : deudasContent}
                   {errors.selectedPeriodo && (
                     <div
                       className={styles["error-message"]}

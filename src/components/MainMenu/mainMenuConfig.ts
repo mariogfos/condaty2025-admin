@@ -112,6 +112,7 @@ export const menuConfig: MenuConfigItem[] = [
       { href: "/defaulters", labelKey: "defaulters", perm: "defaulters" },
       { href: "/debts_manager", labelKey: "debts", perm: "debts_manager" },
       { href: "/discounts", labelKey: "discounts", perm: "", anyPermissions: ["debts_manager", "debts"], skipAsLanding: true },
+      { href: "/advance-payments", labelKey: "advancePayments", perm: "payments", skipAsLanding: true },
       {
         href: "/bank-accounts",
         labelKey: "bankAccounts",

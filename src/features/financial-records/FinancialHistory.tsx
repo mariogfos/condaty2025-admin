@@ -5,6 +5,10 @@ import styles from "./FinancialDetail.module.css";
 import type { FinancialAuditEvent } from "./types";
 
 const ACTION_LABELS: Record<string, string> = {
+  advance_expense_issued: "Expensa emitida por pago anticipado",
+  advance_payment_applied: "Operación aplicada a la deuda",
+  advance_payment_registered: "Ingreso de operación registrado",
+  advance_payment_cancelled: "Operación anticipada anulada",
   usd_adopted: "Configuración USD aplicada a expensa anterior",
   usd_revalued: "Saldo actualizado por cotización USD",
   debt_components_updated: "Capital y multa corregidos por integración",
@@ -31,6 +35,7 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 const FIELD_LABELS: Record<string, string> = {
+  original_amount: "Total original", discount_percent: "Porcentaje de descuento", period: "Período", debt_count: "Deudas afectadas",
   principal_amount: "Capital",
   total_amount: "Total de la deuda",
   outstanding_amount: "Saldo pendiente",
