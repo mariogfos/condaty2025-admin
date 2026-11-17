@@ -34,4 +34,3 @@ export function IncomeSummary({ draft, advanceEnabled, amount, count, unit }: {
     <p className={styles.summaryHint}><ShieldCheck size={15} />Los importes se verifican nuevamente al guardar.</p>
   </aside>;
 }
-
