@@ -87,4 +87,12 @@ describe("Listado de descuentos", () => {
     expect(lastQuery().get("page")).toBe("1");
     expect(lastQuery().has("type")).toBe(false);
   });
+
+  it("no ofrece el estado en desuso E en el filtro", async () => {
+    renderDiscounts();
+    await screen.findByText("No se encontraron deudas con descuento.");
+    expect(screen.queryByRole("option", { name: "E", exact: true })).not.toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Por subir comprobante" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("option").map(option => option.getAttribute("value"))).not.toContain("E");
+  });
 });
