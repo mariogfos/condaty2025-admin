@@ -274,7 +274,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [advance, setAdvance] = useState<AdvanceDraft | null>(null);
   const [advanceRevision, setAdvanceRevision] = useState(0);
   const advanceEnabled = formState.type === "E" || formState.type === "O";
-  const advanceUnit = extraData?.dptos?.find(dpto => String(dpto.nro) === String(formState.dpto_id) || String(dpto.id) === String(formState.dpto_id));
+  const advanceUnit = extraData?.dptos?.find(dpto => String(dpto.nro) === String(formState.dpto_id))
+    ?? extraData?.dptos?.find(dpto => String(dpto.id) === String(formState.dpto_id));
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoadingDeudas, setIsLoadingDeudas] = useState(false);
   const [toast] = useState<{
@@ -330,10 +331,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const findSelectedDpto = useCallback(
     (dptoKey: string | number) =>
       extraData?.dptos?.find(
-        (dpto) =>
-          String(dpto.nro) === String(dptoKey) ||
-          String(dpto.id) === String(dptoKey)
-      ),
+        (dpto) => String(dpto.nro) === String(dptoKey)
+      ) ?? extraData?.dptos?.find((dpto) => String(dpto.id) === String(dptoKey)),
     [extraData?.dptos]
   );
 
