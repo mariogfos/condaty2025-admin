@@ -17,6 +17,7 @@ import RenderDel from "@/modulos/Payments/RenderDel/RenderDel";
 import { paymentsApi } from "@/modulos/Payments/api";
 import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
 import { getUsdDebtFields } from "@/features/financial-records/usdDebtFields";
+import { getDebtDiscountFields } from "@/features/financial-records/debtDiscountFields";
 import {
   FinancialDetailGrid,
   FinancialDetailSection,
@@ -317,7 +318,7 @@ const RenderView = ({
           },
         }}
         loading={loading || !item?.id}
-        onRecordChanged={getDetail}
+        onRecordChanged={async () => { await getDetail(); await reLoad?.(); }}
         footer={footer}
       >
         {(workspace) => (
@@ -327,7 +328,7 @@ const RenderView = ({
             </FinancialDetailSection>
 
             <FinancialDetailSection title="Importes y estado" defaultOpen={false}>
-              <FinancialDetailGrid fields={[...partialAmountFields, ...getUsdDebtFields(workspace?.record.usd_terms)]} />
+              <FinancialDetailGrid fields={[...getDebtDiscountFields(workspace?.record), ...partialAmountFields, ...getUsdDebtFields(workspace?.record.usd_terms)]} />
             </FinancialDetailSection>
 
             <FinancialDetailSection
