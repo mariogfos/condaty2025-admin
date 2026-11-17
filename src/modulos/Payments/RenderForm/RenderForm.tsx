@@ -1271,7 +1271,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           )}
 
           <div className={styles.section}>
-            <div>
+            <div className={styles["payment-fields"]}>
               <div className={styles["payment-section"]}>
                 <div className={styles["input-row"]}>
                   <div className={styles["input-half"]}>
