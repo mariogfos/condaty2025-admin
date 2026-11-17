@@ -1,0 +1,12 @@
+.fields { display: grid; gap: 14px; min-width: 0; }
+.toolbar, .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.controls > * { flex: 1 1 170px; }
+.table { height: min(40dvh, 340px); overflow: auto; min-width: 0; }
+.choice { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--cBorder); border-radius: 8px; background: transparent; color: var(--cWhiteV1); cursor: pointer; }
+.choice[aria-pressed="true"] { color: var(--cAccent); border-color: var(--cAccent); }
+.choice:disabled { opacity: .4; cursor: not-allowed; }
+.note { color: var(--cWhiteV2); font-size: 13px; line-height: 1.5; margin: 0; }
+.error { color: var(--cError); margin: 0; }
+.summary { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; border-top: 1px solid var(--cBorder); padding-top: 12px; }
+.custom { display: grid; grid-template-columns: 100px 85px; gap: 6px; }
+.caption { display: block; color: var(--cWhiteV2); font-size: 12px; margin-top: 4px; }

@@ -91,7 +91,7 @@ describe("Listado de descuentos", () => {
   it("no ofrece el estado en desuso E en el filtro", async () => {
     renderDiscounts();
     await screen.findByText("No se encontraron deudas con descuento.");
-    expect(screen.queryByRole("option", { name: "E", exact: true })).not.toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "E" })).not.toBeInTheDocument();
     expect(screen.queryByRole("option", { name: "Por subir comprobante" })).not.toBeInTheDocument();
     expect(screen.getAllByRole("option").map(option => option.getAttribute("value"))).not.toContain("E");
   });
