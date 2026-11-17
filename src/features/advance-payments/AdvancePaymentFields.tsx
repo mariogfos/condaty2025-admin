@@ -86,15 +86,16 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
     });
   };
   const header = [
-    { key: "selected", label: "", responsive: "Seleccionar", width: "46px", onRender: ({ item }: { item: AdvanceRow }) =>
+    { key: "selected", label: "", responsive: "Seleccionar", width: "44px", className: styles.selectionColumn, onRender: ({ item }: { item: AdvanceRow }) =>
       <button className={styles.choice} type="button" aria-label={`Seleccionar ${item.title}`} aria-pressed={selected.includes(item.key)}
         disabled={disabled || (!item.available && !selected.includes(item.key)) || (!selected.includes(item.key) && selected.length >= 120)} title={item.reason}
-        onClick={() => toggle(item.key)}>{selected.includes(item.key) && <Check size={18} />}</button> },
-    { key: "title", label: "Concepto / período", responsive: "Concepto", width: "100%", onRender: ({ item }: { item: AdvanceRow }) =>
-      <span>{item.title}<small className={styles.caption}>{item.future ? "Por emitir · " : ""}Vence: {item.due_at}{item.reason ? ` · ${item.reason}` : ""}</small>
+        onClick={() => toggle(item.key)}>{selected.includes(item.key) && <Check size={14} strokeWidth={3} />}</button> },
+    { key: "title", label: "Concepto / período", responsive: "Concepto", width: "100%", className: styles.copyColumn, onRender: ({ item }: { item: AdvanceRow }) =>
+      <span className={styles.rowContent}>{item.title}<small className={styles.caption}>{item.future ? "Por emitir · " : ""}Vence: {item.due_at}</small>
+        {item.reason && <small className={styles.caption}>{item.reason}</small>}
         {item.principal_currency === "USD" && <small className={styles.caption}>Cuota en USD · Equivalente de pago en Bs</small>}</span> },
-    { key: "gross", label: "Capital", responsive: "Capital", width: "110px", onRender: ({ item }: { item: AdvanceRow }) => formatBs((item.gross ?? 0) / 100) },
-    { key: "discount", label: "Descuento", responsive: "Descuento", width: discount.mode === "custom" ? "205px" : "125px",
+    { key: "gross", label: "Capital", responsive: "Capital", width: "128px", className: styles.capitalColumn, onRender: ({ item }: { item: AdvanceRow }) => formatBs((item.gross ?? 0) / 100) },
+    { key: "discount", label: "Descuento", responsive: "Descuento", width: discount.mode === "custom" ? "220px" : "128px", className: styles.discountColumn,
       onRender: ({ item }: { item: AdvanceRow }) => discount.mode === "custom" && selected.includes(item.key) && item.can_discount
         ? <div className={styles.custom}>
           <Input name={`discount-${item.key}`} label="Valor" type="number" min={0} disabled={disabled}
@@ -102,11 +103,11 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
           <Select name={`kind-${item.key}`} label="Tipo" options={kinds} disabled={disabled}
             value={discount.items?.find(i => i.key === item.key)?.type ?? "fixed"}
             onChange={event => custom(item, { type: event.target.value as "fixed" | "percent" })} />
-        </div> : <span>{formatBs((details.get(item.key)?.discount ?? item.existing_discount ?? 0) / 100)}
+        </div> : <span className={styles.rowContent}>{formatBs((details.get(item.key)?.discount ?? item.existing_discount ?? 0) / 100)}
           {details.get(item.key) && <small className={styles.caption}>{details.get(item.key)?.discount_percent}%</small>}</span> },
-    { key: "net", label: "A pagar", responsive: "A pagar", width: "115px", onRender: ({ item }: { item: AdvanceRow }) =>
-      <span>{formatBs((details.get(item.key)?.net ?? ((item.gross ?? 0) - (item.existing_discount ?? 0) + (item.fees ?? 0))) / 100)}
-        {Boolean(item.fees) && <small className={styles.caption}>Incluye cargos: {formatBs(item.fees / 100)}</small>}</span> },
+    { key: "net", label: "A pagar", responsive: "A pagar", width: "168px", className: styles.netColumn, onRender: ({ item }: { item: AdvanceRow }) =>
+      <span className={styles.rowContent}>{formatBs((details.get(item.key)?.net ?? ((item.gross ?? 0) - (item.existing_discount ?? 0) + (item.fees ?? 0))) / 100)}
+        {Boolean(item.fees) && <small className={styles.caption}>Cargos: {formatBs(item.fees / 100)}</small>}</span> },
   ];
 
   return <div className={styles.fields}>
@@ -135,7 +136,7 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
         checked={discount.replace_existing ?? false} disabled={disabled}
         onChange={event => setDiscount(old => ({ ...old, replace_existing: event.target.checked }))} />}
     {loading ? <p role="status">Consultando períodos…</p> : loadError ? <p role="alert" className={styles.error}>{loadError}</p>
-      : rows.length ? <div className={styles.table}><Table id="advance-payment-selection" className="striped" header={header} data={rows} height="100%" /></div>
+      : rows.length ? <div className={`${styles.table} ${discount.mode === "custom" ? styles.customTable : ""}`}><Table id="advance-payment-selection" className={`striped ${styles.selectionTable}`} header={header} data={rows} height="100%" /></div>
         : <p>No hay deudas pendientes.{type === "E" ? " Puedes añadir el próximo período para anticipar su pago." : ""}</p>}
     {error && <p role="alert" className={styles.error}>{error}</p>}
     {selected.length > 0 && !preview && !error && <p role="status">Calculando resumen…</p>}
