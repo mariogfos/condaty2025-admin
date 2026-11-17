@@ -23,7 +23,6 @@ import {
   IconCheckSquare,
 } from "@/components/layout/icons/IconsBiblioteca";
 import Toast from "@/mk/components/ui/Toast/Toast";
-import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
@@ -285,7 +284,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
     msg: "",
     method: "info",
   });
-  const { store } = useAuth();
   const typeOptions = [
     // { id: 'T', name: 'Todas las deudas' },
     { id: "E", name: "Expensas" },
@@ -324,7 +322,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           dpto_id: dpto.id,
         };
       }) || [],
-    [extraData?.dptos, store.Unitstype]
+    [extraData?.dptos]
   );
 
   const lastLoadedDeudas = useRef<string>("");
