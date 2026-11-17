@@ -635,6 +635,21 @@
   padding: 22px 24px;
 }
 
+.discountChip {
+  align-self: flex-start;
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: #fff;
+  background: #4936a1;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dialogSelectOptions.dialogSelectOptions {
+  z-index: 1401;
+}
+
 .formStack {
   display: flex;
   flex-direction: column;
