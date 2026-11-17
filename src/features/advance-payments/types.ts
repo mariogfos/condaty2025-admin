@@ -12,6 +12,7 @@ export type AdvanceRow = {
   available: boolean; reason?: string; future: boolean; can_discount: boolean;
   bank_account_id?: string | number | null;
   gross: number; fees: number; existing_discount: number;
+  debt_type?: number; penalty?: number; maintenance?: number;
   discount?: number; discount_percent?: number; net?: number;
   principal_currency?: string; current_status?: string; current_discount?: string;
 };
