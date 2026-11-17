@@ -27,3 +27,19 @@
     }
   }
 }
+
+.steps ol { display: flex; list-style: none; padding: 0; margin: 0; gap: var(--spL); }
+.steps li { flex: 1; min-width: 0; position: relative; }
+.steps li:not(:last-child)::after { content: ""; position: absolute; height: 1px; background: var(--cBorder); width: 24px; right: -20px; top: 16px; }
+.steps button { display: flex; align-items: center; gap: var(--spS); border: 0; padding: 0; background: transparent; color: var(--cWhiteV1); font: inherit; font-size: 13px; text-align: left; cursor: pointer; width: 100%; }
+.steps button:disabled { cursor: default; }
+.steps button:focus-visible { outline: 2px solid var(--cAccent); outline-offset: 5px; border-radius: 6px; }
+.stepNumber { width: 32px; height: 32px; flex: 0 0 32px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--cBorder); border-radius: 50%; color: var(--cWhiteV1); font-weight: 650; }
+.current button { color: var(--cWhite); font-weight: 650; }
+.current .stepNumber { border-color: var(--cAccent); color: var(--cAccent); background: color-mix(in srgb, var(--cAccent) 10%, transparent); }
+.completed .stepNumber { color: var(--cBlack); border-color: var(--cAccent); background: var(--cAccent); }
+@media (max-width: 600px) {
+  .steps ol { gap: var(--spM); }
+  .steps li:not(:last-child)::after { display: none; }
+  .steps button { flex-direction: column; align-items: flex-start; gap: 6px; font-size: 12px; }
+}
