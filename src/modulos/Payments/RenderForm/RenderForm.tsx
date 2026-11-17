@@ -1090,7 +1090,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   return <>
     <Toast toast={toast as any} showToast={showToast} />
     <DataModal open={open} onClose={submitting ? () => {} : onCloseModal} title="Registrar ingreso" titleClassName={wizard.modalTitle}
-      minWidth={860} maxWidth={1120} buttonText="" buttonCancel="" buttonExtra={
+      minWidth={1120} maxWidth={1120} buttonText="" buttonCancel="" buttonExtra={
         <div className={wizard.footer}>
           <Button variant="secondary" disabled={submitting} onClick={() => step === 1 ? onCloseModal() : setStep((step - 1) as 1 | 2)}> {step === 1 ? "Cancelar" : "Anterior"}</Button>
           <Button disabled={Boolean(nextDisabled)} onClick={advanceStep}>
