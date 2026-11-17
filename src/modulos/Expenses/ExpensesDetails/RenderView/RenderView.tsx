@@ -10,6 +10,7 @@ import Table from "@/mk/components/ui/Table/Table";
 import { paymentsApi } from "@/modulos/Payments/api";
 import Button from "@/mk/components/forms/Button/Button";
 import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
+import { getDebtDiscountFields } from "@/features/financial-records/debtDiscountFields";
 import {
   FinancialDetailGrid,
   FinancialDetailSection,
@@ -223,33 +224,35 @@ const RenderView = (props: {
           ) : null
         }
       >
-        <FinancialDetailSection title="Datos de la expensa">
-          <FinancialDetailGrid fields={fields} />
-        </FinancialDetailSection>
-
-        {pendingPeriods.length > 0 && (
-          <FinancialDetailSection title="Periodos por pagar" defaultOpen={false}>
-            <div className={styles.tableWrapper}>
-              <Table
-                className="striped"
-                style={{
-                  borderBottomLeftRadius: 0,
-                  borderBottomRightRadius: 0,
-                }}
-                height={pendingPeriodsTableHeight}
-                data={pendingPeriods}
-                header={pendingPeriodsHeader as any}
-              />
-              <div className={styles.tableFooter}>
-                <div className={styles.tableFooterLabels}>
-                  <p>Total pagado</p>
+        {(workspace) => (
+          <>
+            <FinancialDetailSection title="Datos de la expensa">
+              <FinancialDetailGrid fields={[...fields, ...getDebtDiscountFields(workspace?.record)]} />
+            </FinancialDetailSection>
+            {pendingPeriods.length > 0 && (
+              <FinancialDetailSection title="Periodos por pagar" defaultOpen={false}>
+                <div className={styles.tableWrapper}>
+                  <Table
+                    className="striped"
+                    style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
+                    height={pendingPeriodsTableHeight}
+                    data={pendingPeriods}
+                    header={pendingPeriodsHeader as any}
+                  />
+                  <div className={styles.tableFooter}>
+                    <div className={styles.tableFooterLabels}>
+                      <p>Total pagado</p>
+                    </div>
+                    <div className={styles.tableFooterValues}>
+                      <p className={styles.footerValue}>
+                        {formatBs(workspace?.record.confirmed_paid_amount ?? item?.amount)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.tableFooterValues}>
-                  <p className={styles.footerValue}>{formatBs(item?.amount)}</p>
-                </div>
-              </div>
-            </div>
-          </FinancialDetailSection>
+              </FinancialDetailSection>
+            )}
+          </>
         )}
       </FinancialDetailModal>
 
