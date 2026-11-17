@@ -88,14 +88,11 @@ describe("Listado de descuentos", () => {
     expect(lastQuery().has("type")).toBe(false);
   });
 
-  it("muestra Por subir comprobante y envía su código E al filtrar", async () => {
+  it("no ofrece el estado en desuso E en el filtro", async () => {
     renderDiscounts();
     await screen.findByText("No se encontraron deudas con descuento.");
-    expect(screen.getByRole("option", { name: "Por subir comprobante" })).toHaveValue("E");
     expect(screen.queryByRole("option", { name: "E", exact: true })).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("Estado"), { target: { value: "E" } });
-    await waitFor(() => expect(lastQuery().get("status")).toBe("E"));
-    expect(lastQuery().has("type")).toBe(false);
-    expect(await screen.findByText("No se encontraron deudas con descuento.")).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Por subir comprobante" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("option").map(option => option.getAttribute("value"))).not.toContain("E");
   });
 });

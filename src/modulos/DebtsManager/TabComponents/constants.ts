@@ -2,7 +2,6 @@
 export const DEBT_STATUS_MAP: { [key: string]: string } = {
   'A': 'Por cobrar',
   'P': 'Cobrado',
-  'E': 'Por subir comprobante',
   'S': 'Por confirmar',
   'M': 'En mora',
   'C': 'Cancelada',
