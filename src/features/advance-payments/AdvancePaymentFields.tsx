@@ -120,7 +120,7 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
   return <div className={styles.fields}>
     {phase === 1 && <>
       <div className={styles.toolbar}>
-        <span>{selected.length ? `${selected.length} seleccionadas` : "Selecciona las deudas a incluir"}</span>
+        <span>{selected.length ? `${selected.length} ${selected.length === 1 ? "deuda seleccionada" : "deudas seleccionadas"}` : "Selecciona las deudas a incluir"}</span>
         <div className={styles.actions}>
           {type === "E" && canCreateDebt && <Button variant="secondary" small disabled={disabled || loading || Boolean(maxThrough && nextToAdd > maxThrough)}
             onClick={() => setThrough(nextToAdd)}><Plus size={15} /> Añadir próximo período</Button>}
