@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import RenderForm from "../RenderForm";
 
 const mocks = vi.hoisted(() => ({ draft: {} as any, unitId: 0 }));
+// Direct navigation has no CRUD catalog store initialized by the Ingresos page.
+vi.mock("@/mk/contexts/AuthProvider", () => ({ useAuth: () => ({ store: null, userCan: () => true }) }));
 vi.mock("@/features/advance-payments/AdvancePaymentFields", () => ({ default: function FieldsMock({ onChange, unitId }: any) {
   mocks.unitId = unitId;
   useEffect(() => { onChange(mocks.draft); }, [onChange]);
