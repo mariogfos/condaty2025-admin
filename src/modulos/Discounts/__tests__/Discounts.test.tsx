@@ -87,4 +87,15 @@ describe("Listado de descuentos", () => {
     expect(lastQuery().get("page")).toBe("1");
     expect(lastQuery().has("type")).toBe(false);
   });
+
+  it("muestra Por subir comprobante y envía su código E al filtrar", async () => {
+    renderDiscounts();
+    await screen.findByText("No se encontraron deudas con descuento.");
+    expect(screen.getByRole("option", { name: "Por subir comprobante" })).toHaveValue("E");
+    expect(screen.queryByRole("option", { name: "E", exact: true })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Estado"), { target: { value: "E" } });
+    await waitFor(() => expect(lastQuery().get("status")).toBe("E"));
+    expect(lastQuery().has("type")).toBe(false);
+    expect(await screen.findByText("No se encontraron deudas con descuento.")).toBeInTheDocument();
+  });
 });
