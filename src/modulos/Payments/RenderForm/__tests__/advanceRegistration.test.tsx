@@ -3,8 +3,9 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import RenderForm from "../RenderForm";
 
-const mocks = vi.hoisted(() => ({ draft: {} as any }));
-vi.mock("@/features/advance-payments/AdvancePaymentFields", () => ({ default: function FieldsMock({ onChange }: any) {
+const mocks = vi.hoisted(() => ({ draft: {} as any, unitId: 0 }));
+vi.mock("@/features/advance-payments/AdvancePaymentFields", () => ({ default: function FieldsMock({ onChange, unitId }: any) {
+  mocks.unitId = unitId;
   useEffect(() => { onChange(mocks.draft); }, [onChange]);
   return <div>Períodos y descuentos</div>;
 } }));
@@ -76,5 +77,17 @@ describe("Confirmación desde el formulario de ingresos", () => {
     expect(execute.mock.calls.find(call => call[1] === "POST")?.slice(0, 3)).toMatchObject([
       "/payments-v2/full", "POST", { asignados: [{ id: 15 }], amount: 1200 },
     ]);
+  });
+  it("prioriza el número elegido si coincide con el ID de otra unidad", async () => {
+    mocks.draft.payload.unit_id = 2;
+    const units = [{ id: 1, nro: "Otra" }, { id: 2, nro: "1" }];
+    render(<RenderForm open item={{ type: "E", dpto_id: "1", method: "E", paid_at: "2026-11-17" }}
+      extraData={{ ...extra, dptos: units } as any} execute={execute} onClose={onClose} reLoad={reLoad} showToast={toast} />);
+    const button = await screen.findByRole("button", { name: "Crear ingreso" });
+    await waitFor(() => expect(button).toBeEnabled());
+    expect(mocks.unitId).toBe(2);
+    fireEvent.click(button);
+    await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
+    expect(execute.mock.calls.find(call => call[1] === "POST")?.[2].unit_id).toBe(2);
   });
 });
