@@ -16,6 +16,7 @@ import {
   CalendarDays,
   CircleDollarSign,
   MoreVertical,
+  Percent,
   RefreshCw,
   ShieldCheck,
   X,
@@ -24,11 +25,14 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
 import Button from "@/mk/components/forms/Button/Button";
 import Input from "@/mk/components/forms/Input/Input";
+import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { financialRecordsApi } from "./api";
+import { discountTypes } from "./debtDiscountFields";
 import styles from "./FinancialDetail.module.css";
 import type {
   FinancialCapabilities,
+  DebtDiscountType,
   FinancialMenuAction,
   FinancialRecordReference,
 } from "./types";
@@ -96,6 +100,9 @@ export const FinancialRecordActions = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [amountOpen, setAmountOpen] = useState(false);
   const [penaltyOpen, setPenaltyOpen] = useState(false);
+  const [discountOpen, setDiscountOpen] = useState(false);
+  const [discountType, setDiscountType] = useState<DebtDiscountType>("percent");
+  const [discountValue, setDiscountValue] = useState("");
   const [dateOpen, setDateOpen] = useState(false);
   const [verificationOpen, setVerificationOpen] = useState(false);
   const [recordAmount, setRecordAmount] = useState("");
@@ -132,6 +139,14 @@ export const FinancialRecordActions = ({
     setReason("");
     setFormError("");
     setPenaltyOpen(true);
+  };
+
+  const openDiscountEditor = () => {
+    setDiscountType(record.discount_type ?? "percent");
+    setDiscountValue(record.discount_value == null ? "" : String(record.discount_value));
+    setReason("");
+    setFormError("");
+    setDiscountOpen(true);
   };
 
   const openAmountEditor = () => {
@@ -221,6 +236,46 @@ export const FinancialRecordActions = ({
       setFormError(extractError(data, error, "No se pudo editar la multa."));
     }
     setSubmitting(false);
+  };
+
+  const saveDiscount = async () => {
+    const value = discountValue.trim().replace(",", ".");
+    const maximum = discountType === "percent" ? 100 : Number(record.gross_principal_amount ?? 99999999.99);
+    if (!/^\d+(\.\d{1,2})?$/.test(value) || Number(value) > maximum) {
+      setFormError(discountType === "percent"
+        ? "Ingresa un porcentaje entre 0 y 100, con hasta dos decimales."
+        : "Ingresa un importe válido que no supere el capital.");
+      return;
+    }
+    if (reason.trim().length < 3) {
+      setFormError("Indica el motivo de esta corrección.");
+      return;
+    }
+    if (previewMode) {
+      setDiscountOpen(false);
+      return;
+    }
+
+    setSubmitting(true);
+    setFormError("");
+    try {
+      const { data, error } = await execute(financialRecordsApi.discount(record.id), "PUT", {
+        type: discountType,
+        value: Number(value),
+        reason: reason.trim(),
+      }, false, true);
+      if (!data?.success) {
+        setFormError(extractError(data, error, "No se pudo guardar el descuento."));
+        return;
+      }
+      showToast(Number(value) === 0 && data.data?.changed ? "Descuento eliminado" : data.message || "Descuento actualizado", "success");
+      setDiscountOpen(false);
+      await notifyChanged();
+    } catch {
+      setFormError("No se pudo completar la solicitud. Vuelve a consultar el detalle.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const saveAmount = async () => {
@@ -350,6 +405,15 @@ export const FinancialRecordActions = ({
       onSelect: openPenaltyEditor,
     });
   }
+  const discountTitle = record.discount_type ? "Editar descuento" : "Aplicar descuento";
+  if (capabilities?.can_edit_discount) {
+    actions.push({
+      id: "edit-discount",
+      label: discountTitle,
+      icon: <Percent size={18} aria-hidden="true" />,
+      onSelect: openDiscountEditor,
+    });
+  }
   if (capabilities?.can_verify_payment) {
     actions.push({
       id: "verify-payment",
@@ -461,6 +525,32 @@ export const FinancialRecordActions = ({
             value={reason}
             onChange={setReason}
           />
+          <FormError message={formError} />
+        </div>
+      </ActionDialog>
+
+      <ActionDialog
+        open={discountOpen}
+        title={discountTitle}
+        description="El descuento se aplica al capital. Ingresa cero para quitarlo."
+        onClose={() => setDiscountOpen(false)}
+        onSubmit={() => void saveDiscount()}
+        submitLabel={submitting ? "Guardando…" : "Guardar descuento"}
+        busy={submitting}
+      >
+        <div className={styles.formStack}>
+          <Select name="financial-discount-type" label="Tipo de descuento"
+            value={discountType} options={discountTypes} selectOptionsClassName={styles.dialogSelectOptions}
+            onChange={(event) => setDiscountType(event.target.value)} />
+          <Input
+            name="financial-discount-value"
+            label={discountType === "percent" ? "Porcentaje (%)" : "Monto en bolivianos"}
+            type="number"
+            min={0}
+            value={discountValue}
+            onChange={(event) => setDiscountValue(event.target.value)}
+          />
+          <ReasonField id="financial-discount-reason" value={reason} onChange={setReason} />
           <FormError message={formError} />
         </div>
       </ActionDialog>

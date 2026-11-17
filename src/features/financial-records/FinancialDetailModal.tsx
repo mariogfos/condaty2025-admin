@@ -13,6 +13,7 @@ import { createPortal } from "react-dom";
 import { AlertCircle, CheckCircle2, Clock3, ReceiptText, X } from "lucide-react";
 import { FinancialHistory } from "./FinancialHistory";
 import { FinancialRecordActions } from "./FinancialRecordActions";
+import { debtDiscountLabel } from "./debtDiscountFields";
 import { useFinancialWorkspace } from "./useFinancialWorkspace";
 import styles from "./FinancialDetail.module.css";
 import type {
@@ -87,10 +88,12 @@ export const FinancialDetailModal = ({
     (remoteWorkspaceMatchesRecord ? remoteWorkspace : null);
   const workspaceLoading = workspaceOverride ? false : remoteWorkspaceLoading;
   const error = workspaceOverride ? "" : remoteWorkspaceError;
+  const discountLabel = debtDiscountLabel(workspace?.record);
   const actionRecord = record
     ? {
         ...record,
-        amount: workspace?.record.amount ?? record.amount,
+        ...workspace?.record,
+        amount: workspace?.record.gross_principal_amount ?? workspace?.record.amount ?? record.amount,
       }
     : undefined;
 
@@ -166,7 +169,14 @@ export const FinancialDetailModal = ({
         </header>
 
         <main className={styles.scrollBody}>
-          {summary ? <SummaryRow summary={summary} /> : null}
+          {summary ? <SummaryRow summary={workspace?.record.settled_by_discount ? {
+            amount: summary.amount,
+            eyebrow: "Saldo pendiente",
+            status: { label: "Saldada por descuento", tone: "success" },
+          } : summary} /> : null}
+          {discountLabel && (
+            <span className={styles.discountChip}>{discountLabel}</span>
+          )}
           {record ? (
             <div className={styles.tabs} role="tablist" aria-label="Vista del registro">
               <button

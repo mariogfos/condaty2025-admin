@@ -21,6 +21,9 @@ const ACTION_LABELS: Record<string, string> = {
   debt_amount_updated: "Monto de deuda editado",
   payment_amount_updated: "Monto de ingreso editado",
   penalty_updated: "Multa editada",
+  debt_discount_applied: "Descuento aplicado",
+  debt_discount_updated: "Descuento editado",
+  debt_discount_removed: "Descuento eliminado",
   payment_state_checked: "Estado del pago verificado",
   payment_state_repaired: "Estado del pago reparado",
   payment_date_updated: "Fecha de pago editada",
@@ -36,6 +39,11 @@ const FIELD_LABELS: Record<string, string> = {
   amount: "Monto",
   allocated_amount: "Monto aplicado",
   penalty_amount: "Multa",
+  gross_principal_amount: "Capital original",
+  discount_amount: "Descuento en Bs",
+  discount_type: "Tipo de descuento",
+  discount_value: "Valor del descuento",
+  settled_by_discount: "Saldada por descuento",
   principal_usd: "Capital (USD)",
   penalty_usd: "Multa (USD)",
   paid_at: "Fecha de pago",
@@ -82,6 +90,7 @@ const formatValue = (field: string, value: unknown) => {
   const leafField = field.split(".").at(-1) || field;
   if (value === null || value === undefined || value === "") return "Sin dato";
   if (leafField === "status") return STATUS_LABELS[String(value)] || String(value);
+  if (leafField === "discount_type") return value === "percent" ? "Porcentaje" : "Monto fijo";
   if (leafField.includes("amount")) {
     const number = Number(value);
     if (Number.isFinite(number)) {
