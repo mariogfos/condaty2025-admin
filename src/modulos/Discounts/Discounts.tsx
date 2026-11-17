@@ -71,8 +71,8 @@ function DiscountList() {
       try {
         const response = await executeRef.current(financialRecordsApi.discounts, "GET", {
           search: filters.search.trim(),
-          status: filters.status === all ? undefined : filters.status,
-          type: filters.type === all ? undefined : filters.type,
+          ...(filters.status !== all ? { status: filters.status } : {}),
+          ...(filters.type !== all ? { type: filters.type } : {}),
           page: filters.page,
         }, false, true);
         if (!active) return;
