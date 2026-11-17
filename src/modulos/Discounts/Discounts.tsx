@@ -36,7 +36,7 @@ type DiscountedDebt = DebtDiscountFields & {
 
 type Page = { data: DiscountedDebt[]; current_page: number; last_page: number; total: number };
 const all = "all";
-const statuses = ["A", "M", "I", "E", "S", "P", "F", "X"];
+const statuses = ["A", "M", "I", "S", "P", "F", "X"];
 const statusOptions = [{ id: all, name: "Todos los estados" },
   ...statuses.map(id => ({ id, name: getStatusText(id) }))];
 const typeOptions = [{ id: all, name: "Todos los tipos" }, ...discountTypes];
