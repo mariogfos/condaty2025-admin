@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, Plus, LockKeyhole } from "lucide-react";
+import { Check, LockKeyhole } from "lucide-react";
 import Button from "@/mk/components/forms/Button/Button";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
@@ -41,6 +41,7 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
   const [reason, setReason] = useState("");
   const [preview, setPreview] = useState<AdvancePlan | null>(null);
   const [error, setError] = useState("");
+  const lastAutomaticRange = useRef<{ through: string; keys: string } | null>(null);
   const payload = useMemo(() => ({ unit_id: unitId, type, selected,
     discount: discount.mode === "custom" ? { ...discount, items: discount.items?.filter(item => selected.includes(item.key)) ?? [] } : discount,
     ...(paidAt ? { paid_at: paidAt } : {}) }), [unitId, type, selected, discount, paidAt]);
@@ -87,10 +88,21 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
     });
   };
   const selectedRows = rows.filter(row => selected.includes(row.key));
-  const blocked = rows.filter(row => !row.available);
-  const selectableRows = rows.filter(row => row.available || selected.includes(row.key));
+  const availableRows = rows.filter(row => row.available);
   const lastVisiblePeriod = [through, ...rows.map(row => row.period)].filter(period => /^\d{4}-\d{2}$/.test(period)).sort().at(-1) ?? through;
   const nextToAdd = nextPeriod(lastVisiblePeriod);
+  const allAvailableSelected = availableRows.every(row => selected.includes(row.key));
+  const rowKeys = rows.map(row => row.key).join("|");
+  useEffect(() => {
+    if (phase !== 1 || type !== "E" || !canCreateDebt || disabled || loading || loadError
+      || !maxThrough || nextToAdd > maxThrough || selected.length >= 120 || !allAvailableSelected) return;
+    // A newly offered period remains unchecked. Stop if the server cannot offer
+    // another row (for example, a unit with a zero quota), rather than querying every month.
+    if (lastAutomaticRange.current?.through === through && lastAutomaticRange.current.keys === rowKeys) return;
+    lastAutomaticRange.current = { through: nextToAdd, keys: rowKeys };
+    setLoading(true);
+    setThrough(nextToAdd);
+  }, [phase, type, canCreateDebt, disabled, loading, loadError, maxThrough, nextToAdd, selected.length, allAvailableSelected, through, rowKeys]);
   const concept = (row: AdvanceRow) => type === "E" && /^\d{4}-\d{2}$/.test(row.period)
     ? new Date(row.period + "-01T12:00:00").toLocaleDateString("es-BO", { month: "long", year: "numeric" }) : row.title;
   const debtType = (row: AdvanceRow) => type === "E" ? "Expensa" : row.debt_type === 4 ? "Compartida" : "Individual";
@@ -100,21 +112,25 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
   const header = [
     { key: "selected", label: "", responsive: "Seleccionar", width: "44px", className: styles.selectionColumn, onRender: ({ item }: { item: AdvanceRow }) =>
       <button className={styles.choice} type="button" aria-label={`Seleccionar ${item.title}`} aria-pressed={selected.includes(item.key)}
-        disabled={disabled || (!item.available && !selected.includes(item.key)) || (!selected.includes(item.key) && selected.length >= 120)} title={item.reason}
+        disabled={disabled || loading || (!item.available && !selected.includes(item.key)) || (!selected.includes(item.key) && selected.length >= 120)} title={item.reason}
+        aria-describedby={!item.available ? `advance-unavailable-${item.key}` : undefined}
         onClick={() => toggle(item.key)}>{selected.includes(item.key) && <Check size={14} strokeWidth={3} />}</button> },
     { key: "debt_type", label: "Tipo", responsive: "Tipo", width: "96px", className: styles.typeColumn,
       onRender: ({ item }: { item: AdvanceRow }) => <span className={styles.typeLabel}>{debtType(item)}</span> },
     { key: "title", label: "Concepto", responsive: "Concepto", width: "100%", className: styles.copyColumn,
-      onRender: ({ item }: { item: AdvanceRow }) => <span className={styles.rowContent}>
+      onRender: ({ item }: { item: AdvanceRow }) => <span className={`${styles.rowContent} ${!item.available ? styles.unavailable : ""}`}>
         <span className={styles.concept}>{concept(item)}</span><small className={styles.caption}>
           {item.future ? "Futura · " : ""}{item.due_at ? `Vence ${item.due_at.split("-").reverse().join("/")}` : ""}
-        </small></span> },
+        </small>{!item.available && <small id={`advance-unavailable-${item.key}`} className={styles.unavailableReason}>
+          <LockKeyhole size={12} /><span><strong>No disponible</strong>{item.reason ? ` · ${item.reason}` : ""}</span>
+        </small>}</span> },
     { key: "gross", label: "Monto", responsive: "Monto", width: "124px", className: styles.amountColumn,
-      onRender: ({ item }: { item: AdvanceRow }) => formatBs((item.gross ?? 0) / 100) },
+      onRender: ({ item }: { item: AdvanceRow }) => item.gross == null ? "—" : formatBs(item.gross / 100) },
     { key: "penalty", label: "Multa", responsive: "Multa", width: "104px", className: styles.feeColumn,
-      onRender: ({ item }: { item: AdvanceRow }) => formatBs((item.penalty ?? (item.fees - (item.maintenance ?? 0))) / 100) },
+      onRender: ({ item }: { item: AdvanceRow }) => item.penalty == null && item.fees == null ? "—"
+        : formatBs((item.penalty ?? (item.fees - (item.maintenance ?? 0))) / 100) },
     ...(showMaintenance ? [{ key: "maintenance", label: "Mant. Valor", responsive: "Mant. Valor", width: "124px", className: styles.amountColumn,
-      onRender: ({ item }: { item: AdvanceRow }) => formatBs((item.maintenance ?? 0) / 100) }] : []),
+      onRender: ({ item }: { item: AdvanceRow }) => item.maintenance == null && !item.available ? "—" : formatBs((item.maintenance ?? 0) / 100) }] : []),
   ];
 
   return <div className={styles.fields}>
@@ -122,21 +138,17 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
       <div className={styles.toolbar}>
         <span>{selected.length ? `${selected.length} ${selected.length === 1 ? "deuda seleccionada" : "deudas seleccionadas"}` : "Selecciona las deudas a incluir"}</span>
         <div className={styles.actions}>
-          {type === "E" && canCreateDebt && <Button variant="secondary" small disabled={disabled || loading || Boolean(maxThrough && nextToAdd > maxThrough)}
-            onClick={() => setThrough(nextToAdd)}><Plus size={15} /> Añadir próximo período</Button>}
-          <Button variant="secondary" small disabled={disabled || loading} onClick={() => setSelected(rows.filter(r => r.available).slice(0, 120).map(r => r.key).sort())}>
+          <Button variant="secondary" small disabled={disabled || loading || !availableRows.length} onClick={() => setSelected(availableRows.slice(0, 120).map(r => r.key).sort())}>
             Seleccionar disponibles</Button>
           {selected.length > 0 && <Button variant="terciary" small disabled={disabled} onClick={() => setSelected([])}>Limpiar</Button>}
         </div>
       </div>
-      {loading ? <p role="status">Consultando deudas…</p> : loadError ? <p role="alert" className={styles.error}>{loadError}</p>
-        : selectableRows.length ? <div className={styles.table} style={{ height: Math.min(340, 48 + selectableRows.length * 58) }}><Table style={{ minWidth: showMaintenance ? 780 : 656 }} id="advance-payment-selection" className={`striped ${styles.selectionTable}`} header={header} data={selectableRows} height="100%" /></div>
-          : <p className={styles.note}>No hay deudas disponibles.{type === "E" ? " Añade el próximo período para anticipar su pago." : ""}</p>}
-      {blocked.length > 0 && <details className={styles.blocked}>
-        <summary><LockKeyhole size={15} />{blocked.length} {blocked.length === 1 ? "deuda no disponible" : "deudas no disponibles"}<span>Ver motivos</span></summary>
-        <ul>{blocked.map(row => <li key={row.key}><strong>{concept(row)}</strong><span>{row.reason}</span></li>)}</ul>
-      </details>}
-      {type === "E" && <p className={styles.note}>Los períodos futuros se crean únicamente al confirmar el ingreso.</p>}
+      {loadError && <p role="alert" className={styles.error}>{loadError}</p>}
+      {rows.length > 0 ? <div className={styles.table} aria-busy={loading} style={{ height: Math.min(340, 48 + rows.length * 76) }}>
+        <Table style={{ minWidth: showMaintenance ? 780 : 656 }} id="advance-payment-selection" className={`striped ${styles.selectionTable}`} header={header} data={rows} height="100%" />
+      </div> : !loading && !loadError && <p className={styles.note}>No hay deudas disponibles para este cobro.</p>}
+      {loading && <p role="status" className={styles.note}>{rows.length ? "Consultando el siguiente período…" : "Consultando deudas…"}</p>}
+      {type === "E" && <p className={styles.note}>{canCreateDebt && "Al seleccionar todas las expensas disponibles se habilita el siguiente período. "}Los períodos futuros se crean únicamente al confirmar el ingreso.</p>}
     </>}
 
     {phase === 2 && <>
