@@ -146,10 +146,12 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
         </div>
       </div>
       {loadError && <p role="alert" className={styles.error}>{loadError}</p>}
-      {rows.length > 0 ? <div className={styles.table} aria-busy={loading} style={{ height: Math.min(340, 48 + rows.length * 48) }}>
-        <Table style={{ minWidth: showMaintenance ? 780 : 656 }} id="advance-payment-selection" className={`striped ${styles.selectionTable}`} header={header} data={rows} height="100%" />
-      </div> : !loading && !loadError && <p className={styles.note}>No hay deudas disponibles para este cobro.</p>}
-      {loading && <p role="status" className={styles.note}>{rows.length ? "Consultando el siguiente período…" : "Consultando deudas…"}</p>}
+      <div className={styles.table} aria-busy={loading}>
+        {!loading && !rows.length && !loadError
+          ? <p className={`${styles.note} ${styles.empty}`}>No hay deudas disponibles para este cobro.</p>
+          : <Table style={{ minWidth: showMaintenance ? 780 : 656 }} id="advance-payment-selection" className={`striped ${styles.selectionTable}`}
+            header={header} data={rows} height="100%" showSkeletonRows={loading && !rows.length} skeletonRowCount={5} />}
+      </div>
       {type === "E" && <p className={styles.note}>{canCreateDebt && "Al seleccionar todas las expensas disponibles se habilita el siguiente período. "}Los períodos futuros se crean únicamente al confirmar el ingreso.</p>}
     </>}
 
@@ -193,6 +195,5 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
       {preview?.net === 0 && <p className={styles.note}>Las deudas se saldan por descuento. No se creará un ingreso.</p>}
     </>}
     {error && <p role="alert" className={styles.error}>{error}</p>}
-    {selected.length > 0 && !preview && !error && <p role="status" className={styles.note}>Calculando resumen…</p>}
   </div>;
 }
