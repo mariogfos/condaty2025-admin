@@ -40,8 +40,10 @@ describe("Selección, descuento y revisión de deudas", () => {
     await screen.findByRole("button", { name: "Seleccionar Expensa 2027-01" });
     expect(screen.getAllByRole("columnheader").map(node => node.textContent)).toEqual(["", "Tipo", "Concepto", "Monto", "Multa"]);
     expect(within(screen.getByRole("table")).getByRole("button", { name: "Seleccionar Expensa con comprobante" })).toBeDisabled();
-    expect(within(screen.getByRole("table")).getByText("No disponible")).toBeInTheDocument();
-    expect(within(screen.getByRole("table")).getByText(/Por confirmar/)).toBeInTheDocument();
+    expect(within(screen.getByRole("table")).getByRole("img", { name: "No disponible: Por confirmar" })).toHaveAttribute("title", "Por confirmar");
+    expect(within(screen.getByRole("table")).queryByText(/No disponible|Por confirmar|Vence/)).not.toBeInTheDocument();
+    expect(within(screen.getByRole("table")).getByText("octubre 2026")).toBeInTheDocument();
+    expect(within(screen.getByRole("table")).queryByText(/ de 2026/)).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Distribución del descuento")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Añadir próximo período/ })).not.toBeInTheDocument();
     expect(execute.mock.calls.every(call => call[1] === "GET")).toBe(true);

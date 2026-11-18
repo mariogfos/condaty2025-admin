@@ -104,7 +104,8 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
     setThrough(nextToAdd);
   }, [phase, type, canCreateDebt, disabled, loading, loadError, maxThrough, nextToAdd, selected.length, allAvailableSelected, through, rowKeys]);
   const concept = (row: AdvanceRow) => type === "E" && /^\d{4}-\d{2}$/.test(row.period)
-    ? new Date(row.period + "-01T12:00:00").toLocaleDateString("es-BO", { month: "long", year: "numeric" }) : row.title;
+    ? new Intl.DateTimeFormat("es-BO", { month: "long", year: "numeric" }).formatToParts(new Date(row.period + "-01T12:00:00"))
+      .filter(part => part.type === "month" || part.type === "year").map(part => part.value).join(" ") : row.title;
   const debtType = (row: AdvanceRow) => type === "E" ? "Expensa" : row.debt_type === 4 ? "Compartida" : "Individual";
   const changeDistribution = (mode: DiscountInput["mode"]) => setDiscount(mode === "custom"
     ? { mode, items: selectedRows.filter(row => row.can_discount).map(row => ({ key: row.key, type: "fixed", value: (row.existing_discount ?? 0) / 100 })) }
@@ -119,11 +120,12 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
       onRender: ({ item }: { item: AdvanceRow }) => <span className={styles.typeLabel}>{debtType(item)}</span> },
     { key: "title", label: "Concepto", responsive: "Concepto", width: "100%", className: styles.copyColumn,
       onRender: ({ item }: { item: AdvanceRow }) => <span className={`${styles.rowContent} ${!item.available ? styles.unavailable : ""}`}>
-        <span className={styles.concept}>{concept(item)}</span><small className={styles.caption}>
-          {item.future ? "Futura · " : ""}{item.due_at ? `Vence ${item.due_at.split("-").reverse().join("/")}` : ""}
-        </small>{!item.available && <small id={`advance-unavailable-${item.key}`} className={styles.unavailableReason}>
-          <LockKeyhole size={12} /><span><strong>No disponible</strong>{item.reason ? ` · ${item.reason}` : ""}</span>
-        </small>}</span> },
+        {!item.available && <span id={`advance-unavailable-${item.key}`} className={styles.lock} role="img"
+          aria-label={`No disponible${item.reason ? `: ${item.reason}` : ""}`} title={item.reason || "No disponible"}>
+          <LockKeyhole size={14} aria-hidden="true" />
+        </span>}<span className={styles.concept}>{concept(item)}</span>
+        {item.future && <small className={styles.futureLabel}>Futura</small>}
+      </span> },
     { key: "gross", label: "Monto", responsive: "Monto", width: "124px", className: styles.amountColumn,
       onRender: ({ item }: { item: AdvanceRow }) => item.gross == null ? "—" : formatBs(item.gross / 100) },
     { key: "penalty", label: "Multa", responsive: "Multa", width: "104px", className: styles.feeColumn,
@@ -144,7 +146,7 @@ export default function AdvancePaymentFields({ unitId, type, execute, onChange, 
         </div>
       </div>
       {loadError && <p role="alert" className={styles.error}>{loadError}</p>}
-      {rows.length > 0 ? <div className={styles.table} aria-busy={loading} style={{ height: Math.min(340, 48 + rows.length * 76) }}>
+      {rows.length > 0 ? <div className={styles.table} aria-busy={loading} style={{ height: Math.min(340, 48 + rows.length * 48) }}>
         <Table style={{ minWidth: showMaintenance ? 780 : 656 }} id="advance-payment-selection" className={`striped ${styles.selectionTable}`} header={header} data={rows} height="100%" />
       </div> : !loading && !loadError && <p className={styles.note}>No hay deudas disponibles para este cobro.</p>}
       {loading && <p role="status" className={styles.note}>{rows.length ? "Consultando el siguiente período…" : "Consultando deudas…"}</p>}
