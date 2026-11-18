@@ -148,6 +148,8 @@ describe("Selección, descuento y revisión de deudas", () => {
     const view = render(fields());
     fireEvent.click(await screen.findByRole("button", { name: "Seleccionar Expensa 2027-01" }));
     await waitFor(() => expect(resolveFirst).toBeDefined());
+    expect(latest().ready).toBe(false);
+    expect(screen.queryByText(/Consultando|Calculando resumen/)).not.toBeInTheDocument();
     view.rerender(fields(2));
     fireEvent.change(screen.getByLabelText("Distribución del descuento"), { target: { value: "latest" } });
     await waitFor(() => expect(latest().preview?.version).toBe("new"));
