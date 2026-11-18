@@ -1,6 +1,11 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AdvancePaymentFields, { nextPeriod } from "../AdvancePaymentFields";
+import type { AdvanceRow } from "../types";
+
+const permissions = vi.hoisted(() => ({ create: true }));
+vi.mock("@/mk/contexts/AuthProvider", () => ({ useAuth: () => ({ store: null, userCan: (_resource: string, action: string) => action !== "C" || permissions.create }) }));
+vi.mock("@/mk/utils/date", async importOriginal => ({ ...await importOriginal<any>(), getBusinessDate: () => "2026-11-17" }));
 
 vi.mock("@/mk/components/forms/Select/Select", () => ({ default: ({ label, name, value, options, onChange, disabled }: any) =>
   <select aria-label={label} name={name} value={value} onChange={onChange} disabled={disabled}>
@@ -16,31 +21,91 @@ vi.mock("@/mk/components/ui/Table/Table", () => ({ default: ({ header, data }: a
 
 const future = { key: "period:2027-01", debt_id: null, period: "2027-01", title: "Expensa 2027-01", due_at: "2027-01-31",
   future: true, available: true, can_discount: true, gross: 120000, penalty: 2500, maintenance: 500, fees: 3000, existing_discount: 0 };
-const blocked = { ...future, key: "debt:2", future: false, available: false, title: "Expensa con comprobante", reason: "Por confirmar" };
+const blocked = { ...future, key: "debt:2", period: "2026-10", due_at: "2026-10-31", future: false, available: false, title: "Expensa con comprobante", reason: "Por confirmar" };
 const execute = vi.fn(); const onChange = vi.fn();
 const latest = () => onChange.mock.calls.at(-1)![0];
-const candidates = (maintenance = false, rows = [future, blocked]) => ({ data: { success: true, data: { rows, maintenance_enabled: maintenance, max_through: "2030-01" } } });
+const candidates = (maintenance = false, rows: AdvanceRow[] = [future, blocked]) => ({ data: { success: true, data: { rows, maintenance_enabled: maintenance, max_through: "2030-01" } } });
 const plan = (version: string) => ({ data: { success: true, data: { version, original: 123000, discount: 0, net: 123000,
   items: [{ ...future, discount: 0, discount_percent: 0, net: 123000 }] } } });
 const fields = (phase: 1 | 2 | 3 = 1, revision = 0) => <AdvancePaymentFields unitId={1} type="E" execute={execute} onChange={onChange} phase={phase} revision={revision} />;
 
 describe("Selección, descuento y revisión de deudas", () => {
   beforeEach(() => {
+    permissions.create = true;
     execute.mockReset(); onChange.mockReset();
     execute.mockImplementation(async (url: string) => url.endsWith("/candidates") ? candidates() : plan("current"));
   });
-  it("muestra las columnas solicitadas y permite consultar bloqueos sin mezclarlos con las deudas disponibles", async () => {
+  it("muestra las deudas bloqueadas en la misma tabla, con su motivo y sin permitir seleccionarlas", async () => {
     render(fields());
     await screen.findByRole("button", { name: "Seleccionar Expensa 2027-01" });
     expect(screen.getAllByRole("columnheader").map(node => node.textContent)).toEqual(["", "Tipo", "Concepto", "Monto", "Multa"]);
-    expect(screen.queryByRole("button", { name: "Seleccionar Expensa con comprobante" })).not.toBeInTheDocument();
-    expect(screen.getByText("1 deuda no disponible")).toBeInTheDocument();
+    expect(within(screen.getByRole("table")).getByRole("button", { name: "Seleccionar Expensa con comprobante" })).toBeDisabled();
+    expect(within(screen.getByRole("table")).getByText("No disponible")).toBeInTheDocument();
+    expect(within(screen.getByRole("table")).getByText(/Por confirmar/)).toBeInTheDocument();
     expect(screen.queryByLabelText("Distribución del descuento")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Añadir próximo período/ }));
-    await waitFor(() => expect(execute.mock.calls.filter(call => call[0].endsWith("/candidates"))).toHaveLength(2));
+    expect(screen.queryByRole("button", { name: /Añadir próximo período/ })).not.toBeInTheDocument();
     expect(execute.mock.calls.every(call => call[1] === "GET")).toBe(true);
     expect(latest().ready).toBe(false);
     expect(nextPeriod("2026-12")).toBe("2027-01");
+  });
+  it("ofrece un período futuro sin marcar al seleccionar todas, y el siguiente al seleccionar ese período", async () => {
+    const existing = { ...future, key: "debt:1", debt_id: 1, future: false, period: "2026-11", title: "Expensa 2026-11" };
+    const december = { ...future, key: "period:2026-12", period: "2026-12", title: "Expensa 2026-12" };
+    execute.mockImplementation(async (url: string, _method: string, payload: any) => url.endsWith("/candidates")
+      ? candidates(false, [blocked, existing, ...(payload.through >= "2026-12" ? [december] : []), ...(payload.through >= "2027-01" ? [future] : [])])
+      : plan("current"));
+    render(fields());
+    await screen.findByRole("button", { name: "Seleccionar Expensa 2026-11" });
+    expect(execute.mock.calls.filter(call => call[0].endsWith("/candidates"))).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Seleccionar disponibles" }));
+    const next = await screen.findByRole("button", { name: "Seleccionar Expensa 2026-12" });
+    await waitFor(() => expect(next).toBeEnabled());
+    expect(next).toHaveAttribute("aria-pressed", "false");
+    expect(latest().payload.selected).toEqual([existing.key]);
+    fireEvent.click(next);
+    expect(await screen.findByRole("button", { name: "Seleccionar Expensa 2027-01" })).toHaveAttribute("aria-pressed", "false");
+    expect(latest().payload.selected).toEqual([existing.key, december.key]);
+    expect(execute.mock.calls.filter(call => call[0].endsWith("/candidates"))).toHaveLength(3);
+    expect(execute.mock.calls.some(call => call[0] === "/advance-payments")).toBe(false);
+  });
+  it("muestra el primer período futuro cuando no hay deudas disponibles y no repite si la cuota no permite generarlo", async () => {
+    const december = { ...future, key: "period:2026-12", period: "2026-12", title: "Expensa 2026-12" };
+    execute.mockImplementation(async (_url: string, _method: string, payload: any) => candidates(false, payload.through === "2026-11" ? [] : [december]));
+    const view = render(fields());
+    expect(await screen.findByRole("button", { name: "Seleccionar Expensa 2026-12" })).toHaveAttribute("aria-pressed", "false");
+    expect(execute).toHaveBeenCalledTimes(2);
+    view.unmount(); execute.mockClear();
+    execute.mockResolvedValue(candidates(false, []));
+    render(fields());
+    await waitFor(() => expect(execute).toHaveBeenCalledTimes(2));
+    await screen.findByText("No hay deudas disponibles para este cobro.");
+    expect(execute).toHaveBeenCalledTimes(2);
+  });
+  it("respeta el horizonte máximo, los permisos y el tipo de deuda", async () => {
+    const maximum = { ...future, period: "2030-01" };
+    execute.mockImplementation(async (url: string) => url.endsWith("/candidates") ? candidates(false, [maximum]) : plan("current"));
+    const view = render(fields());
+    fireEvent.click(await screen.findByRole("button", { name: "Seleccionar Expensa 2027-01" }));
+    await waitFor(() => expect(latest().preview).not.toBeNull());
+    expect(execute.mock.calls.filter(call => call[0].endsWith("/candidates"))).toHaveLength(1);
+    view.unmount(); execute.mockClear(); permissions.create = false;
+    execute.mockResolvedValue(candidates(false, []));
+    const noPermission = render(fields());
+    await screen.findByText("No hay deudas disponibles para este cobro.");
+    expect(execute).toHaveBeenCalledTimes(1);
+    noPermission.unmount(); execute.mockClear(); permissions.create = true;
+    render(<AdvancePaymentFields unitId={1} type="O" execute={execute} onChange={onChange} />);
+    await screen.findByText("No hay deudas disponibles para este cobro.");
+    expect(execute).toHaveBeenCalledTimes(1);
+  });
+  it("conserva períodos emitidos no disponibles sin inventar sus importes", async () => {
+    permissions.create = false;
+    execute.mockResolvedValue(candidates(false, [{ key: "period:2026-12", period: "2026-12", title: "2026-12", available: false,
+      reason: "El período ya fue emitido y no está disponible para este cobro." } as any]));
+    render(fields());
+    expect(await screen.findByRole("button", { name: "Seleccionar 2026-12" })).toBeDisabled();
+    expect(within(screen.getByRole("table")).getAllByText("—")).toHaveLength(2);
+    expect(screen.queryByText(/NaN/)).not.toBeInTheDocument();
   });
   it("muestra Mant. Valor sólo cuando el servidor indica que está habilitado", async () => {
     const view = render(fields());

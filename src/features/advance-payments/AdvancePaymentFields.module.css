@@ -29,13 +29,10 @@
 .sectionHeading { display: grid; gap: 6px; }
 .sectionHeading h3 { color: var(--cWhite); font-size: 17px; font-weight: 650; margin: 0; }
 .sectionHeading p { color: var(--cWhiteV1); font-size: 13px; line-height: 1.5; margin: 0; }
-.blocked { border-top: 1px solid var(--cBorder); padding-top: var(--spM); }
-.blocked summary { display: flex; align-items: center; gap: var(--spS); cursor: pointer; color: var(--cWhiteV1); font-size: 13px; list-style: none; }
-.blocked summary::-webkit-details-marker { display: none; }
-.blocked summary > span { margin-left: auto; color: var(--cWhite); font-size: 12px; }
-.blocked ul { list-style: none; padding: 0; margin: var(--spM) 0 0; display: grid; gap: var(--spM); }
-.blocked li { display: grid; gap: 4px; font-size: 12px; line-height: 1.5; color: var(--cWhiteV1); }
-.blocked strong { color: var(--cWhite); font-weight: 550; text-transform: capitalize; }
+.unavailable .concept { color: var(--cWhiteV1); }
+.unavailableReason { display: flex; gap: 5px; align-items: flex-start; margin-top: 6px; color: var(--cWhiteV1); font-size: 12px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+.unavailableReason svg { flex: 0 0 12px; margin-top: 3px; }
+.unavailableReason strong { color: var(--cWhite); font-weight: 600; }
 .customList { display: grid; gap: var(--spM); }
 .customRow { display: grid; grid-template-columns: minmax(0, 1fr) 150px 90px; gap: var(--spM); align-items: center; border-bottom: 1px solid var(--cBorder); padding-bottom: var(--spM); }
 .customRow > * { min-width: 0; width: 100%; }
