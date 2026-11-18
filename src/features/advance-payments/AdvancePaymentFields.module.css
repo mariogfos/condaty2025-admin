@@ -15,7 +15,7 @@
 .selectionTable .amountColumn { flex: 0 0 124px !important; width: 124px !important; min-width: 124px !important; font-variant-numeric: tabular-nums; }
 .selectionTable .feeColumn { flex: 0 0 104px !important; width: 104px !important; min-width: 104px !important; font-variant-numeric: tabular-nums; }
 .selectionTable .copyColumn { min-width: 180px !important; white-space: normal; overflow: visible; }
-.rowContent { display: block; min-width: 0; width: 100%; }
+.rowContent { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-width: 0; width: 100%; }
 .concept { color: var(--cWhite); font-weight: 550; text-transform: capitalize; }
 .typeLabel { color: var(--cWhiteV1); font-size: 12px; }
 .choice { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 20px; width: 20px; height: 20px; padding: 0; border: 1px solid var(--cWhiteV3); border-radius: 5px; background: transparent; color: var(--cWhite); cursor: pointer; }
@@ -30,9 +30,8 @@
 .sectionHeading h3 { color: var(--cWhite); font-size: 17px; font-weight: 650; margin: 0; }
 .sectionHeading p { color: var(--cWhiteV1); font-size: 13px; line-height: 1.5; margin: 0; }
 .unavailable .concept { color: var(--cWhiteV1); }
-.unavailableReason { display: flex; gap: 5px; align-items: flex-start; margin-top: 6px; color: var(--cWhiteV1); font-size: 12px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
-.unavailableReason svg { flex: 0 0 12px; margin-top: 3px; }
-.unavailableReason strong { color: var(--cWhite); font-weight: 600; }
+.lock { display: inline-flex; flex: 0 0 14px; align-items: center; color: var(--cWhiteV1); }
+.futureLabel { color: var(--cWhiteV1); font-size: 11px; font-weight: 400; }
 .customList { display: grid; gap: var(--spM); }
 .customRow { display: grid; grid-template-columns: minmax(0, 1fr) 150px 90px; gap: var(--spM); align-items: center; border-bottom: 1px solid var(--cBorder); padding-bottom: var(--spM); }
 .customRow > * { min-width: 0; width: 100%; }
