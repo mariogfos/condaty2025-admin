@@ -6,7 +6,8 @@
 .controls { display: flex; flex-wrap: wrap; gap: var(--spM); align-items: start; }
 .controls > * { flex: 1 1 140px; min-width: 0; }
 .controls > :first-child { flex: 2 1 240px; }
-.table { height: min(42dvh, 340px); min-width: 0; overflow: auto; max-height: 42dvh; }
+.table { height: min(42dvh, 288px); min-width: 0; overflow: auto; }
+.empty { display: grid; place-items: center; height: 100%; text-align: center; }
 .selectionTable header > div, .selectionTable main > div > span { padding: 9px var(--spM); font-size: 13px; }
 .selectionTable header > div, .selectionTable header button { color: var(--cWhite); font-weight: 650; }
 .selectionTable main > div { cursor: default; }

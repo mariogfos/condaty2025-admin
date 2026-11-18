@@ -9,6 +9,7 @@
 .heading p, .note { margin: 0; color: var(--cWhiteV1); font-size: 13px; line-height: 1.5; }
 .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spM); min-width: 0; }
 .summary { border: 1px solid var(--cBorder); border-radius: var(--bRadiusL, 16px); background: var(--cTableSurface); padding: 20px; min-width: 0; position: sticky; top: 0; }
+.summary[aria-busy="true"] .amounts, .summary[aria-busy="true"] .total { opacity: .65; }
 .summaryHeading { display: flex; align-items: center; gap: var(--spS); color: var(--cWhite); }
 .summaryHeading h3 { margin: 0; font-size: 16px; font-weight: 650; }
 .summaryUnit { margin: var(--spL) 0 4px; color: var(--cWhite); font-size: 14px; overflow-wrap: anywhere; }
