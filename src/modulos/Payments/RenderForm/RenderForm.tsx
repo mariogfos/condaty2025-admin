@@ -8,6 +8,11 @@ import React, {
   useRef,
 } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Button from "@/mk/components/forms/Button/Button";
+import StepProgressBar from "@/components/StepProgressBar/StepProgressBar";
+import { FinancialDetailGrid } from "@/features/financial-records/FinancialDetailPrimitives";
+import { IncomeSummary } from "./IncomeWizard";
+import wizard from "./IncomeWizard.module.css";
 import { getFullName } from "@/mk/utils/string";
 import {
   MONTHS_S,
@@ -18,18 +23,18 @@ import EmptyData from "@/components/NoData/EmptyData";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Input from "@/mk/components/forms/Input/Input";
-import {
-  IconCheckOff,
-  IconCheckSquare,
-} from "@/components/layout/icons/IconsBiblioteca";
 import Toast from "@/mk/components/ui/Toast/Toast";
-import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css";
+import selectionStyles from "@/features/advance-payments/AdvancePaymentFields.module.css";
+import Table from "@/mk/components/ui/Table/Table";
+import { Check } from "lucide-react";
 import UploadFileV3 from "@/mk/components/forms/UploadFileV3/UploadFileV3";
-import { formatBs, formatNumber } from "@/mk/utils/numbers";
+import { formatBs } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
 import { paymentsApi } from "../api";
 import useSubmissionGuard from "@/mk/hooks/useSubmissionGuard";
+import AdvancePaymentFields from "@/features/advance-payments/AdvancePaymentFields";
+import { advanceApi, type AdvanceDraft } from "@/features/advance-payments/types";
 
 interface Dpto {
   id: string | number;
@@ -68,6 +73,7 @@ interface ClientConfig {
   cat_expensas: string | number;
   cat_reservations: string | number;
   cat_forgiveness: string | number;
+  has_maintenance_value?: boolean;
 }
 
 interface ExtraData {
@@ -78,6 +84,7 @@ interface ExtraData {
   subcategories: any[];
 }
 interface Deuda {
+  reservation_charge?: { bank_account_id: number } | null;
   id: string | number;
   amount?: number;
   penalty_amount?: number;
@@ -268,6 +275,13 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [deudas, setDeudas] = useState<Deuda[]>([]);
   const [selectedPeriodo, setSelectedPeriodo] = useState<SelectedPeriodo[]>([]);
   const [periodoTotal, setPeriodoTotal] = useState(0);
+  const [advance, setAdvance] = useState<AdvanceDraft | null>(null);
+  const [advanceRevision, setAdvanceRevision] = useState(0);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  useEffect(() => { setStep(1); }, [open, formState.dpto_id, formState.type]);
+  const advanceEnabled = formState.type === "E" || formState.type === "O";
+  const advanceUnit = extraData?.dptos?.find(dpto => String(dpto.nro) === String(formState.dpto_id))
+    ?? extraData?.dptos?.find(dpto => String(dpto.id) === String(formState.dpto_id));
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoadingDeudas, setIsLoadingDeudas] = useState(false);
   const [toast] = useState<{
@@ -277,7 +291,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
     msg: "",
     method: "info",
   });
-  const { store } = useAuth();
   const typeOptions = [
     // { id: 'T', name: 'Todas las deudas' },
     { id: "E", name: "Expensas" },
@@ -316,23 +329,22 @@ const RenderForm: React.FC<RenderFormProps> = ({
           dpto_id: dpto.id,
         };
       }) || [],
-    [extraData?.dptos, store.Unitstype]
+    [extraData?.dptos]
   );
 
   const lastLoadedDeudas = useRef<string>("");
   const findSelectedDpto = useCallback(
     (dptoKey: string | number) =>
       extraData?.dptos?.find(
-        (dpto) =>
-          String(dpto.nro) === String(dptoKey) ||
-          String(dpto.id) === String(dptoKey)
-      ),
+        (dpto) => String(dpto.nro) === String(dptoKey)
+      ) ?? extraData?.dptos?.find((dpto) => String(dpto.id) === String(dptoKey)),
     [extraData?.dptos]
   );
 
   const getDeudas = useCallback(
     async (nroDpto: string | number, paymentmethod: string) => {
       if (!nroDpto || !paymentmethod || paymentmethod === "I") return;
+      if (paymentmethod === "E" || paymentmethod === "O") return;
 
       const selectedDpto = findSelectedDpto(nroDpto);
       const realDptoId = selectedDpto?.id;
@@ -808,6 +820,41 @@ const RenderForm: React.FC<RenderFormProps> = ({
   ]);
 
   const _onSavePago = useCallback(async () => {
+    if (advanceEnabled) {
+      if (!advance?.ready || !advance.preview || !advanceUnit || Number(advanceUnit.id) !== advance.payload.unit_id || formState.type !== advance.payload.type) {
+        showToast("Selecciona las deudas y revisa el resumen y el motivo antes de guardar.", "warning");
+        return;
+      }
+      if (!formState.paid_at || (advance.preview.net > 0 && !formState.method)) {
+        showToast("Indica la fecha y el método de pago.", "warning"); return;
+      }
+      if (!beginCreate()) return;
+      try {
+        const bank = advance.preview.items.find(row => row.net && row.net > 0)?.bank_account_id
+          || extraData?.bankAccounts?.find((account: any) => formState.type === "E" && account.is_expense == 1)?.id
+          || extraData?.bankAccounts?.find((account: any) => account.is_main == 1)?.id;
+        const payment = {
+          paid_at: formState.paid_at, method: formState.method || null, bank_account_id: bank || null,
+          owner_id: formState.owner_id || getTitular(advanceUnit)?.id || null,
+          voucher: formState.voucher || null, url_file: formState.url_file, obs: formState.obs,
+        };
+        const payload = advance.operation ? {
+          ...advance.payload, ...payment, version: advance.preview.version, request_key: advance.requestKey, reason: advance.reason.trim(),
+        } : { ...payment, amount: advance.preview.net / 100, expected_total: advance.preview.net / 100,
+          asignados: advance.preview.items.map(row => ({ id: row.debt_id })) };
+        const response = await execute(advance.operation ? advanceApi : paymentsApi.full, "POST", payload);
+        if (response.data?.success) {
+          showToast(advance.preview.net === 0 ? "Descuentos aplicados sin generar ingreso." : "Ingreso registrado correctamente.", "success");
+          reLoad(); onClose();
+        } else {
+          showToast(response.data?.message || response.error?.data?.message || "No se pudo confirmar el ingreso. Revisa Pagos anticipados antes de reintentar.", "error");
+          if (response.data || [409, 422].includes(response.error?.status)) setAdvanceRevision(value => value + 1);
+        }
+      } catch {
+        showToast("No se pudo confirmar el ingreso. Revisa Pagos anticipados antes de reintentar.", "error");
+      } finally { finishCreate(); }
+      return;
+    }
     const isValid = validar();
     if (!isValid) {
       if (errors.general) {
@@ -838,7 +885,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
         break;
       }
       case "R": {
+        const frozenAccount = deudas.find(debt =>
+          String(debt.id) === String(selectedPeriodo[0]?.id),
+        )?.reservation_charge?.bank_account_id;
         const id =
+          frozenAccount ||
           extraData?.bankAccounts?.find((i: any) => i.is_reserve == 1)?.id ||
           existBankAccount;
         bank_account_id = id;
@@ -939,6 +990,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       finishCreate();
     }
   }, [
+    advanceEnabled, advance, advanceUnit,
     formState,
     extraData?.dptos,
     selectedPeriodo,
@@ -974,380 +1026,141 @@ const RenderForm: React.FC<RenderFormProps> = ({
   };
 
   const deudasContent = useMemo(() => {
-    if (!formState.dpto_id) {
-      return (
-        <EmptyData message="Seleccione una unidad para ver deudas" h={200} />
-      );
-    } else if (isLoadingDeudas) {
-      return <EmptyData message="Cargando deudas..." h={200} />;
-    } else if (deudas.length === 0) {
-      return (
-        <div className={styles["no-deudas-container"]}>
-          <EmptyData message="Esta unidad no tiene deudas pendientes" h={200} />
-          <p className={styles["no-deudas-message"]}>
-            No se encontraron deudas pendientes para esta unidad. No se puede
-            registrar un pago de{" "}
-            {formState.type === "E"
-              ? "expensas"
-              : formState.type === "R"
-              ? "reservas"
-              : "este tipo"}
-            .
-          </p>
-        </div>
-      );
-    } else {
-      return (
-        <div className={styles["deudas-container"]}>
-          <div className={styles["deudas-title-row"]}>
-            <p className={styles["deudas-title"]}>
-              Seleccione las deudas a pagar:
-            </p>
-            {formState?.type !== "O" && (
-              <button
-                type="button"
-                className={styles["select-all-container"]}
-                onClick={handleSelectAllPeriodos}
-              >
-                <span className={styles["select-all-text"]}>Pagar todo</span>
-                {selectedPeriodo.length === deudas.length ? (
-                  <IconCheckSquare
-                    className={`${styles["check-icon"]} ${styles.selected}`}
-                  />
-                ) : (
-                  <IconCheckOff className={styles["check-icon"]} />
-                )}
-              </button>
-            )}
-          </div>
+    if (!formState.dpto_id) return <EmptyData message="Selecciona una unidad para consultar sus deudas" h={160} />;
+    if (isLoadingDeudas) return <p role="status" className={wizard.note}>Consultando deudas…</p>;
+    if (!deudas.length) return <EmptyData message="Esta unidad no tiene deudas disponibles para este tipo de ingreso" h={160} />;
+    const maintenance = Boolean(extraData?.client_config?.has_maintenance_value);
+    const header = [
+      { key: "selected", label: "", responsive: "Seleccionar", width: "44px", className: selectionStyles.selectionColumn,
+        onRender: ({ item: row }: { item: Deuda }) => <button type="button" className={selectionStyles.choice}
+          aria-label={`Seleccionar deuda ${row.id}`} aria-pressed={selectedPeriodo.some(period => String(period.id) === String(row.id))}
+          disabled={submitting || isBankAccountSame(row)} onClick={() => handleSelectPeriodo(row)}>
+          {selectedPeriodo.some(period => String(period.id) === String(row.id)) && <Check size={14} strokeWidth={3} />}</button> },
+      { key: "type", label: "Tipo", responsive: "Tipo", width: "96px", className: selectionStyles.typeColumn,
+        onRender: ({ item: row }: { item: Deuda }) => getDebtType(row.type ?? 0) },
+      { key: "concept", label: "Concepto", responsive: "Concepto", width: "100%", className: selectionStyles.copyColumn,
+        onRender: ({ item: row }: { item: Deuda }) => <span className={selectionStyles.concept}>{getConceptByType(row)}</span> },
+      { key: "amount", label: "Monto", responsive: "Monto", width: "124px", className: selectionStyles.amountColumn,
+        onRender: ({ item: row }: { item: Deuda }) => formatBs(Number(row.amount ?? 0)) },
+      { key: "penalty_amount", label: "Multa", responsive: "Multa", width: "104px", className: selectionStyles.feeColumn,
+        onRender: ({ item: row }: { item: Deuda }) => formatBs(Number(row.penalty_amount ?? 0)) },
+      ...(maintenance ? [{ key: "maintenance_amount", label: "Mant. Valor", responsive: "Mant. Valor", width: "124px", className: selectionStyles.amountColumn,
+        onRender: ({ item: row }: { item: Deuda }) => formatBs(Number(row.maintenance_amount ?? 0)) }] : []),
+    ];
+    return <div className={selectionStyles.fields}>
+      <div className={selectionStyles.toolbar}><span>{selectedPeriodo.length} deudas seleccionadas</span>
+        <div className={selectionStyles.actions}><Button variant="secondary" small disabled={submitting} onClick={handleSelectAllPeriodos}>Seleccionar disponibles</Button></div>
+      </div>
+      <div className={selectionStyles.table} style={{ height: Math.min(340, 48 + deudas.length * 58) }}>
+        <Table id="income-debt-selection" style={{ minWidth: maintenance ? 780 : 656 }} height="100%"
+          className={`striped ${selectionStyles.selectionTable}`} header={header} data={deudas} />
+      </div>
+    </div>;
+  }, [formState.dpto_id, formState.type, isLoadingDeudas, deudas, selectedPeriodo, extraData?.client_config?.has_maintenance_value, submitting]);
 
-          <div className={styles["deudas-table"]}>
-            <div className={styles["deudas-header"]}>
-              <span className={styles["header-item"]}>Tipo</span>
-              <span className={styles["header-item"]}>Concepto</span>
-              <span
-                className={`${styles["header-item"]} ${styles["header-amount"]}`}
-              >
-                Monto
-              </span>
-              <span
-                className={`${styles["header-item"]} ${styles["header-amount"]}`}
-              >
-                Multa
-              </span>
-              <span
-                className={`${styles["header-item"]} ${styles["header-amount"]}`}
-              >
-                Mant. Valor
-              </span>
-              <span
-                className={`${styles["header-item"]} ${styles["header-amount"]}`}
-              >
-                Subtotal
-              </span>
-              <span className={styles["header-item"]}>Seleccionar</span>
-            </div>
-
-            {deudas.map((periodo) => (
-              <button
-                type="button"
-                key={String(periodo.id)}
-                onClick={() => {
-                  handleSelectPeriodo(periodo);
-                }}
-                disabled={isBankAccountSame(periodo)}
-                className={styles["deuda-item"]}
-                style={{
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  width: "100%",
-                  textAlign: "inherit",
-                  opacity: isBankAccountSame(periodo) ? 0.2 : 1,
-                }}
-              >
-                <div className={styles["deuda-row"]}>
-                  <div className={styles["deuda-cell"]}>
-                    {getDebtType(periodo.type || 0)}
-                  </div>
-                  <div className={styles["deuda-cell"]}>
-                    {getConceptByType(periodo)}
-                  </div>
-                  <div
-                    className={`${styles["deuda-cell"]} ${styles["amount-cell"]}`}
-                  >
-                    {"Bs " + formatNumber(Number(periodo.amount ?? 0))}
-                  </div>
-                  <div
-                    className={`${styles["deuda-cell"]} ${styles["amount-cell"]}`}
-                  >
-                    {"Bs " + formatNumber(Number(periodo.penalty_amount ?? 0))}
-                  </div>
-                  <div
-                    className={`${styles["deuda-cell"]} ${styles["amount-cell"]}`}
-                  >
-                    {"Bs " +
-                      formatNumber(Number(periodo.maintenance_amount ?? 0))}
-                  </div>
-                  <div
-                    className={`${styles["deuda-cell"]} ${styles["amount-cell"]}`}
-                  >
-                    {"Bs " + formatNumber(getSubtotal(periodo))}
-                  </div>
-
-                  <div
-                    className={`${styles["deuda-cell"]} ${styles["deuda-check"]}`}
-                  >
-                    {selectedPeriodo.some((item) => item.id === periodo.id) ? (
-                      <IconCheckSquare
-                        className={`${styles["check-icon"]} ${styles.selected}`}
-                      />
-                    ) : (
-                      <IconCheckOff className={styles["check-icon"]} />
-                    )}
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-          <div className={styles["total-container"]}>
-            <p>Total a pagar: {formatBs(periodoTotal)}</p>
-          </div>
-        </div>
-      );
+  const selectedUnit = findSelectedDpto(formState.dpto_id ?? "");
+  const matchingPreview = Boolean(advance?.preview?.items.length && advanceUnit
+    && Number(advanceUnit.id) === advance?.payload.unit_id && formState.type === advance?.payload.type);
+  const selectionReady = Boolean(formState.dpto_id && formState.type
+    && (advanceEnabled ? matchingPreview : showCategoryFields ? formState.category_id && formState.subcategory_id : selectedPeriodo.length));
+  const zeroIncome = advanceEnabled && matchingPreview && advance?.preview?.net === 0;
+  const detailsReady = Boolean(formState.paid_at && (zeroIncome || formState.method) && (!advanceEnabled || advance?.ready));
+  const advanceStep = () => {
+    if (step === 1) { if (selectionReady) setStep(2); return; }
+    if (step === 2) {
+      if (advanceEnabled ? !detailsReady : !validar()) return;
+      setStep(3); return;
     }
-  }, [
-    formState.dpto_id,
-    formState.type,
-    isLoadingDeudas,
-    deudas,
-    selectedPeriodo.length,
-    periodoTotal,
-    handleSelectPeriodo,
-  ]);
+    void _onSavePago();
+  };
+  const methods = [{ id: "Q", name: "Pago QR" }, { id: "T", name: "Transferencia bancaria" },
+    { id: "E", name: "Efectivo" }, { id: "C", name: "Cheque" }, { id: "O", name: "Pago en oficina" }];
+  const total = advanceEnabled ? (advance?.preview?.net ?? 0) / 100 : isDebtBasedPayment ? periodoTotal : Number(formState.amount || 0);
+  const nextDisabled = submitting || (step === 1 ? !selectionReady : step === 2 ? advanceEnabled && !detailsReady : advanceEnabled && !advance?.ready);
+  const voucherFields = <div className={wizard.panel}>
+    <UploadFileV3 cant={8} name="url_file" setFormState={setFormState} formState={formState} mode="all" maxMB={20}
+      error={errors} title="Comprobante de pago" subtitle="Adjunta el respaldo del ingreso, si corresponde" />
+    <Input type="text" label="Número de respaldo de pago" name="voucher" disabled={submitting}
+      value={formState.voucher || ""} error={errors} maxLength={50} onChange={event => {
+        const value = event.target.value.replace(/[^a-zA-Z0-9]/g, "").substring(0, 50);
+        handleChangeInput({ ...event, target: { ...event.target, name: "voucher", value } });
+      }} />
+  </div>;
 
-  return (
-    <>
-      <Toast toast={toast as any} showToast={showToast} />
-      <DataModal
-        open={open}
-        onClose={submitting ? () => {} : onCloseModal}
-        onSave={_onSavePago}
-        buttonCancel={"Cancelar"}
-        buttonText={submitting ? "Guardando..." : "Crear ingreso"}
-        disabled={submitting}
-        title={"Crear ingreso"}
-        minWidth={680}
-        maxWidth={860}
-      >
-        <div className={styles["income-form-container"]}>
-          <div className={styles.section}>
-            <div className={styles["input-container"]}>
-              <Input
-                type="date"
-                name="paid_at"
-                label="Seleccionar fecha"
-                required={true}
-                value={formState.paid_at || ""}
-                onChange={handleChangeInput}
-                error={errors}
-              />
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <div className={styles["input-container"]}>
-              <Select
-                name="dpto_id"
-                label="Seleccionar Unidad"
-                required={true}
-                value={formState.dpto_id}
-                onChange={handleChangeInput}
-                options={lDptos}
-                error={errors}
-                filter={true}
-                filterStyle={{ backgroundColor: "#323232" }}
-              />
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <div className={styles["input-container"]}>
-              <Select
-                name="type"
-                label="Tipo"
-                required={true}
-                value={formState.type}
-                onChange={handleChangeInput}
-                options={typeOptions}
-                error={errors}
-                optionLabel="name"
-                optionValue="id"
-              />
-            </div>
-          </div>
-
-          {showCategoryFields && (
-            <div className={styles.section}>
-              <div className={styles["input-row"]}>
-                <div className={styles["input-half"]}>
-                  <Select
-                    name="category_id"
-                    label="Categoría"
-                    value={formState.category_id}
-                    onChange={handleChangeInput}
-                    options={filteredCategories}
-                    error={errors}
-                    required
-                    optionLabel="name"
-                    optionValue="id"
-                    disabled={formState.isCategoryLocked}
-                  />
-                </div>
-                <div className={styles["input-half"]}>
-                  <Select
-                    name="subcategory_id"
-                    label="Subcategoría"
-                    value={formState.subcategory_id}
-                    onChange={handleChangeInput}
-                    options={formState.subcategories || []}
-                    error={errors}
-                    required
-                    optionLabel="name"
-                    optionValue="id"
-                    disabled={formState.isSubcategoryLocked}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className={styles.section}>
-            <div>
-              <div className={styles["payment-section"]}>
-                <div className={styles["input-row"]}>
-                  <div className={styles["input-half"]}>
-                    <Input
-                      type="currency"
-                      name="amount"
-                      label="Monto del ingreso"
-                      onChange={(e) => {
-                        handleChangeInput(e);
-                      }}
-                      value={
-                        isDebtBasedPayment && deudas?.length > 0
-                          ? periodoTotal.toFixed(2)
-                          : formState.amount
-                      }
-                      required={false}
-                      error={errors}
-                      disabled={isDebtBasedPayment || formState.isAmountLocked}
-                      maxLength={20}
-                    />
-                  </div>
-                  <div className={styles["input-half"]}>
-                    <Select
-                      name="method"
-                      label="Método de pago"
-                      value={formState.method}
-                      onChange={handleChangeInput}
-                      options={[
-                        { id: "Q", name: "Pago QR" },
-                        { id: "T", name: "Transferencia bancaria" },
-                        { id: "E", name: "Efectivo" },
-                        { id: "C", name: "Cheque" },
-                        { id: "O", name: "Pago en oficina" },
-                      ]}
-                      error={errors}
-                      required
-                      optionLabel="name"
-                      optionValue="id"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {isDebtBasedPayment && (
-                <div>
-                  {deudasContent}
-                  {errors.selectedPeriodo && (
-                    <div
-                      className={styles["error-message"]}
-                      style={{ color: "red", marginTop: 8 }}
-                    >
-                      {errors.selectedPeriodo}
-                    </div>
-                  )}
-                </div>
-              )}
-
-                <div className={styles["supporting-fields"]}>
-                <div className={styles["upload-section"]}>
-                  {open && (
-                    <UploadFileV3
-                      cant={8}
-                      name="url_file"
-                      setFormState={setFormState}
-                      formState={formState}
-                      mode="all"
-                      maxMB={20}
-                      error={errors}
-                      title="Cargar comprobantes"
-                      subtitle="Adjunta imágenes, PDF o archivos de oficina"
-                    />
-                  )}
-                </div>
-
-                <div className={styles["voucher-section"]}>
-                  <div className={styles["voucher-input"]}>
-                    <Input
-                      type="text"
-                      label="Número de respaldo de pago"
-                      name="voucher"
-                      onChange={(e) => {
-                        const value = e.target.value
-                          .replace(/[^a-zA-Z0-9]/g, "")
-                          .substring(0, 50);
-                        const newEvent = {
-                          ...e,
-                          target: { ...e.target, name: "voucher", value },
-                        };
-                        handleChangeInput(newEvent);
-                      }}
-                      value={formState.voucher || ""}
-                      error={errors}
-                      maxLength={50}
-                    />
-                  </div>
-                </div>
-
-                <div className={styles["obs-section"]}>
-                  <div className={styles["obs-input"]}>
-                    <TextArea
-                      label="Observaciones"
-                      name="obs"
-                      onChange={(e) => {
-                        const value = e.target.value.substring(0, 250);
-                        const newEvent = {
-                          ...e,
-                          target: { ...e.target, name: "obs", value },
-                        };
-                        handleChangeInput(newEvent);
-                      }}
-                      value={formState.obs}
-                      required={false}
-                      maxLength={250}
-                      error={errors}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+  return <>
+    <Toast toast={toast as any} showToast={showToast} />
+    <DataModal open={open} onClose={submitting ? () => {} : onCloseModal} title="Registrar ingreso" titleClassName={wizard.modalTitle}
+      minWidth={1120} maxWidth={1120} buttonText="" buttonCancel="" buttonExtra={
+        <div className={wizard.footer}>
+          <Button variant="secondary" disabled={submitting} onClick={() => step === 1 ? onCloseModal() : setStep((step - 1) as 1 | 2)}> {step === 1 ? "Cancelar" : "Anterior"}</Button>
+          <Button disabled={Boolean(nextDisabled)} onClick={advanceStep}>
+            {submitting ? "Guardando…" : step === 1 ? "Continuar" : step === 2 ? "Revisar ingreso" : zeroIncome ? "Aplicar descuentos" : "Registrar ingreso"}
+          </Button>
         </div>
-      </DataModal>
-    </>
-  );
+      }>
+      <div className={wizard.wizard}>
+        <StepProgressBar currentStep={step} totalSteps={3} steps={["Seleccionar deudas", "Descuento y pago", "Revisar y confirmar"]}
+          disabled={submitting} onStepChange={value => setStep(value as 1 | 2 | 3)} />
+        <div className={wizard.layout}>
+          <div className={wizard.main}>
+            <section className={wizard.panel} hidden={step !== 1}>
+              <div className={wizard.heading}><h2>¿Qué vas a registrar?</h2><p>Selecciona la unidad y el tipo de ingreso.</p></div>
+              <div className={wizard.row}>
+                <Select name="dpto_id" label="Seleccionar Unidad" disabled={submitting} required value={formState.dpto_id}
+                  onChange={handleChangeInput} options={lDptos} error={errors} filter />
+                <Select name="type" label="Tipo" disabled={submitting} required value={formState.type} onChange={handleChangeInput}
+                  options={typeOptions} error={errors} optionLabel="name" optionValue="id" />
+              </div>
+              {showCategoryFields && <div className={wizard.row}>
+                <Select name="category_id" label="Categoría" value={formState.category_id} onChange={handleChangeInput}
+                  options={filteredCategories} error={errors} required optionLabel="name" optionValue="id" disabled={formState.isCategoryLocked || submitting} />
+                <Select name="subcategory_id" label="Subcategoría" value={formState.subcategory_id} onChange={handleChangeInput}
+                  options={formState.subcategories || []} error={errors} required optionLabel="name" optionValue="id" disabled={formState.isSubcategoryLocked || submitting} />
+              </div>}
+              {isDebtBasedPayment && !advanceEnabled && deudasContent}
+              {errors.selectedPeriodo && <p role="alert" className={styles["error-message"]}>{errors.selectedPeriodo}</p>}
+            </section>
+
+            {advanceEnabled && advanceUnit && <AdvancePaymentFields key={`${advanceUnit.id}:${formState.type}`}
+              unitId={Number(advanceUnit.id)} type={formState.type as "E" | "O"} execute={execute} onChange={setAdvance}
+              initialDebtId={debtId} disabled={submitting} revision={advanceRevision} paidAt={formState.paid_at}
+              phase={step} maintenanceEnabled={extraData?.client_config?.has_maintenance_value} />}
+
+            <section className={wizard.panel} hidden={step !== 2}>
+              <div className={wizard.heading}><h2>{zeroIncome ? "Sin movimiento de dinero" : "Datos del ingreso"}</h2>
+                <p>{zeroIncome ? "El descuento cubre el saldo seleccionado. Conservaremos el registro de esta operación." : "Indica cuándo y cómo se recibió el pago."}</p></div>
+              <div className={wizard.row}>
+                <Input type="date" name="paid_at" label="Fecha del ingreso" disabled={submitting} required value={formState.paid_at || ""}
+                  onChange={handleChangeInput} error={errors} />
+                {!zeroIncome && <Select name="method" label="Método de pago" disabled={submitting} required value={formState.method}
+                  onChange={handleChangeInput} options={methods} error={errors} optionLabel="name" optionValue="id" />}
+              </div>
+              {showCategoryFields && <Input type="currency" name="amount" label="Monto del ingreso" value={formState.amount}
+                onChange={handleChangeInput} disabled={submitting || formState.isAmountLocked} required maxLength={20} error={errors} />}
+              {!zeroIncome && voucherFields}
+              <TextArea label="Observaciones" name="obs" value={formState.obs || ""} required={false} maxLength={250}
+                onChange={event => handleChangeInput({ ...event, target: { ...event.target, name: "obs", value: event.target.value.substring(0, 250) } })} error={errors} />
+            </section>
+
+            <section className={wizard.panel} hidden={step !== 3}>
+              <div className={wizard.heading}><h2>Revisa antes de confirmar</h2><p>{zeroIncome ? "Se aplicarán los descuentos indicados." : "Se registrará el importe final del resumen."}</p></div>
+              <FinancialDetailGrid fields={[
+                { id: "unit", label: "Unidad", value: selectedUnit?.nro },
+                { id: "type", label: "Tipo de ingreso", value: typeOptions.find(option => option.id === formState.type)?.name },
+                { id: "date", label: "Fecha del ingreso", value: formState.paid_at?.split("-").reverse().join("/") },
+                { id: "method", label: "Método de pago", value: zeroIncome ? "Saldada por descuento" : methods.find(option => option.id === formState.method)?.name },
+                { id: "voucher", label: "Respaldo", value: formState.voucher || "Sin número adicional" },
+                { id: "files", label: "Archivos adjuntos", value: String(formState.url_file?.length ?? 0) },
+                ...(formState.obs ? [{ id: "obs", label: "Observaciones", value: formState.obs, wide: true }] : []),
+              ]} />
+            </section>
+          </div>
+          <IncomeSummary draft={advance} advanceEnabled={advanceEnabled} amount={total} count={selectedPeriodo.length}
+            unit={selectedUnit?.nro} />
+        </div>
+      </div>
+    </DataModal>
+  </>;
 };
 
 export default RenderForm;

@@ -93,6 +93,11 @@
   background: #34d3991a;
 }
 
+.bookingsIcon {
+  color: #fcd38c;
+  background: #f59e0b1a;
+}
+
 .arrow {
   color: var(--cWhiteV3);
 }

@@ -25,6 +25,7 @@ const labels: Record<string, string> = {
   has_maintenance_value: "Mantenimiento de valor", check_mora: "Control de mora", button_mora: "Aviso de mora",
   operational_permissions_config: "Permisos operativos", payment_methods_config: "Métodos de pago",
   integration_automations: "Automatizaciones", type_id: "Tipo de unidad", placeholder: "Texto de ayuda",
+  reservation_guarantees: "Garantías de reservas",
   usd_billing: "Moneda y cambio", expense_currency: "Moneda de expensas", penalty_currency: "Moneda de multas",
   rate_mode: "Modalidad de cambio", fixed_rate: "Cambio fijo (Bs/USD)", expense_valuation: "Conversión de expensas",
   expense_base_rate: "Tasa base de las expensas",

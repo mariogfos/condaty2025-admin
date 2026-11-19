@@ -32,6 +32,7 @@ export type MenuConfigItem =
       items: Array<{
         href: string;
         perm: string;
+        anyPermissions?: readonly string[];
         labelKey: string;
         badgeKey?: string;
         fosOnly?: boolean;
@@ -106,9 +107,12 @@ export const menuConfig: MenuConfigItem[] = [
       },
       { href: "/outlays", labelKey: "outlays", perm: "outlays" },
       { href: "/cheques", labelKey: "cheques", perm: "outlays" },
+      { href: "/guarantees", labelKey: "guarantees", perm: "settings", skipAsLanding: true },
       { href: "/expenses", labelKey: "condominiumFees", perm: "expenses" },
       { href: "/defaulters", labelKey: "defaulters", perm: "defaulters" },
       { href: "/debts_manager", labelKey: "debts", perm: "debts_manager" },
+      { href: "/discounts", labelKey: "discounts", perm: "", anyPermissions: ["debts_manager", "debts"], skipAsLanding: true },
+      { href: "/advance-payments", labelKey: "advancePayments", perm: "payments", skipAsLanding: true },
       {
         href: "/bank-accounts",
         labelKey: "bankAccounts",

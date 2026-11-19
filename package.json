@@ -22,7 +22,7 @@
     "@instantdb/react": "^0.21.22",
     "@mlc-ai/web-llm": "^0.2.78",
     "@types/ua-parser-js": "^0.7.39",
-    "axios": "^1.12.0",
+    "axios": "1.20.0",
     "cloudinary": "^2.8.0",
     "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.13.3",
@@ -31,7 +31,7 @@
     "lucide-react": "^1.14.0",
     "mapbox-gl": "^3.30.0",
     "motion": "^12.23.11",
-    "next": "^15.2.6",
+    "next": "^15.5.28",
     "react": "^19.1.2",
     "react-apexcharts": "^1.7.0",
     "react-day-picker": "^9.6.7",
@@ -69,5 +69,16 @@
     "postcss": "^8.5.3",
     "typescript": "^5",
     "vitest": "^4.1.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "next>sharp": "0.35.5",
+      "postcss@8": "8.5.18",
+      "nanoid@3": "3.3.18",
+      "browserslist@4": "4.28.7",
+      "source-map-js@1": "1.2.2",
+      "form-data@4": "4.0.6",
+      "follow-redirects@1": "1.16.2"
+    }
   }
 }

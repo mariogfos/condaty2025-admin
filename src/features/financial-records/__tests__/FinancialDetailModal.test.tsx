@@ -22,6 +22,33 @@ const workspace = {
 };
 
 describe("FinancialDetailModal", () => {
+  it("shows a settled discount and opens the editor with its existing value", () => {
+    render(
+      <FinancialDetailModal
+        open
+        onClose={vi.fn()}
+        title="Detalle de deuda"
+        record={{ type: "debt", id: 42 }}
+        summary={{ amount: "Bs 0,00", eyebrow: "Monto cobrado", date: "Pagada el -/-" }}
+        workspaceOverride={{
+          ...workspace,
+          record: { ...workspace.record, discount_type: "percent", discount_value: 100,
+            discount_amount: 300, gross_principal_amount: 300, settled_by_discount: true },
+          capabilities: { ...workspace.capabilities, can_edit_discount: true },
+        }}
+      >
+        <p>Contenido financiero</p>
+      </FinancialDetailModal>,
+    );
+    expect(screen.getByText("Descuento del 100%")).toBeInTheDocument();
+    expect(screen.getByText("Saldada por descuento")).toBeInTheDocument();
+    expect(screen.queryByText("Monto cobrado")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Más acciones" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Editar descuento" }));
+    expect(screen.getByRole("heading", { name: "Editar descuento" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Porcentaje (%)")).toHaveValue(100);
+  });
+
   it("opens the contextual actions without crashing the financial detail", () => {
     const onSelect = vi.fn();
 
