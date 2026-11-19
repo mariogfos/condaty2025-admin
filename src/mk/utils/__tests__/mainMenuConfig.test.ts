@@ -7,6 +7,17 @@ import {
 } from "@/components/MainMenu/mainMenuConfig";
 
 describe("getFirstAccessibleMenuRoute", () => {
+  it("vincula Garantías con Finanzas y no con Configuración", () => {
+    const finance = menuConfig.find(
+      (item): item is Extract<MenuConfigItem, { type: "dropdown" }> => item.type === "dropdown" && item.key === "Finanzas",
+    );
+    const guarantees = finance?.items.find(item => item.href === "/guarantees");
+    expect(guarantees).toBeDefined();
+    expect(guarantees?.perm).toBe("payments");
+    expect(isMenuItemVisible(guarantees!, permission => permission === "payments", false)).toBe(true);
+    expect(isMenuItemVisible(guarantees!, permission => permission === "settings", true)).toBe(false);
+  });
+
   it("returns the first visible module when Home is not available", () => {
     const allowed = new Set(["guards", "alerts"]);
 
