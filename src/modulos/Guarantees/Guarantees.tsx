@@ -22,12 +22,12 @@ type Dialog = { kind: "deposit" } | { kind: "detail" | "refund"; row: Guarantee 
 
 export default function Guarantees() {
   const { user, userCan } = useAuth();
-  if (!userCan("settings", "R")) return <NotAccess />;
+  if (!userCan("payments", "R")) return <NotAccess />;
 
-  return <GuaranteeList key={user?.client_id} canWrite={Boolean(user?.fosrole_id && userCan("settings", "U"))} />;
+  return <GuaranteeList key={user?.client_id} canDeposit={userCan("payments", "C")} canRefund={userCan("payments", "U")} />;
 }
 
-function GuaranteeList({ canWrite }: { canWrite: boolean }) {
+function GuaranteeList({ canDeposit, canRefund }: { canDeposit: boolean; canRefund: boolean }) {
   const { execute } = useAxios();
   const executeRef = useRef(execute);
   const [filters, setFilters] = useState({ search: "", page: 1 });
@@ -83,7 +83,7 @@ function GuaranteeList({ canWrite }: { canWrite: boolean }) {
           <DataSearch name="guarantee-search" placeholder="Buscar unidad o titular" value={filters.search}
             setSearch={(search: string) => setFilters({ search, page: 1 })} />
         </div>
-        {canWrite && <div className={crud.toolbarActions}>
+        {canDeposit && <div className={crud.toolbarActions}>
           <Button onClick={() => setDialog({ kind: "deposit" })}><Plus size={17} /> Registrar depósito</Button>
         </div>}
       </div>
@@ -105,8 +105,8 @@ function GuaranteeList({ canWrite }: { canWrite: boolean }) {
       )}
 
       {dialog?.kind === "detail" && <GuaranteeDetail row={dialog.row} onClose={() => setDialog(null)}
-        onRefund={canWrite && dialog.row.available_cents > 0 ? () => setDialog({ kind: "refund", row: dialog.row }) : undefined} />}
-      {canWrite && dialog && dialog.kind !== "detail" && <GuaranteeMovementForm
+        onRefund={canRefund && dialog.row.available_cents > 0 ? () => setDialog({ kind: "refund", row: dialog.row }) : undefined} />}
+      {dialog && ((dialog.kind === "deposit" && canDeposit) || (dialog.kind === "refund" && canRefund)) && <GuaranteeMovementForm
         refund={dialog.kind === "refund" ? dialog.row : undefined} onClose={() => setDialog(null)}
         onSaved={() => { setDialog(null); refresh(); }} />}
     </section>
