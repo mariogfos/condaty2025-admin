@@ -12,7 +12,7 @@ export type ToastItem = ToastType & {
 };
 
 const DEFAULT_TOAST_TYPE: ToastKind = "success";
-const DEFAULT_TOAST_TIME = 5000;
+export const DEFAULT_TOAST_TIME = 5000;
 const MAX_TOAST_QUEUE = 4;
 const TOAST_DUPLICATE_WINDOW_MS = 1500;
 let toastCounter = 0;

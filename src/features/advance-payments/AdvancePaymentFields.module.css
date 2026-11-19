@@ -1,0 +1,45 @@
+.fields { display: grid; gap: var(--spL); min-width: 0; color: var(--cWhite); }
+.toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--spM); }
+.toolbar > span { color: var(--cWhiteV1); font-size: 13px; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spS); }
+.actions > button { width: auto; flex: 0 0 auto; }
+.controls { display: flex; flex-wrap: wrap; gap: var(--spM); align-items: start; }
+.controls > * { flex: 1 1 140px; min-width: 0; }
+.controls > :first-child { flex: 2 1 240px; }
+.table { height: min(42dvh, 288px); min-width: 0; overflow: auto; }
+.empty { display: grid; place-items: center; height: 100%; text-align: center; }
+.selectionTable header > div, .selectionTable main > div > span { padding: 9px var(--spM); font-size: 13px; }
+.selectionTable header > div, .selectionTable header button { color: var(--cWhite); font-weight: 650; }
+.selectionTable main > div { cursor: default; }
+.selectionTable .selectionColumn { flex: 0 0 44px !important; width: 44px !important; min-width: 44px !important; justify-content: center; padding-inline: var(--spS); }
+.selectionTable .typeColumn { flex: 0 0 96px !important; width: 96px !important; min-width: 96px !important; }
+.selectionTable .amountColumn { flex: 0 0 124px !important; width: 124px !important; min-width: 124px !important; font-variant-numeric: tabular-nums; }
+.selectionTable .feeColumn { flex: 0 0 104px !important; width: 104px !important; min-width: 104px !important; font-variant-numeric: tabular-nums; }
+.selectionTable .copyColumn { min-width: 180px !important; white-space: normal; overflow: visible; }
+.rowContent { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-width: 0; width: 100%; }
+.concept { color: var(--cWhite); font-weight: 550; text-transform: capitalize; }
+.typeLabel { color: var(--cWhiteV1); font-size: 12px; }
+.choice { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 20px; width: 20px; height: 20px; padding: 0; border: 1px solid var(--cWhiteV3); border-radius: 5px; background: transparent; color: var(--cWhite); cursor: pointer; }
+.choice::before { content: ""; position: absolute; inset: -9px; }
+.choice[aria-pressed="true"] { background: var(--cAccent); border-color: var(--cAccent); color: var(--cBlack); }
+.choice:focus-visible { outline: 2px solid var(--cAccent); outline-offset: 3px; }
+.choice:disabled { opacity: .45; cursor: not-allowed; }
+.note { color: var(--cWhiteV1); font-size: 13px; line-height: 1.5; margin: 0; }
+.error { color: var(--cError); font-size: 13px; margin: 0; }
+.caption { display: block; color: var(--cWhiteV1); font-size: 12px; line-height: 1.4; margin-top: 4px; white-space: normal; overflow-wrap: anywhere; }
+.sectionHeading { display: grid; gap: 6px; }
+.sectionHeading h3 { color: var(--cWhite); font-size: 17px; font-weight: 650; margin: 0; }
+.sectionHeading p { color: var(--cWhiteV1); font-size: 13px; line-height: 1.5; margin: 0; }
+.unavailable .concept { color: var(--cWhiteV1); }
+.lock { display: inline-flex; flex: 0 0 14px; align-items: center; color: var(--cWhiteV1); }
+.futureLabel { color: var(--cWhiteV1); font-size: 11px; font-weight: 400; }
+.customList { display: grid; gap: var(--spM); }
+.customRow { display: grid; grid-template-columns: minmax(0, 1fr) 150px 90px; gap: var(--spM); align-items: center; border-bottom: 1px solid var(--cBorder); padding-bottom: var(--spM); }
+.customRow > * { min-width: 0; width: 100%; }
+.customRow strong { font-size: 14px; color: var(--cWhite); font-weight: 550; text-transform: capitalize; }
+.reviewList { display: grid; gap: 0; list-style: none; margin: 0; padding: 0; max-height: 340px; overflow: auto; }
+.reviewList li { display: flex; justify-content: space-between; gap: var(--spL); align-items: center; padding: var(--spM) 0; border-bottom: 1px solid var(--cBorder); font-size: 14px; }
+.reviewList strong { color: var(--cWhite); font-weight: 550; text-transform: capitalize; }
+.reviewList li > strong { white-space: nowrap; }
+.discountText { display: block; color: var(--cAccent); font-size: 12px; margin-top: 4px; }
+@media (max-width: 600px) { .toolbar { align-items: stretch; } .actions { width: 100%; } .actions > button { flex: 1 1 auto; } .customRow { grid-template-columns: minmax(0, 1fr) 90px; } .customRow > :first-child { grid-column: 1 / -1; } }

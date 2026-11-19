@@ -5,6 +5,10 @@ import styles from "./FinancialDetail.module.css";
 import type { FinancialAuditEvent } from "./types";
 
 const ACTION_LABELS: Record<string, string> = {
+  advance_expense_issued: "Expensa emitida por pago anticipado",
+  advance_payment_applied: "Operación aplicada a la deuda",
+  advance_payment_registered: "Ingreso de operación registrado",
+  advance_payment_cancelled: "Operación anticipada anulada",
   usd_adopted: "Configuración USD aplicada a expensa anterior",
   usd_revalued: "Saldo actualizado por cotización USD",
   debt_components_updated: "Capital y multa corregidos por integración",
@@ -21,6 +25,9 @@ const ACTION_LABELS: Record<string, string> = {
   debt_amount_updated: "Monto de deuda editado",
   payment_amount_updated: "Monto de ingreso editado",
   penalty_updated: "Multa editada",
+  debt_discount_applied: "Descuento aplicado",
+  debt_discount_updated: "Descuento editado",
+  debt_discount_removed: "Descuento eliminado",
   payment_state_checked: "Estado del pago verificado",
   payment_state_repaired: "Estado del pago reparado",
   payment_date_updated: "Fecha de pago editada",
@@ -28,6 +35,7 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 const FIELD_LABELS: Record<string, string> = {
+  original_amount: "Total original", discount_percent: "Porcentaje de descuento", period: "Período", debt_count: "Deudas afectadas",
   principal_amount: "Capital",
   total_amount: "Total de la deuda",
   outstanding_amount: "Saldo pendiente",
@@ -36,6 +44,11 @@ const FIELD_LABELS: Record<string, string> = {
   amount: "Monto",
   allocated_amount: "Monto aplicado",
   penalty_amount: "Multa",
+  gross_principal_amount: "Capital original",
+  discount_amount: "Descuento en Bs",
+  discount_type: "Tipo de descuento",
+  discount_value: "Valor del descuento",
+  settled_by_discount: "Saldada por descuento",
   principal_usd: "Capital (USD)",
   penalty_usd: "Multa (USD)",
   paid_at: "Fecha de pago",
@@ -82,6 +95,7 @@ const formatValue = (field: string, value: unknown) => {
   const leafField = field.split(".").at(-1) || field;
   if (value === null || value === undefined || value === "") return "Sin dato";
   if (leafField === "status") return STATUS_LABELS[String(value)] || String(value);
+  if (leafField === "discount_type") return value === "percent" ? "Porcentaje" : "Monto fijo";
   if (leafField.includes("amount")) {
     const number = Number(value);
     if (Number.isFinite(number)) {

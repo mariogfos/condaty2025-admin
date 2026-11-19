@@ -8,6 +8,8 @@ export const financialRecordsApi = {
   amount: (record: FinancialRecordReference) =>
     `${BASE}/${record.type}/${record.id}/amount`,
   penalty: (recordId: string | number) => `${BASE}/debt/${recordId}/penalty`,
+  discount: (recordId: string | number) => `${BASE}/debt/${recordId}/discount`,
+  discounts: `${BASE}/discounts`,
   verifyPaymentState: (recordId: string | number) =>
     `${BASE}/debt/${recordId}/payment-state-verification`,
   paidAt: (record: FinancialRecordReference) =>

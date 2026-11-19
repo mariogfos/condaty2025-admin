@@ -29,6 +29,7 @@ import DebtQrSection from "@/modulos/QrDinamico/DebtQrSection/DebtQrSection";
 import { Ban, PencilLine } from "lucide-react";
 import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
 import { getUsdDebtFields } from "@/features/financial-records/usdDebtFields";
+import { getDebtDiscountFields } from "@/features/financial-records/debtDiscountFields";
 import {
   FinancialDetailGrid,
   FinancialDetailMessage,
@@ -513,7 +514,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       label: finalStatus === "P" ? "Monto total" : "Saldo pendiente",
       value: formatBs(totalBalance),
     },
-    ...(debtDetail?.status === "P"
+    ...(debtDetail?.status === "P" && (debtDetail?.paid_at || resolvedPaymentId)
       ? [
           {
             id: "payment-method",
@@ -624,7 +625,7 @@ const RenderView: React.FC<RenderViewProps> = ({
             </FinancialDetailSection>
 
             <FinancialDetailSection title="Importes y estado" defaultOpen={false}>
-              <FinancialDetailGrid fields={[...debtAmountFields, ...getUsdDebtFields(workspace?.record.usd_terms)]} />
+              <FinancialDetailGrid fields={[...getDebtDiscountFields(workspace?.record), ...debtAmountFields, ...getUsdDebtFields(workspace?.record.usd_terms)]} />
             </FinancialDetailSection>
 
             <FinancialDetailSection title="Descripción" defaultOpen={false}>

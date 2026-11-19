@@ -13,6 +13,7 @@ interface PropsType extends PropsTypeInputBase {
     | "email"
     | "password"
     | "datetime-local"
+    | "month"
     | "time"
     | "number"
     | "date"

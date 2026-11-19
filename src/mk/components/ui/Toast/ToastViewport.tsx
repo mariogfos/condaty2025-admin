@@ -1,8 +1,12 @@
 "use client";
 
-import { AlertCircle, AlertTriangle, CheckCircle2, Info } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle2, Info, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { ToastItem, ToastKind } from "@/mk/hooks/useToast";
+import {
+  DEFAULT_TOAST_TIME,
+  type ToastItem,
+  type ToastKind,
+} from "@/mk/hooks/useToast";
 import styles from "./toast.module.css";
 
 const TOAST_TITLE: Record<ToastKind, string> = {
@@ -31,8 +35,9 @@ const ToastCard = ({
   onDismiss: (id: string) => void;
 }) => {
   const Icon = TOAST_ICON[toast.type || "info"];
-  const [isVisible, setIsVisible] = useState(false);
-  const hasEnteredRef = useRef(false);
+  const [hasEntered, setHasEntered] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const isVisible = hasEntered && !isClosing;
   const onDismissRef = useRef(onDismiss);
 
   useEffect(() => {
@@ -41,8 +46,7 @@ const ToastCard = ({
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      hasEnteredRef.current = true;
-      setIsVisible(true);
+      setHasEntered(true);
     });
 
     return () => {
@@ -51,19 +55,23 @@ const ToastCard = ({
   }, []);
 
   useEffect(() => {
-    if ((toast.time || 0) <= 0) return;
+    const duration =
+      typeof toast.time === "number" && Number.isFinite(toast.time) && toast.time > 0
+        ? toast.time
+        : DEFAULT_TOAST_TIME;
+    const elapsed = Math.max(0, Date.now() - toast.createdAt);
 
     const timeout = window.setTimeout(() => {
-      setIsVisible(false);
-    }, toast.time);
+      setIsClosing(true);
+    }, Math.max(0, duration - elapsed));
 
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [toast.id, toast.time]);
+  }, [toast.createdAt, toast.time]);
 
   useEffect(() => {
-    if (!hasEnteredRef.current || isVisible) return;
+    if (!isClosing) return;
 
     const timeout = window.setTimeout(() => {
       onDismissRef.current(toast.id);
@@ -72,7 +80,7 @@ const ToastCard = ({
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [isVisible, toast.id]);
+  }, [isClosing, toast.id]);
 
   return (
     <div
@@ -82,14 +90,26 @@ const ToastCard = ({
         opacity: isVisible ? `${1 - depth * 0.12}` : "0",
         zIndex: 12000 - depth,
       }}
-      role="status"
-      aria-live="polite"
-      aria-label={TOAST_TITLE[toast.type || "info"]}
     >
       <div className={styles.toastIcon}>
-        <Icon size={18} strokeWidth={2.1} />
+        <Icon size={18} strokeWidth={2.1} aria-hidden="true" />
       </div>
-      <div className={styles.toastMessage}>{toast.msg}</div>
+      <div
+        className={styles.toastMessage}
+        role="status"
+        aria-label={TOAST_TITLE[toast.type || "info"]}
+      >
+        {toast.msg}
+      </div>
+      <button
+        type="button"
+        className={styles.toastClose}
+        aria-label="Cerrar notificación"
+        disabled={!isVisible}
+        onClick={() => onDismiss(toast.id)}
+      >
+        <X size={18} aria-hidden="true" />
+      </button>
     </div>
   );
 };

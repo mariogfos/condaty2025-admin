@@ -1,0 +1,63 @@
+.toolbar {
+  flex-wrap: wrap;
+}
+
+.feedback {
+  padding: 12px 0;
+  color: var(--cWhiteV2);
+}
+
+.feedback > p {
+  margin: 0 0 10px;
+}
+
+.detail,
+.form {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.detail h3,
+.detail p,
+.note,
+.error {
+  margin: 0;
+}
+
+.note {
+  color: var(--cWhiteV2);
+  line-height: 1.45;
+}
+
+.error {
+  color: var(--cStatusDanger);
+}
+
+.balances {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.balances > div {
+  padding: 12px;
+  border: 1px solid var(--cBorder);
+  border-radius: var(--controlRadius);
+}
+
+.balances dt {
+  color: var(--cWhiteV2);
+}
+
+.balances dd {
+  margin: 4px 0 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.historyTable {
+  height: min(34dvh, 340px);
+  min-width: 0;
+}
