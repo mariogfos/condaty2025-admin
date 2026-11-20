@@ -602,6 +602,7 @@ export const FinancialRecordActions = ({
             name="financial-penalty-amount"
             label="Monto en bolivianos"
             type="number"
+            step="0.01"
             min={Number(penaltyLimits?.minimum_amount ?? 0)}
             value={penaltyAmount}
             disabled={submitting}
