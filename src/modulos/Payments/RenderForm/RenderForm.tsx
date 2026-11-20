@@ -865,9 +865,16 @@ const RenderForm: React.FC<RenderFormProps> = ({
       return;
     }
 
+    const selectedDpto = findSelectedDpto(formState.dpto_id || "");
+    if (!selectedDpto?.id) {
+      const message = "Selecciona una unidad válida del condominio activo.";
+      setErrors(prev => ({ ...prev, dpto_id: message }));
+      setStep(1);
+      showToast(message, "warning");
+      return;
+    }
     let owner_id = formState.owner_id;
     if (!owner_id) {
-      const selectedDpto = findSelectedDpto(formState.dpto_id || "");
       const titular = getTitular(selectedDpto);
       owner_id = titular?.id;
     }
@@ -935,7 +942,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       method: formState.method,
       url_file: formState.url_file,
       obs: formState.obs,
-      nro_id: formState.dpto_id,
+      nro_id: selectedDpto.id,
       owner_id: owner_id,
       type: formState.type,
       bank_account_id: bank_account_id,
@@ -1008,6 +1015,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     finishCreate,
     deudas,
     showCategoryFields,
+    findSelectedDpto,
   ]);
 
   const onCloseModal = useCallback(() => {
