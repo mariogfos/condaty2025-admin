@@ -24,6 +24,7 @@ interface PropsType extends PropsTypeInputBase {
     | "currency";
   min?: any;
   max?: any;
+  step?: number | string;
   prefix?: string;
   suffix?: string;
   autoComplete?: string;
@@ -51,6 +52,7 @@ const Input = (props: PropsType) => {
     suffix,
     min,
     max,
+    step,
     autoComplete,
   } = props;
   const [displayValue, setDisplayValue] = useState("");
@@ -363,6 +365,7 @@ const Input = (props: PropsType) => {
         maxLength={maxLength || (type === "currency" ? 50 : 255)}
         min={min}
         max={max}
+        step={step}
       />
       {type === "date" && (
         <IconCalendarTwo className={styles.iconCalendar} size={18} />
