@@ -130,7 +130,7 @@ describe("Confirmación desde el formulario de ingresos", () => {
     fireEvent.click(screen.getByRole("button", { name: "Registrar ingreso" }));
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
     expect(execute.mock.calls.find(call => call[1] === "POST")?.slice(0, 3)).toMatchObject([
-      "/payments", "POST", { type: "I", nro_id: "U-01", amount: 125, subcategory_id: "20" },
+      "/payments", "POST", { type: "I", nro_id: 1, amount: 125, subcategory_id: "20" },
     ]);
     expect(execute.mock.calls.some(call => call[0] === "/advance-payments")).toBe(false);
   });
