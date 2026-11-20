@@ -44,6 +44,35 @@ describe("Edición de multa", () => {
     expect(screen.getByText(/confirmados o por confirmar ya aplicados/)).toBeVisible();
   });
 
+  it.each([
+    { minimum: 0, value: "52.50" },
+    { minimum: 35.23, value: "52.50" },
+    { minimum: 35.23, value: "35.23" },
+  ])("acepta centavos con mínimo $minimum y monto $value en la validación del navegador", async ({ minimum, value }) => {
+    mocks.execute.mockResolvedValue({ data: { success: true } });
+    const { amount, save, onChanged } = openEditor({
+      penalty_edit: { minimum_amount: minimum, applied_payments_amount: 100 + minimum, blocked_reason: null },
+    });
+    fireEvent.change(amount, { target: { value } });
+    expect(amount).toBeValid();
+    expect((amount as HTMLInputElement).validity.stepMismatch).toBe(false);
+    fireEvent.click(save);
+    await waitFor(() => expect(onChanged).toHaveBeenCalledOnce());
+    expect(mocks.execute).toHaveBeenCalledExactlyOnceWith("/financial-records/debt/42/penalty", "PUT",
+      { amount: Number(value), reason: "Corrección autorizada" }, false, true);
+  });
+
+  it("conserva el mínimo con centavos y evita enviar un monto inferior", () => {
+    const { amount, save } = openEditor({
+      penalty_edit: { minimum_amount: 35.23, applied_payments_amount: 145.23, blocked_reason: null },
+    });
+    fireEvent.change(amount, { target: { value: "35.22" } });
+    expect((amount as HTMLInputElement).validity.rangeUnderflow).toBe(true);
+    fireEvent.click(save);
+    expect(screen.getByRole("alert")).toHaveTextContent("La multa no puede ser menor a Bs 35.23");
+    expect(mocks.execute).not.toHaveBeenCalled();
+  });
+
   it("no convierte un campo vacío en una orden de retirar la multa", () => {
     const { amount, save } = openEditor();
     fireEvent.change(amount, { target: { value: "" } });

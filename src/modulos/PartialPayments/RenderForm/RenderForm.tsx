@@ -327,9 +327,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
     (dptoKey: string | number) =>
       extraData?.dptos?.find(
         (dpto) =>
-          String(dpto.nro) === String(dptoKey) ||
-          String(dpto.id) === String(dptoKey)
-      ),
+          String(dpto.nro) === String(dptoKey)
+      ) ?? extraData?.dptos?.find((dpto) => String(dpto.id) === String(dptoKey)),
     [extraData?.dptos]
   );
 
@@ -815,9 +814,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
       return;
     }
 
+    const selectedDpto = findSelectedDpto(formState.dpto_id || "");
+    if (!selectedDpto?.id) {
+      const message = "Selecciona una unidad válida del condominio activo.";
+      setErrors(prev => ({ ...prev, dpto_id: message }));
+      showToast(message, "warning");
+      return;
+    }
     let owner_id = formState.owner_id;
     if (!owner_id) {
-      const selectedDpto = findSelectedDpto(formState.dpto_id || "");
       const titular = getTitular(selectedDpto);
       owner_id = titular?.id;
     }
@@ -897,7 +902,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       endpoint = paymentsApi.partial;
     } else if (!isDebtBasedPayment) {
       endpoint = "/payments";
-      params.nro_id = formState.dpto_id;
+      params.nro_id = selectedDpto.id;
       params.owner_id = owner_id;
       if (showCategoryFields) {
         params.subcategory_id = formState.subcategory_id;
@@ -949,6 +954,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     finishCreate,
     deudas,
     showCategoryFields,
+    findSelectedDpto,
   ]);
 
   const onCloseModal = useCallback(() => {
