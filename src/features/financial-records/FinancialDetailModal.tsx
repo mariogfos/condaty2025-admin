@@ -94,6 +94,7 @@ export const FinancialDetailModal = ({
         ...record,
         ...workspace?.record,
         amount: workspace?.record.gross_principal_amount ?? workspace?.record.amount ?? record.amount,
+        penaltyAmount: workspace?.record.penalty_amount ?? record.penaltyAmount,
       }
     : undefined;
 
