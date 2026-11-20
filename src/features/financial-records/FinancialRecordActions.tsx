@@ -27,7 +27,9 @@ import Button from "@/mk/components/forms/Button/Button";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import { formatBs } from "@/mk/utils/numbers";
 import { financialRecordsApi } from "./api";
+import { penaltyEditError } from "./penaltyEdit";
 import { discountTypes } from "./debtDiscountFields";
 import styles from "./FinancialDetail.module.css";
 import type {
@@ -35,6 +37,7 @@ import type {
   DebtDiscountType,
   FinancialMenuAction,
   FinancialRecordReference,
+  PenaltyEditLimits,
 } from "./types";
 
 type VerificationResult = {
@@ -55,6 +58,8 @@ type Props = {
   onChanged?: () => void | Promise<void>;
   previewMode?: boolean;
 };
+
+const PENALTY_UNCONFIRMED = "No se pudo confirmar la corrección. Vuelve a abrir el detalle para comprobar el estado de la multa antes de intentarlo otra vez.";
 
 const extractError = (data: any, error: any, fallback: string) => {
   const validationErrors = error?.data?.errors;
@@ -107,12 +112,17 @@ export const FinancialRecordActions = ({
   const [verificationOpen, setVerificationOpen] = useState(false);
   const [recordAmount, setRecordAmount] = useState("");
   const [penaltyAmount, setPenaltyAmount] = useState("");
+  const [penaltyLimits, setPenaltyLimits] = useState<PenaltyEditLimits | undefined>(record.penalty_edit);
   const [paidAt, setPaidAt] = useState("");
   const [reason, setReason] = useState("");
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [verification, setVerification] = useState<VerificationResult | null>(null);
   const [verificationLoading, setVerificationLoading] = useState(false);
+
+  useEffect(() => {
+    setPenaltyLimits(record.penalty_edit);
+  }, [record.id, record.type, record.penalty_edit]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -202,11 +212,13 @@ export const FinancialRecordActions = ({
   };
 
   const savePenalty = async () => {
-    const amount = Number(penaltyAmount.replace(",", "."));
-    if (!Number.isFinite(amount) || amount < 0) {
-      setFormError("Ingresa un monto válido mayor o igual a Bs 0,00.");
+    if (submitting) return;
+    const validation = penaltyEditError(penaltyAmount, penaltyLimits);
+    if (validation) {
+      setFormError(validation);
       return;
     }
+    const amount = Math.round(Number(penaltyAmount.replace(",", ".")) * 100) / 100;
     if (reason.trim().length < 3) {
       setFormError("Indica el motivo de esta corrección.");
       return;
@@ -220,22 +232,43 @@ export const FinancialRecordActions = ({
 
     setSubmitting(true);
     setFormError("");
-    const { data, error } = await execute(
-      financialRecordsApi.penalty(record.id),
-      "PUT",
-      { amount: Math.round(amount * 100) / 100, reason: reason.trim() },
-      false,
-      true,
-    );
+    try {
+      const { data, error } = await execute(
+        financialRecordsApi.penalty(record.id),
+        "PUT",
+        { amount, reason: reason.trim() },
+        false,
+        true,
+      );
 
-    if (data?.success) {
-      showToast(data.message || "Multa actualizada", "success");
-      setPenaltyOpen(false);
-      await notifyChanged();
-    } else {
-      setFormError(extractError(data, error, "No se pudo editar la multa."));
+      if (data?.success) {
+        showToast(data.message || "Multa actualizada", "success");
+        setPenaltyOpen(false);
+        await notifyChanged();
+      } else {
+        let message = extractError(data, error, "No se pudo editar la multa.");
+        if (error?.status === 0 || error?.status === 422) {
+          // Read the current limits after a rejection or an unreadable response.
+          // A correction is never retried automatically.
+          const latest = await execute(financialRecordsApi.workspace(record), "GET", {}, false, true);
+          if (latest.data?.success
+            && latest.data.data?.record?.type === record.type
+            && String(latest.data.data?.record?.id) === String(record.id)) {
+            const limits = latest.data.data.record.penalty_edit as PenaltyEditLimits | undefined;
+            setPenaltyLimits(limits);
+            message = penaltyEditError(penaltyAmount, limits) || message;
+          }
+          if (error?.status === 0 && message === error?.message) {
+            message = PENALTY_UNCONFIRMED;
+          }
+        }
+        setFormError(message);
+      }
+    } catch {
+      setFormError(PENALTY_UNCONFIRMED);
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   const saveDiscount = async () => {
@@ -569,16 +602,28 @@ export const FinancialRecordActions = ({
             name="financial-penalty-amount"
             label="Monto en bolivianos"
             type="number"
-            min={0}
+            min={Number(penaltyLimits?.minimum_amount ?? 0)}
             value={penaltyAmount}
-            onChange={(event: any) => setPenaltyAmount(event.target.value)}
+            disabled={submitting}
+            onChange={(event: any) => {
+              setPenaltyAmount(event.target.value);
+              setFormError("");
+            }}
           />
+          <p className={styles.actionDescription}>
+            {penaltyLimits ? <>
+              Mínimo permitido: <strong>{formatBs(penaltyLimits.minimum_amount)}</strong>.
+              {Number(penaltyLimits.applied_payments_amount) > 0
+                ? " Este límite conserva los ingresos confirmados o por confirmar ya aplicados."
+                : " Para quitar la multa, escribe 0."}
+            </> : "Para quitar la multa, escribe 0. Se conservarán los ingresos ya registrados."}
+          </p>
           <ReasonField
             id="financial-penalty-reason"
             value={reason}
             onChange={setReason}
           />
-          <FormError message={formError} />
+          <FormError message={formError || penaltyEditError(penaltyAmount, penaltyLimits)} />
         </div>
       </ActionDialog>
 

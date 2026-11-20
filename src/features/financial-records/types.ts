@@ -3,6 +3,12 @@ import type { ReactNode } from "react";
 export type FinancialRecordType = "debt" | "payment" | "expense";
 export type DebtDiscountType = "percent" | "fixed";
 
+export type PenaltyEditLimits = {
+  minimum_amount: number | string;
+  applied_payments_amount: number | string;
+  blocked_reason: string | null;
+};
+
 export type DebtDiscountFields = {
   gross_principal_amount?: number;
   discount_type?: DebtDiscountType | null;
@@ -17,6 +23,7 @@ export type FinancialRecordReference = {
   id: string | number;
   amount?: number | string | null;
   penaltyAmount?: number | string | null;
+  penalty_edit?: PenaltyEditLimits;
   paidAt?: string | null;
 } & DebtDiscountFields;
 
@@ -52,6 +59,8 @@ export type FinancialWorkspace = {
     type: FinancialRecordType;
     id: string;
     amount?: number | string | null;
+    penalty_amount?: number | string | null;
+    penalty_edit?: PenaltyEditLimits;
     usd_terms?: { principal: UsdComponent; penalty: UsdComponent; quote_error?: string } | null;
   } & DebtDiscountFields;
   capabilities: FinancialCapabilities;
