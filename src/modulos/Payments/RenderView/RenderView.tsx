@@ -22,7 +22,7 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { formatBs } from "@/mk/utils/numbers";
 import Input from "@/mk/components/forms/Input/Input";
 import { hasMaintenanceValue } from "@/mk/utils/utils";
-import Table from "@/mk/components/ui/Table/Table";
+import DetailTable, { type DetailTableColumn } from "@/mk/components/ui/DetailTable/DetailTable";
 import { generateWhatsAppLink } from "@/mk/utils/phone";
 import { paymentsApi } from "../api";
 import PaymentQrSection from "@/modulos/QrDinamico/PaymentQrSection/PaymentQrSection";
@@ -518,36 +518,28 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     ? item.details.filter((detail: any) => detail?.debt_dpto)
     : [];
   const showMaintenanceColumn = hasMaintenanceValue(user);
-  const paymentDetailsTableHeight = `${Math.min(
-    Math.max(paymentDetails.length || 1, 1),
-    4,
-  ) * 56}`;
-  const paymentDetailsHeader = [
+  const paymentDetailsHeader: DetailTableColumn<any>[] = [
     {
       key: "type",
       label: "Tipo",
-      width: "160px",
       onRender: ({ item: detail }: any) => getDebtType(detail?.debt_dpto?.type),
     },
     {
       key: "concept",
       label: "Concepto",
-      width: "100%",
       onRender: ({ item: detail }: any) => getConceptByType(detail),
     },
     {
       key: "amount",
       label: "Monto",
-      width: "124px",
-      className: styles.amountColumn,
+      align: "end",
       onRender: ({ item: detail }: any) =>
         formatBs(getDetailAmount(detail, "amount")),
     },
     {
       key: "penalty_amount",
       label: "Multa",
-      width: "124px",
-      className: styles.amountColumn,
+      align: "end",
       onRender: ({ item: detail }: any) =>
         formatBs(getDetailAmount(detail, "penalty_amount")),
     },
@@ -556,8 +548,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
           {
             key: "maintenance_amount",
             label: "Mant. Valor",
-            width: "140px",
-            className: styles.amountColumn,
+            align: "end" as const,
             onRender: ({ item: detail }: any) =>
               formatBs(getDetailAmount(detail, "maintenance_amount")),
           },
@@ -566,8 +557,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     {
       key: "subtotal",
       label: "Subtotal",
-      width: "132px",
-      className: styles.amountColumn,
+      align: "end",
       onRender: ({ item: detail }: any) => formatBs(getSubtotal(detail)),
     },
   ];
@@ -903,11 +893,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         {paymentDetails.length > 0 && (
           <FinancialDetailSection title="Detalles del pago" defaultOpen={false}>
             <div className={styles.periodsTableWrapper}>
-              <Table
-                className="striped"
-                height={paymentDetailsTableHeight}
+              <DetailTable
+                label="Desglose del ingreso"
                 data={paymentDetails}
-                header={paymentDetailsHeader as any}
+                columns={paymentDetailsHeader}
               />
             </div>
           </FinancialDetailSection>

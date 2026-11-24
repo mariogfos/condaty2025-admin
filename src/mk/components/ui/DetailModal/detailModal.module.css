@@ -177,16 +177,28 @@
   display: flex;
   flex: 0 0 auto;
   gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   padding-top: 12px;
   border-top: 1px solid var(--cModalDivider);
 }
 
-.footer > button {
-  width: 100%;
+.footer > button,
+.footer > div > button {
+  width: max-content;
+  max-width: 100%;
+  min-width: 0;
+  flex: 0 1 auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .footer > :not(button) {
-  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: 100%;
   min-width: 0;
 }
 

@@ -1,0 +1,139 @@
+.frame {
+  container-type: inline-size;
+  width: 100%;
+  min-width: 0;
+}
+
+.scroller {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--cModalBorder);
+  border-radius: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cModalBorder) transparent;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--cWhite);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+
+.table th {
+  background: var(--cModalSurfaceRaised);
+  color: var(--cWhite);
+  font-weight: 650;
+  border-bottom: 1px solid var(--cModalDivider);
+}
+
+.table td {
+  border-bottom: 1px solid var(--cModalDivider);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.start { text-align: left; }
+.center { text-align: center; }
+.end {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.cellContent {
+  min-width: 0;
+}
+
+.cellContent > * {
+  max-width: 100%;
+}
+
+.mobileLabel {
+  display: none;
+}
+
+.clickableRow {
+  cursor: pointer;
+}
+
+.clickableRow:hover,
+.clickableRow:focus-visible {
+  background: var(--cModalSurfaceRaised);
+}
+
+.clickableRow:focus-visible {
+  outline: 2px solid var(--cAccent);
+  outline-offset: -2px;
+}
+
+.table .empty {
+  padding: 20px 12px;
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+@container (max-width: 540px) {
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .table,
+  .table tbody {
+    display: block;
+  }
+
+  .table tbody tr {
+    display: grid;
+    padding: 10px 12px;
+    gap: 10px;
+    border-bottom: 1px solid var(--cModalDivider);
+  }
+
+  .table tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .table td {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: 12px;
+    align-items: start;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+    text-align: right;
+  }
+
+  .mobileLabel {
+    display: block;
+    text-align: left;
+    color: var(--cWhiteV1);
+    font-size: 12px;
+  }
+
+  .cellContent {
+    justify-self: end;
+  }
+
+  .table .empty {
+    display: block;
+    padding: 8px 0;
+  }
+}
