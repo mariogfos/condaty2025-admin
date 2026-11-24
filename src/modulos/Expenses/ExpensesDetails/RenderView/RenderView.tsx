@@ -6,7 +6,7 @@ import { getDateStrMes, MONTHS_S } from "@/mk/utils/date";
 import PaymentRenderView from "@/modulos/Payments/RenderView/RenderView";
 import { formatBs } from "@/mk/utils/numbers";
 import { getTitular } from "@/mk/utils/adapters";
-import Table from "@/mk/components/ui/Table/Table";
+import DetailTable, { type DetailTableColumn } from "@/mk/components/ui/DetailTable/DetailTable";
 import { paymentsApi } from "@/modulos/Payments/api";
 import Button from "@/mk/components/forms/Button/Button";
 import { FinancialDetailModal } from "@/features/financial-records/FinancialDetailModal";
@@ -105,9 +105,6 @@ const RenderView = (props: {
   const pendingPeriods = Array.isArray(item?.pendingPeriods)
     ? item.pendingPeriods
     : [];
-  const pendingPeriodsTableHeight = `${
-    Math.min(Math.max(pendingPeriods.length || 1, 1), 4) * 56
-  }`;
   const status = getStatus(item);
   const debtAmount = Number(item?.amount || 0);
   const maintenanceAmount = Number(item?.maintenance_amount || 0);
@@ -159,33 +156,29 @@ const RenderView = (props: {
     { id: "total", label: "Monto total", value: formatBs(totalAmount) },
   ];
 
-  const pendingPeriodsHeader = [
+  const pendingPeriodsHeader: DetailTableColumn<any>[] = [
     {
       key: "period",
       label: "Periodo",
-      width: "100%",
       onRender: ({ item: pending }: any) =>
         `${MONTHS_S[pending.month]}/${pending.year}`,
     },
     {
       key: "amount",
       label: "Monto",
-      width: "124px",
-      className: styles.amountColumn,
+      align: "end",
       onRender: ({ item: pending }: any) => formatBs(pending.amount),
     },
     {
       key: "penalty",
       label: "Multa",
-      width: "124px",
-      className: styles.amountColumn,
+      align: "end",
       onRender: ({ item: pending }: any) => formatBs(pending.penalty || 0),
     },
     {
       key: "subtotal",
       label: "Subtotal",
-      width: "132px",
-      className: styles.amountColumn,
+      align: "end",
       onRender: ({ item: pending }: any) =>
         formatBs(Number(pending.amount || 0) + Number(pending.penalty || 0)),
     },
@@ -232,12 +225,10 @@ const RenderView = (props: {
             {pendingPeriods.length > 0 && (
               <FinancialDetailSection title="Periodos por pagar" defaultOpen={false}>
                 <div className={styles.tableWrapper}>
-                  <Table
-                    className="striped"
-                    style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
-                    height={pendingPeriodsTableHeight}
+                  <DetailTable
+                    label="Periodos por pagar"
                     data={pendingPeriods}
-                    header={pendingPeriodsHeader as any}
+                    columns={pendingPeriodsHeader}
                   />
                   <div className={styles.tableFooter}>
                     <div className={styles.tableFooterLabels}>

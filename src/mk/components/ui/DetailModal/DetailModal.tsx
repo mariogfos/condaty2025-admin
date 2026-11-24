@@ -137,7 +137,7 @@ const DetailModal = ({
                 variant="primary"
                 disabled={disabled}
                 onClick={() => onSave("save")}
-                style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+                style={{ minHeight: 44, fontSize: 15, fontWeight: 600 }}
               >
                 {buttonText}
               </Button>
@@ -146,7 +146,7 @@ const DetailModal = ({
               <Button
                 variant="secondary"
                 onClick={() => _close("cancel")}
-                style={{ height: 44, fontSize: 15, fontWeight: 600 }}
+                style={{ minHeight: 44, fontSize: 15, fontWeight: 600 }}
               >
                 {buttonCancel}
               </Button>
