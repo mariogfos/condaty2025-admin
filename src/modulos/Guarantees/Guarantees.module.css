@@ -58,6 +58,5 @@
 }
 
 .historyTable {
-  height: min(34dvh, 340px);
   min-width: 0;
 }
