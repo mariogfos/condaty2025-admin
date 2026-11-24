@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Table from "@/mk/components/ui/Table/Table";
+import DetailTable, { type DetailTableColumn } from "@/mk/components/ui/DetailTable/DetailTable";
 import { formatBs } from "@/mk/utils/numbers";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Button from "@/mk/components/forms/Button/Button";
-import { IconGallery } from "@/components/layout/icons/IconsBiblioteca";
 import RenderViewPayment from "@/modulos/Payments/RenderView/RenderView";
 import { getPaymentStatusConfig } from "@/types/payment";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
@@ -100,8 +99,6 @@ const RenderView = ({
     ? apiRemaining
     : Math.max(totalAmount - totalPaid, 0);
   const historyRows = Array.isArray(item?.history) ? item.history : [];
-  const historyVisibleRows = Math.min(Math.max(historyRows.length || 1, 1), 4);
-  const historyTableHeight = `${historyVisibleRows * 56}`;
 
   const downloadAllVouchers = (files: any) => {
     let urls: string[] = [];
@@ -145,60 +142,44 @@ const RenderView = ({
     setLoadingExport(false);
   };
 
-  const header = [
+  const header: DetailTableColumn<any>[] = [
     {
       key: "paid_by",
       label: "Pagado por",
-      responsive: "onlyDesktop",
-      onRender: ({ item: payment }: any) =>
-        getFullName(payment?.user) || getFullName(payment?.owner),
-    },
-    {
-      key: "paid_at",
-      label: "Fecha de pago",
-      responsive: "onlyDesktop",
-      onRender: ({ item: payment }: any) => getDateStrMes(payment?.paid_at),
+      onRender: ({ item: payment }) => (
+        <div className={styles.payerCell}>
+          <span>{getFullName(payment?.user) || getFullName(payment?.owner) || "—"}</span>
+          <span className={styles.payerDate}>{getDateStrMes(payment?.paid_at)}</span>
+        </div>
+      ),
     },
     {
       key: "receipt",
       label: "Comprobante",
-      responsive: "onlyDesktop",
-      onRender: ({ item: payment }: any) =>
-        payment?.files?.length > 0 ? (
-          <div className={styles.receiptCell}>
-            <div className={styles.receiptIcon}>
-              <IconGallery color="var(--cWhite)" />
-            </div>
-            <div>
-              <p className={styles.receiptCode}>{payment?.code}</p>
-              <button
-                type="button"
-                className={styles.receiptLink}
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  downloadAllVouchers(payment.files);
-                }}
-              >
-                Ver imagen
-              </button>
-            </div>
-          </div>
-        ) : (
-          <p className={styles.emptyValue}>-/-</p>
-        ),
+      onRender: ({ item: payment }) => (
+        <div className={styles.receiptCell}>
+          <span className={styles.receiptCode}>{payment?.code || "—"}</span>
+          {payment?.files?.length > 0 ? (
+            <button
+              type="button"
+              className={styles.receiptLink}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                downloadAllVouchers(payment.files);
+              }}
+            >
+              Ver comprobante
+            </button>
+          ) : <span className={styles.payerDate}>Sin adjuntos</span>}
+        </div>
+      ),
     },
     {
       key: "status",
       label: "Estado",
-      width: "180px",
-      style: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      },
-      responsive: "onlyDesktop",
-      onRender: ({ item: payment }: any) => {
+      align: "center",
+      onRender: ({ item: payment }) => {
         const info = getPaymentStatusConfig(payment?.status);
         return (
           <StatusBadge
@@ -212,11 +193,9 @@ const RenderView = ({
     },
     {
       key: "amount",
-      width: "120px",
-      label: "Subtotal",
-      className: styles.amountColumn,
-      responsive: "onlyDesktop",
-      onRender: ({ item: payment }: any) => formatBs(payment?.amount),
+      label: "Monto",
+      align: "end",
+      onRender: ({ item: payment }) => formatBs(payment?.amount),
     },
   ];
 
@@ -279,14 +258,12 @@ const RenderView = ({
         disabled={loadingExport}
         onClick={() => void getExport()}
         variant="secondary"
-        className={styles.growButton}
       >
         {loadingExport ? "Generando…" : "Ver recibo"}
       </Button>
       {item?.status === "I" && (
         <Button
           onClick={() => setOpenFormAccount(true)}
-          className={styles.growButton}
         >
           Registrar pago a cuenta
         </Button>
@@ -337,18 +314,15 @@ const RenderView = ({
               defaultOpen={false}
             >
               <div className={styles.tableWrapper}>
-                <Table
-                  style={{
-                    borderBottomLeftRadius: 0,
-                    borderBottomRightRadius: 0,
-                  }}
-                  className="striped"
-                  height={historyTableHeight}
+                <DetailTable
+                  label="Pagos aplicados a la deuda"
+                  rowKey={(payment: any) => payment.payment_id ?? payment.id}
+                  rowLabel={(payment: any) => `Ver pago ${payment.code || ""}`.trim()}
                   onRowClick={(payment: any) => {
                     setOpenDetail({ open: true, item: payment });
                   }}
                   data={historyRows}
-                  header={header}
+                  columns={header}
                 />
                 <div className={styles.tableFooter}>
                   <div className={styles.tableFooterLabels}>

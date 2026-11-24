@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Button from "@/mk/components/forms/Button/Button";
 import DetailModal from "@/mk/components/ui/DetailModal/DetailModal";
-import Table from "@/mk/components/ui/Table/Table";
+import DetailTable, { type DetailTableColumn } from "@/mk/components/ui/DetailTable/DetailTable";
 import useAxios from "@/mk/hooks/useAxios";
 import { formatCents, guaranteePath, type Guarantee, type Movement, type MovementPage } from "./guaranteeData";
 import styles from "./Guarantees.module.css";
@@ -12,15 +12,15 @@ const movementLabels = { deposit: "Depósito registrado", refund: "Devolución",
 const movementDate = new Intl.DateTimeFormat("es-BO", {
   dateStyle: "short", timeStyle: "short", timeZone: "America/La_Paz",
 });
-const columns = [
-  { key: "kind", label: "Movimiento", responsive: "Movimiento", width: "155px",
+const columns: DetailTableColumn<Movement>[] = [
+  { key: "kind", label: "Movimiento",
     onRender: ({ item }: { item: Movement }) => movementLabels[item.kind] },
-  { key: "reference", label: "Referencia", responsive: "Referencia", width: "100%" },
-  { key: "registered_by", label: "Responsable", responsive: "Responsable", width: "160px",
+  { key: "reference", label: "Referencia" },
+  { key: "registered_by", label: "Responsable",
     onRender: ({ item }: { item: Movement }) => item.registered_by || (item.kind === "payment" ? "Sistema" : "Admin") },
-  { key: "created_at", label: "Fecha", responsive: "Fecha", width: "150px",
+  { key: "created_at", label: "Fecha",
     onRender: ({ item }: { item: Movement }) => item.created_at ? movementDate.format(new Date(item.created_at)) : "—" },
-  { key: "amount_cents", label: "Importe", responsive: "Importe", width: "125px",
+  { key: "amount_cents", label: "Importe", align: "end",
     onRender: ({ item }: { item: Movement }) => formatCents(item.kind === "refund" ? -item.amount_cents : item.amount_cents) },
 ];
 
@@ -70,7 +70,7 @@ export default function GuaranteeDetail({ row, onClose, onRefund }: {
           <Button variant="secondary" onClick={() => reLoad(null, true)}>Reintentar</Button>
         </div> : <p role="status">Cargando movimientos…</p>)}
         {initial && (movements.length ? <div className={styles.historyTable}>
-          <Table id="reservation-guarantee-movements" className="striped" data={movements} header={columns} height="100%" />
+          <DetailTable label="Historial de movimientos de la garantía" data={movements} columns={columns} />
         </div> : <p>Esta garantía aún no tiene movimientos.</p>)}
         {moreError && <p role="alert">No se pudo cargar la siguiente página.</p>}
         {nextId && <Button variant="secondary" onClick={loadMore} disabled={loadingMore}>
