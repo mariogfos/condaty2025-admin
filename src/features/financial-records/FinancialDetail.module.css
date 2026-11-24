@@ -452,6 +452,8 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--spM);
+  flex-wrap: wrap;
+  flex-shrink: 0;
   padding: 14px 24px 20px;
   background: var(--cModalSurface);
   border-top: 1px solid var(--cModalDivider);
@@ -461,28 +463,27 @@
   width: auto;
   display: flex;
   flex-direction: row !important;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap !important;
   justify-content: flex-end;
   gap: var(--spM);
   max-width: 100%;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.footer > div::-webkit-scrollbar {
-  display: none;
+  min-width: 0;
 }
 
 .footer > button,
 .footer > div > button {
-  width: auto;
-  min-width: 132px;
-  flex: 1 0 132px;
+  width: max-content;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  height: auto;
+  flex: 0 1 auto;
   padding-right: 16px;
   padding-left: 16px;
   border-radius: var(--bRadiusS);
   font-size: 14px;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .actions {
@@ -1066,16 +1067,6 @@
     padding: 12px 18px;
   }
 
-  .footer > div {
-    width: 100%;
-  }
-
-  .footer button {
-    flex: 1 1 0;
-    min-width: 0;
-    font-size: 13px;
-  }
-
   .actionDialog {
     width: calc(100vw - 24px);
   }
@@ -1132,10 +1123,6 @@
   .footer,
   .footer > div {
     flex-direction: row;
-  }
-
-  .footer button {
-    width: auto;
   }
 
   .actionFooter {

@@ -230,9 +230,7 @@
 
 .periodsTableWrapper {
   width: 100%;
-  border: 1px solid var(--cModalBorder);
-  border-radius: var(--bRadiusM);
-  overflow: hidden;
+  min-width: 0;
 }
 
 .periodsTable {
@@ -488,10 +486,6 @@
 
   .periodsDetailsTitle {
     font-size: var(--sM);
-  }
-
-  .periodsTableWrapper {
-    border-radius: var(--bRadiusS);
   }
 
   .periodsTableHeader {

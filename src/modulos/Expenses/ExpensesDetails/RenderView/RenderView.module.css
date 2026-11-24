@@ -131,16 +131,11 @@
 }
 
 .tableFooter {
-  padding: 16px;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-  border: 1px solid var(--cModalBorder);
-  border-top: none;
+  padding: 14px 0 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 28px;
-  background-color: var(--cModalSection);
 }
 
 .tableFooterLabels {

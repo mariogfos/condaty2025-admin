@@ -6,12 +6,9 @@
 
 .actionsRow {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 16px;
-  width: 100%;
-}
-
-.growButton {
-  flex: 1;
 }
 
 .card {
@@ -70,19 +67,20 @@
 }
 
 .receiptCell {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  min-width: 0;
 }
 
-.receiptIcon {
-  background-color: var(--cModalSurfaceRaised);
-  border: 1px solid var(--cModalBorder);
-  padding: 8px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.payerCell {
+  display: grid;
+  gap: 4px;
+}
+
+.payerDate {
+  color: var(--cWhiteV1);
+  font-size: 12px;
 }
 
 .receiptCode {
@@ -93,6 +91,10 @@
   color: var(--cAccent);
   font-size: 12px;
   cursor: pointer;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: inherit;
 }
 
 .receiptLink:hover {
@@ -115,16 +117,11 @@
 }
 
 .tableFooter {
-  padding: 16px;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-  border: 1px solid var(--cModalBorder);
-  border-top: none;
+  padding: 14px 0 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 28px;
-  background-color: var(--cModalSection);
 }
 
 .tableFooterLabels {
@@ -154,10 +151,6 @@
 }
 
 @media (max-width: 900px) {
-  .actionsRow {
-    flex-direction: column;
-  }
-
   .infoGrid,
   .metaGrid {
     grid-template-columns: 1fr;
